@@ -1,0 +1,33 @@
+{
+  "name": "@org/lib_backend_surreal-om",
+  "version": "0.1.0",
+  "module": "index.ts",
+  "type": "module",
+  "bin": {
+    "surreal-om": "./bin/surreal-om.ts"
+  },
+  "exports": {
+    ".": "./index.ts",
+    "./parser": "./src/parser/index.ts",
+    "./generators": "./src/generators/index.ts",
+    "./query": "./src/query/index.ts",
+    "./client": "./src/client/index.ts",
+    "./cli": "./src/cli/index.ts",
+    "./utils": "./src/utils/index.ts",
+    "./types": "./src/types/index.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "surrealdb": "2.0.0-alpha.14",
+    "ts-toolbelt": "^9.6.0"
+  },
+  "scripts": {
+    "test": "bun test",
+    "generate": "bun run bin/surreal-om.ts generate"
+  }
+}
