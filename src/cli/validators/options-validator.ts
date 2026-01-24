@@ -39,7 +39,7 @@ export function validateOptions(options: CLIOptions): OptionsValidationResult {
   }
 
   return {
-    valid: errors.length === 0,
+    valid: !errors.length,
     errors,
   };
 }

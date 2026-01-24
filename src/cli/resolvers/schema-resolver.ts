@@ -3,14 +3,13 @@
  */
 
 import { Glob } from 'bun';
+import { resolve } from 'node:path';
+import { lstatSync } from 'node:fs';
 
 /** Default schema search paths */
 const DEFAULT_SEARCH_PATHS = [
   'schemas',
   'schema',
-  'prisma',
-  'db',
-  '.',
 ];
 
 /** Default schema file patterns */
@@ -36,7 +35,7 @@ export async function findSchemasInDir(dir: string, patterns: string[]): Promise
     const glob = new Glob(pattern);
     try {
       for await (const file of glob.scan({ cwd: dir })) {
-        files.push(`${dir}/${file}`);
+        files.push(resolve(dir, file));
       }
     } catch {
       // Directory might not exist
@@ -44,6 +43,36 @@ export async function findSchemasInDir(dir: string, patterns: string[]): Promise
   }
 
   return files;
+}
+
+/** Recursively find directories matching a folder name */
+async function findDirectoriesByName(cwd: string, folderName: string): Promise<string[]> {
+  const matchingDirs: string[] = [];
+
+  try {
+    // Use glob pattern to find all paths ending with folderName
+    const glob = new Glob(`**/${folderName}`);
+    const matches = await Array.fromAsync(glob.scan({ cwd, onlyFiles: false }));
+
+    for (const match of matches) {
+      // Use resolve for cross-platform path handling
+      const fullPath = resolve(cwd, match);
+
+      // Verify it's a directory using lstatSync
+      try {
+        const stat = lstatSync(fullPath);
+        if (stat.isDirectory()) {
+          matchingDirs.push(fullPath);
+        }
+      } catch {
+        // Not accessible or doesn't exist
+      }
+    }
+  } catch {
+    // Directory might not exist or be inaccessible
+  }
+
+  return matchingDirs;
 }
 
 /** Resolve schema files */
@@ -54,32 +83,43 @@ export async function resolveSchemas(options: SchemaResolveOptions = {}): Promis
     cwd = process.cwd(),
   } = options;
 
-  const allFiles: string[] = [];
-
-  for (const searchPath of paths) {
-    const fullPath = searchPath.startsWith('/') ? searchPath : `${cwd}/${searchPath}`;
-    const files = await findSchemasInDir(fullPath, patterns);
-    allFiles.push(...files);
+  // If custom paths are provided, use the old behavior
+  if (options.paths) {
+    const allFiles: string[] = [];
+    for (const searchPath of paths) {
+      const fullPath = searchPath.startsWith('/') ? searchPath : resolve(cwd, searchPath);
+      const files = await findSchemasInDir(fullPath, patterns);
+      allFiles.push(...files);
+    }
+    return [...new Set(allFiles)];
   }
 
-  // Remove duplicates
-  return [...new Set(allFiles)];
+  // Recursively search for folders with default search path names
+  for (const searchPath of paths) {
+    const matchingDirs = await findDirectoriesByName(cwd, searchPath);
+
+    // For each matching directory, look for schema files
+    for (const dir of matchingDirs) {
+      const files = await findSchemasInDir(dir, patterns);
+
+      // If files are found, return them and stop searching
+      if (files.length) return files;
+    }
+  }
+
+  // No schema files found
+  return [];
 }
 
 /** Resolve a single schema path (file or directory) */
 export async function resolveSinglePath(path: string, cwd: string = process.cwd()): Promise<string[]> {
-  const fullPath = path.startsWith('/') ? path : `${cwd}/${path}`;
+  const fullPath = path.startsWith('/') ? path : resolve(cwd, path);
 
   // Check if it's a file
   const file = Bun.file(fullPath);
   const exists = await file.exists();
 
-  if (exists) {
-    // Check if it ends with schema extension
-    if (fullPath.endsWith('.schema') || fullPath.endsWith('.prisma')) {
-      return [fullPath];
-    }
-  }
+  if (exists && (fullPath.endsWith('.schema'))) return [fullPath];
 
   // Treat as directory
   return findSchemasInDir(fullPath, DEFAULT_PATTERNS);

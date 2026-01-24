@@ -32,23 +32,20 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
   const optionsValidation = validateOptions(options);
   if (!optionsValidation.valid) {
     result.errors = optionsValidation.errors.map((e) => e.message);
+
     return result;
   }
 
   const outputDir = options.output!;
+  console.log('outputDir', outputDir);
 
   try {
     // Resolve schema files
     logger.progress('Finding schema files...');
 
-    let schemaFiles: string[];
-    if (options.schema) {
-      schemaFiles = await resolveSinglePath(options.schema);
-    } else {
-      schemaFiles = await resolveSchemas();
-    }
+    const schemaFiles: string[] = options.schema ? await resolveSinglePath(options.schema) : await resolveSchemas();
 
-    if (schemaFiles.length === 0) {
+    if (!schemaFiles.length) {
       result.errors.push('No schema files found');
       return result;
     }
@@ -74,10 +71,11 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
 
     // Parse each schema
     const allModels: ReturnType<typeof parse>['ast']['models'] = [];
+
     for (const { path, content } of schemaContents) {
       const parseResult = parse(content);
 
-      if (parseResult.errors.length > 0) {
+      if (parseResult.errors.length) {
         for (const error of parseResult.errors) {
           result.errors.push(`${path}:${error.position.line}: ${error.message}`);
         }
@@ -96,13 +94,13 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
       allModels.push(...parseResult.ast.models);
     }
 
-    if (result.errors.length > 0) {
+    if (result.errors.length) {
       logger.error('Schema errors found:');
       result.errors.forEach((e) => logger.error(`  ${e}`));
       return result;
     }
 
-    if (allModels.length === 0) {
+    if (!allModels.length) {
       result.errors.push('No models found in schema files');
       return result;
     }

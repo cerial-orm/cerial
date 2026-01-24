@@ -21,6 +21,7 @@ if (command === 'generate' || command === '-g') {
   const result = await generate(options);
 
   if (!result.success) {
+    console.error('Error generating files:', result.errors);
     process.exit(1);
   }
 } else {

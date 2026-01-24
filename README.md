@@ -23,7 +23,7 @@ bun add @org/lib_backend_surreal-om
 
 Create a `.schema` file (e.g., `schemas/user.schema`):
 
-```prisma
+```schema
 model User {
   id String @id
   email Email @unique
@@ -135,7 +135,7 @@ model ModelName {
 
 ### Example Schema
 
-```prisma
+```schema
 model User {
   id String @id
   email Email @unique
