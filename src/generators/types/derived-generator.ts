@@ -39,15 +39,11 @@ export function generateCreateType(model: ModelMetadata): string {
 
   let type = model.name;
 
-  if (omit.length > 0) {
-    type = `Omit<${type}, ${omit.map((f) => `'${f}'`).join(' | ')}>`;
-  }
+  if (omit.length) type += ` & Omit<${type}, ${omit.map((f) => `'${f}'`).join(' | ')}>`;
 
-  if (optional.length > 0) {
+  if (optional.length) {
     const optionalFields = optional.filter((f) => !omit.includes(f));
-    if (optionalFields.length > 0) {
-      type = `Omit<${type}, ${optionalFields.map((f) => `'${f}'`).join(' | ')}> & Partial<Pick<${model.name}, ${optionalFields.map((f) => `'${f}'`).join(' | ')}>>`;
-    }
+    if (optionalFields.length) type += ` & Partial<Pick<${model.name}, ${optionalFields.map((f) => `'${f}'`).join(' | ')}>>`;
   }
 
   return `export type ${model.name}Create = ${type};`;
