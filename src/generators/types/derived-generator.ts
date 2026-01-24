@@ -6,16 +6,8 @@ import type { ModelMetadata, FieldMetadata } from '../../types';
 
 /** Get fields that should be omitted from create (auto-generated) */
 function getOmitForCreate(model: ModelMetadata): string[] {
-  const omit: string[] = ['id']; // Always omit id
-
-  for (const field of model.fields) {
-    // Omit fields with @now decorator
-    if (field.hasNowDefault) {
-      omit.push(field.name);
-    }
-  }
-
-  return omit;
+  // Users can provide their own values for all fields, so nothing is omitted by default
+  return [];
 }
 
 /** Get fields that should be optional in create (have defaults) */
@@ -63,14 +55,18 @@ export function generateCreateType(model: ModelMetadata): string {
 
 /** Generate Update type (all fields partial except id) */
 export function generateUpdateType(model: ModelMetadata): string {
-  return `export type ${model.name}Update = Partial<Omit<${model.name}, 'id'>>;`;
+  // Find the id field
+  const idField = model.fields.find((f) => f.isId);
+  if (idField) {
+    return `export type ${model.name}Update = Partial<Omit<${model.name}, '${idField.name}'>>;`;
+  }
+  return `export type ${model.name}Update = Partial<${model.name}>;`;
 }
 
 /** Generate Select type (boolean map of fields) */
 export function generateSelectType(model: ModelMetadata): string {
   const fields = model.fields.map((f) => `  ${f.name}?: boolean;`);
   return `export interface ${model.name}Select {
-  id?: boolean;
 ${fields.join('\n')}
 }`;
 }

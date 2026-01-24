@@ -14,6 +14,10 @@ export function generateFieldType(field: FieldMetadata): string {
 
 /** Generate a single field definition */
 export function generateFieldDefinition(field: FieldMetadata): string {
+  // Fields with @id decorator are always required and always string type
+  if (field.isId) {
+    return `${field.name}: string;`;
+  }
   const optional = field.isRequired ? '' : '?';
   const type = generateFieldType(field);
   return `${field.name}${optional}: ${type};`;
@@ -21,13 +25,9 @@ export function generateFieldDefinition(field: FieldMetadata): string {
 
 /** Generate model interface */
 export function generateInterface(model: ModelMetadata): string {
-  const fields = model.fields
-    .map((f) => generateFieldDefinition(f))
-    .map((line) => `  ${line}`)
-    .join('\n');
+  const fields = model.fields.map((f) => generateFieldDefinition(f)).map((line) => `  ${line}`).join('\n');
 
   return `export interface ${model.name} {
-  id?: string;
 ${fields}
 }`;
 }
