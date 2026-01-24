@@ -23,7 +23,7 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "surrealdb": "2.0.0-alpha.14",
+    "surrealdb": "1.3.2",
     "ts-toolbelt": "^9.6.0"
   },
   "scripts": {
