@@ -2,7 +2,7 @@
  * Query fragment helpers
  */
 
-import type { QueryFragment, QueryVars, CompiledQuery } from './types';
+import type { CompiledQuery, QueryFragment, QueryVars } from './types';
 import { EMPTY_FRAGMENT } from './types';
 
 /** Create a query fragment */
@@ -11,11 +11,7 @@ export function createFragment(text: string, vars: QueryVars = {}): QueryFragmen
 }
 
 /** Merge two fragments with a separator */
-export function mergeFragments(
-  a: QueryFragment,
-  b: QueryFragment,
-  separator: string = ' ',
-): QueryFragment {
+export function mergeFragments(a: QueryFragment, b: QueryFragment, separator: string = ' '): QueryFragment {
   if (!a.text && !b.text) return EMPTY_FRAGMENT;
   if (!a.text) return b;
   if (!b.text) return a;
@@ -27,10 +23,7 @@ export function mergeFragments(
 }
 
 /** Join multiple fragments with a separator */
-export function joinFragments(
-  fragments: QueryFragment[],
-  separator: string = ' ',
-): QueryFragment {
+export function joinFragments(fragments: QueryFragment[], separator: string = ' '): QueryFragment {
   const nonEmpty = fragments.filter((f) => f.text);
   if (nonEmpty.length === 0) return EMPTY_FRAGMENT;
   if (nonEmpty.length === 1) return nonEmpty[0]!;

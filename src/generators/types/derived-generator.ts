@@ -2,7 +2,7 @@
  * Derived type generator - generates Create, Update, and other derived types
  */
 
-import type { ModelMetadata, FieldMetadata } from '../../types';
+import type { ModelMetadata } from '../../types';
 
 /** Get fields that should be omitted from create (auto-generated) */
 function getOmitForCreate(model: ModelMetadata): string[] {
@@ -43,7 +43,8 @@ export function generateCreateType(model: ModelMetadata): string {
 
   if (optional.length) {
     const optionalFields = optional.filter((f) => !omit.includes(f));
-    if (optionalFields.length) type += ` & Partial<Pick<${model.name}, ${optionalFields.map((f) => `'${f}'`).join(' | ')}>>`;
+    if (optionalFields.length)
+      type += ` & Partial<Pick<${model.name}, ${optionalFields.map((f) => `'${f}'`).join(' | ')}>>`;
   }
 
   return `export type ${model.name}Create = ${type};`;

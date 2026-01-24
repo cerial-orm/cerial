@@ -3,19 +3,14 @@
  */
 
 import { Glob } from 'bun';
-import { resolve } from 'node:path';
 import { lstatSync } from 'node:fs';
+import { resolve } from 'node:path';
 
 /** Default schema search paths */
-const DEFAULT_SEARCH_PATHS = [
-  'schemas',
-  'schema',
-];
+const DEFAULT_SEARCH_PATHS = ['schemas', 'schema'];
 
 /** Default schema file patterns */
-const DEFAULT_PATTERNS = [
-  '*.schema',
-];
+const DEFAULT_PATTERNS = ['*.schema'];
 
 /** Options for schema resolution */
 export interface SchemaResolveOptions {
@@ -61,9 +56,7 @@ async function findDirectoriesByName(cwd: string, folderName: string): Promise<s
       // Verify it's a directory using lstatSync
       try {
         const stat = lstatSync(fullPath);
-        if (stat.isDirectory()) {
-          matchingDirs.push(fullPath);
-        }
+        if (stat.isDirectory()) matchingDirs.push(fullPath);
       } catch {
         // Not accessible or doesn't exist
       }
@@ -77,11 +70,7 @@ async function findDirectoriesByName(cwd: string, folderName: string): Promise<s
 
 /** Resolve schema files */
 export async function resolveSchemas(options: SchemaResolveOptions = {}): Promise<string[]> {
-  const {
-    paths = DEFAULT_SEARCH_PATHS,
-    patterns = DEFAULT_PATTERNS,
-    cwd = process.cwd(),
-  } = options;
+  const { paths = DEFAULT_SEARCH_PATHS, patterns = DEFAULT_PATTERNS, cwd = process.cwd() } = options;
 
   // If custom paths are provided, use the old behavior
   if (options.paths) {
@@ -119,7 +108,7 @@ export async function resolveSinglePath(path: string, cwd: string = process.cwd(
   const file = Bun.file(fullPath);
   const exists = await file.exists();
 
-  if (exists && (fullPath.endsWith('.schema'))) return [fullPath];
+  if (exists && fullPath.endsWith('.schema')) return [fullPath];
 
   // Treat as directory
   return findSchemasInDir(fullPath, DEFAULT_PATTERNS);

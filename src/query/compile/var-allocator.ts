@@ -2,8 +2,8 @@
  * Variable allocator for stable unique variable naming
  */
 
-import type { VarBinding, QueryVars } from './types';
 import type { SchemaFieldType } from '../../types';
+import type { QueryVars, VarBinding } from './types';
 
 /** Variable allocator state */
 export interface VarAllocator {
@@ -19,13 +19,10 @@ export function createVarAllocator(prefix: string = ''): VarAllocator {
 }
 
 /** Generate a unique variable name */
-export function generateVarName(
-  allocator: VarAllocator,
-  field: string,
-  operator: string,
-): string {
+export function generateVarName(allocator: VarAllocator, field: string, operator: string): string {
   const count = allocator.counter++;
   const base = `${allocator.prefix}${field}_${operator}`.replace(/[^a-zA-Z0-9_]/g, '_');
+
   return `${base}_${count}`;
 }
 

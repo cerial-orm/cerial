@@ -2,16 +2,14 @@
  * Generate command - orchestrates the generation process
  */
 
-import type { CLIOptions } from './validators';
-import { resolveSchemas, resolveSinglePath } from './resolvers';
-import { validateOptions, validateSchema } from './validators';
-import { logger } from './utils';
-import { loadSchemas } from '../parser/file-reader';
-import { parse } from '../parser/parser';
-import { astToRegistry } from '../parser/model-metadata';
-import { convertModels } from '../generators/metadata';
-import { writeModelRegistry, writeInternalIndex } from '../generators/metadata/writer';
 import { writeClient } from '../generators/client/writer';
+import { convertModels } from '../generators/metadata';
+import { writeInternalIndex, writeModelRegistry } from '../generators/metadata/writer';
+import { parse } from '../parser/parser';
+import { resolveSchemas, resolveSinglePath } from './resolvers';
+import { logger } from './utils';
+import type { CLIOptions } from './validators';
+import { validateOptions, validateSchema } from './validators';
 
 /** Generation result */
 export interface GenerateResult {
@@ -37,7 +35,6 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
   }
 
   const outputDir = options.output!;
-  console.log('outputDir', outputDir);
 
   try {
     // Resolve schema files
@@ -57,8 +54,6 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
 
     // Load and parse schemas
     logger.progress('Parsing schemas...');
-
-    const schemas = await loadSchemas({ cwd: process.cwd(), patterns: schemaFiles.map((f) => f) });
 
     // Actually read the files directly since loadSchemas uses patterns
     const schemaContents = await Promise.all(

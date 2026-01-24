@@ -3,12 +3,25 @@
  */
 
 import type { Surreal } from 'surrealdb';
-import type { ModelMetadata, FindOneOptions, FindManyOptions, CreateOptions, UpdateOptions, DeleteOptions } from '../types';
-import { buildFindOneQuery, buildFindManyQuery, buildCreateQuery, buildUpdateQuery, buildDeleteQuery } from './builders';
-import { transformData, applyNowDefaults } from './transformers';
-import { mapResult, mapSingleResult } from './mappers';
-import { validateWhere, validateCreateData, validateUpdateData } from './validators';
+import type {
+  CreateOptions,
+  DeleteOptions,
+  FindManyOptions,
+  FindOneOptions,
+  ModelMetadata,
+  UpdateOptions,
+} from '../types';
+import {
+  buildCreateQuery,
+  buildDeleteQuery,
+  buildFindManyQuery,
+  buildFindOneQuery,
+  buildUpdateQuery,
+} from './builders';
 import { executeQuery, executeQuerySingle } from './executor';
+import { mapResult, mapSingleResult } from './mappers';
+import { applyNowDefaults, transformData } from './transformers';
+import { validateCreateData, validateUpdateData, validateWhere } from './validators';
 
 /** Query builder class for a specific model */
 export class QueryBuilder<T extends Record<string, unknown>> {
@@ -21,12 +34,12 @@ export class QueryBuilder<T extends Record<string, unknown>> {
   async findOne(options: FindOneOptions = {}): Promise<T | null> {
     // Validate where clause
     const validation = validateWhere(options.where, this.model);
-    if (!validation.valid) {
+    if (!validation.valid)
       throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
-    }
 
     const query = buildFindOneQuery(this.model, options);
     const result = await executeQuerySingle(this.db, query);
+
     return mapSingleResult<T>(result, this.model, options.select);
   }
 
@@ -34,12 +47,12 @@ export class QueryBuilder<T extends Record<string, unknown>> {
   async findMany(options: FindManyOptions = {}): Promise<T[]> {
     // Validate where clause
     const validation = validateWhere(options.where, this.model);
-    if (!validation.valid) {
+    if (!validation.valid)
       throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
-    }
 
     const query = buildFindManyQuery(this.model, options);
     const result = await executeQuery(this.db, query);
+
     return mapResult<T>(result, this.model, options.select);
   }
 
@@ -48,18 +61,14 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     const { data, select } = options;
 
     // Transform and validate data
-    const transformedData = transformData(
-      applyNowDefaults(data as Record<string, unknown>, this.model),
-      this.model,
-    );
+    const transformedData = transformData(applyNowDefaults(data as Record<string, unknown>, this.model), this.model);
 
     const validation = validateCreateData(transformedData, this.model);
-    if (!validation.valid) {
-      throw new Error(`Invalid data: ${validation.errors.map((e) => e.message).join(', ')}`);
-    }
+    if (!validation.valid) throw new Error(`Invalid data: ${validation.errors.map((e) => e.message).join(', ')}`);
 
     const query = buildCreateQuery(this.model, transformedData, select);
     const result = await executeQuerySingle(this.db, query);
+
     return mapSingleResult<T>(result, this.model, select);
   }
 
@@ -69,20 +78,19 @@ export class QueryBuilder<T extends Record<string, unknown>> {
 
     // Validate where clause
     const whereValidation = validateWhere(where, this.model);
-    if (!whereValidation.valid) {
+    if (!whereValidation.valid)
       throw new Error(`Invalid where clause: ${whereValidation.errors.map((e) => e.message).join(', ')}`);
-    }
 
     // Transform and validate data
     const transformedData = transformData(data as Record<string, unknown>, this.model);
 
     const dataValidation = validateUpdateData(transformedData, this.model);
-    if (!dataValidation.valid) {
+    if (!dataValidation.valid)
       throw new Error(`Invalid data: ${dataValidation.errors.map((e) => e.message).join(', ')}`);
-    }
 
     const query = buildUpdateQuery(this.model, where, transformedData, select);
     const result = await executeQuery(this.db, query);
+
     return mapResult<T>(result, this.model, select);
   }
 
@@ -92,12 +100,12 @@ export class QueryBuilder<T extends Record<string, unknown>> {
 
     // Validate where clause
     const validation = validateWhere(where, this.model);
-    if (!validation.valid) {
+    if (!validation.valid)
       throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
-    }
 
     const query = buildDeleteQuery(this.model, where);
     const result = await executeQuery(this.db, query);
+
     return Array.isArray(result) ? result.length : 0;
   }
 }
@@ -145,11 +153,7 @@ export const QueryBuilderStatic = {
   },
 
   /** Delete records */
-  async delete(
-    db: Surreal,
-    model: ModelMetadata,
-    options: DeleteOptions,
-  ): Promise<number> {
+  async delete(db: Surreal, model: ModelMetadata, options: DeleteOptions): Promise<number> {
     const builder = new QueryBuilder(db, model);
     return builder.delete(options);
   },
