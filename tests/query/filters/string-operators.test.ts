@@ -2,9 +2,9 @@
  * String operators tests
  */
 
-import { test, expect, describe } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import { createCompileContext } from '../../../src/query/compile';
-import { handleContains, handleStartsWith, handleEndsWith } from '../../../src/query/filters/string-operators';
+import { handleContains, handleEndsWith, handleStartsWith } from '../../../src/query/filters/string-operators';
 import type { FieldMetadata } from '../../../src/types';
 
 const stringField: FieldMetadata = {

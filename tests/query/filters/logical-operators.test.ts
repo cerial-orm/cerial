@@ -2,9 +2,9 @@
  * Logical operators tests
  */
 
-import { test, expect, describe } from 'bun:test';
-import { handleAnd, handleOr, handleNot } from '../../../src/query/filters/logical-operators';
+import { describe, expect, test } from 'bun:test';
 import type { QueryFragment } from '../../../src/query/compile';
+import { handleAnd, handleNot, handleOr } from '../../../src/query/filters/logical-operators';
 
 describe('logical operators', () => {
   test('handleAnd combines conditions with AND', () => {
@@ -53,9 +53,7 @@ describe('logical operators', () => {
   });
 
   test('handleAnd returns single condition without wrapping', () => {
-    const conditions: QueryFragment[] = [
-      { text: 'age > 18', vars: { age_gt_0: 18 } },
-    ];
+    const conditions: QueryFragment[] = [{ text: 'age > 18', vars: { age_gt_0: 18 } }];
 
     const result = handleAnd(conditions);
     expect(result.text).toBe('age > 18');

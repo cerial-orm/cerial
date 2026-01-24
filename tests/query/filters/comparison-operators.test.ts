@@ -2,9 +2,16 @@
  * Comparison operators tests
  */
 
-import { test, expect, describe } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import { createCompileContext } from '../../../src/query/compile';
-import { handleEq, handleNeq, handleGt, handleGte, handleLt, handleLte } from '../../../src/query/filters/comparison-operators';
+import {
+  handleEq,
+  handleGt,
+  handleGte,
+  handleLt,
+  handleLte,
+  handleNeq,
+} from '../../../src/query/filters/comparison-operators';
 import type { FieldMetadata } from '../../../src/types';
 
 const stringField: FieldMetadata = {

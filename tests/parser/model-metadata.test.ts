@@ -3,9 +3,15 @@
  * New schema format: fieldName Type @decorators
  */
 
-import { test, expect, describe } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
+import {
+  astToRegistry,
+  fieldToMetadata,
+  getNowFields,
+  getUniqueFields,
+  modelToMetadata,
+} from '../../src/parser/model-metadata';
 import { parse } from '../../src/parser/parser';
-import { astToRegistry, fieldToMetadata, modelToMetadata, getUniqueFields, getNowFields } from '../../src/parser/model-metadata';
 
 describe('model-metadata', () => {
   test('converts AST to registry', () => {

@@ -2,8 +2,8 @@
  * Insert builder tests
  */
 
-import { test, expect, describe } from 'bun:test';
-import { buildCreateQuery, applyNowDefaults, applyDefaultValues } from '../../../src/query/builders';
+import { describe, expect, test } from 'bun:test';
+import { applyDefaultValues, applyNowDefaults, buildCreateQuery } from '../../../src/query/builders';
 import type { ModelMetadata } from '../../../src/types';
 
 const userModel: ModelMetadata = {
@@ -13,7 +13,15 @@ const userModel: ModelMetadata = {
     { name: 'id', type: 'string', isId: true, isUnique: false, hasNowDefault: false, isRequired: true },
     { name: 'name', type: 'string', isId: false, isUnique: false, hasNowDefault: false, isRequired: true },
     { name: 'createdAt', type: 'date', isId: false, isUnique: false, hasNowDefault: true, isRequired: true },
-    { name: 'status', type: 'string', isId: false, isUnique: false, hasNowDefault: false, isRequired: true, defaultValue: 'active' },
+    {
+      name: 'status',
+      type: 'string',
+      isId: false,
+      isUnique: false,
+      hasNowDefault: false,
+      isRequired: true,
+      defaultValue: 'active',
+    },
   ],
 };
 

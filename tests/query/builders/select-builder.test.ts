@@ -2,9 +2,9 @@
  * Select builder tests
  */
 
-import { test, expect, describe } from 'bun:test';
-import { buildSelectQuery, buildFindOneQuery, buildFindManyQuery, buildSelectFields, buildOrderBy } from '../../../src/query/builders';
-import type { ModelMetadata, FindOptions } from '../../../src/types';
+import { describe, expect, test } from 'bun:test';
+import { buildFindOneQuery, buildOrderBy, buildSelectFields, buildSelectQuery } from '../../../src/query/builders';
+import type { FindOptions, ModelMetadata } from '../../../src/types';
 
 const userModel: ModelMetadata = {
   name: 'User',
