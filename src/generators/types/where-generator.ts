@@ -43,7 +43,12 @@ function generateArrayOps(tsType: string): string {
 }
 
 /** Generate special operators for numeric/date types (includes between) */
-function generateNumericSpecialOps(tsType: string): string {
+function generateNumericSpecialOps(tsType: string, isRequired: boolean): string {
+  if (isRequired) {
+    return `{
+    between?: [${tsType}, ${tsType}];
+  }`;
+  }
   return `{
     isNull?: boolean;
     between?: [${tsType}, ${tsType}];
@@ -51,7 +56,10 @@ function generateNumericSpecialOps(tsType: string): string {
 }
 
 /** Generate special operators for string types (no between) */
-function generateStringSpecialOps(): string {
+function generateStringSpecialOps(isRequired: boolean): string {
+  if (isRequired) {
+    return `{}`;
+  }
   return `{
     isNull?: boolean;
   }`;
@@ -60,13 +68,14 @@ function generateStringSpecialOps(): string {
 /** Generate field where type */
 export function generateFieldWhereType(field: FieldMetadata): string {
   const tsType = schemaTypeToTsType(field.type);
+  const { isRequired } = field;
 
   // For numeric types, include all comparison operators and between
   if (field.type === 'int' || field.type === 'float') {
     return `${tsType} | (
     ${generateNumericComparisonOps(tsType)} &
     ${generateArrayOps(tsType)} &
-    ${generateNumericSpecialOps(tsType)}
+    ${generateNumericSpecialOps(tsType, isRequired)}
   )`;
   }
 
@@ -76,7 +85,7 @@ export function generateFieldWhereType(field: FieldMetadata): string {
     ${generateStringComparisonOps(tsType)} &
     ${generateStringOps()} &
     ${generateArrayOps(tsType)} &
-    ${generateStringSpecialOps()}
+    ${generateStringSpecialOps(isRequired)}
   )`;
   }
 
@@ -85,7 +94,7 @@ export function generateFieldWhereType(field: FieldMetadata): string {
     return `${tsType} | (
     ${generateNumericComparisonOps(tsType)} &
     ${generateArrayOps(tsType)} &
-    ${generateNumericSpecialOps(tsType)}
+    ${generateNumericSpecialOps(tsType, isRequired)}
   )`;
   }
 
@@ -93,7 +102,7 @@ export function generateFieldWhereType(field: FieldMetadata): string {
   return `${tsType} | (
     ${generateStringComparisonOps(tsType)} &
     ${generateArrayOps(tsType)} &
-    ${generateStringSpecialOps()}
+    ${generateStringSpecialOps(isRequired)}
   )`;
 }
 
