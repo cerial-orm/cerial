@@ -5,8 +5,8 @@
 import type { ModelMetadata, FieldMetadata } from '../../types';
 import { schemaTypeToTsType } from '../../utils/type-utils';
 
-/** Generate comparison operators for a type */
-function generateComparisonOps(tsType: string): string {
+/** Generate comparison operators for numeric types */
+function generateNumericComparisonOps(tsType: string): string {
   return `{
     eq?: ${tsType};
     neq?: ${tsType};
@@ -14,6 +14,14 @@ function generateComparisonOps(tsType: string): string {
     gte?: ${tsType};
     lt?: ${tsType};
     lte?: ${tsType};
+  }`;
+}
+
+/** Generate comparison operators for string types (no ordering) */
+function generateStringComparisonOps(tsType: string): string {
+  return `{
+    eq?: ${tsType};
+    neq?: ${tsType};
   }`;
 }
 
@@ -34,12 +42,18 @@ function generateArrayOps(tsType: string): string {
   }`;
 }
 
-/** Generate special operators for a type */
-function generateSpecialOps(tsType: string): string {
+/** Generate special operators for numeric/date types (includes between) */
+function generateNumericSpecialOps(tsType: string): string {
   return `{
     isNull?: boolean;
-    isDefined?: boolean;
     between?: [${tsType}, ${tsType}];
+  }`;
+}
+
+/** Generate special operators for string types (no between) */
+function generateStringSpecialOps(): string {
+  return `{
+    isNull?: boolean;
   }`;
 }
 
@@ -47,21 +61,39 @@ function generateSpecialOps(tsType: string): string {
 export function generateFieldWhereType(field: FieldMetadata): string {
   const tsType = schemaTypeToTsType(field.type);
 
-  // For string types, include string operators
-  if (field.type === 'string' || field.type === 'email') {
+  // For numeric types, include all comparison operators and between
+  if (field.type === 'int' || field.type === 'float') {
     return `${tsType} | (
-    ${generateComparisonOps(tsType)} &
-    ${generateStringOps()} &
+    ${generateNumericComparisonOps(tsType)} &
     ${generateArrayOps(tsType)} &
-    ${generateSpecialOps(tsType)}
+    ${generateNumericSpecialOps(tsType)}
   )`;
   }
 
-  // For other types
-  return `${tsType} | (
-    ${generateComparisonOps(tsType)} &
+  // For string types, include string operators (no ordering, no between)
+  if (field.type === 'string' || field.type === 'email') {
+    return `${tsType} | (
+    ${generateStringComparisonOps(tsType)} &
+    ${generateStringOps()} &
     ${generateArrayOps(tsType)} &
-    ${generateSpecialOps(tsType)}
+    ${generateStringSpecialOps()}
+  )`;
+  }
+
+  // For date types, include comparison, array, and between (no string ops)
+  if (field.type === 'date') {
+    return `${tsType} | (
+    ${generateNumericComparisonOps(tsType)} &
+    ${generateArrayOps(tsType)} &
+    ${generateNumericSpecialOps(tsType)}
+  )`;
+  }
+
+  // For other types (bool, etc.), use basic comparison + array + special (no between)
+  return `${tsType} | (
+    ${generateStringComparisonOps(tsType)} &
+    ${generateArrayOps(tsType)} &
+    ${generateStringSpecialOps()}
   )`;
 }
 

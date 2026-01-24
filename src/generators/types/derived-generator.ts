@@ -63,12 +63,30 @@ export function generateUpdateType(model: ModelMetadata): string {
   return `export type ${model.name}Update = Partial<${model.name}>;`;
 }
 
-/** Generate Select type (boolean map of fields) */
+/** Generate Select type (boolean map of fields, requires at least one field) */
 export function generateSelectType(model: ModelMetadata): string {
-  const fields = model.fields.map((f) => `  ${f.name}?: boolean;`);
-  return `export interface ${model.name}Select {
-${fields.join('\n')}
-}`;
+  const fieldNames = model.fields.map((f) => f.name);
+
+  if (fieldNames.length === 0) {
+    return `export interface ${model.name}Select {}`;
+  }
+
+  if (fieldNames.length === 1) {
+    return `export type ${model.name}Select = { ${fieldNames[0]}: boolean; };`;
+  }
+
+  // Generate union where each variant requires at least one field
+  // For each field, make it required and all others optional
+  const variants = fieldNames.map((field) => {
+    const otherFields = fieldNames
+      .filter((f) => f !== field)
+      .map((f) => `'${f}'`)
+      .join(' | ');
+    return `  | { ${field}: boolean } & Partial<Record<${otherFields}, boolean>>`;
+  });
+
+  return `export type ${model.name}Select =
+${variants.join('\n')};`;
 }
 
 /** Generate OrderBy type */
