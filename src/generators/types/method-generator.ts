@@ -28,7 +28,7 @@ export function generateCreateMethod(model: ModelMetadata): string {
   return `create(options: {
     data: ${model.name}Create;
     select?: ${model.name}Select;
-  }): Promise<${model.name} | null>;`;
+  }): Promise<${model.name}>;`;
 }
 
 /** Generate update method signature */
