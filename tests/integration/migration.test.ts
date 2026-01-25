@@ -5,23 +5,22 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { ConnectionManager } from '../../src/client/connection';
 import { generateModelDefineStatements } from '../../src/generators/migrations/define-generator';
-import type { ConnectionConfig, ModelRegistry } from '../../src/types';
+import type { ConnectionConfig } from '../../src/types';
+import { parseModelRegistry } from '../test-helpers';
 
-// Test model registry
-const testRegistry: ModelRegistry = {
-  TestUser: {
-    name: 'TestUser',
-    tableName: 'test_user',
-    fields: [
-      { name: 'id', type: 'string', isId: true, isUnique: false, hasNowDefault: false, isRequired: true },
-      { name: 'email', type: 'email', isId: false, isUnique: true, hasNowDefault: false, isRequired: true },
-      { name: 'name', type: 'string', isId: false, isUnique: false, hasNowDefault: false, isRequired: true },
-      { name: 'age', type: 'int', isId: false, isUnique: false, hasNowDefault: false, isRequired: false },
-      { name: 'isActive', type: 'bool', isId: false, isUnique: false, hasNowDefault: false, isRequired: true },
-      { name: 'createdAt', type: 'date', isId: false, isUnique: false, hasNowDefault: true, isRequired: true },
-    ],
-  },
-};
+// Parse model using DSL to ensure correct behavior
+const dsl = `
+model TestUser {
+  id String @id
+  email Email @unique
+  name String
+  age Int?
+  isActive Bool
+  createdAt Date @now
+}
+`;
+
+const testRegistry = parseModelRegistry(dsl);
 
 // Default test config
 const testConfig: ConnectionConfig = {
@@ -44,8 +43,9 @@ describe('Migration', () => {
     // Clean up test table before each test
     const surreal = connectionManager.getSurreal();
     if (surreal) {
+      const tableName = testRegistry.TestUser!.tableName;
       try {
-        await surreal.query('REMOVE TABLE IF EXISTS test_user;');
+        await surreal.query(`REMOVE TABLE IF EXISTS ${tableName};`);
       } catch {
         // Ignore errors
       }
@@ -56,8 +56,9 @@ describe('Migration', () => {
     // Clean up test table
     const surreal = connectionManager.getSurreal();
     if (surreal) {
+      const tableName = testRegistry.TestUser!.tableName;
       try {
-        await surreal.query('REMOVE TABLE IF EXISTS test_user;');
+        await surreal.query(`REMOVE TABLE IF EXISTS ${tableName};`);
       } catch {
         // Ignore errors
       }
@@ -104,7 +105,7 @@ describe('Migration', () => {
 
     const uniqueIndex = statements.find((s) => s.includes('DEFINE INDEX'));
     expect(uniqueIndex).toBeDefined();
-    expect(uniqueIndex).toContain('test_user_email_unique');
+    expect(uniqueIndex).toContain(`${model.tableName}_email_unique`);
     expect(uniqueIndex).toContain('UNIQUE');
   });
 

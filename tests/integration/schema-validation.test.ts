@@ -5,7 +5,8 @@
 import { describe, expect, test, beforeEach, afterEach } from 'bun:test';
 import { ConnectionManager } from '../../src/client/connection';
 import { generateModelDefineStatements } from '../../src/generators/migrations/define-generator';
-import type { ModelRegistry, ConnectionConfig } from '../../src/types';
+import type { ConnectionConfig } from '../../src/types';
+import { parseModelRegistry } from '../test-helpers';
 
 // Default test config
 const testConfig: ConnectionConfig = {
@@ -22,15 +23,25 @@ describe('Schema Validation', () => {
   let connectionManager: ConnectionManager;
 
   beforeEach(async () => {
-    connectionManager = new ConnectionManager({});
+    // Parse models using DSL
+    const userDsl = `
+model User {
+  id String @id
+  email Email @unique
+  name String
+}
+`;
+    const registry = parseModelRegistry(userDsl);
+
+    connectionManager = new ConnectionManager(registry);
     await connectionManager.connect(testConfig);
 
     // Clean up test tables
     const surreal = connectionManager.getSurreal();
     if (surreal) {
+      const tableName = registry.User!.tableName;
       try {
-        await surreal.query('REMOVE TABLE IF EXISTS test_schema_user;');
-        await surreal.query('REMOVE TABLE IF EXISTS test_strict_user;');
+        await surreal.query(`REMOVE TABLE IF EXISTS ${tableName};`);
       } catch {
         // Ignore errors
       }
@@ -38,11 +49,12 @@ describe('Schema Validation', () => {
   });
 
   afterEach(async () => {
+    // Clean up test tables
     const surreal = connectionManager.getSurreal();
     if (surreal) {
+      const tableName = connectionManager.getRegistry().User!.tableName;
       try {
-        await surreal.query('REMOVE TABLE IF EXISTS test_schema_user;');
-        await surreal.query('REMOVE TABLE IF EXISTS test_strict_user;');
+        await surreal.query(`REMOVE TABLE IF EXISTS ${tableName};`);
       } catch {
         // Ignore errors
       }
@@ -51,16 +63,13 @@ describe('Schema Validation', () => {
   });
 
   test('should create SCHEMAFULL table', async () => {
-    const registry: ModelRegistry = {
-      User: {
-        name: 'User',
-        tableName: 'test_schema_user',
-        fields: [
-          { name: 'id', type: 'string', isId: true, isUnique: false, hasNowDefault: false, isRequired: true },
-          { name: 'email', type: 'email', isId: false, isUnique: true, hasNowDefault: false, isRequired: true },
-        ],
-      },
-    };
+    const modelDsl = `
+    model User {
+      id String @id
+      email Email
+    }
+    `;
+    const registry = parseModelRegistry(modelDsl);
 
     const statements = generateModelDefineStatements(registry.User!);
     const surreal = connectionManager.getSurreal();
@@ -74,16 +83,13 @@ describe('Schema Validation', () => {
   });
 
   test('should enforce email validation', async () => {
-    const registry: ModelRegistry = {
-      User: {
-        name: 'User',
-        tableName: 'test_strict_user',
-        fields: [
-          { name: 'id', type: 'string', isId: true, isUnique: false, hasNowDefault: false, isRequired: true },
-          { name: 'email', type: 'email', isId: false, isUnique: false, hasNowDefault: false, isRequired: true },
-        ],
-      },
-    };
+    const modelDsl = `
+    model User {
+      id String @id
+      email Email
+    }
+    `;
+    const registry = parseModelRegistry(modelDsl);
 
     const statements = generateModelDefineStatements(registry.User!);
     const surreal = connectionManager.getSurreal();
@@ -92,16 +98,17 @@ describe('Schema Validation', () => {
     await surreal.query(statements.join('\n'));
 
     // Valid email should work
+    const tableName = registry.User!.tableName;
     const [validResult] = await surreal.query<[{ id: string; email: string }[]]>(
-      "CREATE test_strict_user SET email = 'valid@example.com';",
+      `CREATE ${tableName} SET email = 'valid@example.com';`,
     );
     expect(validResult).toBeDefined();
     expect(validResult.length).toBeGreaterThan(0);
 
     // Invalid email should fail
     try {
-      await surreal.query("CREATE test_strict_user SET email = 'invalid-email';");
-      // If we get here, the test should fail
+      await surreal.query(`CREATE ${tableName} SET email = 'invalid-email';`);
+      // If we get here, test should fail
       expect(true).toBe(false);
     } catch (error) {
       // Expected to throw
@@ -110,16 +117,14 @@ describe('Schema Validation', () => {
   });
 
   test('should enforce unique constraint via index', async () => {
-    const registry: ModelRegistry = {
-      User: {
-        name: 'User',
-        tableName: 'test_schema_user',
-        fields: [
-          { name: 'id', type: 'string', isId: true, isUnique: false, hasNowDefault: false, isRequired: true },
-          { name: 'email', type: 'email', isId: false, isUnique: true, hasNowDefault: false, isRequired: true },
-        ],
-      },
-    };
+    const modelDsl = `
+    model User {
+      id String @id
+      email Email @unique
+    }
+    `;
+    const registry = parseModelRegistry(modelDsl);
+    const tableName = registry.User!.tableName;
 
     const statements = generateModelDefineStatements(registry.User!);
     const surreal = connectionManager.getSurreal();
@@ -128,12 +133,12 @@ describe('Schema Validation', () => {
     await surreal.query(statements.join('\n'));
 
     // First insert should work
-    await surreal.query("CREATE test_schema_user SET email = 'unique@example.com';");
+    await surreal.query(`CREATE ${tableName} SET email = 'unique@example.com';`);
 
     // Second insert with same email should fail
     try {
-      await surreal.query("CREATE test_schema_user SET email = 'unique@example.com';");
-      // If we get here, the test should fail (duplicate should be rejected)
+      await surreal.query(`CREATE ${tableName} SET email = 'unique@example.com';`);
+      // If we get here, as test should fail (duplicate should be rejected)
       expect(true).toBe(false);
     } catch (error) {
       // Expected to throw due to unique constraint
@@ -142,17 +147,14 @@ describe('Schema Validation', () => {
   });
 
   test('should apply default datetime value', async () => {
-    const registry: ModelRegistry = {
-      User: {
-        name: 'User',
-        tableName: 'test_schema_user',
-        fields: [
-          { name: 'id', type: 'string', isId: true, isUnique: false, hasNowDefault: false, isRequired: true },
-          { name: 'email', type: 'email', isId: false, isUnique: false, hasNowDefault: false, isRequired: true },
-          { name: 'createdAt', type: 'date', isId: false, isUnique: false, hasNowDefault: true, isRequired: true },
-        ],
-      },
-    };
+    const modelDsl = `
+    model User {
+      id String @id
+      email Email
+      createdAt Date @now
+    }
+    `;
+    const registry = parseModelRegistry(modelDsl);
 
     const statements = generateModelDefineStatements(registry.User!);
     const surreal = connectionManager.getSurreal();
@@ -161,8 +163,9 @@ describe('Schema Validation', () => {
     await surreal.query(statements.join('\n'));
 
     // Create record without specifying createdAt
+    const tableName = registry.User!.tableName;
     const [result] = await surreal.query<[{ id: string; email: string; createdAt: string }[]]>(
-      "CREATE test_schema_user SET email = 'test@example.com';",
+      `CREATE ${tableName} SET email = 'test@example.com';`,
     );
 
     expect(result).toBeDefined();
@@ -171,18 +174,14 @@ describe('Schema Validation', () => {
   });
 
   test('should handle optional fields', async () => {
-    const registry: ModelRegistry = {
-      User: {
-        name: 'User',
-        tableName: 'test_schema_user',
-        fields: [
-          { name: 'id', type: 'string', isId: true, isUnique: false, hasNowDefault: false, isRequired: true },
-          { name: 'email', type: 'email', isId: false, isUnique: false, hasNowDefault: false, isRequired: true },
-          { name: 'age', type: 'int', isId: false, isUnique: false, hasNowDefault: false, isRequired: false },
-        ],
-      },
-    };
-
+    const optionalUserDsl = `
+model User {
+  id String @id
+  email Email @unique
+  age Int?
+}
+`;
+    const registry = parseModelRegistry(optionalUserDsl);
     const statements = generateModelDefineStatements(registry.User!);
     const surreal = connectionManager.getSurreal();
     if (!surreal) throw new Error('No surreal instance');
@@ -190,8 +189,9 @@ describe('Schema Validation', () => {
     await surreal.query(statements.join('\n'));
 
     // Create record without optional age field
+    const tableName = registry.User!.tableName;
     const [result] = await surreal.query<[{ id: string; email: string; age?: number }[]]>(
-      "CREATE test_schema_user SET email = 'test@example.com';",
+      `CREATE ${tableName} SET email = 'test@example.com';`,
     );
 
     expect(result).toBeDefined();
@@ -200,22 +200,18 @@ describe('Schema Validation', () => {
   });
 
   test('should generate correct type for all field types', () => {
-    const registry: ModelRegistry = {
-      AllTypes: {
-        name: 'AllTypes',
-        tableName: 'all_types',
-        fields: [
-          { name: 'id', type: 'string', isId: true, isUnique: false, hasNowDefault: false, isRequired: true },
-          { name: 'stringField', type: 'string', isId: false, isUnique: false, hasNowDefault: false, isRequired: true },
-          { name: 'emailField', type: 'email', isId: false, isUnique: false, hasNowDefault: false, isRequired: true },
-          { name: 'intField', type: 'int', isId: false, isUnique: false, hasNowDefault: false, isRequired: true },
-          { name: 'floatField', type: 'float', isId: false, isUnique: false, hasNowDefault: false, isRequired: true },
-          { name: 'boolField', type: 'bool', isId: false, isUnique: false, hasNowDefault: false, isRequired: true },
-          { name: 'dateField', type: 'date', isId: false, isUnique: false, hasNowDefault: false, isRequired: true },
-        ],
-      },
-    };
-
+    const allTypesDsl = `
+model AllTypes {
+  id String @id
+  stringField String
+  emailField Email
+  intField Int
+  floatField Float
+  boolField Bool
+  dateField Date
+}
+`;
+    const registry = parseModelRegistry(allTypesDsl);
     const statements = generateModelDefineStatements(registry.AllTypes!);
 
     // Check each field type mapping

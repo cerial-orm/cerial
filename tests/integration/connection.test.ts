@@ -4,20 +4,19 @@
 
 import { afterEach, describe, expect, test } from 'bun:test';
 import { ConnectionManager, createConnectionManager } from '../../src/client/connection';
-import type { ConnectionConfig, ModelRegistry } from '../../src/types';
+import type { ConnectionConfig } from '../../src/types';
+import { parseModelRegistry } from '../test-helpers';
 
-// Test model registry
-const testRegistry: ModelRegistry = {
-  User: {
-    name: 'User',
-    tableName: 'user',
-    fields: [
-      { name: 'id', type: 'string', isId: true, isUnique: false, hasNowDefault: false, isRequired: true },
-      { name: 'email', type: 'email', isId: false, isUnique: true, hasNowDefault: false, isRequired: true },
-      { name: 'name', type: 'string', isId: false, isUnique: false, hasNowDefault: false, isRequired: true },
-    ],
-  },
-};
+// Parse model using DSL to ensure correct behavior
+const dsl = `
+model User {
+  id String @id
+  email Email @unique
+  name String
+}
+`;
+
+const testRegistry = parseModelRegistry(dsl);
 
 // Default test config
 const testConfig: ConnectionConfig = {

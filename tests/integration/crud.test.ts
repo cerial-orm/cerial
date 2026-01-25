@@ -6,7 +6,8 @@ import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { ConnectionManager } from '../../src/client/connection';
 import { Model } from '../../src/client/model/model';
 import { generateModelDefineStatements } from '../../src/generators/migrations/define-generator';
-import type { ConnectionConfig, ModelRegistry } from '../../src/types';
+import type { ConnectionConfig } from '../../src/types';
+import { parseModelRegistry } from '../test-helpers';
 
 // Test user interface
 interface TestUser {
@@ -19,21 +20,19 @@ interface TestUser {
   [key: string]: unknown;
 }
 
-// Test model registry
-const testRegistry: ModelRegistry = {
-  TestUser: {
-    name: 'TestUser',
-    tableName: 'test_user_crud',
-    fields: [
-      { name: 'id', type: 'record', isId: true, isUnique: false, hasNowDefault: false, isRequired: true },
-      { name: 'email', type: 'email', isId: false, isUnique: true, hasNowDefault: false, isRequired: true },
-      { name: 'name', type: 'string', isId: false, isUnique: false, hasNowDefault: false, isRequired: true },
-      { name: 'age', type: 'int', isId: false, isUnique: false, hasNowDefault: false, isRequired: false },
-      { name: 'isActive', type: 'bool', isId: false, isUnique: false, hasNowDefault: false, isRequired: true },
-      { name: 'createdAt', type: 'date', isId: false, isUnique: false, hasNowDefault: true, isRequired: true },
-    ],
-  },
-};
+// Parse model using DSL to ensure correct behavior
+const dsl = `
+model TestUser {
+  id String @id
+  email Email @unique
+  name String
+  age Int?
+  isActive Bool
+  createdAt Date @now
+}
+`;
+
+const testRegistry = parseModelRegistry(dsl);
 
 // Default test config
 const testConfig: ConnectionConfig = {
@@ -58,8 +57,9 @@ describe('CRUD Operations', () => {
     if (!surreal) throw new Error('No surreal instance');
 
     // Clean up and run migrations
+    const tableName = testRegistry.TestUser!.tableName;
     try {
-      await surreal.query('REMOVE TABLE IF EXISTS test_user_crud;');
+      await surreal.query(`REMOVE TABLE IF EXISTS ${tableName};`);
     } catch {
       // Ignore errors
     }

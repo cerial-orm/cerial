@@ -10,19 +10,20 @@ import {
   generateSelectType,
   generateWhereInterface,
 } from '../../src/generators/types';
-import type { ModelMetadata } from '../../src/types';
+import { parseModelRegistry } from '../test-helpers';
 
-const userModel: ModelMetadata = {
-  name: 'User',
-  tableName: 'user',
-  fields: [
-    { name: 'id', type: 'string', isId: true, isUnique: false, hasNowDefault: false, isRequired: true },
-    { name: 'name', type: 'string', isId: false, isUnique: false, hasNowDefault: false, isRequired: true },
-    { name: 'email', type: 'email', isId: false, isUnique: true, hasNowDefault: false, isRequired: true },
-    { name: 'age', type: 'int', isId: false, isUnique: false, hasNowDefault: false, isRequired: false },
-    { name: 'createdAt', type: 'date', isId: false, isUnique: false, hasNowDefault: true, isRequired: true },
-  ],
-};
+// Parse model using DSL to ensure correct behavior
+const dsl = `
+model User {
+  id String @id
+  name String
+  email Email @unique
+  age Int?
+  createdAt Date @now
+}`;
+
+const registry = parseModelRegistry(dsl);
+const userModel = registry['User']!;
 
 describe('types generator', () => {
   describe('generateInterface', () => {
@@ -77,13 +78,15 @@ describe('types generator', () => {
 
       expect(result).toContain('export interface UserWhere');
 
-      // id field (string type) - no ordering, no between, no isNull (required)
+      // id field (string type, @id) - no ordering, no between, no isNull (id fields are always present)
       expect(result).toContain('id?:');
       expect(result).toContain('eq?: string;');
       expect(result).toContain('neq?: string;');
       expect(result).toContain('contains?: string;');
       expect(result).toContain('startsWith?: string;');
       expect(result).toContain('endsWith?: string;');
+      // id field should NOT have isNull even though isRequired is false
+      expect(result.substring(result.indexOf('id?'), result.indexOf('name?'))).not.toContain('isNull');
 
       // name field (string type, required) - no ordering, no between, no isNull
       expect(result).toContain('name?:');

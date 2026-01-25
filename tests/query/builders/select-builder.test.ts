@@ -4,18 +4,20 @@
 
 import { describe, expect, test } from 'bun:test';
 import { buildFindOneQuery, buildOrderBy, buildSelectFields, buildSelectQuery } from '../../../src/query/builders';
-import type { FindOptions, ModelMetadata } from '../../../src/types';
+import type { FindOptions } from '../../../src/types';
+import { parseModelRegistry } from '../../test-helpers';
 
-const userModel: ModelMetadata = {
-  name: 'User',
-  tableName: 'user',
-  fields: [
-    { name: 'id', type: 'string', isId: true, isUnique: false, hasNowDefault: false, isRequired: true },
-    { name: 'name', type: 'string', isId: false, isUnique: false, hasNowDefault: false, isRequired: true },
-    { name: 'email', type: 'email', isId: false, isUnique: true, hasNowDefault: false, isRequired: true },
-    { name: 'age', type: 'int', isId: false, isUnique: false, hasNowDefault: false, isRequired: false },
-  ],
-};
+const dsl = `
+model User {
+  id String @id
+  name String
+  email Email @unique
+  age Int?
+}
+`;
+const registry = parseModelRegistry(dsl);
+
+const userModel = registry['User']!;
 
 describe('select builder', () => {
   test('builds simple SELECT query', () => {
