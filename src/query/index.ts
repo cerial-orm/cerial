@@ -3,52 +3,52 @@
  */
 
 // Compile primitives
-export type { QueryVars, QueryFragment, CompiledQuery, VarBinding } from './compile';
 export {
-  EMPTY_FRAGMENT,
-  createEmptyQuery,
-  isEmptyFragment,
-  createVarAllocator,
   createCompileContext,
+  createEmptyQuery,
   createFragment,
-  mergeFragments,
-  joinFragments,
-  wrapParens,
+  createVarAllocator,
+  EMPTY_FRAGMENT,
   fragmentToQuery,
+  isEmptyFragment,
+  joinFragments,
+  mergeFragments,
+  wrapParens,
 } from './compile';
+export type { CompiledQuery, QueryFragment, QueryVars, VarBinding } from './compile';
 
 // Filters
 export {
-  // Comparison operators
-  handleEq,
-  handleNeq,
-  handleGt,
-  handleGte,
-  handleLt,
-  handleLte,
-  // String operators
-  handleContains,
-  handleStartsWith,
-  handleEndsWith,
-  // Array operators
-  handleIn,
-  handleNotIn,
-  // Logical operators
-  handleAnd,
-  handleOr,
-  handleNot,
-  // Special operators
-  handleIsNull,
-  handleIsDefined,
-  handleBetween,
-  // Registry
-  getOperatorHandler,
-  isRegisteredOperator,
-  getRegisteredOperators,
-  registerOperator,
   // Condition builder
   buildConditions,
+  // Registry
+  getOperatorHandler,
+  getRegisteredOperators,
+  // Logical operators
+  handleAnd,
+  handleBetween,
+  // String operators
+  handleContains,
+  handleEndsWith,
+  // Comparison operators
+  handleEq,
+  handleGt,
+  handleGte,
+  // Array operators
+  handleIn,
+  handleIsDefined,
+  // Special operators
+  handleIsNull,
+  handleLt,
+  handleLte,
+  handleNeq,
+  handleNot,
+  handleNotIn,
+  handleOr,
+  handleStartsWith,
   isOperatorObject,
+  isRegisteredOperator,
+  registerOperator,
   // Transformer
   transformWhere,
   transformWhereClause,
@@ -56,37 +56,36 @@ export {
 
 // Builders
 export {
-  buildSelectQuery,
-  buildFindOneQuery,
-  buildFindManyQuery,
-  buildInsertQuery,
+  applyDefaultValues,
+  applyNowDefaults,
   buildCreateQuery,
-  buildUpdateManyQuery,
   buildDeleteQuery,
   buildDeleteQueryWithReturn,
-  applyNowDefaults,
-  applyDefaultValues,
+  buildFindManyQuery,
+  buildFindOneQuery,
+  buildSelectQuery,
+  buildUpdateManyQuery,
 } from './builders';
 
 // Transformers
 export {
-  transformValue,
-  transformData,
   filterModelFields,
-  formatValue,
   formatArray,
   formatObject,
+  formatValue,
+  transformData,
+  transformValue,
 } from './transformers';
 
 // Mappers
-export { mapFieldValue, mapRecord, filterFields, mapResult, mapSingleResult } from './mappers';
+export { mapFieldValue, mapRecord, mapResult, mapSingleResult } from './mappers';
 
 // Validators
-export { validateWhere, validateWhereClause, validateCreateData, validateUpdateData } from './validators';
-export type { ValidationError, WhereValidationResult, DataValidationError, DataValidationResult } from './validators';
+export { validateCreateData, validateUpdateData, validateWhere, validateWhereClause } from './validators';
+export type { DataValidationError, DataValidationResult, ValidationError, WhereValidationResult } from './validators';
 
 // Executor
-export { executeQuery, executeQuerySingle, executeTransaction, executeRaw } from './executor';
+export { executeQuery, executeQuerySingle, executeRaw, executeTransaction } from './executor';
 export type { ExecuteOptions } from './executor';
 
 // Builder

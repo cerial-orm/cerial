@@ -40,7 +40,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     const query = buildFindOneQuery(this.model, options);
     const result = await executeQuerySingle(this.db, query);
 
-    return mapSingleResult<T>(result, this.model, options.select);
+    return mapSingleResult<T>(result, this.model);
   }
 
   /** Find multiple records */
@@ -53,7 +53,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     const query = buildFindManyQuery(this.model, options);
     const result = await executeQuery(this.db, query);
 
-    return mapResult<T>(result, this.model, options.select);
+    return mapResult<T>(result, this.model);
   }
 
   /** Create a new record */
@@ -71,7 +71,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     const query = buildCreateQuery(this.model, transformedData, select);
     const result = await executeQuerySingle(this.db, query);
 
-    return mapSingleResult<T>(result, this.model, select);
+    return mapSingleResult<T>(result, this.model);
   }
 
   /** Update records matching where clause */
@@ -93,7 +93,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     const query = buildUpdateManyQuery(this.model, where, transformedData, select);
     const result = await executeQuery(this.db, query);
 
-    return mapResult<T>(result, this.model, select);
+    return mapResult<T>(result, this.model);
   }
 
   /** Delete records matching where clause */

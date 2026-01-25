@@ -39,15 +39,14 @@ export async function executeQuerySingle<T = unknown>(
   query: CompiledQuery,
   options: ExecuteOptions = {},
 ): Promise<T | null> {
-  const results = await executeQuery<T>(db, query, options);
-  return results[0] ?? null;
+  const boundQuery = createBoundQuery(query);
+  const results = await db.query<[T]>(boundQuery).collect();
+
+  return results?.[0] ?? null;
 }
 
 /** Execute multiple queries in a transaction */
-export async function executeTransaction<T = unknown>(
-  db: Surreal,
-  queries: CompiledQuery[],
-): Promise<T[][]> {
+export async function executeTransaction<T = unknown>(db: Surreal, queries: CompiledQuery[]): Promise<T[][]> {
   // Combine queries with BEGIN/COMMIT
   const combined = queries.map((q) => q.text).join('; ');
   const vars = queries.reduce((acc, q) => ({ ...acc, ...q.vars }), {});

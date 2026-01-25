@@ -394,7 +394,7 @@ query/
 **Key Functions**:
 
 - `buildSelectQuery()` - Builds SELECT queries
-- `buildInsertQuery()` - Builds INSERT queries
+- `buildCreateQuery()` - Builds CREATE queries
 - `buildUpdateManyQuery()` - Builds UPDATE queries
 - `buildDeleteQuery()` - Builds DELETE queries with RETURN BEFORE
 - `executeQuery()` - Executes query and returns results

@@ -2,10 +2,4 @@
  * Mappers barrel export
  */
 
-export {
-  mapFieldValue,
-  mapRecord,
-  filterFields,
-  mapResult,
-  mapSingleResult,
-} from './result-mapper';
+export { mapFieldValue, mapRecord, mapResult, mapSingleResult } from './result-mapper';

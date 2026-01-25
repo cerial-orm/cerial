@@ -33,33 +33,7 @@ export function applyDefaultValues<T extends Record<string, unknown>>(data: T, m
   return result;
 }
 
-/** Build INSERT query */
-export function buildInsertQuery(
-  model: ModelMetadata,
-  data: Record<string, unknown>,
-  select?: SelectClause,
-): CompiledQuery {
-  const ctx = createCompileContext();
-
-  // Apply defaults
-  const withDefaults = applyDefaultValues(applyNowDefaults(data, model), model);
-
-  // Build content variable
-  const contentVar = ctx.bind('content', 'insert', withDefaults, 'string');
-
-  // Build select fields for RETURN
-  const fields = buildSelectFields(select, model);
-
-  // Build query
-  const query = `INSERT INTO ${model.tableName} ${contentVar.placeholder} RETURN ${fields}`;
-
-  return {
-    text: query,
-    vars: contentVar.vars,
-  };
-}
-
-/** Build CREATE query (alternative to INSERT for single records) */
+/** Build CREATE query */
 export function buildCreateQuery(
   model: ModelMetadata,
   data: Record<string, unknown>,
@@ -77,7 +51,7 @@ export function buildCreateQuery(
   const fields = buildSelectFields(select, model);
 
   // Build query - use CONTENT for object data
-  const query = `CREATE ${model.tableName} CONTENT ${contentVar.placeholder} RETURN ${fields}`;
+  const query = `CREATE ONLY ${model.tableName} CONTENT ${contentVar.placeholder} RETURN ${fields}`;
 
   return {
     text: query,

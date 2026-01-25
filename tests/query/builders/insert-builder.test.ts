@@ -30,7 +30,7 @@ describe('insert builder', () => {
     const data = { name: 'John' };
     const result = buildCreateQuery(userModel, data);
 
-    expect(result.text).toContain('CREATE user CONTENT');
+    expect(result.text).toContain('CREATE ONLY user CONTENT');
     expect(result.text).toContain('RETURN');
   });
 
