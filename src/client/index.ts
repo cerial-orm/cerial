@@ -3,11 +3,13 @@
  */
 
 // Model
-export { Model, createModel } from './model';
+export { createModel, Model } from './model';
+export type { BeforeQueryCallback, ModelOptions } from './model';
 
 // Proxy
-export type { DatabaseProxy } from './proxy';
-export { createModelProxy, createProxyHandler, clearModelCache } from './proxy';
+export { clearModelCache, createModelProxy, createProxyHandler } from './proxy';
+export type { DatabaseProxy, ProxyOptions } from './proxy';
 
 // Connection manager
 export { ConnectionManager, createConnectionManager } from './connection';
+export type { ConnectionManagerOptions } from './connection';

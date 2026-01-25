@@ -101,14 +101,23 @@ client/
 ```
 
 **Key Classes**:
-- `Model` - Base class providing `findOne()`, `findMany()`, `create()`, `update()`, `delete()`
-- Model proxies created by `factory.ts` use JavaScript Proxy API to intercept and handle queries
+- `Model` - Base class providing `findOne()`, `findMany()`, `create()`, `update()`, `delete()`, `count()`, `exists()`
+- `ConnectionManager` - Manages database connections with migration support
+- Model proxies created by `factory.ts` use JavaScript Proxy API for dynamic model access
 
 **How it works**:
-1. When you call `db.User.findMany()`, the proxy intercepts the call
-2. The handler processes the query arguments and builds a SurrealQL query
-3. The query is executed via the connection
-4. Results are mapped back to TypeScript types
+1. User creates `SurrealClient` instance from generated code
+2. Call `client.connect(config)` to establish connection
+3. Access models via `client.db.User` (typed proxy)
+4. Call methods like `client.db.User.findMany({ where: {...} })`
+5. The proxy handler intercepts and builds SurrealQL queries
+6. Queries are executed via the SurrealDB SDK
+7. Results are mapped back to TypeScript types
+
+**Lazy Migration**:
+- If `migrate()` is not called explicitly, migrations run automatically before the first query
+- The `Model` class supports a `onBeforeQuery` callback for this purpose
+- Migration status is tracked per connection
 
 ---
 
@@ -124,13 +133,24 @@ client/
 **Key Types**:
 - `IRPCConnectionOption` - Connection configuration (url, namespace, database, auth)
 - `IConnectionAuthUserPassOption` - Authentication credentials
+- `ConnectionConfig` - Standard connection configuration type
+
+**Key Classes**:
+- `ConnectionManager` - Manages connections with migration support:
+  - `connect(config, name?)` - Establish named connection
+  - `disconnect(name?)` / `disconnectAll()` - Close connections
+  - `getSurreal(name?)` - Get raw Surreal instance
+  - `migrate(statements, name?)` - Execute migration statements
+  - `ensureMigrated(statements, name?)` - Lazy migration
+  - `isMigrated(name?)` - Check migration status
 
 **Connection Flow**:
-1. Create connection with `SurrealOM` class
-2. Call `connect()` to establish RPC connection
+1. Create `ConnectionManager` with model registry
+2. Call `connect(config)` to establish RPC connection
 3. Authenticate with username/password if provided
 4. Select namespace and database
-5. Execute queries through the connection
+5. Optionally call `migrate()` or let lazy migration run
+6. Execute queries through the database proxy
 
 ---
 
@@ -144,14 +164,19 @@ generators/
 ├── client/               # Client code generation
 │   ├── connection-template.ts  # Template for connection file
 │   ├── index.ts
-│   ├── template.ts            # Base client template
-│   └── writer.ts              # Writes generated client files
+│   ├── template.ts            # Base client template (SurrealClient class)
+│   └── writer.ts              # Writes generated client files with Prettier
 ├── metadata/             # Metadata generation
 │   ├── field-converter.ts     # Converts field AST to metadata
 │   ├── index.ts
 │   ├── model-converter.ts     # Converts model AST to metadata
 │   ├── registry-generator.ts # Generates model registry
 │   └── writer.ts              # Writes metadata files
+├── migrations/           # Schema migration generation
+│   ├── define-generator.ts    # Generates DEFINE TABLE/FIELD/INDEX statements
+│   ├── index.ts
+│   ├── type-mapper.ts         # Maps schema types to SurrealQL types
+│   └── writer.ts              # Writes migration files
 ├── types/                # Type generation
 │   ├── derived-generator.ts  # Generates derived types (where, select, etc.)
 │   ├── export-generator.ts    # Generates export types
@@ -164,9 +189,11 @@ generators/
 ```
 
 **Generated Files**:
+- `client.ts` - SurrealClient class with connect(), disconnect(), migrate(), and db proxy
 - `models/[model].ts` - TypeScript interfaces for each model
 - `internal/model-registry.ts` - Runtime metadata about models
-- `index.ts` - Main client export with `$connect()` function
+- `internal/migrations.ts` - Migration statements for schema definitions
+- `index.ts` - Main client export with SurrealClient and types
 
 **Generation Process**:
 1. Parse schema files to AST
@@ -221,7 +248,7 @@ parser/
 **Schema Format**:
 ```schema
 model User {
-  id String @id
+  id Record @id
   email Email @unique
   name String
   age Int?
@@ -229,6 +256,21 @@ model User {
   createdAt Date @now
 }
 ```
+
+**Field Types**:
+- `String` - Text values
+- `Email` - Email addresses (validated with `string::is_email`)
+- `Int` - Integer numbers
+- `Float` - Floating point numbers
+- `Bool` - Boolean values
+- `Date` - DateTime values (maps to SurrealDB `datetime`)
+- `Record` - Record ID type (must be used with `@id` decorator)
+
+**Decorators**:
+- `@id` - Marks field as the record identifier (requires `Record` type)
+- `@unique` - Creates a unique index on the field
+- `@now` - Sets default to `time::now()` for datetime fields
+- `@default(value)` - Sets a default value
 
 **Parsing Process**:
 1. **Tokenizer** - Breaks source code into tokens (keywords, identifiers, symbols)
@@ -302,7 +344,7 @@ query/
 │   ├── index.ts
 │   └── result-mapper.ts   # Maps DB results to TS types
 ├── transformers/          # Data transformation
-│   ├── data-transformer.ts  # Transforms data objects
+│   ├── data-transformer.ts  # Transforms data objects (Date, RecordId)
 │   ├── index.ts
 │   └── value-formatter.ts  # Formats values for SurrealQL
 └── validators/           # Query validation
@@ -330,8 +372,21 @@ query/
 - `buildSelectQuery()` - Builds SELECT queries
 - `buildInsertQuery()` - Builds INSERT queries
 - `buildUpdateQuery()` - Builds UPDATE queries
-- `buildDeleteQuery()` - Builds DELETE queries
+- `buildDeleteQuery()` - Builds DELETE queries with RETURN BEFORE
 - `executeQuery()` - Executes query and returns results
+- `transformData()` - Transforms data for queries (handles Date, RecordId)
+- `transformRecordId()` - Converts string IDs to SurrealDB RecordId
+
+**Type Transformations** (outgoing data to SurrealDB):
+- **Date fields**: User-provided dates (strings or Date objects) are converted to `Date` objects which the SurrealDB SDK handles natively
+- **Record fields** (with @id): User-provided IDs are converted to `RecordId(tableName, value)` using SurrealDB's RecordId class
+- **@now defaults**: Handled by the database via `DEFINE FIELD ... DEFAULT time::now()` - not applied in code
+
+**Result Mapping** (incoming data from SurrealDB):
+- SurrealDB SDK returns datetime values as `DateTime` class (not native `Date`)
+- The result mapper converts `DateTime` objects to native JavaScript `Date` via `DateTime.toString()` parsing
+- RecordId values are preserved as returned by SurrealDB SDK
+- All other primitive types map directly
 
 ---
 
@@ -347,13 +402,16 @@ query/
 - `index.ts` - Type exports
 
 **Key Types**:
+- `SchemaFieldType` - Supported field types: `string`, `email`, `int`, `date`, `bool`, `float`, `record`
 - `ModelMetadata` - Metadata about a model (fields, decorators, constraints)
-- `FieldMetadata` - Metadata about a field (type, optional, decorators)
+- `FieldMetadata` - Metadata about a field (type, optional, decorators, isId)
+- `ModelRegistry` - Map of model names to their metadata
 - `WhereClause` - Type-safe where clause structure
 - `SelectClause` - Type-safe select clause structure
 - `FindManyOptions` - Options for findMany queries
 - `CreateOptions` - Options for create queries
 - `UpdateOptions` - Options for update queries
+- `ConnectionConfig` - Database connection configuration
 
 ---
 
@@ -405,6 +463,11 @@ Manages database connections with support for:
 tests/
 ├── generators/
 │   └── types.test.ts     # Generator type tests
+├── integration/          # Integration tests (require running SurrealDB)
+│   ├── connection.test.ts       # ConnectionManager tests
+│   ├── crud.test.ts             # CRUD operation tests
+│   ├── migration.test.ts        # Schema migration tests
+│   └── schema-validation.test.ts # Schema validation tests
 ├── parser/
 │   ├── model-metadata.test.ts  # Metadata conversion tests
 │   ├── parser.test.ts          # Parser tests
@@ -424,8 +487,17 @@ tests/
 
 **Running Tests**:
 ```bash
+# Start SurrealDB for integration tests
+surreal start -u root -p root memory
+
+# Run all tests
 bun test
 ```
+
+**Integration Test Requirements**:
+- SurrealDB running at `http://127.0.0.1:8000`
+- Auth: username `root`, password `root`
+- Namespace: `main`, Database: `main`
 
 ---
 
@@ -457,18 +529,29 @@ TypeScript configuration for the library, ensuring type safety and proper compil
 
 2. **Add a new field type**:
    - Create parser in `src/parser/types/field-types/[type]-parser.ts`
-   - Update type mapping in `src/parser/types/field-types/index.ts`
+   - Update `SchemaFieldType` in `src/types/common.types.ts`
+   - Update type mappings in:
+     - `src/utils/type-utils.ts` (schemaTypeToTsType, schemaTypeToSurrealType)
+     - `src/utils/validation-utils.ts` (validateFieldType)
+     - `src/generators/migrations/type-mapper.ts` (TYPE_MAP)
+     - `src/query/transformers/data-transformer.ts` (transformValue)
    - Add tests
 
 3. **Add a new decorator**:
    - Create parser in `src/parser/types/field-decorators/[decorator]-parser.ts`
    - Update generator to handle decorator
+   - Update migration generator if needed
    - Add tests
 
 4. **Modify code generation**:
    - Update templates in `src/generators/client/` or `src/generators/types/`
    - Test with example schemas
    - Verify generated code compiles
+
+5. **Add migration support for new features**:
+   - Update `src/generators/migrations/define-generator.ts` for DEFINE statements
+   - Update `src/generators/migrations/type-mapper.ts` for type mappings
+   - Add integration tests in `tests/integration/`
 
 ---
 
@@ -484,7 +567,8 @@ TypeScript configuration for the library, ensuring type safety and proper compil
 
 ## Dependencies
 
-- **surrealdb** - Official SurrealDB JavaScript SDK
+- **surrealdb** - Official SurrealDB JavaScript SDK (provides RecordId, Surreal client)
+- **prettier** - Code formatting for generated TypeScript files
 - **ts-toolbelt** - Advanced TypeScript type utilities
 - **Bun** - Runtime for execution and CLI
 
@@ -494,13 +578,25 @@ TypeScript configuration for the library, ensuring type safety and proper compil
 
 The Surreal-OM library is organized into logical modules:
 
-- **CLI**: Command-line interface for code generation
-- **Client**: Runtime database client with proxy-based queries
-- **Connection**: Database connection management
-- **Generators**: Schema-to-TypeScript code generation
+- **CLI**: Command-line interface for code generation (`surreal-om generate`)
+- **Client**: Runtime database client with proxy-based queries and ConnectionManager
+- **Connection**: Database connection management with authentication
+- **Generators**: Schema-to-TypeScript code generation including:
+  - Client generation (SurrealClient class)
+  - Type generation (interfaces, where types, etc.)
+  - Metadata generation (model registry)
+  - Migration generation (DEFINE TABLE/FIELD/INDEX statements)
 - **Parser**: Custom schema language parser with AST
-- **Query**: Type-safe query building and execution
+- **Query**: Type-safe query building and execution with data transformation
 - **Types**: Shared TypeScript type definitions
 - **Utils**: Reusable utility functions
+
+**Key Features**:
+- Schema-driven code generation with Prettier formatting
+- Class-based client with typed database proxy (`client.db.User.findMany()`)
+- Automatic or explicit schema migrations with `DEFINE` statements
+- Lazy migration support (runs before first query if not explicitly called)
+- Record ID handling via SurrealDB's `RecordId` class
+- Native Date handling for datetime fields
 
 Each module has a clear responsibility and well-defined interfaces, making the library maintainable and extensible.

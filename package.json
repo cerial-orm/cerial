@@ -23,6 +23,7 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "prettier": "^3.4.2",
     "surrealdb": "^2.0.0-alpha.16",
     "ts-toolbelt": "^9.6.0"
   },

@@ -3,7 +3,7 @@
  */
 
 import type { ModelMetadata, SchemaFieldType } from '../../types';
-import { validateFieldType, isValidEmail } from '../../utils/validation-utils';
+import { isValidEmail, validateFieldType } from '../../utils/validation-utils';
 
 /** Validation error */
 export interface DataValidationError {
@@ -48,20 +48,29 @@ export function validateFieldValue(
 }
 
 /** Validate data for create operation */
-export function validateCreateData(
-  data: Record<string, unknown>,
-  model: ModelMetadata,
-): DataValidationResult {
+export function validateCreateData(data: Record<string, unknown>, model: ModelMetadata): DataValidationResult {
   const errors: DataValidationError[] = [];
 
   for (const field of model.fields) {
-    // Skip fields with @now default (auto-filled)
-    if (field.hasNowDefault) continue;
-
-    // Skip fields with default value
-    if (field.defaultValue !== undefined) continue;
-
     const value = data[field.name];
+
+    // For id fields: if user provides a value, validate it; otherwise skip (auto-generated)
+    if (field.isId) {
+      if (value !== undefined && value !== null) {
+        // Validate user-provided id (should be string for record type)
+        if (typeof value !== 'string') {
+          errors.push({ field: field.name, message: `${field.name} must be a string` });
+        }
+      }
+      continue;
+    }
+
+    // Skip fields with @now default (handled by database via DEFAULT time::now())
+    if (field.hasNowDefault && value === undefined) continue;
+
+    // Skip fields with default value (if not provided)
+    if (field.defaultValue !== undefined && value === undefined) continue;
+
     const error = validateFieldValue(field.name, value, field.type, field.isRequired);
     if (error) {
       errors.push(error);
@@ -75,10 +84,7 @@ export function validateCreateData(
 }
 
 /** Validate data for update operation */
-export function validateUpdateData(
-  data: Record<string, unknown>,
-  model: ModelMetadata,
-): DataValidationResult {
+export function validateUpdateData(data: Record<string, unknown>, model: ModelMetadata): DataValidationResult {
   const errors: DataValidationError[] = [];
 
   for (const [fieldName, value] of Object.entries(data)) {

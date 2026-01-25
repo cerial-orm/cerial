@@ -5,7 +5,7 @@
 import type { Surreal } from 'surrealdb';
 import type { ModelRegistry } from '../../types';
 import type { Model } from '../model/model';
-import { createProxyHandler } from './handler';
+import { createProxyHandler, type ProxyOptions } from './handler';
 
 /** Database proxy type - dynamic access to models */
 export type DatabaseProxy<R extends ModelRegistry = ModelRegistry> = {
@@ -16,6 +16,7 @@ export type DatabaseProxy<R extends ModelRegistry = ModelRegistry> = {
 export function createModelProxy<R extends ModelRegistry>(
   db: Surreal,
   registry: R,
+  options?: ProxyOptions,
 ): DatabaseProxy<R> {
-  return new Proxy({} as Record<string, Model>, createProxyHandler(db, registry)) as DatabaseProxy<R>;
+  return new Proxy({} as Record<string, Model>, createProxyHandler(db, registry, options)) as DatabaseProxy<R>;
 }

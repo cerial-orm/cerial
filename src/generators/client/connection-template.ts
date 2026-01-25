@@ -26,6 +26,16 @@ ${modelTypes}
 }`;
 }
 
+/** Generate typed database interface for the proxy */
+export function generateTypedDbInterface(models: ModelMetadata[]): string {
+  const modelTypes = models.map((m) => `  ${m.name}: TypedModel<${m.name}>;`).join('\n');
+
+  return `/** Typed database proxy interface */
+export interface TypedDb {
+${modelTypes}
+}`;
+}
+
 /** Generate connection manager exports */
 export function generateConnectionExports(): string {
   return `// Re-export connection types

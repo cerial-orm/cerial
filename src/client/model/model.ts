@@ -6,12 +6,31 @@ import type { Surreal } from 'surrealdb';
 import type { ModelMetadata, FindOneOptions, FindManyOptions, CreateOptions, UpdateOptions, DeleteOptions } from '../../types';
 import { QueryBuilderStatic } from '../../query/builder';
 
+/** Callback type for before-query hook */
+export type BeforeQueryCallback = () => Promise<void>;
+
+/** Model options */
+export interface ModelOptions {
+  /** Callback to run before each query (e.g., for lazy migrations) */
+  onBeforeQuery?: BeforeQueryCallback;
+}
+
 /** Model class that wraps query builder methods */
 export class Model<T extends Record<string, unknown> = Record<string, unknown>> {
+  private onBeforeQuery?: BeforeQueryCallback;
+
   constructor(
     private db: Surreal,
     private metadata: ModelMetadata,
-  ) {}
+    options?: ModelOptions,
+  ) {
+    this.onBeforeQuery = options?.onBeforeQuery;
+  }
+
+  /** Run before-query hook if set */
+  private async beforeQuery(): Promise<void> {
+    if (this.onBeforeQuery) await this.onBeforeQuery();
+  }
 
   /** Get model metadata */
   getMetadata(): ModelMetadata {
@@ -30,11 +49,13 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
 
   /** Find a single record */
   async findOne(options: FindOneOptions = {}): Promise<T | null> {
+    await this.beforeQuery();
     return QueryBuilderStatic.findOne<T>(this.db, this.metadata, options);
   }
 
   /** Find multiple records */
   async findMany(options: FindManyOptions = {}): Promise<T[]> {
+    await this.beforeQuery();
     return QueryBuilderStatic.findMany<T>(this.db, this.metadata, options);
   }
 
@@ -45,11 +66,13 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
 
   /** Create a new record */
   async create(options: CreateOptions<Partial<T>>): Promise<T | null> {
+    await this.beforeQuery();
     return QueryBuilderStatic.create<T>(this.db, this.metadata, options);
   }
 
   /** Update records matching where clause */
   async update(options: UpdateOptions<Partial<T>>): Promise<T[]> {
+    await this.beforeQuery();
     return QueryBuilderStatic.update<T>(this.db, this.metadata, options);
   }
 
@@ -61,6 +84,7 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
 
   /** Delete records matching where clause */
   async delete(options: DeleteOptions): Promise<number> {
+    await this.beforeQuery();
     return QueryBuilderStatic.delete(this.db, this.metadata, options);
   }
 
@@ -81,6 +105,7 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
 export function createModel<T extends Record<string, unknown>>(
   db: Surreal,
   metadata: ModelMetadata,
+  options?: ModelOptions,
 ): Model<T> {
-  return new Model<T>(db, metadata);
+  return new Model<T>(db, metadata, options);
 }

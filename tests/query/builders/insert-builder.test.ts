@@ -10,7 +10,7 @@ const userModel: ModelMetadata = {
   name: 'User',
   tableName: 'user',
   fields: [
-    { name: 'id', type: 'string', isId: true, isUnique: false, hasNowDefault: false, isRequired: true },
+    { name: 'id', type: 'record', isId: true, isUnique: false, hasNowDefault: false, isRequired: true },
     { name: 'name', type: 'string', isId: false, isUnique: false, hasNowDefault: false, isRequired: true },
     { name: 'createdAt', type: 'date', isId: false, isUnique: false, hasNowDefault: true, isRequired: true },
     {
@@ -34,16 +34,26 @@ describe('insert builder', () => {
     expect(result.text).toContain('RETURN');
   });
 
-  test('applyNowDefaults adds timestamp for @now fields', () => {
+  test('applyNowDefaults preserves data (database handles @now defaults)', () => {
     const data: Record<string, unknown> = { name: 'John' };
     const result = applyNowDefaults(data, userModel);
 
-    expect(result.createdAt).toBeDefined();
-    expect(typeof result.createdAt).toBe('string');
+    // @now defaults are handled by the database through DEFINE FIELD ... DEFAULT time::now()
+    expect(result.createdAt).toBeUndefined();
+    expect(result.name).toBe('John');
   });
 
-  test('applyNowDefaults does not override existing value', () => {
+  test('applyNowDefaults preserves user-provided date value', () => {
     const existingDate = '2024-01-01T00:00:00.000Z';
+    const data: Record<string, unknown> = { name: 'John', createdAt: existingDate };
+    const result = applyNowDefaults(data, userModel);
+
+    // User-provided date should be preserved, not overwritten
+    expect(result.createdAt).toBe(existingDate);
+  });
+
+  test('applyNowDefaults preserves Date object value', () => {
+    const existingDate = new Date('2024-01-01T00:00:00.000Z');
     const data: Record<string, unknown> = { name: 'John', createdAt: existingDate };
     const result = applyNowDefaults(data, userModel);
 

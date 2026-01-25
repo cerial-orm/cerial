@@ -2,7 +2,7 @@
  * Result mapper - maps query results to typed responses
  */
 
-import type { ModelMetadata, SelectClause, SchemaFieldType } from '../../types';
+import type { ModelMetadata, SchemaFieldType, SelectClause } from '../../types';
 
 /** Map a single field value from SurrealDB result */
 export function mapFieldValue(value: unknown, fieldType: SchemaFieldType): unknown {
@@ -10,11 +10,23 @@ export function mapFieldValue(value: unknown, fieldType: SchemaFieldType): unkno
 
   switch (fieldType) {
     case 'date':
+      // Native Date
+      if (value instanceof Date) return value;
+      // String - parse to Date
       if (typeof value === 'string') {
         const date = new Date(value);
         return Number.isNaN(date.getTime()) ? null : date;
       }
-      if (value instanceof Date) return value;
+      // SurrealDB DateTime object - has toString() method that returns ISO string
+      if (
+        typeof value === 'object' &&
+        value !== null &&
+        typeof (value as { toString: () => string }).toString === 'function'
+      ) {
+        const dateStr = (value as { toString: () => string }).toString();
+        const date = new Date(dateStr);
+        return Number.isNaN(date.getTime()) ? null : date;
+      }
       return null;
 
     case 'int':
@@ -38,10 +50,7 @@ export function mapFieldValue(value: unknown, fieldType: SchemaFieldType): unkno
 }
 
 /** Map a single record from SurrealDB result */
-export function mapRecord(
-  record: Record<string, unknown>,
-  model: ModelMetadata,
-): Record<string, unknown> {
+export function mapRecord(record: Record<string, unknown>, model: ModelMetadata): Record<string, unknown> {
   const result: Record<string, unknown> = {};
 
   for (const field of model.fields) {
@@ -81,11 +90,7 @@ export function filterFields(
 }
 
 /** Map query result to typed response */
-export function mapResult<T>(
-  result: unknown,
-  model: ModelMetadata,
-  select?: SelectClause,
-): T[] {
+export function mapResult<T>(result: unknown, model: ModelMetadata, select?: SelectClause): T[] {
   if (!result) return [];
 
   // SurrealDB returns arrays
@@ -93,18 +98,16 @@ export function mapResult<T>(
     return [filterFields(mapRecord(result as Record<string, unknown>, model), select)] as T[];
   }
 
-  return result.map((record) => {
-    if (!record || typeof record !== 'object') return null;
-    return filterFields(mapRecord(record as Record<string, unknown>, model), select);
-  }).filter(Boolean) as T[];
+  return result
+    .map((record) => {
+      if (!record || typeof record !== 'object') return null;
+      return filterFields(mapRecord(record as Record<string, unknown>, model), select);
+    })
+    .filter(Boolean) as T[];
 }
 
 /** Map single record result */
-export function mapSingleResult<T>(
-  result: unknown,
-  model: ModelMetadata,
-  select?: SelectClause,
-): T | null {
+export function mapSingleResult<T>(result: unknown, model: ModelMetadata, select?: SelectClause): T | null {
   const mapped = mapResult<T>(result, model, select);
   return mapped[0] ?? null;
 }

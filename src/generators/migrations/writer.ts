@@ -1,11 +1,11 @@
 /**
- * Metadata writer - writes model registry files
+ * Migration writer - writes migration-related generated files
  */
 
-import type { ModelMetadata } from '../../types';
-import { generateRegistryCode } from './registry-generator';
 import { mkdir } from 'node:fs/promises';
 import * as prettier from 'prettier';
+import type { ModelMetadata } from '../../types';
+import { generateMigrationCode } from './define-generator';
 
 /** Prettier config cache */
 let prettierConfig: prettier.Options | null = null;
@@ -39,38 +39,21 @@ async function formatCode(code: string, outputDir: string): Promise<string> {
   }
 }
 
-/** Write model registry file */
-export async function writeModelRegistry(outputDir: string, models: ModelMetadata[]): Promise<string> {
+/** Write migration file to internal directory */
+export async function writeMigrationFile(outputDir: string, models: ModelMetadata[]): Promise<string> {
   const internalDir = `${outputDir}/internal`;
   await ensureDir(internalDir);
 
-  const filePath = `${internalDir}/model-registry.ts`;
-  const content = generateRegistryCode(models);
-  const formatted = await formatCode(content, outputDir);
-
-  await Bun.write(filePath, formatted);
-
-  return filePath;
-}
-
-/** Write internal index file */
-export async function writeInternalIndex(outputDir: string): Promise<string> {
-  const internalDir = `${outputDir}/internal`;
-  await ensureDir(internalDir);
-
-  const filePath = `${internalDir}/index.ts`;
+  const filePath = `${internalDir}/migrations.ts`;
   const content = `/**
- * Generated internal exports
+ * Generated migration statements
  * Do not edit manually
  */
 
-export { modelRegistry } from './model-registry';
-export type { ModelRegistry } from './model-registry';
-export { migrationStatements, getMigrationQuery } from './migrations';
+${generateMigrationCode(models)}
 `;
 
   const formatted = await formatCode(content, outputDir);
   await Bun.write(filePath, formatted);
-
   return filePath;
 }

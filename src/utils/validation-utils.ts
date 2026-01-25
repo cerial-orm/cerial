@@ -25,6 +25,9 @@ export function validateFieldType(value: unknown, type: SchemaFieldType): boolea
       return isBoolean(value);
     case 'date':
       return isDate(value) || (isString(value) && !Number.isNaN(Date.parse(value)));
+    case 'record':
+      // Record type is a string identifier for the record
+      return isString(value);
     default:
       return false;
   }

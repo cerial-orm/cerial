@@ -2,19 +2,49 @@
  * Client writer - writes generated client files
  */
 
-import type { ModelMetadata } from '../../types';
-import { generateClientTemplate } from './template';
-import { generateConnectionExports, generateDbProxyInterface } from './connection-template';
-import { generateInterfaces, generateWhereTypes, generateAllDerivedTypes, generateModelTypes, generateDbClientInterface } from '../types';
 import { mkdir } from 'node:fs/promises';
+import * as prettier from 'prettier';
+import type { ModelMetadata } from '../../types';
+import { generateAllDerivedTypes, generateInterfaces, generateModelTypes, generateWhereTypes } from '../types';
+import { generateConnectionExports } from './connection-template';
+import { generateClientTemplate } from './template';
+
+/** Prettier config cache */
+let prettierConfig: prettier.Options | null = null;
 
 /** Ensure directory exists */
 async function ensureDir(dir: string): Promise<void> {
   await mkdir(dir, { recursive: true });
 }
 
+/** Load prettier config from workspace root */
+async function loadPrettierConfig(outputDir: string): Promise<prettier.Options> {
+  if (prettierConfig) return prettierConfig;
+
+  // Try to resolve config from the output directory
+  const resolvedConfig = await prettier.resolveConfig(outputDir);
+
+  prettierConfig = {
+    ...resolvedConfig,
+    parser: 'typescript',
+  };
+
+  return prettierConfig;
+}
+
+/** Format TypeScript code with prettier */
+async function formatCode(code: string, outputDir: string): Promise<string> {
+  try {
+    const config = await loadPrettierConfig(outputDir);
+    return await prettier.format(code, config);
+  } catch {
+    // If prettier fails, return the original code
+    return code;
+  }
+}
+
 /** Write client main file */
-export async function writeClientMain(outputDir: string): Promise<string> {
+export async function writeClientMain(outputDir: string, models: ModelMetadata[]): Promise<string> {
   await ensureDir(outputDir);
 
   const filePath = `${outputDir}/client.ts`;
@@ -23,21 +53,19 @@ export async function writeClientMain(outputDir: string): Promise<string> {
  * Do not edit manually
  */
 
-${generateClientTemplate()}
+${generateClientTemplate(models)}
 
 ${generateConnectionExports()}
 `;
 
-  await Bun.write(filePath, content);
+  const formatted = await formatCode(content, outputDir);
+  await Bun.write(filePath, formatted);
 
   return filePath;
 }
 
 /** Write model type file */
-export async function writeModelTypes(
-  outputDir: string,
-  model: ModelMetadata,
-): Promise<string> {
+export async function writeModelTypes(outputDir: string, model: ModelMetadata): Promise<string> {
   const modelsDir = `${outputDir}/models`;
   await ensureDir(modelsDir);
 
@@ -63,23 +91,19 @@ ${derivedCode}
 ${modelCode}
 `;
 
-  await Bun.write(filePath, content);
+  const formatted = await formatCode(content, outputDir);
+  await Bun.write(filePath, formatted);
 
   return filePath;
 }
 
 /** Write models index file */
-export async function writeModelsIndex(
-  outputDir: string,
-  models: ModelMetadata[],
-): Promise<string> {
+export async function writeModelsIndex(outputDir: string, models: ModelMetadata[]): Promise<string> {
   const modelsDir = `${outputDir}/models`;
   await ensureDir(modelsDir);
 
   const filePath = `${modelsDir}/index.ts`;
-  const exports = models
-    .map((m) => `export * from './${m.name.toLowerCase()}';`)
-    .join('\n');
+  const exports = models.map((m) => `export * from './${m.name.toLowerCase()}';`).join('\n');
 
   const content = `/**
  * Generated model exports
@@ -89,16 +113,14 @@ export async function writeModelsIndex(
 ${exports}
 `;
 
-  await Bun.write(filePath, content);
+  const formatted = await formatCode(content, outputDir);
+  await Bun.write(filePath, formatted);
 
   return filePath;
 }
 
 /** Write main client index file */
-export async function writeClientIndex(
-  outputDir: string,
-  models: ModelMetadata[],
-): Promise<string> {
+export async function writeClientIndex(outputDir: string, models: ModelMetadata[]): Promise<string> {
   await ensureDir(outputDir);
 
   const filePath = `${outputDir}/index.ts`;
@@ -152,27 +174,25 @@ export type {
 } from './models';
 
 // Client exports
-export { $connect, $disconnect, $useConnection, db } from './client';
-export type { ConnectionConfig } from './client';
+export { SurrealClient } from './client';
+export type { ConnectionConfig, TypedDb } from './client';
 
 // Registry
 export { modelRegistry } from './internal';
 `;
 
-  await Bun.write(filePath, content);
+  const formatted = await formatCode(content, outputDir);
+  await Bun.write(filePath, formatted);
 
   return filePath;
 }
 
 /** Write all client files */
-export async function writeClient(
-  outputDir: string,
-  models: ModelMetadata[],
-): Promise<string[]> {
+export async function writeClient(outputDir: string, models: ModelMetadata[]): Promise<string[]> {
   const files: string[] = [];
 
   // Write client main
-  files.push(await writeClientMain(outputDir));
+  files.push(await writeClientMain(outputDir, models));
 
   // Write model types
   for (const model of models) {
@@ -187,3 +207,6 @@ export async function writeClient(
 
   return files;
 }
+
+/** Export formatCode for use in other writers */
+export { formatCode };

@@ -3,24 +3,27 @@
  */
 
 export {
-  generateImports,
+  generateClientClass,
   generateClientSetup,
+  generateClientTemplate,
   generateConnectFunction,
   generateDisconnectFunction,
+  generateImports,
+  generateTypedDbInterface,
   generateUseConnectionFunction,
-  generateClientTemplate,
 } from './template';
 
 export {
   generateConnectionConfigInterface,
-  generateDbProxyInterface,
   generateConnectionExports,
+  generateDbProxyInterface,
 } from './connection-template';
 
 export {
-  writeClientMain,
-  writeModelTypes,
-  writeModelsIndex,
-  writeClientIndex,
+  formatCode,
   writeClient,
+  writeClientIndex,
+  writeClientMain,
+  writeModelsIndex,
+  writeModelTypes,
 } from './writer';

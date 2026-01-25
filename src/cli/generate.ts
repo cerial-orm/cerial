@@ -5,6 +5,7 @@
 import { writeClient } from '../generators/client/writer';
 import { convertModels } from '../generators/metadata';
 import { writeInternalIndex, writeModelRegistry } from '../generators/metadata/writer';
+import { writeMigrationFile } from '../generators/migrations/writer';
 import { parse } from '../parser/parser';
 import { resolveSchemas, resolveSinglePath } from './resolvers';
 import { logger } from './utils';
@@ -112,6 +113,11 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
     const registryPath = await writeModelRegistry(outputDir, models);
     result.files.push(registryPath);
     logger.fileCreated(registryPath);
+
+    // Write migration file
+    const migrationPath = await writeMigrationFile(outputDir, models);
+    result.files.push(migrationPath);
+    logger.fileCreated(migrationPath);
 
     // Write internal index
     const internalIndexPath = await writeInternalIndex(outputDir);

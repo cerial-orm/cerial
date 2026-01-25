@@ -52,18 +52,25 @@ bunx surreal-om generate -s ./schemas -o ./db-client
 ### 3. Use the Client
 
 ```typescript
-import { $connect, db } from './db-client';
+import { SurrealClient } from './db-client';
+
+// Create client instance
+const client = new SurrealClient();
 
 // Connect to SurrealDB
-await $connect({
+await client.connect({
   url: 'http://localhost:8000',
-  namespace: 'test',
-  database: 'test',
+  namespace: 'main',
+  database: 'main',
   auth: { username: 'root', password: 'root' },
 });
 
+// Migrations are run automatically before the first query
+// Or you can run them explicitly:
+// await client.migrate();
+
 // Create a user
-const user = await db.User.create({
+const user = await client.db.User.create({
   data: {
     email: 'john@example.com',
     name: 'John Doe',
@@ -72,7 +79,7 @@ const user = await db.User.create({
 });
 
 // Find users
-const users = await db.User.findMany({
+const users = await client.db.User.findMany({
   where: {
     isActive: { eq: true },
     age: { gte: 18 },
@@ -81,20 +88,23 @@ const users = await db.User.findMany({
 });
 
 // Find one user
-const user = await db.User.findOne({
+const foundUser = await client.db.User.findOne({
   where: { email: { eq: 'john@example.com' } },
 });
 
 // Update a user
-await db.User.update({
+await client.db.User.update({
   where: { id: { eq: user.id } },
   data: { name: 'John Smith' },
 });
 
 // Delete a user
-await db.User.delete({
+await client.db.User.delete({
   where: { id: { eq: user.id } },
 });
+
+// Disconnect when done
+await client.disconnect();
 ```
 
 ## Schema Definition Language
@@ -316,14 +326,16 @@ bunx surreal-om generate -s <schema-path> -o <output-path>
 
 ```
 db-client/
+├── client.ts             # SurrealClient class
 ├── models/
-│   ├── user.ts          # User interface & types
-│   ├── post.ts          # Post interface & types
-│   └── index.ts         # Model exports
+│   ├── user.ts           # User interface & types
+│   ├── post.ts           # Post interface & types
+│   └── index.ts          # Model exports
 ├── internal/
-│   ├── model-registry.ts  # Model metadata
+│   ├── model-registry.ts # Model metadata
+│   ├── migrations.ts     # DEFINE TABLE/FIELD statements
 │   └── index.ts
-└── index.ts              # Main client with $connect()
+└── index.ts              # Main exports
 ```
 
 ## Development
@@ -341,6 +353,32 @@ bunx tsc --noEmit
 # Generate from example schema
 bun run generate
 ```
+
+## Running Integration Tests
+
+Integration tests require a running SurrealDB instance. Start SurrealDB with the following command:
+
+```bash
+surreal start -u root -p root memory
+```
+
+This starts SurrealDB with:
+- In-memory storage (data is not persisted)
+- Username: `root`
+- Password: `root`
+- Default endpoint: `http://127.0.0.1:8000`
+
+Then run the tests:
+
+```bash
+bun test
+```
+
+The tests use the following connection configuration:
+- URL: `http://127.0.0.1:8000`
+- Namespace: `main`
+- Database: `main`
+- Auth: `root` / `root`
 
 ## Requirements
 

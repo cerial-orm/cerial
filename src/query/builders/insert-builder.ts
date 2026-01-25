@@ -2,32 +2,26 @@
  * INSERT query builder
  */
 
-import type { CompiledQuery, QueryVars } from '../compile/types';
 import type { ModelMetadata, SelectClause } from '../../types';
+import type { CompiledQuery } from '../compile/types';
 import { createCompileContext } from '../compile/var-allocator';
 import { buildSelectFields } from './select-builder';
 
-/** Apply @now defaults to data */
-export function applyNowDefaults<T extends Record<string, unknown>>(
-  data: T,
-  model: ModelMetadata,
-): T {
-  const result = { ...data };
-
-  for (const field of model.fields) {
-    if (field.hasNowDefault && result[field.name] === undefined) {
-      (result as Record<string, unknown>)[field.name] = new Date().toISOString();
-    }
-  }
-
-  return result;
+/**
+ * Apply @now defaults to data
+ * NOTE: If the table schema has DEFAULT time::now() defined, this is not needed
+ * as the database will handle it. This is kept for backwards compatibility
+ * when running without migrations.
+ */
+export function applyNowDefaults<T extends Record<string, unknown>>(data: T, _model: ModelMetadata): T {
+  // Don't apply @now defaults here - let the database handle it
+  // through the DEFINE FIELD ... DEFAULT time::now() statement.
+  // This ensures proper datetime type handling in SurrealDB.
+  return { ...data };
 }
 
 /** Apply @default values to data */
-export function applyDefaultValues<T extends Record<string, unknown>>(
-  data: T,
-  model: ModelMetadata,
-): T {
+export function applyDefaultValues<T extends Record<string, unknown>>(data: T, model: ModelMetadata): T {
   const result = { ...data };
 
   for (const field of model.fields) {

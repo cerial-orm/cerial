@@ -3,14 +3,11 @@
  */
 
 export {
-  transformValue,
-  transformData,
   applyNowDefaults,
   filterModelFields,
+  transformData,
+  transformRecordId,
+  transformValue,
 } from './data-transformer';
 
-export {
-  formatValue,
-  formatArray,
-  formatObject,
-} from './value-formatter';
+export { formatArray, formatObject, formatValue } from './value-formatter';

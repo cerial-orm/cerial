@@ -13,7 +13,7 @@ import type {
 } from '../types';
 import {
   buildCreateQuery,
-  buildDeleteQuery,
+  buildDeleteQueryWithReturn,
   buildFindManyQuery,
   buildFindOneQuery,
   buildUpdateQuery,
@@ -60,11 +60,13 @@ export class QueryBuilder<T extends Record<string, unknown>> {
   async create(options: CreateOptions<Partial<T>>): Promise<T | null> {
     const { data, select } = options;
 
-    // Transform and validate data
-    const transformedData = transformData(applyNowDefaults(data as Record<string, unknown>, this.model), this.model);
-
-    const validation = validateCreateData(transformedData, this.model);
+    // Validate data BEFORE transformation (so we check original values)
+    const dataWithDefaults = applyNowDefaults(data as Record<string, unknown>, this.model);
+    const validation = validateCreateData(dataWithDefaults, this.model);
     if (!validation.valid) throw new Error(`Invalid data: ${validation.errors.map((e) => e.message).join(', ')}`);
+
+    // Transform data after validation (converts dates to Date objects, ids to RecordId, etc.)
+    const transformedData = transformData(dataWithDefaults, this.model);
 
     const query = buildCreateQuery(this.model, transformedData, select);
     const result = await executeQuerySingle(this.db, query);
@@ -103,7 +105,8 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     if (!validation.valid)
       throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
 
-    const query = buildDeleteQuery(this.model, where);
+    // Use buildDeleteQueryWithReturn to get deleted records count
+    const query = buildDeleteQueryWithReturn(this.model, where);
     const result = await executeQuery(this.db, query);
 
     return Array.isArray(result) ? result.length : 0;

@@ -3,7 +3,7 @@
  */
 
 /** Supported field types in schema definitions */
-export type SchemaFieldType = 'string' | 'email' | 'int' | 'date' | 'bool' | 'float';
+export type SchemaFieldType = 'string' | 'email' | 'int' | 'date' | 'bool' | 'float' | 'record';
 
 /** Supported decorator types in schema definitions */
 export type SchemaDecorator = 'id' | 'unique' | 'now' | 'default';
@@ -19,6 +19,7 @@ export type FieldTypeMapping = {
   date: Date;
   bool: boolean;
   float: number;
+  record: string;
 };
 
 /** Field type to SurrealDB type mapping */
@@ -29,6 +30,7 @@ export type SurrealTypeMapping = {
   date: 'datetime';
   bool: 'bool';
   float: 'float';
+  record: 'record';
 };
 
 /** Generic result type for operations */

@@ -67,6 +67,7 @@ export function schemaTypeToTsType(type: SchemaFieldType): string {
     date: 'Date',
     bool: 'boolean',
     float: 'number',
+    record: 'string',
   };
   return typeMap[type];
 }
@@ -80,11 +81,12 @@ export function schemaTypeToSurrealType(type: SchemaFieldType): string {
     date: 'datetime',
     bool: 'bool',
     float: 'float',
+    record: 'record',
   };
   return typeMap[type];
 }
 
 /** Check if a type is a primitive type */
 export function isPrimitiveType(type: SchemaFieldType): boolean {
-  return ['string', 'email', 'int', 'date', 'bool', 'float'].includes(type);
+  return ['string', 'email', 'int', 'date', 'bool', 'float', 'record'].includes(type);
 }
