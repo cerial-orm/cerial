@@ -3,7 +3,14 @@
  */
 
 import type { Surreal } from 'surrealdb';
-import type { ModelMetadata, FindOneOptions, FindManyOptions, CreateOptions, UpdateOptions, DeleteOptions } from '../../types';
+import type {
+  ModelMetadata,
+  FindOneOptions,
+  FindManyOptions,
+  CreateOptions,
+  UpdateOptions,
+  DeleteOptions,
+} from '../../types';
 import { QueryBuilderStatic } from '../../query/builder';
 
 /** Callback type for before-query hook */
@@ -71,15 +78,9 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
   }
 
   /** Update records matching where clause */
-  async update(options: UpdateOptions<Partial<T>>): Promise<T[]> {
+  async updateMany(options: UpdateOptions<Partial<T>>): Promise<T[]> {
     await this.beforeQuery();
-    return QueryBuilderStatic.update<T>(this.db, this.metadata, options);
-  }
-
-  /** Update a single record (first match) */
-  async updateOne(options: UpdateOptions<Partial<T>>): Promise<T | null> {
-    const results = await this.update(options);
-    return results[0] ?? null;
+    return QueryBuilderStatic.updateMany<T>(this.db, this.metadata, options);
   }
 
   /** Delete records matching where clause */

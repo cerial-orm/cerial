@@ -12,19 +12,8 @@ export {
   buildFindManyQuery,
 } from './select-builder';
 
-export {
-  applyNowDefaults,
-  applyDefaultValues,
-  buildInsertQuery,
-  buildCreateQuery,
-} from './insert-builder';
+export { applyNowDefaults, applyDefaultValues, buildInsertQuery, buildCreateQuery } from './insert-builder';
 
-export {
-  buildUpdateQuery,
-  buildMergeQuery,
-} from './update-builder';
+export { buildUpdateManyQuery } from './update-builder';
 
-export {
-  buildDeleteQuery,
-  buildDeleteQueryWithReturn,
-} from './delete-builder';
+export { buildDeleteQuery, buildDeleteQueryWithReturn } from './delete-builder';

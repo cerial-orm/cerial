@@ -31,9 +31,9 @@ export function generateCreateMethod(model: ModelMetadata): string {
   }): Promise<${model.name}>;`;
 }
 
-/** Generate update method signature */
+/** Generate updateMany method signature */
 export function generateUpdateMethod(model: ModelMetadata): string {
-  return `update(options: {
+  return `updateMany(options: {
     where: ${model.name}Where;
     data: ${model.name}Update;
     select?: ${model.name}Select;

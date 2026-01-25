@@ -61,8 +61,7 @@ export {
   buildFindManyQuery,
   buildInsertQuery,
   buildCreateQuery,
-  buildUpdateQuery,
-  buildMergeQuery,
+  buildUpdateManyQuery,
   buildDeleteQuery,
   buildDeleteQueryWithReturn,
   applyNowDefaults,
@@ -80,35 +79,14 @@ export {
 } from './transformers';
 
 // Mappers
-export {
-  mapFieldValue,
-  mapRecord,
-  filterFields,
-  mapResult,
-  mapSingleResult,
-} from './mappers';
+export { mapFieldValue, mapRecord, filterFields, mapResult, mapSingleResult } from './mappers';
 
 // Validators
-export {
-  validateWhere,
-  validateWhereClause,
-  validateCreateData,
-  validateUpdateData,
-} from './validators';
-export type {
-  ValidationError,
-  WhereValidationResult,
-  DataValidationError,
-  DataValidationResult,
-} from './validators';
+export { validateWhere, validateWhereClause, validateCreateData, validateUpdateData } from './validators';
+export type { ValidationError, WhereValidationResult, DataValidationError, DataValidationResult } from './validators';
 
 // Executor
-export {
-  executeQuery,
-  executeQuerySingle,
-  executeTransaction,
-  executeRaw,
-} from './executor';
+export { executeQuery, executeQuerySingle, executeTransaction, executeRaw } from './executor';
 export type { ExecuteOptions } from './executor';
 
 // Builder

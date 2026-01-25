@@ -236,8 +236,8 @@ describe('CRUD Operations', () => {
       await userModel.create({ data: { email: 'update@example.com', name: 'Update Me', isActive: false } });
     });
 
-    test('should update a record', async () => {
-      const results = await userModel.update({
+    test('should update records', async () => {
+      const results = await userModel.updateMany({
         where: { email: 'update@example.com' },
         data: { isActive: true, name: 'Updated' },
       });
@@ -247,18 +247,8 @@ describe('CRUD Operations', () => {
       expect(results[0]!.name).toBe('Updated');
     });
 
-    test('should update one record', async () => {
-      const result = await userModel.updateOne({
-        where: { email: 'update@example.com' },
-        data: { name: 'Single Update' },
-      });
-
-      expect(result).toBeDefined();
-      expect(result?.name).toBe('Single Update');
-    });
-
     test('should return empty array when no records match', async () => {
-      const results = await userModel.update({
+      const results = await userModel.updateMany({
         where: { email: 'nonexistent@example.com' },
         data: { name: 'No Match' },
       });

@@ -16,7 +16,7 @@ import {
   buildDeleteQueryWithReturn,
   buildFindManyQuery,
   buildFindOneQuery,
-  buildUpdateQuery,
+  buildUpdateManyQuery,
 } from './builders';
 import { executeQuery, executeQuerySingle } from './executor';
 import { mapResult, mapSingleResult } from './mappers';
@@ -75,7 +75,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
   }
 
   /** Update records matching where clause */
-  async update(options: UpdateOptions<Partial<T>>): Promise<T[]> {
+  async updateMany(options: UpdateOptions<Partial<T>>): Promise<T[]> {
     const { where, data, select } = options;
 
     // Validate where clause
@@ -90,7 +90,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     if (!dataValidation.valid)
       throw new Error(`Invalid data: ${dataValidation.errors.map((e) => e.message).join(', ')}`);
 
-    const query = buildUpdateQuery(this.model, where, transformedData, select);
+    const query = buildUpdateManyQuery(this.model, where, transformedData, select);
     const result = await executeQuery(this.db, query);
 
     return mapResult<T>(result, this.model, select);
@@ -146,13 +146,13 @@ export const QueryBuilderStatic = {
   },
 
   /** Update records */
-  async update<T extends Record<string, unknown>>(
+  async updateMany<T extends Record<string, unknown>>(
     db: Surreal,
     model: ModelMetadata,
     options: UpdateOptions<Partial<T>>,
   ): Promise<T[]> {
     const builder = new QueryBuilder<T>(db, model);
-    return builder.update(options);
+    return builder.updateMany(options);
   },
 
   /** Delete records */
