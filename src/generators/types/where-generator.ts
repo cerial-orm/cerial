@@ -100,7 +100,15 @@ export function generateFieldWhereType(field: FieldMetadata): string {
   )`;
   }
 
-  // For other types (bool, etc.), use basic comparison + array + special (no between)
+  // For boolean types, use basic comparison + special (no between, no in/notIn)
+  if (field.type === 'bool') {
+    return `${tsType} | (
+    ${generateStringComparisonOps(tsType)} &
+    ${generateStringSpecialOps(isRequired, isId)}
+  )`;
+  }
+
+  // For other types, use basic comparison + array + special (no between)
   return `${tsType} | (
     ${generateStringComparisonOps(tsType)} &
     ${generateArrayOps(tsType)} &
