@@ -125,23 +125,23 @@ model ModelName {
 
 ### Types
 
-| Type | Description | TypeScript | SurrealDB |
-|------|-------------|------------|-----------|
-| `String` | Text string | `string` | `string` |
-| `Email` | Email address | `string` | `string` |
-| `Int` | Integer number | `number` | `int` |
-| `Float` | Floating point | `number` | `float` |
-| `Bool` | Boolean | `boolean` | `bool` |
-| `Date` | Date/DateTime | `Date` | `datetime` |
+| Type     | Description    | TypeScript | SurrealDB  |
+| -------- | -------------- | ---------- | ---------- |
+| `String` | Text string    | `string`   | `string`   |
+| `Email`  | Email address  | `string`   | `string`   |
+| `Int`    | Integer number | `number`   | `int`      |
+| `Float`  | Floating point | `number`   | `float`    |
+| `Bool`   | Boolean        | `boolean`  | `bool`     |
+| `Date`   | Date/DateTime  | `Date`     | `datetime` |
 
 ### Decorators
 
-| Decorator | Description | Notes |
-|-----------|-------------|-------|
-| `@id` | SurrealDB record id | **Only ONE per model** |
-| `@unique` | Unique constraint | Can be on multiple fields |
-| `@now` | Auto-set timestamp | For Date fields on create |
-| `@default(value)` | Default value | Literal value |
+| Decorator         | Description         | Notes                     |
+| ----------------- | ------------------- | ------------------------- |
+| `@id`             | SurrealDB record id | **Only ONE per model**    |
+| `@unique`         | Unique constraint   | Can be on multiple fields |
+| `@now`            | Auto-set timestamp  | For Date fields on create |
+| `@default(value)` | Default value       | Literal value             |
 
 ### Example Schema
 
@@ -229,35 +229,71 @@ await db.User.delete({
 
 ```typescript
 // Equals
-{ field: { eq: value } }
+{
+  field: {
+    eq: value;
+  }
+}
 
 // Not equals
-{ field: { neq: value } }
+{
+  field: {
+    neq: value;
+  }
+}
 
 // Greater than
-{ field: { gt: value } }
+{
+  field: {
+    gt: value;
+  }
+}
 
 // Greater than or equal
-{ field: { gte: value } }
+{
+  field: {
+    gte: value;
+  }
+}
 
 // Less than
-{ field: { lt: value } }
+{
+  field: {
+    lt: value;
+  }
+}
 
 // Less than or equal
-{ field: { lte: value } }
+{
+  field: {
+    lte: value;
+  }
+}
 ```
 
 ### String Operators
 
 ```typescript
 // Contains substring
-{ name: { contains: 'john' } }
+{
+  name: {
+    contains: 'john';
+  }
+}
 
 // Starts with
-{ name: { startsWith: 'J' } }
+{
+  name: {
+    startsWith: 'J';
+  }
+}
 
 // Ends with
-{ email: { endsWith: '@example.com' } }
+{
+  email: {
+    endsWith: '@example.com';
+  }
+}
 ```
 
 ### Array Operators
@@ -275,23 +311,21 @@ await db.User.delete({
 ```typescript
 // AND (all conditions must match)
 {
-  AND: [
-    { age: { gte: 18 } },
-    { isActive: { eq: true } }
-  ]
+  AND: [{ age: { gte: 18 } }, { isActive: { eq: true } }];
 }
 
 // OR (any condition must match)
 {
-  OR: [
-    { role: { eq: 'admin' } },
-    { role: { eq: 'moderator' } }
-  ]
+  OR: [{ role: { eq: 'admin' } }, { role: { eq: 'moderator' } }];
 }
 
 // NOT (negate condition)
 {
-  NOT: { status: { eq: 'deleted' } }
+  NOT: {
+    status: {
+      eq: 'deleted';
+    }
+  }
 }
 ```
 
@@ -299,13 +333,25 @@ await db.User.delete({
 
 ```typescript
 // Is null
-{ deletedAt: { isNull: true } }
+{
+  deletedAt: {
+    isNull: true;
+  }
+}
 
 // Is defined (not null)
-{ email: { isDefined: true } }
+{
+  email: {
+    isDefined: true;
+  }
+}
 
 // Between (inclusive)
-{ age: { between: [18, 65] } }
+{
+  age: {
+    between: [18, 65];
+  }
+}
 ```
 
 ## CLI Usage
@@ -363,6 +409,7 @@ surreal start -u root -p root memory
 ```
 
 This starts SurrealDB with:
+
 - In-memory storage (data is not persisted)
 - Username: `root`
 - Password: `root`
@@ -375,6 +422,7 @@ bun test
 ```
 
 The tests use the following connection configuration:
+
 - URL: `http://127.0.0.1:8000`
 - Namespace: `main`
 - Database: `main`
