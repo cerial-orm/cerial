@@ -25,7 +25,10 @@ export function generateFieldDefinition(field: FieldMetadata): string {
 
 /** Generate model interface */
 export function generateInterface(model: ModelMetadata): string {
-  const fields = model.fields.map((f) => generateFieldDefinition(f)).map((line) => `  ${line}`).join('\n');
+  const fields = model.fields
+    .map((f) => generateFieldDefinition(f))
+    .map((line) => `  ${line}`)
+    .join('\n');
 
   return `export interface ${model.name} {
 ${fields}

@@ -3,7 +3,13 @@
  */
 
 import { test, expect, describe } from 'bun:test';
-import { generateInterface, generateCreateType, generateUpdateType, generateSelectType, generateWhereInterface } from '../../src/generators/types';
+import {
+  generateInterface,
+  generateCreateType,
+  generateUpdateType,
+  generateSelectType,
+  generateWhereInterface,
+} from '../../src/generators/types';
 import type { ModelMetadata } from '../../src/types';
 
 const userModel: ModelMetadata = {
@@ -33,13 +39,12 @@ describe('types generator', () => {
   });
 
   describe('generateCreateType', () => {
-    test('generates create type with partial optional fields', () => {
+    test('generates create type with @id and @now fields optional', () => {
       const result = generateCreateType(userModel);
 
       expect(result).toContain('export type UserCreate');
-      // No fields are auto-omitted, users can provide their own values
-      // Optional fields (like 'age') are still partial
-      expect(result).toContain('Partial<');
+      // @id field (id) should be optional
+      expect(result).toContain(`Partial<Pick<User, 'id' | 'age' | 'createdAt'>>`);
     });
   });
 
@@ -49,7 +54,7 @@ describe('types generator', () => {
 
       expect(result).toContain('export type UserUpdate');
       expect(result).toContain('Partial<');
-      expect(result).toContain("Omit<User, 'id'>"); // id field is still omitted in update
+      expect(result).toContain("Omit<User, 'id'>"); // only id field is omitted in update
     });
   });
 
@@ -71,7 +76,7 @@ describe('types generator', () => {
       const result = generateWhereInterface(userModel);
 
       expect(result).toContain('export interface UserWhere');
-      
+
       // id field (string type) - no ordering, no between, no isNull (required)
       expect(result).toContain('id?:');
       expect(result).toContain('eq?: string;');
@@ -79,13 +84,13 @@ describe('types generator', () => {
       expect(result).toContain('contains?: string;');
       expect(result).toContain('startsWith?: string;');
       expect(result).toContain('endsWith?: string;');
-      
+
       // name field (string type, required) - no ordering, no between, no isNull
       expect(result).toContain('name?:');
-      
+
       // email field (email type, required) - no ordering, no between, no isNull
       expect(result).toContain('email?:');
-      
+
       // age field (int type, optional) - has ordering, between, and isNull
       expect(result).toContain('age?:');
       expect(result).toContain('gt?: number;');
@@ -94,7 +99,7 @@ describe('types generator', () => {
       expect(result).toContain('lte?: number;');
       expect(result).toContain('between?: [number, number];');
       expect(result).toContain('isNull?: boolean;');
-      
+
       // createdAt field (date type, required) - has ordering, between, but no isNull
       expect(result).toContain('createdAt?:');
       expect(result).toContain('gt?: Date;');

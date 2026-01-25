@@ -10,22 +10,30 @@ function getOmitForCreate(model: ModelMetadata): string[] {
   return [];
 }
 
-/** Get fields that should be optional in create (have defaults) */
+/** Get fields that should be optional in create (have defaults or are auto-generated) */
 function getOptionalForCreate(model: ModelMetadata): string[] {
-  const optional: string[] = [];
+  const optional = new Set<string>();
 
   for (const field of model.fields) {
     // Fields with default values are optional
     if (field.defaultValue !== undefined) {
-      optional.push(field.name);
+      optional.add(field.name);
+    }
+    // @id fields are optional (db can auto-generate)
+    if (field.isId) {
+      optional.add(field.name);
+    }
+    // @now fields are optional (db can auto-generate)
+    if (field.hasNowDefault) {
+      optional.add(field.name);
     }
     // Optional fields are optional
     if (!field.isRequired) {
-      optional.push(field.name);
+      optional.add(field.name);
     }
   }
 
-  return optional;
+  return Array.from(optional);
 }
 
 /** Generate Create type */
@@ -33,18 +41,14 @@ export function generateCreateType(model: ModelMetadata): string {
   const omit = getOmitForCreate(model);
   const optional = getOptionalForCreate(model);
 
-  if (omit.length === 0 && optional.length === 0) {
-    return `export type ${model.name}Create = ${model.name};`;
-  }
+  if (!omit.length && !optional.length) return `export type ${model.name}Create = ${model.name};`;
 
-  let type = model.name;
-
-  if (omit.length) type += ` & Omit<${type}, ${omit.map((f) => `'${f}'`).join(' | ')}>`;
+  let type = omit.length ? `Omit<${model.name}, ${omit.map((f) => `'${f}'`).join(' | ')}>` : '';
 
   if (optional.length) {
     const optionalFields = optional.filter((f) => !omit.includes(f));
     if (optionalFields.length)
-      type += ` & Partial<Pick<${model.name}, ${optionalFields.map((f) => `'${f}'`).join(' | ')}>>`;
+      type += `Omit<${model.name}, ${optionalFields.map((f) => `'${f}'`).join(' | ')}> & Partial<Pick<${model.name}, ${optionalFields.map((f) => `'${f}'`).join(' | ')}>>`;
   }
 
   return `export type ${model.name}Create = ${type};`;

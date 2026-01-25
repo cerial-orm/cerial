@@ -8,14 +8,16 @@ import { hasDecorator, getDecorator } from '../../parser/types/ast';
 /** Convert AST field to FieldMetadata */
 export function convertField(field: ASTField): FieldMetadata {
   const defaultDecorator = getDecorator(field, 'default');
+  const isId = hasDecorator(field, 'id');
+  const hasNow = hasDecorator(field, 'now');
 
   return {
     name: field.name,
     type: field.type,
-    isId: hasDecorator(field, 'id'),
-    isUnique: hasDecorator(field, 'unique'),
-    hasNowDefault: hasDecorator(field, 'now'),
-    isRequired: !field.isOptional,
+    isId,
+    isUnique: isId || hasDecorator(field, 'unique'),
+    hasNowDefault: hasNow,
+    isRequired: !isId && !hasNow && !field.isOptional,
     defaultValue: defaultDecorator?.value,
   };
 }

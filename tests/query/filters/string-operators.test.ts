@@ -25,31 +25,31 @@ describe('string operators', () => {
     const ctx = createCompileContext();
     const result = handleContains(ctx, 'name', 'John', stringField);
 
-    expect(result.text).toContain('~');
+    expect(result.text).toContain('string::contains');
     expect(result.text).toContain('name');
-    // Value should be a regex pattern
-    expect(Object.values(result.vars)[0]).toContain('John');
+    // Value should be the search string, not a regex pattern
+    expect(Object.values(result.vars)[0]).toBe('John');
   });
 
   test('handleStartsWith generates startsWith condition', () => {
     const ctx = createCompileContext();
     const result = handleStartsWith(ctx, 'name', 'John', stringField);
 
-    expect(result.text).toContain('~');
+    expect(result.text).toContain('string::starts_with');
     expect(result.text).toContain('name');
-    // Value should be a regex pattern starting with ^
+    // Value should be the search string, not a regex pattern
     const value = Object.values(result.vars)[0] as string;
-    expect(value.startsWith('^')).toBe(true);
+    expect(value).toBe('John');
   });
 
   test('handleEndsWith generates endsWith condition', () => {
     const ctx = createCompileContext();
     const result = handleEndsWith(ctx, 'name', 'son', stringField);
 
-    expect(result.text).toContain('~');
+    expect(result.text).toContain('string::ends_with');
     expect(result.text).toContain('name');
-    // Value should be a regex pattern ending with $
+    // Value should be the search string, not a regex pattern
     const value = Object.values(result.vars)[0] as string;
-    expect(value.endsWith('$')).toBe(true);
+    expect(value).toBe('son');
   });
 });

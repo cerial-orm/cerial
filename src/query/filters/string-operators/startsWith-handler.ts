@@ -5,7 +5,6 @@
 import type { QueryFragment } from '../../compile/types';
 import type { FilterCompileContext } from '../../compile/var-allocator';
 import type { FieldMetadata } from '../../../types';
-import { escapeRegex } from '../../../utils/string-utils';
 
 /** Handle startsWith operator */
 export function handleStartsWith(
@@ -14,8 +13,7 @@ export function handleStartsWith(
   value: string,
   fieldMetadata: FieldMetadata,
 ): QueryFragment {
-  // Use regex pattern for startsWith
-  const pattern = `^${escapeRegex(value)}.*`;
-  const v = ctx.bind(field, 'startsWith', pattern, fieldMetadata.type);
-  return { text: `${field} ~ ${v.placeholder}`, vars: v.vars };
+  // Use SurrealDB's native string::starts_with function
+  const v = ctx.bind(field, 'startsWith', value, fieldMetadata.type);
+  return { text: `string::starts_with(${field}, ${v.placeholder})`, vars: v.vars };
 }
