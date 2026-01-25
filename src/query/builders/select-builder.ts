@@ -48,6 +48,7 @@ export function buildOffset(offset: number | undefined): string {
 export function buildSelectQuery(
   model: ModelMetadata,
   options: FindOptions,
+  fromSingle: boolean = false,
 ): CompiledQuery {
   const { where, select, orderBy, limit, offset } = options;
 
@@ -59,7 +60,7 @@ export function buildSelectQuery(
 
   // Build query parts
   const parts = [
-    `SELECT ${fields} FROM ${model.tableName}`,
+    `SELECT ${fields} ${fromSingle ? 'FROM ONLY' : 'FROM'} ${model.tableName}`,
     whereClause.text,
     orderByClause,
     limitClause,
@@ -73,17 +74,11 @@ export function buildSelectQuery(
 }
 
 /** Build a findOne SELECT query (LIMIT 1) */
-export function buildFindOneQuery(
-  model: ModelMetadata,
-  options: FindOptions,
-): CompiledQuery {
-  return buildSelectQuery(model, { ...options, limit: 1 });
+export function buildFindOneQuery(model: ModelMetadata, options: FindOptions): CompiledQuery {
+  return buildSelectQuery(model, { ...options, limit: 1 }, true);
 }
 
 /** Build a findMany SELECT query */
-export function buildFindManyQuery(
-  model: ModelMetadata,
-  options: FindOptions,
-): CompiledQuery {
+export function buildFindManyQuery(model: ModelMetadata, options: FindOptions): CompiledQuery {
   return buildSelectQuery(model, options);
 }
