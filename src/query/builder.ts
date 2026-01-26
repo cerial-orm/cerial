@@ -5,7 +5,7 @@
 import type { Surreal } from 'surrealdb';
 import type {
   CreateOptions,
-  DeleteOptions,
+  DeleteManyOptions,
   FindManyOptions,
   FindOneOptions,
   FindUniqueOptions,
@@ -121,7 +121,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
   }
 
   /** Delete records matching where clause */
-  async delete(options: DeleteOptions): Promise<number> {
+  async deleteMany(options: DeleteManyOptions): Promise<number> {
     const { where } = options;
 
     // Validate where clause
@@ -190,8 +190,8 @@ export const QueryBuilderStatic = {
   },
 
   /** Delete records */
-  async delete(db: Surreal, model: ModelMetadata, options: DeleteOptions): Promise<number> {
+  async deleteMany(db: Surreal, model: ModelMetadata, options: DeleteManyOptions): Promise<number> {
     const builder = new QueryBuilder(db, model);
-    return builder.delete(options);
+    return builder.deleteMany(options);
   },
 };

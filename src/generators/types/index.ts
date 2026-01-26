@@ -28,7 +28,7 @@ export {
 export {
   generateCountMethod,
   generateCreateMethod,
-  generateDeleteMethod,
+  generateDeleteManyMethod,
   generateExistsMethod,
   generateFindManyMethod,
   generateFindOneMethod,

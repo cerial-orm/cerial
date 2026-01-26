@@ -106,7 +106,7 @@ client/
 
 **Key Classes**:
 
-- `Model` - Base class providing `findOne()`, `findMany()`, `create()`, `update()`, `delete()`, `count()`, `exists()`
+- `Model` - Base class providing `findOne()`, `findMany()`, `create()`, `updateMany()`, `deleteMany()`, `count()`, `exists()`
 - `ConnectionManager` - Manages database connections with migration support
 - Model proxies created by `factory.ts` use JavaScript Proxy API for dynamic model access
 
@@ -438,7 +438,8 @@ query/
 - `SelectClause` - Type-safe select clause structure
 - `FindManyOptions` - Options for findMany queries
 - `CreateOptions` - Options for create queries
-- `UpdateOptions` - Options for update queries
+- `UpdateOptions` - Options for updateMany queries
+- `DeleteManyOptions` - Options for deleteMany queries
 - `ConnectionConfig` - Database connection configuration
 
 ---

@@ -8,7 +8,7 @@ A Prisma-like ORM for [SurrealDB](https://surrealdb.com/) with schema-driven cod
 - **Type-safe client** - Generated TypeScript types and interfaces
 - **Prisma-like API** - Familiar `db.Model.findMany()` syntax
 - **Parameterized queries** - Safe from SQL injection
-- **Full CRUD support** - findOne, findMany, create, update, delete
+- **Full CRUD support** - findOne, findMany, create, updateMany, deleteMany
 - **Advanced filtering** - Comparison, string, array, and logical operators
 
 ## Installation
@@ -92,14 +92,14 @@ const foundUser = await client.db.User.findOne({
   where: { email: { eq: 'john@example.com' } },
 });
 
-// Update a user
-await client.db.User.update({
+// Update users
+await client.db.User.updateMany({
   where: { id: { eq: user.id } },
   data: { name: 'John Smith' },
 });
 
-// Delete a user
-await client.db.User.delete({
+// Delete users
+await client.db.User.deleteMany({
   where: { id: { eq: user.id } },
 });
 
@@ -202,23 +202,23 @@ const user = await db.User.create({
 });
 ```
 
-### update
+### updateMany
 
-Update existing records.
+Update multiple records matching where clause.
 
 ```typescript
-await db.User.update({
+await db.User.updateMany({
   where: { id: { eq: '123' } },
   data: { name: 'Updated Name' },
 });
 ```
 
-### delete
+### deleteMany
 
-Delete records.
+Delete multiple records matching where clause.
 
 ```typescript
-await db.User.delete({
+await db.User.deleteMany({
   where: { id: { eq: '123' } },
 });
 ```

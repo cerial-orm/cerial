@@ -48,9 +48,9 @@ export function generateUpdateMethod(model: ModelMetadata): string {
   }): Promise<${model.name}[]>;`;
 }
 
-/** Generate delete method signature */
-export function generateDeleteMethod(model: ModelMetadata): string {
-  return `delete(options: {
+/** Generate deleteMany method signature */
+export function generateDeleteManyMethod(model: ModelMetadata): string {
+  return `deleteMany(options: {
     where: ${model.name}Where;
   }): Promise<number>;`;
 }
@@ -73,7 +73,7 @@ export function generateMethodSignatures(model: ModelMetadata): string[] {
     generateFindUniqueMethod(model),
     generateCreateMethod(model),
     generateUpdateMethod(model),
-    generateDeleteMethod(model),
+    generateDeleteManyMethod(model),
     generateCountMethod(model),
     generateExistsMethod(model),
   ];

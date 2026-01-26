@@ -93,8 +93,8 @@ export interface UpdateOptions<T> {
   select?: SelectClause;
 }
 
-/** Delete options */
-export interface DeleteOptions {
+/** DeleteMany options */
+export interface DeleteManyOptions {
   where: WhereClause;
 }
 

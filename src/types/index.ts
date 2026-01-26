@@ -55,7 +55,7 @@ export type {
   FindManyOptions,
   CreateOptions,
   UpdateOptions,
-  DeleteOptions,
+  DeleteManyOptions,
   CompiledQuery,
   QueryVars,
   QueryFragment,

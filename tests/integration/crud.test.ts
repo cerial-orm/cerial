@@ -329,7 +329,7 @@ describe('CRUD Operations', () => {
     });
   });
 
-  describe('Delete', () => {
+  describe('DeleteMany', () => {
     beforeEach(async () => {
       await userModel.create({ data: { email: 'delete1@example.com', name: 'Delete 1', isActive: true } });
       await userModel.create({ data: { email: 'delete2@example.com', name: 'Delete 2', isActive: true } });
@@ -337,7 +337,7 @@ describe('CRUD Operations', () => {
     });
 
     test('should delete records matching where clause', async () => {
-      const count = await userModel.delete({
+      const count = await userModel.deleteMany({
         where: { isActive: true },
       });
 
@@ -349,7 +349,7 @@ describe('CRUD Operations', () => {
     });
 
     test('should return 0 when no records match', async () => {
-      const count = await userModel.delete({
+      const count = await userModel.deleteMany({
         where: { email: 'nonexistent@example.com' },
       });
 

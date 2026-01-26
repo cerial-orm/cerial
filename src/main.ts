@@ -128,7 +128,7 @@ export type {
   ComparisonOperators,
   ConnectionConfig,
   CreateOptions,
-  DeleteOptions,
+  DeleteManyOptions,
   FieldFilter,
   FieldMetadata,
   FieldTypeMapping,

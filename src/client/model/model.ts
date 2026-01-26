@@ -10,7 +10,7 @@ import type {
   FindManyOptions,
   CreateOptions,
   UpdateOptions,
-  DeleteOptions,
+  DeleteManyOptions,
 } from '../../types';
 import { QueryBuilderStatic } from '../../query/builder';
 
@@ -91,9 +91,9 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
   }
 
   /** Delete records matching where clause */
-  async delete(options: DeleteOptions): Promise<number> {
+  async deleteMany(options: DeleteManyOptions): Promise<number> {
     await this.beforeQuery();
-    return QueryBuilderStatic.delete(this.db, this.metadata, options);
+    return QueryBuilderStatic.deleteMany(this.db, this.metadata, options);
   }
 
   /** Count records matching where clause */
