@@ -46,18 +46,49 @@ export function transformValue(value: unknown, fieldType: SchemaFieldType): unkn
 
 /**
  * Transform a record id value using SurrealDB's RecordId
- * @param tableName The table name for the record
+ * @param tableName The table name for record
  * @param value The id value (string)
  */
 export function transformRecordId(tableName: string, value: string): RecordId {
   return new RecordId(tableName, value);
 }
 
+/**
+ * Transform or validate a record id value
+ * If value is a string, creates RecordId from it (handles "table:id" format)
+ * If value is already a RecordId, validates it starts with expected tableName
+ * @param tableName The expected table name
+ * @param value The id value (string or RecordId)
+ * @returns RecordId
+ */
+export function transformOrValidateRecordId(tableName: string, value: string | RecordId): RecordId {
+  // If it's already a RecordId, validate table name
+  if (value instanceof RecordId) {
+    if (value.table.name !== tableName) {
+      throw new Error(`RecordId table "${value.table.name}" does not match expected table "${tableName}"`);
+    }
+    return value;
+  }
+
+  // Check if string is in "table:id" format
+  if (typeof value === 'string' && value.includes(':')) {
+    if (!value.startsWith(`${tableName}:`)) {
+      throw new Error(`RecordId table "${value.split(':')[0]}" does not start with expected table "${tableName}"`);
+    }
+
+    const [, idPart] = value.split(':');
+    if (!idPart) throw new Error(`Invalid RecordId format: ${value}`);
+
+    // Create RecordId from the id part (since we've validated the table)
+    return new RecordId(tableName, idPart);
+  }
+
+  // Otherwise, create a new RecordId from string with expected table name
+  return new RecordId(tableName, value);
+}
+
 /** Transform data object based on model fields */
-export function transformData(
-  data: Record<string, unknown>,
-  model: ModelMetadata,
-): Record<string, unknown> {
+export function transformData(data: Record<string, unknown>, model: ModelMetadata): Record<string, unknown> {
   const result: Record<string, unknown> = {};
 
   for (const [key, value] of Object.entries(data)) {
@@ -82,10 +113,7 @@ export function transformData(
  * NOTE: If the table schema has DEFAULT time::now() defined, this is not needed
  * as the database will handle it. This is kept for compatibility.
  */
-export function applyNowDefaults(
-  data: Record<string, unknown>,
-  _model: ModelMetadata,
-): Record<string, unknown> {
+export function applyNowDefaults(data: Record<string, unknown>, _model: ModelMetadata): Record<string, unknown> {
   // Don't apply @now defaults here - let the database handle it
   // through the DEFINE FIELD ... DEFAULT time::now() statement.
   // This ensures proper datetime type handling in SurrealDB.
@@ -93,10 +121,7 @@ export function applyNowDefaults(
 }
 
 /** Filter data to only include model fields */
-export function filterModelFields(
-  data: Record<string, unknown>,
-  model: ModelMetadata,
-): Record<string, unknown> {
+export function filterModelFields(data: Record<string, unknown>, model: ModelMetadata): Record<string, unknown> {
   const result: Record<string, unknown> = {};
   const fieldNames = new Set(model.fields.map((f) => f.name));
 

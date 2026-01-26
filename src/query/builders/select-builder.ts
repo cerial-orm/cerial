@@ -2,9 +2,10 @@
  * SELECT query builder
  */
 
+import type { FindOptions, FindUniqueOptions, ModelMetadata, OrderByClause, SelectClause } from '../../types';
 import type { CompiledQuery } from '../compile/types';
-import type { ModelMetadata, FindOptions, SelectClause, OrderByClause } from '../../types';
 import { transformWhereClause } from '../filters/transformer';
+import { transformOrValidateRecordId } from '../transformers';
 
 /** Build SELECT field list */
 export function buildSelectFields(select: SelectClause | undefined, model: ModelMetadata): string {
@@ -81,4 +82,31 @@ export function buildFindOneQuery(model: ModelMetadata, options: FindOptions): C
 /** Build a findMany SELECT query */
 export function buildFindManyQuery(model: ModelMetadata, options: FindOptions): CompiledQuery {
   return buildSelectQuery(model, options);
+}
+
+/** Build a findUnique SELECT query using RecordId */
+export function buildFindUniqueQuery(model: ModelMetadata, options: FindUniqueOptions): CompiledQuery {
+  const { where, select } = options;
+
+  // Extract id value from where clause
+  const idValue = where?.id;
+  if (!idValue) throw new Error('id is required in where clause for findUnique');
+
+  // Transform or validate RecordId using helper
+  const recordId = transformOrValidateRecordId(model.tableName, idValue);
+
+  // Remove 'id' from where clause since it's in RecordId
+  const { id: _id, ...whereWithoutId } = where;
+
+  const fields = buildSelectFields(select, model);
+  const whereClause = transformWhereClause(Object.keys(whereWithoutId).length ? whereWithoutId : undefined, model);
+  const limitClause = buildLimit(1);
+
+  // Build query parts using ONLY and RecordId
+  const parts = [`SELECT ${fields} FROM ONLY ${recordId.toString()}`, whereClause.text, limitClause].filter((p) => p);
+
+  return {
+    text: parts.join(' '),
+    vars: whereClause.vars,
+  };
 }

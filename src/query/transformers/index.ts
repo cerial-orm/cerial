@@ -6,6 +6,7 @@ export {
   applyNowDefaults,
   filterModelFields,
   transformData,
+  transformOrValidateRecordId,
   transformRecordId,
   transformValue,
 } from './data-transformer';

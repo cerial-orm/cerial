@@ -3,48 +3,45 @@
  */
 
 export {
-  generateFieldType,
   generateFieldDefinition,
+  generateFieldType,
   generateInterface,
   generateInterfaces,
 } from './interface-generator';
 
 export {
   generateFieldWhereType,
-  generateWhereInterface,
   generateWhereInputInterface,
+  generateWhereInterface,
   generateWhereTypes,
 } from './where-generator';
 
 export {
-  generateCreateType,
-  generateUpdateType,
-  generateSelectType,
-  generateOrderByType,
-  generateDerivedTypes,
   generateAllDerivedTypes,
+  generateCreateType,
+  generateDerivedTypes,
+  generateOrderByType,
+  generateSelectType,
+  generateUpdateType,
 } from './derived-generator';
 
 export {
-  generateFindOneMethod,
-  generateFindManyMethod,
-  generateCreateMethod,
-  generateUpdateMethod,
-  generateDeleteMethod,
   generateCountMethod,
+  generateCreateMethod,
+  generateDeleteMethod,
   generateExistsMethod,
+  generateFindManyMethod,
+  generateFindOneMethod,
+  generateFindUniqueMethod,
   generateMethodSignatures,
+  generateUpdateMethod,
 } from './method-generator';
 
-export {
-  generateModelInterface,
-  generateModelTypes,
-  generateDbClientInterface,
-} from './model-generator';
+export { generateDbClientInterface, generateModelInterface, generateModelTypes } from './model-generator';
 
 export {
+  generateClientIndex,
+  generateInternalIndex,
   generateModelExports,
   generateModelsIndex,
-  generateInternalIndex,
-  generateClientIndex,
 } from './export-generator';

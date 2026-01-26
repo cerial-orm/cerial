@@ -231,6 +231,78 @@ describe('CRUD Operations', () => {
     });
   });
 
+  describe('Find Unique', () => {
+    beforeEach(async () => {
+      // Create test user with known id
+      await userModel.create({
+        data: {
+          id: 'unique1@example.com',
+          email: 'unique1@example.com',
+          name: 'Unique User 1',
+          isActive: true,
+        },
+      });
+    });
+
+    test('should find a record by id', async () => {
+      const result = await userModel.findUnique({
+        where: { id: 'unique1@example.com' },
+      });
+
+      expect(result).toBeDefined();
+      expect(result?.email).toBe('unique1@example.com');
+      expect(result?.name).toBe('Unique User 1');
+    });
+
+    test('should find a record by id with additional conditions', async () => {
+      const result = await userModel.findUnique({
+        where: { id: 'unique1@example.com', isActive: true },
+      });
+
+      expect(result).toBeDefined();
+      expect(result?.email).toBe('unique1@example.com');
+      expect(result?.isActive).toBe(true);
+    });
+
+    test('should return null when record not found', async () => {
+      const result = await userModel.findUnique({
+        where: { id: 'nonexistent@example.com' },
+      });
+
+      expect(result).toBeNull();
+    });
+
+    test('should throw error when id is missing from where clause', async () => {
+      await expect(
+        userModel.findUnique({
+          where: {} as any,
+        }),
+      ).rejects.toThrow('id is required in where clause for findUnique');
+    });
+
+    test('should find a record by id with select', async () => {
+      const result = await userModel.findUnique({
+        where: { id: 'unique1@example.com' },
+        select: { name: true, email: true },
+      });
+
+      expect(result).toBeDefined();
+      expect(result?.name).toBe('Unique User 1');
+      expect(result?.email).toBe('unique1@example.com');
+      expect(result?.isActive).toBeUndefined();
+    });
+
+    test('should throw error when table in RecordId does not match', async () => {
+      // This test is conceptual - in practice you can't pass wrong table via where
+      // since we construct RecordId from the id value
+      await expect(
+        userModel.findUnique({
+          where: { id: 'wrong_table:id123' },
+        }),
+      ).rejects.toThrow('RecordId table "wrong_table" does not start with expected table');
+    });
+  });
+
   describe('Update', () => {
     beforeEach(async () => {
       await userModel.create({ data: { email: 'update@example.com', name: 'Update Me', isActive: false } });

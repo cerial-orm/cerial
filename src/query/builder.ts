@@ -8,6 +8,7 @@ import type {
   DeleteOptions,
   FindManyOptions,
   FindOneOptions,
+  FindUniqueOptions,
   ModelMetadata,
   UpdateOptions,
 } from '../types';
@@ -16,6 +17,7 @@ import {
   buildDeleteQueryWithReturn,
   buildFindManyQuery,
   buildFindOneQuery,
+  buildFindUniqueQuery,
   buildUpdateManyQuery,
 } from './builders';
 import { executeQuery, executeQuerySingle } from './executor';
@@ -38,6 +40,28 @@ export class QueryBuilder<T extends Record<string, unknown>> {
       throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
 
     const query = buildFindOneQuery(this.model, options);
+    const result = await executeQuerySingle(this.db, query);
+
+    return mapSingleResult<T>(result, this.model);
+  }
+
+  /** Find a unique record by id */
+  async findUnique(options: FindUniqueOptions): Promise<T | null> {
+    const { where } = options;
+
+    // Extract id from where clause and validate
+    const idValue = where?.id;
+    if (!idValue) throw new Error('id is required in where clause for findUnique');
+
+    // Remove 'id' from where clause for validation
+    const { id: _id, ...whereWithoutId } = where;
+
+    // Validate where clause (excluding id field)
+    const validation = validateWhere(Object.keys(whereWithoutId).length ? whereWithoutId : undefined, this.model);
+    if (!validation.valid)
+      throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
+
+    const query = buildFindUniqueQuery(this.model, options);
     const result = await executeQuerySingle(this.db, query);
 
     return mapSingleResult<T>(result, this.model);
@@ -123,6 +147,16 @@ export const QueryBuilderStatic = {
   ): Promise<T | null> {
     const builder = new QueryBuilder<T>(db, model);
     return builder.findOne(options);
+  },
+
+  /** Find a unique record by id */
+  async findUnique<T extends Record<string, unknown>>(
+    db: Surreal,
+    model: ModelMetadata,
+    options: FindUniqueOptions,
+  ): Promise<T | null> {
+    const builder = new QueryBuilder<T>(db, model);
+    return builder.findUnique(options);
   },
 
   /** Find multiple records */

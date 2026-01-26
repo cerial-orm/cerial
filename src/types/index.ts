@@ -51,6 +51,7 @@ export type {
   OrderByClause,
   FindOptions,
   FindOneOptions,
+  FindUniqueOptions,
   FindManyOptions,
   CreateOptions,
   UpdateOptions,

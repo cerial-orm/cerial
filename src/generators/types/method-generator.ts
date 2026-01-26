@@ -23,6 +23,14 @@ export function generateFindManyMethod(model: ModelMetadata): string {
   }): Promise<${model.name}[]>;`;
 }
 
+/** Generate findUnique method signature */
+export function generateFindUniqueMethod(model: ModelMetadata): string {
+  return `findUnique(options: {
+    where: { id: string } & Omit<${model.name}Where, 'id'>;
+    select?: ${model.name}Select;
+  }): Promise<${model.name} | null>;`;
+}
+
 /** Generate create method signature */
 export function generateCreateMethod(model: ModelMetadata): string {
   return `create(options: {
@@ -62,6 +70,7 @@ export function generateMethodSignatures(model: ModelMetadata): string[] {
   return [
     generateFindOneMethod(model),
     generateFindManyMethod(model),
+    generateFindUniqueMethod(model),
     generateCreateMethod(model),
     generateUpdateMethod(model),
     generateDeleteMethod(model),

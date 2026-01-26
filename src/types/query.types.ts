@@ -36,9 +36,7 @@ export interface SpecialOperators<T> {
 }
 
 /** Combined filter for a single field */
-export type FieldFilter<T> =
-  | T
-  | (ComparisonOperators<T> & StringOperators & ArrayOperators<T> & SpecialOperators<T>);
+export type FieldFilter<T> = T | (ComparisonOperators<T> & StringOperators & ArrayOperators<T> & SpecialOperators<T>);
 
 /** Generic where clause */
 export interface WhereClause {
@@ -75,6 +73,12 @@ export interface FindOneOptions extends Omit<FindOptions, 'limit' | 'offset'> {}
 
 /** Find many options */
 export interface FindManyOptions extends FindOptions {}
+
+/** Find unique options (requires id in where clause) */
+export interface FindUniqueOptions extends Omit<FindOneOptions, 'orderBy'> {
+  /** Where clause must contain id field, stripping any id operators */
+  where: Omit<WhereClause, 'id'> & { id: string };
+}
 
 /** Create options */
 export interface CreateOptions<T> {

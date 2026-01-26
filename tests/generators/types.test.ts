@@ -2,12 +2,15 @@
  * Types generator tests
  */
 
-import { test, expect, describe } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import {
-  generateInterface,
   generateCreateType,
-  generateUpdateType,
+  generateFindManyMethod,
+  generateFindOneMethod,
+  generateFindUniqueMethod,
+  generateInterface,
   generateSelectType,
+  generateUpdateType,
   generateWhereInterface,
 } from '../../src/generators/types';
 import { parseModelRegistry } from '../test-helpers';
@@ -20,7 +23,8 @@ model User {
   email Email @unique
   age Int?
   createdAt Date @now
-}`;
+}
+`;
 
 const registry = parseModelRegistry(dsl);
 const userModel = registry['User']!;
@@ -85,6 +89,7 @@ describe('types generator', () => {
       expect(result).toContain('contains?: string;');
       expect(result).toContain('startsWith?: string;');
       expect(result).toContain('endsWith?: string;');
+
       // id field should NOT have isNull even though isRequired is false
       expect(result.substring(result.indexOf('id?'), result.indexOf('name?'))).not.toContain('isNull');
 
@@ -106,7 +111,7 @@ describe('types generator', () => {
       // createdAt field (date type, required) - has ordering, between, but no isNull
       expect(result).toContain('createdAt?:');
       expect(result).toContain('gt?: Date;');
-      expect(result).toContain('between?: [Date, Date];');
+      expect(result).toContain('between?: [Date, Date]');
     });
   });
 });

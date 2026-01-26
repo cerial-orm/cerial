@@ -2,9 +2,8 @@
  * Interface generator - generates TypeScript interfaces for models
  */
 
-import type { ModelMetadata, FieldMetadata } from '../../types';
+import type { FieldMetadata, ModelMetadata } from '../../types';
 import { schemaTypeToTsType } from '../../utils/type-utils';
-import { indent } from '../../utils/string-utils';
 
 /** Generate TypeScript type for a field */
 export function generateFieldType(field: FieldMetadata): string {

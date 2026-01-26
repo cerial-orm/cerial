@@ -6,6 +6,7 @@ import type { Surreal } from 'surrealdb';
 import type {
   ModelMetadata,
   FindOneOptions,
+  FindUniqueOptions,
   FindManyOptions,
   CreateOptions,
   UpdateOptions,
@@ -58,6 +59,12 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
   async findOne(options: FindOneOptions = {}): Promise<T | null> {
     await this.beforeQuery();
     return QueryBuilderStatic.findOne<T>(this.db, this.metadata, options);
+  }
+
+  /** Find a unique record by id */
+  async findUnique(options: FindUniqueOptions): Promise<T | null> {
+    await this.beforeQuery();
+    return QueryBuilderStatic.findUnique<T>(this.db, this.metadata, options);
   }
 
   /** Find multiple records */

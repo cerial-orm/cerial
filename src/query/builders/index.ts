@@ -5,6 +5,7 @@
 export {
   buildFindManyQuery,
   buildFindOneQuery,
+  buildFindUniqueQuery,
   buildLimit,
   buildOffset,
   buildOrderBy,
