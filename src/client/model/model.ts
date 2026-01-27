@@ -14,30 +14,37 @@ import type {
 } from '../../types';
 import { QueryBuilderStatic } from '../../query/builder';
 
-/** Callback type for before-query hook */
-export type BeforeQueryCallback = () => Promise<void>;
+/** Callback type for before-query hook (receives model name for context) */
+export type BeforeQueryCallback = (modelName: string) => Promise<void>;
 
 /** Model options */
 export interface ModelOptions {
-  /** Callback to run before each query (e.g., for lazy migrations) */
-  onBeforeQuery?: BeforeQueryCallback;
+  /** Callback(s) to run before each query - can be single function or array (e.g., for lazy migrations, logging) */
+  onBeforeQuery?: BeforeQueryCallback | BeforeQueryCallback[];
 }
 
 /** Model class that wraps query builder methods */
 export class Model<T extends Record<string, unknown> = Record<string, unknown>> {
-  private onBeforeQuery?: BeforeQueryCallback;
+  private onBeforeQueryCallbacks: BeforeQueryCallback[] = [];
 
   constructor(
     private db: Surreal,
     private metadata: ModelMetadata,
     options?: ModelOptions,
   ) {
-    this.onBeforeQuery = options?.onBeforeQuery;
+    // Normalize to array for consistent handling
+    if (options?.onBeforeQuery) {
+      this.onBeforeQueryCallbacks = Array.isArray(options.onBeforeQuery)
+        ? options.onBeforeQuery
+        : [options.onBeforeQuery];
+    }
   }
 
-  /** Run before-query hook if set */
+  /** Run all before-query hooks sequentially with model name */
   private async beforeQuery(): Promise<void> {
-    if (this.onBeforeQuery) await this.onBeforeQuery();
+    for (const callback of this.onBeforeQueryCallbacks) {
+      await callback(this.metadata.name);
+    }
   }
 
   /** Get model metadata */

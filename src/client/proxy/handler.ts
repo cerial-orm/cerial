@@ -6,16 +6,17 @@ import type { Surreal } from 'surrealdb';
 import type { ModelRegistry } from '../../types';
 import { Model, type BeforeQueryCallback, type ModelOptions } from '../model/model';
 
-/** Proxy options */
-export interface ProxyOptions {
-  /** Callback to run before each query (e.g., for lazy migrations) */
-  onBeforeQuery?: BeforeQueryCallback;
+/** Per-model callback configuration */
+export interface PerModelCallbacks {
+  [modelName: string]: BeforeQueryCallback | BeforeQueryCallback[];
 }
 
-/** Cache key combining db instance and options */
-interface CacheKey {
-  db: Surreal;
-  onBeforeQuery?: BeforeQueryCallback;
+/** Proxy options */
+export interface ProxyOptions {
+  /** Callback(s) to run before each query - can be single function or array (e.g., for lazy migrations) */
+  onBeforeQuery?: BeforeQueryCallback | BeforeQueryCallback[];
+  /** Per-model callbacks to run before queries to specific models */
+  perModelCallbacks?: PerModelCallbacks;
 }
 
 /** Cache for model instances */
@@ -67,16 +68,31 @@ const IGNORED_PROPERTIES = new Set([
   '_isMockFunction',
 ]);
 
+/** Normalize callback(s) to array */
+function normalizeCallbacks(
+  callbacks: BeforeQueryCallback | BeforeQueryCallback[] | undefined,
+): BeforeQueryCallback[] {
+  if (!callbacks) return [];
+  return Array.isArray(callbacks) ? callbacks : [callbacks];
+}
+
+/** Build model options by combining global and per-model callbacks */
+function buildModelOptions(modelName: string, options?: ProxyOptions): ModelOptions | undefined {
+  const globalCallbacks = normalizeCallbacks(options?.onBeforeQuery);
+  const perModelCallbacks = normalizeCallbacks(options?.perModelCallbacks?.[modelName]);
+
+  const allCallbacks = [...globalCallbacks, ...perModelCallbacks];
+
+  if (allCallbacks.length === 0) return undefined;
+  return { onBeforeQuery: allCallbacks };
+}
+
 /** Create proxy handler for model access */
 export function createProxyHandler(
   db: Surreal,
   registry: ModelRegistry,
   options?: ProxyOptions,
 ): ProxyHandler<Record<string, Model>> {
-  const modelOptions: ModelOptions | undefined = options?.onBeforeQuery
-    ? { onBeforeQuery: options.onBeforeQuery }
-    : undefined;
-
   return {
     get(_target, prop: string | symbol) {
       if (typeof prop === 'symbol') return undefined;
@@ -86,6 +102,9 @@ export function createProxyHandler(
 
       // Only return model if it exists in registry
       if (!(prop in registry)) return undefined;
+
+      // Build model-specific options combining global and per-model callbacks
+      const modelOptions = buildModelOptions(prop, options);
 
       // Return model for this property name
       return getOrCreateModel(db, prop, registry, modelOptions);
@@ -103,6 +122,9 @@ export function createProxyHandler(
     getOwnPropertyDescriptor(_target, prop: string | symbol) {
       if (typeof prop === 'symbol') return undefined;
       if (!(prop in registry)) return undefined;
+
+      // Build model-specific options combining global and per-model callbacks
+      const modelOptions = buildModelOptions(prop, options);
 
       return {
         configurable: true,

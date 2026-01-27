@@ -5,7 +5,7 @@
 import { mkdir } from 'node:fs/promises';
 import * as prettier from 'prettier';
 import type { ModelMetadata } from '../../types';
-import { generateMigrationCode } from './define-generator';
+import { generatePerModelMigrationCode } from './define-generator';
 
 /** Prettier config cache */
 let prettierConfig: prettier.Options | null = null;
@@ -50,7 +50,7 @@ export async function writeMigrationFile(outputDir: string, models: ModelMetadat
  * Do not edit manually
  */
 
-${generateMigrationCode(models)}
+${generatePerModelMigrationCode(models)}
 `;
 
   const formatted = await formatCode(content, outputDir);

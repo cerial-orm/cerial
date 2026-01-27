@@ -9,10 +9,10 @@ export function generateImports(models: ModelMetadata[]): string {
   const modelImports = models.map((m) => m.name).join(', ');
   const modelTypeImports = models.map((m) => `${m.name}Model`).join(', ');
 
-  return `import { ConnectionManager, type DatabaseProxy, type ModelRegistry } from '@org/lib_backend_surreal-om';
+  return `import { ConnectionManager, type DatabaseProxy, type ModelRegistry, type BeforeQueryCallback, type PerModelCallbacks } from '@org/lib_backend_surreal-om';
 import type { ConnectionConfig } from '@org/lib_backend_surreal-om';
 import { modelRegistry } from './internal/model-registry';
-import { migrationStatements } from './internal/migrations';
+import { migrationsByModel, getModelMigrationQuery, getMigrationModelNames, type ModelName } from './internal/migrations';
 import type { ${modelImports}, ${modelTypeImports} } from './models';`;
 }
 
@@ -51,20 +51,69 @@ ${modelTypes}
 /** Generate the SurrealClient class */
 export function generateClientClass(): string {
   return `/**
- * SurrealDB client with typed model access
+ * Migration event types
+ */
+export type MigrationEventType = 'start' | 'complete' | 'error';
+
+/**
+ * Migration event callback
+ */
+export type MigrationEventCallback = (event: {
+  type: MigrationEventType;
+  modelName: ModelName;
+  error?: Error;
+}) => void;
+
+/**
+ * Client options for configuring callbacks and events
+ */
+export interface ClientOptions {
+  /** Callback(s) to run before each query - can be single function or array */
+  onBeforeQuery?: BeforeQueryCallback | BeforeQueryCallback[];
+  /** Callback for migration events (start, complete, error) */
+  onMigrationEvent?: MigrationEventCallback;
+}
+
+/**
+ * Extended connection config with per-model callbacks
+ */
+export interface SurrealClientConnectConfig extends ConnectionConfig {
+  /** Per-model callbacks to run before queries to specific models */
+  perModelCallbacks?: PerModelCallbacks;
+}
+
+/**
+ * SurrealDB client with typed model access and per-model lazy migrations
  */
 export class SurrealClient {
   private connectionManager: ConnectionManager<typeof modelRegistry>;
   private _db: DatabaseProxy<typeof modelRegistry> | null = null;
-  private _isMigrated = false;
+  private _migratedModels: Set<ModelName> = new Set();
+  private _pendingMigrations: Set<ModelName> = new Set();
+  private _migrationPromises: Map<ModelName, Promise<void>> = new Map();
+  private _onMigrationEvent?: MigrationEventCallback;
+  private _userCallbacks: BeforeQueryCallback[] = [];
+  private _perModelCallbacks?: PerModelCallbacks;
 
-  constructor() {
-    // Set up the connection manager with a before-query callback for lazy migrations
+  constructor(options?: ClientOptions) {
+    // Store user callbacks (normalized to array)
+    if (options?.onBeforeQuery) {
+      this._userCallbacks = Array.isArray(options.onBeforeQuery)
+        ? options.onBeforeQuery
+        : [options.onBeforeQuery];
+    }
+
+    this._onMigrationEvent = options?.onMigrationEvent;
+
+    // Combine migration callback with user callbacks
+    const allCallbacks: BeforeQueryCallback[] = [
+      async (modelName: string) => await this.ensureModelMigrated(modelName as ModelName),
+      ...this._userCallbacks,
+    ];
+
     this.connectionManager = new ConnectionManager(modelRegistry, {
       proxyOptions: {
-        onBeforeQuery: async () => {
-          await this.ensureMigrated();
-        },
+        onBeforeQuery: allCallbacks,
       },
     });
   }
@@ -86,17 +135,57 @@ export class SurrealClient {
   }
 
   /**
-   * Check if migrations have been applied
+   * Check if all models have been migrated
    */
   get isMigrated(): boolean {
-    return this._isMigrated;
+    const allModels = getMigrationModelNames();
+    return allModels.every(model => this._migratedModels.has(model));
+  }
+
+  /**
+   * Check if a specific model has been migrated
+   * @param modelName - The model name to check
+   */
+  isModelMigrated(modelName: ModelName): boolean {
+    return this._migratedModels.has(modelName);
+  }
+
+  /**
+   * Get list of migrated models
+   */
+  getMigratedModels(): ModelName[] {
+    return Array.from(this._migratedModels);
+  }
+
+  /**
+   * Get list of pending models (not yet migrated)
+   */
+  getPendingModels(): ModelName[] {
+    const allModels = getMigrationModelNames();
+    return allModels.filter(model => !this._migratedModels.has(model));
   }
 
   /**
    * Connect to the database
-   * @param config - Connection configuration
+   * @param config - Connection configuration with optional per-model callbacks
    */
-  async connect(config: ConnectionConfig): Promise<void> {
+  async connect(config: SurrealClientConnectConfig): Promise<void> {
+    // Store per-model callbacks for proxy creation
+    this._perModelCallbacks = config.perModelCallbacks;
+
+    // Update proxy options with per-model callbacks
+    if (this._perModelCallbacks) {
+      const allCallbacks: BeforeQueryCallback[] = [
+        async (modelName: string) => await this.ensureModelMigrated(modelName as ModelName),
+        ...this._userCallbacks,
+      ];
+
+      this.connectionManager.setProxyOptions({
+        onBeforeQuery: allCallbacks,
+        perModelCallbacks: this._perModelCallbacks,
+      });
+    }
+
     this._db = await this.connectionManager.connect(config);
   }
 
@@ -106,33 +195,93 @@ export class SurrealClient {
   async disconnect(): Promise<void> {
     await this.connectionManager.disconnect();
     this._db = null;
-    this._isMigrated = false;
+    this._migratedModels.clear();
+    this._pendingMigrations.clear();
+    this._migrationPromises.clear();
   }
 
   /**
-   * Run schema migrations (DEFINE TABLE and DEFINE FIELD statements)
-   * This is called automatically before the first query if not called manually.
+   * Run migrations for a specific model
+   * @param modelName - The model name to migrate
    */
-  async migrate(): Promise<void> {
-    if (this._isMigrated) return;
+  async migrateModel(modelName: ModelName): Promise<void> {
+    // Check if already migrated
+    if (this._migratedModels.has(modelName)) return;
+
+    // Thread safety: wait for in-progress migration
+    if (this._pendingMigrations.has(modelName)) {
+      const promise = this._migrationPromises.get(modelName);
+      if (promise) await promise;
+      return;
+    }
+
+    // Mark as pending
+    this._pendingMigrations.add(modelName);
+
+    // Create migration promise
+    const migrationPromise = this._doMigrateModel(modelName);
+    this._migrationPromises.set(modelName, migrationPromise);
+
+    try {
+      await migrationPromise;
+    } finally {
+      this._pendingMigrations.delete(modelName);
+      this._migrationPromises.delete(modelName);
+    }
+  }
+
+  /**
+   * Internal method to perform migration for a model
+   * @internal
+   */
+  private async _doMigrateModel(modelName: ModelName): Promise<void> {
     if (!this._db) throw new Error('Not connected. Call connect() first.');
 
-    const surreal = this.connectionManager.getSurreal();
-    if (!surreal) throw new Error('No active connection.');
+    this._onMigrationEvent?.({ type: 'start', modelName });
 
-    // Execute all migration statements
-    const query = migrationStatements.join('\\n');
-    await surreal.query(query);
+    try {
+      const surreal = this.connectionManager.getSurreal();
+      if (!surreal) throw new Error('No active connection.');
 
-    this._isMigrated = true;
+      // Get migration statements for this specific model
+      const query = getModelMigrationQuery(modelName);
+      await surreal.query(query);
+
+      // Mark as migrated
+      this._migratedModels.add(modelName);
+      this._onMigrationEvent?.({ type: 'complete', modelName });
+    } catch (error) {
+      this._onMigrationEvent?.({ type: 'error', modelName, error: error as Error });
+      throw error; // Fail fast - don't retry
+    }
   }
 
   /**
-   * Ensure migrations are applied (called before queries)
+   * Ensure a specific model is migrated (called before queries)
+   * @param modelName - The model name to ensure is migrated
+   * @internal
+   */
+  async ensureModelMigrated(modelName: ModelName): Promise<void> {
+    if (!this._migratedModels.has(modelName)) {
+      await this.migrateModel(modelName);
+    }
+  }
+
+  /**
+   * Run schema migrations for all models
+   * This can be called manually to eagerly migrate all models upfront.
+   */
+  async migrate(): Promise<void> {
+    const allModels = getMigrationModelNames();
+    await Promise.all(allModels.map(model => this.migrateModel(model)));
+  }
+
+  /**
+   * Ensure all migrations are applied (called before queries)
    * @internal
    */
   async ensureMigrated(): Promise<void> {
-    if (!this._isMigrated) await this.migrate();
+    await this.migrate();
   }
 
   /**

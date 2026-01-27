@@ -66,7 +66,8 @@ export async function writeInternalIndex(outputDir: string): Promise<string> {
 
 export { modelRegistry } from './model-registry';
 export type { ModelRegistry } from './model-registry';
-export { migrationStatements, getMigrationQuery } from './migrations';
+export { migrationsByModel, getModelMigrationQuery, getMigrationModelNames, modelNames } from './migrations';
+export type { ModelName } from './migrations';
 `;
 
   const formatted = await formatCode(content, outputDir);

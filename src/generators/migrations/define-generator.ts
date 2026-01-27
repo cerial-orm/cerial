@@ -186,3 +186,75 @@ export function getMigrationQuery(): string {
 }
 `;
 }
+
+/** Map of model name to migration statements */
+export interface ModelMigrationMap {
+  [modelName: string]: string[];
+}
+
+/** Generate migration map grouped by model */
+export function generateModelMigrationMap(
+  registry: ModelRegistry,
+  tableOptions?: DefineTableOptions,
+  fieldOptions?: DefineFieldOptions,
+): ModelMigrationMap {
+  const map: ModelMigrationMap = {};
+
+  for (const modelName in registry) {
+    const model = registry[modelName];
+    if (!model) continue;
+    map[modelName] = generateModelDefineStatements(model, tableOptions, fieldOptions);
+  }
+
+  return map;
+}
+
+/** Generate TypeScript code for per-model migrations */
+export function generatePerModelMigrationCode(models: ModelMetadata[]): string {
+  const registry: ModelRegistry = {};
+  for (const model of models) {
+    registry[model.name] = model;
+  }
+
+  // Generate per-model map
+  const migrationMap = generateModelMigrationMap(registry);
+  const mapEntries = Object.entries(migrationMap)
+    .map(([modelName, modelStatements]) => {
+      const modelStatementsStr = modelStatements.map((s) => `    '${s}'`).join(',\n');
+      return `  ${modelName}: [\n${modelStatementsStr}\n  ]`;
+    })
+    .join(',\n');
+
+  // Generate typed model name union
+  const modelNameUnion = Object.keys(migrationMap)
+    .map((name) => `'${name}'`)
+    .join(' | ');
+
+  // Generate model names array as const
+  const modelNamesArray = Object.keys(migrationMap)
+    .map((name) => `'${name}'`)
+    .join(', ');
+
+  return `/** Union type of all model names */
+export type ModelName = ${modelNameUnion};
+
+/** All model names as const array */
+export const modelNames = [${modelNamesArray}] as const;
+
+/** Migration statements grouped by model */
+export const migrationsByModel: Record<ModelName, string[]> = {
+${mapEntries}
+};
+
+/** Get migration query string for a specific model */
+export function getModelMigrationQuery(modelName: ModelName): string {
+  const statements = migrationsByModel[modelName];
+  return statements.join('\\n');
+}
+
+/** Get all model names that have migrations */
+export function getMigrationModelNames(): ModelName[] {
+  return [...modelNames];
+}
+`;
+}

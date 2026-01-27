@@ -8,7 +8,7 @@ export type { BeforeQueryCallback, ModelOptions } from './model';
 
 // Proxy
 export { clearModelCache, createModelProxy, createProxyHandler } from './proxy';
-export type { DatabaseProxy, ProxyOptions } from './proxy';
+export type { DatabaseProxy, ProxyOptions, PerModelCallbacks } from './proxy';
 
 // Connection manager
 export { ConnectionManager, createConnectionManager } from './connection';
