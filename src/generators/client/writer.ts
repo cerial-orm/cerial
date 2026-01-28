@@ -6,6 +6,7 @@ import { mkdir } from 'node:fs/promises';
 import * as prettier from 'prettier';
 import type { ModelMetadata } from '../../types';
 import { generateAllDerivedTypes, generateInterfaces, generateModelTypes, generateWhereTypes } from '../types';
+import { generateFindUniqueWhereType } from '../types/method-generator';
 import { generateConnectionExports } from './connection-template';
 import { generateClientTemplate } from './template';
 
@@ -74,6 +75,7 @@ export async function writeModelTypes(outputDir: string, model: ModelMetadata): 
   // Generate all type content for this model
   const interfaceCode = generateInterfaces([model]);
   const whereCode = generateWhereTypes([model]);
+  const findUniqueWhereCode = generateFindUniqueWhereType(model);
   const derivedCode = generateAllDerivedTypes([model]);
   const modelCode = generateModelTypes([model]);
 
@@ -86,7 +88,7 @@ ${interfaceCode}
 
 ${whereCode}
 
-${derivedCode}
+${findUniqueWhereCode ? `${findUniqueWhereCode}\n\n` : ''}${derivedCode}
 
 ${modelCode}
 `;
@@ -129,6 +131,7 @@ export async function writeClientIndex(outputDir: string, models: ModelMetadata[
   const createExports = models.map((m) => `${m.name}Create`).join(',\n  ');
   const updateExports = models.map((m) => `${m.name}Update`).join(',\n  ');
   const whereExports = models.map((m) => `${m.name}Where`).join(',\n  ');
+  const findUniqueWhereExports = models.map((m) => `${m.name}FindUniqueWhere`).join(',\n  ');
   const selectExports = models.map((m) => `${m.name}Select`).join(',\n  ');
   const orderByExports = models.map((m) => `${m.name}OrderBy`).join(',\n  ');
   const modelTypeExports = models.map((m) => `${m.name}Model`).join(',\n  ');
@@ -156,6 +159,11 @@ export type {
 // Where types
 export type {
   ${whereExports},
+} from './models';
+
+// FindUniqueWhere types
+export type {
+  ${findUniqueWhereExports},
 } from './models';
 
 // Select types

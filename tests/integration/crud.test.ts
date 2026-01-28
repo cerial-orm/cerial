@@ -272,12 +272,12 @@ describe('CRUD Operations', () => {
       expect(result).toBeNull();
     });
 
-    test('should throw error when id is missing from where clause', async () => {
+    test('should throw error when no unique field provided', async () => {
       await expect(
         userModel.findUnique({
           where: {} as any,
         }),
-      ).rejects.toThrow('id is required in where clause for findUnique');
+      ).rejects.toThrow('At least one unique field must be provided');
     });
 
     test('should find a record by id with select', async () => {
@@ -300,6 +300,73 @@ describe('CRUD Operations', () => {
           where: { id: 'wrong_table:id123' },
         }),
       ).rejects.toThrow('RecordId table "wrong_table" does not start with expected table');
+    });
+  });
+
+  describe('Find Unique by Email', () => {
+    beforeEach(async () => {
+      await userModel.create({
+        data: {
+          id: 'user-by-email-1',
+          email: 'unique-email@example.com',
+          name: 'Email User',
+          isActive: true,
+        },
+      });
+    });
+
+    test('should find a record by unique email field', async () => {
+      const result = await userModel.findUnique({
+        where: { email: 'unique-email@example.com' },
+      });
+      expect(result).toBeDefined();
+      expect(result?.email).toBe('unique-email@example.com');
+      expect(result?.name).toBe('Email User');
+    });
+
+    test('should find by email with additional conditions', async () => {
+      const result = await userModel.findUnique({
+        where: { email: 'unique-email@example.com', isActive: true },
+      });
+      expect(result).toBeDefined();
+      expect(result?.isActive).toBe(true);
+    });
+
+    test('should return null when record not found by email', async () => {
+      const result = await userModel.findUnique({
+        where: { email: 'nonexistent@example.com' },
+      });
+      expect(result).toBeNull();
+    });
+
+    test('should find by email with select', async () => {
+      const result = await userModel.findUnique({
+        where: { email: 'unique-email@example.com' },
+        select: { name: true, email: true },
+      });
+      expect(result?.name).toBe('Email User');
+      expect(result?.email).toBe('unique-email@example.com');
+      expect(result?.isActive).toBeUndefined();
+    });
+
+    test('should allow multiple unique fields (id takes precedence for FROM ONLY)', async () => {
+      const result = await userModel.findUnique({
+        where: {
+          id: 'user-by-email-1',
+          email: 'unique-email@example.com',
+        },
+      });
+      expect(result).toBeDefined();
+      expect(result!.id).toBe('user-by-email-1');
+      expect(result?.email).toBe('unique-email@example.com');
+    });
+
+    test('should throw error when non-unique field provided', async () => {
+      await expect(
+        userModel.findUnique({
+          where: { name: 'Email User' } as any,
+        }),
+      ).rejects.toThrow('At least one unique field must be provided');
     });
   });
 

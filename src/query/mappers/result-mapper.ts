@@ -2,6 +2,7 @@
  * Result mapper - maps query results to typed responses
  */
 
+import type { RecordId } from 'surrealdb';
 import type { ModelMetadata, SchemaFieldType } from '../../types';
 
 /** Map a single field value from SurrealDB result */
@@ -49,6 +50,15 @@ export function mapFieldValue(value: unknown, fieldType: SchemaFieldType): unkno
   }
 }
 
+/**
+ * Transform a record id to value without the table name
+ * @param recordId The record id
+ * @returns The id value
+ */
+export function transformRecordIdToValue(recordId: RecordId): string {
+  return recordId.id.toString();
+}
+
 /** Map a single record from SurrealDB result */
 export function mapRecord(record: Record<string, unknown>, model: ModelMetadata): Record<string, unknown> {
   const result: Record<string, unknown> = {};
@@ -57,7 +67,7 @@ export function mapRecord(record: Record<string, unknown>, model: ModelMetadata)
   // (DB already filtered via SELECT clause)
   for (const [key, value] of Object.entries(record)) {
     if (key === 'id') {
-      result['id'] = value;
+      result['id'] = transformRecordIdToValue(value as RecordId);
       continue;
     }
 

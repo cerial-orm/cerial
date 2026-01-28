@@ -74,10 +74,10 @@ export interface FindOneOptions extends Omit<FindOptions, 'limit' | 'offset'> {}
 /** Find many options */
 export interface FindManyOptions extends FindOptions {}
 
-/** Find unique options (requires id in where clause) */
+/** Find unique options (requires at least one unique field in where clause) */
 export interface FindUniqueOptions extends Omit<FindOneOptions, 'orderBy'> {
-  /** Where clause must contain id field, stripping any id operators */
-  where: Omit<WhereClause, 'id'> & { id: string };
+  /** Where clause must contain at least one unique field */
+  where: WhereClause;
 }
 
 /** Create options */

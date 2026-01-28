@@ -45,19 +45,13 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     return mapSingleResult<T>(result, this.model);
   }
 
-  /** Find a unique record by id */
+  /** Find a unique record by id or unique field */
   async findUnique(options: FindUniqueOptions): Promise<T | null> {
     const { where } = options;
 
-    // Extract id from where clause and validate
-    const idValue = where?.id;
-    if (!idValue) throw new Error('id is required in where clause for findUnique');
-
-    // Remove 'id' from where clause for validation
-    const { id: _id, ...whereWithoutId } = where;
-
-    // Validate where clause (excluding id field)
-    const validation = validateWhere(Object.keys(whereWithoutId).length ? whereWithoutId : undefined, this.model);
+    // Validate the entire where clause (including unique fields)
+    // The unique field validation is handled in buildFindUniqueQuery
+    const validation = validateWhere(where, this.model);
     if (!validation.valid)
       throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
 

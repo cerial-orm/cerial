@@ -2,10 +2,19 @@
  * SELECT query builder
  */
 
-import type { FindOptions, FindUniqueOptions, ModelMetadata, OrderByClause, SelectClause } from '../../types';
+import type {
+  FieldMetadata,
+  FindOptions,
+  FindUniqueOptions,
+  ModelMetadata,
+  OrderByClause,
+  SelectClause,
+  WhereClause,
+} from '../../types';
 import type { CompiledQuery } from '../compile/types';
 import { transformWhereClause } from '../filters/transformer';
 import { transformOrValidateRecordId } from '../transformers';
+import { getUniqueFields } from '../../parser/model-metadata';
 
 /** Build SELECT field list */
 export function buildSelectFields(select: SelectClause | undefined, model: ModelMetadata): string {
@@ -84,29 +93,67 @@ export function buildFindManyQuery(model: ModelMetadata, options: FindOptions): 
   return buildSelectQuery(model, options);
 }
 
-/** Build a findUnique SELECT query using RecordId */
-export function buildFindUniqueQuery(model: ModelMetadata, options: FindUniqueOptions): CompiledQuery {
-  const { where, select } = options;
+/** Validate at least one unique field is present in where clause */
+function hasUniqueField(where: WhereClause, model: ModelMetadata): void {
+  const idField = model.fields.find((f) => f.isId);
+  const uniqueFields = getUniqueFields(model);
+  const allUniqueFields = idField ? [idField, ...uniqueFields.filter((f) => !f.isId)] : uniqueFields;
 
-  // Extract id value from where clause
-  const idValue = where?.id;
-  if (!idValue) throw new Error('id is required in where clause for findUnique');
+  // Find which unique fields are present (as direct values, not operators)
+  const providedFields = allUniqueFields.filter((f) => !!where[f.name]);
 
-  // Transform or validate RecordId using helper
+  // Validation: at least one unique field required
+  if (providedFields.length === 0) {
+    const fieldNames = allUniqueFields.map((f) => f.name).join(', ');
+    throw new Error(
+      `At least one unique field must be provided in where clause for findUnique. ` +
+        `Available unique fields: ${fieldNames}`,
+    );
+  }
+}
+
+/** Build findUnique query when ID is provided (uses FROM ONLY table:id) */
+function buildFindUniqueByIdQuery(
+  model: ModelMetadata,
+  where: WhereClause,
+  select: SelectClause | undefined,
+  idField: FieldMetadata,
+): CompiledQuery {
+  const idValue = where[idField.name] as string;
   const recordId = transformOrValidateRecordId(model.tableName, idValue);
 
-  // Remove 'id' from where clause since it's in RecordId
-  const { id: _id, ...whereWithoutId } = where;
+  // Remove ONLY id from where clause (keep other unique fields + non-unique fields)
+  const whereWithoutId = { ...where };
+  delete whereWithoutId[idField.name];
 
   const fields = buildSelectFields(select, model);
   const whereClause = transformWhereClause(Object.keys(whereWithoutId).length ? whereWithoutId : undefined, model);
   const limitClause = buildLimit(1);
 
-  // Build query parts using ONLY and RecordId
   const parts = [`SELECT ${fields} FROM ONLY ${recordId.toString()}`, whereClause.text, limitClause].filter((p) => p);
 
   return {
     text: parts.join(' '),
     vars: whereClause.vars,
   };
+}
+
+/** Build a findUnique SELECT query using RecordId or unique fields */
+export function buildFindUniqueQuery(model: ModelMetadata, options: FindUniqueOptions): CompiledQuery {
+  const { where, select } = options;
+
+  // Validate at least one unique field is present
+  hasUniqueField(where, model);
+
+  // Determine query strategy based on ID presence
+  const idField = model.fields.find((f) => f.isId);
+  const hasId = idField && where[idField.name] !== undefined && where[idField.name] !== null;
+
+  if (hasId) {
+    // Use FROM ONLY table:id (optimized)
+    return buildFindUniqueByIdQuery(model, where, select, idField!);
+  }
+
+  // Use FROM ONLY tableName (reuse existing buildFindOneQuery)
+  return buildFindOneQuery(model, { where, select });
 }
