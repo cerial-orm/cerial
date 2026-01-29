@@ -2,7 +2,7 @@
  * Where type generator - generates where clause types for models
  */
 
-import type { ModelMetadata, FieldMetadata } from '../../types';
+import type { FieldMetadata, ModelMetadata, ModelRegistry } from '../../types';
 import { schemaTypeToTsType } from '../../utils/type-utils';
 
 /** Generate comparison operators for numeric types */
@@ -67,10 +67,41 @@ function generateStringSpecialOps(isRequired: boolean, isId: boolean): string {
   }`;
 }
 
+/** Generate array field operators for any array type */
+function generateArrayFieldOps(elementType: string): string {
+  return `{
+    has?: ${elementType};
+    hasAll?: ${elementType}[];
+    hasAny?: ${elementType}[];
+    isEmpty?: boolean;
+  }`;
+}
+
 /** Generate field where type */
-export function generateFieldWhereType(field: FieldMetadata): string {
+export function generateFieldWhereType(field: FieldMetadata, _registry?: ModelRegistry): string {
   const tsType = schemaTypeToTsType(field.type);
   const { isRequired, isId } = field;
+
+  // Skip Relation fields in base where type generation
+  // They are handled separately with nested where support
+  if (field.type === 'relation') {
+    return '';
+  }
+
+  // Handle array types (String[], Int[], Date[], Record[], etc.)
+  if (field.isArray) {
+    return `${tsType}[] | ${generateArrayFieldOps(tsType)}`;
+  }
+
+  // Handle Record (single record ID) - same as string
+  if (field.type === 'record') {
+    return `string | (
+    ${generateStringComparisonOps('string')} &
+    ${generateStringOps()} &
+    ${generateArrayOps('string')} &
+    ${generateStringSpecialOps(isRequired, isId)}
+  )`;
+  }
 
   // For numeric types, include all comparison operators and between
   if (field.type === 'int' || field.type === 'float') {
@@ -117,11 +148,22 @@ export function generateFieldWhereType(field: FieldMetadata): string {
 }
 
 /** Generate Where interface for a model */
-export function generateWhereInterface(model: ModelMetadata): string {
-  const fields = model.fields.map((f) => {
-    const whereType = generateFieldWhereType(f);
-    return `  ${f.name}?: ${whereType};`;
-  });
+export function generateWhereInterface(model: ModelMetadata, registry?: ModelRegistry): string {
+  const fields: string[] = [];
+
+  for (const field of model.fields) {
+    if (field.type === 'relation') {
+      // Relation fields get nested where type
+      if (field.relationInfo) {
+        fields.push(`  ${field.name}?: ${field.relationInfo.targetModel}Where;`);
+      }
+    } else {
+      const whereType = generateFieldWhereType(field, registry);
+      if (whereType) {
+        fields.push(`  ${field.name}?: ${whereType};`);
+      }
+    }
+  }
 
   return `export interface ${model.name}Where {
 ${fields.join('\n')}
@@ -137,11 +179,11 @@ export function generateWhereInputInterface(model: ModelMetadata): string {
 }
 
 /** Generate all where types for models */
-export function generateWhereTypes(models: ModelMetadata[]): string {
+export function generateWhereTypes(models: ModelMetadata[], registry?: ModelRegistry): string {
   const parts: string[] = [];
 
   for (const model of models) {
-    parts.push(generateWhereInterface(model));
+    parts.push(generateWhereInterface(model, registry));
     parts.push(generateWhereInputInterface(model));
   }
 

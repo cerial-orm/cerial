@@ -2,8 +2,8 @@
  * DEFINE statement generator for SurrealDB tables and fields
  */
 
-import type { ModelMetadata, FieldMetadata, ModelRegistry } from '../../types';
-import { generateTypeClause, generateAssertClause, generateDefaultClause } from './type-mapper';
+import type { FieldMetadata, ModelMetadata, ModelRegistry } from '../../types';
+import { generateAssertClause, generateDefaultClause, generateTypeClause, generateValueClause } from './type-mapper';
 
 /** Options for DEFINE TABLE statement */
 export interface DefineTableOptions {
@@ -55,12 +55,16 @@ export function generateDefineTable(model: ModelMetadata, options: DefineTableOp
 export function generateDefineField(
   field: FieldMetadata,
   tableName: string,
+  model: ModelMetadata,
   options: DefineFieldOptions = {},
 ): string {
   const opts = { ...DEFAULT_FIELD_OPTIONS, ...options };
 
   // Skip id field - SurrealDB manages this automatically
   if (field.isId) return '';
+
+  // Skip Relation fields - they are virtual and not stored in database
+  if (field.type === 'relation') return '';
 
   const parts: string[] = ['DEFINE FIELD'];
 
@@ -71,8 +75,12 @@ export function generateDefineField(
   parts.push('ON TABLE');
   parts.push(tableName);
 
-  // Add TYPE clause
-  parts.push(generateTypeClause(field.type, field.isRequired));
+  // Add TYPE clause (pass field and model for Record type handling)
+  parts.push(generateTypeClause(field.type, field.isRequired, field, model));
+
+  // Add VALUE clause for Record[] (distinct deduplication)
+  const valueClause = generateValueClause(field);
+  if (valueClause) parts.push(valueClause);
 
   // Add ASSERT clause if needed (e.g., for email validation)
   const assertClause = generateAssertClause(field.type);
@@ -86,12 +94,11 @@ export function generateDefineField(
 }
 
 /** Generate DEFINE INDEX statement for unique fields */
-export function generateDefineIndex(
-  field: FieldMetadata,
-  tableName: string,
-  options: DefineFieldOptions = {},
-): string {
+export function generateDefineIndex(field: FieldMetadata, tableName: string, options: DefineFieldOptions = {}): string {
   if (!field.isUnique || field.isId) return '';
+
+  // Skip Relation fields - they are virtual
+  if (field.type === 'relation') return '';
 
   const opts = { ...DEFAULT_FIELD_OPTIONS, ...options };
   const indexName = `${tableName}_${field.name}_unique`;
@@ -121,9 +128,9 @@ export function generateModelDefineStatements(
   // 1. Define the table first
   statements.push(generateDefineTable(model, tableOptions));
 
-  // 2. Define each field
+  // 2. Define each field (skips id and relation fields)
   for (const field of model.fields) {
-    const fieldDef = generateDefineField(field, model.tableName, fieldOptions);
+    const fieldDef = generateDefineField(field, model.tableName, model, fieldOptions);
     if (fieldDef) statements.push(fieldDef);
   }
 

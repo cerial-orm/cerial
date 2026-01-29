@@ -2,9 +2,9 @@
  * WHERE clause validator
  */
 
-import type { WhereClause, ModelMetadata } from '../../types';
-import { isRegisteredOperator } from '../filters/registry';
+import type { ModelMetadata, WhereClause } from '../../types';
 import { isObject } from '../../utils/type-utils';
+import { isRegisteredOperator } from '../filters/registry';
 
 /** Validation error */
 export interface ValidationError {
@@ -36,6 +36,14 @@ export function validateFieldFilter(
 
   // If filter is an object, validate operators
   if (isObject(filter)) {
+    // For relation fields, the filter object contains nested field conditions, not operators
+    // e.g., profile: { bio: { contains: 'x' } } - bio is a field, not an operator
+    if (field.type === 'relation') {
+      // Skip detailed validation for nested relation conditions
+      // The nested-condition-builder will handle this at query build time
+      return errors;
+    }
+
     for (const [op, _value] of Object.entries(filter)) {
       if (!isRegisteredOperator(op)) {
         errors.push({ path: `${path}.${op}`, message: `Unknown operator: ${op}` });
@@ -90,10 +98,7 @@ export function validateWhereClause(
 }
 
 /** Validate a where clause and return result */
-export function validateWhere(
-  where: WhereClause | undefined,
-  model: ModelMetadata,
-): WhereValidationResult {
+export function validateWhere(where: WhereClause | undefined, model: ModelMetadata): WhereValidationResult {
   if (!where) {
     return { valid: true, errors: [] };
   }

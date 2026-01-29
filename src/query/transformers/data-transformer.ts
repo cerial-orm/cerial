@@ -3,7 +3,7 @@
  */
 
 import { RecordId } from 'surrealdb';
-import type { ModelMetadata, FieldMetadata, SchemaFieldType } from '../../types';
+import type { ModelMetadata, SchemaFieldType } from '../../types';
 
 /** Transform a value based on field type */
 export function transformValue(value: unknown, fieldType: SchemaFieldType): unknown {
@@ -87,6 +87,13 @@ export function transformOrValidateRecordId(tableName: string, value: string | R
   return new RecordId(tableName, value);
 }
 
+/** Find target table for a Record field by looking at paired Relation field */
+function findRecordTargetTable(fieldName: string, model: ModelMetadata): string | undefined {
+  // Find a Relation field that references this Record field
+  const pairedRelation = model.fields.find((f) => f.type === 'relation' && f.relationInfo?.fieldRef === fieldName);
+  return pairedRelation?.relationInfo?.targetTable;
+}
+
 /** Transform data object based on model fields */
 export function transformData(data: Record<string, unknown>, model: ModelMetadata): Record<string, unknown> {
   const result: Record<string, unknown> = {};
@@ -97,6 +104,51 @@ export function transformData(data: Record<string, unknown>, model: ModelMetadat
       // Handle id/record fields specially with RecordId
       if (field.isId && value !== undefined && value !== null) {
         result[key] = transformRecordId(model.tableName, String(value));
+      } else if (field.type === 'record' && value !== undefined && value !== null) {
+        // Handle Record fields - transform to RecordId
+        const targetTable = findRecordTargetTable(field.name, model);
+        if (targetTable) {
+          if (field.isArray) {
+            if (Array.isArray(value)) {
+              // Array of records - direct assignment
+              result[key] = value.map((element) => transformOrValidateRecordId(targetTable, String(element)));
+            } else if (typeof value === 'object' && ('push' in value || 'unset' in value)) {
+              // Push/unset operations for Record[] - transform values inside
+              const ops = value as { push?: unknown; unset?: unknown };
+              const transformed: { push?: unknown; unset?: unknown } = {};
+              if (ops.push !== undefined) {
+                transformed.push = Array.isArray(ops.push)
+                  ? ops.push.map((el) => transformOrValidateRecordId(targetTable, String(el)))
+                  : transformOrValidateRecordId(targetTable, String(ops.push));
+              }
+              if (ops.unset !== undefined) {
+                transformed.unset = Array.isArray(ops.unset)
+                  ? ops.unset.map((el) => transformOrValidateRecordId(targetTable, String(el)))
+                  : transformOrValidateRecordId(targetTable, String(ops.unset));
+              }
+              result[key] = transformed;
+            } else {
+              result[key] = value;
+            }
+          } else {
+            // Single record
+            result[key] = transformOrValidateRecordId(targetTable, String(value));
+          }
+        } else {
+          // No paired relation found, keep value as-is
+          result[key] = value;
+        }
+      } else if (field.isArray) {
+        // Handle array fields - direct assignment or push/unset operations
+        if (Array.isArray(value)) {
+          // Direct array assignment - transform each element
+          result[key] = value.map((element) => transformValue(element, field.type));
+        } else if (typeof value === 'object' && value !== null) {
+          // Push/unset operations - pass through as-is (handled by update builder)
+          result[key] = value;
+        } else {
+          result[key] = value;
+        }
       } else {
         result[key] = transformValue(value, field.type);
       }
@@ -109,15 +161,27 @@ export function transformData(data: Record<string, unknown>, model: ModelMetadat
 }
 
 /**
- * Apply @now defaults to data
- * NOTE: If the table schema has DEFAULT time::now() defined, this is not needed
- * as the database will handle it. This is kept for compatibility.
+ * Apply defaults to data for create operation:
+ * - Empty arrays for array fields that are undefined
+ * - Filter out relation fields (they're virtual)
  */
-export function applyNowDefaults(data: Record<string, unknown>, _model: ModelMetadata): Record<string, unknown> {
-  // Don't apply @now defaults here - let the database handle it
-  // through the DEFINE FIELD ... DEFAULT time::now() statement.
-  // This ensures proper datetime type handling in SurrealDB.
-  return { ...data };
+export function applyNowDefaults(data: Record<string, unknown>, model: ModelMetadata): Record<string, unknown> {
+  const result: Record<string, unknown> = { ...data };
+
+  for (const field of model.fields) {
+    // Skip relation fields - they're virtual and shouldn't be sent to database
+    if (field.type === 'relation') {
+      delete result[field.name];
+      continue;
+    }
+
+    // Apply empty array default for array fields that are undefined
+    if (field.isArray && result[field.name] === undefined) {
+      result[field.name] = [];
+    }
+  }
+
+  return result;
 }
 
 /** Filter data to only include model fields */

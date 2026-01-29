@@ -2,13 +2,45 @@
  * Condition builder - builds WHERE clause conditions
  */
 
+import type { FieldMetadata, ModelMetadata, ModelRegistry, WhereClause } from '../../types';
+import { isObject } from '../../utils/type-utils';
+import { joinFragments } from '../compile/fragment';
 import type { QueryFragment } from '../compile/types';
 import type { FilterCompileContext } from '../compile/var-allocator';
-import type { FieldMetadata, ModelMetadata, WhereClause } from '../../types';
-import { joinFragments } from '../compile/fragment';
+import { transformOrValidateRecordId } from '../transformers';
+import { handleAnd, handleNot, handleOr } from './logical-operators';
+import { buildNestedCondition, isNestedRelationCondition } from './nested-condition-builder';
 import { getOperatorHandler, isRegisteredOperator } from './registry';
-import { handleAnd, handleOr, handleNot } from './logical-operators';
-import { isObject } from '../../utils/type-utils';
+
+/** Find target table for a Record field by looking at paired Relation field */
+function findRecordTargetTable(fieldName: string, model: ModelMetadata): string | undefined {
+  const pairedRelation = model.fields.find((f) => f.type === 'relation' && f.relationInfo?.fieldRef === fieldName);
+  return pairedRelation?.relationInfo?.targetTable;
+}
+
+/** Transform value for ID or Record fields */
+function transformFieldValue(value: unknown, fieldMetadata: FieldMetadata, model: ModelMetadata): unknown {
+  // Transform ID field values to RecordId
+  if (fieldMetadata.isId && typeof value === 'string') {
+    return transformOrValidateRecordId(model.tableName, value);
+  }
+
+  // Transform Record field values to RecordId
+  if (fieldMetadata.type === 'record') {
+    const targetTable = findRecordTargetTable(fieldMetadata.name, model);
+    if (targetTable) {
+      if (typeof value === 'string') {
+        return transformOrValidateRecordId(targetTable, value);
+      }
+      // Handle arrays of values (for hasAll, hasAny operators)
+      if (Array.isArray(value)) {
+        return value.map((v) => (typeof v === 'string' ? transformOrValidateRecordId(targetTable, v) : v));
+      }
+    }
+  }
+
+  return value;
+}
 
 /** Build a condition for a single field with operators */
 export function buildFieldCondition(
@@ -16,6 +48,7 @@ export function buildFieldCondition(
   field: string,
   operators: Record<string, unknown>,
   fieldMetadata: FieldMetadata,
+  model: ModelMetadata,
 ): QueryFragment {
   const conditions: QueryFragment[] = [];
 
@@ -24,7 +57,9 @@ export function buildFieldCondition(
 
     const handler = getOperatorHandler(op);
     if (handler) {
-      conditions.push(handler(ctx, field, value, fieldMetadata));
+      // Transform ID/Record field values to RecordId
+      const transformedValue = transformFieldValue(value, fieldMetadata, model);
+      conditions.push(handler(ctx, field, transformedValue, fieldMetadata));
     }
   }
 
@@ -46,10 +81,13 @@ export function buildDirectCondition(
   field: string,
   value: unknown,
   fieldMetadata: FieldMetadata,
+  model: ModelMetadata,
 ): QueryFragment {
   const handler = getOperatorHandler('eq');
   if (!handler) return { text: '', vars: {} };
-  return handler(ctx, field, value, fieldMetadata);
+  // Transform ID/Record field values to RecordId
+  const transformedValue = transformFieldValue(value, fieldMetadata, model);
+  return handler(ctx, field, transformedValue, fieldMetadata);
 }
 
 /** Check if a value is an operator object */
@@ -64,6 +102,7 @@ export function buildConditions(
   ctx: FilterCompileContext,
   where: WhereClause,
   model: ModelMetadata,
+  registry?: ModelRegistry,
 ): QueryFragment {
   const conditions: QueryFragment[] = [];
 
@@ -72,19 +111,19 @@ export function buildConditions(
 
     // Handle logical operators
     if (key === 'AND' && Array.isArray(value)) {
-      const andConditions = value.map((w) => buildConditions(ctx, w as WhereClause, model));
+      const andConditions = value.map((w) => buildConditions(ctx, w as WhereClause, model, registry));
       conditions.push(handleAnd(andConditions));
       continue;
     }
 
     if (key === 'OR' && Array.isArray(value)) {
-      const orConditions = value.map((w) => buildConditions(ctx, w as WhereClause, model));
+      const orConditions = value.map((w) => buildConditions(ctx, w as WhereClause, model, registry));
       conditions.push(handleOr(orConditions));
       continue;
     }
 
     if (key === 'NOT' && isObject(value)) {
-      const notCondition = buildConditions(ctx, value as WhereClause, model);
+      const notCondition = buildConditions(ctx, value as WhereClause, model, registry);
       conditions.push(handleNot(notCondition));
       continue;
     }
@@ -96,14 +135,23 @@ export function buildConditions(
       continue;
     }
 
+    // Handle nested relation conditions (e.g., profile: { bio: { contains: 'x' } })
+    if (registry && isNestedRelationCondition(fieldMetadata, value)) {
+      const nestedCondition = buildNestedCondition(ctx, fieldMetadata, value, model, registry);
+      if (nestedCondition.text) {
+        conditions.push(nestedCondition);
+      }
+      continue;
+    }
+
     // Handle operator object { eq: 5, gt: 3 }
     if (isOperatorObject(value)) {
-      conditions.push(buildFieldCondition(ctx, key, value as Record<string, unknown>, fieldMetadata));
+      conditions.push(buildFieldCondition(ctx, key, value as Record<string, unknown>, fieldMetadata, model));
       continue;
     }
 
     // Handle direct value (shorthand for eq)
-    conditions.push(buildDirectCondition(ctx, key, value, fieldMetadata));
+    conditions.push(buildDirectCondition(ctx, key, value, fieldMetadata, model));
   }
 
   if (conditions.length === 0) {

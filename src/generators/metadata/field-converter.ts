@@ -2,8 +2,9 @@
  * Field converter - converts AST fields to FieldMetadata
  */
 
-import type { ASTField, FieldMetadata } from '../../types';
-import { hasDecorator, getDecorator } from '../../parser/types/ast';
+import { getDecorator, hasDecorator } from '../../parser/types/ast';
+import type { ASTField, FieldMetadata, RelationFieldMetadata } from '../../types';
+import { toSnakeCase } from '../../utils/string-utils';
 
 /** Convert AST field to FieldMetadata */
 export function convertField(field: ASTField): FieldMetadata {
@@ -11,7 +12,7 @@ export function convertField(field: ASTField): FieldMetadata {
   const isId = hasDecorator(field, 'id');
   const hasNow = hasDecorator(field, 'now');
 
-  return {
+  const metadata: FieldMetadata = {
     name: field.name,
     type: field.type,
     isId,
@@ -20,6 +21,35 @@ export function convertField(field: ASTField): FieldMetadata {
     isRequired: !isId && !hasNow && !field.isOptional,
     defaultValue: defaultDecorator?.value,
   };
+
+  // Handle array type (Record[])
+  if (field.isArray) {
+    metadata.isArray = true;
+  }
+
+  // Handle relation type
+  if (field.type === 'relation') {
+    const modelDecorator = getDecorator(field, 'model');
+    const fieldDecorator = getDecorator(field, 'field');
+
+    if (modelDecorator?.value) {
+      const targetModel = modelDecorator.value as string;
+      const relationInfo: RelationFieldMetadata = {
+        targetModel,
+        targetTable: toSnakeCase(targetModel),
+        isReverse: !fieldDecorator, // Reverse if no @field decorator
+      };
+
+      // Add field reference if forward relation
+      if (fieldDecorator?.value) {
+        relationInfo.fieldRef = fieldDecorator.value as string;
+      }
+
+      metadata.relationInfo = relationInfo;
+    }
+  }
+
+  return metadata;
 }
 
 /** Convert multiple AST fields to FieldMetadata array */

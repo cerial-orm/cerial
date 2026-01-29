@@ -2,22 +2,22 @@
  * Parser-specific type definitions for tokenization, lexing, and AST
  */
 
-import type { SchemaFieldType, SchemaDecorator, SourcePosition, SourceRange } from './common.types';
+import type { SchemaDecorator, SchemaFieldType, SourcePosition, SourceRange } from './common.types';
 
 /** Token types produced by the tokenizer */
 export type TokenType =
-  | 'keyword'      // model, etc.
-  | 'identifier'   // field names, model names
-  | 'decorator'    // @unique, @now, @default
-  | 'type'         // string, email, int, date, bool, float
-  | 'punctuation'  // { } : ? ( )
-  | 'string'       // "quoted string"
-  | 'number'       // numeric literals
-  | 'boolean'      // true, false
-  | 'newline'      // line breaks
-  | 'whitespace'   // spaces, tabs
-  | 'comment'      // // or /* */
-  | 'eof';         // end of file
+  | 'keyword' // model, etc.
+  | 'identifier' // field names, model names
+  | 'decorator' // @unique, @now, @default
+  | 'type' // string, email, int, date, bool, float
+  | 'punctuation' // { } : ? ( )
+  | 'string' // "quoted string"
+  | 'number' // numeric literals
+  | 'boolean' // true, false
+  | 'newline' // line breaks
+  | 'whitespace' // spaces, tabs
+  | 'comment' // // or /* */
+  | 'eof'; // end of file
 
 /** Single token from tokenizer */
 export interface Token {
@@ -62,6 +62,7 @@ export interface ASTField {
   name: string;
   type: SchemaFieldType;
   isOptional: boolean;
+  isArray?: boolean; // true for Record[] type
   decorators: ASTDecorator[];
   range: SourceRange;
 }

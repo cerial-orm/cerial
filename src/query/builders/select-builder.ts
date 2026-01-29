@@ -2,11 +2,13 @@
  * SELECT query builder
  */
 
+import { getUniqueFields } from '../../parser/model-metadata';
 import type {
   FieldMetadata,
   FindOptions,
   FindUniqueOptions,
   ModelMetadata,
+  ModelRegistry,
   OrderByClause,
   SelectClause,
   WhereClause,
@@ -14,19 +16,43 @@ import type {
 import type { CompiledQuery } from '../compile/types';
 import { transformWhereClause } from '../filters/transformer';
 import { transformOrValidateRecordId } from '../transformers';
-import { getUniqueFields } from '../../parser/model-metadata';
+import { combineSelectWithIncludes, type IncludeClause } from './relation-builder';
+
+/** Extended find options with include support */
+export interface FindOptionsWithInclude extends FindOptions {
+  include?: IncludeClause;
+}
+
+/** Extended find unique options with include support */
+export interface FindUniqueOptionsWithInclude extends FindUniqueOptions {
+  include?: IncludeClause;
+}
 
 /** Build SELECT field list */
-export function buildSelectFields(select: SelectClause | undefined, model: ModelMetadata): string {
-  if (!select) return '*';
+export function buildSelectFields(
+  select: SelectClause | undefined,
+  model: ModelMetadata,
+  include?: IncludeClause,
+  registry?: ModelRegistry,
+): string {
+  let baseSelect: string;
 
-  const fields = Object.entries(select)
-    .filter(([_, include]) => include)
-    .map(([field]) => field);
+  if (!select) {
+    baseSelect = '*';
+  } else {
+    const fields = Object.entries(select)
+      .filter(([_, include]) => include)
+      .map(([field]) => field);
 
-  if (fields.length === 0) return '*';
+    baseSelect = fields.length === 0 ? '*' : fields.join(', ');
+  }
 
-  return fields.join(', ');
+  // Add relation fields from include
+  if (include) {
+    return combineSelectWithIncludes(baseSelect, include, model, registry);
+  }
+
+  return baseSelect;
 }
 
 /** Build ORDER BY clause */
@@ -57,13 +83,14 @@ export function buildOffset(offset: number | undefined): string {
 /** Build a complete SELECT query */
 export function buildSelectQuery(
   model: ModelMetadata,
-  options: FindOptions,
+  options: FindOptionsWithInclude,
   fromSingle: boolean = false,
+  registry?: ModelRegistry,
 ): CompiledQuery {
-  const { where, select, orderBy, limit, offset } = options;
+  const { where, select, orderBy, limit, offset, include } = options;
 
-  const fields = buildSelectFields(select, model);
-  const whereClause = transformWhereClause(where, model);
+  const fields = buildSelectFields(select, model, include, registry);
+  const whereClause = transformWhereClause(where, model, registry);
   const orderByClause = buildOrderBy(orderBy);
   const limitClause = buildLimit(limit);
   const offsetClause = buildOffset(offset);
@@ -84,13 +111,21 @@ export function buildSelectQuery(
 }
 
 /** Build a findOne SELECT query (LIMIT 1) */
-export function buildFindOneQuery(model: ModelMetadata, options: FindOptions): CompiledQuery {
-  return buildSelectQuery(model, { ...options, limit: 1 }, true);
+export function buildFindOneQuery(
+  model: ModelMetadata,
+  options: FindOptionsWithInclude,
+  registry?: ModelRegistry,
+): CompiledQuery {
+  return buildSelectQuery(model, { ...options, limit: 1 }, true, registry);
 }
 
 /** Build a findMany SELECT query */
-export function buildFindManyQuery(model: ModelMetadata, options: FindOptions): CompiledQuery {
-  return buildSelectQuery(model, options);
+export function buildFindManyQuery(
+  model: ModelMetadata,
+  options: FindOptionsWithInclude,
+  registry?: ModelRegistry,
+): CompiledQuery {
+  return buildSelectQuery(model, options, false, registry);
 }
 
 /** Validate at least one unique field is present in where clause */
@@ -118,6 +153,8 @@ function buildFindUniqueByIdQuery(
   where: WhereClause,
   select: SelectClause | undefined,
   idField: FieldMetadata,
+  include?: IncludeClause,
+  registry?: ModelRegistry,
 ): CompiledQuery {
   const idValue = where[idField.name] as string;
   const recordId = transformOrValidateRecordId(model.tableName, idValue);
@@ -126,7 +163,7 @@ function buildFindUniqueByIdQuery(
   const whereWithoutId = { ...where };
   delete whereWithoutId[idField.name];
 
-  const fields = buildSelectFields(select, model);
+  const fields = buildSelectFields(select, model, include, registry);
   const whereClause = transformWhereClause(Object.keys(whereWithoutId).length ? whereWithoutId : undefined, model);
   const limitClause = buildLimit(1);
 
@@ -139,8 +176,12 @@ function buildFindUniqueByIdQuery(
 }
 
 /** Build a findUnique SELECT query using RecordId or unique fields */
-export function buildFindUniqueQuery(model: ModelMetadata, options: FindUniqueOptions): CompiledQuery {
-  const { where, select } = options;
+export function buildFindUniqueQuery(
+  model: ModelMetadata,
+  options: FindUniqueOptionsWithInclude,
+  registry?: ModelRegistry,
+): CompiledQuery {
+  const { where, select, include } = options;
 
   // Validate at least one unique field is present
   hasUniqueField(where, model);
@@ -151,9 +192,9 @@ export function buildFindUniqueQuery(model: ModelMetadata, options: FindUniqueOp
 
   if (hasId) {
     // Use FROM ONLY table:id (optimized)
-    return buildFindUniqueByIdQuery(model, where, select, idField!);
+    return buildFindUniqueByIdQuery(model, where, select, idField!, include, registry);
   }
 
   // Use FROM ONLY tableName (reuse existing buildFindOneQuery)
-  return buildFindOneQuery(model, { where, select });
+  return buildFindOneQuery(model, { where, select, include }, registry);
 }

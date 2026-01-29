@@ -2,21 +2,21 @@
  * Operator registry - maps operator keys to handlers
  */
 
+import type { FieldMetadata } from '../../types';
 import type { QueryFragment } from '../compile/types';
 import type { FilterCompileContext } from '../compile/var-allocator';
-import type { FieldMetadata } from '../../types';
 
 // Comparison operators
-import { handleEq, handleNeq, handleGt, handleGte, handleLt, handleLte } from './comparison-operators';
+import { handleEq, handleGt, handleGte, handleLt, handleLte, handleNeq } from './comparison-operators';
 
 // String operators
-import { handleContains, handleStartsWith, handleEndsWith } from './string-operators';
+import { handleContains, handleEndsWith, handleStartsWith } from './string-operators';
 
 // Array operators
-import { handleIn, handleNotIn } from './array-operators';
+import { handleHas, handleHasAll, handleHasAny, handleIn, handleIsEmpty, handleNotIn } from './array-operators';
 
 // Special operators
-import { handleIsNull, handleIsDefined, handleBetween } from './special-operators';
+import { handleBetween, handleIsDefined, handleIsNull } from './special-operators';
 
 /** Operator handler signature */
 export type OperatorHandler = (
@@ -41,9 +41,15 @@ const operatorRegistry: Record<string, OperatorHandler> = {
   startsWith: handleStartsWith as OperatorHandler,
   endsWith: handleEndsWith as OperatorHandler,
 
-  // Array operators
+  // Array operators (value in array of possible values)
   in: handleIn as OperatorHandler,
   notIn: handleNotIn as OperatorHandler,
+
+  // Array field operators (check array field contents)
+  has: handleHas as OperatorHandler,
+  hasAll: handleHasAll as OperatorHandler,
+  hasAny: handleHasAny as OperatorHandler,
+  isEmpty: handleIsEmpty as OperatorHandler,
 
   // Special operators
   isNull: (ctx, field, value, _meta) => {

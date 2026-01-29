@@ -3,14 +3,14 @@
  */
 
 import type {
-  SchemaFieldType,
-  SchemaDecorator,
-  SourcePosition,
-  SourceRange,
   ASTDecorator,
   ASTField,
   ASTModel,
   SchemaAST,
+  SchemaDecorator,
+  SchemaFieldType,
+  SourcePosition,
+  SourceRange,
 } from '../../types';
 
 /** Create a source position */
@@ -24,11 +24,7 @@ export function createRange(start: SourcePosition, end: SourcePosition): SourceR
 }
 
 /** Create an AST decorator node */
-export function createDecorator(
-  type: SchemaDecorator,
-  range: SourceRange,
-  value?: unknown,
-): ASTDecorator {
+export function createDecorator(type: SchemaDecorator, range: SourceRange, value?: unknown): ASTDecorator {
   return { type, value, range };
 }
 
@@ -39,16 +35,17 @@ export function createField(
   isOptional: boolean,
   decorators: ASTDecorator[],
   range: SourceRange,
+  isArray?: boolean,
 ): ASTField {
-  return { name, type, isOptional, decorators, range };
+  const field: ASTField = { name, type, isOptional, decorators, range };
+  if (isArray) {
+    field.isArray = true;
+  }
+  return field;
 }
 
 /** Create an AST model node */
-export function createModel(
-  name: string,
-  fields: ASTField[],
-  range: SourceRange,
-): ASTModel {
+export function createModel(name: string, fields: ASTField[], range: SourceRange): ASTModel {
   return { name, fields, range };
 }
 

@@ -4,6 +4,18 @@
 
 import type { SchemaFieldType } from './common.types';
 
+/** Metadata for relation fields */
+export interface RelationFieldMetadata {
+  /** Target model name from @model(Model) decorator */
+  targetModel: string;
+  /** Target table name (snake_case of targetModel) */
+  targetTable: string;
+  /** Field reference from @field(fieldName) decorator - undefined for reverse relations */
+  fieldRef?: string;
+  /** Whether this is a reverse relation (no @field decorator) */
+  isReverse: boolean;
+}
+
 /** Metadata for a single field in a model */
 export interface FieldMetadata {
   /** Field name (e.g., "id", "email") */
@@ -20,6 +32,10 @@ export interface FieldMetadata {
   isRequired: boolean;
   /** Default value if specified with @default(value) */
   defaultValue?: unknown;
+  /** Whether this is an array type (Record[]) */
+  isArray?: boolean;
+  /** Relation metadata for Relation type fields */
+  relationInfo?: RelationFieldMetadata;
 }
 
 /** Metadata for a model/table */

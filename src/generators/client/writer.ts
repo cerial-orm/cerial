@@ -65,18 +65,78 @@ ${generateConnectionExports()}
   return filePath;
 }
 
+/** Get related model names from a model's relation fields */
+function getRelatedModelNames(model: ModelMetadata): string[] {
+  const relatedModels = new Set<string>();
+
+  for (const field of model.fields) {
+    if (field.type === 'relation' && field.relationInfo?.targetModel) {
+      relatedModels.add(field.relationInfo.targetModel);
+    }
+  }
+
+  return Array.from(relatedModels);
+}
+
+/** Check if a model has any relation fields */
+function hasRelations(model: ModelMetadata): boolean {
+  return model.fields.some((f) => f.type === 'relation' && f.relationInfo);
+}
+
+/** Generate import statements for related model types */
+function generateRelatedImports(relatedModels: string[], allModels: ModelMetadata[]): string {
+  if (relatedModels.length === 0) return '';
+
+  const imports = relatedModels.map((name) => {
+    const fileName = name.toLowerCase();
+    const relatedModel = allModels.find((m) => m.name === name);
+    const hasInclude = relatedModel && hasRelations(relatedModel);
+
+    // Import base model interface + Where, Select, OrderBy + Include/IncludePayload if exists
+    const baseImports = [name, `${name}Where`, `${name}Select`, `${name}OrderBy`];
+
+    if (hasInclude) {
+      baseImports.push(`${name}Include`, `Get${name}IncludePayload`);
+    }
+
+    return `import type { ${baseImports.join(', ')} } from './${fileName}';`;
+  });
+
+  return imports.join('\n') + '\n';
+}
+
+/** Create a registry from model array */
+function createRegistryFromModels(models: ModelMetadata[]): Record<string, ModelMetadata> {
+  const registry: Record<string, ModelMetadata> = {};
+  for (const model of models) {
+    registry[model.name] = model;
+  }
+  return registry;
+}
+
 /** Write model type file */
-export async function writeModelTypes(outputDir: string, model: ModelMetadata): Promise<string> {
+export async function writeModelTypes(
+  outputDir: string,
+  model: ModelMetadata,
+  allModels: ModelMetadata[],
+): Promise<string> {
   const modelsDir = `${outputDir}/models`;
   await ensureDir(modelsDir);
 
   const filePath = `${modelsDir}/${model.name.toLowerCase()}.ts`;
 
+  // Get related model names for imports
+  const relatedModels = getRelatedModelNames(model);
+  const relatedImports = generateRelatedImports(relatedModels, allModels);
+
+  // Create registry for Include type generation
+  const registry = createRegistryFromModels(allModels);
+
   // Generate all type content for this model
   const interfaceCode = generateInterfaces([model]);
   const whereCode = generateWhereTypes([model]);
   const findUniqueWhereCode = generateFindUniqueWhereType(model);
-  const derivedCode = generateAllDerivedTypes([model]);
+  const derivedCode = generateAllDerivedTypes([model], registry);
   const modelCode = generateModelTypes([model]);
 
   const content = `/**
@@ -84,7 +144,7 @@ export async function writeModelTypes(outputDir: string, model: ModelMetadata): 
  * Do not edit manually
  */
 
-${interfaceCode}
+${relatedImports}${interfaceCode}
 
 ${whereCode}
 
@@ -136,7 +196,14 @@ export async function writeClientIndex(outputDir: string, models: ModelMetadata[
   const orderByExports = models.map((m) => `${m.name}OrderBy`).join(',\n  ');
   const modelTypeExports = models.map((m) => `${m.name}Model`).join(',\n  ');
 
-  const content = `/**
+  // Include types only for models with relations
+  const modelsWithRelations = models.filter(hasRelations);
+  const includeExports = modelsWithRelations.map((m) => `${m.name}Include`).join(',\n  ');
+  const relationsExports = models.map((m) => `${m.name}$Relations`).join(',\n  ');
+  const includePayloadExports = modelsWithRelations.map((m) => `Get${m.name}IncludePayload`).join(',\n  ');
+  const getPayloadExports = models.map((m) => `Get${m.name}Payload`).join(',\n  ');
+
+  let content = `/**
  * Generated database client
  * Do not edit manually
  */
@@ -180,6 +247,34 @@ export type {
 export type {
   ${modelTypeExports},
 } from './models';
+`;
+
+  // Add Include exports if there are models with relations
+  if (modelsWithRelations.length > 0) {
+    content += `
+// Include types
+export type {
+  ${includeExports},
+} from './models';
+
+// Include payload types (for type inference)
+export type {
+  ${includePayloadExports},
+} from './models';
+`;
+  }
+
+  // Add Relations and GetPayload exports
+  content += `
+// Relations types
+export type {
+  ${relationsExports},
+} from './models';
+
+// GetPayload types (for type inference)
+export type {
+  ${getPayloadExports},
+} from './models';
 
 // Client exports
 export { SurrealClient } from './client';
@@ -204,7 +299,7 @@ export async function writeClient(outputDir: string, models: ModelMetadata[]): P
 
   // Write model types
   for (const model of models) {
-    files.push(await writeModelTypes(outputDir, model));
+    files.push(await writeModelTypes(outputDir, model, models));
   }
 
   // Write models index

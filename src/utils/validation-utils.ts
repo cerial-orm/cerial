@@ -3,12 +3,17 @@
  */
 
 import type { SchemaFieldType } from '../types/common.types';
-import { isString, isNumber, isBoolean, isDate } from './type-utils';
+import { isBoolean, isDate, isNumber, isString } from './type-utils';
 
 /** Validate email format */
 export function isValidEmail(value: string): boolean {
   // Simple email regex
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+/** Check if value is a RecordId-like object */
+function isRecordIdLike(value: unknown): boolean {
+  return typeof value === 'object' && value !== null && 'id' in value && 'table' in value;
 }
 
 /** Validate value matches schema field type */
@@ -26,8 +31,8 @@ export function validateFieldType(value: unknown, type: SchemaFieldType): boolea
     case 'date':
       return isDate(value) || (isString(value) && !Number.isNaN(Date.parse(value)));
     case 'record':
-      // Record type is a string identifier for the record
-      return isString(value);
+      // Record type can be a string identifier or a RecordId object
+      return isString(value) || isRecordIdLike(value);
     default:
       return false;
   }

@@ -2,10 +2,11 @@
  * UPDATE query builder
  */
 
+import type { ModelMetadata, SelectClause, WhereClause } from '../../types';
 import type { CompiledQuery } from '../compile/types';
-import type { ModelMetadata, WhereClause, SelectClause } from '../../types';
 import { createCompileContext } from '../compile/var-allocator';
 import { transformWhereClause } from '../filters/transformer';
+import { buildArrayUpdateClause, isArrayField, isArrayUpdateOps } from './array-update-builder';
 import { buildSelectFields } from './select-builder';
 
 /** Build UPDATE query */
@@ -24,7 +25,21 @@ export function buildUpdateManyQuery(
   for (const [field, value] of Object.entries(data)) {
     if (value === undefined) continue;
 
-    const varBinding = ctx.bind(field, 'set', value, 'string');
+    // Find field metadata
+    const fieldMetadata = model.fields.find((f) => f.name === field);
+
+    // Handle array Record[] fields with push/unset operations
+    if (fieldMetadata && isArrayField(fieldMetadata) && (Array.isArray(value) || isArrayUpdateOps(value))) {
+      const arrayUpdate = buildArrayUpdateClause(ctx, field, value, fieldMetadata);
+      if (arrayUpdate.clause) {
+        setParts.push(arrayUpdate.clause);
+        Object.assign(setVars, arrayUpdate.vars);
+      }
+      continue;
+    }
+
+    // Standard field update
+    const varBinding = ctx.bind(field, 'set', value, fieldMetadata?.type || 'string');
     setParts.push(`${field} = ${varBinding.placeholder}`);
     Object.assign(setVars, varBinding.vars);
   }

@@ -5,9 +5,9 @@
 
 import { describe, expect, test } from 'bun:test';
 import {
-  generatePerModelMigrationCode,
-  generateModelMigrationMap,
   generateModelDefineStatements,
+  generateModelMigrationMap,
+  generatePerModelMigrationCode,
 } from '../../src/generators/migrations/define-generator';
 import { parseModelRegistry } from '../test-helpers';
 
@@ -184,6 +184,118 @@ describe('Migration Generator', () => {
       // Should not have DEFINE FIELD for id
       const idFieldStatement = statements.find((s) => s.includes('DEFINE FIELD') && s.includes(' id '));
       expect(idFieldStatement).toBeUndefined();
+    });
+  });
+
+  describe('Array type migrations', () => {
+    const arrayDsl = `
+model User {
+  id String @id
+  nicknames String[]
+  scores Int[]
+  loginDates Date[]
+  ratings Float[]
+}
+`;
+
+    test('generates array<string> for String[]', () => {
+      const registry = parseModelRegistry(arrayDsl);
+      const model = registry['User']!;
+      const statements = generateModelDefineStatements(model);
+
+      const nicknamesStmt = statements.find((s) => s.includes('nicknames'));
+      expect(nicknamesStmt).toContain('TYPE array<string>');
+    });
+
+    test('generates array<int> for Int[]', () => {
+      const registry = parseModelRegistry(arrayDsl);
+      const model = registry['User']!;
+      const statements = generateModelDefineStatements(model);
+
+      const scoresStmt = statements.find((s) => s.includes('scores'));
+      expect(scoresStmt).toContain('TYPE array<int>');
+    });
+
+    test('generates array<datetime> for Date[]', () => {
+      const registry = parseModelRegistry(arrayDsl);
+      const model = registry['User']!;
+      const statements = generateModelDefineStatements(model);
+
+      const loginDatesStmt = statements.find((s) => s.includes('loginDates'));
+      expect(loginDatesStmt).toContain('TYPE array<datetime>');
+    });
+
+    test('generates array<float> for Float[]', () => {
+      const registry = parseModelRegistry(arrayDsl);
+      const model = registry['User']!;
+      const statements = generateModelDefineStatements(model);
+
+      const ratingsStmt = statements.find((s) => s.includes('ratings'));
+      expect(ratingsStmt).toContain('TYPE array<float>');
+    });
+  });
+
+  describe('Record type migrations', () => {
+    const recordDsl = `
+model User {
+  id String @id
+  profileId Record?
+  profile Relation @field(profileId) @model(Profile)
+  tagIds Record[]
+  tags Relation @field(tagIds) @model(Tag)
+}
+
+model Profile {
+  id String @id
+  userId Record
+  user Relation @field(userId) @model(User)
+}
+
+model Tag {
+  id String @id
+  name String
+}
+`;
+
+    test('generates record<table> for required Record', () => {
+      const registry = parseModelRegistry(recordDsl);
+      const model = registry['Profile']!;
+      const statements = generateModelDefineStatements(model);
+
+      const userIdStmt = statements.find((s) => s.includes('userId'));
+      expect(userIdStmt).toContain('TYPE record<user>');
+    });
+
+    test('generates option<record<table>> for optional Record?', () => {
+      const registry = parseModelRegistry(recordDsl);
+      const model = registry['User']!;
+      const statements = generateModelDefineStatements(model);
+
+      const profileIdStmt = statements.find((s) => s.includes('profileId'));
+      expect(profileIdStmt).toContain('TYPE option<record<profile>>');
+    });
+
+    test('generates array<record<table>> with distinct for Record[]', () => {
+      const registry = parseModelRegistry(recordDsl);
+      const model = registry['User']!;
+      const statements = generateModelDefineStatements(model);
+
+      const tagIdsStmt = statements.find((s) => s.includes('tagIds'));
+      expect(tagIdsStmt).toContain('TYPE array<record<tag>>');
+      expect(tagIdsStmt).toContain('VALUE $value.distinct()');
+    });
+
+    test('skips Relation fields in migration statements', () => {
+      const registry = parseModelRegistry(recordDsl);
+      const model = registry['User']!;
+      const statements = generateModelDefineStatements(model);
+
+      // Should not have DEFINE FIELD for relation fields
+      const profileStmt = statements.find((s) => s.includes('DEFINE FIELD') && s.includes(' profile '));
+      const tagsStmt = statements.find((s) => s.includes('DEFINE FIELD') && s.includes(' tags '));
+
+      expect(profileStmt).toBeUndefined();
+      expect(tagsStmt).toBeUndefined();
     });
   });
 });

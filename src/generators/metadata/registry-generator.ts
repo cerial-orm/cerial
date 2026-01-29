@@ -2,7 +2,7 @@
  * Registry generator - generates model registry code
  */
 
-import type { ModelMetadata, ModelRegistry, FieldMetadata } from '../../types';
+import type { FieldMetadata, ModelMetadata, ModelRegistry } from '../../types';
 
 /** Generate FieldMetadata as TypeScript code */
 function generateFieldMetadata(field: FieldMetadata): string {
@@ -17,10 +17,26 @@ function generateFieldMetadata(field: FieldMetadata): string {
 
   if (field.defaultValue !== undefined) {
     const value =
-      typeof field.defaultValue === 'string'
-        ? `'${field.defaultValue}'`
-        : JSON.stringify(field.defaultValue);
+      typeof field.defaultValue === 'string' ? `'${field.defaultValue}'` : JSON.stringify(field.defaultValue);
     parts.push(`defaultValue: ${value}`);
+  }
+
+  // Include isArray when true
+  if (field.isArray) {
+    parts.push(`isArray: true`);
+  }
+
+  // Include relationInfo when present
+  if (field.relationInfo) {
+    const relParts = [
+      `targetModel: '${field.relationInfo.targetModel}'`,
+      `targetTable: '${field.relationInfo.targetTable}'`,
+      `isReverse: ${field.relationInfo.isReverse}`,
+    ];
+    if (field.relationInfo.fieldRef) {
+      relParts.push(`fieldRef: '${field.relationInfo.fieldRef}'`);
+    }
+    parts.push(`relationInfo: { ${relParts.join(', ')} }`);
   }
 
   return `{ ${parts.join(', ')} }`;

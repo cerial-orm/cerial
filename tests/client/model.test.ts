@@ -3,7 +3,7 @@
  * Tests for callback array functionality and model name parameter
  */
 
-import { describe, expect, test, mock, beforeEach } from 'bun:test';
+import { describe, expect, mock, test } from 'bun:test';
 import { Model, type BeforeQueryCallback } from '../../src/client/model/model';
 import { parseModelRegistry } from '../test-helpers';
 
@@ -37,7 +37,7 @@ describe('Model Class', () => {
         receivedModelName = modelName;
       };
 
-      const model = new Model(mockSurreal as any, userMetadata, {
+      const model = new Model(mockSurreal as any, userMetadata, undefined, {
         onBeforeQuery: callback,
       });
 
@@ -54,7 +54,7 @@ describe('Model Class', () => {
         callCount++;
       };
 
-      const model = new Model(mockSurreal as any, userMetadata, {
+      const model = new Model(mockSurreal as any, userMetadata, undefined, {
         onBeforeQuery: callback,
       });
 
@@ -81,7 +81,7 @@ describe('Model Class', () => {
         callOrder.push(`callback3:${modelName}`);
       };
 
-      const model = new Model(mockSurreal as any, userMetadata, {
+      const model = new Model(mockSurreal as any, userMetadata, undefined, {
         onBeforeQuery: [callback1, callback2, callback3],
       });
 
@@ -103,7 +103,7 @@ describe('Model Class', () => {
         executionOrder.push(2);
       };
 
-      const model = new Model(mockSurreal as any, userMetadata, {
+      const model = new Model(mockSurreal as any, userMetadata, undefined, {
         onBeforeQuery: [callback1, callback2],
       });
 
@@ -121,7 +121,7 @@ describe('Model Class', () => {
         queriedMethods.push('called');
       };
 
-      const model = new Model(mockSurreal as any, userMetadata, {
+      const model = new Model(mockSurreal as any, userMetadata, undefined, {
         onBeforeQuery: callback,
       });
 
@@ -147,7 +147,7 @@ describe('Model Class', () => {
     test('works with empty callback array', async () => {
       const mockSurreal = createMockSurreal();
 
-      const model = new Model(mockSurreal as any, userMetadata, {
+      const model = new Model(mockSurreal as any, userMetadata, undefined, {
         onBeforeQuery: [],
       });
 
@@ -162,7 +162,7 @@ describe('Model Class', () => {
         throw new Error('Migration failed');
       };
 
-      const model = new Model(mockSurreal as any, userMetadata, {
+      const model = new Model(mockSurreal as any, userMetadata, undefined, {
         onBeforeQuery: callback,
       });
 
@@ -181,7 +181,7 @@ describe('Model Class', () => {
         secondCallbackCalled = true;
       };
 
-      const model = new Model(mockSurreal as any, userMetadata, {
+      const model = new Model(mockSurreal as any, userMetadata, undefined, {
         onBeforeQuery: [callback1, callback2],
       });
 

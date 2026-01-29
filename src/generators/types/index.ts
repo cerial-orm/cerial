@@ -3,10 +3,12 @@
  */
 
 export {
+  generateAllWithRelationsInterfaces,
   generateFieldDefinition,
   generateFieldType,
   generateInterface,
   generateInterfaces,
+  generateWithRelationsInterface,
 } from './interface-generator';
 
 export {
@@ -20,6 +22,7 @@ export {
   generateAllDerivedTypes,
   generateCreateType,
   generateDerivedTypes,
+  generateIncludeType,
   generateOrderByType,
   generateSelectType,
   generateUpdateType,
@@ -33,6 +36,7 @@ export {
   generateFindManyMethod,
   generateFindOneMethod,
   generateFindUniqueMethod,
+  generateFindUniqueWhereType,
   generateMethodSignatures,
   generateUpdateMethod,
 } from './method-generator';

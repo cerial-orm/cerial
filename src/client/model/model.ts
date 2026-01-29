@@ -3,16 +3,19 @@
  */
 
 import type { Surreal } from 'surrealdb';
-import type {
-  ModelMetadata,
-  FindOneOptions,
-  FindUniqueOptions,
-  FindManyOptions,
-  CreateOptions,
-  UpdateOptions,
-  DeleteManyOptions,
-} from '../../types';
-import { QueryBuilderStatic } from '../../query/builder';
+import {
+  QueryBuilderStatic,
+  type FindManyOptionsWithInclude,
+  type FindOneOptionsWithInclude,
+} from '../../query/builder';
+import type { CreateOptions, DeleteManyOptions, ModelMetadata, ModelRegistry, UpdateOptions } from '../../types';
+
+/** Extended find unique options with include support */
+export interface FindUniqueOptionsWithInclude {
+  where: Record<string, unknown>;
+  select?: Record<string, boolean>;
+  include?: Record<string, boolean | object>;
+}
 
 /** Callback type for before-query hook (receives model name for context) */
 export type BeforeQueryCallback = (modelName: string) => Promise<void>;
@@ -30,6 +33,7 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
   constructor(
     private db: Surreal,
     private metadata: ModelMetadata,
+    private registry?: ModelRegistry,
     options?: ModelOptions,
   ) {
     // Normalize to array for consistent handling
@@ -63,21 +67,21 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
   }
 
   /** Find a single record */
-  async findOne(options: FindOneOptions = {}): Promise<T | null> {
+  async findOne(options: FindOneOptionsWithInclude = {}): Promise<T | null> {
     await this.beforeQuery();
-    return QueryBuilderStatic.findOne<T>(this.db, this.metadata, options);
+    return QueryBuilderStatic.findOne<T>(this.db, this.metadata, options, this.registry);
   }
 
   /** Find a unique record by id */
-  async findUnique(options: FindUniqueOptions): Promise<T | null> {
+  async findUnique(options: FindUniqueOptionsWithInclude): Promise<T | null> {
     await this.beforeQuery();
-    return QueryBuilderStatic.findUnique<T>(this.db, this.metadata, options);
+    return QueryBuilderStatic.findUnique<T>(this.db, this.metadata, options, this.registry);
   }
 
   /** Find multiple records */
-  async findMany(options: FindManyOptions = {}): Promise<T[]> {
+  async findMany(options: FindManyOptionsWithInclude = {}): Promise<T[]> {
     await this.beforeQuery();
-    return QueryBuilderStatic.findMany<T>(this.db, this.metadata, options);
+    return QueryBuilderStatic.findMany<T>(this.db, this.metadata, options, this.registry);
   }
 
   /** Find all records (alias for findMany with no options) */
@@ -104,13 +108,13 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
   }
 
   /** Count records matching where clause */
-  async count(where?: FindManyOptions['where']): Promise<number> {
+  async count(where?: FindManyOptionsWithInclude['where']): Promise<number> {
     const results = await this.findMany({ where });
     return results.length;
   }
 
   /** Check if any record exists matching where clause */
-  async exists(where: FindOneOptions['where']): Promise<boolean> {
+  async exists(where: FindOneOptionsWithInclude['where']): Promise<boolean> {
     const result = await this.findOne({ where });
     return result !== null;
   }
@@ -120,7 +124,8 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
 export function createModel<T extends Record<string, unknown>>(
   db: Surreal,
   metadata: ModelMetadata,
+  registry?: ModelRegistry,
   options?: ModelOptions,
 ): Model<T> {
-  return new Model<T>(db, metadata, options);
+  return new Model<T>(db, metadata, registry, options);
 }

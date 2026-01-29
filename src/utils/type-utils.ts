@@ -68,6 +68,7 @@ export function schemaTypeToTsType(type: SchemaFieldType): string {
     bool: 'boolean',
     float: 'number',
     record: 'string',
+    relation: 'unknown', // Virtual type - actual type determined by include
   };
   return typeMap[type];
 }
@@ -82,6 +83,7 @@ export function schemaTypeToSurrealType(type: SchemaFieldType): string {
     bool: 'bool',
     float: 'float',
     record: 'record',
+    relation: '', // Virtual type - not stored in database
   };
   return typeMap[type];
 }

@@ -2,27 +2,61 @@
  * Method generator - generates query method signatures
  */
 
-import type { ModelMetadata } from '../../types';
 import { getUniqueFields } from '../../parser/model-metadata';
+import type { ModelMetadata } from '../../types';
 import { schemaTypeToTsType } from '../../utils/type-utils';
 
-/** Generate findOne method signature */
-export function generateFindOneMethod(model: ModelMetadata): string {
-  return `findOne(options?: {
-    where?: ${model.name}Where;
-    select?: ${model.name}Select;
-  }): Promise<${model.name} | null>;`;
+/** Check if model has relation fields */
+function hasRelations(model: ModelMetadata): boolean {
+  return model.fields.some((f) => f.type === 'relation' && f.relationInfo);
 }
 
-/** Generate findMany method signature */
-export function generateFindManyMethod(model: ModelMetadata): string {
-  return `findMany(options?: {
+/** Generate findOne method signature with full type inference */
+export function generateFindOneMethod(model: ModelMetadata): string {
+  if (!hasRelations(model)) {
+    // No relations - simpler generic signature
+    return `findOne<S extends ${model.name}Select | undefined = undefined>(options?: {
     where?: ${model.name}Where;
-    select?: ${model.name}Select;
+    select?: S;
+  }): Promise<Get${model.name}Payload<S> | null>;`;
+  }
+
+  // With relations - full generic signature
+  return `findOne<
+    S extends ${model.name}Select | undefined = undefined,
+    I extends ${model.name}Include | undefined = undefined,
+  >(options?: {
+    where?: ${model.name}Where;
+    select?: S;
+    include?: I;
+  }): Promise<Get${model.name}Payload<S, I> | null>;`;
+}
+
+/** Generate findMany method signature with full type inference */
+export function generateFindManyMethod(model: ModelMetadata): string {
+  if (!hasRelations(model)) {
+    // No relations - simpler generic signature
+    return `findMany<S extends ${model.name}Select | undefined = undefined>(options?: {
+    where?: ${model.name}Where;
+    select?: S;
     orderBy?: ${model.name}OrderBy;
     limit?: number;
     offset?: number;
-  }): Promise<${model.name}[]>;`;
+  }): Promise<Get${model.name}Payload<S>[]>;`;
+  }
+
+  // With relations - full generic signature
+  return `findMany<
+    S extends ${model.name}Select | undefined = undefined,
+    I extends ${model.name}Include | undefined = undefined,
+  >(options?: {
+    where?: ${model.name}Where;
+    select?: S;
+    orderBy?: ${model.name}OrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+  }): Promise<Get${model.name}Payload<S, I>[]>;`;
 }
 
 /** Generate FindUniqueWhere type for a model */
@@ -81,29 +115,42 @@ export function generateFindUniqueWhereType(model: ModelMetadata): string {
   return `export type ${model.name}FindUniqueWhere = ${variants.join(' | ')};`;
 }
 
-/** Generate findUnique method signature */
+/** Generate findUnique method signature with full type inference */
 export function generateFindUniqueMethod(model: ModelMetadata): string {
-  return `findUnique(options: {
+  if (!hasRelations(model)) {
+    return `findUnique<S extends ${model.name}Select | undefined = undefined>(options: {
     where: ${model.name}FindUniqueWhere;
-    select?: ${model.name}Select;
-  }): Promise<${model.name} | null>;`;
+    select?: S;
+  }): Promise<Get${model.name}Payload<S> | null>;`;
+  }
+
+  return `findUnique<
+    S extends ${model.name}Select | undefined = undefined,
+    I extends ${model.name}Include | undefined = undefined,
+  >(options: {
+    where: ${model.name}FindUniqueWhere;
+    select?: S;
+    include?: I;
+  }): Promise<Get${model.name}Payload<S, I> | null>;`;
 }
 
-/** Generate create method signature */
+/** Generate create method signature with full type inference */
 export function generateCreateMethod(model: ModelMetadata): string {
-  return `create(options: {
+  // Create doesn't support include, only select
+  return `create<S extends ${model.name}Select | undefined = undefined>(options: {
     data: ${model.name}Create;
-    select?: ${model.name}Select;
-  }): Promise<${model.name}>;`;
+    select?: S;
+  }): Promise<Get${model.name}Payload<S>>;`;
 }
 
-/** Generate updateMany method signature */
+/** Generate updateMany method signature with full type inference */
 export function generateUpdateMethod(model: ModelMetadata): string {
-  return `updateMany(options: {
+  // UpdateMany doesn't support include, only select
+  return `updateMany<S extends ${model.name}Select | undefined = undefined>(options: {
     where: ${model.name}Where;
     data: ${model.name}Update;
-    select?: ${model.name}Select;
-  }): Promise<${model.name}[]>;`;
+    select?: S;
+  }): Promise<Get${model.name}Payload<S>[]>;`;
 }
 
 /** Generate deleteMany method signature */

@@ -8,8 +8,8 @@ import type {
   DeleteManyOptions,
   FindManyOptions,
   FindOneOptions,
-  FindUniqueOptions,
   ModelMetadata,
+  ModelRegistry,
   UpdateOptions,
 } from '../types';
 import {
@@ -19,34 +19,47 @@ import {
   buildFindOneQuery,
   buildFindUniqueQuery,
   buildUpdateManyQuery,
+  type FindOptionsWithInclude,
+  type FindUniqueOptionsWithInclude,
 } from './builders';
 import { executeQuery, executeQuerySingle } from './executor';
 import { mapResult, mapSingleResult } from './mappers';
 import { applyNowDefaults, transformData } from './transformers';
 import { validateCreateData, validateUpdateData, validateWhere } from './validators';
 
+/** Extended find options with include support */
+export interface FindOneOptionsWithInclude extends FindOneOptions {
+  include?: Record<string, boolean | object>;
+}
+
+/** Extended find many options with include support */
+export interface FindManyOptionsWithInclude extends FindManyOptions {
+  include?: Record<string, boolean | object>;
+}
+
 /** Query builder class for a specific model */
 export class QueryBuilder<T extends Record<string, unknown>> {
   constructor(
     private db: Surreal,
     private model: ModelMetadata,
+    private registry?: ModelRegistry,
   ) {}
 
   /** Find a single record */
-  async findOne(options: FindOneOptions = {}): Promise<T | null> {
+  async findOne(options: FindOneOptionsWithInclude = {}): Promise<T | null> {
     // Validate where clause
     const validation = validateWhere(options.where, this.model);
     if (!validation.valid)
       throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
 
-    const query = buildFindOneQuery(this.model, options);
+    const query = buildFindOneQuery(this.model, options as FindOptionsWithInclude, this.registry);
     const result = await executeQuerySingle(this.db, query);
 
     return mapSingleResult<T>(result, this.model);
   }
 
   /** Find a unique record by id or unique field */
-  async findUnique(options: FindUniqueOptions): Promise<T | null> {
+  async findUnique(options: FindUniqueOptionsWithInclude): Promise<T | null> {
     const { where } = options;
 
     // Validate the entire where clause (including unique fields)
@@ -55,20 +68,20 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     if (!validation.valid)
       throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
 
-    const query = buildFindUniqueQuery(this.model, options);
+    const query = buildFindUniqueQuery(this.model, options as FindUniqueOptionsWithInclude, this.registry);
     const result = await executeQuerySingle(this.db, query);
 
     return mapSingleResult<T>(result, this.model);
   }
 
   /** Find multiple records */
-  async findMany(options: FindManyOptions = {}): Promise<T[]> {
+  async findMany(options: FindManyOptionsWithInclude = {}): Promise<T[]> {
     // Validate where clause
     const validation = validateWhere(options.where, this.model);
     if (!validation.valid)
       throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
 
-    const query = buildFindManyQuery(this.model, options);
+    const query = buildFindManyQuery(this.model, options as FindOptionsWithInclude, this.registry);
     const result = await executeQuery(this.db, query);
 
     return mapResult<T>(result, this.model);
@@ -137,9 +150,10 @@ export const QueryBuilderStatic = {
   async findOne<T extends Record<string, unknown>>(
     db: Surreal,
     model: ModelMetadata,
-    options: FindOneOptions = {},
+    options: FindOneOptionsWithInclude = {},
+    registry?: ModelRegistry,
   ): Promise<T | null> {
-    const builder = new QueryBuilder<T>(db, model);
+    const builder = new QueryBuilder<T>(db, model, registry);
     return builder.findOne(options);
   },
 
@@ -147,9 +161,10 @@ export const QueryBuilderStatic = {
   async findUnique<T extends Record<string, unknown>>(
     db: Surreal,
     model: ModelMetadata,
-    options: FindUniqueOptions,
+    options: FindUniqueOptionsWithInclude,
+    registry?: ModelRegistry,
   ): Promise<T | null> {
-    const builder = new QueryBuilder<T>(db, model);
+    const builder = new QueryBuilder<T>(db, model, registry);
     return builder.findUnique(options);
   },
 
@@ -157,9 +172,10 @@ export const QueryBuilderStatic = {
   async findMany<T extends Record<string, unknown>>(
     db: Surreal,
     model: ModelMetadata,
-    options: FindManyOptions = {},
+    options: FindManyOptionsWithInclude = {},
+    registry?: ModelRegistry,
   ): Promise<T[]> {
-    const builder = new QueryBuilder<T>(db, model);
+    const builder = new QueryBuilder<T>(db, model, registry);
     return builder.findMany(options);
   },
 

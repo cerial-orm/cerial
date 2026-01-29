@@ -5,6 +5,11 @@
 import type { RecordId } from 'surrealdb';
 import type { ModelMetadata, SchemaFieldType } from '../../types';
 
+/** Check if value is a RecordId-like object */
+function isRecordId(value: unknown): value is RecordId {
+  return typeof value === 'object' && value !== null && 'id' in value && 'table' in value;
+}
+
 /** Map a single field value from SurrealDB result */
 export function mapFieldValue(value: unknown, fieldType: SchemaFieldType): unknown {
   if (value === null || value === undefined) return null;
@@ -45,6 +50,17 @@ export function mapFieldValue(value: unknown, fieldType: SchemaFieldType): unkno
     case 'email':
       return String(value);
 
+    case 'record':
+      // Convert RecordId to string ID
+      if (isRecordId(value)) {
+        return transformRecordIdToValue(value);
+      }
+      // If it's already a string, return it
+      if (typeof value === 'string') {
+        return value;
+      }
+      return value;
+
     default:
       return value;
   }
@@ -73,7 +89,12 @@ export function mapRecord(record: Record<string, unknown>, model: ModelMetadata)
 
     const field = model.fields.find((f) => f.name === key);
     if (field) {
-      result[key] = mapFieldValue(value, field.type);
+      // Handle array fields - map each element
+      if (field.isArray && Array.isArray(value)) {
+        result[key] = value.map((element) => mapFieldValue(element, field.type));
+      } else {
+        result[key] = mapFieldValue(value, field.type);
+      }
     } else {
       // Field not in schema, include as-is
       result[key] = value;

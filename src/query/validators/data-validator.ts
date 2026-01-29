@@ -23,6 +23,7 @@ export function validateFieldValue(
   value: unknown,
   fieldType: SchemaFieldType,
   isRequired: boolean,
+  isArray?: boolean,
 ): DataValidationError | null {
   // Check required
   if (value === undefined || value === null) {
@@ -32,7 +33,22 @@ export function validateFieldValue(
     return null;
   }
 
-  // Check type
+  // Handle array fields
+  if (isArray) {
+    if (!Array.isArray(value)) {
+      return { field: fieldName, message: `${fieldName} must be an array` };
+    }
+    // Validate each element in the array
+    for (let i = 0; i < value.length; i++) {
+      const element = value[i];
+      if (!validateFieldType(element, fieldType)) {
+        return { field: fieldName, message: `${fieldName}[${i}] must be of type ${fieldType}` };
+      }
+    }
+    return null;
+  }
+
+  // Check type for non-array fields
   if (!validateFieldType(value, fieldType)) {
     return { field: fieldName, message: `${fieldName} must be of type ${fieldType}` };
   }
@@ -54,6 +70,9 @@ export function validateCreateData(data: Record<string, unknown>, model: ModelMe
   for (const field of model.fields) {
     const value = data[field.name];
 
+    // Skip relation fields - they're virtual and don't exist in database
+    if (field.type === 'relation') continue;
+
     // For id fields: if user provides a value, validate it; otherwise skip (auto-generated)
     if (field.isId) {
       if (value !== undefined && value !== null) {
@@ -71,7 +90,10 @@ export function validateCreateData(data: Record<string, unknown>, model: ModelMe
     // Skip fields with default value (if not provided)
     if (field.defaultValue !== undefined && value === undefined) continue;
 
-    const error = validateFieldValue(field.name, value, field.type, field.isRequired);
+    // Skip array fields when undefined - they default to empty array
+    if (field.isArray && (value === undefined || value === null)) continue;
+
+    const error = validateFieldValue(field.name, value, field.type, field.isRequired, field.isArray);
     if (error) {
       errors.push(error);
     }
@@ -96,8 +118,17 @@ export function validateUpdateData(data: Record<string, unknown>, model: ModelMe
       continue;
     }
 
+    // Skip relation fields - they're virtual
+    if (field.type === 'relation') continue;
+
+    // For array fields with object values (push/unset operations), skip type validation
+    // as the operation format is handled separately
+    if (field.isArray && typeof value === 'object' && !Array.isArray(value) && value !== null) {
+      continue;
+    }
+
     // For updates, don't require fields - just validate types
-    const error = validateFieldValue(fieldName, value, field.type, false);
+    const error = validateFieldValue(fieldName, value, field.type, false, field.isArray);
     if (error) {
       errors.push(error);
     }

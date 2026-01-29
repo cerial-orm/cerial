@@ -3,10 +3,10 @@
  */
 
 /** Supported field types in schema definitions */
-export type SchemaFieldType = 'string' | 'email' | 'int' | 'date' | 'bool' | 'float' | 'record';
+export type SchemaFieldType = 'string' | 'email' | 'int' | 'date' | 'bool' | 'float' | 'record' | 'relation';
 
 /** Supported decorator types in schema definitions */
-export type SchemaDecorator = 'id' | 'unique' | 'now' | 'default';
+export type SchemaDecorator = 'id' | 'unique' | 'now' | 'default' | 'field' | 'model';
 
 /** Supported constraint types in schema definitions */
 export type SchemaConstraint = 'required' | 'optional';
@@ -20,6 +20,7 @@ export type FieldTypeMapping = {
   bool: boolean;
   float: number;
   record: string;
+  relation: unknown; // Virtual type - actual type determined by target model
 };
 
 /** Field type to SurrealDB type mapping */
@@ -31,12 +32,11 @@ export type SurrealTypeMapping = {
   bool: 'bool';
   float: 'float';
   record: 'record';
+  relation: never; // Virtual type - not stored in database
 };
 
 /** Generic result type for operations */
-export type Result<T, E = Error> =
-  | { success: true; data: T }
-  | { success: false; error: E };
+export type Result<T, E = Error> = { success: true; data: T } | { success: false; error: E };
 
 /** Position in source file for error reporting */
 export interface SourcePosition {

@@ -23,12 +23,7 @@ export interface ProxyOptions {
 const modelCache = new WeakMap<Surreal, Map<string, Model>>();
 
 /** Get or create model instance */
-function getOrCreateModel(
-  db: Surreal,
-  modelName: string,
-  registry: ModelRegistry,
-  options?: ModelOptions,
-): Model {
+function getOrCreateModel(db: Surreal, modelName: string, registry: ModelRegistry, options?: ModelOptions): Model {
   // Get or create cache for this db instance
   let cache = modelCache.get(db);
   if (!cache) {
@@ -46,8 +41,8 @@ function getOrCreateModel(
     throw new Error(`Model "${modelName}" not found in registry`);
   }
 
-  // Create and cache model
-  model = new Model(db, metadata, options);
+  // Create and cache model (pass registry for relation queries)
+  model = new Model(db, metadata, registry, options);
   cache.set(modelName, model);
 
   return model;
@@ -69,9 +64,7 @@ const IGNORED_PROPERTIES = new Set([
 ]);
 
 /** Normalize callback(s) to array */
-function normalizeCallbacks(
-  callbacks: BeforeQueryCallback | BeforeQueryCallback[] | undefined,
-): BeforeQueryCallback[] {
+function normalizeCallbacks(callbacks: BeforeQueryCallback | BeforeQueryCallback[] | undefined): BeforeQueryCallback[] {
   if (!callbacks) return [];
   return Array.isArray(callbacks) ? callbacks : [callbacks];
 }

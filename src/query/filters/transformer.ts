@@ -2,23 +2,24 @@
  * Filter transformer - transforms where clauses to SQL conditions
  */
 
-import type { QueryFragment, CompiledQuery } from '../compile/types';
-import type { ModelMetadata, WhereClause } from '../../types';
-import { createCompileContext } from '../compile/var-allocator';
+import type { ModelMetadata, ModelRegistry, WhereClause } from '../../types';
 import { fragmentToQuery } from '../compile/fragment';
+import type { CompiledQuery } from '../compile/types';
+import { createCompileContext } from '../compile/var-allocator';
 import { buildConditions } from './condition-builder';
 
 /** Transform a where clause to a compiled WHERE fragment */
 export function transformWhere(
   where: WhereClause | undefined,
   model: ModelMetadata,
+  registry?: ModelRegistry,
 ): CompiledQuery {
   if (!where || Object.keys(where).length === 0) {
     return { text: '', vars: {} };
   }
 
   const ctx = createCompileContext();
-  const fragment = buildConditions(ctx, where, model);
+  const fragment = buildConditions(ctx, where, model, registry);
 
   return fragmentToQuery(fragment);
 }
@@ -27,8 +28,9 @@ export function transformWhere(
 export function transformWhereClause(
   where: WhereClause | undefined,
   model: ModelMetadata,
+  registry?: ModelRegistry,
 ): CompiledQuery {
-  const compiled = transformWhere(where, model);
+  const compiled = transformWhere(where, model, registry);
 
   if (!compiled.text) {
     return { text: '', vars: {} };

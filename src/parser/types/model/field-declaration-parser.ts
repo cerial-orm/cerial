@@ -4,22 +4,28 @@
  * Example: id String @id
  *          email Email @unique
  *          createdAt Date @now
+ *          profileId Record?
+ *          posts Relation @field(postIds) @model(Post)
  */
 
-import type { ASTDecorator, ASTField, SourceRange } from '../../../types';
+import type { ASTDecorator, ASTField } from '../../../types';
 import { isValidFieldName } from '../../../utils/validation-utils';
-import { createField, createRange, createPosition } from '../ast';
-import { parseFieldType } from '../field-types';
+import { createField, createPosition, createRange } from '../ast';
 import {
-  isUniqueDecorator,
-  parseUniqueDecorator,
-  isNowDecorator,
-  parseNowDecorator,
   isDefaultDecorator,
-  parseDefaultDecorator,
+  isFieldDecorator,
   isIdDecorator,
+  isModelDecorator,
+  isNowDecorator,
+  isUniqueDecorator,
+  parseDefaultDecorator,
+  parseFieldDecorator,
   parseIdDecorator,
+  parseModelDecorator,
+  parseNowDecorator,
+  parseUniqueDecorator,
 } from '../field-decorators';
+import { isArrayType, parseFieldType } from '../field-types';
 
 /** Result of parsing a field line */
 export interface FieldParseResult {
@@ -47,10 +53,7 @@ export function parseDecorators(line: string, lineNumber: number): ASTDecorator[
   for (const match of decoratorMatches) {
     const token = match[0];
     const col = match.index ?? 0;
-    const range = createRange(
-      createPosition(lineNumber, col, 0),
-      createPosition(lineNumber, col + token.length, 0),
-    );
+    const range = createRange(createPosition(lineNumber, col, 0), createPosition(lineNumber, col + token.length, 0));
 
     if (isIdDecorator(token)) {
       decorators.push(parseIdDecorator(range));
@@ -60,6 +63,10 @@ export function parseDecorators(line: string, lineNumber: number): ASTDecorator[
       decorators.push(parseNowDecorator(range));
     } else if (isDefaultDecorator(token)) {
       decorators.push(parseDefaultDecorator(token, range));
+    } else if (isFieldDecorator(token)) {
+      decorators.push(parseFieldDecorator(token, range));
+    } else if (isModelDecorator(token)) {
+      decorators.push(parseModelDecorator(token, range));
     }
   }
 
@@ -73,11 +80,12 @@ export function parseDecorators(line: string, lineNumber: number): ASTDecorator[
  *          name String
  *          age Int?
  *          createdAt Date @now
+ *          profileId Record?
+ *          postIds Record[]
+ *          profile Relation @field(profileId) @model(Profile)
+ *          posts Relation @field(postIds) @model(Post)
  */
-export function parseFieldDeclaration(
-  line: string,
-  lineNumber: number,
-): FieldParseResult {
+export function parseFieldDeclaration(line: string, lineNumber: number): FieldParseResult {
   const trimmed = line.trim();
 
   // Remove comments
@@ -93,7 +101,7 @@ export function parseFieldDeclaration(
   const withoutDecorators = withoutComments.replace(/@\w+(?:\([^)]*\))?/g, '').trim();
 
   // Parse field name and type
-  // Pattern: fieldName Type or fieldName Type?
+  // Pattern: fieldName Type or fieldName Type? or fieldName Type[]
   const parts = withoutDecorators.split(/\s+/);
   if (parts.length < 2) {
     return { field: null, error: `Invalid field declaration: ${trimmed}` };
@@ -102,11 +110,14 @@ export function parseFieldDeclaration(
   const fieldName = parts[0]!;
   let typeStr = parts[1]!;
 
-  // Check for optional marker (Type?)
-  const isOptional = typeStr.endsWith('?');
+  // Check for optional marker (Type?) - but not for array types like Record[]
+  const isOptional = typeStr.endsWith('?') && !typeStr.endsWith('[]?');
   if (isOptional) {
     typeStr = typeStr.slice(0, -1);
   }
+
+  // Check if it's an array type (String[], Int[], Date[], Record[], etc.)
+  const isArray = isArrayType(typeStr);
 
   // Validate field name
   if (!isValidFieldName(fieldName)) {
@@ -116,30 +127,36 @@ export function parseFieldDeclaration(
   // Parse field type
   const fieldType = parseFieldType(typeStr);
   if (!fieldType) {
-    return { field: null, error: `Invalid field type: ${typeStr}. Use String, Email, Int, Date, Bool, or Float.` };
+    return {
+      field: null,
+      error: `Invalid field type: ${typeStr}. Use String, Email, Int, Date, Bool, Float, Record, Relation, or array types (String[], Int[], Date[], Record[]).`,
+    };
   }
 
   // Create range
-  const range = createRange(
-    createPosition(lineNumber, 0, 0),
-    createPosition(lineNumber, trimmed.length, 0),
-  );
+  const range = createRange(createPosition(lineNumber, 0, 0), createPosition(lineNumber, trimmed.length, 0));
 
-  const field = createField(fieldName, fieldType, isOptional, decorators, range);
+  const field = createField(fieldName, fieldType, isOptional, decorators, range, isArray);
 
   return { field, error: null };
 }
 
 /** Extract field name from declaration */
 export function extractFieldName(line: string): string | null {
-  const trimmed = line.trim().replace(/@\w+(?:\([^)]*\))?/g, '').trim();
+  const trimmed = line
+    .trim()
+    .replace(/@\w+(?:\([^)]*\))?/g, '')
+    .trim();
   const parts = trimmed.split(/\s+/);
   return parts[0] ?? null;
 }
 
 /** Extract field type from declaration */
 export function extractFieldType(line: string): string | null {
-  const trimmed = line.trim().replace(/@\w+(?:\([^)]*\))?/g, '').trim();
+  const trimmed = line
+    .trim()
+    .replace(/@\w+(?:\([^)]*\))?/g, '')
+    .trim();
   const parts = trimmed.split(/\s+/);
   if (parts.length < 2) return null;
   let typeStr = parts[1]!;
@@ -151,8 +168,22 @@ export function extractFieldType(line: string): string | null {
 
 /** Check if field has optional marker (Type?) */
 export function hasOptionalMarker(line: string): boolean {
-  const trimmed = line.trim().replace(/@\w+(?:\([^)]*\))?/g, '').trim();
+  const trimmed = line
+    .trim()
+    .replace(/@\w+(?:\([^)]*\))?/g, '')
+    .trim();
   const parts = trimmed.split(/\s+/);
   if (parts.length < 2) return false;
   return parts[1]!.endsWith('?');
+}
+
+/** Check if field is an array type (String[], Int[], Date[], Record[], etc.) */
+export function hasArrayMarker(line: string): boolean {
+  const trimmed = line
+    .trim()
+    .replace(/@\w+(?:\([^)]*\))?/g, '')
+    .trim();
+  const parts = trimmed.split(/\s+/);
+  if (parts.length < 2) return false;
+  return isArrayType(parts[1]!);
 }
