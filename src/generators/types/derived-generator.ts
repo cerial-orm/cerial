@@ -1,8 +1,16 @@
 /**
  * Derived type generator - generates Create, Update, Include, and other derived types
+ *
+ * Uses ts-toolbelt utilities for cleaner type definitions:
+ * - O.Optional<T, K> - make keys K optional in T (clearer than Omit + Partial + Pick)
+ * - O.Omit<T, K> - omit keys K from T
+ * - A.Compute<T> - flatten complex nested types for better IDE tooltips
  */
 
 import type { ModelMetadata, ModelRegistry } from '../../types';
+
+/** Whether to use ts-toolbelt utilities in generated types */
+const USE_TS_TOOLBELT = true;
 
 /** Get fields that should be omitted from create (auto-generated) */
 function getOmitForCreate(model: ModelMetadata): string[] {
@@ -53,15 +61,27 @@ export function generateCreateType(model: ModelMetadata): string {
   // Get optional fields that aren't already omitted
   const optionalFields = optional.filter((f) => !omit.includes(f));
 
-  // Combine all fields to omit from the base type (omit + optional)
-  const allOmit = [...omit, ...optionalFields];
-
-  if (allOmit.length === 0) {
+  if (omit.length === 0 && optionalFields.length === 0) {
     return `export type ${model.name}Create = ${model.name};`;
   }
 
-  // Build the type: Omit all fields that are either omitted or optional,
-  // then add back optional fields as Partial
+  if (USE_TS_TOOLBELT) {
+    // Use ts-toolbelt: O.Optional<O.Omit<T, omit>, optional>
+    // This is cleaner than Omit + Partial + Pick
+    const omitKeys = omit.map((f) => `'${f}'`).join(' | ');
+    const optionalKeys = optionalFields.map((f) => `'${f}'`).join(' | ');
+
+    if (omit.length > 0 && optionalFields.length > 0) {
+      return `export type ${model.name}Create = O.Optional<O.Omit<${model.name}, ${omitKeys}>, ${optionalKeys}>;`;
+    } else if (omit.length > 0) {
+      return `export type ${model.name}Create = O.Omit<${model.name}, ${omitKeys}>;`;
+    } else {
+      return `export type ${model.name}Create = O.Optional<${model.name}, ${optionalKeys}>;`;
+    }
+  }
+
+  // Fallback: standard TypeScript utilities
+  const allOmit = [...omit, ...optionalFields];
   let type = `Omit<${model.name}, ${allOmit.map((f) => `'${f}'`).join(' | ')}>`;
 
   if (optionalFields.length > 0) {
@@ -93,20 +113,27 @@ export function generateUpdateType(model: ModelMetadata): string {
 
   // Fields to exclude from update (id and relation fields)
   const excludeFields = [...(idField ? [idField.name] : []), ...relationFields.map((f) => f.name)];
+  const excludeKeys = excludeFields.map((f) => `'${f}'`).join(' | ');
 
   // If no array fields, use simple type
   if (arrayFields.length === 0) {
     if (excludeFields.length > 0) {
-      return `export type ${model.name}Update = Partial<Omit<${model.name}, ${excludeFields.map((f) => `'${f}'`).join(' | ')}>>;`;
+      if (USE_TS_TOOLBELT) {
+        return `export type ${model.name}Update = Partial<O.Omit<${model.name}, ${excludeKeys}>>;`;
+      }
+      return `export type ${model.name}Update = Partial<Omit<${model.name}, ${excludeKeys}>>;`;
     }
     return `export type ${model.name}Update = Partial<${model.name}>;`;
   }
 
   // Generate interface with array operations for all array fields
   const baseOmit = [...excludeFields, ...arrayFields.map((f) => f.name)];
+  const baseOmitKeys = baseOmit.map((f) => `'${f}'`).join(' | ');
   const baseType =
     baseOmit.length > 0
-      ? `Partial<Omit<${model.name}, ${baseOmit.map((f) => `'${f}'`).join(' | ')}>>`
+      ? USE_TS_TOOLBELT
+        ? `Partial<O.Omit<${model.name}, ${baseOmitKeys}>>`
+        : `Partial<Omit<${model.name}, ${baseOmitKeys}>>`
       : `Partial<${model.name}>`;
 
   const arrayFieldTypes = arrayFields
@@ -319,26 +346,33 @@ ${relationPayloads}
 export function generateGetPayloadType(model: ModelMetadata): string {
   const hasRelationFields = model.fields.some((f) => f.type === 'relation' && f.relationInfo);
 
+  // A.Compute flattens complex conditional types for better IDE tooltips
+  const wrapCompute = (type: string) => (USE_TS_TOOLBELT ? `A.Compute<${type}>` : type);
+
   if (!hasRelationFields) {
     // No relations - simple select-only inference
+    const innerType = `S extends ${model.name}Select
+  ? { [K in keyof S as S[K] extends true ? K : never]: K extends keyof ${model.name} ? ${model.name}[K] : never }
+  : ${model.name}`;
+
     return `export type Get${model.name}Payload<
   S extends ${model.name}Select | undefined = undefined,
   I = undefined,
-> = S extends ${model.name}Select
-  ? { [K in keyof S as S[K] extends true ? K : never]: K extends keyof ${model.name} ? ${model.name}[K] : never }
-  : ${model.name};`;
+> = ${wrapCompute(innerType)};`;
   }
 
   // With relations - full inference
-  return `export type Get${model.name}Payload<
-  S extends ${model.name}Select | undefined = undefined,
-  I extends ${model.name}Include | undefined = undefined,
-> = S extends ${model.name}Select
+  const innerType = `S extends ${model.name}Select
   ? { [K in keyof S as S[K] extends true ? K : never]: K extends keyof ${model.name} ? ${model.name}[K] : never }
     & Get${model.name}IncludePayload<I>
   : I extends ${model.name}Include
     ? ${model.name} & Get${model.name}IncludePayload<I>
-    : ${model.name};`;
+    : ${model.name}`;
+
+  return `export type Get${model.name}Payload<
+  S extends ${model.name}Select | undefined = undefined,
+  I extends ${model.name}Include | undefined = undefined,
+> = ${wrapCompute(innerType)};`;
 }
 
 /** Generate all derived types for a model */
