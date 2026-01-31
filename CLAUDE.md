@@ -74,6 +74,34 @@ E2E tests use `--preload ./tests/e2e/preload.ts` which generates the client befo
 - `GetUserPayload<S, I>` - Prisma-style return type inference
 - `SchemaAST` / `ASTModel` / `ASTField` - Parser output
 
+## Code Style
+
+- **Newline before return** - Always add a blank line before `return` statements
+- **Inline single-statement if** - When an `if` has only one statement, write it inline without braces:
+
+  ```typescript
+  // Good
+  if (condition) return value;
+  if (!valid) throw new Error('Invalid');
+
+  // Avoid
+  if (condition) {
+    return value;
+  }
+  ```
+
+- **Array length checks** - Use truthy/falsy checks, not comparisons:
+
+  ```typescript
+  // Good
+  if (!items.length) return;
+  if (results.length) process(results);
+
+  // Avoid
+  if (items.length === 0) return;
+  if (results.length >= 0) process(results);
+  ```
+
 ## Gotchas
 
 - E2E tests MUST use `--preload` flag or generated client won't exist
