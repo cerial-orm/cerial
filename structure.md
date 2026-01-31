@@ -1,19 +1,19 @@
-# Surreal-OM Library Structure
+# Cerial Library Structure
 
-This document provides a comprehensive overview of the folder and file structure of the Surreal-OM library, explaining what each component does and how they work together.
+This document provides a comprehensive overview of the folder and file structure of the Cerial library, explaining what each component does and how they work together.
 
 ---
 
 ## Overview
 
-Surreal-OM is a Prisma-like ORM for SurrealDB with schema-driven code generation and full TypeScript type safety. The library features Prisma-style dynamic return types, relations, array support, and comprehensive query capabilities.
+Cerial is a Prisma-like ORM for SurrealDB with schema-driven code generation and full TypeScript type safety. The library features Prisma-style dynamic return types, relations, array support, and comprehensive query capabilities.
 
 ---
 
 ## Root Directory
 
 ```
-libs/backend/surreal-om/
+cerial/
 ├── bin/                    # CLI executable entry points
 ├── src/                    # Main source code
 │   ├── cli/               # Command-line interface for schema generation
@@ -50,9 +50,10 @@ libs/backend/surreal-om/
 **Purpose**: Contains executable scripts for the command-line interface.
 
 **Files**:
-- `surreal-om.ts` - Main CLI entry point that handles command execution
 
-**Usage**: Invoked via `bunx surreal-om generate` to generate client code from schema files.
+- `cerial.ts` - Main CLI entry point that handles command execution
+
+**Usage**: Invoked via `bunx cerial generate` to generate client code from schema files.
 
 ---
 
@@ -61,6 +62,7 @@ libs/backend/surreal-om/
 **Purpose**: Handles CLI command parsing, validation, and orchestration of the generation process.
 
 **Structure**:
+
 ```
 cli/
 ├── generate.ts           # Main generate command logic
@@ -81,6 +83,7 @@ cli/
 ```
 
 **Key Functions**:
+
 - `generate()` - Orchestrates the full generation workflow
 - `parseArgs()` - Parses command-line arguments
 - `validateOptions()` - Validates CLI input options
@@ -93,6 +96,7 @@ cli/
 **Purpose**: Provides the runtime client for interacting with SurrealDB, including connection management and model proxies.
 
 **Structure**:
+
 ```
 client/
 ├── connection.ts         # Connection management
@@ -107,12 +111,14 @@ client/
 ```
 
 **Key Classes**:
+
 - `Model` - Base class providing `findOne()`, `findMany()`, `findUnique()`, `create()`, `updateMany()`, `deleteMany()`, `count()`, `exists()`
 - `ConnectionManager` - Manages database connections with migration support
 - Model proxies created by `factory.ts` use JavaScript Proxy API for dynamic model access
 
 **How it works**:
-1. User creates `SurrealClient` instance from generated code
+
+1. User creates `CerialClient` instance from generated code
 2. Call `client.connect(config)` to establish connection
 3. Access models via `client.db.User` (typed proxy)
 4. Call methods like `client.db.User.findMany({ where: {...}, include: {...} })`
@@ -121,6 +127,7 @@ client/
 7. Results are mapped back to TypeScript types with full type inference
 
 **Lazy Migration**:
+
 - If `migrate()` is not called explicitly, migrations run automatically before the first query
 - The `Model` class supports a `onBeforeQuery` callback for this purpose
 - Migration status is tracked per connection
@@ -132,15 +139,18 @@ client/
 **Purpose**: Manages database connections, authentication, and connection pooling.
 
 **Files**:
+
 - `connection.const.ts` - Constants (e.g., default connection name)
 - `connection.type.ts` - TypeScript types for connection options
 
 **Key Types**:
+
 - `IRPCConnectionOption` - Connection configuration (url, namespace, database, auth)
 - `IConnectionAuthUserPassOption` - Authentication credentials
 - `ConnectionConfig` - Standard connection configuration type
 
 **Key Classes**:
+
 - `ConnectionManager` - Manages connections with migration support:
   - `connect(config, name?)` - Establish named connection
   - `disconnect(name?)` / `disconnectAll()` - Close connections
@@ -156,12 +166,13 @@ client/
 **Purpose**: Generates TypeScript code from schema AST, creating type-safe client interfaces with full Prisma-style type inference.
 
 **Structure**:
+
 ```
 generators/
 ├── client/               # Client code generation
 │   ├── connection-template.ts  # Template for connection file
 │   ├── index.ts
-│   ├── template.ts            # Base client template (SurrealClient class)
+│   ├── template.ts            # Base client template (CerialClient class)
 │   └── writer.ts              # Writes generated client files with Prettier
 ├── metadata/             # Metadata generation
 │   ├── field-converter.ts     # Converts field AST to metadata
@@ -186,13 +197,15 @@ generators/
 ```
 
 **Generated Files**:
-- `client.ts` - SurrealClient class with connect(), disconnect(), migrate(), and db proxy
+
+- `client.ts` - CerialClient class with connect(), disconnect(), migrate(), and db proxy
 - `models/[model].ts` - TypeScript interfaces, types, and payload types for each model
 - `internal/model-registry.ts` - Runtime metadata about models (includes relation info)
 - `internal/migrations.ts` - Migration statements for schema definitions
-- `index.ts` - Main client export with SurrealClient, types, and payload types
+- `index.ts` - Main client export with CerialClient, types, and payload types
 
 **Generated Types Per Model**:
+
 - `User` - Base interface
 - `UserCreate` - Type for create data (relations omitted, arrays/optional fields optional)
 - `UserUpdate` - Type for update data with array operations (push/unset)
@@ -206,6 +219,7 @@ generators/
 - `GetUserIncludePayload<I>` - Helper for include type resolution
 
 **Generation Process**:
+
 1. Parse schema files to AST
 2. Convert AST to model metadata (includes relation info)
 3. Generate TypeScript interfaces for each model
@@ -221,6 +235,7 @@ generators/
 **Purpose**: Parses custom schema definition language into Abstract Syntax Tree (AST) and validates schema syntax. Supports relations, arrays, and all decorators.
 
 **Structure**:
+
 ```
 parser/
 ├── file-reader.ts        # File system operations
@@ -262,6 +277,7 @@ parser/
 ```
 
 **Schema Format**:
+
 ```schema
 model User {
   id String @id
@@ -281,6 +297,7 @@ model User {
 ```
 
 **Field Types**:
+
 - `String` - Text values (can be array: `String[]`)
 - `Email` - Email addresses (validated with `string::is_email`)
 - `Int` - Integer numbers (can be array: `Int[]`)
@@ -291,6 +308,7 @@ model User {
 - `Relation` - Virtual relation field (not stored in DB)
 
 **Decorators**:
+
 - `@id` - Marks field as the record identifier (requires `String` type)
 - `@unique` - Creates a unique index on the field
 - `@now` - Sets default to `time::now()` for datetime fields
@@ -299,6 +317,7 @@ model User {
 - `@model(Model)` - For Relation fields, specifies the target model
 
 **Relations**:
+
 - **Forward relations**: Have a storage field (`@field`) that stores the record ID(s)
 - **Reverse relations**: Don't have a storage field, query the related table
 
@@ -309,6 +328,7 @@ model User {
 **Purpose**: Builds SurrealQL queries from type-safe query objects and executes them against the database. Supports relations, arrays, and nested filtering.
 
 **Structure**:
+
 ```
 query/
 ├── builder.ts            # Main query builder
@@ -375,6 +395,7 @@ query/
 ```
 
 **Query Building Process**:
+
 1. User calls `db.Model.findMany({ where: {...}, include: {...} })`
 2. Query builder validates the input
 3. Filter handlers transform where clauses to SurrealQL (including nested relation filters)
@@ -384,6 +405,7 @@ query/
 7. Mapper transforms results to TypeScript objects (handles RecordId conversion)
 
 **Supported Operators**:
+
 - **Comparison**: `eq`, `neq`, `gt`, `gte`, `lt`, `lte`
 - **String**: `contains`, `startsWith`, `endsWith`
 - **Array (for querying)**: `in`, `notIn`, `has`, `hasAll`, `hasAny`, `isEmpty`
@@ -393,6 +415,7 @@ query/
 - **Nested**: Relation filtering (e.g., `profile: { bio: { contains: 'dev' } }`)
 
 **Type Transformations**:
+
 - **Date fields**: Converted to native Date objects
 - **Record fields**: Transformed to/from RecordId(tableName, id)
 - **Array fields**: Default to empty arrays if not provided
@@ -405,6 +428,7 @@ query/
 **Purpose**: Contains all shared TypeScript type definitions used across the library, including utility types for Prisma-style inference.
 
 **Files**:
+
 - `common.types.ts` - Common types used throughout
 - `metadata.types.ts` - Model and field metadata types (includes relation info)
 - `parser.types.ts` - Parser-related types (AST, tokens, etc.)
@@ -413,6 +437,7 @@ query/
 - `index.ts` - Type exports
 
 **Key Utility Types** (for type inference):
+
 - `TrueKeys<T>` - Extract keys where value is true
 - `SelectSubset<T, S>` - Pick fields based on Select object
 - `GetRelationPayload<R, I, V>` - Compute relation payload type
@@ -421,6 +446,7 @@ query/
 - `RelationDef<T, I>` - Relation definition for type generation
 
 **Key Metadata Types**:
+
 - `SchemaFieldType` - Supported field types: `string`, `email`, `int`, `date`, `bool`, `float`, `record`, `relation`
 - `ModelMetadata` - Metadata about a model (fields, decorators, constraints)
 - `FieldMetadata` - Metadata about a field (type, optional, decorators, isId, isArray, relationInfo)
@@ -434,6 +460,7 @@ query/
 **Purpose**: Provides reusable utility functions used across the library.
 
 **Files**:
+
 - `array-utils.ts` - Array manipulation utilities
 - `index.ts` - Utility exports
 - `string-utils.ts` - String manipulation utilities
@@ -441,6 +468,7 @@ query/
 - `validation-utils.ts` - Validation helpers (handles arrays and RecordId)
 
 **Key Functions**:
+
 - String case conversion, formatting
 - Type guards and type checking
 - Validation helpers for schema and query data
@@ -453,6 +481,7 @@ query/
 **Purpose**: Contains comprehensive test suite including unit, integration, and end-to-end tests.
 
 **Structure**:
+
 ```
 tests/
 ├── e2e/                  # End-to-end tests (schema → generate → use)
@@ -499,6 +528,7 @@ tests/
 
 **E2E Testing**:
 E2E tests simulate the complete user workflow:
+
 1. Define schema in `tests/e2e/schemas/test.schema`
 2. Preload script runs `generate()` to create client in `generated/`
 3. Tests dynamically import the generated client
@@ -506,6 +536,7 @@ E2E tests simulate the complete user workflow:
 5. Verify both runtime behavior and type inference
 
 **Running Tests**:
+
 ```bash
 # Start SurrealDB for integration/e2e tests
 surreal start -u root -p root memory
@@ -522,6 +553,7 @@ bun test tests/parser/
 ```
 
 **Test Coverage**:
+
 - **Unit tests**: ~211 tests covering parsers, generators, query builders
 - **E2E tests**: 82 tests covering real-world usage scenarios
 - **Total**: ~293 tests
@@ -533,6 +565,7 @@ bun test tests/parser/
 ### 1. Prisma-Style Type Inference
 
 Generated types provide full compile-time type safety:
+
 ```typescript
 // Without select/include - returns full User type
 const user = await db.User.findOne({ where: { id: '123' } });
@@ -541,14 +574,14 @@ const user = await db.User.findOne({ where: { id: '123' } });
 // With select - returns only selected fields
 const user = await db.User.findOne({
   where: { id: '123' },
-  select: { id: true, email: true }
+  select: { id: true, email: true },
 });
 // user: { id: string; email: string } | null
 
 // With include - returns model + relations
 const user = await db.User.findOne({
   where: { id: '123' },
-  include: { profile: true, posts: true }
+  include: { profile: true, posts: true },
 });
 // user: User & { profile: Profile; posts: Post[] } | null
 ```
@@ -556,6 +589,7 @@ const user = await db.User.findOne({
 ### 2. Relations
 
 Support for forward and reverse relations:
+
 - Forward relations store record ID(s) in a field
 - Reverse relations query the related table
 - Type-safe includes with nested select/include
@@ -564,6 +598,7 @@ Support for forward and reverse relations:
 ### 3. Array Support
 
 Full support for array types:
+
 - Primitive arrays: `String[]`, `Int[]`, `Date[]`, `Float[]`
 - Record arrays: `Record[]`
 - Default to empty arrays in create
@@ -573,11 +608,12 @@ Full support for array types:
 ### 4. Nested Filtering
 
 Query by related model fields:
+
 ```typescript
 await db.User.findMany({
   where: {
-    profile: { bio: { contains: 'developer' } }
-  }
+    profile: { bio: { contains: 'developer' } },
+  },
 });
 ```
 
@@ -632,7 +668,8 @@ await db.User.findMany({
 
 ## Summary
 
-Surreal-OM provides a complete type-safe ORM for SurrealDB with:
+Cerial provides a complete type-safe ORM for SurrealDB with:
+
 - **Schema-driven code generation** with full TypeScript type safety
 - **Prisma-style dynamic return types** that infer based on select/include
 - **Relations** with forward/reverse support and type-safe includes

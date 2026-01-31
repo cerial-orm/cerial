@@ -1,6 +1,6 @@
-# Surreal-OM
+# Cerial
 
-A Prisma-like ORM for [SurrealDB](https://surrealdb.com/) with schema-driven code generation and full TypeScript type safety.
+A SurrealDB ORM for [SurrealDB](https://surrealdb.com/) with schema-driven code generation and full TypeScript type safety.
 
 ## Features
 
@@ -17,7 +17,7 @@ A Prisma-like ORM for [SurrealDB](https://surrealdb.com/) with schema-driven cod
 ## Installation
 
 ```bash
-bun add @org/lib_backend_surreal-om
+bun add cerial
 ```
 
 ## Quick Start
@@ -67,16 +67,16 @@ model Tag {
 ### 2. Generate the Client
 
 ```bash
-bunx surreal-om generate -s ./schemas -o ./db-client
+bunx cerial generate -s ./schemas -o ./db-client
 ```
 
 ### 3. Use the Client
 
 ```typescript
-import { SurrealClient } from './db-client';
+import { CerialClient } from './db-client';
 
 // Create client instance
-const client = new SurrealClient();
+const client = new CerialClient();
 
 // Connect to SurrealDB
 await client.connect({
@@ -146,16 +146,16 @@ model ModelName {
 
 ### Types
 
-| Type       | Description         | TypeScript | SurrealDB  |
-| ---------- | ------------------- | ---------- | ---------- |
-| `String`   | Text string         | `string`   | `string`   |
-| `Email`    | Email address       | `string`   | `string`   |
-| `Int`      | Integer number      | `number`   | `int`      |
-| `Float`    | Floating point      | `number`   | `float`    |
-| `Bool`     | Boolean             | `boolean`  | `bool`     |
-| `Date`     | Date/DateTime       | `Date`     | `datetime` |
-| `Record`   | Record reference    | `string`   | `record`   |
-| `Relation` | Virtual relation    | N/A        | Virtual    |
+| Type       | Description      | TypeScript | SurrealDB  |
+| ---------- | ---------------- | ---------- | ---------- |
+| `String`   | Text string      | `string`   | `string`   |
+| `Email`    | Email address    | `string`   | `string`   |
+| `Int`      | Integer number   | `number`   | `int`      |
+| `Float`    | Floating point   | `number`   | `float`    |
+| `Bool`     | Boolean          | `boolean`  | `bool`     |
+| `Date`     | Date/DateTime    | `Date`     | `datetime` |
+| `Record`   | Record reference | `string`   | `record`   |
+| `Relation` | Virtual relation | N/A        | Virtual    |
 
 ### Array Types
 
@@ -172,14 +172,14 @@ model Example {
 
 ### Decorators
 
-| Decorator         | Description          | Notes                              |
-| ----------------- | -------------------- | ---------------------------------- |
-| `@id`             | SurrealDB record id  | **Only ONE per model**             |
-| `@unique`         | Unique constraint    | Can be on multiple fields          |
-| `@now`            | Auto-set timestamp   | For Date fields on create          |
-| `@default(value)` | Default value        | Literal value                      |
-| `@field(name)`    | Forward relation ref | For Relation fields                |
-| `@model(Model)`   | Relation target      | For Relation fields                |
+| Decorator         | Description          | Notes                     |
+| ----------------- | -------------------- | ------------------------- |
+| `@id`             | SurrealDB record id  | **Only ONE per model**    |
+| `@unique`         | Unique constraint    | Can be on multiple fields |
+| `@now`            | Auto-set timestamp   | For Date fields on create |
+| `@default(value)` | Default value        | Literal value             |
+| `@field(name)`    | Forward relation ref | For Relation fields       |
+| `@model(Model)`   | Relation target      | For Relation fields       |
 
 ### Relations
 
@@ -351,79 +351,163 @@ const hasAdmin = await db.User.exists({ role: 'admin' });
 
 ```typescript
 // Equals (shorthand)
-{ field: value }
+{
+  field: value;
+}
 
 // Equals (explicit)
-{ field: { eq: value } }
+{
+  field: {
+    eq: value;
+  }
+}
 
 // Not equals
-{ field: { neq: value } }
+{
+  field: {
+    neq: value;
+  }
+}
 
 // Greater than / Greater than or equal
-{ age: { gt: 18 } }
-{ age: { gte: 18 } }
+{
+  age: {
+    gt: 18;
+  }
+}
+{
+  age: {
+    gte: 18;
+  }
+}
 
 // Less than / Less than or equal
-{ age: { lt: 65 } }
-{ age: { lte: 65 } }
+{
+  age: {
+    lt: 65;
+  }
+}
+{
+  age: {
+    lte: 65;
+  }
+}
 ```
 
 ### String Operators
 
 ```typescript
 // Contains substring
-{ name: { contains: 'john' } }
+{
+  name: {
+    contains: 'john';
+  }
+}
 
 // Starts with
-{ name: { startsWith: 'J' } }
+{
+  name: {
+    startsWith: 'J';
+  }
+}
 
 // Ends with
-{ email: { endsWith: '@example.com' } }
+{
+  email: {
+    endsWith: '@example.com';
+  }
+}
 ```
 
 ### Array Operators (for querying arrays)
 
 ```typescript
 // Contains element
-{ nicknames: { has: 'John' } }
+{
+  nicknames: {
+    has: 'John';
+  }
+}
 
 // Contains all elements
-{ nicknames: { hasAll: ['John', 'Johnny'] } }
+{
+  nicknames: {
+    hasAll: ['John', 'Johnny'];
+  }
+}
 
 // Contains any element
-{ nicknames: { hasAny: ['John', 'Jane'] } }
+{
+  nicknames: {
+    hasAny: ['John', 'Jane'];
+  }
+}
 
 // Is empty
-{ nicknames: { isEmpty: true } }
-{ nicknames: { isEmpty: false } }
+{
+  nicknames: {
+    isEmpty: true;
+  }
+}
+{
+  nicknames: {
+    isEmpty: false;
+  }
+}
 ```
 
 ### Array Operators (for updating arrays)
 
 ```typescript
 // Push element(s)
-{ nicknames: { push: 'NewNick' } }
-{ nicknames: { push: ['Nick1', 'Nick2'] } }
+{
+  nicknames: {
+    push: 'NewNick';
+  }
+}
+{
+  nicknames: {
+    push: ['Nick1', 'Nick2'];
+  }
+}
 
 // Remove element(s)
-{ scores: { unset: 100 } }
-{ scores: { unset: [100, 95] } }
+{
+  scores: {
+    unset: 100;
+  }
+}
+{
+  scores: {
+    unset: [100, 95];
+  }
+}
 
 // Replace entire array
-{ nicknames: ['New', 'Array'] }
+{
+  nicknames: ['New', 'Array'];
+}
 ```
 
 ### Logical Operators
 
 ```typescript
 // AND (all conditions must match)
-{ AND: [{ age: { gte: 18 } }, { isActive: true }] }
+{
+  AND: [{ age: { gte: 18 } }, { isActive: true }];
+}
 
 // OR (any condition must match)
-{ OR: [{ role: 'admin' }, { role: 'moderator' }] }
+{
+  OR: [{ role: 'admin' }, { role: 'moderator' }];
+}
 
 // NOT (negate condition)
-{ NOT: { status: 'deleted' } }
+{
+  NOT: {
+    status: 'deleted';
+  }
+}
 ```
 
 ### Nested Relation Filtering
@@ -503,7 +587,7 @@ await db.User.findOne({
 
 ```bash
 # Generate client from schema files
-bunx surreal-om generate -s <schema-path> -o <output-path>
+bunx cerial generate -s <schema-path> -o <output-path>
 
 # Options:
 #   -s, --schema <path>   Path to schema file or directory (default: ./schemas)
@@ -517,7 +601,7 @@ bunx surreal-om generate -s <schema-path> -o <output-path>
 
 ```
 db-client/
-├── client.ts             # SurrealClient class
+├── client.ts             # CerialClient class
 ├── models/
 │   ├── user.ts           # User interface, types, and payload types
 │   ├── post.ts           # Post interface, types, and payload types
@@ -585,6 +669,7 @@ surreal start -u root -p root memory
 ```
 
 E2E test structure:
+
 ```
 tests/e2e/
 ├── schemas/              # Test schemas

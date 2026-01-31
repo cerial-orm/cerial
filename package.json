@@ -1,10 +1,10 @@
 {
-  "name": "@org/lib_backend_surreal-om",
+  "name": "cerial",
   "version": "0.1.0",
   "module": "index.ts",
   "type": "module",
   "bin": {
-    "surreal-om": "./bin/surreal-om.ts"
+    "cerial": "./bin/cerial.ts"
   },
   "exports": {
     ".": "./index.ts",
@@ -24,12 +24,12 @@
   },
   "dependencies": {
     "prettier": "^3.4.2",
-    "surrealdb": "^2.0.0-alpha.16",
+    "surrealdb": "^2.0.0-alpha.17",
     "ts-toolbelt": "^9.6.0"
   },
   "scripts": {
     "test": "bun test",
     "typecheck": "tsc --noEmit -p tests/e2e/typechecks/tsconfig.json",
-    "generate:test": "bun run bin/surreal-om.ts generate -s tests/e2e/schemas/test.schema -o tests/e2e/generated"
+    "generate:test": "bun run bin/cerial.ts generate -s tests/e2e/schemas/test.schema -o tests/e2e/generated"
   }
 }

@@ -9,8 +9,8 @@ export function generateImports(models: ModelMetadata[]): string {
   const modelImports = models.map((m) => m.name).join(', ');
   const modelTypeImports = models.map((m) => `${m.name}Model`).join(', ');
 
-  return `import { ConnectionManager, type DatabaseProxy, type ModelRegistry, type BeforeQueryCallback, type PerModelCallbacks } from '@org/lib_backend_surreal-om';
-import type { ConnectionConfig } from '@org/lib_backend_surreal-om';
+  return `import { ConnectionManager, type DatabaseProxy, type ModelRegistry, type BeforeQueryCallback, type PerModelCallbacks } from 'cerial';
+import type { ConnectionConfig } from 'cerial';
 import { modelRegistry } from './internal/model-registry';
 import { migrationsByModel, getModelMigrationQuery, getMigrationModelNames, type ModelName } from './internal/migrations';
 import type { ${modelImports}, ${modelTypeImports} } from './models';`;
@@ -48,7 +48,7 @@ ${modelTypes}
 }`;
 }
 
-/** Generate the SurrealClient class */
+/** Generate the CerialClient class */
 export function generateClientClass(): string {
   return `/**
  * Migration event types
@@ -77,7 +77,7 @@ export interface ClientOptions {
 /**
  * Extended connection config with per-model callbacks
  */
-export interface SurrealClientConnectConfig extends ConnectionConfig {
+export interface CerialClientConnectConfig extends ConnectionConfig {
   /** Per-model callbacks to run before queries to specific models */
   perModelCallbacks?: PerModelCallbacks;
 }
@@ -85,7 +85,7 @@ export interface SurrealClientConnectConfig extends ConnectionConfig {
 /**
  * SurrealDB client with typed model access and per-model lazy migrations
  */
-export class SurrealClient {
+export class CerialClient {
   private connectionManager: ConnectionManager<typeof modelRegistry>;
   private _db: DatabaseProxy<typeof modelRegistry> | null = null;
   private _migratedModels: Set<ModelName> = new Set();
@@ -169,7 +169,7 @@ export class SurrealClient {
    * Connect to the database
    * @param config - Connection configuration with optional per-model callbacks
    */
-  async connect(config: SurrealClientConnectConfig): Promise<void> {
+  async connect(config: CerialClientConnectConfig): Promise<void> {
     // Store per-model callbacks for proxy creation
     this._perModelCallbacks = config.perModelCallbacks;
 
@@ -285,7 +285,7 @@ export class SurrealClient {
   }
 
   /**
-   * Get the raw Surreal instance for advanced operations
+   * Get the raw Cerial instance for advanced operations
    */
   getSurreal() {
     return this.connectionManager.getSurreal();

@@ -7,13 +7,13 @@
  */
 
 import { describe, expect, test } from 'bun:test';
-import { createTestClient, SurrealClient } from './test-client';
 import { modelRegistry } from './generated';
+import { CerialClient, createTestClient } from './test-client';
 
 describe('E2E Generated Client', () => {
   describe('Exports', () => {
-    test('should export SurrealClient class', () => {
-      expect(typeof SurrealClient).toBe('function');
+    test('should export CerialClient class', () => {
+      expect(typeof CerialClient).toBe('function');
     });
 
     test('should export modelRegistry', () => {

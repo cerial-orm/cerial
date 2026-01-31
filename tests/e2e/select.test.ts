@@ -5,15 +5,10 @@
  */
 
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import {
-  cleanupTables,
-  createTestClient,
-  SurrealClient,
-  testConfig,
-} from './test-client';
+import { cleanupTables, createTestClient, CerialClient, testConfig } from './test-client';
 
 describe('E2E Select', () => {
-  let client: SurrealClient;
+  let client: CerialClient;
 
   beforeEach(async () => {
     client = createTestClient();

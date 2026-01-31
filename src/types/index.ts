@@ -14,7 +14,7 @@ export type {
   SurrealTypeMapping,
 } from './common.types';
 
-// Utility types for Prisma-style inference
+// Utility types for inference
 export type {
   ArrayResult,
   DefaultArgs,

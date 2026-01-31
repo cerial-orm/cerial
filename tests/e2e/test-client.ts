@@ -11,15 +11,15 @@
 
 // Static imports from generated directory for proper type inference
 // These files are created by preload.ts before tests run
-import { SurrealClient } from './generated/client';
+import { CerialClient } from './generated/client';
 
 // Re-export client class and types
-export { SurrealClient };
+export { CerialClient };
 export * from './generated/models';
 
 // Factory function to create a new client instance
-export function createTestClient(): SurrealClient {
-  return new SurrealClient();
+export function createTestClient(): CerialClient {
+  return new CerialClient();
 }
 
 // Test database configuration
@@ -34,7 +34,7 @@ export const testConfig = {
 };
 
 // Helper to clean up test tables
-export async function cleanupTables(client: SurrealClient): Promise<void> {
+export async function cleanupTables(client: CerialClient): Promise<void> {
   const surreal = client.getSurreal();
   if (surreal) {
     try {

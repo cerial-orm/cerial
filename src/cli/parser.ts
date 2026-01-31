@@ -51,10 +51,10 @@ export function parseArgs(args: string[]): CLIOptions {
 /** Print help message */
 export function printHelp(): void {
   console.log(`
-surreal-om generate - Generate TypeScript client from schema files
+cerial generate - Generate TypeScript client from schema files
 
 Usage:
-  surreal-om generate [options]
+  cerial generate [options]
 
 Options:
   -s, --schema <path>   Path to schema file or directory (default: ./schemas)
@@ -64,8 +64,8 @@ Options:
   -h, --help            Show this help message
 
 Examples:
-  surreal-om generate -o ./db-client
-  surreal-om generate -s ./schemas -o ./db-client
-  surreal-om generate -s ./schemas/user.schema -o ./db-client
+  cerial generate -o ./db-client
+  cerial generate -s ./schemas -o ./db-client
+  cerial generate -s ./schemas/user.schema -o ./db-client
 `);
 }

@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * surreal-om CLI entry point
+ * cerial CLI entry point
  */
 
 import { parseArgs, printHelp, generate } from '../src/cli';

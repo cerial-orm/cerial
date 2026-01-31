@@ -281,7 +281,7 @@ export type {
 } from './models';
 
 // Client exports
-export { SurrealClient } from './client';
+export { CerialClient } from './client';
 export type { ConnectionConfig, TypedDb } from './client';
 
 // Registry

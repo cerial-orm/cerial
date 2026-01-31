@@ -1,5 +1,5 @@
 /**
- * Main exports for surreal-om library
+ * Main exports for cerial library
  */
 
 import { Surreal } from 'surrealdb';
@@ -7,10 +7,10 @@ import { DEFAULT_CONNECTION_NAME } from './connection/connection.const';
 import type { IConnectionAuthUserPassOption, IRPCConnectionOption } from './connection/connection.type';
 
 /**
- * SurrealOM - Main connection class
+ * Cerial - Main connection class
  */
-export class SurrealOM {
-  private static instances: Record<string, SurrealOM> = {};
+export class Cerial {
+  private static instances: Record<string, Cerial> = {};
 
   private _db = new Surreal();
 
@@ -38,24 +38,24 @@ export class SurrealOM {
     this._namespace = namespace;
     this._database = database;
 
-    if (SurrealOM.instances[name]) {
-      if (onDuplicateConnection === 'use_existing') return SurrealOM.instances[name]!;
-      if (onDuplicateConnection === 'overwrite') delete SurrealOM.instances[name];
+    if (Cerial.instances[name]) {
+      if (onDuplicateConnection === 'use_existing') return Cerial.instances[name]!;
+      if (onDuplicateConnection === 'overwrite') delete Cerial.instances[name];
       if (onDuplicateConnection === 'throw') throw new Error(`Connection ${name} already exists`);
     }
 
-    SurrealOM.instances[options.name] = this;
+    Cerial.instances[options.name] = this;
   }
 
   static getInstance(name: string) {
-    const connection = SurrealOM.instances[name];
+    const connection = Cerial.instances[name];
     if (!connection) throw new Error(`Connection ${name} not found`);
 
     return connection;
   }
 
   static getDb(name: string) {
-    return SurrealOM.getInstance(name).getDB();
+    return Cerial.getInstance(name).getDB();
   }
 
   isConnected() {
@@ -117,7 +117,7 @@ export class SurrealOM {
   }
 }
 
-export { SurrealOM as S };
+export { Cerial as C };
 
 // Export types (explicit to avoid conflicts)
 export type {

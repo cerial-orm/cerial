@@ -9,12 +9,12 @@ import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import {
   cleanupTables,
   createTestClient,
-  SurrealClient,
+  CerialClient,
   testConfig,
 } from './test-client';
 
 describe('E2E CRUD Operations', () => {
-  let client: SurrealClient;
+  let client: CerialClient;
 
   beforeEach(async () => {
     client = createTestClient();

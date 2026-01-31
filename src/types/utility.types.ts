@@ -1,5 +1,5 @@
 /**
- * Utility types for Prisma-style dynamic return type inference
+ * Utility types for dynamic return type inference
  *
  * These types enable:
  * - Select: Only return fields where select[field] = true

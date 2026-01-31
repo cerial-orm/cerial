@@ -64,7 +64,7 @@ export function generateRegistryCode(models: ModelMetadata[]): string {
  * Do not edit manually
  */
 
-import type { ModelRegistry } from '@org/lib_backend_surreal-om';
+import type { ModelRegistry } from 'cerial';
 
 export const modelRegistry: ModelRegistry = {
 ${modelEntries}
