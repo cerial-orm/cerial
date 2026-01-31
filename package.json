@@ -29,6 +29,7 @@
   },
   "scripts": {
     "test": "bun test",
-    "generate": "bun run bin/surreal-om.ts generate"
+    "typecheck": "tsc --noEmit -p tests/e2e/typechecks/tsconfig.json",
+    "generate:test": "bun run bin/surreal-om.ts generate -s tests/e2e/schemas/test.schema -o tests/e2e/generated"
   }
 }

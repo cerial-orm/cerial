@@ -10,6 +10,9 @@ import { generateFindUniqueWhereType } from '../types/method-generator';
 import { generateConnectionExports } from './connection-template';
 import { generateClientTemplate } from './template';
 
+/** ts-toolbelt import for generated types */
+const TS_TOOLBELT_IMPORT = `import type { Object as O, Any as A } from 'ts-toolbelt';`;
+
 /** Prettier config cache */
 let prettierConfig: prettier.Options | null = null;
 
@@ -144,6 +147,7 @@ export async function writeModelTypes(
  * Do not edit manually
  */
 
+${TS_TOOLBELT_IMPORT}
 ${relatedImports}${interfaceCode}
 
 ${whereCode}
@@ -282,6 +286,15 @@ export type { ConnectionConfig, TypedDb } from './client';
 
 // Registry
 export { modelRegistry } from './internal';
+
+// Type utilities from ts-toolbelt (re-exported for consumer convenience)
+import type { Object as O, Any as A } from 'ts-toolbelt';
+export type Compute<T> = A.Compute<T>;
+export type Merge<T extends object, U extends object> = O.Merge<T, U>;
+export type Optional<T extends object, K extends keyof T> = O.Optional<T, K>;
+
+// Simplified type helper
+export type Simplify<T> = { [K in keyof T]: T[K] } & {};
 `;
 
   const formatted = await formatCode(content, outputDir);

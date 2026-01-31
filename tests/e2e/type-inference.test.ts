@@ -1,89 +1,56 @@
 /**
- * E2E Type Inference Tests
+ * E2E Runtime Tests for Generated Client
  *
- * Tests that the generated types provide correct Prisma-style inference.
- * These are compile-time tests - if they compile, the types are correct.
+ * Tests that the generated client structure is correct at runtime.
+ * Type-level verification is done in tests/e2e/typechecks/*.check.ts
+ * and verified with `bun run typecheck`.
  */
 
 import { describe, expect, test } from 'bun:test';
 import { createTestClient, SurrealClient } from './test-client';
 import { modelRegistry } from './generated';
 
-// Type assertion helpers
-type AssertEqual<T, U> = T extends U ? (U extends T ? true : false) : false;
-type AssertTrue<T extends true> = T;
-
-describe('E2E Type Inference', () => {
-  describe('Generated types exist', () => {
-    test('should export User type', () => {
-      // It's a type, not a value - if this compiles, the type exists
-      expect(true).toBe(true);
-    });
-
-    test('should export GetUserPayload type', () => {
-      // Type exports don't have runtime values
-      expect(true).toBe(true);
-    });
-
-    test('should export all model types', () => {
-      // These are type exports, checking module structure
+describe('E2E Generated Client', () => {
+  describe('Exports', () => {
+    test('should export SurrealClient class', () => {
       expect(typeof SurrealClient).toBe('function');
+    });
+
+    test('should export modelRegistry', () => {
       expect(typeof modelRegistry).toBe('object');
+      expect(modelRegistry).toBeDefined();
     });
   });
 
-  describe('Select inference (compile-time)', () => {
-    test('select undefined returns full model type', () => {
-      // This test verifies at compile time that:
-      // GetUserPayload<undefined> = User
-      // If it compiles, the type is correct
-      expect(true).toBe(true);
-    });
-
-    test('select with fields returns only those fields', () => {
-      // This test verifies at compile time that:
-      // GetUserPayload<{ id: true; email: true }> = { id: string; email: string }
-      // If it compiles, the type is correct
-      expect(true).toBe(true);
-    });
-  });
-
-  describe('Include inference (compile-time)', () => {
-    test('include undefined returns base model', () => {
-      // This test verifies at compile time that:
-      // GetUserPayload<undefined, undefined> = User
-      expect(true).toBe(true);
-    });
-
-    test('include with relation adds relation to result', () => {
-      // This test verifies at compile time that:
-      // GetUserPayload<undefined, { profile: true }> = User & { profile: Profile }
-      expect(true).toBe(true);
-    });
-  });
-
-  describe('Combined select and include (compile-time)', () => {
-    test('select + include returns selected fields plus relations', () => {
-      // This test verifies at compile time that:
-      // GetUserPayload<{ id: true }, { profile: true }> = { id: string } & { profile: Profile }
-      expect(true).toBe(true);
-    });
-  });
-
-  describe('Generated client structure', () => {
-    test('should have SurrealClient class', () => {
+  describe('Client structure', () => {
+    test('should have connection methods', () => {
       const client = createTestClient();
       expect(client).toBeDefined();
       expect(typeof client.connect).toBe('function');
       expect(typeof client.disconnect).toBe('function');
     });
 
-    test('should have db property with model accessors', () => {
+    test('should have db property', () => {
       const client = createTestClient();
-
-      // db exists after connect would be called
-      // For now just verify the class structure
       expect(client).toBeDefined();
+    });
+  });
+
+  describe('Model registry', () => {
+    test('should contain User model', () => {
+      expect(modelRegistry['User']).toBeDefined();
+    });
+
+    test('should contain Profile model', () => {
+      expect(modelRegistry['Profile']).toBeDefined();
+    });
+
+    test('should contain Post model', () => {
+      expect(modelRegistry['Post']).toBeDefined();
+    });
+
+    test('should contain Tag model', () => {
+      expect(modelRegistry['Tag']).toBeDefined();
     });
   });
 });

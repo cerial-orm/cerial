@@ -558,6 +558,17 @@ bun test tests/parser/
 bun test tests/query/
 ```
 
+### Type Checks
+
+The library uses [ts-toolbelt](https://millsp.github.io/ts-toolbelt/) for compile-time type verification of generated types. Type checks are in `tests/e2e/typechecks/*.check.ts` files and verified with `tsc --noEmit` (not executed at runtime).
+
+```bash
+# Run type checks
+bun run typecheck
+```
+
+This verifies that generated types (User, UserCreate, GetUserPayload, etc.) have correct structure and type inference works as expected.
+
 ### E2E Tests
 
 E2E tests simulate the real user experience: schema → generate → use.
@@ -578,6 +589,10 @@ E2E test structure:
 tests/e2e/
 ├── schemas/              # Test schemas
 ├── generated/            # Generated at runtime (gitignored)
+├── typechecks/           # Compile-time type verification (ts-toolbelt)
+│   ├── generated-types.check.ts   # Model type checks
+│   ├── payload-inference.check.ts # GetPayload inference checks
+│   └── tsconfig.json
 ├── preload.ts            # Runs generate before tests
 ├── setup.ts              # Setup logic
 ├── test-client.ts        # Test helpers
@@ -586,7 +601,7 @@ tests/e2e/
 ├── relations.test.ts     # Relations
 ├── select.test.ts        # Select functionality
 ├── include.test.ts       # Include functionality
-└── type-inference.test.ts # Type inference
+└── type-inference.test.ts # Runtime client tests
 ```
 
 ## Development
@@ -601,11 +616,14 @@ bun test
 # Run e2e tests
 bun test tests/e2e/ --preload ./tests/e2e/preload.ts
 
-# Type check
+# Type check (verifies generated types)
+bun run typecheck
+
+# Full TypeScript check
 bunx tsc --noEmit
 
-# Generate from example schema
-bun run generate
+# Generate test types
+bun run generate:test
 ```
 
 ## Requirements
