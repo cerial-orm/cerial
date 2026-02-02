@@ -1,0 +1,14 @@
+# 1-n Optional Bidirectional
+model Publisher {
+  id String @id
+  name String
+  books Relation[] @model(Book)
+}
+
+model Book {
+  id String @id
+  title String
+  isbn String @unique
+  publisherId Record?
+  publisher Relation? @field(publisherId) @model(Publisher)
+}

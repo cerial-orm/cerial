@@ -1,0 +1,16 @@
+# 1-n Required Bidirectional
+model Author {
+  id String @id
+  name String
+  email Email @unique
+  posts Relation[] @model(PostRequired)
+}
+
+model PostRequired {
+  id String @id
+  title String
+  content String?
+  authorId Record
+  author Relation @field(authorId) @model(Author)
+  createdAt Date @now
+}

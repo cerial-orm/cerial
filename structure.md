@@ -78,8 +78,9 @@ cli/
 │   └── logger.ts         # Logging functionality
 └── validators/           # Input validation
     ├── index.ts
-    ├── options-validator.ts  # Validates CLI options
-    └── schema-validator.ts   # Validates schema syntax
+    ├── options-validator.ts    # Validates CLI options
+    ├── relation-validator.ts   # Validates relation rules (PK/non-PK, @key, @onDelete)
+    └── schema-validator.ts     # Validates schema syntax
 ```
 
 **Key Functions**:
@@ -256,8 +257,10 @@ parser/
     │   ├── field-parser.ts     # Parses @field() for relations
     │   ├── id-parser.ts        # Parses @id
     │   ├── index.ts
+    │   ├── key-parser.ts       # Parses @key() for relation disambiguation
     │   ├── model-parser.ts     # Parses @model() for relations
     │   ├── now-parser.ts       # Parses @now
+    │   ├── ondelete-parser.ts  # Parses @onDelete() for delete behavior
     │   └── unique-parser.ts    # Parses @unique
     ├── field-types/       # Field type parsers
     │   ├── bool-parser.ts      # Parses Bool type
@@ -315,11 +318,22 @@ model User {
 - `@default(value)` - Sets a default value
 - `@field(name)` - For Relation fields, specifies the storage field
 - `@model(Model)` - For Relation fields, specifies the target model
+- `@onDelete(action)` - For optional Relation fields, specifies delete behavior (Cascade|SetNull|Restrict|NoAction)
+- `@key(name)` - For Relation fields, disambiguates multiple relations to same model
 
 **Relations**:
 
-- **Forward relations**: Have a storage field (`@field`) that stores the record ID(s)
-- **Reverse relations**: Don't have a storage field, query the related table
+- **Forward relations (PK side)**: Have `Record` + `Relation @field` that stores the record ID(s)
+- **Reverse relations (non-PK side)**: Have `Relation @model` only, query the related table
+- **Array relations**: Use `Record[]` + `Relation[]` for many-to-many
+
+**Relation Types**:
+
+| Type | PK Side | Non-PK Side |
+|------|---------|-------------|
+| 1-1 | `Record` + `Relation @field` | `Relation @model` |
+| 1-n | `Record` + `Relation @field` | `Relation[] @model` |
+| n-n | `Record[]` + `Relation[] @field` | `Record[]` + `Relation[] @field` (both sides are PK) |
 
 ---
 
@@ -334,9 +348,10 @@ query/
 ├── builder.ts            # Main query builder
 ├── builders/             # Specific query builders
 │   ├── array-update-builder.ts  # Array operation builders (push/unset)
-│   ├── delete-builder.ts        # DELETE query builder
+│   ├── delete-builder.ts        # DELETE query builder with cascade/cleanup
 │   ├── index.ts
 │   ├── insert-builder.ts        # INSERT query builder
+│   ├── nested-builder.ts        # Nested create/connect/disconnect operations
 │   ├── relation-builder.ts      # Relation include builder
 │   ├── select-builder.ts        # SELECT query builder
 │   └── update-builder.ts        # UPDATE query builder
@@ -486,50 +501,74 @@ query/
 tests/
 ├── e2e/                  # End-to-end tests (schema → generate → use)
 │   ├── .gitignore        # Ignore generated/ folder
-│   ├── schemas/          # Test schemas
-│   │   └── test.schema
+│   ├── schemas/          # Test schemas (25+ .cerial files)
+│   │   ├── base.cerial
+│   │   ├── one-to-one-*.cerial    # 1-1 relation variants
+│   │   ├── one-to-many-*.cerial   # 1-n relation variants
+│   │   ├── many-to-many.cerial    # n-n bidirectional
+│   │   ├── self-ref-*.cerial      # Self-referential patterns
+│   │   ├── multi-relation.cerial  # Multiple relations to same model
+│   │   ├── mixed-optionality.cerial
+│   │   └── kitchen-sink.cerial    # All relation types combined
+│   ├── relations/        # Relation-specific E2E tests (104 files)
+│   │   ├── one-to-one/   # 1-1 tests
+│   │   │   ├── required/
+│   │   │   ├── optional/
+│   │   │   ├── ondelete/
+│   │   │   └── single-sided/
+│   │   ├── one-to-many/  # 1-n tests
+│   │   │   ├── required/
+│   │   │   ├── optional/
+│   │   │   ├── ondelete/
+│   │   │   └── single-sided/
+│   │   ├── many-to-many/ # n-n tests
+│   │   │   ├── bidirectional/
+│   │   │   └── one-directional/
+│   │   ├── self-referential/  # Self-ref tests
+│   │   │   ├── one-to-one/
+│   │   │   ├── one-to-one-with-reverse/
+│   │   │   ├── one-to-many/
+│   │   │   ├── one-to-many-with-reverse/
+│   │   │   ├── tree/
+│   │   │   ├── many-to-many-symmetric/
+│   │   │   └── single-sided-array/
+│   │   ├── multi-relation/
+│   │   ├── mixed-optionality/
+│   │   └── kitchen-sink/
+│   ├── typechecks/       # Compile-time type verification
 │   ├── generated/        # Generated at runtime (gitignored)
 │   ├── preload.ts        # Bun preload - runs generate before tests
 │   ├── setup.ts          # Setup logic - calls generate command
-│   ├── test-client.ts    # Helper to import generated client
-│   ├── crud.test.ts      # CRUD operations (28 tests)
-│   ├── arrays.test.ts    # Array operations (17 tests)
-│   ├── relations.test.ts # Relations (13 tests)
-│   ├── select.test.ts    # Select functionality (13 tests)
-│   ├── include.test.ts   # Include functionality (14 tests)
-│   └── type-inference.test.ts  # Type inference (7 tests)
-├── client/
-│   └── model.test.ts     # Model class tests
-├── generators/
-│   ├── migrations.test.ts  # Migration generator tests
-│   └── types.test.ts       # Type generator tests
+│   └── test-client.ts    # Helper to import generated client
+├── unit/                 # Unit tests (no DB required)
+│   ├── parser/           # Parser unit tests
+│   │   ├── relation-parser.test.ts
+│   │   ├── key-parser.test.ts
+│   │   ├── ondelete-parser.test.ts
+│   │   └── ...
+│   ├── validators/       # Validator unit tests
+│   │   ├── relation-validator.test.ts
+│   │   └── schema-validator.test.ts
+│   ├── generators/       # Generator unit tests
+│   │   └── type-mapper.test.ts
+│   ├── query/            # Query builder unit tests
+│   │   ├── builder.test.ts
+│   │   ├── delete-builder.test.ts
+│   │   └── nested-builder.test.ts
+│   └── typechecks/       # Type-level checks
+│       ├── common-types.check.ts
+│       └── metadata-types.check.ts
 ├── integration/          # Integration tests (require running SurrealDB)
 │   ├── connection.test.ts
 │   ├── crud.test.ts
-│   ├── migration.test.ts
-│   └── schema-validation.test.ts
-├── parser/
-│   ├── model-metadata.test.ts  # Metadata conversion tests
-│   ├── parser.test.ts          # Parser tests
-│   └── tokenizer.test.ts       # Tokenizer tests
-├── query/
-│   ├── builders/
-│   │   ├── insert-builder.test.ts
-│   │   └── select-builder.test.ts
-│   └── filters/
-│       ├── comparison-operators.test.ts
-│       ├── logical-operators.test.ts
-│       └── string-operators.test.ts
-├── utils/
-│   ├── string-utils.test.ts
-│   └── type-utils.test.ts
+│   └── migration.test.ts
 └── test-helpers.ts       # Shared test utilities
 ```
 
 **E2E Testing**:
 E2E tests simulate the complete user workflow:
 
-1. Define schema in `tests/e2e/schemas/test.schema`
+1. Define schema in `tests/e2e/schemas/test.cerial`
 2. Preload script runs `generate()` to create client in `generated/`
 3. Tests dynamically import the generated client
 4. Execute real queries against SurrealDB
@@ -557,6 +596,99 @@ bun test tests/parser/
 - **Unit tests**: ~211 tests covering parsers, generators, query builders
 - **E2E tests**: 82 tests covering real-world usage scenarios
 - **Total**: ~293 tests
+
+---
+
+## Relation System Architecture
+
+### Relation Types Overview
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     Relation Types                               │
+├─────────────────────────────────────────────────────────────────┤
+│  1-to-1                                                         │
+│  ┌─────────┐           ┌─────────┐                              │
+│  │ Profile │──userId──>│  User   │                              │
+│  │ Relation│<─profile──│Relation?│ (reverse optional)           │
+│  └─────────┘           └─────────┘                              │
+├─────────────────────────────────────────────────────────────────┤
+│  1-to-n                                                         │
+│  ┌─────────┐           ┌─────────┐                              │
+│  │  Post   │──authorId>│  User   │                              │
+│  │ Relation│<─posts[]──│Relation[]│ (array reverse)             │
+│  └─────────┘           └─────────┘                              │
+├─────────────────────────────────────────────────────────────────┤
+│  n-to-n (bidirectional sync)                                    │
+│  ┌─────────┐           ┌─────────┐                              │
+│  │  User   │──tagIds[]─│   Tag   │                              │
+│  │Relation[]<─userIds[]│Relation[]│ (both sides PK)             │
+│  └─────────┘           └─────────┘                              │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### N-N Bidirectional Sync Flow
+
+When creating or updating n-n relations, both sides are updated atomically:
+
+```
+Client                    QueryBuilder                 SurrealDB
+  │                           │                            │
+  │ User.create({             │                            │
+  │   tags: { connect:        │                            │
+  │     ['tag:1'] }           │                            │
+  │ })                        │                            │
+  │ ─────────────────────────>│                            │
+  │                           │ BEGIN TRANSACTION          │
+  │                           │ ───────────────────────────>
+  │                           │                            │
+  │                           │ CREATE user SET            │
+  │                           │   tagIds = ['tag:1']       │
+  │                           │ ───────────────────────────>
+  │                           │                            │
+  │                           │ UPDATE tag:1 SET           │
+  │                           │   userIds += $user.id      │
+  │                           │ ───────────────────────────>
+  │                           │                            │
+  │                           │ COMMIT TRANSACTION         │
+  │                           │ ───────────────────────────>
+  │                           │                            │
+  │<──────────────────────────│ User with synced tags      │
+```
+
+### Delete Cascade Flow
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                  @onDelete Behavior                          │
+├──────────────┬───────────────────────────────────────────────┤
+│ Required FK  │ Auto-cascade (no @onDelete allowed)          │
+├──────────────┼───────────────────────────────────────────────┤
+│ Optional FK  │ SetNull (default) or @onDelete(action)       │
+├──────────────┼───────────────────────────────────────────────┤
+│ Cascade      │ DELETE dependent records                     │
+│ SetNull      │ SET FK to null                               │
+│ Restrict     │ ERROR if dependents exist                    │
+│ NoAction     │ Leave dangling references                    │
+├──────────────┼───────────────────────────────────────────────┤
+│ Array FK     │ Remove ID from arrays (both sides for n-n)   │
+└──────────────┴───────────────────────────────────────────────┘
+```
+
+### Validation Rules
+
+The `relation-validator.ts` enforces these rules:
+
+| Rule | Description |
+|------|-------------|
+| PK Structure | `Relation @field` requires paired `Record` field |
+| Non-PK Validation | Reverse relation requires PK side in target model |
+| Single-sided Optional | If no reverse defined, must use `Record?` and `Relation?` |
+| N-N Completeness | True n-n requires both sides to define `Record[]` + `Relation[]` |
+| @onDelete Placement | Only allowed on optional `Relation?` |
+| Cardinality Match | `Record[]` pairs with `Relation[]`, `Record` with `Relation` |
+| @key Required | Multiple relations to same model need `@key` for disambiguation |
+| @key Pairing | Forward and reverse relations must share same `@key` value |
 
 ---
 
@@ -588,12 +720,17 @@ const user = await db.User.findOne({
 
 ### 2. Relations
 
-Support for forward and reverse relations:
+Comprehensive relation support:
 
-- Forward relations store record ID(s) in a field
-- Reverse relations query the related table
-- Type-safe includes with nested select/include
-- Include options: where, limit, offset, orderBy
+- **1-1, 1-n, n-n** relation types with full CRUD
+- **Forward relations** (PK side) store record ID(s) in a `Record` field
+- **Reverse relations** (non-PK side) query the related table
+- **Bidirectional n-n sync** - both sides updated atomically in transactions
+- **Nested operations** - `create`, `connect`, `disconnect` in create/update
+- **@onDelete behavior** - Cascade, SetNull, Restrict, NoAction
+- **@key disambiguation** - multiple relations to same model
+- **Self-referential** - trees, graphs, following patterns
+- **Type-safe includes** with nested select/include/where/orderBy
 
 ### 3. Array Support
 

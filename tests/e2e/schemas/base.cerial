@@ -1,0 +1,67 @@
+# Standalone model with no relations - used as reference target
+model Category {
+  id String @id
+  name String @unique
+  description String?
+}
+
+# Model demonstrating all field types and decorators
+model FieldTypesExample {
+  id String @id
+  username String @unique
+  displayName String
+  bio String?
+  email Email @unique
+  secondaryEmail Email?
+  age Int
+  score Int?
+  balance Float
+  rating Float?
+  isActive Bool
+  isVerified Bool?
+  createdAt Date @now
+  updatedAt Date?
+  birthDate Date
+  tags String[]
+  scores Int[]
+  ratings Float[]
+  loginDates Date[]
+  status String @default("pending")
+  retryCount Int @default(0)
+}
+
+# Model for testing numeric operations
+model NumericExample {
+  id String @id
+  intValue Int
+  intOptional Int?
+  floatValue Float
+  floatOptional Float?
+  intArray Int[]
+  floatArray Float[]
+}
+
+# Model for testing date operations
+model DateExample {
+  id String @id
+  createdAt Date @now
+  scheduledAt Date
+  completedAt Date?
+  reminderDates Date[]
+}
+
+# Model for testing string operations
+model StringExample {
+  id String @id
+  title String @unique
+  slug String @unique
+  content String?
+  keywords String[]
+}
+
+# Model for testing email validation
+model EmailExample {
+  id String @id
+  primaryEmail Email @unique
+  backupEmail Email?
+}

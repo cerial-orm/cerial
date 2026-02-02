@@ -1,0 +1,13 @@
+# 1-1 Optional with @onDelete NoAction
+model UserNoAction {
+  id String @id
+  name String
+  profile Relation? @model(ProfileNoAction)
+}
+
+model ProfileNoAction {
+  id String @id
+  bio String?
+  userId Record?
+  user Relation? @field(userId) @model(UserNoAction) @onDelete(NoAction)
+}

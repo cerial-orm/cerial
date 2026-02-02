@@ -30,6 +30,6 @@
   "scripts": {
     "test": "bun test",
     "typecheck": "tsc --noEmit -p tests/e2e/typechecks/tsconfig.json",
-    "generate:test": "bun run bin/cerial.ts generate -s tests/e2e/schemas/test.schema -o tests/e2e/generated"
+    "generate:test": "bun run bin/cerial.ts generate -o tests/e2e/generated"
   }
 }

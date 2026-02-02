@@ -46,4 +46,6 @@ export async function cleanupTables(client: CerialClient): Promise<void> {
       // Ignore errors
     }
   }
+  // Re-run migrations to recreate tables with correct schema
+  await client.migrate();
 }

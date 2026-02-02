@@ -1,0 +1,21 @@
+# Order has required customer, optional assignee
+model Customer {
+  id String @id
+  name String
+  orders Relation[] @model(Order)
+}
+
+model Agent {
+  id String @id
+  name String
+  assignedOrders Relation[] @model(Order)
+}
+
+model Order {
+  id String @id
+  orderNumber String @unique
+  customerId Record
+  customer Relation @field(customerId) @model(Customer)
+  assigneeId Record?
+  assignee Relation? @field(assigneeId) @model(Agent)
+}

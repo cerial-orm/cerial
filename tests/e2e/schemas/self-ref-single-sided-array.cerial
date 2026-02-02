@@ -1,0 +1,9 @@
+# Person with following (Twitter pattern) - SINGLE-SIDED
+# A follows B does NOT mean B follows A
+# NO reverse defined - users query "who follows me" manually via: WHERE followingIds CONTAINS me
+model SocialUser {
+  id String @id
+  name String
+  followingIds Record[]
+  following Relation[] @field(followingIds) @model(SocialUser)
+}

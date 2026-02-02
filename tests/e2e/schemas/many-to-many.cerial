@@ -1,0 +1,16 @@
+# True n-n with bidirectional sync
+model Student {
+  id String @id
+  name String
+  email Email @unique
+  courseIds Record[]
+  courses Relation[] @field(courseIds) @model(Course)
+}
+
+model Course {
+  id String @id
+  name String
+  code String @unique
+  studentIds Record[]
+  students Relation[] @field(studentIds) @model(Student)
+}

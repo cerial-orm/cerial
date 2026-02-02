@@ -266,13 +266,14 @@ model Tag {
       expect(userIdStmt).toContain('TYPE record<user>');
     });
 
-    test('generates option<record<table>> for optional Record?', () => {
+    test('generates option<record<table> | null> for optional Record?', () => {
       const registry = parseModelRegistry(recordDsl);
       const model = registry['User']!;
       const statements = generateModelDefineStatements(model);
 
       const profileIdStmt = statements.find((s) => s.includes('profileId'));
-      expect(profileIdStmt).toContain('TYPE option<record<profile>>');
+      // Optional fields use option<T | null> to support both NONE (absent) and null values
+      expect(profileIdStmt).toContain('TYPE option<record<profile> | null>');
     });
 
     test('generates array<record<table>> with distinct for Record[]', () => {
@@ -282,7 +283,8 @@ model Tag {
 
       const tagIdsStmt = statements.find((s) => s.includes('tagIds'));
       expect(tagIdsStmt).toContain('TYPE array<record<tag>>');
-      expect(tagIdsStmt).toContain('VALUE $value.distinct()');
+      // Uses IF/THEN/ELSE to handle NONE values gracefully
+      expect(tagIdsStmt).toContain('VALUE IF $value THEN $value.distinct() ELSE [] END');
     });
 
     test('skips Relation fields in migration statements', () => {

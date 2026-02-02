@@ -1,0 +1,12 @@
+# NOT true n-n - only Blogger can query Labels, Labels can't query Bloggers
+model Blogger {
+  id String @id
+  name String
+  labelIds Record[]
+  labels Relation[] @field(labelIds) @model(Label)
+}
+
+model Label {
+  id String @id
+  name String @unique
+}

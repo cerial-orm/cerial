@@ -296,4 +296,143 @@ model Post {
       expect(tagIdsField?.isArray).toBe(true);
     });
   });
+
+  // Relation decorator tests
+  describe('relation decorators', () => {
+    test('parses @key decorator on relation', () => {
+      const source = `model Employee {
+  id String @id
+  managerId Record?
+  manager Relation? @field(managerId) @model(Employee) @key(manages)
+  directReports Relation[] @model(Employee) @key(manages)
+}`;
+      const result = parse(source);
+      const registry = astToRegistry(result.ast);
+      const employee = registry['Employee']!;
+
+      const managerField = employee.fields.find((f) => f.name === 'manager');
+      const reportsField = employee.fields.find((f) => f.name === 'directReports');
+
+      expect(managerField?.relationInfo?.key).toBe('manages');
+      expect(reportsField?.relationInfo?.key).toBe('manages');
+    });
+
+    test('parses @onDelete decorator on optional relation', () => {
+      const source = `model Profile {
+  id String @id
+  userId Record?
+  user Relation? @field(userId) @model(User) @onDelete(Cascade)
+}
+
+model User {
+  id String @id
+}`;
+      const result = parse(source);
+      const registry = astToRegistry(result.ast);
+      const profile = registry['Profile']!;
+
+      const userField = profile.fields.find((f) => f.name === 'user');
+
+      expect(userField?.relationInfo?.onDelete).toBe('Cascade');
+    });
+
+    test('parses all @onDelete values', () => {
+      const source = `model Child {
+  id String @id
+  parentCascade Record?
+  cascade Relation? @field(parentCascade) @model(Parent) @onDelete(Cascade)
+  parentSetNull Record?
+  setNull Relation? @field(parentSetNull) @model(Parent) @onDelete(SetNull)
+  parentRestrict Record?
+  restrict Relation? @field(parentRestrict) @model(Parent) @onDelete(Restrict)
+  parentNoAction Record?
+  noAction Relation? @field(parentNoAction) @model(Parent) @onDelete(NoAction)
+}
+
+model Parent {
+  id String @id
+}`;
+      const result = parse(source);
+      const registry = astToRegistry(result.ast);
+      const child = registry['Child']!;
+
+      expect(child.fields.find((f) => f.name === 'cascade')?.relationInfo?.onDelete).toBe('Cascade');
+      expect(child.fields.find((f) => f.name === 'setNull')?.relationInfo?.onDelete).toBe('SetNull');
+      expect(child.fields.find((f) => f.name === 'restrict')?.relationInfo?.onDelete).toBe('Restrict');
+      expect(child.fields.find((f) => f.name === 'noAction')?.relationInfo?.onDelete).toBe('NoAction');
+    });
+
+    test('parses Relation[] array syntax', () => {
+      const source = `model User {
+  id String @id
+  tagIds Record[]
+  tags Relation[] @field(tagIds) @model(Tag)
+}
+
+model Tag {
+  id String @id
+}`;
+      const result = parse(source);
+      const registry = astToRegistry(result.ast);
+      const user = registry['User']!;
+
+      const tagsField = user.fields.find((f) => f.name === 'tags');
+      expect(tagsField?.type).toBe('relation');
+      expect(tagsField?.isArray).toBe(true);
+      expect(tagsField?.relationInfo?.targetModel).toBe('Tag');
+      expect(tagsField?.relationInfo?.fieldRef).toBe('tagIds');
+    });
+
+    test('parses Relation? optional syntax', () => {
+      const source = `model Post {
+  id String @id
+  authorId Record?
+  author Relation? @field(authorId) @model(User)
+}
+
+model User {
+  id String @id
+}`;
+      const result = parse(source);
+      const registry = astToRegistry(result.ast);
+      const post = registry['Post']!;
+
+      const authorField = post.fields.find((f) => f.name === 'author');
+      expect(authorField?.type).toBe('relation');
+      expect(authorField?.isRequired).toBe(false);
+      expect(authorField?.relationInfo?.targetModel).toBe('User');
+    });
+
+    test('parses multiple decorators on single relation', () => {
+      const source = `model Document {
+  id String @id
+  authorId Record
+  author Relation @field(authorId) @model(Writer) @key(author)
+  reviewerId Record?
+  reviewer Relation? @field(reviewerId) @model(Writer) @key(reviewer) @onDelete(SetNull)
+}
+
+model Writer {
+  id String @id
+}`;
+      const result = parse(source);
+      const registry = astToRegistry(result.ast);
+      const doc = registry['Document']!;
+
+      const authorField = doc.fields.find((f) => f.name === 'author');
+      const reviewerField = doc.fields.find((f) => f.name === 'reviewer');
+
+      // Author: @field, @model, @key
+      expect(authorField?.relationInfo?.fieldRef).toBe('authorId');
+      expect(authorField?.relationInfo?.targetModel).toBe('Writer');
+      expect(authorField?.relationInfo?.key).toBe('author');
+      expect(authorField?.relationInfo?.onDelete).toBeUndefined();
+
+      // Reviewer: @field, @model, @key, @onDelete
+      expect(reviewerField?.relationInfo?.fieldRef).toBe('reviewerId');
+      expect(reviewerField?.relationInfo?.targetModel).toBe('Writer');
+      expect(reviewerField?.relationInfo?.key).toBe('reviewer');
+      expect(reviewerField?.relationInfo?.onDelete).toBe('SetNull');
+    });
+  });
 });

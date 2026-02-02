@@ -1,0 +1,14 @@
+# FK on Profile side, optional - can use @onDelete
+model UserOptional {
+  id String @id
+  email Email @unique
+  name String
+  profile Relation? @model(ProfileOptional)
+}
+
+model ProfileOptional {
+  id String @id
+  bio String?
+  userId Record?
+  user Relation? @field(userId) @model(UserOptional)
+}

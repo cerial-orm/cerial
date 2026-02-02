@@ -1,0 +1,13 @@
+# 1-n Optional with @onDelete Restrict
+model Department {
+  id String @id
+  name String
+  employees Relation[] @model(Employee)
+}
+
+model Employee {
+  id String @id
+  name String
+  departmentId Record?
+  department Relation? @field(departmentId) @model(Department) @onDelete(Restrict)
+}

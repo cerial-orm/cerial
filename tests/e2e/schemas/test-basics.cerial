@@ -1,3 +1,6 @@
+# Basic test models for CRUD, arrays, select, and include tests
+# These models match the existing test expectations
+
 model User {
   id String @id
   email Email @unique
@@ -5,22 +8,22 @@ model User {
   age Int?
   isActive Bool
   createdAt Date @now
-  profileId Record?
-  profile Relation @field(profileId) @model(Profile)
-  tagIds Record[]
-  tags Relation @field(tagIds) @model(Tag)
-  posts Relation @model(Post)
   nicknames String[]
   scores Int[]
   loginDates Date[]
+  profileId Record?
+  profile Relation? @field(profileId) @model(Profile)
+  tagIds Record[]
+  tags Relation[] @field(tagIds) @model(Tag)
+  posts Relation[] @model(Post)
 }
 
 model Profile {
   id String @id
   bio String?
   avatarUrl String?
-  userId Record
-  user Relation @field(userId) @model(User)
+  userId Record?
+  user Relation? @field(userId) @model(User)
 }
 
 model Post {
@@ -29,10 +32,11 @@ model Post {
   content String?
   authorId Record
   author Relation @field(authorId) @model(User)
-  createdAt Date @now
 }
 
 model Tag {
   id String @id
   name String @unique
+  userIds Record[]
+  users Relation[] @field(userIds) @model(User)
 }

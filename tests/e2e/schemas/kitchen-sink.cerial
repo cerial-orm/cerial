@@ -1,0 +1,55 @@
+# Model with every type of relation for integration testing
+# Design:
+# - User -> Profile: 1-1 optional (User may have a profile)
+# - Profile -> User: 1-1 required (Profile must belong to User)
+# - User -> Posts: 1-n via reverse relation (Posts belong to User)
+# - User <-> Tags: n-n bidirectional
+# - User -> Settings: 1-1 optional with cascade delete
+# - User -> Badges: n-n one-directional (Badges don't track users)
+
+model KitchenSinkUser {
+  id String @id
+  email Email @unique
+  name String
+  profile Relation? @model(KitchenSinkProfile)
+  posts Relation[] @model(KitchenSinkPost)
+  tagIds Record[]
+  tags Relation[] @field(tagIds) @model(KitchenSinkTag)
+  settingsId Record?
+  settings Relation? @field(settingsId) @model(KitchenSinkSettings)
+  badgeIds Record[]
+  badges Relation[] @field(badgeIds) @model(KitchenSinkBadge)
+}
+
+model KitchenSinkProfile {
+  id String @id
+  bio String?
+  userId Record
+  user Relation @field(userId) @model(KitchenSinkUser)
+}
+
+model KitchenSinkPost {
+  id String @id
+  title String
+  authorId Record
+  author Relation @field(authorId) @model(KitchenSinkUser)
+}
+
+model KitchenSinkTag {
+  id String @id
+  name String @unique
+  userIds Record[]
+  users Relation[] @field(userIds) @model(KitchenSinkUser)
+}
+
+model KitchenSinkSettings {
+  id String @id
+  theme String
+  userId Record?
+  user Relation? @field(userId) @model(KitchenSinkUser) @onDelete(Cascade)
+}
+
+model KitchenSinkBadge {
+  id String @id
+  name String @unique
+}

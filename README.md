@@ -4,7 +4,7 @@ A SurrealDB ORM for [SurrealDB](https://surrealdb.com/) with schema-driven code 
 
 ## Features
 
-- **Schema-first approach** - Define your models in `.schema` files
+- **Schema-first approach** - Define your models in `.cerial` files
 - **Type-safe client** - Generated TypeScript types and interfaces
 - **Prisma-like API** - Familiar `db.Model.findMany()` syntax
 - **Dynamic return types** - Full Prisma-style type inference with `select` and `include`
@@ -24,9 +24,9 @@ bun add cerial
 
 ### 1. Define Your Schema
 
-Create a `.schema` file (e.g., `schemas/user.schema`):
+Create a `.cerial` file (e.g., `schemas/user.cerial`):
 
-```schema
+```cerial
 model User {
   id String @id
   email Email @unique
@@ -161,7 +161,7 @@ model ModelName {
 
 All types except `Relation` can be arrays:
 
-```schema
+```cerial
 model Example {
   nicknames String[]    // string array
   scores Int[]          // number array
@@ -180,31 +180,151 @@ model Example {
 | `@default(value)` | Default value        | Literal value             |
 | `@field(name)`    | Forward relation ref | For Relation fields       |
 | `@model(Model)`   | Relation target      | For Relation fields       |
+| `@onDelete(action)` | Delete behavior    | For optional Relation only |
+| `@key(name)`      | Relation key         | For disambiguation        |
 
-### Relations
+### @onDelete Decorator
 
-Relations are defined using `Relation` fields with `@field` and `@model` decorators:
+Controls what happens when a related record is deleted. Only allowed on **optional** (`Relation?`) fields.
 
-```schema
-model User {
-  profileId Record?                                  // Storage field (optional)
-  profile Relation @field(profileId) @model(Profile) // Forward relation
-  posts Relation @model(Post)                        // Reverse relation (no @field)
-}
-
+```cerial
 model Profile {
-  userId Record                                   // Storage field (required)
-  user Relation @field(userId) @model(User)       // Forward relation
-}
-
-model Post {
-  authorId Record                                 // Storage field
-  author Relation @field(authorId) @model(User)   // Forward relation
+  id String @id
+  userId Record?
+  user Relation? @field(userId) @model(User) @onDelete(Cascade)
 }
 ```
 
-**Forward relations** have a storage field (`@field`) that stores the record ID.
-**Reverse relations** don't have a storage field and query the related table.
+| Action     | Behavior |
+|------------|----------|
+| `Cascade`  | Delete this record when related record is deleted |
+| `SetNull`  | Set FK to null (default for optional relations) |
+| `Restrict` | Error if trying to delete related record |
+| `NoAction` | Do nothing (leaves dangling reference) |
+
+**Rules**:
+- **Required relations** (`Relation`): Auto-cascade on delete, `@onDelete` NOT allowed
+- **Optional relations** (`Relation?`): Default `SetNull`, can override with `@onDelete`
+- **Array relations** (`Relation[]`): Auto cleanup - removes ID from arrays
+
+### @key Decorator
+
+Required for disambiguation when multiple relations exist between the same models, or for self-referential relations with reverse lookup.
+
+```cerial
+# Multiple relations to same model
+model Document {
+  id String @id
+  authorId Record
+  author Relation @field(authorId) @model(Writer) @key(author)
+  reviewerId Record?
+  reviewer Relation? @field(reviewerId) @model(Writer) @key(reviewer)
+}
+
+model Writer {
+  id String @id
+  authoredDocs Relation[] @model(Document) @key(author)    # Pairs with author
+  reviewedDocs Relation[] @model(Document) @key(reviewer)  # Pairs with reviewer
+}
+```
+
+### Relations
+
+Relations are defined using `Relation` fields with `@field` and `@model` decorators.
+
+#### Relation Types
+
+| Type | Schema Pattern | Description |
+|------|---------------|-------------|
+| **1-to-1** | `Record` + `Relation @field` | One record links to one other |
+| **1-to-n** | `Record` + `Relation @field` / `Relation[]` | One record links to many |
+| **n-to-n** | `Record[]` + `Relation[] @field` on both sides | Many-to-many with bidirectional sync |
+
+#### One-to-One (1-1)
+
+```cerial
+model User {
+  id String @id
+  name String
+  profile Relation @model(Profile)                 # Reverse relation (optional to define)
+}
+
+model Profile {
+  id String @id
+  bio String?
+  userId Record                                    # FK storage (required)
+  user Relation @field(userId) @model(User)        # Forward relation (PK side)
+}
+```
+
+#### One-to-Many (1-n)
+
+```cerial
+model User {
+  id String @id
+  name String
+  posts Relation[] @model(Post)                    # Reverse relation (array)
+}
+
+model Post {
+  id String @id
+  title String
+  authorId Record                                  # FK storage
+  author Relation @field(authorId) @model(User)    # Forward relation
+}
+```
+
+#### Many-to-Many (n-n)
+
+```cerial
+model User {
+  id String @id
+  name String
+  tagIds Record[]                                  # FK storage (array)
+  tags Relation[] @field(tagIds) @model(Tag)       # Forward relation (array)
+}
+
+model Tag {
+  id String @id
+  name String @unique
+  userIds Record[]                                 # FK storage (array)
+  users Relation[] @field(userIds) @model(User)    # Forward relation (array)
+}
+```
+
+**Note**: True n-n requires BOTH sides to define `Record[]` + `Relation[]`. This enables bidirectional sync - when you connect a User to a Tag, both `User.tagIds` and `Tag.userIds` are updated atomically.
+
+#### Self-Referential Relations
+
+```cerial
+# Tree structure (1-n self-reference)
+model Category {
+  id String @id
+  name String
+  parentId Record?
+  parent Relation? @field(parentId) @model(Category) @key(hierarchy)
+  children Relation[] @model(Category) @key(hierarchy)
+}
+
+# Following pattern (single-sided n-n)
+model SocialUser {
+  id String @id
+  name String
+  followingIds Record[]
+  following Relation[] @field(followingIds) @model(SocialUser)
+  # No followers Relation[] - query manually: WHERE followingIds CONTAINS $myId
+}
+```
+
+#### Relation Sides
+
+| Side | Structure | Features |
+|------|-----------|----------|
+| **PK Side** | `Record + Relation @field` | Stores FK, full CRUD support |
+| **Non-PK Side** | `Relation @model` (no @field) | Reverse lookup only, OPTIONAL to define |
+
+**Forward relations** (PK side) have a storage field (`@field`) that stores the record ID.
+**Reverse relations** (non-PK side) don't have a storage field and query the related table.
 
 ## Query API
 
@@ -297,10 +417,50 @@ const user = await db.User.create({
     name: 'Jane Doe',
     isActive: true,
     nicknames: ['Jane'],
-    tagIds: ['tag:js', 'tag:ts'],
   },
   select: { id: true, email: true },
 });
+```
+
+#### Nested Create Operations
+
+Create related records inline or connect to existing ones:
+
+```typescript
+// Create with nested create - creates related record
+const post = await db.Post.create({
+  data: {
+    title: 'My Post',
+    author: { create: { name: 'John', email: 'john@example.com' } },
+  },
+});
+
+// Create with connect - link to existing record
+const post = await db.Post.create({
+  data: {
+    title: 'My Post',
+    author: { connect: 'user:123' },
+  },
+});
+
+// Create from non-PK side (creates children with FK pointing to new parent)
+const user = await db.User.create({
+  data: {
+    name: 'John',
+    posts: { create: [{ title: 'Post 1' }, { title: 'Post 2' }] },
+  },
+});
+
+// n-n with bidirectional sync - both sides updated atomically
+const user = await db.User.create({
+  data: {
+    name: 'John',
+    tags: { connect: ['tag:js', 'tag:ts'] },
+  },
+});
+// Result: User.tagIds = ['tag:js', 'tag:ts']
+//         Tag:js.userIds += newUserId
+//         Tag:ts.userIds += newUserId
 ```
 
 ### updateMany
@@ -315,6 +475,43 @@ await db.User.updateMany({
     nicknames: { push: 'Updated' }, // Array operations
   },
   select: { id: true, isActive: true },
+});
+```
+
+#### Nested Update Operations
+
+Modify relations with connect/disconnect:
+
+```typescript
+// Change relation target
+await db.Post.update({
+  where: { id: 'post:1' },
+  data: { author: { connect: 'user:456' } },
+});
+
+// Disconnect (set null) - only for optional relations
+await db.Post.update({
+  where: { id: 'post:1' },
+  data: { author: { disconnect: true } },
+});
+
+// n-n: add and remove with bidirectional sync
+await db.User.update({
+  where: { id: 'user:1' },
+  data: {
+    tags: {
+      connect: ['tag:new'],     // Adds to both User.tagIds and Tag.userIds
+      disconnect: ['tag:old'],  // Removes from both sides
+    },
+  },
+});
+
+// Create nested on update
+await db.User.update({
+  where: { id: 'user:1' },
+  data: {
+    profile: { create: { bio: 'New profile' } },
+  },
 });
 ```
 
