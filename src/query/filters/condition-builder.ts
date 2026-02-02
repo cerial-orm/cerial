@@ -21,8 +21,14 @@ function findRecordTargetTable(fieldName: string, model: ModelMetadata): string 
 /** Transform value for ID or Record fields */
 function transformFieldValue(value: unknown, fieldMetadata: FieldMetadata, model: ModelMetadata): unknown {
   // Transform ID field values to RecordId
-  if (fieldMetadata.isId && typeof value === 'string') {
-    return transformOrValidateRecordId(model.tableName, value);
+  if (fieldMetadata.isId) {
+    if (typeof value === 'string') {
+      return transformOrValidateRecordId(model.tableName, value);
+    }
+    // Handle arrays of IDs (for in/notIn operators)
+    if (Array.isArray(value)) {
+      return value.map((v) => (typeof v === 'string' ? transformOrValidateRecordId(model.tableName, v) : v));
+    }
   }
 
   // Transform Record field values to RecordId
@@ -32,7 +38,7 @@ function transformFieldValue(value: unknown, fieldMetadata: FieldMetadata, model
       if (typeof value === 'string') {
         return transformOrValidateRecordId(targetTable, value);
       }
-      // Handle arrays of values (for hasAll, hasAny operators)
+      // Handle arrays of values (for in/notIn, hasAll, hasAny operators)
       if (Array.isArray(value)) {
         return value.map((v) => (typeof v === 'string' ? transformOrValidateRecordId(targetTable, v) : v));
       }
@@ -132,6 +138,22 @@ export function buildConditions(
     const fieldMetadata = model.fields.find((f) => f.name === key);
     if (!fieldMetadata) {
       // Skip unknown fields
+      continue;
+    }
+
+    // Handle relation fields with null value - translate to underlying record field
+    // e.g., { user: null } becomes { userId: null } for a forward relation with @field(userId)
+    if (fieldMetadata.type === 'relation' && value === null) {
+      const fieldRef = fieldMetadata.relationInfo?.fieldRef;
+      if (fieldRef) {
+        // Find the underlying record field and use it
+        const recordField = model.fields.find((f) => f.name === fieldRef);
+        if (recordField) {
+          conditions.push(buildDirectCondition(ctx, fieldRef, null, recordField, model));
+          continue;
+        }
+      }
+      // For reverse relations, filtering by null is not directly supported
       continue;
     }
 

@@ -1,5 +1,5 @@
 /**
- * Lexer for .schema files
+ * Lexer for .cerial files
  * Validates tokens and converts to typed lexemes
  */
 
@@ -114,6 +114,7 @@ function lexModel(state: LexerState): void {
 
   // Lex fields until closing brace
   while (!isEnd(state)) {
+    const startPos = state.position;
     const token = current(state);
     if (!token) break;
 
@@ -126,6 +127,11 @@ function lexModel(state: LexerState): void {
 
     // Lex field
     lexField(state);
+
+    // Safety: if position didn't advance, skip this token to prevent infinite loop
+    if (state.position === startPos) {
+      advance(state);
+    }
   }
 }
 
@@ -159,22 +165,26 @@ function lexField(state: LexerState): void {
   addLexeme(state, createLexeme('field_name', fieldName.value, fieldName.position));
   advance(state);
 
-  // Optional '?' for optional fields
+  // Optional '?' for optional fields (can appear after field name)
   const maybeOptional = current(state);
   if (maybeOptional?.type === 'punctuation' && maybeOptional.value === '?') {
     addLexeme(state, createLexeme('optional_marker', maybeOptional.value, maybeOptional.position));
     advance(state);
   }
 
-  // Expect colon
-  const colon = expect(state, 'punctuation', ':');
-  if (!colon) return;
-  addLexeme(state, createLexeme('colon', colon.value, colon.position));
-  advance(state);
+  // Optional colon (schema format may or may not have colons)
+  const maybeColon = current(state);
+  if (maybeColon?.type === 'punctuation' && maybeColon.value === ':') {
+    addLexeme(state, createLexeme('colon', maybeColon.value, maybeColon.position));
+    advance(state);
+  }
 
   // Expect type
-  const fieldType = expect(state, 'type');
-  if (!fieldType) return;
+  const fieldType = current(state);
+  if (!fieldType || fieldType.type !== 'type') {
+    // Not a valid field type - return to let caller handle
+    return;
+  }
   addLexeme(state, createLexeme('field_type', fieldType.value, fieldType.position));
   advance(state);
 }
@@ -184,6 +194,7 @@ export function lex(tokens: Token[]): LexerResult {
   const state = createState(tokens);
 
   while (!isEnd(state)) {
+    const startPos = state.position;
     const token = current(state);
     if (!token) break;
 
@@ -191,6 +202,11 @@ export function lex(tokens: Token[]): LexerResult {
       lexModel(state);
     } else {
       // Skip unknown tokens
+      advance(state);
+    }
+
+    // Safety: ensure we always make progress
+    if (state.position === startPos) {
       advance(state);
     }
   }

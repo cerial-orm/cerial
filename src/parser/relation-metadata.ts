@@ -35,6 +35,16 @@ export function getSingleRecordFields(model: ModelMetadata): FieldMetadata[] {
   return model.fields.filter((f) => f.type === 'record' && !f.isArray);
 }
 
+/** Get array Relation fields (Relation[]) */
+export function getArrayRelationFields(model: ModelMetadata): FieldMetadata[] {
+  return model.fields.filter((f) => f.type === 'relation' && f.isArray);
+}
+
+/** Get single Relation fields (non-array) */
+export function getSingleRelationFields(model: ModelMetadata): FieldMetadata[] {
+  return model.fields.filter((f) => f.type === 'relation' && !f.isArray);
+}
+
 /**
  * Find the source Record field in target model for a reverse relation
  *
@@ -56,17 +66,21 @@ export function findReverseSourceField(
     return undefined;
   }
 
+  const key = reverseField.relationInfo.key;
+
   // Find a Record field in target that has a paired Relation pointing to currentModel
+  // If key is specified, must match the key
   for (const field of targetModel.fields) {
     if (field.type !== 'record') continue;
 
     // Check if there's a Relation with @field pointing to this Record
-    // and @model pointing to currentModel
+    // and @model pointing to currentModel (and matching key if specified)
     const pairedRelation = targetModel.fields.find(
       (rel) =>
         rel.type === 'relation' &&
         rel.relationInfo?.fieldRef === field.name &&
-        rel.relationInfo?.targetModel === currentModelName,
+        rel.relationInfo?.targetModel === currentModelName &&
+        (!key || rel.relationInfo?.key === key),
     );
 
     if (pairedRelation) {

@@ -1,5 +1,5 @@
 /**
- * Tokenizer for .schema files
+ * Tokenizer for .cerial files
  * Converts raw text into tokens
  */
 
@@ -12,7 +12,7 @@ const KEYWORDS = new Set(['model']);
 const PUNCTUATION = new Set(['{', '}', ':', '?', '(', ')']);
 
 /** Valid type names (UpperFirst) */
-const TYPES = new Set(['String', 'Email', 'Int', 'Float', 'Bool', 'Date']);
+const TYPES = new Set(['String', 'Email', 'Int', 'Float', 'Bool', 'Date', 'Record', 'Relation']);
 
 /** Create a token */
 function createToken(type: TokenType, value: string, position: SourcePosition): Token {

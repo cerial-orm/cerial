@@ -7,7 +7,7 @@ import { Glob } from 'bun';
 import type { SchemaFile } from '../types';
 
 /** Default schema file glob patterns */
-const DEFAULT_PATTERNS = ['**/*.schema'];
+const DEFAULT_PATTERNS = ['**/*.cerial'];
 
 /** Options for finding schema files */
 export interface FindSchemasOptions {
@@ -89,7 +89,7 @@ export async function resolveSchemaPath(input: string): Promise<string[]> {
   }
 
   // Single file
-  if (input.endsWith('.schema')) {
+  if (input.endsWith('.cerial')) {
     return [input];
   }
 

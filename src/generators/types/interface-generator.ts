@@ -5,7 +5,17 @@
 import type { FieldMetadata, ModelMetadata, ModelRegistry } from '../../types';
 import { schemaTypeToTsType } from '../../utils/type-utils';
 
-/** Generate TypeScript type for a field */
+/**
+ * Generate TypeScript type for a field
+ *
+ * NONE vs null semantics (both have same TS type, different runtime behavior):
+ * - `field String?` → `field?: string | null`
+ *   - undefined → NONE (field absent in DB)
+ *   - null → null stored in DB
+ * - `field String? @default(null)` → `field?: string | null`
+ *   - undefined → null stored (default applied)
+ *   - null → null stored in DB
+ */
 export function generateFieldType(field: FieldMetadata): string {
   const tsType = schemaTypeToTsType(field.type);
 
@@ -14,7 +24,14 @@ export function generateFieldType(field: FieldMetadata): string {
     return `${tsType}[]`;
   }
 
-  return field.isRequired ? tsType : `${tsType} | null`;
+  // Required fields: just the type
+  if (field.isRequired) {
+    return tsType;
+  }
+
+  // Optional fields: user can pass value, null, or undefined
+  // The difference between ? and ?+@default(null) is runtime behavior, not TS type
+  return `${tsType} | null`;
 }
 
 /** Generate a single field definition */

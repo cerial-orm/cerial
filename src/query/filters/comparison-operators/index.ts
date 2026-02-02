@@ -4,7 +4,9 @@
 
 export { handleEq } from './eq-handler';
 export { handleNeq } from './neq-handler';
+export { handleNot } from './not-handler';
 export { handleGt } from './gt-handler';
 export { handleGte } from './gte-handler';
 export { handleLt } from './lt-handler';
 export { handleLte } from './lte-handler';
+export { handleIsNone } from './is-none-handler';

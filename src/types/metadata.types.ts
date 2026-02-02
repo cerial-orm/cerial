@@ -2,7 +2,7 @@
  * Metadata types for model registry and field definitions
  */
 
-import type { SchemaFieldType } from './common.types';
+import type { OnDeleteAction, SchemaFieldType } from './common.types';
 
 /** Metadata for relation fields */
 export interface RelationFieldMetadata {
@@ -14,6 +14,10 @@ export interface RelationFieldMetadata {
   fieldRef?: string;
   /** Whether this is a reverse relation (no @field decorator) */
   isReverse: boolean;
+  /** Delete action from @onDelete(Action) decorator - only valid on optional relations */
+  onDelete?: OnDeleteAction;
+  /** Key for disambiguation from @key(name) decorator - required when multiple relations to same model */
+  key?: string;
 }
 
 /** Metadata for a single field in a model */

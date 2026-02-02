@@ -216,6 +216,11 @@ export function generateModelMigrationMap(
   return map;
 }
 
+/** Escape single quotes in SurrealQL statements for TypeScript string literals */
+function escapeSingleQuotes(surql: string): string {
+  return surql.replace(/'/g, "\\'");
+}
+
 /** Generate TypeScript code for per-model migrations */
 export function generatePerModelMigrationCode(models: ModelMetadata[]): string {
   const registry: ModelRegistry = {};
@@ -227,7 +232,7 @@ export function generatePerModelMigrationCode(models: ModelMetadata[]): string {
   const migrationMap = generateModelMigrationMap(registry);
   const mapEntries = Object.entries(migrationMap)
     .map(([modelName, modelStatements]) => {
-      const modelStatementsStr = modelStatements.map((s) => `    '${s}'`).join(',\n');
+      const modelStatementsStr = modelStatements.map((s) => `    '${escapeSingleQuotes(s)}'`).join(',\n');
       return `  ${modelName}: [\n${modelStatementsStr}\n  ]`;
     })
     .join(',\n');

@@ -95,8 +95,8 @@ function generateRelatedImports(relatedModels: string[], allModels: ModelMetadat
     const relatedModel = allModels.find((m) => m.name === name);
     const hasInclude = relatedModel && hasRelations(relatedModel);
 
-    // Import base model interface + Where, Select, OrderBy + Include/IncludePayload if exists
-    const baseImports = [name, `${name}Where`, `${name}Select`, `${name}OrderBy`];
+    // Import base model interface + Where, Select, OrderBy + NestedCreate + Include/IncludePayload if exists
+    const baseImports = [name, `${name}Where`, `${name}Select`, `${name}OrderBy`, `${name}NestedCreate`];
 
     if (hasInclude) {
       baseImports.push(`${name}Include`, `Get${name}IncludePayload`);
@@ -128,8 +128,8 @@ export async function writeModelTypes(
 
   const filePath = `${modelsDir}/${model.name.toLowerCase()}.ts`;
 
-  // Get related model names for imports
-  const relatedModels = getRelatedModelNames(model);
+  // Get related model names for imports, excluding self-references
+  const relatedModels = getRelatedModelNames(model).filter((name) => name !== model.name);
   const relatedImports = generateRelatedImports(relatedModels, allModels);
 
   // Create registry for Include type generation
@@ -193,7 +193,10 @@ export async function writeClientIndex(outputDir: string, models: ModelMetadata[
 
   const modelExports = models.map((m) => m.name).join(',\n  ');
   const createExports = models.map((m) => `${m.name}Create`).join(',\n  ');
+  const nestedCreateExports = models.map((m) => `${m.name}NestedCreate`).join(',\n  ');
+  const createInputExports = models.map((m) => `${m.name}CreateInput`).join(',\n  ');
   const updateExports = models.map((m) => `${m.name}Update`).join(',\n  ');
+  const updateInputExports = models.map((m) => `${m.name}UpdateInput`).join(',\n  ');
   const whereExports = models.map((m) => `${m.name}Where`).join(',\n  ');
   const findUniqueWhereExports = models.map((m) => `${m.name}FindUniqueWhere`).join(',\n  ');
   const selectExports = models.map((m) => `${m.name}Select`).join(',\n  ');
@@ -222,9 +225,24 @@ export type {
   ${createExports},
 } from './models';
 
+// NestedCreate types (for use in nested operations)
+export type {
+  ${nestedCreateExports},
+} from './models';
+
+// CreateInput types (with nested relation operations)
+export type {
+  ${createInputExports},
+} from './models';
+
 // Update types
 export type {
   ${updateExports},
+} from './models';
+
+// UpdateInput types (with nested relation operations)
+export type {
+  ${updateInputExports},
 } from './models';
 
 // Where types

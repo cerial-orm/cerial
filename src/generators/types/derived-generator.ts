@@ -14,8 +14,48 @@ const USE_TS_TOOLBELT = true;
 
 /** Get fields that should be omitted from create (auto-generated) */
 function getOmitForCreate(model: ModelMetadata): string[] {
-  // Relation fields should be omitted (virtual fields)
+  // Relation fields should be omitted (virtual fields) - they get their own nested types
   return model.fields.filter((f) => f.type === 'relation').map((f) => f.name);
+}
+
+/** Get Record fields that are managed by a Relation @field() - these should be omitted in nested create */
+function getRecordFieldsManagedByRelations(model: ModelMetadata): string[] {
+  const managedRecordFields = new Set<string>();
+
+  for (const field of model.fields) {
+    if (field.type === 'relation' && field.relationInfo?.fieldRef) {
+      managedRecordFields.add(field.relationInfo.fieldRef);
+    }
+  }
+
+  return Array.from(managedRecordFields);
+}
+
+/** Get relation fields that need nested operation types */
+function getRelationFieldsForNestedOps(model: ModelMetadata): Array<{
+  name: string;
+  targetModel: string;
+  isArray: boolean;
+  isRequired: boolean;
+  isReverse: boolean;
+  fieldRef?: string;
+}> {
+  return model.fields
+    .filter((f) => f.type === 'relation' && f.relationInfo)
+    .map((f) => {
+      const storageField = f.relationInfo?.fieldRef
+        ? model.fields.find((sf) => sf.name === f.relationInfo!.fieldRef)
+        : null;
+
+      return {
+        name: f.name,
+        targetModel: f.relationInfo!.targetModel,
+        isArray: f.isArray || storageField?.isArray || false,
+        isRequired: f.isRequired && !f.relationInfo!.isReverse,
+        isReverse: f.relationInfo!.isReverse,
+        fieldRef: f.relationInfo?.fieldRef,
+      };
+    });
 }
 
 /** Get fields that should be optional in create (have defaults or are auto-generated) */
@@ -102,7 +142,204 @@ function getArrayElementType(schemaType: string): string {
     date: 'Date',
     record: 'string',
   };
+
   return typeMap[schemaType] ?? 'unknown';
+}
+
+/**
+ * Generate nested create input type for a single relation field
+ * - Array relations: { create?: T[], connect?: string[] }
+ * - Single relations: { create: T } | { connect: string }
+ */
+function generateNestedCreateFieldType(
+  fieldName: string,
+  targetModel: string,
+  isArray: boolean,
+  isRequired: boolean,
+  isReverse: boolean,
+): string {
+  if (isArray) {
+    // Array relation - both create and connect are optional arrays
+    return `  ${fieldName}?: {
+    create?: ${targetModel}NestedCreate | ${targetModel}NestedCreate[];
+    connect?: string | string[];
+  };`;
+  }
+
+  // Single relation - mutually exclusive create OR connect
+  if (isRequired && !isReverse) {
+    // Required relation - must provide create or connect
+    return `  ${fieldName}: { create: ${targetModel}NestedCreate } | { connect: string };`;
+  }
+
+  // Optional relation - can omit or provide create/connect
+  return `  ${fieldName}?: { create: ${targetModel}NestedCreate } | { connect: string };`;
+}
+
+/**
+ * Generate nested update input type for a single relation field
+ * - Array relations: { create?, connect?, disconnect? }
+ * - Single optional relations: { create?, connect?, disconnect? }
+ * - Single required relations: { create?, connect? } (no disconnect)
+ */
+function generateNestedUpdateFieldType(
+  fieldName: string,
+  targetModel: string,
+  isArray: boolean,
+  isRequired: boolean,
+): string {
+  if (isArray) {
+    // Array relation - can add/remove multiple
+    return `  ${fieldName}?: {
+    create?: ${targetModel}NestedCreate | ${targetModel}NestedCreate[];
+    connect?: string | string[];
+    disconnect?: string | string[];
+  };`;
+  }
+
+  if (isRequired) {
+    // Required single relation - cannot disconnect
+    return `  ${fieldName}?: { create: ${targetModel}NestedCreate } | { connect: string };`;
+  }
+
+  // Optional single relation - can disconnect
+  return `  ${fieldName}?: { create: ${targetModel}NestedCreate } | { connect: string } | { disconnect: true };`;
+}
+
+/** Generate NestedCreate type (for use in nested operations) - excludes relation nesting to prevent infinite types */
+export function generateNestedCreateType(model: ModelMetadata): string {
+  const omit = getOmitForCreate(model);
+  const optional = getOptionalForCreate(model);
+  const managedRecords = getRecordFieldsManagedByRelations(model);
+
+  // For nested create, also omit Record fields that are managed by Relation @field()
+  const allOmit = [...new Set([...omit, ...managedRecords])];
+
+  // Get optional fields that aren't already omitted
+  const optionalFields = optional.filter((f) => !allOmit.includes(f));
+
+  if (allOmit.length === 0 && optionalFields.length === 0) {
+    return `export type ${model.name}NestedCreate = ${model.name};`;
+  }
+
+  if (USE_TS_TOOLBELT) {
+    const omitKeys = allOmit.map((f) => `'${f}'`).join(' | ');
+    const optionalKeys = optionalFields.map((f) => `'${f}'`).join(' | ');
+
+    if (allOmit.length > 0 && optionalFields.length > 0) {
+      return `export type ${model.name}NestedCreate = O.Optional<O.Omit<${model.name}, ${omitKeys}>, ${optionalKeys}>;`;
+    } else if (allOmit.length > 0) {
+      return `export type ${model.name}NestedCreate = O.Omit<${model.name}, ${omitKeys}>;`;
+    } else {
+      return `export type ${model.name}NestedCreate = O.Optional<${model.name}, ${optionalKeys}>;`;
+    }
+  }
+
+  // Fallback without ts-toolbelt
+  const allOmitForPartial = [...allOmit, ...optionalFields];
+  let type = `Omit<${model.name}, ${allOmitForPartial.map((f) => `'${f}'`).join(' | ')}>`;
+
+  if (optionalFields.length > 0) {
+    type += ` & Partial<Pick<${model.name}, ${optionalFields.map((f) => `'${f}'`).join(' | ')}>>`;
+  }
+
+  return `export type ${model.name}NestedCreate = ${type};`;
+}
+
+/** Generate CreateInput type with nested operation support for relations */
+export function generateCreateInputType(model: ModelMetadata): string {
+  const relationFields = getRelationFieldsForNestedOps(model);
+
+  if (relationFields.length === 0) {
+    // No relations - CreateInput is just an alias for Create
+    return `export type ${model.name}CreateInput = ${model.name}Create;`;
+  }
+
+  // Get Record fields that are managed by relations - these need to be omitted from nested variant
+  const managedRecords = getRecordFieldsManagedByRelations(model);
+
+  // Generate relation field types
+  const relationFieldTypes = relationFields
+    .map((rf) => generateNestedCreateFieldType(rf.name, rf.targetModel, rf.isArray, rf.isRequired, rf.isReverse))
+    .join('\n');
+
+  // Check if any relation is required
+  const hasRequiredRelation = relationFields.some((rf) => rf.isRequired && !rf.isReverse);
+
+  // Generate two variants as a union:
+  // 1. Raw variant: allows direct Record field values (e.g., userId)
+  // 2. Nested variant: allows nested create/connect syntax (e.g., user: { connect: id })
+  if (managedRecords.length > 0) {
+    const omitKeys = managedRecords.map((f) => `'${f}'`).join(' | ');
+
+    // For required relations, the nested variant requires the relation field
+    // For optional relations, the nested variant has optional relation field
+    if (USE_TS_TOOLBELT) {
+      // Union: raw variant OR nested variant
+      // Raw: just the Create type as-is (allows userId directly)
+      // Nested: omit managed Record fields and add relation operations
+      return `export type ${model.name}CreateInput =
+  | ${model.name}Create
+  | (O.Omit<${model.name}Create, ${omitKeys}> & {
+${relationFieldTypes}
+});`;
+    }
+
+    return `export type ${model.name}CreateInput =
+  | ${model.name}Create
+  | (Omit<${model.name}Create, ${omitKeys}> & {
+${relationFieldTypes}
+});`;
+  }
+
+  // No managed record fields, just extend Create with optional relation operations
+  return `export type ${model.name}CreateInput = ${model.name}Create & {
+${relationFieldTypes}
+};`;
+}
+
+/** Generate UpdateInput type with nested operation support for relations */
+export function generateUpdateInputType(model: ModelMetadata): string {
+  const relationFields = getRelationFieldsForNestedOps(model);
+
+  if (relationFields.length === 0) {
+    // No relations - UpdateInput is just an alias for Update
+    return `export type ${model.name}UpdateInput = ${model.name}Update;`;
+  }
+
+  // Get Record fields that are managed by relations - these need to be omitted from nested variant
+  const managedRecords = getRecordFieldsManagedByRelations(model);
+
+  // Generate relation field types for update
+  const relationFieldTypes = relationFields
+    .map((rf) => generateNestedUpdateFieldType(rf.name, rf.targetModel, rf.isArray, rf.isRequired))
+    .join('\n');
+
+  // Generate two variants as a union:
+  // 1. Raw variant: allows direct Record field values (e.g., userId)
+  // 2. Nested variant: allows nested create/connect/disconnect syntax
+  if (managedRecords.length > 0) {
+    const omitKeys = managedRecords.map((f) => `'${f}'`).join(' | ');
+    if (USE_TS_TOOLBELT) {
+      // Union: raw variant OR nested variant
+      return `export type ${model.name}UpdateInput =
+  | ${model.name}Update
+  | (O.Omit<${model.name}Update, ${omitKeys}> & {
+${relationFieldTypes}
+});`;
+    }
+
+    return `export type ${model.name}UpdateInput =
+  | ${model.name}Update
+  | (Omit<${model.name}Update, ${omitKeys}> & {
+${relationFieldTypes}
+});`;
+  }
+
+  // No managed record fields, just extend Update with optional relation operations
+  return `export type ${model.name}UpdateInput = ${model.name}Update & {
+${relationFieldTypes}
+};`;
 }
 
 /** Generate Update type (all fields partial except id) with array operations for all array types */
@@ -261,16 +498,17 @@ export function generateRelationsType(model: ModelMetadata, registry?: ModelRegi
       const targetModelMeta = registry?.[targetModel];
       const targetHasInclude = targetModelMeta && modelHasRelations(targetModelMeta);
 
-      // Find if the storage field is an array (one-to-many)
+      // Determine if this is an array relation
+      // For forward relations: check the storage field (Record[])
+      // For reverse relations: check field.isArray (Relation[])
       const storageField = field.relationInfo.fieldRef
         ? model.fields.find((f) => f.name === field.relationInfo!.fieldRef)
         : null;
 
-      const isArrayRelation = storageField?.isArray || false;
-      const isReverseRelation = field.relationInfo.isReverse;
+      const isArrayRelation = field.isArray || storageField?.isArray || false;
 
       // Determine the relation type (single or array)
-      const relationType = isArrayRelation || isReverseRelation ? `${targetModel}[]` : targetModel;
+      const relationType = isArrayRelation ? `${targetModel}[]` : targetModel;
       const includeType = targetHasInclude ? `${targetModel}Include` : 'never';
 
       return `  ${field.name}: { type: ${relationType}; include: ${includeType} };`;
@@ -307,7 +545,8 @@ export function generateIncludePayloadType(model: ModelMetadata, registry?: Mode
       const storageField = field.relationInfo.fieldRef
         ? model.fields.find((f) => f.name === field.relationInfo!.fieldRef)
         : null;
-      const isArray = storageField?.isArray || field.relationInfo.isReverse;
+      // Check field.isArray for reverse relations (Relation[]), storageField for forward relations
+      const isArray = field.isArray || storageField?.isArray || false;
       const wrapArray = (t: string) => (isArray ? `${t}[]` : t);
       const selectPayload = generateRelationSelectPayload(targetModel);
 
@@ -379,7 +618,10 @@ export function generateGetPayloadType(model: ModelMetadata): string {
 export function generateDerivedTypes(model: ModelMetadata, registry?: ModelRegistry): string {
   const types = [
     generateCreateType(model),
+    generateNestedCreateType(model),
+    generateCreateInputType(model),
     generateUpdateType(model),
+    generateUpdateInputType(model),
     generateSelectType(model),
     generateOrderByType(model),
   ];

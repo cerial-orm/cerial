@@ -13,6 +13,13 @@ export function handleEq(
   value: unknown,
   fieldMetadata: FieldMetadata,
 ): QueryFragment {
+  // Handle null values - check for NULL specifically
+  // Use { isNone: true } to check for absent fields (NONE)
+  if (value === null) {
+    return { text: `${field} = NULL`, vars: {} };
+  }
+
   const v = ctx.bind(field, 'eq', value, fieldMetadata.type);
+
   return { text: `${field} = ${v.placeholder}`, vars: v.vars };
 }

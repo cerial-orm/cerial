@@ -15,14 +15,18 @@ import {
   isDefaultDecorator,
   isFieldDecorator,
   isIdDecorator,
+  isKeyDecorator,
   isModelDecorator,
   isNowDecorator,
+  isOnDeleteDecorator,
   isUniqueDecorator,
   parseDefaultDecorator,
   parseFieldDecorator,
   parseIdDecorator,
+  parseKeyDecorator,
   parseModelDecorator,
   parseNowDecorator,
+  parseOnDeleteDecorator,
   parseUniqueDecorator,
 } from '../field-decorators';
 import { isArrayType, parseFieldType } from '../field-types';
@@ -67,6 +71,10 @@ export function parseDecorators(line: string, lineNumber: number): ASTDecorator[
       decorators.push(parseFieldDecorator(token, range));
     } else if (isModelDecorator(token)) {
       decorators.push(parseModelDecorator(token, range));
+    } else if (isOnDeleteDecorator(token)) {
+      decorators.push(parseOnDeleteDecorator(token, range));
+    } else if (isKeyDecorator(token)) {
+      decorators.push(parseKeyDecorator(token, range));
     }
   }
 
@@ -129,7 +137,7 @@ export function parseFieldDeclaration(line: string, lineNumber: number): FieldPa
   if (!fieldType) {
     return {
       field: null,
-      error: `Invalid field type: ${typeStr}. Use String, Email, Int, Date, Bool, Float, Record, Relation, or array types (String[], Int[], Date[], Record[]).`,
+      error: `Invalid field type: ${typeStr}. Use String, Email, Int, Date, Bool, Float, Record, Relation, or array types (String[], Int[], Date[], Record[], Relation[]).`,
     };
   }
 

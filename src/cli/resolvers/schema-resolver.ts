@@ -10,7 +10,7 @@ import { resolve } from 'node:path';
 const DEFAULT_SEARCH_PATHS = ['schemas', 'schema'];
 
 /** Default schema file patterns */
-const DEFAULT_PATTERNS = ['*.schema'];
+const DEFAULT_PATTERNS = ['*.cerial'];
 
 /** Options for schema resolution */
 export interface SchemaResolveOptions {
@@ -108,7 +108,7 @@ export async function resolveSinglePath(path: string, cwd: string = process.cwd(
   const file = Bun.file(fullPath);
   const exists = await file.exists();
 
-  if (exists && fullPath.endsWith('.schema')) return [fullPath];
+  if (exists && fullPath.endsWith('.cerial')) return [fullPath];
 
   // Treat as directory
   return findSchemasInDir(fullPath, DEFAULT_PATTERNS);

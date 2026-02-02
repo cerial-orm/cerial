@@ -14,11 +14,15 @@ import type {
 } from '../types';
 import {
   buildCreateQuery,
+  buildCreateWithNestedTransaction,
   buildDeleteQueryWithReturn,
+  buildDeleteWithCascade,
   buildFindManyQuery,
   buildFindOneQuery,
   buildFindUniqueQuery,
   buildUpdateManyQuery,
+  buildUpdateWithNestedTransaction,
+  extractNestedOperations,
   type FindOptionsWithInclude,
   type FindUniqueOptionsWithInclude,
 } from './builders';
@@ -91,14 +95,27 @@ export class QueryBuilder<T extends Record<string, unknown>> {
   async create(options: CreateOptions<Partial<T>>): Promise<T | null> {
     const { data, select } = options;
 
+    // Extract nested operations from the data
+    const { cleanData, nestedOps } = extractNestedOperations(data as Record<string, unknown>, this.model);
+
     // Validate data BEFORE transformation (so we check original values)
-    const dataWithDefaults = applyNowDefaults(data as Record<string, unknown>, this.model);
-    const validation = validateCreateData(dataWithDefaults, this.model);
+    // Pass nestedOps so validation knows which Record fields will be satisfied by nested operations
+    const dataWithDefaults = applyNowDefaults(cleanData, this.model);
+    const validation = validateCreateData(dataWithDefaults, this.model, nestedOps);
     if (!validation.valid) throw new Error(`Invalid data: ${validation.errors.map((e) => e.message).join(', ')}`);
 
     // Transform data after validation (converts dates to Date objects, ids to RecordId, etc.)
     const transformedData = transformData(dataWithDefaults, this.model);
 
+    // If there are nested operations, use the transaction builder
+    if (nestedOps.size > 0 && this.registry) {
+      const query = buildCreateWithNestedTransaction(this.model, transformedData, nestedOps, this.registry);
+      const result = await executeQuerySingle(this.db, query);
+
+      return mapSingleResult<T>(result, this.model);
+    }
+
+    // Simple create without nested operations
     const query = buildCreateQuery(this.model, transformedData, select);
     const result = await executeQuerySingle(this.db, query);
 
@@ -114,13 +131,25 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     if (!whereValidation.valid)
       throw new Error(`Invalid where clause: ${whereValidation.errors.map((e) => e.message).join(', ')}`);
 
+    // Extract nested operations from the data
+    const { cleanData, nestedOps } = extractNestedOperations(data as Record<string, unknown>, this.model);
+
     // Transform and validate data
-    const transformedData = transformData(data as Record<string, unknown>, this.model);
+    const transformedData = transformData(cleanData, this.model);
 
     const dataValidation = validateUpdateData(transformedData, this.model);
     if (!dataValidation.valid)
       throw new Error(`Invalid data: ${dataValidation.errors.map((e) => e.message).join(', ')}`);
 
+    // If there are nested operations, use the transaction builder
+    if (nestedOps.size > 0 && this.registry) {
+      const query = buildUpdateWithNestedTransaction(this.model, where, transformedData, nestedOps, this.registry);
+      const result = await executeQuery(this.db, query);
+
+      return mapResult<T>(result, this.model);
+    }
+
+    // Simple update without nested operations
     const query = buildUpdateManyQuery(this.model, where, transformedData, select);
     const result = await executeQuery(this.db, query);
 
@@ -136,7 +165,15 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     if (!validation.valid)
       throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
 
-    // Use buildDeleteQueryWithReturn to get deleted records count
+    // Use cascade delete if registry is available (handles @onDelete behavior)
+    if (this.registry) {
+      const query = buildDeleteWithCascade(this.model, where, this.registry);
+      const result = await executeQuery(this.db, query);
+
+      return Array.isArray(result) ? result.length : 0;
+    }
+
+    // Simple delete without cascade
     const query = buildDeleteQueryWithReturn(this.model, where);
     const result = await executeQuery(this.db, query);
 
@@ -184,8 +221,10 @@ export const QueryBuilderStatic = {
     db: Surreal,
     model: ModelMetadata,
     options: CreateOptions<Partial<T>>,
+    registry?: ModelRegistry,
   ): Promise<T | null> {
-    const builder = new QueryBuilder<T>(db, model);
+    const builder = new QueryBuilder<T>(db, model, registry);
+
     return builder.create(options);
   },
 
@@ -194,14 +233,17 @@ export const QueryBuilderStatic = {
     db: Surreal,
     model: ModelMetadata,
     options: UpdateOptions<Partial<T>>,
+    registry?: ModelRegistry,
   ): Promise<T[]> {
-    const builder = new QueryBuilder<T>(db, model);
+    const builder = new QueryBuilder<T>(db, model, registry);
+
     return builder.updateMany(options);
   },
 
   /** Delete records */
-  async deleteMany(db: Surreal, model: ModelMetadata, options: DeleteManyOptions): Promise<number> {
-    const builder = new QueryBuilder(db, model);
+  async deleteMany(db: Surreal, model: ModelMetadata, options: DeleteManyOptions, registry?: ModelRegistry): Promise<number> {
+    const builder = new QueryBuilder(db, model, registry);
+
     return builder.deleteMany(options);
   },
 };

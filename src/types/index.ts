@@ -5,6 +5,7 @@
 // Common types
 export type {
   FieldTypeMapping,
+  OnDeleteAction,
   Result,
   SchemaConstraint,
   SchemaDecorator,

@@ -74,11 +74,13 @@ export function generateTypeClause(
         return `TYPE array<record<${targetTable}>>`;
       }
 
-      // Single Record type: record<table> or option<record<table>>
+      // Single Record type: record<table> or option<record<table> | null>
+      // Optional record fields can be NONE (absent) or null (for querying)
       if (isRequired) {
         return `TYPE record<${targetTable}>`;
       }
-      return `TYPE option<record<${targetTable}>>`;
+
+      return `TYPE option<record<${targetTable}> | null>`;
     }
 
     // Fallback if no target table found
@@ -86,7 +88,8 @@ export function generateTypeClause(
       return 'TYPE array<record>';
     }
     if (isRequired) return 'TYPE record';
-    return 'TYPE option<record>';
+
+    return 'TYPE option<record | null>';
   }
 
   // Handle primitive array types (String[], Int[], Date[], etc.)
@@ -96,9 +99,13 @@ export function generateTypeClause(
   }
 
   // Standard types
+  // For optional fields: option<T | null> allows both NONE and null
+  // - NONE: field is absent (user passes undefined)
+  // - null: field exists with null value (user passes null)
   const surrealType = mapToSurrealType(schemaType);
   if (isRequired) return `TYPE ${surrealType}`;
-  return `TYPE option<${surrealType}>`;
+
+  return `TYPE option<${surrealType} | null>`;
 }
 
 /** Generate the ASSERT clause for a field, if any */
@@ -123,10 +130,13 @@ export function generateDefaultClause(hasNowDefault: boolean, defaultValue?: unk
 /**
  * Generate the VALUE clause for array fields (distinct deduplication)
  * Used for Record[] to prevent duplicates
+ * Uses conditional to handle NONE values gracefully
  */
 export function generateValueClause(field: FieldMetadata): string | undefined {
   if (field.type === 'record' && field.isArray) {
-    return 'VALUE $value.distinct()';
+    // Handle NONE values to avoid "no such method found for none type" error
+    return 'VALUE IF $value THEN $value.distinct() ELSE [] END';
   }
+
   return undefined;
 }

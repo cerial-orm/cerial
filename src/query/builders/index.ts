@@ -19,7 +19,7 @@ export { applyDefaultValues, applyNowDefaults, buildCreateQuery } from './insert
 
 export { buildUpdateManyQuery } from './update-builder';
 
-export { buildDeleteQuery, buildDeleteQueryWithReturn } from './delete-builder';
+export { buildDeleteQuery, buildDeleteQueryWithReturn, buildDeleteWithCascade } from './delete-builder';
 
 export {
   buildForwardRelationSelect,
@@ -38,3 +38,19 @@ export {
   isArrayUpdateOps,
   type ArrayUpdateOps,
 } from './array-update-builder';
+
+export {
+  buildBidirectionalSyncStatements,
+  buildCreateWithNestedTransaction,
+  buildNestedCreateStatements,
+  buildUpdateWithNestedTransaction,
+  extractNestedOperations,
+  isNestedConnect,
+  isNestedCreate,
+  isNestedDisconnect,
+  isNestedOperation,
+  type NestedConnect,
+  type NestedCreate,
+  type NestedDisconnect,
+  type NestedOperation,
+} from './nested-builder';

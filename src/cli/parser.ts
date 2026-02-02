@@ -66,6 +66,6 @@ Options:
 Examples:
   cerial generate -o ./db-client
   cerial generate -s ./schemas -o ./db-client
-  cerial generate -s ./schemas/user.schema -o ./db-client
+  cerial generate -s ./schemas/user.cerial -o ./db-client
 `);
 }

@@ -28,6 +28,12 @@ export function buildUpdateManyQuery(
     // Find field metadata
     const fieldMetadata = model.fields.find((f) => f.name === field);
 
+    // Handle null values for optional record fields - use NONE instead of NULL
+    if (value === null && fieldMetadata?.type === 'record' && !fieldMetadata.isRequired) {
+      setParts.push(`${field} = NONE`);
+      continue;
+    }
+
     // Handle array Record[] fields with push/unset operations
     if (fieldMetadata && isArrayField(fieldMetadata) && (Array.isArray(value) || isArrayUpdateOps(value))) {
       const arrayUpdate = buildArrayUpdateClause(ctx, field, value, fieldMetadata);

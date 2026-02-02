@@ -65,24 +65,16 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
       }),
     );
 
-    // Parse each schema
+    // Parse each schema and collect models
     const allModels: ReturnType<typeof parse>['ast']['models'] = [];
+    const parseErrors: string[] = [];
 
     for (const { path, content } of schemaContents) {
       const parseResult = parse(content);
 
       if (parseResult.errors.length) {
         for (const error of parseResult.errors) {
-          result.errors.push(`${path}:${error.position.line}: ${error.message}`);
-        }
-        continue;
-      }
-
-      // Validate schema
-      const validation = validateSchema(parseResult.ast);
-      if (!validation.valid) {
-        for (const error of validation.errors) {
-          result.errors.push(`${path}: ${error.message}`);
+          parseErrors.push(`${path}:${error.position.line}: ${error.message}`);
         }
         continue;
       }
@@ -90,9 +82,29 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
       allModels.push(...parseResult.ast.models);
     }
 
-    if (result.errors.length) {
+    // Check for parse errors before validation
+    if (parseErrors.length) {
+      result.errors = parseErrors;
+      logger.error('Parse errors found:');
+      result.errors.forEach((e) => logger.error(`  ${e}`));
+
+      return result;
+    }
+
+    // Validate combined schema (all models together)
+    const combinedAST = { models: allModels, source: '' };
+    const validation = validateSchema(combinedAST);
+    if (!validation.valid) {
+      for (const error of validation.errors) {
+        const modelFile = schemaContents.find((s) =>
+          allModels.some((m) => m.name === error.model && s.content.includes(`model ${error.model}`)),
+        );
+        const prefix = modelFile ? `${modelFile.path}: ` : '';
+        result.errors.push(`${prefix}${error.message}`);
+      }
       logger.error('Schema errors found:');
       result.errors.forEach((e) => logger.error(`  ${e}`));
+
       return result;
     }
 

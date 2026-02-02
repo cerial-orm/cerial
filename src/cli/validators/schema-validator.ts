@@ -5,6 +5,7 @@
 import { getDecorator } from '../../parser/types/ast';
 import type { SchemaAST } from '../../types';
 import { isValidFieldName, isValidModelName } from '../../utils/validation-utils';
+import { validateRelationRules } from './relation-validator';
 
 /** Validation error */
 export interface SchemaValidationError {
@@ -203,6 +204,7 @@ export function validateSchema(ast: SchemaAST): SchemaValidationResult {
     ...validateFieldNames(ast),
     ...validateRelations(ast),
     ...validateRecordFields(ast),
+    ...validateRelationRules(ast),
   ];
 
   return {

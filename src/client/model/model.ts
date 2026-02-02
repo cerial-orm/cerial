@@ -92,19 +92,22 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
   /** Create a new record */
   async create(options: CreateOptions<Partial<T>>): Promise<T | null> {
     await this.beforeQuery();
-    return QueryBuilderStatic.create<T>(this.db, this.metadata, options);
+
+    return QueryBuilderStatic.create<T>(this.db, this.metadata, options, this.registry);
   }
 
   /** Update records matching where clause */
   async updateMany(options: UpdateOptions<Partial<T>>): Promise<T[]> {
     await this.beforeQuery();
-    return QueryBuilderStatic.updateMany<T>(this.db, this.metadata, options);
+
+    return QueryBuilderStatic.updateMany<T>(this.db, this.metadata, options, this.registry);
   }
 
   /** Delete records matching where clause */
   async deleteMany(options: DeleteManyOptions): Promise<number> {
     await this.beforeQuery();
-    return QueryBuilderStatic.deleteMany(this.db, this.metadata, options);
+
+    return QueryBuilderStatic.deleteMany(this.db, this.metadata, options, this.registry);
   }
 
   /** Count records matching where clause */

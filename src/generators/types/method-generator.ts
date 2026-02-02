@@ -137,8 +137,9 @@ export function generateFindUniqueMethod(model: ModelMetadata): string {
 /** Generate create method signature with full type inference */
 export function generateCreateMethod(model: ModelMetadata): string {
   // Create doesn't support include, only select
+  // Use CreateInput to support both raw fields and nested relations
   return `create<S extends ${model.name}Select | undefined = undefined>(options: {
-    data: ${model.name}Create;
+    data: ${model.name}CreateInput;
     select?: S;
   }): Promise<Get${model.name}Payload<S>>;`;
 }
@@ -146,9 +147,10 @@ export function generateCreateMethod(model: ModelMetadata): string {
 /** Generate updateMany method signature with full type inference */
 export function generateUpdateMethod(model: ModelMetadata): string {
   // UpdateMany doesn't support include, only select
+  // Use UpdateInput to support both raw fields and nested relations
   return `updateMany<S extends ${model.name}Select | undefined = undefined>(options: {
     where: ${model.name}Where;
-    data: ${model.name}Update;
+    data: ${model.name}UpdateInput;
     select?: S;
   }): Promise<Get${model.name}Payload<S>[]>;`;
 }

@@ -55,11 +55,20 @@ export function mapFieldValue(value: unknown, fieldType: SchemaFieldType): unkno
       if (isRecordId(value)) {
         return transformRecordIdToValue(value);
       }
-      // If it's already a string, return it
+      // If it's a string in "table:id" format, strip the prefix
       if (typeof value === 'string') {
+        if (value.includes(':')) {
+          return value.split(':').slice(1).join(':');
+        }
+
         return value;
       }
+
       return value;
+
+    case 'relation':
+      // Relation fields contain included records - process them to transform ids
+      return processNestedValue(value);
 
     default:
       return value;
@@ -67,23 +76,89 @@ export function mapFieldValue(value: unknown, fieldType: SchemaFieldType): unkno
 }
 
 /**
- * Transform a record id to value without the table name
+ * Transform a RecordId to plain ID string (without table prefix)
  * @param recordId The record id
- * @returns The id value
+ * @returns The id value without table prefix
  */
 export function transformRecordIdToValue(recordId: RecordId): string {
   return recordId.id.toString();
+}
+
+/**
+ * Transform an id string that may be in "table:id" format to just the id
+ */
+function transformIdString(value: string): string {
+  if (value.includes(':')) {
+    return value.split(':').slice(1).join(':');
+  }
+
+  return value;
+}
+
+/**
+ * Process a nested value (from included relations) to transform ids
+ * Handles objects, arrays, and RecordIds
+ */
+function processNestedValue(value: unknown): unknown {
+  if (value === null || value === undefined) return value;
+
+  // Handle RecordId
+  if (isRecordId(value)) {
+    return transformRecordIdToValue(value);
+  }
+
+  // Handle arrays (array of included records)
+  if (Array.isArray(value)) {
+    return value.map((element) => processNestedValue(element));
+  }
+
+  // Handle objects (included record)
+  if (typeof value === 'object') {
+    const obj = value as Record<string, unknown>;
+    const result: Record<string, unknown> = {};
+
+    for (const [key, val] of Object.entries(obj)) {
+      if (key === 'id') {
+        // Transform id field
+        if (isRecordId(val)) {
+          result['id'] = transformRecordIdToValue(val);
+        } else if (typeof val === 'string') {
+          result['id'] = transformIdString(val);
+        } else {
+          result['id'] = val;
+        }
+      } else {
+        // Recursively process nested values
+        result[key] = processNestedValue(val);
+      }
+    }
+
+    return result;
+  }
+
+  return value;
 }
 
 /** Map a single record from SurrealDB result */
 export function mapRecord(record: Record<string, unknown>, model: ModelMetadata): Record<string, unknown> {
   const result: Record<string, unknown> = {};
 
-  // Only map fields that are actually present in the record
-  // (DB already filtered via SELECT clause)
+  // First, map fields that are present in the record
   for (const [key, value] of Object.entries(record)) {
     if (key === 'id') {
-      result['id'] = transformRecordIdToValue(value as RecordId);
+      // Handle both RecordId objects and string IDs
+      if (isRecordId(value)) {
+        result['id'] = transformRecordIdToValue(value);
+      } else if (typeof value === 'string') {
+        // If it's a string in "table:id" format, extract just the id part
+        if (value.includes(':')) {
+          result['id'] = value.split(':').slice(1).join(':');
+        } else {
+          result['id'] = value;
+        }
+      } else {
+        result['id'] = value;
+      }
       continue;
     }
 
@@ -96,8 +171,16 @@ export function mapRecord(record: Record<string, unknown>, model: ModelMetadata)
         result[key] = mapFieldValue(value, field.type);
       }
     } else {
-      // Field not in schema, include as-is
-      result[key] = value;
+      // Field not in schema - might be an included relation
+      // Process nested objects to strip table prefixes from ids
+      result[key] = processNestedValue(value);
+    }
+  }
+
+  // Then, ensure optional Record fields not in the result are set to null
+  for (const field of model.fields) {
+    if (field.type === 'record' && !field.isRequired && !(field.name in result)) {
+      result[field.name] = null;
     }
   }
 

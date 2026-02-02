@@ -55,15 +55,27 @@ export function buildSelectFields(
   return baseSelect;
 }
 
-/** Build ORDER BY clause */
+/** Build ORDER BY clause - supports nested relation ordering like { author: { name: 'asc' } } */
 export function buildOrderBy(orderBy: OrderByClause | undefined): string {
   if (!orderBy) return '';
 
-  const parts = Object.entries(orderBy).map(([field, direction]) => {
-    return `${field} ${direction.toUpperCase()}`;
-  });
+  const parts: string[] = [];
 
-  if (parts.length === 0) return '';
+  for (const [field, directionOrNested] of Object.entries(orderBy)) {
+    if (typeof directionOrNested === 'string') {
+      // Direct field ordering: { name: 'asc' }
+      parts.push(`${field} ${directionOrNested.toUpperCase()}`);
+    } else if (typeof directionOrNested === 'object' && directionOrNested !== null) {
+      // Nested relation ordering: { author: { name: 'asc' } }
+      for (const [nestedField, nestedDirection] of Object.entries(directionOrNested)) {
+        if (typeof nestedDirection === 'string') {
+          parts.push(`${field}.${nestedField} ${nestedDirection.toUpperCase()}`);
+        }
+      }
+    }
+  }
+
+  if (!parts.length) return '';
 
   return `ORDER BY ${parts.join(', ')}`;
 }

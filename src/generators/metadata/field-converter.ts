@@ -31,6 +31,8 @@ export function convertField(field: ASTField): FieldMetadata {
   if (field.type === 'relation') {
     const modelDecorator = getDecorator(field, 'model');
     const fieldDecorator = getDecorator(field, 'field');
+    const onDeleteDecorator = getDecorator(field, 'onDelete');
+    const keyDecorator = getDecorator(field, 'key');
 
     if (modelDecorator?.value) {
       const targetModel = modelDecorator.value as string;
@@ -43,6 +45,16 @@ export function convertField(field: ASTField): FieldMetadata {
       // Add field reference if forward relation
       if (fieldDecorator?.value) {
         relationInfo.fieldRef = fieldDecorator.value as string;
+      }
+
+      // Add onDelete action if specified
+      if (onDeleteDecorator?.value) {
+        relationInfo.onDelete = onDeleteDecorator.value as 'Cascade' | 'SetNull' | 'Restrict' | 'NoAction';
+      }
+
+      // Add key for disambiguation if specified
+      if (keyDecorator?.value) {
+        relationInfo.key = keyDecorator.value as string;
       }
 
       metadata.relationInfo = relationInfo;

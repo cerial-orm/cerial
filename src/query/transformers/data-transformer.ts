@@ -104,7 +104,15 @@ export function transformData(data: Record<string, unknown>, model: ModelMetadat
       // Handle id/record fields specially with RecordId
       if (field.isId && value !== undefined && value !== null) {
         result[key] = transformRecordId(model.tableName, String(value));
-      } else if (field.type === 'record' && value !== undefined && value !== null) {
+      } else if (field.type === 'record') {
+        // For record fields, skip undefined but pass null through
+        // The update builder handles null -> NONE translation
+        if (value === undefined) continue;
+        // Pass null through - update builder will handle it
+        if (value === null) {
+          result[key] = null;
+          continue;
+        }
         // Handle Record fields - transform to RecordId
         const targetTable = findRecordTargetTable(field.name, model);
         if (targetTable) {
@@ -164,6 +172,17 @@ export function transformData(data: Record<string, unknown>, model: ModelMetadat
  * Apply defaults to data for create operation:
  * - Empty arrays for array fields that are undefined
  * - Filter out relation fields (they're virtual)
+ * - Apply @default(null) for fields with that decorator
+ * - Handle NONE vs null semantics
+ *
+ * NONE vs null in SurrealDB:
+ * - NONE: field doesn't exist (omit from data)
+ * - null: field exists with null value
+ *
+ * Schema semantics:
+ * - `field String?` (no @default): undefined → NONE (omit field)
+ * - `field String? @default(null)`: undefined → null (store null)
+ * - `field Record?`: undefined → null (so they can be queried for null)
  */
 export function applyNowDefaults(data: Record<string, unknown>, model: ModelMetadata): Record<string, unknown> {
   const result: Record<string, unknown> = { ...data };
@@ -172,6 +191,19 @@ export function applyNowDefaults(data: Record<string, unknown>, model: ModelMeta
     // Skip relation fields - they're virtual and shouldn't be sent to database
     if (field.type === 'relation') {
       delete result[field.name];
+      continue;
+    }
+
+    // For optional record fields, default undefined to null (so they can be queried for null)
+    // This allows: { where: { authorId: null } } to find records without authors
+    if (field.type === 'record' && !field.isRequired && result[field.name] === undefined) {
+      result[field.name] = null;
+      continue;
+    }
+
+    // Apply @default(null) - if field has this and value is undefined, set to null
+    if (field.defaultValue === null && result[field.name] === undefined) {
+      result[field.name] = null;
       continue;
     }
 

@@ -10,6 +10,82 @@ import { isOperatorObject } from './condition-builder';
 import { handleAnd } from './logical-operators';
 import { getOperatorHandler } from './registry';
 
+/** Relation filter operators for array relations */
+type RelationFilterOperator = 'some' | 'every' | 'none';
+
+/** Check if a key is a relation filter operator */
+function isRelationFilterOperator(key: string): key is RelationFilterOperator {
+  return key === 'some' || key === 'every' || key === 'none';
+}
+
+/**
+ * Find the foreign key field in the target model that points back to the source model
+ */
+function findForeignKeyField(sourceModel: ModelMetadata, targetModel: ModelMetadata): string | undefined {
+  // Look for a Relation field in target that points to source and has a fieldRef
+  for (const field of targetModel.fields) {
+    if (field.type !== 'relation' || field.relationInfo?.isReverse) continue;
+    if (field.relationInfo?.targetModel === sourceModel.name && field.relationInfo?.fieldRef) {
+      return field.relationInfo.fieldRef;
+    }
+  }
+
+  return undefined;
+}
+
+/**
+ * Build conditions from a nested where clause for use in subqueries
+ */
+function buildSubqueryConditions(
+  ctx: FilterCompileContext,
+  nestedWhere: WhereClause,
+  targetModel: ModelMetadata,
+): QueryFragment {
+  const conditions: QueryFragment[] = [];
+
+  for (const [fieldName, value] of Object.entries(nestedWhere)) {
+    if (value === undefined) continue;
+
+    // Find field metadata
+    const fieldMetadata = targetModel.fields.find((f) => f.name === fieldName);
+    if (!fieldMetadata) continue;
+
+    // Handle operator object
+    if (isOperatorObject(value)) {
+      const operatorConditions: QueryFragment[] = [];
+
+      for (const [op, opValue] of Object.entries(value as Record<string, unknown>)) {
+        if (opValue === undefined) continue;
+
+        const handler = getOperatorHandler(op);
+        if (handler) {
+          operatorConditions.push(handler(ctx, fieldName, opValue, fieldMetadata));
+        }
+      }
+
+      if (operatorConditions.length > 0) {
+        conditions.push(operatorConditions.length === 1 ? operatorConditions[0]! : handleAnd(operatorConditions));
+      }
+    } else {
+      // Direct value (shorthand for eq)
+      const handler = getOperatorHandler('eq');
+      if (handler) {
+        conditions.push(handler(ctx, fieldName, value, fieldMetadata));
+      }
+    }
+  }
+
+  if (conditions.length === 0) {
+    return { text: '', vars: {} };
+  }
+
+  if (conditions.length === 1) {
+    return conditions[0]!;
+  }
+
+  return joinFragments(conditions, ' AND ');
+}
+
 /**
  * Build a nested condition for a forward relation field
  *
@@ -101,8 +177,10 @@ export function buildForwardNestedCondition(
 /**
  * Build a nested condition for a reverse relation field
  *
- * Reverse relations are more complex and may require subqueries.
- * For now, we'll use a simplified approach.
+ * Reverse relations use subqueries with some/every/none operators:
+ * - some: At least one related record matches
+ * - every: All related records match (and at least one exists)
+ * - none: No related records match
  *
  * @param ctx - Compile context for variable binding
  * @param relationField - The Relation type field
@@ -111,21 +189,83 @@ export function buildForwardNestedCondition(
  * @param registry - Full model registry
  */
 export function buildReverseNestedCondition(
-  _ctx: FilterCompileContext,
+  ctx: FilterCompileContext,
   relationField: FieldMetadata,
-  _nestedWhere: WhereClause,
-  _model: ModelMetadata,
-  _registry: ModelRegistry,
+  nestedWhere: WhereClause,
+  model: ModelMetadata,
+  registry: ModelRegistry,
 ): QueryFragment {
   if (!relationField.relationInfo || !relationField.relationInfo.isReverse) {
     return { text: '', vars: {} };
   }
 
-  // Reverse relation filtering is complex and may need subqueries
-  // For now, return empty - this can be extended later
-  // A proper implementation might use: id IN (SELECT out FROM relationTable WHERE ...)
+  // Get target model metadata
+  const targetModel = registry[relationField.relationInfo.targetModel];
+  if (!targetModel) {
+    return { text: '', vars: {} };
+  }
 
-  return { text: '', vars: {} };
+  // Find the foreign key field in target model that points back to us
+  const foreignKeyField = findForeignKeyField(model, targetModel);
+  if (!foreignKeyField) {
+    return { text: '', vars: {} };
+  }
+
+  const conditions: QueryFragment[] = [];
+
+  // Check for relation filter operators (some, every, none)
+  for (const [key, value] of Object.entries(nestedWhere)) {
+    if (value === undefined) continue;
+
+    if (isRelationFilterOperator(key)) {
+      const innerWhere = value as WhereClause;
+      const innerCondition = buildSubqueryConditions(ctx, innerWhere, targetModel);
+
+      if (!innerCondition.text) continue;
+
+      // Build the subquery based on the operator
+      let subqueryText: string;
+
+      switch (key) {
+        case 'some':
+          // At least one related record matches
+          // id IN (SELECT VALUE fkField FROM targetTable WHERE <condition>)
+          subqueryText = `id IN (SELECT VALUE ${foreignKeyField} FROM ${targetModel.tableName} WHERE ${innerCondition.text})`;
+          break;
+
+        case 'every':
+          // All related records match AND at least one exists
+          // Two conditions:
+          // 1. No related record that DOESN'T match: id NOT IN (SELECT VALUE fk FROM target WHERE NOT(<condition>))
+          // 2. At least one related record exists: id IN (SELECT VALUE fk FROM target)
+          subqueryText =
+            `(id NOT IN (SELECT VALUE ${foreignKeyField} FROM ${targetModel.tableName} WHERE NOT (${innerCondition.text})) ` +
+            `AND id IN (SELECT VALUE ${foreignKeyField} FROM ${targetModel.tableName}))`;
+          break;
+
+        case 'none':
+          // No related records match
+          // id NOT IN (SELECT VALUE fkField FROM targetTable WHERE <condition>)
+          subqueryText = `id NOT IN (SELECT VALUE ${foreignKeyField} FROM ${targetModel.tableName} WHERE ${innerCondition.text})`;
+          break;
+
+        default:
+          continue;
+      }
+
+      conditions.push({ text: subqueryText, vars: innerCondition.vars });
+    }
+  }
+
+  if (conditions.length === 0) {
+    return { text: '', vars: {} };
+  }
+
+  if (conditions.length === 1) {
+    return conditions[0]!;
+  }
+
+  return joinFragments(conditions, ' AND ');
 }
 
 /**

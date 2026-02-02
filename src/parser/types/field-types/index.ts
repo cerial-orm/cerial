@@ -18,7 +18,7 @@ export { getEmailFieldType, isEmailType } from './email-parser';
 export { getFloatFieldType, isFloatType } from './float-parser';
 export { getIntFieldType, isIntType } from './int-parser';
 export { getRecordFieldType, isRecordArray, isRecordType } from './record-parser';
-export { getRelationFieldType, isRelationType } from './relation-parser';
+export { getRelationFieldType, isRelationArray, isRelationType } from './relation-parser';
 export { getStringFieldType, isStringType } from './string-parser';
 
 /** Parse a type token to SchemaFieldType (handles Record[] by stripping []) */
@@ -33,7 +33,7 @@ export function parseFieldType(token: string): SchemaFieldType | null {
   if (isBoolType(baseToken)) return getBoolFieldType();
   if (isFloatType(baseToken)) return getFloatFieldType();
   if (isRecordType(token)) return getRecordFieldType(); // Use original token for Record[]
-  if (isRelationType(baseToken)) return getRelationFieldType();
+  if (isRelationType(token)) return getRelationFieldType(); // Use original token for Relation[]
   return null;
 }
 

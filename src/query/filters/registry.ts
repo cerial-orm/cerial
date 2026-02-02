@@ -7,7 +7,7 @@ import type { QueryFragment } from '../compile/types';
 import type { FilterCompileContext } from '../compile/var-allocator';
 
 // Comparison operators
-import { handleEq, handleGt, handleGte, handleLt, handleLte, handleNeq } from './comparison-operators';
+import { handleEq, handleGt, handleGte, handleIsNone, handleLt, handleLte, handleNeq, handleNot } from './comparison-operators';
 
 // String operators
 import { handleContains, handleEndsWith, handleStartsWith } from './string-operators';
@@ -31,6 +31,7 @@ const operatorRegistry: Record<string, OperatorHandler> = {
   // Comparison operators
   eq: handleEq,
   neq: handleNeq,
+  not: handleNot,
   gt: handleGt,
   gte: handleGte,
   lt: handleLt,
@@ -61,6 +62,11 @@ const operatorRegistry: Record<string, OperatorHandler> = {
     return handleIsNull(field);
   },
   between: handleBetween as OperatorHandler,
+
+  // NONE vs null operators (SurrealDB specific)
+  // isNone: true → field is absent (NONE)
+  // isNone: false → field is present (could be null or have a value)
+  isNone: handleIsNone as OperatorHandler,
 };
 
 /** Get an operator handler by name */

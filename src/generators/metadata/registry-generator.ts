@@ -36,6 +36,12 @@ function generateFieldMetadata(field: FieldMetadata): string {
     if (field.relationInfo.fieldRef) {
       relParts.push(`fieldRef: '${field.relationInfo.fieldRef}'`);
     }
+    if (field.relationInfo.onDelete) {
+      relParts.push(`onDelete: '${field.relationInfo.onDelete}'`);
+    }
+    if (field.relationInfo.key) {
+      relParts.push(`key: '${field.relationInfo.key}'`);
+    }
     parts.push(`relationInfo: { ${relParts.join(', ')} }`);
   }
 

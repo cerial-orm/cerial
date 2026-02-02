@@ -64,8 +64,24 @@ export function validateFieldValue(
 }
 
 /** Validate data for create operation */
-export function validateCreateData(data: Record<string, unknown>, model: ModelMetadata): DataValidationResult {
+export function validateCreateData(
+  data: Record<string, unknown>,
+  model: ModelMetadata,
+  nestedOps?: Map<string, unknown>,
+): DataValidationResult {
   const errors: DataValidationError[] = [];
+
+  // Build set of Record fields that will be satisfied by nested operations
+  const fieldsFromNestedOps = new Set<string>();
+  if (nestedOps) {
+    for (const relationName of nestedOps.keys()) {
+      // Find the relation field and its fieldRef (the Record field it populates)
+      const relationField = model.fields.find((f) => f.name === relationName && f.type === 'relation');
+      if (relationField?.relationInfo?.fieldRef) {
+        fieldsFromNestedOps.add(relationField.relationInfo.fieldRef);
+      }
+    }
+  }
 
   for (const field of model.fields) {
     const value = data[field.name];
@@ -92,6 +108,9 @@ export function validateCreateData(data: Record<string, unknown>, model: ModelMe
 
     // Skip array fields when undefined - they default to empty array
     if (field.isArray && (value === undefined || value === null)) continue;
+
+    // Skip Record fields that will be populated by nested operations
+    if (field.type === 'record' && fieldsFromNestedOps.has(field.name)) continue;
 
     const error = validateFieldValue(field.name, value, field.type, field.isRequired, field.isArray);
     if (error) {

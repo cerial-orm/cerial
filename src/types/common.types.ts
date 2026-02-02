@@ -6,7 +6,10 @@
 export type SchemaFieldType = 'string' | 'email' | 'int' | 'date' | 'bool' | 'float' | 'record' | 'relation';
 
 /** Supported decorator types in schema definitions */
-export type SchemaDecorator = 'id' | 'unique' | 'now' | 'default' | 'field' | 'model';
+export type SchemaDecorator = 'id' | 'unique' | 'now' | 'default' | 'field' | 'model' | 'onDelete' | 'key';
+
+/** Supported onDelete actions for relations */
+export type OnDeleteAction = 'Cascade' | 'SetNull' | 'Restrict' | 'NoAction';
 
 /** Supported constraint types in schema definitions */
 export type SchemaConstraint = 'required' | 'optional';
