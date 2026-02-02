@@ -8,5 +8,6 @@
       "Bash(do echo \"Testing: $file\")",
       "Bash(done)"
     ]
-  }
+  },
+  "outputStyle": "Explanatory"
 }
