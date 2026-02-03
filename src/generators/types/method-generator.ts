@@ -162,6 +162,24 @@ export function generateDeleteManyMethod(model: ModelMetadata): string {
   }): Promise<number>;`;
 }
 
+/**
+ * Generate deleteUnique method signature with return type inference
+ * Uses FindUniqueWhere to require at least one unique field
+ */
+export function generateDeleteUniqueMethod(model: ModelMetadata): string {
+  return `deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ${model.name}FindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ${model.name} | null (deleted data, no validation)
+     * - 'beforeAndCheck': returns ${model.name} | null (slower: fetches and validates first)
+     */
+    return?: R;
+  }): Promise<DeleteUniqueReturnType<${model.name}, R>>;`;
+}
+
 /** Generate count method signature */
 export function generateCountMethod(model: ModelMetadata): string {
   return `count(where?: ${model.name}Where): Promise<number>;`;
@@ -181,6 +199,7 @@ export function generateMethodSignatures(model: ModelMetadata): string[] {
     generateCreateMethod(model),
     generateUpdateMethod(model),
     generateDeleteManyMethod(model),
+    generateDeleteUniqueMethod(model),
     generateCountMethod(model),
     generateExistsMethod(model),
   ];

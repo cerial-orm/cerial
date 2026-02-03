@@ -11,6 +11,7 @@ export {
   buildOrderBy,
   buildSelectFields,
   buildSelectQuery,
+  validateUniqueField,
   type FindOptionsWithInclude,
   type FindUniqueOptionsWithInclude,
 } from './select-builder';
@@ -19,7 +20,15 @@ export { applyDefaultValues, applyNowDefaults, buildCreateQuery } from './insert
 
 export { buildUpdateManyQuery } from './update-builder';
 
-export { buildDeleteQuery, buildDeleteQueryWithReturn, buildDeleteWithCascade } from './delete-builder';
+export {
+  buildDeleteQuery,
+  buildDeleteQueryWithReturn,
+  buildDeleteUniqueFetchQuery,
+  buildDeleteUniqueQuery,
+  buildDeleteUniqueWithCascade,
+  buildDeleteWithCascade,
+  getRecordIdFromWhere,
+} from './delete-builder';
 
 export {
   buildForwardRelationSelect,

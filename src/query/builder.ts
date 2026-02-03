@@ -6,16 +6,22 @@ import type { Surreal } from 'surrealdb';
 import type {
   CreateOptions,
   DeleteManyOptions,
+  DeleteUniqueResult,
+  DeleteUniqueReturn,
   FindManyOptions,
   FindOneOptions,
   ModelMetadata,
   ModelRegistry,
   UpdateOptions,
+  WhereClause,
 } from '../types';
 import {
   buildCreateQuery,
   buildCreateWithNestedTransaction,
   buildDeleteQueryWithReturn,
+  buildDeleteUniqueFetchQuery,
+  buildDeleteUniqueQuery,
+  buildDeleteUniqueWithCascade,
   buildDeleteWithCascade,
   buildFindManyQuery,
   buildFindOneQuery,
@@ -23,6 +29,7 @@ import {
   buildUpdateManyQuery,
   buildUpdateWithNestedTransaction,
   extractNestedOperations,
+  getRecordIdFromWhere,
   type FindOptionsWithInclude,
   type FindUniqueOptionsWithInclude,
 } from './builders';
@@ -179,6 +186,135 @@ export class QueryBuilder<T extends Record<string, unknown>> {
 
     return Array.isArray(result) ? result.length : 0;
   }
+
+  /**
+   * Delete a unique record by id or unique field
+   * @param options - Delete options with where clause and optional return configuration
+   * @returns Depends on return option:
+   *   - undefined/null: boolean (always true)
+   *   - true: boolean (true if record existed, false if not)
+   *   - 'before': Model | null (raw deleted data)
+   *   - 'beforeAndCheck': Model | null (validated, slower - fetches first)
+   */
+  async deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: WhereClause;
+    return?: R;
+  }): Promise<DeleteUniqueResult<T, R>> {
+    const { where, return: returnOption } = options;
+
+    // Validate where clause
+    const validation = validateWhere(where, this.model);
+    if (!validation.valid)
+      throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
+
+    // Get record ID info (also validates unique field requirement)
+    const { hasId, id } = getRecordIdFromWhere(where, this.model, 'deleteUnique');
+
+    // Determine if we need RETURN BEFORE
+    const needsReturnBefore = returnOption === true || returnOption === 'before';
+
+    // Handle 'beforeAndCheck' mode: SELECT → validate → DELETE
+    if (returnOption === 'beforeAndCheck') {
+      return this.deleteUniqueWithValidation<R>(where, hasId, id);
+    }
+
+    // For non-ID lookups OR when we need to check existence, pre-fetch the record
+    // This avoids transaction failures when the record doesn't exist
+    if (!hasId || returnOption === true || returnOption === 'before') {
+      // Fetch record first to get ID and check existence
+      const fetchQuery = buildDeleteUniqueFetchQuery(this.model, where);
+      const record = await executeQuerySingle(this.db, fetchQuery);
+
+      // Handle non-existent record
+      if (record === null) {
+        if (returnOption === true) return false as DeleteUniqueResult<T, R>;
+        if (returnOption === 'before') return null as DeleteUniqueResult<T, R>;
+
+        return true as DeleteUniqueResult<T, R>;
+      }
+
+      // Record exists - delete it
+      const recordId = (record as Record<string, unknown>).id as string;
+
+      if (this.registry) {
+        // Use cascade delete with the ID we found
+        const deleteQuery = buildDeleteUniqueWithCascade(this.model, { id: recordId }, this.registry, needsReturnBefore);
+        const result = await executeQuerySingle(this.db, deleteQuery);
+
+        return this.handleDeleteUniqueResult<R>(result, returnOption);
+      }
+
+      // Simple delete without cascade
+      const deleteQuery = buildDeleteUniqueQuery(this.model, recordId, needsReturnBefore);
+      const result = await executeQuerySingle(this.db, deleteQuery);
+
+      return this.handleDeleteUniqueResult<R>(result, returnOption);
+    }
+
+    // ID-based delete with default return (undefined/null) - no pre-check needed
+    if (this.registry) {
+      const query = buildDeleteUniqueWithCascade(this.model, where, this.registry, false);
+      await executeQuerySingle(this.db, query);
+
+      return true as DeleteUniqueResult<T, R>;
+    }
+
+    const query = buildDeleteUniqueQuery(this.model, id!, false);
+    await executeQuerySingle(this.db, query);
+
+    return true as DeleteUniqueResult<T, R>;
+  }
+
+  /** Delete with validation (beforeAndCheck mode) */
+  private async deleteUniqueWithValidation<R extends DeleteUniqueReturn>(
+    where: WhereClause,
+    hasId: boolean,
+    id: string | undefined,
+  ): Promise<DeleteUniqueResult<T, R>> {
+    // First, fetch and validate the record
+    const fetchQuery = buildDeleteUniqueFetchQuery(this.model, where);
+    const record = await executeQuerySingle(this.db, fetchQuery);
+
+    // If record doesn't exist, return null
+    if (record === null) return null as DeleteUniqueResult<T, R>;
+
+    // Validate the record against current schema (throws if invalid)
+    const validatedRecord = mapSingleResult<T>(record, this.model);
+
+    // Now delete the record (we know it exists and have the ID)
+    const recordId = (record as Record<string, unknown>).id as string;
+
+    if (this.registry) {
+      const deleteQuery = buildDeleteUniqueWithCascade(this.model, { id: recordId }, this.registry, false);
+      await executeQuerySingle(this.db, deleteQuery);
+    } else {
+      const deleteQuery = buildDeleteUniqueQuery(this.model, recordId, false);
+      await executeQuerySingle(this.db, deleteQuery);
+    }
+
+    return validatedRecord as DeleteUniqueResult<T, R>;
+  }
+
+  /** Handle deleteUnique result based on return option */
+  private handleDeleteUniqueResult<R extends DeleteUniqueReturn>(
+    result: unknown,
+    returnOption: R | undefined,
+  ): DeleteUniqueResult<T, R> {
+    // Default (undefined/null): operation succeeded, return true
+    if (returnOption === undefined || returnOption === null) return true as DeleteUniqueResult<T, R>;
+
+    // true: return whether record existed
+    if (returnOption === true) return (result !== null) as DeleteUniqueResult<T, R>;
+
+    // 'before': return raw data without validation
+    if (returnOption === 'before') {
+      if (result === null) return null as DeleteUniqueResult<T, R>;
+
+      return mapSingleResult<T>(result, this.model) as DeleteUniqueResult<T, R>;
+    }
+
+    return true as DeleteUniqueResult<T, R>;
+  }
 }
 
 /** Static query builder methods */
@@ -245,5 +381,23 @@ export const QueryBuilderStatic = {
     const builder = new QueryBuilder(db, model, registry);
 
     return builder.deleteMany(options);
+  },
+
+  /**
+   * Delete a unique record by id or unique field
+   * @param db - SurrealDB connection
+   * @param model - Model metadata
+   * @param options - Delete options with where clause and optional return configuration
+   * @param registry - Optional model registry for cascade support
+   */
+  async deleteUnique<T extends Record<string, unknown>, R extends DeleteUniqueReturn = undefined>(
+    db: Surreal,
+    model: ModelMetadata,
+    options: { where: WhereClause; return?: R },
+    registry?: ModelRegistry,
+  ): Promise<DeleteUniqueResult<T, R>> {
+    const builder = new QueryBuilder<T>(db, model, registry);
+
+    return builder.deleteUnique(options);
   },
 };

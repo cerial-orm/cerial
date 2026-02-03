@@ -13,6 +13,9 @@ import { generateClientTemplate } from './template';
 /** ts-toolbelt import for generated types */
 const TS_TOOLBELT_IMPORT = `import type { Object as O, Any as A } from 'ts-toolbelt';`;
 
+/** DeleteUnique types import for model files */
+const DELETE_UNIQUE_IMPORT = `import type { DeleteUniqueReturn, DeleteUniqueReturnType } from '..';`;
+
 /** Prettier config cache */
 let prettierConfig: prettier.Options | null = null;
 
@@ -148,6 +151,7 @@ export async function writeModelTypes(
  */
 
 ${TS_TOOLBELT_IMPORT}
+${DELETE_UNIQUE_IMPORT}
 ${relatedImports}${interfaceCode}
 
 ${whereCode}
@@ -313,6 +317,29 @@ export type Optional<T extends object, K extends keyof T> = O.Optional<T, K>;
 
 // Simplified type helper
 export type Simplify<T> = { [K in keyof T]: T[K] } & {};
+
+/**
+ * DeleteUnique return option
+ * - undefined/null: RETURN NONE, always returns true (operation completed)
+ * - true: RETURN BEFORE, returns boolean (true if existed, false if not)
+ * - 'before': RETURN BEFORE, returns Model | null (no schema validation)
+ * - 'beforeAndCheck': SELECT → validate → DELETE (slower but type-safe)
+ */
+export type DeleteUniqueReturn = null | undefined | true | 'before' | 'beforeAndCheck';
+
+/**
+ * Infer deleteUnique return type based on return option
+ * @template T - The model type
+ * @template R - The return option
+ * @note 'beforeAndCheck' performs SELECT + validate + DELETE (slower but type-safe)
+ */
+export type DeleteUniqueReturnType<T, R extends DeleteUniqueReturn> = R extends null | undefined
+  ? boolean
+  : R extends true
+    ? boolean
+    : R extends 'before' | 'beforeAndCheck'
+      ? T | null
+      : boolean;
 `;
 
   const formatted = await formatCode(content, outputDir);

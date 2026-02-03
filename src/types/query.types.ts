@@ -98,6 +98,39 @@ export interface DeleteManyOptions {
   where: WhereClause;
 }
 
+/**
+ * DeleteUnique return option
+ * - undefined/null: RETURN NONE, always returns true (operation completed)
+ * - true: RETURN BEFORE, returns boolean (true if existed, false if not)
+ * - 'before': RETURN BEFORE, returns Model | null (no schema validation)
+ * - 'beforeAndCheck': SELECT → validate → DELETE (slower but type-safe)
+ */
+export type DeleteUniqueReturn = null | undefined | true | 'before' | 'beforeAndCheck';
+
+/** DeleteUnique options */
+export interface DeleteUniqueOptions<R extends DeleteUniqueReturn = undefined> {
+  /** Where clause must contain at least one unique field (id or @unique) */
+  where: WhereClause;
+  /**
+   * Return option for the deleted record
+   * @note 'beforeAndCheck' performs SELECT + validate + DELETE (slower but type-safe)
+   */
+  return?: R;
+}
+
+/**
+ * Infer deleteUnique return type based on return option
+ * @template T - The model type
+ * @template R - The return option
+ */
+export type DeleteUniqueResult<T, R extends DeleteUniqueReturn> = R extends null | undefined
+  ? boolean
+  : R extends true
+    ? boolean
+    : R extends 'before' | 'beforeAndCheck'
+      ? T | null
+      : boolean;
+
 /** Compiled query with parameterized values */
 export interface CompiledQuery {
   /** The query text with placeholders */

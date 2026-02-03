@@ -8,7 +8,16 @@ import {
   type FindManyOptionsWithInclude,
   type FindOneOptionsWithInclude,
 } from '../../query/builder';
-import type { CreateOptions, DeleteManyOptions, ModelMetadata, ModelRegistry, UpdateOptions } from '../../types';
+import type {
+  CreateOptions,
+  DeleteManyOptions,
+  DeleteUniqueResult,
+  DeleteUniqueReturn,
+  ModelMetadata,
+  ModelRegistry,
+  UpdateOptions,
+  WhereClause,
+} from '../../types';
 
 /** Extended find unique options with include support */
 export interface FindUniqueOptionsWithInclude {
@@ -108,6 +117,24 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
     await this.beforeQuery();
 
     return QueryBuilderStatic.deleteMany(this.db, this.metadata, options, this.registry);
+  }
+
+  /**
+   * Delete a unique record by id or unique field
+   * @param options - Delete options with where clause and optional return configuration
+   * @returns Depends on return option:
+   *   - undefined/null: boolean (always true)
+   *   - true: boolean (true if record existed, false if not)
+   *   - 'before': Model | null (raw deleted data)
+   *   - 'beforeAndCheck': Model | null (validated, slower - fetches first)
+   */
+  async deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: WhereClause;
+    return?: R;
+  }): Promise<DeleteUniqueResult<T, R>> {
+    await this.beforeQuery();
+
+    return QueryBuilderStatic.deleteUnique<T, R>(this.db, this.metadata, options, this.registry);
   }
 
   /** Count records matching where clause */

@@ -352,4 +352,164 @@ describe('E2E CRUD Operations', () => {
       expect(exists).toBe(false);
     });
   });
+
+  describe('DeleteUnique', () => {
+    let testUserId: string;
+
+    beforeEach(async () => {
+      const user = await client.db.User.create({
+        data: {
+          email: 'deleteunique@example.com',
+          name: 'Delete Unique User',
+          isActive: true,
+          age: 25,
+        },
+      });
+      testUserId = user.id;
+    });
+
+    describe('return: undefined (default)', () => {
+      test('should return true when deleting by id', async () => {
+        const result = await client.db.User.deleteUnique({
+          where: { id: testUserId },
+        });
+
+        expect(result).toBe(true);
+
+        // Verify deletion
+        const found = await client.db.User.findUnique({ where: { id: testUserId } });
+        expect(found).toBeNull();
+      });
+
+      test('should return true when deleting by unique email', async () => {
+        const result = await client.db.User.deleteUnique({
+          where: { email: 'deleteunique@example.com' },
+        });
+
+        expect(result).toBe(true);
+
+        // Verify deletion
+        const found = await client.db.User.findUnique({ where: { email: 'deleteunique@example.com' } });
+        expect(found).toBeNull();
+      });
+
+      test('should return true even when record does not exist', async () => {
+        const result = await client.db.User.deleteUnique({
+          where: { id: 'nonexistent-id' },
+        });
+
+        // Default behavior: returns true (operation completed)
+        expect(result).toBe(true);
+      });
+    });
+
+    describe('return: true', () => {
+      test('should return true when record existed', async () => {
+        const result = await client.db.User.deleteUnique({
+          where: { id: testUserId },
+          return: true,
+        });
+
+        expect(result).toBe(true);
+      });
+
+      test('should return false when record did not exist', async () => {
+        const result = await client.db.User.deleteUnique({
+          where: { id: 'nonexistent-id' },
+          return: true,
+        });
+
+        expect(result).toBe(false);
+      });
+
+      test('should return true when deleting by unique email', async () => {
+        const result = await client.db.User.deleteUnique({
+          where: { email: 'deleteunique@example.com' },
+          return: true,
+        });
+
+        expect(result).toBe(true);
+      });
+
+      test('should return false when email does not exist', async () => {
+        const result = await client.db.User.deleteUnique({
+          where: { email: 'nonexistent@example.com' },
+          return: true,
+        });
+
+        expect(result).toBe(false);
+      });
+    });
+
+    describe("return: 'before'", () => {
+      test('should return the deleted record when it existed', async () => {
+        const result = await client.db.User.deleteUnique({
+          where: { id: testUserId },
+          return: 'before',
+        });
+
+        expect(result).toBeDefined();
+        expect(result?.id).toBe(testUserId);
+        expect(result?.email).toBe('deleteunique@example.com');
+        expect(result?.name).toBe('Delete Unique User');
+        expect(result?.age).toBe(25);
+      });
+
+      test('should return null when record did not exist', async () => {
+        const result = await client.db.User.deleteUnique({
+          where: { id: 'nonexistent-id' },
+          return: 'before',
+        });
+
+        expect(result).toBeNull();
+      });
+
+      test('should return the deleted record when deleting by email', async () => {
+        const result = await client.db.User.deleteUnique({
+          where: { email: 'deleteunique@example.com' },
+          return: 'before',
+        });
+
+        expect(result).toBeDefined();
+        expect(result?.email).toBe('deleteunique@example.com');
+      });
+    });
+
+    describe("return: 'beforeAndCheck'", () => {
+      test('should return the validated deleted record', async () => {
+        const result = await client.db.User.deleteUnique({
+          where: { id: testUserId },
+          return: 'beforeAndCheck',
+        });
+
+        expect(result).toBeDefined();
+        expect(result?.id).toBe(testUserId);
+        expect(result?.email).toBe('deleteunique@example.com');
+        expect(result?.name).toBe('Delete Unique User');
+
+        // Verify deletion
+        const found = await client.db.User.findUnique({ where: { id: testUserId } });
+        expect(found).toBeNull();
+      });
+
+      test('should return null when record did not exist', async () => {
+        const result = await client.db.User.deleteUnique({
+          where: { id: 'nonexistent-id' },
+          return: 'beforeAndCheck',
+        });
+
+        expect(result).toBeNull();
+      });
+
+      test('should validate and return when deleting by email', async () => {
+        const result = await client.db.User.deleteUnique({
+          where: { email: 'deleteunique@example.com' },
+          return: 'beforeAndCheck',
+        });
+
+        expect(result).toBeDefined();
+        expect(result?.email).toBe('deleteunique@example.com');
+      });
+    });
+  });
 });

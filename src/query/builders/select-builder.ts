@@ -140,8 +140,14 @@ export function buildFindManyQuery(
   return buildSelectQuery(model, options, false, registry);
 }
 
-/** Validate at least one unique field is present in where clause */
-function hasUniqueField(where: WhereClause, model: ModelMetadata): void {
+/**
+ * Validate at least one unique field is present in where clause
+ * @param where - The where clause to validate
+ * @param model - The model metadata
+ * @param methodName - The method name for error messages (default: 'findUnique')
+ * @throws Error if no unique field is present
+ */
+export function validateUniqueField(where: WhereClause, model: ModelMetadata, methodName = 'findUnique'): void {
   const idField = model.fields.find((f) => f.isId);
   const uniqueFields = getUniqueFields(model);
   const allUniqueFields = idField ? [idField, ...uniqueFields.filter((f) => !f.isId)] : uniqueFields;
@@ -150,13 +156,18 @@ function hasUniqueField(where: WhereClause, model: ModelMetadata): void {
   const providedFields = allUniqueFields.filter((f) => !!where[f.name]);
 
   // Validation: at least one unique field required
-  if (providedFields.length === 0) {
+  if (!providedFields.length) {
     const fieldNames = allUniqueFields.map((f) => f.name).join(', ');
     throw new Error(
-      `At least one unique field must be provided in where clause for findUnique. ` +
+      `At least one unique field must be provided in where clause for ${methodName}. ` +
         `Available unique fields: ${fieldNames}`,
     );
   }
+}
+
+/** @deprecated Use validateUniqueField instead */
+function hasUniqueField(where: WhereClause, model: ModelMetadata): void {
+  validateUniqueField(where, model, 'findUnique');
 }
 
 /** Build findUnique query when ID is provided (uses FROM ONLY table:id) */
