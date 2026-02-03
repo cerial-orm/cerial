@@ -6,7 +6,8 @@
       "Bash(bun test:*)",
       "Bash(for file in tests/unit/parser/*.test.ts tests/unit/validators/*.test.ts tests/unit/generators/*.test.ts tests/unit/query/*.test.ts)",
       "Bash(do echo \"Testing: $file\")",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(find:*)"
     ]
   },
   "outputStyle": "Explanatory"

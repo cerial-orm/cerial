@@ -36,6 +36,8 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
   }
 
   const outputDir = options.output!;
+  const logLevel = options.log ?? 'minimal';
+  logger.setOutputLevel(logLevel);
 
   try {
     // Resolve schema files
@@ -45,6 +47,7 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
 
     if (!schemaFiles.length) {
       result.errors.push('No schema files found');
+
       return result;
     }
 
@@ -110,6 +113,7 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
 
     if (!allModels.length) {
       result.errors.push('No models found in schema files');
+
       return result;
     }
 
@@ -124,22 +128,30 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
     // Write model registry
     const registryPath = await writeModelRegistry(outputDir, models);
     result.files.push(registryPath);
-    logger.fileCreated(registryPath);
+    if (logLevel === 'full') logger.fileCreated(registryPath);
 
     // Write migration file
     const migrationPath = await writeMigrationFile(outputDir, models);
     result.files.push(migrationPath);
-    logger.fileCreated(migrationPath);
+    if (logLevel === 'full') logger.fileCreated(migrationPath);
 
     // Write internal index
     const internalIndexPath = await writeInternalIndex(outputDir);
     result.files.push(internalIndexPath);
-    logger.fileCreated(internalIndexPath);
+    if (logLevel === 'full') logger.fileCreated(internalIndexPath);
 
     // Write client files
     const clientFiles = await writeClient(outputDir, models);
     result.files.push(...clientFiles);
-    clientFiles.forEach((f) => logger.fileCreated(f));
+    if (logLevel === 'full') clientFiles.forEach((f) => logger.fileCreated(f));
+
+    // Medium level: show category summary
+    if (logLevel === 'medium') {
+      const modelFiles = clientFiles.filter((f) => f.includes('/models/') && !f.endsWith('index.ts'));
+      logger.info(`  ${modelFiles.length} model files`);
+      logger.info(`  3 internal files`);
+      logger.info(`  ${clientFiles.length - modelFiles.length} client files`);
+    }
 
     result.success = true;
     logger.success(`Generated ${result.files.length} files`);

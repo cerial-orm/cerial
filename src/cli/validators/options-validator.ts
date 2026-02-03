@@ -2,6 +2,9 @@
  * Options validator - validates CLI options
  */
 
+/** Log output level */
+export type LogOutputLevel = 'minimal' | 'medium' | 'full';
+
 /** CLI options */
 export interface CLIOptions {
   /** Schema file/directory path */
@@ -12,6 +15,8 @@ export interface CLIOptions {
   watch?: boolean;
   /** Verbose output */
   verbose?: boolean;
+  /** Log output level (minimal, medium, full) */
+  log?: LogOutputLevel;
 }
 
 /** Validation error */
@@ -49,5 +54,6 @@ export function getDefaultOptions(): Partial<CLIOptions> {
   return {
     watch: false,
     verbose: false,
+    log: 'minimal',
   };
 }

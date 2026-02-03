@@ -2,7 +2,7 @@
  * CLI argument parser
  */
 
-import type { CLIOptions } from './validators';
+import type { CLIOptions, LogOutputLevel } from './validators';
 
 /** Parse CLI arguments */
 export function parseArgs(args: string[]): CLIOptions {
@@ -31,6 +31,18 @@ export function parseArgs(args: string[]): CLIOptions {
       case '--verbose':
         options.verbose = true;
         break;
+
+      case '-l':
+      case '--log': {
+        const level = args[++i] as LogOutputLevel;
+        if (level === 'minimal' || level === 'medium' || level === 'full') {
+          options.log = level;
+        } else {
+          console.error(`Invalid log level: ${level}. Use minimal, medium, or full.`);
+          process.exit(1);
+        }
+        break;
+      }
 
       case '-h':
       case '--help':
@@ -61,6 +73,7 @@ Options:
   -o, --output <path>   Output directory for generated files (required)
   -w, --watch           Watch for schema changes and regenerate
   -v, --verbose         Verbose output
+  -l, --log <level>     Log output level: minimal (default), medium, full
   -h, --help            Show this help message
 
 Examples:

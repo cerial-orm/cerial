@@ -17,6 +17,9 @@ const colors = {
 /** Log level */
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'success';
 
+/** Log output level for generate command */
+export type LogOutputLevel = 'minimal' | 'medium' | 'full';
+
 /** Logger options */
 export interface LoggerOptions {
   /** Whether to use colors */
@@ -25,6 +28,8 @@ export interface LoggerOptions {
   showTimestamp?: boolean;
   /** Minimum log level */
   minLevel?: LogLevel;
+  /** Log output level for file generation */
+  outputLevel?: LogOutputLevel;
 }
 
 /** Logger instance */
@@ -36,7 +41,18 @@ export class Logger {
       useColors: options.useColors ?? true,
       showTimestamp: options.showTimestamp ?? false,
       minLevel: options.minLevel ?? 'info',
+      outputLevel: options.outputLevel ?? 'minimal',
     };
+  }
+
+  /** Set output level */
+  setOutputLevel(level: LogOutputLevel): void {
+    this.options.outputLevel = level;
+  }
+
+  /** Get current output level */
+  getOutputLevel(): LogOutputLevel {
+    return this.options.outputLevel;
   }
 
   private color(text: string, color: keyof typeof colors): string {

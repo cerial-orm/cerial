@@ -10,7 +10,7 @@ export {
 export type { SchemaValidationError, SchemaValidationResult } from './schema-validator';
 
 export { getDefaultOptions, validateOptions } from './options-validator';
-export type { CLIOptions, OptionsValidationError, OptionsValidationResult } from './options-validator';
+export type { CLIOptions, LogOutputLevel, OptionsValidationError, OptionsValidationResult } from './options-validator';
 
 export {
   validateCardinalityMatch,
