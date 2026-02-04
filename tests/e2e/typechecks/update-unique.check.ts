@@ -43,7 +43,7 @@ Test.checks([
   // false is NOT valid
   Test.check<Extends<false, UpdateUniqueReturn>, 0, Test.Pass>(),
 
-  // 'beforeAndCheck' is NOT valid (unlike deleteUnique)
+  // 'beforeAndCheck' is NOT valid
   Test.check<Extends<'beforeAndCheck', UpdateUniqueReturn>, 0, Test.Pass>(),
 ]);
 

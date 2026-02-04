@@ -149,8 +149,7 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
    * @returns Depends on return option:
    *   - undefined/null: boolean (always true)
    *   - true: boolean (true if record existed, false if not)
-   *   - 'before': Model | null (raw deleted data)
-   *   - 'beforeAndCheck': Model | null (validated, slower - fetches first)
+   *   - 'before': Model | null (deleted data)
    */
   async deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
     where: WhereClause;

@@ -21,8 +21,8 @@ import type {
 import {
   buildCreateQuery,
   buildCreateWithNestedTransaction,
+  buildDeleteQuery,
   buildDeleteQueryWithReturn,
-  buildDeleteUniqueFetchQuery,
   buildDeleteUniqueQuery,
   buildDeleteUniqueWithCascade,
   buildDeleteWithCascade,
@@ -299,7 +299,6 @@ export class QueryBuilder<T extends Record<string, unknown>> {
    *   - undefined/null: boolean (always true)
    *   - true: boolean (true if record existed, false if not)
    *   - 'before': Model | null (raw deleted data)
-   *   - 'beforeAndCheck': Model | null (validated, slower - fetches first)
    */
   async deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
     where: WhereClause;
@@ -315,112 +314,47 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     // Get record ID info (also validates unique field requirement)
     const { hasId, id } = getRecordIdFromWhere(where, this.model, 'deleteUnique');
 
-    // Determine if we need RETURN BEFORE
+    // Determine if we need RETURN BEFORE (for 'true' and 'before' options)
     const needsReturnBefore = returnOption === true || returnOption === 'before';
 
-    // Handle 'beforeAndCheck' mode: SELECT → validate → DELETE
-    if (returnOption === 'beforeAndCheck') {
-      return this.deleteUniqueWithValidation<R>(where, hasId, id);
-    }
-
-    // For non-ID lookups OR when we need to check existence, pre-fetch the record
-    // This avoids transaction failures when the record doesn't exist
-    if (!hasId || returnOption === true || returnOption === 'before') {
-      // Fetch record first to get ID and check existence
-      const fetchQuery = buildDeleteUniqueFetchQuery(this.model, where);
-      const record = await executeQuerySingle(this.db, fetchQuery);
-
-      // Handle non-existent record
-      if (record === null) {
-        if (returnOption === true) return false as DeleteUniqueResult<T, R>;
-        if (returnOption === 'before') return null as DeleteUniqueResult<T, R>;
-
-        return true as DeleteUniqueResult<T, R>;
-      }
-
-      // Record exists - delete it
-      const recordId = (record as Record<string, unknown>).id as string;
-
-      if (this.registry) {
-        // Use cascade delete with the ID we found
-        const deleteQuery = buildDeleteUniqueWithCascade(
-          this.model,
-          { id: recordId },
-          this.registry,
-          needsReturnBefore,
-        );
-        const result = await executeQuerySingle(this.db, deleteQuery);
-
-        return this.handleDeleteUniqueResult<R>(result, returnOption);
-      }
-
-      // Simple delete without cascade
-      const deleteQuery = buildDeleteUniqueQuery(this.model, recordId, needsReturnBefore);
-      const result = await executeQuerySingle(this.db, deleteQuery);
-
-      return this.handleDeleteUniqueResult<R>(result, returnOption);
-    }
-
-    // ID-based delete with default return (undefined/null) - no pre-check needed
-    if (this.registry) {
-      const query = buildDeleteUniqueWithCascade(this.model, where, this.registry, false);
-      await executeQuerySingle(this.db, query);
-
-      return true as DeleteUniqueResult<T, R>;
-    }
-
-    const query = buildDeleteUniqueQuery(this.model, id!, false);
-    await executeQuerySingle(this.db, query);
-
-    return true as DeleteUniqueResult<T, R>;
-  }
-
-  /** Delete with validation (beforeAndCheck mode) */
-  private async deleteUniqueWithValidation<R extends DeleteUniqueReturn>(
-    where: WhereClause,
-    hasId: boolean,
-    id: string | undefined,
-  ): Promise<DeleteUniqueResult<T, R>> {
-    // First, fetch and validate the record
-    const fetchQuery = buildDeleteUniqueFetchQuery(this.model, where);
-    const record = await executeQuerySingle(this.db, fetchQuery);
-
-    // If record doesn't exist, return null
-    if (record === null) return null as DeleteUniqueResult<T, R>;
-
-    // Validate the record against current schema (throws if invalid)
-    const validatedRecord = mapSingleResult<T>(record, this.model);
-
-    // Now delete the record (we know it exists and have the ID)
-    const recordId = (record as Record<string, unknown>).id as string;
+    // Execute delete and get array result
+    let result: unknown[];
 
     if (this.registry) {
-      const deleteQuery = buildDeleteUniqueWithCascade(this.model, { id: recordId }, this.registry, false);
-      await executeQuerySingle(this.db, deleteQuery);
+      // With registry - use cascade builder (handles both ID and non-ID lookups)
+      const query = buildDeleteUniqueWithCascade(this.model, where, this.registry, needsReturnBefore);
+      result = (await executeQuery(this.db, query)) as unknown[];
+    } else if (hasId) {
+      // Simple ID-based delete without cascade
+      const query = buildDeleteUniqueQuery(this.model, id!, needsReturnBefore);
+      result = (await executeQuery(this.db, query)) as unknown[];
     } else {
-      const deleteQuery = buildDeleteUniqueQuery(this.model, recordId, false);
-      await executeQuerySingle(this.db, deleteQuery);
+      // Non-ID lookup without cascade - use simple WHERE-based delete
+      const query = needsReturnBefore
+        ? buildDeleteQueryWithReturn(this.model, where)
+        : buildDeleteQuery(this.model, where);
+      result = (await executeQuery(this.db, query)) as unknown[];
     }
 
-    return validatedRecord as DeleteUniqueResult<T, R>;
+    return this.handleDeleteUniqueResult<R>(result, returnOption);
   }
 
   /** Handle deleteUnique result based on return option */
   private handleDeleteUniqueResult<R extends DeleteUniqueReturn>(
-    result: unknown,
+    result: unknown[],
     returnOption: R | undefined,
   ): DeleteUniqueResult<T, R> {
-    // Default (undefined/null): operation succeeded, return true
+    // Default (undefined/null): operation completed, always return true
     if (returnOption === undefined || returnOption === null) return true as DeleteUniqueResult<T, R>;
 
-    // true: return whether record existed
-    if (returnOption === true) return (result !== null) as DeleteUniqueResult<T, R>;
+    // true: return whether record existed (derived from array length)
+    if (returnOption === true) return (result.length > 0) as DeleteUniqueResult<T, R>;
 
-    // 'before': return raw data without validation
+    // 'before': return first result or null
     if (returnOption === 'before') {
-      if (result === null) return null as DeleteUniqueResult<T, R>;
+      if (!result.length) return null as DeleteUniqueResult<T, R>;
 
-      return mapSingleResult<T>(result, this.model) as DeleteUniqueResult<T, R>;
+      return mapSingleResult<T>(result[0], this.model) as DeleteUniqueResult<T, R>;
     }
 
     return true as DeleteUniqueResult<T, R>;

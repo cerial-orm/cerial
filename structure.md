@@ -554,6 +554,7 @@ tests/
 │   ├── query/            # Query builder unit tests
 │   │   ├── builder.test.ts
 │   │   ├── delete-builder.test.ts
+│   │   ├── delete-unique-builder.test.ts
 │   │   ├── nested-builder.test.ts
 │   │   └── update-unique-builder.test.ts
 │   └── typechecks/       # Type-level checks

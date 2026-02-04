@@ -16,18 +16,12 @@ import { validateUniqueField } from './select-builder';
 import { getUniqueFields } from '../../parser/model-metadata';
 
 /** Build DELETE query */
-export function buildDeleteQuery(
-  model: ModelMetadata,
-  where: WhereClause,
-): CompiledQuery {
+export function buildDeleteQuery(model: ModelMetadata, where: WhereClause): CompiledQuery {
   // Build WHERE clause
   const whereClause = transformWhereClause(where, model);
 
   // Build query
-  const parts = [
-    `DELETE FROM ${model.tableName}`,
-    whereClause.text,
-  ].filter((p) => p);
+  const parts = [`DELETE FROM ${model.tableName}`, whereClause.text].filter((p) => p);
 
   return {
     text: parts.join(' '),
@@ -36,10 +30,7 @@ export function buildDeleteQuery(
 }
 
 /** Build DELETE query with RETURN */
-export function buildDeleteQueryWithReturn(
-  model: ModelMetadata,
-  where: WhereClause,
-): CompiledQuery {
+export function buildDeleteQueryWithReturn(model: ModelMetadata, where: WhereClause): CompiledQuery {
   // Build WHERE clause
   const whereClause = transformWhereClause(where, model);
 
@@ -256,7 +247,7 @@ export function getRecordIdFromWhere(
 }
 
 /**
- * Build DELETE ONLY query for a single record by ID
+ * Build DELETE query for a single record by ID
  * @param model - Model metadata
  * @param id - Record ID (plain string, not table:id format)
  * @param returnBefore - Whether to return the deleted record (RETURN BEFORE vs RETURN NONE)
@@ -266,14 +257,14 @@ export function buildDeleteUniqueQuery(model: ModelMetadata, id: string, returnB
   const returnClause = returnBefore ? 'RETURN BEFORE' : 'RETURN NONE';
 
   return {
-    text: `DELETE ONLY ${recordId.toString()} ${returnClause}`,
+    text: `DELETE ${recordId.toString()} ${returnClause}`,
     vars: {},
   };
 }
 
 /**
  * Build a query to find a record by unique field (not ID)
- * Returns the record ID for subsequent DELETE ONLY operation
+ * Returns the record ID for subsequent DELETE operation
  */
 function buildFindIdByUniqueFieldQuery(model: ModelMetadata, where: WhereClause): CompiledQuery {
   const whereClause = transformWhereClause(where, model);
@@ -285,7 +276,7 @@ function buildFindIdByUniqueFieldQuery(model: ModelMetadata, where: WhereClause)
 }
 
 /**
- * Build DELETE ONLY query with cascade support for a single record
+ * Build DELETE query with cascade support for a single record
  * @param model - Model metadata
  * @param where - Where clause (must contain unique field)
  * @param registry - Model registry for cascade resolution
@@ -304,9 +295,12 @@ export function buildDeleteUniqueWithCascade(
   const cascadeDeps = dependents.filter((d) => d.recordField && d.onDelete !== 'NoAction');
   const restrictDeps = cascadeDeps.filter((d) => d.onDelete === 'Restrict');
 
-  // Simple case: ID provided, no cascade needed
-  if (hasId && cascadeDeps.length === 0) {
-    return buildDeleteUniqueQuery(model, id!, returnBefore);
+  // Simple case: no cascade dependencies needed
+  if (cascadeDeps.length === 0) {
+    if (hasId) return buildDeleteUniqueQuery(model, id!, returnBefore);
+
+    // Non-ID lookup without cascade - use simple WHERE-based delete
+    return returnBefore ? buildDeleteQueryWithReturn(model, where) : buildDeleteQuery(model, where);
   }
 
   // Build transaction
@@ -314,17 +308,17 @@ export function buildDeleteUniqueWithCascade(
   const vars: Record<string, unknown> = {};
 
   // If ID is provided, use it directly; otherwise look up by unique field
-  // Note: For non-ID lookups, the calling JS code should pre-check existence to avoid issues
   if (hasId) {
     const recordId = transformOrValidateRecordId(model.tableName, id!);
     vars.deleteId = recordId;
-    statements.push('LET $record = $deleteId');
+    statements.push('LET $deleteId = $deleteId');
   } else {
-    // Look up record by unique field
-    // JS code pre-checks existence, so we assume record exists here
+    // Look up record by unique field - need to handle case where record doesn't exist
     const lookupQuery = buildFindIdByUniqueFieldQuery(model, where);
     Object.assign(vars, lookupQuery.vars);
     statements.push(`LET $record = (${lookupQuery.text})`);
+    // If record doesn't exist, return empty array
+    statements.push('IF $record IS NONE { RETURN [] }');
     statements.push('LET $deleteId = $record.id');
   }
 
@@ -395,30 +389,5 @@ export function buildDeleteUniqueWithCascade(
   return {
     text: statements.join(';\n') + ';',
     vars,
-  };
-}
-
-/**
- * Build query for 'beforeAndCheck' mode: SELECT → validate externally → DELETE
- * Returns a query that fetches the record first (validation happens in JS)
- */
-export function buildDeleteUniqueFetchQuery(model: ModelMetadata, where: WhereClause): CompiledQuery {
-  const { hasId, id } = getRecordIdFromWhere(where, model);
-
-  if (hasId) {
-    const recordId = transformOrValidateRecordId(model.tableName, id!);
-
-    return {
-      text: `SELECT * FROM ONLY ${recordId.toString()}`,
-      vars: {},
-    };
-  }
-
-  // Look up by unique field
-  const whereClause = transformWhereClause(where, model);
-
-  return {
-    text: `SELECT * FROM ONLY ${model.tableName} ${whereClause.text} LIMIT 1`,
-    vars: whereClause.vars,
   };
 }

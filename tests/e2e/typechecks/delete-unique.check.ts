@@ -17,7 +17,7 @@ type Extends<A, B> = A extends B ? 1 : 0;
 
 Test.checks([
   // DeleteUniqueReturn is a union of valid return options
-  Test.check<DeleteUniqueReturn, null | undefined | true | 'before' | 'beforeAndCheck', Test.Pass>(),
+  Test.check<DeleteUniqueReturn, null | undefined | true | 'before', Test.Pass>(),
 
   // null is valid
   Test.check<Extends<null, DeleteUniqueReturn>, 1, Test.Pass>(),
@@ -31,8 +31,8 @@ Test.checks([
   // 'before' is valid
   Test.check<Extends<'before', DeleteUniqueReturn>, 1, Test.Pass>(),
 
-  // 'beforeAndCheck' is valid
-  Test.check<Extends<'beforeAndCheck', DeleteUniqueReturn>, 1, Test.Pass>(),
+  // 'beforeAndCheck' is NOT valid (removed)
+  Test.check<Extends<'beforeAndCheck', DeleteUniqueReturn>, 0, Test.Pass>(),
 
   // false is NOT valid
   Test.check<Extends<false, DeleteUniqueReturn>, 0, Test.Pass>(),
@@ -57,9 +57,6 @@ Test.checks([
 
   // 'before' returns User | null
   Test.check<DeleteUniqueReturnType<User, 'before'>, User | null, Test.Pass>(),
-
-  // 'beforeAndCheck' returns User | null
-  Test.check<DeleteUniqueReturnType<User, 'beforeAndCheck'>, User | null, Test.Pass>(),
 ]);
 
 // =============================================================================
@@ -99,7 +96,3 @@ Test.checks([Test.check<Extends<TrueOptions, DeleteUniqueOptions<true>>, 1, Test
 // Options with return: 'before'
 type BeforeOptions = { where: { email: string }; return: 'before' };
 Test.checks([Test.check<Extends<BeforeOptions, DeleteUniqueOptions<'before'>>, 1, Test.Pass>()]);
-
-// Options with return: 'beforeAndCheck'
-type BeforeAndCheckOptions = { where: { id: string }; return: 'beforeAndCheck' };
-Test.checks([Test.check<Extends<BeforeAndCheckOptions, DeleteUniqueOptions<'beforeAndCheck'>>, 1, Test.Pass>()]);

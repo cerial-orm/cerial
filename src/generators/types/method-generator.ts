@@ -173,8 +173,7 @@ export function generateDeleteUniqueMethod(model: ModelMetadata): string {
      * Return option for the deleted record
      * - undefined/null: returns boolean (always true - operation succeeded)
      * - true: returns boolean (true if record existed, false if not)
-     * - 'before': returns ${model.name} | null (deleted data, no validation)
-     * - 'beforeAndCheck': returns ${model.name} | null (slower: fetches and validates first)
+     * - 'before': returns ${model.name} | null (deleted data)
      */
     return?: R;
   }): Promise<DeleteUniqueReturnType<${model.name}, R>>;`;

@@ -323,21 +323,19 @@ export type Simplify<T> = { [K in keyof T]: T[K] } & {};
  * - undefined/null: RETURN NONE, always returns true (operation completed)
  * - true: RETURN BEFORE, returns boolean (true if existed, false if not)
  * - 'before': RETURN BEFORE, returns Model | null (no schema validation)
- * - 'beforeAndCheck': SELECT → validate → DELETE (slower but type-safe)
  */
-export type DeleteUniqueReturn = null | undefined | true | 'before' | 'beforeAndCheck';
+export type DeleteUniqueReturn = null | undefined | true | 'before';
 
 /**
  * Infer deleteUnique return type based on return option
  * @template T - The model type
  * @template R - The return option
- * @note 'beforeAndCheck' performs SELECT + validate + DELETE (slower but type-safe)
  */
 export type DeleteUniqueReturnType<T, R extends DeleteUniqueReturn> = R extends null | undefined
   ? boolean
   : R extends true
     ? boolean
-    : R extends 'before' | 'beforeAndCheck'
+    : R extends 'before'
       ? T | null
       : boolean;
 

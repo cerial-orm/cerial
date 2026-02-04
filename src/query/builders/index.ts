@@ -23,7 +23,6 @@ export { buildUpdateManyQuery, buildUpdateUniqueQuery } from './update-builder';
 export {
   buildDeleteQuery,
   buildDeleteQueryWithReturn,
-  buildDeleteUniqueFetchQuery,
   buildDeleteUniqueQuery,
   buildDeleteUniqueWithCascade,
   buildDeleteWithCascade,

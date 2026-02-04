@@ -74,6 +74,7 @@ E2E tests use `--preload ./tests/e2e/preload.ts` which generates the client befo
 
 - `tests/unit/query/nested-builder.test.ts` - Nested create/connect/disconnect queries
 - `tests/unit/query/delete-builder.test.ts` - Cascade delete queries
+- `tests/unit/query/delete-unique-builder.test.ts` - DeleteUnique query builder
 - `tests/unit/query/update-unique-builder.test.ts` - UpdateUnique query builder
 - `tests/unit/generators/type-mapper.test.ts` - SurrealQL type generation
 - `tests/generators/migrations.test.ts` - DEFINE FIELD statements
@@ -111,6 +112,13 @@ E2E tests use `--preload ./tests/e2e/preload.ts` which generates the client befo
 LET $exists_0_0 = (SELECT id FROM ONLY $validate_0_0);
 IF $exists_0_0 IS NONE { THROW "Cannot connect to non-existent Model record" };
 ```
+
+**DeleteUnique queries:**
+
+- Uses `DELETE recordId RETURN BEFORE/NONE` (no `ONLY` keyword - allows empty array result)
+- Returns array result, checks `result.length > 0` for existence
+- For non-ID lookups with cascade, uses `IF $record IS NONE { RETURN [] }` to handle non-existent records
+- Return options: `undefined`/`null` (always true), `true` (existed?), `'before'` (deleted data)
 
 ## Code Style
 

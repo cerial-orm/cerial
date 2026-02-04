@@ -1,12 +1,11 @@
 /**
  * Unit tests for deleteUnique query builders
  *
- * Tests DELETE ONLY query generation for single record deletion.
+ * Tests DELETE query generation for single record deletion.
  */
 
 import { describe, expect, test } from 'bun:test';
 import {
-  buildDeleteUniqueFetchQuery,
   buildDeleteUniqueQuery,
   buildDeleteUniqueWithCascade,
   getRecordIdFromWhere,
@@ -117,17 +116,17 @@ describe('delete-unique-builder', () => {
     const registry = astToRegistry(ast);
     const userModel = registry.User!;
 
-    test('generates DELETE ONLY with RETURN NONE', () => {
+    test('generates DELETE with RETURN NONE', () => {
       const query = buildDeleteUniqueQuery(userModel, 'abc123', false);
 
-      expect(query.text).toBe('DELETE ONLY user:abc123 RETURN NONE');
+      expect(query.text).toBe('DELETE user:abc123 RETURN NONE');
       expect(query.vars).toEqual({});
     });
 
-    test('generates DELETE ONLY with RETURN BEFORE', () => {
+    test('generates DELETE with RETURN BEFORE', () => {
       const query = buildDeleteUniqueQuery(userModel, 'abc123', true);
 
-      expect(query.text).toBe('DELETE ONLY user:abc123 RETURN BEFORE');
+      expect(query.text).toBe('DELETE user:abc123 RETURN BEFORE');
       expect(query.vars).toEqual({});
     });
 
@@ -138,49 +137,26 @@ describe('delete-unique-builder', () => {
     });
   });
 
-  describe('buildDeleteUniqueFetchQuery', () => {
-    const { ast } = parse(schemaBasic);
-    const registry = astToRegistry(ast);
-    const userModel = registry.User!;
-
-    test('generates SELECT for ID-based lookup', () => {
-      const where = { id: 'abc123' };
-      const query = buildDeleteUniqueFetchQuery(userModel, where);
-
-      expect(query.text).toBe('SELECT * FROM ONLY user:abc123');
-      expect(query.vars).toEqual({});
-    });
-
-    test('generates SELECT for email-based lookup', () => {
-      const where = { email: 'test@example.com' };
-      const query = buildDeleteUniqueFetchQuery(userModel, where);
-
-      expect(query.text).toContain('SELECT * FROM ONLY user WHERE');
-      expect(query.text).toContain('LIMIT 1');
-      expect(Object.keys(query.vars).length).toBeGreaterThan(0);
-    });
-  });
-
   describe('buildDeleteUniqueWithCascade', () => {
     describe('without cascade dependencies', () => {
       const { ast } = parse(schemaBasic);
       const registry = astToRegistry(ast);
       const userModel = registry.User!;
 
-      test('uses simple DELETE ONLY when no cascade needed (with ID)', () => {
+      test('uses simple DELETE when no cascade needed (with ID)', () => {
         const where = { id: 'abc123' };
         const query = buildDeleteUniqueWithCascade(userModel, where, registry, false);
 
         // Simple delete without transaction
-        expect(query.text).toBe('DELETE ONLY user:abc123 RETURN NONE');
+        expect(query.text).toBe('DELETE user:abc123 RETURN NONE');
         expect(query.vars).toEqual({});
       });
 
-      test('uses simple DELETE ONLY with RETURN BEFORE (with ID)', () => {
+      test('uses simple DELETE with RETURN BEFORE (with ID)', () => {
         const where = { id: 'abc123' };
         const query = buildDeleteUniqueWithCascade(userModel, where, registry, true);
 
-        expect(query.text).toBe('DELETE ONLY user:abc123 RETURN BEFORE');
+        expect(query.text).toBe('DELETE user:abc123 RETURN BEFORE');
       });
     });
 
