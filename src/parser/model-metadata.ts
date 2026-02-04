@@ -32,6 +32,18 @@ export function fieldToMetadata(field: ASTField): FieldMetadata {
     metadata.isArray = true;
   }
 
+  // Handle @distinct decorator
+  if (hasDecorator(field, 'distinct')) {
+    metadata.isDistinct = true;
+  }
+
+  // Handle @sort decorator
+  const sortDecorator = getDecorator(field, 'sort');
+  if (sortDecorator) {
+    // value is boolean: true = asc, false = desc (default true)
+    metadata.sortOrder = sortDecorator.value === false ? 'desc' : 'asc';
+  }
+
   // Handle relation type
   if (field.type === 'relation') {
     const modelDecorator = getDecorator(field, 'model');

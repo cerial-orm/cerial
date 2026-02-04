@@ -42,6 +42,7 @@ export async function cleanupTables(client: CerialClient): Promise<void> {
       await surreal.query('REMOVE TABLE IF EXISTS profile;');
       await surreal.query('REMOVE TABLE IF EXISTS post;');
       await surreal.query('REMOVE TABLE IF EXISTS tag;');
+      await surreal.query('REMOVE TABLE IF EXISTS array_decorator_test;');
     } catch {
       // Ignore errors
     }

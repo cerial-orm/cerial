@@ -78,8 +78,8 @@ export function generateDefineField(
   // Add TYPE clause (pass field and model for Record type handling)
   parts.push(generateTypeClause(field.type, field.isRequired, field, model));
 
-  // Add VALUE clause for Record[] (distinct deduplication)
-  const valueClause = generateValueClause(field);
+  // Add VALUE clause for array fields (distinct, sort)
+  const valueClause = generateValueClause(field, model);
   if (valueClause) parts.push(valueClause);
 
   // Add ASSERT clause if needed (e.g., for email validation)

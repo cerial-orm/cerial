@@ -2,7 +2,7 @@
  * Schema validator - validates schema files
  */
 
-import { getDecorator } from '../../parser/types/ast';
+import { getDecorator, hasDecorator } from '../../parser/types/ast';
 import type { SchemaAST } from '../../types';
 import { isValidFieldName, isValidModelName } from '../../utils/validation-utils';
 import { validateRelationRules } from './relation-validator';
@@ -197,6 +197,90 @@ export function validateRecordFields(ast: SchemaAST): SchemaValidationError[] {
   return errors;
 }
 
+/** Validate @distinct and @sort decorators on array fields */
+export function validateArrayDecorators(ast: SchemaAST): SchemaValidationError[] {
+  const errors: SchemaValidationError[] = [];
+
+  for (const model of ast.models) {
+    for (const field of model.fields) {
+      const hasDistinct = hasDecorator(field, 'distinct');
+      const hasSort = hasDecorator(field, 'sort');
+
+      if (!hasDistinct && !hasSort) continue;
+
+      // Must be an array field
+      if (!field.isArray) {
+        if (hasDistinct) {
+          errors.push({
+            message: `@distinct can only be used on array fields`,
+            model: model.name,
+            field: field.name,
+            line: field.range.start.line,
+          });
+        }
+        if (hasSort) {
+          errors.push({
+            message: `@sort can only be used on array fields`,
+            model: model.name,
+            field: field.name,
+            line: field.range.start.line,
+          });
+        }
+        continue;
+      }
+
+      // Not allowed on Relation[] (virtual, not stored)
+      if (field.type === 'relation') {
+        if (hasDistinct) {
+          errors.push({
+            message: `@distinct cannot be used on Relation[] fields (virtual, not stored in database)`,
+            model: model.name,
+            field: field.name,
+            line: field.range.start.line,
+          });
+        }
+        if (hasSort) {
+          errors.push({
+            message: `@sort cannot be used on Relation[] fields (virtual, not stored in database)`,
+            model: model.name,
+            field: field.name,
+            line: field.range.start.line,
+          });
+        }
+        continue;
+      }
+
+      // Not allowed on Record[] that is paired with a Relation (PK side of relation)
+      if (field.type === 'record') {
+        const pairedRelation = model.fields.find(
+          (f) => f.type === 'relation' && f.decorators.some((d) => d.type === 'field' && d.value === field.name),
+        );
+
+        if (pairedRelation) {
+          if (hasDistinct) {
+            errors.push({
+              message: `@distinct cannot be used on Record[] fields paired with a Relation (already has implicit distinct)`,
+              model: model.name,
+              field: field.name,
+              line: field.range.start.line,
+            });
+          }
+          if (hasSort) {
+            errors.push({
+              message: `@sort cannot be used on Record[] fields paired with a Relation`,
+              model: model.name,
+              field: field.name,
+              line: field.range.start.line,
+            });
+          }
+        }
+      }
+    }
+  }
+
+  return errors;
+}
+
 /** Validate entire schema */
 export function validateSchema(ast: SchemaAST): SchemaValidationResult {
   const errors: SchemaValidationError[] = [
@@ -205,6 +289,7 @@ export function validateSchema(ast: SchemaAST): SchemaValidationResult {
     ...validateRelations(ast),
     ...validateRecordFields(ast),
     ...validateRelationRules(ast),
+    ...validateArrayDecorators(ast),
   ];
 
   return {

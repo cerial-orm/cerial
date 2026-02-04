@@ -65,3 +65,15 @@ model EmailExample {
   primaryEmail Email @unique
   backupEmail Email?
 }
+
+# Model for testing @distinct and @sort array decorators
+model ArrayDecoratorTest {
+  id String @id
+  uniqueTags String[] @distinct
+  sortedScores Int[] @sort
+  recentDates Date[] @sort(false)
+  uniqueSortedCategories String[] @distinct @sort
+  uniqueSortedPriorities Int[] @distinct @sort(false)
+  normalTags String[]
+  normalScores Int[]
+}

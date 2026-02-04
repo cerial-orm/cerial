@@ -26,6 +26,16 @@ function generateFieldMetadata(field: FieldMetadata): string {
     parts.push(`isArray: true`);
   }
 
+  // Include isDistinct when true
+  if (field.isDistinct) {
+    parts.push(`isDistinct: true`);
+  }
+
+  // Include sortOrder when present
+  if (field.sortOrder) {
+    parts.push(`sortOrder: '${field.sortOrder}'`);
+  }
+
   // Include relationInfo when present
   if (field.relationInfo) {
     const relParts = [

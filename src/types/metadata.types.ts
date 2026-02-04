@@ -40,6 +40,10 @@ export interface FieldMetadata {
   isArray?: boolean;
   /** Relation metadata for Relation type fields */
   relationInfo?: RelationFieldMetadata;
+  /** Whether the field has @distinct decorator (for arrays) */
+  isDistinct?: boolean;
+  /** Sort order from @sort decorator: 'asc' (default) or 'desc' */
+  sortOrder?: 'asc' | 'desc';
 }
 
 /** Metadata for a model/table */

@@ -128,14 +128,48 @@ export function generateDefaultClause(hasNowDefault: boolean, defaultValue?: unk
 }
 
 /**
- * Generate the VALUE clause for array fields (distinct deduplication)
- * Used for Record[] to prevent duplicates
+ * Check if a Record[] field is paired with a Relation via @field decorator
+ */
+export function hasPairedRelation(field: FieldMetadata, model: ModelMetadata): boolean {
+  if (field.type !== 'record' || !field.isArray) return false;
+
+  return model.fields.some((f) => f.type === 'relation' && f.relationInfo?.fieldRef === field.name);
+}
+
+/**
+ * Generate the VALUE clause for array fields
+ *
+ * Handles:
+ * - Record[] paired with Relation: always $value.distinct() (implicit)
+ * - Primitive arrays with @distinct: $value.distinct()
+ * - Primitive arrays with @sort: $value.sort::asc() or $value.sort::desc()
+ * - Combined @distinct @sort: $value.distinct().sort::asc()
+ *
  * Uses conditional to handle NONE values gracefully
  */
-export function generateValueClause(field: FieldMetadata): string | undefined {
-  if (field.type === 'record' && field.isArray) {
-    // Handle NONE values to avoid "no such method found for none type" error
-    return 'VALUE IF $value THEN $value.distinct() ELSE [] END';
+export function generateValueClause(field: FieldMetadata, model?: ModelMetadata): string | undefined {
+  // Record[] paired with Relation - always distinct (existing behavior)
+  if (field.type === 'record' && field.isArray && model) {
+    if (hasPairedRelation(field, model)) {
+      return 'VALUE IF $value THEN $value.distinct() ELSE [] END';
+    }
+  }
+
+  // Arrays with @distinct and/or @sort decorators
+  if (field.isArray && field.type !== 'relation') {
+    const operations: string[] = [];
+
+    if (field.isDistinct) {
+      operations.push('.distinct()');
+    }
+    if (field.sortOrder) {
+      // array::sort() takes an optional boolean: true = asc (default), false = desc
+      operations.push(field.sortOrder === 'desc' ? '.sort(false)' : '.sort(true)');
+    }
+
+    if (operations.length) {
+      return `VALUE IF $value THEN $value${operations.join('')} ELSE [] END`;
+    }
   }
 
   return undefined;

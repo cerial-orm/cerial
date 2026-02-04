@@ -121,9 +121,7 @@ describe('Type Mapper', () => {
         ],
       };
 
-      expect(generateTypeClause('record', true, field, model)).toBe(
-        'TYPE record<user>'
-      );
+      expect(generateTypeClause('record', true, field, model)).toBe('TYPE record<user>');
     });
 
     test('should generate TYPE array<record<table>> for Record[]', () => {
@@ -160,9 +158,7 @@ describe('Type Mapper', () => {
         ],
       };
 
-      expect(generateTypeClause('record', true, field, model)).toBe(
-        'TYPE array<record<tag>>'
-      );
+      expect(generateTypeClause('record', true, field, model)).toBe('TYPE array<record<tag>>');
     });
 
     test('should generate TYPE array<string> for String[] field', () => {
@@ -176,17 +172,13 @@ describe('Type Mapper', () => {
         isArray: true,
       };
 
-      expect(generateTypeClause('string', true, field)).toBe(
-        'TYPE array<string>'
-      );
+      expect(generateTypeClause('string', true, field)).toBe('TYPE array<string>');
     });
   });
 
   describe('generateAssertClause', () => {
     test('should generate ASSERT for email', () => {
-      expect(generateAssertClause('email')).toBe(
-        'ASSERT string::is_email($value)'
-      );
+      expect(generateAssertClause('email')).toBe('ASSERT string::is_email($value)');
     });
 
     test('should return undefined for string', () => {
@@ -220,7 +212,7 @@ describe('Type Mapper', () => {
   });
 
   describe('generateValueClause', () => {
-    test('should generate VALUE with NONE handling for Record[]', () => {
+    test('should generate VALUE with NONE handling for Record[] paired with Relation', () => {
       const field: FieldMetadata = {
         name: 'tagIds',
         type: 'record',
@@ -231,8 +223,53 @@ describe('Type Mapper', () => {
         isArray: true,
       };
 
+      // Model with paired Relation
+      const model: ModelMetadata = {
+        name: 'Post',
+        tableName: 'post',
+        fields: [
+          field,
+          {
+            name: 'tags',
+            type: 'relation',
+            isRequired: true,
+            isId: false,
+            isUnique: false,
+            hasNowDefault: false,
+            isArray: true,
+            relationInfo: {
+              targetModel: 'Tag',
+              targetTable: 'tag',
+              fieldRef: 'tagIds',
+              isReverse: false,
+            },
+          },
+        ],
+      };
+
       // Uses IF/THEN/ELSE to handle NONE values and avoid "no such method found for none type" error
-      expect(generateValueClause(field)).toBe('VALUE IF $value THEN $value.distinct() ELSE [] END');
+      expect(generateValueClause(field, model)).toBe('VALUE IF $value THEN $value.distinct() ELSE [] END');
+    });
+
+    test('should return undefined for Record[] without paired Relation and no decorators', () => {
+      const field: FieldMetadata = {
+        name: 'standaloneIds',
+        type: 'record',
+        isRequired: true,
+        isId: false,
+        isUnique: false,
+        hasNowDefault: false,
+        isArray: true,
+      };
+
+      // Model without paired Relation
+      const model: ModelMetadata = {
+        name: 'Post',
+        tableName: 'post',
+        fields: [field],
+      };
+
+      expect(generateValueClause(field, model)).toBeUndefined();
     });
 
     test('should return undefined for non-array Record', () => {
@@ -248,7 +285,7 @@ describe('Type Mapper', () => {
       expect(generateValueClause(field)).toBeUndefined();
     });
 
-    test('should return undefined for non-Record array', () => {
+    test('should return undefined for non-Record array without decorators', () => {
       const field: FieldMetadata = {
         name: 'items',
         type: 'string',
@@ -257,6 +294,120 @@ describe('Type Mapper', () => {
         isUnique: false,
         hasNowDefault: false,
         isArray: true,
+      };
+
+      expect(generateValueClause(field)).toBeUndefined();
+    });
+
+    test('should generate VALUE with distinct() for @distinct decorator', () => {
+      const field: FieldMetadata = {
+        name: 'tags',
+        type: 'string',
+        isRequired: true,
+        isId: false,
+        isUnique: false,
+        hasNowDefault: false,
+        isArray: true,
+        isDistinct: true,
+      };
+
+      expect(generateValueClause(field)).toBe('VALUE IF $value THEN $value.distinct() ELSE [] END');
+    });
+
+    test('should generate VALUE with sort(true) for @sort decorator (ascending)', () => {
+      const field: FieldMetadata = {
+        name: 'scores',
+        type: 'int',
+        isRequired: true,
+        isId: false,
+        isUnique: false,
+        hasNowDefault: false,
+        isArray: true,
+        sortOrder: 'asc',
+      };
+
+      expect(generateValueClause(field)).toBe('VALUE IF $value THEN $value.sort(true) ELSE [] END');
+    });
+
+    test('should generate VALUE with sort(false) for @sort(false) decorator (descending)', () => {
+      const field: FieldMetadata = {
+        name: 'recentDates',
+        type: 'date',
+        isRequired: true,
+        isId: false,
+        isUnique: false,
+        hasNowDefault: false,
+        isArray: true,
+        sortOrder: 'desc',
+      };
+
+      expect(generateValueClause(field)).toBe('VALUE IF $value THEN $value.sort(false) ELSE [] END');
+    });
+
+    test('should generate VALUE with distinct() and sort(true) for @distinct @sort combined', () => {
+      const field: FieldMetadata = {
+        name: 'categories',
+        type: 'string',
+        isRequired: true,
+        isId: false,
+        isUnique: false,
+        hasNowDefault: false,
+        isArray: true,
+        isDistinct: true,
+        sortOrder: 'asc',
+      };
+
+      expect(generateValueClause(field)).toBe('VALUE IF $value THEN $value.distinct().sort(true) ELSE [] END');
+    });
+
+    test('should generate VALUE with distinct() and sort(false) for @distinct @sort(false) combined', () => {
+      const field: FieldMetadata = {
+        name: 'categories',
+        type: 'string',
+        isRequired: true,
+        isId: false,
+        isUnique: false,
+        hasNowDefault: false,
+        isArray: true,
+        isDistinct: true,
+        sortOrder: 'desc',
+      };
+
+      expect(generateValueClause(field)).toBe('VALUE IF $value THEN $value.distinct().sort(false) ELSE [] END');
+    });
+
+    test('should generate VALUE with distinct() for standalone Record[] with @distinct', () => {
+      const field: FieldMetadata = {
+        name: 'standaloneIds',
+        type: 'record',
+        isRequired: true,
+        isId: false,
+        isUnique: false,
+        hasNowDefault: false,
+        isArray: true,
+        isDistinct: true,
+      };
+
+      // Model without paired Relation
+      const model: ModelMetadata = {
+        name: 'Post',
+        tableName: 'post',
+        fields: [field],
+      };
+
+      expect(generateValueClause(field, model)).toBe('VALUE IF $value THEN $value.distinct() ELSE [] END');
+    });
+
+    test('should return undefined for Relation[] (virtual field)', () => {
+      const field: FieldMetadata = {
+        name: 'posts',
+        type: 'relation',
+        isRequired: true,
+        isId: false,
+        isUnique: false,
+        hasNowDefault: false,
+        isArray: true,
+        isDistinct: true, // Even with decorators, should be undefined
       };
 
       expect(generateValueClause(field)).toBeUndefined();

@@ -13,20 +13,24 @@ import { isValidFieldName } from '../../../utils/validation-utils';
 import { createField, createPosition, createRange } from '../ast';
 import {
   isDefaultDecorator,
+  isDistinctDecorator,
   isFieldDecorator,
   isIdDecorator,
   isKeyDecorator,
   isModelDecorator,
   isNowDecorator,
   isOnDeleteDecorator,
+  isSortDecorator,
   isUniqueDecorator,
   parseDefaultDecorator,
+  parseDistinctDecorator,
   parseFieldDecorator,
   parseIdDecorator,
   parseKeyDecorator,
   parseModelDecorator,
   parseNowDecorator,
   parseOnDeleteDecorator,
+  parseSortDecorator,
   parseUniqueDecorator,
 } from '../field-decorators';
 import { isArrayType, parseFieldType } from '../field-types';
@@ -75,6 +79,10 @@ export function parseDecorators(line: string, lineNumber: number): ASTDecorator[
       decorators.push(parseOnDeleteDecorator(token, range));
     } else if (isKeyDecorator(token)) {
       decorators.push(parseKeyDecorator(token, range));
+    } else if (isDistinctDecorator(token)) {
+      decorators.push(parseDistinctDecorator(range));
+    } else if (isSortDecorator(token)) {
+      decorators.push(parseSortDecorator(token, range));
     }
   }
 
