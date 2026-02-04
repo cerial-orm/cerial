@@ -180,6 +180,51 @@ export function generateDeleteUniqueMethod(model: ModelMetadata): string {
   }): Promise<DeleteUniqueReturnType<${model.name}, R>>;`;
 }
 
+/**
+ * Generate updateUnique method signature with return type inference
+ * Uses FindUniqueWhere to require at least one unique field
+ * Supports select/include for 'after'/default modes
+ */
+export function generateUpdateUniqueMethod(model: ModelMetadata): string {
+  if (!hasRelations(model)) {
+    // No relations - simpler generic signature (no include)
+    return `updateUnique<
+    S extends ${model.name}Select | undefined = undefined,
+    R extends UpdateUniqueReturn = undefined
+  >(options: {
+    where: ${model.name}FindUniqueWhere;
+    data: ${model.name}UpdateInput;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ${model.name} | null (pre-update state, no select support)
+     */
+    return?: R;
+  }): Promise<UpdateUniqueReturnType<Get${model.name}Payload<S>, R>>;`;
+  }
+
+  // With relations - full generic signature with include
+  return `updateUnique<
+    S extends ${model.name}Select | undefined = undefined,
+    I extends ${model.name}Include | undefined = undefined,
+    R extends UpdateUniqueReturn = undefined
+  >(options: {
+    where: ${model.name}FindUniqueWhere;
+    data: ${model.name}UpdateInput;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ${model.name} | null (pre-update state, no select/include support)
+     */
+    return?: R;
+  }): Promise<UpdateUniqueReturnType<Get${model.name}Payload<S, I>, R>>;`;
+}
+
 /** Generate count method signature */
 export function generateCountMethod(model: ModelMetadata): string {
   return `count(where?: ${model.name}Where): Promise<number>;`;
@@ -198,6 +243,7 @@ export function generateMethodSignatures(model: ModelMetadata): string[] {
     generateFindUniqueMethod(model),
     generateCreateMethod(model),
     generateUpdateMethod(model),
+    generateUpdateUniqueMethod(model),
     generateDeleteManyMethod(model),
     generateDeleteUniqueMethod(model),
     generateCountMethod(model),

@@ -13,8 +13,8 @@ import { generateClientTemplate } from './template';
 /** ts-toolbelt import for generated types */
 const TS_TOOLBELT_IMPORT = `import type { Object as O, Any as A } from 'ts-toolbelt';`;
 
-/** DeleteUnique types import for model files */
-const DELETE_UNIQUE_IMPORT = `import type { DeleteUniqueReturn, DeleteUniqueReturnType } from '..';`;
+/** DeleteUnique and UpdateUnique types import for model files */
+const UNIQUE_TYPES_IMPORT = `import type { DeleteUniqueReturn, DeleteUniqueReturnType, UpdateUniqueReturn, UpdateUniqueReturnType } from '..';`;
 
 /** Prettier config cache */
 let prettierConfig: prettier.Options | null = null;
@@ -151,7 +151,7 @@ export async function writeModelTypes(
  */
 
 ${TS_TOOLBELT_IMPORT}
-${DELETE_UNIQUE_IMPORT}
+${UNIQUE_TYPES_IMPORT}
 ${relatedImports}${interfaceCode}
 
 ${whereCode}
@@ -340,6 +340,21 @@ export type DeleteUniqueReturnType<T, R extends DeleteUniqueReturn> = R extends 
     : R extends 'before' | 'beforeAndCheck'
       ? T | null
       : boolean;
+
+/**
+ * UpdateUnique return option
+ * - undefined/null/'after': returns updated record (supports select/include)
+ * - true: returns boolean (true if found and updated, false if not)
+ * - 'before': returns pre-update record (no select/include support)
+ */
+export type UpdateUniqueReturn = null | undefined | true | 'before' | 'after';
+
+/**
+ * Infer updateUnique return type based on return option
+ * @template T - The model type (or payload type with select/include)
+ * @template R - The return option
+ */
+export type UpdateUniqueReturnType<T, R extends UpdateUniqueReturn> = R extends true ? boolean : T | null;
 `;
 
   const formatted = await formatCode(content, outputDir);

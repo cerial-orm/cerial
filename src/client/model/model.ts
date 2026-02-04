@@ -15,9 +15,13 @@ import type {
   DeleteUniqueReturn,
   ModelMetadata,
   ModelRegistry,
+  SelectClause,
   UpdateOptions,
+  UpdateUniqueResult,
+  UpdateUniqueReturn,
   WhereClause,
 } from '../../types';
+import type { IncludeClause } from '../../query/builders';
 
 /** Extended find unique options with include support */
 export interface FindUniqueOptionsWithInclude {
@@ -110,6 +114,26 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
     await this.beforeQuery();
 
     return QueryBuilderStatic.updateMany<T>(this.db, this.metadata, options, this.registry);
+  }
+
+  /**
+   * Update a unique record by id or unique field
+   * @param options - Update options with where clause, data, and optional return configuration
+   * @returns Depends on return option:
+   *   - undefined/null/'after': Model | null (updated record with select/include support)
+   *   - true: boolean (true if record found and updated, false if not)
+   *   - 'before': Model | null (pre-update record, no select/include support)
+   */
+  async updateUnique<R extends UpdateUniqueReturn = undefined>(options: {
+    where: WhereClause;
+    data: Partial<T>;
+    select?: SelectClause;
+    include?: IncludeClause;
+    return?: R;
+  }): Promise<UpdateUniqueResult<T, R>> {
+    await this.beforeQuery();
+
+    return QueryBuilderStatic.updateUnique<T, R>(this.db, this.metadata, options, this.registry);
   }
 
   /** Delete records matching where clause */

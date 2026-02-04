@@ -172,16 +172,16 @@ model Example {
 
 ### Decorators
 
-| Decorator         | Description          | Notes                     |
-| ----------------- | -------------------- | ------------------------- |
-| `@id`             | SurrealDB record id  | **Only ONE per model**    |
-| `@unique`         | Unique constraint    | Can be on multiple fields |
-| `@now`            | Auto-set timestamp   | For Date fields on create |
-| `@default(value)` | Default value        | Literal value             |
-| `@field(name)`    | Forward relation ref | For Relation fields       |
-| `@model(Model)`   | Relation target      | For Relation fields       |
-| `@onDelete(action)` | Delete behavior    | For optional Relation only |
-| `@key(name)`      | Relation key         | For disambiguation        |
+| Decorator           | Description          | Notes                      |
+| ------------------- | -------------------- | -------------------------- |
+| `@id`               | SurrealDB record id  | **Only ONE per model**     |
+| `@unique`           | Unique constraint    | Can be on multiple fields  |
+| `@now`              | Auto-set timestamp   | For Date fields on create  |
+| `@default(value)`   | Default value        | Literal value              |
+| `@field(name)`      | Forward relation ref | For Relation fields        |
+| `@model(Model)`     | Relation target      | For Relation fields        |
+| `@onDelete(action)` | Delete behavior      | For optional Relation only |
+| `@key(name)`        | Relation key         | For disambiguation         |
 
 ### @onDelete Decorator
 
@@ -195,14 +195,15 @@ model Profile {
 }
 ```
 
-| Action     | Behavior |
-|------------|----------|
+| Action     | Behavior                                          |
+| ---------- | ------------------------------------------------- |
 | `Cascade`  | Delete this record when related record is deleted |
-| `SetNull`  | Set FK to null (default for optional relations) |
-| `Restrict` | Error if trying to delete related record |
-| `NoAction` | Do nothing (leaves dangling reference) |
+| `SetNull`  | Set FK to null (default for optional relations)   |
+| `Restrict` | Error if trying to delete related record          |
+| `NoAction` | Do nothing (leaves dangling reference)            |
 
 **Rules**:
+
 - **Required relations** (`Relation`): Auto-cascade on delete, `@onDelete` NOT allowed
 - **Optional relations** (`Relation?`): Default `SetNull`, can override with `@onDelete`
 - **Array relations** (`Relation[]`): Auto cleanup - removes ID from arrays
@@ -234,10 +235,10 @@ Relations are defined using `Relation` fields with `@field` and `@model` decorat
 
 #### Relation Types
 
-| Type | Schema Pattern | Description |
-|------|---------------|-------------|
-| **1-to-1** | `Record` + `Relation @field` | One record links to one other |
-| **1-to-n** | `Record` + `Relation @field` / `Relation[]` | One record links to many |
+| Type       | Schema Pattern                                 | Description                          |
+| ---------- | ---------------------------------------------- | ------------------------------------ |
+| **1-to-1** | `Record` + `Relation @field`                   | One record links to one other        |
+| **1-to-n** | `Record` + `Relation @field` / `Relation[]`    | One record links to many             |
 | **n-to-n** | `Record[]` + `Relation[] @field` on both sides | Many-to-many with bidirectional sync |
 
 #### One-to-One (1-1)
@@ -318,9 +319,9 @@ model SocialUser {
 
 #### Relation Sides
 
-| Side | Structure | Features |
-|------|-----------|----------|
-| **PK Side** | `Record + Relation @field` | Stores FK, full CRUD support |
+| Side            | Structure                     | Features                                |
+| --------------- | ----------------------------- | --------------------------------------- |
+| **PK Side**     | `Record + Relation @field`    | Stores FK, full CRUD support            |
 | **Non-PK Side** | `Relation @model` (no @field) | Reverse lookup only, OPTIONAL to define |
 
 **Forward relations** (PK side) have a storage field (`@field`) that stores the record ID.
@@ -500,8 +501,8 @@ await db.User.update({
   where: { id: 'user:1' },
   data: {
     tags: {
-      connect: ['tag:new'],     // Adds to both User.tagIds and Tag.userIds
-      disconnect: ['tag:old'],  // Removes from both sides
+      connect: ['tag:new'], // Adds to both User.tagIds and Tag.userIds
+      disconnect: ['tag:old'], // Removes from both sides
     },
   },
 });
@@ -515,6 +516,74 @@ await db.User.update({
 });
 ```
 
+### updateUnique
+
+Update a single record by unique field (id or @unique fields).
+
+```typescript
+// Update by id - returns updated record
+const user = await db.User.updateUnique({
+  where: { id: '123' },
+  data: { name: 'New Name' },
+});
+// user: User | null
+
+// Update by unique email
+const user = await db.User.updateUnique({
+  where: { email: 'john@example.com' },
+  data: { name: 'John Doe' },
+});
+// user: User | null
+
+// Update with select - only return specific fields
+const user = await db.User.updateUnique({
+  where: { id: '123' },
+  data: { name: 'John' },
+  select: { id: true, name: true },
+});
+// user: { id: string; name: string } | null
+
+// Update with include - return with relations
+const user = await db.User.updateUnique({
+  where: { id: '123' },
+  data: { name: 'John' },
+  include: { profile: true },
+});
+// user: User & { profile: Profile } | null
+
+// Check if update happened (boolean return)
+const updated = await db.User.updateUnique({
+  where: { id: '123' },
+  data: { name: 'John' },
+  return: true,
+});
+// updated: boolean (true if found and updated, false if not)
+
+// Get state before update
+const oldUser = await db.User.updateUnique({
+  where: { id: '123' },
+  data: { name: 'New Name' },
+  return: 'before',
+});
+// oldUser: User | null (state before update)
+
+// Update with additional where conditions
+const user = await db.User.updateUnique({
+  where: { id: '123', isActive: true },
+  data: { name: 'Active User' },
+});
+// Only updates if both id matches AND isActive is true
+```
+
+#### Return Options
+
+| Option                | Return Type     | Description                                          |
+| --------------------- | --------------- | ---------------------------------------------------- |
+| `undefined` (default) | `Model \| null` | Returns updated record, or null if not found         |
+| `'after'`             | `Model \| null` | Same as default                                      |
+| `true`                | `boolean`       | Returns true if found and updated, false if not      |
+| `'before'`            | `Model \| null` | Returns pre-update state (no select/include support) |
+
 ### deleteMany
 
 Delete multiple records matching where clause.
@@ -524,6 +593,32 @@ const count = await db.User.deleteMany({
   where: { isActive: false },
 });
 // count: number (number of deleted records)
+```
+
+### deleteUnique
+
+Delete a single record by unique field (id or @unique fields).
+
+```typescript
+// Delete by id - returns true (operation completed)
+const result = await db.User.deleteUnique({
+  where: { id: '123' },
+});
+// result: boolean (always true)
+
+// Check if record existed
+const existed = await db.User.deleteUnique({
+  where: { id: '123' },
+  return: true,
+});
+// existed: boolean (true if record existed, false if not)
+
+// Get deleted record data
+const deletedUser = await db.User.deleteUnique({
+  where: { id: '123' },
+  return: 'before',
+});
+// deletedUser: User | null
 ```
 
 ### count

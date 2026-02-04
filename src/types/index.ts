@@ -83,6 +83,8 @@ export type {
   SpecialOperators,
   StringOperators,
   UpdateOptions,
+  UpdateUniqueResult,
+  UpdateUniqueReturn,
   VarBinding,
   WhereClause,
 } from './query.types';

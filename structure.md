@@ -113,7 +113,7 @@ client/
 
 **Key Classes**:
 
-- `Model` - Base class providing `findOne()`, `findMany()`, `findUnique()`, `create()`, `updateMany()`, `deleteMany()`, `count()`, `exists()`
+- `Model` - Base class providing `findOne()`, `findMany()`, `findUnique()`, `create()`, `updateMany()`, `updateUnique()`, `deleteMany()`, `deleteUnique()`, `count()`, `exists()`
 - `ConnectionManager` - Manages database connections with migration support
 - Model proxies created by `factory.ts` use JavaScript Proxy API for dynamic model access
 
@@ -329,11 +329,11 @@ model User {
 
 **Relation Types**:
 
-| Type | PK Side | Non-PK Side |
-|------|---------|-------------|
-| 1-1 | `Record` + `Relation @field` | `Relation @model` |
-| 1-n | `Record` + `Relation @field` | `Relation[] @model` |
-| n-n | `Record[]` + `Relation[] @field` | `Record[]` + `Relation[] @field` (both sides are PK) |
+| Type | PK Side                          | Non-PK Side                                          |
+| ---- | -------------------------------- | ---------------------------------------------------- |
+| 1-1  | `Record` + `Relation @field`     | `Relation @model`                                    |
+| 1-n  | `Record` + `Relation @field`     | `Relation[] @model`                                  |
+| n-n  | `Record[]` + `Relation[] @field` | `Record[]` + `Relation[] @field` (both sides are PK) |
 
 ---
 
@@ -354,7 +354,7 @@ query/
 │   ├── nested-builder.ts        # Nested create/connect/disconnect operations
 │   ├── relation-builder.ts      # Relation include builder
 │   ├── select-builder.ts        # SELECT query builder
-│   └── update-builder.ts        # UPDATE query builder
+│   └── update-builder.ts        # UPDATE/UPDATE ONLY query builders (updateMany, updateUnique)
 ├── compile/              # Query compilation
 │   ├── fragment.ts        # Query fragment utilities
 │   ├── index.ts
@@ -554,7 +554,8 @@ tests/
 │   ├── query/            # Query builder unit tests
 │   │   ├── builder.test.ts
 │   │   ├── delete-builder.test.ts
-│   │   └── nested-builder.test.ts
+│   │   ├── nested-builder.test.ts
+│   │   └── update-unique-builder.test.ts
 │   └── typechecks/       # Type-level checks
 │       ├── common-types.check.ts
 │       └── metadata-types.check.ts
@@ -593,9 +594,9 @@ bun test tests/parser/
 
 **Test Coverage**:
 
-- **Unit tests**: ~211 tests covering parsers, generators, query builders
-- **E2E tests**: 82 tests covering real-world usage scenarios
-- **Total**: ~293 tests
+- **Unit tests**: ~270 tests covering parsers, generators, query builders
+- **E2E tests**: ~616 tests covering real-world usage scenarios
+- **Total**: ~886 tests
 
 ---
 
@@ -679,16 +680,16 @@ Client                    QueryBuilder                 SurrealDB
 
 The `relation-validator.ts` enforces these rules:
 
-| Rule | Description |
-|------|-------------|
-| PK Structure | `Relation @field` requires paired `Record` field |
-| Non-PK Validation | Reverse relation requires PK side in target model |
-| Single-sided Optional | If no reverse defined, must use `Record?` and `Relation?` |
-| N-N Completeness | True n-n requires both sides to define `Record[]` + `Relation[]` |
-| @onDelete Placement | Only allowed on optional `Relation?` |
-| Cardinality Match | `Record[]` pairs with `Relation[]`, `Record` with `Relation` |
-| @key Required | Multiple relations to same model need `@key` for disambiguation |
-| @key Pairing | Forward and reverse relations must share same `@key` value |
+| Rule                  | Description                                                      |
+| --------------------- | ---------------------------------------------------------------- |
+| PK Structure          | `Relation @field` requires paired `Record` field                 |
+| Non-PK Validation     | Reverse relation requires PK side in target model                |
+| Single-sided Optional | If no reverse defined, must use `Record?` and `Relation?`        |
+| N-N Completeness      | True n-n requires both sides to define `Record[]` + `Relation[]` |
+| @onDelete Placement   | Only allowed on optional `Relation?`                             |
+| Cardinality Match     | `Record[]` pairs with `Relation[]`, `Record` with `Relation`     |
+| @key Required         | Multiple relations to same model need `@key` for disambiguation  |
+| @key Pairing          | Forward and reverse relations must share same `@key` value       |
 
 ---
 

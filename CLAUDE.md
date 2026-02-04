@@ -65,13 +65,16 @@ E2E tests use `--preload ./tests/e2e/preload.ts` which generates the client befo
 **Type checks** use ts-toolbelt for compile-time verification in `tests/e2e/typechecks/*.check.ts`.
 
 **Test locations:**
+
 - `tests/unit/` - Unit tests (no DB required)
 - `tests/e2e/relations/` - E2E relation tests (94 files)
 - `tests/e2e/typechecks/` - Compile-time type verification (9 files)
 
 **When query format changes**, update test expectations in:
+
 - `tests/unit/query/nested-builder.test.ts` - Nested create/connect/disconnect queries
 - `tests/unit/query/delete-builder.test.ts` - Cascade delete queries
+- `tests/unit/query/update-unique-builder.test.ts` - UpdateUnique query builder
 - `tests/unit/generators/type-mapper.test.ts` - SurrealQL type generation
 - `tests/generators/migrations.test.ts` - DEFINE FIELD statements
 - `tests/integration/migration.test.ts` - Migration integration
@@ -92,15 +95,18 @@ E2E tests use `--preload ./tests/e2e/preload.ts` which generates the client befo
 ## Query Patterns
 
 **Parameterized queries** - Values are bound via `$varName`, not inlined:
+
 - Connect: `profileId = $profile_connect[0]` (not `profileId = "profile:123"`)
 - Array connect: `tagIds = $tags_connect` (not `tagIds = ["tag:1"]`)
 - Bidirectional sync: `UPDATE $sync_0_0 SET userIds += $resultId`
 
 **NULL vs NONE in updates:**
+
 - Disconnect optional field: `SET fieldName = NULL` (queryable with `{ field: null }`)
 - Delete field entirely: `SET fieldName = NONE` (field becomes absent)
 
 **Validation in transactions:**
+
 ```surql
 LET $exists_0_0 = (SELECT id FROM ONLY $validate_0_0);
 IF $exists_0_0 IS NONE { THROW "Cannot connect to non-existent Model record" };
@@ -166,39 +172,57 @@ SurrealDB distinguishes between `NONE` (field doesn't exist) and `null` (field e
 
 **Schema definitions:**
 
-| Schema                          | TypeScript Type          | undefined behavior    | null behavior     |
-| ------------------------------- | ------------------------ | --------------------- | ----------------- |
-| `field String?`                 | `field?: string \| null` | NONE (field absent)   | null stored in DB |
-| `field String? @default(null)`  | `field?: string \| null` | null stored (default) | null stored in DB |
-| `field Relation?`               | `field?: Related \| null`| NONE                  | null stored       |
-| `field Record?`                 | `field?: string`         | NONE                  | NONE (no null)    |
+| Schema                         | TypeScript Type           | undefined behavior    | null behavior     |
+| ------------------------------ | ------------------------- | --------------------- | ----------------- |
+| `field String?`                | `field?: string \| null`  | NONE (field absent)   | null stored in DB |
+| `field String? @default(null)` | `field?: string \| null`  | null stored (default) | null stored in DB |
+| `field Relation?`              | `field?: Related \| null` | NONE                  | null stored       |
+| `field Record?`                | `field?: string`          | NONE                  | NONE (no null)    |
 
 **Query operators:**
 
-| Operator          | SurrealQL               | Description                          |
-| ----------------- | ----------------------- | ------------------------------------ |
-| `{ eq: null }`    | `field = NULL`          | Field is null (not NONE)             |
-| `{ not: null }`   | `field != NULL`         | Field is not null (could be NONE)    |
-| `{ isNone: true }`| `field = NONE`          | Field is absent                      |
-| `{ isNone: false}`| `field != NONE`         | Field is present (could be null)     |
+| Operator           | SurrealQL       | Description                       |
+| ------------------ | --------------- | --------------------------------- |
+| `{ eq: null }`     | `field = NULL`  | Field is null (not NONE)          |
+| `{ not: null }`    | `field != NULL` | Field is not null (could be NONE) |
+| `{ isNone: true }` | `field = NONE`  | Field is absent                   |
+| `{ isNone: false}` | `field != NONE` | Field is present (could be null)  |
 
 **Runtime behavior:**
 
 ```typescript
 // field String? (no @default) - user chooses NONE or null
-{ name: 'John' }           // name = 'John'
-{ name: undefined }        // name field NOT stored (NONE)
-{ name: null }             // name = null (explicit null stored)
+{
+  name: 'John';
+} // name = 'John'
+{
+  name: undefined;
+} // name field NOT stored (NONE)
+{
+  name: null;
+} // name = null (explicit null stored)
 
 // field String? @default(null) - undefined defaults to null
-{ bio: 'Hello' }           // bio = 'Hello'
-{ bio: undefined }         // bio = null (default applied)
-{ bio: null }              // bio = null (explicit null)
+{
+  bio: 'Hello';
+} // bio = 'Hello'
+{
+  bio: undefined;
+} // bio = null (default applied)
+{
+  bio: null;
+} // bio = null (explicit null)
 
 // field Record? - null is treated as NONE (record refs can't be null)
-{ userId: 'abc' }          // userId = record reference
-{ userId: undefined }      // userId field NOT stored (NONE)
-{ userId: null }           // userId field NOT stored (NONE)
+{
+  userId: 'abc';
+} // userId = record reference
+{
+  userId: undefined;
+} // userId field NOT stored (NONE)
+{
+  userId: null;
+} // userId field NOT stored (NONE)
 ```
 
 **Implementation details:**

@@ -6,12 +6,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import {
-  cleanupTables,
-  createTestClient,
-  CerialClient,
-  testConfig,
-} from './test-client';
+import { cleanupTables, createTestClient, CerialClient, testConfig } from './test-client';
 
 describe('E2E CRUD Operations', () => {
   let client: CerialClient;
@@ -509,6 +504,215 @@ describe('E2E CRUD Operations', () => {
 
         expect(result).toBeDefined();
         expect(result?.email).toBe('deleteunique@example.com');
+      });
+    });
+  });
+
+  describe('UpdateUnique', () => {
+    let testUserId: string;
+
+    beforeEach(async () => {
+      const user = await client.db.User.create({
+        data: {
+          email: 'updateunique@example.com',
+          name: 'Update Unique User',
+          isActive: true,
+          age: 25,
+        },
+      });
+      testUserId = user.id;
+    });
+
+    describe('return: undefined (default)', () => {
+      test('should return updated record when updating by id', async () => {
+        const result = await client.db.User.updateUnique({
+          where: { id: testUserId },
+          data: { name: 'Updated Name' },
+        });
+
+        expect(result).toBeDefined();
+        expect(result?.id).toBe(testUserId);
+        expect(result?.name).toBe('Updated Name');
+        expect(result?.email).toBe('updateunique@example.com');
+      });
+
+      test('should return null when record does not exist', async () => {
+        const result = await client.db.User.updateUnique({
+          where: { id: 'nonexistent-id' },
+          data: { name: 'Updated Name' },
+        });
+
+        expect(result).toBeNull();
+      });
+
+      test('should update by unique email field', async () => {
+        const result = await client.db.User.updateUnique({
+          where: { email: 'updateunique@example.com' },
+          data: { name: 'Updated via Email' },
+        });
+
+        expect(result).toBeDefined();
+        expect(result?.name).toBe('Updated via Email');
+        expect(result?.email).toBe('updateunique@example.com');
+      });
+
+      test('should update multiple fields', async () => {
+        const result = await client.db.User.updateUnique({
+          where: { id: testUserId },
+          data: { name: 'New Name', age: 30 },
+        });
+
+        expect(result).toBeDefined();
+        expect(result?.name).toBe('New Name');
+        expect(result?.age).toBe(30);
+      });
+
+      test('should update with id and additional where fields', async () => {
+        const result = await client.db.User.updateUnique({
+          where: { id: testUserId, email: 'updateunique@example.com' },
+          data: { name: 'Updated with Extra Where' },
+        });
+
+        expect(result).toBeDefined();
+        expect(result?.name).toBe('Updated with Extra Where');
+      });
+
+      test('should return null when additional where fields do not match', async () => {
+        const result = await client.db.User.updateUnique({
+          where: { id: testUserId, email: 'wrong@example.com' },
+          data: { name: 'Should Not Update' },
+        });
+
+        expect(result).toBeNull();
+
+        // Verify original data unchanged
+        const found = await client.db.User.findUnique({ where: { id: testUserId } });
+        expect(found?.name).toBe('Update Unique User');
+      });
+    });
+
+    describe('return: true', () => {
+      test('should return true when record existed and was updated', async () => {
+        const result = await client.db.User.updateUnique({
+          where: { id: testUserId },
+          data: { name: 'Updated' },
+          return: true,
+        });
+
+        expect(result).toBe(true);
+
+        // Verify update
+        const found = await client.db.User.findUnique({ where: { id: testUserId } });
+        expect(found?.name).toBe('Updated');
+      });
+
+      test('should return false when record does not exist', async () => {
+        const result = await client.db.User.updateUnique({
+          where: { id: 'nonexistent-id' },
+          data: { name: 'Should Not Update' },
+          return: true,
+        });
+
+        expect(result).toBe(false);
+      });
+
+      test('should return true when updating by unique email', async () => {
+        const result = await client.db.User.updateUnique({
+          where: { email: 'updateunique@example.com' },
+          data: { name: 'Updated via Email' },
+          return: true,
+        });
+
+        expect(result).toBe(true);
+      });
+
+      test('should return false when email does not exist', async () => {
+        const result = await client.db.User.updateUnique({
+          where: { email: 'nonexistent@example.com' },
+          data: { name: 'Should Not Update' },
+          return: true,
+        });
+
+        expect(result).toBe(false);
+      });
+    });
+
+    describe("return: 'before'", () => {
+      test('should return pre-update state when record exists', async () => {
+        const result = await client.db.User.updateUnique({
+          where: { id: testUserId },
+          data: { name: 'New Name', age: 99 },
+          return: 'before',
+        });
+
+        expect(result).toBeDefined();
+        expect(result?.id).toBe(testUserId);
+        expect(result?.name).toBe('Update Unique User'); // Old value
+        expect(result?.age).toBe(25); // Old value
+
+        // Verify update happened
+        const found = await client.db.User.findUnique({ where: { id: testUserId } });
+        expect(found?.name).toBe('New Name');
+        expect(found?.age).toBe(99);
+      });
+
+      test('should return null when record does not exist', async () => {
+        const result = await client.db.User.updateUnique({
+          where: { id: 'nonexistent-id' },
+          data: { name: 'Should Not Update' },
+          return: 'before',
+        });
+
+        expect(result).toBeNull();
+      });
+
+      test('should return pre-update state when updating by email', async () => {
+        const result = await client.db.User.updateUnique({
+          where: { email: 'updateunique@example.com' },
+          data: { name: 'New Name' },
+          return: 'before',
+        });
+
+        expect(result).toBeDefined();
+        expect(result?.name).toBe('Update Unique User'); // Old value
+      });
+    });
+
+    describe("return: 'after'", () => {
+      test('should behave same as default - return updated record', async () => {
+        const result = await client.db.User.updateUnique({
+          where: { id: testUserId },
+          data: { name: 'After Mode Name' },
+          return: 'after',
+        });
+
+        expect(result).toBeDefined();
+        expect(result?.name).toBe('After Mode Name'); // New value
+      });
+
+      test('should return null when record does not exist', async () => {
+        const result = await client.db.User.updateUnique({
+          where: { id: 'nonexistent-id' },
+          data: { name: 'Should Not Update' },
+          return: 'after',
+        });
+
+        expect(result).toBeNull();
+      });
+    });
+
+    describe('with select', () => {
+      test('should return only selected fields', async () => {
+        const result = await client.db.User.updateUnique({
+          where: { id: testUserId },
+          data: { name: 'Selected Update' },
+          select: { id: true, name: true },
+        });
+
+        expect(result).toBeDefined();
+        expect(result?.id).toBe(testUserId);
+        expect(result?.name).toBe('Selected Update');
+        // Note: Other fields may or may not be present depending on implementation
       });
     });
   });

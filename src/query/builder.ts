@@ -12,7 +12,10 @@ import type {
   FindOneOptions,
   ModelMetadata,
   ModelRegistry,
+  SelectClause,
   UpdateOptions,
+  UpdateUniqueResult,
+  UpdateUniqueReturn,
   WhereClause,
 } from '../types';
 import {
@@ -27,11 +30,13 @@ import {
   buildFindOneQuery,
   buildFindUniqueQuery,
   buildUpdateManyQuery,
+  buildUpdateUniqueQuery,
   buildUpdateWithNestedTransaction,
   extractNestedOperations,
   getRecordIdFromWhere,
   type FindOptionsWithInclude,
   type FindUniqueOptionsWithInclude,
+  type IncludeClause,
 } from './builders';
 import { executeQuery, executeQuerySingle } from './executor';
 import { mapResult, mapSingleResult } from './mappers';
@@ -163,6 +168,106 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     return mapResult<T>(result, this.model);
   }
 
+  /**
+   * Update a unique record by id or unique field
+   * @param options - Update options with where clause, data, and optional return configuration
+   * @returns Depends on return option:
+   *   - undefined/null/'after': Model | null (updated record with select/include support)
+   *   - true: boolean (true if record found and updated, false if not)
+   *   - 'before': Model | null (pre-update record, no select/include support)
+   */
+  async updateUnique<R extends UpdateUniqueReturn = undefined>(options: {
+    where: WhereClause;
+    data: Partial<T>;
+    select?: SelectClause;
+    include?: IncludeClause;
+    return?: R;
+  }): Promise<UpdateUniqueResult<T, R>> {
+    const { where, data, select, include, return: returnOption } = options;
+
+    // Validate where clause
+    const whereValidation = validateWhere(where, this.model);
+    if (!whereValidation.valid)
+      throw new Error(`Invalid where clause: ${whereValidation.errors.map((e) => e.message).join(', ')}`);
+
+    // Validate unique field requirement
+    const { hasId } = getRecordIdFromWhere(where, this.model, 'updateUnique');
+
+    // Extract nested operations from the data
+    const { cleanData, nestedOps } = extractNestedOperations(data as Record<string, unknown>, this.model);
+
+    // Transform and validate data
+    const transformedData = transformData(cleanData, this.model);
+
+    const dataValidation = validateUpdateData(transformedData, this.model);
+    if (!dataValidation.valid)
+      throw new Error(`Invalid data: ${dataValidation.errors.map((e) => e.message).join(', ')}`);
+
+    // If there are nested operations, use the transaction builder
+    // TODO: Add support for nested operations with updateUnique
+    if (nestedOps.size > 0 && this.registry) {
+      // For now, use updateMany with the same where clause and return first result
+      const query = buildUpdateWithNestedTransaction(this.model, where, transformedData, nestedOps, this.registry);
+      const result = await executeQuery(this.db, query);
+      const record = Array.isArray(result) ? result[0] : result;
+
+      return this.handleUpdateUniqueResult<R>(record, returnOption);
+    }
+
+    // Build and execute the update query
+    const query = buildUpdateUniqueQuery(
+      this.model,
+      where,
+      transformedData,
+      returnOption ?? undefined,
+      select,
+      include,
+      this.registry,
+    );
+
+    // Execute query - UPDATE ONLY returns single result, UPDATE returns array
+    if (hasId) {
+      try {
+        const result = await executeQuerySingle(this.db, query);
+
+        return this.handleUpdateUniqueResult<R>(result, returnOption);
+      } catch (error) {
+        // UPDATE ONLY throws error when record doesn't exist
+        if (
+          error instanceof Error &&
+          error.message.includes('Expected a single result output when using the ONLY keyword')
+        ) {
+          return this.handleUpdateUniqueResult<R>(null, returnOption);
+        }
+        throw error;
+      }
+    }
+
+    // Non-ID unique field: UPDATE returns array, take first result
+    const result = await executeQuery(this.db, query);
+    const record = Array.isArray(result) && result.length > 0 ? result[0] : null;
+
+    return this.handleUpdateUniqueResult<R>(record, returnOption);
+  }
+
+  /** Handle updateUnique result based on return option */
+  private handleUpdateUniqueResult<R extends UpdateUniqueReturn>(
+    result: unknown,
+    returnOption: R | undefined,
+  ): UpdateUniqueResult<T, R> {
+    // true: return whether record was found and updated
+    if (returnOption === true) {
+      return (result !== null) as UpdateUniqueResult<T, R>;
+    }
+
+    // Default / 'after' / 'before': return the record or null
+    if (result === null) {
+      return null as UpdateUniqueResult<T, R>;
+    }
+
+    return mapSingleResult<T>(result, this.model) as UpdateUniqueResult<T, R>;
+  }
+
   /** Delete records matching where clause */
   async deleteMany(options: DeleteManyOptions): Promise<number> {
     const { where } = options;
@@ -238,7 +343,12 @@ export class QueryBuilder<T extends Record<string, unknown>> {
 
       if (this.registry) {
         // Use cascade delete with the ID we found
-        const deleteQuery = buildDeleteUniqueWithCascade(this.model, { id: recordId }, this.registry, needsReturnBefore);
+        const deleteQuery = buildDeleteUniqueWithCascade(
+          this.model,
+          { id: recordId },
+          this.registry,
+          needsReturnBefore,
+        );
         const result = await executeQuerySingle(this.db, deleteQuery);
 
         return this.handleDeleteUniqueResult<R>(result, returnOption);
@@ -377,7 +487,12 @@ export const QueryBuilderStatic = {
   },
 
   /** Delete records */
-  async deleteMany(db: Surreal, model: ModelMetadata, options: DeleteManyOptions, registry?: ModelRegistry): Promise<number> {
+  async deleteMany(
+    db: Surreal,
+    model: ModelMetadata,
+    options: DeleteManyOptions,
+    registry?: ModelRegistry,
+  ): Promise<number> {
     const builder = new QueryBuilder(db, model, registry);
 
     return builder.deleteMany(options);
@@ -399,5 +514,29 @@ export const QueryBuilderStatic = {
     const builder = new QueryBuilder<T>(db, model, registry);
 
     return builder.deleteUnique(options);
+  },
+
+  /**
+   * Update a unique record by id or unique field
+   * @param db - SurrealDB connection
+   * @param model - Model metadata
+   * @param options - Update options with where clause, data, and optional return configuration
+   * @param registry - Optional model registry for nested operations and cascade support
+   */
+  async updateUnique<T extends Record<string, unknown>, R extends UpdateUniqueReturn = undefined>(
+    db: Surreal,
+    model: ModelMetadata,
+    options: {
+      where: WhereClause;
+      data: Partial<T>;
+      select?: SelectClause;
+      include?: IncludeClause;
+      return?: R;
+    },
+    registry?: ModelRegistry,
+  ): Promise<UpdateUniqueResult<T, R>> {
+    const builder = new QueryBuilder<T>(db, model, registry);
+
+    return builder.updateUnique(options);
   },
 };

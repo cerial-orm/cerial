@@ -18,7 +18,7 @@ export {
 
 export { applyDefaultValues, applyNowDefaults, buildCreateQuery } from './insert-builder';
 
-export { buildUpdateManyQuery } from './update-builder';
+export { buildUpdateManyQuery, buildUpdateUniqueQuery } from './update-builder';
 
 export {
   buildDeleteQuery,
