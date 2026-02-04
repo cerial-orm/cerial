@@ -17,7 +17,7 @@ const createMockSurreal = () => ({
 // Parse model using DSL
 const dsl = `
 model User {
-  id String @id
+  id Record @id
   email Email @unique
   name String
   age Int?

@@ -1,12 +1,12 @@
 # 1-1 Optional with @onDelete Cascade
 model UserCascade {
-  id String @id
+  id Record @id
   name String
   profile Relation? @model(ProfileCascade)
 }
 
 model ProfileCascade {
-  id String @id
+  id Record @id
   bio String?
   userId Record?
   user Relation? @field(userId) @model(UserCascade) @onDelete(Cascade)

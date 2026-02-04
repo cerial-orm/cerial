@@ -9,7 +9,7 @@ import { tokenize, filterTokens } from '../../src/parser/tokenizer';
 describe('tokenizer', () => {
   test('tokenizes simple model declaration', () => {
     const source = `model User {
-  id String @id
+  id Record @id
 }`;
     const tokens = tokenize(source);
     const filtered = filterTokens(tokens);
@@ -18,12 +18,12 @@ describe('tokenizer', () => {
     expect(filtered.some((t) => t.type === 'identifier' && t.value === 'User')).toBe(true);
     expect(filtered.some((t) => t.type === 'punctuation' && t.value === '{')).toBe(true);
     expect(filtered.some((t) => t.type === 'identifier' && t.value === 'id')).toBe(true);
-    expect(filtered.some((t) => t.type === 'type' && t.value === 'String')).toBe(true);
+    expect(filtered.some((t) => t.type === 'type' && t.value === 'Record')).toBe(true);
     expect(filtered.some((t) => t.type === 'punctuation' && t.value === '}')).toBe(true);
   });
 
   test('tokenizes decorators', () => {
-    const source = `id String @id
+    const source = `id Record @id
 email Email @unique
 createdAt Date @now
 name String @default("test")`;

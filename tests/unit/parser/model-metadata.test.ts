@@ -38,7 +38,6 @@ function createASTModel(overrides: Partial<ASTModel> = {}): ASTModel {
   return {
     name: 'TestModel',
     fields: [],
-    decorators: [],
     range: { start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } },
     ...overrides,
   };
@@ -233,10 +232,7 @@ describe('modelToMetadata', () => {
   test('should convert model fields', () => {
     const model = createASTModel({
       name: 'User',
-      fields: [
-        createASTField({ name: 'id', type: 'string' }),
-        createASTField({ name: 'email', type: 'string' }),
-      ],
+      fields: [createASTField({ name: 'id', type: 'string' }), createASTField({ name: 'email', type: 'string' })],
     });
     const metadata = modelToMetadata(model);
 
@@ -248,7 +244,7 @@ describe('modelToMetadata', () => {
 
 describe('astToRegistry', () => {
   test('should create empty registry from empty AST', () => {
-    const ast: SchemaAST = { models: [] };
+    const ast: SchemaAST = { models: [], source: '' };
     const registry = astToRegistry(ast);
 
     expect(Object.keys(registry)).toHaveLength(0);
@@ -256,10 +252,8 @@ describe('astToRegistry', () => {
 
   test('should create registry with multiple models', () => {
     const ast: SchemaAST = {
-      models: [
-        createASTModel({ name: 'User' }),
-        createASTModel({ name: 'Post' }),
-      ],
+      models: [createASTModel({ name: 'User' }), createASTModel({ name: 'Post' })],
+      source: '',
     };
     const registry = astToRegistry(ast);
 
@@ -273,6 +267,7 @@ describe('getModelMetadata', () => {
   test('should return model by name', () => {
     const ast: SchemaAST = {
       models: [createASTModel({ name: 'User' })],
+      source: '',
     };
     const registry = astToRegistry(ast);
 
@@ -281,7 +276,7 @@ describe('getModelMetadata', () => {
   });
 
   test('should return undefined for non-existent model', () => {
-    const registry = astToRegistry({ models: [] });
+    const registry = astToRegistry({ models: [], source: '' });
 
     const metadata = getModelMetadata(registry, 'User');
     expect(metadata).toBeUndefined();
@@ -333,7 +328,10 @@ describe('field filters', () => {
       createASTField({
         name: 'id',
         decorators: [
-          { type: 'unique', range: { start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } } },
+          {
+            type: 'unique',
+            range: { start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } },
+          },
         ],
       }),
       createASTField({ name: 'name', isOptional: false }),
@@ -347,7 +345,11 @@ describe('field filters', () => {
       createASTField({
         name: 'active',
         decorators: [
-          { type: 'default', value: true, range: { start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } } },
+          {
+            type: 'default',
+            value: true,
+            range: { start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } },
+          },
         ],
       }),
     ],

@@ -6,13 +6,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import {
-  cleanupTables,
-  createTestClient,
-  CerialClient,
-  tables,
-  testConfig,
-} from '../../test-helper';
+import { cleanupTables, createTestClient, CerialClient, tables, testConfig } from '../../test-helper';
 
 describe('E2E Many-to-Many One-Directional: Delete', () => {
   let client: CerialClient;
@@ -46,9 +40,7 @@ describe('E2E Many-to-Many One-Directional: Delete', () => {
       });
 
       // Blogger gone
-      expect(
-        await client.db.Blogger.findOne({ where: { id: blogger.id } })
-      ).toBeNull();
+      expect(await client.db.Blogger.findOne({ where: { id: blogger.id } })).toBeNull();
 
       // Label still exists (no cleanup needed - no reverse reference)
       const labelAfter = await client.db.Label.findOne({
@@ -80,9 +72,7 @@ describe('E2E Many-to-Many One-Directional: Delete', () => {
       });
 
       // Label gone
-      expect(
-        await client.db.Label.findOne({ where: { id: labelId } })
-      ).toBeNull();
+      expect(await client.db.Label.findOne({ where: { id: labelId } })).toBeNull();
 
       // Blogger still has the labelId (dangling reference)
       // OR it should be cleaned up - depends on implementation
@@ -140,7 +130,7 @@ describe('E2E Many-to-Many One-Directional: Delete', () => {
         },
       });
 
-      await client.db.Blogger.deleteMany({});
+      await client.db.Blogger.deleteMany({ where: {} });
 
       // All labels should remain
       const labelsAfter = await client.db.Label.findMany({});

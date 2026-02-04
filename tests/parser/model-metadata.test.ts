@@ -16,7 +16,7 @@ import { parse } from '../../src/parser/parser';
 describe('model-metadata', () => {
   test('converts AST to registry', () => {
     const source = `model User {
-  id String @id
+  id Record @id
   name String
   createdAt Date @now
 }`;
@@ -31,7 +31,7 @@ describe('model-metadata', () => {
 
   test('converts field with @id to metadata', () => {
     const source = `model User {
-  id String @id
+  id Record @id
   name String?
 }`;
     const result = parse(source);
@@ -41,7 +41,7 @@ describe('model-metadata', () => {
     if (field1) {
       const metadata1 = fieldToMetadata(field1);
       expect(metadata1.name).toBe('id');
-      expect(metadata1.type).toBe('string');
+      expect(metadata1.type).toBe('record');
       expect(metadata1.isId).toBe(true);
       // @id does NOT imply @unique - they are separate decorators
       expect(metadata1.isUnique).toBe(false);
@@ -57,7 +57,7 @@ describe('model-metadata', () => {
 
   test('converts PascalCase model name to snake_case table name', () => {
     const source = `model UserProfile {
-  id String @id
+  id Record @id
 }`;
     const result = parse(source);
     const model = result.ast.models[0];
@@ -71,7 +71,7 @@ describe('model-metadata', () => {
 
   test('getUniqueFields returns unique fields (not @id)', () => {
     const source = `model User {
-  id String @id
+  id Record @id
   email Email @unique
   name String
 }`;
@@ -87,7 +87,7 @@ describe('model-metadata', () => {
 
   test('@id and @unique are separate decorators', () => {
     const source = `model User {
-  id String @id
+  id Record @id
   email Email @unique
   code String @id @unique
 }`;
@@ -111,7 +111,7 @@ describe('model-metadata', () => {
 
   test('getNowFields returns fields with @now decorator', () => {
     const source = `model User {
-  id String @id
+  id Record @id
   createdAt Date @now
   updatedAt Date @now
 }`;
@@ -125,7 +125,7 @@ describe('model-metadata', () => {
 
   test('parses Record[] as array type', () => {
     const source = `model User {
-  id String @id
+  id Record @id
   tagIds Record[]
 }`;
     const result = parse(source);
@@ -141,7 +141,7 @@ describe('model-metadata', () => {
 
   test('parses Record? as optional single record', () => {
     const source = `model User {
-  id String @id
+  id Record @id
   profileId Record?
 }`;
     const result = parse(source);
@@ -157,13 +157,13 @@ describe('model-metadata', () => {
 
   test('parses Relation with @field and @model decorators', () => {
     const source = `model User {
-  id String @id
+  id Record @id
   profileId Record?
   profile Relation @field(profileId) @model(Profile)
 }
 
 model Profile {
-  id String @id
+  id Record @id
 }`;
     const result = parse(source);
     const registry = astToRegistry(result.ast);
@@ -181,12 +181,12 @@ model Profile {
 
   test('parses reverse Relation (without @field decorator)', () => {
     const source = `model User {
-  id String @id
+  id Record @id
   posts Relation @model(Post)
 }
 
 model Post {
-  id String @id
+  id Record @id
   authorId Record
   author Relation @field(authorId) @model(User)
 }`;
@@ -207,7 +207,7 @@ model Post {
   describe('primitive array types', () => {
     test('parses String[] as string array type', () => {
       const source = `model User {
-  id String @id
+  id Record @id
   nicknames String[]
 }`;
       const result = parse(source);
@@ -223,7 +223,7 @@ model Post {
 
     test('parses Int[] as int array type', () => {
       const source = `model User {
-  id String @id
+  id Record @id
   scores Int[]
 }`;
       const result = parse(source);
@@ -238,7 +238,7 @@ model Post {
 
     test('parses Date[] as date array type', () => {
       const source = `model User {
-  id String @id
+  id Record @id
   loginDates Date[]
 }`;
       const result = parse(source);
@@ -253,7 +253,7 @@ model Post {
 
     test('parses Float[] as float array type', () => {
       const source = `model User {
-  id String @id
+  id Record @id
   ratings Float[]
 }`;
       const result = parse(source);
@@ -268,7 +268,7 @@ model Post {
 
     test('parses multiple array types in same model', () => {
       const source = `model User {
-  id String @id
+  id Record @id
   tags String[]
   scores Int[]
   dates Date[]
@@ -301,7 +301,7 @@ model Post {
   describe('relation decorators', () => {
     test('parses @key decorator on relation', () => {
       const source = `model Employee {
-  id String @id
+  id Record @id
   managerId Record?
   manager Relation? @field(managerId) @model(Employee) @key(manages)
   directReports Relation[] @model(Employee) @key(manages)
@@ -319,13 +319,13 @@ model Post {
 
     test('parses @onDelete decorator on optional relation', () => {
       const source = `model Profile {
-  id String @id
+  id Record @id
   userId Record?
   user Relation? @field(userId) @model(User) @onDelete(Cascade)
 }
 
 model User {
-  id String @id
+  id Record @id
 }`;
       const result = parse(source);
       const registry = astToRegistry(result.ast);
@@ -338,7 +338,7 @@ model User {
 
     test('parses all @onDelete values', () => {
       const source = `model Child {
-  id String @id
+  id Record @id
   parentCascade Record?
   cascade Relation? @field(parentCascade) @model(Parent) @onDelete(Cascade)
   parentSetNull Record?
@@ -350,7 +350,7 @@ model User {
 }
 
 model Parent {
-  id String @id
+  id Record @id
 }`;
       const result = parse(source);
       const registry = astToRegistry(result.ast);
@@ -364,13 +364,13 @@ model Parent {
 
     test('parses Relation[] array syntax', () => {
       const source = `model User {
-  id String @id
+  id Record @id
   tagIds Record[]
   tags Relation[] @field(tagIds) @model(Tag)
 }
 
 model Tag {
-  id String @id
+  id Record @id
 }`;
       const result = parse(source);
       const registry = astToRegistry(result.ast);
@@ -385,13 +385,13 @@ model Tag {
 
     test('parses Relation? optional syntax', () => {
       const source = `model Post {
-  id String @id
+  id Record @id
   authorId Record?
   author Relation? @field(authorId) @model(User)
 }
 
 model User {
-  id String @id
+  id Record @id
 }`;
       const result = parse(source);
       const registry = astToRegistry(result.ast);
@@ -405,7 +405,7 @@ model User {
 
     test('parses multiple decorators on single relation', () => {
       const source = `model Document {
-  id String @id
+  id Record @id
   authorId Record
   author Relation @field(authorId) @model(Writer) @key(author)
   reviewerId Record?
@@ -413,7 +413,7 @@ model User {
 }
 
 model Writer {
-  id String @id
+  id Record @id
 }`;
       const result = parse(source);
       const registry = astToRegistry(result.ast);

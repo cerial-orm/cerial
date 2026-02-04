@@ -1,6 +1,6 @@
 # Employee with manager - includes reverse lookup for direct reports
 model EmployeeWithReports {
-  id String @id
+  id Record @id
   name String
   managerId Record?
   manager Relation? @field(managerId) @model(EmployeeWithReports) @key(manages)

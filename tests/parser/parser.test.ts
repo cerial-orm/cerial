@@ -9,7 +9,7 @@ import { parse, validateSchema } from '../../src/parser/parser';
 describe('parser', () => {
   test('parses simple model', () => {
     const source = `model User {
-  id String @id
+  id Record @id
   name String
 }`;
     const result = parse(source);
@@ -22,7 +22,7 @@ describe('parser', () => {
 
   test('parses field with @id decorator', () => {
     const source = `model User {
-  id String @id
+  id Record @id
 }`;
     const result = parse(source);
 
@@ -70,11 +70,11 @@ describe('parser', () => {
 
   test('parses multiple models', () => {
     const source = `model User {
-  id String @id
+  id Record @id
 }
 
 model Post {
-  id String @id
+  id Record @id
   title String
 }`;
     const result = parse(source);
@@ -109,7 +109,7 @@ model Post {
 
   test('parses complex model with multiple decorators', () => {
     const source = `model User {
-  id String @id
+  id Record @id
   email Email @unique
   name String
   age Int?
@@ -144,11 +144,11 @@ model Post {
 describe('validateSchema', () => {
   test('detects duplicate model names', () => {
     const source = `model User {
-  id String @id
+  id Record @id
 }
 
 model User {
-  id String @id
+  id Record @id
 }`;
     const result = parse(source);
     const errors = validateSchema(result.ast);
@@ -159,7 +159,7 @@ model User {
 
   test('detects duplicate field names', () => {
     const source = `model User {
-  id String @id
+  id Record @id
   id Int
 }`;
     const result = parse(source);
@@ -171,7 +171,7 @@ model User {
 
   test('detects multiple @id decorators in same model', () => {
     const source = `model User {
-  id String @id
+  id Record @id
   otherId String @id
 }`;
     const result = parse(source);
@@ -183,7 +183,7 @@ model User {
 
   test('allows single @id per model', () => {
     const source = `model User {
-  id String @id
+  id Record @id
   email Email @unique
 }`;
     const result = parse(source);

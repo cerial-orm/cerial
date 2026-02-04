@@ -13,7 +13,7 @@ import { astToRegistry } from '../../../src/parser/model-metadata';
 // Schema with unique fields
 const schemaBasic = `
 model User {
-  id String @id
+  id Record @id
   email Email @unique
   name String
   age Int?
@@ -23,7 +23,7 @@ model User {
 // Schema with relations for include testing
 const schemaWithRelations = `
 model User {
-  id String @id
+  id Record @id
   email Email @unique
   name String
   profileId Record?
@@ -31,7 +31,7 @@ model User {
 }
 
 model Profile {
-  id String @id
+  id Record @id
   bio String?
   userId Record?
   user Relation? @field(userId) @model(User)

@@ -1,11 +1,11 @@
 # Only Comment defines relation, Article has no reverse
 model Article {
-  id String @id
+  id Record @id
   title String
 }
 
 model Comment {
-  id String @id
+  id Record @id
   text String
   articleId Record?
   article Relation? @field(articleId) @model(Article)

@@ -44,13 +44,15 @@ function generateArrayOps(tsType: string): string {
 
 /** Generate special operators for numeric/date types (includes between) */
 function generateNumericSpecialOps(tsType: string, isRequired: boolean, isId: boolean): string {
-  // @id fields are always present in DB, so never include isNull
+  // @id fields are always present in DB, so never include isNull/not
   if (isRequired || isId) {
     return `{
     between?: [${tsType}, ${tsType}];
   }`;
   }
+
   return `{
+    not?: ${tsType} | null;
     isNull?: boolean;
     between?: [${tsType}, ${tsType}];
   }`;
@@ -58,11 +60,13 @@ function generateNumericSpecialOps(tsType: string, isRequired: boolean, isId: bo
 
 /** Generate special operators for string types (no between) */
 function generateStringSpecialOps(isRequired: boolean, isId: boolean): string {
-  // @id fields are always present in DB, so never include isNull
+  // @id fields are always present in DB, so never include isNull/not
   if (isRequired || isId) {
     return `{}`;
   }
+
   return `{
+    not?: string | null;
     isNull?: boolean;
   }`;
 }
@@ -82,6 +86,9 @@ export function generateFieldWhereType(field: FieldMetadata, _registry?: ModelRe
   const tsType = schemaTypeToTsType(field.type);
   const { isRequired, isId } = field;
 
+  // Optional non-id fields can be queried with `null` directly (Prisma-like syntax)
+  const nullablePrefix = !isRequired && !isId ? 'null | ' : '';
+
   // Skip Relation fields in base where type generation
   // They are handled separately with nested where support
   if (field.type === 'relation') {
@@ -95,7 +102,7 @@ export function generateFieldWhereType(field: FieldMetadata, _registry?: ModelRe
 
   // Handle Record (single record ID) - same as string
   if (field.type === 'record') {
-    return `string | (
+    return `${nullablePrefix}string | (
     ${generateStringComparisonOps('string')} &
     ${generateStringOps()} &
     ${generateArrayOps('string')} &
@@ -105,7 +112,7 @@ export function generateFieldWhereType(field: FieldMetadata, _registry?: ModelRe
 
   // For numeric types, include all comparison operators and between
   if (field.type === 'int' || field.type === 'float') {
-    return `${tsType} | (
+    return `${nullablePrefix}${tsType} | (
     ${generateNumericComparisonOps(tsType)} &
     ${generateArrayOps(tsType)} &
     ${generateNumericSpecialOps(tsType, isRequired, isId)}
@@ -114,7 +121,7 @@ export function generateFieldWhereType(field: FieldMetadata, _registry?: ModelRe
 
   // For string types, include string operators (no ordering, no between)
   if (field.type === 'string' || field.type === 'email') {
-    return `${tsType} | (
+    return `${nullablePrefix}${tsType} | (
     ${generateStringComparisonOps(tsType)} &
     ${generateStringOps()} &
     ${generateArrayOps(tsType)} &
@@ -124,7 +131,7 @@ export function generateFieldWhereType(field: FieldMetadata, _registry?: ModelRe
 
   // For date types, include comparison, array, and between (no string ops)
   if (field.type === 'date') {
-    return `${tsType} | (
+    return `${nullablePrefix}${tsType} | (
     ${generateNumericComparisonOps(tsType)} &
     ${generateArrayOps(tsType)} &
     ${generateNumericSpecialOps(tsType, isRequired, isId)}
@@ -133,14 +140,14 @@ export function generateFieldWhereType(field: FieldMetadata, _registry?: ModelRe
 
   // For boolean types, use basic comparison + special (no between, no in/notIn)
   if (field.type === 'bool') {
-    return `${tsType} | (
+    return `${nullablePrefix}${tsType} | (
     ${generateStringComparisonOps(tsType)} &
     ${generateStringSpecialOps(isRequired, isId)}
   )`;
   }
 
   // For other types, use basic comparison + array + special (no between)
-  return `${tsType} | (
+  return `${nullablePrefix}${tsType} | (
     ${generateStringComparisonOps(tsType)} &
     ${generateArrayOps(tsType)} &
     ${generateStringSpecialOps(isRequired, isId)}
@@ -155,7 +162,16 @@ export function generateWhereInterface(model: ModelMetadata, registry?: ModelReg
     if (field.type === 'relation') {
       // Relation fields get nested where type
       if (field.relationInfo) {
-        fields.push(`  ${field.name}?: ${field.relationInfo.targetModel}Where;`);
+        const targetWhere = `${field.relationInfo.targetModel}Where`;
+
+        if (field.isArray) {
+          // Array relations support some/every/none operators
+          fields.push(`  ${field.name}?: { some?: ${targetWhere}; every?: ${targetWhere}; none?: ${targetWhere}; };`);
+        } else {
+          // Single relations - optional ones also accept `null` to filter by null underlying record field
+          const nullPrefix = !field.isRequired ? 'null | ' : '';
+          fields.push(`  ${field.name}?: ${nullPrefix}${targetWhere};`);
+        }
       }
     } else {
       const whereType = generateFieldWhereType(field, registry);

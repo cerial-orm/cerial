@@ -1,6 +1,6 @@
 # Category with parent/children (tree structure)
 model CategoryTree {
-  id String @id
+  id Record @id
   name String
   parentId Record?
   parent Relation? @field(parentId) @model(CategoryTree) @key(hierarchy)

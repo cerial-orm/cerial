@@ -23,7 +23,7 @@ interface TestUser {
 // Parse model using DSL to ensure correct behavior
 const dsl = `
 model TestUser {
-  id String @id
+  id Record @id
   email Email @unique
   name String
   age Int?

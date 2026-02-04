@@ -6,13 +6,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import {
-  cleanupTables,
-  createTestClient,
-  CerialClient,
-  tables,
-  testConfig,
-} from '../../test-helper';
+import { cleanupTables, createTestClient, CerialClient, tables, testConfig } from '../../test-helper';
 
 describe('E2E Self-Ref One-to-Many: Include', () => {
   let client: CerialClient;
@@ -85,6 +79,7 @@ describe('E2E Self-Ref One-to-Many: Include', () => {
       expect(result?.manager?.name).toBe('VP');
       expect(result?.manager?.manager?.name).toBe('CEO');
       // Third level not included in query, so undefined (not fetched)
+      // @ts-expect-error - Type inference doesn't fully resolve deeply nested includes, testing runtime behavior
       expect(result?.manager?.manager?.manager).toBeUndefined();
     });
   });

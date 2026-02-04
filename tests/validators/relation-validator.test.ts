@@ -16,13 +16,13 @@ describe('relation-validator', () => {
   describe('validatePKStructure', () => {
     test('passes when Relation @field has paired Record field', () => {
       const source = `model Post {
-  id String @id
+  id Record @id
   authorId Record
   author Relation @field(authorId) @model(User)
 }
 
 model User {
-  id String @id
+  id Record @id
 }`;
       const result = parse(source);
       const errors = validatePKStructure(result.ast);
@@ -32,12 +32,12 @@ model User {
 
     test('fails when Relation @field references non-existent Record', () => {
       const source = `model Post {
-  id String @id
+  id Record @id
   author Relation @field(authorId) @model(User)
 }
 
 model User {
-  id String @id
+  id Record @id
 }`;
       const result = parse(source);
       const errors = validatePKStructure(result.ast);
@@ -48,12 +48,12 @@ model User {
 
     test('passes for reverse relation without @field', () => {
       const source = `model User {
-  id String @id
+  id Record @id
   posts Relation[] @model(Post)
 }
 
 model Post {
-  id String @id
+  id Record @id
   authorId Record
   author Relation @field(authorId) @model(User)
 }`;
@@ -67,13 +67,13 @@ model Post {
   describe('validateCardinalityMatch', () => {
     test('passes when Record[] pairs with Relation[]', () => {
       const source = `model User {
-  id String @id
+  id Record @id
   tagIds Record[]
   tags Relation[] @field(tagIds) @model(Tag)
 }
 
 model Tag {
-  id String @id
+  id Record @id
 }`;
       const result = parse(source);
       const errors = validateCardinalityMatch(result.ast);
@@ -83,13 +83,13 @@ model Tag {
 
     test('passes when Record pairs with Relation', () => {
       const source = `model Post {
-  id String @id
+  id Record @id
   authorId Record
   author Relation @field(authorId) @model(User)
 }
 
 model User {
-  id String @id
+  id Record @id
 }`;
       const result = parse(source);
       const errors = validateCardinalityMatch(result.ast);
@@ -99,13 +99,13 @@ model User {
 
     test('fails when Record[] pairs with Relation (not array)', () => {
       const source = `model User {
-  id String @id
+  id Record @id
   tagIds Record[]
   tags Relation @field(tagIds) @model(Tag)
 }
 
 model Tag {
-  id String @id
+  id Record @id
 }`;
       const result = parse(source);
       const errors = validateCardinalityMatch(result.ast);
@@ -118,13 +118,13 @@ model Tag {
   describe('validateOnDeletePlacement', () => {
     test('passes when @onDelete is on optional relation', () => {
       const source = `model Profile {
-  id String @id
+  id Record @id
   userId Record?
   user Relation? @field(userId) @model(User) @onDelete(Cascade)
 }
 
 model User {
-  id String @id
+  id Record @id
 }`;
       const result = parse(source);
       const errors = validateOnDeletePlacement(result.ast);
@@ -134,13 +134,13 @@ model User {
 
     test('fails when @onDelete is on required relation', () => {
       const source = `model Profile {
-  id String @id
+  id Record @id
   userId Record
   user Relation @field(userId) @model(User) @onDelete(Cascade)
 }
 
 model User {
-  id String @id
+  id Record @id
 }`;
       const result = parse(source);
       const errors = validateOnDeletePlacement(result.ast);
@@ -151,13 +151,13 @@ model User {
 
     test('fails when @onDelete is on array relation', () => {
       const source = `model User {
-  id String @id
+  id Record @id
   tagIds Record[]
   tags Relation[] @field(tagIds) @model(Tag) @onDelete(Cascade)
 }
 
 model Tag {
-  id String @id
+  id Record @id
 }`;
       const result = parse(source);
       const errors = validateOnDeletePlacement(result.ast);
@@ -171,7 +171,7 @@ model Tag {
   describe('validateKeyRequired', () => {
     test('passes when @key is used for multiple relations to same model', () => {
       const source = `model Document {
-  id String @id
+  id Record @id
   authorId Record
   author Relation @field(authorId) @model(Writer) @key(author)
   reviewerId Record?
@@ -179,7 +179,7 @@ model Tag {
 }
 
 model Writer {
-  id String @id
+  id Record @id
   authoredDocs Relation[] @model(Document) @key(author)
   reviewedDocs Relation[] @model(Document) @key(reviewer)
 }`;
@@ -191,7 +191,7 @@ model Writer {
 
     test('fails when multiple relations to same model lack @key', () => {
       const source = `model Document {
-  id String @id
+  id Record @id
   authorId Record
   author Relation @field(authorId) @model(Writer)
   reviewerId Record?
@@ -199,7 +199,7 @@ model Writer {
 }
 
 model Writer {
-  id String @id
+  id Record @id
 }`;
       const result = parse(source);
       const errors = validateKeyRequired(result.ast);
@@ -210,13 +210,13 @@ model Writer {
 
     test('passes for single relation without @key', () => {
       const source = `model Post {
-  id String @id
+  id Record @id
   authorId Record
   author Relation @field(authorId) @model(User)
 }
 
 model User {
-  id String @id
+  id Record @id
   posts Relation[] @model(Post)
 }`;
       const result = parse(source);
@@ -227,7 +227,7 @@ model User {
 
     test('passes for self-referential with @key for forward/reverse pair', () => {
       const source = `model Employee {
-  id String @id
+  id Record @id
   managerId Record?
   manager Relation? @field(managerId) @model(Employee) @key(manages)
   directReports Relation[] @model(Employee) @key(manages)
@@ -242,12 +242,12 @@ model User {
   describe('validateRelationRules (combined)', () => {
     test('passes for valid 1-1 bidirectional relation', () => {
       const source = `model User {
-  id String @id
+  id Record @id
   profile Relation? @model(Profile)
 }
 
 model Profile {
-  id String @id
+  id Record @id
   userId Record?
   user Relation? @field(userId) @model(User)
 }`;
@@ -259,13 +259,13 @@ model Profile {
 
     test('passes for valid n-n bidirectional relation', () => {
       const source = `model Student {
-  id String @id
+  id Record @id
   courseIds Record[]
   courses Relation[] @field(courseIds) @model(Course)
 }
 
 model Course {
-  id String @id
+  id Record @id
   studentIds Record[]
   students Relation[] @field(studentIds) @model(Student)
 }`;
@@ -277,7 +277,7 @@ model Course {
 
     test('passes for valid self-referential relation', () => {
       const source = `model Person {
-  id String @id
+  id Record @id
   mentorId Record?
   mentor Relation? @field(mentorId) @model(Person)
 }`;

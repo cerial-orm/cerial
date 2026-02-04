@@ -1,13 +1,13 @@
 # Standalone model with no relations - used as reference target
 model Category {
-  id String @id
+  id Record @id
   name String @unique
   description String?
 }
 
 # Model demonstrating all field types and decorators
 model FieldTypesExample {
-  id String @id
+  id Record @id
   username String @unique
   displayName String
   bio String?
@@ -32,7 +32,7 @@ model FieldTypesExample {
 
 # Model for testing numeric operations
 model NumericExample {
-  id String @id
+  id Record @id
   intValue Int
   intOptional Int?
   floatValue Float
@@ -43,7 +43,7 @@ model NumericExample {
 
 # Model for testing date operations
 model DateExample {
-  id String @id
+  id Record @id
   createdAt Date @now
   scheduledAt Date
   completedAt Date?
@@ -52,7 +52,7 @@ model DateExample {
 
 # Model for testing string operations
 model StringExample {
-  id String @id
+  id Record @id
   title String @unique
   slug String @unique
   content String?
@@ -61,14 +61,14 @@ model StringExample {
 
 # Model for testing email validation
 model EmailExample {
-  id String @id
+  id Record @id
   primaryEmail Email @unique
   backupEmail Email?
 }
 
 # Model for testing @distinct and @sort array decorators
 model ArrayDecoratorTest {
-  id String @id
+  id Record @id
   uniqueTags String[] @distinct
   sortedScores Int[] @sort
   recentDates Date[] @sort(false)

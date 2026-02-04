@@ -8,7 +8,7 @@
 # - User -> Badges: n-n one-directional (Badges don't track users)
 
 model KitchenSinkUser {
-  id String @id
+  id Record @id
   email Email @unique
   name String
   profile Relation? @model(KitchenSinkProfile)
@@ -22,34 +22,34 @@ model KitchenSinkUser {
 }
 
 model KitchenSinkProfile {
-  id String @id
+  id Record @id
   bio String?
   userId Record
   user Relation @field(userId) @model(KitchenSinkUser)
 }
 
 model KitchenSinkPost {
-  id String @id
+  id Record @id
   title String
   authorId Record
   author Relation @field(authorId) @model(KitchenSinkUser)
 }
 
 model KitchenSinkTag {
-  id String @id
+  id Record @id
   name String @unique
   userIds Record[]
   users Relation[] @field(userIds) @model(KitchenSinkUser)
 }
 
 model KitchenSinkSettings {
-  id String @id
+  id Record @id
   theme String
   userId Record?
   user Relation? @field(userId) @model(KitchenSinkUser) @onDelete(Cascade)
 }
 
 model KitchenSinkBadge {
-  id String @id
+  id Record @id
   name String @unique
 }

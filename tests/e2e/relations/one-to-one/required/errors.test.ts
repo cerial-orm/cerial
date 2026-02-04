@@ -7,14 +7,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import {
-  cleanupTables,
-  createTestClient,
-  CerialClient,
-  tables,
-  testConfig,
-  uniqueEmail,
-} from '../../test-helper';
+import { cleanupTables, createTestClient, CerialClient, tables, testConfig, uniqueEmail } from '../../test-helper';
 
 describe('E2E One-to-One Required: Errors', () => {
   let client: CerialClient;
@@ -43,10 +36,13 @@ describe('E2E One-to-One Required: Errors', () => {
       });
 
       // Attempting to disconnect required relation should fail at runtime
+      // Type system correctly prevents this, but users can override types (e.g., via type assertions)
+      // so we test runtime validation as a safety net
       await expect(
         client.db.ProfileRequired.updateMany({
           where: { id: profile.id },
           data: {
+            // @ts-expect-error - Testing runtime validation when types are bypassed
             user: { disconnect: true },
           },
         }),
@@ -63,7 +59,7 @@ describe('E2E One-to-One Required: Errors', () => {
             bio: 'Test',
             user: { connect: 'nonexistent123' },
           },
-        })
+        }),
       ).rejects.toThrow();
     });
 
@@ -75,7 +71,7 @@ describe('E2E One-to-One Required: Errors', () => {
             bio: 'Test',
             user: { connect: 'any-string-is-valid' },
           },
-        })
+        }),
       ).rejects.toThrow();
     });
   });

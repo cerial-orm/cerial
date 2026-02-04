@@ -1,13 +1,13 @@
 # FK on Profile side, required - User deletion cascades to Profile
 model UserRequired {
-  id String @id
+  id Record @id
   email Email @unique
   name String
   profile Relation @model(ProfileRequired)
 }
 
 model ProfileRequired {
-  id String @id
+  id Record @id
   bio String?
   avatarUrl String?
   userId Record

@@ -1,11 +1,11 @@
 # Only Profile defines the relation, User has no reverse
 model UserSingleSided {
-  id String @id
+  id Record @id
   name String
 }
 
 model ProfileSingleSided {
-  id String @id
+  id Record @id
   bio String?
   userId Record?
   user Relation? @field(userId) @model(UserSingleSided)

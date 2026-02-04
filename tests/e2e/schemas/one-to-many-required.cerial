@@ -1,13 +1,13 @@
 # 1-n Required Bidirectional
 model Author {
-  id String @id
+  id Record @id
   name String
   email Email @unique
   posts Relation[] @model(PostRequired)
 }
 
 model PostRequired {
-  id String @id
+  id Record @id
   title String
   content String?
   authorId Record

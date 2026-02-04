@@ -4,7 +4,12 @@
  */
 
 import { describe, expect, test, mock } from 'bun:test';
-import { createProxyHandler, clearModelCache, type ProxyOptions, type PerModelCallbacks } from '../../src/client/proxy/handler';
+import {
+  createProxyHandler,
+  clearModelCache,
+  type ProxyOptions,
+  type PerModelCallbacks,
+} from '../../src/client/proxy/handler';
 import type { BeforeQueryCallback } from '../../src/client/model/model';
 import { parseModelRegistry } from '../test-helpers';
 
@@ -18,13 +23,13 @@ const createMockSurreal = () => ({
 // Parse models using DSL
 const multiModelDsl = `
 model User {
-  id String @id
+  id Record @id
   email Email @unique
   name String
 }
 
 model Post {
-  id String @id
+  id Record @id
   title String
   content String?
 }
@@ -156,8 +161,12 @@ describe('Proxy Handler', () => {
 
       const perModelCallbacks: PerModelCallbacks = {
         User: [
-          async () => { callOrder.push('userCb1'); },
-          async () => { callOrder.push('userCb2'); },
+          async () => {
+            callOrder.push('userCb1');
+          },
+          async () => {
+            callOrder.push('userCb2');
+          },
         ],
       };
 
@@ -216,7 +225,9 @@ describe('Proxy Handler', () => {
       };
 
       const perModelCallbacks: PerModelCallbacks = {
-        User: async () => { callOrder.push('userOnly'); },
+        User: async () => {
+          callOrder.push('userOnly');
+        },
       };
 
       const options: ProxyOptions = {
@@ -246,13 +257,21 @@ describe('Proxy Handler', () => {
 
       const options: ProxyOptions = {
         onBeforeQuery: [
-          async () => { callOrder.push('global1'); },
-          async () => { callOrder.push('global2'); },
+          async () => {
+            callOrder.push('global1');
+          },
+          async () => {
+            callOrder.push('global2');
+          },
         ],
         perModelCallbacks: {
           User: [
-            async () => { callOrder.push('user1'); },
-            async () => { callOrder.push('user2'); },
+            async () => {
+              callOrder.push('user1');
+            },
+            async () => {
+              callOrder.push('user2');
+            },
           ],
         },
       };

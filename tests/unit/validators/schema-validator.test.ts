@@ -34,7 +34,6 @@ function createASTModel(overrides: Partial<ASTModel> = {}): ASTModel {
   return {
     name: 'TestModel',
     fields: [],
-    decorators: [],
     range: {
       start: { line: 1, column: 1, offset: 0 },
       end: { line: 1, column: 1, offset: 0 },
@@ -47,10 +46,8 @@ describe('Schema Validator', () => {
   describe('validateModelNames', () => {
     test('should pass for valid PascalCase model names', () => {
       const ast: SchemaAST = {
-        models: [
-          createASTModel({ name: 'User' }),
-          createASTModel({ name: 'UserProfile' }),
-        ],
+        source: '',
+        models: [createASTModel({ name: 'User' }), createASTModel({ name: 'UserProfile' })],
       };
 
       const errors = validateModelNames(ast);
@@ -59,10 +56,8 @@ describe('Schema Validator', () => {
 
     test('should fail for duplicate model names', () => {
       const ast: SchemaAST = {
-        models: [
-          createASTModel({ name: 'User' }),
-          createASTModel({ name: 'User' }),
-        ],
+        source: '',
+        models: [createASTModel({ name: 'User' }), createASTModel({ name: 'User' })],
       };
 
       const errors = validateModelNames(ast);
@@ -72,20 +67,20 @@ describe('Schema Validator', () => {
 
     test('should fail for invalid model names', () => {
       const ast: SchemaAST = {
+        source: '',
         models: [createASTModel({ name: 'user' })], // lowercase
       };
 
       const errors = validateModelNames(ast);
       expect(errors.length).toBeGreaterThan(0);
-      expect(errors.some((e) => e.message.includes('Invalid model name'))).toBe(
-        true
-      );
+      expect(errors.some((e) => e.message.includes('Invalid model name'))).toBe(true);
     });
   });
 
   describe('validateFieldNames', () => {
     test('should pass for valid field names', () => {
       const ast: SchemaAST = {
+        source: '',
         models: [
           createASTModel({
             name: 'User',
@@ -104,13 +99,11 @@ describe('Schema Validator', () => {
 
     test('should fail for duplicate field names', () => {
       const ast: SchemaAST = {
+        source: '',
         models: [
           createASTModel({
             name: 'User',
-            fields: [
-              createASTField({ name: 'email' }),
-              createASTField({ name: 'email' }),
-            ],
+            fields: [createASTField({ name: 'email' }), createASTField({ name: 'email' })],
           }),
         ],
       };
@@ -124,6 +117,7 @@ describe('Schema Validator', () => {
   describe('validateRelations', () => {
     test('should fail for Relation without @model', () => {
       const ast: SchemaAST = {
+        source: '',
         models: [
           createASTModel({
             name: 'User',
@@ -145,6 +139,7 @@ describe('Schema Validator', () => {
 
     test('should fail for Relation referencing non-existent model', () => {
       const ast: SchemaAST = {
+        source: '',
         models: [
           createASTModel({
             name: 'User',
@@ -175,6 +170,7 @@ describe('Schema Validator', () => {
 
     test('should pass for valid Relation with existing target', () => {
       const ast: SchemaAST = {
+        source: '',
         models: [
           createASTModel({
             name: 'User',
@@ -206,6 +202,7 @@ describe('Schema Validator', () => {
 
     test('should fail for @field referencing non-existent Record field', () => {
       const ast: SchemaAST = {
+        source: '',
         models: [
           createASTModel({
             name: 'Post',
@@ -246,13 +243,11 @@ describe('Schema Validator', () => {
   describe('validateSchema', () => {
     test('should return valid:true for valid schema', () => {
       const ast: SchemaAST = {
+        source: '',
         models: [
           createASTModel({
             name: 'User',
-            fields: [
-              createASTField({ name: 'id', type: 'string' }),
-              createASTField({ name: 'name', type: 'string' }),
-            ],
+            fields: [createASTField({ name: 'id', type: 'string' }), createASTField({ name: 'name', type: 'string' })],
           }),
         ],
       };
@@ -264,6 +259,7 @@ describe('Schema Validator', () => {
 
     test('should return valid:false for invalid schema', () => {
       const ast: SchemaAST = {
+        source: '',
         models: [
           createASTModel({ name: 'user' }), // Invalid: lowercase
         ],

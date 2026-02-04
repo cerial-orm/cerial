@@ -1,14 +1,14 @@
 # User can be author AND reviewer of same Document
 # @key required to pair each forward relation with its reverse
 model Writer {
-  id String @id
+  id Record @id
   name String
   authoredDocs Relation[] @model(Document) @key(author)
   reviewedDocs Relation[] @model(Document) @key(reviewer)
 }
 
 model Document {
-  id String @id
+  id Record @id
   title String
   authorId Record
   author Relation @field(authorId) @model(Writer) @key(author)

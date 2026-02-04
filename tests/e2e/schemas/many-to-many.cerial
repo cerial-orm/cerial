@@ -1,6 +1,6 @@
 # True n-n with bidirectional sync
 model Student {
-  id String @id
+  id Record @id
   name String
   email Email @unique
   courseIds Record[]
@@ -8,7 +8,7 @@ model Student {
 }
 
 model Course {
-  id String @id
+  id Record @id
   name String
   code String @unique
   studentIds Record[]

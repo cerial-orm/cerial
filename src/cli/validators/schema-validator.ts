@@ -180,6 +180,9 @@ export function validateRecordFields(ast: SchemaAST): SchemaValidationError[] {
       // Only check Record fields
       if (field.type !== 'record') continue;
 
+      // Skip @id fields - they reference the model's own table, no paired Relation needed
+      if (hasDecorator(field, 'id')) continue;
+
       // Find paired Relation field
       const pairedRelation = model.fields.find(
         (f) => f.type === 'relation' && f.decorators.some((d) => d.type === 'field' && d.value === field.name),

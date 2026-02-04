@@ -10,7 +10,7 @@ import { parseModelRegistry } from '../test-helpers';
 // Parse model using DSL to ensure correct behavior
 const dsl = `
 model User {
-  id String @id
+  id Record @id
   email Email @unique
   name String
 }

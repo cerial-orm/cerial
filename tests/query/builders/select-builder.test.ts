@@ -9,7 +9,7 @@ import { parseModelRegistry } from '../../test-helpers';
 
 const dsl = `
 model User {
-  id String @id
+  id Record @id
   name String
   email Email @unique
   age Int?

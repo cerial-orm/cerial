@@ -1,7 +1,7 @@
 # Employee with assistant - includes reverse lookup for convenience
 # NO auto-sync - just convenient accessor
 model Assistant {
-  id String @id
+  id Record @id
   name String
   assistsId Record?
   assists Relation? @field(assistsId) @model(Assistant) @key(assist)

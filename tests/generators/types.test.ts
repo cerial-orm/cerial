@@ -18,7 +18,7 @@ import { parseModelRegistry } from '../test-helpers';
 // Parse model using DSL to ensure correct behavior
 const dsl = `
 model User {
-  id String @id
+  id Record @id
   name String
   email Email @unique
   age Int?
@@ -32,7 +32,7 @@ const userModel = registry['User']!;
 // Parse model with Record[] for array testing
 const dslWithRecords = `
 model User {
-  id String @id
+  id Record @id
   profileId Record?
   tagIds Record[]
   profile Relation @field(profileId) @model(Profile)
@@ -40,11 +40,11 @@ model User {
 }
 
 model Profile {
-  id String @id
+  id Record @id
 }
 
 model Tag {
-  id String @id
+  id Record @id
 }
 `;
 
@@ -134,7 +134,7 @@ describe('types generator', () => {
   describe('Primitive array types', () => {
     const dslWithArrays = `
 model User {
-  id String @id
+  id Record @id
   nicknames String[]
   scores Int[]
   loginDates Date[]
@@ -174,13 +174,13 @@ model User {
   describe('Relations', () => {
     const dslForwardRelation = `
 model User {
-  id String @id
+  id Record @id
   profileId Record?
   profile Relation @field(profileId) @model(Profile)
 }
 
 model Profile {
-  id String @id
+  id Record @id
   bio String?
 }
 `;
@@ -189,12 +189,12 @@ model Profile {
 
     const dslReverseRelation = `
 model User {
-  id String @id
+  id Record @id
   posts Relation @model(Post)
 }
 
 model Post {
-  id String @id
+  id Record @id
   authorId Record
   author Relation @field(authorId) @model(User)
 }

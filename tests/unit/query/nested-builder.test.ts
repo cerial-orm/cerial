@@ -20,7 +20,7 @@ import { astToRegistry } from '../../../src/parser/model-metadata';
 // Generate registry from schema
 const schema = `
 model User {
-  id String @id
+  id Record @id
   email Email @unique
   name String
   profileId Record?
@@ -30,12 +30,12 @@ model User {
 }
 
 model Profile {
-  id String @id
+  id Record @id
   bio String?
 }
 
 model Tag {
-  id String @id
+  id Record @id
   name String @unique
   userIds Record[]
   users Relation[] @field(userIds) @model(User)

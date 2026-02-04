@@ -6,13 +6,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import {
-  cleanupTables,
-  createTestClient,
-  CerialClient,
-  tables,
-  testConfig,
-} from '../../test-helper';
+import { cleanupTables, createTestClient, CerialClient, tables, testConfig } from '../../test-helper';
 
 describe('E2E Self-Ref Tree: Recursive Include', () => {
   let client: CerialClient;
@@ -81,6 +75,7 @@ describe('E2E Self-Ref Tree: Recursive Include', () => {
       expect(result?.parent?.name).toBe('Level 1');
       expect(result?.parent?.parent?.name).toBe('Root');
       // Third level not included in query, so undefined (not fetched)
+      // @ts-expect-error - Type inference doesn't fully resolve deeply nested includes, testing runtime behavior
       expect(result?.parent?.parent?.parent).toBeUndefined();
     });
   });
@@ -115,9 +110,7 @@ describe('E2E Self-Ref Tree: Recursive Include', () => {
         },
       });
 
-      expect(result?.children?.[0]?.children?.[0]?.children?.[0]?.name).toBe(
-        'L3'
-      );
+      expect(result?.children?.[0]?.children?.[0]?.children?.[0]?.name).toBe('L3');
     });
   });
 

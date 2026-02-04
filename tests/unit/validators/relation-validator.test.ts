@@ -13,7 +13,7 @@ import {
   validateKeyPairing,
   validateRecordDecorators,
 } from '../../../src/cli/validators/relation-validator';
-import type { ASTField, ASTModel, SchemaAST } from '../../../src/types';
+import type { ASTField, ASTModel, SchemaAST, SchemaDecorator, ASTDecorator } from '../../../src/types';
 
 // Helper to create a minimal ASTField
 function createASTField(overrides: Partial<ASTField> = {}): ASTField {
@@ -36,7 +36,6 @@ function createASTModel(overrides: Partial<ASTModel> = {}): ASTModel {
   return {
     name: 'TestModel',
     fields: [],
-    decorators: [],
     range: {
       start: { line: 1, column: 1, offset: 0 },
       end: { line: 1, column: 1, offset: 0 },
@@ -46,7 +45,7 @@ function createASTModel(overrides: Partial<ASTModel> = {}): ASTModel {
 }
 
 // Helper to create a decorator
-function createDecorator(type: string, value?: unknown) {
+function createDecorator(type: SchemaDecorator, value?: unknown): ASTDecorator {
   return {
     type,
     value,
@@ -61,6 +60,7 @@ describe('Relation Validator', () => {
   describe('validatePKStructure', () => {
     test('should pass when Relation @field references existing Record', () => {
       const ast: SchemaAST = {
+        source: '',
         models: [
           createASTModel({
             name: 'Post',
@@ -69,10 +69,7 @@ describe('Relation Validator', () => {
               createASTField({
                 name: 'author',
                 type: 'relation',
-                decorators: [
-                  createDecorator('model', 'User'),
-                  createDecorator('field', 'authorId'),
-                ],
+                decorators: [createDecorator('model', 'User'), createDecorator('field', 'authorId')],
               }),
             ],
           }),
@@ -85,6 +82,7 @@ describe('Relation Validator', () => {
 
     test('should fail when Relation @field references non-existent field', () => {
       const ast: SchemaAST = {
+        source: '',
         models: [
           createASTModel({
             name: 'Post',
@@ -92,10 +90,7 @@ describe('Relation Validator', () => {
               createASTField({
                 name: 'author',
                 type: 'relation',
-                decorators: [
-                  createDecorator('model', 'User'),
-                  createDecorator('field', 'missingField'),
-                ],
+                decorators: [createDecorator('model', 'User'), createDecorator('field', 'missingField')],
               }),
             ],
           }),
@@ -110,6 +105,7 @@ describe('Relation Validator', () => {
   describe('validateOnDeletePlacement', () => {
     test('should pass for @onDelete on optional singular Relation', () => {
       const ast: SchemaAST = {
+        source: '',
         models: [
           createASTModel({
             name: 'Post',
@@ -136,6 +132,7 @@ describe('Relation Validator', () => {
 
     test('should fail for @onDelete on required Relation', () => {
       const ast: SchemaAST = {
+        source: '',
         models: [
           createASTModel({
             name: 'Post',
@@ -163,6 +160,7 @@ describe('Relation Validator', () => {
 
     test('should fail for @onDelete on array Relation', () => {
       const ast: SchemaAST = {
+        source: '',
         models: [
           createASTModel({
             name: 'User',
@@ -190,6 +188,7 @@ describe('Relation Validator', () => {
 
     test('should fail for @onDelete on reverse Relation', () => {
       const ast: SchemaAST = {
+        source: '',
         models: [
           createASTModel({
             name: 'User',
@@ -219,6 +218,7 @@ describe('Relation Validator', () => {
   describe('validateCardinalityMatch', () => {
     test('should pass for matching Record + Relation cardinality', () => {
       const ast: SchemaAST = {
+        source: '',
         models: [
           createASTModel({
             name: 'Post',
@@ -227,10 +227,7 @@ describe('Relation Validator', () => {
               createASTField({
                 name: 'author',
                 type: 'relation',
-                decorators: [
-                  createDecorator('model', 'User'),
-                  createDecorator('field', 'authorId'),
-                ],
+                decorators: [createDecorator('model', 'User'), createDecorator('field', 'authorId')],
               }),
             ],
           }),
@@ -243,6 +240,7 @@ describe('Relation Validator', () => {
 
     test('should pass for matching Record[] + Relation[] cardinality', () => {
       const ast: SchemaAST = {
+        source: '',
         models: [
           createASTModel({
             name: 'User',
@@ -256,10 +254,7 @@ describe('Relation Validator', () => {
                 name: 'tags',
                 type: 'relation',
                 isArray: true,
-                decorators: [
-                  createDecorator('model', 'Tag'),
-                  createDecorator('field', 'tagIds'),
-                ],
+                decorators: [createDecorator('model', 'Tag'), createDecorator('field', 'tagIds')],
               }),
             ],
           }),
@@ -272,6 +267,7 @@ describe('Relation Validator', () => {
 
     test('should fail for mismatched cardinality (Relation[] with Record)', () => {
       const ast: SchemaAST = {
+        source: '',
         models: [
           createASTModel({
             name: 'User',
@@ -285,10 +281,7 @@ describe('Relation Validator', () => {
                 name: 'tags',
                 type: 'relation',
                 isArray: true, // Array
-                decorators: [
-                  createDecorator('model', 'Tag'),
-                  createDecorator('field', 'tagIds'),
-                ],
+                decorators: [createDecorator('model', 'Tag'), createDecorator('field', 'tagIds')],
               }),
             ],
           }),
@@ -302,6 +295,7 @@ describe('Relation Validator', () => {
 
     test('should fail for mismatched optionality', () => {
       const ast: SchemaAST = {
+        source: '',
         models: [
           createASTModel({
             name: 'Post',
@@ -315,10 +309,7 @@ describe('Relation Validator', () => {
                 name: 'author',
                 type: 'relation',
                 isOptional: true, // Optional
-                decorators: [
-                  createDecorator('model', 'User'),
-                  createDecorator('field', 'authorId'),
-                ],
+                decorators: [createDecorator('model', 'User'), createDecorator('field', 'authorId')],
               }),
             ],
           }),
@@ -334,6 +325,7 @@ describe('Relation Validator', () => {
   describe('validateKeyRequired', () => {
     test('should pass for single relation to target model', () => {
       const ast: SchemaAST = {
+        source: '',
         models: [
           createASTModel({
             name: 'Post',
@@ -342,10 +334,7 @@ describe('Relation Validator', () => {
               createASTField({
                 name: 'author',
                 type: 'relation',
-                decorators: [
-                  createDecorator('model', 'User'),
-                  createDecorator('field', 'authorId'),
-                ],
+                decorators: [createDecorator('model', 'User'), createDecorator('field', 'authorId')],
               }),
             ],
           }),
@@ -358,6 +347,7 @@ describe('Relation Validator', () => {
 
     test('should fail for multiple relations to same model without @key', () => {
       const ast: SchemaAST = {
+        source: '',
         models: [
           createASTModel({
             name: 'Document',
@@ -395,6 +385,7 @@ describe('Relation Validator', () => {
 
     test('should pass for multiple relations to same model with @key', () => {
       const ast: SchemaAST = {
+        source: '',
         models: [
           createASTModel({
             name: 'Document',
@@ -433,6 +424,7 @@ describe('Relation Validator', () => {
   describe('validateRecordDecorators', () => {
     test('should pass for Record without relation decorators', () => {
       const ast: SchemaAST = {
+        source: '',
         models: [
           createASTModel({
             name: 'Post',
@@ -453,6 +445,7 @@ describe('Relation Validator', () => {
 
     test('should fail for Record with @model decorator', () => {
       const ast: SchemaAST = {
+        source: '',
         models: [
           createASTModel({
             name: 'Post',
@@ -474,6 +467,7 @@ describe('Relation Validator', () => {
 
     test('should fail for Record with @field decorator', () => {
       const ast: SchemaAST = {
+        source: '',
         models: [
           createASTModel({
             name: 'Post',

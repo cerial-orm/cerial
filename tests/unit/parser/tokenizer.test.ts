@@ -292,7 +292,7 @@ describe('Tokenizer', () => {
     test('should tokenize simple model', () => {
       const source = `
 model User {
-  id String @id
+  id Record @id
   name String
 }`;
       const tokens = tokenize(source);
@@ -328,7 +328,7 @@ describe('filterTokens', () => {
   });
 
   test('should preserve significant tokens', () => {
-    const tokens = tokenize('model User { id String @id }');
+    const tokens = tokenize('model User { id Record @id }');
     const filtered = filterTokens(tokens);
 
     const types = filtered.map((t) => t.type);

@@ -14,7 +14,7 @@ import { parseModelRegistry } from '../test-helpers';
 // Parse models using DSL
 const singleModelDsl = `
 model User {
-  id String @id
+  id Record @id
   email Email @unique
   name String
   age Int?
@@ -23,20 +23,20 @@ model User {
 
 const multiModelDsl = `
 model User {
-  id String @id
+  id Record @id
   email Email @unique
   name String
 }
 
 model Post {
-  id String @id
+  id Record @id
   title String
   content String?
   published Bool
 }
 
 model Comment {
-  id String @id
+  id Record @id
   text String
   createdAt Date @now
 }
@@ -190,7 +190,7 @@ describe('Migration Generator', () => {
   describe('Array type migrations', () => {
     const arrayDsl = `
 model User {
-  id String @id
+  id Record @id
   nicknames String[]
   scores Int[]
   loginDates Date[]
@@ -238,7 +238,7 @@ model User {
   describe('Record type migrations', () => {
     const recordDsl = `
 model User {
-  id String @id
+  id Record @id
   profileId Record?
   profile Relation @field(profileId) @model(Profile)
   tagIds Record[]
@@ -246,13 +246,13 @@ model User {
 }
 
 model Profile {
-  id String @id
+  id Record @id
   userId Record
   user Relation @field(userId) @model(User)
 }
 
 model Tag {
-  id String @id
+  id Record @id
   name String
 }
 `;

@@ -2,7 +2,7 @@
 # These models match the existing test expectations
 
 model User {
-  id String @id
+  id Record @id
   email Email @unique
   name String
   age Int?
@@ -19,7 +19,7 @@ model User {
 }
 
 model Profile {
-  id String @id
+  id Record @id
   bio String?
   avatarUrl String?
   userId Record?
@@ -27,7 +27,7 @@ model Profile {
 }
 
 model Post {
-  id String @id
+  id Record @id
   title String
   content String?
   authorId Record
@@ -35,7 +35,7 @@ model Post {
 }
 
 model Tag {
-  id String @id
+  id Record @id
   name String @unique
   userIds Record[]
   users Relation[] @field(userIds) @model(User)

@@ -196,7 +196,8 @@ export function applyNowDefaults(data: Record<string, unknown>, model: ModelMeta
 
     // For optional record fields, default undefined to null (so they can be queried for null)
     // This allows: { where: { authorId: null } } to find records without authors
-    if (field.type === 'record' && !field.isRequired && result[field.name] === undefined) {
+    // Skip @id fields - they should remain undefined for auto-generation
+    if (field.type === 'record' && !field.isRequired && !field.isId && result[field.name] === undefined) {
       result[field.name] = null;
       continue;
     }

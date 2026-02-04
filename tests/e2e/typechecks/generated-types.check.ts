@@ -94,8 +94,8 @@ Test.checks([
   Test.check<Extends<IdWhere, { endsWith?: string }>, 1, Test.Pass>(),
 ]);
 
-// Number field operators
-type AgeWhere = Exclude<UserWhere['age'], number | undefined>;
+// Number field operators (optional fields also accept null for querying)
+type AgeWhere = Exclude<UserWhere['age'], number | null | undefined>;
 Test.checks([
   Test.check<Extends<AgeWhere, { gt?: number }>, 1, Test.Pass>(),
   Test.check<Extends<AgeWhere, { gte?: number }>, 1, Test.Pass>(),
@@ -105,8 +105,8 @@ Test.checks([
   Test.check<Extends<AgeWhere, { isNull?: boolean }>, 1, Test.Pass>(),
 ]);
 
-// Date field operators
-type CreatedAtWhere = Exclude<UserWhere['createdAt'], Date | undefined>;
+// Date field operators (optional fields also accept null for querying)
+type CreatedAtWhere = Exclude<UserWhere['createdAt'], Date | null | undefined>;
 Test.checks([
   Test.check<Extends<CreatedAtWhere, { gt?: Date }>, 1, Test.Pass>(),
   Test.check<Extends<CreatedAtWhere, { lt?: Date }>, 1, Test.Pass>(),

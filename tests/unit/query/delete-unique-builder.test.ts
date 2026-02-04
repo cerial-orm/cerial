@@ -16,7 +16,7 @@ import { astToRegistry } from '../../../src/parser/model-metadata';
 // Schema with unique fields
 const schemaBasic = `
 model User {
-  id String @id
+  id Record @id
   email Email @unique
   name String
 }
@@ -25,13 +25,13 @@ model User {
 // Schema with cascade relation
 const schemaCascade = `
 model User {
-  id String @id
+  id Record @id
   email Email @unique
   name String
 }
 
 model Profile {
-  id String @id
+  id Record @id
   bio String?
   userId Record?
   user Relation? @field(userId) @model(User) @onDelete(Cascade)
@@ -41,13 +41,13 @@ model Profile {
 // Schema with SetNull relation
 const schemaSetNull = `
 model User {
-  id String @id
+  id Record @id
   email Email @unique
   name String
 }
 
 model Post {
-  id String @id
+  id Record @id
   title String
   authorId Record?
   author Relation? @field(authorId) @model(User) @onDelete(SetNull)
@@ -57,13 +57,13 @@ model Post {
 // Schema with Restrict relation
 const schemaRestrict = `
 model User {
-  id String @id
+  id Record @id
   email Email @unique
   name String
 }
 
 model Order {
-  id String @id
+  id Record @id
   total Float
   userId Record?
   user Relation? @field(userId) @model(User) @onDelete(Restrict)

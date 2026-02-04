@@ -1,13 +1,13 @@
 # 1-1 Optional with @onDelete SetNull (explicit)
 model UserSetNull {
-  id String @id
+  id Record @id
   email Email @unique
   name String
   profile Relation? @model(ProfileSetNull)
 }
 
 model ProfileSetNull {
-  id String @id
+  id Record @id
   bio String?
   userId Record?
   user Relation? @field(userId) @model(UserSetNull) @onDelete(SetNull)

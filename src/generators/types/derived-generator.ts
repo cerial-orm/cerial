@@ -189,11 +189,12 @@ function generateNestedUpdateFieldType(
   isRequired: boolean,
 ): string {
   if (isArray) {
-    // Array relation - can add/remove multiple
+    // Array relation - can add/remove multiple, or replace all with set
     return `  ${fieldName}?: {
     create?: ${targetModel}NestedCreate | ${targetModel}NestedCreate[];
     connect?: string | string[];
     disconnect?: string | string[];
+    set?: string[];
   };`;
   }
 
@@ -417,8 +418,18 @@ ${variants.join('\n')};`;
 
 /** Generate OrderBy type */
 export function generateOrderByType(model: ModelMetadata): string {
-  // Filter out relation fields (virtual fields not stored)
-  const fields = model.fields.filter((f) => f.type !== 'relation').map((f) => `  ${f.name}?: 'asc' | 'desc';`);
+  const fields: string[] = [];
+
+  for (const field of model.fields) {
+    if (field.type === 'relation') {
+      // Single relations support nested ordering (e.g., orderBy: { author: { name: 'asc' } })
+      if (field.relationInfo && !field.isArray) {
+        fields.push(`  ${field.name}?: ${field.relationInfo.targetModel}OrderBy;`);
+      }
+    } else {
+      fields.push(`  ${field.name}?: 'asc' | 'desc';`);
+    }
+  }
 
   return `export interface ${model.name}OrderBy {
 ${fields.join('\n')}

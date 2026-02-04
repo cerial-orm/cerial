@@ -1,12 +1,12 @@
 # 1-n Optional Bidirectional
 model Publisher {
-  id String @id
+  id Record @id
   name String
   books Relation[] @model(Book)
 }
 
 model Book {
-  id String @id
+  id Record @id
   title String
   isbn String @unique
   publisherId Record?

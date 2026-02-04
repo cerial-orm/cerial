@@ -5,7 +5,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import { cleanupTables, createTestClient, CerialClient, testConfig } from './test-client';
+import { CerialClient, cleanupTables, createTestClient, testConfig } from './test-client';
 
 describe('E2E Select', () => {
   let client: CerialClient;

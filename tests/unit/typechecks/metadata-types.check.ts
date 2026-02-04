@@ -12,6 +12,7 @@ import type {
   ModelRegistry,
   RelationFieldMetadata,
   ConnectionConfig,
+  SchemaFieldType,
 } from '../../../src/types';
 
 // Helper for extension checks
@@ -28,11 +29,7 @@ Test.checks([
   Test.check<RelationFieldMetadata['isReverse'], boolean, Test.Pass>(),
 
   // Optional fields
-  Test.check<
-    RelationFieldMetadata['fieldRef'],
-    string | undefined,
-    Test.Pass
-  >(),
+  Test.check<RelationFieldMetadata['fieldRef'], string | undefined, Test.Pass>(),
   Test.check<
     RelationFieldMetadata['onDelete'],
     'Cascade' | 'SetNull' | 'Restrict' | 'NoAction' | undefined,
@@ -48,7 +45,7 @@ Test.checks([
 Test.checks([
   // Required fields
   Test.check<FieldMetadata['name'], string, Test.Pass>(),
-  Test.check<FieldMetadata['type'], string, Test.Pass>(),
+  Test.check<FieldMetadata['type'], SchemaFieldType, Test.Pass>(),
   Test.check<FieldMetadata['isId'], boolean, Test.Pass>(),
   Test.check<FieldMetadata['isUnique'], boolean, Test.Pass>(),
   Test.check<FieldMetadata['hasNowDefault'], boolean, Test.Pass>(),
@@ -57,11 +54,7 @@ Test.checks([
   // Optional fields
   Test.check<FieldMetadata['defaultValue'], unknown, Test.Pass>(),
   Test.check<FieldMetadata['isArray'], boolean | undefined, Test.Pass>(),
-  Test.check<
-    FieldMetadata['relationInfo'],
-    RelationFieldMetadata | undefined,
-    Test.Pass
-  >(),
+  Test.check<FieldMetadata['relationInfo'], RelationFieldMetadata | undefined, Test.Pass>(),
 ]);
 
 // FieldMetadata should be constructible with required fields only
@@ -99,18 +92,14 @@ Test.checks([Test.check<Extends<MinimalModel, ModelMetadata>, 1, Test.Pass>()]);
 
 // Registry should be indexable by string
 type RegistryIndexResult = ModelRegistry[string];
-Test.checks([
-  Test.check<RegistryIndexResult, ModelMetadata | undefined, Test.Pass>(),
-]);
+Test.checks([Test.check<RegistryIndexResult, ModelMetadata, Test.Pass>()]);
 
 // Registry should accept model metadata
 type SampleRegistry = {
   User: ModelMetadata;
   Post: ModelMetadata;
 };
-Test.checks([
-  Test.check<Extends<SampleRegistry, ModelRegistry>, 1, Test.Pass>(),
-]);
+Test.checks([Test.check<Extends<SampleRegistry, ModelRegistry>, 1, Test.Pass>()]);
 
 // =============================================================================
 // ConnectionConfig
@@ -123,18 +112,12 @@ Test.checks([
   // Optional fields
   Test.check<ConnectionConfig['namespace'], string | undefined, Test.Pass>(),
   Test.check<ConnectionConfig['database'], string | undefined, Test.Pass>(),
-  Test.check<
-    ConnectionConfig['auth'],
-    { username: string; password: string } | undefined,
-    Test.Pass
-  >(),
+  Test.check<ConnectionConfig['auth'], { username: string; password: string } | undefined, Test.Pass>(),
 ]);
 
 // Minimal connection config
 type MinimalConfig = { url: string };
-Test.checks([
-  Test.check<Extends<MinimalConfig, ConnectionConfig>, 1, Test.Pass>(),
-]);
+Test.checks([Test.check<Extends<MinimalConfig, ConnectionConfig>, 1, Test.Pass>()]);
 
 // Full connection config
 type FullConfig = {
@@ -143,6 +126,4 @@ type FullConfig = {
   database: string;
   auth: { username: string; password: string };
 };
-Test.checks([
-  Test.check<Extends<FullConfig, ConnectionConfig>, 1, Test.Pass>(),
-]);
+Test.checks([Test.check<Extends<FullConfig, ConnectionConfig>, 1, Test.Pass>()]);

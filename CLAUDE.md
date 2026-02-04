@@ -241,6 +241,39 @@ SurrealDB distinguishes between `NONE` (field doesn't exist) and `null` (field e
 - Type generator adds `| null` for all optional non-Record fields
 - Migration generator uses `option<T | null>` for optional fields to accept both NONE and null
 
+## Schema Conventions
+
+**ID fields use `Record` type:**
+
+```cerial
+model User {
+  id Record @id     # Correct - id is a SurrealDB record reference
+  name String
+}
+```
+
+The `id` field should be `Record @id` (not `String @id`) because SurrealDB IDs are record references (`table:id` format). The `@id` decorator has special handling:
+
+- Skipped in migrations (SurrealDB auto-manages id)
+- Not subject to Record field validation (doesn't need paired Relation)
+- Not defaulted to null like optional Record fields
+
+## Important Rules
+
+**Before changing core features, ask the user:**
+
+When a fix requires modifying core behavior (type generators, query builders, validators), always ask the user first:
+
+- "Is it OK to change X to support Y?"
+- Don't assume changing core features is acceptable without confirmation
+- Validate test expectations before modifying source code
+
+**E2E tests should not use `as any` or `@ts-expect-error`:**
+
+- If types don't match runtime behavior, fix the type generators
+- Exception: Testing runtime error handling for operations the type system correctly prevents
+  - Use `@ts-expect-error` with clear comment explaining why (e.g., "Testing runtime validation when types are bypassed")
+
 ## Gotchas
 
 - E2E tests MUST use `--preload` flag or generated client won't exist
@@ -249,3 +282,4 @@ SurrealDB distinguishes between `NONE` (field doesn't exist) and `null` (field e
 - Forward relations have `@field()`, reverse relations don't
 - Array fields default to `[]` on create if not provided
 - `null` without `@default(null)` is treated as NONE (field absent)
+- `id Record @id` fields skip the "Record needs paired Relation" validation

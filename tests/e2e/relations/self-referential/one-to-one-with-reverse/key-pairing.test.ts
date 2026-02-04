@@ -6,13 +6,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import {
-  cleanupTables,
-  createTestClient,
-  CerialClient,
-  tables,
-  testConfig,
-} from '../../test-helper';
+import { cleanupTables, createTestClient, CerialClient, tables, testConfig } from '../../test-helper';
 
 describe('E2E Self-Ref One-to-One with Reverse: Key Pairing', () => {
   let client: CerialClient;
@@ -78,9 +72,7 @@ describe('E2E Self-Ref One-to-One with Reverse: Key Pairing', () => {
         include: { assistedBy: true },
       });
       // Depending on implementation, might return first or last
-      expect([assistant1.id, assistant2.id]).toContain(
-        bossResult?.assistedBy?.id
-      );
+      expect([assistant1.id, assistant2.id]).toContain(bossResult?.assistedBy?.id!);
     });
   });
 });

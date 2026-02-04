@@ -5,20 +5,24 @@
  */
 
 import { describe, expect, test } from 'bun:test';
-import { buildDeleteQuery, buildDeleteQueryWithReturn, buildDeleteWithCascade } from '../../../src/query/builders/delete-builder';
+import {
+  buildDeleteQuery,
+  buildDeleteQueryWithReturn,
+  buildDeleteWithCascade,
+} from '../../../src/query/builders/delete-builder';
 import { parse } from '../../../src/parser/parser';
 import { astToRegistry } from '../../../src/parser/model-metadata';
 
 // Schema without @onDelete - no cascade behavior
 const schemaNoOnDelete = `
 model User {
-  id String @id
+  id Record @id
   email Email @unique
   name String
 }
 
 model Profile {
-  id String @id
+  id Record @id
   bio String?
   userId Record?
   user Relation? @field(userId) @model(User)
@@ -28,13 +32,13 @@ model Profile {
 // Schema with @onDelete(Cascade) on optional relation
 const schemaCascade = `
 model User {
-  id String @id
+  id Record @id
   email Email @unique
   name String
 }
 
 model Profile {
-  id String @id
+  id Record @id
   bio String?
   userId Record?
   user Relation? @field(userId) @model(User) @onDelete(Cascade)
@@ -44,13 +48,13 @@ model Profile {
 // Schema with @onDelete(SetNull) on optional relation
 const schemaSetNull = `
 model User {
-  id String @id
+  id Record @id
   email Email @unique
   name String
 }
 
 model Profile {
-  id String @id
+  id Record @id
   bio String?
   userId Record?
   user Relation? @field(userId) @model(User) @onDelete(SetNull)
@@ -60,20 +64,20 @@ model Profile {
 // Schema with multiple dependent models
 const schemaMultipleDeps = `
 model User {
-  id String @id
+  id Record @id
   email Email @unique
   name String
 }
 
 model Profile {
-  id String @id
+  id Record @id
   bio String?
   userId Record?
   user Relation? @field(userId) @model(User) @onDelete(Cascade)
 }
 
 model Post {
-  id String @id
+  id Record @id
   title String
   authorId Record?
   author Relation? @field(authorId) @model(User) @onDelete(SetNull)

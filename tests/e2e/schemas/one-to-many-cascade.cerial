@@ -1,12 +1,12 @@
 # 1-n Optional with @onDelete Cascade
 model Team {
-  id String @id
+  id Record @id
   name String
   members Relation[] @model(Member)
 }
 
 model Member {
-  id String @id
+  id Record @id
   name String
   teamId Record?
   team Relation? @field(teamId) @model(Team) @onDelete(Cascade)

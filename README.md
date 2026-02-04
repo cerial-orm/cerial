@@ -28,7 +28,7 @@ Create a `.cerial` file (e.g., `schemas/user.cerial`):
 
 ```cerial
 model User {
-  id String @id
+  id Record @id
   email Email @unique
   name String
   age Int?
@@ -43,14 +43,14 @@ model User {
 }
 
 model Profile {
-  id String @id
+  id Record @id
   bio String?
-  userId Record
-  user Relation @field(userId) @model(User)
+  userId Record?
+  user Relation? @field(userId) @model(User) @onDelete(Cascade)
 }
 
 model Post {
-  id String @id
+  id Record @id
   title String
   content String?
   authorId Record
@@ -59,7 +59,7 @@ model Post {
 }
 
 model Tag {
-  id String @id
+  id Record @id
   name String @unique
 }
 ```
@@ -215,7 +215,7 @@ Required for disambiguation when multiple relations exist between the same model
 ```cerial
 # Multiple relations to same model
 model Document {
-  id String @id
+  id Record @id
   authorId Record
   author Relation @field(authorId) @model(Writer) @key(author)
   reviewerId Record?
@@ -223,7 +223,7 @@ model Document {
 }
 
 model Writer {
-  id String @id
+  id Record @id
   authoredDocs Relation[] @model(Document) @key(author)    # Pairs with author
   reviewedDocs Relation[] @model(Document) @key(reviewer)  # Pairs with reviewer
 }
@@ -245,13 +245,13 @@ Relations are defined using `Relation` fields with `@field` and `@model` decorat
 
 ```cerial
 model User {
-  id String @id
+  id Record @id
   name String
   profile Relation @model(Profile)                 # Reverse relation (optional to define)
 }
 
 model Profile {
-  id String @id
+  id Record @id
   bio String?
   userId Record                                    # FK storage (required)
   user Relation @field(userId) @model(User)        # Forward relation (PK side)
@@ -262,13 +262,13 @@ model Profile {
 
 ```cerial
 model User {
-  id String @id
+  id Record @id
   name String
   posts Relation[] @model(Post)                    # Reverse relation (array)
 }
 
 model Post {
-  id String @id
+  id Record @id
   title String
   authorId Record                                  # FK storage
   author Relation @field(authorId) @model(User)    # Forward relation
@@ -279,14 +279,14 @@ model Post {
 
 ```cerial
 model User {
-  id String @id
+  id Record @id
   name String
   tagIds Record[]                                  # FK storage (array)
   tags Relation[] @field(tagIds) @model(Tag)       # Forward relation (array)
 }
 
 model Tag {
-  id String @id
+  id Record @id
   name String @unique
   userIds Record[]                                 # FK storage (array)
   users Relation[] @field(userIds) @model(User)    # Forward relation (array)
@@ -300,7 +300,7 @@ model Tag {
 ```cerial
 # Tree structure (1-n self-reference)
 model Category {
-  id String @id
+  id Record @id
   name String
   parentId Record?
   parent Relation? @field(parentId) @model(Category) @key(hierarchy)
@@ -309,7 +309,7 @@ model Category {
 
 # Following pattern (single-sided n-n)
 model SocialUser {
-  id String @id
+  id Record @id
   name String
   followingIds Record[]
   following Relation[] @field(followingIds) @model(SocialUser)

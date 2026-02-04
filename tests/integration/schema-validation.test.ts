@@ -26,7 +26,7 @@ describe('Schema Validation', () => {
     // Parse models using DSL
     const userDsl = `
 model User {
-  id String @id
+  id Record @id
   email Email @unique
   name String
 }
@@ -65,7 +65,7 @@ model User {
   test('should create SCHEMAFULL table', async () => {
     const modelDsl = `
     model User {
-      id String @id
+      id Record @id
       email Email
     }
     `;
@@ -85,7 +85,7 @@ model User {
   test('should enforce email validation', async () => {
     const modelDsl = `
     model User {
-      id String @id
+      id Record @id
       email Email
     }
     `;
@@ -119,7 +119,7 @@ model User {
   test('should enforce unique constraint via index', async () => {
     const modelDsl = `
     model User {
-      id String @id
+      id Record @id
       email Email @unique
     }
     `;
@@ -149,7 +149,7 @@ model User {
   test('should apply default datetime value', async () => {
     const modelDsl = `
     model User {
-      id String @id
+      id Record @id
       email Email
       createdAt Date @now
     }
@@ -176,7 +176,7 @@ model User {
   test('should handle optional fields', async () => {
     const optionalUserDsl = `
 model User {
-  id String @id
+  id Record @id
   email Email @unique
   age Int?
 }
@@ -202,7 +202,7 @@ model User {
   test('should generate correct type for all field types', () => {
     const allTypesDsl = `
 model AllTypes {
-  id String @id
+  id Record @id
   stringField String
   emailField Email
   intField Int

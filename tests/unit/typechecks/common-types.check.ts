@@ -17,6 +17,7 @@ import type {
   SchemaAST,
   OnDeleteAction,
   SchemaFieldType,
+  SchemaDecorator,
 } from '../../../src/types';
 
 // Helper for extension checks
@@ -76,7 +77,7 @@ Test.checks([
 // =============================================================================
 
 Test.checks([
-  Test.check<ASTDecorator['name'], string, Test.Pass>(),
+  Test.check<ASTDecorator['type'], SchemaDecorator, Test.Pass>(),
   Test.check<ASTDecorator['range'], SourceRange, Test.Pass>(),
   Test.check<ASTDecorator['value'], unknown, Test.Pass>(),
 ]);
@@ -89,7 +90,7 @@ Test.checks([
   Test.check<ASTField['name'], string, Test.Pass>(),
   Test.check<ASTField['type'], SchemaFieldType, Test.Pass>(),
   Test.check<ASTField['isOptional'], boolean, Test.Pass>(),
-  Test.check<ASTField['isArray'], boolean, Test.Pass>(),
+  Test.check<ASTField['isArray'], boolean | undefined, Test.Pass>(),
   Test.check<ASTField['decorators'], ASTDecorator[], Test.Pass>(),
   Test.check<ASTField['range'], SourceRange, Test.Pass>(),
 ]);
@@ -101,7 +102,6 @@ Test.checks([
 Test.checks([
   Test.check<ASTModel['name'], string, Test.Pass>(),
   Test.check<ASTModel['fields'], ASTField[], Test.Pass>(),
-  Test.check<ASTModel['decorators'], ASTDecorator[], Test.Pass>(),
   Test.check<ASTModel['range'], SourceRange, Test.Pass>(),
 ]);
 
@@ -123,14 +123,6 @@ Test.checks([Test.check<OnDeleteAction, ExpectedOnDeleteActions, Test.Pass>()]);
 // SchemaFieldType
 // =============================================================================
 
-type ExpectedFieldTypes =
-  | 'string'
-  | 'email'
-  | 'int'
-  | 'float'
-  | 'bool'
-  | 'date'
-  | 'record'
-  | 'relation';
+type ExpectedFieldTypes = 'string' | 'email' | 'int' | 'float' | 'bool' | 'date' | 'record' | 'relation';
 
 Test.checks([Test.check<SchemaFieldType, ExpectedFieldTypes, Test.Pass>()]);
