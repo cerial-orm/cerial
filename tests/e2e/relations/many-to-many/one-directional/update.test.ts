@@ -43,7 +43,7 @@ describe('E2E Many-to-Many One-Directional: Update', () => {
         },
       });
 
-      expect(updated[0]?.labelIds).toContain(label.id);
+      expect(updated[0]?.labelIds?.some((id) => id.equals(label.id))).toBe(true);
     });
 
     test('should add multiple labels', async () => {
@@ -91,8 +91,8 @@ describe('E2E Many-to-Many One-Directional: Update', () => {
       const updated = await client.db.Blogger.findOne({
         where: { id: blogger.id },
       });
-      expect(updated?.labelIds).not.toContain(l1.id);
-      expect(updated?.labelIds).toContain(l2.id);
+      expect(updated?.labelIds?.some((id) => id.equals(l1.id))).toBe(false);
+      expect(updated?.labelIds?.some((id) => id.equals(l2.id))).toBe(true);
     });
   });
 

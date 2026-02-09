@@ -46,13 +46,13 @@ describe('E2E Self-Ref Many-to-Many Symmetric: Manual Sync', () => {
       const aliceResult = await client.db.Friend.findOne({
         where: { id: alice.id },
       });
-      expect(aliceResult?.friendIds).toContain(bob.id);
+      expect(aliceResult?.friendIds?.some((id) => id.equals(bob.id))).toBe(true);
 
       // Check Bob - does NOT have Alice (no auto-sync)
       const bobResult = await client.db.Friend.findOne({
         where: { id: bob.id },
       });
-      expect(bobResult?.friendIds).not.toContain(alice.id);
+      expect(bobResult?.friendIds?.some((id) => id.equals(alice.id))).toBe(false);
     });
   });
 
@@ -85,8 +85,8 @@ describe('E2E Self-Ref Many-to-Many Symmetric: Manual Sync', () => {
         where: { id: bob.id },
       });
 
-      expect(aliceResult?.friendIds).toContain(bob.id);
-      expect(bobResult?.friendIds).toContain(alice.id);
+      expect(aliceResult?.friendIds?.some((id) => id.equals(bob.id))).toBe(true);
+      expect(bobResult?.friendIds?.some((id) => id.equals(alice.id))).toBe(true);
     });
 
     test('should manually unfriend both sides', async () => {
@@ -121,8 +121,8 @@ describe('E2E Self-Ref Many-to-Many Symmetric: Manual Sync', () => {
         where: { id: bob.id },
       });
 
-      expect(aliceResult?.friendIds).not.toContain(bob.id);
-      expect(bobResult?.friendIds).not.toContain(alice.id);
+      expect(aliceResult?.friendIds?.some((id) => id.equals(bob.id))).toBe(false);
+      expect(bobResult?.friendIds?.some((id) => id.equals(alice.id))).toBe(false);
     });
   });
 

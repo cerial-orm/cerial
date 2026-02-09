@@ -49,7 +49,7 @@ describe('E2E One-to-One Required: Include', () => {
 
       expect(result).toBeDefined();
       expect(result?.user).toBeDefined();
-      expect(result?.user?.id).toBe(user.id);
+      expect(result?.user?.id?.equals(user.id)).toBe(true);
       expect(result?.user?.name).toBe('Test User');
     });
 

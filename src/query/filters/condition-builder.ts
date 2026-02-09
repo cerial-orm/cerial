@@ -2,7 +2,9 @@
  * Condition builder - builds WHERE clause conditions
  */
 
+import { RecordId, StringRecordId } from 'surrealdb';
 import type { FieldMetadata, ModelMetadata, ModelRegistry, WhereClause } from '../../types';
+import { CerialId, type RecordIdInput } from '../../utils/cerial-id';
 import { isObject } from '../../utils/type-utils';
 import { joinFragments } from '../compile/fragment';
 import type { QueryFragment } from '../compile/types';
@@ -15,19 +17,27 @@ import { getOperatorHandler, isRegisteredOperator } from './registry';
 /** Find target table for a Record field by looking at paired Relation field */
 function findRecordTargetTable(fieldName: string, model: ModelMetadata): string | undefined {
   const pairedRelation = model.fields.find((f) => f.type === 'relation' && f.relationInfo?.fieldRef === fieldName);
+
   return pairedRelation?.relationInfo?.targetTable;
 }
 
-/** Transform value for ID or Record fields */
+/** Check if a value is a RecordIdInput type */
+function isRecordIdInput(value: unknown): value is RecordIdInput {
+  return (
+    CerialId.is(value) || value instanceof RecordId || value instanceof StringRecordId || typeof value === 'string'
+  );
+}
+
+/** Transform value for ID or Record fields - handles all RecordIdInput types */
 function transformFieldValue(value: unknown, fieldMetadata: FieldMetadata, model: ModelMetadata): unknown {
   // Transform ID field values to RecordId
   if (fieldMetadata.isId) {
-    if (typeof value === 'string') {
+    if (isRecordIdInput(value)) {
       return transformOrValidateRecordId(model.tableName, value);
     }
     // Handle arrays of IDs (for in/notIn operators)
     if (Array.isArray(value)) {
-      return value.map((v) => (typeof v === 'string' ? transformOrValidateRecordId(model.tableName, v) : v));
+      return value.map((v) => (isRecordIdInput(v) ? transformOrValidateRecordId(model.tableName, v) : v));
     }
   }
 
@@ -35,12 +45,12 @@ function transformFieldValue(value: unknown, fieldMetadata: FieldMetadata, model
   if (fieldMetadata.type === 'record') {
     const targetTable = findRecordTargetTable(fieldMetadata.name, model);
     if (targetTable) {
-      if (typeof value === 'string') {
+      if (isRecordIdInput(value)) {
         return transformOrValidateRecordId(targetTable, value);
       }
       // Handle arrays of values (for in/notIn, hasAll, hasAny operators)
       if (Array.isArray(value)) {
-        return value.map((v) => (typeof v === 'string' ? transformOrValidateRecordId(targetTable, v) : v));
+        return value.map((v) => (isRecordIdInput(v) ? transformOrValidateRecordId(targetTable, v) : v));
       }
     }
   }
@@ -99,6 +109,8 @@ export function buildDirectCondition(
 /** Check if a value is an operator object */
 export function isOperatorObject(value: unknown): value is Record<string, unknown> {
   if (!isObject(value)) return false;
+  // RecordIdInput types (CerialId, RecordId, StringRecordId) are direct values, not operator objects
+  if (isRecordIdInput(value)) return false;
   const keys = Object.keys(value);
   return keys.some((k) => isRegisteredOperator(k));
 }

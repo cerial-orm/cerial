@@ -5,23 +5,19 @@
  * Run: bun run typecheck
  */
 
+import { CerialId } from 'cerial';
 import { Test } from 'ts-toolbelt';
 import type {
-  UserRequired,
-  UserRequiredCreate,
-  UserRequiredCreateInput,
-  UserRequiredUpdate,
-  UserRequiredUpdateInput,
-  UserRequiredInclude,
-  ProfileRequired,
-  ProfileRequiredCreate,
-  ProfileRequiredCreateInput,
-  UserOptional,
-  UserOptionalCreateInput,
-  UserOptionalUpdateInput,
-  ProfileOptional,
   ProfileOptionalCreateInput,
   ProfileOptionalUpdateInput,
+  ProfileRequired,
+  ProfileRequiredCreateInput,
+  UserOptionalCreateInput,
+  UserOptionalUpdateInput,
+  UserRequired,
+  UserRequiredCreateInput,
+  UserRequiredInclude,
+  UserRequiredUpdateInput,
 } from '../generated';
 
 // Helper for extension checks
@@ -33,15 +29,15 @@ type Extends<A, B> = A extends B ? 1 : 0;
 
 // UserRequired base type should NOT include profile (it's virtual)
 Test.checks([
-  Test.check<UserRequired['id'], string, Test.Pass>(),
+  Test.check<UserRequired['id'], CerialId, Test.Pass>(),
   Test.check<UserRequired['email'], string, Test.Pass>(),
   Test.check<UserRequired['name'], string, Test.Pass>(),
 ]);
 
 // ProfileRequired should have userId (the FK)
 Test.checks([
-  Test.check<ProfileRequired['id'], string, Test.Pass>(),
-  Test.check<ProfileRequired['userId'], string, Test.Pass>(),
+  Test.check<ProfileRequired['id'], CerialId, Test.Pass>(),
+  Test.check<ProfileRequired['userId'], CerialId, Test.Pass>(),
 ]);
 
 // =============================================================================

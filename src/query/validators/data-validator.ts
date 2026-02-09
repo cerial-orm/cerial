@@ -2,8 +2,17 @@
  * Data validator - validates data for create/update operations
  */
 
+import { RecordId, StringRecordId } from 'surrealdb';
 import type { ModelMetadata, SchemaFieldType } from '../../types';
+import { CerialId } from '../../utils/cerial-id';
 import { isValidEmail, validateFieldType } from '../../utils/validation-utils';
+
+/** Check if value is a RecordIdInput type (valid for ID/Record fields) */
+function isRecordIdInput(value: unknown): boolean {
+  return (
+    CerialId.is(value) || value instanceof RecordId || value instanceof StringRecordId || typeof value === 'string'
+  );
+}
 
 /** Validation error */
 export interface DataValidationError {
@@ -92,9 +101,9 @@ export function validateCreateData(
     // For id fields: if user provides a value, validate it; otherwise skip (auto-generated)
     if (field.isId) {
       if (value !== undefined && value !== null) {
-        // Validate user-provided id (should be string for record type)
-        if (typeof value !== 'string') {
-          errors.push({ field: field.name, message: `${field.name} must be a string` });
+        // Validate user-provided id (accepts RecordIdInput: string, CerialId, RecordId, StringRecordId)
+        if (!isRecordIdInput(value)) {
+          errors.push({ field: field.name, message: `${field.name} must be a valid record ID` });
         }
       }
       continue;

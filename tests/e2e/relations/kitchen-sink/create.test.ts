@@ -53,7 +53,7 @@ describe('E2E Kitchen Sink: Create', () => {
         },
       });
 
-      expect(profile.userId).toBe(user.id);
+      expect(profile.userId.equals(user.id)).toBe(true);
     });
 
     test('should create user with nested profile create', async () => {
@@ -74,7 +74,7 @@ describe('E2E Kitchen Sink: Create', () => {
 
       expect(profile).toBeDefined();
       expect(profile?.bio).toBe('New Bio');
-      expect(profile?.userId).toBe(user.id);
+      expect(profile?.userId?.equals(user.id)).toBe(true);
     });
   });
 
@@ -142,8 +142,8 @@ describe('E2E Kitchen Sink: Create', () => {
       });
 
       expect(user.tagIds).toHaveLength(2);
-      expect(user.tagIds).toContain(tag1.id);
-      expect(user.tagIds).toContain(tag2.id);
+      expect(user.tagIds.some((id) => id.equals(tag1.id))).toBe(true);
+      expect(user.tagIds.some((id) => id.equals(tag2.id))).toBe(true);
     });
 
     test('should create user with nested tags create', async () => {
@@ -194,7 +194,7 @@ describe('E2E Kitchen Sink: Create', () => {
         },
       });
 
-      expect(user.settingsId).toBe(settings.id);
+      expect(user.settingsId?.equals(settings.id)).toBe(true);
     });
 
     test('should create user with nested settings create', async () => {
@@ -237,8 +237,8 @@ describe('E2E Kitchen Sink: Create', () => {
       });
 
       expect(user.badgeIds).toHaveLength(2);
-      expect(user.badgeIds).toContain(badge1.id);
-      expect(user.badgeIds).toContain(badge2.id);
+      expect(user.badgeIds.some((id) => id.equals(badge1.id))).toBe(true);
+      expect(user.badgeIds.some((id) => id.equals(badge2.id))).toBe(true);
     });
   });
 
@@ -264,8 +264,8 @@ describe('E2E Kitchen Sink: Create', () => {
         },
       });
 
-      expect(user.tagIds).toContain(tag.id);
-      expect(user.badgeIds).toContain(badge.id);
+      expect(user.tagIds.some((id) => id.equals(tag.id))).toBe(true);
+      expect(user.badgeIds.some((id) => id.equals(badge.id))).toBe(true);
       expect(user.settingsId).toBeDefined();
 
       // Verify profile was created

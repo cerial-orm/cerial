@@ -57,16 +57,16 @@ describe('E2E Many-to-Many Bidirectional: Update Disconnect', () => {
       });
 
       // Student should only have course2
-      expect(updated[0]?.courseIds).not.toContain(course1.id);
-      expect(updated[0]?.courseIds).toContain(course2.id);
+      expect(updated[0]?.courseIds?.some((id) => id.equals(course1.id))).toBe(false);
+      expect(updated[0]?.courseIds?.some((id) => id.equals(course2.id))).toBe(true);
 
       // Verify bidirectional sync - course1 should not have student
       const c1 = await client.db.Course.findOne({ where: { id: course1.id } });
-      expect(c1?.studentIds).not.toContain(student.id);
+      expect(c1?.studentIds?.some((id) => id.equals(student.id))).toBe(false);
 
       // course2 should still have student
       const c2 = await client.db.Course.findOne({ where: { id: course2.id } });
-      expect(c2?.studentIds).toContain(student.id);
+      expect(c2?.studentIds?.some((id) => id.equals(student.id))).toBe(true);
     });
 
     test('should remove student from course with bidirectional sync', async () => {
@@ -97,8 +97,8 @@ describe('E2E Many-to-Many Bidirectional: Update Disconnect', () => {
       const s1 = await client.db.Student.findOne({ where: { id: student1.id } });
       const s2 = await client.db.Student.findOne({ where: { id: student2.id } });
 
-      expect(s1?.courseIds).not.toContain(course.id);
-      expect(s2?.courseIds).toContain(course.id);
+      expect(s1?.courseIds?.some((id) => id.equals(course.id))).toBe(false);
+      expect(s2?.courseIds?.some((id) => id.equals(course.id))).toBe(true);
     });
   });
 
@@ -133,8 +133,8 @@ describe('E2E Many-to-Many Bidirectional: Update Disconnect', () => {
       const c1 = await client.db.Course.findOne({ where: { id: course1.id } });
       const c2 = await client.db.Course.findOne({ where: { id: course2.id } });
 
-      expect(c1?.studentIds).not.toContain(student.id);
-      expect(c2?.studentIds).not.toContain(student.id);
+      expect(c1?.studentIds?.some((id) => id.equals(student.id))).toBe(false);
+      expect(c2?.studentIds?.some((id) => id.equals(student.id))).toBe(false);
     });
   });
 
@@ -166,15 +166,15 @@ describe('E2E Many-to-Many Bidirectional: Update Disconnect', () => {
         },
       });
 
-      expect(updated[0]?.courseIds).not.toContain(course1.id);
-      expect(updated[0]?.courseIds).toContain(course2.id);
+      expect(updated[0]?.courseIds?.some((id) => id.equals(course1.id))).toBe(false);
+      expect(updated[0]?.courseIds?.some((id) => id.equals(course2.id))).toBe(true);
 
       // Verify bidirectional sync
       const c1 = await client.db.Course.findOne({ where: { id: course1.id } });
       const c2 = await client.db.Course.findOne({ where: { id: course2.id } });
 
-      expect(c1?.studentIds).not.toContain(student.id);
-      expect(c2?.studentIds).toContain(student.id);
+      expect(c1?.studentIds?.some((id) => id.equals(student.id))).toBe(false);
+      expect(c2?.studentIds?.some((id) => id.equals(student.id))).toBe(true);
     });
   });
 });

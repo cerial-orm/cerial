@@ -5,12 +5,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import {
-  cleanupTables,
-  createTestClient,
-  CerialClient,
-  testConfig,
-} from './test-client';
+import { CerialClient, cleanupTables, createTestClient, testConfig } from './test-client';
 
 describe('E2E Include', () => {
   let client: CerialClient;
@@ -52,8 +47,8 @@ describe('E2E Include', () => {
       });
 
       expect(result).toBeDefined();
-      expect(result?.id).toBe(user.id);
-      expect(result?.profileId).toBe(profile.id);
+      expect(result?.id.equals(user.id)).toBe(true);
+      expect(result?.profileId?.equals(profile.id)).toBe(true);
     });
   });
 
@@ -80,7 +75,7 @@ describe('E2E Include', () => {
       });
 
       expect(result).toBeDefined();
-      expect(result?.id).toBe(user.id);
+      expect(result?.id.equals(user.id)).toBe(true);
       expect(result?.tagIds).toHaveLength(3);
     });
   });
@@ -119,7 +114,7 @@ describe('E2E Include', () => {
       });
 
       expect(result).toBeDefined();
-      expect(result?.id).toBe(user.id);
+      expect(result?.id.equals(user.id)).toBe(true);
     });
   });
 
@@ -161,7 +156,7 @@ describe('E2E Include', () => {
       });
 
       expect(result).toBeDefined();
-      expect(result?.id).toBe(user.id);
+      expect(result?.id.equals(user.id)).toBe(true);
     });
 
     test('should include relation with limit', async () => {
@@ -193,7 +188,7 @@ describe('E2E Include', () => {
       });
 
       expect(result).toBeDefined();
-      expect(result?.id).toBe(user.id);
+      expect(result?.id.equals(user.id)).toBe(true);
     });
 
     test('should include relation with orderBy', async () => {
@@ -231,7 +226,7 @@ describe('E2E Include', () => {
       });
 
       expect(result).toBeDefined();
-      expect(result?.id).toBe(user.id);
+      expect(result?.id.equals(user.id)).toBe(true);
     });
   });
 
@@ -275,8 +270,8 @@ describe('E2E Include', () => {
       });
 
       expect(result).toBeDefined();
-      expect(result?.id).toBe(user.id);
-      expect(result?.profileId).toBe(profile.id);
+      expect(result?.id.equals(user.id)).toBe(true);
+      expect(result?.profileId?.equals(profile.id)).toBe(true);
       expect(result?.tagIds).toHaveLength(2);
     });
   });
@@ -311,7 +306,7 @@ describe('E2E Include', () => {
       });
 
       expect(result).toBeDefined();
-      expect(result?.id).toBe(user.id);
+      expect(result?.id.equals(user.id)).toBe(true);
       expect(result?.name).toBe('Test User');
       // email should not be selected (cast to test runtime)
       expect((result as Record<string, unknown>)?.email).toBeUndefined();

@@ -6,6 +6,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+import { CerialId, isCerialId } from 'cerial';
 import { cleanupTables, createTestClient, CerialClient, testConfig } from './test-client';
 
 describe('E2E CRUD Operations', () => {
@@ -61,10 +62,11 @@ describe('E2E CRUD Operations', () => {
         },
       });
 
-      // ID is auto-generated (format may include table prefix like 'user:xxx' or just 'xxx')
+      // ID is auto-generated as CerialId with table 'user'
       expect(user.id).toBeDefined();
-      expect(typeof user.id).toBe('string');
-      expect(user.id.length).toBeGreaterThan(0);
+      expect(isCerialId(user.id)).toBe(true);
+      expect(user.id.table).toBe('user');
+      expect(user.id.id.length).toBeGreaterThan(0);
     });
 
     test('should create with custom id', async () => {
@@ -77,7 +79,8 @@ describe('E2E CRUD Operations', () => {
         },
       });
 
-      expect(user.id).toBe('user:custom123');
+      expect(user.id.toString()).toBe('user:custom123');
+      expect(user.id.id).toBe('custom123');
     });
 
     test('should default array fields to empty arrays', async () => {
@@ -202,7 +205,7 @@ describe('E2E CRUD Operations', () => {
   });
 
   describe('FindUnique', () => {
-    let testUserId: string;
+    let testUserId: CerialId;
 
     beforeEach(async () => {
       const user = await client.db.User.create({
@@ -220,7 +223,7 @@ describe('E2E CRUD Operations', () => {
         where: { id: testUserId },
       });
       expect(result).toBeDefined();
-      expect(result?.id).toBe(testUserId);
+      expect(result?.id.equals(testUserId)).toBe(true);
     });
 
     test('should find user by unique email', async () => {
@@ -349,7 +352,7 @@ describe('E2E CRUD Operations', () => {
   });
 
   describe('DeleteUnique', () => {
-    let testUserId: string;
+    let testUserId: CerialId;
 
     beforeEach(async () => {
       const user = await client.db.User.create({
@@ -444,7 +447,7 @@ describe('E2E CRUD Operations', () => {
         });
 
         expect(result).toBeDefined();
-        expect(result?.id).toBe(testUserId);
+        expect(result?.id.equals(testUserId)).toBe(true);
         expect(result?.email).toBe('deleteunique@example.com');
         expect(result?.name).toBe('Delete Unique User');
         expect(result?.age).toBe(25);
@@ -472,7 +475,7 @@ describe('E2E CRUD Operations', () => {
   });
 
   describe('UpdateUnique', () => {
-    let testUserId: string;
+    let testUserId: CerialId;
 
     beforeEach(async () => {
       const user = await client.db.User.create({
@@ -494,7 +497,7 @@ describe('E2E CRUD Operations', () => {
         });
 
         expect(result).toBeDefined();
-        expect(result?.id).toBe(testUserId);
+        expect(result?.id.equals(testUserId)).toBe(true);
         expect(result?.name).toBe('Updated Name');
         expect(result?.email).toBe('updateunique@example.com');
       });
@@ -609,7 +612,7 @@ describe('E2E CRUD Operations', () => {
         });
 
         expect(result).toBeDefined();
-        expect(result?.id).toBe(testUserId);
+        expect(result?.id.equals(testUserId)).toBe(true);
         expect(result?.name).toBe('Update Unique User'); // Old value
         expect(result?.age).toBe(25); // Old value
 
@@ -673,7 +676,7 @@ describe('E2E CRUD Operations', () => {
         });
 
         expect(result).toBeDefined();
-        expect(result?.id).toBe(testUserId);
+        expect(result?.id.equals(testUserId)).toBe(true);
         expect(result?.name).toBe('Selected Update');
         // Note: Other fields may or may not be present depending on implementation
       });

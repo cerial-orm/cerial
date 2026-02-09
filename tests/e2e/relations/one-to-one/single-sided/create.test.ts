@@ -10,13 +10,8 @@
  */
 
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import {
-  cleanupTables,
-  createTestClient,
-  CerialClient,
-  tables,
-  testConfig,
-} from '../../test-helper';
+import { cleanupTables, createTestClient, CerialClient, tables, testConfig } from '../../test-helper';
+import { isCerialId } from 'cerial';
 
 describe('E2E One-to-One Single-Sided: Create', () => {
   let client: CerialClient;
@@ -44,7 +39,7 @@ describe('E2E One-to-One Single-Sided: Create', () => {
 
       expect(profile.userId).toBeDefined();
       // userId should be the plain id without table prefix
-      expect(typeof profile.userId).toBe('string');
+      expect(isCerialId(profile.userId)).toBe(true);
     });
 
     test('should create profile connecting to existing user', async () => {
@@ -59,7 +54,7 @@ describe('E2E One-to-One Single-Sided: Create', () => {
         },
       });
 
-      expect(profile.userId).toBe(user.id);
+      expect(profile.userId?.equals(user.id)).toBe(true);
     });
 
     test('should create profile without user (optional)', async () => {
@@ -112,8 +107,8 @@ describe('E2E One-to-One Single-Sided: Create', () => {
         data: { bio: 'Profile 2', user: { connect: user.id } },
       });
 
-      expect(profile1.userId).toBe(user.id);
-      expect(profile2.userId).toBe(user.id);
+      expect(profile1.userId?.equals(user.id)).toBe(true);
+      expect(profile2.userId?.equals(user.id)).toBe(true);
     });
   });
 });

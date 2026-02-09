@@ -10,6 +10,7 @@
  */
 
 import type { ModelMetadata, ModelRegistry } from '../../types';
+import { CerialId, type RecordIdInput } from '../../utils/cerial-id';
 import type { CompiledQuery } from '../compile/types';
 import { createCompileContext } from '../compile/var-allocator';
 import { transformOrValidateRecordId } from '../transformers';
@@ -19,10 +20,7 @@ import { transformOrValidateRecordId } from '../transformers';
  * Adds empty arrays for required array fields that are not provided
  * Skips Relation fields (virtual) and Record fields (handled separately)
  */
-function applyNestedCreateDefaults(
-  data: Record<string, unknown>,
-  targetModel: ModelMetadata,
-): Record<string, unknown> {
+function applyNestedCreateDefaults(data: Record<string, unknown>, targetModel: ModelMetadata): Record<string, unknown> {
   const result = { ...data };
 
   for (const field of targetModel.fields) {
@@ -48,17 +46,17 @@ export interface NestedCreate<T = Record<string, unknown>> {
 
 /** Nested connect input for a relation */
 export interface NestedConnect {
-  connect: string | string[];
+  connect: RecordIdInput | RecordIdInput[];
 }
 
 /** Nested disconnect input for a relation */
 export interface NestedDisconnect {
-  disconnect: boolean | string | string[];
+  disconnect: boolean | RecordIdInput | RecordIdInput[];
 }
 
 /** Nested set input for array relations - replaces all items */
 export interface NestedSet {
-  set: string[];
+  set: RecordIdInput[];
 }
 
 /** Combined nested operation type */
@@ -110,9 +108,7 @@ export function buildNestedCreateStatements(
   const contentVar = ctx.bind('content', fieldName, createData, 'string');
 
   // CREATE ONLY returns { id: ... }, access .id to get the RecordId
-  const statements = [
-    `LET ${varName} = CREATE ONLY ${targetModel.tableName} CONTENT ${contentVar.placeholder};`,
-  ];
+  const statements = [`LET ${varName} = CREATE ONLY ${targetModel.tableName} CONTENT ${contentVar.placeholder};`];
 
   return { statements, varName: `${varName}.id` };
 }
@@ -272,10 +268,7 @@ function findBidirectionalNtoNField(
  * Find the Record field in target model that references the source model
  * Used for reverse relations to find which field needs to be set
  */
-function findReverseRecordField(
-  sourceModel: ModelMetadata,
-  targetModel: ModelMetadata,
-): string | undefined {
+function findReverseRecordField(sourceModel: ModelMetadata, targetModel: ModelMetadata): string | undefined {
   // Find a Relation in target that points to source and has a fieldRef
   for (const field of targetModel.fields) {
     if (field.type !== 'relation' || field.relationInfo?.isReverse) continue;
@@ -303,7 +296,7 @@ export function buildCreateWithNestedTransaction(
   // Track connected IDs that need existence validation
   const connectValidations: Array<{
     targetModel: ModelMetadata;
-    targetIds: string[];
+    targetIds: RecordIdInput[];
     fieldName: string;
   }> = [];
 
@@ -319,7 +312,7 @@ export function buildCreateWithNestedTransaction(
 
   const reverseConnects: Array<{
     targetModel: ModelMetadata;
-    targetIds: string[];
+    targetIds: RecordIdInput[];
     recordFieldName: string; // The field in target that points to us
     isCreated?: boolean; // True if targetIds are var references (e.g., "$settings.id")
   }> = [];
@@ -327,7 +320,7 @@ export function buildCreateWithNestedTransaction(
   // Track array connects for bidirectional sync
   const arrayConnects: Array<{
     targetModel: ModelMetadata;
-    targetIds: string[];
+    targetIds: RecordIdInput[];
     targetRecordField: string;
     isCreated?: boolean; // True if targetIds are var names, false if IDs to transform
     idsVarName?: string; // For connect: the var name containing the array of RecordIds
@@ -503,9 +496,7 @@ export function buildCreateWithNestedTransaction(
       const varName = `validate_${idx}_${idIdx}`;
       vars[varName] = transformOrValidateRecordId(cv.targetModel.tableName, targetId);
       const checkVarName = `$exists_${idx}_${idIdx}`;
-      statements.push(
-        `LET ${checkVarName} = (SELECT id FROM ONLY $${varName});`,
-      );
+      statements.push(`LET ${checkVarName} = (SELECT id FROM ONLY $${varName});`);
       statements.push(
         `IF ${checkVarName} IS NONE { THROW "Cannot connect to non-existent ${cv.targetModel.name} record" };`,
       );
@@ -656,13 +647,13 @@ export function buildUpdateWithNestedTransaction(
   let whereValue = where[whereField];
 
   // Transform id values to RecordId for proper matching
-  if (whereField === 'id' && typeof whereValue === 'string') {
+  if (whereField === 'id' && (typeof whereValue === 'string' || CerialId.is(whereValue))) {
     whereValue = transformOrValidateRecordId(model.tableName, whereValue);
   }
 
   // Transform Record field values to RecordId
   const fieldMeta = model.fields.find((f) => f.name === whereField);
-  if (fieldMeta?.type === 'record' && typeof whereValue === 'string') {
+  if (fieldMeta?.type === 'record' && (typeof whereValue === 'string' || CerialId.is(whereValue))) {
     // Find target table from paired Relation field
     const pairedRelation = model.fields.find((f) => f.type === 'relation' && f.relationInfo?.fieldRef === whereField);
     const targetTable = pairedRelation?.relationInfo?.targetTable;
@@ -680,13 +671,13 @@ export function buildUpdateWithNestedTransaction(
   // Track array connects/disconnects for bidirectional sync
   const arrayConnects: Array<{
     targetModel: ModelMetadata;
-    targetIds: string[];
+    targetIds: RecordIdInput[];
     targetRecordField: string;
     isCreated?: boolean; // True if targetIds are var names, false if IDs to transform
   }> = [];
   const arrayDisconnects: Array<{
     targetModel: ModelMetadata;
-    targetIds: string[];
+    targetIds: RecordIdInput[];
     targetRecordField: string;
   }> = [];
 
@@ -698,14 +689,14 @@ export function buildUpdateWithNestedTransaction(
 
   const reverseConnects: Array<{
     targetModel: ModelMetadata;
-    targetIds: string[];
+    targetIds: RecordIdInput[];
     targetRecordField: string;
   }> = [];
 
   // Track set operations for bidirectional sync
   const arraySets: Array<{
     targetModel: ModelMetadata;
-    newIds: string[];
+    newIds: RecordIdInput[];
     targetRecordField: string;
     sourceRecordField: string;
   }> = [];
@@ -852,7 +843,9 @@ export function buildUpdateWithNestedTransaction(
           if (disconnectIds.length) {
             const varName = `$${fieldName}_disconnect`;
             // Transform disconnect IDs to RecordId objects
-            const transformedIds = disconnectIds.map((id) => transformOrValidateRecordId(targetModel.tableName, id as string));
+            const transformedIds = disconnectIds.map((id) =>
+              transformOrValidateRecordId(targetModel.tableName, id as string),
+            );
             vars[`${fieldName}_disconnect`] = transformedIds;
             fieldUpdates.push(`${recordFieldName} -= ${varName}`);
 
@@ -924,7 +917,9 @@ export function buildUpdateWithNestedTransaction(
 
   // Build the main update
   if (fieldUpdates.length > 0) {
-    statements.push(`LET $result = (UPDATE ${model.tableName} SET ${fieldUpdates.join(', ')} WHERE ${whereField} = ${whereVar.placeholder} RETURN *);`);
+    statements.push(
+      `LET $result = (UPDATE ${model.tableName} SET ${fieldUpdates.join(', ')} WHERE ${whereField} = ${whereVar.placeholder} RETURN *);`,
+    );
   } else {
     statements.push(`LET $result = (SELECT * FROM ${model.tableName} WHERE ${whereField} = ${whereVar.placeholder});`);
   }
@@ -940,7 +935,9 @@ export function buildUpdateWithNestedTransaction(
       // For connected records, use WHERE id INSIDE $array to batch update
       const varName = `sync_connect_ids_${syncIdx}`;
       vars[varName] = sync.targetIds.map((id) => transformOrValidateRecordId(sync.targetModel.tableName, id));
-      statements.push(`UPDATE ${sync.targetModel.tableName} SET ${sync.targetRecordField} += $result[0].id WHERE id INSIDE $${varName};`);
+      statements.push(
+        `UPDATE ${sync.targetModel.tableName} SET ${sync.targetRecordField} += $result[0].id WHERE id INSIDE $${varName};`,
+      );
     }
   });
 
@@ -948,21 +945,27 @@ export function buildUpdateWithNestedTransaction(
   arrayDisconnects.forEach((sync, syncIdx) => {
     const varName = `sync_disconnect_ids_${syncIdx}`;
     vars[varName] = sync.targetIds.map((id) => transformOrValidateRecordId(sync.targetModel.tableName, id));
-    statements.push(`UPDATE ${sync.targetModel.tableName} SET ${sync.targetRecordField} -= $result[0].id WHERE id INSIDE $${varName};`);
+    statements.push(
+      `UPDATE ${sync.targetModel.tableName} SET ${sync.targetRecordField} -= $result[0].id WHERE id INSIDE $${varName};`,
+    );
   });
 
   // Handle reverse disconnects (update target records to set their reference to null)
   // Use NULL (not NONE) so it can be queried with { field: null }
   reverseDisconnects.forEach((rd) => {
     // Update all records in target model where the reference points to our record
-    statements.push(`UPDATE ${rd.targetModel.tableName} SET ${rd.targetRecordField} = NULL WHERE ${rd.targetRecordField} = $result[0].id;`);
+    statements.push(
+      `UPDATE ${rd.targetModel.tableName} SET ${rd.targetRecordField} = NULL WHERE ${rd.targetRecordField} = $result[0].id;`,
+    );
   });
 
   // Handle reverse connects (update target records to point to us)
   reverseConnects.forEach((rc, idx) => {
     const varName = `rev_connect_${idx}`;
     vars[varName] = rc.targetIds.map((id) => transformOrValidateRecordId(rc.targetModel.tableName, id));
-    statements.push(`UPDATE ${rc.targetModel.tableName} SET ${rc.targetRecordField} = $result[0].id WHERE id INSIDE $${varName};`);
+    statements.push(
+      `UPDATE ${rc.targetModel.tableName} SET ${rc.targetRecordField} = $result[0].id WHERE id INSIDE $${varName};`,
+    );
   });
 
   // Handle bidirectional set sync - remove from old, add to new

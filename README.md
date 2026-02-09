@@ -102,7 +102,7 @@ const users = await client.db.User.findMany({
   select: { id: true, name: true, email: true },
   limit: 10,
 });
-// users: { id: string; name: string; email: string }[]
+// users: { id: CerialId; name: string; email: string }[]
 
 // Find with include (type-safe - includes related models)
 const userWithProfile = await client.db.User.findOne({
@@ -154,7 +154,7 @@ model ModelName {
 | `Float`    | Floating point   | `number`   | `float`    |
 | `Bool`     | Boolean          | `boolean`  | `bool`     |
 | `Date`     | Date/DateTime    | `Date`     | `datetime` |
-| `Record`   | Record reference | `string`   | `record`   |
+| `Record`   | Record reference | `CerialId` | `record`   |
 | `Relation` | Virtual relation | N/A        | Virtual    |
 
 ### Array Types
@@ -336,14 +336,14 @@ The client provides **full Prisma-style type inference** based on `select` and `
 ```typescript
 // No select/include - returns full model
 const user = await db.User.findOne({ where: { id: '123' } });
-// user: User | null
+// user: User | null (Record fields are CerialId objects)
 
 // With select - returns only selected fields
 const user = await db.User.findOne({
   where: { id: '123' },
   select: { id: true, name: true },
 });
-// user: { id: string; name: string } | null
+// user: { id: CerialId; name: string } | null
 
 // With include - returns model + relations
 const user = await db.User.findOne({
@@ -358,7 +358,7 @@ const user = await db.User.findOne({
   select: { id: true, email: true },
   include: { profile: true },
 });
-// user: { id: string; email: string } & { profile: Profile } | null
+// user: { id: CerialId; email: string } & { profile: Profile } | null
 ```
 
 ### findOne
@@ -541,7 +541,7 @@ const user = await db.User.updateUnique({
   data: { name: 'John' },
   select: { id: true, name: true },
 });
-// user: { id: string; name: string } | null
+// user: { id: CerialId; name: string } | null
 
 // Update with include - return with relations
 const user = await db.User.updateUnique({
@@ -909,8 +909,10 @@ db-client/
 
 For each model, the generator creates:
 
-- `User` - Base interface
-- `UserCreate` - Type for create data
+- `User` - Base output interface (Record fields are `CerialId`)
+- `UserInput` - Base input interface (Record fields are `RecordIdInput`)
+- `UserCreate` - Type for create data (derives from `UserInput`)
+- `UserNestedCreate` - Type for nested create data (no id field)
 - `UserUpdate` - Type for update data (with array operations)
 - `UserWhere` - Type for where clauses
 - `UserSelect` - Type for field selection

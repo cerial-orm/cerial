@@ -44,7 +44,7 @@ describe('E2E Multi-Relation: Create', () => {
         },
       });
 
-      expect(doc.authorId).toBe(writer.id);
+      expect(doc.authorId.equals(writer.id)).toBe(true);
       expect(doc.reviewerId).toBeNull();
     });
 
@@ -84,8 +84,8 @@ describe('E2E Multi-Relation: Create', () => {
         },
       });
 
-      expect(doc.authorId).toBe(author.id);
-      expect(doc.reviewerId).toBe(reviewer.id);
+      expect(doc.authorId.equals(author.id)).toBe(true);
+      expect(doc.reviewerId?.equals(reviewer.id)).toBe(true);
     });
   });
 
@@ -103,8 +103,8 @@ describe('E2E Multi-Relation: Create', () => {
         },
       });
 
-      expect(doc.authorId).toBe(writer.id);
-      expect(doc.reviewerId).toBe(writer.id);
+      expect(doc.authorId.equals(writer.id)).toBe(true);
+      expect(doc.reviewerId?.equals(writer.id)).toBe(true);
     });
   });
 

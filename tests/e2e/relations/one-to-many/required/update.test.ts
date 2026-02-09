@@ -97,7 +97,7 @@ describe('E2E One-to-Many Required: Update', () => {
         data: { title: 'Moving Post', author: { connect: author1.id } },
       });
 
-      expect(post.authorId).toBe(author1.id);
+      expect(post.authorId.equals(author1.id)).toBe(true);
 
       // Move to author2
       const updated = await client.db.PostRequired.updateMany({
@@ -107,7 +107,7 @@ describe('E2E One-to-Many Required: Update', () => {
         },
       });
 
-      expect(updated[0]?.authorId).toBe(author2.id);
+      expect(updated[0]?.authorId?.equals(author2.id)).toBe(true);
     });
   });
 
@@ -128,7 +128,7 @@ describe('E2E One-to-Many Required: Update', () => {
 
       expect(updated[0]?.title).toBe('Updated');
       expect(updated[0]?.content).toBe('New content');
-      expect(updated[0]?.authorId).toBe(author.id);
+      expect(updated[0]?.authorId?.equals(author.id)).toBe(true);
     });
   });
 

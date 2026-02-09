@@ -111,8 +111,8 @@ describe('E2E Many-to-Many One-Directional: Delete', () => {
       const cleaned = await client.db.Blogger.findOne({
         where: { id: blogger.id },
       });
-      expect(cleaned?.labelIds).not.toContain(l1.id);
-      expect(cleaned?.labelIds).toContain(l2.id);
+      expect(cleaned?.labelIds?.some((id) => id.equals(l1.id))).toBe(false);
+      expect(cleaned?.labelIds?.some((id) => id.equals(l2.id))).toBe(true);
     });
   });
 

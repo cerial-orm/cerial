@@ -5,18 +5,18 @@
  * Run: bun run typecheck
  */
 
-import { Test, Object as O } from 'ts-toolbelt';
+import { CerialId, type RecordIdInput } from 'cerial';
+import { Test } from 'ts-toolbelt';
 import type {
-  User,
-  UserCreate,
-  UserUpdate,
-  UserSelect,
-  UserWhere,
-  UserOrderBy,
-  UserInclude,
+  Post,
   Profile,
   Tag,
-  Post,
+  User,
+  UserCreate,
+  UserInclude,
+  UserOrderBy,
+  UserUpdate,
+  UserWhere,
 } from '../generated';
 
 // Helper for extension checks
@@ -28,7 +28,7 @@ type Extends<A, B> = A extends B ? 1 : 0;
 
 Test.checks([
   // Required fields
-  Test.check<User['id'], string, Test.Pass>(),
+  Test.check<User['id'], CerialId, Test.Pass>(),
   Test.check<User['email'], string, Test.Pass>(),
   Test.check<User['name'], string, Test.Pass>(),
   Test.check<User['isActive'], boolean, Test.Pass>(),
@@ -36,10 +36,10 @@ Test.checks([
   // Optional fields (nullable)
   Test.check<User['age'], number | null | undefined, Test.Pass>(),
   Test.check<User['createdAt'], Date | null | undefined, Test.Pass>(),
-  Test.check<User['profileId'], string | null | undefined, Test.Pass>(),
+  Test.check<User['profileId'], CerialId | null | undefined, Test.Pass>(),
 
   // Array fields
-  Test.check<User['tagIds'], string[], Test.Pass>(),
+  Test.check<User['tagIds'], CerialId[], Test.Pass>(),
   Test.check<User['nicknames'], string[], Test.Pass>(),
   Test.check<User['scores'], number[], Test.Pass>(),
   Test.check<User['loginDates'], Date[], Test.Pass>(),
@@ -76,19 +76,19 @@ type PartialUpdate = { name?: string; email?: string };
 Test.checks([Test.check<Extends<PartialUpdate, UserUpdate>, 1, Test.Pass>()]);
 
 // Array fields support push/unset operations
-type ArrayOps = { push?: string | string[]; unset?: string | string[] };
-type TagIdsUpdate = Exclude<UserUpdate['tagIds'], string[] | undefined>;
+type ArrayOps = { push?: RecordIdInput | RecordIdInput[]; unset?: RecordIdInput | RecordIdInput[] };
+type TagIdsUpdate = Exclude<UserUpdate['tagIds'], RecordIdInput[] | undefined>;
 Test.checks([Test.check<Extends<ArrayOps, TagIdsUpdate>, 1, Test.Pass>()]);
 
 // =============================================================================
 // UserWhere Type - Operators
 // =============================================================================
 
-// String field operators
-type IdWhere = Exclude<UserWhere['id'], string | undefined>;
+// Record field operators (id is RecordIdInput in Where)
+type IdWhere = Exclude<UserWhere['id'], RecordIdInput | undefined>;
 Test.checks([
-  Test.check<Extends<IdWhere, { eq?: string }>, 1, Test.Pass>(),
-  Test.check<Extends<IdWhere, { neq?: string }>, 1, Test.Pass>(),
+  Test.check<Extends<IdWhere, { eq?: RecordIdInput }>, 1, Test.Pass>(),
+  Test.check<Extends<IdWhere, { neq?: RecordIdInput }>, 1, Test.Pass>(),
   Test.check<Extends<IdWhere, { contains?: string }>, 1, Test.Pass>(),
   Test.check<Extends<IdWhere, { startsWith?: string }>, 1, Test.Pass>(),
   Test.check<Extends<IdWhere, { endsWith?: string }>, 1, Test.Pass>(),
@@ -113,12 +113,12 @@ Test.checks([
   Test.check<Extends<CreatedAtWhere, { between?: [Date, Date] }>, 1, Test.Pass>(),
 ]);
 
-// Array field operators
-type TagIdsWhere = Exclude<UserWhere['tagIds'], string[] | undefined>;
+// Array field operators (tagIds uses RecordIdInput in Where)
+type TagIdsWhere = Exclude<UserWhere['tagIds'], RecordIdInput[] | undefined>;
 Test.checks([
-  Test.check<Extends<TagIdsWhere, { has?: string }>, 1, Test.Pass>(),
-  Test.check<Extends<TagIdsWhere, { hasAll?: string[] }>, 1, Test.Pass>(),
-  Test.check<Extends<TagIdsWhere, { hasAny?: string[] }>, 1, Test.Pass>(),
+  Test.check<Extends<TagIdsWhere, { has?: RecordIdInput }>, 1, Test.Pass>(),
+  Test.check<Extends<TagIdsWhere, { hasAll?: RecordIdInput[] }>, 1, Test.Pass>(),
+  Test.check<Extends<TagIdsWhere, { hasAny?: RecordIdInput[] }>, 1, Test.Pass>(),
   Test.check<Extends<TagIdsWhere, { isEmpty?: boolean }>, 1, Test.Pass>(),
 ]);
 
@@ -170,13 +170,13 @@ Test.checks([Test.check<Extends<NestedInclude, UserInclude>, 1, Test.Pass>()]);
 
 Test.checks([
   // Profile
-  Test.check<Profile['id'], string, Test.Pass>(),
+  Test.check<Profile['id'], CerialId, Test.Pass>(),
   Test.check<Profile['bio'], string | null | undefined, Test.Pass>(),
 
   // Tag
-  Test.check<Tag['id'], string, Test.Pass>(),
+  Test.check<Tag['id'], CerialId, Test.Pass>(),
 
   // Post
-  Test.check<Post['id'], string, Test.Pass>(),
-  Test.check<Post['authorId'], string, Test.Pass>(),
+  Test.check<Post['id'], CerialId, Test.Pass>(),
+  Test.check<Post['authorId'], CerialId, Test.Pass>(),
 ]);

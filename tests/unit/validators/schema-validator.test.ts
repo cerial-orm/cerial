@@ -6,8 +6,8 @@
 
 import { describe, expect, test } from 'bun:test';
 import {
-  validateModelNames,
   validateFieldNames,
+  validateModelNames,
   validateRelations,
   validateSchema,
 } from '../../../src/cli/validators/schema-validator';

@@ -49,7 +49,7 @@ describe('E2E Multi-Relation: Update', () => {
         where: { id: doc.id },
       });
 
-      expect(result?.authorId).toBe(newAuthor.id);
+      expect(result?.authorId?.equals(newAuthor.id)).toBe(true);
     });
   });
 
@@ -77,7 +77,7 @@ describe('E2E Multi-Relation: Update', () => {
         where: { id: doc.id },
       });
 
-      expect(result?.reviewerId).toBe(reviewer.id);
+      expect(result?.reviewerId?.equals(reviewer.id)).toBe(true);
     });
 
     test('should change reviewer via connect', async () => {
@@ -108,7 +108,7 @@ describe('E2E Multi-Relation: Update', () => {
         where: { id: doc.id },
       });
 
-      expect(result?.reviewerId).toBe(newReviewer.id);
+      expect(result?.reviewerId?.equals(newReviewer.id)).toBe(true);
     });
 
     test('should remove reviewer via disconnect', async () => {
@@ -168,8 +168,8 @@ describe('E2E Multi-Relation: Update', () => {
         where: { id: doc.id },
       });
 
-      expect(result?.authorId).toBe(newAuthor.id);
-      expect(result?.reviewerId).toBe(newReviewer.id);
+      expect(result?.authorId?.equals(newAuthor.id)).toBe(true);
+      expect(result?.reviewerId?.equals(newReviewer.id)).toBe(true);
     });
   });
 });

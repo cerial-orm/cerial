@@ -67,8 +67,8 @@ E2E tests use `--preload ./tests/e2e/preload.ts` which generates the client befo
 **Test locations:**
 
 - `tests/unit/` - Unit tests (no DB required)
-- `tests/e2e/relations/` - E2E relation tests (94 files)
-- `tests/e2e/typechecks/` - Compile-time type verification (9 files)
+- `tests/e2e/relations/` - E2E relation tests (91 files)
+- `tests/e2e/typechecks/` - Compile-time type verification (12 files)
 
 **When query format changes**, update test expectations in:
 
@@ -90,6 +90,7 @@ E2E tests use `--preload ./tests/e2e/preload.ts` which generates the client befo
 ## Key Types
 
 - `ModelMetadata` / `FieldMetadata` - Runtime model info
+- `CerialId` / `RecordIdInput` - Record ID wrapper and input union type
 - `GetUserPayload<S, I>` - Prisma-style return type inference
 - `SchemaAST` / `ASTModel` / `ASTField` - Parser output
 
@@ -155,24 +156,37 @@ IF $exists_0_0 IS NONE { THROW "Cannot connect to non-existent Model record" };
 - **Save progress** - If context compaction occurs, continue from where you left off
 - Context window compacts automatically - this allows indefinite work continuation
 
-## RecordId Transformation
+## CerialId and RecordId Transformation
 
-SurrealDB uses `table:id` format for record IDs. Cerial abstracts this so you work with plain IDs:
+SurrealDB uses `table:id` format for record IDs. Cerial wraps these in `CerialId` objects:
 
-- **Sending to SurrealDB**: `transformOrValidateRecordId(tableName, id)` converts plain ID → `RecordId(table, id)`
-- **Receiving from SurrealDB**: `transformRecordIdToValue(recordId)` converts `RecordId` → plain ID string
-
-This lets you work with IDs like other databases. The transformer handles SurrealDB's table prefix requirement internally.
+- **Sending to SurrealDB**: `transformOrValidateRecordId(tableName, value)` converts any `RecordIdInput` → `RecordId(table, id)`
+- **Receiving from SurrealDB**: `transformRecordIdToValue(recordId)` converts `RecordId` → `CerialId` object
+- **Input types accept**: `string | CerialId | RecordId | StringRecordId` (the `RecordIdInput` union)
+- **Output types return**: `CerialId` objects with `.table`, `.id`, `.equals()`, `.toString()`, `.toRecordId()`
 
 ```typescript
-// User sees plain IDs
+// Output types return CerialId objects
 const user = await client.db.User.findOne({ where: { id: 'abc123' } });
-console.log(user.id); // 'abc123' (not 'user:abc123')
+console.log(user.id); // CerialId { table: 'user', id: 'abc123' }
+console.log(user.id.id); // 'abc123'
+console.log(user.id.table); // 'user'
+console.log(user.id.toString()); // 'user:abc123'
 
-// Internally transforms to: SELECT * FROM user WHERE id = user:abc123
+// Input types accept plain strings, CerialId, or RecordId
+await client.db.User.findOne({ where: { id: 'abc123' } }); // string
+await client.db.User.findOne({ where: { id: user.id } }); // CerialId
+await client.db.Post.create({ data: { authorId: user.id } }); // CerialId as input
+
+// Compare CerialId values with .equals() (not == or ===)
+user1.id.equals(user2.id); // true/false
 ```
 
-When building queries that reference record IDs (like bidirectional sync), prepend the table name: `${tableName}:${id}`.
+**Key files:**
+
+- `src/utils/cerial-id.ts` - `CerialId` class and `RecordIdInput` type
+- `src/query/mappers/result-mapper.ts` - Converts RecordId → CerialId on output
+- `src/query/transformers/data-transformer.ts` - Converts RecordIdInput → RecordId on input
 
 ## NONE vs null Semantics
 
@@ -180,12 +194,12 @@ SurrealDB distinguishes between `NONE` (field doesn't exist) and `null` (field e
 
 **Schema definitions:**
 
-| Schema                         | TypeScript Type           | undefined behavior    | null behavior     |
-| ------------------------------ | ------------------------- | --------------------- | ----------------- |
-| `field String?`                | `field?: string \| null`  | NONE (field absent)   | null stored in DB |
-| `field String? @default(null)` | `field?: string \| null`  | null stored (default) | null stored in DB |
-| `field Relation?`              | `field?: Related \| null` | NONE                  | null stored       |
-| `field Record?`                | `field?: string`          | NONE                  | NONE (no null)    |
+| Schema                         | TypeScript Type            | undefined behavior    | null behavior     |
+| ------------------------------ | -------------------------- | --------------------- | ----------------- |
+| `field String?`                | `field?: string \| null`   | NONE (field absent)   | null stored in DB |
+| `field String? @default(null)` | `field?: string \| null`   | null stored (default) | null stored in DB |
+| `field Relation?`              | `field?: Related \| null`  | NONE                  | null stored       |
+| `field Record?`                | `field?: CerialId \| null` | NONE                  | NONE (no null)    |
 
 **Query operators:**
 

@@ -44,7 +44,7 @@ describe('E2E Self-Ref One-to-Many with Reverse: Create', () => {
         },
       });
 
-      expect(employee.managerId).toBe(manager.id);
+      expect(employee.managerId?.equals(manager.id)).toBe(true);
     });
 
     test('should create employee with nested manager create', async () => {
@@ -91,8 +91,8 @@ describe('E2E Self-Ref One-to-Many with Reverse: Create', () => {
       });
 
       expect(ceo.managerId).toBeNull();
-      expect(vp.managerId).toBe(ceo.id);
-      expect(director.managerId).toBe(vp.id);
+      expect(vp.managerId?.equals(ceo.id)).toBe(true);
+      expect(director.managerId?.equals(vp.id)).toBe(true);
     });
   });
 });

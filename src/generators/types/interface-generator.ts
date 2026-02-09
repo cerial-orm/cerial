@@ -1,12 +1,40 @@
 /**
  * Interface generator - generates TypeScript interfaces for models
+ *
+ * Generates two types for each model:
+ * - Output interface (User): CerialId for Record fields (what you get back from queries)
+ * - Input interface (UserInput): RecordIdInput for Record fields (what you can pass in)
  */
 
 import type { FieldMetadata, ModelMetadata, ModelRegistry } from '../../types';
 import { schemaTypeToTsType } from '../../utils/type-utils';
 
 /**
- * Generate TypeScript type for a field
+ * Get the TypeScript output type for a field
+ * For Record fields, uses CerialId instead of string
+ */
+function getOutputType(field: FieldMetadata): string {
+  if (field.type === 'record') {
+    return 'CerialId';
+  }
+
+  return schemaTypeToTsType(field.type);
+}
+
+/**
+ * Get the TypeScript input type for a field
+ * For Record fields, uses RecordIdInput instead of CerialId
+ */
+function getInputType(field: FieldMetadata): string {
+  if (field.type === 'record') {
+    return 'RecordIdInput';
+  }
+
+  return schemaTypeToTsType(field.type);
+}
+
+/**
+ * Generate TypeScript type for a field (output type - what you get back from queries)
  *
  * NONE vs null semantics (both have same TS type, different runtime behavior):
  * - `field String?` → `field?: string | null`
@@ -17,9 +45,9 @@ import { schemaTypeToTsType } from '../../utils/type-utils';
  *   - null → null stored in DB
  */
 export function generateFieldType(field: FieldMetadata): string {
-  const tsType = schemaTypeToTsType(field.type);
+  const tsType = getOutputType(field);
 
-  // Handle array types (String[] -> string[], Int[] -> number[], Date[] -> Date[], Record[] -> string[])
+  // Handle array types (String[] -> string[], Int[] -> number[], Date[] -> Date[], Record[] -> CerialId[])
   if (field.isArray) {
     return `${tsType}[]`;
   }
@@ -34,30 +62,79 @@ export function generateFieldType(field: FieldMetadata): string {
   return `${tsType} | null`;
 }
 
-/** Generate a single field definition */
+/** Generate a single field definition (output type) */
 export function generateFieldDefinition(field: FieldMetadata): string {
   // Skip Relation fields (virtual, not stored in database)
   if (field.type === 'relation') {
     return '';
   }
 
-  // Fields with @id decorator are always required and always string type
+  // Fields with @id decorator are always required and CerialId type
   if (field.isId) {
-    return `${field.name}: string;`;
+    return `${field.name}: CerialId;`;
   }
 
   // Handle array types - always required (defaults to empty array)
   if (field.isArray) {
-    const tsType = schemaTypeToTsType(field.type);
+    const tsType = getOutputType(field);
+
     return `${field.name}: ${tsType}[];`;
   }
 
   const optional = field.isRequired ? '' : '?';
   const type = generateFieldType(field);
+
   return `${field.name}${optional}: ${type};`;
 }
 
-/** Generate model interface (base interface without relations) */
+/**
+ * Generate TypeScript input type for a field
+ * Uses RecordIdInput for Record fields
+ */
+export function generateInputFieldType(field: FieldMetadata): string {
+  const tsType = getInputType(field);
+
+  // Handle array types
+  if (field.isArray) {
+    return `${tsType}[]`;
+  }
+
+  // Required fields: just the type
+  if (field.isRequired) {
+    return tsType;
+  }
+
+  // Optional fields
+  return `${tsType} | null`;
+}
+
+/** Generate a single input field definition */
+export function generateInputFieldDefinition(field: FieldMetadata): string {
+  // Skip Relation fields (virtual, not stored in database)
+  if (field.type === 'relation') {
+    return '';
+  }
+
+  // Fields with @id decorator are optional in input (can be auto-generated)
+  // but when provided, accept RecordIdInput
+  if (field.isId) {
+    return `${field.name}?: RecordIdInput;`;
+  }
+
+  // Handle array types - always required (defaults to empty array)
+  if (field.isArray) {
+    const tsType = getInputType(field);
+
+    return `${field.name}: ${tsType}[];`;
+  }
+
+  const optional = field.isRequired ? '' : '?';
+  const type = generateInputFieldType(field);
+
+  return `${field.name}${optional}: ${type};`;
+}
+
+/** Generate model interface (base interface without relations - output type) */
 export function generateInterface(model: ModelMetadata): string {
   const fields = model.fields
     .map((f) => generateFieldDefinition(f))
@@ -70,9 +147,28 @@ ${fields}
 }`;
 }
 
-/** Generate interfaces for all models */
+/** Generate model input interface (for create/update - accepts RecordIdInput) */
+export function generateInputInterface(model: ModelMetadata): string {
+  const fields = model.fields
+    .map((f) => generateInputFieldDefinition(f))
+    .filter((line) => line !== '') // Filter out empty lines from Relation fields
+    .map((line) => `  ${line}`)
+    .join('\n');
+
+  return `export interface ${model.name}Input {
+${fields}
+}`;
+}
+
+/** Generate interfaces for all models (both output and input) */
 export function generateInterfaces(models: ModelMetadata[]): string {
-  return models.map(generateInterface).join('\n\n');
+  const interfaces: string[] = [];
+  for (const model of models) {
+    interfaces.push(generateInterface(model));
+    interfaces.push(generateInputInterface(model));
+  }
+
+  return interfaces.join('\n\n');
 }
 
 /** Generate WithRelations interface for populated relations */

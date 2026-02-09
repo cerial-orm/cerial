@@ -2,9 +2,16 @@
  * WHERE clause validator
  */
 
+import { RecordId, StringRecordId } from 'surrealdb';
 import type { ModelMetadata, WhereClause } from '../../types';
+import { CerialId } from '../../utils/cerial-id';
 import { isObject } from '../../utils/type-utils';
 import { isRegisteredOperator } from '../filters/registry';
+
+/** Check if a value is a RecordIdInput type (should be treated as a direct value, not an operator object) */
+function isRecordIdInput(value: unknown): boolean {
+  return CerialId.is(value) || value instanceof RecordId || value instanceof StringRecordId;
+}
 
 /** Validation error */
 export interface ValidationError {
@@ -35,7 +42,9 @@ export function validateFieldFilter(
   }
 
   // If filter is an object, validate operators
-  if (isObject(filter)) {
+  // But first check if it's a RecordIdInput type (CerialId, RecordId, StringRecordId)
+  // which should be treated as direct values, not operator objects
+  if (isObject(filter) && !isRecordIdInput(filter)) {
     // For relation fields, the filter object contains nested field conditions, not operators
     // e.g., profile: { bio: { contains: 'x' } } - bio is a field, not an operator
     if (field.type === 'relation') {

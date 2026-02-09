@@ -47,7 +47,7 @@ describe('E2E Self-Ref One-to-One: Cycles', () => {
       const updated = await client.db.Person.findOne({
         where: { id: person.id },
       });
-      expect(updated?.mentorId).toBe(person.id);
+      expect(updated?.mentorId?.equals(person.id)).toBe(true);
     });
   });
 
@@ -61,7 +61,7 @@ describe('E2E Self-Ref One-to-One: Cycles', () => {
       });
 
       // B has A as mentor
-      expect(b.mentorId).toBe(a.id);
+      expect(b.mentorId?.equals(a.id)).toBe(true);
 
       // Try to set A's mentor to B (creates cycle)
       // This may or may not be allowed depending on implementation
@@ -75,11 +75,11 @@ describe('E2E Self-Ref One-to-One: Cycles', () => {
       // If allowed, both should have each other as mentors
       // This is technically valid in some domains (mutual mentorship)
       if (result.length > 0) {
-        expect(result[0]?.mentorId).toBe(b.id);
+        expect(result[0]?.mentorId?.equals(b.id)).toBe(true);
         const bUpdated = await client.db.Person.findOne({
           where: { id: b.id },
         });
-        expect(bUpdated?.mentorId).toBe(a.id);
+        expect(bUpdated?.mentorId?.equals(a.id)).toBe(true);
       }
     });
 
@@ -95,8 +95,8 @@ describe('E2E Self-Ref One-to-One: Cycles', () => {
       });
 
       // Chain: C -> B -> A
-      expect(c.mentorId).toBe(b.id);
-      expect(b.mentorId).toBe(a.id);
+      expect(c.mentorId?.equals(b.id)).toBe(true);
+      expect(b.mentorId?.equals(a.id)).toBe(true);
 
       // Complete cycle: A -> C
       await client.db.Person.updateMany({
@@ -109,7 +109,7 @@ describe('E2E Self-Ref One-to-One: Cycles', () => {
       const aUpdated = await client.db.Person.findOne({
         where: { id: a.id },
       });
-      expect(aUpdated?.mentorId).toBe(c.id);
+      expect(aUpdated?.mentorId?.equals(c.id)).toBe(true);
     });
   });
 });

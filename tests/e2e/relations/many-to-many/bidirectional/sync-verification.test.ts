@@ -51,8 +51,8 @@ describe('E2E Many-to-Many Bidirectional: Sync Verification', () => {
         where: { id: course.id },
       });
 
-      expect(studentView?.courseIds).toContain(course.id);
-      expect(courseView?.studentIds).toContain(student.id);
+      expect(studentView?.courseIds?.some((id) => id.equals(course.id))).toBe(true);
+      expect(courseView?.studentIds?.some((id) => id.equals(student.id))).toBe(true);
     });
 
     test('should maintain consistency after multiple operations', async () => {
@@ -89,18 +89,18 @@ describe('E2E Many-to-Many Bidirectional: Sync Verification', () => {
       const updatedStudent = await client.db.Student.findOne({
         where: { id: student.id },
       });
-      expect(updatedStudent?.courseIds).not.toContain(c1.id);
-      expect(updatedStudent?.courseIds).toContain(c2.id);
-      expect(updatedStudent?.courseIds).toContain(c3.id);
+      expect(updatedStudent?.courseIds?.some((id) => id.equals(c1.id))).toBe(false);
+      expect(updatedStudent?.courseIds?.some((id) => id.equals(c2.id))).toBe(true);
+      expect(updatedStudent?.courseIds?.some((id) => id.equals(c3.id))).toBe(true);
 
       // Verify from course side
       const updatedC1 = await client.db.Course.findOne({ where: { id: c1.id } });
       const updatedC2 = await client.db.Course.findOne({ where: { id: c2.id } });
       const updatedC3 = await client.db.Course.findOne({ where: { id: c3.id } });
 
-      expect(updatedC1?.studentIds).not.toContain(student.id);
-      expect(updatedC2?.studentIds).toContain(student.id);
-      expect(updatedC3?.studentIds).toContain(student.id);
+      expect(updatedC1?.studentIds?.some((id) => id.equals(student.id))).toBe(false);
+      expect(updatedC2?.studentIds?.some((id) => id.equals(student.id))).toBe(true);
+      expect(updatedC3?.studentIds?.some((id) => id.equals(student.id))).toBe(true);
     });
   });
 
@@ -125,8 +125,8 @@ describe('E2E Many-to-Many Bidirectional: Sync Verification', () => {
       const s = await client.db.Student.findOne({ where: { id: student.id } });
       const c = await client.db.Course.findOne({ where: { id: course.id } });
 
-      expect(s?.courseIds).toContain(course.id);
-      expect(c?.studentIds).toContain(student.id);
+      expect(s?.courseIds?.some((id) => id.equals(course.id))).toBe(true);
+      expect(c?.studentIds?.some((id) => id.equals(student.id))).toBe(true);
     });
   });
 
@@ -153,7 +153,7 @@ describe('E2E Many-to-Many Bidirectional: Sync Verification', () => {
       const updated = await client.db.Course.findOne({
         where: { id: course.id },
       });
-      expect(updated?.studentIds).not.toContain(student.id);
+      expect(updated?.studentIds?.some((id) => id.equals(student.id))).toBe(false);
       expect(updated?.studentIds).toEqual([]);
     });
   });

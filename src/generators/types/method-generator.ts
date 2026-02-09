@@ -79,6 +79,13 @@ export function generateFindUniqueWhereType(model: ModelMetadata): string {
   // Each variant allows other unique fields as optional direct values
   const variants: string[] = [];
 
+  // Helper to get input type for a field (RecordIdInput for ID/Record, regular type for others)
+  const getFieldInputType = (field: { isId?: boolean; type: string }): string => {
+    if (field.isId || field.type === 'record') return 'RecordIdInput';
+
+    return schemaTypeToTsType(field.type as Parameters<typeof schemaTypeToTsType>[0]);
+  };
+
   // Helper to build optional unique fields type (excluding the required one)
   const buildOptionalUniqueFields = (excludeField: string): string => {
     const otherUniqueFields = allUniqueFieldNames.filter((n) => n !== excludeField);
@@ -87,7 +94,8 @@ export function generateFindUniqueWhereType(model: ModelMetadata): string {
     const optionalFields = otherUniqueFields
       .map((fieldName) => {
         const field = model.fields.find((f) => f.name === fieldName);
-        const tsType = field?.isId ? 'string' : schemaTypeToTsType(field!.type);
+        const tsType = getFieldInputType(field!);
+
         return `${fieldName}?: ${tsType}`;
       })
       .join('; ');
@@ -95,17 +103,17 @@ export function generateFindUniqueWhereType(model: ModelMetadata): string {
     return ` & { ${optionalFields} }`;
   };
 
-  // ID variant: { id: string } & { email?: string } & Omit<UserWhere, 'id' | 'email'>
+  // ID variant: { id: RecordIdInput } & { email?: string } & Omit<UserWhere, 'id' | 'email'>
   if (idField) {
     const optionalUnique = buildOptionalUniqueFields(idField.name);
     variants.push(
-      `({ ${idField.name}: string }${optionalUnique} & Omit<${model.name}Where, ${allUniqueFieldNames.map((n) => `'${n}'`).join(' | ')}>)`,
+      `({ ${idField.name}: RecordIdInput }${optionalUnique} & Omit<${model.name}Where, ${allUniqueFieldNames.map((n) => `'${n}'`).join(' | ')}>)`,
     );
   }
 
-  // Unique field variants: { email: string } & { id?: string } & Omit<UserWhere, 'id' | 'email'>
+  // Unique field variants: { email: string } & { id?: RecordIdInput } & Omit<UserWhere, 'id' | 'email'>
   for (const field of uniqueFields) {
-    const tsType = schemaTypeToTsType(field.type);
+    const tsType = getFieldInputType(field);
     const optionalUnique = buildOptionalUniqueFields(field.name);
     variants.push(
       `({ ${field.name}: ${tsType} }${optionalUnique} & Omit<${model.name}Where, ${allUniqueFieldNames.map((n) => `'${n}'`).join(' | ')}>)`,

@@ -62,7 +62,7 @@ describe('E2E One-to-Many Single-Sided: Child Only', () => {
         },
       });
 
-      expect(comment.articleId).toBe(article.id);
+      expect(comment.articleId?.equals(article.id)).toBe(true);
     });
 
     test('should create comment without article', async () => {

@@ -81,7 +81,7 @@ describe('E2E Kitchen Sink: Update', () => {
         },
       });
 
-      expect(profile.userId).toBe(user1.id);
+      expect(profile.userId.equals(user1.id)).toBe(true);
 
       // Update profile to belong to user2
       await client.db.KitchenSinkProfile.updateMany({
@@ -93,7 +93,7 @@ describe('E2E Kitchen Sink: Update', () => {
         where: { id: profile.id },
       });
 
-      expect(result?.userId).toBe(user2.id);
+      expect(result?.userId?.equals(user2.id)).toBe(true);
     });
   });
 
@@ -119,13 +119,13 @@ describe('E2E Kitchen Sink: Update', () => {
         where: { id: user.id },
       });
 
-      expect(result?.tagIds).toContain(tag.id);
+      expect(result?.tagIds?.some((id) => id.equals(tag.id))).toBe(true);
 
       // Verify bidirectional sync - tag should reference user
       const tagResult = await client.db.KitchenSinkTag.findOne({
         where: { id: tag.id },
       });
-      expect(tagResult?.userIds).toContain(user.id);
+      expect(tagResult?.userIds?.some((id) => id.equals(user.id))).toBe(true);
     });
 
     test('should remove tags via disconnect', async () => {
@@ -150,13 +150,13 @@ describe('E2E Kitchen Sink: Update', () => {
         where: { id: user.id },
       });
 
-      expect(result?.tagIds).not.toContain(tag.id);
+      expect(result?.tagIds?.some((id) => id.equals(tag.id))).toBe(false);
 
       // Verify bidirectional sync - tag should no longer reference user
       const tagResult = await client.db.KitchenSinkTag.findOne({
         where: { id: tag.id },
       });
-      expect(tagResult?.userIds).not.toContain(user.id);
+      expect(tagResult?.userIds?.some((id) => id.equals(user.id))).toBe(false);
     });
 
     test('should create and connect new tags', async () => {
@@ -206,7 +206,7 @@ describe('E2E Kitchen Sink: Update', () => {
         where: { id: user.id },
       });
 
-      expect(result?.settingsId).toBe(settings.id);
+      expect(result?.settingsId?.equals(settings.id)).toBe(true);
     });
 
     test('should remove settings via disconnect', async () => {
@@ -276,7 +276,7 @@ describe('E2E Kitchen Sink: Update', () => {
         where: { id: user.id },
       });
 
-      expect(result?.badgeIds).toContain(badge.id);
+      expect(result?.badgeIds?.some((id) => id.equals(badge.id))).toBe(true);
     });
 
     test('should remove badges via disconnect', async () => {
@@ -301,7 +301,7 @@ describe('E2E Kitchen Sink: Update', () => {
         where: { id: user.id },
       });
 
-      expect(result?.badgeIds).not.toContain(badge.id);
+      expect(result?.badgeIds?.some((id) => id.equals(badge.id))).toBe(false);
     });
   });
 
@@ -352,7 +352,7 @@ describe('E2E Kitchen Sink: Update', () => {
         },
       });
 
-      expect(post.authorId).toBe(user1.id);
+      expect(post.authorId.equals(user1.id)).toBe(true);
 
       // Update post to belong to user2
       await client.db.KitchenSinkPost.updateMany({
@@ -364,7 +364,7 @@ describe('E2E Kitchen Sink: Update', () => {
         where: { id: post.id },
       });
 
-      expect(result?.authorId).toBe(user2.id);
+      expect(result?.authorId?.equals(user2.id)).toBe(true);
     });
   });
 });

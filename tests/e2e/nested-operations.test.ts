@@ -5,7 +5,8 @@
  */
 
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import { cleanupTables, createTestClient, CerialClient, testConfig } from './test-client';
+import { isCerialId } from 'cerial';
+import { CerialClient, cleanupTables, createTestClient, testConfig } from './test-client';
 
 describe('E2E Nested Operations', () => {
   let client: CerialClient;
@@ -35,7 +36,7 @@ describe('E2E Nested Operations', () => {
 
       expect(user).toBeDefined();
       expect(user.profileId).toBeDefined();
-      expect(typeof user.profileId).toBe('string');
+      expect(isCerialId(user.profileId)).toBe(true);
 
       // Verify profile was created
       const profile = await client.db.Profile.findOne({
@@ -62,7 +63,7 @@ describe('E2E Nested Operations', () => {
 
       expect(post).toBeDefined();
       expect(post.authorId).toBeDefined();
-      expect(typeof post.authorId).toBe('string');
+      expect(isCerialId(post.authorId)).toBe(true);
 
       // Verify author was created
       const author = await client.db.User.findOne({
@@ -90,7 +91,7 @@ describe('E2E Nested Operations', () => {
         },
       });
 
-      expect(user.profileId).toBe(profile.id);
+      expect(user.profileId?.equals(profile.id)).toBe(true);
     });
 
     test('should create post connecting to existing author', async () => {
@@ -112,7 +113,7 @@ describe('E2E Nested Operations', () => {
         },
       });
 
-      expect(post.authorId).toBe(author.id);
+      expect(post.authorId.equals(author.id)).toBe(true);
     });
   });
 
@@ -137,7 +138,7 @@ describe('E2E Nested Operations', () => {
 
       // Verify bidirectional sync - tags should have user in their userIds
       for (const tag of tags) {
-        expect(tag.userIds).toContain(user.id);
+        expect(tag.userIds.some((id) => id.equals(user.id))).toBe(true);
       }
     });
 
@@ -162,7 +163,7 @@ describe('E2E Nested Operations', () => {
 
       // Verify bidirectional sync - users should have tag in their tagIds
       for (const user of users) {
-        expect(user.tagIds).toContain(tag.id);
+        expect(user.tagIds.some((id) => id.equals(tag.id))).toBe(true);
       }
     });
   });
@@ -183,15 +184,15 @@ describe('E2E Nested Operations', () => {
         },
       });
 
-      expect(user.tagIds).toContain(tag1.id);
-      expect(user.tagIds).toContain(tag2.id);
+      expect(user.tagIds.some((id) => id.equals(tag1.id))).toBe(true);
+      expect(user.tagIds.some((id) => id.equals(tag2.id))).toBe(true);
 
       // Verify bidirectional sync - tags should have user in their userIds
       const updatedTag1 = await client.db.Tag.findOne({ where: { id: tag1.id } });
       const updatedTag2 = await client.db.Tag.findOne({ where: { id: tag2.id } });
 
-      expect(updatedTag1?.userIds).toContain(user.id);
-      expect(updatedTag2?.userIds).toContain(user.id);
+      expect(updatedTag1?.userIds.some((id) => id.equals(user.id))).toBe(true);
+      expect(updatedTag2?.userIds.some((id) => id.equals(user.id))).toBe(true);
     });
 
     test('should create tag connecting to existing users with bidirectional sync', async () => {
@@ -211,15 +212,15 @@ describe('E2E Nested Operations', () => {
         },
       });
 
-      expect(tag.userIds).toContain(user1.id);
-      expect(tag.userIds).toContain(user2.id);
+      expect(tag.userIds.some((id) => id.equals(user1.id))).toBe(true);
+      expect(tag.userIds.some((id) => id.equals(user2.id))).toBe(true);
 
       // Verify bidirectional sync - users should have tag in their tagIds
       const updatedUser1 = await client.db.User.findOne({ where: { id: user1.id } });
       const updatedUser2 = await client.db.User.findOne({ where: { id: user2.id } });
 
-      expect(updatedUser1?.tagIds).toContain(tag.id);
-      expect(updatedUser2?.tagIds).toContain(tag.id);
+      expect(updatedUser1?.tagIds.some((id) => id.equals(tag.id))).toBe(true);
+      expect(updatedUser2?.tagIds.some((id) => id.equals(tag.id))).toBe(true);
     });
   });
 
@@ -240,15 +241,15 @@ describe('E2E Nested Operations', () => {
         },
       });
 
-      expect(updated[0]?.tagIds).toContain(tag1.id);
-      expect(updated[0]?.tagIds).toContain(tag2.id);
+      expect(updated[0]?.tagIds.some((id) => id.equals(tag1.id))).toBe(true);
+      expect(updated[0]?.tagIds.some((id) => id.equals(tag2.id))).toBe(true);
 
       // Verify bidirectional sync
       const updatedTag1 = await client.db.Tag.findOne({ where: { id: tag1.id } });
       const updatedTag2 = await client.db.Tag.findOne({ where: { id: tag2.id } });
 
-      expect(updatedTag1?.userIds).toContain(user.id);
-      expect(updatedTag2?.userIds).toContain(user.id);
+      expect(updatedTag1?.userIds.some((id) => id.equals(user.id))).toBe(true);
+      expect(updatedTag2?.userIds.some((id) => id.equals(user.id))).toBe(true);
     });
   });
 
@@ -269,8 +270,8 @@ describe('E2E Nested Operations', () => {
       });
 
       // Verify initial state
-      expect(user.tagIds).toContain(tag1.id);
-      expect(user.tagIds).toContain(tag2.id);
+      expect(user.tagIds.some((id) => id.equals(tag1.id))).toBe(true);
+      expect(user.tagIds.some((id) => id.equals(tag2.id))).toBe(true);
 
       // Update user to disconnect tag1
       const updated = await client.db.User.updateMany({
@@ -280,15 +281,15 @@ describe('E2E Nested Operations', () => {
         },
       });
 
-      expect(updated[0]?.tagIds).not.toContain(tag1.id);
-      expect(updated[0]?.tagIds).toContain(tag2.id);
+      expect(updated[0]?.tagIds.some((id) => id.equals(tag1.id))).toBe(false);
+      expect(updated[0]?.tagIds.some((id) => id.equals(tag2.id))).toBe(true);
 
       // Verify bidirectional sync - tag1 should not have user anymore
       const updatedTag1 = await client.db.Tag.findOne({ where: { id: tag1.id } });
       const updatedTag2 = await client.db.Tag.findOne({ where: { id: tag2.id } });
 
-      expect(updatedTag1?.userIds).not.toContain(user.id);
-      expect(updatedTag2?.userIds).toContain(user.id);
+      expect(updatedTag1?.userIds.some((id) => id.equals(user.id))).toBe(false);
+      expect(updatedTag2?.userIds.some((id) => id.equals(user.id))).toBe(true);
     });
   });
 
@@ -309,7 +310,7 @@ describe('E2E Nested Operations', () => {
         },
       });
 
-      expect(user.profileId).toBe(profile.id);
+      expect(user.profileId?.equals(profile.id)).toBe(true);
 
       // Disconnect profile
       const updated = await client.db.User.updateMany({
@@ -345,7 +346,7 @@ describe('E2E Nested Operations', () => {
       });
 
       expect(updated[0]?.profileId).toBeDefined();
-      expect(typeof updated[0]?.profileId).toBe('string');
+      expect(isCerialId(updated[0]?.profileId)).toBe(true);
 
       // Verify profile was created
       const profile = await client.db.Profile.findOne({

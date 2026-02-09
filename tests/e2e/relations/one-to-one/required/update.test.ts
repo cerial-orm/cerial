@@ -6,14 +6,8 @@
  */
 
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import {
-  cleanupTables,
-  createTestClient,
-  CerialClient,
-  tables,
-  testConfig,
-  uniqueEmail,
-} from '../../test-helper';
+import { cleanupTables, createTestClient, CerialClient, tables, testConfig, uniqueEmail } from '../../test-helper';
+import { isCerialId } from 'cerial';
 
 describe('E2E One-to-One Required: Update', () => {
   let client: CerialClient;
@@ -46,7 +40,7 @@ describe('E2E One-to-One Required: Update', () => {
         },
       });
 
-      expect(profile.userId).toBe(user1.id);
+      expect(profile.userId.equals(user1.id)).toBe(true);
 
       // Update profile to connect to user2
       const updated = await client.db.ProfileRequired.updateMany({
@@ -56,7 +50,7 @@ describe('E2E One-to-One Required: Update', () => {
         },
       });
 
-      expect(updated[0]?.userId).toBe(user2.id);
+      expect(updated[0]?.userId?.equals(user2.id)).toBe(true);
     });
   });
 
@@ -87,7 +81,7 @@ describe('E2E One-to-One Required: Update', () => {
       expect(updated[0]?.userId).toBeDefined();
       expect(updated[0]?.userId).not.toBe(user1.id);
       // userId should be a plain ID (table prefix is stripped by the ORM)
-      expect(typeof updated[0]?.userId).toBe('string');
+      expect(isCerialId(updated[0]?.userId)).toBe(true);
 
       // Verify new user was created
       const newUser = await client.db.UserRequired.findOne({
@@ -120,7 +114,7 @@ describe('E2E One-to-One Required: Update', () => {
       const profileAfter = await client.db.ProfileRequired.findOne({
         where: { id: profile.id },
       });
-      expect(profileAfter?.userId).toBe(user.id);
+      expect(profileAfter?.userId?.equals(user.id)).toBe(true);
 
       // User should have new name
       const userAfter = await client.db.UserRequired.findOne({
@@ -150,7 +144,7 @@ describe('E2E One-to-One Required: Update', () => {
       });
 
       expect(updated[0]?.bio).toBe('Updated bio');
-      expect(updated[0]?.userId).toBe(user.id);
+      expect(updated[0]?.userId?.equals(user.id)).toBe(true);
     });
   });
 
@@ -181,7 +175,7 @@ describe('E2E One-to-One Required: Update', () => {
       const updated = await client.db.ProfileRequired.findOne({
         where: { id: profile.id },
       });
-      expect(updated?.userId).toBe(user2.id);
+      expect(updated?.userId?.equals(user2.id)).toBe(true);
     });
   });
 });

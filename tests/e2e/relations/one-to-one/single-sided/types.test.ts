@@ -98,7 +98,7 @@ describe('E2E One-to-One Single-Sided: Types', () => {
       if (result?.user) {
         // Here TypeScript knows user is not null
         expect(result.user.name).toBe('Narrowed User');
-        expect(result.user.id).toBe(user.id);
+        expect(result.user.id.equals(user.id)).toBe(true);
       }
     });
   });

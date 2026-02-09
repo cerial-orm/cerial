@@ -9,13 +9,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import {
-  cleanupTables,
-  createTestClient,
-  CerialClient,
-  tables,
-  testConfig,
-} from '../../test-helper';
+import { cleanupTables, createTestClient, CerialClient, tables, testConfig } from '../../test-helper';
 
 describe('E2E One-to-One @onDelete(NoAction)', () => {
   let client: CerialClient;
@@ -56,7 +50,7 @@ describe('E2E One-to-One @onDelete(NoAction)', () => {
       });
 
       expect(profileAfter).toBeDefined();
-      expect(profileAfter?.userId).toBe(originalUserId);
+      expect(profileAfter?.userId?.equals(originalUserId)).toBe(true);
       // userId points to non-existent record
     });
 
@@ -84,12 +78,10 @@ describe('E2E One-to-One @onDelete(NoAction)', () => {
       const profile2After = await client.db.ProfileNoAction.findOne({
         where: { id: profile2.id },
       });
-      expect(profile2After?.userId).toBe(user2.id);
+      expect(profile2After?.userId?.equals(user2.id)).toBe(true);
 
       // user2 should still exist
-      expect(
-        await client.db.UserNoAction.findOne({ where: { id: user2.id } })
-      ).toBeDefined();
+      expect(await client.db.UserNoAction.findOne({ where: { id: user2.id } })).toBeDefined();
     });
   });
 

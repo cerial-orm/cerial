@@ -47,7 +47,7 @@ describe('E2E One-to-Many Optional: Update', () => {
         },
       });
 
-      expect(updated[0]?.publisherId).toBe(publisher.id);
+      expect(updated[0]?.publisherId?.equals(publisher.id)).toBe(true);
     });
 
     test('should connect via publisher update', async () => {
@@ -69,7 +69,7 @@ describe('E2E One-to-Many Optional: Update', () => {
       const updatedBook = await client.db.Book.findOne({
         where: { id: book.id },
       });
-      expect(updatedBook?.publisherId).toBe(publisher.id);
+      expect(updatedBook?.publisherId?.equals(publisher.id)).toBe(true);
     });
   });
 
@@ -87,7 +87,7 @@ describe('E2E One-to-Many Optional: Update', () => {
         },
       });
 
-      expect(book.publisherId).toBe(publisher.id);
+      expect(book.publisherId?.equals(publisher.id)).toBe(true);
 
       // Disconnect
       const updated = await client.db.Book.updateMany({
@@ -147,7 +147,7 @@ describe('E2E One-to-Many Optional: Update', () => {
         },
       });
 
-      expect(updated[0]?.publisherId).toBe(pub2.id);
+      expect(updated[0]?.publisherId?.equals(pub2.id)).toBe(true);
     });
   });
 });

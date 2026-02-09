@@ -64,3 +64,7 @@ export {
   findIndex,
   zip,
 } from './array-utils';
+
+// CerialId - Record ID wrapper
+export { CerialId, isCerialId } from './cerial-id';
+export type { RecordIdInput } from './cerial-id';

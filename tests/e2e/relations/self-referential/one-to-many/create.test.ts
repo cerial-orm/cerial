@@ -52,7 +52,7 @@ describe('E2E Self-Ref One-to-Many: Create', () => {
         },
       });
 
-      expect(employee.managerId).toBe(manager.id);
+      expect(employee.managerId?.equals(manager.id)).toBe(true);
     });
 
     test('should create multiple employees under same manager', async () => {
@@ -70,9 +70,9 @@ describe('E2E Self-Ref One-to-Many: Create', () => {
         data: { name: 'Employee 3', manager: { connect: manager.id } },
       });
 
-      expect(emp1.managerId).toBe(manager.id);
-      expect(emp2.managerId).toBe(manager.id);
-      expect(emp3.managerId).toBe(manager.id);
+      expect(emp1.managerId?.equals(manager.id)).toBe(true);
+      expect(emp2.managerId?.equals(manager.id)).toBe(true);
+      expect(emp3.managerId?.equals(manager.id)).toBe(true);
     });
   });
 
@@ -115,9 +115,9 @@ describe('E2E Self-Ref One-to-Many: Create', () => {
       });
 
       expect(ceo.managerId).toBeNull();
-      expect(vp.managerId).toBe(ceo.id);
-      expect(director.managerId).toBe(vp.id);
-      expect(employee.managerId).toBe(director.id);
+      expect(vp.managerId?.equals(ceo.id)).toBe(true);
+      expect(director.managerId?.equals(vp.id)).toBe(true);
+      expect(employee.managerId?.equals(director.id)).toBe(true);
     });
   });
 });

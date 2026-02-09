@@ -52,8 +52,8 @@ describe('E2E Many-to-Many Bidirectional: Create', () => {
       });
 
       // Student should have courseIds
-      expect(student.courseIds).toContain(course1.id);
-      expect(student.courseIds).toContain(course2.id);
+      expect(student.courseIds.some((id) => id.equals(course1.id))).toBe(true);
+      expect(student.courseIds.some((id) => id.equals(course2.id))).toBe(true);
 
       // Courses should have studentIds (bidirectional sync)
       const updatedCourse1 = await client.db.Course.findOne({
@@ -63,8 +63,8 @@ describe('E2E Many-to-Many Bidirectional: Create', () => {
         where: { id: course2.id },
       });
 
-      expect(updatedCourse1?.studentIds).toContain(student.id);
-      expect(updatedCourse2?.studentIds).toContain(student.id);
+      expect(updatedCourse1?.studentIds?.some((id) => id.equals(student.id))).toBe(true);
+      expect(updatedCourse2?.studentIds?.some((id) => id.equals(student.id))).toBe(true);
     });
 
     test('should create course connecting to students with bidirectional sync', async () => {
@@ -86,8 +86,8 @@ describe('E2E Many-to-Many Bidirectional: Create', () => {
       });
 
       // Course should have studentIds
-      expect(course.studentIds).toContain(student1.id);
-      expect(course.studentIds).toContain(student2.id);
+      expect(course.studentIds.some((id) => id.equals(student1.id))).toBe(true);
+      expect(course.studentIds.some((id) => id.equals(student2.id))).toBe(true);
 
       // Students should have courseIds (bidirectional sync)
       const updatedStudent1 = await client.db.Student.findOne({
@@ -97,8 +97,8 @@ describe('E2E Many-to-Many Bidirectional: Create', () => {
         where: { id: student2.id },
       });
 
-      expect(updatedStudent1?.courseIds).toContain(course.id);
-      expect(updatedStudent2?.courseIds).toContain(course.id);
+      expect(updatedStudent1?.courseIds?.some((id) => id.equals(course.id))).toBe(true);
+      expect(updatedStudent2?.courseIds?.some((id) => id.equals(course.id))).toBe(true);
     });
   });
 

@@ -6,13 +6,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import {
-  cleanupTables,
-  createTestClient,
-  CerialClient,
-  tables,
-  testConfig,
-} from '../../test-helper';
+import { cleanupTables, createTestClient, CerialClient, tables, testConfig } from '../../test-helper';
 
 describe('E2E Self-Ref Tree: Parent/Children', () => {
   let client: CerialClient;
@@ -63,10 +57,7 @@ describe('E2E Self-Ref Tree: Parent/Children', () => {
       });
 
       expect(result?.children).toHaveLength(2);
-      expect(result?.children?.map((c) => c.name).sort()).toEqual([
-        'Child 1',
-        'Child 2',
-      ]);
+      expect(result?.children?.map((c) => c.name).sort()).toEqual(['Child 1', 'Child 2']);
     });
 
     test('should return empty children for leaf node', async () => {
@@ -149,15 +140,10 @@ describe('E2E Self-Ref Tree: Parent/Children', () => {
 
       // Manual leaf detection - categories that have no children
       const all = await client.db.CategoryTree.findMany({});
-      const parentIds = new Set(
-        all.filter((c) => c.parentId).map((c) => c.parentId)
-      );
-      const leaves = all.filter((c) => !parentIds.has(c.id));
+      const parentIdStrings = new Set(all.filter((c) => c.parentId).map((c) => c.parentId!.toString()));
+      const leaves = all.filter((c) => !parentIdStrings.has(c.id.toString()));
 
-      expect(leaves.map((l) => l.name).sort()).toEqual([
-        'Child 2',
-        'Grandchild',
-      ]);
+      expect(leaves.map((l) => l.name).sort()).toEqual(['Child 2', 'Grandchild']);
     });
   });
 });

@@ -97,15 +97,18 @@ export function generateFieldWhereType(field: FieldMetadata, _registry?: ModelRe
 
   // Handle array types (String[], Int[], Date[], Record[], etc.)
   if (field.isArray) {
-    return `${tsType}[] | ${generateArrayFieldOps(tsType)}`;
+    // For Record[] arrays, use RecordIdInput for input types
+    const inputType = field.type === 'record' ? 'RecordIdInput' : tsType;
+
+    return `${inputType}[] | ${generateArrayFieldOps(inputType)}`;
   }
 
-  // Handle Record (single record ID) - same as string
+  // Handle Record (single record ID) - accepts RecordIdInput
   if (field.type === 'record') {
-    return `${nullablePrefix}string | (
-    ${generateStringComparisonOps('string')} &
+    return `${nullablePrefix}RecordIdInput | (
+    ${generateStringComparisonOps('RecordIdInput')} &
     ${generateStringOps()} &
-    ${generateArrayOps('string')} &
+    ${generateArrayOps('RecordIdInput')} &
     ${generateStringSpecialOps(isRequired, isId)}
   )`;
   }

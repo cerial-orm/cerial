@@ -5,22 +5,19 @@
  * Run: bun run typecheck
  */
 
+import { CerialId } from 'cerial';
 import { Test } from 'ts-toolbelt';
 import type {
   Author,
   AuthorCreateInput,
-  AuthorUpdateInput,
   AuthorInclude,
-  PostRequired,
-  PostRequiredCreate,
-  PostRequiredCreateInput,
-  PostRequiredUpdateInput,
-  Publisher,
-  PublisherCreateInput,
-  PublisherInclude,
-  Book,
   BookCreateInput,
   BookUpdateInput,
+  PostRequired,
+  PostRequiredCreateInput,
+  PostRequiredUpdateInput,
+  PublisherCreateInput,
+  PublisherInclude,
 } from '../generated';
 
 // Helper for extension checks
@@ -32,16 +29,16 @@ type Extends<A, B> = A extends B ? 1 : 0;
 
 // Author base type
 Test.checks([
-  Test.check<Author['id'], string, Test.Pass>(),
+  Test.check<Author['id'], CerialId, Test.Pass>(),
   Test.check<Author['name'], string, Test.Pass>(),
   Test.check<Author['email'], string, Test.Pass>(),
 ]);
 
 // PostRequired should have authorId (the FK)
 Test.checks([
-  Test.check<PostRequired['id'], string, Test.Pass>(),
+  Test.check<PostRequired['id'], CerialId, Test.Pass>(),
   Test.check<PostRequired['title'], string, Test.Pass>(),
-  Test.check<PostRequired['authorId'], string, Test.Pass>(),
+  Test.check<PostRequired['authorId'], CerialId, Test.Pass>(),
 ]);
 
 // =============================================================================

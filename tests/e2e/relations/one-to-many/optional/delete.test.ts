@@ -84,7 +84,7 @@ describe('E2E One-to-Many Optional: Delete', () => {
       const p2Book = await client.db.Book.findOne({
         where: { title: 'P2 Book' },
       });
-      expect(p2Book?.publisherId).toBe(pub2.id);
+      expect(p2Book?.publisherId?.equals(pub2.id)).toBe(true);
 
       // P1 book should be orphaned
       const p1Book = await client.db.Book.findOne({

@@ -49,7 +49,7 @@ describe('E2E Mixed Optionality: Update', () => {
         where: { id: order.id },
       });
 
-      expect(result?.customerId).toBe(newCustomer.id);
+      expect(result?.customerId?.equals(newCustomer.id)).toBe(true);
     });
   });
 
@@ -76,7 +76,7 @@ describe('E2E Mixed Optionality: Update', () => {
         where: { id: order.id },
       });
 
-      expect(result?.assigneeId).toBe(agent.id);
+      expect(result?.assigneeId?.equals(agent.id)).toBe(true);
     });
 
     test('should change assignee via connect', async () => {
@@ -107,7 +107,7 @@ describe('E2E Mixed Optionality: Update', () => {
         where: { id: order.id },
       });
 
-      expect(result?.assigneeId).toBe(newAgent.id);
+      expect(result?.assigneeId?.equals(newAgent.id)).toBe(true);
     });
 
     test('should unassign agent via disconnect', async () => {

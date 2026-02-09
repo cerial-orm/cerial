@@ -49,8 +49,8 @@ describe('E2E Many-to-Many Bidirectional: Delete', () => {
       // Verify courses have student
       let c1 = await client.db.Course.findOne({ where: { id: course1.id } });
       let c2 = await client.db.Course.findOne({ where: { id: course2.id } });
-      expect(c1?.studentIds).toContain(student.id);
-      expect(c2?.studentIds).toContain(student.id);
+      expect(c1?.studentIds?.some((id) => id.equals(student.id))).toBe(true);
+      expect(c2?.studentIds?.some((id) => id.equals(student.id))).toBe(true);
 
       // Delete student
       await client.db.Student.deleteMany({
@@ -60,8 +60,8 @@ describe('E2E Many-to-Many Bidirectional: Delete', () => {
       // Courses should no longer have student
       c1 = await client.db.Course.findOne({ where: { id: course1.id } });
       c2 = await client.db.Course.findOne({ where: { id: course2.id } });
-      expect(c1?.studentIds).not.toContain(student.id);
-      expect(c2?.studentIds).not.toContain(student.id);
+      expect(c1?.studentIds?.some((id) => id.equals(student.id))).toBe(false);
+      expect(c2?.studentIds?.some((id) => id.equals(student.id))).toBe(false);
     });
 
     test('should remove course from all students when course deleted', async () => {
@@ -83,8 +83,8 @@ describe('E2E Many-to-Many Bidirectional: Delete', () => {
       // Verify students have course
       let s1 = await client.db.Student.findOne({ where: { id: student1.id } });
       let s2 = await client.db.Student.findOne({ where: { id: student2.id } });
-      expect(s1?.courseIds).toContain(course.id);
-      expect(s2?.courseIds).toContain(course.id);
+      expect(s1?.courseIds?.some((id) => id.equals(course.id))).toBe(true);
+      expect(s2?.courseIds?.some((id) => id.equals(course.id))).toBe(true);
 
       // Delete course
       await client.db.Course.deleteMany({
@@ -94,8 +94,8 @@ describe('E2E Many-to-Many Bidirectional: Delete', () => {
       // Students should no longer have course
       s1 = await client.db.Student.findOne({ where: { id: student1.id } });
       s2 = await client.db.Student.findOne({ where: { id: student2.id } });
-      expect(s1?.courseIds).not.toContain(course.id);
-      expect(s2?.courseIds).not.toContain(course.id);
+      expect(s1?.courseIds?.some((id) => id.equals(course.id))).toBe(false);
+      expect(s2?.courseIds?.some((id) => id.equals(course.id))).toBe(false);
     });
   });
 

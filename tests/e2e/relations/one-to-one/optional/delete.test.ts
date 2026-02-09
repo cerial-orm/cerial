@@ -42,7 +42,7 @@ describe('E2E One-to-One Optional: Delete', () => {
         },
       });
 
-      expect(profile.userId).toBe(user.id);
+      expect(profile.userId?.equals(user.id)).toBe(true);
 
       // Delete user
       await client.db.UserOptional.deleteMany({

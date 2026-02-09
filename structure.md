@@ -207,8 +207,10 @@ generators/
 
 **Generated Types Per Model**:
 
-- `User` - Base interface
-- `UserCreate` - Type for create data (relations omitted, arrays/optional fields optional)
+- `User` - Base output interface (Record fields are `CerialId`)
+- `UserInput` - Base input interface (Record fields are `RecordIdInput`)
+- `UserCreate` - Type for create data (derives from `UserInput`, relations omitted)
+- `UserNestedCreate` - Type for nested create data (no id field)
 - `UserUpdate` - Type for update data with array operations (push/unset)
 - `UserWhere` - Type for where clauses (includes nested relation filtering)
 - `UserSelect` - Type for field selection
@@ -432,7 +434,7 @@ query/
 **Type Transformations**:
 
 - **Date fields**: Converted to native Date objects
-- **Record fields**: Transformed to/from RecordId(tableName, id)
+- **Record fields**: Input `RecordIdInput` → `RecordId` for SurrealDB; output `RecordId` → `CerialId` for TypeScript
 - **Array fields**: Default to empty arrays if not provided
 - **Array operations**: push/unset handled specially in updates
 
@@ -477,6 +479,7 @@ query/
 **Files**:
 
 - `array-utils.ts` - Array manipulation utilities
+- `cerial-id.ts` - `CerialId` class (wraps SurrealDB record IDs) and `RecordIdInput` union type
 - `index.ts` - Utility exports
 - `string-utils.ts` - String manipulation utilities
 - `type-utils.ts` - Type checking and validation utilities (handles Record type)
@@ -484,10 +487,11 @@ query/
 
 **Key Functions**:
 
+- `CerialId` - Wrapper for SurrealDB record IDs with `.table`, `.id`, `.equals()`, `.toString()`, `.toRecordId()`
+- `RecordIdInput` - Union type accepting `string | CerialId | RecordId | StringRecordId`
 - String case conversion, formatting
 - Type guards and type checking
 - Validation helpers for schema and query data
-- RecordId validation and transformation
 
 ---
 
@@ -595,9 +599,9 @@ bun test tests/parser/
 
 **Test Coverage**:
 
-- **Unit tests**: ~270 tests covering parsers, generators, query builders
-- **E2E tests**: ~616 tests covering real-world usage scenarios
-- **Total**: ~886 tests
+- **Unit tests**: ~357 tests covering parsers, generators, query builders
+- **E2E tests**: ~634 tests covering real-world usage scenarios
+- **Total**: ~991+ tests
 
 ---
 
@@ -703,14 +707,14 @@ Generated types provide full compile-time type safety:
 ```typescript
 // Without select/include - returns full User type
 const user = await db.User.findOne({ where: { id: '123' } });
-// user: User | null
+// user: User | null (id is CerialId, profileId is CerialId | null, etc.)
 
 // With select - returns only selected fields
 const user = await db.User.findOne({
   where: { id: '123' },
   select: { id: true, email: true },
 });
-// user: { id: string; email: string } | null
+// user: { id: CerialId; email: string } | null
 
 // With include - returns model + relations
 const user = await db.User.findOne({

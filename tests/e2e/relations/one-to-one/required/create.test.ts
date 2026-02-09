@@ -10,14 +10,8 @@
  */
 
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import {
-  cleanupTables,
-  createTestClient,
-  CerialClient,
-  tables,
-  testConfig,
-  uniqueEmail,
-} from '../../test-helper';
+import { cleanupTables, createTestClient, CerialClient, tables, testConfig, uniqueEmail } from '../../test-helper';
+import { isCerialId } from 'cerial';
 
 describe('E2E One-to-One Required: Create', () => {
   let client: CerialClient;
@@ -49,7 +43,7 @@ describe('E2E One-to-One Required: Create', () => {
       expect(profile).toBeDefined();
       expect(profile.userId).toBeDefined();
       // userId is a plain ID string (table prefix stripped by ORM)
-      expect(typeof profile.userId).toBe('string');
+      expect(isCerialId(profile.userId)).toBe(true);
       expect(profile.bio).toBe('Test bio');
 
       // Verify user was created
@@ -103,7 +97,7 @@ describe('E2E One-to-One Required: Create', () => {
         },
       });
 
-      expect(profile.userId).toBe(user.id);
+      expect(profile.userId.equals(user.id)).toBe(true);
     });
 
     test('should reject connect to non-existent user id', async () => {
@@ -114,7 +108,7 @@ describe('E2E One-to-One Required: Create', () => {
             bio: 'Test',
             user: { connect: 'nonexistent123' },
           },
-        })
+        }),
       ).rejects.toThrow();
     });
   });
@@ -194,7 +188,7 @@ describe('E2E One-to-One Required: Create', () => {
       const updatedProfile = await client.db.ProfileRequired.findOne({
         where: { id: profile.id },
       });
-      expect(updatedProfile?.userId).toBe(newUser.id);
+      expect(updatedProfile?.userId?.equals(newUser.id)).toBe(true);
     });
   });
 
@@ -215,7 +209,7 @@ describe('E2E One-to-One Required: Create', () => {
         },
       });
 
-      expect(profile.userId).toBe(user.id);
+      expect(profile.userId.equals(user.id)).toBe(true);
     });
   });
 });

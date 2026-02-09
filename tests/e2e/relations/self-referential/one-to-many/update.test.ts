@@ -49,7 +49,7 @@ describe('E2E Self-Ref One-to-Many: Update', () => {
         where: { id: employee.id },
       });
 
-      expect(updated?.managerId).toBe(newManager.id);
+      expect(updated?.managerId?.equals(newManager.id)).toBe(true);
     });
 
     test('should assign manager to previously unassigned employee', async () => {
@@ -71,7 +71,7 @@ describe('E2E Self-Ref One-to-Many: Update', () => {
         where: { id: employee.id },
       });
 
-      expect(updated?.managerId).toBe(manager.id);
+      expect(updated?.managerId?.equals(manager.id)).toBe(true);
     });
   });
 

@@ -91,18 +91,19 @@ function getOptionalForCreate(model: ModelMetadata): string[] {
   return Array.from(optional);
 }
 
-/** Generate Create type */
+/** Generate Create type - uses ModelInput for input types (accepts RecordIdInput) */
 export function generateCreateType(model: ModelMetadata): string {
   const omit = getOmitForCreate(model);
   const optional = getOptionalForCreate(model);
+  const inputType = `${model.name}Input`;
 
-  if (!omit.length && !optional.length) return `export type ${model.name}Create = ${model.name};`;
+  if (!omit.length && !optional.length) return `export type ${model.name}Create = ${inputType};`;
 
   // Get optional fields that aren't already omitted
   const optionalFields = optional.filter((f) => !omit.includes(f));
 
   if (omit.length === 0 && optionalFields.length === 0) {
-    return `export type ${model.name}Create = ${model.name};`;
+    return `export type ${model.name}Create = ${inputType};`;
   }
 
   if (USE_TS_TOOLBELT) {
@@ -112,26 +113,26 @@ export function generateCreateType(model: ModelMetadata): string {
     const optionalKeys = optionalFields.map((f) => `'${f}'`).join(' | ');
 
     if (omit.length > 0 && optionalFields.length > 0) {
-      return `export type ${model.name}Create = O.Optional<O.Omit<${model.name}, ${omitKeys}>, ${optionalKeys}>;`;
+      return `export type ${model.name}Create = O.Optional<O.Omit<${inputType}, ${omitKeys}>, ${optionalKeys}>;`;
     } else if (omit.length > 0) {
-      return `export type ${model.name}Create = O.Omit<${model.name}, ${omitKeys}>;`;
+      return `export type ${model.name}Create = O.Omit<${inputType}, ${omitKeys}>;`;
     } else {
-      return `export type ${model.name}Create = O.Optional<${model.name}, ${optionalKeys}>;`;
+      return `export type ${model.name}Create = O.Optional<${inputType}, ${optionalKeys}>;`;
     }
   }
 
   // Fallback: standard TypeScript utilities
   const allOmit = [...omit, ...optionalFields];
-  let type = `Omit<${model.name}, ${allOmit.map((f) => `'${f}'`).join(' | ')}>`;
+  let type = `Omit<${inputType}, ${allOmit.map((f) => `'${f}'`).join(' | ')}>`;
 
   if (optionalFields.length > 0) {
-    type += ` & Partial<Pick<${model.name}, ${optionalFields.map((f) => `'${f}'`).join(' | ')}>>`;
+    type += ` & Partial<Pick<${inputType}, ${optionalFields.map((f) => `'${f}'`).join(' | ')}>>`;
   }
 
   return `export type ${model.name}Create = ${type};`;
 }
 
-/** Map schema type to TypeScript array element type */
+/** Map schema type to TypeScript array element type for input types */
 function getArrayElementType(schemaType: string): string {
   const typeMap: Record<string, string> = {
     string: 'string',
@@ -140,7 +141,7 @@ function getArrayElementType(schemaType: string): string {
     float: 'number',
     bool: 'boolean',
     date: 'Date',
-    record: 'string',
+    record: 'RecordIdInput',
   };
 
   return typeMap[schemaType] ?? 'unknown';
@@ -148,8 +149,8 @@ function getArrayElementType(schemaType: string): string {
 
 /**
  * Generate nested create input type for a single relation field
- * - Array relations: { create?: T[], connect?: string[] }
- * - Single relations: { create: T } | { connect: string }
+ * - Array relations: { create?: T[], connect?: RecordIdInput[] }
+ * - Single relations: { create: T } | { connect: RecordIdInput }
  */
 function generateNestedCreateFieldType(
   fieldName: string,
@@ -162,18 +163,18 @@ function generateNestedCreateFieldType(
     // Array relation - both create and connect are optional arrays
     return `  ${fieldName}?: {
     create?: ${targetModel}NestedCreate | ${targetModel}NestedCreate[];
-    connect?: string | string[];
+    connect?: RecordIdInput | RecordIdInput[];
   };`;
   }
 
   // Single relation - mutually exclusive create OR connect
   if (isRequired && !isReverse) {
     // Required relation - must provide create or connect
-    return `  ${fieldName}: { create: ${targetModel}NestedCreate } | { connect: string };`;
+    return `  ${fieldName}: { create: ${targetModel}NestedCreate } | { connect: RecordIdInput };`;
   }
 
   // Optional relation - can omit or provide create/connect
-  return `  ${fieldName}?: { create: ${targetModel}NestedCreate } | { connect: string };`;
+  return `  ${fieldName}?: { create: ${targetModel}NestedCreate } | { connect: RecordIdInput };`;
 }
 
 /**
@@ -192,19 +193,19 @@ function generateNestedUpdateFieldType(
     // Array relation - can add/remove multiple, or replace all with set
     return `  ${fieldName}?: {
     create?: ${targetModel}NestedCreate | ${targetModel}NestedCreate[];
-    connect?: string | string[];
-    disconnect?: string | string[];
-    set?: string[];
+    connect?: RecordIdInput | RecordIdInput[];
+    disconnect?: RecordIdInput | RecordIdInput[];
+    set?: RecordIdInput[];
   };`;
   }
 
   if (isRequired) {
     // Required single relation - cannot disconnect
-    return `  ${fieldName}?: { create: ${targetModel}NestedCreate } | { connect: string };`;
+    return `  ${fieldName}?: { create: ${targetModel}NestedCreate } | { connect: RecordIdInput };`;
   }
 
   // Optional single relation - can disconnect
-  return `  ${fieldName}?: { create: ${targetModel}NestedCreate } | { connect: string } | { disconnect: true };`;
+  return `  ${fieldName}?: { create: ${targetModel}NestedCreate } | { connect: RecordIdInput } | { disconnect: true };`;
 }
 
 /** Generate NestedCreate type (for use in nested operations) - excludes relation nesting to prevent infinite types */
@@ -212,6 +213,7 @@ export function generateNestedCreateType(model: ModelMetadata): string {
   const omit = getOmitForCreate(model);
   const optional = getOptionalForCreate(model);
   const managedRecords = getRecordFieldsManagedByRelations(model);
+  const inputType = `${model.name}Input`;
 
   // For nested create, also omit Record fields that are managed by Relation @field()
   const allOmit = [...new Set([...omit, ...managedRecords])];
@@ -220,7 +222,7 @@ export function generateNestedCreateType(model: ModelMetadata): string {
   const optionalFields = optional.filter((f) => !allOmit.includes(f));
 
   if (allOmit.length === 0 && optionalFields.length === 0) {
-    return `export type ${model.name}NestedCreate = ${model.name};`;
+    return `export type ${model.name}NestedCreate = ${inputType};`;
   }
 
   if (USE_TS_TOOLBELT) {
@@ -228,20 +230,20 @@ export function generateNestedCreateType(model: ModelMetadata): string {
     const optionalKeys = optionalFields.map((f) => `'${f}'`).join(' | ');
 
     if (allOmit.length > 0 && optionalFields.length > 0) {
-      return `export type ${model.name}NestedCreate = O.Optional<O.Omit<${model.name}, ${omitKeys}>, ${optionalKeys}>;`;
+      return `export type ${model.name}NestedCreate = O.Optional<O.Omit<${inputType}, ${omitKeys}>, ${optionalKeys}>;`;
     } else if (allOmit.length > 0) {
-      return `export type ${model.name}NestedCreate = O.Omit<${model.name}, ${omitKeys}>;`;
+      return `export type ${model.name}NestedCreate = O.Omit<${inputType}, ${omitKeys}>;`;
     } else {
-      return `export type ${model.name}NestedCreate = O.Optional<${model.name}, ${optionalKeys}>;`;
+      return `export type ${model.name}NestedCreate = O.Optional<${inputType}, ${optionalKeys}>;`;
     }
   }
 
   // Fallback without ts-toolbelt
   const allOmitForPartial = [...allOmit, ...optionalFields];
-  let type = `Omit<${model.name}, ${allOmitForPartial.map((f) => `'${f}'`).join(' | ')}>`;
+  let type = `Omit<${inputType}, ${allOmitForPartial.map((f) => `'${f}'`).join(' | ')}>`;
 
   if (optionalFields.length > 0) {
-    type += ` & Partial<Pick<${model.name}, ${optionalFields.map((f) => `'${f}'`).join(' | ')}>>`;
+    type += ` & Partial<Pick<${inputType}, ${optionalFields.map((f) => `'${f}'`).join(' | ')}>>`;
   }
 
   return `export type ${model.name}NestedCreate = ${type};`;
@@ -348,6 +350,7 @@ export function generateUpdateType(model: ModelMetadata): string {
   const idField = model.fields.find((f) => f.isId);
   const arrayFields = model.fields.filter((f) => f.isArray && f.type !== 'relation');
   const relationFields = model.fields.filter((f) => f.type === 'relation');
+  const inputType = `${model.name}Input`;
 
   // Fields to exclude from update (id and relation fields)
   const excludeFields = [...(idField ? [idField.name] : []), ...relationFields.map((f) => f.name)];
@@ -357,11 +360,13 @@ export function generateUpdateType(model: ModelMetadata): string {
   if (arrayFields.length === 0) {
     if (excludeFields.length > 0) {
       if (USE_TS_TOOLBELT) {
-        return `export type ${model.name}Update = Partial<O.Omit<${model.name}, ${excludeKeys}>>;`;
+        return `export type ${model.name}Update = Partial<O.Omit<${inputType}, ${excludeKeys}>>;`;
       }
-      return `export type ${model.name}Update = Partial<Omit<${model.name}, ${excludeKeys}>>;`;
+
+      return `export type ${model.name}Update = Partial<Omit<${inputType}, ${excludeKeys}>>;`;
     }
-    return `export type ${model.name}Update = Partial<${model.name}>;`;
+
+    return `export type ${model.name}Update = Partial<${inputType}>;`;
   }
 
   // Generate interface with array operations for all array fields
@@ -370,13 +375,14 @@ export function generateUpdateType(model: ModelMetadata): string {
   const baseType =
     baseOmit.length > 0
       ? USE_TS_TOOLBELT
-        ? `Partial<O.Omit<${model.name}, ${baseOmitKeys}>>`
-        : `Partial<Omit<${model.name}, ${baseOmitKeys}>>`
-      : `Partial<${model.name}>`;
+        ? `Partial<O.Omit<${inputType}, ${baseOmitKeys}>>`
+        : `Partial<Omit<${inputType}, ${baseOmitKeys}>>`
+      : `Partial<${inputType}>`;
 
   const arrayFieldTypes = arrayFields
     .map((f) => {
       const elementType = getArrayElementType(f.type);
+
       return `  ${f.name}?: ${elementType}[] | {
     push?: ${elementType} | ${elementType}[];
     unset?: ${elementType} | ${elementType}[];

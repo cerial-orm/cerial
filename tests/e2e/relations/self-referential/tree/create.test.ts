@@ -53,7 +53,7 @@ describe('E2E Self-Ref Tree: Create', () => {
         },
       });
 
-      expect(child.parentId).toBe(parent.id);
+      expect(child.parentId?.equals(parent.id)).toBe(true);
     });
 
     test('should create child with nested parent create', async () => {
@@ -111,8 +111,8 @@ describe('E2E Self-Ref Tree: Create', () => {
         data: { name: 'Level 2', parent: { connect: level1.id } },
       });
 
-      expect(level2.parentId).toBe(level1.id);
-      expect(level1.parentId).toBe(root.id);
+      expect(level2.parentId?.equals(level1.id)).toBe(true);
+      expect(level1.parentId?.equals(root.id)).toBe(true);
       expect(root.parentId).toBeNull();
     });
   });

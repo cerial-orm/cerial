@@ -98,8 +98,8 @@ describe('E2E Self-Ref Single-Sided Array: Create', () => {
       });
 
       // Fans follow celeb
-      expect(fan1.followingIds).toContain(celeb.id);
-      expect(fan2.followingIds).toContain(celeb.id);
+      expect(fan1.followingIds.some((id) => id.equals(celeb.id))).toBe(true);
+      expect(fan2.followingIds.some((id) => id.equals(celeb.id))).toBe(true);
 
       // Celeb doesn't follow anyone
       const celebResult = await client.db.SocialUser.findOne({

@@ -91,7 +91,7 @@ describe('E2E One-to-Many Optional: Create', () => {
         },
       });
 
-      expect(book.publisherId).toBe(publisher.id);
+      expect(book.publisherId?.equals(publisher.id)).toBe(true);
     });
   });
 

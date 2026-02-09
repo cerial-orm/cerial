@@ -45,7 +45,7 @@ describe('E2E Mixed Optionality: Create', () => {
         },
       });
 
-      expect(order.customerId).toBe(customer.id);
+      expect(order.customerId.equals(customer.id)).toBe(true);
       expect(order.assigneeId).toBeNull();
     });
 
@@ -85,8 +85,8 @@ describe('E2E Mixed Optionality: Create', () => {
         },
       });
 
-      expect(order.customerId).toBe(customer.id);
-      expect(order.assigneeId).toBe(agent.id);
+      expect(order.customerId.equals(customer.id)).toBe(true);
+      expect(order.assigneeId?.equals(agent.id)).toBe(true);
     });
 
     test('should create order with nested assignee create', async () => {

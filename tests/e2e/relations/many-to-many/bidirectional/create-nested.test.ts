@@ -52,7 +52,7 @@ describe('E2E Many-to-Many Bidirectional: Nested Create', () => {
 
       // Verify bidirectional sync
       courses.forEach((course) => {
-        expect(course.studentIds).toContain(student.id);
+        expect(course.studentIds.some((id) => id.equals(student.id))).toBe(true);
       });
     });
   });
@@ -80,7 +80,7 @@ describe('E2E Many-to-Many Bidirectional: Nested Create', () => {
 
       // Verify bidirectional sync
       students.forEach((student) => {
-        expect(student.courseIds).toContain(course.id);
+        expect(student.courseIds.some((id) => id.equals(course.id))).toBe(true);
       });
     });
   });
@@ -105,13 +105,13 @@ describe('E2E Many-to-Many Bidirectional: Nested Create', () => {
       });
 
       expect(student.courseIds).toHaveLength(2);
-      expect(student.courseIds).toContain(existingCourse.id);
+      expect(student.courseIds.some((id) => id.equals(existingCourse.id))).toBe(true);
 
       // Verify existing course has student
       const updatedExisting = await client.db.Course.findOne({
         where: { id: existingCourse.id },
       });
-      expect(updatedExisting?.studentIds).toContain(student.id);
+      expect(updatedExisting?.studentIds?.some((id) => id.equals(student.id))).toBe(true);
     });
   });
 });

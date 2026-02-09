@@ -93,8 +93,8 @@ describe('E2E Self-Ref One-to-One: Manual Reverse Query', () => {
       });
 
       // Verify chain
-      expect(mentee.mentorId).toBe(mentor.id);
-      expect(mentor.mentorId).toBe(grandMentor.id);
+      expect(mentee.mentorId?.equals(mentor.id)).toBe(true);
+      expect(mentor.mentorId?.equals(grandMentor.id)).toBe(true);
       expect(grandMentor.mentorId).toBeNull();
 
       // Find all at each level

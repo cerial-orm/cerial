@@ -121,7 +121,7 @@ describe('E2E One-to-Many Optional: Orphans', () => {
       let book = await client.db.Book.findOne({
         where: { title: 'Book' },
       });
-      expect(book?.publisherId).toBe(publisher.id);
+      expect(book?.publisherId?.equals(publisher.id)).toBe(true);
 
       // Delete publisher
       await client.db.Publisher.deleteMany({

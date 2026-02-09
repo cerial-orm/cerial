@@ -5,15 +5,9 @@
  * Run: bun run typecheck
  */
 
+import { CerialId } from 'cerial';
 import { Test } from 'ts-toolbelt';
-import type {
-  User,
-  GetUserPayload,
-  Profile,
-  Tag,
-  Post,
-  GetProfilePayload,
-} from '../generated';
+import type { GetProfilePayload, GetUserPayload, Post, Profile, Tag } from '../generated';
 
 // =============================================================================
 // GetUserPayload - No Select/Include
@@ -22,7 +16,7 @@ import type {
 type FullUser = GetUserPayload<undefined, undefined>;
 
 Test.checks([
-  Test.check<FullUser['id'], string, Test.Pass>(),
+  Test.check<FullUser['id'], CerialId, Test.Pass>(),
   Test.check<FullUser['email'], string, Test.Pass>(),
   Test.check<FullUser['name'], string, Test.Pass>(),
   Test.check<FullUser['isActive'], boolean, Test.Pass>(),
@@ -35,7 +29,7 @@ Test.checks([
 // Select specific fields
 type SelectedFields = GetUserPayload<{ id: true; email: true }, undefined>;
 Test.checks([
-  Test.check<SelectedFields['id'], string, Test.Pass>(),
+  Test.check<SelectedFields['id'], CerialId, Test.Pass>(),
   Test.check<SelectedFields['email'], string, Test.Pass>(),
 ]);
 
@@ -46,7 +40,7 @@ Test.checks([Test.check<SingleField['name'], string, Test.Pass>()]);
 // Select array fields
 type ArrayFields = GetUserPayload<{ tagIds: true; nicknames: true }>;
 Test.checks([
-  Test.check<ArrayFields['tagIds'], string[], Test.Pass>(),
+  Test.check<ArrayFields['tagIds'], CerialId[], Test.Pass>(),
   Test.check<ArrayFields['nicknames'], string[], Test.Pass>(),
 ]);
 
@@ -57,16 +51,13 @@ Test.checks([
 // Include single relation
 type WithProfile = GetUserPayload<undefined, { profile: true }>;
 Test.checks([
-  Test.check<WithProfile['id'], string, Test.Pass>(),
+  Test.check<WithProfile['id'], CerialId, Test.Pass>(),
   Test.check<WithProfile['profile'], Profile, Test.Pass>(),
 ]);
 
 // Include array relation
 type WithTags = GetUserPayload<undefined, { tags: true }>;
-Test.checks([
-  Test.check<WithTags['id'], string, Test.Pass>(),
-  Test.check<WithTags['tags'], Tag[], Test.Pass>(),
-]);
+Test.checks([Test.check<WithTags['id'], CerialId, Test.Pass>(), Test.check<WithTags['tags'], Tag[], Test.Pass>()]);
 
 // Include multiple relations
 type WithMultiple = GetUserPayload<undefined, { profile: true; tags: true; posts: true }>;
@@ -82,7 +73,7 @@ Test.checks([
 
 type SelectAndInclude = GetUserPayload<{ id: true; email: true }, { profile: true }>;
 Test.checks([
-  Test.check<SelectAndInclude['id'], string, Test.Pass>(),
+  Test.check<SelectAndInclude['id'], CerialId, Test.Pass>(),
   Test.check<SelectAndInclude['email'], string, Test.Pass>(),
   Test.check<SelectAndInclude['profile'], Profile, Test.Pass>(),
 ]);
@@ -100,7 +91,7 @@ Test.checks([
 type NestedInclude = GetUserPayload<undefined, { profile: { select: { id: true; bio: true } } }>;
 type IncludedProfile = NestedInclude['profile'];
 Test.checks([
-  Test.check<IncludedProfile['id'], string, Test.Pass>(),
+  Test.check<IncludedProfile['id'], CerialId, Test.Pass>(),
   Test.check<IncludedProfile['bio'], string | null | undefined, Test.Pass>(),
 ]);
 
@@ -112,7 +103,7 @@ type FullProfile = GetProfilePayload<undefined>;
 type SelectedProfile = GetProfilePayload<{ id: true }>;
 
 Test.checks([
-  Test.check<FullProfile['id'], string, Test.Pass>(),
+  Test.check<FullProfile['id'], CerialId, Test.Pass>(),
   Test.check<FullProfile['bio'], string | null | undefined, Test.Pass>(),
-  Test.check<SelectedProfile['id'], string, Test.Pass>(),
+  Test.check<SelectedProfile['id'], CerialId, Test.Pass>(),
 ]);

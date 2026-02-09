@@ -45,7 +45,7 @@ describe('E2E Self-Ref Many-to-Many Symmetric: Update', () => {
         where: { id: person.id },
       });
 
-      expect(result?.friendIds).toContain(newFriend.id);
+      expect(result?.friendIds?.some((id) => id.equals(newFriend.id))).toBe(true);
     });
 
     test('should add multiple friends', async () => {
@@ -77,7 +77,7 @@ describe('E2E Self-Ref Many-to-Many Symmetric: Update', () => {
         data: { name: 'Person', friends: { connect: [friend.id] } },
       });
 
-      expect(person.friendIds).toContain(friend.id);
+      expect(person.friendIds.some((id) => id.equals(friend.id))).toBe(true);
 
       await client.db.Friend.updateMany({
         where: { id: person.id },
@@ -88,7 +88,7 @@ describe('E2E Self-Ref Many-to-Many Symmetric: Update', () => {
         where: { id: person.id },
       });
 
-      expect(result?.friendIds).not.toContain(friend.id);
+      expect(result?.friendIds?.some((id) => id.equals(friend.id))).toBe(false);
     });
 
     test('should remove multiple friends', async () => {
@@ -110,7 +110,7 @@ describe('E2E Self-Ref Many-to-Many Symmetric: Update', () => {
       });
 
       expect(result?.friendIds).toHaveLength(1);
-      expect(result?.friendIds).toContain(f3.id);
+      expect(result?.friendIds?.some((id) => id.equals(f3.id))).toBe(true);
     });
   });
 

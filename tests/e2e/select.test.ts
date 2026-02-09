@@ -161,7 +161,7 @@ describe('E2E Select', () => {
 
       expect(user).toBeDefined();
       expect(user?.id).toBeDefined();
-      expect(user?.profileId).toBe(profile.id);
+      expect(user?.profileId?.equals(profile.id)).toBe(true);
       expect((user as Record<string, unknown>)?.email).toBeUndefined();
     });
 
@@ -230,7 +230,7 @@ describe('E2E Select', () => {
       });
 
       expect(user).toBeDefined();
-      expect(user?.id).toBe(created.id);
+      expect(user?.id.equals(created.id)).toBe(true);
       expect(user?.email).toBe('test@example.com');
       expect((user as Record<string, unknown>)?.name).toBeUndefined();
     });

@@ -5,26 +5,22 @@
  * Run: bun run typecheck
  */
 
+import { CerialId } from 'cerial';
 import { Test } from 'ts-toolbelt';
 import type {
-  Student,
-  StudentCreate,
-  StudentCreateInput,
-  StudentUpdate,
-  StudentUpdateInput,
-  StudentInclude,
-  Course,
-  CourseCreate,
-  CourseCreateInput,
-  CourseUpdate,
-  CourseUpdateInput,
-  CourseInclude,
   Blogger,
   BloggerCreateInput,
-  BloggerUpdateInput,
   BloggerInclude,
+  Course,
+  CourseCreateInput,
+  CourseInclude,
+  CourseUpdateInput,
   Label,
   LabelCreate,
+  Student,
+  StudentCreateInput,
+  StudentInclude,
+  StudentUpdateInput,
 } from '../generated';
 
 // Helper for extension checks
@@ -36,16 +32,16 @@ type Extends<A, B> = A extends B ? 1 : 0;
 
 // Student should have courseIds array
 Test.checks([
-  Test.check<Student['id'], string, Test.Pass>(),
+  Test.check<Student['id'], CerialId, Test.Pass>(),
   Test.check<Student['name'], string, Test.Pass>(),
-  Test.check<Student['courseIds'], string[], Test.Pass>(),
+  Test.check<Student['courseIds'], CerialId[], Test.Pass>(),
 ]);
 
 // Course should have studentIds array
 Test.checks([
-  Test.check<Course['id'], string, Test.Pass>(),
+  Test.check<Course['id'], CerialId, Test.Pass>(),
   Test.check<Course['name'], string, Test.Pass>(),
-  Test.check<Course['studentIds'], string[], Test.Pass>(),
+  Test.check<Course['studentIds'], CerialId[], Test.Pass>(),
 ]);
 
 // =============================================================================
@@ -125,16 +121,13 @@ Test.checks([Test.check<Extends<IncludeStudents, CourseInclude>, 1, Test.Pass>()
 
 // Blogger should have labelIds array
 Test.checks([
-  Test.check<Blogger['id'], string, Test.Pass>(),
-  Test.check<Blogger['labelIds'], string[], Test.Pass>(),
+  Test.check<Blogger['id'], CerialId, Test.Pass>(),
+  Test.check<Blogger['labelIds'], CerialId[], Test.Pass>(),
 ]);
 
 // Label should NOT have bloggerIds (one-directional)
 // Label only has id and name
-Test.checks([
-  Test.check<Label['id'], string, Test.Pass>(),
-  Test.check<Label['name'], string, Test.Pass>(),
-]);
+Test.checks([Test.check<Label['id'], CerialId, Test.Pass>(), Test.check<Label['name'], string, Test.Pass>()]);
 
 // BloggerCreateInput should allow labels connect
 type BloggerWithLabelsConnect = {

@@ -5,12 +5,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import {
-  cleanupTables,
-  createTestClient,
-  CerialClient,
-  testConfig,
-} from './test-client';
+import { CerialClient, cleanupTables, createTestClient, testConfig } from './test-client';
 
 describe('E2E Relations', () => {
   let client: CerialClient;
@@ -43,7 +38,7 @@ describe('E2E Relations', () => {
         },
       });
 
-      expect(user.profileId).toBe(profile.id);
+      expect(user.profileId?.equals(profile.id)).toBe(true);
     });
 
     test('should create user without profileId (optional)', async () => {
@@ -77,7 +72,7 @@ describe('E2E Relations', () => {
         data: { profileId: profile.id },
       });
 
-      expect(updated[0]?.profileId).toBe(profile.id);
+      expect(updated[0]?.profileId?.equals(profile.id)).toBe(true);
     });
   });
 
@@ -96,8 +91,8 @@ describe('E2E Relations', () => {
       });
 
       expect(user.tagIds).toHaveLength(2);
-      expect(user.tagIds).toContain(tag1.id);
-      expect(user.tagIds).toContain(tag2.id);
+      expect(user.tagIds.some((id) => id.equals(tag1.id))).toBe(true);
+      expect(user.tagIds.some((id) => id.equals(tag2.id))).toBe(true);
     });
 
     test('should default tagIds to empty array', async () => {
@@ -130,8 +125,8 @@ describe('E2E Relations', () => {
         data: { tagIds: { push: tag2.id } },
       });
 
-      expect(updated[0]?.tagIds).toContain(tag1.id);
-      expect(updated[0]?.tagIds).toContain(tag2.id);
+      expect(updated[0]?.tagIds.some((id) => id.equals(tag1.id))).toBe(true);
+      expect(updated[0]?.tagIds.some((id) => id.equals(tag2.id))).toBe(true);
     });
 
     test('should unset from tagIds array', async () => {
@@ -152,8 +147,8 @@ describe('E2E Relations', () => {
         data: { tagIds: { unset: tag1.id } },
       });
 
-      expect(updated[0]?.tagIds).not.toContain(tag1.id);
-      expect(updated[0]?.tagIds).toContain(tag2.id);
+      expect(updated[0]?.tagIds.some((id) => id.equals(tag1.id))).toBe(false);
+      expect(updated[0]?.tagIds.some((id) => id.equals(tag2.id))).toBe(true);
     });
 
     test('should query with has on tagIds', async () => {
@@ -251,8 +246,8 @@ describe('E2E Relations', () => {
         },
       });
 
-      expect(post1.authorId).toBe(user.id);
-      expect(post2.authorId).toBe(user.id);
+      expect(post1.authorId.equals(user.id)).toBe(true);
+      expect(post2.authorId.equals(user.id)).toBe(true);
 
       // Find posts by author
       const posts = await client.db.Post.findMany({

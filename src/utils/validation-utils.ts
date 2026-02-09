@@ -2,7 +2,9 @@
  * Validation utility functions
  */
 
+import { RecordId, StringRecordId } from 'surrealdb';
 import type { SchemaFieldType } from '../types/common.types';
+import { CerialId } from './cerial-id';
 import { isBoolean, isDate, isNumber, isString } from './type-utils';
 
 /** Validate email format */
@@ -11,9 +13,9 @@ export function isValidEmail(value: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
-/** Check if value is a RecordId-like object */
-function isRecordIdLike(value: unknown): boolean {
-  return typeof value === 'object' && value !== null && 'id' in value && 'table' in value;
+/** Check if value is a RecordIdInput type (CerialId, RecordId, StringRecordId, string) */
+function isRecordIdInput(value: unknown): boolean {
+  return CerialId.is(value) || value instanceof RecordId || value instanceof StringRecordId || isString(value);
 }
 
 /** Validate value matches schema field type */
@@ -31,8 +33,8 @@ export function validateFieldType(value: unknown, type: SchemaFieldType): boolea
     case 'date':
       return isDate(value) || (isString(value) && !Number.isNaN(Date.parse(value)));
     case 'record':
-      // Record type can be a string identifier or a RecordId object
-      return isString(value) || isRecordIdLike(value);
+      // Record type can be a string identifier, CerialId, RecordId, or StringRecordId
+      return isRecordIdInput(value);
     default:
       return false;
   }

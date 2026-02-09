@@ -46,8 +46,8 @@ describe('E2E Many-to-Many One-Directional: Create', () => {
         },
       });
 
-      expect(blogger.labelIds).toContain(label1.id);
-      expect(blogger.labelIds).toContain(label2.id);
+      expect(blogger.labelIds.some((id) => id.equals(label1.id))).toBe(true);
+      expect(blogger.labelIds.some((id) => id.equals(label2.id))).toBe(true);
 
       // Labels should NOT have blogger reference (one-directional)
       const l1 = await client.db.Label.findOne({ where: { id: label1.id } });

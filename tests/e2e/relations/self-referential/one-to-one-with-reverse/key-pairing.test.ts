@@ -31,14 +31,14 @@ describe('E2E Self-Ref One-to-One with Reverse: Key Pairing', () => {
       });
 
       // B assists A
-      expect(b.assistsId).toBe(a.id);
+      expect(b.assistsId?.equals(a.id)).toBe(true);
 
       // A is assistedBy B
       const aWithReverse = await client.db.Assistant.findOne({
         where: { id: a.id },
         include: { assistedBy: true },
       });
-      expect(aWithReverse?.assistedBy?.id).toBe(b.id);
+      expect(aWithReverse?.assistedBy?.id?.equals(b.id)).toBe(true);
     });
 
     test('multiple assistants should work with key pairing', async () => {
@@ -57,7 +57,7 @@ describe('E2E Self-Ref One-to-One with Reverse: Key Pairing', () => {
         where: { id: boss.id },
         include: { assistedBy: true },
       });
-      expect(bossResult?.assistedBy?.id).toBe(assistant1.id);
+      expect(bossResult?.assistedBy?.id?.equals(assistant1.id)).toBe(true);
 
       // Create another assistant for same boss
       const assistant2 = await client.db.Assistant.create({
@@ -72,7 +72,7 @@ describe('E2E Self-Ref One-to-One with Reverse: Key Pairing', () => {
         include: { assistedBy: true },
       });
       // Depending on implementation, might return first or last
-      expect([assistant1.id, assistant2.id]).toContain(bossResult?.assistedBy?.id!);
+      expect([assistant1.id, assistant2.id].some((id) => id.equals(bossResult?.assistedBy?.id!))).toBe(true);
     });
   });
 });

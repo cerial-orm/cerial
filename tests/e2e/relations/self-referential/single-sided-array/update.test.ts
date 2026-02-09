@@ -45,7 +45,7 @@ describe('E2E Self-Ref Single-Sided Array: Update', () => {
         where: { id: user.id },
       });
 
-      expect(result?.followingIds).toContain(celeb.id);
+      expect(result?.followingIds?.some((id) => id.equals(celeb.id))).toBe(true);
     });
 
     test('should follow multiple users', async () => {
@@ -78,7 +78,7 @@ describe('E2E Self-Ref Single-Sided Array: Update', () => {
         data: { name: 'User', following: { connect: [celeb.id] } },
       });
 
-      expect(user.followingIds).toContain(celeb.id);
+      expect(user.followingIds.some((id) => id.equals(celeb.id))).toBe(true);
 
       await client.db.SocialUser.updateMany({
         where: { id: user.id },
@@ -89,7 +89,7 @@ describe('E2E Self-Ref Single-Sided Array: Update', () => {
         where: { id: user.id },
       });
 
-      expect(result?.followingIds).not.toContain(celeb.id);
+      expect(result?.followingIds?.some((id) => id.equals(celeb.id))).toBe(false);
     });
 
     test('should unfollow multiple users', async () => {
@@ -111,7 +111,7 @@ describe('E2E Self-Ref Single-Sided Array: Update', () => {
       });
 
       expect(result?.followingIds).toHaveLength(1);
-      expect(result?.followingIds).toContain(c3.id);
+      expect(result?.followingIds?.some((id) => id.equals(c3.id))).toBe(true);
     });
   });
 

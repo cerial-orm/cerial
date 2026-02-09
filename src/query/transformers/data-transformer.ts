@@ -2,8 +2,9 @@
  * Data transformer - transforms data for queries
  */
 
-import { RecordId } from 'surrealdb';
+import { RecordId, StringRecordId } from 'surrealdb';
 import type { ModelMetadata, SchemaFieldType } from '../../types';
+import { CerialId, type RecordIdInput } from '../../utils/cerial-id';
 
 /** Transform a value based on field type */
 export function transformValue(value: unknown, fieldType: SchemaFieldType): unknown {
@@ -46,45 +47,63 @@ export function transformValue(value: unknown, fieldType: SchemaFieldType): unkn
 
 /**
  * Transform a record id value using SurrealDB's RecordId
+ * Accepts RecordIdInput (CerialId | RecordId | StringRecordId | string)
  * @param tableName The table name for record
- * @param value The id value (string)
+ * @param value The id value (RecordIdInput)
  */
-export function transformRecordId(tableName: string, value: string): RecordId {
-  return new RecordId(tableName, value);
+export function transformRecordId(tableName: string, value: RecordIdInput): RecordId {
+  // Use CerialId.parse() to handle all input types with table validation
+  const cerialId = CerialId.parse(value, tableName);
+
+  return cerialId.toRecordId();
 }
 
 /**
  * Transform or validate a record id value
- * If value is a string, creates RecordId from it (handles "table:id" format)
- * If value is already a RecordId, validates it starts with expected tableName
+ * Accepts all RecordIdInput types: CerialId, RecordId, StringRecordId, string
+ * Validates that the table matches the expected tableName
  * @param tableName The expected table name
- * @param value The id value (string or RecordId)
+ * @param value The id value (RecordIdInput)
  * @returns RecordId
  */
-export function transformOrValidateRecordId(tableName: string, value: string | RecordId): RecordId {
-  // If it's already a RecordId, validate table name
+export function transformOrValidateRecordId(tableName: string, value: RecordIdInput): RecordId {
+  // Handle CerialId - use its built-in validation
+  if (CerialId.is(value)) {
+    if (value.hasTable && value.table !== tableName) {
+      throw new Error(`CerialId table "${value.table}" does not match expected table "${tableName}"`);
+    }
+    // If no table, set it
+    if (!value.hasTable) {
+      return new RecordId(tableName, value.id);
+    }
+
+    return value.toRecordId();
+  }
+
+  // Handle RecordId - validate table name matches
   if (value instanceof RecordId) {
     if (value.table.name !== tableName) {
       throw new Error(`RecordId table "${value.table.name}" does not match expected table "${tableName}"`);
     }
+
     return value;
   }
 
-  // Check if string is in "table:id" format
-  if (typeof value === 'string' && value.includes(':')) {
-    if (!value.startsWith(`${tableName}:`)) {
-      throw new Error(`RecordId table "${value.split(':')[0]}" does not start with expected table "${tableName}"`);
-    }
+  // Handle StringRecordId - parse and validate
+  if (value instanceof StringRecordId) {
+    const cerialId = CerialId.parse(value, tableName);
 
-    const [, idPart] = value.split(':');
-    if (!idPart) throw new Error(`Invalid RecordId format: ${value}`);
-
-    // Create RecordId from the id part (since we've validated the table)
-    return new RecordId(tableName, idPart);
+    return cerialId.toRecordId();
   }
 
-  // Otherwise, create a new RecordId from string with expected table name
-  return new RecordId(tableName, value);
+  // Handle string - parse and create RecordId
+  if (typeof value === 'string') {
+    const cerialId = CerialId.parse(value, tableName);
+
+    return cerialId.toRecordId();
+  }
+
+  throw new Error(`Invalid RecordIdInput type: ${typeof value}`);
 }
 
 /** Find target table for a Record field by looking at paired Relation field */
@@ -92,6 +111,18 @@ function findRecordTargetTable(fieldName: string, model: ModelMetadata): string 
   // Find a Relation field that references this Record field
   const pairedRelation = model.fields.find((f) => f.type === 'relation' && f.relationInfo?.fieldRef === fieldName);
   return pairedRelation?.relationInfo?.targetTable;
+}
+
+/**
+ * Convert a value to RecordIdInput for use with transformOrValidateRecordId
+ * Handles CerialId, RecordId, StringRecordId, and string
+ */
+function toRecordIdInput(value: unknown): RecordIdInput {
+  if (CerialId.is(value)) return value;
+  if (value instanceof RecordId) return value;
+  if (value instanceof StringRecordId) return value;
+
+  return String(value);
 }
 
 /** Transform data object based on model fields */
@@ -103,7 +134,7 @@ export function transformData(data: Record<string, unknown>, model: ModelMetadat
     if (field) {
       // Handle id/record fields specially with RecordId
       if (field.isId && value !== undefined && value !== null) {
-        result[key] = transformRecordId(model.tableName, String(value));
+        result[key] = transformRecordId(model.tableName, toRecordIdInput(value));
       } else if (field.type === 'record') {
         // For record fields, skip undefined but pass null through
         // The update builder handles null -> NONE translation
@@ -119,20 +150,20 @@ export function transformData(data: Record<string, unknown>, model: ModelMetadat
           if (field.isArray) {
             if (Array.isArray(value)) {
               // Array of records - direct assignment
-              result[key] = value.map((element) => transformOrValidateRecordId(targetTable, String(element)));
+              result[key] = value.map((element) => transformOrValidateRecordId(targetTable, toRecordIdInput(element)));
             } else if (typeof value === 'object' && ('push' in value || 'unset' in value)) {
               // Push/unset operations for Record[] - transform values inside
               const ops = value as { push?: unknown; unset?: unknown };
               const transformed: { push?: unknown; unset?: unknown } = {};
               if (ops.push !== undefined) {
                 transformed.push = Array.isArray(ops.push)
-                  ? ops.push.map((el) => transformOrValidateRecordId(targetTable, String(el)))
-                  : transformOrValidateRecordId(targetTable, String(ops.push));
+                  ? ops.push.map((el) => transformOrValidateRecordId(targetTable, toRecordIdInput(el)))
+                  : transformOrValidateRecordId(targetTable, toRecordIdInput(ops.push));
               }
               if (ops.unset !== undefined) {
                 transformed.unset = Array.isArray(ops.unset)
-                  ? ops.unset.map((el) => transformOrValidateRecordId(targetTable, String(el)))
-                  : transformOrValidateRecordId(targetTable, String(ops.unset));
+                  ? ops.unset.map((el) => transformOrValidateRecordId(targetTable, toRecordIdInput(el)))
+                  : transformOrValidateRecordId(targetTable, toRecordIdInput(ops.unset));
               }
               result[key] = transformed;
             } else {
@@ -140,7 +171,7 @@ export function transformData(data: Record<string, unknown>, model: ModelMetadat
             }
           } else {
             // Single record
-            result[key] = transformOrValidateRecordId(targetTable, String(value));
+            result[key] = transformOrValidateRecordId(targetTable, toRecordIdInput(value));
           }
         } else {
           // No paired relation found, keep value as-is

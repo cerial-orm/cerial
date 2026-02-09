@@ -43,7 +43,7 @@ describe('E2E Self-Ref One-to-One with Reverse: Create', () => {
         },
       });
 
-      expect(assistant.assistsId).toBe(boss.id);
+      expect(assistant.assistsId?.equals(boss.id)).toBe(true);
     });
 
     test('should create assistant with nested assists create', async () => {

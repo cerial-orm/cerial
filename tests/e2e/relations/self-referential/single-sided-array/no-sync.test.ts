@@ -50,9 +50,9 @@ describe('E2E Self-Ref Single-Sided Array: No Sync', () => {
       });
 
       // Alice follows Bob
-      expect(aliceResult?.followingIds).toContain(bob.id);
+      expect(aliceResult?.followingIds?.some((id) => id.equals(bob.id))).toBe(true);
       // Bob does NOT follow Alice
-      expect(bobResult?.followingIds).not.toContain(alice.id);
+      expect(bobResult?.followingIds?.some((id) => id.equals(alice.id))).toBe(false);
     });
   });
 
@@ -98,8 +98,8 @@ describe('E2E Self-Ref Single-Sided Array: No Sync', () => {
       });
 
       // Now mutual
-      expect(aliceResult?.followingIds).toContain(bob.id);
-      expect(bobResult?.followingIds).toContain(alice.id);
+      expect(aliceResult?.followingIds?.some((id) => id.equals(bob.id))).toBe(true);
+      expect(bobResult?.followingIds?.some((id) => id.equals(alice.id))).toBe(true);
     });
   });
 });

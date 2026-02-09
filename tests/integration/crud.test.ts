@@ -299,7 +299,7 @@ describe('CRUD Operations', () => {
         userModel.findUnique({
           where: { id: 'wrong_table:id123' },
         }),
-      ).rejects.toThrow('RecordId table "wrong_table" does not start with expected table');
+      ).rejects.toThrow('Table "wrong_table" does not match expected table "test_user"');
     });
   });
 
@@ -357,7 +357,7 @@ describe('CRUD Operations', () => {
         },
       });
       expect(result).toBeDefined();
-      expect(result!.id).toBe('user-by-email-1');
+      expect((result!.id as any).id).toBe('user-by-email-1');
       expect(result?.email).toBe('unique-email@example.com');
     });
 

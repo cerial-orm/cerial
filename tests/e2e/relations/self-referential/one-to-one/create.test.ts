@@ -42,7 +42,7 @@ describe('E2E Self-Ref One-to-One: Create', () => {
         },
       });
 
-      expect(person.mentorId).toBe(mentor.id);
+      expect(person.mentorId?.equals(mentor.id)).toBe(true);
     });
 
     test('should create person with nested mentor create', async () => {
@@ -89,7 +89,7 @@ describe('E2E Self-Ref One-to-One: Create', () => {
       });
 
       // Junior has Senior as mentor
-      expect(junior.mentorId).toBe(senior.id);
+      expect(junior.mentorId?.equals(senior.id)).toBe(true);
 
       // Senior has no mentor
       const seniorRefresh = await client.db.Person.findOne({

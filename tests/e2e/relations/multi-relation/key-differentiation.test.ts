@@ -6,13 +6,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import {
-  cleanupTables,
-  createTestClient,
-  CerialClient,
-  tables,
-  testConfig,
-} from '../test-helper';
+import { cleanupTables, createTestClient, CerialClient, tables, testConfig } from '../test-helper';
 
 describe('E2E Multi-Relation: Key Differentiation', () => {
   let client: CerialClient;
@@ -138,8 +132,8 @@ describe('E2E Multi-Relation: Key Differentiation', () => {
       });
 
       // Same doc appears in both lists
-      expect(result?.authoredDocs?.map((d) => d.id)).toContain(doc.id);
-      expect(result?.reviewedDocs?.map((d) => d.id)).toContain(doc.id);
+      expect(result?.authoredDocs?.some((d) => d.id.equals(doc.id))).toBe(true);
+      expect(result?.reviewedDocs?.some((d) => d.id.equals(doc.id))).toBe(true);
     });
   });
 });

@@ -7,31 +7,21 @@
  * Run: bun run typecheck
  */
 
+import { CerialId } from 'cerial';
 import { Test } from 'ts-toolbelt';
 import type {
-  Writer,
-  WriterCreate,
-  WriterCreateInput,
-  WriterUpdateInput,
-  WriterInclude,
-  Document,
-  DocumentCreate,
-  DocumentCreateInput,
-  DocumentUpdateInput,
-  DocumentInclude,
-  Customer,
-  CustomerCreate,
-  CustomerCreateInput,
-  CustomerInclude,
-  Agent,
-  AgentCreate,
-  AgentCreateInput,
   AgentInclude,
+  CustomerInclude,
+  Document,
+  DocumentCreateInput,
+  DocumentInclude,
+  DocumentUpdateInput,
   Order,
-  OrderCreate,
   OrderCreateInput,
   OrderUpdateInput,
-  OrderInclude,
+  Writer,
+  WriterCreateInput,
+  WriterInclude,
 } from '../generated';
 
 // Helper for extension checks
@@ -42,17 +32,14 @@ type Extends<A, B> = A extends B ? 1 : 0;
 // =============================================================================
 
 // Writer base type
-Test.checks([
-  Test.check<Writer['id'], string, Test.Pass>(),
-  Test.check<Writer['name'], string, Test.Pass>(),
-]);
+Test.checks([Test.check<Writer['id'], CerialId, Test.Pass>(), Test.check<Writer['name'], string, Test.Pass>()]);
 
 // Document should have authorId (required) and reviewerId (optional)
 Test.checks([
-  Test.check<Document['id'], string, Test.Pass>(),
+  Test.check<Document['id'], CerialId, Test.Pass>(),
   Test.check<Document['title'], string, Test.Pass>(),
-  Test.check<Document['authorId'], string, Test.Pass>(),
-  Test.check<Extends<Document['reviewerId'], string | null | undefined>, 1, Test.Pass>(),
+  Test.check<Document['authorId'], CerialId, Test.Pass>(),
+  Test.check<Extends<Document['reviewerId'], CerialId | null | undefined>, 1, Test.Pass>(),
 ]);
 
 // =============================================================================
@@ -150,10 +137,10 @@ Test.checks([
 
 // Order should have customerId (required) and assigneeId (optional)
 Test.checks([
-  Test.check<Order['id'], string, Test.Pass>(),
+  Test.check<Order['id'], CerialId, Test.Pass>(),
   Test.check<Order['orderNumber'], string, Test.Pass>(),
-  Test.check<Order['customerId'], string, Test.Pass>(),
-  Test.check<Extends<Order['assigneeId'], string | null | undefined>, 1, Test.Pass>(),
+  Test.check<Order['customerId'], CerialId, Test.Pass>(),
+  Test.check<Extends<Order['assigneeId'], CerialId | null | undefined>, 1, Test.Pass>(),
 ]);
 
 // Order must have customer

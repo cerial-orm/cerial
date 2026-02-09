@@ -13,6 +13,10 @@ import { generateClientTemplate } from './template';
 /** ts-toolbelt import for generated types */
 const TS_TOOLBELT_IMPORT = `import type { Object as O, Any as A } from 'ts-toolbelt';`;
 
+/** CerialId import for Record type fields */
+const CERIAL_ID_IMPORT = `import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';`;
+
 /** DeleteUnique and UpdateUnique types import for model files */
 const UNIQUE_TYPES_IMPORT = `import type { DeleteUniqueReturn, DeleteUniqueReturnType, UpdateUniqueReturn, UpdateUniqueReturnType } from '..';`;
 
@@ -151,6 +155,7 @@ export async function writeModelTypes(
  */
 
 ${TS_TOOLBELT_IMPORT}
+${CERIAL_ID_IMPORT}
 ${UNIQUE_TYPES_IMPORT}
 ${relatedImports}${interfaceCode}
 
@@ -196,6 +201,7 @@ export async function writeClientIndex(outputDir: string, models: ModelMetadata[
   const filePath = `${outputDir}/index.ts`;
 
   const modelExports = models.map((m) => m.name).join(',\n  ');
+  const inputExports = models.map((m) => `${m.name}Input`).join(',\n  ');
   const createExports = models.map((m) => `${m.name}Create`).join(',\n  ');
   const nestedCreateExports = models.map((m) => `${m.name}NestedCreate`).join(',\n  ');
   const createInputExports = models.map((m) => `${m.name}CreateInput`).join(',\n  ');
@@ -219,9 +225,14 @@ export async function writeClientIndex(outputDir: string, models: ModelMetadata[
  * Do not edit manually
  */
 
-// Model interfaces
+// Model interfaces (output types - CerialId for Record fields)
 export type {
   ${modelExports},
+} from './models';
+
+// Model input interfaces (input types - RecordIdInput for Record fields)
+export type {
+  ${inputExports},
 } from './models';
 
 // Create types

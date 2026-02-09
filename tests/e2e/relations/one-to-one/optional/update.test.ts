@@ -6,14 +6,8 @@
  */
 
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import {
-  cleanupTables,
-  createTestClient,
-  CerialClient,
-  tables,
-  testConfig,
-  uniqueEmail,
-} from '../../test-helper';
+import { cleanupTables, createTestClient, CerialClient, tables, testConfig, uniqueEmail } from '../../test-helper';
+import { isCerialId } from 'cerial';
 
 describe('E2E One-to-One Optional: Update', () => {
   let client: CerialClient;
@@ -47,7 +41,7 @@ describe('E2E One-to-One Optional: Update', () => {
         },
       });
 
-      expect(updated[0]?.userId).toBe(user.id);
+      expect(updated[0]?.userId?.equals(user.id)).toBe(true);
     });
   });
 
@@ -64,7 +58,7 @@ describe('E2E One-to-One Optional: Update', () => {
         },
       });
 
-      expect(profile.userId).toBe(user.id);
+      expect(profile.userId?.equals(user.id)).toBe(true);
 
       // Disconnect
       const updated = await client.db.ProfileOptional.updateMany({
@@ -130,7 +124,7 @@ describe('E2E One-to-One Optional: Update', () => {
         },
       });
 
-      expect(updated[0]?.userId).toBe(user2.id);
+      expect(updated[0]?.userId?.equals(user2.id)).toBe(true);
     });
 
     test('should reassign via direct userId update', async () => {
@@ -154,7 +148,7 @@ describe('E2E One-to-One Optional: Update', () => {
         data: { userId: user2.id },
       });
 
-      expect(updated[0]?.userId).toBe(user2.id);
+      expect(updated[0]?.userId?.equals(user2.id)).toBe(true);
     });
   });
 
@@ -175,7 +169,7 @@ describe('E2E One-to-One Optional: Update', () => {
 
       expect(updated[0]?.userId).toBeDefined();
       // userId is a plain ID string (table prefix stripped by ORM)
-      expect(typeof updated[0]?.userId).toBe('string');
+      expect(isCerialId(updated[0]?.userId)).toBe(true);
 
       const user = await client.db.UserOptional.findOne({
         where: { id: updated[0]?.userId! },

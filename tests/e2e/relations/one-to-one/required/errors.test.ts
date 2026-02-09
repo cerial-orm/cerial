@@ -100,7 +100,7 @@ describe('E2E One-to-One Required: Errors', () => {
         },
       });
 
-      expect(updated[0]?.userId).toBe(user2.id);
+      expect(updated[0]?.userId?.equals(user2.id)).toBe(true);
     });
   });
 });

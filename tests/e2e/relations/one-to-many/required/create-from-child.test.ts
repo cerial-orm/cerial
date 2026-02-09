@@ -66,7 +66,7 @@ describe('E2E One-to-Many Required: Create from Child', () => {
         },
       });
 
-      expect(post.authorId).toBe(author.id);
+      expect(post.authorId.equals(author.id)).toBe(true);
     });
 
     test('should create multiple posts for same author', async () => {
@@ -84,9 +84,9 @@ describe('E2E One-to-Many Required: Create from Child', () => {
         data: { title: 'Post 3', author: { connect: author.id } },
       });
 
-      expect(post1.authorId).toBe(author.id);
-      expect(post2.authorId).toBe(author.id);
-      expect(post3.authorId).toBe(author.id);
+      expect(post1.authorId.equals(author.id)).toBe(true);
+      expect(post2.authorId.equals(author.id)).toBe(true);
+      expect(post3.authorId.equals(author.id)).toBe(true);
 
       const posts = await client.db.PostRequired.findMany({
         where: { authorId: author.id },
@@ -132,7 +132,7 @@ describe('E2E One-to-Many Required: Create from Child', () => {
         },
       });
 
-      expect(post.authorId).toBe(author.id);
+      expect(post.authorId.equals(author.id)).toBe(true);
     });
   });
 });

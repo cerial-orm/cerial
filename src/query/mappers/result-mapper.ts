@@ -4,6 +4,7 @@
 
 import type { RecordId } from 'surrealdb';
 import type { ModelMetadata, SchemaFieldType } from '../../types';
+import { CerialId } from '../../utils/cerial-id';
 
 /** Check if value is a RecordId-like object */
 function isRecordId(value: unknown): value is RecordId {
@@ -51,17 +52,13 @@ export function mapFieldValue(value: unknown, fieldType: SchemaFieldType): unkno
       return String(value);
 
     case 'record':
-      // Convert RecordId to string ID
+      // Convert RecordId to CerialId
       if (isRecordId(value)) {
-        return transformRecordIdToValue(value);
+        return transformRecordIdToCerialId(value);
       }
-      // If it's a string in "table:id" format, strip the prefix
+      // If it's a string, parse it to CerialId
       if (typeof value === 'string') {
-        if (value.includes(':')) {
-          return value.split(':').slice(1).join(':');
-        }
-
-        return value;
+        return CerialId.fromString(value);
       }
 
       return value;
@@ -76,7 +73,17 @@ export function mapFieldValue(value: unknown, fieldType: SchemaFieldType): unkno
 }
 
 /**
+ * Transform a RecordId to CerialId
+ * @param recordId The record id from SurrealDB
+ * @returns CerialId instance
+ */
+export function transformRecordIdToCerialId(recordId: RecordId): CerialId {
+  return CerialId.fromRecordId(recordId);
+}
+
+/**
  * Transform a RecordId to plain ID string (without table prefix)
+ * @deprecated Use transformRecordIdToCerialId instead
  * @param recordId The record id
  * @returns The id value without table prefix
  */
@@ -85,26 +92,22 @@ export function transformRecordIdToValue(recordId: RecordId): string {
 }
 
 /**
- * Transform an id string that may be in "table:id" format to just the id
+ * Transform an id string that may be in "table:id" format to CerialId
  */
-function transformIdString(value: string): string {
-  if (value.includes(':')) {
-    return value.split(':').slice(1).join(':');
-  }
-
-  return value;
+function transformIdString(value: string): CerialId {
+  return CerialId.fromString(value);
 }
 
 /**
- * Process a nested value (from included relations) to transform ids
+ * Process a nested value (from included relations) to transform ids to CerialId
  * Handles objects, arrays, and RecordIds
  */
 function processNestedValue(value: unknown): unknown {
   if (value === null || value === undefined) return value;
 
-  // Handle RecordId
+  // Handle RecordId - convert to CerialId
   if (isRecordId(value)) {
-    return transformRecordIdToValue(value);
+    return transformRecordIdToCerialId(value);
   }
 
   // Handle arrays (array of included records)
@@ -119,9 +122,9 @@ function processNestedValue(value: unknown): unknown {
 
     for (const [key, val] of Object.entries(obj)) {
       if (key === 'id') {
-        // Transform id field
+        // Transform id field to CerialId
         if (isRecordId(val)) {
-          result['id'] = transformRecordIdToValue(val);
+          result['id'] = transformRecordIdToCerialId(val);
         } else if (typeof val === 'string') {
           result['id'] = transformIdString(val);
         } else {
@@ -146,16 +149,12 @@ export function mapRecord(record: Record<string, unknown>, model: ModelMetadata)
   // First, map fields that are present in the record
   for (const [key, value] of Object.entries(record)) {
     if (key === 'id') {
-      // Handle both RecordId objects and string IDs
+      // Handle both RecordId objects and string IDs - convert to CerialId
       if (isRecordId(value)) {
-        result['id'] = transformRecordIdToValue(value);
+        result['id'] = transformRecordIdToCerialId(value);
       } else if (typeof value === 'string') {
-        // If it's a string in "table:id" format, extract just the id part
-        if (value.includes(':')) {
-          result['id'] = value.split(':').slice(1).join(':');
-        } else {
-          result['id'] = value;
-        }
+        // Parse string to CerialId
+        result['id'] = transformIdString(value);
       } else {
         result['id'] = value;
       }
@@ -172,7 +171,7 @@ export function mapRecord(record: Record<string, unknown>, model: ModelMetadata)
       }
     } else {
       // Field not in schema - might be an included relation
-      // Process nested objects to strip table prefixes from ids
+      // Process nested objects to transform ids to CerialId
       result[key] = processNestedValue(value);
     }
   }

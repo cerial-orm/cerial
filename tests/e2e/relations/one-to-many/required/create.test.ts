@@ -55,7 +55,7 @@ describe('E2E One-to-Many Required: Create', () => {
 
       expect(posts).toHaveLength(2);
       expect(posts.map((p) => p.title).sort()).toEqual(['Post 1', 'Post 2']);
-      posts.forEach((p) => expect(p.authorId).toBe(author.id));
+      posts.forEach((p) => expect(p.authorId.equals(author.id)).toBe(true));
     });
 
     test('should create author with single nested post', async () => {

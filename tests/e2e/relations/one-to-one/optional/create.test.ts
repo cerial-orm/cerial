@@ -10,14 +10,8 @@
  */
 
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import {
-  cleanupTables,
-  createTestClient,
-  CerialClient,
-  tables,
-  testConfig,
-  uniqueEmail,
-} from '../../test-helper';
+import { cleanupTables, createTestClient, CerialClient, tables, testConfig, uniqueEmail } from '../../test-helper';
+import { isCerialId } from 'cerial';
 
 describe('E2E One-to-One Optional: Create', () => {
   let client: CerialClient;
@@ -74,7 +68,7 @@ describe('E2E One-to-One Optional: Create', () => {
 
       expect(profile.userId).toBeDefined();
       // ORM strips table prefix - userId is a plain ID string
-      expect(typeof profile.userId).toBe('string');
+      expect(isCerialId(profile.userId)).toBe(true);
 
       const user = await client.db.UserOptional.findOne({
         where: { id: profile.userId! },
@@ -96,7 +90,7 @@ describe('E2E One-to-One Optional: Create', () => {
         },
       });
 
-      expect(profile.userId).toBe(user.id);
+      expect(profile.userId?.equals(user.id)).toBe(true);
     });
   });
 
@@ -143,7 +137,7 @@ describe('E2E One-to-One Optional: Create', () => {
       const updatedProfile = await client.db.ProfileOptional.findOne({
         where: { id: profile.id },
       });
-      expect(updatedProfile?.userId).toBe(user.id);
+      expect(updatedProfile?.userId?.equals(user.id)).toBe(true);
     });
   });
 

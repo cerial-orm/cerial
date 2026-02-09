@@ -41,7 +41,7 @@ describe('E2E One-to-One @onDelete(SetNull)', () => {
         },
       });
 
-      expect(profile.userId).toBe(user.id);
+      expect(profile.userId?.equals(user.id)).toBe(true);
 
       // Delete user
       await client.db.UserSetNull.deleteMany({
@@ -138,7 +138,7 @@ describe('E2E One-to-One @onDelete(SetNull)', () => {
       const reconnected = await client.db.ProfileSetNull.findOne({
         where: { id: profile.id },
       });
-      expect(reconnected?.userId).toBe(user2.id);
+      expect(reconnected?.userId?.equals(user2.id)).toBe(true);
     });
   });
 

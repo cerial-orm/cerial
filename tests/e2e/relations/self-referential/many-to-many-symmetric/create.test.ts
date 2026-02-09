@@ -101,7 +101,7 @@ describe('E2E Self-Ref Many-to-Many Symmetric: Create', () => {
       });
 
       expect(person.friendIds).toHaveLength(2);
-      expect(person.friendIds).toContain(existing.id);
+      expect(person.friendIds.some((id) => id.equals(existing.id))).toBe(true);
     });
   });
 });

@@ -5,33 +5,26 @@
  * Run: bun run typecheck
  */
 
+import { CerialId } from 'cerial';
 import { Test } from 'ts-toolbelt';
 import type {
-  Person,
-  PersonCreate,
-  PersonCreateInput,
-  PersonUpdateInput,
-  PersonInclude,
-  EmployeeWithReports,
-  EmployeeWithReportsCreate,
-  EmployeeWithReportsCreateInput,
-  EmployeeWithReportsUpdateInput,
-  EmployeeWithReportsInclude,
   Assistant,
-  AssistantCreate,
   AssistantCreateInput,
-  AssistantUpdateInput,
   AssistantInclude,
-  Friend,
-  FriendCreate,
-  FriendCreateInput,
-  FriendUpdateInput,
-  FriendInclude,
   CategoryTree,
-  CategoryTreeCreate,
   CategoryTreeCreateInput,
-  CategoryTreeUpdateInput,
   CategoryTreeInclude,
+  EmployeeWithReports,
+  EmployeeWithReportsCreateInput,
+  EmployeeWithReportsInclude,
+  Friend,
+  FriendCreateInput,
+  FriendInclude,
+  FriendUpdateInput,
+  Person,
+  PersonCreateInput,
+  PersonInclude,
+  PersonUpdateInput,
 } from '../generated';
 
 // Helper for extension checks
@@ -43,9 +36,9 @@ type Extends<A, B> = A extends B ? 1 : 0;
 
 // Person should have optional mentorId
 Test.checks([
-  Test.check<Person['id'], string, Test.Pass>(),
+  Test.check<Person['id'], CerialId, Test.Pass>(),
   Test.check<Person['name'], string, Test.Pass>(),
-  Test.check<Extends<Person['mentorId'], string | null | undefined>, 1, Test.Pass>(),
+  Test.check<Extends<Person['mentorId'], CerialId | null | undefined>, 1, Test.Pass>(),
 ]);
 
 // Person can connect to mentor
@@ -66,9 +59,9 @@ Test.checks([Test.check<Extends<IncludeMentor, PersonInclude>, 1, Test.Pass>()])
 
 // EmployeeWithReports should have optional managerId
 Test.checks([
-  Test.check<EmployeeWithReports['id'], string, Test.Pass>(),
+  Test.check<EmployeeWithReports['id'], CerialId, Test.Pass>(),
   Test.check<EmployeeWithReports['name'], string, Test.Pass>(),
-  Test.check<Extends<EmployeeWithReports['managerId'], string | null | undefined>, 1, Test.Pass>(),
+  Test.check<Extends<EmployeeWithReports['managerId'], CerialId | null | undefined>, 1, Test.Pass>(),
 ]);
 
 // EmployeeWithReports can connect to manager
@@ -98,9 +91,9 @@ Test.checks([
 
 // Assistant should have optional assistsId
 Test.checks([
-  Test.check<Assistant['id'], string, Test.Pass>(),
+  Test.check<Assistant['id'], CerialId, Test.Pass>(),
   Test.check<Assistant['name'], string, Test.Pass>(),
-  Test.check<Extends<Assistant['assistsId'], string | null | undefined>, 1, Test.Pass>(),
+  Test.check<Extends<Assistant['assistsId'], CerialId | null | undefined>, 1, Test.Pass>(),
 ]);
 
 // Assistant can connect to assists
@@ -121,9 +114,9 @@ Test.checks([
 
 // Friend should have friendIds array
 Test.checks([
-  Test.check<Friend['id'], string, Test.Pass>(),
+  Test.check<Friend['id'], CerialId, Test.Pass>(),
   Test.check<Friend['name'], string, Test.Pass>(),
-  Test.check<Friend['friendIds'], string[], Test.Pass>(),
+  Test.check<Friend['friendIds'], CerialId[], Test.Pass>(),
 ]);
 
 // Friend can connect to friends
@@ -148,9 +141,9 @@ Test.checks([Test.check<Extends<IncludeFriends, FriendInclude>, 1, Test.Pass>()]
 
 // CategoryTree should have optional parentId
 Test.checks([
-  Test.check<CategoryTree['id'], string, Test.Pass>(),
+  Test.check<CategoryTree['id'], CerialId, Test.Pass>(),
   Test.check<CategoryTree['name'], string, Test.Pass>(),
-  Test.check<Extends<CategoryTree['parentId'], string | null | undefined>, 1, Test.Pass>(),
+  Test.check<Extends<CategoryTree['parentId'], CerialId | null | undefined>, 1, Test.Pass>(),
 ]);
 
 // CategoryTree can connect to parent
