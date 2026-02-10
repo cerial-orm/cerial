@@ -1,0 +1,96 @@
+---
+title: '@sort'
+parent: Decorators
+grand_parent: Schema
+nav_order: 9
+---
+
+# @sort
+
+Maintains ordering within an array field at the database level. SurrealDB automatically keeps the array sorted after every modification.
+
+## Syntax
+
+```cerial
+@sort          # ascending order (default)
+@sort(true)    # ascending order (explicit)
+@sort(false)   # descending order
+```
+
+## Ascending Order
+
+`@sort` or `@sort(true)` sorts values in ascending order (A–Z, 0–9, earliest–latest):
+
+```cerial
+model Student {
+  id Record @id
+  name String
+  sortedScores Int[] @sort
+}
+```
+
+```typescript
+await db.Student.create({
+  data: { name: 'Alice', sortedScores: [85, 42, 97, 63] },
+});
+// sortedScores stored as: [42, 63, 85, 97]
+
+await db.Student.updateMany({
+  where: { id: studentId },
+  data: { sortedScores: { push: [55] } },
+});
+// sortedScores becomes: [42, 55, 63, 85, 97]
+```
+
+## Descending Order
+
+`@sort(false)` sorts values in descending order (Z–A, 9–0, latest–earliest):
+
+```cerial
+model Feed {
+  id Record @id
+  name String
+  recentDates Date[] @sort(false)
+}
+```
+
+Values are sorted from highest to lowest, so the most recent dates appear first.
+
+## Combining with @distinct
+
+`@sort` and [`@distinct`](distinct) can be used together for unique, ordered arrays:
+
+```cerial
+model Student {
+  id Record @id
+  name String
+  uniqueSortedTags String[] @distinct @sort
+  priorities Int[] @distinct @sort(false)
+}
+```
+
+```typescript
+await db.Student.create({
+  data: {
+    name: 'Bob',
+    uniqueSortedTags: ['zebra', 'apple', 'mango', 'apple'],
+    priorities: [3, 1, 5, 3, 2],
+  },
+});
+// uniqueSortedTags: ['apple', 'mango', 'zebra'] — deduplicated + ascending
+// priorities: [5, 3, 2, 1] — deduplicated + descending
+```
+
+## Applicable Types
+
+`@sort` can be applied to any array field:
+
+```cerial
+model Example {
+  id Record @id
+  sortedNames String[] @sort
+  sortedScores Int[] @sort
+  sortedRatings Float[] @sort
+  sortedDates Date[] @sort(false)
+}
+```
