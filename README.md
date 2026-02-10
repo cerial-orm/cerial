@@ -8,11 +8,12 @@ A SurrealDB ORM for [SurrealDB](https://surrealdb.com/) with schema-driven code 
 - **Type-safe client** - Generated TypeScript types and interfaces
 - **Prisma-like API** - Familiar `db.Model.findMany()` syntax
 - **Dynamic return types** - Full Prisma-style type inference with `select` and `include`
+- **Embedded objects** - Inline `object {}` types with sub-field select, where filtering, and update operations
 - **Relations** - Forward and reverse relations with type-safe includes
-- **Array support** - String[], Int[], Date[], Record[] with operators
+- **Array support** - String[], Int[], Date[], Record[], ObjectType[] with operators
 - **Parameterized queries** - Safe from SQL injection
 - **Full CRUD support** - findOne, findMany, findUnique, create, updateMany, deleteMany
-- **Advanced filtering** - Comparison, string, array, logical, and nested operators
+- **Advanced filtering** - Comparison, string, array, logical, nested, and object operators
 
 ## Installation
 
@@ -24,9 +25,16 @@ bun add cerial
 
 ### 1. Define Your Schema
 
-Create a `.cerial` file (e.g., `schemas/user.cerial`):
+Create `.cerial` files (e.g., `schemas/user.cerial`):
 
 ```cerial
+object Address {
+  street String
+  city String
+  state String
+  zipCode String?
+}
+
 model User {
   id Record @id
   email Email @unique
@@ -34,6 +42,8 @@ model User {
   age Int?
   isActive Bool
   createdAt Date @now
+  address Address
+  shipping Address?
   profileId Record?
   profile Relation @field(profileId) @model(Profile)
   tagIds Record[]
@@ -86,12 +96,13 @@ await client.connect({
   auth: { username: 'root', password: 'root' },
 });
 
-// Create a user
+// Create a user with embedded object
 const user = await client.db.User.create({
   data: {
     email: 'john@example.com',
     name: 'John Doe',
     isActive: true,
+    address: { street: '123 Main St', city: 'NYC', state: 'NY' },
     nicknames: ['Johnny', 'JD'],
   },
 });
@@ -103,6 +114,12 @@ const users = await client.db.User.findMany({
   limit: 10,
 });
 // users: { id: CerialId; name: string; email: string }[]
+
+// Select with object sub-fields (type-safe narrowing)
+const usersWithCity = await client.db.User.findMany({
+  select: { name: true, address: { city: true } },
+});
+// usersWithCity: { name: string; address: { city: string } }[]
 
 // Find with include (type-safe - includes related models)
 const userWithProfile = await client.db.User.findOne({
@@ -131,31 +148,39 @@ await client.disconnect();
 ### Format
 
 ```
+object ObjectName {
+  fieldName Type       // embedded object (no decorators, no relations)
+}
+
 model ModelName {
   fieldName Type @decorator1 @decorator2
-  fieldName Type?  // optional field
-  fieldName Type[] // array field
+  fieldName Type?          // optional field
+  fieldName Type[]         // array field
+  fieldName ObjectName     // embedded object field
+  fieldName ObjectName?    // optional embedded object
+  fieldName ObjectName[]   // array of embedded objects
 }
 ```
 
 - **Field name first** - lowercase or camelCase identifier
-- **Type** - one of the supported types (UpperFirst)
+- **Type** - one of the supported types (UpperFirst) or a defined object name
 - **Optional** - add `?` after the type for optional fields
 - **Array** - add `[]` after the type for array fields
-- **Decorators** - add after the type
+- **Decorators** - add after the type (models only, not objects)
 
 ### Types
 
-| Type       | Description      | TypeScript | SurrealDB  |
-| ---------- | ---------------- | ---------- | ---------- |
-| `String`   | Text string      | `string`   | `string`   |
-| `Email`    | Email address    | `string`   | `string`   |
-| `Int`      | Integer number   | `number`   | `int`      |
-| `Float`    | Floating point   | `number`   | `float`    |
-| `Bool`     | Boolean          | `boolean`  | `bool`     |
-| `Date`     | Date/DateTime    | `Date`     | `datetime` |
-| `Record`   | Record reference | `CerialId` | `record`   |
-| `Relation` | Virtual relation | N/A        | Virtual    |
+| Type         | Description      | TypeScript   | SurrealDB  |
+| ------------ | ---------------- | ------------ | ---------- |
+| `String`     | Text string      | `string`     | `string`   |
+| `Email`      | Email address    | `string`     | `string`   |
+| `Int`        | Integer number   | `number`     | `int`      |
+| `Float`      | Floating point   | `number`     | `float`    |
+| `Bool`       | Boolean          | `boolean`    | `bool`     |
+| `Date`       | Date/DateTime    | `Date`       | `datetime` |
+| `Record`     | Record reference | `CerialId`   | `record`   |
+| `Relation`   | Virtual relation | N/A          | Virtual    |
+| `ObjectName` | Embedded object  | `ObjectName` | `object`   |
 
 ### Array Types
 
@@ -169,6 +194,41 @@ model Example {
   tagIds Record[]       // record reference array
 }
 ```
+
+### Embedded Objects
+
+Define reusable object types with `object {}`:
+
+```cerial
+object Address {
+  street String
+  city String
+  state String
+  zipCode String?
+}
+
+object GeoPoint {
+  lat Float
+  lng Float
+  label Address?     # Objects can nest other objects
+}
+
+model User {
+  id Record @id
+  name String
+  address Address          # Required embedded object
+  shipping Address?        # Optional (field?: Address, no | null)
+  locations GeoPoint[]     # Array of embedded objects (defaults to [])
+}
+```
+
+**Rules:**
+
+- Objects have no `id`, no decorators, no relations
+- Objects are stored inline in the parent model (not as separate tables)
+- Optional object fields produce `field?: ObjectType` (NOT `field?: ObjectType | null`)
+- Array object fields default to `[]` on create if not provided
+- Objects can reference other objects but NOT models or relations
 
 ### Decorators
 
@@ -359,6 +419,20 @@ const user = await db.User.findOne({
   include: { profile: true },
 });
 // user: { id: CerialId; email: string } & { profile: Profile } | null
+
+// Object sub-field select - returns narrowed object
+const user = await db.User.findOne({
+  where: { id: '123' },
+  select: { name: true, address: { city: true, state: true } },
+});
+// user: { name: string; address: { city: string; state: string } } | null
+
+// Array of objects sub-field select
+const user = await db.User.findOne({
+  where: { id: '123' },
+  select: { locations: { lat: true } },
+});
+// user: { locations: { lat: number }[] } | null
 ```
 
 ### findOne
@@ -825,6 +899,66 @@ await db.User.findMany({
 });
 ```
 
+### Object Field Filtering
+
+Filter by embedded object fields:
+
+```typescript
+// Filter by nested object field
+await db.User.findMany({
+  where: { address: { city: 'NYC' } },
+});
+
+// Complex object field filtering
+await db.User.findMany({
+  where: {
+    address: { state: { in: ['NY', 'CA'] } },
+    shipping: { zipCode: { startsWith: '100' } },
+  },
+});
+
+// Array of objects - quantifier filtering (some/every/none)
+await db.User.findMany({
+  where: {
+    locations: { some: { lat: { gt: 40 } } },
+  },
+});
+
+await db.User.findMany({
+  where: {
+    locations: { every: { lat: { gte: 0 } } },
+  },
+});
+
+await db.User.findMany({
+  where: {
+    locations: { none: { lat: { lt: -90 } } },
+  },
+});
+```
+
+### Object Field Updates
+
+Update embedded object fields with merge or replace:
+
+```typescript
+// Partial update (merge) - only specified fields are changed
+await db.User.updateMany({
+  where: { id: user.id },
+  data: { address: { city: 'New City' } },
+});
+
+// Full replacement - replaces entire object
+await db.User.updateMany({
+  where: { id: user.id },
+  data: {
+    address: {
+      set: { street: '1 Main St', city: 'NYC', state: 'NY' },
+    },
+  },
+});
+```
+
 ### Special Operators
 
 ```typescript
@@ -913,14 +1047,24 @@ For each model, the generator creates:
 - `UserInput` - Base input interface (Record fields are `RecordIdInput`)
 - `UserCreate` - Type for create data (derives from `UserInput`)
 - `UserNestedCreate` - Type for nested create data (no id field)
-- `UserUpdate` - Type for update data (with array operations)
-- `UserWhere` - Type for where clauses
-- `UserSelect` - Type for field selection
+- `UserUpdate` - Type for update data (with array operations and object merge/set)
+- `UserWhere` - Type for where clauses (includes nested relation and object filtering)
+- `UserSelect` - Type for field selection (supports `boolean | ObjectSelect` for object fields)
 - `UserInclude` - Type for relation includes
-- `UserOrderBy` - Type for ordering
+- `UserOrderBy` - Type for ordering (supports nested object ordering)
 - `User$Relations` - Relation metadata
-- `GetUserPayload<S, I>` - Dynamic return type based on select/include
+- `GetUserPayload<S, I>` - Dynamic return type based on select/include (resolves object sub-field selects)
 - `GetUserIncludePayload<I>` - Helper for include type resolution
+
+### Generated Types Per Object
+
+For each `object` type, the generator creates:
+
+- `Address` - Base interface
+- `AddressInput` - Input interface
+- `AddressWhere` - Where clause type (nested field filtering)
+- `AddressSelect` - Sub-field selection type
+- `AddressOrderBy` - Ordering type
 
 ## Testing
 
@@ -966,21 +1110,25 @@ E2E test structure:
 
 ```
 tests/e2e/
-├── schemas/              # Test schemas
+├── schemas/              # Test schemas (28 .cerial files)
 ├── generated/            # Generated at runtime (gitignored)
-├── typechecks/           # Compile-time type verification (ts-toolbelt)
-│   ├── generated-types.check.ts   # Model type checks
-│   ├── payload-inference.check.ts # GetPayload inference checks
-│   └── tsconfig.json
+├── relations/            # Relation E2E tests (91 files)
+├── objects/              # Object field E2E tests (7 files)
+│   ├── create.test.ts
+│   ├── nested-objects.test.ts
+│   ├── orderby.test.ts
+│   ├── relation-objects.test.ts
+│   ├── select.test.ts
+│   ├── update.test.ts
+│   └── where.test.ts
+├── typechecks/           # Compile-time type verification (13 files)
+│   ├── generated-types.check.ts     # Model type checks
+│   ├── object-types.check.ts        # Object type checks
+│   ├── payload-inference.check.ts   # GetPayload inference checks
+│   └── ...
 ├── preload.ts            # Runs generate before tests
 ├── setup.ts              # Setup logic
-├── test-client.ts        # Test helpers
-├── crud.test.ts          # CRUD operations
-├── arrays.test.ts        # Array operations
-├── relations.test.ts     # Relations
-├── select.test.ts        # Select functionality
-├── include.test.ts       # Include functionality
-└── type-inference.test.ts # Runtime client tests
+└── test-client.ts        # Test helpers
 ```
 
 ## Development

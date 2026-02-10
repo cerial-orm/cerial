@@ -32,7 +32,7 @@ Schema (.cerial files) → Parser (AST) → Generators → TypeScript Client
 
 **Core modules:**
 
-- `src/parser/` - Parses `.cerial` files into AST
+- `src/parser/` - Parses `.cerial` files (models and objects) into AST
 - `src/generators/` - Generates TypeScript types, client, migrations
 - `src/query/` - Query builder with parameterized SurrealQL
 - `src/client/` - Runtime client with Model proxy
@@ -68,7 +68,8 @@ E2E tests use `--preload ./tests/e2e/preload.ts` which generates the client befo
 
 - `tests/unit/` - Unit tests (no DB required)
 - `tests/e2e/relations/` - E2E relation tests (91 files)
-- `tests/e2e/typechecks/` - Compile-time type verification (12 files)
+- `tests/e2e/objects/` - E2E object field tests (7 files)
+- `tests/e2e/typechecks/` - Compile-time type verification (13 files)
 
 **When query format changes**, update test expectations in:
 
@@ -92,7 +93,9 @@ E2E tests use `--preload ./tests/e2e/preload.ts` which generates the client befo
 - `ModelMetadata` / `FieldMetadata` - Runtime model info
 - `CerialId` / `RecordIdInput` - Record ID wrapper and input union type
 - `GetUserPayload<S, I>` - Prisma-style return type inference
-- `SchemaAST` / `ASTModel` / `ASTField` - Parser output
+- `ResolveFieldSelect<FieldType, SelectValue>` - Resolves object sub-field selects (true = full type, object = narrowed)
+- `ApplyObjectSelect<T, S>` - Recursively applies sub-field selection to an object type
+- `SchemaAST` / `ASTModel` / `ASTObject` / `ASTField` - Parser output
 
 ## Query Patterns
 
@@ -272,6 +275,109 @@ The `id` field should be `Record @id` (not `String @id`) because SurrealDB IDs a
 - Not subject to Record field validation (doesn't need paired Relation)
 - Not defaulted to null like optional Record fields
 
+## Object Types (Embedded Objects)
+
+Cerial supports embedded object types via the `object {}` keyword. Objects are stored inline within a model (not as separate tables) and have no `id`, no decorators, and no relations.
+
+**Schema definition:**
+
+```cerial
+object Address {
+  street String
+  city String
+  state String
+  zipCode String?
+}
+
+model User {
+  id Record @id
+  name String
+  address Address         # Required embedded object
+  shipping Address?       # Optional embedded object
+  locations GeoPoint[]    # Array of embedded objects
+}
+```
+
+**Key rules:**
+
+- Objects generate their own TypeScript interface, Input, Where, Select, and OrderBy types
+- Objects do NOT generate GetPayload, Include, Create, Update, or Model types
+- Objects can nest other objects (e.g., `GeoPoint` with `label Address?`)
+- Optional object fields (`Address?`) produce `field?: Address` (no `| null` like primitives)
+- Array object fields (`GeoPoint[]`) default to `[]` on create
+
+**Sub-field select:**
+
+Object fields support sub-field selection in `select` options:
+
+```typescript
+// Boolean true = full object
+const user = await db.User.findOne({
+  select: { address: true },
+});
+// user.address: Address (full object)
+
+// Object select = narrowed sub-fields
+const user = await db.User.findOne({
+  select: { address: { city: true, state: true } },
+});
+// user.address: { city: string; state: string }
+
+// Array of objects
+const user = await db.User.findOne({
+  select: { locations: { lat: true } },
+});
+// user.locations: { lat: number }[]
+```
+
+**Type-level behavior:**
+
+- `ResolveFieldSelect<FieldType, true>` returns the full type
+- `ResolveFieldSelect<FieldType, { subField: true }>` returns narrowed type via `ApplyObjectSelect`
+- Optional fields preserve `| undefined` through sub-field selection
+- `select` within `include` is type-level narrowing only (runtime returns full related objects)
+
+**Update operations on objects:**
+
+```typescript
+// Partial update (merge)
+await db.User.updateMany({
+  where: { id: user.id },
+  data: { address: { city: 'New City' } },
+});
+
+// Full replacement
+await db.User.updateMany({
+  where: { id: user.id },
+  data: { address: { set: { street: '1 Main', city: 'NYC', state: 'NY' } } },
+});
+```
+
+**Where filtering on objects:**
+
+```typescript
+// Filter by nested object fields
+await db.User.findMany({
+  where: { address: { city: 'NYC' } },
+});
+
+// Array object quantifiers (some/every/none)
+await db.User.findMany({
+  where: { locations: { some: { lat: { gt: 40 } } } },
+});
+```
+
+**Key files:**
+
+- `src/parser/parser.ts` - Parses `object {}` blocks into `ASTObject`
+- `src/generators/types/interface-generator.ts` - Generates object interfaces
+- `src/generators/types/derived-generator.ts` - Generates Select/OrderBy for objects; `GetPayload` uses `ResolveFieldSelect`
+- `src/generators/types/where-generator.ts` - Generates object Where types
+- `src/generators/client/writer.ts` - Contains `ResolveFieldSelect` and `ApplyObjectSelect` type definitions
+- `src/query/builders/select-builder.ts` - Generates `field.subField` SurrealQL for sub-field selects
+- `src/query/builders/update-builder.ts` - Handles partial merge and `{ set: ... }` replacement
+- `src/query/filters/condition-builder.ts` - Builds nested object conditions and array quantifiers
+
 ## Important Rules
 
 **Before changing core features, ask the user:**
@@ -297,3 +403,7 @@ When a fix requires modifying core behavior (type generators, query builders, va
 - Array fields default to `[]` on create if not provided
 - `null` without `@default(null)` is treated as NONE (field absent)
 - `id Record @id` fields skip the "Record needs paired Relation" validation
+- `object` types have no `id`, no decorators, no relations - they are embedded inline
+- Optional object fields (`Address?`) produce `field?: Address` (NOT `| null` like primitives)
+- `select` within `include` is type-level only - runtime returns full related objects
+- `none` quantifier for array object where uses `!(arr.any(...))` syntax (not `NOT arr.any(...)`) for SurrealDB 3.x compatibility

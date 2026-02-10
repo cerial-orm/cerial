@@ -6,7 +6,7 @@ This document provides a comprehensive overview of the folder and file structure
 
 ## Overview
 
-Cerial is a Prisma-like ORM for SurrealDB with schema-driven code generation and full TypeScript type safety. The library features Prisma-style dynamic return types, relations, array support, and comprehensive query capabilities.
+Cerial is a Prisma-like ORM for SurrealDB with schema-driven code generation and full TypeScript type safety. The library features Prisma-style dynamic return types, relations, array support, embedded object types, and comprehensive query capabilities.
 
 ---
 
@@ -211,15 +211,23 @@ generators/
 - `UserInput` - Base input interface (Record fields are `RecordIdInput`)
 - `UserCreate` - Type for create data (derives from `UserInput`, relations omitted)
 - `UserNestedCreate` - Type for nested create data (no id field)
-- `UserUpdate` - Type for update data with array operations (push/unset)
-- `UserWhere` - Type for where clauses (includes nested relation filtering)
-- `UserSelect` - Type for field selection
+- `UserUpdate` - Type for update data with array operations (push/unset) and object merge/set
+- `UserWhere` - Type for where clauses (includes nested relation and object filtering)
+- `UserSelect` - Type for field selection (supports `boolean | ObjectSelect` for object fields)
 - `UserInclude` - Type for relation includes with options
-- `UserOrderBy` - Type for ordering
+- `UserOrderBy` - Type for ordering (supports nested object ordering)
 - `UserFindUniqueWhere` - Type for unique field queries
 - `User$Relations` - Relation metadata mapping
-- `GetUserPayload<S, I>` - Dynamic return type based on select/include
+- `GetUserPayload<S, I>` - Dynamic return type based on select/include (resolves object sub-field selects via `ResolveFieldSelect`)
 - `GetUserIncludePayload<I>` - Helper for include type resolution
+
+**Generated Types Per Object**:
+
+- `Address` - Base interface
+- `AddressInput` - Input interface
+- `AddressWhere` - Where clause type (nested field filtering)
+- `AddressSelect` - Sub-field selection type
+- `AddressOrderBy` - Ordering type
 
 **Generation Process**:
 
@@ -235,7 +243,7 @@ generators/
 
 ### `/src/parser` - Schema Parsing
 
-**Purpose**: Parses custom schema definition language into Abstract Syntax Tree (AST) and validates schema syntax. Supports relations, arrays, and all decorators.
+**Purpose**: Parses custom schema definition language into Abstract Syntax Tree (AST) and validates schema syntax. Supports models, embedded object types, relations, arrays, and all decorators.
 
 **Structure**:
 
@@ -284,20 +292,29 @@ parser/
 **Schema Format**:
 
 ```schema
+object Address {
+  street String
+  city String
+  state String
+  zipCode String?
+}
+
 model User {
-  id String @id
+  id Record @id
   email Email @unique
   name String
   age Int?
   isActive Bool @default(true)
   createdAt Date @now
-  nicknames String[]              // Array of strings
-  scores Int[]                    // Array of numbers
-  tagIds Record[]                 // Array of record references
+  address Address                  // Embedded object
+  shipping Address?                // Optional embedded object
+  nicknames String[]               // Array of strings
+  scores Int[]                     // Array of numbers
+  tagIds Record[]                  // Array of record references
   tags Relation @field(tagIds) @model(Tag)     // Forward relation (array)
-  profileId Record?               // Optional record reference
+  profileId Record?                // Optional record reference
   profile Relation @field(profileId) @model(Profile)  // Forward relation (single)
-  posts Relation @model(Post)     // Reverse relation (no @field)
+  posts Relation @model(Post)      // Reverse relation (no @field)
 }
 ```
 
@@ -311,6 +328,7 @@ model User {
 - `Date` - DateTime values (can be array: `Date[]`)
 - `Record` - Record ID type for references (can be array: `Record[]`)
 - `Relation` - Virtual relation field (not stored in DB)
+- `ObjectName` - Embedded object type (can be array: `ObjectName[]`, optional: `ObjectName?`)
 
 **Decorators**:
 
@@ -455,7 +473,9 @@ query/
 
 **Key Utility Types** (for type inference):
 
-- `TrueKeys<T>` - Extract keys where value is true
+- `SelectedKeys<T>` - Extract keys where value is not false/undefined
+- `ResolveFieldSelect<FieldType, SelectValue>` - Resolves field type based on select value (true = full type, object = sub-field narrowed, preserves optionality)
+- `ApplyObjectSelect<T, S>` - Recursively applies sub-field selection to an object type
 - `SelectSubset<T, S>` - Pick fields based on Select object
 - `GetRelationPayload<R, I, V>` - Compute relation payload type
 - `GetIncludePayload<M, R, I>` - Compute include payload type
@@ -505,16 +525,18 @@ query/
 tests/
 ├── e2e/                  # End-to-end tests (schema → generate → use)
 │   ├── .gitignore        # Ignore generated/ folder
-│   ├── schemas/          # Test schemas (25+ .cerial files)
+│   ├── schemas/          # Test schemas (28 .cerial files)
 │   │   ├── base.cerial
-│   │   ├── one-to-one-*.cerial    # 1-1 relation variants
-│   │   ├── one-to-many-*.cerial   # 1-n relation variants
-│   │   ├── many-to-many.cerial    # n-n bidirectional
-│   │   ├── self-ref-*.cerial      # Self-referential patterns
-│   │   ├── multi-relation.cerial  # Multiple relations to same model
+│   │   ├── objects.cerial               # Embedded object types
+│   │   ├── relation-with-objects.cerial # Relations + objects combined
+│   │   ├── one-to-one-*.cerial          # 1-1 relation variants
+│   │   ├── one-to-many-*.cerial         # 1-n relation variants
+│   │   ├── many-to-many.cerial          # n-n bidirectional
+│   │   ├── self-ref-*.cerial            # Self-referential patterns
+│   │   ├── multi-relation.cerial        # Multiple relations to same model
 │   │   ├── mixed-optionality.cerial
-│   │   └── kitchen-sink.cerial    # All relation types combined
-│   ├── relations/        # Relation-specific E2E tests (104 files)
+│   │   └── kitchen-sink.cerial          # All relation types combined
+│   ├── relations/        # Relation-specific E2E tests (91 files)
 │   │   ├── one-to-one/   # 1-1 tests
 │   │   │   ├── required/
 │   │   │   ├── optional/
@@ -539,7 +561,15 @@ tests/
 │   │   ├── multi-relation/
 │   │   ├── mixed-optionality/
 │   │   └── kitchen-sink/
-│   ├── typechecks/       # Compile-time type verification
+│   ├── objects/          # Object field E2E tests (7 files)
+│   │   ├── create.test.ts
+│   │   ├── nested-objects.test.ts
+│   │   ├── orderby.test.ts
+│   │   ├── relation-objects.test.ts   # Relations + objects combined
+│   │   ├── select.test.ts
+│   │   ├── update.test.ts
+│   │   └── where.test.ts
+│   ├── typechecks/       # Compile-time type verification (13 files)
 │   ├── generated/        # Generated at runtime (gitignored)
 │   ├── preload.ts        # Bun preload - runs generate before tests
 │   ├── setup.ts          # Setup logic - calls generate command
@@ -548,18 +578,25 @@ tests/
 │   ├── parser/           # Parser unit tests
 │   │   ├── relation-parser.test.ts
 │   │   ├── key-parser.test.ts
+│   │   ├── object-parser.test.ts
 │   │   ├── ondelete-parser.test.ts
 │   │   └── ...
 │   ├── validators/       # Validator unit tests
 │   │   ├── relation-validator.test.ts
 │   │   └── schema-validator.test.ts
 │   ├── generators/       # Generator unit tests
-│   │   └── type-mapper.test.ts
+│   │   ├── type-mapper.test.ts
+│   │   ├── object-interface-generator.test.ts
+│   │   ├── object-select-orderby.test.ts
+│   │   ├── object-type-mapper.test.ts
+│   │   └── object-where-generator.test.ts
 │   ├── query/            # Query builder unit tests
 │   │   ├── builder.test.ts
 │   │   ├── delete-builder.test.ts
 │   │   ├── delete-unique-builder.test.ts
 │   │   ├── nested-builder.test.ts
+│   │   ├── object-condition-builder.test.ts
+│   │   ├── object-update-builder.test.ts
 │   │   └── update-unique-builder.test.ts
 │   └── typechecks/       # Type-level checks
 │       ├── common-types.check.ts
@@ -599,9 +636,12 @@ bun test tests/parser/
 
 **Test Coverage**:
 
-- **Unit tests**: ~357 tests covering parsers, generators, query builders
-- **E2E tests**: ~634 tests covering real-world usage scenarios
-- **Total**: ~991+ tests
+- **Unit tests**: 486 tests covering parsers, generators, query builders
+- **Generator tests**: 39 tests covering code generation
+- **Integration tests**: 49 tests covering DB operations
+- **E2E tests**: 738 tests covering real-world usage scenarios (107 test files)
+- **Type checks**: 13 compile-time verification files
+- **Total**: 1312+ tests
 
 ---
 
@@ -724,7 +764,20 @@ const user = await db.User.findOne({
 // user: User & { profile: Profile; posts: Post[] } | null
 ```
 
-### 2. Relations
+### 2. Embedded Object Types
+
+Inline/nested data structures with full type safety:
+
+- **Schema definition**: `object Address { street String; city String }`
+- **Model usage**: `address Address`, `shipping Address?`, `locations GeoPoint[]`
+- **Sub-field select**: `select: { address: { city: true } }` → `{ city: string }`
+- **Type-safe narrowing**: `ResolveFieldSelect` and `ApplyObjectSelect` utility types
+- **Where filtering**: `where: { address: { city: 'NYC' } }` with nested object conditions
+- **Array quantifiers**: `where: { locations: { some: { lat: { gt: 40 } } } }`
+- **Update operations**: Partial merge or full replacement with `{ set: ... }`
+- **Nested objects**: Objects can reference other objects (e.g., `GeoPoint` with `label Address?`)
+
+### 3. Relations
 
 Comprehensive relation support:
 
@@ -738,7 +791,7 @@ Comprehensive relation support:
 - **Self-referential** - trees, graphs, following patterns
 - **Type-safe includes** with nested select/include/where/orderBy
 
-### 3. Array Support
+### 4. Array Support
 
 Full support for array types:
 
@@ -748,7 +801,7 @@ Full support for array types:
 - Update operators: `push`, `unset`
 - Query operators: `has`, `hasAll`, `hasAny`, `isEmpty`
 
-### 4. Nested Filtering
+### 5. Nested Filtering
 
 Query by related model fields:
 
@@ -815,10 +868,11 @@ Cerial provides a complete type-safe ORM for SurrealDB with:
 
 - **Schema-driven code generation** with full TypeScript type safety
 - **Prisma-style dynamic return types** that infer based on select/include
+- **Embedded object types** with sub-field selection, nested where filtering, and update operations
 - **Relations** with forward/reverse support and type-safe includes
 - **Array types** with comprehensive operators
-- **Nested filtering** for querying by related model fields
-- **Comprehensive testing** with unit, integration, and e2e tests
+- **Nested filtering** for querying by related model and object fields
+- **Comprehensive testing** with 1312+ tests (unit, integration, and e2e)
 - **Production-ready** code generation with Prettier formatting
 
 Each module has clear responsibilities and well-defined interfaces, making the library maintainable, extensible, and a joy to use.
