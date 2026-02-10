@@ -6,17 +6,17 @@
  * - Input interface (UserInput): RecordIdInput for Record fields (what you can pass in)
  */
 
-import type { FieldMetadata, ModelMetadata, ModelRegistry } from '../../types';
+import type { FieldMetadata, ModelMetadata, ModelRegistry, ObjectMetadata, ObjectRegistry } from '../../types';
 import { schemaTypeToTsType } from '../../utils/type-utils';
 
 /**
  * Get the TypeScript output type for a field
  * For Record fields, uses CerialId instead of string
+ * For Object fields, uses the object's interface name
  */
 function getOutputType(field: FieldMetadata): string {
-  if (field.type === 'record') {
-    return 'CerialId';
-  }
+  if (field.type === 'record') return 'CerialId';
+  if (field.type === 'object' && field.objectInfo) return field.objectInfo.objectName;
 
   return schemaTypeToTsType(field.type);
 }
@@ -24,13 +24,39 @@ function getOutputType(field: FieldMetadata): string {
 /**
  * Get the TypeScript input type for a field
  * For Record fields, uses RecordIdInput instead of CerialId
+ * For Object fields, uses the object's Input interface name
  */
 function getInputType(field: FieldMetadata): string {
-  if (field.type === 'record') {
-    return 'RecordIdInput';
-  }
+  if (field.type === 'record') return 'RecordIdInput';
+  if (field.type === 'object' && field.objectInfo) return `${field.objectInfo.objectName}Input`;
 
   return schemaTypeToTsType(field.type);
+}
+
+/**
+ * Check if an object has any Record fields (determines if Input differs from Output)
+ */
+function objectHasRecordFields(
+  object: ObjectMetadata,
+  objectRegistry?: ObjectRegistry,
+  visited: Set<string> = new Set(),
+): boolean {
+  for (const field of object.fields) {
+    if (field.type === 'record') return true;
+    // Check nested objects recursively (with cycle detection for self-referencing objects)
+    if (field.type === 'object' && field.objectInfo && objectRegistry) {
+      const nestedName = field.objectInfo.objectName;
+      if (visited.has(nestedName)) continue;
+      const nested = objectRegistry[nestedName];
+      if (nested) {
+        const nextVisited = new Set(visited);
+        nextVisited.add(nestedName);
+        if (objectHasRecordFields(nested, objectRegistry, nextVisited)) return true;
+      }
+    }
+  }
+
+  return false;
 }
 
 /**
@@ -57,8 +83,11 @@ export function generateFieldType(field: FieldMetadata): string {
     return tsType;
   }
 
-  // Optional fields: user can pass value, null, or undefined
+  // Optional fields: user can pass value or undefined
   // The difference between ? and ?+@default(null) is runtime behavior, not TS type
+  // Object fields don't support null — only NONE (absent) or a valid object value
+  if (field.type === 'object') return tsType;
+
   return `${tsType} | null`;
 }
 
@@ -105,6 +134,9 @@ export function generateInputFieldType(field: FieldMetadata): string {
   }
 
   // Optional fields
+  // Object fields don't support null — only NONE (absent) or a valid object value
+  if (field.type === 'object') return tsType;
+
   return `${tsType} | null`;
 }
 
@@ -233,4 +265,58 @@ export function generateAllWithRelationsInterfaces(models: ModelMetadata[], regi
     .map((model) => generateWithRelationsInterface(model, registry))
     .filter((iface) => iface !== '')
     .join('\n\n');
+}
+
+/** Generate output interface for an object definition */
+export function generateObjectInterface(object: ObjectMetadata): string {
+  const fields = object.fields
+    .map((f) => {
+      const tsType = getOutputType(f);
+      if (f.isArray) return `  ${f.name}: ${tsType}[];`;
+      const optional = f.isRequired ? '' : '?';
+      // Object fields don't support null — only NONE (absent) or a valid value
+      const type = f.isRequired ? tsType : f.type === 'object' ? tsType : `${tsType} | null`;
+
+      return `  ${f.name}${optional}: ${type};`;
+    })
+    .join('\n');
+
+  return `export interface ${object.name} {
+${fields}
+}`;
+}
+
+/** Generate input interface for an object definition */
+export function generateObjectInputInterface(object: ObjectMetadata, objectRegistry?: ObjectRegistry): string {
+  // If object has no Record fields (direct or nested), input is identical to output
+  const hasRecords = objectHasRecordFields(object, objectRegistry);
+
+  const fields = object.fields
+    .map((f) => {
+      const tsType = hasRecords ? getInputType(f) : getOutputType(f);
+      if (f.isArray) return `  ${f.name}: ${tsType}[];`;
+      const optional = f.isRequired ? '' : '?';
+      // Object fields don't support null — only NONE (absent) or a valid value
+      const type = f.isRequired ? tsType : f.type === 'object' ? tsType : `${tsType} | null`;
+
+      return `  ${f.name}${optional}: ${type};`;
+    })
+    .join('\n');
+
+  return `export interface ${object.name}Input {
+${fields}
+}`;
+}
+
+/** Generate interfaces for all objects (both output and input) */
+export function generateObjectInterfaces(objects: ObjectMetadata[], objectRegistry?: ObjectRegistry): string {
+  if (!objects.length) return '';
+
+  const interfaces: string[] = [];
+  for (const object of objects) {
+    interfaces.push(generateObjectInterface(object));
+    interfaces.push(generateObjectInputInterface(object, objectRegistry));
+  }
+
+  return interfaces.join('\n\n');
 }

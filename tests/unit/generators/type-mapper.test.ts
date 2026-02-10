@@ -45,6 +45,10 @@ describe('Type Mapper', () => {
     test('should map record to record', () => {
       expect(mapToSurrealType('record')).toBe('record');
     });
+
+    test('should map object to object', () => {
+      expect(mapToSurrealType('object')).toBe('object');
+    });
   });
 
   describe('getTypeAssertion', () => {
@@ -87,6 +91,28 @@ describe('Type Mapper', () => {
 
     test('should generate TYPE datetime for date field', () => {
       expect(generateTypeClause('date', true)).toBe('TYPE datetime');
+    });
+
+    test('should generate TYPE object for required object field', () => {
+      expect(generateTypeClause('object', true)).toBe('TYPE object');
+    });
+
+    test('should generate TYPE option<object> for optional object field (no null)', () => {
+      expect(generateTypeClause('object', false)).toBe('TYPE option<object>');
+    });
+
+    test('should generate TYPE array<object> for array of objects', () => {
+      const field: FieldMetadata = {
+        name: 'locations',
+        type: 'object',
+        isRequired: true,
+        isId: false,
+        isUnique: false,
+        hasNowDefault: false,
+        isArray: true,
+      };
+
+      expect(generateTypeClause('object', true, field)).toBe('TYPE array<object>');
     });
 
     test('should generate TYPE record<table> for Record with target', () => {

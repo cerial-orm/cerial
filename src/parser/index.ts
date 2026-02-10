@@ -3,7 +3,7 @@
  */
 
 // Main parser
-export { parse, parseWithLexer, validateSchema } from './parser';
+export { parse, parseWithLexer, validateSchema, collectObjectNames } from './parser';
 
 // Tokenizer
 export { tokenize, filterTokens } from './tokenizer';
@@ -45,6 +45,7 @@ export {
   createDecorator,
   createField,
   createModel,
+  createObject,
   createSchemaAST,
   hasModel,
   getModel,
@@ -52,6 +53,9 @@ export {
   getDecorator,
   getFieldNames,
   getModelNames,
+  hasObject,
+  getObject,
+  getObjectNames,
   parseFieldType,
   isValidFieldType,
   parseFieldDeclaration,

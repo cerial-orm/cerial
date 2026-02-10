@@ -3,7 +3,7 @@
  */
 
 /** Supported field types in schema definitions */
-export type SchemaFieldType = 'string' | 'email' | 'int' | 'date' | 'bool' | 'float' | 'record' | 'relation';
+export type SchemaFieldType = 'string' | 'email' | 'int' | 'date' | 'bool' | 'float' | 'record' | 'relation' | 'object';
 
 /** Supported decorator types in schema definitions */
 export type SchemaDecorator =
@@ -34,6 +34,7 @@ export type FieldTypeMapping = {
   float: number;
   record: string;
   relation: unknown; // Virtual type - actual type determined by target model
+  object: unknown; // Embedded object type - actual type determined by object definition
 };
 
 /** Field type to SurrealDB type mapping */
@@ -46,6 +47,7 @@ export type SurrealTypeMapping = {
   float: 'float';
   record: 'record';
   relation: never; // Virtual type - not stored in database
+  object: 'object'; // Embedded object type
 };
 
 /** Generic result type for operations */

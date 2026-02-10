@@ -3,7 +3,7 @@
  */
 
 import type { RecordId } from 'surrealdb';
-import type { ModelMetadata, SchemaFieldType } from '../../types';
+import type { ModelMetadata, ObjectFieldMetadata, SchemaFieldType } from '../../types';
 import { CerialId } from '../../utils/cerial-id';
 
 /** Check if value is a RecordId-like object */
@@ -142,6 +142,56 @@ function processNestedValue(value: unknown): unknown {
   return value;
 }
 
+/**
+ * Map an object record from SurrealDB result using objectInfo field definitions.
+ * Handles Record fields within objects (RecordId → CerialId), nested objects, and arrays.
+ */
+function mapObjectRecord(obj: Record<string, unknown>, objectInfo: ObjectFieldMetadata): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
+
+  for (const [key, value] of Object.entries(obj)) {
+    const field = objectInfo.fields.find((f) => f.name === key);
+
+    if (!field) {
+      // Unknown field - pass through (might be extra SurrealDB data)
+      result[key] = value;
+      continue;
+    }
+
+    if (value === null || value === undefined) {
+      result[key] = null;
+      continue;
+    }
+
+    // Nested object field
+    if (field.type === 'object' && field.objectInfo) {
+      if (field.isArray && Array.isArray(value)) {
+        result[key] = value.map((item) =>
+          typeof item === 'object' && item !== null
+            ? mapObjectRecord(item as Record<string, unknown>, field.objectInfo!)
+            : item,
+        );
+      } else if (typeof value === 'object') {
+        result[key] = mapObjectRecord(value as Record<string, unknown>, field.objectInfo);
+      } else {
+        result[key] = value;
+      }
+      continue;
+    }
+
+    // Array fields
+    if (field.isArray && Array.isArray(value)) {
+      result[key] = value.map((element) => mapFieldValue(element, field.type));
+      continue;
+    }
+
+    // Standard fields
+    result[key] = mapFieldValue(value, field.type);
+  }
+
+  return result;
+}
+
 /** Map a single record from SurrealDB result */
 export function mapRecord(record: Record<string, unknown>, model: ModelMetadata): Record<string, unknown> {
   const result: Record<string, unknown> = {};
@@ -163,8 +213,23 @@ export function mapRecord(record: Record<string, unknown>, model: ModelMetadata)
 
     const field = model.fields.find((f) => f.name === key);
     if (field) {
-      // Handle array fields - map each element
-      if (field.isArray && Array.isArray(value)) {
+      // Handle object fields - recursively map
+      if (field.type === 'object' && field.objectInfo) {
+        if (value === null || value === undefined) {
+          result[key] = null;
+        } else if (field.isArray && Array.isArray(value)) {
+          result[key] = value.map((item) =>
+            typeof item === 'object' && item !== null
+              ? mapObjectRecord(item as Record<string, unknown>, field.objectInfo!)
+              : item,
+          );
+        } else if (typeof value === 'object') {
+          result[key] = mapObjectRecord(value as Record<string, unknown>, field.objectInfo);
+        } else {
+          result[key] = value;
+        }
+      } else if (field.isArray && Array.isArray(value)) {
+        // Handle array fields - map each element
         result[key] = value.map((element) => mapFieldValue(element, field.type));
       } else {
         result[key] = mapFieldValue(value, field.type);

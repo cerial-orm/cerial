@@ -4,7 +4,7 @@
 
 import { getDecorator, hasDecorator } from '../../parser/types/ast';
 import type { SchemaAST } from '../../types';
-import { isValidFieldName, isValidModelName } from '../../utils/validation-utils';
+import { isValidFieldName, isValidModelName, isValidObjectName } from '../../utils/validation-utils';
 import { validateRelationRules } from './relation-validator';
 
 /** Validation error */
@@ -284,6 +284,149 @@ export function validateArrayDecorators(ast: SchemaAST): SchemaValidationError[]
   return errors;
 }
 
+/** Validate object names */
+export function validateObjectNames(ast: SchemaAST): SchemaValidationError[] {
+  const errors: SchemaValidationError[] = [];
+  const objectNames = new Set<string>();
+  const modelNames = new Set(ast.models.map((m) => m.name));
+
+  for (const object of ast.objects) {
+    // Check valid name format (PascalCase)
+    if (!isValidObjectName(object.name)) {
+      errors.push({
+        message: `Invalid object name: ${object.name}. Must be PascalCase.`,
+        line: object.range.start.line,
+      });
+    }
+
+    // Check for duplicate object names
+    if (objectNames.has(object.name)) {
+      errors.push({
+        message: `Duplicate object name: ${object.name}`,
+        line: object.range.start.line,
+      });
+    }
+
+    // Check for name collision with model names
+    if (modelNames.has(object.name)) {
+      errors.push({
+        message: `Object name '${object.name}' conflicts with model name`,
+        line: object.range.start.line,
+      });
+    }
+
+    objectNames.add(object.name);
+  }
+
+  return errors;
+}
+
+/** Validate object field rules */
+export function validateObjectFields(ast: SchemaAST): SchemaValidationError[] {
+  const errors: SchemaValidationError[] = [];
+  const objectNames = new Set(ast.objects.map((o) => o.name));
+
+  for (const object of ast.objects) {
+    const fieldNames = new Set<string>();
+
+    for (const field of object.fields) {
+      // Check valid field name
+      if (!isValidFieldName(field.name)) {
+        errors.push({
+          message: `Invalid field name: ${field.name}. Must be camelCase or snake_case.`,
+          line: field.range.start.line,
+        });
+      }
+
+      // Check for duplicate field names
+      if (fieldNames.has(field.name)) {
+        errors.push({
+          message: `Duplicate field name: ${field.name} in object ${object.name}`,
+          line: field.range.start.line,
+        });
+      }
+      fieldNames.add(field.name);
+
+      // Objects cannot have 'id' field
+      if (field.name === 'id') {
+        errors.push({
+          message: `Objects cannot have an 'id' field`,
+          line: field.range.start.line,
+        });
+      }
+
+      // Objects cannot have @id decorator
+      if (hasDecorator(field, 'id')) {
+        errors.push({
+          message: `Objects cannot use @id decorator`,
+          line: field.range.start.line,
+        });
+      }
+
+      // Objects cannot have Relation fields
+      if (field.type === 'relation') {
+        errors.push({
+          message: `Objects cannot have Relation fields`,
+          line: field.range.start.line,
+        });
+      }
+
+      // Objects cannot have any decorators
+      if (field.decorators.length) {
+        errors.push({
+          message: `Object fields cannot have decorators`,
+          line: field.range.start.line,
+        });
+      }
+
+      // Self-referencing object fields must be optional or array
+      if (field.type === 'object' && field.objectName === object.name) {
+        if (!field.isOptional && !field.isArray) {
+          errors.push({
+            message: `Self-referencing object fields must be optional or array`,
+            line: field.range.start.line,
+          });
+        }
+      }
+
+      // Validate object type references exist
+      if (field.type === 'object' && field.objectName) {
+        if (!objectNames.has(field.objectName)) {
+          errors.push({
+            message: `Field "${field.name}" references unknown object type "${field.objectName}"`,
+            line: field.range.start.line,
+          });
+        }
+      }
+    }
+  }
+
+  return errors;
+}
+
+/** Validate object references in model fields */
+export function validateObjectReferences(ast: SchemaAST): SchemaValidationError[] {
+  const errors: SchemaValidationError[] = [];
+  const objectNames = new Set(ast.objects.map((o) => o.name));
+
+  for (const model of ast.models) {
+    for (const field of model.fields) {
+      if (field.type === 'object' && field.objectName) {
+        if (!objectNames.has(field.objectName)) {
+          errors.push({
+            message: `Field "${field.name}" in model "${model.name}" references unknown object type "${field.objectName}"`,
+            model: model.name,
+            field: field.name,
+            line: field.range.start.line,
+          });
+        }
+      }
+    }
+  }
+
+  return errors;
+}
+
 /** Validate entire schema */
 export function validateSchema(ast: SchemaAST): SchemaValidationResult {
   const errors: SchemaValidationError[] = [
@@ -293,6 +436,9 @@ export function validateSchema(ast: SchemaAST): SchemaValidationResult {
     ...validateRecordFields(ast),
     ...validateRelationRules(ast),
     ...validateArrayDecorators(ast),
+    ...validateObjectNames(ast),
+    ...validateObjectFields(ast),
+    ...validateObjectReferences(ast),
   ];
 
   return {

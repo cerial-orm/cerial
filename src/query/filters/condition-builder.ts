@@ -3,7 +3,7 @@
  */
 
 import { RecordId, StringRecordId } from 'surrealdb';
-import type { FieldMetadata, ModelMetadata, ModelRegistry, WhereClause } from '../../types';
+import type { FieldMetadata, ModelMetadata, ModelRegistry, ObjectFieldMetadata, WhereClause } from '../../types';
 import { CerialId, type RecordIdInput } from '../../utils/cerial-id';
 import { isObject } from '../../utils/type-utils';
 import { joinFragments } from '../compile/fragment';
@@ -115,6 +115,177 @@ export function isOperatorObject(value: unknown): value is Record<string, unknow
   return keys.some((k) => isRegisteredOperator(k));
 }
 
+/** Build conditions for a single/optional object field using dot notation */
+export function buildObjectCondition(
+  ctx: FilterCompileContext,
+  fieldPath: string,
+  whereValue: Record<string, unknown>,
+  objectInfo: ObjectFieldMetadata,
+): QueryFragment {
+  const conditions: QueryFragment[] = [];
+
+  for (const [key, value] of Object.entries(whereValue)) {
+    if (value === undefined) continue;
+
+    // Handle logical operators within object where
+    if (key === 'AND' && Array.isArray(value)) {
+      const andConditions = value.map((w) =>
+        buildObjectCondition(ctx, fieldPath, w as Record<string, unknown>, objectInfo),
+      );
+      conditions.push(handleAnd(andConditions));
+      continue;
+    }
+    if (key === 'OR' && Array.isArray(value)) {
+      const orConditions = value.map((w) =>
+        buildObjectCondition(ctx, fieldPath, w as Record<string, unknown>, objectInfo),
+      );
+      conditions.push(handleOr(orConditions));
+      continue;
+    }
+    if (key === 'NOT' && isObject(value)) {
+      const notCondition = buildObjectCondition(ctx, fieldPath, value as Record<string, unknown>, objectInfo);
+      conditions.push(handleNot(notCondition));
+      continue;
+    }
+
+    // Find sub-field metadata
+    const subField = objectInfo.fields.find((f) => f.name === key);
+    if (!subField) continue;
+
+    const subPath = `${fieldPath}.${key}`;
+
+    // Nested object sub-field
+    if (subField.type === 'object' && subField.objectInfo && isObject(value)) {
+      if (subField.isArray) {
+        // Array of nested objects: some/every/none
+        conditions.push(buildArrayObjectCondition(ctx, subPath, value as Record<string, unknown>, subField.objectInfo));
+      } else {
+        // Single nested object: recursive dot notation
+        conditions.push(buildObjectCondition(ctx, subPath, value as Record<string, unknown>, subField.objectInfo));
+      }
+      continue;
+    }
+
+    // Primitive sub-field with operators
+    if (isOperatorObject(value)) {
+      conditions.push(
+        buildFieldCondition(ctx, subPath, value as Record<string, unknown>, subField, {} as ModelMetadata),
+      );
+      continue;
+    }
+
+    // Direct value (shorthand for eq)
+    conditions.push(buildDirectCondition(ctx, subPath, value, subField, {} as ModelMetadata));
+  }
+
+  if (!conditions.length) return { text: '', vars: {} };
+  if (conditions.length === 1) return conditions[0]!;
+
+  return joinFragments(conditions, ' AND ');
+}
+
+/** Build conditions for an array-of-objects field using closure syntax */
+export function buildArrayObjectCondition(
+  ctx: FilterCompileContext,
+  fieldPath: string,
+  whereValue: Record<string, unknown>,
+  objectInfo: ObjectFieldMetadata,
+): QueryFragment {
+  const conditions: QueryFragment[] = [];
+
+  for (const [quantifier, subWhere] of Object.entries(whereValue)) {
+    if (!isObject(subWhere)) continue;
+
+    // Build inner conditions using closure variable $v
+    const innerCondition = buildObjectConditionForClosure(ctx, '$v', subWhere as Record<string, unknown>, objectInfo);
+    if (!innerCondition.text) continue;
+
+    if (quantifier === 'some') {
+      conditions.push({ text: `${fieldPath}.any(|$v| ${innerCondition.text})`, vars: innerCondition.vars });
+    } else if (quantifier === 'every') {
+      conditions.push({ text: `${fieldPath}.all(|$v| ${innerCondition.text})`, vars: innerCondition.vars });
+    } else if (quantifier === 'none') {
+      conditions.push({ text: `!(${fieldPath}.any(|$v| ${innerCondition.text}))`, vars: innerCondition.vars });
+    }
+  }
+
+  if (!conditions.length) return { text: '', vars: {} };
+  if (conditions.length === 1) return conditions[0]!;
+
+  return joinFragments(conditions, ' AND ');
+}
+
+/** Build object conditions for closure context (uses $v.field instead of fieldPath.field) */
+function buildObjectConditionForClosure(
+  ctx: FilterCompileContext,
+  closureVar: string,
+  whereValue: Record<string, unknown>,
+  objectInfo: ObjectFieldMetadata,
+): QueryFragment {
+  const conditions: QueryFragment[] = [];
+
+  for (const [key, value] of Object.entries(whereValue)) {
+    if (value === undefined) continue;
+
+    // Handle logical operators
+    if (key === 'AND' && Array.isArray(value)) {
+      const andConditions = value.map((w) =>
+        buildObjectConditionForClosure(ctx, closureVar, w as Record<string, unknown>, objectInfo),
+      );
+      conditions.push(handleAnd(andConditions));
+      continue;
+    }
+    if (key === 'OR' && Array.isArray(value)) {
+      const orConditions = value.map((w) =>
+        buildObjectConditionForClosure(ctx, closureVar, w as Record<string, unknown>, objectInfo),
+      );
+      conditions.push(handleOr(orConditions));
+      continue;
+    }
+    if (key === 'NOT' && isObject(value)) {
+      const notCondition = buildObjectConditionForClosure(
+        ctx,
+        closureVar,
+        value as Record<string, unknown>,
+        objectInfo,
+      );
+      conditions.push(handleNot(notCondition));
+      continue;
+    }
+
+    const subField = objectInfo.fields.find((f) => f.name === key);
+    if (!subField) continue;
+
+    const subPath = `${closureVar}.${key}`;
+
+    // Nested object
+    if (subField.type === 'object' && subField.objectInfo && isObject(value)) {
+      if (subField.isArray) {
+        conditions.push(buildArrayObjectCondition(ctx, subPath, value as Record<string, unknown>, subField.objectInfo));
+      } else {
+        conditions.push(
+          buildObjectConditionForClosure(ctx, subPath, value as Record<string, unknown>, subField.objectInfo),
+        );
+      }
+      continue;
+    }
+
+    if (isOperatorObject(value)) {
+      conditions.push(
+        buildFieldCondition(ctx, subPath, value as Record<string, unknown>, subField, {} as ModelMetadata),
+      );
+      continue;
+    }
+
+    conditions.push(buildDirectCondition(ctx, subPath, value, subField, {} as ModelMetadata));
+  }
+
+  if (!conditions.length) return { text: '', vars: {} };
+  if (conditions.length === 1) return conditions[0]!;
+
+  return joinFragments(conditions, ' AND ');
+}
+
 /** Build conditions from a where clause */
 export function buildConditions(
   ctx: FilterCompileContext,
@@ -174,6 +345,25 @@ export function buildConditions(
       const nestedCondition = buildNestedCondition(ctx, fieldMetadata, value, model, registry);
       if (nestedCondition.text) {
         conditions.push(nestedCondition);
+      }
+      continue;
+    }
+
+    // Handle object field conditions (e.g., address: { city: 'NYC' })
+    if (fieldMetadata.type === 'object' && fieldMetadata.objectInfo && isObject(value)) {
+      if (fieldMetadata.isArray) {
+        // Array of objects: { some: ..., every: ..., none: ... }
+        const objCondition = buildArrayObjectCondition(
+          ctx,
+          key,
+          value as Record<string, unknown>,
+          fieldMetadata.objectInfo,
+        );
+        if (objCondition.text) conditions.push(objCondition);
+      } else {
+        // Single/optional object: dot notation
+        const objCondition = buildObjectCondition(ctx, key, value as Record<string, unknown>, fieldMetadata.objectInfo);
+        if (objCondition.text) conditions.push(objCondition);
       }
       continue;
     }

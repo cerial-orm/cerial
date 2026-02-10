@@ -2,8 +2,14 @@
  * DEFINE statement generator for SurrealDB tables and fields
  */
 
-import type { FieldMetadata, ModelMetadata, ModelRegistry } from '../../types';
-import { generateAssertClause, generateDefaultClause, generateTypeClause, generateValueClause } from './type-mapper';
+import type { FieldMetadata, ModelMetadata, ModelRegistry, ObjectMetadata, ObjectRegistry } from '../../types';
+import {
+  generateAssertClause,
+  generateDefaultClause,
+  generateTypeClause,
+  generateValueClause,
+  mapToSurrealType,
+} from './type-mapper';
 
 /** Options for DEFINE TABLE statement */
 export interface DefineTableOptions {
@@ -117,11 +123,148 @@ export function generateDefineIndex(field: FieldMetadata, tableName: string, opt
   return parts.join(' ') + ';';
 }
 
+/**
+ * Generate DEFINE FIELD statements for object sub-fields (recursive).
+ * Each sub-field uses dot notation: parentPath.fieldName
+ * For array parents, uses .* notation: parentPath.*.fieldName
+ *
+ * @param fieldPath - The dot-separated path prefix (e.g., "address" or "locations.*")
+ * @param tableName - The table name for ON TABLE clause
+ * @param objectMeta - The object metadata whose fields we're defining
+ * @param objectRegistry - Registry of all objects (for nested object resolution)
+ * @param options - DEFINE FIELD options (OVERWRITE, IF NOT EXISTS)
+ * @param visited - Set of object names already visited (cycle detection for self-referencing)
+ */
+export function generateObjectFieldDefines(
+  fieldPath: string,
+  tableName: string,
+  objectMeta: ObjectMetadata,
+  objectRegistry: ObjectRegistry,
+  options: DefineFieldOptions = {},
+  visited: Set<string> = new Set(),
+): string[] {
+  const opts = { ...DEFAULT_FIELD_OPTIONS, ...options };
+  const statements: string[] = [];
+
+  for (const subField of objectMeta.fields) {
+    const subPath = `${fieldPath}.${subField.name}`;
+
+    // Check if this sub-field is itself an object type
+    if (subField.type === 'object' && subField.objectInfo) {
+      const nestedObjectName = subField.objectInfo.objectName;
+
+      // Self-referencing or cycle detection: use FLEXIBLE TYPE
+      if (visited.has(nestedObjectName)) {
+        const parts: string[] = ['DEFINE FIELD'];
+        if (opts.overwrite) parts.push('OVERWRITE');
+        else if (opts.ifNotExists) parts.push('IF NOT EXISTS');
+        parts.push(subPath);
+        parts.push('ON TABLE');
+        parts.push(tableName);
+
+        if (subField.isArray) {
+          parts.push('TYPE array<object> FLEXIBLE');
+        } else if (!subField.isRequired) {
+          parts.push('TYPE option<object> FLEXIBLE');
+        } else {
+          parts.push('TYPE object FLEXIBLE');
+        }
+
+        statements.push(parts.join(' ') + ';');
+        continue;
+      }
+
+      // Generate parent object field DEFINE
+      const parentParts: string[] = ['DEFINE FIELD'];
+      if (opts.overwrite) parentParts.push('OVERWRITE');
+      else if (opts.ifNotExists) parentParts.push('IF NOT EXISTS');
+      parentParts.push(subPath);
+      parentParts.push('ON TABLE');
+      parentParts.push(tableName);
+
+      if (subField.isArray) {
+        parentParts.push('TYPE array<object>');
+      } else if (!subField.isRequired) {
+        parentParts.push('TYPE option<object>');
+      } else {
+        parentParts.push('TYPE object');
+      }
+      statements.push(parentParts.join(' ') + ';');
+
+      // Recursively generate sub-fields for the nested object
+      const nestedObject = objectRegistry[nestedObjectName];
+      if (nestedObject) {
+        const nestedVisited = new Set(visited);
+        nestedVisited.add(nestedObjectName);
+        const nestedPath = subField.isArray ? `${subPath}.*` : subPath;
+        statements.push(
+          ...generateObjectFieldDefines(nestedPath, tableName, nestedObject, objectRegistry, options, nestedVisited),
+        );
+      }
+    } else {
+      // Primitive or record sub-field — standard DEFINE FIELD
+      const parts: string[] = ['DEFINE FIELD'];
+      if (opts.overwrite) parts.push('OVERWRITE');
+      else if (opts.ifNotExists) parts.push('IF NOT EXISTS');
+      parts.push(subPath);
+      parts.push('ON TABLE');
+      parts.push(tableName);
+
+      // Generate TYPE clause for the sub-field
+      // Sub-fields retain their own types (not affected by parent optionality)
+      if (subField.isArray) {
+        const surrealType = mapToSurrealType(subField.type);
+        parts.push(`TYPE array<${surrealType}>`);
+      } else if (subField.isRequired) {
+        const surrealType = mapToSurrealType(subField.type);
+        parts.push(`TYPE ${surrealType}`);
+      } else {
+        const surrealType = mapToSurrealType(subField.type);
+        parts.push(`TYPE option<${surrealType} | null>`);
+      }
+
+      // Add ASSERT clause if needed
+      const assertClause = generateAssertClause(subField.type);
+      if (assertClause) parts.push(assertClause);
+
+      statements.push(parts.join(' ') + ';');
+    }
+  }
+
+  return statements;
+}
+
+/**
+ * Check if an object type contains self-referencing cycles.
+ * Returns true if the object (or any nested object it references) eventually references itself.
+ */
+function objectHasCycles(
+  objectName: string,
+  objectRegistry: ObjectRegistry,
+  visited: Set<string> = new Set(),
+): boolean {
+  if (visited.has(objectName)) return true;
+
+  const obj = objectRegistry[objectName];
+  if (!obj) return false;
+
+  visited.add(objectName);
+
+  for (const field of obj.fields) {
+    if (field.type === 'object' && field.objectInfo) {
+      if (objectHasCycles(field.objectInfo.objectName, objectRegistry, new Set(visited))) return true;
+    }
+  }
+
+  return false;
+}
+
 /** Generate all DEFINE statements for a single model */
 export function generateModelDefineStatements(
   model: ModelMetadata,
   tableOptions?: DefineTableOptions,
   fieldOptions?: DefineFieldOptions,
+  objectRegistry?: ObjectRegistry,
 ): string[] {
   const statements: string[] = [];
 
@@ -132,6 +275,38 @@ export function generateModelDefineStatements(
   for (const field of model.fields) {
     const fieldDef = generateDefineField(field, model.tableName, model, fieldOptions);
     if (fieldDef) statements.push(fieldDef);
+
+    // For object fields, generate sub-field DEFINE statements
+    if (field.type === 'object' && field.objectInfo && objectRegistry) {
+      const objectMeta = objectRegistry[field.objectInfo.objectName];
+      if (objectMeta) {
+        // If the object has self-referencing cycles, use FLEXIBLE on the parent field
+        // with no sub-field definitions — SurrealDB SCHEMAFULL tables can't handle
+        // arbitrarily deep nesting even with FLEXIBLE on nested self-ref fields
+        if (objectHasCycles(field.objectInfo.objectName, objectRegistry)) {
+          // Replace the last statement (the parent DEFINE FIELD) with a FLEXIBLE version
+          const lastIdx = statements.length - 1;
+          const lastStmt = statements[lastIdx]!;
+          if (lastStmt.includes(` ${field.name} `)) {
+            statements[lastIdx] = lastStmt.replace(/;$/, ' FLEXIBLE;');
+          }
+          // Skip sub-field definitions entirely
+        } else {
+          const visited = new Set<string>([field.objectInfo.objectName]);
+          const fieldPath = field.isArray ? `${field.name}.*` : field.name;
+          statements.push(
+            ...generateObjectFieldDefines(
+              fieldPath,
+              model.tableName,
+              objectMeta,
+              objectRegistry,
+              fieldOptions,
+              visited,
+            ),
+          );
+        }
+      }
+    }
   }
 
   // 3. Define indexes for unique fields
@@ -148,13 +323,14 @@ export function generateRegistryDefineStatements(
   registry: ModelRegistry,
   tableOptions?: DefineTableOptions,
   fieldOptions?: DefineFieldOptions,
+  objectRegistry?: ObjectRegistry,
 ): string[] {
   const statements: string[] = [];
 
   for (const modelName in registry) {
     const model = registry[modelName];
     if (!model) continue;
-    const modelStatements = generateModelDefineStatements(model, tableOptions, fieldOptions);
+    const modelStatements = generateModelDefineStatements(model, tableOptions, fieldOptions, objectRegistry);
     statements.push(...modelStatements);
   }
 
@@ -166,8 +342,9 @@ export function generateMigrationQuery(
   registry: ModelRegistry,
   tableOptions?: DefineTableOptions,
   fieldOptions?: DefineFieldOptions,
+  objectRegistry?: ObjectRegistry,
 ): string {
-  const statements = generateRegistryDefineStatements(registry, tableOptions, fieldOptions);
+  const statements = generateRegistryDefineStatements(registry, tableOptions, fieldOptions, objectRegistry);
   return statements.join('\n');
 }
 
@@ -204,13 +381,14 @@ export function generateModelMigrationMap(
   registry: ModelRegistry,
   tableOptions?: DefineTableOptions,
   fieldOptions?: DefineFieldOptions,
+  objectRegistry?: ObjectRegistry,
 ): ModelMigrationMap {
   const map: ModelMigrationMap = {};
 
   for (const modelName in registry) {
     const model = registry[modelName];
     if (!model) continue;
-    map[modelName] = generateModelDefineStatements(model, tableOptions, fieldOptions);
+    map[modelName] = generateModelDefineStatements(model, tableOptions, fieldOptions, objectRegistry);
   }
 
   return map;
@@ -222,14 +400,14 @@ function escapeSingleQuotes(surql: string): string {
 }
 
 /** Generate TypeScript code for per-model migrations */
-export function generatePerModelMigrationCode(models: ModelMetadata[]): string {
+export function generatePerModelMigrationCode(models: ModelMetadata[], objectRegistry?: ObjectRegistry): string {
   const registry: ModelRegistry = {};
   for (const model of models) {
     registry[model.name] = model;
   }
 
   // Generate per-model map
-  const migrationMap = generateModelMigrationMap(registry);
+  const migrationMap = generateModelMigrationMap(registry, undefined, undefined, objectRegistry);
   const mapEntries = Object.entries(migrationMap)
     .map(([modelName, modelStatements]) => {
       const modelStatementsStr = modelStatements.map((s) => `    '${escapeSingleQuotes(s)}'`).join(',\n');

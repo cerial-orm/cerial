@@ -33,10 +33,7 @@ export function createTestClient(): CerialClient {
  * them with the correct schema. This is necessary because DEFINE FIELD OVERWRITE
  * doesn't remove fields that were previously defined but are no longer in the schema.
  */
-export async function cleanupTables(
-  client: CerialClient,
-  tables: string[]
-): Promise<void> {
+export async function cleanupTables(client: CerialClient, tables: string[]): Promise<void> {
   const surreal = client.getSurreal();
   if (!surreal) return;
 
@@ -138,16 +135,15 @@ export const tables = {
 
   // test-basics.cerial (basic models)
   basics: ['user', 'profile', 'post', 'tag'],
+
+  // objects.cerial (embedded object tests)
+  objects: ['object_test_user', 'object_test_order'],
 };
 
 /**
  * Helper to wait for a condition to be true
  */
-export async function waitFor(
-  condition: () => Promise<boolean>,
-  timeout = 5000,
-  interval = 100
-): Promise<void> {
+export async function waitFor(condition: () => Promise<boolean>, timeout = 5000, interval = 100): Promise<void> {
   const start = Date.now();
   while (Date.now() - start < timeout) {
     if (await condition()) return;

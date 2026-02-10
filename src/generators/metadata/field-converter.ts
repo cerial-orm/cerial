@@ -39,6 +39,11 @@ export function convertField(field: ASTField): FieldMetadata {
     metadata.sortOrder = sortDecorator.value === false ? 'desc' : 'asc';
   }
 
+  // Handle object type (fields will be resolved later by resolveObjectFields)
+  if (field.type === 'object' && field.objectName) {
+    metadata.objectInfo = { objectName: field.objectName, fields: [] };
+  }
+
   // Handle relation type
   if (field.type === 'relation') {
     const modelDecorator = getDecorator(field, 'model');

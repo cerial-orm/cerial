@@ -62,9 +62,11 @@ export interface ASTField {
   name: string;
   type: SchemaFieldType;
   isOptional: boolean;
-  isArray?: boolean; // true for Record[] type
+  isArray?: boolean; // true for Record[] or Object[] type
   decorators: ASTDecorator[];
   range: SourceRange;
+  /** For object-typed fields: the name of the referenced object definition */
+  objectName?: string;
 }
 
 /** AST node for a model */
@@ -74,9 +76,17 @@ export interface ASTModel {
   range: SourceRange;
 }
 
-/** Top-level AST containing all models */
+/** AST node for an object definition (embedded data structure) */
+export interface ASTObject {
+  name: string;
+  fields: ASTField[];
+  range: SourceRange;
+}
+
+/** Top-level AST containing all models and objects */
 export interface SchemaAST {
   models: ASTModel[];
+  objects: ASTObject[];
   source: string;
 }
 

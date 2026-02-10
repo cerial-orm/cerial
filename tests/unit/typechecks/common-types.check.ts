@@ -123,6 +123,6 @@ Test.checks([Test.check<OnDeleteAction, ExpectedOnDeleteActions, Test.Pass>()]);
 // SchemaFieldType
 // =============================================================================
 
-type ExpectedFieldTypes = 'string' | 'email' | 'int' | 'float' | 'bool' | 'date' | 'record' | 'relation';
+type ExpectedFieldTypes = 'string' | 'email' | 'int' | 'float' | 'bool' | 'date' | 'record' | 'relation' | 'object';
 
 Test.checks([Test.check<SchemaFieldType, ExpectedFieldTypes, Test.Pass>()]);

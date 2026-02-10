@@ -9,6 +9,7 @@ export {
   createDecorator,
   createField,
   createModel,
+  createObject,
   createSchemaAST,
   hasModel,
   getModel,
@@ -16,6 +17,9 @@ export {
   getDecorator,
   getFieldNames,
   getModelNames,
+  hasObject,
+  getObject,
+  getObjectNames,
 } from './ast';
 
 // Field decorators

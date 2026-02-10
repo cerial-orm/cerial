@@ -17,6 +17,7 @@ const TYPE_MAP: Record<SchemaFieldType, SurrealQLType> = {
   date: 'datetime',
   record: 'record',
   relation: 'string', // Virtual type - should not be used directly
+  object: 'object', // Embedded object type
 };
 
 /** Schema types that require additional assertions */
@@ -102,8 +103,11 @@ export function generateTypeClause(
   // For optional fields: option<T | null> allows both NONE and null
   // - NONE: field is absent (user passes undefined)
   // - null: field exists with null value (user passes null)
+  // Exception: object fields don't support null (only NONE or object value)
   const surrealType = mapToSurrealType(schemaType);
   if (isRequired) return `TYPE ${surrealType}`;
+
+  if (schemaType === 'object') return `TYPE option<${surrealType}>`;
 
   return `TYPE option<${surrealType} | null>`;
 }

@@ -61,6 +61,7 @@ describe('Relation Validator', () => {
     test('should pass when Relation @field references existing Record', () => {
       const ast: SchemaAST = {
         source: '',
+        objects: [],
         models: [
           createASTModel({
             name: 'Post',
@@ -83,6 +84,7 @@ describe('Relation Validator', () => {
     test('should fail when Relation @field references non-existent field', () => {
       const ast: SchemaAST = {
         source: '',
+        objects: [],
         models: [
           createASTModel({
             name: 'Post',
@@ -106,6 +108,7 @@ describe('Relation Validator', () => {
     test('should pass for @onDelete on optional singular Relation', () => {
       const ast: SchemaAST = {
         source: '',
+        objects: [],
         models: [
           createASTModel({
             name: 'Post',
@@ -133,6 +136,7 @@ describe('Relation Validator', () => {
     test('should fail for @onDelete on required Relation', () => {
       const ast: SchemaAST = {
         source: '',
+        objects: [],
         models: [
           createASTModel({
             name: 'Post',
@@ -161,6 +165,7 @@ describe('Relation Validator', () => {
     test('should fail for @onDelete on array Relation', () => {
       const ast: SchemaAST = {
         source: '',
+        objects: [],
         models: [
           createASTModel({
             name: 'User',
@@ -189,6 +194,7 @@ describe('Relation Validator', () => {
     test('should fail for @onDelete on reverse Relation', () => {
       const ast: SchemaAST = {
         source: '',
+        objects: [],
         models: [
           createASTModel({
             name: 'User',
@@ -219,6 +225,7 @@ describe('Relation Validator', () => {
     test('should pass for matching Record + Relation cardinality', () => {
       const ast: SchemaAST = {
         source: '',
+        objects: [],
         models: [
           createASTModel({
             name: 'Post',
@@ -241,6 +248,7 @@ describe('Relation Validator', () => {
     test('should pass for matching Record[] + Relation[] cardinality', () => {
       const ast: SchemaAST = {
         source: '',
+        objects: [],
         models: [
           createASTModel({
             name: 'User',
@@ -268,6 +276,7 @@ describe('Relation Validator', () => {
     test('should fail for mismatched cardinality (Relation[] with Record)', () => {
       const ast: SchemaAST = {
         source: '',
+        objects: [],
         models: [
           createASTModel({
             name: 'User',
@@ -296,6 +305,7 @@ describe('Relation Validator', () => {
     test('should fail for mismatched optionality', () => {
       const ast: SchemaAST = {
         source: '',
+        objects: [],
         models: [
           createASTModel({
             name: 'Post',
@@ -326,6 +336,7 @@ describe('Relation Validator', () => {
     test('should pass for single relation to target model', () => {
       const ast: SchemaAST = {
         source: '',
+        objects: [],
         models: [
           createASTModel({
             name: 'Post',
@@ -348,6 +359,7 @@ describe('Relation Validator', () => {
     test('should fail for multiple relations to same model without @key', () => {
       const ast: SchemaAST = {
         source: '',
+        objects: [],
         models: [
           createASTModel({
             name: 'Document',
@@ -386,6 +398,7 @@ describe('Relation Validator', () => {
     test('should pass for multiple relations to same model with @key', () => {
       const ast: SchemaAST = {
         source: '',
+        objects: [],
         models: [
           createASTModel({
             name: 'Document',
@@ -425,6 +438,7 @@ describe('Relation Validator', () => {
     test('should pass for Record without relation decorators', () => {
       const ast: SchemaAST = {
         source: '',
+        objects: [],
         models: [
           createASTModel({
             name: 'Post',
@@ -446,6 +460,7 @@ describe('Relation Validator', () => {
     test('should fail for Record with @model decorator', () => {
       const ast: SchemaAST = {
         source: '',
+        objects: [],
         models: [
           createASTModel({
             name: 'Post',
@@ -468,6 +483,7 @@ describe('Relation Validator', () => {
     test('should fail for Record with @field decorator', () => {
       const ast: SchemaAST = {
         source: '',
+        objects: [],
         models: [
           createASTModel({
             name: 'Post',

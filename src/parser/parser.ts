@@ -3,12 +3,13 @@
  * Parses schema files into AST
  */
 
-import type { SchemaAST, ASTModel, ASTField, ParseResult, ParseError } from '../types';
+import type { SchemaAST, ASTModel, ASTObject, ASTField, ParseResult, ParseError } from '../types';
 import { tokenize } from './tokenizer';
 import { lex, type LexerResult } from './lexer';
 import {
   createSchemaAST,
   createModel,
+  createObject,
   createRange,
   createPosition,
   parseFieldDeclaration,
@@ -21,16 +22,21 @@ interface ParserState {
   lines: string[];
   currentLine: number;
   models: ASTModel[];
+  objects: ASTObject[];
   errors: ParseError[];
+  /** Known object names for type resolution (populated in two-pass parsing) */
+  objectNames: Set<string>;
 }
 
 /** Create initial parser state */
-function createState(source: string): ParserState {
+function createState(source: string, objectNames?: Set<string>): ParserState {
   return {
     lines: source.split('\n'),
     currentLine: 0,
     models: [],
+    objects: [],
     errors: [],
+    objectNames: objectNames ?? new Set(),
   };
 }
 
@@ -61,6 +67,19 @@ function addError(state: ParserState, message: string): void {
 function isModelLine(line: string): boolean {
   const trimmed = removeComments(line).trim();
   return trimmed.startsWith('model ');
+}
+
+/** Check if line is an object declaration */
+function isObjectLine(line: string): boolean {
+  const trimmed = removeComments(line).trim();
+  return trimmed.startsWith('object ');
+}
+
+/** Extract object name from line */
+function extractObjectNameFromLine(line: string): string | null {
+  const trimmed = removeComments(line).trim();
+  const match = trimmed.match(/^object\s+(\w+)/);
+  return match ? match[1]! : null;
 }
 
 /** Check if line is block start */
@@ -140,8 +159,8 @@ function parseModel(state: ParserState): ASTModel | null {
       break;
     }
 
-    // Parse field
-    const result = parseFieldDeclaration(fieldLine, state.currentLine + 1);
+    // Parse field (pass objectNames for type resolution)
+    const result = parseFieldDeclaration(fieldLine, state.currentLine + 1, state.objectNames);
     if (result.error) {
       addError(state, result.error);
     } else if (result.field) {
@@ -151,17 +170,113 @@ function parseModel(state: ParserState): ASTModel | null {
   }
 
   // Create model
-  const range = createRange(
-    createPosition(startLine + 1, 0, 0),
-    createPosition(state.currentLine, 0, 0),
-  );
+  const range = createRange(createPosition(startLine + 1, 0, 0), createPosition(state.currentLine, 0, 0));
 
   return createModel(modelName, fields, range);
 }
 
-/** Parse schema source */
-export function parse(source: string): ParseResult {
-  const state = createState(source);
+/** Parse an object block */
+function parseObject(state: ParserState): ASTObject | null {
+  const line = currentLine(state);
+  if (line === undefined) return null;
+
+  // Extract object name
+  const objectName = extractObjectNameFromLine(line);
+  if (!objectName) {
+    addError(state, `Invalid object declaration: ${line}`);
+    advance(state);
+    return null;
+  }
+
+  const startLine = state.currentLine;
+  advance(state);
+
+  // Find the opening brace (might be on same line or next line)
+  if (!isBlockStart(line)) {
+    while (!isEnd(state)) {
+      const nextLine = currentLine(state);
+      if (nextLine === undefined) break;
+      if (isEmptyOrComment(nextLine)) {
+        advance(state);
+        continue;
+      }
+      if (isBlockStart(nextLine)) {
+        advance(state);
+        break;
+      }
+      addError(state, `Expected '{' for object ${objectName}`);
+      return null;
+    }
+  }
+
+  // Parse fields until closing brace
+  const fields: ASTField[] = [];
+
+  while (!isEnd(state)) {
+    const fieldLine = currentLine(state);
+    if (fieldLine === undefined) break;
+
+    // Skip empty lines and comments
+    if (isEmptyOrComment(fieldLine)) {
+      advance(state);
+      continue;
+    }
+
+    // Check for end of object
+    if (isBlockEnd(fieldLine)) {
+      advance(state);
+      break;
+    }
+
+    // Parse field (pass objectNames for type resolution)
+    const result = parseFieldDeclaration(fieldLine, state.currentLine + 1, state.objectNames);
+    if (result.error) {
+      addError(state, result.error);
+    } else if (result.field) {
+      fields.push(result.field);
+    }
+    advance(state);
+  }
+
+  // Create object
+  const range = createRange(createPosition(startLine + 1, 0, 0), createPosition(state.currentLine, 0, 0));
+
+  return createObject(objectName, fields, range);
+}
+
+/**
+ * First pass: collect all object and model names without parsing fields.
+ * This enables forward references (objects/models defined after usage).
+ */
+function collectNames(source: string): { objectNames: Set<string>; modelNames: Set<string> } {
+  const objectNames = new Set<string>();
+  const modelNames = new Set<string>();
+  const lines = source.split('\n');
+
+  for (const line of lines) {
+    const trimmed = removeComments(line).trim();
+    if (trimmed.startsWith('object ')) {
+      const match = trimmed.match(/^object\s+(\w+)/);
+      if (match) objectNames.add(match[1]!);
+    } else if (trimmed.startsWith('model ')) {
+      const match = trimmed.match(/^model\s+(\w+)/);
+      if (match) modelNames.add(match[1]!);
+    }
+  }
+
+  return { objectNames, modelNames };
+}
+
+/** Parse schema source (supports object {} blocks with two-pass name resolution) */
+export function parse(source: string, externalObjectNames?: Set<string>): ParseResult {
+  // First pass: collect all object names for forward reference resolution
+  const { objectNames: localObjectNames } = collectNames(source);
+
+  // Merge with any external object names (from other schema files)
+  const allObjectNames = new Set<string>([...localObjectNames, ...(externalObjectNames ?? [])]);
+
+  // Second pass: full parse with object names context
+  const state = createState(source, allObjectNames);
 
   while (!isEnd(state)) {
     const line = currentLine(state);
@@ -170,6 +285,15 @@ export function parse(source: string): ParseResult {
     // Skip empty lines and comments
     if (isEmptyOrComment(line)) {
       advance(state);
+      continue;
+    }
+
+    // Parse object
+    if (isObjectLine(line)) {
+      const object = parseObject(state);
+      if (object) {
+        state.objects.push(object);
+      }
       continue;
     }
 
@@ -187,7 +311,7 @@ export function parse(source: string): ParseResult {
   }
 
   return {
-    ast: createSchemaAST(state.models, source),
+    ast: createSchemaAST(state.models, source, state.objects),
     errors: state.errors,
   };
 }
@@ -344,5 +468,83 @@ export function validateSchema(ast: SchemaAST): ParseError[] {
     }
   }
 
+  // Check for duplicate object names
+  const objectNames = new Set<string>();
+  for (const object of ast.objects) {
+    if (objectNames.has(object.name)) {
+      errors.push({
+        message: `Duplicate object name: ${object.name}`,
+        position: object.range.start,
+      });
+    }
+    // Check for name collision with model names
+    if (modelNames.has(object.name)) {
+      errors.push({
+        message: `Object name '${object.name}' conflicts with model name`,
+        position: object.range.start,
+      });
+    }
+    objectNames.add(object.name);
+
+    // Check for duplicate field names within object
+    const fieldNames = new Set<string>();
+    for (const field of object.fields) {
+      if (fieldNames.has(field.name)) {
+        errors.push({
+          message: `Duplicate field name '${field.name}' in object ${object.name}`,
+          position: field.range.start,
+        });
+      }
+      fieldNames.add(field.name);
+
+      // Objects cannot have 'id' field
+      if (field.name === 'id') {
+        errors.push({
+          message: `Objects cannot have an 'id' field`,
+          position: field.range.start,
+        });
+      }
+
+      // Objects cannot have @id decorator
+      if (field.decorators.some((d) => d.type === 'id')) {
+        errors.push({
+          message: `Objects cannot use @id decorator`,
+          position: field.range.start,
+        });
+      }
+
+      // Objects cannot have Relation fields
+      if (field.type === 'relation') {
+        errors.push({
+          message: `Objects cannot have Relation fields`,
+          position: field.range.start,
+        });
+      }
+
+      // Objects cannot have any decorators
+      if (field.decorators.length) {
+        errors.push({
+          message: `Object fields cannot have decorators`,
+          position: field.range.start,
+        });
+      }
+
+      // Self-referencing object fields must be optional or array
+      if (field.type === 'object' && field.objectName === object.name) {
+        if (!field.isOptional && !field.isArray) {
+          errors.push({
+            message: `Self-referencing object fields must be optional or array`,
+            position: field.range.start,
+          });
+        }
+      }
+    }
+  }
+
   return errors;
+}
+
+/** Collect all object names from a source (first-pass only, for external use) */
+export function collectObjectNames(source: string): Set<string> {
+  return collectNames(source).objectNames;
 }

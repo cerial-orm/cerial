@@ -3,10 +3,11 @@
  */
 
 import { writeClient } from '../generators/client/writer';
-import { convertModels } from '../generators/metadata';
+import { convertModels, convertObjects, createObjectRegistry, resolveObjectFields } from '../generators/metadata';
 import { writeInternalIndex, writeModelRegistry } from '../generators/metadata/writer';
 import { writeMigrationFile } from '../generators/migrations/writer';
-import { parse } from '../parser/parser';
+import { collectObjectNames, parse } from '../parser/parser';
+import type { ASTModel, ASTObject } from '../types';
 import { resolveSchemas, resolveSinglePath } from './resolvers';
 import { logger } from './utils';
 import type { CLIOptions } from './validators';
@@ -68,12 +69,22 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
       }),
     );
 
-    // Parse each schema and collect models
-    const allModels: ReturnType<typeof parse>['ast']['models'] = [];
+    // Two-pass parsing: first collect all object names across all files
+    const allObjectNames = new Set<string>();
+    for (const { content } of schemaContents) {
+      const names = collectObjectNames(content);
+      for (const name of names) {
+        allObjectNames.add(name);
+      }
+    }
+
+    // Second pass: parse each schema with full object name context
+    const allModels: ASTModel[] = [];
+    const allObjects: ASTObject[] = [];
     const parseErrors: string[] = [];
 
     for (const { path, content } of schemaContents) {
-      const parseResult = parse(content);
+      const parseResult = parse(content, allObjectNames);
 
       if (parseResult.errors.length) {
         for (const error of parseResult.errors) {
@@ -83,6 +94,7 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
       }
 
       allModels.push(...parseResult.ast.models);
+      allObjects.push(...parseResult.ast.objects);
     }
 
     // Check for parse errors before validation
@@ -94,8 +106,8 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
       return result;
     }
 
-    // Validate combined schema (all models together)
-    const combinedAST = { models: allModels, source: '' };
+    // Validate combined schema (all models and objects together)
+    const combinedAST = { models: allModels, objects: allObjects, source: '' };
     const validation = validateSchema(combinedAST);
     if (!validation.valid) {
       for (const error of validation.errors) {
@@ -117,31 +129,40 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
       return result;
     }
 
-    logger.info(`Found ${allModels.length} model(s)`);
+    const objectCount = allObjects.length;
+    logger.info(`Found ${allModels.length} model(s)${objectCount ? ` and ${objectCount} object(s)` : ''}`);
 
     // Convert to metadata
     const models = convertModels(allModels);
+    const objects = convertObjects(allObjects);
+
+    // Resolve inline object fields (populate objectInfo.fields for runtime query building)
+    if (objects.length) {
+      const objRegistry = createObjectRegistry(objects);
+      resolveObjectFields(models, objects, objRegistry);
+    }
 
     // Generate files
     logger.progress('Generating files...');
 
-    // Write model registry
-    const registryPath = await writeModelRegistry(outputDir, models);
+    // Write model registry (includes object registry if objects exist)
+    const registryPath = await writeModelRegistry(outputDir, models, objects);
     result.files.push(registryPath);
     if (logLevel === 'full') logger.fileCreated(registryPath);
 
-    // Write migration file
-    const migrationPath = await writeMigrationFile(outputDir, models);
+    // Write migration file (pass object registry for sub-field DEFINE statements)
+    const objectRegistry = objects.length ? createObjectRegistry(objects) : undefined;
+    const migrationPath = await writeMigrationFile(outputDir, models, objectRegistry);
     result.files.push(migrationPath);
     if (logLevel === 'full') logger.fileCreated(migrationPath);
 
     // Write internal index
-    const internalIndexPath = await writeInternalIndex(outputDir);
+    const internalIndexPath = await writeInternalIndex(outputDir, objects.length > 0);
     result.files.push(internalIndexPath);
     if (logLevel === 'full') logger.fileCreated(internalIndexPath);
 
-    // Write client files
-    const clientFiles = await writeClient(outputDir, models);
+    // Write client files (including object type files)
+    const clientFiles = await writeClient(outputDir, models, objects, objectRegistry);
     result.files.push(...clientFiles);
     if (logLevel === 'full') clientFiles.forEach((f) => logger.fileCreated(f));
 

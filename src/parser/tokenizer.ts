@@ -6,7 +6,7 @@
 import type { Token, TokenType, SourcePosition } from '../types';
 
 /** Keywords in the schema language */
-const KEYWORDS = new Set(['model']);
+const KEYWORDS = new Set(['model', 'object']);
 
 /** Punctuation characters */
 const PUNCTUATION = new Set(['{', '}', ':', '?', '(', ')']);
@@ -302,7 +302,5 @@ export function tokenize(source: string): Token[] {
 
 /** Filter out whitespace and comment tokens */
 export function filterTokens(tokens: Token[]): Token[] {
-  return tokens.filter(
-    (t) => t.type !== 'whitespace' && t.type !== 'comment' && t.type !== 'newline',
-  );
+  return tokens.filter((t) => t.type !== 'whitespace' && t.type !== 'comment' && t.type !== 'newline');
 }

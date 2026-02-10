@@ -3,6 +3,12 @@
  */
 
 export { convertField, convertFields } from './field-converter';
-export { convertModel, convertModels } from './model-converter';
-export { generateRegistryCode, createRegistry } from './registry-generator';
+export { convertModel, convertModels, convertObject, convertObjects, resolveObjectFields } from './model-converter';
+export {
+  generateRegistryCode,
+  generateObjectRegistryCode,
+  generateCombinedRegistryCode,
+  createRegistry,
+  createObjectRegistry,
+} from './registry-generator';
 export { writeModelRegistry, writeInternalIndex } from './writer';

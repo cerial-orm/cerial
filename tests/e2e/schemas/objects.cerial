@@ -1,0 +1,41 @@
+object Address {
+  street String
+  city String
+  state String
+  zipCode String?
+}
+
+object GeoPoint {
+  lat Float
+  lng Float
+  label Address?
+}
+
+object TreeNode {
+  value Int
+  children TreeNode[]
+}
+
+object OrderItem {
+  productName String
+  quantity Int
+  price Float
+  tags String[]
+}
+
+model ObjectTestUser {
+  id Record @id
+  name String
+  address Address
+  shipping Address?
+  locations GeoPoint[]
+  primaryLocation GeoPoint?
+}
+
+model ObjectTestOrder {
+  id Record @id
+  billingAddress Address
+  shippingAddress Address?
+  items OrderItem[]
+  metadata TreeNode?
+}

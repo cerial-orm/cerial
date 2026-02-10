@@ -37,6 +37,9 @@ export type {
   ModelMetadata,
   ModelRegistry,
   NamedConnection,
+  ObjectFieldMetadata,
+  ObjectMetadata,
+  ObjectRegistry,
   RelationFieldMetadata,
 } from './metadata.types';
 
@@ -45,6 +48,7 @@ export type {
   ASTDecorator,
   ASTField,
   ASTModel,
+  ASTObject,
   Lexeme,
   LexemeType,
   ParseError,

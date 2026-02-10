@@ -35,6 +35,9 @@ export function validateFieldType(value: unknown, type: SchemaFieldType): boolea
     case 'record':
       // Record type can be a string identifier, CerialId, RecordId, or StringRecordId
       return isRecordIdInput(value);
+    case 'object':
+      // Object type: must be a plain object (not array, not null)
+      return typeof value === 'object' && value !== null && !Array.isArray(value);
     default:
       return false;
   }
@@ -42,6 +45,11 @@ export function validateFieldType(value: unknown, type: SchemaFieldType): boolea
 
 /** Validate model name (PascalCase) */
 export function isValidModelName(name: string): boolean {
+  return /^[A-Z][a-zA-Z0-9]*$/.test(name);
+}
+
+/** Validate object name (PascalCase, same rules as model names) */
+export function isValidObjectName(name: string): boolean {
   return /^[A-Z][a-zA-Z0-9]*$/.test(name);
 }
 

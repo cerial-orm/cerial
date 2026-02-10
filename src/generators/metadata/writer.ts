@@ -2,8 +2,8 @@
  * Metadata writer - writes model registry files
  */
 
-import type { ModelMetadata } from '../../types';
-import { generateRegistryCode } from './registry-generator';
+import type { ModelMetadata, ObjectMetadata } from '../../types';
+import { generateCombinedRegistryCode, generateRegistryCode } from './registry-generator';
 import { mkdir } from 'node:fs/promises';
 import * as prettier from 'prettier';
 
@@ -40,12 +40,16 @@ async function formatCode(code: string, outputDir: string): Promise<string> {
 }
 
 /** Write model registry file */
-export async function writeModelRegistry(outputDir: string, models: ModelMetadata[]): Promise<string> {
+export async function writeModelRegistry(
+  outputDir: string,
+  models: ModelMetadata[],
+  objects: ObjectMetadata[] = [],
+): Promise<string> {
   const internalDir = `${outputDir}/internal`;
   await ensureDir(internalDir);
 
   const filePath = `${internalDir}/model-registry.ts`;
-  const content = generateRegistryCode(models);
+  const content = objects.length ? generateCombinedRegistryCode(models, objects) : generateRegistryCode(models);
   const formatted = await formatCode(content, outputDir);
 
   await Bun.write(filePath, formatted);
@@ -54,18 +58,23 @@ export async function writeModelRegistry(outputDir: string, models: ModelMetadat
 }
 
 /** Write internal index file */
-export async function writeInternalIndex(outputDir: string): Promise<string> {
+export async function writeInternalIndex(outputDir: string, hasObjects: boolean = false): Promise<string> {
   const internalDir = `${outputDir}/internal`;
   await ensureDir(internalDir);
 
   const filePath = `${internalDir}/index.ts`;
+
+  const objectExports = hasObjects
+    ? `\nexport { objectRegistry } from './model-registry';\nexport type { ObjectRegistry } from './model-registry';`
+    : '';
+
   const content = `/**
  * Generated internal exports
  * Do not edit manually
  */
 
 export { modelRegistry } from './model-registry';
-export type { ModelRegistry } from './model-registry';
+export type { ModelRegistry } from './model-registry';${objectExports}
 export { migrationsByModel, getModelMigrationQuery, getMigrationModelNames, modelNames } from './migrations';
 export type { ModelName } from './migrations';
 `;

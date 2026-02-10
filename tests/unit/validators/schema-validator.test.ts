@@ -47,6 +47,7 @@ describe('Schema Validator', () => {
     test('should pass for valid PascalCase model names', () => {
       const ast: SchemaAST = {
         source: '',
+        objects: [],
         models: [createASTModel({ name: 'User' }), createASTModel({ name: 'UserProfile' })],
       };
 
@@ -57,6 +58,7 @@ describe('Schema Validator', () => {
     test('should fail for duplicate model names', () => {
       const ast: SchemaAST = {
         source: '',
+        objects: [],
         models: [createASTModel({ name: 'User' }), createASTModel({ name: 'User' })],
       };
 
@@ -68,6 +70,7 @@ describe('Schema Validator', () => {
     test('should fail for invalid model names', () => {
       const ast: SchemaAST = {
         source: '',
+        objects: [],
         models: [createASTModel({ name: 'user' })], // lowercase
       };
 
@@ -81,6 +84,7 @@ describe('Schema Validator', () => {
     test('should pass for valid field names', () => {
       const ast: SchemaAST = {
         source: '',
+        objects: [],
         models: [
           createASTModel({
             name: 'User',
@@ -100,6 +104,7 @@ describe('Schema Validator', () => {
     test('should fail for duplicate field names', () => {
       const ast: SchemaAST = {
         source: '',
+        objects: [],
         models: [
           createASTModel({
             name: 'User',
@@ -118,6 +123,7 @@ describe('Schema Validator', () => {
     test('should fail for Relation without @model', () => {
       const ast: SchemaAST = {
         source: '',
+        objects: [],
         models: [
           createASTModel({
             name: 'User',
@@ -140,6 +146,7 @@ describe('Schema Validator', () => {
     test('should fail for Relation referencing non-existent model', () => {
       const ast: SchemaAST = {
         source: '',
+        objects: [],
         models: [
           createASTModel({
             name: 'User',
@@ -171,6 +178,7 @@ describe('Schema Validator', () => {
     test('should pass for valid Relation with existing target', () => {
       const ast: SchemaAST = {
         source: '',
+        objects: [],
         models: [
           createASTModel({
             name: 'User',
@@ -203,6 +211,7 @@ describe('Schema Validator', () => {
     test('should fail for @field referencing non-existent Record field', () => {
       const ast: SchemaAST = {
         source: '',
+        objects: [],
         models: [
           createASTModel({
             name: 'Post',
@@ -244,6 +253,7 @@ describe('Schema Validator', () => {
     test('should return valid:true for valid schema', () => {
       const ast: SchemaAST = {
         source: '',
+        objects: [],
         models: [
           createASTModel({
             name: 'User',
@@ -260,6 +270,7 @@ describe('Schema Validator', () => {
     test('should return valid:false for invalid schema', () => {
       const ast: SchemaAST = {
         source: '',
+        objects: [],
         models: [
           createASTModel({ name: 'user' }), // Invalid: lowercase
         ],

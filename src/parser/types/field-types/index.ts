@@ -22,7 +22,7 @@ export { getRelationFieldType, isRelationArray, isRelationType } from './relatio
 export { getStringFieldType, isStringType } from './string-parser';
 
 /** Parse a type token to SchemaFieldType (handles Record[] by stripping []) */
-export function parseFieldType(token: string): SchemaFieldType | null {
+export function parseFieldType(token: string, objectNames?: Set<string>): SchemaFieldType | null {
   // Handle Record[] by checking the base type
   const baseToken = token.replace('[]', '');
 
@@ -34,12 +34,26 @@ export function parseFieldType(token: string): SchemaFieldType | null {
   if (isFloatType(baseToken)) return getFloatFieldType();
   if (isRecordType(token)) return getRecordFieldType(); // Use original token for Record[]
   if (isRelationType(token)) return getRelationFieldType(); // Use original token for Relation[]
+
+  // Check if the type is a known object name
+  if (objectNames && isObjectType(baseToken, objectNames)) return 'object';
+
   return null;
 }
 
+/** Check if a type token matches a known object name */
+export function isObjectType(token: string, objectNames: Set<string>): boolean {
+  return objectNames.has(token);
+}
+
+/** Extract the object name from a type token (strips [] and ? suffixes) */
+export function extractObjectName(token: string): string {
+  return token.replace('[]', '').replace('?', '');
+}
+
 /** Check if a token is a valid field type */
-export function isValidFieldType(token: string): boolean {
-  return parseFieldType(token) !== null;
+export function isValidFieldType(token: string, objectNames?: Set<string>): boolean {
+  return parseFieldType(token, objectNames) !== null;
 }
 
 /** Check if a type token represents an array type */

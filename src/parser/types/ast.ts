@@ -6,6 +6,7 @@ import type {
   ASTDecorator,
   ASTField,
   ASTModel,
+  ASTObject,
   SchemaAST,
   SchemaDecorator,
   SchemaFieldType,
@@ -36,11 +37,12 @@ export function createField(
   decorators: ASTDecorator[],
   range: SourceRange,
   isArray?: boolean,
+  objectName?: string,
 ): ASTField {
   const field: ASTField = { name, type, isOptional, decorators, range };
-  if (isArray) {
-    field.isArray = true;
-  }
+  if (isArray) field.isArray = true;
+  if (objectName) field.objectName = objectName;
+
   return field;
 }
 
@@ -49,9 +51,14 @@ export function createModel(name: string, fields: ASTField[], range: SourceRange
   return { name, fields, range };
 }
 
+/** Create an AST object node (embedded data structure) */
+export function createObject(name: string, fields: ASTField[], range: SourceRange): ASTObject {
+  return { name, fields, range };
+}
+
 /** Create a schema AST */
-export function createSchemaAST(models: ASTModel[], source: string): SchemaAST {
-  return { models, source };
+export function createSchemaAST(models: ASTModel[], source: string, objects: ASTObject[] = []): SchemaAST {
+  return { models, objects, source };
 }
 
 /** Check if AST has a model with given name */
@@ -82,4 +89,19 @@ export function getFieldNames(model: ASTModel): string[] {
 /** Get all model names from AST */
 export function getModelNames(ast: SchemaAST): string[] {
   return ast.models.map((m) => m.name);
+}
+
+/** Check if AST has an object with given name */
+export function hasObject(ast: SchemaAST, name: string): boolean {
+  return ast.objects.some((o) => o.name === name);
+}
+
+/** Get an object by name from AST */
+export function getObject(ast: SchemaAST, name: string): ASTObject | undefined {
+  return ast.objects.find((o) => o.name === name);
+}
+
+/** Get all object names from AST */
+export function getObjectNames(ast: SchemaAST): string[] {
+  return ast.objects.map((o) => o.name);
 }

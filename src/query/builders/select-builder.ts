@@ -28,6 +28,51 @@ export interface FindUniqueOptionsWithInclude extends FindUniqueOptions {
   include?: IncludeClause;
 }
 
+/**
+ * Build destructuring select for an object field.
+ * { city: true, zipCode: true } → 'address.{ city, zipCode }'
+ * { lat: true, label: { city: true } } → 'location.{ lat, label.{ city } }'
+ */
+function buildObjectSelect(fieldPath: string, selectValue: Record<string, unknown>): string {
+  const subFields: string[] = [];
+
+  for (const [key, val] of Object.entries(selectValue)) {
+    if (!val) continue;
+
+    if (val === true) {
+      subFields.push(key);
+    } else if (typeof val === 'object' && val !== null) {
+      // Nested object sub-select
+      const inner = buildObjectSelectInner(key, val as Record<string, unknown>);
+      if (inner) subFields.push(inner);
+    }
+  }
+
+  if (!subFields.length) return fieldPath;
+
+  return `${fieldPath}.{ ${subFields.join(', ')} }`;
+}
+
+/** Build inner destructuring (no outer field path prefix) */
+function buildObjectSelectInner(fieldName: string, selectValue: Record<string, unknown>): string {
+  const subFields: string[] = [];
+
+  for (const [key, val] of Object.entries(selectValue)) {
+    if (!val) continue;
+
+    if (val === true) {
+      subFields.push(key);
+    } else if (typeof val === 'object' && val !== null) {
+      const inner = buildObjectSelectInner(key, val as Record<string, unknown>);
+      if (inner) subFields.push(inner);
+    }
+  }
+
+  if (!subFields.length) return fieldName;
+
+  return `${fieldName}.{ ${subFields.join(', ')} }`;
+}
+
 /** Build SELECT field list */
 export function buildSelectFields(
   select: SelectClause | undefined,
@@ -42,7 +87,14 @@ export function buildSelectFields(
   } else {
     const fields = Object.entries(select)
       .filter(([_, include]) => include)
-      .map(([field]) => field);
+      .map(([field, selectValue]) => {
+        // Object sub-field select: { address: { city: true } }
+        if (typeof selectValue === 'object' && selectValue !== null) {
+          return buildObjectSelect(field, selectValue as Record<string, unknown>);
+        }
+        // Boolean true: select entire field
+        return field;
+      });
 
     baseSelect = fields.length === 0 ? '*' : fields.join(', ');
   }
@@ -55,25 +107,26 @@ export function buildSelectFields(
   return baseSelect;
 }
 
-/** Build ORDER BY clause - supports nested relation ordering like { author: { name: 'asc' } } */
+/** Recursively build order by parts with dot notation */
+function buildOrderByParts(prefix: string, orderBy: Record<string, unknown>, parts: string[]): void {
+  for (const [field, directionOrNested] of Object.entries(orderBy)) {
+    const path = prefix ? `${prefix}.${field}` : field;
+
+    if (typeof directionOrNested === 'string') {
+      parts.push(`${path} ${directionOrNested.toUpperCase()}`);
+    } else if (typeof directionOrNested === 'object' && directionOrNested !== null) {
+      // Recursive: nested object or relation ordering
+      buildOrderByParts(path, directionOrNested as Record<string, unknown>, parts);
+    }
+  }
+}
+
+/** Build ORDER BY clause - supports nested relation/object ordering like { author: { name: 'asc' } } */
 export function buildOrderBy(orderBy: OrderByClause | undefined): string {
   if (!orderBy) return '';
 
   const parts: string[] = [];
-
-  for (const [field, directionOrNested] of Object.entries(orderBy)) {
-    if (typeof directionOrNested === 'string') {
-      // Direct field ordering: { name: 'asc' }
-      parts.push(`${field} ${directionOrNested.toUpperCase()}`);
-    } else if (typeof directionOrNested === 'object' && directionOrNested !== null) {
-      // Nested relation ordering: { author: { name: 'asc' } }
-      for (const [nestedField, nestedDirection] of Object.entries(directionOrNested)) {
-        if (typeof nestedDirection === 'string') {
-          parts.push(`${field}.${nestedField} ${nestedDirection.toUpperCase()}`);
-        }
-      }
-    }
-  }
+  buildOrderByParts('', orderBy as Record<string, unknown>, parts);
 
   if (!parts.length) return '';
 

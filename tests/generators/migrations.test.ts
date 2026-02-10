@@ -300,4 +300,100 @@ model Tag {
       expect(tagsStmt).toBeUndefined();
     });
   });
+
+  describe('Object type migrations', () => {
+    // Manually construct metadata because parseModelRegistry doesn't populate objectInfo
+    const addressFields = [
+      { name: 'street', type: 'string' as const, isId: false, isUnique: false, hasNowDefault: false, isRequired: true },
+      { name: 'city', type: 'string' as const, isId: false, isUnique: false, hasNowDefault: false, isRequired: true },
+      {
+        name: 'zipCode',
+        type: 'string' as const,
+        isId: false,
+        isUnique: false,
+        hasNowDefault: false,
+        isRequired: false,
+      },
+    ];
+    const addressInfo = { objectName: 'Address', fields: addressFields };
+    const objectRegistry = { Address: { name: 'Address', fields: addressFields } };
+
+    const storeModel = {
+      name: 'Store',
+      tableName: 'store',
+      fields: [
+        { name: 'id', type: 'record' as const, isId: true, isUnique: true, hasNowDefault: false, isRequired: true },
+        { name: 'name', type: 'string' as const, isId: false, isUnique: false, hasNowDefault: false, isRequired: true },
+        {
+          name: 'address',
+          type: 'object' as const,
+          isId: false,
+          isUnique: false,
+          hasNowDefault: false,
+          isRequired: true,
+          objectInfo: addressInfo,
+        },
+        {
+          name: 'shipping',
+          type: 'object' as const,
+          isId: false,
+          isUnique: false,
+          hasNowDefault: false,
+          isRequired: false,
+          objectInfo: addressInfo,
+        },
+        {
+          name: 'locations',
+          type: 'object' as const,
+          isId: false,
+          isUnique: false,
+          hasNowDefault: false,
+          isRequired: true,
+          isArray: true,
+          objectInfo: addressInfo,
+        },
+      ],
+    };
+
+    test('generates DEFINE FIELD with TYPE object for required object', () => {
+      const statements = generateModelDefineStatements(storeModel, undefined, undefined, objectRegistry);
+
+      // Required object parent
+      const addressStmt = statements.find((s) => s.includes('DEFINE FIELD') && s.match(/ address /));
+      expect(addressStmt).toContain('TYPE object');
+
+      // Dot notation sub-fields
+      expect(statements.some((s) => s.includes('address.street') && s.includes('TYPE string'))).toBe(true);
+      expect(statements.some((s) => s.includes('address.city') && s.includes('TYPE string'))).toBe(true);
+      expect(statements.some((s) => s.includes('address.zipCode') && s.includes('TYPE option<string | null>'))).toBe(
+        true,
+      );
+    });
+
+    test('generates DEFINE FIELD with TYPE option<object> for optional object (no null)', () => {
+      const statements = generateModelDefineStatements(storeModel, undefined, undefined, objectRegistry);
+
+      const shippingStmt = statements.find((s) => s.includes('DEFINE FIELD') && s.match(/ shipping /));
+      expect(shippingStmt).toContain('TYPE option<object>');
+    });
+
+    test('generates DEFINE FIELD with TYPE array<object> and .* notation for object arrays', () => {
+      const statements = generateModelDefineStatements(storeModel, undefined, undefined, objectRegistry);
+
+      const locationsStmt = statements.find((s) => s.includes('DEFINE FIELD') && s.match(/ locations /));
+      expect(locationsStmt).toContain('TYPE array<object>');
+
+      // Array sub-fields use .* notation
+      expect(statements.some((s) => s.includes('locations.*.street'))).toBe(true);
+      expect(statements.some((s) => s.includes('locations.*.city'))).toBe(true);
+    });
+
+    test('generates same object in multiple fields with separate DEFINE FIELD sets', () => {
+      const statements = generateModelDefineStatements(storeModel, undefined, undefined, objectRegistry);
+
+      // Both address and shipping get separate sub-field DEFINEs
+      expect(statements.some((s) => s.includes('address.street'))).toBe(true);
+      expect(statements.some((s) => s.includes('shipping.street'))).toBe(true);
+    });
+  });
 });

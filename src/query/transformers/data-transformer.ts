@@ -3,7 +3,7 @@
  */
 
 import { RecordId, StringRecordId } from 'surrealdb';
-import type { ModelMetadata, SchemaFieldType } from '../../types';
+import type { ModelMetadata, ObjectFieldMetadata, SchemaFieldType } from '../../types';
 import { CerialId, type RecordIdInput } from '../../utils/cerial-id';
 
 /** Transform a value based on field type */
@@ -125,6 +125,54 @@ function toRecordIdInput(value: unknown): RecordIdInput {
   return String(value);
 }
 
+/**
+ * Recursively transform object data based on objectInfo field definitions.
+ * Handles Record fields within objects (convert to RecordId), nested objects, and arrays of objects.
+ */
+function transformObjectData(data: Record<string, unknown>, objectInfo: ObjectFieldMetadata): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
+
+  for (const [key, value] of Object.entries(data)) {
+    const field = objectInfo.fields.find((f) => f.name === key);
+    if (!field) {
+      result[key] = value;
+      continue;
+    }
+
+    if (value === null || value === undefined) {
+      result[key] = value;
+      continue;
+    }
+
+    // Nested object field
+    if (field.type === 'object' && field.objectInfo) {
+      if (field.isArray && Array.isArray(value)) {
+        result[key] = value.map((item) =>
+          typeof item === 'object' && item !== null
+            ? transformObjectData(item as Record<string, unknown>, field.objectInfo!)
+            : item,
+        );
+      } else if (typeof value === 'object') {
+        result[key] = transformObjectData(value as Record<string, unknown>, field.objectInfo);
+      } else {
+        result[key] = value;
+      }
+      continue;
+    }
+
+    // Array fields
+    if (field.isArray && Array.isArray(value)) {
+      result[key] = value.map((element) => transformValue(element, field.type));
+      continue;
+    }
+
+    // Standard field
+    result[key] = transformValue(value, field.type);
+  }
+
+  return result;
+}
+
 /** Transform data object based on model fields */
 export function transformData(data: Record<string, unknown>, model: ModelMetadata): Record<string, unknown> {
   const result: Record<string, unknown> = {};
@@ -175,6 +223,21 @@ export function transformData(data: Record<string, unknown>, model: ModelMetadat
           }
         } else {
           // No paired relation found, keep value as-is
+          result[key] = value;
+        }
+      } else if (field.type === 'object' && field.objectInfo) {
+        // Handle object fields - recursively transform
+        // Object fields don't support null — treat null as NONE (skip like undefined)
+        if (value === undefined || value === null) continue;
+        if (field.isArray && Array.isArray(value)) {
+          result[key] = value.map((item) =>
+            typeof item === 'object' && item !== null
+              ? transformObjectData(item as Record<string, unknown>, field.objectInfo!)
+              : item,
+          );
+        } else if (typeof value === 'object') {
+          result[key] = transformObjectData(value as Record<string, unknown>, field.objectInfo);
+        } else {
           result[key] = value;
         }
       } else if (field.isArray) {

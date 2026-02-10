@@ -7,7 +7,7 @@
  * - A.Compute<T> - flatten complex nested types for better IDE tooltips
  */
 
-import type { ModelMetadata, ModelRegistry } from '../../types';
+import type { FieldMetadata, ModelMetadata, ModelRegistry, ObjectMetadata, ObjectRegistry } from '../../types';
 
 /** Whether to use ts-toolbelt utilities in generated types */
 const USE_TS_TOOLBELT = true;
@@ -348,16 +348,20 @@ ${relationFieldTypes}
 /** Generate Update type (all fields partial except id) with array operations for all array types */
 export function generateUpdateType(model: ModelMetadata): string {
   const idField = model.fields.find((f) => f.isId);
-  const arrayFields = model.fields.filter((f) => f.isArray && f.type !== 'relation');
+  const arrayFields = model.fields.filter((f) => f.isArray && f.type !== 'relation' && f.type !== 'object');
   const relationFields = model.fields.filter((f) => f.type === 'relation');
+  const objectFields = model.fields.filter((f) => f.type === 'object' && f.objectInfo);
   const inputType = `${model.name}Input`;
 
   // Fields to exclude from update (id and relation fields)
   const excludeFields = [...(idField ? [idField.name] : []), ...relationFields.map((f) => f.name)];
-  const excludeKeys = excludeFields.map((f) => `'${f}'`).join(' | ');
 
-  // If no array fields, use simple type
-  if (arrayFields.length === 0) {
+  // Fields that need special handling (arrays and objects) — omit from base Partial
+  const specialFields = [...arrayFields, ...objectFields];
+  const hasSpecialFields = specialFields.length > 0;
+
+  if (!hasSpecialFields) {
+    const excludeKeys = excludeFields.map((f) => `'${f}'`).join(' | ');
     if (excludeFields.length > 0) {
       if (USE_TS_TOOLBELT) {
         return `export type ${model.name}Update = Partial<O.Omit<${inputType}, ${excludeKeys}>>;`;
@@ -369,8 +373,8 @@ export function generateUpdateType(model: ModelMetadata): string {
     return `export type ${model.name}Update = Partial<${inputType}>;`;
   }
 
-  // Generate interface with array operations for all array fields
-  const baseOmit = [...excludeFields, ...arrayFields.map((f) => f.name)];
+  // Generate interface with special operations
+  const baseOmit = [...excludeFields, ...specialFields.map((f) => f.name)];
   const baseOmitKeys = baseOmit.map((f) => `'${f}'`).join(' | ');
   const baseType =
     baseOmit.length > 0
@@ -379,43 +383,90 @@ export function generateUpdateType(model: ModelMetadata): string {
         : `Partial<Omit<${inputType}, ${baseOmitKeys}>>`
       : `Partial<${inputType}>`;
 
-  const arrayFieldTypes = arrayFields
-    .map((f) => {
-      const elementType = getArrayElementType(f.type);
+  const specialFieldTypes: string[] = [];
 
-      return `  ${f.name}?: ${elementType}[] | {
+  // Array primitive fields
+  for (const f of arrayFields) {
+    const elementType = getArrayElementType(f.type);
+    specialFieldTypes.push(`  ${f.name}?: ${elementType}[] | {
     push?: ${elementType} | ${elementType}[];
     unset?: ${elementType} | ${elementType}[];
-  };`;
-    })
-    .join('\n');
+  };`);
+  }
+
+  // Object fields
+  for (const f of objectFields) {
+    const objName = f.objectInfo!.objectName;
+    const inputName = `${objName}Input`;
+    const whereName = `${objName}Where`;
+
+    if (f.isArray) {
+      // Array of objects: full replace, push, set, updateWhere, unset
+      specialFieldTypes.push(`  ${f.name}?: ${inputName}[] | {
+    push?: ${inputName} | ${inputName}[];
+    set?: ${inputName}[];
+    updateWhere?: {
+      where: ${whereName};
+      data: Partial<${inputName}>;
+    };
+    unset?: { where: ${whereName} };
+  };`);
+    } else if (f.isRequired) {
+      // Required single object: partial merge or full replace
+      specialFieldTypes.push(`  ${f.name}?: Partial<${inputName}> | { set: ${inputName} };`);
+    } else {
+      // Optional single object: partial merge or full replace (no null — object fields don't support null)
+      specialFieldTypes.push(`  ${f.name}?: Partial<${inputName}> | { set: ${inputName} };`);
+    }
+  }
 
   return `export type ${model.name}Update = ${baseType} & {
-${arrayFieldTypes}
+${specialFieldTypes.join('\n')}
 };`;
+}
+
+/** Get the select type for a field (boolean for primitives, boolean | ObjectSelect for objects) */
+function getFieldSelectType(field: FieldMetadata): string {
+  if (field.type === 'object' && field.objectInfo) return `boolean | ${field.objectInfo.objectName}Select`;
+
+  return 'boolean';
 }
 
 /** Generate Select type (boolean map of fields, requires at least one field) */
 export function generateSelectType(model: ModelMetadata): string {
   // Filter out relation fields (virtual fields not stored)
-  const fieldNames = model.fields.filter((f) => f.type !== 'relation').map((f) => f.name);
+  const selectableFields = model.fields.filter((f) => f.type !== 'relation');
 
-  if (fieldNames.length === 0) {
+  if (selectableFields.length === 0) {
     return `export interface ${model.name}Select {}`;
   }
 
-  if (fieldNames.length === 1) {
-    return `export type ${model.name}Select = { ${fieldNames[0]}: boolean; };`;
+  if (selectableFields.length === 1) {
+    const f = selectableFields[0]!;
+    const selectType = getFieldSelectType(f);
+
+    return `export type ${model.name}Select = { ${f.name}: ${selectType}; };`;
   }
 
   // Generate union where each variant requires at least one field
   // For each field, make it required and all others optional
-  const variants = fieldNames.map((field) => {
-    const otherFields = fieldNames
-      .filter((f) => f !== field)
-      .map((f) => `'${f}'`)
-      .join(' | ');
-    return `  | { ${field}: boolean } & Partial<Record<${otherFields}, boolean>>`;
+  const variants = selectableFields.map((field) => {
+    const selectType = getFieldSelectType(field);
+    const otherFields = selectableFields.filter((f) => f.name !== field.name);
+
+    // Build the Partial record for other fields, each with their own select type
+    const hasObjectOthers = otherFields.some((f) => f.type === 'object' && f.objectInfo);
+
+    if (hasObjectOthers) {
+      // When some other fields are objects, we need per-field optional types
+      const otherFieldDefs = otherFields.map((f) => `${f.name}?: ${getFieldSelectType(f)}`).join('; ');
+
+      return `  | { ${field.name}: ${selectType} } & { ${otherFieldDefs} }`;
+    }
+
+    const otherKeys = otherFields.map((f) => `'${f.name}'`).join(' | ');
+
+    return `  | { ${field.name}: ${selectType} } & Partial<Record<${otherKeys}, boolean>>`;
   });
 
   return `export type ${model.name}Select =
@@ -432,6 +483,9 @@ export function generateOrderByType(model: ModelMetadata): string {
       if (field.relationInfo && !field.isArray) {
         fields.push(`  ${field.name}?: ${field.relationInfo.targetModel}OrderBy;`);
       }
+    } else if (field.type === 'object' && field.objectInfo) {
+      // Object fields support nested ordering (e.g., orderBy: { address: { city: 'asc' } })
+      fields.push(`  ${field.name}?: ${field.objectInfo.objectName}OrderBy;`);
     } else {
       fields.push(`  ${field.name}?: 'asc' | 'desc';`);
     }
@@ -666,4 +720,73 @@ export function generateDerivedTypes(model: ModelMetadata, registry?: ModelRegis
 /** Generate derived types for all models */
 export function generateAllDerivedTypes(models: ModelMetadata[], registry?: ModelRegistry): string {
   return models.map((model) => generateDerivedTypes(model, registry)).join('\n\n');
+}
+
+// ==================== Object-specific derived types ====================
+
+/** Generate Select type for an object definition */
+export function generateObjectSelectType(object: ObjectMetadata): string {
+  const fields = object.fields;
+
+  if (fields.length === 0) {
+    return `export interface ${object.name}Select {}`;
+  }
+
+  if (fields.length === 1) {
+    const f = fields[0]!;
+    const selectType = getFieldSelectType(f);
+
+    return `export type ${object.name}Select = { ${f.name}: ${selectType}; };`;
+  }
+
+  // Generate union where each variant requires at least one field
+  const variants = fields.map((field) => {
+    const selectType = getFieldSelectType(field);
+    const otherFields = fields.filter((f) => f.name !== field.name);
+    const hasObjectOthers = otherFields.some((f) => f.type === 'object' && f.objectInfo);
+
+    if (hasObjectOthers) {
+      const otherFieldDefs = otherFields.map((f) => `${f.name}?: ${getFieldSelectType(f)}`).join('; ');
+
+      return `  | { ${field.name}: ${selectType} } & { ${otherFieldDefs} }`;
+    }
+
+    const otherKeys = otherFields.map((f) => `'${f.name}'`).join(' | ');
+
+    return `  | { ${field.name}: ${selectType} } & Partial<Record<${otherKeys}, boolean>>`;
+  });
+
+  return `export type ${object.name}Select =
+${variants.join('\n')};`;
+}
+
+/** Generate OrderBy type for an object definition */
+export function generateObjectOrderByType(object: ObjectMetadata): string {
+  const fields: string[] = [];
+
+  for (const field of object.fields) {
+    if (field.type === 'object' && field.objectInfo) {
+      fields.push(`  ${field.name}?: ${field.objectInfo.objectName}OrderBy;`);
+    } else {
+      fields.push(`  ${field.name}?: 'asc' | 'desc';`);
+    }
+  }
+
+  return `export interface ${object.name}OrderBy {
+${fields.join('\n')}
+}`;
+}
+
+/** Generate all derived types for an object */
+export function generateObjectDerivedTypes(object: ObjectMetadata): string {
+  const types = [generateObjectSelectType(object), generateObjectOrderByType(object)];
+
+  return types.join('\n\n');
+}
+
+/** Generate all object derived types */
+export function generateAllObjectDerivedTypes(objects: ObjectMetadata[]): string {
+  if (!objects.length) return '';
+
+  return objects.map((obj) => generateObjectDerivedTypes(obj)).join('\n\n');
 }

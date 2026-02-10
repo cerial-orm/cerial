@@ -44,6 +44,29 @@ export interface FieldMetadata {
   isDistinct?: boolean;
   /** Sort order from @sort decorator: 'asc' (default) or 'desc' */
   sortOrder?: 'asc' | 'desc';
+  /** Object metadata for object-typed fields */
+  objectInfo?: ObjectFieldMetadata;
+}
+
+/** Metadata for object-typed fields referencing an object definition */
+export interface ObjectFieldMetadata {
+  /** Name of the referenced object definition (e.g., "Address") */
+  objectName: string;
+  /** Inline copy of the object's fields for runtime query building */
+  fields: FieldMetadata[];
+}
+
+/** Metadata for an object definition (embedded data structure) */
+export interface ObjectMetadata {
+  /** Object name (e.g., "Address") */
+  name: string;
+  /** Array of field metadata */
+  fields: FieldMetadata[];
+}
+
+/** Registry of all objects indexed by object name */
+export interface ObjectRegistry {
+  [objectName: string]: ObjectMetadata;
 }
 
 /** Metadata for a model/table */

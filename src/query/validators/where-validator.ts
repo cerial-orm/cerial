@@ -53,6 +53,14 @@ export function validateFieldFilter(
       return errors;
     }
 
+    // For object fields, the filter object contains sub-field conditions, not operators
+    // e.g., address: { city: 'NYC' } - city is a sub-field, not an operator
+    // For array object fields: locations: { some: { lat: { gt: 0 } } }
+    if (field.type === 'object') {
+      // Skip detailed validation — the condition-builder handles object field queries
+      return errors;
+    }
+
     for (const [op, _value] of Object.entries(filter)) {
       if (!isRegisteredOperator(op)) {
         errors.push({ path: `${path}.${op}`, message: `Unknown operator: ${op}` });

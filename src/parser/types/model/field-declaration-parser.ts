@@ -33,7 +33,7 @@ import {
   parseSortDecorator,
   parseUniqueDecorator,
 } from '../field-decorators';
-import { isArrayType, parseFieldType } from '../field-types';
+import { extractObjectName, isArrayType, isObjectType, parseFieldType } from '../field-types';
 
 /** Result of parsing a field line */
 export interface FieldParseResult {
@@ -48,9 +48,9 @@ export function isFieldDeclaration(line: string): boolean {
     return false;
   }
   // New format: must have at least two words (fieldName Type)
-  // and NOT start with 'model'
+  // and NOT start with 'model' or 'object'
   const words = trimmed.split(/\s+/);
-  return words.length >= 2 && !trimmed.startsWith('model ');
+  return words.length >= 2 && !trimmed.startsWith('model ') && !trimmed.startsWith('object ');
 }
 
 /** Parse decorators from a field line (at the end) */
@@ -101,7 +101,7 @@ export function parseDecorators(line: string, lineNumber: number): ASTDecorator[
  *          profile Relation @field(profileId) @model(Profile)
  *          posts Relation @field(postIds) @model(Post)
  */
-export function parseFieldDeclaration(line: string, lineNumber: number): FieldParseResult {
+export function parseFieldDeclaration(line: string, lineNumber: number, objectNames?: Set<string>): FieldParseResult {
   const trimmed = line.trim();
 
   // Remove comments
@@ -132,7 +132,7 @@ export function parseFieldDeclaration(line: string, lineNumber: number): FieldPa
     typeStr = typeStr.slice(0, -1);
   }
 
-  // Check if it's an array type (String[], Int[], Date[], Record[], etc.)
+  // Check if it's an array type (String[], Int[], Date[], Record[], ObjectName[], etc.)
   const isArray = isArrayType(typeStr);
 
   // Validate field name
@@ -140,8 +140,8 @@ export function parseFieldDeclaration(line: string, lineNumber: number): FieldPa
     return { field: null, error: `Invalid field name: ${fieldName}` };
   }
 
-  // Parse field type
-  const fieldType = parseFieldType(typeStr);
+  // Parse field type (pass objectNames for object type resolution)
+  const fieldType = parseFieldType(typeStr, objectNames);
   if (!fieldType) {
     return {
       field: null,
@@ -152,7 +152,9 @@ export function parseFieldDeclaration(line: string, lineNumber: number): FieldPa
   // Create range
   const range = createRange(createPosition(lineNumber, 0, 0), createPosition(lineNumber, trimmed.length, 0));
 
-  const field = createField(fieldName, fieldType, isOptional, decorators, range, isArray);
+  // For object types, extract the object name
+  const objName = fieldType === 'object' ? extractObjectName(typeStr) : undefined;
+  const field = createField(fieldName, fieldType, isOptional, decorators, range, isArray, objName);
 
   return { field, error: null };
 }

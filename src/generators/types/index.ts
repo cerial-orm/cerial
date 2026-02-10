@@ -8,11 +8,16 @@ export {
   generateFieldType,
   generateInterface,
   generateInterfaces,
+  generateObjectInputInterface,
+  generateObjectInterface,
+  generateObjectInterfaces,
   generateWithRelationsInterface,
 } from './interface-generator';
 
 export {
   generateFieldWhereType,
+  generateObjectWhereInterface,
+  generateObjectWhereTypes,
   generateWhereInputInterface,
   generateWhereInterface,
   generateWhereTypes,
@@ -20,9 +25,13 @@ export {
 
 export {
   generateAllDerivedTypes,
+  generateAllObjectDerivedTypes,
   generateCreateType,
   generateDerivedTypes,
   generateIncludeType,
+  generateObjectDerivedTypes,
+  generateObjectOrderByType,
+  generateObjectSelectType,
   generateOrderByType,
   generateSelectType,
   generateUpdateType,

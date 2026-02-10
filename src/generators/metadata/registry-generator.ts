@@ -2,7 +2,7 @@
  * Registry generator - generates model registry code
  */
 
-import type { FieldMetadata, ModelMetadata, ModelRegistry } from '../../types';
+import type { FieldMetadata, ModelMetadata, ModelRegistry, ObjectMetadata, ObjectRegistry } from '../../types';
 
 /** Generate FieldMetadata as TypeScript code */
 function generateFieldMetadata(field: FieldMetadata): string {
@@ -34,6 +34,16 @@ function generateFieldMetadata(field: FieldMetadata): string {
   // Include sortOrder when present
   if (field.sortOrder) {
     parts.push(`sortOrder: '${field.sortOrder}'`);
+  }
+
+  // Include objectInfo when present (with inline fields for runtime query building)
+  if (field.objectInfo) {
+    if (field.objectInfo.fields.length) {
+      const inlineFields = field.objectInfo.fields.map((f) => generateFieldMetadata(f)).join(', ');
+      parts.push(`objectInfo: { objectName: '${field.objectInfo.objectName}', fields: [${inlineFields}] }`);
+    } else {
+      parts.push(`objectInfo: { objectName: '${field.objectInfo.objectName}', fields: [] }`);
+    }
   }
 
   // Include relationInfo when present
@@ -90,12 +100,84 @@ export type { ModelRegistry };
 `;
 }
 
+/** Generate ObjectMetadata as TypeScript code */
+function generateObjectMetadata(object: ObjectMetadata): string {
+  const fields = object.fields.map((f) => `      ${generateFieldMetadata(f)}`).join(',\n');
+
+  return `  ${object.name}: {
+    name: '${object.name}',
+    fields: [
+${fields}
+    ]
+  }`;
+}
+
+/** Generate object registry code */
+export function generateObjectRegistryCode(objects: ObjectMetadata[]): string {
+  if (!objects.length) return '';
+
+  const objectEntries = objects.map(generateObjectMetadata).join(',\n');
+
+  return `
+import type { ObjectRegistry } from 'cerial';
+
+export const objectRegistry: ObjectRegistry = {
+${objectEntries}
+};
+
+export type { ObjectRegistry };
+`;
+}
+
+/** Generate combined registry code (models + objects) */
+export function generateCombinedRegistryCode(models: ModelMetadata[], objects: ObjectMetadata[]): string {
+  const modelEntries = models.map(generateModelMetadata).join(',\n');
+
+  let code = `/**
+ * Generated model registry
+ * Do not edit manually
+ */
+
+import type { ModelRegistry${objects.length ? ', ObjectRegistry' : ''} } from 'cerial';
+
+export const modelRegistry: ModelRegistry = {
+${modelEntries}
+};
+
+export type { ModelRegistry };
+`;
+
+  if (objects.length) {
+    const objectEntries = objects.map(generateObjectMetadata).join(',\n');
+    code += `
+export const objectRegistry: ObjectRegistry = {
+${objectEntries}
+};
+
+export type { ObjectRegistry };
+`;
+  }
+
+  return code;
+}
+
 /** Create ModelRegistry object from models */
 export function createRegistry(models: ModelMetadata[]): ModelRegistry {
   const registry: ModelRegistry = {};
 
   for (const model of models) {
     registry[model.name] = model;
+  }
+
+  return registry;
+}
+
+/** Create ObjectRegistry object from objects */
+export function createObjectRegistry(objects: ObjectMetadata[]): ObjectRegistry {
+  const registry: ObjectRegistry = {};
+
+  for (const object of objects) {
+    registry[object.name] = object;
   }
 
   return registry;
