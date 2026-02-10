@@ -17,6 +17,7 @@ export type {
 
 // Utility types for inference
 export type {
+  ApplyObjectSelect,
   ArrayResult,
   DefaultArgs,
   GetIncludePayload,
@@ -26,8 +27,9 @@ export type {
   IsBooleanInclude,
   NullableResult,
   RelationDef,
+  ResolveFieldSelect,
+  SelectedKeys,
   SelectSubset,
-  TrueKeys,
 } from './utility.types';
 
 // Metadata types

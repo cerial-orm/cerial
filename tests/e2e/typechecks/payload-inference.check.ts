@@ -7,7 +7,18 @@
 
 import { CerialId } from 'cerial';
 import { Test } from 'ts-toolbelt';
-import type { GetProfilePayload, GetUserPayload, Post, Profile, Tag } from '../generated';
+import type {
+  Address,
+  CompanyMeta,
+  GetProfilePayload,
+  GetRelObjCompanyPayload,
+  GetRelObjEmployeePayload,
+  GetUserPayload,
+  Post,
+  Profile,
+  RelObjCompany,
+  Tag,
+} from '../generated';
 
 // =============================================================================
 // GetUserPayload - No Select/Include
@@ -106,4 +117,94 @@ Test.checks([
   Test.check<FullProfile['id'], CerialId, Test.Pass>(),
   Test.check<FullProfile['bio'], string | null | undefined, Test.Pass>(),
   Test.check<SelectedProfile['id'], CerialId, Test.Pass>(),
+]);
+
+// =============================================================================
+// GetRelObjEmployeePayload - Top-level select with object sub-field
+// =============================================================================
+
+// Select object sub-fields on own model
+type EmpHomeCity = GetRelObjEmployeePayload<{ homeAddress: { city: true } }>;
+Test.checks([Test.check<EmpHomeCity['homeAddress'], { city: string }, Test.Pass>()]);
+
+// Select mix of primitives and object sub-field
+type EmpNameAndCity = GetRelObjEmployeePayload<{ name: true; homeAddress: { city: true; state: true } }>;
+Test.checks([
+  Test.check<EmpNameAndCity['name'], string, Test.Pass>(),
+  Test.check<EmpNameAndCity['homeAddress'], { city: string; state: string }, Test.Pass>(),
+]);
+
+// Select with boolean true on object field → full Address
+type EmpFullAddr = GetRelObjEmployeePayload<{ homeAddress: true }>;
+Test.checks([Test.check<EmpFullAddr['homeAddress'], Address, Test.Pass>()]);
+
+// =============================================================================
+// GetRelObjEmployeePayload - Include with select on related model's object field
+// =============================================================================
+
+// Include company with select narrowing headquarters
+type EmpIncludeCompanyHQ = GetRelObjEmployeePayload<
+  undefined,
+  { company: { select: { headquarters: { city: true } } } }
+>;
+Test.checks([
+  // Full employee fields present (no own select)
+  Test.check<EmpIncludeCompanyHQ['id'], CerialId, Test.Pass>(),
+  Test.check<EmpIncludeCompanyHQ['name'], string, Test.Pass>(),
+  // Included company has narrowed headquarters
+  Test.check<EmpIncludeCompanyHQ['company'], { headquarters: { city: string } }, Test.Pass>(),
+]);
+
+// Include company with select on name + object sub-field
+type EmpIncludeCompanyNameHQ = GetRelObjEmployeePayload<
+  undefined,
+  { company: { select: { name: true; headquarters: { city: true } } } }
+>;
+Test.checks([
+  Test.check<EmpIncludeCompanyNameHQ['company'], { name: string; headquarters: { city: string } }, Test.Pass>(),
+]);
+
+// Include company with boolean true → full RelObjCompany
+type EmpIncludeCompanyFull = GetRelObjEmployeePayload<undefined, { company: true }>;
+Test.checks([Test.check<EmpIncludeCompanyFull['company'], RelObjCompany, Test.Pass>()]);
+
+// =============================================================================
+// GetRelObjEmployeePayload - Combined own select + include select with objects
+// =============================================================================
+
+type EmpCombined = GetRelObjEmployeePayload<
+  { homeAddress: { city: true } },
+  { company: { select: { name: true; headquarters: { city: true } } } }
+>;
+Test.checks([
+  Test.check<EmpCombined['homeAddress'], { city: string }, Test.Pass>(),
+  Test.check<EmpCombined['company'], { name: string; headquarters: { city: string } }, Test.Pass>(),
+]);
+
+// =============================================================================
+// GetRelObjCompanyPayload - Select on model with multiple object types
+// =============================================================================
+
+// Select sub-fields from both headquarters (Address) and meta (CompanyMeta)
+type CompanyMultiObj = GetRelObjCompanyPayload<{ headquarters: { city: true }; meta: { industry: true } }>;
+Test.checks([
+  Test.check<CompanyMultiObj['headquarters'], { city: string }, Test.Pass>(),
+  // meta is optional (CompanyMeta?) so ResolveFieldSelect preserves the undefined
+  // Use extends checks since A.Compute distributes over unions in ways that affect exact equality
+  Test.check<undefined extends CompanyMultiObj['meta'] ? 1 : 0, 1, Test.Pass>(),
+  Test.check<{ industry: string } extends NonNullable<CompanyMultiObj['meta']> ? 1 : 0, 1, Test.Pass>(),
+  Test.check<NonNullable<CompanyMultiObj['meta']> extends { industry: string } ? 1 : 0, 1, Test.Pass>(),
+]);
+
+// Boolean true on optional object → preserves optionality
+type CompanyMetaTrue = GetRelObjCompanyPayload<{ meta: true }>;
+Test.checks([Test.check<CompanyMetaTrue['meta'], CompanyMeta | undefined, Test.Pass>()]);
+
+// Select all fields from company (no select = full model)
+type CompanyFull = GetRelObjCompanyPayload<undefined>;
+Test.checks([
+  Test.check<CompanyFull['id'], CerialId, Test.Pass>(),
+  Test.check<CompanyFull['name'], string, Test.Pass>(),
+  Test.check<CompanyFull['headquarters'], Address, Test.Pass>(),
+  Test.check<CompanyFull['meta'], CompanyMeta | undefined, Test.Pass>(),
 ]);

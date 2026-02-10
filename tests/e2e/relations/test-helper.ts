@@ -138,6 +138,9 @@ export const tables = {
 
   // objects.cerial (embedded object tests)
   objects: ['object_test_user', 'object_test_order'],
+
+  // relation-with-objects.cerial (relations + objects combined)
+  relationWithObjects: ['rel_obj_company', 'rel_obj_employee'],
 };
 
 /**

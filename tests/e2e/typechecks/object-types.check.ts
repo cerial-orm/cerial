@@ -5,43 +5,32 @@
  * Run: bun run typecheck
  */
 
-import { CerialId, type RecordIdInput } from 'cerial';
 import { Test } from 'ts-toolbelt';
 import type {
   Address,
   AddressInput,
-  AddressWhere,
-  AddressSelect,
   AddressOrderBy,
+  AddressSelect,
+  AddressWhere,
   GeoPoint,
   GeoPointInput,
-  GeoPointWhere,
-  GeoPointSelect,
   GeoPointOrderBy,
-  TreeNode,
-  TreeNodeInput,
-  TreeNodeWhere,
-  TreeNodeSelect,
-  TreeNodeOrderBy,
-  OrderItem,
-  OrderItemInput,
-  OrderItemWhere,
-  OrderItemSelect,
-  OrderItemOrderBy,
+  GeoPointWhere,
+  GetObjectTestOrderPayload,
+  GetObjectTestUserPayload,
+  ObjectTestOrder,
   ObjectTestUser,
-  ObjectTestUserInput,
   ObjectTestUserCreate,
+  ObjectTestUserInput,
+  ObjectTestUserOrderBy,
+  ObjectTestUserSelect,
   ObjectTestUserUpdate,
   ObjectTestUserWhere,
-  ObjectTestUserSelect,
-  ObjectTestUserOrderBy,
-  ObjectTestOrder,
-  ObjectTestOrderInput,
-  ObjectTestOrderCreate,
-  ObjectTestOrderUpdate,
-  ObjectTestOrderWhere,
-  ObjectTestOrderSelect,
-  ObjectTestOrderOrderBy,
+  OrderItem,
+  TreeNode,
+  TreeNodeOrderBy,
+  TreeNodeSelect,
+  TreeNodeWhere,
 } from '../generated';
 
 // Helper for extension checks
@@ -308,3 +297,87 @@ const _treeSelect: TreeNodeSelect = { value: true, children: { value: true } };
 
 // TreeNodeOrderBy compiles
 const _treeOrderBy: TreeNodeOrderBy = { children: { value: 'asc' } };
+
+// =============================================================================
+// GetPayload Type Inference — Object Sub-Field Select
+// =============================================================================
+
+// No select → full model
+type NoSelect = GetObjectTestUserPayload<undefined>;
+Test.checks([
+  Test.check<NoSelect['address'], Address, Test.Pass>(),
+  Test.check<NoSelect['name'], string, Test.Pass>(),
+  Test.check<NoSelect['locations'], GeoPoint[], Test.Pass>(),
+]);
+
+// Boolean true → full object type
+type BooleanSelect = GetObjectTestUserPayload<{ address: true }>;
+Test.checks([Test.check<BooleanSelect['address'], Address, Test.Pass>()]);
+
+// Sub-field select → narrowed object type
+type SubFieldSelect = GetObjectTestUserPayload<{ address: { city: true } }>;
+Test.checks([Test.check<SubFieldSelect['address'], { city: string }, Test.Pass>()]);
+
+// Multiple sub-fields
+type MultiSubField = GetObjectTestUserPayload<{ address: { city: true; state: true } }>;
+Test.checks([Test.check<MultiSubField['address'], { city: string; state: string }, Test.Pass>()]);
+
+// Array of objects sub-field select → narrowed array
+type ArraySubField = GetObjectTestUserPayload<{ locations: { lat: true } }>;
+Test.checks([Test.check<ArraySubField['locations'], { lat: number }[], Test.Pass>()]);
+
+// Recursive nested object select (primaryLocation is optional → result includes undefined)
+type NestedSubField = GetObjectTestUserPayload<{ primaryLocation: { lat: true; label: { city: true } } }>;
+type NestedSubFieldResolved = NonNullable<NestedSubField['primaryLocation']>;
+// Verify individual fields of the nested result (after unwrapping undefined)
+Test.checks([
+  Test.check<NestedSubFieldResolved['lat'], number, Test.Pass>(),
+  // label is optional on GeoPoint, so the resolved type preserves undefined
+  // A.Compute distributes over the union, test via extends rather than exact match
+  Test.check<undefined extends NestedSubFieldResolved['label'] ? 1 : 0, 1, Test.Pass>(),
+  Test.check<{ city: string } extends NonNullable<NestedSubFieldResolved['label']> ? 1 : 0, 1, Test.Pass>(),
+  Test.check<NonNullable<NestedSubFieldResolved['label']> extends { city: string } ? 1 : 0, 1, Test.Pass>(),
+]);
+// Verify excluded fields are not present
+Test.checks([
+  Test.check<'lng' extends keyof NestedSubFieldResolved ? 1 : 0, 0, Test.Pass>(),
+  Test.check<'street' extends keyof NonNullable<NestedSubFieldResolved['label']> ? 1 : 0, 0, Test.Pass>(),
+]);
+
+// Mixed primitive + object sub-field select
+type MixedSelect = GetObjectTestUserPayload<{ name: true; address: { city: true } }>;
+Test.checks([
+  Test.check<MixedSelect['name'], string, Test.Pass>(),
+  Test.check<MixedSelect['address']['city'], string, Test.Pass>(),
+]);
+// Verify address doesn't have unselected fields
+Test.checks([Test.check<'street' extends keyof MixedSelect['address'] ? 1 : 0, 0, Test.Pass>()]);
+
+// Mixed primitive + boolean true for object
+type MixedBooleanSelect = GetObjectTestUserPayload<{ name: true; address: true }>;
+Test.checks([
+  Test.check<MixedBooleanSelect['name'], string, Test.Pass>(),
+  Test.check<MixedBooleanSelect['address'], Address, Test.Pass>(),
+]);
+
+// Array of objects boolean true → full array
+type ArrayBooleanSelect = GetObjectTestUserPayload<{ locations: true }>;
+Test.checks([Test.check<ArrayBooleanSelect['locations'], GeoPoint[], Test.Pass>()]);
+
+// Nested: label true within primaryLocation sub-select → primaryLocation is optional, label is optional on GeoPoint
+type NestedLabelTrue = GetObjectTestUserPayload<{ primaryLocation: { label: true } }>;
+type NestedLabelTrueResolved = NonNullable<NestedLabelTrue['primaryLocation']>;
+Test.checks([Test.check<NestedLabelTrueResolved['label'], Address | undefined, Test.Pass>()]);
+// Verify only label is selected (lat/lng excluded)
+Test.checks([Test.check<'lat' extends keyof NestedLabelTrueResolved ? 1 : 0, 0, Test.Pass>()]);
+// Verify primaryLocation itself is optional
+Test.checks([Test.check<undefined extends NestedLabelTrue['primaryLocation'] ? 1 : 0, 1, Test.Pass>()]);
+
+// ObjectTestOrder: sub-field select on billingAddress
+type OrderSubField = GetObjectTestOrderPayload<{ billingAddress: { city: true; state: true } }>;
+Test.checks([
+  Test.check<OrderSubField['billingAddress']['city'], string, Test.Pass>(),
+  Test.check<OrderSubField['billingAddress']['state'], string, Test.Pass>(),
+]);
+// Verify street is excluded
+Test.checks([Test.check<'street' extends keyof OrderSubField['billingAddress'] ? 1 : 0, 0, Test.Pass>()]);

@@ -25,8 +25,8 @@ const TS_TOOLBELT_IMPORT = `import type { Object as O, Any as A } from 'ts-toolb
 const CERIAL_ID_IMPORT = `import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';`;
 
-/** DeleteUnique and UpdateUnique types import for model files */
-const UNIQUE_TYPES_IMPORT = `import type { DeleteUniqueReturn, DeleteUniqueReturnType, UpdateUniqueReturn, UpdateUniqueReturnType } from '..';`;
+/** DeleteUnique, UpdateUnique, and select utility types import for model files */
+const UNIQUE_TYPES_IMPORT = `import type { DeleteUniqueReturn, DeleteUniqueReturnType, UpdateUniqueReturn, UpdateUniqueReturnType, ResolveFieldSelect } from '..';`;
 
 /** Prettier config cache */
 let prettierConfig: prettier.Options | null = null;
@@ -468,6 +468,24 @@ export type Optional<T extends object, K extends keyof T> = O.Optional<T, K>;
 
 // Simplified type helper
 export type Simplify<T> = { [K in keyof T]: T[K] } & {};
+
+/** Resolve a field's return type based on its select value (true = full type, object = sub-field select) */
+export type ResolveFieldSelect<FieldType, SelectValue> = SelectValue extends true
+  ? FieldType
+  : SelectValue extends Record<string, any>
+    ? FieldType extends (infer E)[]
+      ? ApplyObjectSelect<NonNullable<E>, SelectValue>[]
+      : undefined extends FieldType
+        ? ApplyObjectSelect<NonNullable<FieldType>, SelectValue> | undefined
+        : ApplyObjectSelect<NonNullable<FieldType>, SelectValue>
+    : never;
+
+/** Recursively apply sub-field selection to an object type */
+export type ApplyObjectSelect<T, S extends Record<string, any>> = {
+  [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof T
+    ? ResolveFieldSelect<T[K], S[K]>
+    : never;
+};
 
 /**
  * DeleteUnique return option

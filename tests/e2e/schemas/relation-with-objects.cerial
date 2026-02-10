@@ -1,0 +1,22 @@
+## Tests combining relations with object fields
+
+object CompanyMeta {
+  industry String
+  founded Int?
+}
+
+model RelObjCompany {
+  id Record @id
+  name String
+  headquarters Address
+  meta CompanyMeta?
+  employees Relation[] @model(RelObjEmployee)
+}
+
+model RelObjEmployee {
+  id Record @id
+  name String
+  homeAddress Address
+  companyId Record
+  company Relation @field(companyId) @model(RelObjCompany)
+}

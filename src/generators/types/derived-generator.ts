@@ -594,7 +594,7 @@ ${fieldTypes}
 
 /** Helper to generate the select payload type for a relation */
 function generateRelationSelectPayload(targetModel: string): string {
-  return `{ [P in keyof S as S[P] extends true ? P : never]: P extends keyof ${targetModel} ? ${targetModel}[P] : never }`;
+  return `{ [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof ${targetModel} ? ResolveFieldSelect<${targetModel}[P], S[P]> : never }`;
 }
 
 /** Generate IncludePayload helper type for a model */
@@ -662,7 +662,7 @@ export function generateGetPayloadType(model: ModelMetadata): string {
   if (!hasRelationFields) {
     // No relations - simple select-only inference
     const innerType = `S extends ${model.name}Select
-  ? { [K in keyof S as S[K] extends true ? K : never]: K extends keyof ${model.name} ? ${model.name}[K] : never }
+  ? { [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ${model.name} ? ResolveFieldSelect<${model.name}[K], S[K]> : never }
   : ${model.name}`;
 
     return `export type Get${model.name}Payload<
@@ -673,7 +673,7 @@ export function generateGetPayloadType(model: ModelMetadata): string {
 
   // With relations - full inference
   const innerType = `S extends ${model.name}Select
-  ? { [K in keyof S as S[K] extends true ? K : never]: K extends keyof ${model.name} ? ${model.name}[K] : never }
+  ? { [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ${model.name} ? ResolveFieldSelect<${model.name}[K], S[K]> : never }
     & Get${model.name}IncludePayload<I>
   : I extends ${model.name}Include
     ? ${model.name} & Get${model.name}IncludePayload<I>
