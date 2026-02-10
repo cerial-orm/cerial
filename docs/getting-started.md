@@ -25,7 +25,7 @@ Create a directory for your schema files and add `.cerial` files. Each file can 
 
 **`schemas/schema.cerial`**:
 
-```
+```cerial
 object Address {
   street String
   city String

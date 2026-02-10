@@ -187,7 +187,7 @@ The `id` field with `@id` decorator is **not** included in migrations. SurrealDB
 
 Given this schema:
 
-```
+```cerial
 object Address {
   street String
   city String
@@ -202,7 +202,7 @@ model User {
   bio String?
   age Int?
   isActive Bool @default(true)
-  createdAt DateTime @now
+  createdAt Date @now
   address Address
   posts Relation[] @field(postIds)
   postIds Record[]
@@ -212,7 +212,7 @@ model Post {
   id Record @id
   title String
   content String?
-  publishedAt DateTime?
+  publishedAt Date?
   author Relation @field(authorId)
   authorId Record
 }
@@ -252,7 +252,7 @@ When you modify your schema and regenerate the client, the migration statements 
 
 **Adding a field:**
 
-```
+```cerial
 model User {
   // ...existing fields...
   phone String?   // ← New field

@@ -21,7 +21,7 @@ For each model in your schema, Cerial generates the following types:
 | `UserUpdate`               | Data type for `updateUnique()` / `updateMany()`. All fields optional. Supports array `push`/`unset` and object `merge`/`set` operations.                |
 | `UserWhere`                | Where clause type. Includes comparison operators, logical operators (`AND`, `OR`, `NOT`), nested relation filtering, and object field filtering.        |
 | `UserSelect`               | Field selection type. Each field is `boolean`. Object fields accept `boolean \| ObjectSelect` for sub-field narrowing.                                  |
-| `UserInclude`              | Relation include type. Each relation accepts `boolean` or an object with nested `where`, `select`, `include`, `orderBy`, `take`, `skip`.                |
+| `UserInclude`              | Relation include type. Each relation accepts `boolean` or an object with nested `where`, `select`, `include`, `orderBy`, `limit`, `offset`.             |
 | `UserOrderBy`              | Ordering type. Each field accepts `'asc' \| 'desc'`. Supports nested object field ordering.                                                             |
 | `UserFindUniqueWhere`      | Where clause for unique lookups. Requires exactly one unique field (typically `id`).                                                                    |
 | `User$Relations`           | Relation metadata mapping. Maps relation names to their target model and cardinality.                                                                   |
@@ -59,8 +59,8 @@ model User {
   email String @unique
   name String
   age Int?
-  isActive Boolean @default(true)
-  createdAt DateTime @default(now)
+  isActive Bool @default(true)
+  createdAt Date @now
   address Address
   shipping Address?
   profileId Record?
@@ -104,7 +104,7 @@ export interface UserCreate {
   name: string;
   age?: number | null;
   isActive?: boolean; // Optional — has @default(true)
-  createdAt?: Date; // Optional — has @default(now)
+  createdAt?: Date; // Optional — has @now
   address: AddressInput;
   shipping?: AddressInput;
   profileId?: RecordIdInput | null;
@@ -136,7 +136,7 @@ export interface UserUpdate {
   shipping?: AddressInput | { set: AddressInput };
   profileId?: RecordIdInput | null;
   tagIds?: RecordIdInput[];
-  nicknames?: string[] | { push: string | string[] } | { unset: true };
+  nicknames?: string[] | { push: string | string[] } | { unset: string | string[] };
   // Relation fields use update operations
   profile?: { create: ProfileNestedCreate } | { connect: RecordIdInput } | { disconnect: true };
   posts?:
@@ -151,7 +151,7 @@ Key features:
 
 - All fields are optional (only update what you need)
 - Object fields accept partial data (merge) or `{ set: ... }` (full replacement)
-- Array primitive fields support `{ push: ... }` and `{ unset: true }`
+- Array primitive fields support `{ push: ... }` and `{ unset: ... }` (value-based removal)
 - Relation fields support `create`, `connect`, and `disconnect` operations
 
 ## Example: Generated Where Type
@@ -198,7 +198,7 @@ export interface UserWhere {
   isActive?: boolean | { eq?: boolean; neq?: boolean };
   address?: AddressWhere;
   shipping?: AddressWhere | { isNone?: boolean };
-  nicknames?: { has?: string; hasEvery?: string[]; hasSome?: string[]; isEmpty?: boolean };
+  nicknames?: { has?: string; hasAll?: string[]; hasAny?: string[]; isEmpty?: boolean };
   // Relation filtering
   profile?: ProfileWhere | { is?: ProfileWhere; isNot?: ProfileWhere };
   posts?: { some?: PostWhere; every?: PostWhere; none?: PostWhere };
@@ -249,8 +249,8 @@ export interface UserInclude {
         include?: PostInclude;
         where?: PostWhere;
         orderBy?: PostOrderBy;
-        take?: number;
-        skip?: number;
+        limit?: number;
+        offset?: number;
       };
   tags?:
     | boolean
@@ -259,8 +259,8 @@ export interface UserInclude {
         include?: TagInclude;
         where?: TagWhere;
         orderBy?: TagOrderBy;
-        take?: number;
-        skip?: number;
+        limit?: number;
+        offset?: number;
       };
 }
 ```
@@ -270,7 +270,7 @@ Key features:
 - `select` fields are `boolean` — `true` to include, `false` to exclude
 - Object fields in `select` accept `boolean | ObjectSelect` for sub-field narrowing
 - `include` relation entries accept `boolean` (simple include) or an object with nested query options
-- Array relations in `include` support `where`, `orderBy`, `take`, and `skip` for filtering and pagination
+- Array relations in `include` support `where`, `orderBy`, `limit`, and `offset` for filtering and pagination
 
 ## Generated File Structure
 

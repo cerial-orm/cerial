@@ -12,7 +12,7 @@ Cerial provides full support for array fields in your schema. Array fields are d
 
 Declare array fields in your `.cerial` schema by appending `[]` to any supported type:
 
-```
+```cerial
 model User {
   id Record @id
   nicknames String[]

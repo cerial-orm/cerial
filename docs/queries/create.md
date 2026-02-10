@@ -6,7 +6,7 @@ nav_order: 4
 
 # create
 
-Creates a new record in the database. Returns the created record.
+Creates a new record in the database. Returns the created record, or `null` if the creation fails.
 
 ## Options
 
@@ -66,7 +66,7 @@ Several field types are automatically populated when you create a record:
 //   title String
 //   views Int @default(0)
 //   tags String[]
-//   createdAt DateTime @now
+//   createdAt Date @now
 // }
 
 const post = await db.Post.create({
@@ -185,4 +185,4 @@ How optional fields are handled on create depends on their schema definition:
 
 ## Return Value
 
-Returns the created record with all fields populated (including auto-generated and default values), narrowed by `select` if provided.
+Returns the created record with all fields populated (including auto-generated and default values), narrowed by `select` if provided. Returns `null` if the creation fails (e.g., unique constraint violation).

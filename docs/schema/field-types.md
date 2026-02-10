@@ -155,7 +155,7 @@ See [@field and @model](decorators/field-and-model) for full relation configurat
 
 ## Object Types
 
-In addition to the 8 built-in types, you can use user-defined object types as field types. Objects are embedded inline within the model (not stored as separate tables). See the [Objects](../types/objects) section for details.
+In addition to the 8 built-in types, you can use user-defined object types as field types. Objects are embedded inline within the model (not stored as separate tables). See the [Objects](../objects/) section for details.
 
 ```cerial
 object Address {

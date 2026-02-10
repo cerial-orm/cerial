@@ -30,7 +30,7 @@ Forward relations are defined with the `@field()` decorator and represent a dire
 ```typescript
 // Schema:
 // model Post {
-//   author User @field(authorId)
+//   author Relation @field(authorId) @model(User)
 //   authorId Record
 // }
 
@@ -49,7 +49,7 @@ Reverse relations are the inverse of forward relations — they represent the "h
 ```typescript
 // Schema:
 // model User {
-//   posts Post[]
+//   posts Relation[] @model(Post)
 // }
 
 // Find users who have at least one published post

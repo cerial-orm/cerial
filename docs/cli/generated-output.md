@@ -87,7 +87,7 @@ For each `model` in your schema, the following types are generated:
 
 Given this schema:
 
-```
+```cerial
 model User {
   id Record @id
   name String
@@ -157,7 +157,7 @@ Objects do **not** generate: `GetPayload`, `Include`, `Create`, `Update`, `Neste
 
 Given this schema:
 
-```
+```cerial
 object Address {
   street String
   city String

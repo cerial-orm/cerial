@@ -92,7 +92,7 @@ user.posts; // Post[] ✓
 
 ### Include with Nested Options
 
-Included relations can have their own `where`, `select`, `orderBy`, `take`, and `skip`:
+Included relations can have their own `where`, `select`, `orderBy`, `limit`, and `offset`:
 
 ```typescript
 const user = await db.User.findOne({
@@ -101,7 +101,7 @@ const user = await db.User.findOne({
     posts: {
       where: { published: true },
       orderBy: { createdAt: 'desc' },
-      take: 5,
+      limit: 5,
     },
   },
 });

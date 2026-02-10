@@ -34,7 +34,7 @@ bun add cerial
 
 ## Quick Example
 
-```
+```cerial
 model User {
   id Record @id
   email Email @unique

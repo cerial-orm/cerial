@@ -1,28 +1,76 @@
-# Cerial
+# Cerial - Agent Guide
 
-A Prisma-like ORM for SurrealDB with schema-driven code generation and full TypeScript type safety.
+A Prisma-like ORM for SurrealDB. Runtime: **Bun**. Language: **TypeScript**.
 
 ## Commands
 
 ```bash
-# Install dependencies
-bun install
-
-# Run all tests (unit + integration + e2e)
-bun test
-
-# Run e2e tests (requires SurrealDB running)
-bun test tests/e2e/ --preload ./tests/e2e/preload.ts
-
-# Type check generated types
-bun run typecheck
-
-# Full TypeScript check
-bunx tsc --noEmit
-
-# Generate test client from schema
-bun run generate:test
+bun install                                              # Install dependencies
+bun test                                                 # Run all tests
+bun test tests/e2e/ --preload ./tests/e2e/preload.ts     # E2E tests (requires SurrealDB running)
+bun run typecheck                                        # Type check generated types (ts-toolbelt)
+bunx tsc --noEmit                                        # Full TypeScript check
+bun run generate:test                                    # Generate test client from schema
 ```
+
+## Project Structure
+
+```
+cerial/
+├── bin/cerial.ts                    # CLI entry point
+├── src/
+│   ├── cli/                         # CLI commands, validators, schema resolution
+│   ├── client/                      # Runtime client, Model class, Proxy factory
+│   ├── connection/                  # Connection manager, config types
+│   ├── generators/                  # Code generation from AST
+│   │   ├── client/                  #   Client template + writer
+│   │   ├── metadata/               #   Model registry generator
+│   │   ├── migrations/             #   DEFINE TABLE/FIELD/INDEX generator
+│   │   └── types/                  #   Interface, derived, where, method generators
+│   ├── parser/                      # Schema lexer, tokenizer, parser → AST
+│   │   └── types/                  #   Field types, decorators, constraints parsers
+│   ├── query/                       # Query building + execution
+│   │   ├── builders/               #   Select, insert, update, delete, nested, relation builders
+│   │   ├── compile/                #   Query fragments, variable allocator
+│   │   ├── filters/                #   Operator handlers (comparison, string, array, logical, special)
+│   │   ├── mappers/                #   Result mapper (RecordId → CerialId)
+│   │   ├── transformers/           #   Data transformer (RecordIdInput → RecordId, defaults)
+│   │   └── validators/             #   Data + where validation
+│   ├── types/                       # Shared TS types (metadata, query, utility, AST)
+│   ├── utils/                       # CerialId, string/array/type/validation utils
+│   └── main.ts                      # Main exports
+├── tests/
+│   ├── unit/                        # Unit tests (no DB)
+│   ├── integration/                 # Integration tests (DB required)
+│   ├── e2e/                         # End-to-end tests
+│   │   ├── schemas/                 #   28 .cerial test schemas
+│   │   ├── generated/               #   Generated client (gitignored)
+│   │   ├── relations/               #   91 relation test files
+│   │   ├── objects/                 #   7 object test files
+│   │   ├── typechecks/              #   13 compile-time type checks
+│   │   ├── preload.ts               #   Generates client before tests
+│   │   └── test-client.ts           #   Test helpers
+│   └── generators/                  # Generator tests
+├── docs/                            # GitHub Pages documentation (Jekyll + just-the-docs)
+├── package.json
+├── tsconfig.json
+└── index.ts                         # Re-exports main.ts
+```
+
+### Key Files
+
+| File                                          | Purpose                                                                  |
+| --------------------------------------------- | ------------------------------------------------------------------------ |
+| `src/utils/cerial-id.ts`                      | `CerialId` class and `RecordIdInput` union type                          |
+| `src/query/transformers/data-transformer.ts`  | Input transformation, `@default` handling, NONE/null logic               |
+| `src/query/mappers/result-mapper.ts`          | Output transformation (RecordId → CerialId)                              |
+| `src/query/builders/nested-builder.ts`        | Nested create/connect/disconnect in transactions                         |
+| `src/generators/types/derived-generator.ts`   | Generates Select, OrderBy, GetPayload, Include types                     |
+| `src/generators/types/interface-generator.ts` | Generates model/object interfaces                                        |
+| `src/generators/types/where-generator.ts`     | Generates Where types with nested/object filtering                       |
+| `src/generators/client/writer.ts`             | Writes client files, contains `ResolveFieldSelect` / `ApplyObjectSelect` |
+| `src/cli/validators/relation-validator.ts`    | Validates relation rules (PK/non-PK, @key, @onDelete)                    |
+| `src/query/filters/registry.ts`               | Operator handler registry                                                |
 
 ## Architecture
 
@@ -30,380 +78,193 @@ bun run generate:test
 Schema (.cerial files) → Parser (AST) → Generators → TypeScript Client
 ```
 
-**Core modules:**
-
-- `src/parser/` - Parses `.cerial` files (models and objects) into AST
-- `src/generators/` - Generates TypeScript types, client, migrations
-- `src/query/` - Query builder with parameterized SurrealQL
-- `src/client/` - Runtime client with Model proxy
-
-**Generated output structure:**
-
-```
-db-client/
-├── client.ts           # CerialClient class
-├── models/*.ts         # Interfaces + Create/Update/Where/Select/Include types
-├── internal/
-│   ├── model-registry.ts
-│   └── migrations.ts
-└── index.ts
-```
+- **Parser** - Lexes/tokenizes `.cerial` files into `SchemaAST` (models + objects)
+- **Generators** - Produces TypeScript types, client class, model registry, migrations
+- **Query Builder** - Converts typed query objects into parameterized SurrealQL
+- **Client** - Proxy-based model access (`client.db.User.findMany(...)`)
 
 ## Testing
 
-**E2E tests require SurrealDB already running.** User must start SurrealDB manually before running tests:
+**E2E tests require SurrealDB already running:**
 
-- **URL**: `http://127.0.0.1:8000`
-- **Credentials**: `root` / `root`
-- **Namespace**: `main`
-- **Database**: `main`
-
-**IMPORTANT**: Do NOT run `surreal start` commands - the instance should already be running. All tests use the same SurrealDB config above.
-
-E2E tests use `--preload ./tests/e2e/preload.ts` which generates the client before tests run. The generated client lives in `tests/e2e/generated/` (gitignored).
-
-**Type checks** use ts-toolbelt for compile-time verification in `tests/e2e/typechecks/*.check.ts`.
+- URL: `http://127.0.0.1:8000`, Credentials: `root` / `root`, Namespace/Database: `main`
+- Do NOT run `surreal start` commands - the instance must already be running
+- E2E tests MUST use `--preload ./tests/e2e/preload.ts` or generated client won't exist
 
 **Test locations:**
 
-- `tests/unit/` - Unit tests (no DB required)
-- `tests/e2e/relations/` - E2E relation tests (91 files)
-- `tests/e2e/objects/` - E2E object field tests (7 files)
-- `tests/e2e/typechecks/` - Compile-time type verification (13 files)
+| Location                | Type                      | Count    |
+| ----------------------- | ------------------------- | -------- |
+| `tests/unit/`           | Unit tests (no DB)        | ~486     |
+| `tests/integration/`    | Integration (DB required) | ~49      |
+| `tests/e2e/relations/`  | Relation E2E tests        | 91 files |
+| `tests/e2e/objects/`    | Object E2E tests          | 7 files  |
+| `tests/e2e/typechecks/` | Compile-time type checks  | 13 files |
 
-**When query format changes**, update test expectations in:
+**When query format changes**, update expectations in:
 
-- `tests/unit/query/nested-builder.test.ts` - Nested create/connect/disconnect queries
-- `tests/unit/query/delete-builder.test.ts` - Cascade delete queries
-- `tests/unit/query/delete-unique-builder.test.ts` - DeleteUnique query builder
-- `tests/unit/query/update-unique-builder.test.ts` - UpdateUnique query builder
-- `tests/unit/generators/type-mapper.test.ts` - SurrealQL type generation
-- `tests/generators/migrations.test.ts` - DEFINE FIELD statements
-- `tests/integration/migration.test.ts` - Migration integration
-
-## Code Patterns
-
-- **Proxy pattern** for model access (`client.db.User`)
-- **Registry pattern** for operator handlers in `src/query/filters/`
-- Each module has `index.ts` that re-exports public API
-- Generated files use Prettier formatting
-
-## Key Types
-
-- `ModelMetadata` / `FieldMetadata` - Runtime model info
-- `CerialId` / `RecordIdInput` - Record ID wrapper and input union type
-- `GetUserPayload<S, I>` - Prisma-style return type inference
-- `ResolveFieldSelect<FieldType, SelectValue>` - Resolves object sub-field selects (true = full type, object = narrowed)
-- `ApplyObjectSelect<T, S>` - Recursively applies sub-field selection to an object type
-- `SchemaAST` / `ASTModel` / `ASTObject` / `ASTField` - Parser output
-
-## Query Patterns
-
-**Parameterized queries** - Values are bound via `$varName`, not inlined:
-
-- Connect: `profileId = $profile_connect[0]` (not `profileId = "profile:123"`)
-- Array connect: `tagIds = $tags_connect` (not `tagIds = ["tag:1"]`)
-- Bidirectional sync: `UPDATE $sync_0_0 SET userIds += $resultId`
-
-**NULL vs NONE in updates:**
-
-- Disconnect optional field: `SET fieldName = NULL` (queryable with `{ field: null }`)
-- Delete field entirely: `SET fieldName = NONE` (field becomes absent)
-
-**Validation in transactions:**
-
-```surql
-LET $exists_0_0 = (SELECT id FROM ONLY $validate_0_0);
-IF $exists_0_0 IS NONE { THROW "Cannot connect to non-existent Model record" };
-```
-
-**DeleteUnique queries:**
-
-- Uses `DELETE recordId RETURN BEFORE/NONE` (no `ONLY` keyword - allows empty array result)
-- Returns array result, checks `result.length > 0` for existence
-- For non-ID lookups with cascade, uses `IF $record IS NONE { RETURN [] }` to handle non-existent records
-- Return options: `undefined`/`null` (always true), `true` (existed?), `'before'` (deleted data)
+- `tests/unit/query/nested-builder.test.ts`
+- `tests/unit/query/delete-builder.test.ts`
+- `tests/unit/query/delete-unique-builder.test.ts`
+- `tests/unit/query/update-unique-builder.test.ts`
+- `tests/unit/generators/type-mapper.test.ts`
+- `tests/generators/migrations.test.ts`
+- `tests/integration/migration.test.ts`
 
 ## Code Style
 
 - **Newline before return** - Always add a blank line before `return` statements
-- **Inline single-statement if** - When an `if` has only one statement, write it inline without braces:
+- **Inline single-statement if** - No braces for single-line `if`:
 
   ```typescript
-  // Good
   if (condition) return value;
   if (!valid) throw new Error('Invalid');
-
-  // Avoid
-  if (condition) {
-    return value;
-  }
   ```
 
-- **Array length checks** - Use truthy/falsy checks, not comparisons:
+- **Array length checks** - Use truthy/falsy, not comparisons:
 
   ```typescript
-  // Good
   if (!items.length) return;
   if (results.length) process(results);
-
-  // Avoid
-  if (items.length === 0) return;
-  if (results.length >= 0) process(results);
   ```
 
-## Task Completion
+- **Module exports** - Each module has `index.ts` that re-exports its public API
+- **Generated files** - Formatted with Prettier
 
-- **Never stop early** - Do not stop tasks due to token budget or context window concerns
-- **Be persistent** - Complete tasks fully, even if approaching budget limits
-- **Save progress** - If context compaction occurs, continue from where you left off
-- Context window compacts automatically - this allows indefinite work continuation
+## TypeScript Conventions
 
-## CerialId and RecordId Transformation
+- Strict mode enabled - no `any` unless absolutely necessary
+- Use `interface` for object shapes, `type` for unions/intersections/mapped types
+- Prefer `const` over `let`; never use `var`
+- Use explicit return types on exported functions
+- Use `readonly` for properties that shouldn't be mutated
+- Prefer early returns to reduce nesting
+- Use discriminated unions over type assertions
+- Avoid `@ts-ignore` - use `@ts-expect-error` with a comment when truly needed
+- Use `Record<K, V>` for dictionaries, not `{ [key: string]: V }`
 
-SurrealDB uses `table:id` format for record IDs. Cerial wraps these in `CerialId` objects:
+## Agent Rules
 
-- **Sending to SurrealDB**: `transformOrValidateRecordId(tableName, value)` converts any `RecordIdInput` → `RecordId(table, id)`
-- **Receiving from SurrealDB**: `transformRecordIdToValue(recordId)` converts `RecordId` → `CerialId` object
-- **Input types accept**: `string | CerialId | RecordId | StringRecordId` (the `RecordIdInput` union)
-- **Output types return**: `CerialId` objects with `.table`, `.id`, `.equals()`, `.toString()`, `.toRecordId()`
+### Core Behavior
 
-```typescript
-// Output types return CerialId objects
-const user = await client.db.User.findOne({ where: { id: 'abc123' } });
-console.log(user.id); // CerialId { table: 'user', id: 'abc123' }
-console.log(user.id.id); // 'abc123'
-console.log(user.id.table); // 'user'
-console.log(user.id.toString()); // 'user:abc123'
+- **Never stop early** - Complete tasks fully regardless of token budget or context window
+- **Be persistent** - Context window compacts automatically, continue from where you left off
+- **Ask before changing core features** - When a fix requires modifying type generators, query builders, or validators, ask the user first
+- **Validate test expectations before modifying source** - If a test fails, understand why before changing the test vs. the source
 
-// Input types accept plain strings, CerialId, or RecordId
-await client.db.User.findOne({ where: { id: 'abc123' } }); // string
-await client.db.User.findOne({ where: { id: user.id } }); // CerialId
-await client.db.Post.create({ data: { authorId: user.id } }); // CerialId as input
+### Documentation Sync (CRITICAL)
 
-// Compare CerialId values with .equals() (not == or ===)
-user1.id.equals(user2.id); // true/false
+Documentation lives in `docs/` (GitHub Pages with Jekyll + just-the-docs theme).
+
+**Always keep docs in sync with code changes:**
+
+- **New feature** → Add or update the relevant `docs/` page(s). If it's a new concept, create a new page with proper Jekyll front matter (title, parent, nav_order)
+- **Changed feature** → Update all affected doc pages to reflect the new behavior, examples, and types
+- **Removed feature** → Remove or update doc pages. Remove dead links from parent/index pages
+- **New decorator** → Add a page in `docs/schema/decorators/` with grand_parent: Schema, parent: Decorators
+- **New query method** → Add a page in `docs/queries/` with parent: Queries
+- **New filter operator** → Update the relevant page in `docs/filtering/`
+- **Changed types** → Update `docs/types/generated-types.md` and `docs/types/dynamic-return-types.md`
+
+Doc pages use Jekyll front matter:
+
+```yaml
+---
+title: Page Title
+parent: Parent Section # e.g., Schema, Queries, Relations
+grand_parent: Grand Parent # only for 3rd-level pages (e.g., decorator sub-pages)
+nav_order: 1 # controls sidebar ordering
+has_children: true # only on section index pages
+---
 ```
 
-**Key files:**
+### CLAUDE.md ↔ README.md Sync
 
-- `src/utils/cerial-id.ts` - `CerialId` class and `RecordIdInput` type
-- `src/query/mappers/result-mapper.ts` - Converts RecordId → CerialId on output
-- `src/query/transformers/data-transformer.ts` - Converts RecordIdInput → RecordId on input
+`CLAUDE.md` is the agent-facing guide (structure, conventions, rules). `README.md` is the user-facing landing page (features, quick start, doc links). They share overlapping information that **must stay in sync**:
 
-## NONE vs null Semantics
+| What                    | CLAUDE.md location          | README.md location               | When to sync                                      |
+| ----------------------- | --------------------------- | -------------------------------- | ------------------------------------------------- |
+| **Project description** | Top line                    | Top heading + intro              | If the project's scope or tagline changes         |
+| **Feature list**        | Key Concepts section        | Features bullet list             | New feature, removed feature, renamed concept     |
+| **Query methods**       | Key Concepts (implicit)     | Docs section links + quick start | New query method added or removed                 |
+| **Field types**         | Gotchas, Key Concepts       | Quick start schema example       | New field type added or removed                   |
+| **Decorators**          | Key Concepts, Gotchas       | Quick start schema example       | New decorator that belongs in the quick example   |
+| **Requirements**        | Commands section (implicit) | Requirements section             | Runtime or DB dependency changes                  |
+| **Doc section links**   | N/A                         | Documentation section            | New doc section added, section renamed or removed |
+| **CLI commands**        | Commands section            | Quick start generate command     | CLI flags or defaults change                      |
 
-SurrealDB distinguishes between `NONE` (field doesn't exist) and `null` (field exists with null value). See: https://surrealdb.com/docs/surrealql/datamodel/none-and-null
+**Rules:**
 
-**Schema definitions:**
+- When adding a **new feature** visible to end users, add it to the README features list and ensure the quick start example still represents the best overview of Cerial's capabilities
+- When adding a **new doc section** in `docs/`, add a corresponding link in README's Documentation section
+- When **renaming or removing** a doc section, update README links to avoid dead references
+- When changing **CLI defaults** (schema path, output path, command name), update both CLAUDE.md Commands section and README's quick start
+- The README quick start schema example should showcase the most important field types and decorators — update it when new types/decorators are significant enough to highlight
+- Do **not** duplicate detailed information — README stays concise (~100-130 lines), full details live in `docs/`
 
-| Schema                         | TypeScript Type            | undefined behavior    | null behavior     |
-| ------------------------------ | -------------------------- | --------------------- | ----------------- |
-| `field String?`                | `field?: string \| null`   | NONE (field absent)   | null stored in DB |
-| `field String? @default(null)` | `field?: string \| null`   | null stored (default) | null stored in DB |
-| `field Relation?`              | `field?: Related \| null`  | NONE                  | null stored       |
-| `field Record?`                | `field?: CerialId \| null` | NONE                  | NONE (no null)    |
+### Testing Rules
 
-**Query operators:**
+- **E2E tests should not use `as any` or `@ts-expect-error`** - If types don't match runtime behavior, fix the type generators
+  - Exception: Testing runtime error handling for operations the type system correctly prevents (use `@ts-expect-error` with explanation comment)
+- **Always run relevant tests** after making changes: `bun test` for full suite, or targeted test paths
+- **Run `bunx tsc --noEmit`** after modifying types or generators to catch type errors
 
-| Operator           | SurrealQL       | Description                       |
-| ------------------ | --------------- | --------------------------------- |
-| `{ eq: null }`     | `field = NULL`  | Field is null (not NONE)          |
-| `{ not: null }`    | `field != NULL` | Field is not null (could be NONE) |
-| `{ isNone: true }` | `field = NONE`  | Field is absent                   |
-| `{ isNone: false}` | `field != NONE` | Field is present (could be null)  |
+### When Adding New Features
 
-**Runtime behavior:**
+1. Implement the feature in `src/`
+2. Add/update unit tests in `tests/unit/`
+3. Add E2E test schemas in `tests/e2e/schemas/` if needed
+4. Add E2E tests in `tests/e2e/`
+5. Run `bun run generate:test` to regenerate test client
+6. Run full test suite: `bun test`
+7. Run type check: `bunx tsc --noEmit`
+8. Update documentation in `docs/`
 
-```typescript
-// field String? (no @default) - user chooses NONE or null
-{
-  name: 'John';
-} // name = 'John'
-{
-  name: undefined;
-} // name field NOT stored (NONE)
-{
-  name: null;
-} // name = null (explicit null stored)
+### When Adding a New Operator
 
-// field String? @default(null) - undefined defaults to null
-{
-  bio: 'Hello';
-} // bio = 'Hello'
-{
-  bio: undefined;
-} // bio = null (default applied)
-{
-  bio: null;
-} // bio = null (explicit null)
+1. Create handler in `src/query/filters/<category>/<operator>-handler.ts`
+2. Register in `src/query/filters/registry.ts`
+3. Update where types in `src/generators/types/where-generator.ts`
+4. Add unit tests
+5. Add E2E tests
+6. Update `docs/filtering/` page
 
-// field Record? - null is treated as NONE (record refs can't be null)
-{
-  userId: 'abc';
-} // userId = record reference
-{
-  userId: undefined;
-} // userId field NOT stored (NONE)
-{
-  userId: null;
-} // userId field NOT stored (NONE)
-```
+### When Adding a New Field Type
 
-**Implementation details:**
+1. Create parser in `src/parser/types/field-types/<type>-parser.ts`
+2. Update `SchemaFieldType` in `src/types/common.types.ts`
+3. Update type mappings in generators and validators
+4. Add tests
+5. Update `docs/schema/field-types.md`
 
-- `applyNowDefaults()` in `data-transformer.ts` handles @default(null) → converts undefined to null
-- `applyNowDefaults()` also filters out null for Record fields (they can't be null)
-- Nested builder skips undefined values (NONE) and null for Record fields
-- Type generator adds `| null` for all optional non-Record fields
-- Migration generator uses `option<T | null>` for optional fields to accept both NONE and null
+### When Adding a New Decorator
 
-## Schema Conventions
+1. Create parser in `src/parser/types/field-decorators/<decorator>-parser.ts`
+2. Update generator to handle the decorator
+3. Update migration generator if it affects DB schema
+4. Add tests
+5. Add page in `docs/schema/decorators/`
 
-**ID fields use `Record` type:**
+## Key Concepts (Quick Reference)
 
-```cerial
-model User {
-  id Record @id     # Correct - id is a SurrealDB record reference
-  name String
-}
-```
-
-The `id` field should be `Record @id` (not `String @id`) because SurrealDB IDs are record references (`table:id` format). The `@id` decorator has special handling:
-
-- Skipped in migrations (SurrealDB auto-manages id)
-- Not subject to Record field validation (doesn't need paired Relation)
-- Not defaulted to null like optional Record fields
-
-## Object Types (Embedded Objects)
-
-Cerial supports embedded object types via the `object {}` keyword. Objects are stored inline within a model (not as separate tables) and have no `id`, no decorators, and no relations.
-
-**Schema definition:**
-
-```cerial
-object Address {
-  street String
-  city String
-  state String
-  zipCode String?
-}
-
-model User {
-  id Record @id
-  name String
-  address Address         # Required embedded object
-  shipping Address?       # Optional embedded object
-  locations GeoPoint[]    # Array of embedded objects
-}
-```
-
-**Key rules:**
-
-- Objects generate their own TypeScript interface, Input, Where, Select, and OrderBy types
-- Objects do NOT generate GetPayload, Include, Create, Update, or Model types
-- Objects can nest other objects (e.g., `GeoPoint` with `label Address?`)
-- Optional object fields (`Address?`) produce `field?: Address` (no `| null` like primitives)
-- Array object fields (`GeoPoint[]`) default to `[]` on create
-
-**Sub-field select:**
-
-Object fields support sub-field selection in `select` options:
-
-```typescript
-// Boolean true = full object
-const user = await db.User.findOne({
-  select: { address: true },
-});
-// user.address: Address (full object)
-
-// Object select = narrowed sub-fields
-const user = await db.User.findOne({
-  select: { address: { city: true, state: true } },
-});
-// user.address: { city: string; state: string }
-
-// Array of objects
-const user = await db.User.findOne({
-  select: { locations: { lat: true } },
-});
-// user.locations: { lat: number }[]
-```
-
-**Type-level behavior:**
-
-- `ResolveFieldSelect<FieldType, true>` returns the full type
-- `ResolveFieldSelect<FieldType, { subField: true }>` returns narrowed type via `ApplyObjectSelect`
-- Optional fields preserve `| undefined` through sub-field selection
-- `select` within `include` is type-level narrowing only (runtime returns full related objects)
-
-**Update operations on objects:**
-
-```typescript
-// Partial update (merge)
-await db.User.updateMany({
-  where: { id: user.id },
-  data: { address: { city: 'New City' } },
-});
-
-// Full replacement
-await db.User.updateMany({
-  where: { id: user.id },
-  data: { address: { set: { street: '1 Main', city: 'NYC', state: 'NY' } } },
-});
-```
-
-**Where filtering on objects:**
-
-```typescript
-// Filter by nested object fields
-await db.User.findMany({
-  where: { address: { city: 'NYC' } },
-});
-
-// Array object quantifiers (some/every/none)
-await db.User.findMany({
-  where: { locations: { some: { lat: { gt: 40 } } } },
-});
-```
-
-**Key files:**
-
-- `src/parser/parser.ts` - Parses `object {}` blocks into `ASTObject`
-- `src/generators/types/interface-generator.ts` - Generates object interfaces
-- `src/generators/types/derived-generator.ts` - Generates Select/OrderBy for objects; `GetPayload` uses `ResolveFieldSelect`
-- `src/generators/types/where-generator.ts` - Generates object Where types
-- `src/generators/client/writer.ts` - Contains `ResolveFieldSelect` and `ApplyObjectSelect` type definitions
-- `src/query/builders/select-builder.ts` - Generates `field.subField` SurrealQL for sub-field selects
-- `src/query/builders/update-builder.ts` - Handles partial merge and `{ set: ... }` replacement
-- `src/query/filters/condition-builder.ts` - Builds nested object conditions and array quantifiers
-
-## Important Rules
-
-**Before changing core features, ask the user:**
-
-When a fix requires modifying core behavior (type generators, query builders, validators), always ask the user first:
-
-- "Is it OK to change X to support Y?"
-- Don't assume changing core features is acceptable without confirmation
-- Validate test expectations before modifying source code
-
-**E2E tests should not use `as any` or `@ts-expect-error`:**
-
-- If types don't match runtime behavior, fix the type generators
-- Exception: Testing runtime error handling for operations the type system correctly prevents
-  - Use `@ts-expect-error` with clear comment explaining why (e.g., "Testing runtime validation when types are bypassed")
+- **Record** = SurrealDB record reference (`table:id` format), stored as `record<tablename>`
+- **Relation** = Virtual field, not stored in DB. Forward has `@field()`, reverse doesn't
+- **CerialId** = Wrapper for record IDs with `.table`, `.id`, `.equals()`, `.toString()`
+- **RecordIdInput** = `string | CerialId | RecordId | StringRecordId` (accepted as input)
+- **NONE vs null** = SurrealDB distinguishes absent fields (NONE) from null-valued fields (null)
+- **PK side** = Forward relation with `Record` + `Relation @field` (stores FK)
+- **Non-PK side** = Reverse relation with `Relation @model` only (queries related table)
+- **Object types** = Embedded inline, no id, no decorators, no relations
+- **Parameterized queries** = Values bound via `$varName`, never inlined
 
 ## Gotchas
 
 - E2E tests MUST use `--preload` flag or generated client won't exist
-- `Record` type = SurrealDB record reference (stored as `record<tablename>`)
-- `Relation` type = virtual field, not stored in DB
-- Forward relations have `@field()`, reverse relations don't
 - Array fields default to `[]` on create if not provided
 - `null` without `@default(null)` is treated as NONE (field absent)
 - `id Record @id` fields skip the "Record needs paired Relation" validation
-- `object` types have no `id`, no decorators, no relations - they are embedded inline
 - Optional object fields (`Address?`) produce `field?: Address` (NOT `| null` like primitives)
 - `select` within `include` is type-level only - runtime returns full related objects
-- `none` quantifier for array object where uses `!(arr.any(...))` syntax (not `NOT arr.any(...)`) for SurrealDB 3.x compatibility
+- `none` quantifier for array object where uses `!(arr.any(...))` syntax for SurrealDB 3.x compatibility
+- `@onDelete` is only allowed on optional `Relation?` fields - required relations auto-cascade
+- N:N relations require BOTH sides to define `Record[]` + `Relation[]` for bidirectional sync
