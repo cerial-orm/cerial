@@ -28,7 +28,7 @@
 
     "prettier": ["prettier@3.8.1", "", { "bin": { "prettier": "bin/prettier.cjs" } }, "sha512-UOnG6LftzbdaHZcKoPFtOcCKztrQ57WkHDeRD9t/PTQtmT0NHSeWWepj6pS0z/N7+08BHFDQVUrfmfMRcZwbMg=="],
 
-    "surrealdb": ["surrealdb@2.0.0-alpha.17", "", { "dependencies": { "@surrealdb/cbor": "2.0.0-alpha.4", "uuidv7": "^1.0.1" }, "peerDependencies": { "tslib": "^2.6.3", "typescript": "^5.0.0" } }, "sha512-RraGbbrIesKkI6Oz8zHPhYpHvZyYCD7653bVUannqRc3sbs7Ihv5Gpoq2U2HIisjCn6RCO6UlDk3aLHtxqW8SA=="],
+    "surrealdb": ["surrealdb@2.0.0-alpha.18", "", { "dependencies": { "@surrealdb/cbor": "2.0.0-alpha.4", "uuidv7": "^1.0.1" }, "peerDependencies": { "tslib": "^2.6.3", "typescript": "^5.0.0" } }, "sha512-+A2G6pfTNpI47OxN0fg89SEjhZJIJ5soYUFbMua76O+euOF5vdht2NKyrPBqPJdlCZuLrnkpvvl6XoA+C/RWwA=="],
 
     "ts-toolbelt": ["ts-toolbelt@9.6.0", "", {}, "sha512-nsZd8ZeNUzukXPlJmTBwUAuABDe/9qtVDelJeT/qW0ow3ZS3BsQJtNkan1802aM9Uf68/Y8ljw86Hu0h5IUW3w=="],
 
