@@ -232,6 +232,101 @@ export function generateUpdateUniqueMethod(model: ModelMetadata): string {
   }): CerialQueryPromise<UpdateUniqueReturnType<Get${model.name}Payload<S, I>, R>>;`;
 }
 
+/**
+ * Generate upsert method signature with return type inference.
+ * Two overloads:
+ * 1. FindUniqueWhere → single result (with return option support)
+ * 2. General Where → array result
+ */
+export function generateUpsertMethod(model: ModelMetadata): string {
+  const uniqueOverload = generateUpsertUniqueOverload(model);
+  const arrayOverload = generateUpsertArrayOverload(model);
+
+  return `${uniqueOverload}\n\n  ${arrayOverload}`;
+}
+
+/** Generate upsert overload for unique where (single result) */
+function generateUpsertUniqueOverload(model: ModelMetadata): string {
+  if (!hasRelations(model)) {
+    return `upsert<
+    S extends ${model.name}Select | undefined = undefined,
+    R extends UpsertReturn = undefined
+  >(options: {
+    where: ${model.name}FindUniqueWhere;
+    create: ${model.name}CreateInput;
+    update?: ${model.name}UpdateInput;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+  }): CerialQueryPromise<UpsertReturnType<Get${model.name}Payload<S>, R>>;`;
+  }
+
+  return `upsert<
+    S extends ${model.name}Select | undefined = undefined,
+    I extends ${model.name}Include | undefined = undefined,
+    R extends UpsertReturn = undefined
+  >(options: {
+    where: ${model.name}FindUniqueWhere;
+    create: ${model.name}CreateInput;
+    update?: ${model.name}UpdateInput;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+  }): CerialQueryPromise<UpsertReturnType<Get${model.name}Payload<S, I>, R>>;`;
+}
+
+/** Generate upsert overload for general where (array result) */
+function generateUpsertArrayOverload(model: ModelMetadata): string {
+  if (!hasRelations(model)) {
+    return `upsert<
+    S extends ${model.name}Select | undefined = undefined,
+    R extends UpsertReturn = undefined
+  >(options: {
+    where: ${model.name}Where;
+    create: ${model.name}CreateInput;
+    update?: ${model.name}UpdateInput;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+  }): CerialQueryPromise<UpsertArrayReturnType<Get${model.name}Payload<S>, R>>;`;
+  }
+
+  return `upsert<
+    S extends ${model.name}Select | undefined = undefined,
+    I extends ${model.name}Include | undefined = undefined,
+    R extends UpsertReturn = undefined
+  >(options: {
+    where: ${model.name}Where;
+    create: ${model.name}CreateInput;
+    update?: ${model.name}UpdateInput;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+  }): CerialQueryPromise<UpsertArrayReturnType<Get${model.name}Payload<S, I>, R>>;`;
+}
+
 /** Generate count method signature */
 export function generateCountMethod(model: ModelMetadata): string {
   return `count(where?: ${model.name}Where): CerialQueryPromise<number>;`;
@@ -251,6 +346,7 @@ export function generateMethodSignatures(model: ModelMetadata): string[] {
     generateCreateMethod(model),
     generateUpdateMethod(model),
     generateUpdateUniqueMethod(model),
+    generateUpsertMethod(model),
     generateDeleteManyMethod(model),
     generateDeleteUniqueMethod(model),
     generateCountMethod(model),

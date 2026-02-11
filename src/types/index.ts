@@ -91,6 +91,9 @@ export type {
   UpdateOptions,
   UpdateUniqueResult,
   UpdateUniqueReturn,
+  UpsertArrayReturnType,
+  UpsertReturn,
+  UpsertReturnType,
   VarBinding,
   WhereClause,
 } from './query.types';

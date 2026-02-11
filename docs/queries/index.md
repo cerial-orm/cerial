@@ -23,6 +23,7 @@ const user = await client.db.User.findOne({ where: { id: '123' } });
 | [`findMany`](find-many)         | Find all matching records  | `T[]`                  |
 | [`findUnique`](find-unique)     | Find by unique field       | `T \| null`            |
 | [`create`](create)              | Create a new record        | `T`                    |
+| [`upsert`](upsert)              | Create or update a record  | `T \| null \| T[]`     |
 | [`updateMany`](update-many)     | Update matching records    | `T[]`                  |
 | [`updateUnique`](update-unique) | Update by unique field     | `T \| null \| boolean` |
 | [`deleteMany`](delete-many)     | Delete matching records    | `number`               |

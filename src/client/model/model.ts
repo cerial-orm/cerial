@@ -19,6 +19,7 @@ import {
   compileDeleteUnique,
   compileCount,
   compileExists,
+  compileUpsert,
   type FindManyOptionsWithInclude,
   type FindOneOptionsWithInclude,
 } from '../../query/builder';
@@ -33,6 +34,7 @@ import type {
   UpdateOptions,
   UpdateUniqueResult,
   UpdateUniqueReturn,
+  UpsertReturn,
   WhereClause,
 } from '../../types';
 import type { IncludeClause } from '../../query/builders';
@@ -294,6 +296,47 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
         await this.beforeQuery();
 
         return QueryBuilderStatic.exists(this.db, this.metadata, where, this.registry);
+      },
+      compiled.query,
+      this.metadata,
+      compiled.resultType,
+      this.registry,
+    );
+  }
+
+  /**
+   * Upsert a record - create if it doesn't exist, update if it does
+   * @param options - Upsert options with where, create data, update data, and return configuration
+   * @returns Depends on where clause and return option:
+   *   - ID or unique field: single result (Model | null or boolean)
+   *   - Non-unique where: array result (Model[])
+   */
+  upsert<R extends UpsertReturn = undefined>(options: {
+    where: Record<string, unknown>;
+    create: Record<string, unknown>;
+    update?: Record<string, unknown>;
+    select?: Record<string, boolean>;
+    include?: Record<string, boolean | object>;
+    return?: R;
+  }): CerialQueryPromise<unknown> {
+    const compiled = compileUpsert(
+      this.metadata,
+      {
+        where: options.where,
+        create: options.create,
+        update: options.update,
+        select: options.select,
+        include: options.include,
+        return: options.return,
+      },
+      this.registry,
+    );
+
+    return new CerialQueryPromise<unknown>(
+      async () => {
+        await this.beforeQuery();
+
+        return QueryBuilderStatic.upsert(this.db, this.metadata, options, this.registry);
       },
       compiled.query,
       this.metadata,

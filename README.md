@@ -12,6 +12,7 @@ A Prisma-like ORM for [SurrealDB](https://surrealdb.com/) with schema-driven cod
 - **Relations** - 1:1, 1:N, N:N with nested create/connect/disconnect and bidirectional sync
 - **Array support** - `String[]`, `Int[]`, `Date[]`, `Record[]`, `ObjectType[]` with query and update operators
 - **Advanced filtering** - Comparison, string, array, logical, nested relation, and object operators
+- **Upsert** - Create-or-update with `upsert` and conditional field logic
 - **Transactions** - Atomic batch execution with `$transaction` and typed tuple results
 - **Parameterized queries** - All values bound via variables, safe from injection
 - **Auto migrations** - Schema changes generate SurrealQL `DEFINE TABLE/FIELD/INDEX` statements
@@ -107,7 +108,7 @@ Full documentation is available at the [Cerial Docs](docs/) site, covering:
 - [Schema](docs/schema/) - Field types, decorators, arrays, optionals, cross-file references
 - [Embedded Objects](docs/objects/) - Defining objects, sub-field select, filtering, updates
 - [Relations](docs/relations/) - 1:1, 1:N, N:N, self-referential, nested operations, delete behavior
-- [Queries](docs/queries/) - findOne, findMany, findUnique, create, update, delete, count, exists, $transaction
+- [Queries](docs/queries/) - findOne, findMany, findUnique, create, upsert, update, delete, count, exists, $transaction
 - [Filtering](docs/filtering/) - Comparison, string, array, logical, special, nested, object operators
 - [Select & Include](docs/select-and-include/) - Dynamic return types, sub-field selection, nested includes
 - [Array Operations](docs/array-operations/) - push, unset, replace, @distinct, @sort decorators

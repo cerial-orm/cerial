@@ -49,6 +49,13 @@ export {
 } from './array-update-builder';
 
 export {
+  buildUpsertIdQuery,
+  buildUpsertQuery,
+  buildUpsertWhereQuery,
+  buildUpsertWithNestedTransaction,
+} from './upsert-builder';
+
+export {
   buildBidirectionalSyncStatements,
   buildCreateWithNestedTransaction,
   buildNestedCreateStatements,

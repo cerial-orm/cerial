@@ -142,6 +142,28 @@ export type UpdateUniqueReturn = null | undefined | true | 'before' | 'after';
  */
 export type UpdateUniqueResult<T, R extends UpdateUniqueReturn> = R extends true ? boolean : T | null;
 
+/**
+ * Upsert return option
+ * - undefined/null/'after': returns upserted record (supports select/include)
+ * - true: returns boolean (true if record was found/created)
+ * - 'before': returns pre-upsert record state (null for new records, no select/include support)
+ */
+export type UpsertReturn = null | undefined | true | 'before' | 'after';
+
+/**
+ * Infer upsert return type based on return option (single record variant)
+ * @template T - The model type (or payload type with select/include)
+ * @template R - The return option
+ */
+export type UpsertReturnType<T, R extends UpsertReturn> = R extends true ? boolean : T | null;
+
+/**
+ * Infer upsert return type based on return option (array variant for non-unique where)
+ * @template T - The model type (or payload type with select/include)
+ * @template R - The return option
+ */
+export type UpsertArrayReturnType<T, R extends UpsertReturn> = R extends true ? boolean : T[];
+
 /** Compiled query with parameterized values */
 export interface CompiledQuery {
   /** The query text with placeholders */

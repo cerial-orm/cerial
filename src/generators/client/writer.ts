@@ -25,8 +25,8 @@ const TS_TOOLBELT_IMPORT = `import type { Object as O, Any as A } from 'ts-toolb
 const CERIAL_ID_IMPORT = `import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';`;
 
-/** DeleteUnique, UpdateUnique, select utility types, and CerialQueryPromise import for model files */
-const UNIQUE_TYPES_IMPORT = `import type { DeleteUniqueReturn, DeleteUniqueReturnType, UpdateUniqueReturn, UpdateUniqueReturnType, ResolveFieldSelect } from '..';
+/** DeleteUnique, UpdateUnique, Upsert, select utility types, and CerialQueryPromise import for model files */
+const UNIQUE_TYPES_IMPORT = `import type { DeleteUniqueReturn, DeleteUniqueReturnType, UpdateUniqueReturn, UpdateUniqueReturnType, UpsertReturn, UpsertReturnType, UpsertArrayReturnType, ResolveFieldSelect } from '..';
 import type { CerialQueryPromise } from '..';`;
 
 /** Prettier config cache */
@@ -527,6 +527,28 @@ export type UpdateUniqueReturn = null | undefined | true | 'before' | 'after';
  * @template R - The return option
  */
 export type UpdateUniqueReturnType<T, R extends UpdateUniqueReturn> = R extends true ? boolean : T | null;
+
+/**
+ * Upsert return option
+ * - undefined/null/'after': returns upserted record (supports select/include)
+ * - true: returns boolean (true if record was created or updated)
+ * - 'before': returns pre-upsert record state (null for new records, no select/include support)
+ */
+export type UpsertReturn = null | undefined | true | 'before' | 'after';
+
+/**
+ * Infer upsert return type based on return option (single record variant)
+ * @template T - The model type (or payload type with select/include)
+ * @template R - The return option
+ */
+export type UpsertReturnType<T, R extends UpsertReturn> = R extends true ? boolean : T | null;
+
+/**
+ * Infer upsert return type based on return option (array variant for non-unique where)
+ * @template T - The model type (or payload type with select/include)
+ * @template R - The return option
+ */
+export type UpsertArrayReturnType<T, R extends UpsertReturn> = R extends true ? boolean : T[];
 `;
 
   const formatted = await formatCode(content, outputDir);

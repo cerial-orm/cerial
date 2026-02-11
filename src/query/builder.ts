@@ -20,9 +20,9 @@ import type {
   UpdateOptions,
   UpdateUniqueResult,
   UpdateUniqueReturn,
+  UpsertReturn,
   WhereClause,
 } from '../types';
-import type { CompiledQuery } from './compile/types';
 import {
   buildCountQuery,
   buildCreateQuery,
@@ -38,17 +38,19 @@ import {
   buildUpdateManyQuery,
   buildUpdateUniqueQuery,
   buildUpdateWithNestedTransaction,
+  buildUpsertQuery,
   extractNestedOperations,
   getRecordIdFromWhere,
   type FindOptionsWithInclude,
   type FindUniqueOptionsWithInclude,
   type IncludeClause,
 } from './builders';
+import { type QueryResultType } from './cerial-query-promise';
+import type { CompiledQuery } from './compile/types';
 import { executeQuery, executeQuerySingle } from './executor';
 import { mapResult, mapSingleResult } from './mappers';
-import { applyNowDefaults, transformData } from './transformers';
+import { applyNowDefaults, transformData, transformOrValidateRecordId } from './transformers';
 import { validateCreateData, validateUpdateData, validateWhere } from './validators';
-import { type QueryResultType } from './cerial-query-promise';
 
 /** Extended find options with include support */
 export interface FindOneOptionsWithInclude extends FindOneOptions {
@@ -398,6 +400,197 @@ export class QueryBuilder<T extends Record<string, unknown>> {
 
     return count > 0;
   }
+
+  /**
+   * Upsert a record - create if it doesn't exist, update if it does.
+   * `create` is required (provides data for new records).
+   * `update` is optional — when omitted, existing records are returned unchanged.
+   *
+   * @param options - Upsert options with where clause, create data, update data, and return configuration
+   * @returns Depends on where clause and return option:
+   *   - ID or unique field in where: single result (Model | null or boolean)
+   *   - Non-unique where: array result (Model[] or boolean)
+   */
+  async upsert<R extends UpsertReturn = undefined>(options: {
+    where: WhereClause;
+    create: Record<string, unknown>;
+    update?: Record<string, unknown>;
+    select?: SelectClause;
+    include?: IncludeClause;
+    return?: R;
+  }): Promise<unknown> {
+    const { where, create: createData, update: updateData, select, include, return: returnOption } = options;
+
+    // Validate where clause
+    const whereValidation = validateWhere(where, this.model);
+    if (!whereValidation.valid)
+      throw new Error(`Invalid where clause: ${whereValidation.errors.map((e) => e.message).join(', ')}`);
+
+    // Extract nested operations from create and update data
+    const { cleanData: cleanCreateData, nestedOps: createNestedOps } = extractNestedOperations(createData, this.model);
+    const { cleanData: cleanUpdateData, nestedOps: updateNestedOps } = updateData
+      ? extractNestedOperations(updateData, this.model)
+      : { cleanData: {} as Record<string, unknown>, nestedOps: new Map() };
+
+    // Apply defaults and transform create data
+    const createWithDefaults = applyNowDefaults(cleanCreateData, this.model);
+    const createValidation = validateCreateData(createWithDefaults, this.model, createNestedOps);
+    if (!createValidation.valid)
+      throw new Error(`Invalid create data: ${createValidation.errors.map((e) => e.message).join(', ')}`);
+    const transformedCreateData = transformData(createWithDefaults, this.model);
+
+    // Transform and validate update data (only if update provided)
+    let transformedUpdateData: Record<string, unknown> = {};
+    if (updateData) {
+      transformedUpdateData = transformData(cleanUpdateData, this.model);
+      const updateValidation = validateUpdateData(transformedUpdateData, this.model);
+      if (!updateValidation.valid)
+        throw new Error(`Invalid update data: ${updateValidation.errors.map((e) => e.message).join(', ')}`);
+    }
+
+    // Determine if this is ID-based or WHERE-based (without requiring unique fields)
+    const idField = this.model.fields.find((f) => f.isId);
+    const hasId = !!(idField && where[idField.name] !== undefined && where[idField.name] !== null);
+    const uniqueFields = this.model.fields.filter((f) => f.isUnique && !f.isId);
+    const whereKeys = Object.keys(where).filter((k) => k !== 'AND' && k !== 'OR' && k !== 'NOT');
+    const hasUniqueField = whereKeys.some((key) => uniqueFields.some((f) => f.name === key));
+    const isSingle = hasId || hasUniqueField;
+
+    // Check for nested operations that need transaction handling
+    const hasNestedOps = createNestedOps.size > 0 || updateNestedOps.size > 0;
+
+    if (hasNestedOps && isSingle && this.registry) {
+      return this.executeUpsertWithNested(
+        where,
+        transformedCreateData,
+        transformedUpdateData,
+        createNestedOps,
+        updateNestedOps,
+        returnOption,
+        hasId,
+      );
+    }
+
+    // Build and execute the upsert query
+    const query = buildUpsertQuery(
+      this.model,
+      where,
+      transformedCreateData,
+      transformedUpdateData,
+      returnOption ?? undefined,
+      select,
+      include,
+      this.registry,
+    );
+
+    if (hasId) {
+      // ID-based: transaction returns single result
+      const result = await executeQuerySingle(this.db, query);
+
+      return this.handleUpsertResult(result, returnOption);
+    }
+
+    if (isSingle) {
+      // Unique field: UPSERT ONLY returns single result
+      try {
+        const result = await executeQuerySingle(this.db, query);
+
+        return this.handleUpsertResult(result, returnOption);
+      } catch (error) {
+        if (
+          error instanceof Error &&
+          error.message.includes('Expected a single result output when using the ONLY keyword')
+        ) {
+          return this.handleUpsertResult(null, returnOption);
+        }
+        throw error;
+      }
+    }
+
+    // Non-unique: UPSERT/UPDATE returns array
+    const result = await executeQuery(this.db, query);
+
+    if (returnOption === true) return Array.isArray(result) && result.length > 0;
+
+    return mapResult<T>(result, this.model);
+  }
+
+  /** Handle upsert result based on return option */
+  private handleUpsertResult(result: unknown, returnOption: UpsertReturn): unknown {
+    if (returnOption === true) return result !== null;
+    if (result === null) return null;
+
+    return mapSingleResult<T>(result, this.model);
+  }
+
+  /**
+   * Execute upsert with nested relation operations.
+   * Checks existence first, then delegates to create or update nested transaction builders.
+   */
+  private async executeUpsertWithNested(
+    where: WhereClause,
+    createData: Record<string, unknown>,
+    updateData: Record<string, unknown>,
+    createNestedOps: Map<string, unknown>,
+    updateNestedOps: Map<string, unknown>,
+    returnOption: UpsertReturn,
+    hasId: boolean,
+  ): Promise<unknown> {
+    // First check if record exists
+    const idField = this.model.fields.find((f) => f.isId);
+    let existingRecord: unknown = null;
+
+    if (hasId && idField) {
+      const recordId = transformOrValidateRecordId(this.model.tableName, where[idField.name] as string);
+      const checkResult = await executeQuerySingle(this.db, {
+        text: `SELECT * FROM ONLY ${recordId.toString()};`,
+        vars: {},
+      });
+      existingRecord = checkResult;
+    } else {
+      // Unique field lookup
+      const whereKey = Object.keys(where)[0] as string;
+      const checkResult = await executeQuery(this.db, {
+        text: `SELECT * FROM ${this.model.tableName} WHERE ${whereKey} = $check_val;`,
+        vars: { check_val: where[whereKey!] },
+      });
+      existingRecord = Array.isArray(checkResult) && checkResult.length > 0 ? checkResult[0] : null;
+    }
+
+    if (existingRecord === null || existingRecord === undefined) {
+      // Record doesn't exist - use create path
+      if (Object.keys(createData).length === 0) return null; // No create data, nothing to do
+
+      const { buildCreateWithNestedTransaction: buildCreateNested } = await import('./builders/nested-builder');
+      const query = buildCreateNested(this.model, createData, createNestedOps as Map<string, any>, this.registry!);
+      const result = await executeQuerySingle(this.db, query);
+
+      if (returnOption === 'before') return null; // No before state for new records
+      if (returnOption === true) return result !== null;
+
+      return mapSingleResult<T>(result, this.model);
+    }
+
+    // Record exists - use update path
+    if (Object.keys(updateData).length === 0 && (updateNestedOps as Map<string, any>).size === 0) {
+      // No update data or nested ops, return existing
+      if (returnOption === true) return true;
+      if (returnOption === 'before') return mapSingleResult<T>(existingRecord, this.model);
+
+      return mapSingleResult<T>(existingRecord, this.model);
+    }
+
+    const { buildUpdateWithNestedTransaction: buildUpdateNested } = await import('./builders/nested-builder');
+    const query = buildUpdateNested(this.model, where, updateData, updateNestedOps as Map<string, any>, this.registry!);
+    const result = await executeQuery(this.db, query);
+
+    if (returnOption === 'before') return mapSingleResult<T>(existingRecord, this.model);
+    if (returnOption === true) return true;
+
+    const record = Array.isArray(result) && result.length > 0 ? result[0] : null;
+
+    return mapSingleResult<T>(record, this.model);
+  }
 }
 
 // =============================================================================
@@ -653,6 +846,79 @@ export function compileExists(
   };
 }
 
+/** Compile an upsert query without executing */
+export function compileUpsert(
+  model: ModelMetadata,
+  options: {
+    where: WhereClause;
+    create: Record<string, unknown>;
+    update?: Record<string, unknown>;
+    select?: SelectClause;
+    include?: IncludeClause;
+    return?: UpsertReturn;
+  },
+  registry?: ModelRegistry,
+): CompiledQueryDescriptor {
+  const { where, create: createData, update: updateData, select, include, return: returnOption } = options;
+
+  const whereValidation = validateWhere(where, model);
+  if (!whereValidation.valid)
+    throw new Error(`Invalid where clause: ${whereValidation.errors.map((e) => e.message).join(', ')}`);
+
+  // Extract nested ops and transform data
+  const { cleanData: cleanCreateData, nestedOps: createNestedOps } = extractNestedOperations(createData, model);
+  const createWithDefaults = applyNowDefaults(cleanCreateData, model);
+  const createValidation = validateCreateData(createWithDefaults, model, createNestedOps);
+  if (!createValidation.valid)
+    throw new Error(`Invalid create data: ${createValidation.errors.map((e) => e.message).join(', ')}`);
+  const transformedCreateData = transformData(createWithDefaults, model);
+
+  let transformedUpdateData: Record<string, unknown> = {};
+  if (updateData) {
+    const { cleanData: cleanUpdateData } = extractNestedOperations(updateData, model);
+    transformedUpdateData = transformData(cleanUpdateData, model);
+    const updateValidation = validateUpdateData(transformedUpdateData, model);
+    if (!updateValidation.valid)
+      throw new Error(`Invalid update data: ${updateValidation.errors.map((e) => e.message).join(', ')}`);
+  }
+
+  // Check for id and unique fields without requiring them
+  const idField = model.fields.find((f) => f.isId);
+  const hasId = !!(idField && where[idField.name] !== undefined && where[idField.name] !== null);
+  const uniqueFields = model.fields.filter((f) => f.isUnique && !f.isId);
+  const whereKeys = Object.keys(where).filter((k) => k !== 'AND' && k !== 'OR' && k !== 'NOT');
+  const hasUniqueField = whereKeys.some((key) => uniqueFields.some((f) => f.name === key));
+  const isSingle = hasId || hasUniqueField;
+
+  const query = buildUpsertQuery(
+    model,
+    where,
+    transformedCreateData,
+    transformedUpdateData,
+    returnOption ?? undefined,
+    select,
+    include,
+    registry,
+  );
+
+  // Determine result type
+  let resultType: QueryResultType;
+  if (!isSingle) {
+    resultType = returnOption === true ? 'boolean' : 'array';
+  } else if (returnOption === true) {
+    resultType = 'boolean';
+  } else {
+    resultType = 'single';
+  }
+
+  return {
+    query,
+    resultType,
+    hasId,
+    returnOption,
+  };
+}
+
 /** Static query builder methods */
 export const QueryBuilderStatic = {
   /** Find a single record */
@@ -781,5 +1047,27 @@ export const QueryBuilderStatic = {
     const builder = new QueryBuilder(db, model, registry);
 
     return builder.exists(where);
+  },
+
+  /**
+   * Upsert a record - create if it doesn't exist, update if it does.
+   * `create` is required. `update` is optional.
+   */
+  async upsert<T extends Record<string, unknown>, R extends UpsertReturn = undefined>(
+    db: Surreal,
+    model: ModelMetadata,
+    options: {
+      where: WhereClause;
+      create: Record<string, unknown>;
+      update?: Record<string, unknown>;
+      select?: SelectClause;
+      include?: IncludeClause;
+      return?: R;
+    },
+    registry?: ModelRegistry,
+  ): Promise<unknown> {
+    const builder = new QueryBuilder<T>(db, model, registry);
+
+    return builder.upsert(options);
   },
 };

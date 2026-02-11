@@ -218,6 +218,17 @@ has_children: true # only on section index pages
 - **Run `bunx tsc --noEmit`** after modifying types or generators to catch type errors
 - **Bug fixes must include tests** - When fixing a bug that was not caught by existing tests, add a test that covers the specific bug being fixed. The test should fail without the fix and pass with it. This prevents regressions and ensures test coverage grows with each fix.
 - **Run `bun run test:full` after all tasks are complete** - This regenerates the test client, runs typechecks, and runs all tests (unit, integration, client, parser, E2E). This is the final validation step before considering work done.
+- **Exhaustive edge-case coverage (CRITICAL)** - Every new feature must have tests that cover every small edge case, not just the happy path. Shallow tests that only verify "it works" miss logical flaws. Specifically:
+  - **E2E tests must be exhaustive** — For each feature, enumerate every meaningful combination of inputs, options, and code paths, then write a dedicated test for each. Think: "what are all the ways a user could call this, and what should happen in each case?" This includes:
+    - Every code path (e.g., create vs update path, ID-based vs WHERE-based)
+    - Every option combination (e.g., each `return` value with each strategy)
+    - Boundary conditions (empty data, null fields, absent fields, NONE vs null)
+    - Field preservation (fields in create only, update only, both, neither)
+    - Result shape (single vs array, CerialId mapping, selected fields only)
+    - Error cases (missing required fields, invalid input)
+    - Integration with other features (select, include, $transaction, nested relations)
+  - **Unit tests must verify generated query structure** — Not just "contains this string" but the full shape: correct keywords, correct variable bindings, correct conditional logic per field
+  - When in doubt, write more tests. A test that seems "obvious" today catches a regression tomorrow.
 
 ### When Adding New Features
 
