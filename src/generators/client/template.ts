@@ -9,7 +9,7 @@ export function generateImports(models: ModelMetadata[]): string {
   const modelImports = models.map((m) => m.name).join(', ');
   const modelTypeImports = models.map((m) => `${m.name}Model`).join(', ');
 
-  return `import { ConnectionManager, type DatabaseProxy, type ModelRegistry, type BeforeQueryCallback, type PerModelCallbacks } from 'cerial';
+  return `import { ConnectionManager, CerialQueryPromise, executeClientTransaction, type DatabaseProxy, type ModelRegistry, type BeforeQueryCallback, type PerModelCallbacks, type TransactionItem } from 'cerial';
 import type { ConnectionConfig } from 'cerial';
 import { modelRegistry } from './internal/model-registry';
 import { migrationsByModel, getModelMigrationQuery, getMigrationModelNames, type ModelName } from './internal/migrations';
@@ -292,16 +292,66 @@ export class CerialClient {
   }
 
   /**
-   * Execute a raw SurrealQL query
-   * @param query - The query string
-   * @param vars - Optional query variables
-   */
+    * Execute a raw SurrealQL query
+    * @param query - The query string
+    * @param vars - Optional query variables
+    */
   async query<T = unknown>(query: string, vars?: Record<string, unknown>): Promise<T[]> {
     await this.ensureMigrated();
     const surreal = this.getSurreal();
     if (!surreal) throw new Error('Not connected.');
     const result = await surreal.query<T[]>(query, vars);
     return result.flat() as T[];
+  }
+
+  /**
+    * Execute multiple queries in a single transaction.
+    * All queries are executed atomically — if any query fails, all changes are rolled back.
+    *
+    * @param queries - Array of CerialQueryPromise objects from model methods
+    * @returns Tuple of results matching the input query order
+    *
+    * @example
+    * \`\`\`ts
+    * const [user, posts] = await client.$transaction([
+    *   client.db.User.create({ data: { name: 'Alice', email: 'alice@test.com', isActive: true } }),
+    *   client.db.Post.findMany({ where: { published: true } }),
+    * ]);
+    * // user: User, posts: Post[]
+    * \`\`\`
+    */
+  async $transaction<T extends CerialQueryPromise<any>[]>(
+    queries: [...T],
+  ): Promise<{ [K in keyof T]: T[K] extends CerialQueryPromise<infer R> ? R : never }> {
+    if (!this._db) throw new Error('Not connected. Call connect() first.');
+    if (!queries.length) return [] as any;
+
+    const surreal = this.getSurreal();
+    if (!surreal) throw new Error('No active connection.');
+
+    // Validate all items are CerialQueryPromise instances
+    for (const q of queries) {
+      if (!CerialQueryPromise.isCerialQueryPromise(q)) {
+        throw new Error('$transaction only accepts CerialQueryPromise objects returned by model methods.');
+      }
+    }
+
+    // Ensure all involved models are migrated before executing
+    const modelNames = new Set(queries.map(q => q.metadata.name));
+    await Promise.all([...modelNames].map(name => this.ensureModelMigrated(name as ModelName)));
+
+    // Build transaction items
+    const items: TransactionItem[] = queries.map(q => ({
+      compiledQuery: q.compiledQuery,
+      metadata: q.metadata,
+      resultType: q.resultType,
+      registry: q.registry,
+    }));
+
+    // Execute the transaction
+    const results = await executeClientTransaction(surreal, items);
+
+    return results as any;
   }
 }`;
 }

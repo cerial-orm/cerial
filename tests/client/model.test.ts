@@ -141,7 +141,8 @@ describe('Model Class', () => {
       const model = new Model(mockSurreal as any, userMetadata);
 
       // Should not throw
-      await expect(model.findMany()).resolves.toBeDefined();
+      const result = await model.findMany();
+      expect(result).toBeDefined();
     });
 
     test('works with empty callback array', async () => {
@@ -152,7 +153,8 @@ describe('Model Class', () => {
       });
 
       // Should not throw
-      await expect(model.findMany()).resolves.toBeDefined();
+      const result = await model.findMany();
+      expect(result).toBeDefined();
     });
 
     test('callback error propagates to caller', async () => {
@@ -166,7 +168,11 @@ describe('Model Class', () => {
         onBeforeQuery: callback,
       });
 
-      await expect(model.findMany()).rejects.toThrow('Migration failed');
+      await expect(
+        (async () => {
+          await model.findMany();
+        })(),
+      ).rejects.toThrow('Migration failed');
     });
 
     test('second callback not called if first throws', async () => {
@@ -185,7 +191,11 @@ describe('Model Class', () => {
         onBeforeQuery: [callback1, callback2],
       });
 
-      await expect(model.findMany()).rejects.toThrow('First callback failed');
+      await expect(
+        (async () => {
+          await model.findMany();
+        })(),
+      ).rejects.toThrow('First callback failed');
       expect(secondCallbackCalled).toBe(false);
     });
   });

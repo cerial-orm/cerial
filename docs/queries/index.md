@@ -29,6 +29,7 @@ const user = await client.db.User.findOne({ where: { id: '123' } });
 | [`deleteUnique`](delete-unique) | Delete by unique field     | `boolean \| T \| null` |
 | [`count`](count)                | Count matching records     | `number`               |
 | [`exists`](exists)              | Check if any match         | `boolean`              |
+| [`$transaction`](transaction)   | Atomic batch execution     | Typed tuple            |
 
 ## Dynamic Return Types
 

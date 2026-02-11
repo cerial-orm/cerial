@@ -10,7 +10,7 @@ bun test                                                 # Run all tests
 bun test tests/e2e/ --preload ./tests/e2e/preload.ts     # E2E tests (requires SurrealDB running)
 bun run typecheck                                        # Type check generated types (ts-toolbelt)
 bunx tsc --noEmit                                        # Full TypeScript check
-bun run generate:test                                    # Generate test client from schema
+bun run generate:test-client                            # Generate test client from schema
 ```
 
 ## Project Structure
@@ -93,13 +93,14 @@ Schema (.cerial files) → Parser (AST) → Generators → TypeScript Client
 
 **Test locations:**
 
-| Location                | Type                      | Count    |
-| ----------------------- | ------------------------- | -------- |
-| `tests/unit/`           | Unit tests (no DB)        | ~486     |
-| `tests/integration/`    | Integration (DB required) | ~49      |
-| `tests/e2e/relations/`  | Relation E2E tests        | 91 files |
-| `tests/e2e/objects/`    | Object E2E tests          | 7 files  |
-| `tests/e2e/typechecks/` | Compile-time type checks  | 13 files |
+| Location                  | Type                      | Count    |
+| ------------------------- | ------------------------- | -------- |
+| `tests/unit/`             | Unit tests (no DB)        | ~550     |
+| `tests/integration/`      | Integration (DB required) | ~49      |
+| `tests/e2e/relations/`    | Relation E2E tests        | 91 files |
+| `tests/e2e/objects/`      | Object E2E tests          | 7 files  |
+| `tests/e2e/transactions/` | Transaction E2E tests     | 10 files |
+| `tests/e2e/typechecks/`   | Compile-time type checks  | 14 files |
 
 **When query format changes**, update expectations in:
 
@@ -178,6 +179,13 @@ has_children: true # only on section index pages
 ---
 ```
 
+**Documentation is for library consumers, not contributors:**
+
+- Focus on **what** the feature does and **how to use it** — not how it works internally
+- Do NOT expose implementation details (SurrealQL output, internal variable naming, assembly steps, executor internals) unless directly relevant to the user
+- Show practical examples with TypeScript code the user would actually write
+- Mention constraints and gotchas that affect the user's API usage, not internal architecture decisions
+
 ### CLAUDE.md ↔ README.md Sync
 
 `CLAUDE.md` is the agent-facing guide (structure, conventions, rules). `README.md` is the user-facing landing page (features, quick start, doc links). They share overlapping information that **must stay in sync**:
@@ -208,6 +216,8 @@ has_children: true # only on section index pages
   - Exception: Testing runtime error handling for operations the type system correctly prevents (use `@ts-expect-error` with explanation comment)
 - **Always run relevant tests** after making changes: `bun test` for full suite, or targeted test paths
 - **Run `bunx tsc --noEmit`** after modifying types or generators to catch type errors
+- **Bug fixes must include tests** - When fixing a bug that was not caught by existing tests, add a test that covers the specific bug being fixed. The test should fail without the fix and pass with it. This prevents regressions and ensures test coverage grows with each fix.
+- **Run `bun run test:full` after all tasks are complete** - This regenerates the test client, runs typechecks, and runs all tests (unit, integration, client, parser, E2E). This is the final validation step before considering work done.
 
 ### When Adding New Features
 
@@ -215,7 +225,7 @@ has_children: true # only on section index pages
 2. Add/update unit tests in `tests/unit/`
 3. Add E2E test schemas in `tests/e2e/schemas/` if needed
 4. Add E2E tests in `tests/e2e/`
-5. Run `bun run generate:test` to regenerate test client
+5. Run `bun run generate:test-client` to regenerate test client
 6. Run full test suite: `bun test`
 7. Run type check: `bunx tsc --noEmit`
 8. Update documentation in `docs/`
@@ -256,6 +266,8 @@ has_children: true # only on section index pages
 - **Non-PK side** = Reverse relation with `Relation @model` only (queries related table)
 - **Object types** = Embedded inline, no id, no decorators, no relations
 - **Parameterized queries** = Values bound via `$varName`, never inlined
+- **CerialQueryPromise** = Thenable returned by model methods. Auto-executes on `await`, collectible by `$transaction`
+- **$transaction** = Atomic batch execution of independent queries with typed tuple results
 
 ## Gotchas
 
@@ -268,3 +280,5 @@ has_children: true # only on section index pages
 - `none` quantifier for array object where uses `!(arr.any(...))` syntax for SurrealDB 3.x compatibility
 - `@onDelete` is only allowed on optional `Relation?` fields - required relations auto-cascade
 - N:N relations require BOTH sides to define `Record[]` + `Relation[]` for bidirectional sync
+- `CerialQueryPromise` is a thenable (not `instanceof Promise`) — bun's `expect().rejects` requires wrapping: `await expect((async () => { await query; })()).rejects.toThrow()`
+- `$transaction` queries are independent — one query cannot reference another's result

@@ -272,12 +272,12 @@ describe('CRUD Operations', () => {
       expect(result).toBeNull();
     });
 
-    test('should throw error when no unique field provided', async () => {
-      await expect(
+    test('should throw error when no unique field provided', () => {
+      expect(() =>
         userModel.findUnique({
           where: {} as any,
         }),
-      ).rejects.toThrow('At least one unique field must be provided');
+      ).toThrow('At least one unique field must be provided');
     });
 
     test('should find a record by id with select', async () => {
@@ -292,14 +292,14 @@ describe('CRUD Operations', () => {
       expect(result?.isActive).toBeUndefined();
     });
 
-    test('should throw error when table in RecordId does not match', async () => {
+    test('should throw error when table in RecordId does not match', () => {
       // This test is conceptual - in practice you can't pass wrong table via where
       // since we construct RecordId from the id value
-      await expect(
+      expect(() =>
         userModel.findUnique({
           where: { id: 'wrong_table:id123' },
         }),
-      ).rejects.toThrow('Table "wrong_table" does not match expected table "test_user"');
+      ).toThrow('Table "wrong_table" does not match expected table "test_user"');
     });
   });
 
@@ -361,12 +361,12 @@ describe('CRUD Operations', () => {
       expect(result?.email).toBe('unique-email@example.com');
     });
 
-    test('should throw error when non-unique field provided', async () => {
-      await expect(
+    test('should throw error when non-unique field provided', () => {
+      expect(() =>
         userModel.findUnique({
           where: { name: 'Email User' } as any,
         }),
-      ).rejects.toThrow('At least one unique field must be provided');
+      ).toThrow('At least one unique field must be provided');
     });
   });
 

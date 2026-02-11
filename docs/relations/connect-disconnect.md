@@ -135,6 +135,8 @@ await db.User.updateMany({
 
 Both operations happen atomically within a single transaction.
 
+Connect/disconnect operations also work inside [`$transaction`](../queries/transaction.md), covered by a single atomic transaction.
+
 ## Combining Connect and Create
 
 You can also mix `connect` with `create` for array relations:

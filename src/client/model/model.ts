@@ -1,10 +1,24 @@
 /**
  * Model class - provides query methods for a model
+ *
+ * All query methods return CerialQueryPromise<T> which:
+ * - Auto-executes when awaited (backward compatible)
+ * - Can be collected into client.$transaction([...]) for batched execution
  */
 
 import type { Surreal } from 'surrealdb';
 import {
   QueryBuilderStatic,
+  compileFindOne,
+  compileFindMany,
+  compileFindUnique,
+  compileCreate,
+  compileUpdateMany,
+  compileUpdateUnique,
+  compileDeleteMany,
+  compileDeleteUnique,
+  compileCount,
+  compileExists,
   type FindManyOptionsWithInclude,
   type FindOneOptionsWithInclude,
 } from '../../query/builder';
@@ -22,6 +36,7 @@ import type {
   WhereClause,
 } from '../../types';
 import type { IncludeClause } from '../../query/builders';
+import { CerialQueryPromise } from '../../query/cerial-query-promise';
 
 /** Extended find unique options with include support */
 export interface FindUniqueOptionsWithInclude {
@@ -80,40 +95,93 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
   }
 
   /** Find a single record */
-  async findOne(options: FindOneOptionsWithInclude = {}): Promise<T | null> {
-    await this.beforeQuery();
-    return QueryBuilderStatic.findOne<T>(this.db, this.metadata, options, this.registry);
+  findOne(options: FindOneOptionsWithInclude = {}): CerialQueryPromise<T | null> {
+    const compiled = compileFindOne(this.metadata, options, this.registry);
+
+    return new CerialQueryPromise<T | null>(
+      async () => {
+        await this.beforeQuery();
+
+        return QueryBuilderStatic.findOne<T>(this.db, this.metadata, options, this.registry);
+      },
+      compiled.query,
+      this.metadata,
+      compiled.resultType,
+      this.registry,
+    );
   }
 
   /** Find a unique record by id */
-  async findUnique(options: FindUniqueOptionsWithInclude): Promise<T | null> {
-    await this.beforeQuery();
-    return QueryBuilderStatic.findUnique<T>(this.db, this.metadata, options, this.registry);
+  findUnique(options: FindUniqueOptionsWithInclude): CerialQueryPromise<T | null> {
+    const compiled = compileFindUnique(this.metadata, options, this.registry);
+
+    return new CerialQueryPromise<T | null>(
+      async () => {
+        await this.beforeQuery();
+
+        return QueryBuilderStatic.findUnique<T>(this.db, this.metadata, options, this.registry);
+      },
+      compiled.query,
+      this.metadata,
+      compiled.resultType,
+      this.registry,
+    );
   }
 
   /** Find multiple records */
-  async findMany(options: FindManyOptionsWithInclude = {}): Promise<T[]> {
-    await this.beforeQuery();
-    return QueryBuilderStatic.findMany<T>(this.db, this.metadata, options, this.registry);
+  findMany(options: FindManyOptionsWithInclude = {}): CerialQueryPromise<T[]> {
+    const compiled = compileFindMany(this.metadata, options, this.registry);
+
+    return new CerialQueryPromise<T[]>(
+      async () => {
+        await this.beforeQuery();
+
+        return QueryBuilderStatic.findMany<T>(this.db, this.metadata, options, this.registry);
+      },
+      compiled.query,
+      this.metadata,
+      compiled.resultType,
+      this.registry,
+    );
   }
 
   /** Find all records (alias for findMany with no options) */
-  async findAll(): Promise<T[]> {
+  findAll(): CerialQueryPromise<T[]> {
     return this.findMany();
   }
 
   /** Create a new record */
-  async create(options: CreateOptions<Partial<T>>): Promise<T | null> {
-    await this.beforeQuery();
+  create(options: CreateOptions<Partial<T>>): CerialQueryPromise<T | null> {
+    const compiled = compileCreate(this.metadata, options as CreateOptions<Record<string, unknown>>, this.registry);
 
-    return QueryBuilderStatic.create<T>(this.db, this.metadata, options, this.registry);
+    return new CerialQueryPromise<T | null>(
+      async () => {
+        await this.beforeQuery();
+
+        return QueryBuilderStatic.create<T>(this.db, this.metadata, options, this.registry);
+      },
+      compiled.query,
+      this.metadata,
+      compiled.resultType,
+      this.registry,
+    );
   }
 
   /** Update records matching where clause */
-  async updateMany(options: UpdateOptions<Partial<T>>): Promise<T[]> {
-    await this.beforeQuery();
+  updateMany(options: UpdateOptions<Partial<T>>): CerialQueryPromise<T[]> {
+    const compiled = compileUpdateMany(this.metadata, options as UpdateOptions<Record<string, unknown>>, this.registry);
 
-    return QueryBuilderStatic.updateMany<T>(this.db, this.metadata, options, this.registry);
+    return new CerialQueryPromise<T[]>(
+      async () => {
+        await this.beforeQuery();
+
+        return QueryBuilderStatic.updateMany<T>(this.db, this.metadata, options, this.registry);
+      },
+      compiled.query,
+      this.metadata,
+      compiled.resultType,
+      this.registry,
+    );
   }
 
   /**
@@ -124,23 +192,53 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
    *   - true: boolean (true if record found and updated, false if not)
    *   - 'before': Model | null (pre-update record, no select/include support)
    */
-  async updateUnique<R extends UpdateUniqueReturn = undefined>(options: {
+  updateUnique<R extends UpdateUniqueReturn = undefined>(options: {
     where: WhereClause;
     data: Partial<T>;
     select?: SelectClause;
     include?: IncludeClause;
     return?: R;
-  }): Promise<UpdateUniqueResult<T, R>> {
-    await this.beforeQuery();
+  }): CerialQueryPromise<UpdateUniqueResult<T, R>> {
+    const compiled = compileUpdateUnique(
+      this.metadata,
+      {
+        where: options.where,
+        data: options.data as Record<string, unknown>,
+        select: options.select,
+        include: options.include,
+        return: options.return,
+      },
+      this.registry,
+    );
 
-    return QueryBuilderStatic.updateUnique<T, R>(this.db, this.metadata, options, this.registry);
+    return new CerialQueryPromise<UpdateUniqueResult<T, R>>(
+      async () => {
+        await this.beforeQuery();
+
+        return QueryBuilderStatic.updateUnique<T, R>(this.db, this.metadata, options, this.registry);
+      },
+      compiled.query,
+      this.metadata,
+      compiled.resultType,
+      this.registry,
+    );
   }
 
   /** Delete records matching where clause */
-  async deleteMany(options: DeleteManyOptions): Promise<number> {
-    await this.beforeQuery();
+  deleteMany(options: DeleteManyOptions): CerialQueryPromise<number> {
+    const compiled = compileDeleteMany(this.metadata, options, this.registry);
 
-    return QueryBuilderStatic.deleteMany(this.db, this.metadata, options, this.registry);
+    return new CerialQueryPromise<number>(
+      async () => {
+        await this.beforeQuery();
+
+        return QueryBuilderStatic.deleteMany(this.db, this.metadata, options, this.registry);
+      },
+      compiled.query,
+      this.metadata,
+      compiled.resultType,
+      this.registry,
+    );
   }
 
   /**
@@ -151,27 +249,57 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
    *   - true: boolean (true if record existed, false if not)
    *   - 'before': Model | null (deleted data)
    */
-  async deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
     where: WhereClause;
     return?: R;
-  }): Promise<DeleteUniqueResult<T, R>> {
-    await this.beforeQuery();
+  }): CerialQueryPromise<DeleteUniqueResult<T, R>> {
+    const compiled = compileDeleteUnique(this.metadata, options, this.registry);
 
-    return QueryBuilderStatic.deleteUnique<T, R>(this.db, this.metadata, options, this.registry);
+    return new CerialQueryPromise<DeleteUniqueResult<T, R>>(
+      async () => {
+        await this.beforeQuery();
+
+        return QueryBuilderStatic.deleteUnique<T, R>(this.db, this.metadata, options, this.registry);
+      },
+      compiled.query,
+      this.metadata,
+      compiled.resultType,
+      this.registry,
+    );
   }
 
   /** Count records matching where clause using SELECT count() ... GROUP ALL */
-  async count(where?: FindManyOptionsWithInclude['where']): Promise<number> {
-    await this.beforeQuery();
+  count(where?: FindManyOptionsWithInclude['where']): CerialQueryPromise<number> {
+    const compiled = compileCount(this.metadata, where, this.registry);
 
-    return QueryBuilderStatic.count(this.db, this.metadata, where, this.registry);
+    return new CerialQueryPromise<number>(
+      async () => {
+        await this.beforeQuery();
+
+        return QueryBuilderStatic.count(this.db, this.metadata, where, this.registry);
+      },
+      compiled.query,
+      this.metadata,
+      compiled.resultType,
+      this.registry,
+    );
   }
 
   /** Check if any record exists matching where clause */
-  async exists(where?: FindOneOptionsWithInclude['where']): Promise<boolean> {
-    await this.beforeQuery();
+  exists(where?: FindOneOptionsWithInclude['where']): CerialQueryPromise<boolean> {
+    const compiled = compileExists(this.metadata, where, this.registry);
 
-    return QueryBuilderStatic.exists(this.db, this.metadata, where, this.registry);
+    return new CerialQueryPromise<boolean>(
+      async () => {
+        await this.beforeQuery();
+
+        return QueryBuilderStatic.exists(this.db, this.metadata, where, this.registry);
+      },
+      compiled.query,
+      this.metadata,
+      compiled.resultType,
+      this.registry,
+    );
   }
 }
 

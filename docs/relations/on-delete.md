@@ -209,6 +209,8 @@ All delete operations — including cascades, SetNull updates, Restrict checks, 
 - Array cleanup is atomic with the delete
 - No partial state if any operation fails
 
+Delete operations with cascade/restrict/setNull behavior also work inside [`$transaction`](../queries/transaction.md), covered by a single atomic transaction.
+
 ## Summary
 
 | Decorator             | Behavior             | Use Case                                            |

@@ -242,3 +242,20 @@ users[0].email; // TypeScript error!
 | `select: { obj: { sub: true } }`               | `{ obj: { sub: TypeOfSub } }`           |
 | `select: { obj: true }`                        | `{ obj: FullObjectType }`               |
 | `include: { rel: { select: { a: true } } }`    | `Model & { rel: { a: TypeOfA } }`       |
+
+## Typed Tuples in Transactions
+
+When using [`$transaction`](../queries/transaction.md), each query's return type is preserved at its position in the result array:
+
+```typescript
+const [user, count, exists] = await client.$transaction([
+  client.db.User.findOne({ where: { id: '123' }, select: { name: true } }),
+  client.db.Post.count({ where: { published: true } }),
+  client.db.Tag.exists({ where: { name: 'ts' } }),
+]);
+// user: { name: string } | null
+// count: number
+// exists: boolean
+```
+
+TypeScript knows the exact type at each position — it is not a generic `unknown[]` but a precise typed tuple.

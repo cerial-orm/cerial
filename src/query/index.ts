@@ -85,8 +85,26 @@ export { validateCreateData, validateUpdateData, validateWhere, validateWhereCla
 export type { DataValidationError, DataValidationResult, ValidationError, WhereValidationResult } from './validators';
 
 // Executor
-export { executeQuery, executeQuerySingle, executeRaw, executeTransaction } from './executor';
-export type { ExecuteOptions } from './executor';
+export { executeQuery, executeQuerySingle, executeRaw, executeTransaction, executeClientTransaction } from './executor';
+export type { ExecuteOptions, TransactionItem } from './executor';
+
+// CerialQueryPromise
+export { CerialQueryPromise } from './cerial-query-promise';
+export type { QueryResultType } from './cerial-query-promise';
 
 // Builder
-export { QueryBuilder, QueryBuilderStatic } from './builder';
+export {
+  QueryBuilder,
+  QueryBuilderStatic,
+  compileFindOne,
+  compileFindMany,
+  compileFindUnique,
+  compileCreate,
+  compileUpdateMany,
+  compileUpdateUnique,
+  compileDeleteMany,
+  compileDeleteUnique,
+  compileCount,
+  compileExists,
+} from './builder';
+export type { CompiledQueryDescriptor } from './builder';

@@ -6,14 +6,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import {
-  cleanupTables,
-  createTestClient,
-  CerialClient,
-  tables,
-  testConfig,
-  uniqueEmail,
-} from '../../test-helper';
+import { cleanupTables, createTestClient, CerialClient, tables, testConfig, uniqueEmail } from '../../test-helper';
 
 describe('E2E One-to-Many Required: Create from Child', () => {
   let client: CerialClient;
@@ -98,23 +91,27 @@ describe('E2E One-to-Many Required: Create from Child', () => {
   describe('required author validation', () => {
     test('should reject post without author', async () => {
       await expect(
-        client.db.PostRequired.create({
-          data: {
-            title: 'Orphan Post',
-            // No author provided
-          } as any,
-        })
+        (async () => {
+          await client.db.PostRequired.create({
+            data: {
+              title: 'Orphan Post',
+              // No author provided
+            } as any,
+          });
+        })(),
       ).rejects.toThrow();
     });
 
     test('should reject post with non-existent author', async () => {
       await expect(
-        client.db.PostRequired.create({
-          data: {
-            title: 'Bad Author',
-            author: { connect: 'author:nonexistent' },
-          },
-        })
+        (async () => {
+          await client.db.PostRequired.create({
+            data: {
+              title: 'Bad Author',
+              author: { connect: 'author:nonexistent' },
+            },
+          });
+        })(),
       ).rejects.toThrow();
     });
   });

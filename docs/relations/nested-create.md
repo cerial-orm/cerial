@@ -163,3 +163,5 @@ Nested create operations are wrapped in a transaction:
 - If any part of the nested create fails (e.g., a unique constraint violation on a nested record), the entire operation is rolled back.
 - The parent record is not created if a child record fails to create.
 - For N:N relations, bidirectional sync is included in the same transaction.
+
+Nested creates also work inside [`$transaction`](../queries/transaction.md) — all operations are covered by a single atomic transaction.

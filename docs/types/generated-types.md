@@ -272,6 +272,27 @@ Key features:
 - `include` relation entries accept `boolean` (simple include) or an object with nested query options
 - Array relations in `include` support `where`, `orderBy`, `limit`, and `offset` for filtering and pagination
 
+## CerialQueryPromise
+
+All model methods return `CerialQueryPromise<T>` instead of `Promise<T>`. It works exactly like a regular Promise — you can `await` it, call `.then()`, `.catch()`, and `.finally()` as usual. Additionally, it can be passed to [`$transaction`](../queries/transaction.md) for atomic batched execution.
+
+```typescript
+// Works like a normal Promise
+const user = await client.db.User.findOne({ where: { id: '123' } });
+
+// Or collect multiple queries for atomic execution
+const [user, posts] = await client.$transaction([
+  client.db.User.findOne({ where: { id: '123' } }),
+  client.db.Post.findMany({ where: { published: true } }),
+]);
+```
+
+It is re-exported from the generated client, so you can import it for type annotations:
+
+```typescript
+import { CerialQueryPromise } from './db-client';
+```
+
 ## Generated File Structure
 
 All types are generated into the output directory (typically `db-client/` or a configured path):

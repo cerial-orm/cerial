@@ -25,8 +25,9 @@ const TS_TOOLBELT_IMPORT = `import type { Object as O, Any as A } from 'ts-toolb
 const CERIAL_ID_IMPORT = `import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';`;
 
-/** DeleteUnique, UpdateUnique, and select utility types import for model files */
-const UNIQUE_TYPES_IMPORT = `import type { DeleteUniqueReturn, DeleteUniqueReturnType, UpdateUniqueReturn, UpdateUniqueReturnType, ResolveFieldSelect } from '..';`;
+/** DeleteUnique, UpdateUnique, select utility types, and CerialQueryPromise import for model files */
+const UNIQUE_TYPES_IMPORT = `import type { DeleteUniqueReturn, DeleteUniqueReturnType, UpdateUniqueReturn, UpdateUniqueReturnType, ResolveFieldSelect } from '..';
+import type { CerialQueryPromise } from '..';`;
 
 /** Prettier config cache */
 let prettierConfig: prettier.Options | null = null;
@@ -456,6 +457,10 @@ export type {
 // Client exports
 export { CerialClient } from './client';
 export type { ConnectionConfig, TypedDb } from './client';
+
+// CerialQueryPromise (for $transaction type inference)
+export { CerialQueryPromise } from 'cerial';
+export type { QueryResultType } from 'cerial';
 
 // Registry
 export { modelRegistry } from './internal';

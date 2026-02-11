@@ -18,7 +18,7 @@ export function generateFindOneMethod(model: ModelMetadata): string {
     return `findOne<S extends ${model.name}Select | undefined = undefined>(options?: {
     where?: ${model.name}Where;
     select?: S;
-  }): Promise<Get${model.name}Payload<S> | null>;`;
+  }): CerialQueryPromise<Get${model.name}Payload<S> | null>;`;
   }
 
   // With relations - full generic signature
@@ -29,7 +29,7 @@ export function generateFindOneMethod(model: ModelMetadata): string {
     where?: ${model.name}Where;
     select?: S;
     include?: I;
-  }): Promise<Get${model.name}Payload<S, I> | null>;`;
+  }): CerialQueryPromise<Get${model.name}Payload<S, I> | null>;`;
 }
 
 /** Generate findMany method signature with full type inference */
@@ -42,7 +42,7 @@ export function generateFindManyMethod(model: ModelMetadata): string {
     orderBy?: ${model.name}OrderBy;
     limit?: number;
     offset?: number;
-  }): Promise<Get${model.name}Payload<S>[]>;`;
+  }): CerialQueryPromise<Get${model.name}Payload<S>[]>;`;
   }
 
   // With relations - full generic signature
@@ -56,7 +56,7 @@ export function generateFindManyMethod(model: ModelMetadata): string {
     limit?: number;
     offset?: number;
     include?: I;
-  }): Promise<Get${model.name}Payload<S, I>[]>;`;
+  }): CerialQueryPromise<Get${model.name}Payload<S, I>[]>;`;
 }
 
 /** Generate FindUniqueWhere type for a model */
@@ -129,7 +129,7 @@ export function generateFindUniqueMethod(model: ModelMetadata): string {
     return `findUnique<S extends ${model.name}Select | undefined = undefined>(options: {
     where: ${model.name}FindUniqueWhere;
     select?: S;
-  }): Promise<Get${model.name}Payload<S> | null>;`;
+  }): CerialQueryPromise<Get${model.name}Payload<S> | null>;`;
   }
 
   return `findUnique<
@@ -139,7 +139,7 @@ export function generateFindUniqueMethod(model: ModelMetadata): string {
     where: ${model.name}FindUniqueWhere;
     select?: S;
     include?: I;
-  }): Promise<Get${model.name}Payload<S, I> | null>;`;
+  }): CerialQueryPromise<Get${model.name}Payload<S, I> | null>;`;
 }
 
 /** Generate create method signature with full type inference */
@@ -149,7 +149,7 @@ export function generateCreateMethod(model: ModelMetadata): string {
   return `create<S extends ${model.name}Select | undefined = undefined>(options: {
     data: ${model.name}CreateInput;
     select?: S;
-  }): Promise<Get${model.name}Payload<S>>;`;
+  }): CerialQueryPromise<Get${model.name}Payload<S>>;`;
 }
 
 /** Generate updateMany method signature with full type inference */
@@ -160,14 +160,14 @@ export function generateUpdateMethod(model: ModelMetadata): string {
     where: ${model.name}Where;
     data: ${model.name}UpdateInput;
     select?: S;
-  }): Promise<Get${model.name}Payload<S>[]>;`;
+  }): CerialQueryPromise<Get${model.name}Payload<S>[]>;`;
 }
 
 /** Generate deleteMany method signature */
 export function generateDeleteManyMethod(model: ModelMetadata): string {
   return `deleteMany(options: {
     where: ${model.name}Where;
-  }): Promise<number>;`;
+  }): CerialQueryPromise<number>;`;
 }
 
 /**
@@ -184,7 +184,7 @@ export function generateDeleteUniqueMethod(model: ModelMetadata): string {
      * - 'before': returns ${model.name} | null (deleted data)
      */
     return?: R;
-  }): Promise<DeleteUniqueReturnType<${model.name}, R>>;`;
+  }): CerialQueryPromise<DeleteUniqueReturnType<${model.name}, R>>;`;
 }
 
 /**
@@ -209,7 +209,7 @@ export function generateUpdateUniqueMethod(model: ModelMetadata): string {
      * - 'before': returns ${model.name} | null (pre-update state, no select support)
      */
     return?: R;
-  }): Promise<UpdateUniqueReturnType<Get${model.name}Payload<S>, R>>;`;
+  }): CerialQueryPromise<UpdateUniqueReturnType<Get${model.name}Payload<S>, R>>;`;
   }
 
   // With relations - full generic signature with include
@@ -223,23 +223,23 @@ export function generateUpdateUniqueMethod(model: ModelMetadata): string {
     select?: S;
     include?: I;
     /**
-     * Return option for the updated record
-     * - undefined/null/'after': returns updated record (supports select/include)
-     * - true: returns boolean (true if found and updated, false if not)
-     * - 'before': returns ${model.name} | null (pre-update state, no select/include support)
-     */
+      * Return option for the updated record
+      * - undefined/null/'after': returns updated record (supports select/include)
+      * - true: returns boolean (true if found and updated, false if not)
+      * - 'before': returns ${model.name} | null (pre-update state, no select/include support)
+      */
     return?: R;
-  }): Promise<UpdateUniqueReturnType<Get${model.name}Payload<S, I>, R>>;`;
+  }): CerialQueryPromise<UpdateUniqueReturnType<Get${model.name}Payload<S, I>, R>>;`;
 }
 
 /** Generate count method signature */
 export function generateCountMethod(model: ModelMetadata): string {
-  return `count(where?: ${model.name}Where): Promise<number>;`;
+  return `count(where?: ${model.name}Where): CerialQueryPromise<number>;`;
 }
 
 /** Generate exists method signature */
 export function generateExistsMethod(model: ModelMetadata): string {
-  return `exists(where?: ${model.name}Where): Promise<boolean>;`;
+  return `exists(where?: ${model.name}Where): CerialQueryPromise<boolean>;`;
 }
 
 /** Generate all method signatures for a model */

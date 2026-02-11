@@ -218,6 +218,24 @@ test('creates a user', async () => {
 });
 ```
 
+### Atomic Transactions
+
+Use `$transaction` to execute multiple queries atomically:
+
+```typescript
+const [user, profile] = await client.$transaction([
+  client.db.User.create({
+    data: { name: 'Alice', email: 'alice@example.com' },
+  }),
+  client.db.Profile.create({
+    data: { bio: 'Hello world', userId: existingUserId },
+  }),
+]);
+// Both created atomically — if either fails, neither is committed
+```
+
+See [`$transaction`](../queries/transaction.md) for full documentation.
+
 ### Environment-Based Configuration
 
 Use environment variables to configure connections per environment:

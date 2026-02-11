@@ -103,12 +103,14 @@ describe('E2E One-to-One Required: Create', () => {
     test('should reject connect to non-existent user id', async () => {
       // ORM validates that connected records exist
       await expect(
-        client.db.ProfileRequired.create({
-          data: {
-            bio: 'Test',
-            user: { connect: 'nonexistent123' },
-          },
-        }),
+        (async () => {
+          await client.db.ProfileRequired.create({
+            data: {
+              bio: 'Test',
+              user: { connect: 'nonexistent123' },
+            },
+          });
+        })(),
       ).rejects.toThrow();
     });
   });

@@ -1,5 +1,9 @@
 /**
  * Query builder - main query building logic
+ *
+ * Provides both compile-only and compile+execute methods.
+ * The compile methods produce CompiledQuery objects for use with CerialQueryPromise.
+ * The execute methods run the compiled queries and map results.
  */
 
 import type { Surreal } from 'surrealdb';
@@ -18,6 +22,7 @@ import type {
   UpdateUniqueReturn,
   WhereClause,
 } from '../types';
+import type { CompiledQuery } from './compile/types';
 import {
   buildCountQuery,
   buildCreateQuery,
@@ -43,6 +48,7 @@ import { executeQuery, executeQuerySingle } from './executor';
 import { mapResult, mapSingleResult } from './mappers';
 import { applyNowDefaults, transformData } from './transformers';
 import { validateCreateData, validateUpdateData, validateWhere } from './validators';
+import { type QueryResultType } from './cerial-query-promise';
 
 /** Extended find options with include support */
 export interface FindOneOptionsWithInclude extends FindOneOptions {
@@ -52,6 +58,16 @@ export interface FindOneOptionsWithInclude extends FindOneOptions {
 /** Extended find many options with include support */
 export interface FindManyOptionsWithInclude extends FindManyOptions {
   include?: Record<string, boolean | object>;
+}
+
+/** Compiled query descriptor with result type metadata */
+export interface CompiledQueryDescriptor {
+  query: CompiledQuery;
+  resultType: QueryResultType;
+  /** For updateUnique/deleteUnique: whether the where clause uses an ID field */
+  hasId?: boolean;
+  /** For updateUnique: the return option */
+  returnOption?: unknown;
 }
 
 /** Query builder class for a specific model */
@@ -384,6 +400,259 @@ export class QueryBuilder<T extends Record<string, unknown>> {
   }
 }
 
+// =============================================================================
+// Compile-only functions (no DB required)
+// =============================================================================
+
+/** Compile a findOne query without executing */
+export function compileFindOne(
+  model: ModelMetadata,
+  options: FindOneOptionsWithInclude = {},
+  registry?: ModelRegistry,
+): CompiledQueryDescriptor {
+  const validation = validateWhere(options.where, model);
+  if (!validation.valid) throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
+
+  return {
+    query: buildFindOneQuery(model, options as FindOptionsWithInclude, registry),
+    resultType: 'single',
+  };
+}
+
+/** Compile a findUnique query without executing */
+export function compileFindUnique(
+  model: ModelMetadata,
+  options: FindUniqueOptionsWithInclude,
+  registry?: ModelRegistry,
+): CompiledQueryDescriptor {
+  const validation = validateWhere(options.where, model);
+  if (!validation.valid) throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
+
+  return {
+    query: buildFindUniqueQuery(model, options as FindUniqueOptionsWithInclude, registry),
+    resultType: 'single',
+  };
+}
+
+/** Compile a findMany query without executing */
+export function compileFindMany(
+  model: ModelMetadata,
+  options: FindManyOptionsWithInclude = {},
+  registry?: ModelRegistry,
+): CompiledQueryDescriptor {
+  const validation = validateWhere(options.where, model);
+  if (!validation.valid) throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
+
+  return {
+    query: buildFindManyQuery(model, options as FindOptionsWithInclude, registry),
+    resultType: 'array',
+  };
+}
+
+/** Compile a create query without executing */
+export function compileCreate(
+  model: ModelMetadata,
+  options: CreateOptions<Record<string, unknown>>,
+  registry?: ModelRegistry,
+): CompiledQueryDescriptor {
+  const { data, select } = options;
+
+  const { cleanData, nestedOps } = extractNestedOperations(data, model);
+  const dataWithDefaults = applyNowDefaults(cleanData, model);
+  const validation = validateCreateData(dataWithDefaults, model, nestedOps);
+  if (!validation.valid) throw new Error(`Invalid data: ${validation.errors.map((e) => e.message).join(', ')}`);
+
+  const transformedData = transformData(dataWithDefaults, model);
+
+  if (nestedOps.size > 0 && registry) {
+    return {
+      query: buildCreateWithNestedTransaction(model, transformedData, nestedOps, registry),
+      resultType: 'single',
+    };
+  }
+
+  return {
+    query: buildCreateQuery(model, transformedData, select),
+    resultType: 'single',
+  };
+}
+
+/** Compile an updateMany query without executing */
+export function compileUpdateMany(
+  model: ModelMetadata,
+  options: UpdateOptions<Record<string, unknown>>,
+  registry?: ModelRegistry,
+): CompiledQueryDescriptor {
+  const { where, data, select } = options;
+
+  const whereValidation = validateWhere(where, model);
+  if (!whereValidation.valid)
+    throw new Error(`Invalid where clause: ${whereValidation.errors.map((e) => e.message).join(', ')}`);
+
+  const { cleanData, nestedOps } = extractNestedOperations(data, model);
+  const transformedData = transformData(cleanData, model);
+
+  const dataValidation = validateUpdateData(transformedData, model);
+  if (!dataValidation.valid) throw new Error(`Invalid data: ${dataValidation.errors.map((e) => e.message).join(', ')}`);
+
+  if (nestedOps.size > 0 && registry) {
+    return {
+      query: buildUpdateWithNestedTransaction(model, where, transformedData, nestedOps, registry),
+      resultType: 'array',
+    };
+  }
+
+  return {
+    query: buildUpdateManyQuery(model, where, transformedData, select),
+    resultType: 'array',
+  };
+}
+
+/** Compile an updateUnique query without executing */
+export function compileUpdateUnique(
+  model: ModelMetadata,
+  options: {
+    where: WhereClause;
+    data: Record<string, unknown>;
+    select?: SelectClause;
+    include?: IncludeClause;
+    return?: UpdateUniqueReturn;
+  },
+  registry?: ModelRegistry,
+): CompiledQueryDescriptor {
+  const { where, data, select, include, return: returnOption } = options;
+
+  const whereValidation = validateWhere(where, model);
+  if (!whereValidation.valid)
+    throw new Error(`Invalid where clause: ${whereValidation.errors.map((e) => e.message).join(', ')}`);
+
+  const { hasId } = getRecordIdFromWhere(where, model, 'updateUnique');
+
+  const { cleanData, nestedOps } = extractNestedOperations(data, model);
+  const transformedData = transformData(cleanData, model);
+
+  const dataValidation = validateUpdateData(transformedData, model);
+  if (!dataValidation.valid) throw new Error(`Invalid data: ${dataValidation.errors.map((e) => e.message).join(', ')}`);
+
+  if (nestedOps.size > 0 && registry) {
+    return {
+      query: buildUpdateWithNestedTransaction(model, where, transformedData, nestedOps, registry),
+      resultType: 'array',
+      hasId,
+      returnOption,
+    };
+  }
+
+  return {
+    query: buildUpdateUniqueQuery(model, where, transformedData, returnOption ?? undefined, select, include, registry),
+    resultType: hasId ? 'single' : 'array',
+    hasId,
+    returnOption,
+  };
+}
+
+/** Compile a deleteMany query without executing */
+export function compileDeleteMany(
+  model: ModelMetadata,
+  options: DeleteManyOptions,
+  registry?: ModelRegistry,
+): CompiledQueryDescriptor {
+  const { where } = options;
+
+  const validation = validateWhere(where, model);
+  if (!validation.valid) throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
+
+  if (registry) {
+    return {
+      query: buildDeleteWithCascade(model, where, registry),
+      resultType: 'number',
+    };
+  }
+
+  return {
+    query: buildDeleteQueryWithReturn(model, where),
+    resultType: 'number',
+  };
+}
+
+/** Compile a deleteUnique query without executing */
+export function compileDeleteUnique(
+  model: ModelMetadata,
+  options: { where: WhereClause; return?: DeleteUniqueReturn },
+  registry?: ModelRegistry,
+): CompiledQueryDescriptor {
+  const { where, return: returnOption } = options;
+
+  const validation = validateWhere(where, model);
+  if (!validation.valid) throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
+
+  const { hasId, id } = getRecordIdFromWhere(where, model, 'deleteUnique');
+  const needsReturnBefore = returnOption === true || returnOption === 'before';
+
+  let query: CompiledQuery;
+  if (registry) {
+    query = buildDeleteUniqueWithCascade(model, where, registry, needsReturnBefore);
+  } else if (hasId) {
+    query = buildDeleteUniqueQuery(model, id!, needsReturnBefore);
+  } else {
+    query = needsReturnBefore ? buildDeleteQueryWithReturn(model, where) : buildDeleteQuery(model, where);
+  }
+
+  // Determine result type based on return option
+  let resultType: QueryResultType;
+  if (returnOption === 'before') {
+    resultType = 'single';
+  } else if (returnOption === true) {
+    resultType = 'boolean';
+  } else {
+    // Default: always returns true (operation completed)
+    resultType = 'void';
+  }
+
+  return {
+    query,
+    resultType,
+    hasId,
+    returnOption,
+  };
+}
+
+/** Compile a count query without executing */
+export function compileCount(
+  model: ModelMetadata,
+  where?: WhereClause,
+  registry?: ModelRegistry,
+): CompiledQueryDescriptor {
+  if (where) {
+    const validation = validateWhere(where, model);
+    if (!validation.valid)
+      throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
+  }
+
+  return {
+    query: buildCountQuery(model, where, registry),
+    resultType: 'count',
+  };
+}
+
+/** Compile an exists query without executing (uses count internally) */
+export function compileExists(
+  model: ModelMetadata,
+  where?: WhereClause,
+  registry?: ModelRegistry,
+): CompiledQueryDescriptor {
+  if (where) {
+    const validation = validateWhere(where, model);
+    if (!validation.valid)
+      throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
+  }
+
+  return {
+    query: buildCountQuery(model, where, registry),
+    resultType: 'boolean',
+  };
+}
+
 /** Static query builder methods */
 export const QueryBuilderStatic = {
   /** Find a single record */
@@ -394,6 +663,7 @@ export const QueryBuilderStatic = {
     registry?: ModelRegistry,
   ): Promise<T | null> {
     const builder = new QueryBuilder<T>(db, model, registry);
+
     return builder.findOne(options);
   },
 
@@ -405,6 +675,7 @@ export const QueryBuilderStatic = {
     registry?: ModelRegistry,
   ): Promise<T | null> {
     const builder = new QueryBuilder<T>(db, model, registry);
+
     return builder.findUnique(options);
   },
 
@@ -416,6 +687,7 @@ export const QueryBuilderStatic = {
     registry?: ModelRegistry,
   ): Promise<T[]> {
     const builder = new QueryBuilder<T>(db, model, registry);
+
     return builder.findMany(options);
   },
 

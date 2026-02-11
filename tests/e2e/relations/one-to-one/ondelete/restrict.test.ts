@@ -9,13 +9,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import {
-  cleanupTables,
-  createTestClient,
-  CerialClient,
-  tables,
-  testConfig,
-} from '../../test-helper';
+import { cleanupTables, createTestClient, CerialClient, tables, testConfig } from '../../test-helper';
 
 describe('E2E One-to-One @onDelete(Restrict)', () => {
   let client: CerialClient;
@@ -45,9 +39,11 @@ describe('E2E One-to-One @onDelete(Restrict)', () => {
 
       // Attempting to delete user should fail
       await expect(
-        client.db.UserRestrict.deleteMany({
-          where: { id: user.id },
-        })
+        (async () => {
+          await client.db.UserRestrict.deleteMany({
+            where: { id: user.id },
+          });
+        })(),
       ).rejects.toThrow();
 
       // User should still exist
@@ -97,9 +93,7 @@ describe('E2E One-to-One @onDelete(Restrict)', () => {
         where: { id: user.id },
       });
 
-      expect(
-        await client.db.UserRestrict.findOne({ where: { id: user.id } })
-      ).toBeNull();
+      expect(await client.db.UserRestrict.findOne({ where: { id: user.id } })).toBeNull();
     });
 
     test('should allow deleting user after profile is disconnected', async () => {
@@ -125,9 +119,7 @@ describe('E2E One-to-One @onDelete(Restrict)', () => {
         where: { id: user.id },
       });
 
-      expect(
-        await client.db.UserRestrict.findOne({ where: { id: user.id } })
-      ).toBeNull();
+      expect(await client.db.UserRestrict.findOne({ where: { id: user.id } })).toBeNull();
 
       // Profile still exists as orphan
       const profileAfter = await client.db.ProfileRestrict.findOne({
@@ -154,9 +146,11 @@ describe('E2E One-to-One @onDelete(Restrict)', () => {
 
       // DeleteMany should fail because user1 has profile
       await expect(
-        client.db.UserRestrict.deleteMany({
-          where: { name: { contains: 'User' } },
-        })
+        (async () => {
+          await client.db.UserRestrict.deleteMany({
+            where: { name: { contains: 'User' } },
+          });
+        })(),
       ).rejects.toThrow();
 
       // Both users should still exist
@@ -183,9 +177,7 @@ describe('E2E One-to-One @onDelete(Restrict)', () => {
         where: { id: profile.id },
       });
 
-      expect(
-        await client.db.ProfileRestrict.findOne({ where: { id: profile.id } })
-      ).toBeNull();
+      expect(await client.db.ProfileRestrict.findOne({ where: { id: profile.id } })).toBeNull();
     });
   });
 });
