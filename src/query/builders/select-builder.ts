@@ -193,6 +193,22 @@ export function buildFindManyQuery(
   return buildSelectQuery(model, options, false, registry);
 }
 
+/** Build a SELECT count() ... GROUP ALL query */
+export function buildCountQuery(
+  model: ModelMetadata,
+  where: WhereClause | undefined,
+  registry?: ModelRegistry,
+): CompiledQuery {
+  const whereClause = transformWhereClause(where, model, registry);
+
+  const parts = [`SELECT count() FROM ${model.tableName}`, whereClause.text, 'GROUP ALL'].filter((p) => p);
+
+  return {
+    text: parts.join(' '),
+    vars: whereClause.vars,
+  };
+}
+
 /**
  * Validate at least one unique field is present in where clause
  * @param where - The where clause to validate

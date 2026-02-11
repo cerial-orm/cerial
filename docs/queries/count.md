@@ -8,6 +8,8 @@ nav_order: 9
 
 Counts the number of records matching the where clause. Returns a `number`.
 
+Uses an efficient `SELECT count() FROM ... GROUP ALL` query — only the count is returned from the database, not the actual records.
+
 ## Options
 
 | Option  | Type         | Required | Description                                   |
@@ -61,6 +63,18 @@ const [users, total] = await Promise.all([
 
 const totalPages = Math.ceil(total / pageSize);
 ```
+
+## Generated Query
+
+```sql
+-- count()
+SELECT count() FROM user GROUP ALL
+
+-- count({ isActive: true })
+SELECT count() FROM user WHERE isActive = $0 GROUP ALL
+```
+
+The `GROUP ALL` clause collapses the result into a single row with the total count. No record data is transferred over the wire.
 
 ## Return Value
 

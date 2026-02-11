@@ -3,6 +3,7 @@
  */
 
 export {
+  buildCountQuery,
   buildFindManyQuery,
   buildFindOneQuery,
   buildFindUniqueQuery,

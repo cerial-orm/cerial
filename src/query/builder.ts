@@ -19,6 +19,7 @@ import type {
   WhereClause,
 } from '../types';
 import {
+  buildCountQuery,
   buildCreateQuery,
   buildCreateWithNestedTransaction,
   buildDeleteQuery,
@@ -359,6 +360,28 @@ export class QueryBuilder<T extends Record<string, unknown>> {
 
     return true as DeleteUniqueResult<T, R>;
   }
+
+  /** Count records matching where clause using SELECT count() ... GROUP ALL */
+  async count(where?: WhereClause): Promise<number> {
+    // Validate where clause
+    if (where) {
+      const validation = validateWhere(where, this.model);
+      if (!validation.valid)
+        throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
+    }
+
+    const query = buildCountQuery(this.model, where, this.registry);
+    const result = await executeQuerySingle<{ count: number }>(this.db, query);
+
+    return result?.count ?? 0;
+  }
+
+  /** Check if any record exists matching where clause */
+  async exists(where?: WhereClause): Promise<boolean> {
+    const count = await this.count(where);
+
+    return count > 0;
+  }
 }
 
 /** Static query builder methods */
@@ -472,5 +495,19 @@ export const QueryBuilderStatic = {
     const builder = new QueryBuilder<T>(db, model, registry);
 
     return builder.updateUnique(options);
+  },
+
+  /** Count records matching where clause */
+  async count(db: Surreal, model: ModelMetadata, where?: WhereClause, registry?: ModelRegistry): Promise<number> {
+    const builder = new QueryBuilder(db, model, registry);
+
+    return builder.count(where);
+  },
+
+  /** Check if any record exists matching where clause */
+  async exists(db: Surreal, model: ModelMetadata, where?: WhereClause, registry?: ModelRegistry): Promise<boolean> {
+    const builder = new QueryBuilder(db, model, registry);
+
+    return builder.exists(where);
   },
 };

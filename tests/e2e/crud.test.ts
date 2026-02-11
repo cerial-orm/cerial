@@ -331,6 +331,39 @@ describe('E2E CRUD Operations', () => {
       const count = await client.db.User.count({ isActive: true });
       expect(count).toBe(1);
     });
+
+    test('should count with relation filter', async () => {
+      // Create users with posts
+      const userWithPosts = await client.db.User.create({
+        data: { email: 'author@example.com', name: 'Author', isActive: true },
+      });
+      await client.db.User.create({
+        data: { email: 'lurker@example.com', name: 'Lurker', isActive: true },
+      });
+      await client.db.Post.create({
+        data: { title: 'Post 1', authorId: userWithPosts!.id },
+      });
+      await client.db.Post.create({
+        data: { title: 'Post 2', authorId: userWithPosts!.id },
+      });
+
+      // Count users who have posts with a specific title
+      const count = await client.db.User.count({
+        posts: { some: { title: 'Post 1' } },
+      });
+      expect(count).toBe(1);
+
+      // Count users who have any posts (no matching filter)
+      const noMatch = await client.db.User.count({
+        posts: { some: { title: 'Nonexistent' } },
+      });
+      expect(noMatch).toBe(0);
+    });
+
+    test('should return 0 when no records match', async () => {
+      const count = await client.db.User.count({ name: 'Nobody' });
+      expect(count).toBe(0);
+    });
   });
 
   describe('Exists', () => {
@@ -348,6 +381,32 @@ describe('E2E CRUD Operations', () => {
     test('should return false when user does not exist', async () => {
       const exists = await client.db.User.exists({ email: 'nonexistent@example.com' });
       expect(exists).toBe(false);
+    });
+
+    test('should check existence with relation filter', async () => {
+      const user = await client.db.User.create({
+        data: { email: 'poster@example.com', name: 'Poster', isActive: true },
+      });
+      await client.db.Post.create({
+        data: { title: 'My Post', authorId: user!.id },
+      });
+
+      // User with matching post exists
+      const hasPostAuthor = await client.db.User.exists({
+        posts: { some: { title: 'My Post' } },
+      });
+      expect(hasPostAuthor).toBe(true);
+
+      // No user has a post with this title
+      const hasNoMatch = await client.db.User.exists({
+        posts: { some: { title: 'Nonexistent' } },
+      });
+      expect(hasNoMatch).toBe(false);
+    });
+
+    test('should work without where clause', async () => {
+      const exists = await client.db.User.exists();
+      expect(exists).toBe(true);
     });
   });
 

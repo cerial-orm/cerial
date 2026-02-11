@@ -8,7 +8,7 @@ nav_order: 10
 
 Checks whether any records match the where clause. Returns a `boolean`.
 
-More efficient than [`count`](count) when you only need to know if at least one record matches, since the query can short-circuit after finding the first match.
+Uses an efficient `SELECT count() FROM ... GROUP ALL` query under the hood and checks if the count is greater than zero. No record data is transferred over the wire.
 
 ## Options
 
@@ -56,11 +56,13 @@ const hasRecentPosts = await db.Post.exists({
 
 ## exists vs count
 
-|                 | `exists`                 | `count`                    |
-| --------------- | ------------------------ | -------------------------- |
-| **Returns**     | `boolean`                | `number`                   |
-| **Performance** | Stops after first match  | Scans all matching records |
-| **Use when**    | You need a yes/no answer | You need the exact count   |
+|              | `exists`                       | `count`                        |
+| ------------ | ------------------------------ | ------------------------------ |
+| **Returns**  | `boolean`                      | `number`                       |
+| **Use when** | You need a yes/no answer       | You need the exact count       |
+| **Query**    | `SELECT count() ... GROUP ALL` | `SELECT count() ... GROUP ALL` |
+
+Both use the same efficient aggregate query. Prefer `exists` when you only need a boolean — it makes intent clearer.
 
 ```typescript
 // Prefer exists when you only need a boolean

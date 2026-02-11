@@ -189,15 +189,11 @@ Logical operators work in `where` clauses across all query methods:
 ```typescript
 // Count users matching complex criteria
 const count = await db.User.count({
-  where: {
-    OR: [{ role: 'admin' }, { isActive: true }],
-  },
+  OR: [{ role: 'admin' }, { isActive: true }],
 });
 
 // Check if any matching user exists
-const hasAdmin = await db.User.exists({
-  where: { role: 'admin' },
-});
+const hasAdmin = await db.User.exists({ role: 'admin' });
 
 // Update matching users
 await db.User.updateMany({

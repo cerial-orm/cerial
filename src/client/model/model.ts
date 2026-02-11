@@ -160,16 +160,18 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
     return QueryBuilderStatic.deleteUnique<T, R>(this.db, this.metadata, options, this.registry);
   }
 
-  /** Count records matching where clause */
+  /** Count records matching where clause using SELECT count() ... GROUP ALL */
   async count(where?: FindManyOptionsWithInclude['where']): Promise<number> {
-    const results = await this.findMany({ where });
-    return results.length;
+    await this.beforeQuery();
+
+    return QueryBuilderStatic.count(this.db, this.metadata, where, this.registry);
   }
 
   /** Check if any record exists matching where clause */
-  async exists(where: FindOneOptionsWithInclude['where']): Promise<boolean> {
-    const result = await this.findOne({ where });
-    return result !== null;
+  async exists(where?: FindOneOptionsWithInclude['where']): Promise<boolean> {
+    await this.beforeQuery();
+
+    return QueryBuilderStatic.exists(this.db, this.metadata, where, this.registry);
   }
 }
 

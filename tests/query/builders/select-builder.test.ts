@@ -3,7 +3,13 @@
  */
 
 import { describe, expect, test } from 'bun:test';
-import { buildFindOneQuery, buildOrderBy, buildSelectFields, buildSelectQuery } from '../../../src/query/builders';
+import {
+  buildCountQuery,
+  buildFindOneQuery,
+  buildOrderBy,
+  buildSelectFields,
+  buildSelectQuery,
+} from '../../../src/query/builders';
 import type { FindOptions } from '../../../src/types';
 import { parseModelRegistry } from '../../test-helpers';
 
@@ -91,5 +97,38 @@ describe('select builder', () => {
   test('buildOrderBy returns empty for no orderBy', () => {
     const result = buildOrderBy(undefined);
     expect(result).toBe('');
+  });
+
+  describe('buildCountQuery', () => {
+    test('builds count query without where', () => {
+      const result = buildCountQuery(userModel, undefined);
+
+      expect(result.text).toBe('SELECT count() FROM user GROUP ALL');
+      expect(Object.keys(result.vars)).toHaveLength(0);
+    });
+
+    test('builds count query with where clause', () => {
+      const result = buildCountQuery(userModel, { age: { gt: 18 } });
+
+      expect(result.text).toContain('SELECT count() FROM user WHERE');
+      expect(result.text).toContain('age >');
+      expect(result.text).toContain('GROUP ALL');
+      expect(Object.values(result.vars).length).toBeGreaterThan(0);
+    });
+
+    test('builds count query with equality where', () => {
+      const result = buildCountQuery(userModel, { name: 'Alice' });
+
+      expect(result.text).toContain('SELECT count() FROM user WHERE');
+      expect(result.text).toContain('GROUP ALL');
+      expect(Object.values(result.vars)).toContain('Alice');
+    });
+
+    test('builds count query with empty where object', () => {
+      const result = buildCountQuery(userModel, {});
+
+      expect(result.text).toBe('SELECT count() FROM user GROUP ALL');
+      expect(Object.keys(result.vars)).toHaveLength(0);
+    });
   });
 });

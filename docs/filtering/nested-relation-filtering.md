@@ -175,16 +175,12 @@ Nested relation filters work in `where` clauses for all query methods:
 ```typescript
 // Count users with published posts
 const count = await db.User.count({
-  where: {
-    posts: { status: 'published' },
-  },
+  posts: { status: 'published' },
 });
 
 // Check if any user has a verified profile
 const hasVerified = await db.User.exists({
-  where: {
-    profile: { isVerified: true },
-  },
+  profile: { isVerified: true },
 });
 
 // Update users who have overdue tasks

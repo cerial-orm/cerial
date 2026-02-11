@@ -239,7 +239,7 @@ export function generateCountMethod(model: ModelMetadata): string {
 
 /** Generate exists method signature */
 export function generateExistsMethod(model: ModelMetadata): string {
-  return `exists(where: ${model.name}Where): Promise<boolean>;`;
+  return `exists(where?: ${model.name}Where): Promise<boolean>;`;
 }
 
 /** Generate all method signatures for a model */
