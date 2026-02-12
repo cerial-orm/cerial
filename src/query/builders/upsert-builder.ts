@@ -134,9 +134,9 @@ function buildUpsertSetClauses(
   // Collect all field names from both create and update
   const allFields = new Set([...Object.keys(createData), ...Object.keys(updateData)]);
 
-  // Add @updatedAt fields that aren't in either data set — they need NONE injection on update
+  // Add @updatedAt and @defaultAlways fields that aren't in either data set — they need NONE injection on update
   for (const field of model.fields) {
-    if (field.timestampDecorator === 'updatedAt') {
+    if (field.timestampDecorator === 'updatedAt' || field.defaultAlwaysValue !== undefined) {
       allFields.add(field.name);
     }
   }
@@ -155,9 +155,12 @@ function buildUpsertSetClauses(
     // Skip relation fields (virtual)
     if (fieldMetadata?.type === 'relation') continue;
 
-    // For @updatedAt fields not in update data, use a special sentinel
+    // For @updatedAt and @defaultAlways fields not in update data, use a special sentinel
     // to generate `ELSE NONE END` in the conditional (triggers DEFAULT ALWAYS)
-    if (fieldMetadata?.timestampDecorator === 'updatedAt' && updateValue === undefined) {
+    const needsDefaultAlwaysInjection =
+      (fieldMetadata?.timestampDecorator === 'updatedAt' || fieldMetadata?.defaultAlwaysValue !== undefined) &&
+      updateValue === undefined;
+    if (needsDefaultAlwaysInjection) {
       // On update path: set to NONE so DEFAULT ALWAYS re-fires
       // On create path: keep createValue as-is (undefined means let DEFAULT ALWAYS handle it)
       if (createValue === undefined) {
@@ -303,7 +306,7 @@ export function buildUpsertIdQuery(
   // Build UPDATE SET clauses (only if update data provided)
   const updateSetParts: string[] = [];
   if (hasUpdate) {
-    // Inject NONE for @updatedAt fields not in update data, strip @now fields
+    // Inject NONE for @updatedAt/@defaultAlways fields not in update data, strip @now fields
     const timestampFields = new Set<string>();
     for (const field of model.fields) {
       if (field.timestampDecorator === 'now') {
@@ -311,6 +314,10 @@ export function buildUpsertIdQuery(
         continue;
       }
       if (field.timestampDecorator === 'updatedAt' && !(field.name in updateData)) {
+        updateSetParts.push(`${field.name} = NONE`);
+        timestampFields.add(field.name);
+      }
+      if (field.defaultAlwaysValue !== undefined && !(field.name in updateData)) {
         updateSetParts.push(`${field.name} = NONE`);
         timestampFields.add(field.name);
       }

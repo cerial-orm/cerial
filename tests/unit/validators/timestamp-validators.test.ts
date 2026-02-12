@@ -573,6 +573,255 @@ describe('Timestamp Decorator Validators', () => {
     });
   });
 
+  describe('@defaultAlways decorator validation (model fields)', () => {
+    test('should pass for @defaultAlways on String field', () => {
+      const ast = makeAST([
+        makeModel({
+          name: 'Task',
+          fields: [
+            makeField({ name: 'id', type: 'string' }),
+            makeField({ name: 'status', type: 'string', decorators: [makeDecorator('defaultAlways', 'pending')] }),
+          ],
+        }),
+      ]);
+
+      const errors = validateTimestampFields(ast);
+      expect(errors).toHaveLength(0);
+    });
+
+    test('should pass for @defaultAlways on Int field', () => {
+      const ast = makeAST([
+        makeModel({
+          name: 'Task',
+          fields: [
+            makeField({ name: 'id', type: 'string' }),
+            makeField({ name: 'retryCount', type: 'int', decorators: [makeDecorator('defaultAlways', 0)] }),
+          ],
+        }),
+      ]);
+
+      const errors = validateTimestampFields(ast);
+      expect(errors).toHaveLength(0);
+    });
+
+    test('should pass for @defaultAlways on Bool field', () => {
+      const ast = makeAST([
+        makeModel({
+          name: 'Task',
+          fields: [
+            makeField({ name: 'id', type: 'string' }),
+            makeField({ name: 'reviewed', type: 'bool', decorators: [makeDecorator('defaultAlways', false)] }),
+          ],
+        }),
+      ]);
+
+      const errors = validateTimestampFields(ast);
+      expect(errors).toHaveLength(0);
+    });
+
+    test('should pass for @defaultAlways on Float field', () => {
+      const ast = makeAST([
+        makeModel({
+          name: 'Task',
+          fields: [
+            makeField({ name: 'id', type: 'string' }),
+            makeField({ name: 'score', type: 'float', decorators: [makeDecorator('defaultAlways', 1.0)] }),
+          ],
+        }),
+      ]);
+
+      const errors = validateTimestampFields(ast);
+      expect(errors).toHaveLength(0);
+    });
+
+    test('should pass for @defaultAlways on Date field', () => {
+      const ast = makeAST([
+        makeModel({
+          name: 'Task',
+          fields: [
+            makeField({ name: 'id', type: 'string' }),
+            makeField({ name: 'deadline', type: 'date', decorators: [makeDecorator('defaultAlways', null)] }),
+          ],
+        }),
+      ]);
+
+      const errors = validateTimestampFields(ast);
+      expect(errors).toHaveLength(0);
+    });
+
+    test('should error for @defaultAlways + @default on same field', () => {
+      const ast = makeAST([
+        makeModel({
+          name: 'Task',
+          fields: [
+            makeField({
+              name: 'status',
+              type: 'string',
+              decorators: [makeDecorator('defaultAlways', 'pending'), makeDecorator('default', 'active')],
+            }),
+          ],
+        }),
+      ]);
+
+      const errors = validateTimestampFields(ast);
+      expect(errors.length).toBeGreaterThanOrEqual(1);
+      expect(errors.some((e) => e.message.includes('@defaultAlways') && e.message.includes('@default'))).toBe(true);
+    });
+
+    test('should error for @defaultAlways + @now on same field', () => {
+      const ast = makeAST([
+        makeModel({
+          name: 'Task',
+          fields: [
+            makeField({
+              name: 'ts',
+              type: 'date',
+              decorators: [makeDecorator('defaultAlways', null), makeDecorator('now')],
+            }),
+          ],
+        }),
+      ]);
+
+      const errors = validateTimestampFields(ast);
+      expect(errors.length).toBeGreaterThanOrEqual(1);
+      expect(errors.some((e) => e.message.includes('@now') && e.message.includes('@defaultAlways'))).toBe(true);
+    });
+
+    test('should error for @defaultAlways + @createdAt on same field', () => {
+      const ast = makeAST([
+        makeModel({
+          name: 'Task',
+          fields: [
+            makeField({
+              name: 'ts',
+              type: 'date',
+              decorators: [makeDecorator('defaultAlways', null), makeDecorator('createdAt')],
+            }),
+          ],
+        }),
+      ]);
+
+      const errors = validateTimestampFields(ast);
+      expect(errors.length).toBeGreaterThanOrEqual(1);
+      expect(errors.some((e) => e.message.includes('@createdAt') && e.message.includes('@defaultAlways'))).toBe(true);
+    });
+
+    test('should error for @defaultAlways + @updatedAt on same field', () => {
+      const ast = makeAST([
+        makeModel({
+          name: 'Task',
+          fields: [
+            makeField({
+              name: 'ts',
+              type: 'date',
+              decorators: [makeDecorator('defaultAlways', null), makeDecorator('updatedAt')],
+            }),
+          ],
+        }),
+      ]);
+
+      const errors = validateTimestampFields(ast);
+      expect(errors.length).toBeGreaterThanOrEqual(1);
+      expect(errors.some((e) => e.message.includes('@updatedAt') && e.message.includes('@defaultAlways'))).toBe(true);
+    });
+
+    test('should pass for @defaultAlways and @updatedAt on different fields', () => {
+      const ast = makeAST([
+        makeModel({
+          name: 'Task',
+          fields: [
+            makeField({ name: 'id', type: 'string' }),
+            makeField({ name: 'reviewed', type: 'bool', decorators: [makeDecorator('defaultAlways', false)] }),
+            makeField({ name: 'updatedAt', type: 'date', decorators: [makeDecorator('updatedAt')] }),
+          ],
+        }),
+      ]);
+
+      const errors = validateTimestampFields(ast);
+      expect(errors).toHaveLength(0);
+    });
+  });
+
+  describe('@defaultAlways on object fields', () => {
+    test('should pass for @defaultAlways on String field in object', () => {
+      const ast = makeAST(
+        [],
+        [
+          makeObject({
+            name: 'ReviewMeta',
+            fields: [
+              makeField({
+                name: 'note',
+                type: 'string',
+                decorators: [makeDecorator('defaultAlways', 'pending review')],
+              }),
+            ],
+          }),
+        ],
+      );
+
+      const errors = validateObjectFields(ast);
+      expect(errors).toHaveLength(0);
+    });
+
+    test('should pass for @defaultAlways on Bool field in object', () => {
+      const ast = makeAST(
+        [],
+        [
+          makeObject({
+            name: 'ReviewMeta',
+            fields: [makeField({ name: 'flagged', type: 'bool', decorators: [makeDecorator('defaultAlways', false)] })],
+          }),
+        ],
+      );
+
+      const errors = validateObjectFields(ast);
+      expect(errors).toHaveLength(0);
+    });
+
+    test('should error for @defaultAlways + @default on object field', () => {
+      const ast = makeAST(
+        [],
+        [
+          makeObject({
+            name: 'ReviewMeta',
+            fields: [
+              makeField({
+                name: 'note',
+                type: 'string',
+                decorators: [makeDecorator('defaultAlways', 'pending'), makeDecorator('default', 'active')],
+              }),
+            ],
+          }),
+        ],
+      );
+
+      const errors = validateObjectFields(ast);
+      expect(errors.some((e) => e.message.includes('@defaultAlways') && e.message.includes('@default'))).toBe(true);
+    });
+
+    test('should error for @defaultAlways + @updatedAt on same object field', () => {
+      const ast = makeAST(
+        [],
+        [
+          makeObject({
+            name: 'ReviewMeta',
+            fields: [
+              makeField({
+                name: 'ts',
+                type: 'date',
+                decorators: [makeDecorator('defaultAlways', null), makeDecorator('updatedAt')],
+              }),
+            ],
+          }),
+        ],
+      );
+
+      const errors = validateObjectFields(ast);
+      expect(errors.some((e) => e.message.includes('@updatedAt') && e.message.includes('@defaultAlways'))).toBe(true);
+    });
+  });
+
   describe('validateSchema integration', () => {
     test('should catch timestamp errors in full schema validation', () => {
       const ast = makeAST([

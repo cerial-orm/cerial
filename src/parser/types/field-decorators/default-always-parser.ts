@@ -1,18 +1,18 @@
 /**
- * Parser for @default(value) decorator
+ * Parser for @defaultAlways(value) decorator
  */
 
 import type { ASTDecorator, SourceRange } from '../../../types';
 import { createDecorator } from '../ast';
 
-/** Check if a token is a @default(value) decorator (not @defaultAlways) */
-export function isDefaultDecorator(token: string): boolean {
-  return token.startsWith('@default(');
+/** Check if a token is a @defaultAlways decorator */
+export function isDefaultAlwaysDecorator(token: string): boolean {
+  return token.startsWith('@defaultAlways(');
 }
 
-/** Extract value from @default(value) */
-export function extractDefaultValue(token: string): unknown {
-  const match = token.match(/^@default\((.+)\)$/);
+/** Extract value from @defaultAlways(value) */
+export function extractDefaultAlwaysValue(token: string): unknown {
+  const match = token.match(/^@defaultAlways\((.+)\)$/);
   if (!match) return undefined;
 
   const valueStr = match[1]!.trim();
@@ -30,8 +30,9 @@ export function extractDefaultValue(token: string): unknown {
   return valueStr;
 }
 
-/** Parse @default(value) decorator */
-export function parseDefaultDecorator(token: string, range: SourceRange): ASTDecorator {
-  const value = extractDefaultValue(token);
-  return createDecorator('default', range, value);
+/** Parse @defaultAlways(value) decorator */
+export function parseDefaultAlwaysDecorator(token: string, range: SourceRange): ASTDecorator {
+  const value = extractDefaultAlwaysValue(token);
+
+  return createDecorator('defaultAlways', range, value);
 }

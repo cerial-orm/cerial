@@ -92,6 +92,8 @@ export function objectHasDefaultOrTimestamp(
 ): boolean {
   for (const field of object.fields) {
     if (field.defaultValue !== undefined) return true;
+    // @defaultAlways needs CreateInput (fields are optional, DB fills via DEFAULT ALWAYS)
+    if (field.defaultAlwaysValue !== undefined) return true;
     // @createdAt and @updatedAt need CreateInput (fields are optional)
     if (field.timestampDecorator === 'createdAt' || field.timestampDecorator === 'updatedAt') return true;
     // @now needs CreateInput too (fields are omitted entirely)
@@ -174,9 +176,12 @@ export function generateObjectCreateInputInterface(object: ObjectMetadata, objec
         return `  ${f.name}?: ${tsType}[];`;
       }
 
-      // Fields with @default or @createdAt/@updatedAt are optional in create (DB fills them)
+      // Fields with @default, @defaultAlways, or @createdAt/@updatedAt are optional in create (DB fills them)
       const hasDefault =
-        f.defaultValue !== undefined || f.timestampDecorator === 'createdAt' || f.timestampDecorator === 'updatedAt';
+        f.defaultValue !== undefined ||
+        f.defaultAlwaysValue !== undefined ||
+        f.timestampDecorator === 'createdAt' ||
+        f.timestampDecorator === 'updatedAt';
       const optional = !f.isRequired || hasDefault ? '?' : '';
       // Object fields don't support null — only NONE (absent) or a valid value
       const type = f.isRequired && !hasDefault ? tsType : f.type === 'object' ? tsType : `${tsType} | null`;

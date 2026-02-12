@@ -109,8 +109,8 @@ export function generateDefineField(
   const assertClause = generateAssertClause(field.type);
   if (assertClause) parts.push(assertClause);
 
-  // Add DEFAULT clause if needed (@createdAt, @updatedAt, or @default)
-  const defaultClause = generateDefaultClause(field.timestampDecorator, field.defaultValue);
+  // Add DEFAULT clause if needed (@createdAt, @updatedAt, @default, or @defaultAlways)
+  const defaultClause = generateDefaultClause(field.timestampDecorator, field.defaultValue, field.defaultAlwaysValue);
   if (defaultClause) parts.push(defaultClause);
 
   return parts.join(' ') + ';';
@@ -289,8 +289,12 @@ export function generateObjectFieldDefines(
       const assertClause = generateAssertClause(subField.type);
       if (assertClause) parts.push(assertClause);
 
-      // Add DEFAULT clause for @createdAt, @updatedAt, or @default decorators
-      const defaultClause = generateDefaultClause(subField.timestampDecorator, subField.defaultValue);
+      // Add DEFAULT clause for @createdAt, @updatedAt, @default, or @defaultAlways decorators
+      const defaultClause = generateDefaultClause(
+        subField.timestampDecorator,
+        subField.defaultValue,
+        subField.defaultAlwaysValue,
+      );
       if (defaultClause) parts.push(defaultClause);
 
       statements.push(parts.join(' ') + ';');

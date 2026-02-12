@@ -1,0 +1,18 @@
+// Test schema for @defaultAlways decorator
+// Tests the "reset on every write" behavior across all field types
+
+object ReviewMeta {
+  note String @defaultAlways("pending review")
+  flagged Bool @defaultAlways(false)
+}
+
+model ContentItem {
+  id Record @id
+  title String
+  body String
+  reviewed Bool @defaultAlways(false)
+  syncStatus String @defaultAlways("dirty")
+  retryCount Int @defaultAlways(0)
+  score Float @defaultAlways(1.0)
+  meta ReviewMeta?
+}

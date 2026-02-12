@@ -106,8 +106,11 @@ console.log(updated.updatedAt); // new timestamp — update time
 
 ## Comparison
 
-| Decorator                  | Stored | Set on create  | Updated on write | Can override |
-| -------------------------- | ------ | -------------- | ---------------- | ------------ |
-| [`@createdAt`](created-at) | Yes    | Yes            | No               | Yes          |
-| `@updatedAt`               | Yes    | Yes            | Yes              | Yes          |
-| [`@now`](now)              | No     | N/A (computed) | N/A (computed)   | No           |
+| Decorator                                 | Stored | Set on create  | Updated on write | Can override | Field types |
+| ----------------------------------------- | ------ | -------------- | ---------------- | ------------ | ----------- |
+| [`@createdAt`](created-at)                | Yes    | Yes            | No               | Yes          | `Date` only |
+| `@updatedAt`                              | Yes    | Yes            | Yes              | Yes          | `Date` only |
+| [`@now`](now)                             | No     | N/A (computed) | N/A (computed)   | No           | `Date` only |
+| [`@defaultAlways(value)`](default-always) | Yes    | Yes            | Yes              | Yes          | Any         |
+
+`@defaultAlways(value)` is the general-purpose version of the same `DEFAULT ALWAYS` mechanism. It works on any field type (not just `Date`) and lets you specify a custom value instead of `time::now()`.

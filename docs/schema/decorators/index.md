@@ -24,21 +24,22 @@ model User {
 
 ## Field Decorators
 
-| Decorator                          | Description             | Applies To                   |
-| ---------------------------------- | ----------------------- | ---------------------------- |
-| [`@id`](id)                        | Record identifier       | One per model, `Record` type |
-| [`@unique`](unique)                | Unique constraint       | Any storable field           |
-| [`@index`](index.decorator)        | Non-unique index        | Any storable field           |
-| [`@now`](now)                      | Computed timestamp      | `Date` fields                |
-| [`@createdAt`](created-at)         | Creation timestamp      | `Date` fields                |
-| [`@updatedAt`](updated-at)         | Last-modified timestamp | `Date` fields                |
-| [`@default(value)`](default)       | Default value           | Literal values or `null`     |
-| [`@field(name)`](field-and-model)  | Relation storage field  | `Relation` fields            |
-| [`@model(Model)`](field-and-model) | Relation target model   | `Relation` fields            |
-| [`@onDelete(action)`](on-delete)   | Delete behavior         | Optional `Relation?` only    |
-| [`@key(name)`](key)                | Relation disambiguation | `Relation` fields            |
-| [`@distinct`](distinct)            | Array deduplication     | Array fields                 |
-| [`@sort` / `@sort(false)`](sort)   | Array ordering          | Array fields                 |
+| Decorator                                 | Description             | Applies To                   |
+| ----------------------------------------- | ----------------------- | ---------------------------- |
+| [`@id`](id)                               | Record identifier       | One per model, `Record` type |
+| [`@unique`](unique)                       | Unique constraint       | Any storable field           |
+| [`@index`](index.decorator)               | Non-unique index        | Any storable field           |
+| [`@now`](now)                             | Computed timestamp      | `Date` fields                |
+| [`@createdAt`](created-at)                | Creation timestamp      | `Date` fields                |
+| [`@updatedAt`](updated-at)                | Last-modified timestamp | `Date` fields                |
+| [`@default(value)`](default)              | Default value           | Literal values or `null`     |
+| [`@defaultAlways(value)`](default-always) | Reset-on-write default  | Literal values or `null`     |
+| [`@field(name)`](field-and-model)         | Relation storage field  | `Relation` fields            |
+| [`@model(Model)`](field-and-model)        | Relation target model   | `Relation` fields            |
+| [`@onDelete(action)`](on-delete)          | Delete behavior         | Optional `Relation?` only    |
+| [`@key(name)`](key)                       | Relation disambiguation | `Relation` fields            |
+| [`@distinct`](distinct)                   | Array deduplication     | Array fields                 |
+| [`@sort` / `@sort(false)`](sort)          | Array ordering          | Array fields                 |
 
 ## Composite Directives
 
@@ -49,7 +50,7 @@ model User {
 
 ## Decorators on Object Fields
 
-A subset of decorators can also be applied to fields within object definitions. Relation and identity decorators (`@id`, `@field`, `@model`, `@onDelete`, `@key`) are not allowed on object fields. Allowed decorators on object fields: `@default`, `@now`, `@createdAt`, `@updatedAt`, `@unique`, `@index`, `@distinct`, `@sort`.
+A subset of decorators can also be applied to fields within object definitions. Relation and identity decorators (`@id`, `@field`, `@model`, `@onDelete`, `@key`) are not allowed on object fields. Allowed decorators on object fields: `@default`, `@defaultAlways`, `@now`, `@createdAt`, `@updatedAt`, `@unique`, `@index`, `@distinct`, `@sort`.
 
 ```cerial
 object ContactInfo {

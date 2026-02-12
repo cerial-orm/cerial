@@ -247,6 +247,34 @@ describe('Type Mapper', () => {
     test('should prefer @updatedAt over defaultValue when both provided', () => {
       expect(generateDefaultClause('updatedAt', 'some-value')).toBe('DEFAULT ALWAYS time::now()');
     });
+
+    test('should generate DEFAULT ALWAYS for @defaultAlways with string value', () => {
+      expect(generateDefaultClause(undefined, undefined, 'dirty')).toBe("DEFAULT ALWAYS 'dirty'");
+    });
+
+    test('should generate DEFAULT ALWAYS for @defaultAlways with boolean value', () => {
+      expect(generateDefaultClause(undefined, undefined, false)).toBe('DEFAULT ALWAYS false');
+      expect(generateDefaultClause(undefined, undefined, true)).toBe('DEFAULT ALWAYS true');
+    });
+
+    test('should generate DEFAULT ALWAYS for @defaultAlways with integer value', () => {
+      expect(generateDefaultClause(undefined, undefined, 0)).toBe('DEFAULT ALWAYS 0');
+      expect(generateDefaultClause(undefined, undefined, 42)).toBe('DEFAULT ALWAYS 42');
+    });
+
+    test('should generate DEFAULT ALWAYS for @defaultAlways with float value', () => {
+      expect(generateDefaultClause(undefined, undefined, 1.5)).toBe('DEFAULT ALWAYS 1.5');
+    });
+
+    test('should generate DEFAULT ALWAYS for @defaultAlways with null value', () => {
+      expect(generateDefaultClause(undefined, undefined, null)).toBe('DEFAULT ALWAYS null');
+    });
+
+    test('should prefer timestamp decorator over defaultAlwaysValue when both present', () => {
+      // timestampDecorator always takes precedence
+      expect(generateDefaultClause('createdAt', undefined, 'ignored')).toBe('DEFAULT time::now()');
+      expect(generateDefaultClause('updatedAt', undefined, 'ignored')).toBe('DEFAULT ALWAYS time::now()');
+    });
   });
 
   describe('generateComputedClause', () => {

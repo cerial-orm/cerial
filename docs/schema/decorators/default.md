@@ -121,3 +121,7 @@ const user = await db.User.create({
 | `active Bool @default(true)`        | `true`            | Uses provided value |
 | `bio String?`                       | NONE (absent)     | Uses provided value |
 | `bio String? @default(null)`        | `null`            | Uses provided value |
+
+## See Also
+
+- [`@defaultAlways(value)`](default-always) — Like `@default`, but the value is also re-applied on every **update** when the field is omitted. Use when you need the field to reset on every write (e.g., dirty flags, review gates).

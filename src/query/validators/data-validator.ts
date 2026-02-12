@@ -119,6 +119,9 @@ export function validateCreateData(
     // Skip fields with default value (if not provided)
     if (field.defaultValue !== undefined && value === undefined) continue;
 
+    // Skip @defaultAlways fields when undefined (handled by database via DEFAULT ALWAYS)
+    if (field.defaultAlwaysValue !== undefined && value === undefined) continue;
+
     // Skip array fields when undefined - they default to empty array
     if (field.isArray && (value === undefined || value === null)) continue;
 

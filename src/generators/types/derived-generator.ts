@@ -87,6 +87,10 @@ function getOptionalForCreate(model: ModelMetadata): string[] {
     if (field.timestampDecorator === 'createdAt' || field.timestampDecorator === 'updatedAt') {
       optional.add(field.name);
     }
+    // @defaultAlways fields are optional (db fills via DEFAULT ALWAYS)
+    if (field.defaultAlwaysValue !== undefined) {
+      optional.add(field.name);
+    }
     // Optional fields are optional
     if (!field.isRequired) {
       optional.add(field.name);

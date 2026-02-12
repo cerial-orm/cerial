@@ -13,6 +13,7 @@ import { isValidFieldName } from '../../../utils/validation-utils';
 import { createField, createPosition, createRange } from '../ast';
 import {
   isCreatedAtDecorator,
+  isDefaultAlwaysDecorator,
   isDefaultDecorator,
   isDistinctDecorator,
   isFieldDecorator,
@@ -26,6 +27,7 @@ import {
   isUniqueDecorator,
   isUpdatedAtDecorator,
   parseCreatedAtDecorator,
+  parseDefaultAlwaysDecorator,
   parseDefaultDecorator,
   parseDistinctDecorator,
   parseFieldDecorator,
@@ -81,6 +83,8 @@ export function parseDecorators(line: string, lineNumber: number): ASTDecorator[
       decorators.push(parseCreatedAtDecorator(range));
     } else if (isUpdatedAtDecorator(token)) {
       decorators.push(parseUpdatedAtDecorator(range));
+    } else if (isDefaultAlwaysDecorator(token)) {
+      decorators.push(parseDefaultAlwaysDecorator(token, range));
     } else if (isDefaultDecorator(token)) {
       decorators.push(parseDefaultDecorator(token, range));
     } else if (isFieldDecorator(token)) {

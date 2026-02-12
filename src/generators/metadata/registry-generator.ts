@@ -22,6 +22,14 @@ function generateFieldMetadata(field: FieldMetadata): string {
     parts.push(`defaultValue: ${value}`);
   }
 
+  if (field.defaultAlwaysValue !== undefined) {
+    const value =
+      typeof field.defaultAlwaysValue === 'string'
+        ? `'${field.defaultAlwaysValue}'`
+        : JSON.stringify(field.defaultAlwaysValue);
+    parts.push(`defaultAlwaysValue: ${value}`);
+  }
+
   // Include isArray when true
   if (field.isArray) {
     parts.push(`isArray: true`);

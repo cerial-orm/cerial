@@ -21,13 +21,13 @@ import { type IncludeClause, combineSelectWithIncludes } from './relation-builde
 import { buildSelectFields } from './select-builder';
 
 /**
- * Inject NONE for @updatedAt fields not already in the update data.
+ * Inject NONE for @updatedAt and @defaultAlways fields not already in the update data.
  * SurrealDB DEFAULT ALWAYS only re-fires when the field is explicitly set to NONE.
- * Without this, UPDATE queries that omit @updatedAt fields would preserve the old value.
+ * Without this, UPDATE queries that omit these fields would preserve the old value.
  *
  * Also strips @now (COMPUTED) fields from update data — they are not stored in the DB.
  */
-function injectTimestampFieldsForUpdate(
+function injectDefaultAlwaysFieldsForUpdate(
   data: Record<string, unknown>,
   model: ModelMetadata,
   setParts: string[],
@@ -43,6 +43,12 @@ function injectTimestampFieldsForUpdate(
 
     // Inject NONE for @updatedAt fields not provided by user
     if (field.timestampDecorator === 'updatedAt' && !(field.name in data)) {
+      setParts.push(`${field.name} = NONE`);
+      processedFields.add(field.name);
+    }
+
+    // Inject NONE for @defaultAlways fields not provided by user
+    if (field.defaultAlwaysValue !== undefined && !(field.name in data)) {
       setParts.push(`${field.name} = NONE`);
       processedFields.add(field.name);
     }
@@ -64,8 +70,8 @@ export function buildUpdateManyQuery(
   const setVars: Record<string, unknown> = {};
   const setParts: string[] = [];
 
-  // Inject NONE for @updatedAt fields and strip @now fields
-  const timestampFields = injectTimestampFieldsForUpdate(data, model, setParts);
+  // Inject NONE for @updatedAt/@defaultAlways fields and strip @now fields
+  const timestampFields = injectDefaultAlwaysFieldsForUpdate(data, model, setParts);
 
   for (const [field, value] of Object.entries(data)) {
     if (value === undefined) continue;
@@ -211,10 +217,13 @@ function buildObjectMergeClauses(
     Object.assign(setVars, varBinding.vars);
   }
 
-  // Inject NONE for @updatedAt sub-fields not provided by user
-  // This triggers DEFAULT ALWAYS time::now() on the sub-field
+  // Inject NONE for @updatedAt and @defaultAlways sub-fields not provided by user
+  // This triggers DEFAULT ALWAYS on the sub-field
   for (const subField of objectInfo.fields) {
     if (subField.timestampDecorator === 'updatedAt' && !(subField.name in data)) {
+      setParts.push(`${fieldPath}.${subField.name} = NONE`);
+    }
+    if (subField.defaultAlwaysValue !== undefined && !(subField.name in data)) {
       setParts.push(`${fieldPath}.${subField.name} = NONE`);
     }
   }
@@ -306,8 +315,8 @@ function buildSetClause(
   const setVars: Record<string, unknown> = {};
   const setParts: string[] = [];
 
-  // Inject NONE for @updatedAt fields and strip @now fields
-  const timestampFields = injectTimestampFieldsForUpdate(data, model, setParts);
+  // Inject NONE for @updatedAt/@defaultAlways fields and strip @now fields
+  const timestampFields = injectDefaultAlwaysFieldsForUpdate(data, model, setParts);
 
   for (const [field, value] of Object.entries(data)) {
     if (value === undefined) continue;

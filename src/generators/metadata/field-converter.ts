@@ -18,8 +18,10 @@ function resolveTimestampDecorator(field: ASTField): 'now' | 'createdAt' | 'upda
 /** Convert AST field to FieldMetadata */
 export function convertField(field: ASTField): FieldMetadata {
   const defaultDecorator = getDecorator(field, 'default');
+  const defaultAlwaysDecorator = getDecorator(field, 'defaultAlways');
   const isId = hasDecorator(field, 'id');
   const timestampDec = resolveTimestampDecorator(field);
+  const hasDefaultAlways = defaultAlwaysDecorator !== undefined;
 
   const metadata: FieldMetadata = {
     name: field.name,
@@ -28,8 +30,9 @@ export function convertField(field: ASTField): FieldMetadata {
     isUnique: isId || hasDecorator(field, 'unique'),
     isIndexed: hasDecorator(field, 'index'),
     timestampDecorator: timestampDec,
-    isRequired: !isId && !timestampDec && !field.isOptional,
+    isRequired: !isId && !timestampDec && !hasDefaultAlways && !field.isOptional,
     defaultValue: defaultDecorator?.value,
+    defaultAlwaysValue: defaultAlwaysDecorator?.value,
   };
 
   // Handle array type (Record[])

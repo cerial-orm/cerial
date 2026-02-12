@@ -772,6 +772,127 @@ model Tag {
       expect(updatedStmt).toBeDefined();
       expect(updatedStmt).toContain('DEFAULT ALWAYS time::now()');
     });
+
+    test('model with @defaultAlways(false) Bool field generates DEFAULT ALWAYS false', () => {
+      const model = {
+        name: 'Article',
+        tableName: 'article',
+        fields: [
+          makeField({ name: 'id', type: 'record', isId: true, isUnique: true }),
+          makeField({ name: 'reviewed', type: 'bool', isRequired: false, defaultAlwaysValue: false }),
+        ],
+      };
+
+      const statements = generateModelDefineStatements(model);
+      const reviewedStmt = statements.find((s) => s.includes('reviewed'));
+
+      expect(reviewedStmt).toBeDefined();
+      expect(reviewedStmt).toContain('DEFAULT ALWAYS false');
+      expect(reviewedStmt).not.toContain('COMPUTED');
+    });
+
+    test('model with @defaultAlways("dirty") String field generates DEFAULT ALWAYS string', () => {
+      const model = {
+        name: 'Product',
+        tableName: 'product',
+        fields: [
+          makeField({ name: 'id', type: 'record', isId: true, isUnique: true }),
+          makeField({ name: 'syncStatus', type: 'string', isRequired: false, defaultAlwaysValue: 'dirty' }),
+        ],
+      };
+
+      const statements = generateModelDefineStatements(model);
+      const syncStmt = statements.find((s) => s.includes('syncStatus'));
+
+      expect(syncStmt).toBeDefined();
+      expect(syncStmt).toContain("DEFAULT ALWAYS 'dirty'");
+    });
+
+    test('model with @defaultAlways(0) Int field generates DEFAULT ALWAYS 0', () => {
+      const model = {
+        name: 'Task',
+        tableName: 'task',
+        fields: [
+          makeField({ name: 'id', type: 'record', isId: true, isUnique: true }),
+          makeField({ name: 'retryCount', type: 'int', isRequired: false, defaultAlwaysValue: 0 }),
+        ],
+      };
+
+      const statements = generateModelDefineStatements(model);
+      const retryStmt = statements.find((s) => s.includes('retryCount'));
+
+      expect(retryStmt).toBeDefined();
+      expect(retryStmt).toContain('DEFAULT ALWAYS 0');
+    });
+
+    test('model with @defaultAlways(1.5) Float field generates DEFAULT ALWAYS 1.5', () => {
+      const model = {
+        name: 'Score',
+        tableName: 'score',
+        fields: [
+          makeField({ name: 'id', type: 'record', isId: true, isUnique: true }),
+          makeField({ name: 'rating', type: 'float', isRequired: false, defaultAlwaysValue: 1.5 }),
+        ],
+      };
+
+      const statements = generateModelDefineStatements(model);
+      const ratingStmt = statements.find((s) => s.includes('rating'));
+
+      expect(ratingStmt).toBeDefined();
+      expect(ratingStmt).toContain('DEFAULT ALWAYS 1.5');
+    });
+
+    test('object sub-field with @defaultAlways generates DEFAULT ALWAYS at dot-notation path', () => {
+      const objFields = [
+        makeField({ name: 'label', type: 'string' }),
+        makeField({ name: 'flagged', type: 'bool', isRequired: false, defaultAlwaysValue: false }),
+      ];
+      const objectRegistry = { ReviewMeta: { name: 'ReviewMeta', fields: objFields } };
+      const model = {
+        name: 'Article',
+        tableName: 'article',
+        fields: [
+          makeField({ name: 'id', type: 'record', isId: true, isUnique: true }),
+          makeField({
+            name: 'meta',
+            type: 'object',
+            objectInfo: { objectName: 'ReviewMeta', fields: objFields },
+          }),
+        ],
+      };
+
+      const statements = generateModelDefineStatements(model, undefined, undefined, objectRegistry);
+      const flaggedStmt = statements.find((s) => s.includes('meta.flagged'));
+
+      expect(flaggedStmt).toBeDefined();
+      expect(flaggedStmt).toContain('DEFAULT ALWAYS false');
+    });
+
+    test('array object sub-field with @defaultAlways uses .* notation', () => {
+      const objFields = [
+        makeField({ name: 'note', type: 'string', isRequired: false, defaultAlwaysValue: 'pending review' }),
+      ];
+      const objectRegistry = { ReviewMeta: { name: 'ReviewMeta', fields: objFields } };
+      const model = {
+        name: 'Article',
+        tableName: 'article',
+        fields: [
+          makeField({ name: 'id', type: 'record', isId: true, isUnique: true }),
+          makeField({
+            name: 'reviews',
+            type: 'object',
+            isArray: true,
+            objectInfo: { objectName: 'ReviewMeta', fields: objFields },
+          }),
+        ],
+      };
+
+      const statements = generateModelDefineStatements(model, undefined, undefined, objectRegistry);
+      const noteStmt = statements.find((s) => s.includes('reviews.*.note'));
+
+      expect(noteStmt).toBeDefined();
+      expect(noteStmt).toContain("DEFAULT ALWAYS 'pending review'");
+    });
   });
 
   describe('Object subfield decorator migrations', () => {

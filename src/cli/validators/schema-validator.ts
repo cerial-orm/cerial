@@ -287,6 +287,9 @@ export function validateArrayDecorators(ast: SchemaAST): SchemaValidationError[]
 /** Timestamp decorator types */
 const TIMESTAMP_DECORATORS = new Set(['now', 'createdAt', 'updatedAt']);
 
+/** All decorators that provide a default value strategy (mutually exclusive) */
+const DEFAULT_STRATEGY_DECORATORS = new Set(['default', 'defaultAlways', 'now', 'createdAt', 'updatedAt']);
+
 /** Validate timestamp decorator rules on a single field (shared by model and object validation) */
 function validateTimestampDecorators(
   field: { name: string; type: string; decorators: Array<{ type: string }>; range: { start: { line: number } } },
@@ -327,16 +330,50 @@ function validateTimestampDecorators(
     }
   }
 
+  // Conflict with @defaultAlways: timestamp decorators and @defaultAlways are mutually exclusive
+  const hasDefaultAlways = field.decorators.some((d) => d.type === 'defaultAlways');
+  if (hasDefaultAlways) {
+    for (const dec of timestampDecs) {
+      errors.push({
+        message: `@${dec.type} and @defaultAlways cannot be used together on field '${field.name}' in ${parentName}.`,
+        line: field.range.start.line,
+      });
+    }
+  }
+
   return errors;
 }
 
-/** Validate timestamp decorators on model fields */
+/** Validate @defaultAlways decorator rules on a single field (shared by model and object validation) */
+function validateDefaultAlwaysDecorator(
+  field: { name: string; type: string; decorators: Array<{ type: string }>; range: { start: { line: number } } },
+  parentName: string,
+): SchemaValidationError[] {
+  const errors: SchemaValidationError[] = [];
+  const hasDefaultAlways = field.decorators.some((d) => d.type === 'defaultAlways');
+
+  if (!hasDefaultAlways) return errors;
+
+  // @defaultAlways and @default are mutually exclusive
+  const hasDefault = field.decorators.some((d) => d.type === 'default');
+  if (hasDefault) {
+    errors.push({
+      message: `@defaultAlways and @default cannot be used together on field '${field.name}' in ${parentName}. Use one or the other.`,
+      line: field.range.start.line,
+    });
+  }
+
+  return errors;
+}
+
+/** Validate timestamp and @defaultAlways decorators on model fields */
 export function validateTimestampFields(ast: SchemaAST): SchemaValidationError[] {
   const errors: SchemaValidationError[] = [];
 
   for (const model of ast.models) {
     for (const field of model.fields) {
       errors.push(...validateTimestampDecorators(field, `model ${model.name}`));
+      errors.push(...validateDefaultAlwaysDecorator(field, `model ${model.name}`));
     }
   }
 
@@ -425,6 +462,7 @@ export function validateObjectFields(ast: SchemaAST): SchemaValidationError[] {
       // Validate decorators on object fields — only specific decorators are allowed
       const ALLOWED_OBJECT_DECORATORS = new Set([
         'default',
+        'defaultAlways',
         'createdAt',
         'updatedAt',
         'index',
@@ -441,15 +479,16 @@ export function validateObjectFields(ast: SchemaAST): SchemaValidationError[] {
             });
           } else {
             errors.push({
-              message: `Decorator @${dec.type} is not allowed on object fields. Allowed: @default, @createdAt, @updatedAt, @index, @unique, @distinct, @sort.`,
+              message: `Decorator @${dec.type} is not allowed on object fields. Allowed: @default, @defaultAlways, @createdAt, @updatedAt, @index, @unique, @distinct, @sort.`,
               line: field.range.start.line,
             });
           }
         }
       }
 
-      // Validate timestamp decorators on object fields
+      // Validate timestamp and @defaultAlways decorators on object fields
       errors.push(...validateTimestampDecorators(field, `object ${object.name}`));
+      errors.push(...validateDefaultAlwaysDecorator(field, `object ${object.name}`));
 
       // Validate @index and @unique mutual exclusivity on object fields
       if (hasDecorator(field, 'index') && hasDecorator(field, 'unique')) {

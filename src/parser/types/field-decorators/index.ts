@@ -3,6 +3,11 @@
  */
 
 export { isCreatedAtDecorator, parseCreatedAtDecorator } from './created-at-parser';
+export {
+  extractDefaultAlwaysValue,
+  isDefaultAlwaysDecorator,
+  parseDefaultAlwaysDecorator,
+} from './default-always-parser';
 export { extractDefaultValue, isDefaultDecorator, parseDefaultDecorator } from './default-parser';
 export { isDistinctDecorator, parseDistinctDecorator } from './distinct-parser';
 export { extractFieldRef, isFieldDecorator, parseFieldDecorator } from './field-parser';

@@ -119,10 +119,20 @@ export function generateAssertClause(schemaType: SchemaFieldType): string | unde
   return `ASSERT ${assertion}`;
 }
 
+/** Format a value for a DEFAULT clause */
+function formatDefaultValue(value: unknown): string {
+  if (typeof value === 'string') return `'${value}'`;
+  if (typeof value === 'boolean') return `${value}`;
+  if (typeof value === 'number') return `${value}`;
+
+  return JSON.stringify(value);
+}
+
 /** Generate the DEFAULT clause for a field */
 export function generateDefaultClause(
   timestampDecorator?: 'now' | 'createdAt' | 'updatedAt',
   defaultValue?: unknown,
+  defaultAlwaysValue?: unknown,
 ): string | undefined {
   // @now is COMPUTED, not DEFAULT — handled by generateComputedClause
   // @createdAt uses DEFAULT time::now() — set on creation when field is absent
@@ -130,13 +140,10 @@ export function generateDefaultClause(
   // @updatedAt uses DEFAULT ALWAYS time::now() — set on creation and re-set on every update when field is absent
   if (timestampDecorator === 'updatedAt') return 'DEFAULT ALWAYS time::now()';
 
-  if (defaultValue !== undefined) {
-    if (typeof defaultValue === 'string') return `DEFAULT '${defaultValue}'`;
-    if (typeof defaultValue === 'boolean') return `DEFAULT ${defaultValue}`;
-    if (typeof defaultValue === 'number') return `DEFAULT ${defaultValue}`;
+  // @defaultAlways(value) uses DEFAULT ALWAYS — re-set on every write when field is absent
+  if (defaultAlwaysValue !== undefined) return `DEFAULT ALWAYS ${formatDefaultValue(defaultAlwaysValue)}`;
 
-    return `DEFAULT ${JSON.stringify(defaultValue)}`;
-  }
+  if (defaultValue !== undefined) return `DEFAULT ${formatDefaultValue(defaultValue)}`;
 
   return undefined;
 }

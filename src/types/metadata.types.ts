@@ -38,6 +38,8 @@ export interface FieldMetadata {
   isRequired: boolean;
   /** Default value if specified with @default(value) */
   defaultValue?: unknown;
+  /** Default-always value if specified with @defaultAlways(value) — resets on every write */
+  defaultAlwaysValue?: unknown;
   /** Whether this is an array type (Record[]) */
   isArray?: boolean;
   /** Relation metadata for Relation type fields */

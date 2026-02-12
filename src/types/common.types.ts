@@ -19,7 +19,8 @@ export type SchemaDecorator =
   | 'onDelete'
   | 'key'
   | 'distinct'
-  | 'sort';
+  | 'sort'
+  | 'defaultAlways';
 
 /** Supported onDelete actions for relations */
 export type OnDeleteAction = 'Cascade' | 'SetNull' | 'Restrict' | 'NoAction';
