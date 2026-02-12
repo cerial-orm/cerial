@@ -56,9 +56,22 @@ await db.Article.create({
 // categories stored as: ['apple', 'mango', 'zebra'] — deduplicated and sorted
 ```
 
+## Object Fields
+
+`@distinct` can be applied to array fields within object definitions:
+
+```cerial
+object ContactInfo {
+  email Email
+  tags String[] @distinct
+}
+```
+
+The deduplication is enforced at the database level, just like on model fields.
+
 ## Applicable Types
 
-`@distinct` can be applied to any array field:
+`@distinct` can be applied to any array field (on models or objects):
 
 ```cerial
 model Example {

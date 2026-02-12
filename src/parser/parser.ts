@@ -787,14 +787,6 @@ export function validateSchema(ast: SchemaAST): ParseError[] {
         });
       }
 
-      // Objects cannot have @id decorator
-      if (field.decorators.some((d) => d.type === 'id')) {
-        errors.push({
-          message: `Objects cannot use @id decorator`,
-          position: field.range.start,
-        });
-      }
-
       // Objects cannot have Relation fields
       if (field.type === 'relation') {
         errors.push({
@@ -803,10 +795,41 @@ export function validateSchema(ast: SchemaAST): ParseError[] {
         });
       }
 
-      // Objects cannot have any decorators
-      if (field.decorators.length) {
+      // Validate decorators on object fields — only specific decorators are allowed
+      const ALLOWED_OBJECT_DECORATORS = new Set(['default', 'now', 'index', 'unique', 'distinct', 'sort']);
+      for (const dec of field.decorators) {
+        if (!ALLOWED_OBJECT_DECORATORS.has(dec.type)) {
+          errors.push({
+            message: `Decorator @${dec.type} is not allowed on object fields. Allowed: @default, @now, @index, @unique, @distinct, @sort.`,
+            position: field.range.start,
+          });
+        }
+      }
+
+      // Validate @index and @unique mutual exclusivity on object fields
+      const hasObjIndex = field.decorators.some((d) => d.type === 'index');
+      const hasObjUnique = field.decorators.some((d) => d.type === 'unique');
+      if (hasObjIndex && hasObjUnique) {
         errors.push({
-          message: `Object fields cannot have decorators`,
+          message: `Field '${field.name}' in object ${object.name} cannot have both @index and @unique. Use one or the other.`,
+          position: field.range.start,
+        });
+      }
+
+      // Validate @unique on array object fields — per-element semantics are surprising
+      if (hasObjUnique && field.isArray) {
+        errors.push({
+          message: `Field '${field.name}' in object ${object.name} is an array field and cannot have @unique. SurrealDB enforces uniqueness per element, not per array — use @index for per-element lookups instead.`,
+          position: field.range.start,
+        });
+      }
+
+      // Validate @distinct and @sort are only on array fields within objects
+      const hasDistinct = field.decorators.some((d) => d.type === 'distinct');
+      const hasSort = field.decorators.some((d) => d.type === 'sort');
+      if ((hasDistinct || hasSort) && !field.isArray) {
+        errors.push({
+          message: `Decorator @${hasDistinct ? 'distinct' : 'sort'} on field '${field.name}' in object ${object.name} is only allowed on array fields.`,
           position: field.range.start,
         });
       }

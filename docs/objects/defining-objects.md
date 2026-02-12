@@ -75,6 +75,30 @@ object OrderItem {
 
 Array fields inside objects follow the same rules as array fields on models — they default to `[]` if not provided during creation.
 
+## Decorators on Object Fields
+
+Object fields support a subset of decorators: `@default`, `@now`, `@unique`, `@index`, `@distinct`, and `@sort`. Relation and identity decorators (`@id`, `@field`, `@model`, `@onDelete`, `@key`) are not allowed.
+
+```cerial
+object ContactInfo {
+  email Email
+  phone String?
+  city String @default("Unknown")    # DB default value
+  createdAt Date @now                # Auto-set on create
+  tags String[] @distinct            # Deduplicate array values
+}
+
+object LocationInfo {
+  address String
+  zip String @unique                 # Unique constraint per embedding
+  country String @index              # Non-unique index per embedding
+}
+```
+
+When an object with `@unique` or `@index` is embedded in multiple model fields, each embedding gets its own independent constraint. For example, `LocationInfo` embedded as both `location` and `altLocation` produces separate unique indexes for `location.zip` and `altLocation.zip`.
+
+Objects with `@default` or `@now` fields generate an additional `ObjectNameCreateInput` type where those fields are optional.
+
 ## Combined Example
 
 The following schema demonstrates all object features together:
@@ -94,10 +118,10 @@ object GeoPoint {
 }
 
 object OrderItem {
-  productId String
+  productName String
   quantity Int
   tags String[]
-  deliveryAddress Address
+  price Float
 }
 
 object TreeNode {
@@ -110,5 +134,5 @@ This defines four object types:
 
 - `Address` — a simple flat object with an optional field
 - `GeoPoint` — nests an optional `Address` object
-- `OrderItem` — contains primitive arrays and a required nested `Address`
+- `OrderItem` — contains primitive arrays and scalar fields
 - `TreeNode` — a self-referencing recursive structure

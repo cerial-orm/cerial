@@ -98,6 +98,42 @@ await db.Profile.create({ data: { nickname: 'ace' } }); // Error: duplicate
 
 For composite uniqueness constraints with optional fields, see [@@unique — Null Behavior](composite-unique#null-behavior-on-optional-fields).
 
+## Object Fields
+
+`@unique` can be applied to fields within object definitions. Each embedding of the object in a model generates its own independent unique index using dot-notation paths.
+
+```cerial
+object LocationInfo {
+  address String
+  zip String @unique
+}
+
+model Store {
+  id Record @id
+  name String
+  location LocationInfo
+  warehouse LocationInfo?
+}
+```
+
+This generates two separate unique indexes:
+
+- `store_location_zip_unique` on `location.zip`
+- `store_warehouse_zip_unique` on `warehouse.zip`
+
+Object `@unique` fields are available in `findUnique`, `updateUnique`, `deleteUnique`, and `upsert` using nested syntax:
+
+```typescript
+const store = await db.Store.findUnique({
+  where: { location: { zip: '10001' } },
+});
+
+const updated = await db.Store.updateUnique({
+  where: { warehouse: { zip: '90210' } },
+  data: { name: 'Updated Warehouse' },
+});
+```
+
 ## Array Fields
 
 `@unique` **cannot** be applied to array fields (`String[]`, `Int[]`, `Record[]`, etc.). SurrealDB indexes array elements individually, so a unique index on an array field means "no two records can share any single element" — not "no two records can have the same array". This is almost never the intended behavior and would cause surprising constraint violations.

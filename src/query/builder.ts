@@ -36,6 +36,7 @@ import {
   buildFindOneQuery,
   buildFindUniqueQuery,
   findCompositeUniqueKey,
+  findObjectUniqueKey,
   buildUpdateManyQuery,
   buildUpdateUniqueQuery,
   buildUpdateWithNestedTransaction,
@@ -463,7 +464,9 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     const uniqueFields = this.model.fields.filter((f) => f.isUnique && !f.isId);
     const whereKeys = Object.keys(where).filter((k) => k !== 'AND' && k !== 'OR' && k !== 'NOT');
     const hasUniqueField =
-      whereKeys.some((key) => uniqueFields.some((f) => f.name === key)) || !!findCompositeUniqueKey(where, this.model);
+      whereKeys.some((key) => uniqueFields.some((f) => f.name === key)) ||
+      !!findCompositeUniqueKey(where, this.model) ||
+      !!findObjectUniqueKey(where, this.model);
     const isSingle = hasId || hasUniqueField;
 
     // Check for nested operations that need transaction handling
@@ -902,7 +905,9 @@ export function compileUpsert(
   const uniqueFields = model.fields.filter((f) => f.isUnique && !f.isId);
   const whereKeys = Object.keys(where).filter((k) => k !== 'AND' && k !== 'OR' && k !== 'NOT');
   const hasUniqueField =
-    whereKeys.some((key) => uniqueFields.some((f) => f.name === key)) || !!findCompositeUniqueKey(where, model);
+    whereKeys.some((key) => uniqueFields.some((f) => f.name === key)) ||
+    !!findCompositeUniqueKey(where, model) ||
+    !!findObjectUniqueKey(where, model);
   const isSingle = hasId || hasUniqueField;
 
   const query = buildUpsertQuery(

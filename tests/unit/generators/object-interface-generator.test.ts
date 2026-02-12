@@ -8,9 +8,11 @@ import { describe, expect, test } from 'bun:test';
 import {
   generateObjectInterface,
   generateObjectInputInterface,
+  generateObjectCreateInputInterface,
   generateObjectInterfaces,
   generateInterface,
   generateInputInterface,
+  objectHasDefaultOrNow,
 } from '../../../src/generators/types/interface-generator';
 import type { FieldMetadata, ModelMetadata, ObjectMetadata, ObjectRegistry } from '../../../src/types';
 
@@ -238,6 +240,262 @@ describe('Object Interface Generator', () => {
       const result = generateInputInterface(m);
 
       expect(result).toContain('address: AddressInput;');
+    });
+  });
+
+  describe('objectHasDefaultOrNow', () => {
+    test('should return false for object with no defaults', () => {
+      const addr = obj('Address', [
+        field({ name: 'street', type: 'string', isRequired: true }),
+        field({ name: 'city', type: 'string', isRequired: true }),
+      ]);
+
+      expect(objectHasDefaultOrNow(addr)).toBe(false);
+    });
+
+    test('should return true for object with @default field', () => {
+      const addr = obj('Address', [
+        field({ name: 'street', type: 'string', isRequired: true }),
+        field({ name: 'city', type: 'string', isRequired: true, defaultValue: 'Unknown' }),
+      ]);
+
+      expect(objectHasDefaultOrNow(addr)).toBe(true);
+    });
+
+    test('should return true for object with @now field', () => {
+      const addr = obj('Address', [
+        field({ name: 'street', type: 'string', isRequired: true }),
+        field({ name: 'createdAt', type: 'date', isRequired: true, hasNowDefault: true }),
+      ]);
+
+      expect(objectHasDefaultOrNow(addr)).toBe(true);
+    });
+
+    test('should return true for nested object with defaults', () => {
+      const inner = obj('Inner', [field({ name: 'value', type: 'string', isRequired: true, defaultValue: 'default' })]);
+      const outer = obj('Outer', [
+        field({
+          name: 'inner',
+          type: 'object',
+          isRequired: true,
+          objectInfo: { objectName: 'Inner', fields: inner.fields },
+        }),
+      ]);
+      const registry: ObjectRegistry = { Inner: inner, Outer: outer };
+
+      expect(objectHasDefaultOrNow(outer, registry)).toBe(true);
+    });
+
+    test('should return false for nested object without defaults', () => {
+      const inner = obj('Inner', [field({ name: 'value', type: 'string', isRequired: true })]);
+      const outer = obj('Outer', [
+        field({
+          name: 'inner',
+          type: 'object',
+          isRequired: true,
+          objectInfo: { objectName: 'Inner', fields: inner.fields },
+        }),
+      ]);
+      const registry: ObjectRegistry = { Inner: inner, Outer: outer };
+
+      expect(objectHasDefaultOrNow(outer, registry)).toBe(false);
+    });
+
+    test('should handle self-referencing objects without infinite loop', () => {
+      const tree = obj('Tree', [
+        field({ name: 'value', type: 'int', isRequired: true }),
+        field({
+          name: 'children',
+          type: 'object',
+          isRequired: true,
+          isArray: true,
+          objectInfo: { objectName: 'Tree', fields: [] },
+        }),
+      ]);
+      const registry: ObjectRegistry = { Tree: tree };
+
+      expect(objectHasDefaultOrNow(tree, registry)).toBe(false);
+    });
+
+    test('should detect @default(false) as having a default', () => {
+      const o = obj('Flags', [field({ name: 'active', type: 'bool', isRequired: true, defaultValue: false })]);
+
+      expect(objectHasDefaultOrNow(o)).toBe(true);
+    });
+  });
+
+  describe('generateObjectCreateInputInterface', () => {
+    test('should make @default field optional', () => {
+      const addr = obj('Address', [
+        field({ name: 'street', type: 'string', isRequired: true }),
+        field({ name: 'city', type: 'string', isRequired: true, defaultValue: 'Unknown' }),
+      ]);
+
+      const result = generateObjectCreateInputInterface(addr);
+
+      expect(result).toContain('export interface AddressCreateInput');
+      expect(result).toContain('street: string;');
+      expect(result).toContain('city?: string | null;');
+    });
+
+    test('should make @now field optional', () => {
+      const addr = obj('Address', [
+        field({ name: 'street', type: 'string', isRequired: true }),
+        field({ name: 'createdAt', type: 'date', isRequired: true, hasNowDefault: true }),
+      ]);
+
+      const result = generateObjectCreateInputInterface(addr);
+
+      expect(result).toContain('street: string;');
+      expect(result).toContain('createdAt?: Date | null;');
+    });
+
+    test('should keep already-optional fields optional', () => {
+      const addr = obj('Address', [
+        field({ name: 'street', type: 'string', isRequired: true }),
+        field({ name: 'zipCode', type: 'string', isRequired: false }),
+      ]);
+
+      const result = generateObjectCreateInputInterface(addr);
+
+      expect(result).toContain('street: string;');
+      expect(result).toContain('zipCode?: string | null;');
+    });
+
+    test('should make array fields optional in create (default to [])', () => {
+      const o = obj('Order', [
+        field({ name: 'name', type: 'string', isRequired: true }),
+        field({ name: 'tags', type: 'string', isRequired: true, isArray: true }),
+      ]);
+
+      const result = generateObjectCreateInputInterface(o);
+
+      expect(result).toContain('name: string;');
+      expect(result).toContain('tags?: string[];');
+    });
+
+    test('should use RecordIdInput for Record fields', () => {
+      const o = obj('Ref', [
+        field({ name: 'label', type: 'string', isRequired: true }),
+        field({ name: 'refId', type: 'record', isRequired: true, defaultValue: 'some:id' }),
+      ]);
+      const registry: ObjectRegistry = { Ref: o };
+
+      const result = generateObjectCreateInputInterface(o, registry);
+
+      expect(result).toContain('label: string;');
+      expect(result).toContain('refId?: RecordIdInput | null;');
+    });
+
+    test('should use nested CreateInput for objects with defaults', () => {
+      const inner = obj('Inner', [field({ name: 'value', type: 'string', isRequired: true, defaultValue: 'default' })]);
+      const outer = obj('Outer', [
+        field({
+          name: 'inner',
+          type: 'object',
+          isRequired: true,
+          objectInfo: { objectName: 'Inner', fields: inner.fields },
+        }),
+      ]);
+      const registry: ObjectRegistry = { Inner: inner, Outer: outer };
+
+      const result = generateObjectCreateInputInterface(outer, registry);
+
+      expect(result).toContain('inner: InnerCreateInput;');
+    });
+
+    test('should use regular Input for nested objects without defaults', () => {
+      const inner = obj('Inner', [field({ name: 'value', type: 'string', isRequired: true })]);
+      const outer = obj('Outer', [
+        field({ name: 'name', type: 'string', isRequired: true, defaultValue: 'x' }),
+        field({
+          name: 'inner',
+          type: 'object',
+          isRequired: true,
+          objectInfo: { objectName: 'Inner', fields: inner.fields },
+        }),
+      ]);
+      const registry: ObjectRegistry = { Inner: inner, Outer: outer };
+
+      const result = generateObjectCreateInputInterface(outer, registry);
+
+      expect(result).toContain('name?: string | null;');
+      expect(result).toContain('inner: InnerInput;');
+    });
+
+    test('should handle object with only @default/@now fields (all optional)', () => {
+      const o = obj('Auto', [
+        field({ name: 'createdAt', type: 'date', isRequired: true, hasNowDefault: true }),
+        field({ name: 'status', type: 'string', isRequired: true, defaultValue: 'active' }),
+      ]);
+
+      const result = generateObjectCreateInputInterface(o);
+
+      expect(result).toContain('createdAt?: Date | null;');
+      expect(result).toContain('status?: string | null;');
+    });
+
+    test('should handle optional object field in create', () => {
+      const addr = obj('Address', [
+        field({ name: 'street', type: 'string', isRequired: true }),
+        field({ name: 'city', type: 'string', isRequired: true, defaultValue: 'Unknown' }),
+      ]);
+
+      const result = generateObjectCreateInputInterface(addr);
+
+      // Optional object fields don't get | null
+      expect(result).toContain('export interface AddressCreateInput');
+    });
+  });
+
+  describe('generateObjectInterfaces with CreateInput', () => {
+    test('should generate CreateInput when object has @default fields', () => {
+      const addr = obj('Address', [
+        field({ name: 'street', type: 'string', isRequired: true }),
+        field({ name: 'city', type: 'string', isRequired: true, defaultValue: 'Unknown' }),
+      ]);
+
+      const result = generateObjectInterfaces([addr]);
+
+      expect(result).toContain('export interface Address {');
+      expect(result).toContain('export interface AddressInput {');
+      expect(result).toContain('export interface AddressCreateInput {');
+    });
+
+    test('should NOT generate CreateInput when object has no defaults', () => {
+      const addr = obj('Address', [
+        field({ name: 'street', type: 'string', isRequired: true }),
+        field({ name: 'city', type: 'string', isRequired: true }),
+      ]);
+
+      const result = generateObjectInterfaces([addr]);
+
+      expect(result).toContain('export interface Address {');
+      expect(result).toContain('export interface AddressInput {');
+      expect(result).not.toContain('CreateInput');
+    });
+
+    test('should generate CreateInput for object with @now field', () => {
+      const o = obj('Timestamped', [
+        field({ name: 'name', type: 'string', isRequired: true }),
+        field({ name: 'createdAt', type: 'date', isRequired: true, hasNowDefault: true }),
+      ]);
+
+      const result = generateObjectInterfaces([o]);
+
+      expect(result).toContain('export interface TimestampedCreateInput {');
+    });
+
+    test('should generate CreateInput only for objects that need it (mixed)', () => {
+      const withDefault = obj('WithDefault', [
+        field({ name: 'val', type: 'string', isRequired: true, defaultValue: 'x' }),
+      ]);
+      const noDefault = obj('NoDefault', [field({ name: 'val', type: 'string', isRequired: true })]);
+
+      const result = generateObjectInterfaces([withDefault, noDefault]);
+
+      expect(result).toContain('export interface WithDefaultCreateInput');
+      expect(result).not.toContain('NoDefaultCreateInput');
     });
   });
 });

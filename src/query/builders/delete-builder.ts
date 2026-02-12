@@ -12,7 +12,7 @@ import type { CompiledQuery } from '../compile/types';
 import type { ModelMetadata, ModelRegistry, OnDeleteAction, WhereClause } from '../../types';
 import { transformWhereClause } from '../filters/transformer';
 import { transformOrValidateRecordId } from '../transformers';
-import { expandCompositeKey, validateUniqueField } from './select-builder';
+import { expandCompositeKey, expandObjectUniqueKey, validateUniqueField } from './select-builder';
 import { getUniqueFields } from '../../parser/model-metadata';
 
 /** Build DELETE query */
@@ -228,8 +228,9 @@ export function getRecordIdFromWhere(
   // Validate unique field requirement
   validateUniqueField(where, model, methodName);
 
-  // Expand composite unique keys
-  const expandedWhere = expandCompositeKey(where, model);
+  // Expand composite unique keys and object @unique keys
+  let expandedWhere = expandCompositeKey(where, model);
+  expandedWhere = expandObjectUniqueKey(expandedWhere, model);
 
   const idField = model.fields.find((f) => f.isId);
   if (idField && expandedWhere[idField.name] !== undefined && expandedWhere[idField.name] !== null) {

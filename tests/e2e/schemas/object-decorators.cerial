@@ -1,0 +1,21 @@
+object ContactInfo {
+  email Email
+  phone String?
+  city String @default("Unknown")
+  createdAt Date @now
+  tags String[] @distinct
+}
+
+object LocationInfo {
+  address String
+  zip String @unique
+  country String @index
+}
+
+model ObjDecUser {
+  id Record @id
+  name String
+  contact ContactInfo
+  location LocationInfo
+  altLocation LocationInfo?
+}

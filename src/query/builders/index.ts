@@ -13,6 +13,7 @@ export {
   buildSelectFields,
   buildSelectQuery,
   findCompositeUniqueKey,
+  findObjectUniqueKey,
   validateUniqueField,
   type FindOptionsWithInclude,
   type FindUniqueOptionsWithInclude,

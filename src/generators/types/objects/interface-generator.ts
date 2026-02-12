@@ -1,0 +1,197 @@
+/**
+ * Object interface generator - generates TypeScript interfaces for object definitions
+ *
+ * Generates up to three types for each object:
+ * - Output interface (Address): CerialId for Record fields (what you get back from queries)
+ * - Input interface (AddressInput): RecordIdInput for Record fields (what you can pass in)
+ * - CreateInput interface (AddressCreateInput): Fields with @default/@now become optional (only when needed)
+ */
+
+import type { FieldMetadata, ObjectMetadata, ObjectRegistry } from '../../../types';
+import { schemaTypeToTsType } from '../../../utils/type-utils';
+
+/**
+ * Get the TypeScript output type for a field
+ * For Record fields, uses CerialId instead of string
+ * For Object fields, uses the object's interface name
+ */
+function getOutputType(field: FieldMetadata): string {
+  if (field.type === 'record') return 'CerialId';
+  if (field.type === 'object' && field.objectInfo) return field.objectInfo.objectName;
+
+  return schemaTypeToTsType(field.type);
+}
+
+/**
+ * Get the TypeScript input type for a field
+ * For Record fields, uses RecordIdInput instead of CerialId
+ * For Object fields, uses the object's Input interface name
+ */
+function getInputType(field: FieldMetadata): string {
+  if (field.type === 'record') return 'RecordIdInput';
+  if (field.type === 'object' && field.objectInfo) return `${field.objectInfo.objectName}Input`;
+
+  return schemaTypeToTsType(field.type);
+}
+
+/**
+ * Get the TypeScript create input type for a field
+ * Same as getInputType but uses CreateInput for nested objects that have @default/@now fields
+ */
+function getCreateInputType(field: FieldMetadata, objectRegistry?: ObjectRegistry): string {
+  if (field.type === 'record') return 'RecordIdInput';
+  if (field.type === 'object' && field.objectInfo && objectRegistry) {
+    const nested = objectRegistry[field.objectInfo.objectName];
+    if (nested && objectHasDefaultOrNow(nested, objectRegistry)) {
+      return `${field.objectInfo.objectName}CreateInput`;
+    }
+
+    return `${field.objectInfo.objectName}Input`;
+  }
+
+  return schemaTypeToTsType(field.type);
+}
+
+/**
+ * Check if an object has any Record fields (determines if Input differs from Output)
+ */
+export function objectHasRecordFields(
+  object: ObjectMetadata,
+  objectRegistry?: ObjectRegistry,
+  visited: Set<string> = new Set(),
+): boolean {
+  for (const field of object.fields) {
+    if (field.type === 'record') return true;
+    // Check nested objects recursively (with cycle detection for self-referencing objects)
+    if (field.type === 'object' && field.objectInfo && objectRegistry) {
+      const nestedName = field.objectInfo.objectName;
+      if (visited.has(nestedName)) continue;
+      const nested = objectRegistry[nestedName];
+      if (nested) {
+        const nextVisited = new Set(visited);
+        nextVisited.add(nestedName);
+        if (objectHasRecordFields(nested, objectRegistry, nextVisited)) return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Check if an object has any fields with @default or @now decorators (direct or nested)
+ * When true, a separate CreateInput type is needed where those fields are optional
+ */
+export function objectHasDefaultOrNow(
+  object: ObjectMetadata,
+  objectRegistry?: ObjectRegistry,
+  visited: Set<string> = new Set(),
+): boolean {
+  for (const field of object.fields) {
+    if (field.defaultValue !== undefined) return true;
+    if (field.hasNowDefault) return true;
+    // Check nested objects recursively (with cycle detection for self-referencing objects)
+    if (field.type === 'object' && field.objectInfo && objectRegistry) {
+      const nestedName = field.objectInfo.objectName;
+      if (visited.has(nestedName)) continue;
+      const nested = objectRegistry[nestedName];
+      if (nested) {
+        const nextVisited = new Set(visited);
+        nextVisited.add(nestedName);
+        if (objectHasDefaultOrNow(nested, objectRegistry, nextVisited)) return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+/** Generate output interface for an object definition */
+export function generateObjectInterface(object: ObjectMetadata): string {
+  const fields = object.fields
+    .map((f) => {
+      const tsType = getOutputType(f);
+      if (f.isArray) return `  ${f.name}: ${tsType}[];`;
+      const optional = f.isRequired ? '' : '?';
+      // Object fields don't support null — only NONE (absent) or a valid value
+      const type = f.isRequired ? tsType : f.type === 'object' ? tsType : `${tsType} | null`;
+
+      return `  ${f.name}${optional}: ${type};`;
+    })
+    .join('\n');
+
+  return `export interface ${object.name} {
+${fields}
+}`;
+}
+
+/** Generate input interface for an object definition */
+export function generateObjectInputInterface(object: ObjectMetadata, objectRegistry?: ObjectRegistry): string {
+  // If object has no Record fields (direct or nested), input is identical to output
+  const hasRecords = objectHasRecordFields(object, objectRegistry);
+
+  const fields = object.fields
+    .map((f) => {
+      const tsType = hasRecords ? getInputType(f) : getOutputType(f);
+      if (f.isArray) return `  ${f.name}: ${tsType}[];`;
+      const optional = f.isRequired ? '' : '?';
+      // Object fields don't support null — only NONE (absent) or a valid value
+      const type = f.isRequired ? tsType : f.type === 'object' ? tsType : `${tsType} | null`;
+
+      return `  ${f.name}${optional}: ${type};`;
+    })
+    .join('\n');
+
+  return `export interface ${object.name}Input {
+${fields}
+}`;
+}
+
+/**
+ * Generate CreateInput interface for an object definition
+ * Only generated when the object has @default or @now fields (direct or nested)
+ * Fields with @default/@now become optional, matching model Create type behavior
+ */
+export function generateObjectCreateInputInterface(object: ObjectMetadata, objectRegistry?: ObjectRegistry): string {
+  const hasRecords = objectHasRecordFields(object, objectRegistry);
+
+  const fields = object.fields
+    .map((f) => {
+      const tsType = hasRecords ? getCreateInputType(f, objectRegistry) : getCreateInputType(f, objectRegistry);
+
+      if (f.isArray) {
+        // Array fields are optional in create (default to [])
+        return `  ${f.name}?: ${tsType}[];`;
+      }
+
+      // Fields with @default or @now are optional in create (DB fills them)
+      const hasDefault = f.defaultValue !== undefined || f.hasNowDefault;
+      const optional = !f.isRequired || hasDefault ? '?' : '';
+      // Object fields don't support null — only NONE (absent) or a valid value
+      const type = f.isRequired && !hasDefault ? tsType : f.type === 'object' ? tsType : `${tsType} | null`;
+
+      return `  ${f.name}${optional}: ${type};`;
+    })
+    .join('\n');
+
+  return `export interface ${object.name}CreateInput {
+${fields}
+}`;
+}
+
+/** Generate interfaces for all objects (output, input, and optionally createInput) */
+export function generateObjectInterfaces(objects: ObjectMetadata[], objectRegistry?: ObjectRegistry): string {
+  if (!objects.length) return '';
+
+  const interfaces: string[] = [];
+  for (const object of objects) {
+    interfaces.push(generateObjectInterface(object));
+    interfaces.push(generateObjectInputInterface(object, objectRegistry));
+    // Only generate CreateInput when the object has @default/@now fields
+    if (objectHasDefaultOrNow(object, objectRegistry)) {
+      interfaces.push(generateObjectCreateInputInterface(object, objectRegistry));
+    }
+  }
+
+  return interfaces.join('\n\n');
+}

@@ -58,6 +58,41 @@ const user = await db.User.findUnique({
 // user: (User & { profile: Profile }) | null
 ```
 
+## Find by Object @unique Field
+
+When an object type has a field marked with `@unique`, you can use it in `findUnique` with nested syntax:
+
+```cerial
+object LocationInfo {
+  address String
+  zip String @unique
+}
+
+model Store {
+  id Record @id
+  name String
+  location LocationInfo
+  warehouse LocationInfo?
+}
+```
+
+```typescript
+// Find by object @unique field (nested syntax)
+const store = await db.Store.findUnique({
+  where: { location: { zip: '10001' } },
+});
+
+// Each embedding is independent
+const byWarehouse = await db.Store.findUnique({
+  where: { warehouse: { zip: '90210' } },
+});
+
+// With additional filters
+const filtered = await db.Store.findUnique({
+  where: { location: { zip: '10001' }, name: 'Downtown' },
+});
+```
+
 ## With Select and Include
 
 ```typescript

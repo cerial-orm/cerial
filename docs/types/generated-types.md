@@ -32,13 +32,16 @@ For each model in your schema, Cerial generates the following types:
 
 For each `object` in your schema, Cerial generates a smaller set of types. Objects are embedded inline within models — they don't have their own tables, IDs, or relations.
 
-| Type             | Description                                                            |
-| ---------------- | ---------------------------------------------------------------------- |
-| `Address`        | Base interface with all fields typed.                                  |
-| `AddressInput`   | Input interface (identical to base for objects without Record fields). |
-| `AddressWhere`   | Where clause type for filtering by nested object fields.               |
-| `AddressSelect`  | Sub-field selection type.                                              |
-| `AddressOrderBy` | Ordering type for nested object fields.                                |
+| Type                 | Description                                                                 |
+| -------------------- | --------------------------------------------------------------------------- |
+| `Address`            | Base interface with all fields typed.                                       |
+| `AddressInput`       | Input interface (identical to base for objects without Record fields).      |
+| `AddressCreateInput` | Create input where `@default`/`@now` fields are optional. Only when needed. |
+| `AddressWhere`       | Where clause type for filtering by nested object fields.                    |
+| `AddressSelect`      | Sub-field selection type.                                                   |
+| `AddressOrderBy`     | Ordering type for nested object fields.                                     |
+
+`ObjectNameCreateInput` is only generated when the object has fields with `@default` or `@now` decorators. In that type, those fields become optional since the database fills them automatically. The parent model's `Create` type uses `CreateInput` instead of `Input` for such objects.
 
 Objects do **not** generate: `GetPayload`, `Include`, `Create`, `Update`, or Model-level types. Since objects are embedded, they are always operated on through their parent model.
 

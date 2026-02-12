@@ -355,14 +355,6 @@ export function validateObjectFields(ast: SchemaAST): SchemaValidationError[] {
         });
       }
 
-      // Objects cannot have @id decorator
-      if (hasDecorator(field, 'id')) {
-        errors.push({
-          message: `Objects cannot use @id decorator`,
-          line: field.range.start.line,
-        });
-      }
-
       // Objects cannot have Relation fields
       if (field.type === 'relation') {
         errors.push({
@@ -371,10 +363,37 @@ export function validateObjectFields(ast: SchemaAST): SchemaValidationError[] {
         });
       }
 
-      // Objects cannot have any decorators
-      if (field.decorators.length) {
+      // Validate decorators on object fields — only specific decorators are allowed
+      const ALLOWED_OBJECT_DECORATORS = new Set(['default', 'now', 'index', 'unique', 'distinct', 'sort']);
+      for (const dec of field.decorators) {
+        if (!ALLOWED_OBJECT_DECORATORS.has(dec.type)) {
+          errors.push({
+            message: `Decorator @${dec.type} is not allowed on object fields. Allowed: @default, @now, @index, @unique, @distinct, @sort.`,
+            line: field.range.start.line,
+          });
+        }
+      }
+
+      // Validate @index and @unique mutual exclusivity on object fields
+      if (hasDecorator(field, 'index') && hasDecorator(field, 'unique')) {
         errors.push({
-          message: `Object fields cannot have decorators`,
+          message: `Field '${field.name}' in object ${object.name} cannot have both @index and @unique. Use one or the other.`,
+          line: field.range.start.line,
+        });
+      }
+
+      // Validate @unique on array object fields
+      if (hasDecorator(field, 'unique') && field.isArray) {
+        errors.push({
+          message: `Field '${field.name}' in object ${object.name} is an array field and cannot have @unique.`,
+          line: field.range.start.line,
+        });
+      }
+
+      // Validate @distinct and @sort are only on array fields
+      if ((hasDecorator(field, 'distinct') || hasDecorator(field, 'sort')) && !field.isArray) {
+        errors.push({
+          message: `@distinct and @sort decorators on field '${field.name}' in object ${object.name} are only allowed on array fields.`,
           line: field.range.start.line,
         });
       }

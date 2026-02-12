@@ -336,7 +336,7 @@ object Bad {
 `;
       const { ast } = parse(schema);
       const errors = validateSchema(ast);
-      expect(errors.some((e) => e.message.includes('Objects cannot use @id decorator'))).toBe(true);
+      expect(errors.some((e) => e.message.includes('Decorator @id is not allowed on object fields'))).toBe(true);
     });
 
     test('should error on object with Relation field', () => {
@@ -354,40 +354,170 @@ object Bad {
       expect(errors.some((e) => e.message.includes('Objects cannot have Relation fields'))).toBe(true);
     });
 
-    test('should error on object with @field decorator', () => {
+    test('should error on object with @field decorator (disallowed)', () => {
       const schema = `
 object Bad {
   name String @field(something)
 }
 `;
-      // @field is a decorator for Relation, but the parser won't find a Relation type here.
-      // The field will fail to parse as a valid type with @field, let's use a different approach.
-      // Actually @field is parsed as a decorator on any field. Let's check the error.
       const { ast } = parse(schema);
       const errors = validateSchema(ast);
-      expect(errors.some((e) => e.message.includes('Object fields cannot have decorators'))).toBe(true);
+      expect(
+        errors.some((e) => e.message.includes('@field') && e.message.includes('not allowed on object fields')),
+      ).toBe(true);
     });
 
-    test('should error on object with @unique decorator', () => {
+    test('should error on object with @id decorator (disallowed)', () => {
       const schema = `
 object Bad {
-  name String @unique
+  ref Record @id
 }
 `;
       const { ast } = parse(schema);
       const errors = validateSchema(ast);
-      expect(errors.some((e) => e.message.includes('Object fields cannot have decorators'))).toBe(true);
+      expect(errors.some((e) => e.message.includes('@id') && e.message.includes('not allowed on object fields'))).toBe(
+        true,
+      );
     });
 
-    test('should error on object with @default decorator', () => {
+    test('should error on object with @model decorator (disallowed)', () => {
       const schema = `
 object Bad {
-  name String @default("hello")
+  name String @model(User)
 }
 `;
       const { ast } = parse(schema);
       const errors = validateSchema(ast);
-      expect(errors.some((e) => e.message.includes('Object fields cannot have decorators'))).toBe(true);
+      expect(
+        errors.some((e) => e.message.includes('@model') && e.message.includes('not allowed on object fields')),
+      ).toBe(true);
+    });
+
+    test('should error on object with @key decorator (disallowed)', () => {
+      const schema = `
+object Bad {
+  name String @key(something)
+}
+`;
+      const { ast } = parse(schema);
+      const errors = validateSchema(ast);
+      expect(errors.some((e) => e.message.includes('@key') && e.message.includes('not allowed on object fields'))).toBe(
+        true,
+      );
+    });
+
+    test('should error on object with @onDelete decorator (disallowed)', () => {
+      const schema = `
+object Bad {
+  name String @onDelete(Cascade)
+}
+`;
+      const { ast } = parse(schema);
+      const errors = validateSchema(ast);
+      expect(
+        errors.some((e) => e.message.includes('@onDelete') && e.message.includes('not allowed on object fields')),
+      ).toBe(true);
+    });
+
+    // Allowed decorators on object fields
+    test('should allow @unique on object fields', () => {
+      const schema = `
+object Address {
+  zip String @unique
+}
+`;
+      const { ast } = parse(schema);
+      const errors = validateSchema(ast);
+      expect(errors.filter((e) => e.message.includes('not allowed'))).toHaveLength(0);
+    });
+
+    test('should allow @index on object fields', () => {
+      const schema = `
+object Address {
+  city String @index
+}
+`;
+      const { ast } = parse(schema);
+      const errors = validateSchema(ast);
+      expect(errors.filter((e) => e.message.includes('not allowed'))).toHaveLength(0);
+    });
+
+    test('should allow @default on object fields', () => {
+      const schema = `
+object Address {
+  city String @default("Unknown")
+}
+`;
+      const { ast } = parse(schema);
+      const errors = validateSchema(ast);
+      expect(errors.filter((e) => e.message.includes('not allowed'))).toHaveLength(0);
+    });
+
+    test('should allow @now on object Date fields', () => {
+      const schema = `
+object Metadata {
+  createdAt Date @now
+}
+`;
+      const { ast } = parse(schema);
+      const errors = validateSchema(ast);
+      expect(errors.filter((e) => e.message.includes('not allowed'))).toHaveLength(0);
+    });
+
+    test('should allow @distinct and @sort on array fields in objects', () => {
+      const schema = `
+object Tags {
+  values String[] @distinct @sort
+}
+`;
+      const { ast } = parse(schema);
+      const errors = validateSchema(ast);
+      expect(errors.filter((e) => e.message.includes('not allowed'))).toHaveLength(0);
+    });
+
+    // Validation rules for allowed decorators
+    test('should error on @index and @unique on same object field', () => {
+      const schema = `
+object Address {
+  zip String @index @unique
+}
+`;
+      const { ast } = parse(schema);
+      const errors = validateSchema(ast);
+      expect(errors.some((e) => e.message.includes('@index') && e.message.includes('@unique'))).toBe(true);
+    });
+
+    test('should error on @unique on array field in object', () => {
+      const schema = `
+object Tags {
+  values String[] @unique
+}
+`;
+      const { ast } = parse(schema);
+      const errors = validateSchema(ast);
+      expect(errors.some((e) => e.message.includes('array') && e.message.includes('@unique'))).toBe(true);
+    });
+
+    test('should error on @distinct on non-array field in object', () => {
+      const schema = `
+object Address {
+  city String @distinct
+}
+`;
+      const { ast } = parse(schema);
+      const errors = validateSchema(ast);
+      expect(errors.some((e) => e.message.includes('distinct') && e.message.includes('array'))).toBe(true);
+    });
+
+    test('should error on @sort on non-array field in object', () => {
+      const schema = `
+object Address {
+  city String @sort
+}
+`;
+      const { ast } = parse(schema);
+      const errors = validateSchema(ast);
+      expect(errors.some((e) => e.message.includes('sort') && e.message.includes('array'))).toBe(true);
     });
 
     test('should error on duplicate object name', () => {

@@ -132,6 +132,15 @@ Schema (.cerial files) → Parser (AST) → Generators → TypeScript Client
 - **Module exports** - Each module has `index.ts` that re-exports its public API
 - **Generated files** - Formatted with Prettier
 
+### File & Folder Organization
+
+- **Modularize by domain** - Group related logic into dedicated folders (e.g., `types/objects/` for object-specific generators)
+- **Separate concerns** - Each file should own one responsibility; avoid mixing model and object logic in the same file
+- **Nest folders when needed** - When a domain grows beyond 3-4 files, create a subfolder with its own `index.ts`
+- **Prefer small focused files** - Many small files with clear names over few large files with mixed responsibilities
+- **Decouple logic** - Keep independent subsystems (parsing, generation, query building, validation) in their own folders and files
+- **Barrel exports** - Every folder gets an `index.ts` that re-exports its public API; consumers import from the barrel, not individual files
+
 ## TypeScript Conventions
 
 - Strict mode enabled - no `any` unless absolutely necessary

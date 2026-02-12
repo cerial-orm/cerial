@@ -8,9 +8,11 @@ export {
   generateFieldType,
   generateInterface,
   generateInterfaces,
+  generateObjectCreateInputInterface,
   generateObjectInputInterface,
   generateObjectInterface,
   generateObjectInterfaces,
+  objectHasDefaultOrNow,
   generateWithRelationsInterface,
 } from './interface-generator';
 

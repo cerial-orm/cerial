@@ -141,6 +141,9 @@ export const tables = {
 
   // relation-with-objects.cerial (relations + objects combined)
   relationWithObjects: ['rel_obj_company', 'rel_obj_employee'],
+
+  // object-decorators.cerial (object fields with decorators)
+  objectDecorators: ['obj_dec_user'],
 };
 
 /**

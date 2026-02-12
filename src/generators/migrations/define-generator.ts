@@ -260,9 +260,88 @@ export function generateObjectFieldDefines(
         parts.push(`TYPE option<${surrealType} | null>`);
       }
 
+      // Add VALUE clause for array fields with @distinct/@sort decorators
+      if (subField.isArray && (subField.isDistinct || subField.sortOrder)) {
+        const operations: string[] = [];
+        if (subField.isDistinct) operations.push('.distinct()');
+        if (subField.sortOrder) {
+          operations.push(subField.sortOrder === 'desc' ? '.sort(false)' : '.sort(true)');
+        }
+        parts.push(`VALUE IF $value THEN $value${operations.join('')} ELSE [] END`);
+      }
+
       // Add ASSERT clause if needed
       const assertClause = generateAssertClause(subField.type);
       if (assertClause) parts.push(assertClause);
+
+      // Add DEFAULT clause for @default or @now decorators
+      const defaultClause = generateDefaultClause(subField.hasNowDefault, subField.defaultValue);
+      if (defaultClause) parts.push(defaultClause);
+
+      statements.push(parts.join(' ') + ';');
+    }
+  }
+
+  return statements;
+}
+
+/**
+ * Collect DEFINE INDEX statements for object subfields with @index or @unique decorators.
+ * Indexes are table-level and use the full dot-notation path as COLUMNS.
+ *
+ * @param fieldPath - The dot-separated path prefix (e.g., "address" or "locations.*")
+ * @param tableName - The table name for ON TABLE clause
+ * @param objectMeta - The object metadata whose fields we're scanning
+ * @param objectRegistry - Registry of all objects (for nested object resolution)
+ * @param options - DEFINE INDEX options
+ * @param visited - Cycle detection set
+ */
+export function collectObjectFieldIndexes(
+  fieldPath: string,
+  tableName: string,
+  objectMeta: ObjectMetadata,
+  objectRegistry: ObjectRegistry,
+  options: DefineFieldOptions = {},
+  visited: Set<string> = new Set(),
+): string[] {
+  const opts = { ...DEFAULT_FIELD_OPTIONS, ...options };
+  const statements: string[] = [];
+
+  for (const subField of objectMeta.fields) {
+    const subPath = `${fieldPath}.${subField.name}`;
+
+    if (subField.type === 'object' && subField.objectInfo) {
+      const nestedObjectName = subField.objectInfo.objectName;
+      if (visited.has(nestedObjectName)) continue;
+
+      const nestedObject = objectRegistry[nestedObjectName];
+      if (nestedObject) {
+        const nestedVisited = new Set(visited);
+        nestedVisited.add(nestedObjectName);
+        const nestedPath = subField.isArray ? `${subPath}.*` : subPath;
+        statements.push(
+          ...collectObjectFieldIndexes(nestedPath, tableName, nestedObject, objectRegistry, options, nestedVisited),
+        );
+      }
+    } else if (subField.isUnique || subField.isIndexed) {
+      // Generate DEFINE INDEX for this subfield
+      const isUnique = subField.isUnique;
+      const indexSuffix = isUnique ? 'unique' : 'index';
+      // Use dot-notation path with dots replaced by underscores for index name
+      const indexFieldPath = subPath.replace(/\.\*/g, '').replace(/\./g, '_');
+      const indexName = `${tableName}_${indexFieldPath}_${indexSuffix}`;
+      const parts: string[] = ['DEFINE INDEX'];
+
+      if (opts.overwrite) parts.push('OVERWRITE');
+      else if (opts.ifNotExists) parts.push('IF NOT EXISTS');
+
+      parts.push(indexName);
+      parts.push('ON TABLE');
+      parts.push(tableName);
+      parts.push('COLUMNS');
+      parts.push(subPath);
+
+      if (isUnique) parts.push('UNIQUE');
 
       statements.push(parts.join(' ') + ';');
     }
@@ -350,6 +429,22 @@ export function generateModelDefineStatements(
   for (const field of model.fields) {
     const indexDef = generateDefineIndex(field, model.tableName, fieldOptions);
     if (indexDef) statements.push(indexDef);
+  }
+
+  // 3b. Define indexes for object subfields with @index/@unique
+  if (objectRegistry) {
+    for (const field of model.fields) {
+      if (field.type === 'object' && field.objectInfo) {
+        const objectMeta = objectRegistry[field.objectInfo.objectName];
+        if (objectMeta && !objectHasCycles(field.objectInfo.objectName, objectRegistry)) {
+          const visited = new Set<string>([field.objectInfo.objectName]);
+          const fieldPath = field.isArray ? `${field.name}.*` : field.name;
+          statements.push(
+            ...collectObjectFieldIndexes(fieldPath, model.tableName, objectMeta, objectRegistry, fieldOptions, visited),
+          );
+        }
+      }
+    }
   }
 
   // 4. Define composite indexes (@@index and @@unique)

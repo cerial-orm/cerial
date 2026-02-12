@@ -7,7 +7,7 @@ has_children: true
 
 # Decorators
 
-Decorators modify field and model behavior in Cerial schemas. Field-level decorators are prefixed with `@` and placed after the field type. Model-level composite directives use `@@` and are placed at the end of the model block. Decorators are **only allowed on model fields** — object fields cannot have decorators.
+Decorators modify field and model behavior in Cerial schemas. Field-level decorators are prefixed with `@` and placed after the field type. Model-level composite directives use `@@` and are placed at the end of the model block.
 
 ```cerial
 model User {
@@ -44,6 +44,22 @@ model User {
 | ---------------------------------------------- | --------------------------- | ----------- |
 | [`@@unique(name, [fields])`](composite-unique) | Composite unique constraint | Model level |
 | [`@@index(name, [fields])`](composite-index)   | Composite non-unique index  | Model level |
+
+## Decorators on Object Fields
+
+A subset of decorators can also be applied to fields within object definitions. Relation and identity decorators (`@id`, `@field`, `@model`, `@onDelete`, `@key`) are not allowed on object fields. Allowed decorators on object fields: `@default`, `@now`, `@unique`, `@index`, `@distinct`, `@sort`.
+
+```cerial
+object ContactInfo {
+  email Email
+  city String @default("Unknown")
+  createdAt Date @now
+  tags String[] @distinct
+  zip String @unique
+}
+```
+
+See [Objects](../../objects/) for details on how decorators behave within objects.
 
 ## Combining Decorators
 

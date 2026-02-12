@@ -7,7 +7,8 @@
  * - A.Compute<T> - flatten complex nested types for better IDE tooltips
  */
 
-import type { FieldMetadata, ModelMetadata, ModelRegistry, ObjectMetadata, ObjectRegistry } from '../../types';
+import type { FieldMetadata, ModelMetadata, ModelRegistry, ObjectRegistry } from '../../types';
+import { objectHasDefaultOrNow } from './objects/interface-generator';
 
 /** Whether to use ts-toolbelt utilities in generated types */
 const USE_TS_TOOLBELT = true;
@@ -91,12 +92,87 @@ function getOptionalForCreate(model: ModelMetadata): string[] {
   return Array.from(optional);
 }
 
+/**
+ * Get object fields that need CreateInput substitution
+ * These are object-typed fields where the nested object has @default/@now fields
+ */
+function getObjectFieldsWithDefaults(model: ModelMetadata, objectRegistry?: ObjectRegistry): FieldMetadata[] {
+  if (!objectRegistry) return [];
+
+  return model.fields.filter((f) => {
+    if (f.type !== 'object' || !f.objectInfo) return false;
+    const nested = objectRegistry[f.objectInfo.objectName];
+
+    return nested && objectHasDefaultOrNow(nested, objectRegistry);
+  });
+}
+
 /** Generate Create type - uses ModelInput for input types (accepts RecordIdInput) */
-export function generateCreateType(model: ModelMetadata): string {
+export function generateCreateType(model: ModelMetadata, objectRegistry?: ObjectRegistry): string {
   const omit = getOmitForCreate(model);
   const optional = getOptionalForCreate(model);
   const inputType = `${model.name}Input`;
 
+  // Object fields that need CreateInput substitution (object has @default/@now)
+  const objectFieldsWithDefaults = getObjectFieldsWithDefaults(model, objectRegistry);
+
+  // If there are object fields with defaults, they must be omitted from the base
+  // transformation and re-added with the correct CreateInput type
+  if (objectFieldsWithDefaults.length) {
+    const allOmit = [...new Set([...omit, ...objectFieldsWithDefaults.map((f) => f.name)])];
+    const optionalFields = optional.filter((f) => !allOmit.includes(f));
+
+    // Build the base type with omit + optional transformations
+    let baseType: string;
+    const omitKeys = allOmit.map((f) => `'${f}'`).join(' | ');
+    const optionalKeys = optionalFields.length ? optionalFields.map((f) => `'${f}'`).join(' | ') : '';
+
+    if (USE_TS_TOOLBELT) {
+      if (allOmit.length > 0 && optionalKeys) {
+        baseType = `O.Optional<O.Omit<${inputType}, ${omitKeys}>, ${optionalKeys}>`;
+      } else if (allOmit.length > 0) {
+        baseType = `O.Omit<${inputType}, ${omitKeys}>`;
+      } else if (optionalKeys) {
+        baseType = `O.Optional<${inputType}, ${optionalKeys}>`;
+      } else {
+        baseType = inputType;
+      }
+    } else {
+      if (allOmit.length > 0) {
+        baseType = `Omit<${inputType}, ${omitKeys}>`;
+        if (optionalKeys) {
+          baseType += ` & Partial<Pick<${inputType}, ${optionalKeys}>>`;
+        }
+      } else if (optionalKeys) {
+        baseType = `Partial<Pick<${inputType}, ${optionalKeys}>>`;
+      } else {
+        baseType = inputType;
+      }
+    }
+
+    // Re-add object fields with CreateInput types
+    const objectFieldDefs: string[] = [];
+    for (const f of objectFieldsWithDefaults) {
+      const objName = f.objectInfo!.objectName;
+      const createInputName = `${objName}CreateInput`;
+
+      if (f.isArray) {
+        // Array object fields are always optional in create (default to [])
+        objectFieldDefs.push(`  ${f.name}?: ${createInputName}[];`);
+      } else if (!f.isRequired) {
+        // Optional object field (no null — object fields don't support null)
+        objectFieldDefs.push(`  ${f.name}?: ${createInputName};`);
+      } else {
+        objectFieldDefs.push(`  ${f.name}: ${createInputName};`);
+      }
+    }
+
+    return `export type ${model.name}Create = ${baseType} & {
+${objectFieldDefs.join('\n')}
+};`;
+  }
+
+  // Standard path: no objects with defaults
   if (!omit.length && !optional.length) return `export type ${model.name}Create = ${inputType};`;
 
   // Get optional fields that aren't already omitted
@@ -686,9 +762,13 @@ export function generateGetPayloadType(model: ModelMetadata): string {
 }
 
 /** Generate all derived types for a model */
-export function generateDerivedTypes(model: ModelMetadata, registry?: ModelRegistry): string {
+export function generateDerivedTypes(
+  model: ModelMetadata,
+  registry?: ModelRegistry,
+  objectRegistry?: ObjectRegistry,
+): string {
   const types = [
-    generateCreateType(model),
+    generateCreateType(model, objectRegistry),
     generateNestedCreateType(model),
     generateCreateInputType(model),
     generateUpdateType(model),
@@ -718,75 +798,18 @@ export function generateDerivedTypes(model: ModelMetadata, registry?: ModelRegis
 }
 
 /** Generate derived types for all models */
-export function generateAllDerivedTypes(models: ModelMetadata[], registry?: ModelRegistry): string {
-  return models.map((model) => generateDerivedTypes(model, registry)).join('\n\n');
+export function generateAllDerivedTypes(
+  models: ModelMetadata[],
+  registry?: ModelRegistry,
+  objectRegistry?: ObjectRegistry,
+): string {
+  return models.map((model) => generateDerivedTypes(model, registry, objectRegistry)).join('\n\n');
 }
 
-// ==================== Object-specific derived types ====================
-
-/** Generate Select type for an object definition */
-export function generateObjectSelectType(object: ObjectMetadata): string {
-  const fields = object.fields;
-
-  if (fields.length === 0) {
-    return `export interface ${object.name}Select {}`;
-  }
-
-  if (fields.length === 1) {
-    const f = fields[0]!;
-    const selectType = getFieldSelectType(f);
-
-    return `export type ${object.name}Select = { ${f.name}: ${selectType}; };`;
-  }
-
-  // Generate union where each variant requires at least one field
-  const variants = fields.map((field) => {
-    const selectType = getFieldSelectType(field);
-    const otherFields = fields.filter((f) => f.name !== field.name);
-    const hasObjectOthers = otherFields.some((f) => f.type === 'object' && f.objectInfo);
-
-    if (hasObjectOthers) {
-      const otherFieldDefs = otherFields.map((f) => `${f.name}?: ${getFieldSelectType(f)}`).join('; ');
-
-      return `  | { ${field.name}: ${selectType} } & { ${otherFieldDefs} }`;
-    }
-
-    const otherKeys = otherFields.map((f) => `'${f.name}'`).join(' | ');
-
-    return `  | { ${field.name}: ${selectType} } & Partial<Record<${otherKeys}, boolean>>`;
-  });
-
-  return `export type ${object.name}Select =
-${variants.join('\n')};`;
-}
-
-/** Generate OrderBy type for an object definition */
-export function generateObjectOrderByType(object: ObjectMetadata): string {
-  const fields: string[] = [];
-
-  for (const field of object.fields) {
-    if (field.type === 'object' && field.objectInfo) {
-      fields.push(`  ${field.name}?: ${field.objectInfo.objectName}OrderBy;`);
-    } else {
-      fields.push(`  ${field.name}?: 'asc' | 'desc';`);
-    }
-  }
-
-  return `export interface ${object.name}OrderBy {
-${fields.join('\n')}
-}`;
-}
-
-/** Generate all derived types for an object */
-export function generateObjectDerivedTypes(object: ObjectMetadata): string {
-  const types = [generateObjectSelectType(object), generateObjectOrderByType(object)];
-
-  return types.join('\n\n');
-}
-
-/** Generate all object derived types */
-export function generateAllObjectDerivedTypes(objects: ObjectMetadata[]): string {
-  if (!objects.length) return '';
-
-  return objects.map((obj) => generateObjectDerivedTypes(obj)).join('\n\n');
-}
+// Object-specific derived types have been moved to ./objects/derived-generator.ts
+export {
+  generateAllObjectDerivedTypes,
+  generateObjectDerivedTypes,
+  generateObjectOrderByType,
+  generateObjectSelectType,
+} from './objects/derived-generator';

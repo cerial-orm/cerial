@@ -126,6 +126,18 @@ function toRecordIdInput(value: unknown): RecordIdInput {
 }
 
 /**
+ * Parse a RecordIdInput into a RecordId without table validation.
+ * Used for Record fields within objects where no target table is known.
+ */
+function parseRecordIdInput(value: RecordIdInput): RecordId {
+  if (value instanceof RecordId) return value;
+  if (CerialId.is(value)) return value.toRecordId();
+  if (value instanceof StringRecordId) return CerialId.parse(value).toRecordId();
+  if (typeof value === 'string') return CerialId.parse(value).toRecordId();
+  throw new Error(`Invalid RecordIdInput type: ${typeof value}`);
+}
+
+/**
  * Recursively transform object data based on objectInfo field definitions.
  * Handles Record fields within objects (convert to RecordId), nested objects, and arrays of objects.
  */
@@ -156,6 +168,20 @@ function transformObjectData(data: Record<string, unknown>, objectInfo: ObjectFi
         result[key] = transformObjectData(value as Record<string, unknown>, field.objectInfo);
       } else {
         result[key] = value;
+      }
+      continue;
+    }
+
+    // Record fields in objects — convert RecordIdInput → RecordId
+    if (field.type === 'record') {
+      if (field.isArray && Array.isArray(value)) {
+        result[key] = value.map((element) => {
+          if (element === null || element === undefined) return element;
+
+          return parseRecordIdInput(toRecordIdInput(element));
+        });
+      } else {
+        result[key] = parseRecordIdInput(toRecordIdInput(value));
       }
       continue;
     }

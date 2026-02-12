@@ -25,7 +25,12 @@ import { createCompileContext, type FilterCompileContext } from '../compile/var-
 import { transformWhereClause } from '../filters/transformer';
 import { transformOrValidateRecordId } from '../transformers';
 import { getRecordIdFromWhere } from './delete-builder';
-import { expandCompositeKey, findCompositeUniqueKey } from './select-builder';
+import {
+  expandCompositeKey,
+  expandObjectUniqueKey,
+  findCompositeUniqueKey,
+  findObjectUniqueKey,
+} from './select-builder';
 import {
   buildCreateWithNestedTransaction,
   buildUpdateWithNestedTransaction,
@@ -346,6 +351,9 @@ function checkForUniqueFieldInWhere(where: WhereClause, model: ModelMetadata): b
   // Check for composite unique keys
   if (findCompositeUniqueKey(where, model)) return true;
 
+  // Check for object @unique keys
+  if (findObjectUniqueKey(where, model)) return true;
+
   const uniqueFields = model.fields.filter((f) => f.isUnique && !f.isId);
   const whereKeys = Object.keys(where).filter((k) => k !== 'AND' && k !== 'OR' && k !== 'NOT');
 
@@ -381,8 +389,9 @@ export function buildUpsertQuery(
     return buildUpsertIdQuery(model, where, createData, updateData, returnOption, select, include, registry);
   }
 
-  // Expand composite keys for WHERE-based path
-  const expandedWhere = expandCompositeKey(where, model);
+  // Expand composite keys and object @unique keys for WHERE-based path
+  let expandedWhere = expandCompositeKey(where, model);
+  expandedWhere = expandObjectUniqueKey(expandedWhere, model);
 
   // Check for unique fields in where clause to determine ONLY usage
   const hasUniqueField = checkForUniqueFieldInWhere(where, model);

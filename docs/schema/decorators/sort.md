@@ -81,9 +81,22 @@ await db.Student.create({
 // priorities: [5, 3, 2, 1] — deduplicated + descending
 ```
 
+## Object Fields
+
+`@sort` can be applied to array fields within object definitions:
+
+```cerial
+object Preferences {
+  favoriteColors String[] @sort
+  priorityLevels Int[] @sort(false)
+}
+```
+
+The sorting is enforced at the database level, just like on model fields.
+
 ## Applicable Types
 
-`@sort` can be applied to any array field:
+`@sort` can be applied to any array field (on models or objects):
 
 ```cerial
 model Example {

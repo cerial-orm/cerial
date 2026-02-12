@@ -86,9 +86,32 @@ const tagged = await db.Article.findMany({
 
 Note that `@unique` is **not** allowed on array fields — see [@unique — Array Fields](unique#array-fields).
 
+## Object Fields
+
+`@index` can be applied to fields within object definitions. Each embedding of the object in a model generates its own independent index using dot-notation paths.
+
+```cerial
+object LocationInfo {
+  address String
+  country String @index
+}
+
+model Store {
+  id Record @id
+  location LocationInfo
+  warehouse LocationInfo?
+}
+```
+
+This generates two separate indexes:
+
+- `store_location_country_index` on `location.country`
+- `store_warehouse_country_index` on `warehouse.country`
+
 ## Rules
 
 - Cannot be combined with `@unique` on the same field.
 - Can be applied to any storable field type (String, Int, Float, Email, Date, Bool, Record).
 - Can be applied to object-typed fields for whole-object indexing.
 - Can be applied to array fields — indexes each element individually for `CONTAINS` queries.
+- Can be applied to fields within object definitions — generates per-embedding indexes.

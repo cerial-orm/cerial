@@ -84,6 +84,34 @@ await db.User.create({ data: { name: 'Alice' } });
 
 This distinction matters because SurrealDB treats NONE (field absent) and null (field exists with null value) differently. See [Optional Fields](../optional-fields) for details on NONE vs null semantics.
 
+## Object Fields
+
+`@default` can be applied to fields within object definitions. The default value is applied at the database level via `DEFINE FIELD ... DEFAULT`.
+
+```cerial
+object ContactInfo {
+  email Email
+  city String @default("Unknown")
+}
+
+model User {
+  id Record @id
+  contact ContactInfo
+}
+```
+
+When an object has `@default` fields, Cerial generates an additional `ContactInfoCreateInput` type where those fields are optional. The parent model's `Create` type uses this input automatically:
+
+```typescript
+// city defaults to "Unknown" when omitted
+const user = await db.User.create({
+  data: {
+    contact: { email: 'alice@example.com' },
+    // city will be "Unknown"
+  },
+});
+```
+
 ## Summary
 
 | Schema                              | Omitted on create | Explicit value      |

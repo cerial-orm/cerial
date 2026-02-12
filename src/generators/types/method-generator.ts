@@ -203,6 +203,91 @@ function buildCompositeJsDoc(directive: CompositeIndex, model: ModelMetadata): s
   return lines.join('\n');
 }
 
+/**
+ * Collect object @unique fields for a model.
+ * For each model field that is an object type, find all @unique subfields (recursively).
+ * Returns an array of { modelFieldName, nestedType } for each unique subfield path.
+ *
+ * Example: If User has `address Address` and Address has `zip String @unique`,
+ * returns [{ fieldName: 'address', nestedType: '{ zip: string }' }]
+ */
+function collectObjectUniqueVariants(
+  model: ModelMetadata,
+  objectRegistry?: ObjectRegistry,
+): { fieldName: string; nestedType: string }[] {
+  if (!objectRegistry) return [];
+  const variants: { fieldName: string; nestedType: string }[] = [];
+
+  for (const field of model.fields) {
+    if (field.type !== 'object' || !field.objectInfo) continue;
+    // Skip array object fields — per-element uniqueness is blocked at parse time
+    if (field.isArray) continue;
+
+    const objectMeta = objectRegistry[field.objectInfo.objectName];
+    if (!objectMeta) continue;
+
+    // Collect all unique subfield paths from this object (including nested objects)
+    const uniquePaths = collectUniqueSubfieldPaths(objectMeta, objectRegistry);
+    for (const { path, tsType } of uniquePaths) {
+      // Build nested type: { zip: string } or { inner: { code: string } }
+      const nestedType = buildNestedTypeFromPath(path, tsType);
+      variants.push({ fieldName: field.name, nestedType });
+    }
+  }
+
+  return variants;
+}
+
+/**
+ * Recursively collect unique subfield paths from an object.
+ * Returns array of { path: string[], tsType: string } for each @unique field.
+ */
+function collectUniqueSubfieldPaths(
+  object: ObjectMetadata,
+  objectRegistry: ObjectRegistry,
+  prefix: string[] = [],
+  visited: Set<string> = new Set(),
+): { path: string[]; tsType: string }[] {
+  const results: { path: string[]; tsType: string }[] = [];
+
+  for (const field of object.fields) {
+    if (field.type === 'object' && field.objectInfo && !field.isArray) {
+      const nestedName = field.objectInfo.objectName;
+      if (visited.has(nestedName)) continue;
+
+      const nested = objectRegistry[nestedName];
+      if (nested) {
+        const nextVisited = new Set(visited);
+        nextVisited.add(nestedName);
+        results.push(...collectUniqueSubfieldPaths(nested, objectRegistry, [...prefix, field.name], nextVisited));
+      }
+    } else if (field.isUnique) {
+      const tsType = schemaTypeToTsType(field.type as Parameters<typeof schemaTypeToTsType>[0]);
+      const nullSuffix = !field.isRequired ? ' | null' : '';
+      results.push({ path: [...prefix, field.name], tsType: `${tsType}${nullSuffix}` });
+    }
+  }
+
+  return results;
+}
+
+/**
+ * Build a nested TypeScript type from a path array and leaf type.
+ * e.g., ['inner', 'code'] with 'string' => '{ inner: { code: string } }'
+ */
+function buildNestedTypeFromPath(path: string[], tsType: string): string {
+  if (path.length === 0) return tsType;
+  if (path.length === 1) return `{ ${path[0]}: ${tsType} }`;
+
+  // Build from inside out
+  let result = tsType;
+  for (let i = path.length - 1; i >= 0; i--) {
+    result = `{ ${path[i]}: ${result} }`;
+  }
+
+  return result;
+}
+
 /** Generate FindUniqueWhere type for a model */
 export function generateFindUniqueWhereType(model: ModelMetadata, objectRegistry?: ObjectRegistry): string {
   // Get ID field
@@ -214,14 +299,19 @@ export function generateFindUniqueWhereType(model: ModelMetadata, objectRegistry
   // Get composite unique directives
   const compositeUniques = (model.compositeDirectives ?? []).filter((d) => d.kind === 'unique');
 
+  // Get object @unique variants (object fields with @unique subfields)
+  const objectUniqueVariants = collectObjectUniqueVariants(model, objectRegistry);
+
   // Get all unique field names (for single-field unique variants)
   const allUniqueFieldNames = [idField?.name, ...uniqueFields.map((f) => f.name)].filter(Boolean);
 
   // Composite key names to omit from the Where type
   const compositeKeyNames = compositeUniques.map((d) => d.name);
-  const allOmitKeys = [...allUniqueFieldNames, ...compositeKeyNames];
+  // Object unique field names (model-level field names) to omit from the Where type
+  const objectUniqueFieldNames = [...new Set(objectUniqueVariants.map((v) => v.fieldName))];
+  const allOmitKeys = [...allUniqueFieldNames, ...compositeKeyNames, ...objectUniqueFieldNames];
 
-  // If no unique fields and no composite uniques, no FindUniqueWhere type
+  // If no unique fields, no composite uniques, and no object uniques, no FindUniqueWhere type
   if (allOmitKeys.length === 0) {
     return '';
   }
@@ -265,6 +355,11 @@ export function generateFindUniqueWhereType(model: ModelMetadata, objectRegistry
     const keyType = buildCompositeKeyType(directive, model, objectRegistry);
     const jsDoc = buildCompositeJsDoc(directive, model);
     variants.push(`(${jsDoc}\n  { ${directive.name}: ${keyType} } & Omit<${model.name}Where, ${omitStr}>)`);
+  }
+
+  // Object @unique variants: { address: { zip: string } } & Omit<Where, ...>
+  for (const variant of objectUniqueVariants) {
+    variants.push(`({ ${variant.fieldName}: ${variant.nestedType} } & Omit<${model.name}Where, ${omitStr}>)`);
   }
 
   return `export type ${model.name}FindUniqueWhere = ${variants.join('\n  | ')};`;

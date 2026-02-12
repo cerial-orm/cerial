@@ -39,6 +39,34 @@ const post = await db.Post.create({
 console.log(post.createdAt); // Date object — e.g., 2025-01-15T10:30:00.000Z
 ```
 
+## Object Fields
+
+`@now` can be applied to `Date` fields within object definitions. The timestamp is set at the database level via `DEFINE FIELD ... DEFAULT time::now()`.
+
+```cerial
+object ContactInfo {
+  email Email
+  createdAt Date @now
+}
+
+model User {
+  id Record @id
+  contact ContactInfo
+}
+```
+
+When an object has `@now` fields, Cerial generates an additional `ContactInfoCreateInput` type where those fields are optional:
+
+```typescript
+// createdAt is auto-set by the database
+const user = await db.User.create({
+  data: {
+    contact: { email: 'alice@example.com' },
+    // createdAt will be set to the current time
+  },
+});
+```
+
 ## Example: Timestamps
 
 A common pattern is to add a `createdAt` timestamp to models:

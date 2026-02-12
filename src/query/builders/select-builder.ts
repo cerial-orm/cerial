@@ -284,6 +284,88 @@ export function expandCompositeKey(where: WhereClause, model: ModelMetadata): Wh
 }
 
 /**
+ * Find an object @unique key in the where clause.
+ * Detects when a where clause provides an object field value containing a @unique subfield.
+ *
+ * Example: where = { address: { zip: '10001' } }
+ * If Address.zip is @unique, returns { fieldName: 'address', dotPaths: { 'address.zip': '10001' } }
+ */
+export function findObjectUniqueKey(
+  where: WhereClause,
+  model: ModelMetadata,
+): { fieldName: string; dotPaths: Record<string, unknown> } | null {
+  for (const [key, value] of Object.entries(where)) {
+    if (value === undefined || value === null) continue;
+    if (typeof value !== 'object' || Array.isArray(value)) continue;
+
+    const field = model.fields.find((f) => f.name === key);
+    if (!field || field.type !== 'object' || !field.objectInfo) continue;
+    if (field.isArray) continue; // Array objects can't have @unique
+
+    // Walk the value structure to find unique subfields
+    const dotPaths = extractObjectUniquePaths(key, value as Record<string, unknown>, field.objectInfo.fields);
+    if (Object.keys(dotPaths).length) {
+      return { fieldName: key, dotPaths };
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Extract dot-notation paths for @unique subfields from a nested object value.
+ * Recursively walks the value to match against unique fields in the object metadata.
+ */
+function extractObjectUniquePaths(
+  prefix: string,
+  value: Record<string, unknown>,
+  fields: FieldMetadata[],
+): Record<string, unknown> {
+  const paths: Record<string, unknown> = {};
+
+  for (const [subKey, subValue] of Object.entries(value)) {
+    const subField = fields.find((f) => f.name === subKey);
+    if (!subField) continue;
+
+    const dotPath = `${prefix}.${subKey}`;
+
+    if (subField.isUnique) {
+      paths[dotPath] = subValue;
+    } else if (subField.type === 'object' && subField.objectInfo && typeof subValue === 'object' && subValue !== null) {
+      // Recurse into nested objects
+      Object.assign(
+        paths,
+        extractObjectUniquePaths(dotPath, subValue as Record<string, unknown>, subField.objectInfo.fields),
+      );
+    }
+  }
+
+  return paths;
+}
+
+/**
+ * Expand object @unique keys in a where clause into dot-notation field conditions.
+ * Removes the object field from the where clause and injects dot-notation paths.
+ *
+ * Example: { address: { zip: '10001' }, isActive: true }
+ * Becomes: { 'address.zip': '10001', isActive: true }
+ */
+export function expandObjectUniqueKey(where: WhereClause, model: ModelMetadata): WhereClause {
+  const objectKey = findObjectUniqueKey(where, model);
+  if (!objectKey) return where;
+
+  const expanded: WhereClause = { ...where };
+  delete expanded[objectKey.fieldName];
+
+  // Inject dot-notation paths
+  for (const [dotPath, value] of Object.entries(objectKey.dotPaths)) {
+    expanded[dotPath] = value;
+  }
+
+  return expanded;
+}
+
+/**
  * Validate at least one unique field or composite unique key is present in where clause
  * @param where - The where clause to validate
  * @param model - The model metadata
@@ -293,6 +375,9 @@ export function expandCompositeKey(where: WhereClause, model: ModelMetadata): Wh
 export function validateUniqueField(where: WhereClause, model: ModelMetadata, methodName = 'findUnique'): void {
   // Check for composite unique key first
   if (findCompositeUniqueKey(where, model)) return;
+
+  // Check for object @unique key
+  if (findObjectUniqueKey(where, model)) return;
 
   const idField = model.fields.find((f) => f.isId);
   const uniqueFields = getUniqueFields(model);
@@ -359,8 +444,9 @@ export function buildFindUniqueQuery(
   // Validate at least one unique field is present
   hasUniqueField(where, model);
 
-  // Expand composite unique keys before processing
-  const expandedWhere = expandCompositeKey(where, model);
+  // Expand composite unique keys and object @unique keys before processing
+  let expandedWhere = expandCompositeKey(where, model);
+  expandedWhere = expandObjectUniqueKey(expandedWhere, model);
 
   // Determine query strategy based on ID presence
   const idField = model.fields.find((f) => f.isId);

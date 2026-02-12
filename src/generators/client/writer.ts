@@ -13,6 +13,7 @@ import {
   generateObjectInterfaces,
   generateObjectWhereInterface,
   generateWhereTypes,
+  objectHasDefaultOrNow,
 } from '../types';
 import { generateFindUniqueWhereType } from '../types/method-generator';
 import { generateConnectionExports } from './connection-template';
@@ -151,12 +152,20 @@ function generateRelatedImports(relatedModels: string[], allModels: ModelMetadat
 }
 
 /** Generate import statements for referenced object types */
-function generateObjectImports(objectNames: string[]): string {
+function generateObjectImports(objectNames: string[], objectRegistry?: ObjectRegistry): string {
   if (objectNames.length === 0) return '';
 
   const imports = objectNames.map((name) => {
     const fileName = name.toLowerCase();
     const importNames = [name, `${name}Input`, `${name}Where`, `${name}Select`, `${name}OrderBy`];
+
+    // Import CreateInput if the object has @default/@now fields
+    if (objectRegistry) {
+      const objMeta = objectRegistry[name];
+      if (objMeta && objectHasDefaultOrNow(objMeta, objectRegistry)) {
+        importNames.push(`${name}CreateInput`);
+      }
+    }
 
     return `import type { ${importNames.join(', ')} } from './${fileName}';`;
   });
@@ -191,7 +200,7 @@ export async function writeModelTypes(
 
   // Get referenced object names for imports
   const referencedObjects = getReferencedObjectNames(model);
-  const objectImports = generateObjectImports(referencedObjects);
+  const objectImports = generateObjectImports(referencedObjects, objectRegistry);
 
   // Create registry for Include type generation
   const registry = createRegistryFromModels(allModels);
@@ -200,7 +209,7 @@ export async function writeModelTypes(
   const interfaceCode = generateInterfaces([model]);
   const whereCode = generateWhereTypes([model]);
   const findUniqueWhereCode = generateFindUniqueWhereType(model, objectRegistry);
-  const derivedCode = generateAllDerivedTypes([model], registry);
+  const derivedCode = generateAllDerivedTypes([model], registry, objectRegistry);
   const modelCode = generateModelTypes([model]);
 
   const content = `/**
@@ -394,11 +403,18 @@ export type {
 
   // Add Object type exports if there are objects
   if (objects.length > 0) {
+    // Build registry for checking @default/@now
+    const objRegistry: ObjectRegistry = {};
+    for (const o of objects) objRegistry[o.name] = o;
+
     const objInterfaces = objects.map((o) => o.name).join(',\n  ');
     const objInputs = objects.map((o) => `${o.name}Input`).join(',\n  ');
     const objWheres = objects.map((o) => `${o.name}Where`).join(',\n  ');
     const objSelects = objects.map((o) => `${o.name}Select`).join(',\n  ');
     const objOrderBys = objects.map((o) => `${o.name}OrderBy`).join(',\n  ');
+
+    // Only export CreateInput for objects that have @default/@now fields
+    const objectsWithDefaults = objects.filter((o) => objectHasDefaultOrNow(o, objRegistry));
 
     content += `
 // Object interfaces (output types)
@@ -410,7 +426,19 @@ export type {
 export type {
   ${objInputs},
 } from './models';
+`;
 
+    if (objectsWithDefaults.length) {
+      const objCreateInputs = objectsWithDefaults.map((o) => `${o.name}CreateInput`).join(',\n  ');
+      content += `
+// Object create input interfaces (fields with @default/@now are optional)
+export type {
+  ${objCreateInputs},
+} from './models';
+`;
+    }
+
+    content += `
 // Object where types
 export type {
   ${objWheres},
