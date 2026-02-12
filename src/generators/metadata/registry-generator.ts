@@ -45,6 +45,11 @@ function generateFieldMetadata(field: FieldMetadata): string {
     parts.push(`sortOrder: '${field.sortOrder}'`);
   }
 
+  // Include isFlexible when true
+  if (field.isFlexible) {
+    parts.push(`isFlexible: true`);
+  }
+
   // Include objectInfo when present (with inline fields for runtime query building)
   if (field.objectInfo) {
     if (field.objectInfo.fields.length) {

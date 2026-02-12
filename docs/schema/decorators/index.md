@@ -40,6 +40,7 @@ model User {
 | [`@key(name)`](key)                       | Relation disambiguation | `Relation` fields            |
 | [`@distinct`](distinct)                   | Array deduplication     | Array fields                 |
 | [`@sort` / `@sort(false)`](sort)          | Array ordering          | Array fields                 |
+| [`@flexible`](flexible)                   | Allow extra fields      | Object-type fields           |
 
 ## Composite Directives
 
@@ -50,7 +51,7 @@ model User {
 
 ## Decorators on Object Fields
 
-A subset of decorators can also be applied to fields within object definitions. Relation and identity decorators (`@id`, `@field`, `@model`, `@onDelete`, `@key`) are not allowed on object fields. Allowed decorators on object fields: `@default`, `@defaultAlways`, `@now`, `@createdAt`, `@updatedAt`, `@unique`, `@index`, `@distinct`, `@sort`.
+A subset of decorators can also be applied to fields within object definitions. Relation and identity decorators (`@id`, `@field`, `@model`, `@onDelete`, `@key`) are not allowed on object fields. Allowed decorators on object fields: `@default`, `@defaultAlways`, `@now`, `@createdAt`, `@updatedAt`, `@unique`, `@index`, `@distinct`, `@sort`, `@flexible`.
 
 ```cerial
 object ContactInfo {

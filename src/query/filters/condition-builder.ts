@@ -150,9 +150,30 @@ export function buildObjectCondition(
 
     // Find sub-field metadata
     const subField = objectInfo.fields.find((f) => f.name === key);
-    if (!subField) continue;
 
     const subPath = `${fieldPath}.${key}`;
+
+    // Unknown field (not in metadata) — pass through for @flexible objects
+    if (!subField) {
+      if (isOperatorObject(value)) {
+        // Build operator conditions with a synthetic field (type 'string' as fallback)
+        const syntheticField: FieldMetadata = {
+          name: key,
+          type: 'string',
+          isId: false,
+          isUnique: false,
+          isRequired: false,
+        };
+        conditions.push(
+          buildFieldCondition(ctx, subPath, value as Record<string, unknown>, syntheticField, {} as ModelMetadata),
+        );
+      } else {
+        // Direct value (shorthand for eq)
+        const binding = ctx.bind(subPath, 'eq', value, 'string');
+        conditions.push({ text: `${subPath} = ${binding.placeholder}`, vars: binding.vars });
+      }
+      continue;
+    }
 
     // Nested object sub-field
     if (subField.type === 'object' && subField.objectInfo && isObject(value)) {
@@ -254,9 +275,28 @@ function buildObjectConditionForClosure(
     }
 
     const subField = objectInfo.fields.find((f) => f.name === key);
-    if (!subField) continue;
 
     const subPath = `${closureVar}.${key}`;
+
+    // Unknown field (not in metadata) — pass through for @flexible objects
+    if (!subField) {
+      if (isOperatorObject(value)) {
+        const syntheticField: FieldMetadata = {
+          name: key,
+          type: 'string',
+          isId: false,
+          isUnique: false,
+          isRequired: false,
+        };
+        conditions.push(
+          buildFieldCondition(ctx, subPath, value as Record<string, unknown>, syntheticField, {} as ModelMetadata),
+        );
+      } else {
+        const binding = ctx.bind(subPath, 'eq', value, 'string');
+        conditions.push({ text: `${subPath} = ${binding.placeholder}`, vars: binding.vars });
+      }
+      continue;
+    }
 
     // Nested object
     if (subField.type === 'object' && subField.objectInfo && isObject(value)) {

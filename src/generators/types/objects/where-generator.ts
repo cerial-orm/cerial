@@ -16,12 +16,16 @@ export function generateObjectWhereInterface(object: ObjectMetadata, _objectRegi
     if (field.type === 'object' && field.objectInfo) {
       // Nested object where
       const objectWhere = `${field.objectInfo.objectName}Where`;
+      // @flexible fields allow filtering on unknown keys via index signature
+      const flexSuffix = field.isFlexible ? ' & { [key: string]: any }' : '';
 
       if (field.isArray) {
-        fields.push(`  ${field.name}?: { some?: ${objectWhere}; every?: ${objectWhere}; none?: ${objectWhere}; };`);
+        fields.push(
+          `  ${field.name}?: { some?: ${objectWhere}${flexSuffix}; every?: ${objectWhere}${flexSuffix}; none?: ${objectWhere}${flexSuffix}; };`,
+        );
       } else {
         // Object fields don't support null, only NONE (absent)
-        fields.push(`  ${field.name}?: ${objectWhere};`);
+        fields.push(`  ${field.name}?: ${objectWhere}${flexSuffix};`);
       }
     } else {
       const whereType = generateFieldWhereType(field);

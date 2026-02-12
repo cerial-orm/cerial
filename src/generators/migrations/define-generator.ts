@@ -101,6 +101,11 @@ export function generateDefineField(
   // Add TYPE clause (pass field and model for Record type handling)
   parts.push(generateTypeClause(field.type, field.isRequired, field, model));
 
+  // Add FLEXIBLE for @flexible object fields — allows arbitrary extra fields alongside defined sub-fields
+  if (field.isFlexible && field.type === 'object') {
+    parts.push('FLEXIBLE');
+  }
+
   // Add VALUE clause for array fields (distinct, sort)
   const valueClause = generateValueClause(field, model);
   if (valueClause) parts.push(valueClause);
@@ -236,6 +241,12 @@ export function generateObjectFieldDefines(
       } else {
         parentParts.push('TYPE object');
       }
+
+      // Add FLEXIBLE for @flexible nested object fields
+      if (subField.isFlexible) {
+        parentParts.push('FLEXIBLE');
+      }
+
       statements.push(parentParts.join(' ') + ';');
 
       // Recursively generate sub-fields for the nested object
@@ -419,11 +430,13 @@ export function generateModelDefineStatements(
         // with no sub-field definitions — SurrealDB SCHEMAFULL tables can't handle
         // arbitrarily deep nesting even with FLEXIBLE on nested self-ref fields
         if (objectHasCycles(field.objectInfo.objectName, objectRegistry)) {
-          // Replace the last statement (the parent DEFINE FIELD) with a FLEXIBLE version
-          const lastIdx = statements.length - 1;
-          const lastStmt = statements[lastIdx]!;
-          if (lastStmt.includes(` ${field.name} `)) {
-            statements[lastIdx] = lastStmt.replace(/;$/, ' FLEXIBLE;');
+          // Add FLEXIBLE to the parent if not already present (from @flexible decorator)
+          if (!field.isFlexible) {
+            const lastIdx = statements.length - 1;
+            const lastStmt = statements[lastIdx]!;
+            if (lastStmt.includes(` ${field.name} `)) {
+              statements[lastIdx] = lastStmt.replace(/;$/, ' FLEXIBLE;');
+            }
           }
           // Skip sub-field definitions entirely
         } else {

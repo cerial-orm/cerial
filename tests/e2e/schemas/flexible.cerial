@@ -1,0 +1,26 @@
+// Schema for testing @flexible decorator on object type fields
+
+object FlexAddress {
+  street String
+  city String
+  zip String?
+}
+
+object FlexMeta {
+  label String
+}
+
+object FlexProfile {
+  bio String
+  metadata FlexMeta @flexible
+}
+
+model FlexUser {
+  id Record @id
+  name String
+  address FlexAddress @flexible
+  shipping FlexAddress?  @flexible
+  tags FlexAddress[] @flexible
+  profile FlexProfile
+  strictAddress FlexAddress
+}

@@ -114,17 +114,25 @@ export function objectHasDefaultOrTimestamp(
   return false;
 }
 
+/** Wrap a type with Record<string, any> intersection for @flexible fields */
+function wrapFlexible(type: string, field: FieldMetadata, isArray?: boolean): string {
+  if (!field.isFlexible) return isArray ? `${type}[]` : type;
+  if (isArray) return `(${type} & Record<string, any>)[]`;
+
+  return `${type} & Record<string, any>`;
+}
+
 /** Generate output interface for an object definition */
 export function generateObjectInterface(object: ObjectMetadata): string {
   const fields = object.fields
     .map((f) => {
       const tsType = getOutputType(f);
-      if (f.isArray) return `  ${f.name}: ${tsType}[];`;
+      if (f.isArray) return `  ${f.name}: ${wrapFlexible(tsType, f, true)};`;
       const optional = f.isRequired ? '' : '?';
       // Object fields don't support null — only NONE (absent) or a valid value
       const type = f.isRequired ? tsType : f.type === 'object' ? tsType : `${tsType} | null`;
 
-      return `  ${f.name}${optional}: ${type};`;
+      return `  ${f.name}${optional}: ${wrapFlexible(type, f)};`;
     })
     .join('\n');
 
@@ -141,12 +149,12 @@ export function generateObjectInputInterface(object: ObjectMetadata, objectRegis
   const fields = object.fields
     .map((f) => {
       const tsType = hasRecords ? getInputType(f) : getOutputType(f);
-      if (f.isArray) return `  ${f.name}: ${tsType}[];`;
+      if (f.isArray) return `  ${f.name}: ${wrapFlexible(tsType, f, true)};`;
       const optional = f.isRequired ? '' : '?';
       // Object fields don't support null — only NONE (absent) or a valid value
       const type = f.isRequired ? tsType : f.type === 'object' ? tsType : `${tsType} | null`;
 
-      return `  ${f.name}${optional}: ${type};`;
+      return `  ${f.name}${optional}: ${wrapFlexible(type, f)};`;
     })
     .join('\n');
 

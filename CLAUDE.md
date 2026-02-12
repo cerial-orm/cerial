@@ -99,10 +99,10 @@ Schema (.cerial files) → Parser (AST) → Generators → TypeScript Client
 | `tests/unit/`             | Unit tests (no DB)        | ~550     |
 | `tests/integration/`      | Integration (DB required) | ~49      |
 | `tests/e2e/relations/`    | Relation E2E tests        | 91 files |
-| `tests/e2e/objects/`      | Object E2E tests          | 7 files  |
+| `tests/e2e/objects/`      | Object E2E tests          | 9 files  |
 | `tests/e2e/transactions/` | Transaction E2E tests     | 10 files |
 | `tests/e2e/timestamps/`   | Timestamp E2E tests       | 1 file   |
-| `tests/e2e/typechecks/`   | Compile-time type checks  | 18 files |
+| `tests/e2e/typechecks/`   | Compile-time type checks  | 20 files |
 
 **When query format changes**, update expectations in:
 
@@ -291,7 +291,8 @@ has_children: true # only on section index pages
 - **@updatedAt** = `DEFAULT ALWAYS time::now()` — set on every create/update when field is absent. Optional in Create/Update, present in Where
 - **@defaultAlways(value)** = `DEFAULT ALWAYS value` — general-purpose reset-on-write default. Any field type. Resets to value on every create/update when absent. NONE injection on update. Mutually exclusive with `@default`, `@now`, `@createdAt`, `@updatedAt`
 - **Timestamp decorators** = `@now`, `@createdAt`, `@updatedAt` are mutually exclusive with each other and with `@default`/`@defaultAlways`. Date fields only. `@now` is model-only (COMPUTED must be top-level). `@createdAt`/`@updatedAt` allowed on model + object fields
-- **Object types** = Embedded inline, no id, no relations. Allowed decorators: `@default`, `@defaultAlways`, `@createdAt`, `@updatedAt`
+- **@flexible** = Field-level decorator for object-type fields. Adds `FLEXIBLE` to migration, generates `& Record<string, any>` intersection in types. Same object can be flexible on one field, strict on another. Where types get `& { [key: string]: any }` for filtering extra keys
+- **Object types** = Embedded inline, no id, no relations. Allowed decorators: `@default`, `@defaultAlways`, `@createdAt`, `@updatedAt`, `@flexible`
 - **Parameterized queries** = Values bound via `$varName`, never inlined
 - **CerialQueryPromise** = Thenable returned by model methods. Auto-executes on `await`, collectible by `$transaction`
 - **$transaction** = Atomic batch execution of independent queries with typed tuple results

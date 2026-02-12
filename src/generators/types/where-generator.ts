@@ -237,15 +237,19 @@ export function generateWhereInterface(model: ModelMetadata, registry?: ModelReg
     } else if (field.type === 'object' && field.objectInfo) {
       // Object fields get nested object where type
       const objectWhere = `${field.objectInfo.objectName}Where`;
+      // @flexible fields allow filtering on unknown keys via index signature
+      const flexSuffix = field.isFlexible ? ' & { [key: string]: any }' : '';
 
       if (field.isArray) {
         // Array of objects: some/every/none operators
         if (jsDoc) fields.push(jsDoc);
-        fields.push(`  ${field.name}?: { some?: ${objectWhere}; every?: ${objectWhere}; none?: ${objectWhere}; };`);
+        fields.push(
+          `  ${field.name}?: { some?: ${objectWhere}${flexSuffix}; every?: ${objectWhere}${flexSuffix}; none?: ${objectWhere}${flexSuffix}; };`,
+        );
       } else {
         // Single object - object fields don't support null, only NONE (absent)
         if (jsDoc) fields.push(jsDoc);
-        fields.push(`  ${field.name}?: ${objectWhere};`);
+        fields.push(`  ${field.name}?: ${objectWhere}${flexSuffix};`);
       }
     } else {
       const whereType = generateFieldWhereType(field, registry);

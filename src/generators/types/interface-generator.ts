@@ -67,6 +67,13 @@ export function generateFieldType(field: FieldMetadata): string {
   return `${tsType} | null`;
 }
 
+/** Wrap a type with Record<string, any> intersection for @flexible fields */
+function wrapFlexible(type: string, field: FieldMetadata): string {
+  if (!field.isFlexible) return type;
+
+  return `${type} & Record<string, any>`;
+}
+
 /** Generate a single field definition (output type) */
 export function generateFieldDefinition(field: FieldMetadata): string {
   // Skip Relation fields (virtual, not stored in database)
@@ -82,14 +89,18 @@ export function generateFieldDefinition(field: FieldMetadata): string {
   // Handle array types - always required (defaults to empty array)
   if (field.isArray) {
     const tsType = getOutputType(field);
+    if (field.isFlexible) {
+      return `${field.name}: (${tsType} & Record<string, any>)[];`;
+    }
 
     return `${field.name}: ${tsType}[];`;
   }
 
   const optional = field.isRequired ? '' : '?';
   const type = generateFieldType(field);
+  const wrappedType = wrapFlexible(type, field);
 
-  return `${field.name}${optional}: ${type};`;
+  return `${field.name}${optional}: ${wrappedType};`;
 }
 
 /**
@@ -132,14 +143,18 @@ export function generateInputFieldDefinition(field: FieldMetadata): string {
   // Handle array types - always required (defaults to empty array)
   if (field.isArray) {
     const tsType = getInputType(field);
+    if (field.isFlexible) {
+      return `${field.name}: (${tsType} & Record<string, any>)[];`;
+    }
 
     return `${field.name}: ${tsType}[];`;
   }
 
   const optional = field.isRequired ? '' : '?';
   const type = generateInputFieldType(field);
+  const wrappedType = wrapFlexible(type, field);
 
-  return `${field.name}${optional}: ${type};`;
+  return `${field.name}${optional}: ${wrappedType};`;
 }
 
 /** Generate model interface (base interface without relations - output type) */

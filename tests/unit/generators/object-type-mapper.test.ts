@@ -272,4 +272,199 @@ describe('Object Type Mapper', () => {
       expect(stmts.some((s) => s.includes('locations.*.lng') && s.includes('TYPE float'))).toBe(true);
     });
   });
+
+  describe('@flexible decorator migrations', () => {
+    const addressObj = obj('Address', [
+      field({ name: 'street', type: 'string', isRequired: true }),
+      field({ name: 'city', type: 'string', isRequired: true }),
+      field({ name: 'zip', type: 'string', isRequired: false }),
+    ]);
+    const objectRegistry: ObjectRegistry = { Address: addressObj };
+
+    test('should add FLEXIBLE to required object field with @flexible', () => {
+      const m = model('User', 'user', [
+        field({ name: 'id', type: 'record', isId: true, isRequired: true }),
+        field({
+          name: 'address',
+          type: 'object',
+          isRequired: true,
+          isFlexible: true,
+          objectInfo: { objectName: 'Address', fields: addressObj.fields },
+        }),
+      ]);
+
+      const stmts = generateModelDefineStatements(m, undefined, undefined, objectRegistry);
+
+      const addressStmt = stmts.find((s) => s.includes(' address ') && s.includes('TYPE object'));
+      expect(addressStmt).toContain('TYPE object FLEXIBLE');
+    });
+
+    test('should add FLEXIBLE to optional object field with @flexible', () => {
+      const m = model('User', 'user', [
+        field({ name: 'id', type: 'record', isId: true, isRequired: true }),
+        field({
+          name: 'shipping',
+          type: 'object',
+          isRequired: false,
+          isFlexible: true,
+          objectInfo: { objectName: 'Address', fields: addressObj.fields },
+        }),
+      ]);
+
+      const stmts = generateModelDefineStatements(m, undefined, undefined, objectRegistry);
+
+      const shippingStmt = stmts.find((s) => s.includes(' shipping ') && s.includes('TYPE'));
+      expect(shippingStmt).toContain('TYPE option<object> FLEXIBLE');
+    });
+
+    test('should add FLEXIBLE to array object field with @flexible', () => {
+      const m = model('User', 'user', [
+        field({ name: 'id', type: 'record', isId: true, isRequired: true }),
+        field({
+          name: 'addresses',
+          type: 'object',
+          isRequired: true,
+          isArray: true,
+          isFlexible: true,
+          objectInfo: { objectName: 'Address', fields: addressObj.fields },
+        }),
+      ]);
+
+      const stmts = generateModelDefineStatements(m, undefined, undefined, objectRegistry);
+
+      const arrStmt = stmts.find((s) => s.includes(' addresses ') && s.includes('TYPE'));
+      expect(arrStmt).toContain('TYPE array<object> FLEXIBLE');
+    });
+
+    test('should still generate sub-field DEFINEs alongside FLEXIBLE', () => {
+      const m = model('User', 'user', [
+        field({ name: 'id', type: 'record', isId: true, isRequired: true }),
+        field({
+          name: 'address',
+          type: 'object',
+          isRequired: true,
+          isFlexible: true,
+          objectInfo: { objectName: 'Address', fields: addressObj.fields },
+        }),
+      ]);
+
+      const stmts = generateModelDefineStatements(m, undefined, undefined, objectRegistry);
+
+      // Parent has FLEXIBLE
+      expect(stmts.some((s) => s.includes(' address ') && s.includes('FLEXIBLE'))).toBe(true);
+      // Sub-fields still defined
+      expect(stmts.some((s) => s.includes('address.street') && s.includes('TYPE string'))).toBe(true);
+      expect(stmts.some((s) => s.includes('address.city') && s.includes('TYPE string'))).toBe(true);
+      expect(stmts.some((s) => s.includes('address.zip') && s.includes('TYPE option<string'))).toBe(true);
+    });
+
+    test('should NOT add FLEXIBLE to non-@flexible object field', () => {
+      const m = model('User', 'user', [
+        field({ name: 'id', type: 'record', isId: true, isRequired: true }),
+        field({
+          name: 'address',
+          type: 'object',
+          isRequired: true,
+          objectInfo: { objectName: 'Address', fields: addressObj.fields },
+        }),
+      ]);
+
+      const stmts = generateModelDefineStatements(m, undefined, undefined, objectRegistry);
+
+      const addressStmt = stmts.find((s) => s.includes(' address ') && s.includes('TYPE object'));
+      expect(addressStmt).not.toContain('FLEXIBLE');
+    });
+
+    test('same object flexible on one field, strict on another', () => {
+      const m = model('Company', 'company', [
+        field({ name: 'id', type: 'record', isId: true, isRequired: true }),
+        field({
+          name: 'flexAddr',
+          type: 'object',
+          isRequired: true,
+          isFlexible: true,
+          objectInfo: { objectName: 'Address', fields: addressObj.fields },
+        }),
+        field({
+          name: 'strictAddr',
+          type: 'object',
+          isRequired: true,
+          objectInfo: { objectName: 'Address', fields: addressObj.fields },
+        }),
+      ]);
+
+      const stmts = generateModelDefineStatements(m, undefined, undefined, objectRegistry);
+
+      const flexStmt = stmts.find((s) => s.includes(' flexAddr '));
+      const strictStmt = stmts.find((s) => s.includes(' strictAddr '));
+
+      expect(flexStmt).toContain('FLEXIBLE');
+      expect(strictStmt).not.toContain('FLEXIBLE');
+    });
+
+    test('should add FLEXIBLE to nested object field within object definition', () => {
+      const metaObj = obj('Meta', [field({ name: 'label', type: 'string', isRequired: true })]);
+      const profileObj = obj('Profile', [
+        field({ name: 'bio', type: 'string', isRequired: true }),
+        field({
+          name: 'metadata',
+          type: 'object',
+          isRequired: true,
+          isFlexible: true,
+          objectInfo: { objectName: 'Meta', fields: metaObj.fields },
+        }),
+      ]);
+      const nestedReg: ObjectRegistry = { Meta: metaObj, Profile: profileObj };
+
+      const m = model('User', 'user', [
+        field({ name: 'id', type: 'record', isId: true, isRequired: true }),
+        field({
+          name: 'profile',
+          type: 'object',
+          isRequired: true,
+          objectInfo: { objectName: 'Profile', fields: profileObj.fields },
+        }),
+      ]);
+
+      const stmts = generateModelDefineStatements(m, undefined, undefined, nestedReg);
+
+      const metaStmt = stmts.find((s) => s.includes('profile.metadata'));
+      expect(metaStmt).toContain('TYPE object FLEXIBLE');
+      // Sub-fields still defined under the nested flexible
+      expect(stmts.some((s) => s.includes('profile.metadata.label') && s.includes('TYPE string'))).toBe(true);
+    });
+
+    test('should not double FLEXIBLE when field is @flexible AND cyclic', () => {
+      const selfRefObj = obj('TreeNode', [
+        field({ name: 'value', type: 'int', isRequired: true }),
+        field({
+          name: 'children',
+          type: 'object',
+          isRequired: true,
+          isArray: true,
+          objectInfo: { objectName: 'TreeNode', fields: [] },
+        }),
+      ]);
+      const selfRefReg: ObjectRegistry = { TreeNode: selfRefObj };
+
+      const m = model('Tree', 'tree', [
+        field({ name: 'id', type: 'record', isId: true, isRequired: true }),
+        field({
+          name: 'root',
+          type: 'object',
+          isRequired: true,
+          isFlexible: true,
+          objectInfo: { objectName: 'TreeNode', fields: selfRefObj.fields },
+        }),
+      ]);
+
+      const stmts = generateModelDefineStatements(m, undefined, undefined, selfRefReg);
+
+      const rootStmt = stmts.find((s) => s.includes(' root '));
+      // Should have FLEXIBLE exactly once (from @flexible, not doubled by cyclic logic)
+      expect(rootStmt).toContain('FLEXIBLE');
+      const flexCount = (rootStmt!.match(/FLEXIBLE/g) || []).length;
+      expect(flexCount).toBe(1);
+    });
+  });
 });

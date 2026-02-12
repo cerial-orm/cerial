@@ -144,6 +144,9 @@ export const tables = {
 
   // object-decorators.cerial (object fields with decorators)
   objectDecorators: ['obj_dec_user'],
+
+  // flexible.cerial (@flexible decorator on object fields)
+  flexible: ['flex_user'],
 };
 
 /**

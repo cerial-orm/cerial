@@ -9,6 +9,7 @@ export {
   parseDefaultAlwaysDecorator,
 } from './default-always-parser';
 export { extractDefaultValue, isDefaultDecorator, parseDefaultDecorator } from './default-parser';
+export { isFlexibleDecorator, parseFlexibleDecorator } from './flexible-parser';
 export { isDistinctDecorator, parseDistinctDecorator } from './distinct-parser';
 export { extractFieldRef, isFieldDecorator, parseFieldDecorator } from './field-parser';
 export { isIdDecorator, parseIdDecorator } from './id-parser';

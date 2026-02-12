@@ -469,6 +469,7 @@ export function validateObjectFields(ast: SchemaAST): SchemaValidationError[] {
         'unique',
         'distinct',
         'sort',
+        'flexible',
       ]);
       for (const dec of field.decorators) {
         if (!ALLOWED_OBJECT_DECORATORS.has(dec.type)) {
@@ -479,11 +480,19 @@ export function validateObjectFields(ast: SchemaAST): SchemaValidationError[] {
             });
           } else {
             errors.push({
-              message: `Decorator @${dec.type} is not allowed on object fields. Allowed: @default, @defaultAlways, @createdAt, @updatedAt, @index, @unique, @distinct, @sort.`,
+              message: `Decorator @${dec.type} is not allowed on object fields. Allowed: @default, @defaultAlways, @createdAt, @updatedAt, @index, @unique, @distinct, @sort, @flexible.`,
               line: field.range.start.line,
             });
           }
         }
+      }
+
+      // @flexible is only allowed on object-typed fields (fields referencing an object type)
+      if (hasDecorator(field, 'flexible') && field.type !== 'object') {
+        errors.push({
+          message: `@flexible can only be used on fields with an object type, but '${field.name}' in object ${object.name} is of type '${field.type}'.`,
+          line: field.range.start.line,
+        });
       }
 
       // Validate timestamp and @defaultAlways decorators on object fields
@@ -539,6 +548,29 @@ export function validateObjectFields(ast: SchemaAST): SchemaValidationError[] {
   return errors;
 }
 
+/** Validate @flexible decorator on model fields */
+export function validateFlexibleDecorator(ast: SchemaAST): SchemaValidationError[] {
+  const errors: SchemaValidationError[] = [];
+
+  for (const model of ast.models) {
+    for (const field of model.fields) {
+      if (!hasDecorator(field, 'flexible')) continue;
+
+      // @flexible is only allowed on object-typed fields
+      if (field.type !== 'object') {
+        errors.push({
+          message: `@flexible can only be used on fields with an object type, but '${field.name}' in model ${model.name} is of type '${field.type}'.`,
+          model: model.name,
+          field: field.name,
+          line: field.range.start.line,
+        });
+      }
+    }
+  }
+
+  return errors;
+}
+
 /** Validate object references in model fields */
 export function validateObjectReferences(ast: SchemaAST): SchemaValidationError[] {
   const errors: SchemaValidationError[] = [];
@@ -575,6 +607,7 @@ export function validateSchema(ast: SchemaAST): SchemaValidationResult {
     ...validateObjectNames(ast),
     ...validateObjectFields(ast),
     ...validateObjectReferences(ast),
+    ...validateFlexibleDecorator(ast),
   ];
 
   return {

@@ -183,12 +183,23 @@ function buildObjectMergeClauses(
   objectInfo: ObjectFieldMetadata,
   setParts: string[],
   setVars: Record<string, unknown>,
+  isFlexible?: boolean,
 ): void {
   for (const [subKey, subValue] of Object.entries(data)) {
     if (subValue === undefined) continue;
 
     const subField = objectInfo.fields.find((f) => f.name === subKey);
-    if (!subField) continue;
+
+    // Unknown field — pass through for @flexible objects
+    if (!subField) {
+      if (!isFlexible) continue;
+
+      const subPath = `${fieldPath}.${subKey}`;
+      const varBinding = ctx.bind(subPath.replace(/\./g, '_'), 'set', subValue, 'string');
+      setParts.push(`${subPath} = ${varBinding.placeholder}`);
+      Object.assign(setVars, varBinding.vars);
+      continue;
+    }
 
     const subPath = `${fieldPath}.${subKey}`;
 
@@ -207,6 +218,7 @@ function buildObjectMergeClauses(
         subField.objectInfo,
         setParts,
         setVars,
+        subField.isFlexible,
       );
       continue;
     }
@@ -299,7 +311,15 @@ function buildObjectUpdateClauses(
 
   // Single object: partial merge (dot notation)
   if (typeof value === 'object' && value !== null) {
-    buildObjectMergeClauses(ctx, field, value as Record<string, unknown>, fieldMetadata.objectInfo, setParts, setVars);
+    buildObjectMergeClauses(
+      ctx,
+      field,
+      value as Record<string, unknown>,
+      fieldMetadata.objectInfo,
+      setParts,
+      setVars,
+      fieldMetadata.isFlexible,
+    );
   }
 }
 

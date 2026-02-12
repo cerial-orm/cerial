@@ -119,19 +119,32 @@ function getObjectFieldsWithDefaults(model: ModelMetadata, objectRegistry?: Obje
   });
 }
 
+/** Get object fields that need special Create type handling (have defaults or @flexible) */
+function getObjectFieldsNeedingCreateOverride(model: ModelMetadata, objectRegistry?: ObjectRegistry): FieldMetadata[] {
+  if (!objectRegistry) return [];
+
+  return model.fields.filter((f) => {
+    if (f.type !== 'object' || !f.objectInfo) return false;
+    if (f.isFlexible) return true;
+    const nested = objectRegistry[f.objectInfo.objectName];
+
+    return nested && objectHasDefaultOrTimestamp(nested, objectRegistry);
+  });
+}
+
 /** Generate Create type - uses ModelInput for input types (accepts RecordIdInput) */
 export function generateCreateType(model: ModelMetadata, objectRegistry?: ObjectRegistry): string {
   const omit = getOmitForCreate(model);
   const optional = getOptionalForCreate(model);
   const inputType = `${model.name}Input`;
 
-  // Object fields that need CreateInput substitution (object has @default/@now)
-  const objectFieldsWithDefaults = getObjectFieldsWithDefaults(model, objectRegistry);
+  // Object fields that need special handling in Create (have defaults, @now, or @flexible)
+  const objectFieldsNeedingOverride = getObjectFieldsNeedingCreateOverride(model, objectRegistry);
 
-  // If there are object fields with defaults, they must be omitted from the base
-  // transformation and re-added with the correct CreateInput type
-  if (objectFieldsWithDefaults.length) {
-    const allOmit = [...new Set([...omit, ...objectFieldsWithDefaults.map((f) => f.name)])];
+  // If there are object fields that need override, they must be omitted from the base
+  // transformation and re-added with the correct type
+  if (objectFieldsNeedingOverride.length) {
+    const allOmit = [...new Set([...omit, ...objectFieldsNeedingOverride.map((f) => f.name)])];
     const optionalFields = optional.filter((f) => !allOmit.includes(f));
 
     // Build the base type with omit + optional transformations
@@ -162,20 +175,23 @@ export function generateCreateType(model: ModelMetadata, objectRegistry?: Object
       }
     }
 
-    // Re-add object fields with CreateInput types
+    // Re-add object fields with CreateInput types and/or @flexible intersection
     const objectFieldDefs: string[] = [];
-    for (const f of objectFieldsWithDefaults) {
+    for (const f of objectFieldsNeedingOverride) {
       const objName = f.objectInfo!.objectName;
-      const createInputName = `${objName}CreateInput`;
+      const nested = objectRegistry ? objectRegistry[objName] : undefined;
+      const hasDefaults = nested && objectHasDefaultOrTimestamp(nested, objectRegistry);
+      const baseName = hasDefaults ? `${objName}CreateInput` : `${objName}Input`;
+      const fullType = f.isFlexible ? `(${baseName} & Record<string, any>)` : baseName;
 
       if (f.isArray) {
         // Array object fields are always optional in create (default to [])
-        objectFieldDefs.push(`  ${f.name}?: ${createInputName}[];`);
+        objectFieldDefs.push(`  ${f.name}?: ${fullType}[];`);
       } else if (!f.isRequired) {
         // Optional object field (no null — object fields don't support null)
-        objectFieldDefs.push(`  ${f.name}?: ${createInputName};`);
+        objectFieldDefs.push(`  ${f.name}?: ${f.isFlexible ? fullType : baseName};`);
       } else {
-        objectFieldDefs.push(`  ${f.name}: ${createInputName};`);
+        objectFieldDefs.push(`  ${f.name}: ${f.isFlexible ? fullType : baseName};`);
       }
     }
 
@@ -495,7 +511,27 @@ export function generateUpdateType(model: ModelMetadata): string {
     const inputName = `${objName}Input`;
     const whereName = `${objName}Where`;
 
-    if (f.isArray) {
+    if (f.isFlexible) {
+      // @flexible: wrap with & Record<string, any>
+      const flexInput = `(${inputName} & Record<string, any>)`;
+      const flexWhere = `${whereName} & { [key: string]: any }`;
+
+      if (f.isArray) {
+        specialFieldTypes.push(`  ${f.name}?: ${flexInput}[] | {
+    push?: ${flexInput} | ${flexInput}[];
+    set?: ${flexInput}[];
+    updateWhere?: {
+      where: ${flexWhere};
+      data: Partial<${inputName} & Record<string, any>>;
+    };
+    unset?: { where: ${flexWhere} };
+  };`);
+      } else {
+        specialFieldTypes.push(
+          `  ${f.name}?: Partial<${inputName} & Record<string, any>> | { set: ${inputName} & Record<string, any> };`,
+        );
+      }
+    } else if (f.isArray) {
       // Array of objects: full replace, push, set, updateWhere, unset
       specialFieldTypes.push(`  ${f.name}?: ${inputName}[] | {
     push?: ${inputName} | ${inputName}[];

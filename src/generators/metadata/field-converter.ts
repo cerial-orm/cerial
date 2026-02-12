@@ -52,6 +52,11 @@ export function convertField(field: ASTField): FieldMetadata {
     metadata.sortOrder = sortDecorator.value === false ? 'desc' : 'asc';
   }
 
+  // Handle @flexible decorator
+  if (hasDecorator(field, 'flexible')) {
+    metadata.isFlexible = true;
+  }
+
   // Handle object type (fields will be resolved later by resolveObjectFields)
   if (field.type === 'object' && field.objectName) {
     metadata.objectInfo = { objectName: field.objectName, fields: [] };

@@ -48,6 +48,8 @@ export interface FieldMetadata {
   isDistinct?: boolean;
   /** Sort order from @sort decorator: 'asc' (default) or 'desc' */
   sortOrder?: 'asc' | 'desc';
+  /** Whether the field has @flexible decorator (for object-typed fields) */
+  isFlexible?: boolean;
   /** Object metadata for object-typed fields */
   objectInfo?: ObjectFieldMetadata;
 }
