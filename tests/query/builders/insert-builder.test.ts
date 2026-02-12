@@ -3,22 +3,28 @@
  */
 
 import { describe, expect, test } from 'bun:test';
-import { applyDefaultValues, applyNowDefaults, buildCreateQuery } from '../../../src/query/builders';
+import { applyDefaultValues, buildCreateQuery, stripComputedFields } from '../../../src/query/builders';
 import type { ModelMetadata } from '../../../src/types';
 
 const userModel: ModelMetadata = {
   name: 'User',
   tableName: 'user',
   fields: [
-    { name: 'id', type: 'record', isId: true, isUnique: false, hasNowDefault: false, isRequired: true },
-    { name: 'name', type: 'string', isId: false, isUnique: false, hasNowDefault: false, isRequired: true },
-    { name: 'createdAt', type: 'date', isId: false, isUnique: false, hasNowDefault: true, isRequired: true },
+    { name: 'id', type: 'record', isId: true, isUnique: false, isRequired: true },
+    { name: 'name', type: 'string', isId: false, isUnique: false, isRequired: true },
+    {
+      name: 'createdAt',
+      type: 'date',
+      isId: false,
+      isUnique: false,
+      timestampDecorator: 'createdAt',
+      isRequired: true,
+    },
     {
       name: 'status',
       type: 'string',
       isId: false,
       isUnique: false,
-      hasNowDefault: false,
       isRequired: true,
       defaultValue: 'active',
     },
@@ -34,30 +40,44 @@ describe('insert builder', () => {
     expect(result.text).toContain('RETURN');
   });
 
-  test('applyNowDefaults preserves data (database handles @now defaults)', () => {
-    const data: Record<string, unknown> = { name: 'John' };
-    const result = applyNowDefaults(data, userModel);
+  test('stripComputedFields removes @now fields from data', () => {
+    const computedModel: ModelMetadata = {
+      name: 'Item',
+      tableName: 'item',
+      fields: [
+        { name: 'id', type: 'record', isId: true, isUnique: false, isRequired: true },
+        { name: 'name', type: 'string', isId: false, isUnique: false, isRequired: true },
+        {
+          name: 'accessedAt',
+          type: 'date',
+          isId: false,
+          isUnique: false,
+          timestampDecorator: 'now',
+          isRequired: false,
+        },
+      ],
+    };
+    const data: Record<string, unknown> = { name: 'Test', accessedAt: new Date() };
+    const result = stripComputedFields(data, computedModel);
 
-    // @now defaults are handled by the database through DEFINE FIELD ... DEFAULT time::now()
-    expect(result.createdAt).toBeUndefined();
+    expect(result.accessedAt).toBeUndefined();
+    expect(result.name).toBe('Test');
+  });
+
+  test('stripComputedFields preserves @createdAt and @updatedAt fields', () => {
+    const data: Record<string, unknown> = { name: 'John', createdAt: '2024-01-01T00:00:00.000Z' };
+    const result = stripComputedFields(data, userModel);
+
+    // @createdAt fields are NOT computed — they should be preserved
+    expect(result.createdAt).toBe('2024-01-01T00:00:00.000Z');
     expect(result.name).toBe('John');
   });
 
-  test('applyNowDefaults preserves user-provided date value', () => {
-    const existingDate = '2024-01-01T00:00:00.000Z';
-    const data: Record<string, unknown> = { name: 'John', createdAt: existingDate };
-    const result = applyNowDefaults(data, userModel);
+  test('stripComputedFields passes through data when no @now fields', () => {
+    const data: Record<string, unknown> = { name: 'John' };
+    const result = stripComputedFields(data, userModel);
 
-    // User-provided date should be preserved, not overwritten
-    expect(result.createdAt).toBe(existingDate);
-  });
-
-  test('applyNowDefaults preserves Date object value', () => {
-    const existingDate = new Date('2024-01-01T00:00:00.000Z');
-    const data: Record<string, unknown> = { name: 'John', createdAt: existingDate };
-    const result = applyNowDefaults(data, userModel);
-
-    expect(result.createdAt).toBe(existingDate);
+    expect(result.name).toBe('John');
   });
 
   test('applyDefaultValues adds default values', () => {

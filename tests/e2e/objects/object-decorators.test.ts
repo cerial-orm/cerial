@@ -91,7 +91,7 @@ describe('E2E Objects: Decorators', () => {
     });
   });
 
-  describe('@now on object fields', () => {
+  describe('@createdAt on object fields', () => {
     test('should auto-fill createdAt when omitted', async () => {
       const before = new Date();
       const user = await client.db.ObjDecUser.create({
@@ -232,8 +232,8 @@ describe('E2E Objects: Decorators', () => {
     });
   });
 
-  describe('@default + @now combined in create', () => {
-    test('should apply both @default and @now when all are omitted', async () => {
+  describe('@default + @createdAt combined in create', () => {
+    test('should apply both @default and @createdAt when all are omitted', async () => {
       const user = await client.db.ObjDecUser.create({
         data: {
           name: 'Nora',
@@ -247,7 +247,7 @@ describe('E2E Objects: Decorators', () => {
       expect(user.contact.tags).toEqual([]);
     });
 
-    test('should allow overriding @default while @now still fills', async () => {
+    test('should allow overriding @default while @createdAt still fills', async () => {
       const user = await client.db.ObjDecUser.create({
         data: {
           name: 'Owen',

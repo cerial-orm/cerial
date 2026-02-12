@@ -19,7 +19,6 @@ const stringField: FieldMetadata = {
   type: 'string',
   isId: false,
   isUnique: false,
-  hasNowDefault: false,
   isRequired: true,
 };
 
@@ -28,7 +27,6 @@ const intField: FieldMetadata = {
   type: 'int',
   isId: false,
   isUnique: false,
-  hasNowDefault: false,
   isRequired: true,
 };
 

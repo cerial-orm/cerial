@@ -19,7 +19,6 @@ function createField(overrides: Partial<ModelMetadata['fields'][0]>): ModelMetad
     isRequired: false,
     isArray: false,
     isUnique: false,
-    hasNowDefault: false,
     ...overrides,
   } as ModelMetadata['fields'][0];
 }

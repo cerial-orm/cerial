@@ -42,7 +42,7 @@ model User {
   email Email @unique      # Login identifier
   name String              # Display name
   bio String? @default(null)
-  createdAt Date @now
+  createdAt Date @createdAt
 
   # Relations
   profileId Record?

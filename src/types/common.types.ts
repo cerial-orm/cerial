@@ -11,6 +11,8 @@ export type SchemaDecorator =
   | 'unique'
   | 'index'
   | 'now'
+  | 'createdAt'
+  | 'updatedAt'
   | 'default'
   | 'field'
   | 'model'

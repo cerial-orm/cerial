@@ -12,36 +12,36 @@ Cerial generates a comprehensive set of TypeScript types for every model and obj
 
 For each model in your schema, Cerial generates the following types:
 
-| Type                       | Description                                                                                                                                             |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `User`                     | Base output interface. All fields use output types (`CerialId` for records, `Date` for datetimes).                                                      |
-| `UserInput`                | Base input interface. Record fields use `RecordIdInput` instead of `CerialId`.                                                                          |
-| `UserCreate`               | Data type for `create()`. Derives from `UserInput` with relation fields replaced by nested operations. Fields with `@default` are optional.             |
-| `UserNestedCreate`         | Data type for nested creates inside relation operations. Omits the `id` field since SurrealDB auto-generates it.                                        |
-| `UserUpdate`               | Data type for `updateUnique()` / `updateMany()`. All fields optional. Supports array `push`/`unset` and object `merge`/`set` operations.                |
-| `UserWhere`                | Where clause type. Includes comparison operators, logical operators (`AND`, `OR`, `NOT`), nested relation filtering, and object field filtering.        |
-| `UserSelect`               | Field selection type. Each field is `boolean`. Object fields accept `boolean \| ObjectSelect` for sub-field narrowing.                                  |
-| `UserInclude`              | Relation include type. Each relation accepts `boolean` or an object with nested `where`, `select`, `include`, `orderBy`, `limit`, `offset`.             |
-| `UserOrderBy`              | Ordering type. Each field accepts `'asc' \| 'desc'`. Supports nested object field ordering.                                                             |
-| `UserFindUniqueWhere`      | Where clause for unique lookups. Requires exactly one unique field (typically `id`).                                                                    |
-| `User$Relations`           | Relation metadata mapping. Maps relation names to their target model and cardinality.                                                                   |
-| `GetUserPayload<S, I>`     | Dynamic return type. Computes the result type based on `select` (`S`) and `include` (`I`) options. See [Dynamic Return Types](dynamic-return-types.md). |
-| `GetUserIncludePayload<I>` | Helper type for resolving included relation types.                                                                                                      |
+| Type                       | Description                                                                                                                                                                                                       |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `User`                     | Base output interface. All fields use output types (`CerialId` for records, `Date` for datetimes).                                                                                                                |
+| `UserInput`                | Base input interface. Record fields use `RecordIdInput` instead of `CerialId`.                                                                                                                                    |
+| `UserCreate`               | Data type for `create()`. Derives from `UserInput` with relation fields replaced by nested operations. Fields with `@default`, `@createdAt`, or `@updatedAt` are optional. `@now` fields are excluded (computed). |
+| `UserNestedCreate`         | Data type for nested creates inside relation operations. Omits the `id` field since SurrealDB auto-generates it.                                                                                                  |
+| `UserUpdate`               | Data type for `updateUnique()` / `updateMany()`. All fields optional. Supports array `push`/`unset` and object `merge`/`set` operations.                                                                          |
+| `UserWhere`                | Where clause type. Includes comparison operators, logical operators (`AND`, `OR`, `NOT`), nested relation filtering, and object field filtering.                                                                  |
+| `UserSelect`               | Field selection type. Each field is `boolean`. Object fields accept `boolean \| ObjectSelect` for sub-field narrowing.                                                                                            |
+| `UserInclude`              | Relation include type. Each relation accepts `boolean` or an object with nested `where`, `select`, `include`, `orderBy`, `limit`, `offset`.                                                                       |
+| `UserOrderBy`              | Ordering type. Each field accepts `'asc' \| 'desc'`. Supports nested object field ordering.                                                                                                                       |
+| `UserFindUniqueWhere`      | Where clause for unique lookups. Requires exactly one unique field (typically `id`).                                                                                                                              |
+| `User$Relations`           | Relation metadata mapping. Maps relation names to their target model and cardinality.                                                                                                                             |
+| `GetUserPayload<S, I>`     | Dynamic return type. Computes the result type based on `select` (`S`) and `include` (`I`) options. See [Dynamic Return Types](dynamic-return-types.md).                                                           |
+| `GetUserIncludePayload<I>` | Helper type for resolving included relation types.                                                                                                                                                                |
 
 ## Types Generated Per Object
 
 For each `object` in your schema, Cerial generates a smaller set of types. Objects are embedded inline within models — they don't have their own tables, IDs, or relations.
 
-| Type                 | Description                                                                 |
-| -------------------- | --------------------------------------------------------------------------- |
-| `Address`            | Base interface with all fields typed.                                       |
-| `AddressInput`       | Input interface (identical to base for objects without Record fields).      |
-| `AddressCreateInput` | Create input where `@default`/`@now` fields are optional. Only when needed. |
-| `AddressWhere`       | Where clause type for filtering by nested object fields.                    |
-| `AddressSelect`      | Sub-field selection type.                                                   |
-| `AddressOrderBy`     | Ordering type for nested object fields.                                     |
+| Type                 | Description                                                                                                                   |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `Address`            | Base interface with all fields typed.                                                                                         |
+| `AddressInput`       | Input interface (identical to base for objects without Record fields).                                                        |
+| `AddressCreateInput` | Create input where `@default`/`@createdAt`/`@updatedAt` fields are optional and `@now` fields are excluded. Only when needed. |
+| `AddressWhere`       | Where clause type for filtering by nested object fields.                                                                      |
+| `AddressSelect`      | Sub-field selection type.                                                                                                     |
+| `AddressOrderBy`     | Ordering type for nested object fields.                                                                                       |
 
-`ObjectNameCreateInput` is only generated when the object has fields with `@default` or `@now` decorators. In that type, those fields become optional since the database fills them automatically. The parent model's `Create` type uses `CreateInput` instead of `Input` for such objects.
+`ObjectNameCreateInput` is only generated when the object has fields with `@default`, `@now`, `@createdAt`, or `@updatedAt` decorators. In that type, `@default`/`@createdAt`/`@updatedAt` fields become optional (the database fills them if omitted), and `@now` fields are excluded entirely (they are computed). The parent model's `Create` type uses `CreateInput` instead of `Input` for such objects.
 
 Objects do **not** generate: `GetPayload`, `Include`, `Create`, `Update`, or Model-level types. Since objects are embedded, they are always operated on through their parent model.
 
@@ -63,7 +63,7 @@ model User {
   name String
   age Int?
   isActive Bool @default(true)
-  createdAt Date @now
+  createdAt Date @createdAt
   address Address
   shipping Address?
   profileId Record?
@@ -107,7 +107,7 @@ export interface UserCreate {
   name: string;
   age?: number | null;
   isActive?: boolean; // Optional — has @default(true)
-  createdAt?: Date; // Optional — has @now
+  createdAt?: Date; // Optional — has @createdAt
   address: AddressInput;
   shipping?: AddressInput;
   profileId?: RecordIdInput | null;
@@ -122,7 +122,8 @@ export interface UserCreate {
 
 Key differences from the output interface:
 
-- Fields with `@default` become optional (the default is applied if omitted)
+- Fields with `@default`, `@createdAt`, or `@updatedAt` become optional (the database provides a default if omitted)
+- Fields with `@now` are excluded (they are computed by the database and cannot be set)
 - Array fields become optional (default to `[]`)
 - `CerialId` becomes `RecordIdInput` (accepts strings, CerialId, or RecordId)
 - Relation fields are replaced with nested `create` / `connect` operations

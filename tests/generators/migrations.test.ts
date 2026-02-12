@@ -77,7 +77,7 @@ describe('Migration Generator', () => {
       expect(map['Post']!.some((s) => s.includes('post'))).toBe(true);
       expect(map['Post']!.some((s) => s.includes('title'))).toBe(true);
 
-      // Comment model should have table and fields with default
+      // Comment model should have table and fields with COMPUTED time::now()
       expect(map['Comment']!.some((s) => s.includes('DEFINE TABLE'))).toBe(true);
       expect(map['Comment']!.some((s) => s.includes('comment'))).toBe(true);
       expect(map['Comment']!.some((s) => s.includes('time::now()'))).toBe(true);
@@ -304,14 +304,13 @@ model Tag {
   describe('Object type migrations', () => {
     // Manually construct metadata because parseModelRegistry doesn't populate objectInfo
     const addressFields = [
-      { name: 'street', type: 'string' as const, isId: false, isUnique: false, hasNowDefault: false, isRequired: true },
-      { name: 'city', type: 'string' as const, isId: false, isUnique: false, hasNowDefault: false, isRequired: true },
+      { name: 'street', type: 'string' as const, isId: false, isUnique: false, isRequired: true },
+      { name: 'city', type: 'string' as const, isId: false, isUnique: false, isRequired: true },
       {
         name: 'zipCode',
         type: 'string' as const,
         isId: false,
         isUnique: false,
-        hasNowDefault: false,
         isRequired: false,
       },
     ];
@@ -322,14 +321,13 @@ model Tag {
       name: 'Store',
       tableName: 'store',
       fields: [
-        { name: 'id', type: 'record' as const, isId: true, isUnique: true, hasNowDefault: false, isRequired: true },
-        { name: 'name', type: 'string' as const, isId: false, isUnique: false, hasNowDefault: false, isRequired: true },
+        { name: 'id', type: 'record' as const, isId: true, isUnique: true, isRequired: true },
+        { name: 'name', type: 'string' as const, isId: false, isUnique: false, isRequired: true },
         {
           name: 'address',
           type: 'object' as const,
           isId: false,
           isUnique: false,
-          hasNowDefault: false,
           isRequired: true,
           objectInfo: addressInfo,
         },
@@ -338,7 +336,6 @@ model Tag {
           type: 'object' as const,
           isId: false,
           isUnique: false,
-          hasNowDefault: false,
           isRequired: false,
           objectInfo: addressInfo,
         },
@@ -347,7 +344,6 @@ model Tag {
           type: 'object' as const,
           isId: false,
           isUnique: false,
-          hasNowDefault: false,
           isRequired: true,
           isArray: true,
           objectInfo: addressInfo,
@@ -512,6 +508,272 @@ model Tag {
     });
   });
 
+  describe('Timestamp decorator migrations', () => {
+    // Helper: manually build metadata for precise control of timestampDecorator
+    function makeField(
+      overrides: Partial<import('../../src/types').FieldMetadata>,
+    ): import('../../src/types').FieldMetadata {
+      return {
+        name: 'test',
+        type: 'string',
+        isId: false,
+        isUnique: false,
+        isRequired: true,
+        ...overrides,
+      };
+    }
+
+    test('model with @now field generates TYPE datetime COMPUTED time::now()', () => {
+      const model = {
+        name: 'Event',
+        tableName: 'event',
+        fields: [
+          makeField({ name: 'id', type: 'record', isId: true, isUnique: true }),
+          makeField({ name: 'title', type: 'string' }),
+          makeField({ name: 'serverTime', type: 'date', timestampDecorator: 'now' }),
+        ],
+      };
+
+      const statements = generateModelDefineStatements(model);
+      const nowStmt = statements.find((s) => s.includes('serverTime'));
+
+      expect(nowStmt).toBeDefined();
+      expect(nowStmt).toContain('TYPE datetime');
+      expect(nowStmt).toContain('COMPUTED time::now()');
+      expect(nowStmt).toBe('DEFINE FIELD OVERWRITE serverTime ON TABLE event TYPE datetime COMPUTED time::now();');
+    });
+
+    test('model with @createdAt field generates DEFAULT time::now()', () => {
+      const model = {
+        name: 'Post',
+        tableName: 'post',
+        fields: [
+          makeField({ name: 'id', type: 'record', isId: true, isUnique: true }),
+          makeField({ name: 'createdAt', type: 'date', isRequired: false, timestampDecorator: 'createdAt' }),
+        ],
+      };
+
+      const statements = generateModelDefineStatements(model);
+      const createdStmt = statements.find((s) => s.includes('createdAt'));
+
+      expect(createdStmt).toBeDefined();
+      expect(createdStmt).toContain('TYPE option<datetime | null>');
+      expect(createdStmt).toContain('DEFAULT time::now()');
+      expect(createdStmt).not.toContain('COMPUTED');
+      expect(createdStmt).not.toContain('ALWAYS');
+    });
+
+    test('model with @updatedAt field generates DEFAULT ALWAYS time::now()', () => {
+      const model = {
+        name: 'Post',
+        tableName: 'post',
+        fields: [
+          makeField({ name: 'id', type: 'record', isId: true, isUnique: true }),
+          makeField({ name: 'updatedAt', type: 'date', isRequired: false, timestampDecorator: 'updatedAt' }),
+        ],
+      };
+
+      const statements = generateModelDefineStatements(model);
+      const updatedStmt = statements.find((s) => s.includes('updatedAt'));
+
+      expect(updatedStmt).toBeDefined();
+      expect(updatedStmt).toContain('TYPE option<datetime | null>');
+      expect(updatedStmt).toContain('DEFAULT ALWAYS time::now()');
+      expect(updatedStmt).not.toContain('COMPUTED');
+    });
+
+    test('model with all three timestamp decorators on separate fields', () => {
+      const model = {
+        name: 'Audit',
+        tableName: 'audit',
+        fields: [
+          makeField({ name: 'id', type: 'record', isId: true, isUnique: true }),
+          makeField({ name: 'serverTime', type: 'date', timestampDecorator: 'now' }),
+          makeField({ name: 'createdAt', type: 'date', isRequired: false, timestampDecorator: 'createdAt' }),
+          makeField({ name: 'updatedAt', type: 'date', isRequired: false, timestampDecorator: 'updatedAt' }),
+        ],
+      };
+
+      const statements = generateModelDefineStatements(model);
+
+      const nowStmt = statements.find((s) => s.includes('serverTime'));
+      expect(nowStmt).toContain('TYPE datetime');
+      expect(nowStmt).toContain('COMPUTED time::now()');
+
+      const createdStmt = statements.find((s) => s.includes('createdAt'));
+      expect(createdStmt).toContain('DEFAULT time::now()');
+      expect(createdStmt).not.toContain('ALWAYS');
+
+      const updatedStmt = statements.find((s) => s.includes('updatedAt'));
+      expect(updatedStmt).toContain('DEFAULT ALWAYS time::now()');
+    });
+
+    test('required @createdAt Date field generates TYPE datetime DEFAULT time::now()', () => {
+      const model = {
+        name: 'Post',
+        tableName: 'post',
+        fields: [
+          makeField({ name: 'id', type: 'record', isId: true, isUnique: true }),
+          makeField({ name: 'createdAt', type: 'date', isRequired: true, timestampDecorator: 'createdAt' }),
+        ],
+      };
+
+      const statements = generateModelDefineStatements(model);
+      const createdStmt = statements.find((s) => s.includes('createdAt'));
+
+      expect(createdStmt).toBeDefined();
+      expect(createdStmt).toContain('TYPE datetime');
+      expect(createdStmt).toContain('DEFAULT time::now()');
+    });
+
+    test('object sub-field with @now is skipped (SurrealDB requires COMPUTED to be top-level)', () => {
+      const objFields = [
+        makeField({ name: 'label', type: 'string' }),
+        makeField({ name: 'serverTime', type: 'date', timestampDecorator: 'now' }),
+      ];
+      const objectRegistry = { Meta: { name: 'Meta', fields: objFields } };
+      const model = {
+        name: 'User',
+        tableName: 'user',
+        fields: [
+          makeField({ name: 'id', type: 'record', isId: true, isUnique: true }),
+          makeField({ name: 'meta', type: 'object', objectInfo: { objectName: 'Meta', fields: objFields } }),
+        ],
+      };
+
+      const statements = generateModelDefineStatements(model, undefined, undefined, objectRegistry);
+      const nowStmt = statements.find((s) => s.includes('meta.serverTime'));
+
+      // @now on sub-fields is skipped entirely — no DEFINE FIELD generated
+      expect(nowStmt).toBeUndefined();
+    });
+
+    test('object sub-field with @createdAt generates DEFAULT time::now() at dot-notation path', () => {
+      const objFields = [
+        makeField({ name: 'name', type: 'string' }),
+        makeField({ name: 'createdAt', type: 'date', isRequired: false, timestampDecorator: 'createdAt' }),
+      ];
+      const objectRegistry = { Meta: { name: 'Meta', fields: objFields } };
+      const model = {
+        name: 'User',
+        tableName: 'user',
+        fields: [
+          makeField({ name: 'id', type: 'record', isId: true, isUnique: true }),
+          makeField({ name: 'meta', type: 'object', objectInfo: { objectName: 'Meta', fields: objFields } }),
+        ],
+      };
+
+      const statements = generateModelDefineStatements(model, undefined, undefined, objectRegistry);
+      const createdStmt = statements.find((s) => s.includes('meta.createdAt'));
+
+      expect(createdStmt).toBeDefined();
+      expect(createdStmt).toContain('TYPE option<datetime | null>');
+      expect(createdStmt).toContain('DEFAULT time::now()');
+      expect(createdStmt).not.toContain('ALWAYS');
+      expect(createdStmt).not.toContain('COMPUTED');
+    });
+
+    test('object sub-field with @updatedAt generates DEFAULT ALWAYS time::now() at dot-notation path', () => {
+      const objFields = [
+        makeField({ name: 'name', type: 'string' }),
+        makeField({ name: 'updatedAt', type: 'date', isRequired: false, timestampDecorator: 'updatedAt' }),
+      ];
+      const objectRegistry = { Meta: { name: 'Meta', fields: objFields } };
+      const model = {
+        name: 'User',
+        tableName: 'user',
+        fields: [
+          makeField({ name: 'id', type: 'record', isId: true, isUnique: true }),
+          makeField({ name: 'meta', type: 'object', objectInfo: { objectName: 'Meta', fields: objFields } }),
+        ],
+      };
+
+      const statements = generateModelDefineStatements(model, undefined, undefined, objectRegistry);
+      const updatedStmt = statements.find((s) => s.includes('meta.updatedAt'));
+
+      expect(updatedStmt).toBeDefined();
+      expect(updatedStmt).toContain('TYPE option<datetime | null>');
+      expect(updatedStmt).toContain('DEFAULT ALWAYS time::now()');
+      expect(updatedStmt).not.toContain('COMPUTED');
+    });
+
+    test('array object sub-field with @now is skipped (SurrealDB requires COMPUTED to be top-level)', () => {
+      const objFields = [makeField({ name: 'serverTime', type: 'date', timestampDecorator: 'now' })];
+      const objectRegistry = { Entry: { name: 'Entry', fields: objFields } };
+      const model = {
+        name: 'Log',
+        tableName: 'log',
+        fields: [
+          makeField({ name: 'id', type: 'record', isId: true, isUnique: true }),
+          makeField({
+            name: 'entries',
+            type: 'object',
+            isArray: true,
+            objectInfo: { objectName: 'Entry', fields: objFields },
+          }),
+        ],
+      };
+
+      const statements = generateModelDefineStatements(model, undefined, undefined, objectRegistry);
+      const nowStmt = statements.find((s) => s.includes('entries.*.serverTime'));
+
+      // @now on sub-fields is skipped entirely — no DEFINE FIELD generated
+      expect(nowStmt).toBeUndefined();
+    });
+
+    test('array object sub-field with @createdAt uses .* notation', () => {
+      const objFields = [
+        makeField({ name: 'createdAt', type: 'date', isRequired: false, timestampDecorator: 'createdAt' }),
+      ];
+      const objectRegistry = { Entry: { name: 'Entry', fields: objFields } };
+      const model = {
+        name: 'Log',
+        tableName: 'log',
+        fields: [
+          makeField({ name: 'id', type: 'record', isId: true, isUnique: true }),
+          makeField({
+            name: 'entries',
+            type: 'object',
+            isArray: true,
+            objectInfo: { objectName: 'Entry', fields: objFields },
+          }),
+        ],
+      };
+
+      const statements = generateModelDefineStatements(model, undefined, undefined, objectRegistry);
+      const createdStmt = statements.find((s) => s.includes('entries.*.createdAt'));
+
+      expect(createdStmt).toBeDefined();
+      expect(createdStmt).toContain('DEFAULT time::now()');
+    });
+
+    test('array object sub-field with @updatedAt uses .* notation', () => {
+      const objFields = [
+        makeField({ name: 'updatedAt', type: 'date', isRequired: false, timestampDecorator: 'updatedAt' }),
+      ];
+      const objectRegistry = { Entry: { name: 'Entry', fields: objFields } };
+      const model = {
+        name: 'Log',
+        tableName: 'log',
+        fields: [
+          makeField({ name: 'id', type: 'record', isId: true, isUnique: true }),
+          makeField({
+            name: 'entries',
+            type: 'object',
+            isArray: true,
+            objectInfo: { objectName: 'Entry', fields: objFields },
+          }),
+        ],
+      };
+
+      const statements = generateModelDefineStatements(model, undefined, undefined, objectRegistry);
+      const updatedStmt = statements.find((s) => s.includes('entries.*.updatedAt'));
+
+      expect(updatedStmt).toBeDefined();
+      expect(updatedStmt).toContain('DEFAULT ALWAYS time::now()');
+    });
+  });
+
   describe('Object subfield decorator migrations', () => {
     // Helper: manually build metadata since parseModelRegistry doesn't yet handle object decorators
     function makeField(
@@ -522,7 +784,6 @@ model Tag {
         type: 'string',
         isId: false,
         isUnique: false,
-        hasNowDefault: false,
         isRequired: true,
         ...overrides,
       };
@@ -557,7 +818,7 @@ model Tag {
     test('generates DEFAULT time::now() for @now on object subfield', () => {
       const objFields = [
         makeField({ name: 'name', type: 'string' }),
-        makeField({ name: 'createdAt', type: 'date', hasNowDefault: true }),
+        makeField({ name: 'createdAt', type: 'date', timestampDecorator: 'createdAt' }),
       ];
       const objectRegistry = { Meta: { name: 'Meta', fields: objFields } };
       const model = {

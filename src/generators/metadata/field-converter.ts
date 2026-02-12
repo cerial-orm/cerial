@@ -6,11 +6,20 @@ import { getDecorator, hasDecorator } from '../../parser/types/ast';
 import type { ASTField, FieldMetadata, RelationFieldMetadata } from '../../types';
 import { toSnakeCase } from '../../utils/string-utils';
 
+/** Resolve the timestamp decorator from an AST field */
+function resolveTimestampDecorator(field: ASTField): 'now' | 'createdAt' | 'updatedAt' | undefined {
+  if (hasDecorator(field, 'now')) return 'now';
+  if (hasDecorator(field, 'createdAt')) return 'createdAt';
+  if (hasDecorator(field, 'updatedAt')) return 'updatedAt';
+
+  return undefined;
+}
+
 /** Convert AST field to FieldMetadata */
 export function convertField(field: ASTField): FieldMetadata {
   const defaultDecorator = getDecorator(field, 'default');
   const isId = hasDecorator(field, 'id');
-  const hasNow = hasDecorator(field, 'now');
+  const timestampDec = resolveTimestampDecorator(field);
 
   const metadata: FieldMetadata = {
     name: field.name,
@@ -18,8 +27,8 @@ export function convertField(field: ASTField): FieldMetadata {
     isId,
     isUnique: isId || hasDecorator(field, 'unique'),
     isIndexed: hasDecorator(field, 'index'),
-    hasNowDefault: hasNow,
-    isRequired: !isId && !hasNow && !field.isOptional,
+    timestampDecorator: timestampDec,
+    isRequired: !isId && !timestampDec && !field.isOptional,
     defaultValue: defaultDecorator?.value,
   };
 

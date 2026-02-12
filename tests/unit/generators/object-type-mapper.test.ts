@@ -20,7 +20,6 @@ function field(overrides: Partial<FieldMetadata>): FieldMetadata {
     type: 'string',
     isId: false,
     isUnique: false,
-    hasNowDefault: false,
     isRequired: true,
     ...overrides,
   };

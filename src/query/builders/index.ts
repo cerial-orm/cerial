@@ -19,7 +19,7 @@ export {
   type FindUniqueOptionsWithInclude,
 } from './select-builder';
 
-export { applyDefaultValues, applyNowDefaults, buildCreateQuery } from './insert-builder';
+export { applyDefaultValues, buildCreateQuery, stripComputedFields } from './insert-builder';
 
 export { buildUpdateManyQuery, buildUpdateUniqueQuery } from './update-builder';
 

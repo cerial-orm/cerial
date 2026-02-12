@@ -92,7 +92,7 @@ model Event {
   title String
   startDate Date
   endDate Date?
-  createdAt Date @now
+  createdAt Date @createdAt
 }
 ```
 

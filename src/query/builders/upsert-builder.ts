@@ -134,13 +134,45 @@ function buildUpsertSetClauses(
   // Collect all field names from both create and update
   const allFields = new Set([...Object.keys(createData), ...Object.keys(updateData)]);
 
+  // Add @updatedAt fields that aren't in either data set — they need NONE injection on update
+  for (const field of model.fields) {
+    if (field.timestampDecorator === 'updatedAt') {
+      allFields.add(field.name);
+    }
+  }
+
+  // Track @now fields to skip
+  const computedFields = new Set(model.fields.filter((f) => f.timestampDecorator === 'now').map((f) => f.name));
+
   for (const fieldName of allFields) {
-    const createValue = createData[fieldName];
-    const updateValue = updateData[fieldName];
+    // Skip @now (COMPUTED) fields
+    if (computedFields.has(fieldName)) continue;
+
+    let createValue = createData[fieldName];
+    let updateValue = updateData[fieldName];
     const fieldMetadata = model.fields.find((f) => f.name === fieldName);
 
     // Skip relation fields (virtual)
     if (fieldMetadata?.type === 'relation') continue;
+
+    // For @updatedAt fields not in update data, use a special sentinel
+    // to generate `ELSE NONE END` in the conditional (triggers DEFAULT ALWAYS)
+    if (fieldMetadata?.timestampDecorator === 'updatedAt' && updateValue === undefined) {
+      // On update path: set to NONE so DEFAULT ALWAYS re-fires
+      // On create path: keep createValue as-is (undefined means let DEFAULT ALWAYS handle it)
+      if (createValue === undefined) {
+        // Neither create nor update has it — field entirely absent
+        // UPSERT: On create, DEFAULT ALWAYS fires. On update, we need NONE.
+        setParts.push(`${fieldName} = IF $this == NONE THEN NONE ELSE NONE END`);
+        continue;
+      } else {
+        // Create has a value, update doesn't — preserve create value, NONE on update
+        const binding = ctx.bind(fieldName, 'create', createValue, fieldMetadata?.type || 'string');
+        Object.assign(setVars, binding.vars);
+        setParts.push(`${fieldName} = IF $this == NONE THEN ${binding.placeholder} ELSE NONE END`);
+        continue;
+      }
+    }
 
     const result = buildUpsertFieldClause(ctx, fieldName, createValue, updateValue, fieldMetadata);
     if (result) {
@@ -271,8 +303,22 @@ export function buildUpsertIdQuery(
   // Build UPDATE SET clauses (only if update data provided)
   const updateSetParts: string[] = [];
   if (hasUpdate) {
+    // Inject NONE for @updatedAt fields not in update data, strip @now fields
+    const timestampFields = new Set<string>();
+    for (const field of model.fields) {
+      if (field.timestampDecorator === 'now') {
+        timestampFields.add(field.name);
+        continue;
+      }
+      if (field.timestampDecorator === 'updatedAt' && !(field.name in updateData)) {
+        updateSetParts.push(`${field.name} = NONE`);
+        timestampFields.add(field.name);
+      }
+    }
+
     for (const [field, value] of Object.entries(updateData)) {
       if (value === undefined) continue;
+      if (timestampFields.has(field)) continue;
       const fieldMetadata = model.fields.find((f) => f.name === field);
       if (fieldMetadata?.type === 'relation') continue;
 

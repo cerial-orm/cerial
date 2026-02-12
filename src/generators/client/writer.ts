@@ -13,7 +13,7 @@ import {
   generateObjectInterfaces,
   generateObjectWhereInterface,
   generateWhereTypes,
-  objectHasDefaultOrNow,
+  objectHasDefaultOrTimestamp,
 } from '../types';
 import { generateFindUniqueWhereType } from '../types/method-generator';
 import { generateConnectionExports } from './connection-template';
@@ -162,7 +162,7 @@ function generateObjectImports(objectNames: string[], objectRegistry?: ObjectReg
     // Import CreateInput if the object has @default/@now fields
     if (objectRegistry) {
       const objMeta = objectRegistry[name];
-      if (objMeta && objectHasDefaultOrNow(objMeta, objectRegistry)) {
+      if (objMeta && objectHasDefaultOrTimestamp(objMeta, objectRegistry)) {
         importNames.push(`${name}CreateInput`);
       }
     }
@@ -413,8 +413,8 @@ export type {
     const objSelects = objects.map((o) => `${o.name}Select`).join(',\n  ');
     const objOrderBys = objects.map((o) => `${o.name}OrderBy`).join(',\n  ');
 
-    // Only export CreateInput for objects that have @default/@now fields
-    const objectsWithDefaults = objects.filter((o) => objectHasDefaultOrNow(o, objRegistry));
+    // Only export CreateInput for objects that have @default or timestamp fields
+    const objectsWithDefaults = objects.filter((o) => objectHasDefaultOrTimestamp(o, objRegistry));
 
     content += `
 // Object interfaces (output types)
@@ -431,7 +431,7 @@ export type {
     if (objectsWithDefaults.length) {
       const objCreateInputs = objectsWithDefaults.map((o) => `${o.name}CreateInput`).join(',\n  ');
       content += `
-// Object create input interfaces (fields with @default/@now are optional)
+// Object create input interfaces (fields with @default/@createdAt/@updatedAt are optional, @now fields omitted)
 export type {
   ${objCreateInputs},
 } from './models';

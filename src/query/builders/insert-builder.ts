@@ -8,16 +8,20 @@ import { createCompileContext } from '../compile/var-allocator';
 import { buildSelectFields } from './select-builder';
 
 /**
- * Apply @now defaults to data
- * NOTE: If the table schema has DEFAULT time::now() defined, this is not needed
- * as the database will handle it. This is kept for backwards compatibility
- * when running without migrations.
+ * Strip @now (COMPUTED) fields from data.
+ * These fields are not stored — they are computed by the DB at query time.
+ * If the user accidentally includes them, we remove them silently.
  */
-export function applyNowDefaults<T extends Record<string, unknown>>(data: T, _model: ModelMetadata): T {
-  // Don't apply @now defaults here - let the database handle it
-  // through the DEFINE FIELD ... DEFAULT time::now() statement.
-  // This ensures proper datetime type handling in SurrealDB.
-  return { ...data };
+export function stripComputedFields<T extends Record<string, unknown>>(data: T, model: ModelMetadata): T {
+  const result = { ...data };
+
+  for (const field of model.fields) {
+    if (field.timestampDecorator === 'now') {
+      delete result[field.name];
+    }
+  }
+
+  return result;
 }
 
 /** Apply @default values to data */
@@ -41,8 +45,8 @@ export function buildCreateQuery(
 ): CompiledQuery {
   const ctx = createCompileContext();
 
-  // Apply defaults
-  const withDefaults = applyDefaultValues(applyNowDefaults(data, model), model);
+  // Strip computed fields and apply defaults
+  const withDefaults = applyDefaultValues(stripComputedFields(data, model), model);
 
   // Build content variable
   const contentVar = ctx.bind('content', 'create', withDefaults, 'string');

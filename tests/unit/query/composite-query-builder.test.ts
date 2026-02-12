@@ -24,11 +24,11 @@ const userModel: ModelMetadata = {
     { kind: 'index', name: 'emailAge', fields: ['email', 'age'] },
   ],
   fields: [
-    { name: 'id', type: 'record', isId: true, isUnique: true, hasNowDefault: false, isRequired: false },
-    { name: 'firstName', type: 'string', isId: false, isUnique: false, hasNowDefault: false, isRequired: true },
-    { name: 'lastName', type: 'string', isId: false, isUnique: false, hasNowDefault: false, isRequired: true },
-    { name: 'email', type: 'email', isId: false, isUnique: true, hasNowDefault: false, isRequired: true },
-    { name: 'age', type: 'int', isId: false, isUnique: false, hasNowDefault: false, isRequired: false },
+    { name: 'id', type: 'record', isId: true, isUnique: true, isRequired: false },
+    { name: 'firstName', type: 'string', isId: false, isUnique: false, isRequired: true },
+    { name: 'lastName', type: 'string', isId: false, isUnique: false, isRequired: true },
+    { name: 'email', type: 'email', isId: false, isUnique: true, isRequired: true },
+    { name: 'age', type: 'int', isId: false, isUnique: false, isRequired: false },
   ],
 };
 
@@ -41,21 +41,20 @@ const storeModel: ModelMetadata = {
     { kind: 'unique', name: 'nameCityMixed', fields: ['name', 'address.city'] },
   ],
   fields: [
-    { name: 'id', type: 'record', isId: true, isUnique: true, hasNowDefault: false, isRequired: false },
-    { name: 'name', type: 'string', isId: false, isUnique: false, hasNowDefault: false, isRequired: true },
+    { name: 'id', type: 'record', isId: true, isUnique: true, isRequired: false },
+    { name: 'name', type: 'string', isId: false, isUnique: false, isRequired: true },
     {
       name: 'address',
       type: 'object',
       isId: false,
       isUnique: false,
-      hasNowDefault: false,
       isRequired: true,
       objectInfo: {
         objectName: 'Address',
         fields: [
-          { name: 'city', type: 'string', isId: false, isUnique: false, hasNowDefault: false, isRequired: true },
-          { name: 'zip', type: 'string', isId: false, isUnique: false, hasNowDefault: false, isRequired: true },
-          { name: 'street', type: 'string', isId: false, isUnique: false, hasNowDefault: false, isRequired: false },
+          { name: 'city', type: 'string', isId: false, isUnique: false, isRequired: true },
+          { name: 'zip', type: 'string', isId: false, isUnique: false, isRequired: true },
+          { name: 'street', type: 'string', isId: false, isUnique: false, isRequired: false },
         ],
       },
     },
@@ -67,8 +66,8 @@ const simpleModel: ModelMetadata = {
   name: 'Tag',
   tableName: 'tag',
   fields: [
-    { name: 'id', type: 'record', isId: true, isUnique: true, hasNowDefault: false, isRequired: false },
-    { name: 'name', type: 'string', isId: false, isUnique: true, hasNowDefault: false, isRequired: true },
+    { name: 'id', type: 'record', isId: true, isUnique: true, isRequired: false },
+    { name: 'name', type: 'string', isId: false, isUnique: true, isRequired: true },
   ],
 };
 

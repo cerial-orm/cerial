@@ -48,7 +48,7 @@ Test.checks([
   Test.check<FieldMetadata['type'], SchemaFieldType, Test.Pass>(),
   Test.check<FieldMetadata['isId'], boolean, Test.Pass>(),
   Test.check<FieldMetadata['isUnique'], boolean, Test.Pass>(),
-  Test.check<FieldMetadata['hasNowDefault'], boolean, Test.Pass>(),
+  Test.check<FieldMetadata['timestampDecorator'], 'now' | 'createdAt' | 'updatedAt' | undefined, Test.Pass>(),
   Test.check<FieldMetadata['isRequired'], boolean, Test.Pass>(),
 
   // Optional fields
@@ -63,7 +63,7 @@ type MinimalField = {
   type: 'string';
   isId: boolean;
   isUnique: boolean;
-  hasNowDefault: boolean;
+  timestampDecorator?: 'now' | 'createdAt' | 'updatedAt';
   isRequired: boolean;
 };
 Test.checks([Test.check<Extends<MinimalField, FieldMetadata>, 1, Test.Pass>()]);

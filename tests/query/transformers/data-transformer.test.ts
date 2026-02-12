@@ -105,12 +105,19 @@ describe('data-transformer', () => {
       name: 'User',
       tableName: 'user',
       fields: [
-        { name: 'id', type: 'record', isId: true, isUnique: false, hasNowDefault: false, isRequired: true },
-        { name: 'email', type: 'email', isId: false, isUnique: true, hasNowDefault: false, isRequired: true },
-        { name: 'name', type: 'string', isId: false, isUnique: false, hasNowDefault: false, isRequired: true },
-        { name: 'age', type: 'int', isId: false, isUnique: false, hasNowDefault: false, isRequired: false },
-        { name: 'isActive', type: 'bool', isId: false, isUnique: false, hasNowDefault: false, isRequired: true },
-        { name: 'createdAt', type: 'date', isId: false, isUnique: false, hasNowDefault: true, isRequired: true },
+        { name: 'id', type: 'record', isId: true, isUnique: false, isRequired: true },
+        { name: 'email', type: 'email', isId: false, isUnique: true, isRequired: true },
+        { name: 'name', type: 'string', isId: false, isUnique: false, isRequired: true },
+        { name: 'age', type: 'int', isId: false, isUnique: false, isRequired: false },
+        { name: 'isActive', type: 'bool', isId: false, isUnique: false, isRequired: true },
+        {
+          name: 'createdAt',
+          type: 'date',
+          isId: false,
+          isUnique: false,
+          timestampDecorator: 'createdAt',
+          isRequired: true,
+        },
       ],
     };
 

@@ -8,15 +8,23 @@
  */
 
 import type { FieldMetadata, ModelMetadata, ModelRegistry, ObjectRegistry } from '../../types';
-import { objectHasDefaultOrNow } from './objects/interface-generator';
+import { objectHasDefaultOrTimestamp } from './objects/interface-generator';
 
 /** Whether to use ts-toolbelt utilities in generated types */
 const USE_TS_TOOLBELT = true;
 
-/** Get fields that should be omitted from create (auto-generated) */
+/** Get fields that should be omitted from create (auto-generated or computed) */
 function getOmitForCreate(model: ModelMetadata): string[] {
-  // Relation fields should be omitted (virtual fields) - they get their own nested types
-  return model.fields.filter((f) => f.type === 'relation').map((f) => f.name);
+  return model.fields
+    .filter((f) => {
+      // Relation fields should be omitted (virtual fields) - they get their own nested types
+      if (f.type === 'relation') return true;
+      // @now fields are COMPUTED (not stored) — excluded from create input
+      if (f.timestampDecorator === 'now') return true;
+
+      return false;
+    })
+    .map((f) => f.name);
 }
 
 /** Get Record fields that are managed by a Relation @field() - these should be omitted in nested create */
@@ -75,8 +83,8 @@ function getOptionalForCreate(model: ModelMetadata): string[] {
     if (field.isId) {
       optional.add(field.name);
     }
-    // @now fields are optional (db can auto-generate)
-    if (field.hasNowDefault) {
+    // @createdAt and @updatedAt fields are optional (db can auto-generate)
+    if (field.timestampDecorator === 'createdAt' || field.timestampDecorator === 'updatedAt') {
       optional.add(field.name);
     }
     // Optional fields are optional
@@ -103,7 +111,7 @@ function getObjectFieldsWithDefaults(model: ModelMetadata, objectRegistry?: Obje
     if (f.type !== 'object' || !f.objectInfo) return false;
     const nested = objectRegistry[f.objectInfo.objectName];
 
-    return nested && objectHasDefaultOrNow(nested, objectRegistry);
+    return nested && objectHasDefaultOrTimestamp(nested, objectRegistry);
   });
 }
 
@@ -429,8 +437,15 @@ export function generateUpdateType(model: ModelMetadata): string {
   const objectFields = model.fields.filter((f) => f.type === 'object' && f.objectInfo);
   const inputType = `${model.name}Input`;
 
-  // Fields to exclude from update (id and relation fields)
-  const excludeFields = [...(idField ? [idField.name] : []), ...relationFields.map((f) => f.name)];
+  // @now fields are COMPUTED (not stored) — excluded from update input
+  const computedFields = model.fields.filter((f) => f.timestampDecorator === 'now');
+
+  // Fields to exclude from update (id, relation, and computed fields)
+  const excludeFields = [
+    ...(idField ? [idField.name] : []),
+    ...relationFields.map((f) => f.name),
+    ...computedFields.map((f) => f.name),
+  ];
 
   // Fields that need special handling (arrays and objects) — omit from base Partial
   const specialFields = [...arrayFields, ...objectFields];

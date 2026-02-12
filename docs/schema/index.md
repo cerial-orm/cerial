@@ -55,7 +55,7 @@ model User {
   name String
   bio String? @default(null)
   address Address?
-  createdAt Date @now
+  createdAt Date @createdAt
 }
 
 # Post model with relation to User

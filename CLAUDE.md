@@ -43,11 +43,12 @@ cerial/
 │   ├── unit/                        # Unit tests (no DB)
 │   ├── integration/                 # Integration tests (DB required)
 │   ├── e2e/                         # End-to-end tests
-│   │   ├── schemas/                 #   28 .cerial test schemas
+│   │   ├── schemas/                 #   33 .cerial test schemas
 │   │   ├── generated/               #   Generated client (gitignored)
 │   │   ├── relations/               #   91 relation test files
 │   │   ├── objects/                 #   7 object test files
-│   │   ├── typechecks/              #   13 compile-time type checks
+│   │   ├── timestamps/              #   Timestamp decorator E2E tests
+│   │   ├── typechecks/              #   18 compile-time type checks
 │   │   ├── preload.ts               #   Generates client before tests
 │   │   └── test-client.ts           #   Test helpers
 │   └── generators/                  # Generator tests
@@ -62,7 +63,7 @@ cerial/
 | File                                          | Purpose                                                                  |
 | --------------------------------------------- | ------------------------------------------------------------------------ |
 | `src/utils/cerial-id.ts`                      | `CerialId` class and `RecordIdInput` union type                          |
-| `src/query/transformers/data-transformer.ts`  | Input transformation, `@default` handling, NONE/null logic               |
+| `src/query/transformers/data-transformer.ts`  | Input transformation, `@default`/timestamp handling, NONE/null logic     |
 | `src/query/mappers/result-mapper.ts`          | Output transformation (RecordId → CerialId)                              |
 | `src/query/builders/nested-builder.ts`        | Nested create/connect/disconnect in transactions                         |
 | `src/generators/types/derived-generator.ts`   | Generates Select, OrderBy, GetPayload, Include types                     |
@@ -100,7 +101,8 @@ Schema (.cerial files) → Parser (AST) → Generators → TypeScript Client
 | `tests/e2e/relations/`    | Relation E2E tests        | 91 files |
 | `tests/e2e/objects/`      | Object E2E tests          | 7 files  |
 | `tests/e2e/transactions/` | Transaction E2E tests     | 10 files |
-| `tests/e2e/typechecks/`   | Compile-time type checks  | 14 files |
+| `tests/e2e/timestamps/`   | Timestamp E2E tests       | 1 file   |
+| `tests/e2e/typechecks/`   | Compile-time type checks  | 18 files |
 
 **When query format changes**, update expectations in:
 
@@ -284,7 +286,11 @@ has_children: true # only on section index pages
 - **NONE vs null** = SurrealDB distinguishes absent fields (NONE) from null-valued fields (null)
 - **PK side** = Forward relation with `Record` + `Relation @field` (stores FK)
 - **Non-PK side** = Reverse relation with `Relation @model` only (queries related table)
-- **Object types** = Embedded inline, no id, no decorators, no relations
+- **@now** = COMPUTED `time::now()` — not stored, computed at query time. Output-only (excluded from Create/Update/Where)
+- **@createdAt** = `DEFAULT time::now()` — set on creation when field is absent. Optional in Create/Update, present in Where
+- **@updatedAt** = `DEFAULT ALWAYS time::now()` — set on every create/update when field is absent. Optional in Create/Update, present in Where
+- **Timestamp decorators** = `@now`, `@createdAt`, `@updatedAt` are mutually exclusive with each other and with `@default`. Date fields only. `@now` is model-only (COMPUTED must be top-level). `@createdAt`/`@updatedAt` allowed on model + object fields
+- **Object types** = Embedded inline, no id, no relations. Allowed decorators: `@default`, `@createdAt`, `@updatedAt`
 - **Parameterized queries** = Values bound via `$varName`, never inlined
 - **CerialQueryPromise** = Thenable returned by model methods. Auto-executes on `await`, collectible by `$transaction`
 - **$transaction** = Atomic batch execution of independent queries with typed tuple results

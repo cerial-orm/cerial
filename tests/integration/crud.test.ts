@@ -28,7 +28,7 @@ model TestUser {
   name String
   age Int?
   isActive Bool
-  createdAt Date @now
+  createdAt Date @createdAt
 }
 `;
 
@@ -144,7 +144,7 @@ describe('CRUD Operations', () => {
       expect(String(result?.id)).toContain(customId);
     });
 
-    test('should create record with user-provided datetime (overriding @now default)', async () => {
+    test('should create record with user-provided datetime (overriding @createdAt default)', async () => {
       const customDate = new Date('2020-01-15T10:30:00.000Z');
       const result = await userModel.create({
         data: {

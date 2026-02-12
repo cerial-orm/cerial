@@ -20,6 +20,37 @@ import { getRecordIdFromWhere } from './delete-builder';
 import { type IncludeClause, combineSelectWithIncludes } from './relation-builder';
 import { buildSelectFields } from './select-builder';
 
+/**
+ * Inject NONE for @updatedAt fields not already in the update data.
+ * SurrealDB DEFAULT ALWAYS only re-fires when the field is explicitly set to NONE.
+ * Without this, UPDATE queries that omit @updatedAt fields would preserve the old value.
+ *
+ * Also strips @now (COMPUTED) fields from update data — they are not stored in the DB.
+ */
+function injectTimestampFieldsForUpdate(
+  data: Record<string, unknown>,
+  model: ModelMetadata,
+  setParts: string[],
+): Set<string> {
+  const processedFields = new Set<string>();
+
+  for (const field of model.fields) {
+    // Strip @now (COMPUTED) fields — they are computed at query time, not stored
+    if (field.timestampDecorator === 'now') {
+      processedFields.add(field.name);
+      continue;
+    }
+
+    // Inject NONE for @updatedAt fields not provided by user
+    if (field.timestampDecorator === 'updatedAt' && !(field.name in data)) {
+      setParts.push(`${field.name} = NONE`);
+      processedFields.add(field.name);
+    }
+  }
+
+  return processedFields;
+}
+
 /** Build UPDATE query */
 export function buildUpdateManyQuery(
   model: ModelMetadata,
@@ -33,8 +64,14 @@ export function buildUpdateManyQuery(
   const setVars: Record<string, unknown> = {};
   const setParts: string[] = [];
 
+  // Inject NONE for @updatedAt fields and strip @now fields
+  const timestampFields = injectTimestampFieldsForUpdate(data, model, setParts);
+
   for (const [field, value] of Object.entries(data)) {
     if (value === undefined) continue;
+
+    // Skip fields already handled by timestamp injection
+    if (timestampFields.has(field)) continue;
 
     // Find field metadata
     const fieldMetadata = model.fields.find((f) => f.name === field);
@@ -129,6 +166,9 @@ function isObjectArrayUpdateOps(value: unknown): boolean {
 /**
  * Build SET clauses for a partial object merge (dot notation).
  * { city: 'NYC', street: '123 Main' } → ['address.city = $p0', 'address.street = $p1']
+ *
+ * Also injects NONE for @updatedAt sub-fields not in the user data,
+ * so DEFAULT ALWAYS time::now() re-fires on the sub-field.
  */
 function buildObjectMergeClauses(
   ctx: FilterCompileContext,
@@ -169,6 +209,14 @@ function buildObjectMergeClauses(
     const varBinding = ctx.bind(subPath.replace(/\./g, '_'), 'set', subValue, subField.type);
     setParts.push(`${subPath} = ${varBinding.placeholder}`);
     Object.assign(setVars, varBinding.vars);
+  }
+
+  // Inject NONE for @updatedAt sub-fields not provided by user
+  // This triggers DEFAULT ALWAYS time::now() on the sub-field
+  for (const subField of objectInfo.fields) {
+    if (subField.timestampDecorator === 'updatedAt' && !(subField.name in data)) {
+      setParts.push(`${fieldPath}.${subField.name} = NONE`);
+    }
   }
 }
 
@@ -258,8 +306,14 @@ function buildSetClause(
   const setVars: Record<string, unknown> = {};
   const setParts: string[] = [];
 
+  // Inject NONE for @updatedAt fields and strip @now fields
+  const timestampFields = injectTimestampFieldsForUpdate(data, model, setParts);
+
   for (const [field, value] of Object.entries(data)) {
     if (value === undefined) continue;
+
+    // Skip fields already handled by timestamp injection
+    if (timestampFields.has(field)) continue;
 
     // Find field metadata
     const fieldMetadata = model.fields.find((f) => f.name === field);

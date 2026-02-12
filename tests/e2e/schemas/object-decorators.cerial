@@ -2,7 +2,7 @@ object ContactInfo {
   email Email
   phone String?
   city String @default("Unknown")
-  createdAt Date @now
+  createdAt Date @createdAt
   tags String[] @distinct
 }
 

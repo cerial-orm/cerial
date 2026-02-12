@@ -57,8 +57,8 @@ export {
 // Builders
 export {
   applyDefaultValues,
-  applyNowDefaults,
   buildCreateQuery,
+  stripComputedFields,
   buildDeleteQuery,
   buildDeleteQueryWithReturn,
   buildFindManyQuery,
@@ -69,6 +69,8 @@ export {
 
 // Transformers
 export {
+  applyFieldDefaults,
+  applyNowDefaults,
   filterModelFields,
   formatArray,
   formatObject,

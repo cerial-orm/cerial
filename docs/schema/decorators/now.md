@@ -7,7 +7,7 @@ nav_order: 3
 
 # @now
 
-Automatically sets a `Date` field to the current timestamp at creation time.
+A computed field that evaluates to the current timestamp at query time. The value is **not stored** in the database — it is computed fresh on every read.
 
 ## Syntax
 
@@ -15,87 +15,45 @@ Automatically sets a `Date` field to the current timestamp at creation time.
 model Post {
   id Record @id
   title String
-  createdAt Date @now
+  currentTime Date @now
 }
 ```
 
 ## Behavior
 
 - **Only for `Date` fields** — The `@now` decorator can only be applied to fields of type `Date`.
-- **Auto-populated on create** — The field is set to the current server time (`time::now()` in SurrealQL) when a record is created. You do not need to provide it in the create data.
-- **Not auto-updated** — The value is set once at creation and does not update automatically on subsequent changes. If you need an "updated at" timestamp, set it manually in update operations.
+- **Computed, not stored** — The field is defined as `COMPUTED time::now()` in SurrealDB. It does not exist in the stored record — it is evaluated each time the record is read.
+- **Output-only** — Because the value is computed by the database, it cannot be set in `create` or `update` operations. It is excluded from `CreateInput`, `UpdateInput`, and `WhereInput` types.
+- **Always present in output** — The field is always returned when the record is read (unless excluded by `select`).
 
 ## TypeScript
 
-The `@now` field is omitted from the required create input — it is automatically populated by the database.
+The `@now` field is excluded from create and update inputs — you cannot provide or override it:
 
 ```typescript
-// No need to provide createdAt
 const post = await db.Post.create({
   data: { title: 'Hello World' },
+  // currentTime cannot be set — it's computed
 });
 
-// createdAt is automatically set
-console.log(post.createdAt); // Date object — e.g., 2025-01-15T10:30:00.000Z
+// currentTime is always the current server time at read time
+console.log(post.currentTime); // Date object — e.g., 2025-01-15T10:30:00.000Z
 ```
 
-## Object Fields
+Since the value is computed on every read, it reflects the time the query was executed, not the time the record was created.
 
-`@now` can be applied to `Date` fields within object definitions. The timestamp is set at the database level via `DEFINE FIELD ... DEFAULT time::now()`.
+## Restrictions
 
-```cerial
-object ContactInfo {
-  email Email
-  createdAt Date @now
-}
+`@now` is **only allowed on model fields**, not object fields. SurrealDB requires `COMPUTED` fields to be top-level — they cannot be defined on embedded object sub-fields. Use [`@createdAt`](created-at) or [`@updatedAt`](updated-at) for timestamp fields within objects.
 
-model User {
-  id Record @id
-  contact ContactInfo
-}
-```
+## When to Use @now vs @createdAt vs @updatedAt
 
-When an object has `@now` fields, Cerial generates an additional `ContactInfoCreateInput` type where those fields are optional:
+| Decorator    | Stored | Set on create  | Updated on write | Use case                    |
+| ------------ | ------ | -------------- | ---------------- | --------------------------- |
+| `@now`       | No     | N/A (computed) | N/A (computed)   | Current server time at read |
+| `@createdAt` | Yes    | Yes            | No               | Record creation timestamp   |
+| `@updatedAt` | Yes    | Yes            | Yes              | Last modification timestamp |
 
-```typescript
-// createdAt is auto-set by the database
-const user = await db.User.create({
-  data: {
-    contact: { email: 'alice@example.com' },
-    // createdAt will be set to the current time
-  },
-});
-```
-
-## Example: Timestamps
-
-A common pattern is to add a `createdAt` timestamp to models:
-
-```cerial
-model User {
-  id Record @id
-  email Email @unique
-  name String
-  createdAt Date @now
-}
-
-model Comment {
-  id Record @id
-  content String
-  createdAt Date @now
-  postId Record
-  post Relation @field(postId) @model(Post)
-}
-```
-
-```typescript
-const user = await db.User.create({
-  data: { email: 'alice@example.com', name: 'Alice' },
-});
-console.log(user.createdAt); // automatically set to creation time
-
-const comment = await db.Comment.create({
-  data: { content: 'Great post!', post: { connect: postId } },
-});
-console.log(comment.createdAt); // automatically set to creation time
-```
+- Use [`@createdAt`](created-at) for timestamps that record when something was created.
+- Use [`@updatedAt`](updated-at) for timestamps that track the last modification.
+- Use `@now` when you need the current server time at the moment of reading, not a stored value.

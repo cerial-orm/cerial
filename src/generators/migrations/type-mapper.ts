@@ -120,14 +120,31 @@ export function generateAssertClause(schemaType: SchemaFieldType): string | unde
 }
 
 /** Generate the DEFAULT clause for a field */
-export function generateDefaultClause(hasNowDefault: boolean, defaultValue?: unknown): string | undefined {
-  if (hasNowDefault) return 'DEFAULT time::now()';
+export function generateDefaultClause(
+  timestampDecorator?: 'now' | 'createdAt' | 'updatedAt',
+  defaultValue?: unknown,
+): string | undefined {
+  // @now is COMPUTED, not DEFAULT — handled by generateComputedClause
+  // @createdAt uses DEFAULT time::now() — set on creation when field is absent
+  if (timestampDecorator === 'createdAt') return 'DEFAULT time::now()';
+  // @updatedAt uses DEFAULT ALWAYS time::now() — set on creation and re-set on every update when field is absent
+  if (timestampDecorator === 'updatedAt') return 'DEFAULT ALWAYS time::now()';
+
   if (defaultValue !== undefined) {
     if (typeof defaultValue === 'string') return `DEFAULT '${defaultValue}'`;
     if (typeof defaultValue === 'boolean') return `DEFAULT ${defaultValue}`;
     if (typeof defaultValue === 'number') return `DEFAULT ${defaultValue}`;
+
     return `DEFAULT ${JSON.stringify(defaultValue)}`;
   }
+
+  return undefined;
+}
+
+/** Generate the COMPUTED clause for @now fields */
+export function generateComputedClause(timestampDecorator?: 'now' | 'createdAt' | 'updatedAt'): string | undefined {
+  if (timestampDecorator === 'now') return 'COMPUTED time::now()';
+
   return undefined;
 }
 

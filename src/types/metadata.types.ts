@@ -32,8 +32,8 @@ export interface FieldMetadata {
   isUnique: boolean;
   /** Whether the field has @index decorator */
   isIndexed?: boolean;
-  /** Whether the field has @now decorator for auto-timestamp */
-  hasNowDefault: boolean;
+  /** Timestamp decorator: 'now' (computed), 'createdAt' (default), 'updatedAt' (default always) */
+  timestampDecorator?: 'now' | 'createdAt' | 'updatedAt';
   /** Whether the field is required (no ? marker) */
   isRequired: boolean;
   /** Default value if specified with @default(value) */

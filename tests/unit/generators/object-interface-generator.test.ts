@@ -12,7 +12,7 @@ import {
   generateObjectInterfaces,
   generateInterface,
   generateInputInterface,
-  objectHasDefaultOrNow,
+  objectHasDefaultOrTimestamp,
 } from '../../../src/generators/types/interface-generator';
 import type { FieldMetadata, ModelMetadata, ObjectMetadata, ObjectRegistry } from '../../../src/types';
 
@@ -23,7 +23,6 @@ function field(overrides: Partial<FieldMetadata>): FieldMetadata {
     type: 'string',
     isId: false,
     isUnique: false,
-    hasNowDefault: false,
     isRequired: true,
     ...overrides,
   };
@@ -243,14 +242,14 @@ describe('Object Interface Generator', () => {
     });
   });
 
-  describe('objectHasDefaultOrNow', () => {
+  describe('objectHasDefaultOrTimestamp', () => {
     test('should return false for object with no defaults', () => {
       const addr = obj('Address', [
         field({ name: 'street', type: 'string', isRequired: true }),
         field({ name: 'city', type: 'string', isRequired: true }),
       ]);
 
-      expect(objectHasDefaultOrNow(addr)).toBe(false);
+      expect(objectHasDefaultOrTimestamp(addr)).toBe(false);
     });
 
     test('should return true for object with @default field', () => {
@@ -259,16 +258,16 @@ describe('Object Interface Generator', () => {
         field({ name: 'city', type: 'string', isRequired: true, defaultValue: 'Unknown' }),
       ]);
 
-      expect(objectHasDefaultOrNow(addr)).toBe(true);
+      expect(objectHasDefaultOrTimestamp(addr)).toBe(true);
     });
 
     test('should return true for object with @now field', () => {
       const addr = obj('Address', [
         field({ name: 'street', type: 'string', isRequired: true }),
-        field({ name: 'createdAt', type: 'date', isRequired: true, hasNowDefault: true }),
+        field({ name: 'createdAt', type: 'date', isRequired: true, timestampDecorator: 'createdAt' }),
       ]);
 
-      expect(objectHasDefaultOrNow(addr)).toBe(true);
+      expect(objectHasDefaultOrTimestamp(addr)).toBe(true);
     });
 
     test('should return true for nested object with defaults', () => {
@@ -283,7 +282,7 @@ describe('Object Interface Generator', () => {
       ]);
       const registry: ObjectRegistry = { Inner: inner, Outer: outer };
 
-      expect(objectHasDefaultOrNow(outer, registry)).toBe(true);
+      expect(objectHasDefaultOrTimestamp(outer, registry)).toBe(true);
     });
 
     test('should return false for nested object without defaults', () => {
@@ -298,7 +297,7 @@ describe('Object Interface Generator', () => {
       ]);
       const registry: ObjectRegistry = { Inner: inner, Outer: outer };
 
-      expect(objectHasDefaultOrNow(outer, registry)).toBe(false);
+      expect(objectHasDefaultOrTimestamp(outer, registry)).toBe(false);
     });
 
     test('should handle self-referencing objects without infinite loop', () => {
@@ -314,13 +313,13 @@ describe('Object Interface Generator', () => {
       ]);
       const registry: ObjectRegistry = { Tree: tree };
 
-      expect(objectHasDefaultOrNow(tree, registry)).toBe(false);
+      expect(objectHasDefaultOrTimestamp(tree, registry)).toBe(false);
     });
 
     test('should detect @default(false) as having a default', () => {
       const o = obj('Flags', [field({ name: 'active', type: 'bool', isRequired: true, defaultValue: false })]);
 
-      expect(objectHasDefaultOrNow(o)).toBe(true);
+      expect(objectHasDefaultOrTimestamp(o)).toBe(true);
     });
   });
 
@@ -341,7 +340,7 @@ describe('Object Interface Generator', () => {
     test('should make @now field optional', () => {
       const addr = obj('Address', [
         field({ name: 'street', type: 'string', isRequired: true }),
-        field({ name: 'createdAt', type: 'date', isRequired: true, hasNowDefault: true }),
+        field({ name: 'createdAt', type: 'date', isRequired: true, timestampDecorator: 'createdAt' }),
       ]);
 
       const result = generateObjectCreateInputInterface(addr);
@@ -425,7 +424,7 @@ describe('Object Interface Generator', () => {
 
     test('should handle object with only @default/@now fields (all optional)', () => {
       const o = obj('Auto', [
-        field({ name: 'createdAt', type: 'date', isRequired: true, hasNowDefault: true }),
+        field({ name: 'createdAt', type: 'date', isRequired: true, timestampDecorator: 'createdAt' }),
         field({ name: 'status', type: 'string', isRequired: true, defaultValue: 'active' }),
       ]);
 
@@ -478,7 +477,7 @@ describe('Object Interface Generator', () => {
     test('should generate CreateInput for object with @now field', () => {
       const o = obj('Timestamped', [
         field({ name: 'name', type: 'string', isRequired: true }),
-        field({ name: 'createdAt', type: 'date', isRequired: true, hasNowDefault: true }),
+        field({ name: 'createdAt', type: 'date', isRequired: true, timestampDecorator: 'createdAt' }),
       ]);
 
       const result = generateObjectInterfaces([o]);

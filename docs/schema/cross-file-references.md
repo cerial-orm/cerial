@@ -47,7 +47,7 @@ model User {
   name String
   email Email @unique
   address Address           # References object from types.cerial
-  createdAt Date @now
+  createdAt Date @createdAt
   posts Relation[] @model(Post)
 }
 ```

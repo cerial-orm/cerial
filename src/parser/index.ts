@@ -34,7 +34,7 @@ export {
   getUniqueFields,
   getRequiredFields,
   getOptionalFields,
-  getNowFields,
+  getTimestampFields,
   getFieldsWithDefaults,
 } from './model-metadata';
 

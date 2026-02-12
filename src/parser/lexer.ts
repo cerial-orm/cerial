@@ -147,6 +147,10 @@ function lexField(state: LexerState): void {
       addLexeme(state, createLexeme('decorator_unique', token.value, token.position));
     } else if (token.value === '@now') {
       addLexeme(state, createLexeme('decorator_now', token.value, token.position));
+    } else if (token.value === '@createdAt') {
+      addLexeme(state, createLexeme('decorator_createdAt', token.value, token.position));
+    } else if (token.value === '@updatedAt') {
+      addLexeme(state, createLexeme('decorator_updatedAt', token.value, token.position));
     } else if (token.value.startsWith('@default')) {
       addLexeme(state, createLexeme('decorator_default', token.value, token.position));
     }

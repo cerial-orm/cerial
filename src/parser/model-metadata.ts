@@ -16,6 +16,15 @@ import type {
 import { toSnakeCase } from '../utils/string-utils';
 import { getDecorator, hasDecorator } from './types/ast';
 
+/** Resolve the timestamp decorator from an AST field */
+function resolveTimestampDecorator(field: ASTField): 'now' | 'createdAt' | 'updatedAt' | undefined {
+  if (hasDecorator(field, 'now')) return 'now';
+  if (hasDecorator(field, 'createdAt')) return 'createdAt';
+  if (hasDecorator(field, 'updatedAt')) return 'updatedAt';
+
+  return undefined;
+}
+
 /** Convert AST field to FieldMetadata */
 export function fieldToMetadata(field: ASTField): FieldMetadata {
   const metadata: FieldMetadata = {
@@ -24,7 +33,7 @@ export function fieldToMetadata(field: ASTField): FieldMetadata {
     isId: hasDecorator(field, 'id'),
     isUnique: hasDecorator(field, 'unique'),
     isIndexed: hasDecorator(field, 'index'),
-    hasNowDefault: hasDecorator(field, 'now'),
+    timestampDecorator: resolveTimestampDecorator(field),
     isRequired: !field.isOptional,
     defaultValue: getDecorator(field, 'default')?.value,
   };
@@ -140,12 +149,14 @@ export function getOptionalFields(model: ModelMetadata): FieldMetadata[] {
   return model.fields.filter((f) => !f.isRequired);
 }
 
-/** Get fields with @now decorator */
-export function getNowFields(model: ModelMetadata): FieldMetadata[] {
-  return model.fields.filter((f) => f.hasNowDefault);
+/** Get fields with any timestamp decorator (@now, @createdAt, @updatedAt) */
+export function getTimestampFields(model: ModelMetadata): FieldMetadata[] {
+  return model.fields.filter((f) => f.timestampDecorator);
 }
 
-/** Get fields with default values */
+/** Get fields with default values (includes @createdAt and @updatedAt but not @now which is computed) */
 export function getFieldsWithDefaults(model: ModelMetadata): FieldMetadata[] {
-  return model.fields.filter((f) => f.defaultValue !== undefined || f.hasNowDefault);
+  return model.fields.filter(
+    (f) => f.defaultValue !== undefined || f.timestampDecorator === 'createdAt' || f.timestampDecorator === 'updatedAt',
+  );
 }

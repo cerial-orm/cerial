@@ -85,7 +85,7 @@ Each schema file is parsed into an AST (Abstract Syntax Tree). The parser recogn
 - `object {}` blocks with fields (no decorators or relations)
 - Field types: `String`, `Email`, `Int`, `Float`, `Bool`, `Date`, `Record`, `Relation`, and object references
 - Modifiers: `?` (optional), `[]` (array)
-- Decorators: `@id`, `@unique`, `@default()`, `@now`, `@field()`, `@onDelete()`
+- Decorators: `@id`, `@unique`, `@default()`, `@now`, `@createdAt`, `@updatedAt`, `@field()`, `@onDelete()`
 
 ### 3. Validation
 

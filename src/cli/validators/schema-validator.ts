@@ -284,6 +284,65 @@ export function validateArrayDecorators(ast: SchemaAST): SchemaValidationError[]
   return errors;
 }
 
+/** Timestamp decorator types */
+const TIMESTAMP_DECORATORS = new Set(['now', 'createdAt', 'updatedAt']);
+
+/** Validate timestamp decorator rules on a single field (shared by model and object validation) */
+function validateTimestampDecorators(
+  field: { name: string; type: string; decorators: Array<{ type: string }>; range: { start: { line: number } } },
+  parentName: string,
+): SchemaValidationError[] {
+  const errors: SchemaValidationError[] = [];
+  const timestampDecs = field.decorators.filter((d) => TIMESTAMP_DECORATORS.has(d.type));
+
+  if (!timestampDecs.length) return errors;
+
+  // Timestamp decorators must be on Date fields only
+  for (const dec of timestampDecs) {
+    if (field.type !== 'date') {
+      errors.push({
+        message: `@${dec.type} can only be used on Date fields, but '${field.name}' in ${parentName} is of type '${field.type}'.`,
+        line: field.range.start.line,
+      });
+    }
+  }
+
+  // Mutual exclusivity: only one timestamp decorator per field
+  if (timestampDecs.length > 1) {
+    const names = timestampDecs.map((d) => `@${d.type}`).join(', ');
+    errors.push({
+      message: `Field '${field.name}' in ${parentName} has multiple timestamp decorators (${names}). Only one of @now, @createdAt, @updatedAt is allowed per field.`,
+      line: field.range.start.line,
+    });
+  }
+
+  // Conflict with @default: timestamp decorators and @default are mutually exclusive
+  const hasDefault = field.decorators.some((d) => d.type === 'default');
+  if (hasDefault) {
+    for (const dec of timestampDecs) {
+      errors.push({
+        message: `@${dec.type} and @default cannot be used together on field '${field.name}' in ${parentName}.`,
+        line: field.range.start.line,
+      });
+    }
+  }
+
+  return errors;
+}
+
+/** Validate timestamp decorators on model fields */
+export function validateTimestampFields(ast: SchemaAST): SchemaValidationError[] {
+  const errors: SchemaValidationError[] = [];
+
+  for (const model of ast.models) {
+    for (const field of model.fields) {
+      errors.push(...validateTimestampDecorators(field, `model ${model.name}`));
+    }
+  }
+
+  return errors;
+}
+
 /** Validate object names */
 export function validateObjectNames(ast: SchemaAST): SchemaValidationError[] {
   const errors: SchemaValidationError[] = [];
@@ -364,15 +423,33 @@ export function validateObjectFields(ast: SchemaAST): SchemaValidationError[] {
       }
 
       // Validate decorators on object fields — only specific decorators are allowed
-      const ALLOWED_OBJECT_DECORATORS = new Set(['default', 'now', 'index', 'unique', 'distinct', 'sort']);
+      const ALLOWED_OBJECT_DECORATORS = new Set([
+        'default',
+        'createdAt',
+        'updatedAt',
+        'index',
+        'unique',
+        'distinct',
+        'sort',
+      ]);
       for (const dec of field.decorators) {
         if (!ALLOWED_OBJECT_DECORATORS.has(dec.type)) {
-          errors.push({
-            message: `Decorator @${dec.type} is not allowed on object fields. Allowed: @default, @now, @index, @unique, @distinct, @sort.`,
-            line: field.range.start.line,
-          });
+          if (dec.type === 'now') {
+            errors.push({
+              message: `@now is not allowed on object fields. SurrealDB requires COMPUTED fields to be top-level. Use @createdAt or @updatedAt instead.`,
+              line: field.range.start.line,
+            });
+          } else {
+            errors.push({
+              message: `Decorator @${dec.type} is not allowed on object fields. Allowed: @default, @createdAt, @updatedAt, @index, @unique, @distinct, @sort.`,
+              line: field.range.start.line,
+            });
+          }
         }
       }
+
+      // Validate timestamp decorators on object fields
+      errors.push(...validateTimestampDecorators(field, `object ${object.name}`));
 
       // Validate @index and @unique mutual exclusivity on object fields
       if (hasDecorator(field, 'index') && hasDecorator(field, 'unique')) {
@@ -455,6 +532,7 @@ export function validateSchema(ast: SchemaAST): SchemaValidationResult {
     ...validateRecordFields(ast),
     ...validateRelationRules(ast),
     ...validateArrayDecorators(ast),
+    ...validateTimestampFields(ast),
     ...validateObjectNames(ast),
     ...validateObjectFields(ast),
     ...validateObjectReferences(ast),

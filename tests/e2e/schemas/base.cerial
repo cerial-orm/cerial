@@ -19,7 +19,7 @@ model FieldTypesExample {
   rating Float?
   isActive Bool
   isVerified Bool?
-  createdAt Date @now
+  createdAt Date @createdAt
   updatedAt Date?
   birthDate Date
   tags String[]
@@ -44,7 +44,7 @@ model NumericExample {
 # Model for testing date operations
 model DateExample {
   id Record @id
-  createdAt Date @now
+  createdAt Date @createdAt
   scheduledAt Date
   completedAt Date?
   reminderDates Date[]

@@ -12,7 +12,7 @@ function generateFieldMetadata(field: FieldMetadata): string {
     `isId: ${field.isId}`,
     `isUnique: ${field.isUnique}`,
     `isIndexed: ${field.isIndexed}`,
-    `hasNowDefault: ${field.hasNowDefault}`,
+    `timestampDecorator: ${field.timestampDecorator ? `'${field.timestampDecorator}'` : 'undefined'}`,
     `isRequired: ${field.isRequired}`,
   ];
 

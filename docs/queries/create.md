@@ -51,13 +51,15 @@ const user = await db.User.create({
 
 Several field types are automatically populated when you create a record:
 
-| Field Type             | Behavior                                            |
-| ---------------------- | --------------------------------------------------- |
-| `@id`                  | SurrealDB auto-generates the record ID              |
-| `@now`                 | Set to the current timestamp at creation time       |
-| `@default(value)`      | Uses the default value if the field is not provided |
-| Array fields           | Default to `[]` if not provided                     |
-| Optional object fields | Set to NONE (field absent) if not provided          |
+| Field Type             | Behavior                                                          |
+| ---------------------- | ----------------------------------------------------------------- |
+| `@id`                  | SurrealDB auto-generates the record ID                            |
+| `@createdAt`           | Set to the current timestamp at creation time (can be overridden) |
+| `@updatedAt`           | Set to the current timestamp at creation and on every update      |
+| `@now`                 | Computed at query time (not stored, cannot be set)                |
+| `@default(value)`      | Uses the default value if the field is not provided               |
+| Array fields           | Default to `[]` if not provided                                   |
+| Optional object fields | Set to NONE (field absent) if not provided                        |
 
 ```typescript
 // Schema:
@@ -66,7 +68,7 @@ Several field types are automatically populated when you create a record:
 //   title String
 //   views Int @default(0)
 //   tags String[]
-//   createdAt Date @now
+//   createdAt Date @createdAt
 // }
 
 const post = await db.Post.create({
@@ -75,7 +77,7 @@ const post = await db.Post.create({
 // post.id       → CerialId (auto-generated)
 // post.views    → 0 (default)
 // post.tags     → [] (array default)
-// post.createdAt → current timestamp (@now)
+// post.createdAt → current timestamp (@createdAt)
 ```
 
 ## Nested Create

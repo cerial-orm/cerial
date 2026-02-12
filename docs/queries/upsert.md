@@ -227,9 +227,11 @@ const [user1, user2] = await client.$transaction([
 
 On the create path, the same auto-population rules as [`create`](create) apply:
 
-| Field Type        | Behavior                                      |
-| ----------------- | --------------------------------------------- |
-| `@id`             | SurrealDB auto-generates the record ID        |
-| `@now`            | Set to the current timestamp at creation time |
-| `@default(value)` | Uses the default if the field is not provided |
-| Array fields      | Default to `[]` if not provided               |
+| Field Type        | Behavior                                                          |
+| ----------------- | ----------------------------------------------------------------- |
+| `@id`             | SurrealDB auto-generates the record ID                            |
+| `@createdAt`      | Set to the current timestamp at creation time (can be overridden) |
+| `@updatedAt`      | Set to the current timestamp at creation and on every update      |
+| `@now`            | Computed at query time (not stored, cannot be set)                |
+| `@default(value)` | Uses the default if the field is not provided                     |
+| Array fields      | Default to `[]` if not provided                                   |

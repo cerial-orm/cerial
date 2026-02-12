@@ -39,7 +39,7 @@ model User {
   name String
   age Int?
   isActive Bool @default(true)
-  createdAt Date @now
+  createdAt Date @createdAt
   address Address
   shipping Address?
   profileId Record?
@@ -63,7 +63,7 @@ model Post {
   content String?
   authorId Record
   author Relation @field(authorId) @model(User)
-  createdAt Date @now
+  createdAt Date @createdAt
 }
 
 model Tag {
@@ -139,7 +139,7 @@ const user = await client.db.User.create({
   },
 });
 // user.id is a CerialId object
-// user.createdAt is auto-set by @now
+// user.createdAt is auto-set by @createdAt
 // user.isActive defaults to true via @default(true)
 ```
 

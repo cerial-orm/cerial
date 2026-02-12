@@ -1,0 +1,18 @@
+# Timestamp decorators test schema
+# Tests @now (COMPUTED), @createdAt (DEFAULT), @updatedAt (DEFAULT ALWAYS)
+# Note: @now is model-only (COMPUTED must be top-level in SurrealDB)
+
+object TimestampInfo {
+  label String
+  createdAt Date @createdAt
+  updatedAt Date @updatedAt
+}
+
+model TimestampTest {
+  id Record @id
+  name String
+  createdAt Date @createdAt
+  updatedAt Date @updatedAt
+  accessedAt Date @now
+  meta TimestampInfo?
+}

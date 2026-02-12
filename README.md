@@ -34,7 +34,8 @@ model User {
   name String
   age Int?
   isActive Bool @default(true)
-  createdAt Date @now
+  createdAt Date @createdAt
+  updatedAt Date @updatedAt
   posts Relation[] @model(Post)
   nicknames String[]
 }
@@ -45,7 +46,7 @@ model Post {
   content String?
   authorId Record
   author Relation @field(authorId) @model(User)
-  createdAt Date @now
+  createdAt Date @createdAt
 }
 ```
 

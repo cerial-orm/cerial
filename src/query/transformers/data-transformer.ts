@@ -304,12 +304,18 @@ export function transformData(data: Record<string, unknown>, model: ModelMetadat
  * - `field String? @default(null)`: undefined → null (store null)
  * - `field Record?`: undefined → null (so they can be queried for null)
  */
-export function applyNowDefaults(data: Record<string, unknown>, model: ModelMetadata): Record<string, unknown> {
+export function applyFieldDefaults(data: Record<string, unknown>, model: ModelMetadata): Record<string, unknown> {
   const result: Record<string, unknown> = { ...data };
 
   for (const field of model.fields) {
     // Skip relation fields - they're virtual and shouldn't be sent to database
     if (field.type === 'relation') {
+      delete result[field.name];
+      continue;
+    }
+
+    // Strip @now (COMPUTED) fields - they are not stored, computed at query time
+    if (field.timestampDecorator === 'now') {
       delete result[field.name];
       continue;
     }
@@ -336,6 +342,11 @@ export function applyNowDefaults(data: Record<string, unknown>, model: ModelMeta
 
   return result;
 }
+
+/**
+ * @deprecated Use applyFieldDefaults instead. This alias exists for backwards compatibility.
+ */
+export const applyNowDefaults = applyFieldDefaults;
 
 /** Filter data to only include model fields */
 export function filterModelFields(data: Record<string, unknown>, model: ModelMetadata): Record<string, unknown> {

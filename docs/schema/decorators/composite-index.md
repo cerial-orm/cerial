@@ -16,7 +16,7 @@ model LogEntry {
   id Record @id
   userId String
   action String
-  timestamp Date @now
+  timestamp Date @createdAt
 
   @@index(userAction, [userId, action])
 }

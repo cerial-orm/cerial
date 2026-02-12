@@ -4,6 +4,7 @@
 
 export {
   generateAssertClause,
+  generateComputedClause,
   generateDefaultClause,
   generateTypeClause,
   getTypeAssertion,

@@ -12,6 +12,7 @@ import {
   generateTypeClause,
   generateAssertClause,
   generateDefaultClause,
+  generateComputedClause,
   generateValueClause,
 } from '../../../src/generators/migrations/type-mapper';
 import type { FieldMetadata, ModelMetadata } from '../../../src/types';
@@ -108,7 +109,6 @@ describe('Type Mapper', () => {
         isRequired: true,
         isId: false,
         isUnique: false,
-        hasNowDefault: false,
         isArray: true,
       };
 
@@ -122,7 +122,6 @@ describe('Type Mapper', () => {
         isRequired: true,
         isId: false,
         isUnique: false,
-        hasNowDefault: false,
       };
 
       const model: ModelMetadata = {
@@ -136,7 +135,6 @@ describe('Type Mapper', () => {
             isRequired: true,
             isId: false,
             isUnique: false,
-            hasNowDefault: false,
             relationInfo: {
               targetModel: 'User',
               targetTable: 'user',
@@ -157,7 +155,6 @@ describe('Type Mapper', () => {
         isRequired: true,
         isId: false,
         isUnique: false,
-        hasNowDefault: false,
         isArray: true,
       };
 
@@ -172,7 +169,6 @@ describe('Type Mapper', () => {
             isRequired: false,
             isId: false,
             isUnique: false,
-            hasNowDefault: false,
             isArray: true,
             relationInfo: {
               targetModel: 'Tag',
@@ -194,7 +190,6 @@ describe('Type Mapper', () => {
         isRequired: true,
         isId: false,
         isUnique: false,
-        hasNowDefault: false,
         isArray: true,
       };
 
@@ -213,27 +208,62 @@ describe('Type Mapper', () => {
   });
 
   describe('generateDefaultClause', () => {
-    test('should generate DEFAULT time::now() for @now', () => {
-      expect(generateDefaultClause(true)).toBe('DEFAULT time::now()');
+    test('should generate DEFAULT time::now() for @createdAt', () => {
+      expect(generateDefaultClause('createdAt')).toBe('DEFAULT time::now()');
     });
 
     test('should generate DEFAULT for string value', () => {
-      expect(generateDefaultClause(false, 'hello')).toBe("DEFAULT 'hello'");
+      expect(generateDefaultClause(undefined, 'hello')).toBe("DEFAULT 'hello'");
     });
 
     test('should generate DEFAULT for boolean value', () => {
-      expect(generateDefaultClause(false, true)).toBe('DEFAULT true');
-      expect(generateDefaultClause(false, false)).toBe('DEFAULT false');
+      expect(generateDefaultClause(undefined, true)).toBe('DEFAULT true');
+      expect(generateDefaultClause(undefined, false)).toBe('DEFAULT false');
     });
 
     test('should generate DEFAULT for number value', () => {
-      expect(generateDefaultClause(false, 42)).toBe('DEFAULT 42');
-      expect(generateDefaultClause(false, 3.14)).toBe('DEFAULT 3.14');
+      expect(generateDefaultClause(undefined, 42)).toBe('DEFAULT 42');
+      expect(generateDefaultClause(undefined, 3.14)).toBe('DEFAULT 3.14');
     });
 
     test('should return undefined when no default', () => {
-      expect(generateDefaultClause(false)).toBeUndefined();
-      expect(generateDefaultClause(false, undefined)).toBeUndefined();
+      expect(generateDefaultClause(undefined)).toBeUndefined();
+      expect(generateDefaultClause(undefined, undefined)).toBeUndefined();
+    });
+
+    test('should generate DEFAULT ALWAYS time::now() for @updatedAt', () => {
+      expect(generateDefaultClause('updatedAt')).toBe('DEFAULT ALWAYS time::now()');
+    });
+
+    test('should return undefined for @now (COMPUTED, not DEFAULT)', () => {
+      expect(generateDefaultClause('now')).toBeUndefined();
+    });
+
+    test('should prefer @createdAt over defaultValue when both provided', () => {
+      // timestampDecorator takes precedence
+      expect(generateDefaultClause('createdAt', 'some-value')).toBe('DEFAULT time::now()');
+    });
+
+    test('should prefer @updatedAt over defaultValue when both provided', () => {
+      expect(generateDefaultClause('updatedAt', 'some-value')).toBe('DEFAULT ALWAYS time::now()');
+    });
+  });
+
+  describe('generateComputedClause', () => {
+    test('should generate COMPUTED time::now() for @now', () => {
+      expect(generateComputedClause('now')).toBe('COMPUTED time::now()');
+    });
+
+    test('should return undefined for @createdAt', () => {
+      expect(generateComputedClause('createdAt')).toBeUndefined();
+    });
+
+    test('should return undefined for @updatedAt', () => {
+      expect(generateComputedClause('updatedAt')).toBeUndefined();
+    });
+
+    test('should return undefined for undefined', () => {
+      expect(generateComputedClause(undefined)).toBeUndefined();
     });
   });
 
@@ -245,7 +275,7 @@ describe('Type Mapper', () => {
         isRequired: true,
         isId: false,
         isUnique: false,
-        hasNowDefault: false,
+
         isArray: true,
       };
 
@@ -261,7 +291,7 @@ describe('Type Mapper', () => {
             isRequired: true,
             isId: false,
             isUnique: false,
-            hasNowDefault: false,
+
             isArray: true,
             relationInfo: {
               targetModel: 'Tag',
@@ -284,7 +314,7 @@ describe('Type Mapper', () => {
         isRequired: true,
         isId: false,
         isUnique: false,
-        hasNowDefault: false,
+
         isArray: true,
       };
 
@@ -305,7 +335,6 @@ describe('Type Mapper', () => {
         isRequired: true,
         isId: false,
         isUnique: false,
-        hasNowDefault: false,
       };
 
       expect(generateValueClause(field)).toBeUndefined();
@@ -318,7 +347,7 @@ describe('Type Mapper', () => {
         isRequired: true,
         isId: false,
         isUnique: false,
-        hasNowDefault: false,
+
         isArray: true,
       };
 
@@ -332,7 +361,7 @@ describe('Type Mapper', () => {
         isRequired: true,
         isId: false,
         isUnique: false,
-        hasNowDefault: false,
+
         isArray: true,
         isDistinct: true,
       };
@@ -347,7 +376,7 @@ describe('Type Mapper', () => {
         isRequired: true,
         isId: false,
         isUnique: false,
-        hasNowDefault: false,
+
         isArray: true,
         sortOrder: 'asc',
       };
@@ -362,7 +391,7 @@ describe('Type Mapper', () => {
         isRequired: true,
         isId: false,
         isUnique: false,
-        hasNowDefault: false,
+
         isArray: true,
         sortOrder: 'desc',
       };
@@ -377,7 +406,7 @@ describe('Type Mapper', () => {
         isRequired: true,
         isId: false,
         isUnique: false,
-        hasNowDefault: false,
+
         isArray: true,
         isDistinct: true,
         sortOrder: 'asc',
@@ -393,7 +422,7 @@ describe('Type Mapper', () => {
         isRequired: true,
         isId: false,
         isUnique: false,
-        hasNowDefault: false,
+
         isArray: true,
         isDistinct: true,
         sortOrder: 'desc',
@@ -409,7 +438,7 @@ describe('Type Mapper', () => {
         isRequired: true,
         isId: false,
         isUnique: false,
-        hasNowDefault: false,
+
         isArray: true,
         isDistinct: true,
       };
@@ -431,7 +460,7 @@ describe('Type Mapper', () => {
         isRequired: true,
         isId: false,
         isUnique: false,
-        hasNowDefault: false,
+
         isArray: true,
         isDistinct: true, // Even with decorators, should be undefined
       };

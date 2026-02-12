@@ -212,6 +212,9 @@ export function generateWhereInterface(model: ModelMetadata, registry?: ModelReg
   const fields: string[] = [];
 
   for (const field of model.fields) {
+    // @now (COMPUTED) fields are not stored — skip from Where type
+    if (field.timestampDecorator === 'now') continue;
+
     // Build JSDoc for index/unique annotations
     const jsDoc = buildFieldJsDoc(field, model);
 

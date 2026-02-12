@@ -194,7 +194,7 @@ The model registry provides runtime metadata used by the query builder to constr
 
 - **Field metadata** - name, type, optionality, whether it's an array
 - **Relation metadata** - target model, target table name, direction (forward/reverse), the Record field it references
-- **Decorator metadata** - `@id`, `@unique`, `@now`, `@default()` values, `@onDelete()` behavior
+- **Decorator metadata** - `@id`, `@unique`, `@now`, `@createdAt`, `@updatedAt`, `@default()` values, `@onDelete()` behavior
 
 The query builder reads this registry to:
 
@@ -230,6 +230,7 @@ DEFINE FIELD email ON TABLE user TYPE string ASSERT string::is::email($value);
 DEFINE FIELD bio ON TABLE user TYPE option<string | null>;
 DEFINE FIELD isActive ON TABLE user TYPE bool DEFAULT true;
 DEFINE FIELD createdAt ON TABLE user TYPE datetime DEFAULT time::now();
+DEFINE FIELD updatedAt ON TABLE user TYPE datetime DEFAULT ALWAYS time::now();
 DEFINE FIELD postIds ON TABLE user TYPE option<array<record<post>>>;
 DEFINE FIELD postIds[*] ON TABLE user TYPE record<post>;
 
@@ -250,7 +251,9 @@ Key details about generated migrations:
 - `Record` fields use `record<tablename>` to enforce referential integrity
 - `@unique` fields generate a `DEFINE INDEX ... UNIQUE` statement
 - `@default()` values are included in the `DEFINE FIELD` statement
-- `@now` fields use `DEFAULT time::now()`
+- `@createdAt` fields use `DEFAULT time::now()`
+- `@updatedAt` fields use `DEFAULT ALWAYS time::now()`
+- `@now` fields use `COMPUTED time::now()`
 
 ## index.ts
 

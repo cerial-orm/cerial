@@ -109,8 +109,12 @@ export function validateCreateData(
       continue;
     }
 
-    // Skip fields with @now default (handled by database via DEFAULT time::now())
-    if (field.hasNowDefault && value === undefined) continue;
+    // Skip @now fields entirely (COMPUTED — not stored, never in user input)
+    if (field.timestampDecorator === 'now') continue;
+
+    // Skip @createdAt/@updatedAt fields when undefined (handled by database via DEFAULT/DEFAULT ALWAYS)
+    if ((field.timestampDecorator === 'createdAt' || field.timestampDecorator === 'updatedAt') && value === undefined)
+      continue;
 
     // Skip fields with default value (if not provided)
     if (field.defaultValue !== undefined && value === undefined) continue;

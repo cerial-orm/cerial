@@ -12,7 +12,6 @@ const stringField: FieldMetadata = {
   type: 'string',
   isId: false,
   isUnique: false,
-  hasNowDefault: false,
   isRequired: true,
 };
 

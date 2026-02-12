@@ -42,7 +42,7 @@ function getCreateInputType(field: FieldMetadata, objectRegistry?: ObjectRegistr
   if (field.type === 'record') return 'RecordIdInput';
   if (field.type === 'object' && field.objectInfo && objectRegistry) {
     const nested = objectRegistry[field.objectInfo.objectName];
-    if (nested && objectHasDefaultOrNow(nested, objectRegistry)) {
+    if (nested && objectHasDefaultOrTimestamp(nested, objectRegistry)) {
       return `${field.objectInfo.objectName}CreateInput`;
     }
 
@@ -79,17 +79,23 @@ export function objectHasRecordFields(
 }
 
 /**
- * Check if an object has any fields with @default or @now decorators (direct or nested)
- * When true, a separate CreateInput type is needed where those fields are optional
+ * Check if an object has any fields with @default or timestamp decorators (direct or nested)
+ * that require a separate CreateInput type where those fields are optional.
+ *
+ * @now fields are COMPUTED (output-only) and are omitted from CreateInput entirely.
+ * @createdAt and @updatedAt fields are optional in CreateInput (DB fills them).
  */
-export function objectHasDefaultOrNow(
+export function objectHasDefaultOrTimestamp(
   object: ObjectMetadata,
   objectRegistry?: ObjectRegistry,
   visited: Set<string> = new Set(),
 ): boolean {
   for (const field of object.fields) {
     if (field.defaultValue !== undefined) return true;
-    if (field.hasNowDefault) return true;
+    // @createdAt and @updatedAt need CreateInput (fields are optional)
+    if (field.timestampDecorator === 'createdAt' || field.timestampDecorator === 'updatedAt') return true;
+    // @now needs CreateInput too (fields are omitted entirely)
+    if (field.timestampDecorator === 'now') return true;
     // Check nested objects recursively (with cycle detection for self-referencing objects)
     if (field.type === 'object' && field.objectInfo && objectRegistry) {
       const nestedName = field.objectInfo.objectName;
@@ -98,7 +104,7 @@ export function objectHasDefaultOrNow(
       if (nested) {
         const nextVisited = new Set(visited);
         nextVisited.add(nestedName);
-        if (objectHasDefaultOrNow(nested, objectRegistry, nextVisited)) return true;
+        if (objectHasDefaultOrTimestamp(nested, objectRegistry, nextVisited)) return true;
       }
     }
   }
@@ -156,6 +162,10 @@ export function generateObjectCreateInputInterface(object: ObjectMetadata, objec
   const hasRecords = objectHasRecordFields(object, objectRegistry);
 
   const fields = object.fields
+    .filter((f) => {
+      // @now (COMPUTED) fields are output-only — excluded from CreateInput entirely
+      return f.timestampDecorator !== 'now';
+    })
     .map((f) => {
       const tsType = hasRecords ? getCreateInputType(f, objectRegistry) : getCreateInputType(f, objectRegistry);
 
@@ -164,8 +174,9 @@ export function generateObjectCreateInputInterface(object: ObjectMetadata, objec
         return `  ${f.name}?: ${tsType}[];`;
       }
 
-      // Fields with @default or @now are optional in create (DB fills them)
-      const hasDefault = f.defaultValue !== undefined || f.hasNowDefault;
+      // Fields with @default or @createdAt/@updatedAt are optional in create (DB fills them)
+      const hasDefault =
+        f.defaultValue !== undefined || f.timestampDecorator === 'createdAt' || f.timestampDecorator === 'updatedAt';
       const optional = !f.isRequired || hasDefault ? '?' : '';
       // Object fields don't support null — only NONE (absent) or a valid value
       const type = f.isRequired && !hasDefault ? tsType : f.type === 'object' ? tsType : `${tsType} | null`;
@@ -187,8 +198,8 @@ export function generateObjectInterfaces(objects: ObjectMetadata[], objectRegist
   for (const object of objects) {
     interfaces.push(generateObjectInterface(object));
     interfaces.push(generateObjectInputInterface(object, objectRegistry));
-    // Only generate CreateInput when the object has @default/@now fields
-    if (objectHasDefaultOrNow(object, objectRegistry)) {
+    // Only generate CreateInput when the object has @default or timestamp fields
+    if (objectHasDefaultOrTimestamp(object, objectRegistry)) {
       interfaces.push(generateObjectCreateInputInterface(object, objectRegistry));
     }
   }

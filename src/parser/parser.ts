@@ -796,13 +796,28 @@ export function validateSchema(ast: SchemaAST): ParseError[] {
       }
 
       // Validate decorators on object fields — only specific decorators are allowed
-      const ALLOWED_OBJECT_DECORATORS = new Set(['default', 'now', 'index', 'unique', 'distinct', 'sort']);
+      const ALLOWED_OBJECT_DECORATORS = new Set([
+        'default',
+        'createdAt',
+        'updatedAt',
+        'index',
+        'unique',
+        'distinct',
+        'sort',
+      ]);
       for (const dec of field.decorators) {
         if (!ALLOWED_OBJECT_DECORATORS.has(dec.type)) {
-          errors.push({
-            message: `Decorator @${dec.type} is not allowed on object fields. Allowed: @default, @now, @index, @unique, @distinct, @sort.`,
-            position: field.range.start,
-          });
+          if (dec.type === 'now') {
+            errors.push({
+              message: `@now is not allowed on object fields. SurrealDB requires COMPUTED fields to be top-level. Use @createdAt or @updatedAt instead.`,
+              position: field.range.start,
+            });
+          } else {
+            errors.push({
+              message: `Decorator @${dec.type} is not allowed on object fields. Allowed: @default, @createdAt, @updatedAt, @index, @unique, @distinct, @sort.`,
+              position: field.range.start,
+            });
+          }
         }
       }
 

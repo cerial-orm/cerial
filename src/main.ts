@@ -189,7 +189,7 @@ export {
   getModel,
   getModelMetadata,
   getModelNames,
-  getNowFields,
+  getTimestampFields,
   getOptionalFields,
   getRequiredFields,
   getUniqueFields,
@@ -221,7 +221,9 @@ export * from './generators';
 // Export query (explicit exports to avoid conflicts)
 export {
   applyDefaultValues,
+  applyFieldDefaults,
   applyNowDefaults,
+  stripComputedFields,
   buildConditions,
   buildCreateQuery,
   buildDeleteQuery,

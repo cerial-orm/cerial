@@ -12,6 +12,7 @@ import type {
 } from '../../types';
 import {
   generateAssertClause,
+  generateComputedClause,
   generateDefaultClause,
   generateTypeClause,
   generateValueClause,
@@ -88,6 +89,15 @@ export function generateDefineField(
   parts.push('ON TABLE');
   parts.push(tableName);
 
+  // @now (COMPUTED) fields: TYPE datetime + COMPUTED time::now()
+  const computedClause = generateComputedClause(field.timestampDecorator);
+  if (computedClause) {
+    parts.push('TYPE datetime');
+    parts.push(computedClause);
+
+    return parts.join(' ') + ';';
+  }
+
   // Add TYPE clause (pass field and model for Record type handling)
   parts.push(generateTypeClause(field.type, field.isRequired, field, model));
 
@@ -99,8 +109,8 @@ export function generateDefineField(
   const assertClause = generateAssertClause(field.type);
   if (assertClause) parts.push(assertClause);
 
-  // Add DEFAULT clause if needed
-  const defaultClause = generateDefaultClause(field.hasNowDefault, field.defaultValue);
+  // Add DEFAULT clause if needed (@createdAt, @updatedAt, or @default)
+  const defaultClause = generateDefaultClause(field.timestampDecorator, field.defaultValue);
   if (defaultClause) parts.push(defaultClause);
 
   return parts.join(' ') + ';';
@@ -247,6 +257,11 @@ export function generateObjectFieldDefines(
       parts.push('ON TABLE');
       parts.push(tableName);
 
+      // @now (COMPUTED) sub-fields: SurrealDB requires COMPUTED fields to be top-level,
+      // so we skip generating a DEFINE FIELD for @now on object sub-fields entirely.
+      // The field will still be excluded from Create/Update/Where at the type level.
+      if (subField.timestampDecorator === 'now') continue;
+
       // Generate TYPE clause for the sub-field
       // Sub-fields retain their own types (not affected by parent optionality)
       if (subField.isArray) {
@@ -274,8 +289,8 @@ export function generateObjectFieldDefines(
       const assertClause = generateAssertClause(subField.type);
       if (assertClause) parts.push(assertClause);
 
-      // Add DEFAULT clause for @default or @now decorators
-      const defaultClause = generateDefaultClause(subField.hasNowDefault, subField.defaultValue);
+      // Add DEFAULT clause for @createdAt, @updatedAt, or @default decorators
+      const defaultClause = generateDefaultClause(subField.timestampDecorator, subField.defaultValue);
       if (defaultClause) parts.push(defaultClause);
 
       statements.push(parts.join(' ') + ';');

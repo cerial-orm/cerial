@@ -12,7 +12,7 @@ export {
   generateObjectInputInterface,
   generateObjectInterface,
   generateObjectInterfaces,
-  objectHasDefaultOrNow,
+  objectHasDefaultOrTimestamp,
   generateWithRelationsInterface,
 } from './interface-generator';
 

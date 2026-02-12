@@ -12,5 +12,5 @@ model PostRequired {
   content String?
   authorId Record
   author Relation @field(authorId) @model(Author)
-  createdAt Date @now
+  createdAt Date @createdAt
 }

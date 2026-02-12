@@ -50,6 +50,8 @@ export type LexemeType =
   | 'optional_marker'
   | 'decorator_unique'
   | 'decorator_now'
+  | 'decorator_createdAt'
+  | 'decorator_updatedAt'
   | 'decorator_default'
   | 'default_value'
   | 'paren_open'

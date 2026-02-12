@@ -44,7 +44,7 @@ model Article {
   title String
   category String @index
   author String @index
-  publishedAt Date @now
+  publishedAt Date @createdAt
 }
 ```
 

@@ -15,7 +15,7 @@ import {
   getUniqueFields,
   getRequiredFields,
   getOptionalFields,
-  getNowFields,
+  getTimestampFields,
   getFieldsWithDefaults,
 } from '../../../src/parser/model-metadata';
 import type { ASTField, ASTModel, SchemaAST } from '../../../src/types';
@@ -106,7 +106,7 @@ describe('fieldToMetadata', () => {
     });
     const metadata = fieldToMetadata(field);
 
-    expect(metadata.hasNowDefault).toBe(true);
+    expect(metadata.timestampDecorator).toBe('now');
   });
 
   test('should handle @default decorator', () => {
@@ -341,6 +341,15 @@ describe('field filters', () => {
       createASTField({
         name: 'createdAt',
         decorators: [
+          {
+            type: 'createdAt',
+            range: { start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } },
+          },
+        ],
+      }),
+      createASTField({
+        name: 'accessedAt',
+        decorators: [
           { type: 'now', range: { start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } } },
         ],
       }),
@@ -380,19 +389,22 @@ describe('field filters', () => {
     });
   });
 
-  describe('getNowFields', () => {
-    test('should return fields with @now', () => {
-      const nowFields = getNowFields(metadata);
-      expect(nowFields).toHaveLength(1);
-      expect(nowFields[0]?.name).toBe('createdAt');
+  describe('getTimestampFields', () => {
+    test('should return all fields with timestamp decorators', () => {
+      const timestampFields = getTimestampFields(metadata);
+      expect(timestampFields).toHaveLength(2);
+      expect(timestampFields.map((f) => f.name)).toContain('createdAt');
+      expect(timestampFields.map((f) => f.name)).toContain('accessedAt');
     });
   });
 
   describe('getFieldsWithDefaults', () => {
-    test('should return fields with defaults', () => {
+    test('should return fields with @default and @createdAt/@updatedAt but not @now', () => {
       const defaultFields = getFieldsWithDefaults(metadata);
       expect(defaultFields.map((f) => f.name)).toContain('active');
       expect(defaultFields.map((f) => f.name)).toContain('createdAt');
+      // @now (COMPUTED) fields are not defaults — they are not stored
+      expect(defaultFields.map((f) => f.name)).not.toContain('accessedAt');
     });
   });
 });

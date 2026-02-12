@@ -16,7 +16,7 @@ model TestUser {
   name String
   age Int?
   isActive Bool
-  createdAt Date @now
+  createdAt Date @createdAt
 }
 `;
 

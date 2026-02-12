@@ -7,7 +7,7 @@ import { describe, expect, test } from 'bun:test';
 import {
   astToRegistry,
   fieldToMetadata,
-  getNowFields,
+  getTimestampFields,
   getUniqueFields,
   modelToMetadata,
 } from '../../src/parser/model-metadata';
@@ -109,7 +109,7 @@ describe('model-metadata', () => {
     expect(codeField?.isUnique).toBe(true);
   });
 
-  test('getNowFields returns fields with @now decorator', () => {
+  test('getTimestampFields returns fields with @now decorator', () => {
     const source = `model User {
   id Record @id
   createdAt Date @now
@@ -117,10 +117,10 @@ describe('model-metadata', () => {
 }`;
     const result = parse(source);
     const registry = astToRegistry(result.ast);
-    const nowFields = getNowFields(registry['User']!);
+    const timestampFields = getTimestampFields(registry['User']!);
 
-    expect(nowFields.length).toBe(2);
-    expect(nowFields.every((f) => f.hasNowDefault)).toBe(true);
+    expect(timestampFields.length).toBe(2);
+    expect(timestampFields.every((f) => f.timestampDecorator)).toBe(true);
   });
 
   test('parses Record[] as array type', () => {

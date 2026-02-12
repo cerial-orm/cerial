@@ -7,7 +7,7 @@ export {
   generateObjectInputInterface,
   generateObjectInterface,
   generateObjectInterfaces,
-  objectHasDefaultOrNow,
+  objectHasDefaultOrTimestamp,
   objectHasRecordFields,
 } from './interface-generator';
 

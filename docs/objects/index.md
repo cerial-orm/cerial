@@ -25,7 +25,9 @@ Object fields support a subset of decorators. Relation and identity decorators a
 | Decorator           | Allowed | Purpose                                       |
 | ------------------- | ------- | --------------------------------------------- |
 | `@default(value)`   | Yes     | Default value when field is omitted on create |
-| `@now`              | Yes     | Auto-set to current timestamp on create       |
+| `@now`              | Yes     | Computed timestamp (current time at read)     |
+| `@createdAt`        | Yes     | Auto-set to current timestamp on create       |
+| `@updatedAt`        | Yes     | Auto-set on create and every update           |
 | `@unique`           | Yes     | Unique constraint per embedding path          |
 | `@index`            | Yes     | Non-unique index per embedding path           |
 | `@distinct`         | Yes     | Array deduplication                           |
@@ -41,16 +43,16 @@ When an object with `@unique` or `@index` fields is used in multiple model field
 
 Each object definition generates the following TypeScript types:
 
-| Generated Type          | Purpose                                                      |
-| ----------------------- | ------------------------------------------------------------ |
-| `ObjectName`            | Base interface with all fields                               |
-| `ObjectNameInput`       | Input interface for creating/providing object data           |
-| `ObjectNameCreateInput` | Input for create (only when object has `@default` or `@now`) |
-| `ObjectNameWhere`       | Where clause type for filtering by object fields             |
-| `ObjectNameSelect`      | Sub-field selection type for narrowing returned fields       |
-| `ObjectNameOrderBy`     | Ordering type for sorting by object fields                   |
+| Generated Type          | Purpose                                                                                   |
+| ----------------------- | ----------------------------------------------------------------------------------------- |
+| `ObjectName`            | Base interface with all fields                                                            |
+| `ObjectNameInput`       | Input interface for creating/providing object data                                        |
+| `ObjectNameCreateInput` | Input for create (only when object has `@default`, `@now`, `@createdAt`, or `@updatedAt`) |
+| `ObjectNameWhere`       | Where clause type for filtering by object fields                                          |
+| `ObjectNameSelect`      | Sub-field selection type for narrowing returned fields                                    |
+| `ObjectNameOrderBy`     | Ordering type for sorting by object fields                                                |
 
-`ObjectNameCreateInput` is only generated when the object has fields with `@default` or `@now`. In that type, those fields become optional since the database fills them automatically. The parent model's `Create` type automatically uses `CreateInput` instead of `Input` for such objects.
+`ObjectNameCreateInput` is only generated when the object has fields with `@default`, `@now`, `@createdAt`, or `@updatedAt`. In that type, `@default`/`@createdAt`/`@updatedAt` fields become optional (the database fills them if omitted), and `@now` fields are excluded entirely (they are computed). The parent model's `Create` type automatically uses `CreateInput` instead of `Input` for such objects.
 
 Objects do **not** generate: `GetPayload`, `Include`, `Create`, `Update`, or `Model` types. These are exclusive to models.
 
@@ -61,7 +63,7 @@ object ContactInfo {
   email Email
   phone String?
   city String @default("Unknown")
-  createdAt Date @now
+  createdAt Date @createdAt
   tags String[] @distinct
 }
 

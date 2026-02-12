@@ -51,7 +51,7 @@ import { type QueryResultType } from './cerial-query-promise';
 import type { CompiledQuery } from './compile/types';
 import { executeQuery, executeQuerySingle } from './executor';
 import { mapResult, mapSingleResult } from './mappers';
-import { applyNowDefaults, transformData, transformOrValidateRecordId } from './transformers';
+import { applyFieldDefaults, transformData, transformOrValidateRecordId } from './transformers';
 import { validateCreateData, validateUpdateData, validateWhere } from './validators';
 
 /** Extended find options with include support */
@@ -133,7 +133,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
 
     // Validate data BEFORE transformation (so we check original values)
     // Pass nestedOps so validation knows which Record fields will be satisfied by nested operations
-    const dataWithDefaults = applyNowDefaults(cleanData, this.model);
+    const dataWithDefaults = applyFieldDefaults(cleanData, this.model);
     const validation = validateCreateData(dataWithDefaults, this.model, nestedOps);
     if (!validation.valid) throw new Error(`Invalid data: ${validation.errors.map((e) => e.message).join(', ')}`);
 
@@ -443,7 +443,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
       : { cleanData: {} as Record<string, unknown>, nestedOps: new Map() };
 
     // Apply defaults and transform create data
-    const createWithDefaults = applyNowDefaults(cleanCreateData, this.model);
+    const createWithDefaults = applyFieldDefaults(cleanCreateData, this.model);
     const createValidation = validateCreateData(createWithDefaults, this.model, createNestedOps);
     if (!createValidation.valid)
       throw new Error(`Invalid create data: ${createValidation.errors.map((e) => e.message).join(', ')}`);
@@ -664,7 +664,7 @@ export function compileCreate(
   const { data, select } = options;
 
   const { cleanData, nestedOps } = extractNestedOperations(data, model);
-  const dataWithDefaults = applyNowDefaults(cleanData, model);
+  const dataWithDefaults = applyFieldDefaults(cleanData, model);
   const validation = validateCreateData(dataWithDefaults, model, nestedOps);
   if (!validation.valid) throw new Error(`Invalid data: ${validation.errors.map((e) => e.message).join(', ')}`);
 
@@ -884,7 +884,7 @@ export function compileUpsert(
 
   // Extract nested ops and transform data
   const { cleanData: cleanCreateData, nestedOps: createNestedOps } = extractNestedOperations(createData, model);
-  const createWithDefaults = applyNowDefaults(cleanCreateData, model);
+  const createWithDefaults = applyFieldDefaults(cleanCreateData, model);
   const createValidation = validateCreateData(createWithDefaults, model, createNestedOps);
   if (!createValidation.valid)
     throw new Error(`Invalid create data: ${createValidation.errors.map((e) => e.message).join(', ')}`);

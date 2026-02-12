@@ -453,7 +453,7 @@ object Address {
       expect(errors.filter((e) => e.message.includes('not allowed'))).toHaveLength(0);
     });
 
-    test('should allow @now on object Date fields', () => {
+    test('should disallow @now on object Date fields (COMPUTED must be top-level)', () => {
       const schema = `
 object Metadata {
   createdAt Date @now
@@ -461,7 +461,9 @@ object Metadata {
 `;
       const { ast } = parse(schema);
       const errors = validateSchema(ast);
-      expect(errors.filter((e) => e.message.includes('not allowed'))).toHaveLength(0);
+      const nowErrors = errors.filter((e) => e.message.includes('@now') && e.message.includes('not allowed'));
+      expect(nowErrors).toHaveLength(1);
+      expect(nowErrors[0]!.message).toContain('COMPUTED');
     });
 
     test('should allow @distinct and @sort on array fields in objects', () => {

@@ -41,7 +41,7 @@ model User {
   name String
   age Int?
   isActive Bool @default(true)
-  createdAt Date @now
+  createdAt Date @createdAt
   posts Relation[] @model(Post)
 }
 

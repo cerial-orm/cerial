@@ -118,8 +118,14 @@ DEFINE FIELD bio ON TABLE user TYPE option<string | null>;
 -- Boolean with default
 DEFINE FIELD isActive ON TABLE user TYPE bool DEFAULT true;
 
--- DateTime with @now default
+-- DateTime with @createdAt (set on creation when absent)
 DEFINE FIELD createdAt ON TABLE user TYPE datetime DEFAULT time::now();
+
+-- DateTime with @updatedAt (set on creation and re-set on every update)
+DEFINE FIELD updatedAt ON TABLE user TYPE datetime DEFAULT ALWAYS time::now();
+
+-- DateTime with @now (computed, not stored)
+DEFINE FIELD currentTime ON TABLE user TYPE datetime COMPUTED time::now();
 
 -- Integer field
 DEFINE FIELD age ON TABLE user TYPE option<int | null>;
@@ -202,7 +208,7 @@ model User {
   bio String?
   age Int?
   isActive Bool @default(true)
-  createdAt Date @now
+  createdAt Date @createdAt
   address Address
   posts Relation[] @field(postIds)
   postIds Record[]
