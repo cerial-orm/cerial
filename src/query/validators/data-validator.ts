@@ -153,6 +153,12 @@ export function validateUpdateData(data: Record<string, unknown>, model: ModelMe
       continue;
     }
 
+    // @readonly fields cannot be updated — reject immediately
+    if (field.isReadonly) {
+      errors.push({ field: fieldName, message: `Cannot update readonly field '${fieldName}'` });
+      continue;
+    }
+
     // Skip relation fields - they're virtual
     if (field.type === 'relation') continue;
 

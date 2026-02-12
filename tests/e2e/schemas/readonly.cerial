@@ -1,0 +1,30 @@
+// Schema for testing @readonly decorator
+
+object ReadonlyAddress {
+  street String
+  city String @readonly
+  zip String?
+}
+
+object ReadonlyMeta {
+  label String @readonly
+  value Int
+}
+
+model ReadonlyTest {
+  id Record @id
+  name String
+  code String @readonly
+  score Int? @readonly
+  tags String[]
+  createdBy String @readonly @default("system")
+  address ReadonlyAddress
+  meta ReadonlyMeta?
+}
+
+model ReadonlyRecord {
+  id Record @id
+  name String
+  authorId Record? @readonly
+  author Relation? @field(authorId) @model(ReadonlyTest)
+}

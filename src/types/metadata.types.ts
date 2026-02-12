@@ -50,6 +50,8 @@ export interface FieldMetadata {
   sortOrder?: 'asc' | 'desc';
   /** Whether the field has @flexible decorator (for object-typed fields) */
   isFlexible?: boolean;
+  /** Whether the field has @readonly decorator (write-once, excluded from update) */
+  isReadonly?: boolean;
   /** Object metadata for object-typed fields */
   objectInfo?: ObjectFieldMetadata;
 }

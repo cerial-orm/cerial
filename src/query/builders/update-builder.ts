@@ -41,6 +41,12 @@ function injectDefaultAlwaysFieldsForUpdate(
       continue;
     }
 
+    // Strip @readonly fields — they cannot be updated, and NONE should not be injected
+    if (field.isReadonly) {
+      processedFields.add(field.name);
+      continue;
+    }
+
     // Inject NONE for @updatedAt fields not provided by user
     if (field.timestampDecorator === 'updatedAt' && !(field.name in data)) {
       setParts.push(`${field.name} = NONE`);

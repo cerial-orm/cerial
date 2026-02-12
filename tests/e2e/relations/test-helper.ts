@@ -147,6 +147,9 @@ export const tables = {
 
   // flexible.cerial (@flexible decorator on object fields)
   flexible: ['flex_user'],
+
+  // readonly.cerial (@readonly decorator)
+  readonly: ['readonly_test', 'readonly_record'],
 };
 
 /**

@@ -292,7 +292,8 @@ has_children: true # only on section index pages
 - **@defaultAlways(value)** = `DEFAULT ALWAYS value` — general-purpose reset-on-write default. Any field type. Resets to value on every create/update when absent. NONE injection on update. Mutually exclusive with `@default`, `@now`, `@createdAt`, `@updatedAt`
 - **Timestamp decorators** = `@now`, `@createdAt`, `@updatedAt` are mutually exclusive with each other and with `@default`/`@defaultAlways`. Date fields only. `@now` is model-only (COMPUTED must be top-level). `@createdAt`/`@updatedAt` allowed on model + object fields
 - **@flexible** = Field-level decorator for object-type fields. Adds `FLEXIBLE` to migration, generates `& Record<string, any>` intersection in types. Same object can be flexible on one field, strict on another. Where types get `& { [key: string]: any }` for filtering extra keys
-- **Object types** = Embedded inline, no id, no relations. Allowed decorators: `@default`, `@defaultAlways`, `@createdAt`, `@updatedAt`, `@flexible`
+- **@readonly** = Write-once field decorator. Adds `READONLY` to migration. Field settable on CREATE, excluded from Update types. Runtime error if passed to update. Incompatible with `@now` (COMPUTED), `@defaultAlways`, and `@id`. Allowed on model fields and object sub-fields. When on a PK Record field, the relation's nested update ops (connect/disconnect) are excluded from UpdateInput
+- **Object types** = Embedded inline, no id, no relations. Allowed decorators: `@default`, `@defaultAlways`, `@createdAt`, `@updatedAt`, `@flexible`, `@readonly`
 - **Parameterized queries** = Values bound via `$varName`, never inlined
 - **CerialQueryPromise** = Thenable returned by model methods. Auto-executes on `await`, collectible by `$transaction`
 - **$transaction** = Atomic batch execution of independent queries with typed tuple results

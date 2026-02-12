@@ -470,6 +470,7 @@ export function validateObjectFields(ast: SchemaAST): SchemaValidationError[] {
         'distinct',
         'sort',
         'flexible',
+        'readonly',
       ]);
       for (const dec of field.decorators) {
         if (!ALLOWED_OBJECT_DECORATORS.has(dec.type)) {
@@ -480,7 +481,7 @@ export function validateObjectFields(ast: SchemaAST): SchemaValidationError[] {
             });
           } else {
             errors.push({
-              message: `Decorator @${dec.type} is not allowed on object fields. Allowed: @default, @defaultAlways, @createdAt, @updatedAt, @index, @unique, @distinct, @sort, @flexible.`,
+              message: `Decorator @${dec.type} is not allowed on object fields. Allowed: @default, @defaultAlways, @createdAt, @updatedAt, @index, @unique, @distinct, @sort, @flexible, @readonly.`,
               line: field.range.start.line,
             });
           }
@@ -495,9 +496,10 @@ export function validateObjectFields(ast: SchemaAST): SchemaValidationError[] {
         });
       }
 
-      // Validate timestamp and @defaultAlways decorators on object fields
+      // Validate timestamp, @defaultAlways, and @readonly decorators on object fields
       errors.push(...validateTimestampDecorators(field, `object ${object.name}`));
       errors.push(...validateDefaultAlwaysDecorator(field, `object ${object.name}`));
+      errors.push(...validateReadonlyField(field, `object ${object.name}`));
 
       // Validate @index and @unique mutual exclusivity on object fields
       if (hasDecorator(field, 'index') && hasDecorator(field, 'unique')) {
@@ -542,6 +544,67 @@ export function validateObjectFields(ast: SchemaAST): SchemaValidationError[] {
           });
         }
       }
+    }
+  }
+
+  return errors;
+}
+
+/** Validate @readonly decorator rules on a single field (shared by model and object validation) */
+function validateReadonlyField(
+  field: { name: string; type: string; decorators: Array<{ type: string }>; range: { start: { line: number } } },
+  parentName: string,
+): SchemaValidationError[] {
+  const errors: SchemaValidationError[] = [];
+  const hasReadonly = field.decorators.some((d) => d.type === 'readonly');
+
+  if (!hasReadonly) return errors;
+
+  // @readonly + @now is invalid — SurrealDB cannot combine READONLY with COMPUTED
+  const hasNow = field.decorators.some((d) => d.type === 'now');
+  if (hasNow) {
+    errors.push({
+      message: `@readonly and @now cannot be used together on field '${field.name}' in ${parentName}. SurrealDB does not support READONLY on COMPUTED fields.`,
+      line: field.range.start.line,
+    });
+  }
+
+  // @readonly + @defaultAlways is contradictory — DEFAULT ALWAYS resets on every write, but READONLY prevents writes
+  const hasDefaultAlways = field.decorators.some((d) => d.type === 'defaultAlways');
+  if (hasDefaultAlways) {
+    errors.push({
+      message: `@readonly and @defaultAlways cannot be used together on field '${field.name}' in ${parentName}. @defaultAlways resets the value on every write, which contradicts @readonly.`,
+      line: field.range.start.line,
+    });
+  }
+
+  // @readonly on @id fields is redundant — SurrealDB already makes id immutable
+  const hasId = field.decorators.some((d) => d.type === 'id');
+  if (hasId) {
+    errors.push({
+      message: `@readonly is not allowed on @id field '${field.name}' in ${parentName}. The id field is already immutable in SurrealDB.`,
+      line: field.range.start.line,
+    });
+  }
+
+  // @readonly on Relation fields is invalid — they are virtual (not stored)
+  if (field.type === 'relation') {
+    errors.push({
+      message: `@readonly is not allowed on Relation field '${field.name}' in ${parentName}. Relation fields are virtual and not stored in the database.`,
+      line: field.range.start.line,
+    });
+  }
+
+  return errors;
+}
+
+/** Validate @readonly decorator on model fields */
+export function validateReadonlyDecorator(ast: SchemaAST): SchemaValidationError[] {
+  const errors: SchemaValidationError[] = [];
+
+  for (const model of ast.models) {
+    for (const field of model.fields) {
+      errors.push(...validateReadonlyField(field, `model ${model.name}`));
     }
   }
 
@@ -608,6 +671,7 @@ export function validateSchema(ast: SchemaAST): SchemaValidationResult {
     ...validateObjectFields(ast),
     ...validateObjectReferences(ast),
     ...validateFlexibleDecorator(ast),
+    ...validateReadonlyDecorator(ast),
   ];
 
   return {

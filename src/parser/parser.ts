@@ -804,6 +804,7 @@ export function validateSchema(ast: SchemaAST): ParseError[] {
         'unique',
         'distinct',
         'sort',
+        'readonly',
       ]);
       for (const dec of field.decorators) {
         if (!ALLOWED_OBJECT_DECORATORS.has(dec.type)) {
@@ -814,7 +815,7 @@ export function validateSchema(ast: SchemaAST): ParseError[] {
             });
           } else {
             errors.push({
-              message: `Decorator @${dec.type} is not allowed on object fields. Allowed: @default, @createdAt, @updatedAt, @index, @unique, @distinct, @sort.`,
+              message: `Decorator @${dec.type} is not allowed on object fields. Allowed: @default, @createdAt, @updatedAt, @index, @unique, @distinct, @sort, @readonly.`,
               position: field.range.start,
             });
           }

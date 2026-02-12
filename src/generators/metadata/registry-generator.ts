@@ -50,6 +50,11 @@ function generateFieldMetadata(field: FieldMetadata): string {
     parts.push(`isFlexible: true`);
   }
 
+  // Include isReadonly when true
+  if (field.isReadonly) {
+    parts.push(`isReadonly: true`);
+  }
+
   // Include objectInfo when present (with inline fields for runtime query building)
   if (field.objectInfo) {
     if (field.objectInfo.fields.length) {

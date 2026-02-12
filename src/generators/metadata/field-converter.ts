@@ -57,6 +57,11 @@ export function convertField(field: ASTField): FieldMetadata {
     metadata.isFlexible = true;
   }
 
+  // Handle @readonly decorator
+  if (hasDecorator(field, 'readonly')) {
+    metadata.isReadonly = true;
+  }
+
   // Handle object type (fields will be resolved later by resolveObjectFields)
   if (field.type === 'object' && field.objectName) {
     metadata.objectInfo = { objectName: field.objectName, fields: [] };

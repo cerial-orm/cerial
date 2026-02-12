@@ -118,6 +118,11 @@ export function generateDefineField(
   const defaultClause = generateDefaultClause(field.timestampDecorator, field.defaultValue, field.defaultAlwaysValue);
   if (defaultClause) parts.push(defaultClause);
 
+  // Add READONLY for @readonly fields — prevents updates after initial creation
+  if (field.isReadonly) {
+    parts.push('READONLY');
+  }
+
   return parts.join(' ') + ';';
 }
 
@@ -247,6 +252,11 @@ export function generateObjectFieldDefines(
         parentParts.push('FLEXIBLE');
       }
 
+      // Add READONLY for @readonly nested object fields
+      if (subField.isReadonly) {
+        parentParts.push('READONLY');
+      }
+
       statements.push(parentParts.join(' ') + ';');
 
       // Recursively generate sub-fields for the nested object
@@ -307,6 +317,11 @@ export function generateObjectFieldDefines(
         subField.defaultAlwaysValue,
       );
       if (defaultClause) parts.push(defaultClause);
+
+      // Add READONLY for @readonly sub-fields — prevents updates after initial creation
+      if (subField.isReadonly) {
+        parts.push('READONLY');
+      }
 
       statements.push(parts.join(' ') + ';');
     }

@@ -407,7 +407,14 @@ ${relationFieldTypes}
 
 /** Generate UpdateInput type with nested operation support for relations */
 export function generateUpdateInputType(model: ModelMetadata): string {
-  const relationFields = getRelationFieldsForNestedOps(model);
+  // Exclude relations whose PK Record field is @readonly — those can't be updated
+  const allRelationFields = getRelationFieldsForNestedOps(model);
+  const relationFields = allRelationFields.filter((rf) => {
+    if (!rf.fieldRef) return true; // Reverse relations are not affected
+    const storageField = model.fields.find((f) => f.name === rf.fieldRef);
+
+    return !storageField?.isReadonly;
+  });
 
   if (relationFields.length === 0) {
     // No relations - UpdateInput is just an alias for Update
@@ -415,7 +422,12 @@ export function generateUpdateInputType(model: ModelMetadata): string {
   }
 
   // Get Record fields that are managed by relations - these need to be omitted from nested variant
-  const managedRecords = getRecordFieldsManagedByRelations(model);
+  // Exclude @readonly Record fields — they can't be updated at all
+  const managedRecords = getRecordFieldsManagedByRelations(model).filter((name) => {
+    const field = model.fields.find((f) => f.name === name);
+
+    return !field?.isReadonly;
+  });
 
   // Generate relation field types for update
   const relationFieldTypes = relationFields
@@ -460,15 +472,22 @@ export function generateUpdateType(model: ModelMetadata): string {
   // @now fields are COMPUTED (not stored) — excluded from update input
   const computedFields = model.fields.filter((f) => f.timestampDecorator === 'now');
 
-  // Fields to exclude from update (id, relation, and computed fields)
+  // @readonly fields are write-once — excluded from update input
+  const readonlyFields = model.fields.filter(
+    (f) => f.isReadonly && f.type !== 'relation' && !f.isId && f.timestampDecorator !== 'now',
+  );
+
+  // Fields to exclude from update (id, relation, computed, and readonly fields)
   const excludeFields = [
     ...(idField ? [idField.name] : []),
     ...relationFields.map((f) => f.name),
     ...computedFields.map((f) => f.name),
+    ...readonlyFields.map((f) => f.name),
   ];
 
   // Fields that need special handling (arrays and objects) — omit from base Partial
-  const specialFields = [...arrayFields, ...objectFields];
+  // Exclude @readonly fields from special handling — they're already excluded from update entirely
+  const specialFields = [...arrayFields, ...objectFields].filter((f) => !f.isReadonly);
   const hasSpecialFields = specialFields.length > 0;
 
   if (!hasSpecialFields) {
@@ -496,8 +515,8 @@ export function generateUpdateType(model: ModelMetadata): string {
 
   const specialFieldTypes: string[] = [];
 
-  // Array primitive fields
-  for (const f of arrayFields) {
+  // Array primitive fields (skip @readonly — already excluded from update)
+  for (const f of arrayFields.filter((af) => !af.isReadonly)) {
     const elementType = getArrayElementType(f.type);
     specialFieldTypes.push(`  ${f.name}?: ${elementType}[] | {
     push?: ${elementType} | ${elementType}[];
@@ -505,16 +524,32 @@ export function generateUpdateType(model: ModelMetadata): string {
   };`);
   }
 
-  // Object fields
-  for (const f of objectFields) {
+  // Object fields (skip @readonly — already excluded from update)
+  for (const f of objectFields.filter((of) => !of.isReadonly)) {
     const objName = f.objectInfo!.objectName;
     const inputName = `${objName}Input`;
     const whereName = `${objName}Where`;
+
+    // Check if the object has @readonly sub-fields that need to be omitted from Partial
+    const readonlySubFields = f.objectInfo!.fields.filter((sf) => sf.isReadonly);
+    const readonlyOmitKeys = readonlySubFields.map((sf) => `'${sf.name}'`).join(' | ');
+    const partialInput =
+      readonlySubFields.length > 0
+        ? USE_TS_TOOLBELT
+          ? `Partial<O.Omit<${inputName}, ${readonlyOmitKeys}>>`
+          : `Partial<Omit<${inputName}, ${readonlyOmitKeys}>>`
+        : `Partial<${inputName}>`;
 
     if (f.isFlexible) {
       // @flexible: wrap with & Record<string, any>
       const flexInput = `(${inputName} & Record<string, any>)`;
       const flexWhere = `${whereName} & { [key: string]: any }`;
+      const partialFlexInput =
+        readonlySubFields.length > 0
+          ? USE_TS_TOOLBELT
+            ? `Partial<O.Omit<${inputName}, ${readonlyOmitKeys}> & Record<string, any>>`
+            : `Partial<Omit<${inputName}, ${readonlyOmitKeys}> & Record<string, any>>`
+          : `Partial<${inputName} & Record<string, any>>`;
 
       if (f.isArray) {
         specialFieldTypes.push(`  ${f.name}?: ${flexInput}[] | {
@@ -522,14 +557,12 @@ export function generateUpdateType(model: ModelMetadata): string {
     set?: ${flexInput}[];
     updateWhere?: {
       where: ${flexWhere};
-      data: Partial<${inputName} & Record<string, any>>;
+      data: ${partialFlexInput};
     };
     unset?: { where: ${flexWhere} };
   };`);
       } else {
-        specialFieldTypes.push(
-          `  ${f.name}?: Partial<${inputName} & Record<string, any>> | { set: ${inputName} & Record<string, any> };`,
-        );
+        specialFieldTypes.push(`  ${f.name}?: ${partialFlexInput} | { set: ${inputName} & Record<string, any> };`);
       }
     } else if (f.isArray) {
       // Array of objects: full replace, push, set, updateWhere, unset
@@ -538,16 +571,16 @@ export function generateUpdateType(model: ModelMetadata): string {
     set?: ${inputName}[];
     updateWhere?: {
       where: ${whereName};
-      data: Partial<${inputName}>;
+      data: ${partialInput};
     };
     unset?: { where: ${whereName} };
   };`);
     } else if (f.isRequired) {
       // Required single object: partial merge or full replace
-      specialFieldTypes.push(`  ${f.name}?: Partial<${inputName}> | { set: ${inputName} };`);
+      specialFieldTypes.push(`  ${f.name}?: ${partialInput} | { set: ${inputName} };`);
     } else {
       // Optional single object: partial merge or full replace (no null — object fields don't support null)
-      specialFieldTypes.push(`  ${f.name}?: Partial<${inputName}> | { set: ${inputName} };`);
+      specialFieldTypes.push(`  ${f.name}?: ${partialInput} | { set: ${inputName} };`);
     }
   }
 
