@@ -178,6 +178,7 @@ export async function writeModelTypes(
   outputDir: string,
   model: ModelMetadata,
   allModels: ModelMetadata[],
+  objectRegistry?: ObjectRegistry,
 ): Promise<string> {
   const modelsDir = `${outputDir}/models`;
   await ensureDir(modelsDir);
@@ -198,7 +199,7 @@ export async function writeModelTypes(
   // Generate all type content for this model
   const interfaceCode = generateInterfaces([model]);
   const whereCode = generateWhereTypes([model]);
-  const findUniqueWhereCode = generateFindUniqueWhereType(model);
+  const findUniqueWhereCode = generateFindUniqueWhereType(model, objectRegistry);
   const derivedCode = generateAllDerivedTypes([model], registry);
   const modelCode = generateModelTypes([model]);
 
@@ -576,7 +577,7 @@ export async function writeClient(
 
   // Write model types
   for (const model of models) {
-    files.push(await writeModelTypes(outputDir, model, models));
+    files.push(await writeModelTypes(outputDir, model, models, objectRegistry));
   }
 
   // Write models index (includes objects)

@@ -1,0 +1,22 @@
+# Composite unique on Record fields
+model Attendee {
+  id Record @id
+  name String
+  registrations Relation[] @model(Registration)
+}
+
+model Workshop {
+  id Record @id
+  title String
+  registrations Relation[] @model(Registration)
+}
+
+model Registration {
+  id Record @id
+  attendeeId Record
+  workshopId Record
+  attendee Relation @field(attendeeId) @model(Attendee)
+  workshop Relation @field(workshopId) @model(Workshop)
+  role String?
+  @@unique(attendeeWorkshop, [attendeeId, workshopId])
+}

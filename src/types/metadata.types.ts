@@ -30,6 +30,8 @@ export interface FieldMetadata {
   isId: boolean;
   /** Whether the field has @unique decorator */
   isUnique: boolean;
+  /** Whether the field has @index decorator */
+  isIndexed?: boolean;
   /** Whether the field has @now decorator for auto-timestamp */
   hasNowDefault: boolean;
   /** Whether the field is required (no ? marker) */
@@ -69,6 +71,16 @@ export interface ObjectRegistry {
   [objectName: string]: ObjectMetadata;
 }
 
+/** Composite index/unique directive metadata */
+export interface CompositeIndex {
+  /** Whether this is a non-unique 'index' or a 'unique' composite */
+  kind: 'index' | 'unique';
+  /** User-defined name (globally unique across all models) */
+  name: string;
+  /** Field references (supports dot notation for object subfields) */
+  fields: string[];
+}
+
 /** Metadata for a model/table */
 export interface ModelMetadata {
   /** Model name (e.g., "User") */
@@ -77,6 +89,8 @@ export interface ModelMetadata {
   tableName: string;
   /** Array of field metadata */
   fields: FieldMetadata[];
+  /** Model-level composite index/unique directives */
+  compositeDirectives?: CompositeIndex[];
 }
 
 /** Registry of all models indexed by model name */

@@ -340,7 +340,7 @@ export function buildUpdateUniqueQuery(
   include?: IncludeClause,
   registry?: ModelRegistry,
 ): CompiledQuery {
-  const { hasId, id } = getRecordIdFromWhere(where, model, 'updateUnique');
+  const { hasId, id, expandedWhere } = getRecordIdFromWhere(where, model, 'updateUnique');
 
   // Build SET clause
   const { setParts, setVars } = buildSetClause(data, model);
@@ -351,7 +351,7 @@ export function buildUpdateUniqueQuery(
   if (hasId) {
     // ID-based: UPDATE ONLY table:id SET ... [WHERE other fields] [RETURN ...]
     const recordId = transformOrValidateRecordId(model.tableName, id!);
-    const whereClause = buildWhereClauseWithoutId(where, model);
+    const whereClause = buildWhereClauseWithoutId(expandedWhere, model);
 
     const parts = [
       `UPDATE ONLY ${recordId.toString()}`,
@@ -367,7 +367,7 @@ export function buildUpdateUniqueQuery(
   }
 
   // Unique field (no id): UPDATE table SET ... WHERE all fields [RETURN ...]
-  const whereClause = transformWhereClause(where, model);
+  const whereClause = transformWhereClause(expandedWhere, model);
 
   const parts = [
     `UPDATE ${model.tableName}`,

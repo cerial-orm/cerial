@@ -3,6 +3,7 @@
  */
 
 import type {
+  ASTCompositeDirective,
   ASTDecorator,
   ASTField,
   ASTModel,
@@ -46,9 +47,24 @@ export function createField(
   return field;
 }
 
+/** Create an AST composite directive node (@@index or @@unique) */
+export function createCompositeDirective(
+  kind: 'index' | 'unique',
+  name: string,
+  fields: string[],
+  range: SourceRange,
+): ASTCompositeDirective {
+  return { kind, name, fields, range };
+}
+
 /** Create an AST model node */
-export function createModel(name: string, fields: ASTField[], range: SourceRange): ASTModel {
-  return { name, fields, range };
+export function createModel(
+  name: string,
+  fields: ASTField[],
+  range: SourceRange,
+  directives: ASTCompositeDirective[] = [],
+): ASTModel {
+  return { name, fields, directives, range };
 }
 
 /** Create an AST object node (embedded data structure) */

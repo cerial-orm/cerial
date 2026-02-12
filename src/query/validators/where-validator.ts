@@ -25,6 +25,11 @@ export interface WhereValidationResult {
   errors: ValidationError[];
 }
 
+/** Check if a key is a composite unique directive name */
+function isCompositeKeyName(key: string, model: ModelMetadata): boolean {
+  return model.compositeDirectives?.some((d) => d.kind === 'unique' && d.name === key) ?? false;
+}
+
 /** Validate a single field filter */
 export function validateFieldFilter(
   fieldName: string,
@@ -33,6 +38,9 @@ export function validateFieldFilter(
   path: string,
 ): ValidationError[] {
   const errors: ValidationError[] = [];
+
+  // Skip composite unique key names - they are expanded later by the query builder
+  if (isCompositeKeyName(fieldName, model)) return errors;
 
   // Check if field exists in model
   const field = model.fields.find((f) => f.name === fieldName);

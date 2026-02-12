@@ -11,6 +11,7 @@ function generateFieldMetadata(field: FieldMetadata): string {
     `type: '${field.type}'`,
     `isId: ${field.isId}`,
     `isUnique: ${field.isUnique}`,
+    `isIndexed: ${field.isIndexed}`,
     `hasNowDefault: ${field.hasNowDefault}`,
     `isRequired: ${field.isRequired}`,
   ];
@@ -68,16 +69,28 @@ function generateFieldMetadata(field: FieldMetadata): string {
   return `{ ${parts.join(', ')} }`;
 }
 
+/** Generate CompositeIndex as TypeScript code */
+function generateCompositeDirective(directive: { kind: string; name: string; fields: string[] }): string {
+  const fields = directive.fields.map((f) => `'${f}'`).join(', ');
+
+  return `{ kind: '${directive.kind}', name: '${directive.name}', fields: [${fields}] }`;
+}
+
 /** Generate ModelMetadata as TypeScript code */
 function generateModelMetadata(model: ModelMetadata): string {
   const fields = model.fields.map((f) => `      ${generateFieldMetadata(f)}`).join(',\n');
+  const directives = model.compositeDirectives ?? [];
+  const composites = directives.length
+    ? `\n      ${directives.map(generateCompositeDirective).join(',\n      ')}\n    `
+    : '';
 
   return `  ${model.name}: {
     name: '${model.name}',
     tableName: '${model.tableName}',
     fields: [
 ${fields}
-    ]
+    ],
+    compositeDirectives: [${composites}]
   }`;
 }
 

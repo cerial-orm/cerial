@@ -3,12 +3,21 @@
  * Parses schema files into AST
  */
 
-import type { SchemaAST, ASTModel, ASTObject, ASTField, ParseResult, ParseError } from '../types';
+import type {
+  SchemaAST,
+  ASTModel,
+  ASTObject,
+  ASTField,
+  ASTCompositeDirective,
+  ParseResult,
+  ParseError,
+} from '../types';
 import { tokenize } from './tokenizer';
 import { lex, type LexerResult } from './lexer';
 import {
   createSchemaAST,
   createModel,
+  createCompositeDirective,
   createObject,
   createRange,
   createPosition,
@@ -98,6 +107,52 @@ function isEmptyOrComment(line: string): boolean {
   return trimmed === '';
 }
 
+/** Check if line is a composite directive (@@index or @@unique) */
+function isCompositeDirectiveLine(line: string): boolean {
+  const trimmed = removeComments(line).trim();
+
+  return trimmed.startsWith('@@index') || trimmed.startsWith('@@unique');
+}
+
+/**
+ * Parse a composite directive line.
+ * Syntax: @@index(name, [field1, field2, ...]) or @@unique(name, [field1, field2, ...])
+ * Fields support dot notation: address.city
+ */
+function parseCompositeDirective(
+  line: string,
+  lineNumber: number,
+): { directive: ASTCompositeDirective | null; error: string | null } {
+  const trimmed = removeComments(line).trim();
+
+  // Match: @@index(name, [field1, field2]) or @@unique(name, [field1, field2])
+  const match = trimmed.match(/^@@(index|unique)\(\s*(\w+)\s*,\s*\[([^\]]+)\]\s*\)$/);
+  if (!match) {
+    return {
+      directive: null,
+      error: `Invalid composite directive syntax: ${trimmed}. Expected @@index(name, [field1, field2, ...]) or @@unique(name, [field1, field2, ...])`,
+    };
+  }
+
+  const kind = match[1] as 'index' | 'unique';
+  const name = match[2]!;
+  const fieldsStr = match[3]!;
+
+  // Parse field list (comma-separated, supports dot notation like address.city)
+  const fields = fieldsStr
+    .split(',')
+    .map((f) => f.trim())
+    .filter((f) => f.length > 0);
+
+  if (!fields.length) {
+    return { directive: null, error: `Composite directive @@${kind}("${name}") must specify at least one field` };
+  }
+
+  const range = createRange(createPosition(lineNumber, 0, 0), createPosition(lineNumber, trimmed.length, 0));
+
+  return { directive: createCompositeDirective(kind, name, fields, range), error: null };
+}
+
 /** Extract model name from line */
 function extractModelName(line: string): string | null {
   const trimmed = removeComments(line).trim();
@@ -140,8 +195,9 @@ function parseModel(state: ParserState): ASTModel | null {
     }
   }
 
-  // Parse fields until closing brace
+  // Parse fields and composite directives until closing brace
   const fields: ASTField[] = [];
+  const directives: ASTCompositeDirective[] = [];
 
   while (!isEnd(state)) {
     const fieldLine = currentLine(state);
@@ -159,6 +215,18 @@ function parseModel(state: ParserState): ASTModel | null {
       break;
     }
 
+    // Check for composite directive (@@index or @@unique)
+    if (isCompositeDirectiveLine(fieldLine)) {
+      const result = parseCompositeDirective(fieldLine, state.currentLine + 1);
+      if (result.error) {
+        addError(state, result.error);
+      } else if (result.directive) {
+        directives.push(result.directive);
+      }
+      advance(state);
+      continue;
+    }
+
     // Parse field (pass objectNames for type resolution)
     const result = parseFieldDeclaration(fieldLine, state.currentLine + 1, state.objectNames);
     if (result.error) {
@@ -172,7 +240,7 @@ function parseModel(state: ParserState): ASTModel | null {
   // Create model
   const range = createRange(createPosition(startLine + 1, 0, 0), createPosition(state.currentLine, 0, 0));
 
-  return createModel(modelName, fields, range);
+  return createModel(modelName, fields, range, directives);
 }
 
 /** Parse an object block */
@@ -426,9 +494,201 @@ export function parseWithLexer(source: string): ParseResult {
   };
 }
 
+/**
+ * Resolve a dot-notation field reference against a model and its object definitions.
+ * Returns the field type if valid, or null if invalid.
+ * Examples: "email" → resolves to email field; "address.city" → resolves to city subfield of Address object
+ */
+function resolveCompositeField(
+  fieldRef: string,
+  model: ASTModel,
+  ast: SchemaAST,
+): {
+  valid: boolean;
+  isOptional: boolean;
+  isRelation: boolean;
+  isArray: boolean;
+  isId: boolean;
+  parentOverlap?: string;
+} {
+  const parts = fieldRef.split('.');
+
+  // Top-level field lookup
+  const topField = model.fields.find((f) => f.name === parts[0]);
+  if (!topField) return { valid: false, isOptional: false, isRelation: false, isArray: false, isId: false };
+
+  // Single-part reference (e.g., "email", "authorId")
+  if (parts.length === 1) {
+    return {
+      valid: true,
+      isOptional: topField.isOptional,
+      isRelation: topField.type === 'relation',
+      isArray: !!topField.isArray,
+      isId: topField.decorators.some((d) => d.type === 'id'),
+    };
+  }
+
+  // Dot-notation: must be an object type field
+  if (topField.type !== 'object' || !topField.objectName) {
+    return { valid: false, isOptional: false, isRelation: false, isArray: false, isId: false };
+  }
+
+  // Walk the dot-notation path through nested objects
+  let currentObjectName = topField.objectName;
+  for (let i = 1; i < parts.length; i++) {
+    const objectDef = ast.objects.find((o) => o.name === currentObjectName);
+    if (!objectDef) return { valid: false, isOptional: false, isRelation: false, isArray: false, isId: false };
+
+    const subField = objectDef.fields.find((f) => f.name === parts[i]);
+    if (!subField) return { valid: false, isOptional: false, isRelation: false, isArray: false, isId: false };
+
+    // If there are more parts, this must also be an object type
+    if (i < parts.length - 1) {
+      if (subField.type !== 'object' || !subField.objectName) {
+        return { valid: false, isOptional: false, isRelation: false, isArray: false, isId: false };
+      }
+      currentObjectName = subField.objectName;
+    } else {
+      // Final field in the dot path
+      return {
+        valid: true,
+        isOptional: topField.isOptional || subField.isOptional,
+        isRelation: false,
+        isArray: !!subField.isArray,
+        isId: false,
+      };
+    }
+  }
+
+  return { valid: false, isOptional: false, isRelation: false, isArray: false, isId: false };
+}
+
+/** Validate composite directives on a model */
+function validateCompositeDirectives(
+  model: ASTModel,
+  ast: SchemaAST,
+  errors: ParseError[],
+  globalNames: Map<string, string>,
+): void {
+  for (const directive of model.directives ?? []) {
+    // 1. Global name uniqueness
+    const existingModel = globalNames.get(directive.name);
+    if (existingModel) {
+      errors.push({
+        message: `Composite directive name '${directive.name}' is already used in model ${existingModel}. Names must be unique across all models.`,
+        position: directive.range.start,
+      });
+    } else {
+      globalNames.set(directive.name, model.name);
+    }
+
+    // 2. Minimum 2 fields
+    if (directive.fields.length < 2) {
+      errors.push({
+        message: `Composite @@${directive.kind}("${directive.name}") must have at least 2 fields. Use field-level @${directive.kind} for single fields.`,
+        position: directive.range.start,
+      });
+    }
+
+    // 3. Check for duplicate fields within directive
+    const seenFields = new Set<string>();
+    for (const fieldRef of directive.fields) {
+      if (seenFields.has(fieldRef)) {
+        errors.push({
+          message: `Duplicate field '${fieldRef}' in composite @@${directive.kind}("${directive.name}")`,
+          position: directive.range.start,
+        });
+      }
+      seenFields.add(fieldRef);
+    }
+
+    // 4. Validate each field reference
+    const topLevelObjectFields = new Set<string>(); // track whole-object fields for overlap check
+    const dotNotationRoots = new Set<string>(); // track dot-notation root fields for overlap check
+
+    for (const fieldRef of directive.fields) {
+      const resolved = resolveCompositeField(fieldRef, model, ast);
+
+      if (!resolved.valid) {
+        errors.push({
+          message: `Field '${fieldRef}' in composite @@${directive.kind}("${directive.name}") does not exist in model ${model.name}`,
+          position: directive.range.start,
+        });
+        continue;
+      }
+
+      // Check: @id fields disallowed
+      if (resolved.isId) {
+        errors.push({
+          message: `Field '${fieldRef}' in composite @@${directive.kind}("${directive.name}") has @id and cannot be part of a composite. @id fields are already unique.`,
+          position: directive.range.start,
+        });
+      }
+
+      // Check: relation fields disallowed
+      if (resolved.isRelation) {
+        errors.push({
+          message: `Field '${fieldRef}' in composite @@${directive.kind}("${directive.name}") is a Relation (virtual field) and cannot be indexed. Use the Record field instead.`,
+          position: directive.range.start,
+        });
+      }
+
+      // Check: array fields disallowed
+      if (resolved.isArray) {
+        errors.push({
+          message: `Field '${fieldRef}' in composite @@${directive.kind}("${directive.name}") is an array field and cannot be part of a composite index.`,
+          position: directive.range.start,
+        });
+      }
+
+      // Track for overlap check
+      const parts = fieldRef.split('.');
+      if (parts.length === 1) {
+        // Check if it's an object-type field (whole object reference)
+        const topField = model.fields.find((f) => f.name === fieldRef);
+        if (topField?.type === 'object') {
+          topLevelObjectFields.add(fieldRef);
+        }
+      } else {
+        dotNotationRoots.add(parts[0]!);
+      }
+    }
+
+    // 5. Check for object + own subfield overlap (redundant)
+    for (const objField of topLevelObjectFields) {
+      if (dotNotationRoots.has(objField)) {
+        errors.push({
+          message: `Composite @@${directive.kind}("${directive.name}") references both '${objField}' (whole object) and its subfield(s). This is redundant — use either the whole object or specific subfields.`,
+          position: directive.range.start,
+        });
+      }
+    }
+
+    // 6. Warn about optional fields in @@unique composites
+    if (directive.kind === 'unique') {
+      const optionalFields: string[] = [];
+      for (const fieldRef of directive.fields) {
+        const resolved = resolveCompositeField(fieldRef, model, ast);
+        if (resolved.valid && resolved.isOptional) {
+          optionalFields.push(fieldRef);
+        }
+      }
+
+      if (optionalFields.length) {
+        // This is a warning, not an error — we still allow it
+        // The warning is logged during generation, not added to parse errors
+        // Store the info on the directive for later use (via the AST)
+      }
+    }
+  }
+}
+
 /** Validate parsed schema */
 export function validateSchema(ast: SchemaAST): ParseError[] {
   const errors: ParseError[] = [];
+
+  // Global composite directive name uniqueness
+  const globalCompositeNames = new Map<string, string>(); // name -> modelName
 
   // Check for duplicate model names
   const modelNames = new Set<string>();
@@ -465,7 +725,29 @@ export function validateSchema(ast: SchemaAST): ParseError[] {
           });
         }
       }
+
+      // Check @index and @unique mutual exclusivity
+      const hasIndex = field.decorators.some((d) => d.type === 'index');
+      const hasUnique = field.decorators.some((d) => d.type === 'unique');
+      if (hasIndex && hasUnique) {
+        errors.push({
+          message: `Field '${field.name}' in model ${model.name} cannot have both @index and @unique. Use one or the other.`,
+          position: field.range.start,
+        });
+      }
+
+      // Check @unique on array fields — SurrealDB indexes array elements individually,
+      // so UNIQUE means "no two records can share any element", not whole-array uniqueness.
+      if (hasUnique && field.isArray) {
+        errors.push({
+          message: `Field '${field.name}' in model ${model.name} is an array field and cannot have @unique. SurrealDB enforces uniqueness per element, not per array — use @index for per-element lookups instead.`,
+          position: field.range.start,
+        });
+      }
     }
+
+    // Validate composite directives
+    validateCompositeDirectives(model, ast, errors, globalCompositeNames);
   }
 
   // Check for duplicate object names

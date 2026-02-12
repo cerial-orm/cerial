@@ -210,13 +210,90 @@ export function buildCountQuery(
 }
 
 /**
- * Validate at least one unique field is present in where clause
+ * Check if a composite unique key is present in the where clause.
+ * A composite key is present when the where clause has a property matching
+ * a @@unique directive name, with an object value containing the composite fields.
+ */
+export function findCompositeUniqueKey(
+  where: WhereClause,
+  model: ModelMetadata,
+): { name: string; fields: string[]; values: Record<string, unknown> } | null {
+  const compositeUniques = (model.compositeDirectives ?? []).filter((d) => d.kind === 'unique');
+
+  for (const directive of compositeUniques) {
+    const compositeValue = where[directive.name];
+    if (compositeValue && typeof compositeValue === 'object' && !Array.isArray(compositeValue)) {
+      return {
+        name: directive.name,
+        fields: directive.fields,
+        values: compositeValue as Record<string, unknown>,
+      };
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Expand composite unique keys in a where clause into flat field conditions.
+ * Removes the composite key name from the where clause and injects the individual fields.
+ *
+ * For example: { compositeKeyName: { field1: 'a', field2: 'b' }, isActive: true }
+ * Becomes:     { field1: 'a', field2: 'b', isActive: true }
+ *
+ * For dot-notation fields (address.city), the nested structure is preserved:
+ * { compositeKeyName: { address: { city: 'NYC' }, name: 'Alice' } }
+ * Becomes: { 'address.city': 'NYC', name: 'Alice' }
+ */
+export function expandCompositeKey(where: WhereClause, model: ModelMetadata): WhereClause {
+  const composite = findCompositeUniqueKey(where, model);
+  if (!composite) return where;
+
+  // Remove the composite key name from the where clause
+  const expanded: WhereClause = { ...where };
+  delete expanded[composite.name];
+
+  // Flatten the composite key values into dot-notation fields
+  const directive = (model.compositeDirectives ?? []).find((d) => d.name === composite.name);
+  if (!directive) return expanded;
+
+  for (const fieldRef of directive.fields) {
+    const parts = fieldRef.split('.');
+
+    if (parts.length === 1) {
+      // Simple field: extract directly from composite values
+      expanded[fieldRef] = composite.values[fieldRef];
+    } else {
+      // Dot-notation field: extract from nested structure
+      // e.g., for "address.city", walk composite.values.address.city
+      let current: unknown = composite.values;
+      for (const part of parts) {
+        if (current && typeof current === 'object' && !Array.isArray(current)) {
+          current = (current as Record<string, unknown>)[part];
+        } else {
+          current = undefined;
+          break;
+        }
+      }
+      // Store with dot notation key — the condition builder will handle it
+      expanded[fieldRef] = current;
+    }
+  }
+
+  return expanded;
+}
+
+/**
+ * Validate at least one unique field or composite unique key is present in where clause
  * @param where - The where clause to validate
  * @param model - The model metadata
  * @param methodName - The method name for error messages (default: 'findUnique')
  * @throws Error if no unique field is present
  */
 export function validateUniqueField(where: WhereClause, model: ModelMetadata, methodName = 'findUnique'): void {
+  // Check for composite unique key first
+  if (findCompositeUniqueKey(where, model)) return;
+
   const idField = model.fields.find((f) => f.isId);
   const uniqueFields = getUniqueFields(model);
   const allUniqueFields = idField ? [idField, ...uniqueFields.filter((f) => !f.isId)] : uniqueFields;
@@ -227,9 +304,13 @@ export function validateUniqueField(where: WhereClause, model: ModelMetadata, me
   // Validation: at least one unique field required
   if (!providedFields.length) {
     const fieldNames = allUniqueFields.map((f) => f.name).join(', ');
+    const compositeNames = (model.compositeDirectives ?? []).filter((d) => d.kind === 'unique').map((d) => d.name);
+    const compositeHint = compositeNames.length
+      ? ` Available composite unique keys: ${compositeNames.join(', ')}.`
+      : '';
     throw new Error(
       `At least one unique field must be provided in where clause for ${methodName}. ` +
-        `Available unique fields: ${fieldNames}`,
+        `Available unique fields: ${fieldNames}.${compositeHint}`,
     );
   }
 }
@@ -278,15 +359,18 @@ export function buildFindUniqueQuery(
   // Validate at least one unique field is present
   hasUniqueField(where, model);
 
+  // Expand composite unique keys before processing
+  const expandedWhere = expandCompositeKey(where, model);
+
   // Determine query strategy based on ID presence
   const idField = model.fields.find((f) => f.isId);
-  const hasId = idField && where[idField.name] !== undefined && where[idField.name] !== null;
+  const hasId = idField && expandedWhere[idField.name] !== undefined && expandedWhere[idField.name] !== null;
 
   if (hasId) {
     // Use FROM ONLY table:id (optimized)
-    return buildFindUniqueByIdQuery(model, where, select, idField!, include, registry);
+    return buildFindUniqueByIdQuery(model, expandedWhere, select, idField!, include, registry);
   }
 
   // Use FROM ONLY tableName (reuse existing buildFindOneQuery)
-  return buildFindOneQuery(model, { where, select, include }, registry);
+  return buildFindOneQuery(model, { where: expandedWhere, select, include }, registry);
 }

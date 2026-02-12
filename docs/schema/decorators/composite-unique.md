@@ -1,0 +1,185 @@
+---
+title: '@@unique'
+parent: Decorators
+grand_parent: Schema
+nav_order: 3
+---
+
+# @@unique
+
+Creates a unique composite index spanning multiple fields. The database rejects any two records that share the same combination of values for all listed fields.
+
+## Syntax
+
+```cerial
+model Employee {
+  id Record @id
+  department String
+  badgeNumber Int
+
+  @@unique(deptBadge, [department, badgeNumber])
+}
+```
+
+Composite directives are placed at the end of the model block:
+
+```
+@@unique(name, [field1, field2, ...])
+```
+
+- **name** — A unique identifier for this composite. Must be globally unique across all models.
+- **fields** — At least 2 field references. Supports dot notation for object subfields.
+
+## Behavior
+
+```typescript
+// First record — OK
+await db.Employee.create({
+  data: { department: 'Engineering', badgeNumber: 42 },
+});
+
+// Same department + badge → rejected by DB
+await db.Employee.create({
+  data: { department: 'Engineering', badgeNumber: 42 },
+});
+
+// Same badge, different department → OK
+await db.Employee.create({
+  data: { department: 'Marketing', badgeNumber: 42 },
+});
+```
+
+## Unique Lookups
+
+Composite unique keys appear as a named variant in the `FindUniqueWhere` type, alongside single-field unique variants:
+
+```typescript
+// By composite key
+const emp = await db.Employee.findUnique({
+  where: { deptBadge: { department: 'Engineering', badgeNumber: 42 } },
+});
+
+// By id (still works)
+const emp2 = await db.Employee.findUnique({
+  where: { id: someId },
+});
+```
+
+The composite key works with all unique operations:
+
+```typescript
+// updateUnique
+await db.Employee.updateUnique({
+  where: { deptBadge: { department: 'Engineering', badgeNumber: 42 } },
+  data: { department: 'Management' },
+});
+
+// deleteUnique
+await db.Employee.deleteUnique({
+  where: { deptBadge: { department: 'Engineering', badgeNumber: 42 } },
+});
+
+// upsert
+await db.Employee.upsert({
+  where: { deptBadge: { department: 'Engineering', badgeNumber: 42 } },
+  create: { department: 'Engineering', badgeNumber: 42 },
+  update: { department: 'Management' },
+});
+```
+
+### Additional Filters
+
+You can combine a composite key with extra where filters:
+
+```typescript
+const emp = await db.Employee.findUnique({
+  where: {
+    deptBadge: { department: 'Engineering', badgeNumber: 42 },
+    // Additional filter — record must also match this
+    isActive: true,
+  },
+});
+```
+
+## Object Subfields (Dot Notation)
+
+Composite directives support dot notation to reference subfields of object-typed fields:
+
+```cerial
+object Address {
+  city String
+  zip String
+}
+
+model Store {
+  id Record @id
+  name String
+  address Address
+
+  @@unique(cityZip, [address.city, address.zip])
+  @@unique(nameCity, [name, address.city])
+}
+```
+
+The generated `FindUniqueWhere` type uses nested objects to match the schema structure:
+
+```typescript
+const store = await db.Store.findUnique({
+  where: {
+    cityZip: { address: { city: 'NYC', zip: '10001' } },
+  },
+});
+
+const store2 = await db.Store.findUnique({
+  where: {
+    nameCity: { name: 'Downtown Hub', address: { city: 'NYC' } },
+  },
+});
+```
+
+## Record Fields
+
+Record-typed fields (foreign keys) can be used in composites:
+
+```cerial
+model Registration {
+  id Record @id
+  studentId Record
+  courseId Record
+  student Relation @field(studentId) @model(Student)
+  course Relation @field(courseId) @model(Course)
+
+  @@unique(enrollment, [studentId, courseId])
+}
+```
+
+```typescript
+const reg = await db.Registration.findUnique({
+  where: {
+    enrollment: { studentId: student.id, courseId: course.id },
+  },
+});
+```
+
+## Null Behavior on Optional Fields
+
+When optional fields participate in a `@@unique` composite, SurrealDB applies these rules:
+
+| Values          | Example                           | Allowed? |
+| --------------- | --------------------------------- | -------- |
+| All null/NONE   | `(null, null)` + `(null, null)`   | Yes      |
+| Mixed with data | `(null, 'val')` + `(null, 'val')` | No       |
+| Mixed with data | `('val', null)` + `('val', null)` | No       |
+
+If at least one field has a concrete value, the combination is enforced as unique. If all fields are null/NONE, duplicates are allowed.
+
+This matches the single-field behavior — see [@unique — Null Behavior](unique#null-behavior-on-optional-fields).
+
+## Rules
+
+- Requires **at least 2 fields**.
+- Composite names must be **globally unique** across all models.
+- **@id fields** cannot be part of a composite (they are already unique).
+- **Relation fields** (virtual) cannot be indexed — use the underlying Record field instead.
+- **Array fields** (`String[]`, `Record[]`) cannot be part of a composite.
+- An **object field and its own subfield** cannot both appear in the same composite (e.g., `[address, address.city]` is rejected as redundant).

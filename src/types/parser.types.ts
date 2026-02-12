@@ -4,6 +4,18 @@
 
 import type { SchemaDecorator, SchemaFieldType, SourcePosition, SourceRange } from './common.types';
 
+/** AST node for a model-level composite directive (@@index or @@unique) */
+export interface ASTCompositeDirective {
+  /** Whether this is an 'index' or 'unique' composite */
+  kind: 'index' | 'unique';
+  /** User-defined name for the composite (must be globally unique across all models) */
+  name: string;
+  /** Field references (supports dot notation for object subfields, e.g. "address.city") */
+  fields: string[];
+  /** Source range for error reporting */
+  range: SourceRange;
+}
+
 /** Token types produced by the tokenizer */
 export type TokenType =
   | 'keyword' // model, etc.
@@ -73,6 +85,8 @@ export interface ASTField {
 export interface ASTModel {
   name: string;
   fields: ASTField[];
+  /** Model-level composite directives (@@index, @@unique) */
+  directives?: ASTCompositeDirective[];
   range: SourceRange;
 }
 

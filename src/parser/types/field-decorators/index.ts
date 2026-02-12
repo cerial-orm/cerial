@@ -15,5 +15,6 @@ export {
   parseOnDeleteDecorator,
 } from './ondelete-parser';
 export { isUniqueDecorator, parseUniqueDecorator } from './unique-parser';
+export { isIndexDecorator, parseIndexDecorator } from './index-parser';
 export { isDistinctDecorator, parseDistinctDecorator } from './distinct-parser';
 export { extractSortValue, isSortDecorator, parseSortDecorator } from './sort-parser';

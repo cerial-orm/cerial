@@ -3,16 +3,31 @@
  * Also converts AST objects to ObjectMetadata
  */
 
-import type { ASTModel, ASTObject, FieldMetadata, ModelMetadata, ObjectMetadata, ObjectRegistry } from '../../types';
+import type {
+  ASTModel,
+  ASTObject,
+  CompositeIndex,
+  FieldMetadata,
+  ModelMetadata,
+  ObjectMetadata,
+  ObjectRegistry,
+} from '../../types';
 import { convertFields } from './field-converter';
 import { toSnakeCase } from '../../utils/string-utils';
 
 /** Convert AST model to ModelMetadata */
 export function convertModel(model: ASTModel): ModelMetadata {
+  const compositeDirectives: CompositeIndex[] = (model.directives ?? []).map((d) => ({
+    kind: d.kind,
+    name: d.name,
+    fields: [...d.fields],
+  }));
+
   return {
     name: model.name,
     tableName: toSnakeCase(model.name),
     fields: convertFields(model.fields),
+    compositeDirectives,
   };
 }
 

@@ -1,0 +1,15 @@
+# Composite unique on object subfields via dot notation
+object Location {
+  city String
+  zip String
+  street String?
+}
+
+model Warehouse {
+  id Record @id
+  name String @index
+  location Location
+  capacity Int?
+  @@unique(cityZip, [location.city, location.zip])
+  @@unique(nameCity, [name, location.city])
+}

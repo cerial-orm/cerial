@@ -1,0 +1,11 @@
+# Composite unique on primitive fields
+model Staff {
+  id Record @id
+  firstName String
+  lastName String
+  department String
+  email Email @unique
+  age Int?
+  @@unique(staffFullName, [firstName, lastName])
+  @@index(staffDeptName, [department, firstName])
+}

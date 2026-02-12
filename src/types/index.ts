@@ -34,6 +34,7 @@ export type {
 
 // Metadata types
 export type {
+  CompositeIndex,
   ConnectionConfig,
   FieldMetadata,
   ModelMetadata,
@@ -47,6 +48,7 @@ export type {
 
 // Parser types
 export type {
+  ASTCompositeDirective,
   ASTDecorator,
   ASTField,
   ASTModel,

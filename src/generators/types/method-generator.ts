@@ -3,7 +3,7 @@
  */
 
 import { getUniqueFields } from '../../parser/model-metadata';
-import type { ModelMetadata } from '../../types';
+import type { CompositeIndex, FieldMetadata, ModelMetadata, ObjectMetadata, ObjectRegistry } from '../../types';
 import { schemaTypeToTsType } from '../../utils/type-utils';
 
 /** Check if model has relation fields */
@@ -59,32 +59,176 @@ export function generateFindManyMethod(model: ModelMetadata): string {
   }): CerialQueryPromise<Get${model.name}Payload<S, I>[]>;`;
 }
 
+/** Get input type for a field (RecordIdInput for ID/Record, object type for objects, regular type for primitives) */
+function getFieldInputType(field: FieldMetadata): string {
+  if (field.isId || field.type === 'record') return 'RecordIdInput';
+  if (field.type === 'object' && field.objectInfo) return field.objectInfo.objectName;
+
+  return schemaTypeToTsType(field.type as Parameters<typeof schemaTypeToTsType>[0]);
+}
+
+/**
+ * Build a nested TypeScript type shape for a composite unique key.
+ * Handles dot-notation fields by creating nested objects.
+ *
+ * For example, given fields ["address.city", "name"] with types [string, string]:
+ * Returns "{ address: { city: string }; name: string }"
+ */
+function buildCompositeKeyType(
+  directive: CompositeIndex,
+  model: ModelMetadata,
+  objectRegistry?: ObjectRegistry,
+): string {
+  // Build a nested object structure for the fields
+  interface TypeNode {
+    type?: string;
+    children?: Record<string, TypeNode>;
+  }
+
+  const root: Record<string, TypeNode> = {};
+
+  for (const fieldRef of directive.fields) {
+    const parts = fieldRef.split('.');
+
+    if (parts.length === 1) {
+      // Top-level field
+      const field = model.fields.find((f) => f.name === fieldRef);
+      if (!field) continue;
+
+      const tsType = getFieldInputType(field);
+      const nullSuffix = !field.isRequired && !field.isId ? ' | null' : '';
+      root[fieldRef] = { type: `${tsType}${nullSuffix}` };
+    } else {
+      // Dot-notation: build nested structure
+      let current = root;
+      for (let i = 0; i < parts.length; i++) {
+        const part = parts[i]!;
+
+        if (i === parts.length - 1) {
+          // Leaf node — resolve the type from the object definition
+          const tsType = resolveCompositeFieldType(parts, model, objectRegistry);
+          current[part] = { type: tsType };
+        } else {
+          // Intermediate node — create/access children
+          if (!current[part]) {
+            current[part] = { children: {} };
+          } else if (!current[part]!.children) {
+            current[part]!.children = {};
+          }
+          current = current[part]!.children!;
+        }
+      }
+    }
+  }
+
+  // Serialize the tree into a TypeScript type string
+  function serializeNode(node: Record<string, TypeNode>): string {
+    const entries = Object.entries(node).map(([key, value]) => {
+      if (value.type) return `${key}: ${value.type}`;
+      if (value.children) return `${key}: ${serializeNode(value.children)}`;
+
+      return `${key}: unknown`;
+    });
+
+    return `{ ${entries.join('; ')} }`;
+  }
+
+  return serializeNode(root);
+}
+
+/** Resolve the TypeScript type for a dot-notation field reference */
+function resolveCompositeFieldType(parts: string[], model: ModelMetadata, objectRegistry?: ObjectRegistry): string {
+  const topField = model.fields.find((f) => f.name === parts[0]);
+  if (!topField || topField.type !== 'object' || !topField.objectInfo) return 'unknown';
+
+  let objectName = topField.objectInfo.objectName;
+  for (let i = 1; i < parts.length; i++) {
+    const objectMeta = objectRegistry?.[objectName];
+    if (!objectMeta) return 'unknown';
+
+    const subField = objectMeta.fields.find((f) => f.name === parts[i]);
+    if (!subField) return 'unknown';
+
+    if (i === parts.length - 1) {
+      // Final field — return its type
+      const tsType = schemaTypeToTsType(subField.type as Parameters<typeof schemaTypeToTsType>[0]);
+      const nullSuffix = !subField.isRequired ? ' | null' : '';
+
+      return `${tsType}${nullSuffix}`;
+    }
+
+    // Intermediate — must be an object
+    if (subField.type !== 'object' || !subField.objectInfo) return 'unknown';
+    objectName = subField.objectInfo.objectName;
+  }
+
+  return 'unknown';
+}
+
+/**
+ * Build JSDoc comment for a composite unique key in FindUniqueWhere.
+ * Includes warnings for optional fields.
+ */
+function buildCompositeJsDoc(directive: CompositeIndex, model: ModelMetadata): string {
+  const lines: string[] = [];
+  lines.push(`  /**`);
+  lines.push(`   * Composite unique index on fields: ${directive.fields.join(', ')}`);
+
+  // Check for optional fields and add warnings
+  const optionalFields: string[] = [];
+  for (const fieldRef of directive.fields) {
+    const parts = fieldRef.split('.');
+    const topField = model.fields.find((f) => f.name === parts[0]);
+    if (topField && !topField.isRequired && !topField.isId) {
+      optionalFields.push(fieldRef);
+    }
+  }
+
+  if (optionalFields.length) {
+    lines.push(`   *`);
+    lines.push(`   * @warning Optional field(s): ${optionalFields.join(', ')}`);
+    lines.push(`   * Unlike single-field @unique, composite unique indexes treat null/NONE as concrete values`);
+    lines.push(`   * when at least one field has a non-null value.`);
+    lines.push(`   *`);
+    lines.push(`   * | Combination                       | Duplicate allowed? |`);
+    lines.push(`   * | ---------------------------------- | ------------------ |`);
+    lines.push(`   * | (null, null) + (null, null)        | YES                |`);
+    lines.push(`   * | (null, 'value') + (null, 'value')  | NO                 |`);
+    lines.push(`   * | ('value', null) + ('value', null)  | NO                 |`);
+    lines.push(`   * | ('value', 'value') + same          | NO                 |`);
+  }
+
+  lines.push(`   */`);
+
+  return lines.join('\n');
+}
+
 /** Generate FindUniqueWhere type for a model */
-export function generateFindUniqueWhereType(model: ModelMetadata): string {
+export function generateFindUniqueWhereType(model: ModelMetadata, objectRegistry?: ObjectRegistry): string {
   // Get ID field
   const idField = model.fields.find((f) => f.isId);
 
   // Get unique fields (excluding ID since it's handled separately)
   const uniqueFields = getUniqueFields(model).filter((f) => !f.isId);
 
-  // Get all unique field names
+  // Get composite unique directives
+  const compositeUniques = (model.compositeDirectives ?? []).filter((d) => d.kind === 'unique');
+
+  // Get all unique field names (for single-field unique variants)
   const allUniqueFieldNames = [idField?.name, ...uniqueFields.map((f) => f.name)].filter(Boolean);
 
-  // If no unique fields at all, fallback to old behavior
-  if (allUniqueFieldNames.length === 0) {
+  // Composite key names to omit from the Where type
+  const compositeKeyNames = compositeUniques.map((d) => d.name);
+  const allOmitKeys = [...allUniqueFieldNames, ...compositeKeyNames];
+
+  // If no unique fields and no composite uniques, no FindUniqueWhere type
+  if (allOmitKeys.length === 0) {
     return '';
   }
 
-  // Build union type: one variant per unique field (as required field)
-  // Each variant allows other unique fields as optional direct values
+  // Build union type: one variant per unique field + one per composite unique
   const variants: string[] = [];
-
-  // Helper to get input type for a field (RecordIdInput for ID/Record, regular type for others)
-  const getFieldInputType = (field: { isId?: boolean; type: string }): string => {
-    if (field.isId || field.type === 'record') return 'RecordIdInput';
-
-    return schemaTypeToTsType(field.type as Parameters<typeof schemaTypeToTsType>[0]);
-  };
+  const omitStr = allOmitKeys.map((n) => `'${n}'`).join(' | ');
 
   // Helper to build optional unique fields type (excluding the required one)
   const buildOptionalUniqueFields = (excludeField: string): string => {
@@ -106,21 +250,24 @@ export function generateFindUniqueWhereType(model: ModelMetadata): string {
   // ID variant: { id: RecordIdInput } & { email?: string } & Omit<UserWhere, 'id' | 'email'>
   if (idField) {
     const optionalUnique = buildOptionalUniqueFields(idField.name);
-    variants.push(
-      `({ ${idField.name}: RecordIdInput }${optionalUnique} & Omit<${model.name}Where, ${allUniqueFieldNames.map((n) => `'${n}'`).join(' | ')}>)`,
-    );
+    variants.push(`({ ${idField.name}: RecordIdInput }${optionalUnique} & Omit<${model.name}Where, ${omitStr}>)`);
   }
 
-  // Unique field variants: { email: string } & { id?: RecordIdInput } & Omit<UserWhere, 'id' | 'email'>
+  // Single-field unique variants: { email: string } & { id?: RecordIdInput } & Omit<UserWhere, ...>
   for (const field of uniqueFields) {
     const tsType = getFieldInputType(field);
     const optionalUnique = buildOptionalUniqueFields(field.name);
-    variants.push(
-      `({ ${field.name}: ${tsType} }${optionalUnique} & Omit<${model.name}Where, ${allUniqueFieldNames.map((n) => `'${n}'`).join(' | ')}>)`,
-    );
+    variants.push(`({ ${field.name}: ${tsType} }${optionalUnique} & Omit<${model.name}Where, ${omitStr}>)`);
   }
 
-  return `export type ${model.name}FindUniqueWhere = ${variants.join(' | ')};`;
+  // Composite unique variants: { compositeKeyName: { field1: Type1, field2: Type2 } } & Omit<...>
+  for (const directive of compositeUniques) {
+    const keyType = buildCompositeKeyType(directive, model, objectRegistry);
+    const jsDoc = buildCompositeJsDoc(directive, model);
+    variants.push(`(${jsDoc}\n  { ${directive.name}: ${keyType} } & Omit<${model.name}Where, ${omitStr}>)`);
+  }
+
+  return `export type ${model.name}FindUniqueWhere = ${variants.join('\n  | ')};`;
 }
 
 /** Generate findUnique method signature with full type inference */

@@ -9,6 +9,7 @@ export type SchemaFieldType = 'string' | 'email' | 'int' | 'date' | 'bool' | 'fl
 export type SchemaDecorator =
   | 'id'
   | 'unique'
+  | 'index'
   | 'now'
   | 'default'
   | 'field'

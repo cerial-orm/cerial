@@ -157,11 +157,64 @@ export function generateFieldWhereType(field: FieldMetadata, _registry?: ModelRe
   )`;
 }
 
+/** Build JSDoc annotation for a field's index/unique status */
+function buildFieldJsDoc(field: FieldMetadata, model: ModelMetadata): string | null {
+  const annotations: string[] = [];
+
+  // Field-level @index
+  if (field.isIndexed) {
+    annotations.push('@index \u2014 Indexed field');
+  }
+
+  // Field-level @unique
+  if (field.isUnique && !field.isId) {
+    if (!field.isRequired) {
+      annotations.push('@unique \u2014 Unique indexed field (multiple null/NONE values are allowed)');
+    } else {
+      annotations.push('@unique \u2014 Unique indexed field');
+    }
+  }
+
+  // Check if field participates in any composite directives
+  for (const directive of model.compositeDirectives ?? []) {
+    const participatingFields = directive.fields.filter((ref) => {
+      const root = ref.split('.')[0];
+
+      return root === field.name;
+    });
+
+    if (participatingFields.length) {
+      const otherFields = directive.fields.filter((f) => !participatingFields.includes(f));
+      const kindLabel = directive.kind === 'unique' ? 'unique' : 'index';
+      if (otherFields.length) {
+        annotations.push(
+          `@@${kindLabel}("${directive.name}") \u2014 Part of composite ${kindLabel} (with: ${otherFields.join(', ')})`,
+        );
+      } else {
+        annotations.push(`@@${kindLabel}("${directive.name}") \u2014 Part of composite ${kindLabel}`);
+      }
+    }
+  }
+
+  if (!annotations.length) return null;
+
+  if (annotations.length === 1) {
+    return `  /** ${annotations[0]} */`;
+  }
+
+  const lines = annotations.map((a) => `   * ${a}`);
+
+  return `  /**\n${lines.join('\n')}\n   */`;
+}
+
 /** Generate Where interface for a model */
 export function generateWhereInterface(model: ModelMetadata, registry?: ModelRegistry): string {
   const fields: string[] = [];
 
   for (const field of model.fields) {
+    // Build JSDoc for index/unique annotations
+    const jsDoc = buildFieldJsDoc(field, model);
+
     if (field.type === 'relation') {
       // Relation fields get nested where type
       if (field.relationInfo) {
@@ -169,10 +222,12 @@ export function generateWhereInterface(model: ModelMetadata, registry?: ModelReg
 
         if (field.isArray) {
           // Array relations support some/every/none operators
+          if (jsDoc) fields.push(jsDoc);
           fields.push(`  ${field.name}?: { some?: ${targetWhere}; every?: ${targetWhere}; none?: ${targetWhere}; };`);
         } else {
           // Single relations - optional ones also accept `null` to filter by null underlying record field
           const nullPrefix = !field.isRequired ? 'null | ' : '';
+          if (jsDoc) fields.push(jsDoc);
           fields.push(`  ${field.name}?: ${nullPrefix}${targetWhere};`);
         }
       }
@@ -182,14 +237,17 @@ export function generateWhereInterface(model: ModelMetadata, registry?: ModelReg
 
       if (field.isArray) {
         // Array of objects: some/every/none operators
+        if (jsDoc) fields.push(jsDoc);
         fields.push(`  ${field.name}?: { some?: ${objectWhere}; every?: ${objectWhere}; none?: ${objectWhere}; };`);
       } else {
         // Single object - object fields don't support null, only NONE (absent)
+        if (jsDoc) fields.push(jsDoc);
         fields.push(`  ${field.name}?: ${objectWhere};`);
       }
     } else {
       const whereType = generateFieldWhereType(field, registry);
       if (whereType) {
+        if (jsDoc) fields.push(jsDoc);
         fields.push(`  ${field.name}?: ${whereType};`);
       }
     }

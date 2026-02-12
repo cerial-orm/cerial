@@ -6,6 +6,7 @@
 import type {
   ASTField,
   ASTModel,
+  CompositeIndex,
   FieldMetadata,
   ModelMetadata,
   ModelRegistry,
@@ -22,6 +23,7 @@ export function fieldToMetadata(field: ASTField): FieldMetadata {
     type: field.type,
     isId: hasDecorator(field, 'id'),
     isUnique: hasDecorator(field, 'unique'),
+    isIndexed: hasDecorator(field, 'index'),
     hasNowDefault: hasDecorator(field, 'now'),
     isRequired: !field.isOptional,
     defaultValue: getDecorator(field, 'default')?.value,
@@ -83,10 +85,17 @@ export function fieldToMetadata(field: ASTField): FieldMetadata {
 
 /** Convert AST model to ModelMetadata */
 export function modelToMetadata(model: ASTModel): ModelMetadata {
+  const compositeDirectives: CompositeIndex[] = (model.directives ?? []).map((d) => ({
+    kind: d.kind,
+    name: d.name,
+    fields: [...d.fields],
+  }));
+
   return {
     name: model.name,
     tableName: toSnakeCase(model.name),
     fields: model.fields.map(fieldToMetadata),
+    compositeDirectives,
   };
 }
 

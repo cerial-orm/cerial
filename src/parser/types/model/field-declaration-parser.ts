@@ -16,6 +16,7 @@ import {
   isDistinctDecorator,
   isFieldDecorator,
   isIdDecorator,
+  isIndexDecorator,
   isKeyDecorator,
   isModelDecorator,
   isNowDecorator,
@@ -26,6 +27,7 @@ import {
   parseDistinctDecorator,
   parseFieldDecorator,
   parseIdDecorator,
+  parseIndexDecorator,
   parseKeyDecorator,
   parseModelDecorator,
   parseNowDecorator,
@@ -67,6 +69,8 @@ export function parseDecorators(line: string, lineNumber: number): ASTDecorator[
       decorators.push(parseIdDecorator(range));
     } else if (isUniqueDecorator(token)) {
       decorators.push(parseUniqueDecorator(range));
+    } else if (isIndexDecorator(token)) {
+      decorators.push(parseIndexDecorator(range));
     } else if (isNowDecorator(token)) {
       decorators.push(parseNowDecorator(range));
     } else if (isDefaultDecorator(token)) {

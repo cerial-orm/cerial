@@ -2,7 +2,14 @@
  * DEFINE statement generator for SurrealDB tables and fields
  */
 
-import type { FieldMetadata, ModelMetadata, ModelRegistry, ObjectMetadata, ObjectRegistry } from '../../types';
+import type {
+  CompositeIndex,
+  FieldMetadata,
+  ModelMetadata,
+  ModelRegistry,
+  ObjectMetadata,
+  ObjectRegistry,
+} from '../../types';
 import {
   generateAssertClause,
   generateDefaultClause,
@@ -99,15 +106,21 @@ export function generateDefineField(
   return parts.join(' ') + ';';
 }
 
-/** Generate DEFINE INDEX statement for unique fields */
+/** Generate DEFINE INDEX statement for unique or indexed fields */
 export function generateDefineIndex(field: FieldMetadata, tableName: string, options: DefineFieldOptions = {}): string {
-  if (!field.isUnique || field.isId) return '';
+  // Skip fields that are neither @unique nor @index
+  if (!field.isUnique && !field.isIndexed) return '';
+
+  // Skip @id fields — SurrealDB has a built-in primary index
+  if (field.isId) return '';
 
   // Skip Relation fields - they are virtual
   if (field.type === 'relation') return '';
 
   const opts = { ...DEFAULT_FIELD_OPTIONS, ...options };
-  const indexName = `${tableName}_${field.name}_unique`;
+  const isUnique = field.isUnique;
+  const indexSuffix = isUnique ? 'unique' : 'index';
+  const indexName = `${tableName}_${field.name}_${indexSuffix}`;
   const parts: string[] = ['DEFINE INDEX'];
 
   if (opts.overwrite) parts.push('OVERWRITE');
@@ -118,7 +131,31 @@ export function generateDefineIndex(field: FieldMetadata, tableName: string, opt
   parts.push(tableName);
   parts.push('COLUMNS');
   parts.push(field.name);
-  parts.push('UNIQUE');
+
+  if (isUnique) parts.push('UNIQUE');
+
+  return parts.join(' ') + ';';
+}
+
+/** Generate DEFINE INDEX statement for a composite index/unique directive */
+export function generateDefineCompositeIndex(
+  directive: CompositeIndex,
+  tableName: string,
+  options: DefineFieldOptions = {},
+): string {
+  const opts = { ...DEFAULT_FIELD_OPTIONS, ...options };
+  const parts: string[] = ['DEFINE INDEX'];
+
+  if (opts.overwrite) parts.push('OVERWRITE');
+  else if (opts.ifNotExists) parts.push('IF NOT EXISTS');
+
+  parts.push(directive.name);
+  parts.push('ON TABLE');
+  parts.push(tableName);
+  parts.push('COLUMNS');
+  parts.push(directive.fields.join(', '));
+
+  if (directive.kind === 'unique') parts.push('UNIQUE');
 
   return parts.join(' ') + ';';
 }
@@ -309,10 +346,15 @@ export function generateModelDefineStatements(
     }
   }
 
-  // 3. Define indexes for unique fields
+  // 3. Define indexes for unique and indexed fields
   for (const field of model.fields) {
     const indexDef = generateDefineIndex(field, model.tableName, fieldOptions);
     if (indexDef) statements.push(indexDef);
+  }
+
+  // 4. Define composite indexes (@@index and @@unique)
+  for (const directive of model.compositeDirectives ?? []) {
+    statements.push(generateDefineCompositeIndex(directive, model.tableName, fieldOptions));
   }
 
   return statements;

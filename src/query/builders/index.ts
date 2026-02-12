@@ -12,6 +12,7 @@ export {
   buildOrderBy,
   buildSelectFields,
   buildSelectQuery,
+  findCompositeUniqueKey,
   validateUniqueField,
   type FindOptionsWithInclude,
   type FindUniqueOptionsWithInclude,

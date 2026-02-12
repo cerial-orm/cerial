@@ -71,3 +71,35 @@ await db.Product.create({
 });
 // Error: unique constraint violated
 ```
+
+## Null Behavior on Optional Fields
+
+When `@unique` is applied to an optional field, SurrealDB allows **multiple records** with `null` or absent (NONE) values. The unique constraint only applies to concrete values.
+
+```cerial
+model Profile {
+  id Record @id
+  nickname String? @unique
+}
+```
+
+```typescript
+// Both allowed — null is not treated as a unique value
+await db.Profile.create({ data: {} }); // nickname absent (NONE)
+await db.Profile.create({ data: {} }); // another NONE — OK
+
+await db.Profile.create({ data: { nickname: null } }); // null — OK
+await db.Profile.create({ data: { nickname: null } }); // another null — OK
+
+// Concrete values are still enforced
+await db.Profile.create({ data: { nickname: 'ace' } });
+await db.Profile.create({ data: { nickname: 'ace' } }); // Error: duplicate
+```
+
+For composite uniqueness constraints with optional fields, see [@@unique — Null Behavior](composite-unique#null-behavior-on-optional-fields).
+
+## Array Fields
+
+`@unique` **cannot** be applied to array fields (`String[]`, `Int[]`, `Record[]`, etc.). SurrealDB indexes array elements individually, so a unique index on an array field means "no two records can share any single element" — not "no two records can have the same array". This is almost never the intended behavior and would cause surprising constraint violations.
+
+Use [`@index`](index.decorator) on array fields instead if you need per-element lookups with `CONTAINS` queries.

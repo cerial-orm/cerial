@@ -1,0 +1,89 @@
+/**
+ * E2E Tests: Composite Unique (Records) — error handling
+ *
+ * Schema: composite-unique-records.cerial
+ * Model: Registration with @@unique(attendeeWorkshop, [attendeeId, workshopId])
+ *
+ * Tests that duplicate composite key violations are rejected by the database,
+ * and that partial matches on the composite key do not violate the constraint.
+ */
+
+import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+import { setupIndexClient, CerialClient } from '../../../test-helper';
+
+describe('Composite Unique Records: errors', () => {
+  let client: CerialClient;
+
+  beforeEach(async () => {
+    client = await setupIndexClient();
+  });
+
+  afterEach(async () => {
+    await client.disconnect();
+  });
+
+  test('DB rejects duplicate attendeeId + workshopId combination', async () => {
+    const attendee = await client.db.Attendee.create({ data: { name: 'Alice' } });
+    const workshop = await client.db.Workshop.create({ data: { title: 'TypeScript 101' } });
+
+    await client.db.Registration.create({
+      data: { attendeeId: attendee.id, workshopId: workshop.id, role: 'student' },
+    });
+
+    // Same attendeeId + workshopId = composite unique violation
+    await expect(
+      (async () => {
+        await client.db.Registration.create({
+          data: { attendeeId: attendee.id, workshopId: workshop.id, role: 'instructor' },
+        });
+      })(),
+    ).rejects.toThrow();
+  });
+
+  test('allows same attendee with different workshop (not a violation)', async () => {
+    const attendee = await client.db.Attendee.create({ data: { name: 'Bob' } });
+    const workshop1 = await client.db.Workshop.create({ data: { title: 'TypeScript 101' } });
+    const workshop2 = await client.db.Workshop.create({ data: { title: 'Rust Basics' } });
+
+    await client.db.Registration.create({
+      data: { attendeeId: attendee.id, workshopId: workshop1.id, role: 'student' },
+    });
+
+    // Same attendeeId but different workshopId — should succeed
+    const result = await client.db.Registration.create({
+      data: { attendeeId: attendee.id, workshopId: workshop2.id, role: 'instructor' },
+    });
+
+    expect(result).toBeDefined();
+    expect(result.attendeeId.equals(attendee.id)).toBe(true);
+    expect(result.workshopId.equals(workshop2.id)).toBe(true);
+    expect(result.role).toBe('instructor');
+
+    // Verify both registrations exist
+    const count = await client.db.Registration.count();
+    expect(count).toBe(2);
+  });
+
+  test('allows same workshop with different attendee (not a violation)', async () => {
+    const attendee1 = await client.db.Attendee.create({ data: { name: 'Carol' } });
+    const attendee2 = await client.db.Attendee.create({ data: { name: 'Dave' } });
+    const workshop = await client.db.Workshop.create({ data: { title: 'GraphQL Workshop' } });
+
+    await client.db.Registration.create({
+      data: { attendeeId: attendee1.id, workshopId: workshop.id, role: 'student' },
+    });
+
+    // Same workshopId but different attendeeId — should succeed
+    const result = await client.db.Registration.create({
+      data: { attendeeId: attendee2.id, workshopId: workshop.id, role: 'student' },
+    });
+
+    expect(result).toBeDefined();
+    expect(result.attendeeId.equals(attendee2.id)).toBe(true);
+    expect(result.workshopId.equals(workshop.id)).toBe(true);
+
+    // Verify both registrations exist
+    const count = await client.db.Registration.count();
+    expect(count).toBe(2);
+  });
+});

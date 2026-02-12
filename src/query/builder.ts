@@ -35,6 +35,7 @@ import {
   buildFindManyQuery,
   buildFindOneQuery,
   buildFindUniqueQuery,
+  findCompositeUniqueKey,
   buildUpdateManyQuery,
   buildUpdateUniqueQuery,
   buildUpdateWithNestedTransaction,
@@ -209,8 +210,8 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     if (!whereValidation.valid)
       throw new Error(`Invalid where clause: ${whereValidation.errors.map((e) => e.message).join(', ')}`);
 
-    // Validate unique field requirement
-    const { hasId } = getRecordIdFromWhere(where, this.model, 'updateUnique');
+    // Validate unique field requirement and expand composite keys
+    const { hasId, expandedWhere } = getRecordIdFromWhere(where, this.model, 'updateUnique');
 
     // Extract nested operations from the data
     const { cleanData, nestedOps } = extractNestedOperations(data as Record<string, unknown>, this.model);
@@ -226,7 +227,13 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     // TODO: Add support for nested operations with updateUnique
     if (nestedOps.size > 0 && this.registry) {
       // For now, use updateMany with the same where clause and return first result
-      const query = buildUpdateWithNestedTransaction(this.model, where, transformedData, nestedOps, this.registry);
+      const query = buildUpdateWithNestedTransaction(
+        this.model,
+        expandedWhere,
+        transformedData,
+        nestedOps,
+        this.registry,
+      );
       const result = await executeQuery(this.db, query);
       const record = Array.isArray(result) ? result[0] : result;
 
@@ -234,6 +241,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     }
 
     // Build and execute the update query
+    // Pass original where — buildUpdateUniqueQuery does its own expansion internally
     const query = buildUpdateUniqueQuery(
       this.model,
       where,
@@ -330,8 +338,8 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     if (!validation.valid)
       throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
 
-    // Get record ID info (also validates unique field requirement)
-    const { hasId, id } = getRecordIdFromWhere(where, this.model, 'deleteUnique');
+    // Get record ID info (also validates unique field requirement) and expand composite keys
+    const { hasId, id, expandedWhere } = getRecordIdFromWhere(where, this.model, 'deleteUnique');
 
     // Determine if we need RETURN BEFORE (for 'true' and 'before' options)
     const needsReturnBefore = returnOption === true || returnOption === 'before';
@@ -341,6 +349,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
 
     if (this.registry) {
       // With registry - use cascade builder (handles both ID and non-ID lookups)
+      // Pass original where — buildDeleteUniqueWithCascade does its own expansion internally
       const query = buildDeleteUniqueWithCascade(this.model, where, this.registry, needsReturnBefore);
       result = (await executeQuery(this.db, query)) as unknown[];
     } else if (hasId) {
@@ -350,8 +359,8 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     } else {
       // Non-ID lookup without cascade - use simple WHERE-based delete
       const query = needsReturnBefore
-        ? buildDeleteQueryWithReturn(this.model, where)
-        : buildDeleteQuery(this.model, where);
+        ? buildDeleteQueryWithReturn(this.model, expandedWhere)
+        : buildDeleteQuery(this.model, expandedWhere);
       result = (await executeQuery(this.db, query)) as unknown[];
     }
 
@@ -453,7 +462,8 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     const hasId = !!(idField && where[idField.name] !== undefined && where[idField.name] !== null);
     const uniqueFields = this.model.fields.filter((f) => f.isUnique && !f.isId);
     const whereKeys = Object.keys(where).filter((k) => k !== 'AND' && k !== 'OR' && k !== 'NOT');
-    const hasUniqueField = whereKeys.some((key) => uniqueFields.some((f) => f.name === key));
+    const hasUniqueField =
+      whereKeys.some((key) => uniqueFields.some((f) => f.name === key)) || !!findCompositeUniqueKey(where, this.model);
     const isSingle = hasId || hasUniqueField;
 
     // Check for nested operations that need transaction handling
@@ -719,7 +729,7 @@ export function compileUpdateUnique(
   if (!whereValidation.valid)
     throw new Error(`Invalid where clause: ${whereValidation.errors.map((e) => e.message).join(', ')}`);
 
-  const { hasId } = getRecordIdFromWhere(where, model, 'updateUnique');
+  const { hasId, expandedWhere } = getRecordIdFromWhere(where, model, 'updateUnique');
 
   const { cleanData, nestedOps } = extractNestedOperations(data, model);
   const transformedData = transformData(cleanData, model);
@@ -729,7 +739,7 @@ export function compileUpdateUnique(
 
   if (nestedOps.size > 0 && registry) {
     return {
-      query: buildUpdateWithNestedTransaction(model, where, transformedData, nestedOps, registry),
+      query: buildUpdateWithNestedTransaction(model, expandedWhere, transformedData, nestedOps, registry),
       resultType: 'array',
       hasId,
       returnOption,
@@ -737,6 +747,7 @@ export function compileUpdateUnique(
   }
 
   return {
+    // Pass original where — buildUpdateUniqueQuery does its own expansion internally
     query: buildUpdateUniqueQuery(model, where, transformedData, returnOption ?? undefined, select, include, registry),
     resultType: hasId ? 'single' : 'array',
     hasId,
@@ -779,16 +790,19 @@ export function compileDeleteUnique(
   const validation = validateWhere(where, model);
   if (!validation.valid) throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
 
-  const { hasId, id } = getRecordIdFromWhere(where, model, 'deleteUnique');
+  const { hasId, id, expandedWhere } = getRecordIdFromWhere(where, model, 'deleteUnique');
   const needsReturnBefore = returnOption === true || returnOption === 'before';
 
   let query: CompiledQuery;
   if (registry) {
+    // Pass original where — buildDeleteUniqueWithCascade does its own expansion internally
     query = buildDeleteUniqueWithCascade(model, where, registry, needsReturnBefore);
   } else if (hasId) {
     query = buildDeleteUniqueQuery(model, id!, needsReturnBefore);
   } else {
-    query = needsReturnBefore ? buildDeleteQueryWithReturn(model, where) : buildDeleteQuery(model, where);
+    query = needsReturnBefore
+      ? buildDeleteQueryWithReturn(model, expandedWhere)
+      : buildDeleteQuery(model, expandedWhere);
   }
 
   // Determine result type based on return option
@@ -887,7 +901,8 @@ export function compileUpsert(
   const hasId = !!(idField && where[idField.name] !== undefined && where[idField.name] !== null);
   const uniqueFields = model.fields.filter((f) => f.isUnique && !f.isId);
   const whereKeys = Object.keys(where).filter((k) => k !== 'AND' && k !== 'OR' && k !== 'NOT');
-  const hasUniqueField = whereKeys.some((key) => uniqueFields.some((f) => f.name === key));
+  const hasUniqueField =
+    whereKeys.some((key) => uniqueFields.some((f) => f.name === key)) || !!findCompositeUniqueKey(where, model);
   const isSingle = hasId || hasUniqueField;
 
   const query = buildUpsertQuery(

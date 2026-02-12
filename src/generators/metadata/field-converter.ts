@@ -17,6 +17,7 @@ export function convertField(field: ASTField): FieldMetadata {
     type: field.type,
     isId,
     isUnique: isId || hasDecorator(field, 'unique'),
+    isIndexed: hasDecorator(field, 'index'),
     hasNowDefault: hasNow,
     isRequired: !isId && !hasNow && !field.isOptional,
     defaultValue: defaultDecorator?.value,

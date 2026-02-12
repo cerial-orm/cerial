@@ -25,6 +25,7 @@ import { createCompileContext, type FilterCompileContext } from '../compile/var-
 import { transformWhereClause } from '../filters/transformer';
 import { transformOrValidateRecordId } from '../transformers';
 import { getRecordIdFromWhere } from './delete-builder';
+import { expandCompositeKey, findCompositeUniqueKey } from './select-builder';
 import {
   buildCreateWithNestedTransaction,
   buildUpdateWithNestedTransaction,
@@ -238,13 +239,13 @@ export function buildUpsertIdQuery(
   const ctx = createCompileContext();
   const vars: Record<string, unknown> = {};
 
-  // Extract ID from where
-  const { id } = getRecordIdFromWhere(where, model, 'upsert');
+  // Extract ID from where (and expand composite keys)
+  const { id, expandedWhere } = getRecordIdFromWhere(where, model, 'upsert');
   const recordId = transformOrValidateRecordId(model.tableName, id!);
 
-  // Build additional WHERE filters (non-id fields)
+  // Build additional WHERE filters (non-id fields) using expanded where
   const idField = model.fields.find((f) => f.isId);
-  const whereWithoutId = { ...where };
+  const whereWithoutId = { ...expandedWhere };
   if (idField) delete whereWithoutId[idField.name];
   const hasAdditionalWhere = Object.keys(whereWithoutId).length > 0;
   let additionalWhereClause: CompiledQuery | null = null;
@@ -338,9 +339,13 @@ function checkForIdInWhere(where: WhereClause, model: ModelMetadata): { hasId: b
 }
 
 /**
- * Check if where clause contains at least one unique field (excluding id).
+ * Check if where clause contains at least one unique field (excluding id)
+ * or a composite unique key.
  */
 function checkForUniqueFieldInWhere(where: WhereClause, model: ModelMetadata): boolean {
+  // Check for composite unique keys
+  if (findCompositeUniqueKey(where, model)) return true;
+
   const uniqueFields = model.fields.filter((f) => f.isUnique && !f.isId);
   const whereKeys = Object.keys(where).filter((k) => k !== 'AND' && k !== 'OR' && k !== 'NOT');
 
@@ -376,12 +381,15 @@ export function buildUpsertQuery(
     return buildUpsertIdQuery(model, where, createData, updateData, returnOption, select, include, registry);
   }
 
+  // Expand composite keys for WHERE-based path
+  const expandedWhere = expandCompositeKey(where, model);
+
   // Check for unique fields in where clause to determine ONLY usage
   const hasUniqueField = checkForUniqueFieldInWhere(where, model);
 
   return buildUpsertWhereQuery(
     model,
-    where,
+    expandedWhere,
     createData,
     updateData,
     hasUniqueField,

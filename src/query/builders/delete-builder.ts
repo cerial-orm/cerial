@@ -12,7 +12,7 @@ import type { CompiledQuery } from '../compile/types';
 import type { ModelMetadata, ModelRegistry, OnDeleteAction, WhereClause } from '../../types';
 import { transformWhereClause } from '../filters/transformer';
 import { transformOrValidateRecordId } from '../transformers';
-import { validateUniqueField } from './select-builder';
+import { expandCompositeKey, validateUniqueField } from './select-builder';
 import { getUniqueFields } from '../../parser/model-metadata';
 
 /** Build DELETE query */
@@ -217,32 +217,40 @@ export function buildDeleteWithCascade(
 
 /**
  * Extract record ID from where clause for unique operations
- * Validates that at least one unique field is present and returns the ID if available
+ * Validates that at least one unique field is present and returns the ID if available.
+ * Also expands composite unique keys and returns the expanded where clause.
  */
 export function getRecordIdFromWhere(
   where: WhereClause,
   model: ModelMetadata,
   methodName = 'deleteUnique',
-): { hasId: boolean; id?: string; idFieldName?: string } {
+): { hasId: boolean; id?: string; idFieldName?: string; expandedWhere: WhereClause } {
   // Validate unique field requirement
   validateUniqueField(where, model, methodName);
 
+  // Expand composite unique keys
+  const expandedWhere = expandCompositeKey(where, model);
+
   const idField = model.fields.find((f) => f.isId);
-  if (idField && where[idField.name] !== undefined && where[idField.name] !== null) {
+  if (idField && expandedWhere[idField.name] !== undefined && expandedWhere[idField.name] !== null) {
     return {
       hasId: true,
-      id: where[idField.name] as string,
+      id: expandedWhere[idField.name] as string,
       idFieldName: idField.name,
+      expandedWhere,
     };
   }
 
   // Check for other unique fields that could identify the record
   const uniqueFields = getUniqueFields(model);
-  const providedUniqueField = uniqueFields.find((f) => where[f.name] !== undefined && where[f.name] !== null);
+  const providedUniqueField = uniqueFields.find(
+    (f) => expandedWhere[f.name] !== undefined && expandedWhere[f.name] !== null,
+  );
 
   return {
     hasId: false,
     idFieldName: providedUniqueField?.name,
+    expandedWhere,
   };
 }
 
@@ -288,7 +296,7 @@ export function buildDeleteUniqueWithCascade(
   registry: ModelRegistry,
   returnBefore: boolean,
 ): CompiledQuery {
-  const { hasId, id, idFieldName } = getRecordIdFromWhere(where, model);
+  const { hasId, id, idFieldName, expandedWhere } = getRecordIdFromWhere(where, model);
 
   // Find dependent relations
   const dependents = findDependentRelations(model.name, registry);
@@ -300,7 +308,7 @@ export function buildDeleteUniqueWithCascade(
     if (hasId) return buildDeleteUniqueQuery(model, id!, returnBefore);
 
     // Non-ID lookup without cascade - use simple WHERE-based delete
-    return returnBefore ? buildDeleteQueryWithReturn(model, where) : buildDeleteQuery(model, where);
+    return returnBefore ? buildDeleteQueryWithReturn(model, expandedWhere) : buildDeleteQuery(model, expandedWhere);
   }
 
   // Build transaction
@@ -314,7 +322,7 @@ export function buildDeleteUniqueWithCascade(
     statements.push('LET $deleteId = $deleteId');
   } else {
     // Look up record by unique field - need to handle case where record doesn't exist
-    const lookupQuery = buildFindIdByUniqueFieldQuery(model, where);
+    const lookupQuery = buildFindIdByUniqueFieldQuery(model, expandedWhere);
     Object.assign(vars, lookupQuery.vars);
     statements.push(`LET $record = (${lookupQuery.text})`);
     // If record doesn't exist, return empty array

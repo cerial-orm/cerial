@@ -286,6 +286,42 @@ function buildObjectConditionForClosure(
   return joinFragments(conditions, ' AND ');
 }
 
+/**
+ * Resolve a dot-notation field path to a FieldMetadata.
+ * For example, "address.city" resolves through the "address" object field to its "city" sub-field.
+ * Returns the leaf field metadata if found, or undefined if the path is invalid.
+ */
+function resolveDotNotationField(dotPath: string, model: ModelMetadata): FieldMetadata | undefined {
+  const parts = dotPath.split('.');
+  if (parts.length < 2) return undefined;
+
+  // Find the root field
+  const rootField = model.fields.find((f) => f.name === parts[0]);
+  if (!rootField || rootField.type !== 'object' || !rootField.objectInfo) return undefined;
+
+  // Walk the object info tree
+  let currentObjectInfo: ObjectFieldMetadata | undefined = rootField.objectInfo;
+  let resolvedField: FieldMetadata | undefined;
+
+  for (let i = 1; i < parts.length; i++) {
+    if (!currentObjectInfo) return undefined;
+
+    const subField: FieldMetadata | undefined = currentObjectInfo.fields.find((f) => f.name === parts[i]);
+    if (!subField) return undefined;
+
+    if (i === parts.length - 1) {
+      // Last part: this is the target field
+      resolvedField = subField;
+    } else {
+      // Intermediate: must be an object field
+      if (subField.type !== 'object' || !subField.objectInfo) return undefined;
+      currentObjectInfo = subField.objectInfo;
+    }
+  }
+
+  return resolvedField;
+}
+
 /** Build conditions from a where clause */
 export function buildConditions(
   ctx: FilterCompileContext,
@@ -318,7 +354,18 @@ export function buildConditions(
     }
 
     // Find field metadata
-    const fieldMetadata = model.fields.find((f) => f.name === key);
+    let fieldMetadata = model.fields.find((f) => f.name === key);
+
+    // Handle dot-notation keys from expanded composite directives (e.g., "address.city")
+    if (!fieldMetadata && key.includes('.')) {
+      const resolvedField = resolveDotNotationField(key, model);
+      if (resolvedField) {
+        // Build a direct equality condition using the dot-notation path as the field name
+        conditions.push(buildDirectCondition(ctx, key, value, resolvedField, model));
+        continue;
+      }
+    }
+
     if (!fieldMetadata) {
       // Skip unknown fields
       continue;

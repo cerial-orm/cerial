@@ -7,6 +7,7 @@ export {
   createPosition,
   createRange,
   createDecorator,
+  createCompositeDirective,
   createField,
   createModel,
   createObject,
