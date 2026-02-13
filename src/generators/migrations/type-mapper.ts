@@ -2,7 +2,15 @@
  * Type mapper for converting schema types to SurrealQL types
  */
 
-import type { FieldMetadata, ModelMetadata, SchemaFieldType } from '../../types';
+import type {
+  FieldMetadata,
+  ModelMetadata,
+  ObjectRegistry,
+  SchemaFieldType,
+  TupleElementMetadata,
+  TupleFieldMetadata,
+  TupleRegistry,
+} from '../../types';
 
 /** SurrealQL type string */
 export type SurrealQLType = 'string' | 'int' | 'float' | 'bool' | 'datetime' | 'uuid' | 'record' | 'array' | 'object';
@@ -18,6 +26,7 @@ const TYPE_MAP: Record<SchemaFieldType, SurrealQLType> = {
   record: 'record',
   relation: 'string', // Virtual type - should not be used directly
   object: 'object', // Embedded object type
+  tuple: 'array', // Tuple type - actual type is literal array [type1, type2, ...]
 };
 
 /** Schema types that require additional assertions */
@@ -64,6 +73,7 @@ export function generateTypeClause(
   isRequired: boolean,
   field?: FieldMetadata,
   model?: ModelMetadata,
+  tupleRegistry?: TupleRegistry,
 ): string {
   // Handle Record types with target table
   if (schemaType === 'record' && field && model) {
@@ -93,6 +103,17 @@ export function generateTypeClause(
     return 'TYPE option<record | null>';
   }
 
+  // Handle tuple types — emit typed array literal [type1, type2, ...]
+  if (schemaType === 'tuple' && field?.tupleInfo) {
+    const tupleLiteral = generateTupleSurrealTypeLiteral(field.tupleInfo, tupleRegistry);
+
+    if (field.isArray) return `TYPE array<${tupleLiteral}>`;
+    if (isRequired) return `TYPE ${tupleLiteral}`;
+
+    // Optional tuples don't support null — only NONE (absent) or a valid tuple value
+    return `TYPE option<${tupleLiteral}>`;
+  }
+
   // Handle primitive array types (String[], Int[], Date[], etc.)
   if (field?.isArray) {
     const surrealType = mapToSurrealType(schemaType);
@@ -103,13 +124,44 @@ export function generateTypeClause(
   // For optional fields: option<T | null> allows both NONE and null
   // - NONE: field is absent (user passes undefined)
   // - null: field exists with null value (user passes null)
-  // Exception: object fields don't support null (only NONE or object value)
+  // Exception: object and tuple fields don't support null (only NONE or value)
   const surrealType = mapToSurrealType(schemaType);
   if (isRequired) return `TYPE ${surrealType}`;
 
   if (schemaType === 'object') return `TYPE option<${surrealType}>`;
 
   return `TYPE option<${surrealType} | null>`;
+}
+
+/**
+ * Generate the SurrealDB type literal for a tuple element.
+ * Handles primitives, objects, and nested tuples recursively.
+ */
+function generateTupleElementSurrealType(element: TupleElementMetadata, tupleRegistry?: TupleRegistry): string {
+  let baseType: string;
+
+  if (element.type === 'tuple' && element.tupleInfo && tupleRegistry) {
+    // Nested tuple: recurse to build [type1, type2, ...]
+    baseType = generateTupleSurrealTypeLiteral(element.tupleInfo, tupleRegistry);
+  } else if (element.type === 'object') {
+    baseType = 'object';
+  } else {
+    baseType = mapToSurrealType(element.type);
+  }
+
+  if (element.isOptional) return `option<${baseType}>`;
+
+  return baseType;
+}
+
+/**
+ * Generate the SurrealDB typed array literal for a tuple: [float, float]
+ * This is used in DEFINE FIELD TYPE clauses.
+ */
+export function generateTupleSurrealTypeLiteral(tupleInfo: TupleFieldMetadata, tupleRegistry?: TupleRegistry): string {
+  const elementTypes = tupleInfo.elements.map((e) => generateTupleElementSurrealType(e, tupleRegistry));
+
+  return `[${elementTypes.join(', ')}]`;
 }
 
 /** Generate the ASSERT clause for a field, if any */

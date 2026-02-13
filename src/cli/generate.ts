@@ -3,11 +3,18 @@
  */
 
 import { writeClient } from '../generators/client/writer';
-import { convertModels, convertObjects, createObjectRegistry, resolveObjectFields } from '../generators/metadata';
+import {
+  convertModels,
+  convertObjects,
+  convertTuples,
+  createObjectRegistry,
+  createTupleRegistry,
+  resolveObjectFields,
+} from '../generators/metadata';
 import { writeInternalIndex, writeModelRegistry } from '../generators/metadata/writer';
 import { writeMigrationFile } from '../generators/migrations/writer';
-import { collectObjectNames, parse } from '../parser/parser';
-import type { ASTModel, ASTObject } from '../types';
+import { collectObjectNames, collectTupleNames, parse } from '../parser/parser';
+import type { ASTModel, ASTObject, ASTTuple } from '../types';
 import { resolveSchemas, resolveSinglePath } from './resolvers';
 import { logger } from './utils';
 import type { CLIOptions } from './validators';
@@ -69,22 +76,28 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
       }),
     );
 
-    // Two-pass parsing: first collect all object names across all files
+    // Two-pass parsing: first collect all object and tuple names across all files
     const allObjectNames = new Set<string>();
+    const allTupleNames = new Set<string>();
     for (const { content } of schemaContents) {
-      const names = collectObjectNames(content);
-      for (const name of names) {
+      const objNames = collectObjectNames(content);
+      for (const name of objNames) {
         allObjectNames.add(name);
+      }
+      const tupNames = collectTupleNames(content);
+      for (const name of tupNames) {
+        allTupleNames.add(name);
       }
     }
 
-    // Second pass: parse each schema with full object name context
+    // Second pass: parse each schema with full object and tuple name context
     const allModels: ASTModel[] = [];
     const allObjects: ASTObject[] = [];
+    const allTuples: ASTTuple[] = [];
     const parseErrors: string[] = [];
 
     for (const { path, content } of schemaContents) {
-      const parseResult = parse(content, allObjectNames);
+      const parseResult = parse(content, allObjectNames, allTupleNames);
 
       if (parseResult.errors.length) {
         for (const error of parseResult.errors) {
@@ -95,6 +108,7 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
 
       allModels.push(...parseResult.ast.models);
       allObjects.push(...parseResult.ast.objects);
+      allTuples.push(...parseResult.ast.tuples);
     }
 
     // Check for parse errors before validation
@@ -106,8 +120,8 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
       return result;
     }
 
-    // Validate combined schema (all models and objects together)
-    const combinedAST = { models: allModels, objects: allObjects, source: '' };
+    // Validate combined schema (all models, objects, and tuples together)
+    const combinedAST = { models: allModels, objects: allObjects, tuples: allTuples, source: '' };
     const validation = validateSchema(combinedAST);
     if (!validation.valid) {
       for (const error of validation.errors) {
@@ -130,39 +144,46 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
     }
 
     const objectCount = allObjects.length;
-    logger.info(`Found ${allModels.length} model(s)${objectCount ? ` and ${objectCount} object(s)` : ''}`);
+    const tupleCount = allTuples.length;
+    const extraInfo = [objectCount ? `${objectCount} object(s)` : '', tupleCount ? `${tupleCount} tuple(s)` : '']
+      .filter(Boolean)
+      .join(' and ');
+    logger.info(`Found ${allModels.length} model(s)${extraInfo ? ` and ${extraInfo}` : ''}`);
 
     // Convert to metadata
     const models = convertModels(allModels);
     const objects = convertObjects(allObjects);
+    const tuples = convertTuples(allTuples);
 
-    // Resolve inline object fields (populate objectInfo.fields for runtime query building)
-    if (objects.length) {
-      const objRegistry = createObjectRegistry(objects);
-      resolveObjectFields(models, objects, objRegistry);
+    // Resolve inline object and tuple fields (populate objectInfo.fields / tupleInfo.elements for runtime query building)
+    const objRegistry = objects.length ? createObjectRegistry(objects) : undefined;
+    const tupRegistry = tuples.length ? createTupleRegistry(tuples) : undefined;
+    if (objects.length || tuples.length) {
+      resolveObjectFields(models, objects, objRegistry ?? {}, tupRegistry);
     }
 
     // Generate files
     logger.progress('Generating files...');
 
-    // Write model registry (includes object registry if objects exist)
-    const registryPath = await writeModelRegistry(outputDir, models, objects);
+    // Write model registry (includes object and tuple registries if they exist)
+    const registryPath = await writeModelRegistry(outputDir, models, objects, tuples);
     result.files.push(registryPath);
     if (logLevel === 'full') logger.fileCreated(registryPath);
 
-    // Write migration file (pass object registry for sub-field DEFINE statements)
-    const objectRegistry = objects.length ? createObjectRegistry(objects) : undefined;
-    const migrationPath = await writeMigrationFile(outputDir, models, objectRegistry);
+    // Write migration file (pass object/tuple registries for sub-field DEFINE statements)
+    const objectRegistry = objRegistry;
+    const tupleRegistry = tupRegistry;
+    const migrationPath = await writeMigrationFile(outputDir, models, objectRegistry, tupleRegistry);
     result.files.push(migrationPath);
     if (logLevel === 'full') logger.fileCreated(migrationPath);
 
     // Write internal index
-    const internalIndexPath = await writeInternalIndex(outputDir, objects.length > 0);
+    const internalIndexPath = await writeInternalIndex(outputDir, objects.length > 0, tuples.length > 0);
     result.files.push(internalIndexPath);
     if (logLevel === 'full') logger.fileCreated(internalIndexPath);
 
-    // Write client files (including object type files)
-    const clientFiles = await writeClient(outputDir, models, objects, objectRegistry);
+    // Write client files (including object and tuple type files)
+    const clientFiles = await writeClient(outputDir, models, objects, tuples, objectRegistry, tupleRegistry);
     result.files.push(...clientFiles);
     if (logLevel === 'full') clientFiles.forEach((f) => logger.fileCreated(f));
 

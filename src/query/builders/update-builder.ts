@@ -94,13 +94,19 @@ export function buildUpdateManyQuery(
       continue;
     }
 
+    // Handle null values for optional tuple fields - use NONE (tuples don't support null)
+    if (value === null && fieldMetadata?.type === 'tuple' && !fieldMetadata.isRequired) {
+      setParts.push(`${field} = NONE`);
+      continue;
+    }
+
     // Handle object fields with merge/set/array operations
     if (fieldMetadata?.type === 'object' && fieldMetadata.objectInfo) {
       buildObjectUpdateClauses(ctx, field, value, fieldMetadata, setParts, setVars);
       continue;
     }
 
-    // Handle array Record[] fields with push/unset operations
+    // Handle array fields with push/unset/set operations (covers Record[], Tuple[], primitives)
     if (fieldMetadata && isArrayField(fieldMetadata) && (Array.isArray(value) || isArrayUpdateOps(value))) {
       const arrayUpdate = buildArrayUpdateClause(ctx, field, value, fieldMetadata);
       if (arrayUpdate.clause) {
@@ -359,13 +365,19 @@ function buildSetClause(
       continue;
     }
 
+    // Handle null values for optional tuple fields - use NONE (tuples don't support null)
+    if (value === null && fieldMetadata?.type === 'tuple' && !fieldMetadata.isRequired) {
+      setParts.push(`${field} = NONE`);
+      continue;
+    }
+
     // Handle object fields with merge/set/array operations
     if (fieldMetadata?.type === 'object' && fieldMetadata.objectInfo) {
       buildObjectUpdateClauses(ctx, field, value, fieldMetadata, setParts, setVars);
       continue;
     }
 
-    // Handle array Record[] fields with push/unset operations
+    // Handle array fields with push/unset/set operations (covers Record[], Tuple[], primitives)
     if (fieldMetadata && isArrayField(fieldMetadata) && (Array.isArray(value) || isArrayUpdateOps(value))) {
       const arrayUpdate = buildArrayUpdateClause(ctx, field, value, fieldMetadata);
       if (arrayUpdate.clause) {

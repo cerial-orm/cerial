@@ -70,7 +70,9 @@ export function schemaTypeToTsType(type: SchemaFieldType): string {
     record: 'string',
     relation: 'unknown', // Virtual type - actual type determined by include
     object: 'unknown', // Embedded object type - actual type determined by object definition
+    tuple: 'unknown[]', // Tuple type - actual element types determined by tuple definition
   };
+
   return typeMap[type];
 }
 
@@ -86,7 +88,9 @@ export function schemaTypeToSurrealType(type: SchemaFieldType): string {
     record: 'record',
     relation: '', // Virtual type - not stored in database
     object: 'object', // Embedded object type
+    tuple: 'array', // Tuple type - stored as typed array literal
   };
+
   return typeMap[type];
 }
 

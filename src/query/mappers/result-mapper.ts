@@ -3,7 +3,7 @@
  */
 
 import type { RecordId } from 'surrealdb';
-import type { ModelMetadata, ObjectFieldMetadata, SchemaFieldType } from '../../types';
+import type { ModelMetadata, ObjectFieldMetadata, SchemaFieldType, TupleFieldMetadata } from '../../types';
 import { CerialId } from '../../utils/cerial-id';
 
 /** Check if value is a RecordId-like object */
@@ -179,6 +179,18 @@ function mapObjectRecord(obj: Record<string, unknown>, objectInfo: ObjectFieldMe
       continue;
     }
 
+    // Tuple field in objects
+    if (field.type === 'tuple' && field.tupleInfo) {
+      if (field.isArray && Array.isArray(value)) {
+        result[key] = value.map((item) => (Array.isArray(item) ? mapTupleRecord(item, field.tupleInfo!) : item));
+      } else if (Array.isArray(value)) {
+        result[key] = mapTupleRecord(value, field.tupleInfo);
+      } else {
+        result[key] = value;
+      }
+      continue;
+    }
+
     // Array fields
     if (field.isArray && Array.isArray(value)) {
       result[key] = value.map((element) => mapFieldValue(element, field.type));
@@ -187,6 +199,33 @@ function mapObjectRecord(obj: Record<string, unknown>, objectInfo: ObjectFieldMe
 
     // Standard fields
     result[key] = mapFieldValue(value, field.type);
+  }
+
+  return result;
+}
+
+/**
+ * Map a tuple result array from SurrealDB using tupleInfo element definitions.
+ * Handles object elements, nested tuple elements, record elements (RecordId → CerialId), and primitives.
+ */
+function mapTupleRecord(arr: unknown[], tupleInfo: TupleFieldMetadata): unknown[] {
+  const result = [...arr];
+
+  for (const element of tupleInfo.elements) {
+    const value = result[element.index];
+    if (value === null || value === undefined) continue;
+
+    if (element.type === 'object' && element.objectInfo) {
+      if (typeof value === 'object' && !Array.isArray(value)) {
+        result[element.index] = mapObjectRecord(value as Record<string, unknown>, element.objectInfo);
+      }
+    } else if (element.type === 'tuple' && element.tupleInfo) {
+      if (Array.isArray(value)) {
+        result[element.index] = mapTupleRecord(value, element.tupleInfo);
+      }
+    } else {
+      result[element.index] = mapFieldValue(value, element.type);
+    }
   }
 
   return result;
@@ -225,6 +264,17 @@ export function mapRecord(record: Record<string, unknown>, model: ModelMetadata)
           );
         } else if (typeof value === 'object') {
           result[key] = mapObjectRecord(value as Record<string, unknown>, field.objectInfo);
+        } else {
+          result[key] = value;
+        }
+      } else if (field.type === 'tuple' && field.tupleInfo) {
+        // Handle tuple fields - map each element by type
+        if (value === null || value === undefined) {
+          result[key] = null;
+        } else if (field.isArray && Array.isArray(value)) {
+          result[key] = value.map((item) => (Array.isArray(item) ? mapTupleRecord(item, field.tupleInfo!) : item));
+        } else if (Array.isArray(value)) {
+          result[key] = mapTupleRecord(value, field.tupleInfo);
         } else {
           result[key] = value;
         }

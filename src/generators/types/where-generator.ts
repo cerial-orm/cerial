@@ -251,6 +251,19 @@ export function generateWhereInterface(model: ModelMetadata, registry?: ModelReg
         if (jsDoc) fields.push(jsDoc);
         fields.push(`  ${field.name}?: ${objectWhere}${flexSuffix};`);
       }
+    } else if (field.type === 'tuple' && field.tupleInfo) {
+      // Tuple fields get nested tuple where type
+      const tupleWhere = `${field.tupleInfo.tupleName}Where`;
+
+      if (field.isArray) {
+        // Array of tuples: some/every/none operators
+        if (jsDoc) fields.push(jsDoc);
+        fields.push(`  ${field.name}?: { some?: ${tupleWhere}; every?: ${tupleWhere}; none?: ${tupleWhere}; };`);
+      } else {
+        // Single tuple - tuple fields don't support null, only NONE (absent)
+        if (jsDoc) fields.push(jsDoc);
+        fields.push(`  ${field.name}?: ${tupleWhere};`);
+      }
     } else {
       const whereType = generateFieldWhereType(field, registry);
       if (whereType) {

@@ -464,9 +464,12 @@ ${relationFieldTypes}
 /** Generate Update type (all fields partial except id) with array operations for all array types */
 export function generateUpdateType(model: ModelMetadata): string {
   const idField = model.fields.find((f) => f.isId);
-  const arrayFields = model.fields.filter((f) => f.isArray && f.type !== 'relation' && f.type !== 'object');
+  const arrayFields = model.fields.filter(
+    (f) => f.isArray && f.type !== 'relation' && f.type !== 'object' && f.type !== 'tuple',
+  );
   const relationFields = model.fields.filter((f) => f.type === 'relation');
   const objectFields = model.fields.filter((f) => f.type === 'object' && f.objectInfo);
+  const tupleFields = model.fields.filter((f) => f.type === 'tuple' && f.tupleInfo);
   const inputType = `${model.name}Input`;
 
   // @now fields are COMPUTED (not stored) — excluded from update input
@@ -485,9 +488,9 @@ export function generateUpdateType(model: ModelMetadata): string {
     ...readonlyFields.map((f) => f.name),
   ];
 
-  // Fields that need special handling (arrays and objects) — omit from base Partial
+  // Fields that need special handling (arrays, objects, and tuples) — omit from base Partial
   // Exclude @readonly fields from special handling — they're already excluded from update entirely
-  const specialFields = [...arrayFields, ...objectFields].filter((f) => !f.isReadonly);
+  const specialFields = [...arrayFields, ...objectFields, ...tupleFields].filter((f) => !f.isReadonly);
   const hasSpecialFields = specialFields.length > 0;
 
   if (!hasSpecialFields) {
@@ -584,6 +587,26 @@ export function generateUpdateType(model: ModelMetadata): string {
     }
   }
 
+  // Tuple fields (skip @readonly — already excluded from update)
+  for (const f of tupleFields.filter((tf) => !tf.isReadonly)) {
+    const tupleName = f.tupleInfo!.tupleName;
+    const tupleInputName = `${tupleName}Input`;
+
+    if (f.isArray) {
+      // Array of tuples: full replace, push, set
+      specialFieldTypes.push(`  ${f.name}?: ${tupleInputName}[] | {
+    push?: ${tupleInputName} | ${tupleInputName}[];
+    set?: ${tupleInputName}[];
+  };`);
+    } else if (f.isRequired) {
+      // Required single tuple: full replace only (tuples are positional, no partial merge)
+      specialFieldTypes.push(`  ${f.name}?: ${tupleInputName};`);
+    } else {
+      // Optional single tuple: full replace or null (null → NONE at runtime)
+      specialFieldTypes.push(`  ${f.name}?: ${tupleInputName} | null;`);
+    }
+  }
+
   return `export type ${model.name}Update = ${baseType} & {
 ${specialFieldTypes.join('\n')}
 };`;
@@ -650,6 +673,9 @@ export function generateOrderByType(model: ModelMetadata): string {
     } else if (field.type === 'object' && field.objectInfo) {
       // Object fields support nested ordering (e.g., orderBy: { address: { city: 'asc' } })
       fields.push(`  ${field.name}?: ${field.objectInfo.objectName}OrderBy;`);
+    } else if (field.type === 'tuple') {
+      // Tuple fields do not support ordering — skip
+      continue;
     } else {
       fields.push(`  ${field.name}?: 'asc' | 'desc';`);
     }

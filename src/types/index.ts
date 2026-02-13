@@ -44,6 +44,10 @@ export type {
   ObjectMetadata,
   ObjectRegistry,
   RelationFieldMetadata,
+  TupleElementMetadata,
+  TupleFieldMetadata,
+  TupleMetadata,
+  TupleRegistry,
 } from './metadata.types';
 
 // Parser types
@@ -53,6 +57,8 @@ export type {
   ASTField,
   ASTModel,
   ASTObject,
+  ASTTuple,
+  ASTTupleElement,
   Lexeme,
   LexemeType,
   ParseError,

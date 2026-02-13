@@ -9,11 +9,15 @@ import type {
   ModelRegistry,
   ObjectMetadata,
   ObjectRegistry,
+  TupleElementMetadata,
+  TupleFieldMetadata,
+  TupleRegistry,
 } from '../../types';
 import {
   generateAssertClause,
   generateComputedClause,
   generateDefaultClause,
+  generateTupleSurrealTypeLiteral,
   generateTypeClause,
   generateValueClause,
   mapToSurrealType,
@@ -71,6 +75,7 @@ export function generateDefineField(
   tableName: string,
   model: ModelMetadata,
   options: DefineFieldOptions = {},
+  tupleRegistry?: TupleRegistry,
 ): string {
   const opts = { ...DEFAULT_FIELD_OPTIONS, ...options };
 
@@ -98,8 +103,8 @@ export function generateDefineField(
     return parts.join(' ') + ';';
   }
 
-  // Add TYPE clause (pass field and model for Record type handling)
-  parts.push(generateTypeClause(field.type, field.isRequired, field, model));
+  // Add TYPE clause (pass field and model for Record type handling, tupleRegistry for tuple type literals)
+  parts.push(generateTypeClause(field.type, field.isRequired, field, model, tupleRegistry));
 
   // Add FLEXIBLE for @flexible object fields — allows arbitrary extra fields alongside defined sub-fields
   if (field.isFlexible && field.type === 'object') {
@@ -420,12 +425,138 @@ function objectHasCycles(
   return false;
 }
 
+/**
+ * Generate DEFINE FIELD statements for tuple sub-elements (recursive).
+ * Each sub-element uses index notation: parentPath[N]
+ * For nested tuples: parentPath[N][M]
+ * For object elements: parentPath[N].fieldName
+ *
+ * @param fieldPath - The path prefix (e.g., "coords" or "data[1]")
+ * @param tableName - The table name for ON TABLE clause
+ * @param tupleInfo - The tuple metadata whose elements we're defining
+ * @param tupleRegistry - Registry of all tuples (for nested tuple resolution)
+ * @param objectRegistry - Registry of all objects (for object element resolution)
+ * @param options - DEFINE FIELD options
+ * @param visited - Set of tuple/object names already visited (cycle detection)
+ */
+export function generateTupleFieldDefines(
+  fieldPath: string,
+  tableName: string,
+  tupleInfo: TupleFieldMetadata,
+  tupleRegistry: TupleRegistry,
+  objectRegistry: ObjectRegistry,
+  options: DefineFieldOptions = {},
+  visited: Set<string> = new Set(),
+): string[] {
+  const opts = { ...DEFAULT_FIELD_OPTIONS, ...options };
+  const statements: string[] = [];
+
+  for (const element of tupleInfo.elements) {
+    const elementPath = `${fieldPath}[${element.index}]`;
+
+    if (element.type === 'tuple' && element.tupleInfo) {
+      // Nested tuple element — define with tuple type literal
+      const nestedTupleName = element.tupleInfo.tupleName;
+
+      // Cycle detection
+      if (visited.has(`tuple:${nestedTupleName}`)) {
+        // Self-referencing tuple — SurrealDB can't handle infinite depth, skip sub-definitions
+        continue;
+      }
+
+      const tupleLiteral = generateTupleSurrealTypeLiteral(element.tupleInfo, tupleRegistry);
+      const parts: string[] = ['DEFINE FIELD'];
+      if (opts.overwrite) parts.push('OVERWRITE');
+      else if (opts.ifNotExists) parts.push('IF NOT EXISTS');
+      parts.push(elementPath);
+      parts.push('ON TABLE');
+      parts.push(tableName);
+
+      if (element.isOptional) {
+        parts.push(`TYPE option<${tupleLiteral}>`);
+      } else {
+        parts.push(`TYPE ${tupleLiteral}`);
+      }
+
+      statements.push(parts.join(' ') + ';');
+
+      // Recursively define nested tuple elements
+      const nestedVisited = new Set(visited);
+      nestedVisited.add(`tuple:${nestedTupleName}`);
+      statements.push(
+        ...generateTupleFieldDefines(
+          elementPath,
+          tableName,
+          element.tupleInfo,
+          tupleRegistry,
+          objectRegistry,
+          options,
+          nestedVisited,
+        ),
+      );
+    } else if (element.type === 'object' && element.objectInfo) {
+      // Object element — define with object type and recurse into sub-fields
+      const objectName = element.objectInfo.objectName;
+
+      if (visited.has(`object:${objectName}`)) {
+        // Cycle — skip sub-definitions
+        continue;
+      }
+
+      const parts: string[] = ['DEFINE FIELD'];
+      if (opts.overwrite) parts.push('OVERWRITE');
+      else if (opts.ifNotExists) parts.push('IF NOT EXISTS');
+      parts.push(elementPath);
+      parts.push('ON TABLE');
+      parts.push(tableName);
+
+      if (element.isOptional) {
+        parts.push('TYPE option<object>');
+      } else {
+        parts.push('TYPE object');
+      }
+
+      statements.push(parts.join(' ') + ';');
+
+      // Recursively define object sub-fields
+      const objectMeta = objectRegistry[objectName];
+      if (objectMeta) {
+        const nestedVisited = new Set(visited);
+        nestedVisited.add(`object:${objectName}`);
+        statements.push(
+          ...generateObjectFieldDefines(elementPath, tableName, objectMeta, objectRegistry, options, nestedVisited),
+        );
+      }
+    } else {
+      // Primitive element — define with primitive type
+      const surrealType = mapToSurrealType(element.type);
+      const parts: string[] = ['DEFINE FIELD'];
+      if (opts.overwrite) parts.push('OVERWRITE');
+      else if (opts.ifNotExists) parts.push('IF NOT EXISTS');
+      parts.push(elementPath);
+      parts.push('ON TABLE');
+      parts.push(tableName);
+
+      if (element.isOptional) {
+        parts.push(`TYPE option<${surrealType}>`);
+      } else {
+        parts.push(`TYPE ${surrealType}`);
+      }
+
+      statements.push(parts.join(' ') + ';');
+    }
+  }
+
+  return statements;
+}
+
 /** Generate all DEFINE statements for a single model */
 export function generateModelDefineStatements(
   model: ModelMetadata,
   tableOptions?: DefineTableOptions,
   fieldOptions?: DefineFieldOptions,
   objectRegistry?: ObjectRegistry,
+  tupleRegistry?: TupleRegistry,
 ): string[] {
   const statements: string[] = [];
 
@@ -434,7 +565,7 @@ export function generateModelDefineStatements(
 
   // 2. Define each field (skips id and relation fields)
   for (const field of model.fields) {
-    const fieldDef = generateDefineField(field, model.tableName, model, fieldOptions);
+    const fieldDef = generateDefineField(field, model.tableName, model, fieldOptions, tupleRegistry);
     if (fieldDef) statements.push(fieldDef);
 
     // For object fields, generate sub-field DEFINE statements
@@ -469,6 +600,23 @@ export function generateModelDefineStatements(
           );
         }
       }
+    }
+
+    // For tuple fields, generate sub-element DEFINE statements
+    if (field.type === 'tuple' && field.tupleInfo && tupleRegistry) {
+      const fieldPath = field.isArray ? `${field.name}.*` : field.name;
+      const visited = new Set<string>([`tuple:${field.tupleInfo.tupleName}`]);
+      statements.push(
+        ...generateTupleFieldDefines(
+          fieldPath,
+          model.tableName,
+          field.tupleInfo,
+          tupleRegistry,
+          objectRegistry ?? {},
+          fieldOptions,
+          visited,
+        ),
+      );
     }
   }
 
@@ -508,13 +656,20 @@ export function generateRegistryDefineStatements(
   tableOptions?: DefineTableOptions,
   fieldOptions?: DefineFieldOptions,
   objectRegistry?: ObjectRegistry,
+  tupleRegistry?: TupleRegistry,
 ): string[] {
   const statements: string[] = [];
 
   for (const modelName in registry) {
     const model = registry[modelName];
     if (!model) continue;
-    const modelStatements = generateModelDefineStatements(model, tableOptions, fieldOptions, objectRegistry);
+    const modelStatements = generateModelDefineStatements(
+      model,
+      tableOptions,
+      fieldOptions,
+      objectRegistry,
+      tupleRegistry,
+    );
     statements.push(...modelStatements);
   }
 
@@ -527,8 +682,16 @@ export function generateMigrationQuery(
   tableOptions?: DefineTableOptions,
   fieldOptions?: DefineFieldOptions,
   objectRegistry?: ObjectRegistry,
+  tupleRegistry?: TupleRegistry,
 ): string {
-  const statements = generateRegistryDefineStatements(registry, tableOptions, fieldOptions, objectRegistry);
+  const statements = generateRegistryDefineStatements(
+    registry,
+    tableOptions,
+    fieldOptions,
+    objectRegistry,
+    tupleRegistry,
+  );
+
   return statements.join('\n');
 }
 
@@ -566,13 +729,14 @@ export function generateModelMigrationMap(
   tableOptions?: DefineTableOptions,
   fieldOptions?: DefineFieldOptions,
   objectRegistry?: ObjectRegistry,
+  tupleRegistry?: TupleRegistry,
 ): ModelMigrationMap {
   const map: ModelMigrationMap = {};
 
   for (const modelName in registry) {
     const model = registry[modelName];
     if (!model) continue;
-    map[modelName] = generateModelDefineStatements(model, tableOptions, fieldOptions, objectRegistry);
+    map[modelName] = generateModelDefineStatements(model, tableOptions, fieldOptions, objectRegistry, tupleRegistry);
   }
 
   return map;
@@ -584,14 +748,18 @@ function escapeSingleQuotes(surql: string): string {
 }
 
 /** Generate TypeScript code for per-model migrations */
-export function generatePerModelMigrationCode(models: ModelMetadata[], objectRegistry?: ObjectRegistry): string {
+export function generatePerModelMigrationCode(
+  models: ModelMetadata[],
+  objectRegistry?: ObjectRegistry,
+  tupleRegistry?: TupleRegistry,
+): string {
   const registry: ModelRegistry = {};
   for (const model of models) {
     registry[model.name] = model;
   }
 
   // Generate per-model map
-  const migrationMap = generateModelMigrationMap(registry, undefined, undefined, objectRegistry);
+  const migrationMap = generateModelMigrationMap(registry, undefined, undefined, objectRegistry, tupleRegistry);
   const mapEntries = Object.entries(migrationMap)
     .map(([modelName, modelStatements]) => {
       const modelStatementsStr = modelStatements.map((s) => `    '${escapeSingleQuotes(s)}'`).join(',\n');

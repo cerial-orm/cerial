@@ -11,6 +11,8 @@ export {
   createField,
   createModel,
   createObject,
+  createTuple,
+  createTupleElement,
   createSchemaAST,
   hasModel,
   getModel,
@@ -21,6 +23,9 @@ export {
   hasObject,
   getObject,
   getObjectNames,
+  hasTuple,
+  getTuple,
+  getTupleNames,
 } from './ast';
 
 // Field decorators
@@ -52,6 +57,11 @@ export {
   getFloatFieldType,
   parseFieldType,
   isValidFieldType,
+  isObjectType,
+  extractObjectName,
+  isTupleType,
+  extractTupleName,
+  isArrayType,
 } from './field-types';
 
 // Field constraints

@@ -3,7 +3,14 @@
  */
 
 import { RecordId, StringRecordId } from 'surrealdb';
-import type { FieldMetadata, ModelMetadata, ModelRegistry, ObjectFieldMetadata, WhereClause } from '../../types';
+import type {
+  FieldMetadata,
+  ModelMetadata,
+  ModelRegistry,
+  ObjectFieldMetadata,
+  TupleFieldMetadata,
+  WhereClause,
+} from '../../types';
 import { CerialId, type RecordIdInput } from '../../utils/cerial-id';
 import { isObject } from '../../utils/type-utils';
 import { joinFragments } from '../compile/fragment';
@@ -327,6 +334,133 @@ function buildObjectConditionForClosure(
 }
 
 /**
+ * Resolve a tuple element key (named or index-based) to element index and a synthetic FieldMetadata.
+ * Handles both "lat" (named) and "0" (index) keys.
+ */
+function resolveTupleElementKey(
+  key: string,
+  tupleInfo: TupleFieldMetadata,
+): { index: number; syntheticField: FieldMetadata } | undefined {
+  // Try named key first
+  const namedElement = tupleInfo.elements.find((e) => e.name === key);
+  if (namedElement) {
+    return {
+      index: namedElement.index,
+      syntheticField: {
+        name: key,
+        type: namedElement.type,
+        isId: false,
+        isUnique: false,
+        isRequired: !namedElement.isOptional,
+        objectInfo: namedElement.objectInfo,
+        tupleInfo: namedElement.tupleInfo,
+      },
+    };
+  }
+
+  // Try index key
+  const idx = parseInt(key, 10);
+  if (!Number.isNaN(idx)) {
+    const element = tupleInfo.elements.find((e) => e.index === idx);
+    if (element) {
+      return {
+        index: element.index,
+        syntheticField: {
+          name: key,
+          type: element.type,
+          isId: false,
+          isUnique: false,
+          isRequired: !element.isOptional,
+          objectInfo: element.objectInfo,
+          tupleInfo: element.tupleInfo,
+        },
+      };
+    }
+  }
+
+  return undefined;
+}
+
+/** Build conditions for a single/optional tuple field using index access */
+export function buildTupleCondition(
+  ctx: FilterCompileContext,
+  fieldPath: string,
+  whereValue: Record<string, unknown>,
+  tupleInfo: TupleFieldMetadata,
+): QueryFragment {
+  const conditions: QueryFragment[] = [];
+
+  for (const [key, value] of Object.entries(whereValue)) {
+    if (value === undefined) continue;
+
+    const resolved = resolveTupleElementKey(key, tupleInfo);
+    if (!resolved) continue;
+
+    const { index, syntheticField } = resolved;
+    const subPath = `${fieldPath}[${index}]`;
+
+    // Nested object element
+    if (syntheticField.type === 'object' && syntheticField.objectInfo && isObject(value)) {
+      conditions.push(buildObjectCondition(ctx, subPath, value as Record<string, unknown>, syntheticField.objectInfo));
+      continue;
+    }
+
+    // Nested tuple element
+    if (syntheticField.type === 'tuple' && syntheticField.tupleInfo && isObject(value)) {
+      conditions.push(buildTupleCondition(ctx, subPath, value as Record<string, unknown>, syntheticField.tupleInfo));
+      continue;
+    }
+
+    // Operator object
+    if (isOperatorObject(value)) {
+      conditions.push(
+        buildFieldCondition(ctx, subPath, value as Record<string, unknown>, syntheticField, {} as ModelMetadata),
+      );
+      continue;
+    }
+
+    // Direct value (shorthand for eq)
+    conditions.push(buildDirectCondition(ctx, subPath, value, syntheticField, {} as ModelMetadata));
+  }
+
+  if (!conditions.length) return { text: '', vars: {} };
+  if (conditions.length === 1) return conditions[0]!;
+
+  return joinFragments(conditions, ' AND ');
+}
+
+/** Build conditions for an array-of-tuples field using closure syntax */
+export function buildArrayTupleCondition(
+  ctx: FilterCompileContext,
+  fieldPath: string,
+  whereValue: Record<string, unknown>,
+  tupleInfo: TupleFieldMetadata,
+): QueryFragment {
+  const conditions: QueryFragment[] = [];
+
+  for (const [quantifier, subWhere] of Object.entries(whereValue)) {
+    if (!isObject(subWhere)) continue;
+
+    // Build inner conditions using closure variable $v
+    const innerCondition = buildTupleCondition(ctx, '$v', subWhere as Record<string, unknown>, tupleInfo);
+    if (!innerCondition.text) continue;
+
+    if (quantifier === 'some') {
+      conditions.push({ text: `${fieldPath}.any(|$v| ${innerCondition.text})`, vars: innerCondition.vars });
+    } else if (quantifier === 'every') {
+      conditions.push({ text: `${fieldPath}.all(|$v| ${innerCondition.text})`, vars: innerCondition.vars });
+    } else if (quantifier === 'none') {
+      conditions.push({ text: `!(${fieldPath}.any(|$v| ${innerCondition.text}))`, vars: innerCondition.vars });
+    }
+  }
+
+  if (!conditions.length) return { text: '', vars: {} };
+  if (conditions.length === 1) return conditions[0]!;
+
+  return joinFragments(conditions, ' AND ');
+}
+
+/**
  * Resolve a dot-notation field path to a FieldMetadata.
  * For example, "address.city" resolves through the "address" object field to its "city" sub-field.
  * Returns the leaf field metadata if found, or undefined if the path is invalid.
@@ -451,6 +585,25 @@ export function buildConditions(
         // Single/optional object: dot notation
         const objCondition = buildObjectCondition(ctx, key, value as Record<string, unknown>, fieldMetadata.objectInfo);
         if (objCondition.text) conditions.push(objCondition);
+      }
+      continue;
+    }
+
+    // Handle tuple field conditions (e.g., location: { lat: { gt: 1.0 }, 0: { gt: 1.0 } })
+    if (fieldMetadata.type === 'tuple' && fieldMetadata.tupleInfo && isObject(value)) {
+      if (fieldMetadata.isArray) {
+        // Array of tuples: { some: ..., every: ..., none: ... }
+        const tupCondition = buildArrayTupleCondition(
+          ctx,
+          key,
+          value as Record<string, unknown>,
+          fieldMetadata.tupleInfo,
+        );
+        if (tupCondition.text) conditions.push(tupCondition);
+      } else {
+        // Single/optional tuple: index access
+        const tupCondition = buildTupleCondition(ctx, key, value as Record<string, unknown>, fieldMetadata.tupleInfo);
+        if (tupCondition.text) conditions.push(tupCondition);
       }
       continue;
     }

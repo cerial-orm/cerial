@@ -79,7 +79,7 @@ cerial/
 Schema (.cerial files) → Parser (AST) → Generators → TypeScript Client
 ```
 
-- **Parser** - Lexes/tokenizes `.cerial` files into `SchemaAST` (models + objects)
+- **Parser** - Lexes/tokenizes `.cerial` files into `SchemaAST` (models + objects + tuples)
 - **Generators** - Produces TypeScript types, client class, model registry, migrations
 - **Query Builder** - Converts typed query objects into parameterized SurrealQL
 - **Client** - Proxy-based model access (`client.db.User.findMany(...)`)
@@ -96,13 +96,14 @@ Schema (.cerial files) → Parser (AST) → Generators → TypeScript Client
 
 | Location                  | Type                      | Count    |
 | ------------------------- | ------------------------- | -------- |
-| `tests/unit/`             | Unit tests (no DB)        | ~550     |
+| `tests/unit/`             | Unit tests (no DB)        | ~1086    |
 | `tests/integration/`      | Integration (DB required) | ~49      |
 | `tests/e2e/relations/`    | Relation E2E tests        | 91 files |
 | `tests/e2e/objects/`      | Object E2E tests          | 9 files  |
+| `tests/e2e/tuples/`       | Tuple E2E tests           | 8 files  |
 | `tests/e2e/transactions/` | Transaction E2E tests     | 10 files |
 | `tests/e2e/timestamps/`   | Timestamp E2E tests       | 1 file   |
-| `tests/e2e/typechecks/`   | Compile-time type checks  | 20 files |
+| `tests/e2e/typechecks/`   | Compile-time type checks  | 22 files |
 
 **When query format changes**, update expectations in:
 
@@ -294,6 +295,7 @@ has_children: true # only on section index pages
 - **@flexible** = Field-level decorator for object-type fields. Adds `FLEXIBLE` to migration, generates `& Record<string, any>` intersection in types. Same object can be flexible on one field, strict on another. Where types get `& { [key: string]: any }` for filtering extra keys
 - **@readonly** = Write-once field decorator. Adds `READONLY` to migration. Field settable on CREATE, excluded from Update types. Runtime error if passed to update. Incompatible with `@now` (COMPUTED), `@defaultAlways`, and `@id`. Allowed on model fields and object sub-fields. When on a PK Record field, the relation's nested update ops (connect/disconnect) are excluded from UpdateInput
 - **Object types** = Embedded inline, no id, no relations. Allowed decorators: `@default`, `@defaultAlways`, `@createdAt`, `@updatedAt`, `@flexible`, `@readonly`
+- **Tuple types** = Fixed-length typed arrays defined with `tuple {}`. Elements are comma-separated, optionally named. Input accepts array or object form; output is always array. No decorators on elements. No partial updates, no per-element select, no orderBy. Supports nested tuples, objects in tuples, tuples in objects. Self-referencing requires optional element.
 - **Parameterized queries** = Values bound via `$varName`, never inlined
 - **CerialQueryPromise** = Thenable returned by model methods. Auto-executes on `await`, collectible by `$transaction`
 - **$transaction** = Atomic batch execution of independent queries with typed tuple results
@@ -311,3 +313,7 @@ has_children: true # only on section index pages
 - N:N relations require BOTH sides to define `Record[]` + `Relation[]` for bidirectional sync
 - `CerialQueryPromise` is a thenable (not `instanceof Promise`) — bun's `expect().rejects` requires wrapping: `await expect((async () => { await query; })()).rejects.toThrow()`
 - `$transaction` queries are independent — one query cannot reference another's result
+- Tuple output is always array form `[1.5, 2.5]` — never object form, even when elements are named
+- Optional tuple fields (`Coordinate?`) produce `field?: Coordinate` (NOT `| null` like primitives) in output, but update type includes `| null` for clearing (null → NONE)
+- Tuple array push with single tuple `[3, 4]` is wrapped to `[[3, 4]]` for SurrealDB `+=` to add one element (not two)
+- No Record/Relation types allowed in tuple elements

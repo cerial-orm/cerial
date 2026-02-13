@@ -22,7 +22,11 @@ export { getRelationFieldType, isRelationArray, isRelationType } from './relatio
 export { getStringFieldType, isStringType } from './string-parser';
 
 /** Parse a type token to SchemaFieldType (handles Record[] by stripping []) */
-export function parseFieldType(token: string, objectNames?: Set<string>): SchemaFieldType | null {
+export function parseFieldType(
+  token: string,
+  objectNames?: Set<string>,
+  tupleNames?: Set<string>,
+): SchemaFieldType | null {
   // Handle Record[] by checking the base type
   const baseToken = token.replace('[]', '');
 
@@ -38,6 +42,9 @@ export function parseFieldType(token: string, objectNames?: Set<string>): Schema
   // Check if the type is a known object name
   if (objectNames && isObjectType(baseToken, objectNames)) return 'object';
 
+  // Check if the type is a known tuple name
+  if (tupleNames && isTupleType(baseToken, tupleNames)) return 'tuple';
+
   return null;
 }
 
@@ -51,9 +58,19 @@ export function extractObjectName(token: string): string {
   return token.replace('[]', '').replace('?', '');
 }
 
+/** Check if a type token matches a known tuple name */
+export function isTupleType(token: string, tupleNames: Set<string>): boolean {
+  return tupleNames.has(token);
+}
+
+/** Extract the tuple name from a type token (strips [] and ? suffixes) */
+export function extractTupleName(token: string): string {
+  return token.replace('[]', '').replace('?', '');
+}
+
 /** Check if a token is a valid field type */
-export function isValidFieldType(token: string, objectNames?: Set<string>): boolean {
-  return parseFieldType(token, objectNames) !== null;
+export function isValidFieldType(token: string, objectNames?: Set<string>, tupleNames?: Set<string>): boolean {
+  return parseFieldType(token, objectNames, tupleNames) !== null;
 }
 
 /** Check if a type token represents an array type */

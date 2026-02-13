@@ -8,6 +8,8 @@ import type {
   ASTField,
   ASTModel,
   ASTObject,
+  ASTTuple,
+  ASTTupleElement,
   SchemaAST,
   SchemaDecorator,
   SchemaFieldType,
@@ -39,10 +41,12 @@ export function createField(
   range: SourceRange,
   isArray?: boolean,
   objectName?: string,
+  tupleName?: string,
 ): ASTField {
   const field: ASTField = { name, type, isOptional, decorators, range };
   if (isArray) field.isArray = true;
   if (objectName) field.objectName = objectName;
+  if (tupleName) field.tupleName = tupleName;
 
   return field;
 }
@@ -73,8 +77,13 @@ export function createObject(name: string, fields: ASTField[], range: SourceRang
 }
 
 /** Create a schema AST */
-export function createSchemaAST(models: ASTModel[], source: string, objects: ASTObject[] = []): SchemaAST {
-  return { models, objects, source };
+export function createSchemaAST(
+  models: ASTModel[],
+  source: string,
+  objects: ASTObject[] = [],
+  tuples: ASTTuple[] = [],
+): SchemaAST {
+  return { models, objects, tuples, source };
 }
 
 /** Check if AST has a model with given name */
@@ -120,4 +129,40 @@ export function getObject(ast: SchemaAST, name: string): ASTObject | undefined {
 /** Get all object names from AST */
 export function getObjectNames(ast: SchemaAST): string[] {
   return ast.objects.map((o) => o.name);
+}
+
+/** Create an AST tuple element node */
+export function createTupleElement(
+  type: SchemaFieldType,
+  isOptional: boolean,
+  name?: string,
+  objectName?: string,
+  tupleName?: string,
+): ASTTupleElement {
+  const element: ASTTupleElement = { type, isOptional };
+  if (name) element.name = name;
+  if (objectName) element.objectName = objectName;
+  if (tupleName) element.tupleName = tupleName;
+
+  return element;
+}
+
+/** Create an AST tuple node */
+export function createTuple(name: string, elements: ASTTupleElement[], range: SourceRange): ASTTuple {
+  return { name, elements, range };
+}
+
+/** Check if AST has a tuple with given name */
+export function hasTuple(ast: SchemaAST, name: string): boolean {
+  return ast.tuples.some((t) => t.name === name);
+}
+
+/** Get a tuple by name from AST */
+export function getTuple(ast: SchemaAST, name: string): ASTTuple | undefined {
+  return ast.tuples.find((t) => t.name === name);
+}
+
+/** Get all tuple names from AST */
+export function getTupleNames(ast: SchemaAST): string[] {
+  return ast.tuples.map((t) => t.name);
 }

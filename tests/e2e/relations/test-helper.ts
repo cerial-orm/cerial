@@ -150,6 +150,16 @@ export const tables = {
 
   // readonly.cerial (@readonly decorator)
   readonly: ['readonly_test', 'readonly_record'],
+
+  // tuples.cerial (tuple type tests)
+  tuples: [
+    'tuple_basic',
+    'tuple_nested',
+    'tuple_obj_in_tuple',
+    'tuple_in_obj',
+    'tuple_with_relation',
+    'tuple_related_post',
+  ],
 };
 
 /**

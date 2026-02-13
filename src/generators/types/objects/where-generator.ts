@@ -27,6 +27,16 @@ export function generateObjectWhereInterface(object: ObjectMetadata, _objectRegi
         // Object fields don't support null, only NONE (absent)
         fields.push(`  ${field.name}?: ${objectWhere}${flexSuffix};`);
       }
+    } else if (field.type === 'tuple' && field.tupleInfo) {
+      // Nested tuple where
+      const tupleWhere = `${field.tupleInfo.tupleName}Where`;
+
+      if (field.isArray) {
+        fields.push(`  ${field.name}?: { some?: ${tupleWhere}; every?: ${tupleWhere}; none?: ${tupleWhere}; };`);
+      } else {
+        // Tuple fields don't support null, only NONE (absent)
+        fields.push(`  ${field.name}?: ${tupleWhere};`);
+      }
     } else {
       const whereType = generateFieldWhereType(field);
       if (whereType) {

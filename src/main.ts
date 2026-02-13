@@ -166,6 +166,10 @@ export type {
   Token,
   TokenType,
   UpdateOptions,
+  TupleElementMetadata,
+  TupleFieldMetadata,
+  TupleMetadata,
+  TupleRegistry,
   WhereClause,
 } from './types';
 

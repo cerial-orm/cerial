@@ -2,7 +2,16 @@
  * Registry generator - generates model registry code
  */
 
-import type { FieldMetadata, ModelMetadata, ModelRegistry, ObjectMetadata, ObjectRegistry } from '../../types';
+import type {
+  FieldMetadata,
+  ModelMetadata,
+  ModelRegistry,
+  ObjectMetadata,
+  ObjectRegistry,
+  TupleElementMetadata,
+  TupleMetadata,
+  TupleRegistry,
+} from '../../types';
 
 /** Generate FieldMetadata as TypeScript code */
 function generateFieldMetadata(field: FieldMetadata): string {
@@ -62,6 +71,16 @@ function generateFieldMetadata(field: FieldMetadata): string {
       parts.push(`objectInfo: { objectName: '${field.objectInfo.objectName}', fields: [${inlineFields}] }`);
     } else {
       parts.push(`objectInfo: { objectName: '${field.objectInfo.objectName}', fields: [] }`);
+    }
+  }
+
+  // Include tupleInfo when present (with inline elements for runtime query building)
+  if (field.tupleInfo) {
+    if (field.tupleInfo.elements.length) {
+      const inlineElements = field.tupleInfo.elements.map((e) => generateTupleElementMetadata(e)).join(', ');
+      parts.push(`tupleInfo: { tupleName: '${field.tupleInfo.tupleName}', elements: [${inlineElements}] }`);
+    } else {
+      parts.push(`tupleInfo: { tupleName: '${field.tupleInfo.tupleName}', elements: [] }`);
     }
   }
 
@@ -186,6 +205,114 @@ ${objectEntries}
 };
 
 export type { ObjectRegistry };
+`;
+  }
+
+  return code;
+}
+
+/** Generate TupleElementMetadata as TypeScript code */
+function generateTupleElementMetadata(element: TupleElementMetadata): string {
+  const parts = [`index: ${element.index}`, `type: '${element.type}'`, `isOptional: ${element.isOptional}`];
+
+  if (element.name) {
+    parts.push(`name: '${element.name}'`);
+  }
+
+  if (element.objectInfo) {
+    if (element.objectInfo.fields.length) {
+      const inlineFields = element.objectInfo.fields.map((f) => generateFieldMetadata(f)).join(', ');
+      parts.push(`objectInfo: { objectName: '${element.objectInfo.objectName}', fields: [${inlineFields}] }`);
+    } else {
+      parts.push(`objectInfo: { objectName: '${element.objectInfo.objectName}', fields: [] }`);
+    }
+  }
+
+  if (element.tupleInfo) {
+    if (element.tupleInfo.elements.length) {
+      const inlineElements = element.tupleInfo.elements.map((e) => generateTupleElementMetadata(e)).join(', ');
+      parts.push(`tupleInfo: { tupleName: '${element.tupleInfo.tupleName}', elements: [${inlineElements}] }`);
+    } else {
+      parts.push(`tupleInfo: { tupleName: '${element.tupleInfo.tupleName}', elements: [] }`);
+    }
+  }
+
+  return `{ ${parts.join(', ')} }`;
+}
+
+/** Generate TupleMetadata as TypeScript code */
+function generateTupleMetadata(tuple: TupleMetadata): string {
+  const elements = tuple.elements.map((e) => `      ${generateTupleElementMetadata(e)}`).join(',\n');
+
+  return `  ${tuple.name}: {
+    name: '${tuple.name}',
+    elements: [
+${elements}
+    ]
+  }`;
+}
+
+/** Generate tuple registry code */
+export function generateTupleRegistryCode(tuples: TupleMetadata[]): string {
+  if (!tuples.length) return '';
+
+  const tupleEntries = tuples.map(generateTupleMetadata).join(',\n');
+
+  return `
+import type { TupleRegistry } from 'cerial';
+
+export const tupleRegistry: TupleRegistry = {
+${tupleEntries}
+};
+
+export type { TupleRegistry };
+`;
+}
+
+/** Generate combined registry code (models + objects + tuples) */
+export function generateFullRegistryCode(
+  models: ModelMetadata[],
+  objects: ObjectMetadata[],
+  tuples: TupleMetadata[],
+): string {
+  const modelEntries = models.map(generateModelMetadata).join(',\n');
+  const importTypes = ['ModelRegistry'];
+  if (objects.length) importTypes.push('ObjectRegistry');
+  if (tuples.length) importTypes.push('TupleRegistry');
+
+  let code = `/**
+ * Generated model registry
+ * Do not edit manually
+ */
+
+import type { ${importTypes.join(', ')} } from 'cerial';
+
+export const modelRegistry: ModelRegistry = {
+${modelEntries}
+};
+
+export type { ModelRegistry };
+`;
+
+  if (objects.length) {
+    const objectEntries = objects.map(generateObjectMetadata).join(',\n');
+    code += `
+export const objectRegistry: ObjectRegistry = {
+${objectEntries}
+};
+
+export type { ObjectRegistry };
+`;
+  }
+
+  if (tuples.length) {
+    const tupleEntries = tuples.map(generateTupleMetadata).join(',\n');
+    code += `
+export const tupleRegistry: TupleRegistry = {
+${tupleEntries}
+};
+
+export type { TupleRegistry };
 `;
   }
 

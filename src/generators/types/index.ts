@@ -60,3 +60,15 @@ export {
   generateModelExports,
   generateModelsIndex,
 } from './export-generator';
+
+export {
+  generateTupleInputInterface,
+  generateTupleInterface,
+  generateTupleInterfaces,
+  generateTupleOutputType,
+  generateTupleWhereInterface,
+  generateTupleWhereTypes,
+  tupleHasNamedElements,
+  tupleHasObjectElements,
+  tupleHasTupleElements,
+} from './tuples';

@@ -81,6 +81,8 @@ export interface ASTField {
   range: SourceRange;
   /** For object-typed fields: the name of the referenced object definition */
   objectName?: string;
+  /** For tuple-typed fields: the name of the referenced tuple definition */
+  tupleName?: string;
 }
 
 /** AST node for a model */
@@ -99,10 +101,32 @@ export interface ASTObject {
   range: SourceRange;
 }
 
-/** Top-level AST containing all models and objects */
+/** AST node for a single element in a tuple definition */
+export interface ASTTupleElement {
+  /** Optional element name (for named tuples); undefined for positional-only elements */
+  name?: string;
+  /** Element type (e.g., 'string', 'int', 'float', 'object', 'tuple') */
+  type: SchemaFieldType;
+  /** Whether this element is optional (e.g., Float?) */
+  isOptional: boolean;
+  /** For object-typed elements: the name of the referenced object definition */
+  objectName?: string;
+  /** For tuple-typed elements: the name of the referenced tuple definition */
+  tupleName?: string;
+}
+
+/** AST node for a tuple definition (positional typed array) */
+export interface ASTTuple {
+  name: string;
+  elements: ASTTupleElement[];
+  range: SourceRange;
+}
+
+/** Top-level AST containing all models, objects, and tuples */
 export interface SchemaAST {
   models: ASTModel[];
   objects: ASTObject[];
+  tuples: ASTTuple[];
   source: string;
 }
 

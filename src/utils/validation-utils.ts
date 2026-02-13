@@ -38,6 +38,9 @@ export function validateFieldType(value: unknown, type: SchemaFieldType): boolea
     case 'object':
       // Object type: must be a plain object (not array, not null)
       return typeof value === 'object' && value !== null && !Array.isArray(value);
+    case 'tuple':
+      // Tuple type: array form [1, 2] or object form { lat: 1, lng: 2 }
+      return Array.isArray(value) || (typeof value === 'object' && value !== null);
     default:
       return false;
   }

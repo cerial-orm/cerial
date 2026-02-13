@@ -6,12 +6,18 @@
 import type {
   ASTModel,
   ASTObject,
+  ASTTuple,
   CompositeIndex,
   FieldMetadata,
   ModelMetadata,
   ObjectMetadata,
   ObjectRegistry,
+  TupleElementMetadata,
+  TupleFieldMetadata,
+  TupleMetadata,
+  TupleRegistry,
 } from '../../types';
+import { schemaTypeToTsType } from '../../utils/type-utils';
 import { convertFields } from './field-converter';
 import { toSnakeCase } from '../../utils/string-utils';
 
@@ -50,33 +56,86 @@ export function convertObjects(objects: ASTObject[]): ObjectMetadata[] {
 }
 
 /**
- * Resolve inline object fields on all objectInfo across models and objects.
- * After conversion, objectInfo.fields is empty. This function populates it
- * with the actual fields from the referenced object, enabling runtime query
- * builders to access sub-field structure without needing the full ObjectRegistry.
+ * Resolve inline object fields and tuple elements across models, objects, and tuples.
+ * After conversion, objectInfo.fields and tupleInfo.elements are empty.
+ * This function populates them with actual field/element data from the registries,
+ * enabling runtime query builders to access sub-field structure.
  *
- * Must be called after all objects are converted.
+ * Must be called after all objects and tuples are converted.
  */
 export function resolveObjectFields(
   models: ModelMetadata[],
   objects: ObjectMetadata[],
   objectRegistry: ObjectRegistry,
+  tupleRegistry?: TupleRegistry,
 ): void {
   // Resolve fields on all model fields
   for (const model of models) {
-    resolveFieldsRecursive(model.fields, objectRegistry);
+    resolveFieldsRecursive(model.fields, objectRegistry, tupleRegistry);
   }
 
-  // Resolve fields on all object fields (for nested objects)
+  // Resolve fields on all object fields (for nested objects and tuples inside objects)
   for (const object of objects) {
-    resolveFieldsRecursive(object.fields, objectRegistry);
+    resolveFieldsRecursive(object.fields, objectRegistry, tupleRegistry);
+  }
+
+  // Resolve elements on all tuple elements (for nested tuples and objects inside tuples)
+  if (tupleRegistry) {
+    for (const tupleName of Object.keys(tupleRegistry)) {
+      const tupleMeta = tupleRegistry[tupleName]!;
+      resolveTupleElementsRecursive(tupleMeta.elements, objectRegistry, tupleRegistry);
+    }
   }
 }
 
-/** Recursively resolve objectInfo.fields on a field list */
+/** Convert AST tuple element to TupleElementMetadata */
+function convertTupleElement(element: import('../../types').ASTTupleElement, index: number): TupleElementMetadata {
+  const metadata: TupleElementMetadata = {
+    index,
+    type: element.type,
+    isOptional: element.isOptional,
+  };
+
+  if (element.name) metadata.name = element.name;
+  if (element.type === 'object' && element.objectName) {
+    metadata.objectInfo = { objectName: element.objectName, fields: [] };
+  }
+  if (element.type === 'tuple' && element.tupleName) {
+    metadata.tupleInfo = { tupleName: element.tupleName, elements: [] };
+  }
+
+  return metadata;
+}
+
+/** Convert AST tuple to TupleMetadata */
+export function convertTuple(astTuple: ASTTuple): TupleMetadata {
+  return {
+    name: astTuple.name,
+    elements: astTuple.elements.map((e, i) => convertTupleElement(e, i)),
+  };
+}
+
+/** Convert multiple AST tuples to TupleMetadata array */
+export function convertTuples(tuples: ASTTuple[]): TupleMetadata[] {
+  return tuples.map(convertTuple);
+}
+
+/** Create TupleRegistry object from tuples */
+export function createTupleRegistry(tuples: TupleMetadata[]): TupleRegistry {
+  const registry: TupleRegistry = {};
+
+  for (const tuple of tuples) {
+    registry[tuple.name] = tuple;
+  }
+
+  return registry;
+}
+
+/** Recursively resolve objectInfo.fields and tupleInfo.elements on a field list */
 function resolveFieldsRecursive(
   fields: FieldMetadata[],
   objectRegistry: ObjectRegistry,
+  tupleRegistry?: TupleRegistry,
   visited: Set<string> = new Set(),
 ): void {
   for (const field of fields) {
@@ -93,7 +152,61 @@ function resolveFieldsRecursive(
         // Recursively resolve nested object fields (track visited to prevent cycles)
         const nextVisited = new Set(visited);
         nextVisited.add(objectName);
-        resolveFieldsRecursive(field.objectInfo.fields, objectRegistry, nextVisited);
+        resolveFieldsRecursive(field.objectInfo.fields, objectRegistry, tupleRegistry, nextVisited);
+      }
+    }
+
+    // Resolve tuple fields
+    if (field.type === 'tuple' && field.tupleInfo && !field.tupleInfo.elements.length && tupleRegistry) {
+      const tupleName = field.tupleInfo.tupleName;
+
+      // Cycle detection
+      if (visited.has(`tuple:${tupleName}`)) continue;
+
+      const tupleMeta = tupleRegistry[tupleName];
+      if (tupleMeta) {
+        field.tupleInfo.elements = JSON.parse(JSON.stringify(tupleMeta.elements));
+        const nextVisited = new Set(visited);
+        nextVisited.add(`tuple:${tupleName}`);
+        resolveTupleElementsRecursive(field.tupleInfo.elements, objectRegistry, tupleRegistry, nextVisited);
+      }
+    }
+  }
+}
+
+/** Recursively resolve tuple elements' nested objectInfo and tupleInfo */
+function resolveTupleElementsRecursive(
+  elements: TupleElementMetadata[],
+  objectRegistry: ObjectRegistry,
+  tupleRegistry: TupleRegistry,
+  visited: Set<string> = new Set(),
+): void {
+  for (const element of elements) {
+    // Resolve object elements
+    if (element.type === 'object' && element.objectInfo && !element.objectInfo.fields.length) {
+      const objectName = element.objectInfo.objectName;
+      if (visited.has(objectName)) continue;
+
+      const objectMeta = objectRegistry[objectName];
+      if (objectMeta) {
+        element.objectInfo.fields = JSON.parse(JSON.stringify(objectMeta.fields));
+        const nextVisited = new Set(visited);
+        nextVisited.add(objectName);
+        resolveFieldsRecursive(element.objectInfo.fields, objectRegistry, tupleRegistry, nextVisited);
+      }
+    }
+
+    // Resolve nested tuple elements
+    if (element.type === 'tuple' && element.tupleInfo && !element.tupleInfo.elements.length) {
+      const tupleName = element.tupleInfo.tupleName;
+      if (visited.has(`tuple:${tupleName}`)) continue;
+
+      const tupleMeta = tupleRegistry[tupleName];
+      if (tupleMeta) {
+        element.tupleInfo.elements = JSON.parse(JSON.stringify(tupleMeta.elements));
+        const nextVisited = new Set(visited);
+        nextVisited.add(`tuple:${tupleName}`);
+        resolveTupleElementsRecursive(element.tupleInfo.elements, objectRegistry, tupleRegistry, nextVisited);
       }
     }
   }

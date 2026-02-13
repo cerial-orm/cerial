@@ -69,6 +69,13 @@ export function validateFieldFilter(
       return errors;
     }
 
+    // For tuple fields, the filter object contains element conditions by name/index
+    // e.g., location: { lat: { gt: 1.0 } } or location: { 0: { gt: 1.0 } }
+    if (field.type === 'tuple') {
+      // Skip detailed validation — the condition-builder handles tuple field queries
+      return errors;
+    }
+
     for (const [op, _value] of Object.entries(filter)) {
       if (!isRegisteredOperator(op)) {
         errors.push({ path: `${path}.${op}`, message: `Unknown operator: ${op}` });

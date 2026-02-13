@@ -57,6 +57,9 @@ export function generateObjectOrderByType(object: ObjectMetadata): string {
   for (const field of object.fields) {
     if (field.type === 'object' && field.objectInfo) {
       fields.push(`  ${field.name}?: ${field.objectInfo.objectName}OrderBy;`);
+    } else if (field.type === 'tuple') {
+      // Tuple fields do not support ordering — skip
+      continue;
     } else {
       fields.push(`  ${field.name}?: 'asc' | 'desc';`);
     }

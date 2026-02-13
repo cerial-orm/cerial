@@ -3,7 +3,7 @@
  */
 
 import { RecordId, StringRecordId } from 'surrealdb';
-import type { ModelMetadata, ObjectFieldMetadata, SchemaFieldType } from '../../types';
+import type { ModelMetadata, ObjectFieldMetadata, SchemaFieldType, TupleFieldMetadata } from '../../types';
 import { CerialId, type RecordIdInput } from '../../utils/cerial-id';
 
 /** Transform a value based on field type */
@@ -172,6 +172,16 @@ function transformObjectData(data: Record<string, unknown>, objectInfo: ObjectFi
       continue;
     }
 
+    // Tuple field in objects — transform and normalize to array
+    if (field.type === 'tuple' && field.tupleInfo) {
+      if (field.isArray && Array.isArray(value)) {
+        result[key] = value.map((item) => transformTupleData(item, field.tupleInfo!));
+      } else {
+        result[key] = transformTupleData(value, field.tupleInfo);
+      }
+      continue;
+    }
+
     // Record fields in objects — convert RecordIdInput → RecordId
     if (field.type === 'record') {
       if (field.isArray && Array.isArray(value)) {
@@ -197,6 +207,71 @@ function transformObjectData(data: Record<string, unknown>, objectInfo: ObjectFi
   }
 
   return result;
+}
+
+/**
+ * Determine if a value represents a single tuple input (vs an array of tuple inputs).
+ * Object form is always a single tuple. For array form, check if the shape matches
+ * the tuple definition (length equals element count and first element is a primitive).
+ */
+function isSingleTupleInput(value: unknown, tupleInfo: TupleFieldMetadata): boolean {
+  // Object form: always a single tuple
+  if (!Array.isArray(value)) return typeof value === 'object' && value !== null;
+  // Empty array: not a single tuple
+  if (!value.length) return false;
+  const firstEl = value[0];
+  // If first element is an array or non-null object, it's likely an array of tuples
+  if (Array.isArray(firstEl) || (typeof firstEl === 'object' && firstEl !== null)) return false;
+  // Primitive first element + length matches tuple element count → single tuple
+  return value.length === tupleInfo.elements.length;
+}
+
+/**
+ * Transform tuple data based on tupleInfo element definitions.
+ * Handles object elements, nested tuple elements, record elements, and primitive elements.
+ * Accepts both array form [a, b] and object form { 0: a, 1: b, name: a } — normalizes to array.
+ */
+function transformTupleData(data: unknown, tupleInfo: TupleFieldMetadata): unknown[] {
+  // Normalize object form to array form
+  let arr: unknown[];
+  if (Array.isArray(data)) {
+    arr = [...data];
+  } else if (typeof data === 'object' && data !== null) {
+    // Object form: { 0: val, 1: val, name: val }
+    // Map named keys to indexes, then fill by index
+    const obj = data as Record<string, unknown>;
+    arr = new Array(tupleInfo.elements.length);
+    for (const element of tupleInfo.elements) {
+      // Try named key first, then index key
+      if (element.name !== undefined && element.name in obj) {
+        arr[element.index] = obj[element.name];
+      } else if (String(element.index) in obj) {
+        arr[element.index] = obj[String(element.index)];
+      }
+    }
+  } else {
+    return data as unknown[];
+  }
+
+  // Transform each element by type
+  for (const element of tupleInfo.elements) {
+    const value = arr[element.index];
+    if (value === null || value === undefined) continue;
+
+    if (element.type === 'object' && element.objectInfo) {
+      if (typeof value === 'object' && !Array.isArray(value)) {
+        arr[element.index] = transformObjectData(value as Record<string, unknown>, element.objectInfo);
+      }
+    } else if (element.type === 'tuple' && element.tupleInfo) {
+      arr[element.index] = transformTupleData(value, element.tupleInfo);
+    } else if (element.type === 'record') {
+      arr[element.index] = parseRecordIdInput(toRecordIdInput(value));
+    } else {
+      arr[element.index] = transformValue(value, element.type);
+    }
+  }
+
+  return arr;
 }
 
 /** Transform data object based on model fields */
@@ -265,6 +340,47 @@ export function transformData(data: Record<string, unknown>, model: ModelMetadat
           result[key] = transformObjectData(value as Record<string, unknown>, field.objectInfo);
         } else {
           result[key] = value;
+        }
+      } else if (field.type === 'tuple' && field.tupleInfo) {
+        // Handle tuple fields - transform and normalize to array
+        if (value === undefined) continue;
+        // Pass null through — update builder converts null → NONE for optional tuples
+        if (value === null) {
+          result[key] = null;
+          continue;
+        }
+        if (field.isArray) {
+          if (Array.isArray(value)) {
+            // Direct array assignment: [[1,2], [3,4]]
+            result[key] = value.map((item) => transformTupleData(item, field.tupleInfo!));
+          } else if (typeof value === 'object' && value !== null) {
+            // Push/set operations: { push: [...], set: [...] }
+            const ops = value as Record<string, unknown>;
+            if ('set' in ops && ops.set !== undefined) {
+              // set = full array replacement → unwrap to direct array assignment
+              result[key] = Array.isArray(ops.set)
+                ? ops.set.map((item) => transformTupleData(item, field.tupleInfo!))
+                : ops.set;
+            } else if ('push' in ops && ops.push !== undefined) {
+              const transformed: Record<string, unknown> = {};
+              if (isSingleTupleInput(ops.push, field.tupleInfo!)) {
+                // Single tuple: wrap in array so SurrealDB += appends one tuple element
+                transformed.push = [transformTupleData(ops.push, field.tupleInfo!)];
+              } else if (Array.isArray(ops.push)) {
+                // Array of tuples
+                transformed.push = ops.push.map((item) => transformTupleData(item, field.tupleInfo!));
+              } else {
+                transformed.push = ops.push;
+              }
+              result[key] = transformed;
+            } else {
+              result[key] = value;
+            }
+          } else {
+            result[key] = value;
+          }
+        } else {
+          result[key] = transformTupleData(value, field.tupleInfo);
         }
       } else if (field.isArray) {
         // Handle array fields - direct assignment or push/unset operations

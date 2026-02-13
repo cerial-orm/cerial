@@ -18,6 +18,7 @@ import { schemaTypeToTsType } from '../../../utils/type-utils';
 function getOutputType(field: FieldMetadata): string {
   if (field.type === 'record') return 'CerialId';
   if (field.type === 'object' && field.objectInfo) return field.objectInfo.objectName;
+  if (field.type === 'tuple' && field.tupleInfo) return field.tupleInfo.tupleName;
 
   return schemaTypeToTsType(field.type);
 }
@@ -26,10 +27,12 @@ function getOutputType(field: FieldMetadata): string {
  * Get the TypeScript input type for a field
  * For Record fields, uses RecordIdInput instead of CerialId
  * For Object fields, uses the object's Input interface name
+ * For Tuple fields, uses the tuple's Input type name
  */
 function getInputType(field: FieldMetadata): string {
   if (field.type === 'record') return 'RecordIdInput';
   if (field.type === 'object' && field.objectInfo) return `${field.objectInfo.objectName}Input`;
+  if (field.type === 'tuple' && field.tupleInfo) return `${field.tupleInfo.tupleName}Input`;
 
   return schemaTypeToTsType(field.type);
 }
@@ -48,6 +51,8 @@ function getCreateInputType(field: FieldMetadata, objectRegistry?: ObjectRegistr
 
     return `${field.objectInfo.objectName}Input`;
   }
+  // Tuples don't have CreateInput — always use Input
+  if (field.type === 'tuple' && field.tupleInfo) return `${field.tupleInfo.tupleName}Input`;
 
   return schemaTypeToTsType(field.type);
 }
@@ -129,8 +134,8 @@ export function generateObjectInterface(object: ObjectMetadata): string {
       const tsType = getOutputType(f);
       if (f.isArray) return `  ${f.name}: ${wrapFlexible(tsType, f, true)};`;
       const optional = f.isRequired ? '' : '?';
-      // Object fields don't support null — only NONE (absent) or a valid value
-      const type = f.isRequired ? tsType : f.type === 'object' ? tsType : `${tsType} | null`;
+      // Object and tuple fields don't support null — only NONE (absent) or a valid value
+      const type = f.isRequired ? tsType : f.type === 'object' || f.type === 'tuple' ? tsType : `${tsType} | null`;
 
       return `  ${f.name}${optional}: ${wrapFlexible(type, f)};`;
     })
@@ -148,11 +153,12 @@ export function generateObjectInputInterface(object: ObjectMetadata, objectRegis
 
   const fields = object.fields
     .map((f) => {
-      const tsType = hasRecords ? getInputType(f) : getOutputType(f);
+      // Always use getInputType for input interfaces — tuple input types differ from output types
+      const tsType = getInputType(f);
       if (f.isArray) return `  ${f.name}: ${wrapFlexible(tsType, f, true)};`;
       const optional = f.isRequired ? '' : '?';
-      // Object fields don't support null — only NONE (absent) or a valid value
-      const type = f.isRequired ? tsType : f.type === 'object' ? tsType : `${tsType} | null`;
+      // Object and tuple fields don't support null — only NONE (absent) or a valid value
+      const type = f.isRequired ? tsType : f.type === 'object' || f.type === 'tuple' ? tsType : `${tsType} | null`;
 
       return `  ${f.name}${optional}: ${wrapFlexible(type, f)};`;
     })
@@ -191,8 +197,9 @@ export function generateObjectCreateInputInterface(object: ObjectMetadata, objec
         f.timestampDecorator === 'createdAt' ||
         f.timestampDecorator === 'updatedAt';
       const optional = !f.isRequired || hasDefault ? '?' : '';
-      // Object fields don't support null — only NONE (absent) or a valid value
-      const type = f.isRequired && !hasDefault ? tsType : f.type === 'object' ? tsType : `${tsType} | null`;
+      // Object and tuple fields don't support null — only NONE (absent) or a valid value
+      const type =
+        f.isRequired && !hasDefault ? tsType : f.type === 'object' || f.type === 'tuple' ? tsType : `${tsType} | null`;
 
       return `  ${f.name}${optional}: ${type};`;
     })

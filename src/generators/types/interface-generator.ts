@@ -19,6 +19,7 @@ import { schemaTypeToTsType } from '../../utils/type-utils';
 function getOutputType(field: FieldMetadata): string {
   if (field.type === 'record') return 'CerialId';
   if (field.type === 'object' && field.objectInfo) return field.objectInfo.objectName;
+  if (field.type === 'tuple' && field.tupleInfo) return field.tupleInfo.tupleName;
 
   return schemaTypeToTsType(field.type);
 }
@@ -31,6 +32,7 @@ function getOutputType(field: FieldMetadata): string {
 function getInputType(field: FieldMetadata): string {
   if (field.type === 'record') return 'RecordIdInput';
   if (field.type === 'object' && field.objectInfo) return `${field.objectInfo.objectName}Input`;
+  if (field.type === 'tuple' && field.tupleInfo) return `${field.tupleInfo.tupleName}Input`;
 
   return schemaTypeToTsType(field.type);
 }
@@ -61,8 +63,8 @@ export function generateFieldType(field: FieldMetadata): string {
 
   // Optional fields: user can pass value or undefined
   // The difference between ? and ?+@default(null) is runtime behavior, not TS type
-  // Object fields don't support null — only NONE (absent) or a valid object value
-  if (field.type === 'object') return tsType;
+  // Object and tuple fields don't support null — only NONE (absent) or a valid value
+  if (field.type === 'object' || field.type === 'tuple') return tsType;
 
   return `${tsType} | null`;
 }
@@ -121,8 +123,8 @@ export function generateInputFieldType(field: FieldMetadata): string {
   }
 
   // Optional fields
-  // Object fields don't support null — only NONE (absent) or a valid object value
-  if (field.type === 'object') return tsType;
+  // Object and tuple fields don't support null — only NONE (absent) or a valid value
+  if (field.type === 'object' || field.type === 'tuple') return tsType;
 
   return `${tsType} | null`;
 }

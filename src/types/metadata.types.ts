@@ -54,6 +54,8 @@ export interface FieldMetadata {
   isReadonly?: boolean;
   /** Object metadata for object-typed fields */
   objectInfo?: ObjectFieldMetadata;
+  /** Tuple metadata for tuple-typed fields */
+  tupleInfo?: TupleFieldMetadata;
 }
 
 /** Metadata for object-typed fields referencing an object definition */
@@ -75,6 +77,43 @@ export interface ObjectMetadata {
 /** Registry of all objects indexed by object name */
 export interface ObjectRegistry {
   [objectName: string]: ObjectMetadata;
+}
+
+/** Metadata for a single element in a tuple definition */
+export interface TupleElementMetadata {
+  /** Optional element name (for named tuples) */
+  name?: string;
+  /** Element index (0-based position) */
+  index: number;
+  /** Element type (e.g., 'string', 'int', 'float', 'object', 'tuple') */
+  type: SchemaFieldType;
+  /** Whether this element is optional */
+  isOptional: boolean;
+  /** For object-typed elements: object metadata with inline fields */
+  objectInfo?: ObjectFieldMetadata;
+  /** For tuple-typed elements: tuple metadata with inline elements */
+  tupleInfo?: TupleFieldMetadata;
+}
+
+/** Metadata for tuple-typed fields referencing a tuple definition */
+export interface TupleFieldMetadata {
+  /** Name of the referenced tuple definition (e.g., "Coordinate") */
+  tupleName: string;
+  /** Inline copy of the tuple's elements for runtime query building */
+  elements: TupleElementMetadata[];
+}
+
+/** Metadata for a tuple definition (positional typed array) */
+export interface TupleMetadata {
+  /** Tuple name (e.g., "Coordinate") */
+  name: string;
+  /** Array of element metadata */
+  elements: TupleElementMetadata[];
+}
+
+/** Registry of all tuples indexed by tuple name */
+export interface TupleRegistry {
+  [tupleName: string]: TupleMetadata;
 }
 
 /** Composite index/unique directive metadata */

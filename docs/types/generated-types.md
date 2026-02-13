@@ -45,6 +45,20 @@ For each `object` in your schema, Cerial generates a smaller set of types. Objec
 
 Objects do **not** generate: `GetPayload`, `Include`, `Create`, `Update`, or Model-level types. Since objects are embedded, they are always operated on through their parent model.
 
+## Types Generated Per Tuple
+
+For each `tuple` in your schema, Cerial generates a focused set of types. Tuples are fixed-length typed arrays — they have no partial merge, no ordering, and no sub-field selection.
+
+| Type              | Description                                                                               |
+| ----------------- | ----------------------------------------------------------------------------------------- |
+| `Coordinate`      | Output type — a TypeScript tuple type (e.g., `[number, number]`).                         |
+| `CoordinateInput` | Input type — accepts array form, object form (with named/index keys), or mixed.           |
+| `CoordinateWhere` | Where clause type with named keys, index keys, and comparison operators for each element. |
+
+Tuples do **not** generate: `Select`, `OrderBy`, `Create`, `Update`, `Include`, or `GetPayload` types. They are always operated on as atomic values through their parent model.
+
+When a tuple is used as a model field, the model's `Update` type includes full-replace and `push`/`set` operations for tuple arrays. The model's `Create` type uses `CoordinateInput` for tuple fields.
+
 ## Example: Generated Output Interface
 
 Given this schema:

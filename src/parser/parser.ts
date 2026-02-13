@@ -7,10 +7,13 @@ import type {
   SchemaAST,
   ASTModel,
   ASTObject,
+  ASTTuple,
+  ASTTupleElement,
   ASTField,
   ASTCompositeDirective,
   ParseResult,
   ParseError,
+  SchemaFieldType,
 } from '../types';
 import { tokenize } from './tokenizer';
 import { lex, type LexerResult } from './lexer';
@@ -19,10 +22,15 @@ import {
   createModel,
   createCompositeDirective,
   createObject,
+  createTuple,
+  createTupleElement,
   createRange,
   createPosition,
   parseFieldDeclaration,
+  parseFieldType,
   modelNameToTableName,
+  extractObjectName,
+  extractTupleName,
 } from './types';
 import { removeComments } from '../utils/string-utils';
 
@@ -32,20 +40,25 @@ interface ParserState {
   currentLine: number;
   models: ASTModel[];
   objects: ASTObject[];
+  tuples: ASTTuple[];
   errors: ParseError[];
   /** Known object names for type resolution (populated in two-pass parsing) */
   objectNames: Set<string>;
+  /** Known tuple names for type resolution (populated in two-pass parsing) */
+  tupleNames: Set<string>;
 }
 
 /** Create initial parser state */
-function createState(source: string, objectNames?: Set<string>): ParserState {
+function createState(source: string, objectNames?: Set<string>, tupleNames?: Set<string>): ParserState {
   return {
     lines: source.split('\n'),
     currentLine: 0,
     models: [],
     objects: [],
+    tuples: [],
     errors: [],
     objectNames: objectNames ?? new Set(),
+    tupleNames: tupleNames ?? new Set(),
   };
 }
 
@@ -81,13 +94,30 @@ function isModelLine(line: string): boolean {
 /** Check if line is an object declaration */
 function isObjectLine(line: string): boolean {
   const trimmed = removeComments(line).trim();
+
   return trimmed.startsWith('object ');
+}
+
+/** Check if line is a tuple declaration */
+function isTupleLine(line: string): boolean {
+  const trimmed = removeComments(line).trim();
+
+  return trimmed.startsWith('tuple ');
 }
 
 /** Extract object name from line */
 function extractObjectNameFromLine(line: string): string | null {
   const trimmed = removeComments(line).trim();
   const match = trimmed.match(/^object\s+(\w+)/);
+
+  return match ? match[1]! : null;
+}
+
+/** Extract tuple name from line */
+function extractTupleNameFromLine(line: string): string | null {
+  const trimmed = removeComments(line).trim();
+  const match = trimmed.match(/^tuple\s+(\w+)/);
+
   return match ? match[1]! : null;
 }
 
@@ -227,8 +257,8 @@ function parseModel(state: ParserState): ASTModel | null {
       continue;
     }
 
-    // Parse field (pass objectNames for type resolution)
-    const result = parseFieldDeclaration(fieldLine, state.currentLine + 1, state.objectNames);
+    // Parse field (pass objectNames and tupleNames for type resolution)
+    const result = parseFieldDeclaration(fieldLine, state.currentLine + 1, state.objectNames, state.tupleNames);
     if (result.error) {
       addError(state, result.error);
     } else if (result.field) {
@@ -296,8 +326,8 @@ function parseObject(state: ParserState): ASTObject | null {
       break;
     }
 
-    // Parse field (pass objectNames for type resolution)
-    const result = parseFieldDeclaration(fieldLine, state.currentLine + 1, state.objectNames);
+    // Parse field (pass objectNames and tupleNames for type resolution)
+    const result = parseFieldDeclaration(fieldLine, state.currentLine + 1, state.objectNames, state.tupleNames);
     if (result.error) {
       addError(state, result.error);
     } else if (result.field) {
@@ -313,12 +343,187 @@ function parseObject(state: ParserState): ASTObject | null {
 }
 
 /**
- * First pass: collect all object and model names without parsing fields.
- * This enables forward references (objects/models defined after usage).
+ * Parse a tuple element declaration.
+ * Format: [name] Type[?]
+ * Examples:
+ *   Float           → unnamed, required
+ *   lat Float       → named "lat", required
+ *   Float?          → unnamed, optional
+ *   lat Float?      → named "lat", optional
+ *   Address         → unnamed, object type
+ *   Point           → unnamed, tuple type (if Point is a known tuple)
  */
-function collectNames(source: string): { objectNames: Set<string>; modelNames: Set<string> } {
+function parseTupleElement(token: string, objectNames: Set<string>, tupleNames: Set<string>): ASTTupleElement | null {
+  const parts = token.trim().split(/\s+/);
+  if (!parts.length) return null;
+
+  let name: string | undefined;
+  let typeStr: string;
+
+  if (parts.length === 1) {
+    // Unnamed element: just a type like "Float" or "Float?" or "Address"
+    typeStr = parts[0]!;
+  } else {
+    // Named element: "lat Float" or "lat Float?"
+    name = parts[0]!;
+    typeStr = parts[1]!;
+  }
+
+  // Check optional marker
+  const isOptional = typeStr.endsWith('?');
+  if (isOptional) {
+    typeStr = typeStr.slice(0, -1);
+  }
+
+  // Resolve type
+  const fieldType = parseFieldType(typeStr, objectNames, tupleNames);
+  if (!fieldType) return null;
+
+  // Extract object/tuple name if applicable
+  const objectName = fieldType === 'object' ? extractObjectName(typeStr) : undefined;
+  const tupleName = fieldType === 'tuple' ? extractTupleName(typeStr) : undefined;
+
+  return createTupleElement(fieldType, isOptional, name, objectName, tupleName);
+}
+
+/** Parse a tuple block */
+function parseTuple(state: ParserState): ASTTuple | null {
+  const line = currentLine(state);
+  if (line === undefined) return null;
+
+  // Extract tuple name
+  const tupleName = extractTupleNameFromLine(line);
+  if (!tupleName) {
+    addError(state, `Invalid tuple declaration: ${line}`);
+    advance(state);
+
+    return null;
+  }
+
+  const startLine = state.currentLine;
+  advance(state);
+
+  // Check for single-line tuple: "tuple Name { elements }" — both { and } on same line
+  const cleanedLine = removeComments(line);
+  const singleLineBraceIdx = cleanedLine.indexOf('{');
+  if (singleLineBraceIdx !== -1) {
+    const afterBrace = cleanedLine.substring(singleLineBraceIdx + 1).trim();
+    if (afterBrace.endsWith('}')) {
+      const content = afterBrace.slice(0, -1).trim();
+      const elements = parseTupleElements(content, tupleName, state);
+      const range = createRange(createPosition(startLine + 1, 0, 0), createPosition(state.currentLine, 0, 0));
+
+      return createTuple(tupleName, elements, range);
+    }
+  }
+
+  // Find the opening brace (might be on same line as "tuple Name {" or on next line)
+  if (!isBlockStart(line)) {
+    while (!isEnd(state)) {
+      const nextLine = currentLine(state);
+      if (nextLine === undefined) break;
+      if (isEmptyOrComment(nextLine)) {
+        advance(state);
+        continue;
+      }
+      if (isBlockStart(nextLine)) {
+        advance(state);
+        break;
+      }
+      addError(state, `Expected '{' for tuple ${tupleName}`);
+
+      return null;
+    }
+  }
+
+  // Parse elements until closing brace
+  // Elements are comma-separated across potentially multiple lines
+  // Collect all content between { and }
+  let content = '';
+
+  // If the opening brace was on the same line as "tuple Name {", grab content after it
+  const braceIdx = removeComments(line).indexOf('{');
+  if (braceIdx !== -1) {
+    const afterBrace = removeComments(line)
+      .substring(braceIdx + 1)
+      .trim();
+    if (afterBrace && afterBrace !== '}') {
+      content += afterBrace;
+    }
+  }
+
+  while (!isEnd(state)) {
+    const elementLine = currentLine(state);
+    if (elementLine === undefined) break;
+
+    const trimmedLine = removeComments(elementLine).trim();
+
+    // Check for end of tuple
+    if (trimmedLine === '}') {
+      advance(state);
+      break;
+    }
+
+    // Check if line ends with }
+    if (trimmedLine.endsWith('}')) {
+      content += (content ? ' ' : '') + trimmedLine.slice(0, -1).trim();
+      advance(state);
+      break;
+    }
+
+    // Skip empty lines
+    if (!trimmedLine) {
+      advance(state);
+      continue;
+    }
+
+    content += (content ? ' ' : '') + trimmedLine;
+    advance(state);
+  }
+
+  const elements = parseTupleElements(content, tupleName, state);
+  const range = createRange(createPosition(startLine + 1, 0, 0), createPosition(state.currentLine, 0, 0));
+
+  return createTuple(tupleName, elements, range);
+}
+
+/**
+ * Parse comma-separated tuple elements from collected content.
+ * Handles: "Float, Float", "lat Float, lng Float", "String, Int?, Address"
+ */
+function parseTupleElements(content: string, tupleName: string, state: ParserState): ASTTupleElement[] {
+  const elements: ASTTupleElement[] = [];
+  if (!content.trim()) return elements;
+
+  const parts = content
+    .split(',')
+    .map((p) => p.trim())
+    .filter((p) => p.length > 0);
+
+  for (const part of parts) {
+    const element = parseTupleElement(part, state.objectNames, state.tupleNames);
+    if (element) {
+      elements.push(element);
+    } else {
+      addError(state, `Invalid tuple element '${part}' in tuple ${tupleName}`);
+    }
+  }
+
+  return elements;
+}
+
+/**
+ * First pass: collect all object, model, and tuple names without parsing fields.
+ * This enables forward references (objects/models/tuples defined after usage).
+ */
+function collectNames(source: string): {
+  objectNames: Set<string>;
+  modelNames: Set<string>;
+  tupleNames: Set<string>;
+} {
   const objectNames = new Set<string>();
   const modelNames = new Set<string>();
+  const tupleNames = new Set<string>();
   const lines = source.split('\n');
 
   for (const line of lines) {
@@ -329,22 +534,30 @@ function collectNames(source: string): { objectNames: Set<string>; modelNames: S
     } else if (trimmed.startsWith('model ')) {
       const match = trimmed.match(/^model\s+(\w+)/);
       if (match) modelNames.add(match[1]!);
+    } else if (trimmed.startsWith('tuple ')) {
+      const match = trimmed.match(/^tuple\s+(\w+)/);
+      if (match) tupleNames.add(match[1]!);
     }
   }
 
-  return { objectNames, modelNames };
+  return { objectNames, modelNames, tupleNames };
 }
 
-/** Parse schema source (supports object {} blocks with two-pass name resolution) */
-export function parse(source: string, externalObjectNames?: Set<string>): ParseResult {
-  // First pass: collect all object names for forward reference resolution
-  const { objectNames: localObjectNames } = collectNames(source);
+/** Parse schema source (supports object/tuple {} blocks with two-pass name resolution) */
+export function parse(
+  source: string,
+  externalObjectNames?: Set<string>,
+  externalTupleNames?: Set<string>,
+): ParseResult {
+  // First pass: collect all object and tuple names for forward reference resolution
+  const { objectNames: localObjectNames, tupleNames: localTupleNames } = collectNames(source);
 
-  // Merge with any external object names (from other schema files)
+  // Merge with any external names (from other schema files)
   const allObjectNames = new Set<string>([...localObjectNames, ...(externalObjectNames ?? [])]);
+  const allTupleNames = new Set<string>([...localTupleNames, ...(externalTupleNames ?? [])]);
 
-  // Second pass: full parse with object names context
-  const state = createState(source, allObjectNames);
+  // Second pass: full parse with object and tuple names context
+  const state = createState(source, allObjectNames, allTupleNames);
 
   while (!isEnd(state)) {
     const line = currentLine(state);
@@ -353,6 +566,15 @@ export function parse(source: string, externalObjectNames?: Set<string>): ParseR
     // Skip empty lines and comments
     if (isEmptyOrComment(line)) {
       advance(state);
+      continue;
+    }
+
+    // Parse tuple (before object to avoid tuple being mistaken for other blocks)
+    if (isTupleLine(line)) {
+      const tuple = parseTuple(state);
+      if (tuple) {
+        state.tuples.push(tuple);
+      }
       continue;
     }
 
@@ -379,7 +601,7 @@ export function parse(source: string, externalObjectNames?: Set<string>): ParseR
   }
 
   return {
-    ast: createSchemaAST(state.models, source, state.objects),
+    ast: createSchemaAST(state.models, source, state.objects, state.tuples),
     errors: state.errors,
   };
 }
@@ -862,10 +1084,114 @@ export function validateSchema(ast: SchemaAST): ParseError[] {
     }
   }
 
+  // Check for duplicate tuple names and validate tuple definitions
+  const tupleNames = new Set<string>();
+  for (const tuple of ast.tuples) {
+    if (tupleNames.has(tuple.name)) {
+      errors.push({
+        message: `Duplicate tuple name: ${tuple.name}`,
+        position: tuple.range.start,
+      });
+    }
+    // Check for name collision with model names
+    if (modelNames.has(tuple.name)) {
+      errors.push({
+        message: `Tuple name '${tuple.name}' conflicts with model name`,
+        position: tuple.range.start,
+      });
+    }
+    // Check for name collision with object names
+    if (objectNames.has(tuple.name)) {
+      errors.push({
+        message: `Tuple name '${tuple.name}' conflicts with object name`,
+        position: tuple.range.start,
+      });
+    }
+    tupleNames.add(tuple.name);
+
+    // Tuple must have at least one element
+    if (!tuple.elements.length) {
+      errors.push({
+        message: `Tuple ${tuple.name} must have at least one element`,
+        position: tuple.range.start,
+      });
+    }
+
+    // Validate individual elements
+    const elementNames = new Set<string>();
+    for (let i = 0; i < tuple.elements.length; i++) {
+      const element = tuple.elements[i]!;
+
+      // Check for duplicate named elements
+      if (element.name) {
+        if (elementNames.has(element.name)) {
+          errors.push({
+            message: `Duplicate element name '${element.name}' in tuple ${tuple.name}`,
+            position: tuple.range.start,
+          });
+        }
+        elementNames.add(element.name);
+      }
+
+      // Tuples cannot contain Relation elements
+      if (element.type === 'relation') {
+        errors.push({
+          message: `Tuple elements cannot be Relation type in tuple ${tuple.name}`,
+          position: tuple.range.start,
+        });
+      }
+
+      // Tuples cannot contain Record elements
+      if (element.type === 'record') {
+        errors.push({
+          message: `Tuple elements cannot be Record type in tuple ${tuple.name}`,
+          position: tuple.range.start,
+        });
+      }
+
+      // Self-referencing tuple elements must be optional
+      if (element.type === 'tuple' && element.tupleName === tuple.name) {
+        if (!element.isOptional) {
+          errors.push({
+            message: `Self-referencing tuple element in tuple ${tuple.name} must be optional to avoid infinite recursion`,
+            position: tuple.range.start,
+          });
+        }
+      }
+
+      // Object-type elements must reference a valid object
+      if (element.type === 'object' && element.objectName) {
+        const objExists = ast.objects.some((o) => o.name === element.objectName);
+        if (!objExists) {
+          errors.push({
+            message: `Tuple element references unknown object '${element.objectName}' in tuple ${tuple.name}`,
+            position: tuple.range.start,
+          });
+        }
+      }
+
+      // Tuple-type elements must reference a valid tuple (other than self, already handled)
+      if (element.type === 'tuple' && element.tupleName && element.tupleName !== tuple.name) {
+        const tupExists = ast.tuples.some((t) => t.name === element.tupleName);
+        if (!tupExists) {
+          errors.push({
+            message: `Tuple element references unknown tuple '${element.tupleName}' in tuple ${tuple.name}`,
+            position: tuple.range.start,
+          });
+        }
+      }
+    }
+  }
+
   return errors;
 }
 
 /** Collect all object names from a source (first-pass only, for external use) */
 export function collectObjectNames(source: string): Set<string> {
   return collectNames(source).objectNames;
+}
+
+/** Collect all tuple names from a source (first-pass only, for external use) */
+export function collectTupleNames(source: string): Set<string> {
+  return collectNames(source).tupleNames;
 }

@@ -4,7 +4,7 @@
 
 import { mkdir } from 'node:fs/promises';
 import * as prettier from 'prettier';
-import type { ModelMetadata, ObjectMetadata, ObjectRegistry } from '../../types';
+import type { ModelMetadata, ObjectMetadata, ObjectRegistry, TupleMetadata, TupleRegistry } from '../../types';
 import {
   generateAllDerivedTypes,
   generateInterfaces,
@@ -12,6 +12,8 @@ import {
   generateObjectDerivedTypes,
   generateObjectInterfaces,
   generateObjectWhereInterface,
+  generateTupleInterfaces,
+  generateTupleWhereInterface,
   generateWhereTypes,
   objectHasDefaultOrTimestamp,
 } from '../types';
@@ -124,6 +126,58 @@ function getObjectReferencedObjectNames(object: ObjectMetadata): string[] {
   return Array.from(objectNames);
 }
 
+/** Get referenced tuple names from a model's tuple fields */
+function getReferencedTupleNames(model: ModelMetadata): string[] {
+  const tupleNames = new Set<string>();
+
+  for (const field of model.fields) {
+    if (field.type === 'tuple' && field.tupleInfo) {
+      tupleNames.add(field.tupleInfo.tupleName);
+    }
+  }
+
+  return Array.from(tupleNames);
+}
+
+/** Get referenced tuple names from an object's fields */
+function getObjectReferencedTupleNames(object: ObjectMetadata): string[] {
+  const tupleNames = new Set<string>();
+
+  for (const field of object.fields) {
+    if (field.type === 'tuple' && field.tupleInfo) {
+      tupleNames.add(field.tupleInfo.tupleName);
+    }
+  }
+
+  return Array.from(tupleNames);
+}
+
+/** Get referenced object and tuple names from a tuple's elements */
+function getTupleReferencedObjectNames(tuple: TupleMetadata): string[] {
+  const objectNames = new Set<string>();
+
+  for (const element of tuple.elements) {
+    if (element.type === 'object' && element.objectInfo) {
+      objectNames.add(element.objectInfo.objectName);
+    }
+  }
+
+  return Array.from(objectNames);
+}
+
+/** Get referenced tuple names from a tuple's elements (for cross-tuple imports) */
+function getTupleReferencedTupleNames(tuple: TupleMetadata): string[] {
+  const tupleNames = new Set<string>();
+
+  for (const element of tuple.elements) {
+    if (element.type === 'tuple' && element.tupleInfo && element.tupleInfo.tupleName !== tuple.name) {
+      tupleNames.add(element.tupleInfo.tupleName);
+    }
+  }
+
+  return Array.from(tupleNames);
+}
+
 /** Check if a model has any relation fields */
 function hasRelations(model: ModelMetadata): boolean {
   return model.fields.some((f) => f.type === 'relation' && f.relationInfo);
@@ -173,6 +227,20 @@ function generateObjectImports(objectNames: string[], objectRegistry?: ObjectReg
   return imports.join('\n') + '\n';
 }
 
+/** Generate import statements for referenced tuple types */
+function generateTupleImports(tupleNames: string[]): string {
+  if (tupleNames.length === 0) return '';
+
+  const imports = tupleNames.map((name) => {
+    const fileName = name.toLowerCase();
+    const importNames = [name, `${name}Input`, `${name}Where`];
+
+    return `import type { ${importNames.join(', ')} } from './${fileName}';`;
+  });
+
+  return imports.join('\n') + '\n';
+}
+
 /** Create a registry from model array */
 function createRegistryFromModels(models: ModelMetadata[]): Record<string, ModelMetadata> {
   const registry: Record<string, ModelMetadata> = {};
@@ -188,6 +256,7 @@ export async function writeModelTypes(
   model: ModelMetadata,
   allModels: ModelMetadata[],
   objectRegistry?: ObjectRegistry,
+  tupleRegistry?: TupleRegistry,
 ): Promise<string> {
   const modelsDir = `${outputDir}/models`;
   await ensureDir(modelsDir);
@@ -201,6 +270,10 @@ export async function writeModelTypes(
   // Get referenced object names for imports
   const referencedObjects = getReferencedObjectNames(model);
   const objectImports = generateObjectImports(referencedObjects, objectRegistry);
+
+  // Get referenced tuple names for imports
+  const referencedTuples = getReferencedTupleNames(model);
+  const tupleImports = generateTupleImports(referencedTuples);
 
   // Create registry for Include type generation
   const registry = createRegistryFromModels(allModels);
@@ -220,7 +293,7 @@ export async function writeModelTypes(
 ${TS_TOOLBELT_IMPORT}
 ${CERIAL_ID_IMPORT}
 ${UNIQUE_TYPES_IMPORT}
-${relatedImports}${objectImports}${interfaceCode}
+${relatedImports}${objectImports}${tupleImports}${interfaceCode}
 
 ${whereCode}
 
@@ -240,6 +313,7 @@ export async function writeObjectTypes(
   outputDir: string,
   object: ObjectMetadata,
   objectRegistry?: ObjectRegistry,
+  tupleRegistry?: TupleRegistry,
 ): Promise<string> {
   const modelsDir = `${outputDir}/models`;
   await ensureDir(modelsDir);
@@ -249,6 +323,10 @@ export async function writeObjectTypes(
   // Get cross-referenced object names for imports
   const referencedObjects = getObjectReferencedObjectNames(object);
   const objectImports = generateObjectImports(referencedObjects);
+
+  // Get referenced tuple names for imports
+  const referencedTuples = getObjectReferencedTupleNames(object);
+  const tupleImports = generateTupleImports(referencedTuples);
 
   // Determine if we need CerialId import (for Record fields in objects)
   const hasRecordFields = object.fields.some((f) => f.type === 'record');
@@ -264,11 +342,51 @@ export async function writeObjectTypes(
  * Do not edit manually
  */
 
-${cerialIdImport}${objectImports}${interfaceCode}
+${cerialIdImport}${objectImports}${tupleImports}${interfaceCode}
 
 ${whereCode}
 
 ${derivedCode}
+`;
+
+  const formatted = await formatCode(content, outputDir);
+  await Bun.write(filePath, formatted);
+
+  return filePath;
+}
+
+/** Write tuple type file */
+export async function writeTupleTypes(
+  outputDir: string,
+  tuple: TupleMetadata,
+  tupleRegistry?: TupleRegistry,
+  objectRegistry?: ObjectRegistry,
+): Promise<string> {
+  const modelsDir = `${outputDir}/models`;
+  await ensureDir(modelsDir);
+
+  const filePath = `${modelsDir}/${tuple.name.toLowerCase()}.ts`;
+
+  // Get cross-referenced object names for imports (object elements in tuple)
+  const referencedObjects = getTupleReferencedObjectNames(tuple);
+  const objectImports = generateObjectImports(referencedObjects, objectRegistry);
+
+  // Get cross-referenced tuple names for imports (nested tuple elements)
+  const referencedTuples = getTupleReferencedTupleNames(tuple);
+  const tupleImports = generateTupleImports(referencedTuples);
+
+  // Generate all type content for this tuple
+  const interfaceCode = generateTupleInterfaces([tuple], tupleRegistry, objectRegistry);
+  const whereCode = generateTupleWhereInterface(tuple, tupleRegistry, objectRegistry);
+
+  const content = `/**
+ * Generated types for ${tuple.name}
+ * Do not edit manually
+ */
+
+${objectImports}${tupleImports}${interfaceCode}
+
+${whereCode}
 `;
 
   const formatted = await formatCode(content, outputDir);
@@ -282,6 +400,7 @@ export async function writeModelsIndex(
   outputDir: string,
   models: ModelMetadata[],
   objects: ObjectMetadata[] = [],
+  tuples: TupleMetadata[] = [],
 ): Promise<string> {
   const modelsDir = `${outputDir}/models`;
   await ensureDir(modelsDir);
@@ -289,7 +408,8 @@ export async function writeModelsIndex(
   const filePath = `${modelsDir}/index.ts`;
   const modelExports = models.map((m) => `export * from './${m.name.toLowerCase()}';`).join('\n');
   const objectExports = objects.map((o) => `export * from './${o.name.toLowerCase()}';`).join('\n');
-  const allExports = objectExports ? `${objectExports}\n${modelExports}` : modelExports;
+  const tupleExports = tuples.map((t) => `export * from './${t.name.toLowerCase()}';`).join('\n');
+  const allExports = [tupleExports, objectExports, modelExports].filter(Boolean).join('\n');
 
   const content = `/**
  * Generated model exports
@@ -310,6 +430,7 @@ export async function writeClientIndex(
   outputDir: string,
   models: ModelMetadata[],
   objects: ObjectMetadata[] = [],
+  tuples: TupleMetadata[] = [],
 ): Promise<string> {
   await ensureDir(outputDir);
 
@@ -456,6 +577,30 @@ export type {
 `;
   }
 
+  // Add Tuple type exports if there are tuples
+  if (tuples.length > 0) {
+    const tupInterfaces = tuples.map((t) => t.name).join(',\n  ');
+    const tupInputs = tuples.map((t) => `${t.name}Input`).join(',\n  ');
+    const tupWheres = tuples.map((t) => `${t.name}Where`).join(',\n  ');
+
+    content += `
+// Tuple types (output types - TypeScript tuple literals)
+export type {
+  ${tupInterfaces},
+} from './models';
+
+// Tuple input types (accepts array or object form)
+export type {
+  ${tupInputs},
+} from './models';
+
+// Tuple where types
+export type {
+  ${tupWheres},
+} from './models';
+`;
+  }
+
   // Add Include exports if there are models with relations
   if (modelsWithRelations.length > 0) {
     content += `
@@ -591,28 +736,35 @@ export async function writeClient(
   outputDir: string,
   models: ModelMetadata[],
   objects: ObjectMetadata[] = [],
+  tuples: TupleMetadata[] = [],
   objectRegistry?: ObjectRegistry,
+  tupleRegistry?: TupleRegistry,
 ): Promise<string[]> {
   const files: string[] = [];
 
   // Write client main
   files.push(await writeClientMain(outputDir, models));
 
+  // Write tuple types (before objects and models so imports can resolve)
+  for (const tuple of tuples) {
+    files.push(await writeTupleTypes(outputDir, tuple, tupleRegistry, objectRegistry));
+  }
+
   // Write object types (before models so model imports can resolve)
   for (const object of objects) {
-    files.push(await writeObjectTypes(outputDir, object, objectRegistry));
+    files.push(await writeObjectTypes(outputDir, object, objectRegistry, tupleRegistry));
   }
 
   // Write model types
   for (const model of models) {
-    files.push(await writeModelTypes(outputDir, model, models, objectRegistry));
+    files.push(await writeModelTypes(outputDir, model, models, objectRegistry, tupleRegistry));
   }
 
-  // Write models index (includes objects)
-  files.push(await writeModelsIndex(outputDir, models, objects));
+  // Write models index (includes objects and tuples)
+  files.push(await writeModelsIndex(outputDir, models, objects, tuples));
 
-  // Write main index (includes object exports)
-  files.push(await writeClientIndex(outputDir, models, objects));
+  // Write main index (includes object and tuple exports)
+  files.push(await writeClientIndex(outputDir, models, objects, tuples));
 
   return files;
 }

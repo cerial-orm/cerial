@@ -4,7 +4,7 @@
 
 import { mkdir } from 'node:fs/promises';
 import * as prettier from 'prettier';
-import type { ModelMetadata, ObjectRegistry } from '../../types';
+import type { ModelMetadata, ObjectRegistry, TupleRegistry } from '../../types';
 import { generatePerModelMigrationCode } from './define-generator';
 
 /** Prettier config cache */
@@ -44,6 +44,7 @@ export async function writeMigrationFile(
   outputDir: string,
   models: ModelMetadata[],
   objectRegistry?: ObjectRegistry,
+  tupleRegistry?: TupleRegistry,
 ): Promise<string> {
   const internalDir = `${outputDir}/internal`;
   await ensureDir(internalDir);
@@ -54,7 +55,7 @@ export async function writeMigrationFile(
  * Do not edit manually
  */
 
-${generatePerModelMigrationCode(models, objectRegistry)}
+${generatePerModelMigrationCode(models, objectRegistry, tupleRegistry)}
 `;
 
   const formatted = await formatCode(content, outputDir);

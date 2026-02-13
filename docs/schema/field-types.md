@@ -6,7 +6,7 @@ nav_order: 1
 
 # Field Types
 
-Cerial supports 8 built-in field types. Each type maps to a specific SurrealDB type and TypeScript type.
+Cerial supports 8 built-in field types plus user-defined tuple and object types. Each type maps to a specific SurrealDB type and TypeScript type.
 
 ## Type Reference
 
@@ -171,3 +171,24 @@ model User {
   shipping Address?      # optional embedded object
 }
 ```
+
+## Tuple Types
+
+User-defined tuple types provide fixed-length, typed arrays. Each element has a specific type and position. Unlike objects, tuple output is always an array. See the [Tuples](../tuples/) section for details.
+
+```cerial
+tuple Coordinate {
+  lat Float,
+  lng Float
+}
+
+model User {
+  id Record @id
+  name String
+  location Coordinate       # required tuple
+  backup Coordinate?        # optional tuple
+  history Coordinate[]      # array of tuples
+}
+```
+
+Input accepts both array form (`[40.7, -74.0]`) and object form (`{ lat: 40.7, lng: -74.0 }`). Output is always array form.

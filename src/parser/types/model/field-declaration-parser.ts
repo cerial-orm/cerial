@@ -45,7 +45,7 @@ import {
   parseUniqueDecorator,
   parseUpdatedAtDecorator,
 } from '../field-decorators';
-import { extractObjectName, isArrayType, isObjectType, parseFieldType } from '../field-types';
+import { extractObjectName, extractTupleName, isArrayType, isObjectType, parseFieldType } from '../field-types';
 
 /** Result of parsing a field line */
 export interface FieldParseResult {
@@ -60,9 +60,15 @@ export function isFieldDeclaration(line: string): boolean {
     return false;
   }
   // New format: must have at least two words (fieldName Type)
-  // and NOT start with 'model' or 'object'
+  // and NOT start with 'model', 'object', or 'tuple'
   const words = trimmed.split(/\s+/);
-  return words.length >= 2 && !trimmed.startsWith('model ') && !trimmed.startsWith('object ');
+
+  return (
+    words.length >= 2 &&
+    !trimmed.startsWith('model ') &&
+    !trimmed.startsWith('object ') &&
+    !trimmed.startsWith('tuple ')
+  );
 }
 
 /** Parse decorators from a field line (at the end) */
@@ -125,7 +131,12 @@ export function parseDecorators(line: string, lineNumber: number): ASTDecorator[
  *          profile Relation @field(profileId) @model(Profile)
  *          posts Relation @field(postIds) @model(Post)
  */
-export function parseFieldDeclaration(line: string, lineNumber: number, objectNames?: Set<string>): FieldParseResult {
+export function parseFieldDeclaration(
+  line: string,
+  lineNumber: number,
+  objectNames?: Set<string>,
+  tupleNames?: Set<string>,
+): FieldParseResult {
   const trimmed = line.trim();
 
   // Remove comments
@@ -164,8 +175,8 @@ export function parseFieldDeclaration(line: string, lineNumber: number, objectNa
     return { field: null, error: `Invalid field name: ${fieldName}` };
   }
 
-  // Parse field type (pass objectNames for object type resolution)
-  const fieldType = parseFieldType(typeStr, objectNames);
+  // Parse field type (pass objectNames and tupleNames for type resolution)
+  const fieldType = parseFieldType(typeStr, objectNames, tupleNames);
   if (!fieldType) {
     return {
       field: null,
@@ -178,7 +189,9 @@ export function parseFieldDeclaration(line: string, lineNumber: number, objectNa
 
   // For object types, extract the object name
   const objName = fieldType === 'object' ? extractObjectName(typeStr) : undefined;
-  const field = createField(fieldName, fieldType, isOptional, decorators, range, isArray, objName);
+  // For tuple types, extract the tuple name
+  const tupName = fieldType === 'tuple' ? extractTupleName(typeStr) : undefined;
+  const field = createField(fieldName, fieldType, isOptional, decorators, range, isArray, objName, tupName);
 
   return { field, error: null };
 }

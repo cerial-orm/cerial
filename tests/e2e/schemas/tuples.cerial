@@ -1,0 +1,80 @@
+tuple Coordinate {
+  lat Float,
+  lng Float
+}
+
+tuple Entry {
+  name String,
+  Int,
+  Bool
+}
+
+tuple Inner {
+  x Int,
+  y Int
+}
+
+tuple Outer {
+  label String,
+  Inner
+}
+
+object TupleAddress {
+  street String
+  city String
+}
+
+tuple Located {
+  tag String,
+  TupleAddress
+}
+
+tuple WithOptional {
+  text String,
+  Float?
+}
+
+model TupleBasic {
+  id Record @id
+  name String
+  location Coordinate
+  backup Coordinate?
+  history Coordinate[]
+  entry Entry?
+}
+
+model TupleNested {
+  id Record @id
+  payload Outer
+}
+
+model TupleObjInTuple {
+  id Record @id
+  place Located
+}
+
+model TupleInObj {
+  id Record @id
+  details TupleHolder
+}
+
+object TupleHolder {
+  label String
+  coord Coordinate
+  optCoord Coordinate?
+}
+
+model TupleWithRelation {
+  id Record @id
+  name String
+  location Coordinate
+  posts Relation[] @model(TupleRelatedPost)
+}
+
+model TupleRelatedPost {
+  id Record @id
+  title String
+  position Coordinate?
+  authorId Record
+  author Relation @field(authorId) @model(TupleWithRelation)
+}
