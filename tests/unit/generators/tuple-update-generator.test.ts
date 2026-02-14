@@ -111,7 +111,7 @@ describe('Tuple Update Type Generator', () => {
       expect(result).toContain('1?: Partial<TupleAddressInput> | { set: TupleAddressInput }');
     });
 
-    test('should generate TupleInput | { update: TupleUpdate } for nested tuple elements', () => {
+    test('should generate array-form | TupleUpdate for nested tuple elements (no wrapper)', () => {
       const t = tuple('Outer', [
         elem({ index: 0, type: 'string' }),
         elem({
@@ -123,7 +123,7 @@ describe('Tuple Update Type Generator', () => {
 
       const result = generateTupleUpdateType(t);
 
-      expect(result).toContain('1?: InnerInput | { update: InnerUpdate }');
+      expect(result).toContain('1?: [number] | InnerUpdate');
     });
 
     test('should handle single-element tuple', () => {
@@ -157,7 +157,7 @@ describe('Tuple Update Type Generator', () => {
       expect(result).toContain('0?: string');
       expect(result).toContain('label?: string');
       expect(result).toContain('1?: Partial<AddrInput> | { set: AddrInput }');
-      expect(result).toContain('2?: CoordInput | { update: CoordUpdate }');
+      expect(result).toContain('2?: [number] | CoordUpdate');
       expect(result).toContain('3?: boolean');
     });
 

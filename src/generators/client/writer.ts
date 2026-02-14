@@ -4,7 +4,14 @@
 
 import { mkdir } from 'node:fs/promises';
 import * as prettier from 'prettier';
-import type { ModelMetadata, ObjectMetadata, ObjectRegistry, TupleMetadata, TupleRegistry } from '../../types';
+import type {
+  ModelMetadata,
+  ObjectMetadata,
+  ObjectRegistry,
+  TupleFieldMetadata,
+  TupleMetadata,
+  TupleRegistry,
+} from '../../types';
 import {
   generateAllDerivedTypes,
   generateInterfaces,
@@ -130,6 +137,52 @@ function getObjectReferencedObjectNames(object: ObjectMetadata): string[] {
   }
 
   return Array.from(objectNames);
+}
+
+/**
+ * Recursively collect all object names referenced by a tuple's elements.
+ * Used to ensure files import object Input types that appear in the
+ * inline array-form of the Update type (e.g., `[string, DeepMidObjInput]`).
+ */
+function collectTupleObjectNamesDeep(tupleInfo: TupleFieldMetadata, visited: Set<string> = new Set()): Set<string> {
+  const objectNames = new Set<string>();
+  if (visited.has(tupleInfo.tupleName)) return objectNames;
+  visited.add(tupleInfo.tupleName);
+
+  for (const element of tupleInfo.elements) {
+    if (element.type === 'object' && element.objectInfo) {
+      objectNames.add(element.objectInfo.objectName);
+    }
+    if (element.type === 'tuple' && element.tupleInfo) {
+      for (const name of collectTupleObjectNamesDeep(element.tupleInfo, visited)) {
+        objectNames.add(name);
+      }
+    }
+  }
+
+  return objectNames;
+}
+
+/**
+ * Recursively collect all tuple names referenced by a tuple's elements.
+ * Used to ensure files import nested tuple Input types that appear in the
+ * inline array-form of the Update type (e.g., `[string, DeepMidTupleInput]`).
+ */
+function collectTupleTupleNamesDeep(tupleInfo: TupleFieldMetadata, visited: Set<string> = new Set()): Set<string> {
+  const tupleNames = new Set<string>();
+  if (visited.has(tupleInfo.tupleName)) return tupleNames;
+  visited.add(tupleInfo.tupleName);
+
+  for (const element of tupleInfo.elements) {
+    if (element.type === 'tuple' && element.tupleInfo) {
+      tupleNames.add(element.tupleInfo.tupleName);
+      for (const name of collectTupleTupleNamesDeep(element.tupleInfo, visited)) {
+        tupleNames.add(name);
+      }
+    }
+  }
+
+  return tupleNames;
 }
 
 /** Get referenced tuple names from a model's tuple fields */
@@ -295,12 +348,36 @@ export async function writeModelTypes(
   const relatedModels = getRelatedModelNames(model).filter((name) => name !== model.name);
   const relatedImports = generateRelatedImports(relatedModels, allModels);
 
-  // Get referenced object names for imports
-  const referencedObjects = getReferencedObjectNames(model);
+  // Get referenced object names for imports (direct object fields + objects from tuple array-forms)
+  const referencedObjectsSet = new Set(getReferencedObjectNames(model));
+
+  // Single (non-array) tuple fields generate inline array-form types in the Update type
+  // that may reference object Input types (e.g., `[string, DeepMidObjInput]`)
+  for (const field of model.fields) {
+    if (field.type === 'tuple' && field.tupleInfo && !field.isArray) {
+      for (const name of collectTupleObjectNamesDeep(field.tupleInfo)) {
+        referencedObjectsSet.add(name);
+      }
+    }
+  }
+
+  const referencedObjects = Array.from(referencedObjectsSet);
   const objectImports = generateObjectImports(referencedObjects, objectRegistry);
 
-  // Get referenced tuple names for imports
-  const referencedTuples = getReferencedTupleNames(model);
+  // Get referenced tuple names for imports (direct tuple fields + nested tuples from array-forms)
+  const referencedTuplesSet = new Set(getReferencedTupleNames(model));
+
+  // Single (non-array) tuple fields generate inline array-form types in the Update type
+  // that may reference nested tuple Input types (e.g., `[string, DeepMidTupleInput]`)
+  for (const field of model.fields) {
+    if (field.type === 'tuple' && field.tupleInfo && !field.isArray) {
+      for (const name of collectTupleTupleNamesDeep(field.tupleInfo)) {
+        referencedTuplesSet.add(name);
+      }
+    }
+  }
+
+  const referencedTuples = Array.from(referencedTuplesSet);
   const tupleImports = generateTupleImports(referencedTuples, tupleRegistry);
 
   // Create registry for Include type generation
@@ -398,12 +475,35 @@ export async function writeTupleTypes(
 
   const filePath = `${modelsDir}/${tuple.name.toLowerCase()}.ts`;
 
-  // Get cross-referenced object names for imports (object elements in tuple)
-  const referencedObjects = getTupleReferencedObjectNames(tuple);
+  // Get cross-referenced object names for imports (direct object elements + objects from nested tuple array-forms)
+  const referencedObjectsSet = new Set(getTupleReferencedObjectNames(tuple));
+
+  // The Update type's array-form for nested tuple elements may reference object Input types
+  // from deeper levels (e.g., DeepOuterTupleUpdate references DeepMidObjInput via array-form)
+  for (const element of tuple.elements) {
+    if (element.type === 'tuple' && element.tupleInfo) {
+      for (const name of collectTupleObjectNamesDeep(element.tupleInfo)) {
+        referencedObjectsSet.add(name);
+      }
+    }
+  }
+
+  const referencedObjects = Array.from(referencedObjectsSet);
   const objectImports = generateObjectImports(referencedObjects, objectRegistry);
 
-  // Get cross-referenced tuple names for imports (nested tuple elements)
-  const referencedTuples = getTupleReferencedTupleNames(tuple);
+  // Get cross-referenced tuple names for imports (direct nested tuple elements + deeper levels)
+  const referencedTuplesSet = new Set(getTupleReferencedTupleNames(tuple));
+
+  // The Update type's array-form for nested tuple elements may reference deeper tuple Input types
+  for (const element of tuple.elements) {
+    if (element.type === 'tuple' && element.tupleInfo) {
+      for (const name of collectTupleTupleNamesDeep(element.tupleInfo)) {
+        referencedTuplesSet.add(name);
+      }
+    }
+  }
+
+  const referencedTuples = Array.from(referencedTuplesSet);
   const tupleImports = generateTupleImports(referencedTuples, tupleRegistry);
 
   // Generate all type content for this tuple

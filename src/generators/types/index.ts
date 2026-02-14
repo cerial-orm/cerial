@@ -64,6 +64,7 @@ export {
 export {
   generateAllTupleSelectTypes,
   generateAllTupleUpdateTypes,
+  generateTupleArrayForm,
   generateTupleInputInterface,
   generateTupleInterface,
   generateTupleInterfaces,

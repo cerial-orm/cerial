@@ -10,6 +10,7 @@
 import type { FieldMetadata, ModelMetadata, ModelRegistry, ObjectRegistry, TupleFieldMetadata } from '../../types';
 import { schemaTypeToTsType } from '../../utils/type-utils';
 import { objectHasDefaultOrTimestamp } from './objects/interface-generator';
+import { generateTupleArrayForm } from './tuples';
 
 /** Whether to use ts-toolbelt utilities in generated types */
 const USE_TS_TOOLBELT = true;
@@ -619,6 +620,8 @@ export function generateUpdateType(model: ModelMetadata): string {
   }
 
   // Tuple fields (skip @readonly — already excluded from update)
+  // Single tuples use array/object disambiguation: array = full replace, object = per-element update
+  // Array-form-only type prevents ambiguity (no object form for full replace)
   for (const f of tupleFields.filter((tf) => !tf.isReadonly)) {
     const tupleName = f.tupleInfo!.tupleName;
     const tupleInputName = `${tupleName}Input`;
@@ -630,18 +633,20 @@ export function generateUpdateType(model: ModelMetadata): string {
     push?: ${tupleInputName} | ${tupleInputName}[];
     set?: ${tupleInputName}[];
   };`);
-    } else if (f.isRequired && !f.isNullable) {
-      // Required non-nullable single tuple: full replace or per-element update
-      specialFieldTypes.push(`  ${f.name}?: ${tupleInputName} | { update: ${tupleUpdateName} };`);
-    } else if (f.isRequired && f.isNullable) {
-      // Required nullable single tuple: full replace, per-element update, or null
-      specialFieldTypes.push(`  ${f.name}?: ${tupleInputName} | { update: ${tupleUpdateName} } | null;`);
-    } else if (!f.isRequired && f.isNullable) {
-      // Optional nullable single tuple: full replace, per-element update, null, or CerialNone
-      specialFieldTypes.push(`  ${f.name}?: ${tupleInputName} | { update: ${tupleUpdateName} } | null | CerialNone;`);
     } else {
-      // Optional non-nullable single tuple: full replace, per-element update, or CerialNone
-      specialFieldTypes.push(`  ${f.name}?: ${tupleInputName} | { update: ${tupleUpdateName} } | CerialNone;`);
+      // Single tuple: array = full replace, object = per-element update
+      const arrayForm = generateTupleArrayForm(f.tupleInfo!);
+      let type = `${arrayForm} | ${tupleUpdateName}`;
+
+      if (f.isNullable && !f.isRequired) {
+        type += ' | null | CerialNone';
+      } else if (f.isNullable) {
+        type += ' | null';
+      } else if (!f.isRequired) {
+        type += ' | CerialNone';
+      }
+
+      specialFieldTypes.push(`  ${f.name}?: ${type};`);
     }
   }
 

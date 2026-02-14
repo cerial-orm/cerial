@@ -15,6 +15,6 @@ export {
 
 export { generateTupleWhereInterface, generateTupleWhereTypes } from './where-generator';
 
-export { generateTupleUpdateType, generateAllTupleUpdateTypes } from './update-generator';
+export { generateTupleArrayForm, generateTupleUpdateType, generateAllTupleUpdateTypes } from './update-generator';
 
 export { generateTupleSelectType, generateAllTupleSelectTypes } from './select-generator';

@@ -168,7 +168,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     const { cleanData, nestedOps } = extractNestedOperations(data as Record<string, unknown>, this.model);
 
     // Transform and validate data
-    const transformedData = transformData(cleanData, this.model);
+    const transformedData = transformData(cleanData, this.model, 'update');
 
     const dataValidation = validateUpdateData(transformedData, this.model);
     if (!dataValidation.valid)
@@ -218,7 +218,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     const { cleanData, nestedOps } = extractNestedOperations(data as Record<string, unknown>, this.model);
 
     // Transform and validate data
-    const transformedData = transformData(cleanData, this.model);
+    const transformedData = transformData(cleanData, this.model, 'update');
 
     const dataValidation = validateUpdateData(transformedData, this.model);
     if (!dataValidation.valid)
@@ -452,7 +452,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     // Transform and validate update data (only if update provided)
     let transformedUpdateData: Record<string, unknown> = {};
     if (updateData) {
-      transformedUpdateData = transformData(cleanUpdateData, this.model);
+      transformedUpdateData = transformData(cleanUpdateData, this.model, 'update');
       const updateValidation = validateUpdateData(transformedUpdateData, this.model);
       if (!updateValidation.valid)
         throw new Error(`Invalid update data: ${updateValidation.errors.map((e) => e.message).join(', ')}`);
@@ -696,7 +696,7 @@ export function compileUpdateMany(
     throw new Error(`Invalid where clause: ${whereValidation.errors.map((e) => e.message).join(', ')}`);
 
   const { cleanData, nestedOps } = extractNestedOperations(data, model);
-  const transformedData = transformData(cleanData, model);
+  const transformedData = transformData(cleanData, model, 'update');
 
   const dataValidation = validateUpdateData(transformedData, model);
   if (!dataValidation.valid) throw new Error(`Invalid data: ${dataValidation.errors.map((e) => e.message).join(', ')}`);
@@ -735,7 +735,7 @@ export function compileUpdateUnique(
   const { hasId, expandedWhere } = getRecordIdFromWhere(where, model, 'updateUnique');
 
   const { cleanData, nestedOps } = extractNestedOperations(data, model);
-  const transformedData = transformData(cleanData, model);
+  const transformedData = transformData(cleanData, model, 'update');
 
   const dataValidation = validateUpdateData(transformedData, model);
   if (!dataValidation.valid) throw new Error(`Invalid data: ${dataValidation.errors.map((e) => e.message).join(', ')}`);
@@ -893,7 +893,7 @@ export function compileUpsert(
   let transformedUpdateData: Record<string, unknown> = {};
   if (updateData) {
     const { cleanData: cleanUpdateData } = extractNestedOperations(updateData, model);
-    transformedUpdateData = transformData(cleanUpdateData, model);
+    transformedUpdateData = transformData(cleanUpdateData, model, 'update');
     const updateValidation = validateUpdateData(transformedUpdateData, model);
     if (!updateValidation.valid)
       throw new Error(`Invalid update data: ${updateValidation.errors.map((e) => e.message).join(', ')}`);

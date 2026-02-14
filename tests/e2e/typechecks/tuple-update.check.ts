@@ -92,35 +92,50 @@ Test.checks([
 // Nested Tuple Update
 // =============================================================================
 
-// DeepOuterTupleUpdate: nested tuple accepts Input | { update: Update }
+// DeepOuterTupleUpdate: nested tuple accepts array-form | TupleUpdate (no wrapper)
 Test.checks([
   Test.check<DeepOuterTupleUpdate['0'], string | undefined, Test.Pass>(),
-  Test.check<DeepOuterTupleUpdate['1'], DeepMidTupleInput | { update: DeepMidTupleUpdate } | undefined, Test.Pass>(),
+  Test.check<DeepOuterTupleUpdate['1'], [string, DeepMidObjInput] | DeepMidTupleUpdate | undefined, Test.Pass>(),
 ]);
 
-// DeepOuterTupleUpdate accepts nested per-element update
-Test.checks([Test.check<Extends<{ 1: { update: DeepMidTupleUpdate } }, DeepOuterTupleUpdate>, 1, Test.Pass>()]);
+// DeepOuterTupleUpdate accepts nested per-element update (no { update } wrapper)
+Test.checks([
+  Test.check<Extends<{ 1: DeepMidTupleUpdate }, DeepOuterTupleUpdate>, 1, Test.Pass>(),
+  // Array form = full replace
+  Test.check<Extends<{ 1: [string, DeepMidObjInput] }, DeepOuterTupleUpdate>, 1, Test.Pass>(),
+  // { update: ... } wrapper should NOT be assignable (removed at nested level)
+  Test.check<Extends<{ 1: { update: DeepMidTupleUpdate } }, DeepOuterTupleUpdate>, 0, Test.Pass>(),
+]);
 
 // =============================================================================
-// Model Update Types with { update } wrapper
+// Model Update Types with array/object disambiguation
 // =============================================================================
 
-// TupleBasicUpdate: single tuple field accepts { update: TupleUpdate }
+// TupleBasicUpdate: single tuple field — array = full replace, object = per-element
 Test.checks([
-  // Full replace
-  Test.check<Extends<{ location: CoordinateInput }, TupleBasicUpdate>, 1, Test.Pass>(),
-  // Per-element update
-  Test.check<Extends<{ location: { update: CoordinateUpdate } }, TupleBasicUpdate>, 1, Test.Pass>(),
+  // Full replace (array form)
+  Test.check<Extends<{ location: [number, number] }, TupleBasicUpdate>, 1, Test.Pass>(),
+  // Per-element update (object form = CoordinateUpdate)
+  Test.check<Extends<{ location: CoordinateUpdate }, TupleBasicUpdate>, 1, Test.Pass>(),
+  // { update: ... } wrapper should NOT be assignable (removed)
+  Test.check<Extends<{ location: { update: CoordinateUpdate } }, TupleBasicUpdate>, 0, Test.Pass>(),
 ]);
 
-// TupleObjInTupleUpdate: tuple with objects accepts { update }
+// TupleObjInTupleUpdate: tuple with objects — array/object disambiguation
 Test.checks([
-  Test.check<Extends<{ place: LocatedInput }, TupleObjInTupleUpdate>, 1, Test.Pass>(),
-  Test.check<Extends<{ place: { update: LocatedUpdate } }, TupleObjInTupleUpdate>, 1, Test.Pass>(),
+  // Full replace (array form)
+  Test.check<Extends<{ place: [string, TupleAddressInput] }, TupleObjInTupleUpdate>, 1, Test.Pass>(),
+  // Per-element update (object form)
+  Test.check<Extends<{ place: LocatedUpdate }, TupleObjInTupleUpdate>, 1, Test.Pass>(),
 ]);
 
-// TupleDeepNestUpdate: deep nested accepts { update }
-Test.checks([Test.check<Extends<{ deep: { update: DeepOuterTupleUpdate } }, TupleDeepNestUpdate>, 1, Test.Pass>()]);
+// TupleDeepNestUpdate: deep nested — array/object disambiguation
+Test.checks([
+  // Per-element update (object form)
+  Test.check<Extends<{ deep: DeepOuterTupleUpdate }, TupleDeepNestUpdate>, 1, Test.Pass>(),
+  // Full replace (array form)
+  Test.check<Extends<{ deep: [string, DeepMidTupleInput] }, TupleDeepNestUpdate>, 1, Test.Pass>(),
+]);
 
 // TupleDeepNestUpdate: optional deep field accepts CerialNone
 Test.checks([Test.check<Extends<{ deepOpt: CerialNone }, TupleDeepNestUpdate>, 1, Test.Pass>()]);
@@ -129,10 +144,10 @@ Test.checks([Test.check<Extends<{ deepOpt: CerialNone }, TupleDeepNestUpdate>, 1
 // Array tuples do NOT get per-element update
 // =============================================================================
 
-// TupleBasicUpdate: array tuple uses push/set, not { update }
+// TupleBasicUpdate: array tuple uses push/set, not per-element
 Test.checks([
   Test.check<Extends<{ history: { push: CoordinateInput } }, TupleBasicUpdate>, 1, Test.Pass>(),
   Test.check<Extends<{ history: { set: CoordinateInput[] } }, TupleBasicUpdate>, 1, Test.Pass>(),
-  // { update: CoordinateUpdate } should NOT be assignable to history field
-  Test.check<Extends<{ history: { update: CoordinateUpdate } }, TupleBasicUpdate>, 0, Test.Pass>(),
+  // Per-element update should NOT be assignable to array tuple field
+  Test.check<Extends<{ history: CoordinateUpdate }, TupleBasicUpdate>, 0, Test.Pass>(),
 ]);

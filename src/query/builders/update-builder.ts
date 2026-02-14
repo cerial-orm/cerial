@@ -117,14 +117,24 @@ export function buildUpdateManyQuery(
       continue;
     }
 
-    // Handle single tuple per-element update: { update: { lat: 5 } }
-    if (
-      fieldMetadata?.type === 'tuple' &&
-      fieldMetadata.tupleInfo &&
-      !fieldMetadata.isArray &&
-      isUpdateWrapper(value)
-    ) {
-      buildTupleUpdateClauses(ctx, field, value.update, fieldMetadata.tupleInfo, setParts, setVars);
+    // Handle single tuple: array = full replace, object = per-element update
+    if (fieldMetadata?.type === 'tuple' && fieldMetadata.tupleInfo && !fieldMetadata.isArray) {
+      if (!Array.isArray(value) && typeof value === 'object' && value !== null) {
+        // Object form = per-element update
+        buildTupleUpdateClauses(
+          ctx,
+          field,
+          value as Record<string, unknown>,
+          fieldMetadata.tupleInfo,
+          setParts,
+          setVars,
+        );
+      } else {
+        // Array form = full tuple replace
+        const varBinding = ctx.bind(field, 'set', value, fieldMetadata.type);
+        setParts.push(`${field} = ${varBinding.placeholder}`);
+        Object.assign(setVars, varBinding.vars);
+      }
       continue;
     }
 
@@ -204,13 +214,6 @@ function isObjectArrayUpdateOps(value: unknown): boolean {
 }
 
 /**
- * Check if a value is a per-element tuple update wrapper ({ update: {...} })
- */
-function isUpdateWrapper(value: unknown): value is { update: Record<string, unknown> } {
-  return typeof value === 'object' && value !== null && 'update' in value && Object.keys(value).length === 1;
-}
-
-/**
  * Resolve the value for a tuple element from the update data object.
  * Checks named key first, then index key. Returns undefined if not provided.
  */
@@ -281,18 +284,18 @@ function buildTupleUpdateClauses(
       continue;
     }
 
-    // Nested tuple element
+    // Nested tuple element — array = full replace, object = per-element update (no wrapper needed)
     if (element.type === 'tuple' && element.tupleInfo) {
-      if (isUpdateWrapper(value)) {
-        // Per-element update: use $this to preserve, then recurse in phase 2
-        reconstructionParts.push(`$this.${fieldPath}[${element.index}]`);
-        tupleUpdates.push({ element, data: value.update });
-      } else {
-        // Full replace: bind the entire tuple as a parameter
+      if (Array.isArray(value)) {
+        // Full replace (array form): bind the entire tuple as a parameter
         const varName = `${fieldPath}_${element.index}`.replace(/[^a-zA-Z0-9_]/g, '_');
         const varBinding = ctx.bind(varName, 'set', value, element.type);
         reconstructionParts.push(varBinding.placeholder);
         Object.assign(setVars, varBinding.vars);
+      } else {
+        // Per-element update (object form): use $this to preserve, then recurse in phase 2
+        reconstructionParts.push(`$this.${fieldPath}[${element.index}]`);
+        tupleUpdates.push({ element, data: value as Record<string, unknown> });
       }
       continue;
     }
@@ -372,13 +375,20 @@ function buildObjectMergeClauses(
       continue;
     }
 
-    // Tuple field within object merge — per-element update or full replace
+    // Tuple field within object merge — array = full replace, object = per-element update
     if (subField.type === 'tuple' && subField.tupleInfo) {
-      if (isUpdateWrapper(subValue)) {
-        // Per-element tuple update within object merge (mutual recursion)
-        buildTupleUpdateClauses(ctx, subPath, subValue.update, subField.tupleInfo, setParts, setVars);
+      if (!Array.isArray(subValue) && typeof subValue === 'object' && subValue !== null) {
+        // Object form = per-element update
+        buildTupleUpdateClauses(
+          ctx,
+          subPath,
+          subValue as Record<string, unknown>,
+          subField.tupleInfo,
+          setParts,
+          setVars,
+        );
       } else {
-        // Full tuple replace via dot-notation
+        // Array form = full tuple replace via dot-notation
         const varBinding = ctx.bind(subPath.replace(/[.\[\]]/g, '_'), 'set', subValue, subField.type);
         setParts.push(`${subPath} = ${varBinding.placeholder}`);
         Object.assign(setVars, varBinding.vars);
@@ -536,14 +546,24 @@ function buildSetClause(
       continue;
     }
 
-    // Handle single tuple per-element update: { update: { lat: 5 } }
-    if (
-      fieldMetadata?.type === 'tuple' &&
-      fieldMetadata.tupleInfo &&
-      !fieldMetadata.isArray &&
-      isUpdateWrapper(value)
-    ) {
-      buildTupleUpdateClauses(ctx, field, value.update, fieldMetadata.tupleInfo, setParts, setVars);
+    // Handle single tuple: array = full replace, object = per-element update
+    if (fieldMetadata?.type === 'tuple' && fieldMetadata.tupleInfo && !fieldMetadata.isArray) {
+      if (!Array.isArray(value) && typeof value === 'object' && value !== null) {
+        // Object form = per-element update
+        buildTupleUpdateClauses(
+          ctx,
+          field,
+          value as Record<string, unknown>,
+          fieldMetadata.tupleInfo,
+          setParts,
+          setVars,
+        );
+      } else {
+        // Array form = full tuple replace
+        const varBinding = ctx.bind(field, 'set', value, fieldMetadata.type);
+        setParts.push(`${field} = ${varBinding.placeholder}`);
+        Object.assign(setVars, varBinding.vars);
+      }
       continue;
     }
 

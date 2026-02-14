@@ -10,25 +10,18 @@ Tuple fields support two update strategies: **full replacement** (replace the en
 
 ## Full Replacement
 
-Replace the entire tuple value at once:
+Pass an array to replace the entire tuple value:
 
 ```typescript
-// Array form
 await db.User.updateUnique({
   where: { id: userId },
   data: { location: [99.0, 88.0] },
-});
-
-// Object form also works
-await db.User.updateUnique({
-  where: { id: userId },
-  data: { location: { lat: 99.0, lng: 88.0 } },
 });
 ```
 
 ## Per-Element Update
 
-Use the `{ update: ... }` wrapper to update individual elements without replacing the entire tuple. Elements you don't specify remain unchanged:
+Pass an object to update individual elements without replacing the entire tuple. Elements you don't specify remain unchanged:
 
 ```cerial
 tuple Coordinate {
@@ -46,17 +39,17 @@ model User {
 // Update only lat, keep lng unchanged
 await db.User.updateUnique({
   where: { id: userId },
-  data: { location: { update: { lat: 99.0 } } },
+  data: { location: { lat: 99.0 } },
 });
 
 // Update by index key
 await db.User.updateUnique({
   where: { id: userId },
-  data: { location: { update: { 0: 99.0 } } },
+  data: { location: { 0: 99.0 } },
 });
 ```
 
-The `{ update: ... }` wrapper is required to distinguish per-element update from the object form of full replacement. Without it, `{ lat: 99.0, lng: 88.0 }` is treated as a full replace.
+The disambiguation rule is simple: **array = full replace, object = per-element update**. This applies at all levels — model fields and nested tuples alike.
 
 ### Object Elements: Merge Semantics
 
@@ -78,19 +71,19 @@ tuple Located {
 // Merge: update only city, keep street unchanged
 await db.Place.updateUnique({
   where: { id: placeId },
-  data: { place: { update: { 1: { city: 'NYC' } } } },
+  data: { place: { 1: { city: 'NYC' } } },
 });
 
 // Full replace the object element with { set: ... }
 await db.Place.updateUnique({
   where: { id: placeId },
-  data: { place: { update: { 1: { set: { street: '5th Ave', city: 'NYC' } } } } },
+  data: { place: { 1: { set: { street: '5th Ave', city: 'NYC' } } } },
 });
 ```
 
 ### Nested Tuple Elements: Recursive Per-Element Update
 
-When a tuple contains another tuple, you can nest `{ update: ... }` wrappers to update elements at any depth:
+When a tuple contains another tuple, the same array/object disambiguation applies recursively. Array = full replace, object = per-element update:
 
 ```cerial
 tuple Inner {
@@ -106,15 +99,17 @@ tuple Outer {
 
 ```typescript
 // Update only the inner tuple's x, keep label and y unchanged
+// Object value = per-element update
 await db.Model.updateUnique({
   where: { id: recordId },
-  data: { data: { update: { 1: { update: { x: 42 } } } } },
+  data: { data: { 1: { x: 42 } } },
 });
 
-// Or full-replace just the inner tuple element
+// Full-replace just the inner tuple element
+// Array value = full replace
 await db.Model.updateUnique({
   where: { id: recordId },
-  data: { data: { update: { 1: [42, 99] } } },
+  data: { data: { 1: [42, 99] } },
 });
 ```
 
@@ -127,7 +122,7 @@ import { NONE } from './db-client';
 
 await db.Model.updateUnique({
   where: { id: recordId },
-  data: { tuple: { update: { 1: NONE } } },
+  data: { tuple: { 1: NONE } },
 });
 ```
 
@@ -245,8 +240,8 @@ type CoordinateUpdate = {
 };
 
 type UserUpdate = {
-  location?: CoordinateInput | { update: CoordinateUpdate };
-  backup?: CoordinateInput | { update: CoordinateUpdate } | typeof NONE; // NONE clears the field
+  location?: [number, number] | CoordinateUpdate;
+  backup?: [number, number] | CoordinateUpdate | typeof NONE; // NONE clears the field
   history?:
     | CoordinateInput[]
     | {
@@ -256,6 +251,6 @@ type UserUpdate = {
 };
 ```
 
-The `TupleUpdate` type includes both named keys and index keys (when elements are named). Object elements use `Partial<ObjInput> | { set: ObjInput }` and nested tuple elements use `TupleInput | { update: TupleUpdate }`.
+Single tuple fields use `[arrayForm] | TupleUpdate` — the array form accepts only array syntax for full replacement, while the `TupleUpdate` object form enables per-element updates. Both named keys and index keys are accepted (when elements are named). Object elements use `Partial<ObjInput> | { set: ObjInput }` and nested tuple elements use `TupleArrayForm | TupleUpdate`.
 
-Note that `CoordinateInput` accepts both array form (`[number, number]`) and object form (`{ lat: number; lng: number }`).
+Note that `CoordinateInput` accepts both array form (`[number, number]`) and object form (`{ lat: number; lng: number }`), but in the Update type only the array form is used for full replacement to avoid ambiguity with per-element update objects.

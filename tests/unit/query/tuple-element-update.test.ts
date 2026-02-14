@@ -1,7 +1,8 @@
 /**
  * Unit Tests: Per-Element Tuple Update Builder
  *
- * Tests the { update: {...} } wrapper path for per-element tuple updates.
+ * Tests per-element tuple updates via array/object disambiguation.
+ * Object form = per-element update, array form = full replace.
  * Covers $this reconstruction, object partial merge, nested tuple recursion,
  * NONE/null handling, and mixed updates.
  */
@@ -99,7 +100,7 @@ describe('Per-Element Tuple Update Builder', () => {
   describe('primitive element updates', () => {
     test('should update single named element with $this reconstruction', () => {
       const model = makeModel({ tupleInfo: coordInfo });
-      const result = buildUpdateManyQuery(model, { name: 'Alice' }, { data: { update: { lat: 5 } } });
+      const result = buildUpdateManyQuery(model, { name: 'Alice' }, { data: { lat: 5 } });
 
       // Should use $this reconstruction for the full tuple
       expect(result.text).toContain('data = [$');
@@ -109,7 +110,7 @@ describe('Per-Element Tuple Update Builder', () => {
 
     test('should update element by index key', () => {
       const model = makeModel({ tupleInfo: coordInfo });
-      const result = buildUpdateManyQuery(model, { name: 'Alice' }, { data: { update: { '0': 10 } } });
+      const result = buildUpdateManyQuery(model, { name: 'Alice' }, { data: { '0': 10 } });
 
       expect(result.text).toContain('data = [');
       expect(result.text).toContain('$this.data[1]');
@@ -117,7 +118,7 @@ describe('Per-Element Tuple Update Builder', () => {
 
     test('should update multiple elements', () => {
       const model = makeModel({ tupleInfo: coordInfo });
-      const result = buildUpdateManyQuery(model, { name: 'Alice' }, { data: { update: { lat: 5, lng: 10 } } });
+      const result = buildUpdateManyQuery(model, { name: 'Alice' }, { data: { lat: 5, lng: 10 } });
 
       expect(result.text).toContain('data = [');
       // Both elements should be bound variables (no $this references)
@@ -132,7 +133,7 @@ describe('Per-Element Tuple Update Builder', () => {
         elem({ index: 2, type: 'string', name: 'c' }),
       ]);
       const model = makeModel({ tupleInfo: tripleInfo });
-      const result = buildUpdateManyQuery(model, { name: 'Alice' }, { data: { update: { b: 'new' } } });
+      const result = buildUpdateManyQuery(model, { name: 'Alice' }, { data: { b: 'new' } });
 
       // Elements 0 and 2 should use $this, element 1 should be bound
       expect(result.text).toContain('$this.data[0]');
@@ -145,7 +146,7 @@ describe('Per-Element Tuple Update Builder', () => {
     test('should emit NONE for NONE sentinel on optional element', () => {
       const model = makeModel({ tupleInfo: optCoordInfo });
       const { NONE } = require('../../../src/utils/none');
-      const result = buildUpdateManyQuery(model, { name: 'Alice' }, { data: { update: { lng: NONE } } });
+      const result = buildUpdateManyQuery(model, { name: 'Alice' }, { data: { lng: NONE } });
 
       expect(result.text).toContain('data = [');
       expect(result.text).toContain('NONE');
@@ -157,7 +158,7 @@ describe('Per-Element Tuple Update Builder', () => {
         elem({ index: 1, type: 'float', name: 'lng', isNullable: true }),
       ]);
       const model = makeModel({ tupleInfo: nullableCoord });
-      const result = buildUpdateManyQuery(model, { name: 'Alice' }, { data: { update: { lng: null } } });
+      const result = buildUpdateManyQuery(model, { name: 'Alice' }, { data: { lng: null } });
 
       expect(result.text).toContain('data = [');
       expect(result.text).toContain('NULL');
@@ -167,7 +168,7 @@ describe('Per-Element Tuple Update Builder', () => {
   describe('object element updates', () => {
     test('should partial merge object element with dot-notation', () => {
       const model = makeModel({ tupleInfo: locatedInfo });
-      const result = buildUpdateManyQuery(model, { name: 'Alice' }, { data: { update: { 1: { city: 'NYC' } } } });
+      const result = buildUpdateManyQuery(model, { name: 'Alice' }, { data: { 1: { city: 'NYC' } } });
 
       // Phase 1: $this reconstruction (object element uses $this)
       expect(result.text).toContain('data = [');
@@ -181,7 +182,7 @@ describe('Per-Element Tuple Update Builder', () => {
       const result = buildUpdateManyQuery(
         model,
         { name: 'Alice' },
-        { data: { update: { 1: { set: { street: '123 Main', city: 'NYC' } } } } },
+        { data: { 1: { set: { street: '123 Main', city: 'NYC' } } } },
       );
 
       // Full replace: bound variable in reconstruction, no dot-notation
@@ -194,7 +195,7 @@ describe('Per-Element Tuple Update Builder', () => {
   describe('nested tuple updates', () => {
     test('should handle nested per-element update with recursive $this', () => {
       const model = makeModel({ tupleInfo: outerInfo });
-      const result = buildUpdateManyQuery(model, { name: 'Alice' }, { data: { update: { 1: { update: { x: 42 } } } } });
+      const result = buildUpdateManyQuery(model, { name: 'Alice' }, { data: { 1: { x: 42 } } });
 
       // Outer tuple: $this reconstruction
       expect(result.text).toContain('data = [');
@@ -206,7 +207,7 @@ describe('Per-Element Tuple Update Builder', () => {
 
     test('should handle nested full replace without recursion', () => {
       const model = makeModel({ tupleInfo: outerInfo });
-      const result = buildUpdateManyQuery(model, { name: 'Alice' }, { data: { update: { 1: [99, 100] } } });
+      const result = buildUpdateManyQuery(model, { name: 'Alice' }, { data: { 1: [99, 100] } });
 
       // Full replace: bound variable, no nested $this
       expect(result.text).toContain('data = [');
@@ -217,7 +218,7 @@ describe('Per-Element Tuple Update Builder', () => {
   describe('mixed per-element update with other fields', () => {
     test('should combine per-element update with primitive field update', () => {
       const model = makeModel({ tupleInfo: coordInfo });
-      const result = buildUpdateManyQuery(model, { name: 'Alice' }, { name: 'Bob', data: { update: { lat: 5 } } });
+      const result = buildUpdateManyQuery(model, { name: 'Alice' }, { name: 'Bob', data: { lat: 5 } });
 
       expect(result.text).toContain('name =');
       expect(result.text).toContain('data = [');

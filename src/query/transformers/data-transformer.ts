@@ -150,7 +150,11 @@ function parseRecordIdInput(value: RecordIdInput): RecordId {
  * Recursively transform object data based on objectInfo field definitions.
  * Handles Record fields within objects (convert to RecordId), nested objects, and arrays of objects.
  */
-function transformObjectData(data: Record<string, unknown>, objectInfo: ObjectFieldMetadata): Record<string, unknown> {
+function transformObjectData(
+  data: Record<string, unknown>,
+  objectInfo: ObjectFieldMetadata,
+  context: 'create' | 'update' = 'create',
+): Record<string, unknown> {
   const result: Record<string, unknown> = {};
 
   for (const [key, value] of Object.entries(data)) {
@@ -170,22 +174,26 @@ function transformObjectData(data: Record<string, unknown>, objectInfo: ObjectFi
       if (field.isArray && Array.isArray(value)) {
         result[key] = value.map((item) =>
           typeof item === 'object' && item !== null
-            ? transformObjectData(item as Record<string, unknown>, field.objectInfo!)
+            ? transformObjectData(item as Record<string, unknown>, field.objectInfo!, context)
             : item,
         );
       } else if (typeof value === 'object') {
-        result[key] = transformObjectData(value as Record<string, unknown>, field.objectInfo);
+        result[key] = transformObjectData(value as Record<string, unknown>, field.objectInfo, context);
       } else {
         result[key] = value;
       }
       continue;
     }
 
-    // Tuple field in objects — transform and normalize to array
+    // Tuple field in objects — array = full replace, object form depends on context
     if (field.type === 'tuple' && field.tupleInfo) {
       if (field.isArray && Array.isArray(value)) {
         result[key] = value.map((item) => transformTupleData(item, field.tupleInfo!));
+      } else if (context === 'update' && !Array.isArray(value) && typeof value === 'object' && value !== null) {
+        // Update context: object form = per-element update
+        result[key] = transformTupleElementUpdate(value as Record<string, unknown>, field.tupleInfo);
       } else {
+        // Create context or array form = full tuple replace/input
         result[key] = transformTupleData(value, field.tupleInfo);
       }
       continue;
@@ -283,11 +291,6 @@ function transformTupleData(data: unknown, tupleInfo: TupleFieldMetadata): unkno
   return arr;
 }
 
-/** Check if a value is an `{ update: {...} }` per-element tuple update wrapper */
-function isUpdateWrapper(value: unknown): value is { update: Record<string, unknown> } {
-  return typeof value === 'object' && value !== null && 'update' in value && Object.keys(value).length === 1;
-}
-
 /** Check if a value is a `{ set: {...} }` full-replace wrapper */
 function isSetWrapper(value: unknown): value is { set: unknown } {
   return typeof value === 'object' && value !== null && 'set' in value && Object.keys(value).length === 1;
@@ -328,24 +331,26 @@ function transformTupleElementUpdate(
     if (element.type === 'object' && element.objectInfo) {
       if (isSetWrapper(value)) {
         // { set: ObjectInput } — transform the full object value
-        result[key] = { set: transformObjectData(value.set as Record<string, unknown>, element.objectInfo) };
+        result[key] = { set: transformObjectData(value.set as Record<string, unknown>, element.objectInfo, 'update') };
       } else if (typeof value === 'object' && !Array.isArray(value)) {
         // Partial object merge — transform the provided fields
-        result[key] = transformObjectData(value as Record<string, unknown>, element.objectInfo);
+        result[key] = transformObjectData(value as Record<string, unknown>, element.objectInfo, 'update');
       } else {
         result[key] = value;
       }
       continue;
     }
 
-    // Nested tuple element
+    // Nested tuple element — array = full replace, object = per-element update (no wrapper)
     if (element.type === 'tuple' && element.tupleInfo) {
-      if (isUpdateWrapper(value)) {
-        // Nested per-element update — recurse
-        result[key] = { update: transformTupleElementUpdate(value.update, element.tupleInfo) };
-      } else {
-        // Full tuple replace
+      if (Array.isArray(value)) {
+        // Full replace (array form)
         result[key] = transformTupleData(value, element.tupleInfo);
+      } else if (typeof value === 'object') {
+        // Per-element update (object form) — no { update } wrapper at nested levels
+        result[key] = transformTupleElementUpdate(value as Record<string, unknown>, element.tupleInfo);
+      } else {
+        result[key] = value;
       }
       continue;
     }
@@ -364,7 +369,11 @@ function transformTupleElementUpdate(
 }
 
 /** Transform data object based on model fields */
-export function transformData(data: Record<string, unknown>, model: ModelMetadata): Record<string, unknown> {
+export function transformData(
+  data: Record<string, unknown>,
+  model: ModelMetadata,
+  context: 'create' | 'update' = 'create',
+): Record<string, unknown> {
   const result: Record<string, unknown> = {};
 
   for (const [key, value] of Object.entries(data)) {
@@ -432,11 +441,11 @@ export function transformData(data: Record<string, unknown>, model: ModelMetadat
         if (field.isArray && Array.isArray(value)) {
           result[key] = value.map((item) =>
             typeof item === 'object' && item !== null
-              ? transformObjectData(item as Record<string, unknown>, field.objectInfo!)
+              ? transformObjectData(item as Record<string, unknown>, field.objectInfo!, context)
               : item,
           );
         } else if (typeof value === 'object') {
-          result[key] = transformObjectData(value as Record<string, unknown>, field.objectInfo);
+          result[key] = transformObjectData(value as Record<string, unknown>, field.objectInfo, context);
         } else {
           result[key] = value;
         }
@@ -483,10 +492,11 @@ export function transformData(data: Record<string, unknown>, model: ModelMetadat
           } else {
             result[key] = value;
           }
-        } else if (isUpdateWrapper(value)) {
-          // Per-element tuple update: { update: { lat: 5 } }
-          result[key] = { update: transformTupleElementUpdate(value.update, field.tupleInfo) };
+        } else if (context === 'update' && !Array.isArray(value) && typeof value === 'object' && value !== null) {
+          // Update context: object form = per-element update
+          result[key] = transformTupleElementUpdate(value as Record<string, unknown>, field.tupleInfo);
         } else {
+          // Create context or array form: full tuple replace/input
           result[key] = transformTupleData(value, field.tupleInfo);
         }
       } else if (field.isArray) {

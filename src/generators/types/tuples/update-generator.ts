@@ -2,8 +2,8 @@
  * Tuple update type generator - generates per-element update types for tuples
  *
  * Generates an Update type for each tuple that allows updating individual elements
- * without replacing the entire tuple. Uses `{ update: TupleUpdate }` wrapper to
- * distinguish from full-replace object form input.
+ * without replacing the entire tuple. At all levels (model and nested), array/object
+ * disambiguation determines the operation: array = full replace, object = per-element update.
  *
  * Example for `tuple Coordinate { lat Float, lng Float }`:
  * ```ts
@@ -16,10 +16,10 @@
  * ```
  *
  * Object elements get merge semantics (Partial | { set: ... }), nested tuples
- * get recursive per-element update ({ update: InnerUpdate }).
+ * get array-form for full replace or TupleUpdate for per-element.
  */
 
-import type { TupleElementMetadata, TupleMetadata } from '../../../types';
+import type { TupleElementMetadata, TupleFieldMetadata, TupleMetadata } from '../../../types';
 import { schemaTypeToTsType } from '../../../utils/type-utils';
 
 /**
@@ -34,11 +34,26 @@ function getElementInputType(element: TupleElementMetadata): string {
 }
 
 /**
+ * Generate the array-form-only type for a nested tuple (e.g., `[string, DeepMidObjInput]`).
+ * Used inside TupleUpdate types so that full replace only accepts array form,
+ * avoiding ambiguity with per-element update object form.
+ */
+export function generateTupleArrayForm(tupleInfo: TupleFieldMetadata): string {
+  const parts = tupleInfo.elements.map((e) => {
+    const type = getElementInputType(e);
+
+    return e.isOptional || e.isNullable ? `${type} | null` : type;
+  });
+
+  return `[${parts.join(', ')}]`;
+}
+
+/**
  * Get the update value type for a single tuple element.
  *
  * - Primitive: just the TS type
  * - Object: Partial<ObjInput> | { set: ObjInput } (merge or full replace)
- * - Nested tuple: TupleInput | { update: TupleUpdate } (full replace or per-element)
+ * - Nested tuple: TupleArrayForm | TupleUpdate (array = full replace, object = per-element)
  *
  * Optional elements add | CerialNone, nullable elements add | null.
  */
@@ -49,9 +64,9 @@ function getElementUpdateType(element: TupleElementMetadata): string {
     const inputName = `${element.objectInfo.objectName}Input`;
     baseType = `Partial<${inputName}> | { set: ${inputName} }`;
   } else if (element.type === 'tuple' && element.tupleInfo) {
-    const inputName = `${element.tupleInfo.tupleName}Input`;
+    const arrayForm = generateTupleArrayForm(element.tupleInfo);
     const updateName = `${element.tupleInfo.tupleName}Update`;
-    baseType = `${inputName} | { update: ${updateName} }`;
+    baseType = `${arrayForm} | ${updateName}`;
   } else {
     baseType = schemaTypeToTsType(element.type);
   }

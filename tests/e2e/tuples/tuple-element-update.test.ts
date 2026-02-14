@@ -1,7 +1,8 @@
 /**
  * E2E Tests: Per-Element Tuple Update
  *
- * Tests the { update: {...} } wrapper for per-element tuple updates.
+ * Tests per-element tuple updates via array/object disambiguation.
+ * Object form = per-element update, array form = full replace.
  * Covers primitive element updates, object partial merge, object full replace,
  * nested tuple recursion, NONE/null handling, depth-5 nesting, and
  * updateMany/return options.
@@ -25,7 +26,7 @@ describe('E2E Tuples: Per-Element Update', () => {
     await client.disconnect();
   });
 
-  describe('updateUnique - primitive element via { update }', () => {
+  describe('updateUnique - primitive element via object form', () => {
     test('should update single named element preserving others', async () => {
       const created = await client.db.TupleBasic.create({
         data: { name: 'Alice', location: [10, 20] },
@@ -33,7 +34,7 @@ describe('E2E Tuples: Per-Element Update', () => {
 
       const updated = await client.db.TupleBasic.updateUnique({
         where: { id: created.id },
-        data: { location: { update: { lat: 99 } } },
+        data: { location: { lat: 99 } },
       });
 
       expect(updated).not.toBeNull();
@@ -47,7 +48,7 @@ describe('E2E Tuples: Per-Element Update', () => {
 
       const updated = await client.db.TupleBasic.updateUnique({
         where: { id: created.id },
-        data: { location: { update: { 1: 99 } } },
+        data: { location: { 1: 99 } },
       });
 
       expect(updated).not.toBeNull();
@@ -61,7 +62,7 @@ describe('E2E Tuples: Per-Element Update', () => {
 
       const updated = await client.db.TupleBasic.updateUnique({
         where: { id: created.id },
-        data: { location: { update: { lat: 50, lng: 60 } } },
+        data: { location: { lat: 50, lng: 60 } },
       });
 
       expect(updated).not.toBeNull();
@@ -75,7 +76,7 @@ describe('E2E Tuples: Per-Element Update', () => {
 
       const updated = await client.db.TupleBasic.updateUnique({
         where: { id: created.id },
-        data: { location: { update: { lat: 99 } } },
+        data: { location: { lat: 99 } },
       });
 
       expect(updated).not.toBeNull();
@@ -93,7 +94,7 @@ describe('E2E Tuples: Per-Element Update', () => {
 
       const updated = await client.db.TupleBasic.updateUnique({
         where: { id: created.id },
-        data: { location: { update: { lat: 99 } }, backup: NONE },
+        data: { location: { lat: 99 }, backup: NONE },
       });
 
       expect(updated).not.toBeNull();
@@ -110,7 +111,7 @@ describe('E2E Tuples: Per-Element Update', () => {
 
       const updated = await client.db.TupleObjInTuple.updateUnique({
         where: { id: created.id },
-        data: { place: { update: { 1: { city: 'Brooklyn' } } } },
+        data: { place: { 1: { city: 'Brooklyn' } } },
       });
 
       expect(updated).not.toBeNull();
@@ -126,7 +127,7 @@ describe('E2E Tuples: Per-Element Update', () => {
 
       const updated = await client.db.TupleObjInTuple.updateUnique({
         where: { id: created.id },
-        data: { place: { update: { 1: { set: { street: '456 Oak', city: 'Boston' } } } } },
+        data: { place: { 1: { set: { street: '456 Oak', city: 'Boston' } } } },
       });
 
       expect(updated).not.toBeNull();
@@ -142,7 +143,7 @@ describe('E2E Tuples: Per-Element Update', () => {
 
       const updated = await client.db.TupleObjInTuple.updateUnique({
         where: { id: created.id },
-        data: { place: { update: { tag: 'Boston' } } },
+        data: { place: { tag: 'Boston' } },
       });
 
       expect(updated).not.toBeNull();
@@ -165,7 +166,7 @@ describe('E2E Tuples: Per-Element Update', () => {
 
       const updated = await client.db.TupleDeepNest.updateUnique({
         where: { id: created.id },
-        data: { deep: { update: { 0: 'new-outer' } } },
+        data: { deep: { 0: 'new-outer' } },
       });
 
       expect(updated).not.toBeNull();
@@ -181,7 +182,7 @@ describe('E2E Tuples: Per-Element Update', () => {
 
       const updated = await client.db.TupleDeepNest.updateUnique({
         where: { id: created.id },
-        data: { deep: { update: { 1: { update: { 0: 'new-mid' } } } } },
+        data: { deep: { 1: { 0: 'new-mid' } } },
       });
 
       expect(updated).not.toBeNull();
@@ -197,7 +198,7 @@ describe('E2E Tuples: Per-Element Update', () => {
 
       const updated = await client.db.TupleDeepNest.updateUnique({
         where: { id: created.id },
-        data: { deep: { update: { 1: { update: { 1: { name: 'Jane' } } } } } },
+        data: { deep: { 1: { 1: { name: 'Jane' } } } },
       });
 
       expect(updated).not.toBeNull();
@@ -213,25 +214,17 @@ describe('E2E Tuples: Per-Element Update', () => {
 
       // Update the DeepInnerObj's value field:
       // deep = [string, [string, { name, age, pos: [float, { value, extra }] }]]
-      // To update value: deep.update(1).update(1).pos.update(1).value
-      // But pos is a tuple inside an object, so the path is:
-      // deep: { update: { 1: { update: { 1: { pos: { update: { 1: { value: 'z' } } } } } } } }
-      // Wait, but element 1 of mid tuple is an object (DeepMidObj), not a tuple.
-      // For objects in per-element update, we use partial merge directly.
-      // So to update pos (a tuple field inside the object), we need:
-      // deep: { update: { 1: { update: { 1: { pos: [2.5, { value: 'z', extra: 'w' }] } } } } }
-      // Full replace of pos since it's a field within an object partial merge.
+      // Object form = per-element update, array form = full replace.
+      // Element 1 of outer tuple is DeepMidTuple (object = per-element update).
+      // Element 1 of mid tuple is DeepMidObj (object = partial merge).
+      // pos is a tuple field inside the object — array = full replace.
 
       const updated = await client.db.TupleDeepNest.updateUnique({
         where: { id: created.id },
         data: {
           deep: {
-            update: {
-              1: {
-                update: {
-                  1: { pos: [2.5, { value: 'z', extra: 'w' }] },
-                },
-              },
+            1: {
+              1: { pos: [2.5, { value: 'z', extra: 'w' }] },
             },
           },
         },
@@ -250,7 +243,7 @@ describe('E2E Tuples: Per-Element Update', () => {
 
       const updated = await client.db.TupleBasic.updateMany({
         where: { name: { startsWith: 'Batch' } },
-        data: { location: { update: { lat: 99 } } },
+        data: { location: { lat: 99 } },
       });
 
       expect(updated).toHaveLength(2);
@@ -271,7 +264,7 @@ describe('E2E Tuples: Per-Element Update', () => {
 
       const before = await client.db.TupleBasic.updateUnique({
         where: { id: created.id },
-        data: { location: { update: { lat: 99 } } },
+        data: { location: { lat: 99 } },
         return: 'before',
       });
 
@@ -286,7 +279,7 @@ describe('E2E Tuples: Per-Element Update', () => {
 
       const result = await client.db.TupleBasic.updateUnique({
         where: { id: created.id },
-        data: { location: { update: { lat: 99 } } },
+        data: { location: { lat: 99 } },
         return: true,
       });
 
@@ -303,7 +296,7 @@ describe('E2E Tuples: Per-Element Update', () => {
       const updated = await client.db.TupleBasic.updateUnique({
         where: { id: created.id },
         data: {
-          location: { update: { lat: 99 } },
+          location: { lat: 99 },
           backup: [50, 60], // full replace
         },
       });

@@ -55,7 +55,7 @@ function mdl(name: string, fields: FieldMetadata[]): ModelMetadata {
 
 describe('Tuple Derived Type Generator', () => {
   describe('generateUpdateType', () => {
-    test('should generate full-replace type for single required tuple', () => {
+    test('should generate array-form | TupleUpdate type for single required tuple', () => {
       const m = mdl('User', [
         field({ name: 'id', type: 'record', isId: true }),
         field({ name: 'location', type: 'tuple', isRequired: true, tupleInfo: coordInfo }),
@@ -63,10 +63,10 @@ describe('Tuple Derived Type Generator', () => {
 
       const result = generateUpdateType(m);
 
-      expect(result).toContain('location?: CoordinateInput');
+      expect(result).toContain('location?: [number, number] | CoordinateUpdate');
     });
 
-    test('should generate full-replace type for single optional tuple', () => {
+    test('should generate array-form | TupleUpdate | CerialNone for single optional tuple', () => {
       const m = mdl('User', [
         field({ name: 'id', type: 'record', isId: true }),
         field({ name: 'backup', type: 'tuple', isRequired: false, tupleInfo: coordInfo }),
@@ -74,7 +74,7 @@ describe('Tuple Derived Type Generator', () => {
 
       const result = generateUpdateType(m);
 
-      expect(result).toContain('backup?: CoordinateInput');
+      expect(result).toContain('backup?: [number, number] | CoordinateUpdate | CerialNone');
     });
 
     test('should generate push/set operations for array tuple', () => {
@@ -115,9 +115,9 @@ describe('Tuple Derived Type Generator', () => {
       // readonly tuple should be in the Omit list (excluded from Partial)
       expect(result).toContain("'origin'");
       // non-readonly tuple should be in the intersection as a special field
-      expect(result).toContain('location?: CoordinateInput');
+      expect(result).toContain('location?: [number, number] | CoordinateUpdate');
       // readonly tuple should NOT appear as a settable special field
-      expect(result).not.toContain('origin?: CoordinateInput');
+      expect(result).not.toContain('origin?:');
     });
 
     test('should handle multiple tuple fields with different types', () => {
@@ -129,8 +129,8 @@ describe('Tuple Derived Type Generator', () => {
 
       const result = generateUpdateType(m);
 
-      expect(result).toContain('location?: CoordinateInput');
-      expect(result).toContain('entry?: EntryInput');
+      expect(result).toContain('location?: [number, number] | CoordinateUpdate');
+      expect(result).toContain('entry?: [string, number] | EntryUpdate');
     });
 
     test('should include tuple alongside primitive fields in update', () => {
@@ -144,7 +144,7 @@ describe('Tuple Derived Type Generator', () => {
 
       // Tuple is omitted from base Partial and added as special field
       expect(result).toContain("'location'");
-      expect(result).toContain('location?: CoordinateInput');
+      expect(result).toContain('location?: [number, number] | CoordinateUpdate');
       // Primitive 'name' is part of Partial<UserInput> (implicitly included via Omit)
       expect(result).toContain('Partial<');
     });

@@ -1,7 +1,8 @@
 /**
  * Unit Tests: Per-Element Tuple Update Transformer
  *
- * Tests data transformation for the { update: {...} } wrapper path.
+ * Tests data transformation for per-element tuple updates via array/object disambiguation.
+ * Object form = per-element update, array form = full replace.
  * Covers element resolution, object partial/set transforms,
  * nested tuple recursion, NONE/null passthrough, and record element handling.
  */
@@ -79,42 +80,42 @@ const outerInfo = tupleInfo('Outer', [
 
 describe('Per-Element Tuple Update Transformer', () => {
   describe('primitive element transforms', () => {
-    test('should pass through primitive update wrapper data', () => {
+    test('should pass through primitive per-element update data', () => {
       const m = model('User', [
         field({ name: 'id', type: 'record', isId: true }),
         field({ name: 'location', type: 'tuple', isRequired: true, tupleInfo: coordInfo }),
       ]);
 
-      const result = transformData({ location: { update: { lat: 5 } } }, m);
+      const result = transformData({ location: { lat: 5 } }, m, 'update');
 
-      expect(result.location).toEqual({ update: { lat: 5 } });
+      expect(result.location).toEqual({ lat: 5 });
     });
 
-    test('should transform update wrapper with index key', () => {
+    test('should transform per-element update with index key', () => {
       const m = model('User', [
         field({ name: 'id', type: 'record', isId: true }),
         field({ name: 'location', type: 'tuple', isRequired: true, tupleInfo: coordInfo }),
       ]);
 
-      const result = transformData({ location: { update: { '0': 10 } } }, m);
+      const result = transformData({ location: { '0': 10 } }, m, 'update');
 
-      expect(result.location).toEqual({ update: { '0': 10 } });
+      expect(result.location).toEqual({ '0': 10 });
     });
 
-    test('should transform update wrapper with multiple elements', () => {
+    test('should transform per-element update with multiple elements', () => {
       const m = model('User', [
         field({ name: 'id', type: 'record', isId: true }),
         field({ name: 'location', type: 'tuple', isRequired: true, tupleInfo: coordInfo }),
       ]);
 
-      const result = transformData({ location: { update: { lat: 5, lng: 10 } } }, m);
+      const result = transformData({ location: { lat: 5, lng: 10 } }, m, 'update');
 
-      expect(result.location).toEqual({ update: { lat: 5, lng: 10 } });
+      expect(result.location).toEqual({ lat: 5, lng: 10 });
     });
   });
 
   describe('NONE and null passthrough', () => {
-    test('should pass NONE through in update wrapper', () => {
+    test('should pass NONE through in per-element update', () => {
       const m = model('User', [
         field({ name: 'id', type: 'record', isId: true }),
         field({
@@ -128,32 +129,32 @@ describe('Per-Element Tuple Update Transformer', () => {
         }),
       ]);
 
-      const result = transformData({ data: { update: { lng: NONE } } }, m);
-      const updateData = (result.data as { update: Record<string, unknown> }).update;
+      const result = transformData({ data: { lng: NONE } }, m, 'update');
+      const updateData = result.data as Record<string, unknown>;
 
       expect(updateData.lng).toBe(NONE);
     });
 
-    test('should pass null through in update wrapper', () => {
+    test('should pass null through in per-element update', () => {
       const m = model('User', [
         field({ name: 'id', type: 'record', isId: true }),
         field({ name: 'location', type: 'tuple', isRequired: true, tupleInfo: coordInfo }),
       ]);
 
-      const result = transformData({ location: { update: { lng: null } } }, m);
-      const updateData = (result.location as { update: Record<string, unknown> }).update;
+      const result = transformData({ location: { lng: null } }, m, 'update');
+      const updateData = result.location as Record<string, unknown>;
 
       expect(updateData.lng).toBeNull();
     });
 
-    test('should skip undefined elements in update wrapper', () => {
+    test('should skip undefined elements in per-element update', () => {
       const m = model('User', [
         field({ name: 'id', type: 'record', isId: true }),
         field({ name: 'location', type: 'tuple', isRequired: true, tupleInfo: coordInfo }),
       ]);
 
-      const result = transformData({ location: { update: { lat: 5, lng: undefined } } }, m);
-      const updateData = (result.location as { update: Record<string, unknown> }).update;
+      const result = transformData({ location: { lat: 5, lng: undefined } }, m, 'update');
+      const updateData = result.location as Record<string, unknown>;
 
       expect(updateData.lat).toBe(5);
       expect(updateData.lng).toBeUndefined();
@@ -161,14 +162,14 @@ describe('Per-Element Tuple Update Transformer', () => {
   });
 
   describe('object element transforms', () => {
-    test('should transform partial object merge in update wrapper', () => {
+    test('should transform partial object merge in per-element update', () => {
       const m = model('User', [
         field({ name: 'id', type: 'record', isId: true }),
         field({ name: 'place', type: 'tuple', isRequired: true, tupleInfo: locatedInfo }),
       ]);
 
-      const result = transformData({ place: { update: { 1: { city: 'NYC' } } } }, m);
-      const updateData = (result.place as { update: Record<string, unknown> }).update;
+      const result = transformData({ place: { 1: { city: 'NYC' } } }, m, 'update');
+      const updateData = result.place as Record<string, unknown>;
 
       expect(updateData['1']).toEqual({ city: 'NYC' });
     });
@@ -179,8 +180,8 @@ describe('Per-Element Tuple Update Transformer', () => {
         field({ name: 'place', type: 'tuple', isRequired: true, tupleInfo: locatedInfo }),
       ]);
 
-      const result = transformData({ place: { update: { 1: { set: { street: '123 Main', city: 'NYC' } } } } }, m);
-      const updateData = (result.place as { update: Record<string, unknown> }).update;
+      const result = transformData({ place: { 1: { set: { street: '123 Main', city: 'NYC' } } } }, m, 'update');
+      const updateData = result.place as Record<string, unknown>;
 
       expect(updateData['1']).toEqual({ set: { street: '123 Main', city: 'NYC' } });
     });
@@ -193,21 +194,21 @@ describe('Per-Element Tuple Update Transformer', () => {
         field({ name: 'data', type: 'tuple', isRequired: true, tupleInfo: outerInfo }),
       ]);
 
-      const result = transformData({ data: { update: { 1: { update: { x: 42 } } } } }, m);
-      const updateData = (result.data as { update: Record<string, unknown> }).update;
-      const innerUpdate = updateData['1'] as { update: Record<string, unknown> };
+      const result = transformData({ data: { 1: { x: 42 } } }, m, 'update');
+      const updateData = result.data as Record<string, unknown>;
 
-      expect(innerUpdate.update).toEqual({ x: 42 });
+      // Nested per-element update is a flat object
+      expect(updateData['1']).toEqual({ x: 42 });
     });
 
-    test('should transform nested full replace in update wrapper', () => {
+    test('should transform nested full replace (array form)', () => {
       const m = model('User', [
         field({ name: 'id', type: 'record', isId: true }),
         field({ name: 'data', type: 'tuple', isRequired: true, tupleInfo: outerInfo }),
       ]);
 
-      const result = transformData({ data: { update: { 1: [99, 100] } } }, m);
-      const updateData = (result.data as { update: Record<string, unknown> }).update;
+      const result = transformData({ data: { 1: [99, 100] } }, m, 'update');
+      const updateData = result.data as Record<string, unknown>;
 
       // Full replace — array form normalized
       expect(updateData['1']).toEqual([99, 100]);
@@ -215,21 +216,21 @@ describe('Per-Element Tuple Update Transformer', () => {
   });
 
   describe('skip unknown elements', () => {
-    test('should skip unknown keys in update wrapper', () => {
+    test('should skip unknown keys in per-element update', () => {
       const m = model('User', [
         field({ name: 'id', type: 'record', isId: true }),
         field({ name: 'location', type: 'tuple', isRequired: true, tupleInfo: coordInfo }),
       ]);
 
-      const result = transformData({ location: { update: { lat: 5, unknown: 'bad' } } }, m);
-      const updateData = (result.location as { update: Record<string, unknown> }).update;
+      const result = transformData({ location: { lat: 5, unknown: 'bad' } }, m, 'update');
+      const updateData = result.location as Record<string, unknown>;
 
       expect(updateData.lat).toBe(5);
       expect(updateData).not.toHaveProperty('unknown');
     });
   });
 
-  describe('mixed update wrapper with regular fields', () => {
+  describe('mixed per-element update with regular fields', () => {
     test('should transform per-element update alongside primitive fields', () => {
       const m = model('User', [
         field({ name: 'id', type: 'record', isId: true }),
@@ -237,10 +238,10 @@ describe('Per-Element Tuple Update Transformer', () => {
         field({ name: 'location', type: 'tuple', isRequired: true, tupleInfo: coordInfo }),
       ]);
 
-      const result = transformData({ name: 'Alice', location: { update: { lat: 5 } } }, m);
+      const result = transformData({ name: 'Alice', location: { lat: 5 } }, m, 'update');
 
       expect(result.name).toBe('Alice');
-      expect(result.location).toEqual({ update: { lat: 5 } });
+      expect(result.location).toEqual({ lat: 5 });
     });
   });
 });
