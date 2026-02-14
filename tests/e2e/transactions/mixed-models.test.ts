@@ -5,11 +5,12 @@
  * Tests transactions spanning different models (User, Post, Profile, Tag).
  */
 
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import { isCerialId } from 'cerial';
 import {
   cleanupTables,
   createTestClient,
+  truncateTables,
   CerialClient,
   tables,
   testConfig,
@@ -20,14 +21,18 @@ import {
 describe('E2E Transactions: Mixed Models', () => {
   let client: CerialClient;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     client = createTestClient();
     await client.connect(testConfig);
     await cleanupTables(client, tables.basics);
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await client.disconnect();
+  });
+
+  beforeEach(async () => {
+    await truncateTables(client, tables.basics);
   });
 
   test('create User and Post in one transaction', async () => {

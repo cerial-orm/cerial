@@ -126,6 +126,11 @@ export function generateFieldWhereType(field: FieldMetadata, _registry?: ModelRe
     return '';
   }
 
+  // Literal fields are handled by the model/object where generators, not here
+  if (field.type === 'literal') {
+    return '';
+  }
+
   // Handle array types (String[], Int[], Date[], Record[], etc.)
   if (field.isArray) {
     // For Record[] arrays, use RecordIdInput for input types
@@ -298,6 +303,21 @@ export function generateWhereInterface(model: ModelMetadata, registry?: ModelReg
         // Single tuple - tuple fields don't support null, only NONE (absent)
         if (jsDoc) fields.push(jsDoc);
         fields.push(`  ${field.name}?: ${tupleWhere};`);
+      }
+    } else if (field.type === 'literal' && field.literalInfo) {
+      // Literal fields get literal where type
+      const literalName = field.literalInfo.literalName;
+      const literalWhere = `${literalName}Where`;
+      const nullPrefix = field.isNullable ? 'null | ' : '';
+
+      if (field.isArray) {
+        if (jsDoc) fields.push(jsDoc);
+        fields.push(
+          `  ${field.name}?: { has?: ${literalName}; hasAll?: ${literalName}[]; hasAny?: ${literalName}[]; isEmpty?: boolean; };`,
+        );
+      } else {
+        if (jsDoc) fields.push(jsDoc);
+        fields.push(`  ${field.name}?: ${nullPrefix}${literalName} | ${literalWhere};`);
       }
     } else {
       const whereType = generateFieldWhereType(field, registry);

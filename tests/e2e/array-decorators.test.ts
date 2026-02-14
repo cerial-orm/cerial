@@ -8,20 +8,24 @@
  * - @sort(false): VALUE IF $value THEN $value.sort::desc() ELSE [] END
  */
 
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import { cleanupTables, createTestClient, CerialClient, testConfig } from './test-client';
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { cleanupTables, createTestClient, truncateTables, CerialClient, testConfig } from './test-client';
 
 describe('E2E Array Decorators (@distinct and @sort)', () => {
   let client: CerialClient;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     client = createTestClient();
     await client.connect(testConfig);
     await cleanupTables(client);
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await client.disconnect();
+  });
+
+  beforeEach(async () => {
+    await truncateTables(client);
   });
 
   describe('@distinct decorator', () => {

@@ -10,16 +10,17 @@ Cerial supports 8 built-in field types plus user-defined tuple and object types.
 
 ## Type Reference
 
-| Type       | Description               | TypeScript                                    | SurrealDB                                     | Can be Array    | Can be Optional |
-| ---------- | ------------------------- | --------------------------------------------- | --------------------------------------------- | --------------- | --------------- |
-| `String`   | Text string               | `string`                                      | `string`                                      | Yes             | Yes             |
-| `Email`    | Email address (validated) | `string`                                      | `string` (with `string::is::email` assertion) | No              | Yes             |
-| `Int`      | Integer number            | `number`                                      | `int`                                         | Yes             | Yes             |
-| `Float`    | Floating point number     | `number`                                      | `float`                                       | Yes             | Yes             |
-| `Bool`     | Boolean value             | `boolean`                                     | `bool`                                        | Yes             | Yes             |
-| `Date`     | Date/DateTime             | `Date`                                        | `datetime`                                    | Yes             | Yes             |
-| `Record`   | Record reference          | `CerialId` (output) / `RecordIdInput` (input) | `record<tablename>`                           | Yes             | Yes             |
-| `Relation` | Virtual relation          | N/A (not stored)                              | Virtual                                       | As `Relation[]` | As `Relation?`  |
+| Type       | Description                                      | TypeScript                                    | SurrealDB                                     | Can be Array    | Can be Optional |
+| ---------- | ------------------------------------------------ | --------------------------------------------- | --------------------------------------------- | --------------- | --------------- |
+| `String`   | Text string                                      | `string`                                      | `string`                                      | Yes             | Yes             |
+| `Email`    | Email address (validated)                        | `string`                                      | `string` (with `string::is::email` assertion) | No              | Yes             |
+| `Int`      | Integer number                                   | `number`                                      | `int`                                         | Yes             | Yes             |
+| `Float`    | Floating point number                            | `number`                                      | `float`                                       | Yes             | Yes             |
+| `Bool`     | Boolean value                                    | `boolean`                                     | `bool`                                        | Yes             | Yes             |
+| `Date`     | Date/DateTime                                    | `Date`                                        | `datetime`                                    | Yes             | Yes             |
+| `Record`   | Record reference                                 | `CerialId` (output) / `RecordIdInput` (input) | `record<tablename>`                           | Yes             | Yes             |
+| `Relation` | Virtual relation                                 | N/A (not stored)                              | Virtual                                       | As `Relation[]` | As `Relation?`  |
+| `Literal`  | Union type (specific values or structured types) | `'value' \| number \| Object \| Tuple`        | `'value' \| int \| { ... } \| [...]`          | Yes             | Yes             |
 
 ## String
 
@@ -192,3 +193,14 @@ model User {
 ```
 
 Input accepts both array form (`[40.7, -74.0]`) and object form (`{ lat: 40.7, lng: -74.0 }`). Output is always array form.
+
+## Literal Types
+
+Literals define union types for fields, allowing a field to hold one of several specific values or structured types:
+
+```cerial
+literal Status { 'active', 'inactive', 'pending' }
+literal Shape { 'none', Point }
+```
+
+See [Literals](literals) for details on defining and using literal types.

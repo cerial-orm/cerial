@@ -5,10 +5,10 @@
  * Tests that child can include parent but parent cannot include children.
  */
 
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import {
   cleanupTables,
-  createTestClient,
+  createTestClient, truncateTables,
   CerialClient,
   tables,
   testConfig,
@@ -17,14 +17,18 @@ import {
 describe('E2E One-to-Many Single-Sided: Include', () => {
   let client: CerialClient;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     client = createTestClient();
     await client.connect(testConfig);
     await cleanupTables(client, tables.oneToManySingleSided);
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await client.disconnect();
+  });
+
+  beforeEach(async () => {
+    await truncateTables(client, tables.oneToManySingleSided);
   });
 
   describe('include parent from child', () => {

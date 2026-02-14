@@ -75,3 +75,14 @@ export {
   tupleHasTupleElements,
   tupleHasUnsetableElements,
 } from './tuples';
+
+export {
+  analyzeLiteralTypes,
+  generateAllLiteralTypes,
+  generateAllLiteralWhereTypes,
+  generateLiteralInputType,
+  generateLiteralType,
+  generateLiteralTypes,
+  generateLiteralWhereInterface,
+  literalNeedsInputType,
+} from './literals';

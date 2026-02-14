@@ -1,5 +1,9 @@
 /**
  * Connection manager for managing multiple database connections
+ *
+ * Uses a module-level connection pool to reuse WebSocket connections
+ * when multiple ConnectionManager instances connect with the same config.
+ * This prevents socket exhaustion from rapid open/close cycles.
  */
 
 import { Surreal } from 'surrealdb';
@@ -8,6 +12,153 @@ import { clearModelCache, createModelProxy, type DatabaseProxy, type ProxyOption
 
 /** Default connection name */
 const DEFAULT_CONNECTION_NAME = 'default';
+
+// ---------------------------------------------------------------------------
+// Module-level connection pool
+// ---------------------------------------------------------------------------
+
+/** A pooled Surreal instance with reference counting */
+interface PoolEntry {
+  surreal: Surreal;
+  refCount: number;
+}
+
+/** Active pool entries keyed by config fingerprint */
+const surrealPool = new Map<string, PoolEntry>();
+
+/** In-flight connection attempts to prevent duplicate concurrent connects */
+const pendingConnections = new Map<string, Promise<Surreal>>();
+
+/** Build a stable key from a connection config */
+function poolKey(config: ConnectionConfig): string {
+  const auth = config.auth ? `${config.auth.username}:${config.auth.password}` : '';
+
+  return `${config.url}|${auth}|${config.namespace ?? ''}|${config.database ?? ''}`;
+}
+
+/** Create and authenticate a fresh Surreal connection */
+async function connectSurreal(config: ConnectionConfig): Promise<Surreal> {
+  const surreal = new Surreal();
+
+  try {
+    await surreal.connect(`${config.url}/rpc`);
+
+    if (config.auth) {
+      await surreal.signin({
+        username: config.auth.username,
+        password: config.auth.password,
+      });
+    }
+
+    if (config.namespace) {
+      await surreal.use({ namespace: config.namespace });
+    }
+    if (config.database) {
+      await surreal.use({ database: config.database });
+    }
+
+    return surreal;
+  } catch (error) {
+    // Close the socket so it doesn't leak if any step fails
+    try {
+      await surreal.close();
+    } catch {
+      // Ignore close errors during cleanup
+    }
+
+    throw error;
+  }
+}
+
+/**
+ * Acquire a Surreal instance from the pool.
+ * Returns an existing connection if one matches the config, otherwise creates a new one.
+ * Concurrent callers with the same config wait for the first connection attempt
+ * instead of opening duplicate sockets.
+ */
+async function acquireSurreal(config: ConnectionConfig): Promise<Surreal> {
+  const key = poolKey(config);
+
+  // Reuse existing active connection
+  const existing = surrealPool.get(key);
+  if (existing) {
+    existing.refCount++;
+
+    return existing.surreal;
+  }
+
+  // Wait for an in-flight connection attempt instead of creating a duplicate
+  const pending = pendingConnections.get(key);
+  if (pending) {
+    try {
+      await pending;
+    } catch {
+      // First attempt failed — we'll create a fresh one below
+    }
+
+    // Re-check pool after pending resolved/rejected
+    const entry = surrealPool.get(key);
+    if (entry) {
+      entry.refCount++;
+
+      return entry.surreal;
+    }
+    // Entry wasn't created (failed or was disconnected) — fall through
+  }
+
+  // Create a new connection
+  const promise = connectSurreal(config);
+  pendingConnections.set(key, promise);
+
+  try {
+    const surreal = await promise;
+    surrealPool.set(key, { surreal, refCount: 1 });
+
+    return surreal;
+  } finally {
+    pendingConnections.delete(key);
+  }
+}
+
+/**
+ * Release a Surreal instance back to the pool.
+ * The WebSocket stays alive (idle) so the next acquirer can reuse it
+ * without opening a new socket. Sockets are only closed via resetConnectionPool().
+ */
+function releaseSurreal(config: ConnectionConfig): void {
+  const key = poolKey(config);
+  const entry = surrealPool.get(key);
+  if (!entry) return;
+
+  entry.refCount--;
+
+  if (entry.refCount <= 0) {
+    // Clear model cache so the next acquirer creates fresh Model instances
+    // with its own beforeQuery callbacks (each CerialClient has its own)
+    clearModelCache(entry.surreal);
+  }
+}
+
+/**
+ * Force-close all pooled connections and reset the pool.
+ * Useful for test teardown or process shutdown.
+ */
+export async function resetConnectionPool(): Promise<void> {
+  for (const [key, entry] of surrealPool) {
+    clearModelCache(entry.surreal);
+    try {
+      await entry.surreal.close();
+    } catch {
+      // Ignore close errors
+    }
+    surrealPool.delete(key);
+  }
+  pendingConnections.clear();
+}
+
+// ---------------------------------------------------------------------------
+// ConnectionManager
+// ---------------------------------------------------------------------------
 
 /** Connection instance */
 interface ConnectionInstance<R extends ModelRegistry = ModelRegistry> {
@@ -66,27 +217,8 @@ export class ConnectionManager<R extends ModelRegistry = ModelRegistry> {
       return existing.proxy;
     }
 
-    // Create new connection
-    const surreal = new Surreal();
-
-    // Connect to the database
-    await surreal.connect(`${finalConfig.url}/rpc`);
-
-    // Authenticate if credentials provided
-    if (finalConfig.auth) {
-      await surreal.signin({
-        username: finalConfig.auth.username,
-        password: finalConfig.auth.password,
-      });
-    }
-
-    // Use namespace and database
-    if (finalConfig.namespace) {
-      await surreal.use({ namespace: finalConfig.namespace });
-    }
-    if (finalConfig.database) {
-      await surreal.use({ database: finalConfig.database });
-    }
+    // Acquire from pool (reuses existing WebSocket or creates new)
+    const surreal = await acquireSurreal(finalConfig);
 
     // Create proxy with options (for before-query callbacks)
     const proxy = createModelProxy<R>(surreal, this.registry, this.proxyOptions);
@@ -108,15 +240,12 @@ export class ConnectionManager<R extends ModelRegistry = ModelRegistry> {
     const connection = this.connections.get(name);
     if (!connection) return;
 
-    // Clear model cache
-    clearModelCache(connection.surreal);
-
-    // Close connection
-    await connection.surreal.close();
-
     // Update state
     connection.isConnected = false;
     this.connections.delete(name);
+
+    // Release to pool — socket stays alive for reuse
+    releaseSurreal(connection.config);
   }
 
   /** Disconnect all connections */
@@ -149,6 +278,7 @@ export class ConnectionManager<R extends ModelRegistry = ModelRegistry> {
     if (!connection.isConnected) {
       throw new Error(`Connection "${name}" is not connected`);
     }
+
     return connection.proxy;
   }
 

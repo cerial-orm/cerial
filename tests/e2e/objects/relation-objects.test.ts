@@ -6,20 +6,24 @@
  * Verifies that object sub-field selects work correctly in include contexts.
  */
 
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import { cleanupTables, createTestClient, CerialClient, tables, testConfig } from '../relations/test-helper';
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { cleanupTables, createTestClient, truncateTables, CerialClient, tables, testConfig } from '../relations/test-helper';
 
 describe('E2E Relations + Objects', () => {
   let client: CerialClient;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     client = createTestClient();
     await client.connect(testConfig);
     await cleanupTables(client, tables.relationWithObjects);
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await client.disconnect();
+  });
+
+  beforeEach(async () => {
+    await truncateTables(client, tables.relationWithObjects);
   });
 
   describe('create with object fields', () => {

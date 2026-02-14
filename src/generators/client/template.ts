@@ -175,6 +175,14 @@ export class CerialClient {
   async disconnect(): Promise<void> {
     await this.connectionManager.disconnect();
     this._db = null;
+    this.resetMigrationState();
+  }
+
+  /**
+   * Reset migration tracking state so all models are re-migrated on next access.
+   * Useful after dropping tables (e.g., in test cleanup) to force schema re-creation.
+   */
+  resetMigrationState(): void {
     this._migratedModels.clear();
     this._pendingMigrations.clear();
     this._migrationPromises.clear();

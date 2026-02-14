@@ -1,8 +1,8 @@
 /**
- * Registry writer - writes the model/object/tuple registry file
+ * Registry writer - writes the model/object/tuple/literal registry file
  */
 
-import type { ModelMetadata, ObjectMetadata, TupleMetadata } from '../../types';
+import type { LiteralMetadata, ModelMetadata, ObjectMetadata, TupleMetadata } from '../../types';
 import { ensureDir, formatCode } from '../shared';
 import { generateCombinedRegistryCode, generateFullRegistryCode, generateRegistryCode } from './registry-generator';
 
@@ -12,14 +12,15 @@ export async function writeModelRegistry(
   models: ModelMetadata[],
   objects: ObjectMetadata[] = [],
   tuples: TupleMetadata[] = [],
+  literals: LiteralMetadata[] = [],
 ): Promise<string> {
   const internalDir = `${outputDir}/internal`;
   await ensureDir(internalDir);
 
   const filePath = `${internalDir}/model-registry.ts`;
   let content: string;
-  if (tuples.length) {
-    content = generateFullRegistryCode(models, objects, tuples);
+  if (tuples.length || literals.length) {
+    content = generateFullRegistryCode(models, objects, tuples, literals);
   } else if (objects.length) {
     content = generateCombinedRegistryCode(models, objects);
   } else {

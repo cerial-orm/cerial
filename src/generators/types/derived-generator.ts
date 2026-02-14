@@ -16,6 +16,7 @@ import type {
   TupleFieldMetadata,
 } from '../../types';
 import { schemaTypeToTsType } from '../../utils/type-utils';
+import { literalNeedsInputType } from './literals';
 import { objectHasDefaultOrTimestamp } from './objects/interface-generator';
 import { generateTupleArrayForm, tupleHasUnsetableElements } from './tuples';
 
@@ -25,6 +26,12 @@ const USE_TS_TOOLBELT = true;
 /** Get the TypeScript input type for a field (for use in update type generation) */
 function getInputType(field: FieldMetadata): string {
   if (field.type === 'record') return 'RecordIdInput';
+  if (field.type === 'literal' && field.literalInfo) {
+    const lit = field.literalInfo;
+    if (literalNeedsInputType({ name: lit.literalName, variants: lit.variants })) return `${lit.literalName}Input`;
+
+    return lit.literalName;
+  }
 
   return schemaTypeToTsType(field.type);
 }
@@ -253,7 +260,14 @@ ${objectFieldDefs.join('\n')}
 }
 
 /** Map schema type to TypeScript array element type for input types */
-function getArrayElementType(schemaType: string): string {
+function getArrayElementType(schemaType: string, field?: FieldMetadata): string {
+  if (schemaType === 'literal' && field?.literalInfo) {
+    const lit = field.literalInfo;
+    if (literalNeedsInputType({ name: lit.literalName, variants: lit.variants })) return `${lit.literalName}Input`;
+
+    return lit.literalName;
+  }
+
   const typeMap: Record<string, string> = {
     string: 'string',
     email: 'string',
@@ -553,7 +567,7 @@ export function generateUpdateType(model: ModelMetadata): string {
 
   // Array primitive fields (skip @readonly — already excluded from update)
   for (const f of arrayFields.filter((af) => !af.isReadonly)) {
-    const elementType = getArrayElementType(f.type);
+    const elementType = getArrayElementType(f.type, f);
     specialFieldTypes.push(`  ${f.name}?: ${elementType}[] | {
     push?: ${elementType} | ${elementType}[];
     unset?: ${elementType} | ${elementType}[];
@@ -761,6 +775,9 @@ export function generateOrderByType(model: ModelMetadata): string {
       fields.push(`  ${field.name}?: ${field.objectInfo.objectName}OrderBy;`);
     } else if (field.type === 'tuple') {
       // Tuple fields do not support ordering — skip
+      continue;
+    } else if (field.type === 'literal') {
+      // Literal fields do not support ordering — skip
       continue;
     } else {
       fields.push(`  ${field.name}?: 'asc' | 'desc';`);

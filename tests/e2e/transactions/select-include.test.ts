@@ -5,12 +5,13 @@
  * are executed within a transaction.
  */
 
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import { isCerialId } from 'cerial';
 import {
   CerialClient,
   cleanupTables,
   createTestClient,
+  truncateTables,
   tables,
   testConfig,
   uniqueEmail,
@@ -20,14 +21,18 @@ import {
 describe('E2E Transactions: Select and Include', () => {
   let client: CerialClient;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     client = createTestClient();
     await client.connect(testConfig);
     await cleanupTables(client, tables.basics);
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await client.disconnect();
+  });
+
+  beforeEach(async () => {
+    await truncateTables(client, tables.basics);
   });
 
   test('findOne with select inside transaction', async () => {

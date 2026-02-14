@@ -52,7 +52,7 @@ function createObject(overrides: Partial<ASTObject> = {}): ASTObject {
 }
 
 function createAST(models: ASTModel[] = [], objects: ASTObject[] = []): SchemaAST {
-  return { source: '', models, objects, tuples: [] };
+  return { source: '', models, objects, tuples: [], literals: [] };
 }
 
 describe('Flexible Validator', () => {

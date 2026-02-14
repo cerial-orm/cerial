@@ -9,15 +9,25 @@ import {
   convertModels,
   convertObjects,
   convertTuples,
+  convertLiterals,
   createObjectRegistry,
   createTupleRegistry,
+  createLiteralRegistry,
   resolveObjectFields,
 } from '../generators/metadata';
 import { writeModelRegistry } from '../generators/metadata/registry-writer';
 import { writeInternalIndex } from '../generators/metadata/internal-writer';
 import { writeMigrationFile } from '../generators/migrations/writer';
-import { collectObjectNames, collectTupleNames, parse } from '../parser/parser';
-import type { ASTModel, ASTObject, ASTTuple } from '../types';
+import { collectLiteralNames, collectObjectNames, collectTupleNames, parse } from '../parser/parser';
+import type {
+  ASTLiteral,
+  ASTModel,
+  ASTObject,
+  ASTTuple,
+  LiteralMetadata,
+  ObjectRegistry,
+  TupleRegistry,
+} from '../types';
 import { resolveSchemas, resolveSinglePath } from './resolvers';
 import { logger } from './utils';
 import type { CLIOptions } from './validators';
@@ -77,6 +87,92 @@ async function removeStaleFiles(outputDir: string, generatedFiles: string[]): Pr
   return staleFiles;
 }
 
+/**
+ * Collect warnings for literals that reference objects/tuples with decorators.
+ * SurrealDB does not enforce sub-field constraints when a value is stored via a literal union,
+ * so decorators on referenced objects/tuples may not behave as expected.
+ */
+function collectLiteralWarnings(
+  literals: LiteralMetadata[],
+  objectRegistry: ObjectRegistry,
+  tupleRegistry: TupleRegistry,
+): string[] {
+  const warnings: string[] = [];
+
+  for (const literal of literals) {
+    for (const variant of literal.variants) {
+      if (variant.kind === 'objectRef') {
+        const obj = objectRegistry[variant.objectName];
+        if (!obj) continue;
+
+        const decoratedFields = obj.fields
+          .filter(
+            (f) =>
+              f.defaultValue !== undefined ||
+              f.defaultAlwaysValue !== undefined ||
+              f.timestampDecorator ||
+              f.isNullable ||
+              f.isFlexible ||
+              f.isReadonly,
+          )
+          .map((f) => {
+            const decs: string[] = [];
+            if (f.defaultValue !== undefined) decs.push('@default');
+            if (f.defaultAlwaysValue !== undefined) decs.push('@defaultAlways');
+            if (f.timestampDecorator === 'createdAt') decs.push('@createdAt');
+            if (f.timestampDecorator === 'updatedAt') decs.push('@updatedAt');
+            if (f.isNullable) decs.push('@nullable');
+            if (f.isFlexible) decs.push('@flexible');
+            if (f.isReadonly) decs.push('@readonly');
+
+            return `${f.name} (${decs.join(', ')})`;
+          });
+
+        if (decoratedFields.length) {
+          warnings.push(
+            `Literal '${literal.name}' references object '${variant.objectName}' which has decorated fields: ${decoratedFields.join(', ')}. ` +
+              `These decorators will not be enforced when the value is stored through literal '${literal.name}', but will still apply when '${variant.objectName}' is used directly on other fields.`,
+          );
+        }
+      }
+
+      if (variant.kind === 'tupleRef') {
+        const tup = tupleRegistry[variant.tupleName];
+        if (!tup) continue;
+
+        const decoratedElements = tup.elements
+          .filter(
+            (el) =>
+              el.defaultValue !== undefined ||
+              el.defaultAlwaysValue !== undefined ||
+              el.timestampDecorator ||
+              el.isNullable,
+          )
+          .map((el) => {
+            const elemName = el.name ?? `element[${el.index}]`;
+            const decs: string[] = [];
+            if (el.defaultValue !== undefined) decs.push('@default');
+            if (el.defaultAlwaysValue !== undefined) decs.push('@defaultAlways');
+            if (el.timestampDecorator === 'createdAt') decs.push('@createdAt');
+            if (el.timestampDecorator === 'updatedAt') decs.push('@updatedAt');
+            if (el.isNullable) decs.push('@nullable');
+
+            return `${elemName} (${decs.join(', ')})`;
+          });
+
+        if (decoratedElements.length) {
+          warnings.push(
+            `Literal '${literal.name}' references tuple '${variant.tupleName}' which has decorated elements: ${decoratedElements.join(', ')}. ` +
+              `These decorators will not be enforced when the value is stored through literal '${literal.name}', but will still apply when '${variant.tupleName}' is used directly on other fields.`,
+          );
+        }
+      }
+    }
+  }
+
+  return warnings;
+}
+
 /** Run the generate command */
 export async function generate(options: CLIOptions): Promise<GenerateResult> {
   const result: GenerateResult = {
@@ -126,9 +222,10 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
       }),
     );
 
-    // Two-pass parsing: first collect all object and tuple names across all files
+    // Two-pass parsing: first collect all object, tuple, and literal names across all files
     const allObjectNames = new Set<string>();
     const allTupleNames = new Set<string>();
+    const allLiteralNames = new Set<string>();
     for (const { content } of schemaContents) {
       const objNames = collectObjectNames(content);
       for (const name of objNames) {
@@ -138,16 +235,21 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
       for (const name of tupNames) {
         allTupleNames.add(name);
       }
+      const litNames = collectLiteralNames(content);
+      for (const name of litNames) {
+        allLiteralNames.add(name);
+      }
     }
 
     // Second pass: parse each schema with full object and tuple name context
     const allModels: ASTModel[] = [];
     const allObjects: ASTObject[] = [];
     const allTuples: ASTTuple[] = [];
+    const allLiterals: ASTLiteral[] = [];
     const parseErrors: string[] = [];
 
     for (const { path, content } of schemaContents) {
-      const parseResult = parse(content, allObjectNames, allTupleNames);
+      const parseResult = parse(content, allObjectNames, allTupleNames, allLiteralNames);
 
       if (parseResult.errors.length) {
         for (const error of parseResult.errors) {
@@ -159,6 +261,7 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
       allModels.push(...parseResult.ast.models);
       allObjects.push(...parseResult.ast.objects);
       allTuples.push(...parseResult.ast.tuples);
+      allLiterals.push(...parseResult.ast.literals);
     }
 
     // Check for parse errors before validation
@@ -171,7 +274,13 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
     }
 
     // Validate combined schema (all models, objects, and tuples together)
-    const combinedAST = { models: allModels, objects: allObjects, tuples: allTuples, source: '' };
+    const combinedAST = {
+      models: allModels,
+      objects: allObjects,
+      tuples: allTuples,
+      literals: allLiterals,
+      source: '',
+    };
     const validation = validateSchema(combinedAST);
     if (!validation.valid) {
       for (const error of validation.errors) {
@@ -195,7 +304,12 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
 
     const objectCount = allObjects.length;
     const tupleCount = allTuples.length;
-    const extraInfo = [objectCount ? `${objectCount} object(s)` : '', tupleCount ? `${tupleCount} tuple(s)` : '']
+    const literalCount = allLiterals.length;
+    const extraInfo = [
+      objectCount ? `${objectCount} object(s)` : '',
+      tupleCount ? `${tupleCount} tuple(s)` : '',
+      literalCount ? `${literalCount} literal(s)` : '',
+    ]
       .filter(Boolean)
       .join(' and ');
     logger.info(`Found ${allModels.length} model(s)${extraInfo ? ` and ${extraInfo}` : ''}`);
@@ -204,12 +318,22 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
     const models = convertModels(allModels);
     const objects = convertObjects(allObjects);
     const tuples = convertTuples(allTuples);
+    const literals = convertLiterals(allLiterals);
 
-    // Resolve inline object and tuple fields (populate objectInfo.fields / tupleInfo.elements for runtime query building)
+    // Resolve inline object, tuple, and literal fields
     const objRegistry = objects.length ? createObjectRegistry(objects) : undefined;
     const tupRegistry = tuples.length ? createTupleRegistry(tuples) : undefined;
-    if (objects.length || tuples.length) {
-      resolveObjectFields(models, objects, objRegistry ?? {}, tupRegistry);
+    const litRegistry = literals.length ? createLiteralRegistry(literals) : undefined;
+    if (objects.length || tuples.length || literals.length) {
+      resolveObjectFields(models, objects, objRegistry ?? {}, tupRegistry, litRegistry);
+    }
+
+    // Check for literal decorator warnings
+    if (literals.length && (objRegistry || tupRegistry)) {
+      const literalWarnings = collectLiteralWarnings(literals, objRegistry ?? {}, tupRegistry ?? {});
+      for (const warning of literalWarnings) {
+        logger.warn(warning);
+      }
     }
 
     // Clean output directory if --clean flag is set
@@ -221,25 +345,40 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
     // Generate files
     logger.progress('Generating files...');
 
-    // Write model registry (includes object and tuple registries if they exist)
-    const registryPath = await writeModelRegistry(outputDir, models, objects, tuples);
+    // Write model registry (includes object, tuple, and literal registries if they exist)
+    const registryPath = await writeModelRegistry(outputDir, models, objects, tuples, literals);
     result.files.push(registryPath);
     if (logLevel === 'full') logger.fileCreated(registryPath);
 
-    // Write migration file (pass object/tuple registries for sub-field DEFINE statements)
+    // Write migration file (pass object/tuple/literal registries for sub-field DEFINE statements)
     const objectRegistry = objRegistry;
     const tupleRegistry = tupRegistry;
-    const migrationPath = await writeMigrationFile(outputDir, models, objectRegistry, tupleRegistry);
+    const literalRegistry = litRegistry;
+    const migrationPath = await writeMigrationFile(outputDir, models, objectRegistry, tupleRegistry, literalRegistry);
     result.files.push(migrationPath);
     if (logLevel === 'full') logger.fileCreated(migrationPath);
 
     // Write internal index
-    const internalIndexPath = await writeInternalIndex(outputDir, objects.length > 0, tuples.length > 0);
+    const internalIndexPath = await writeInternalIndex(
+      outputDir,
+      objects.length > 0,
+      tuples.length > 0,
+      literals.length > 0,
+    );
     result.files.push(internalIndexPath);
     if (logLevel === 'full') logger.fileCreated(internalIndexPath);
 
-    // Write client files (including object and tuple type files)
-    const clientFiles = await writeClient(outputDir, models, objects, tuples, objectRegistry, tupleRegistry);
+    // Write client files (including object, tuple, and literal type files)
+    const clientFiles = await writeClient(
+      outputDir,
+      models,
+      objects,
+      tuples,
+      literals,
+      objectRegistry,
+      tupleRegistry,
+      literalRegistry,
+    );
     result.files.push(...clientFiles);
     if (logLevel === 'full') clientFiles.forEach((f) => logger.fileCreated(f));
 

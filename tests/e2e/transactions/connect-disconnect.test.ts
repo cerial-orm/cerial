@@ -8,10 +8,11 @@
  * Tests connect and disconnect relation operations within $transaction.
  */
 
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import {
   cleanupTables,
   createTestClient,
+  truncateTables,
   CerialClient,
   tables,
   testConfig,
@@ -22,14 +23,18 @@ import {
 describe('E2E Transactions: Connect/Disconnect', () => {
   let client: CerialClient;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     client = createTestClient();
     await client.connect(testConfig);
     await cleanupTables(client, tables.manyToMany);
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await client.disconnect();
+  });
+
+  beforeEach(async () => {
+    await truncateTables(client, tables.manyToMany);
   });
 
   test('create with connect inside transaction', async () => {

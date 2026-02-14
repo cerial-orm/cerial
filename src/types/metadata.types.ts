@@ -3,6 +3,7 @@
  */
 
 import type { OnDeleteAction, SchemaFieldType } from './common.types';
+import type { ASTLiteralVariantKind } from './parser.types';
 
 /** Metadata for relation fields */
 export interface RelationFieldMetadata {
@@ -58,6 +59,8 @@ export interface FieldMetadata {
   objectInfo?: ObjectFieldMetadata;
   /** Tuple metadata for tuple-typed fields */
   tupleInfo?: TupleFieldMetadata;
+  /** Literal metadata for literal-typed fields */
+  literalInfo?: LiteralFieldMetadata;
 }
 
 /** Metadata for object-typed fields referencing an object definition */
@@ -103,6 +106,8 @@ export interface TupleElementMetadata {
   objectInfo?: ObjectFieldMetadata;
   /** For tuple-typed elements: tuple metadata with inline elements */
   tupleInfo?: TupleFieldMetadata;
+  /** For literal-typed elements: literal metadata */
+  literalInfo?: LiteralFieldMetadata;
 }
 
 /** Metadata for tuple-typed fields referencing a tuple definition */
@@ -124,6 +129,37 @@ export interface TupleMetadata {
 /** Registry of all tuples indexed by tuple name */
 export interface TupleRegistry {
   [tupleName: string]: TupleMetadata;
+}
+
+/** Resolved variant in a literal definition (no literalRef — those are expanded) */
+export type ResolvedLiteralVariant =
+  | { kind: 'string'; value: string }
+  | { kind: 'int'; value: number }
+  | { kind: 'float'; value: number }
+  | { kind: 'bool'; value: boolean }
+  | { kind: 'broadType'; typeName: string }
+  | { kind: 'tupleRef'; tupleName: string; tupleInfo: TupleFieldMetadata }
+  | { kind: 'objectRef'; objectName: string; objectInfo: ObjectFieldMetadata };
+
+/** Metadata for literal-typed fields referencing a literal definition */
+export interface LiteralFieldMetadata {
+  /** Name of the referenced literal definition (e.g., "Status") */
+  literalName: string;
+  /** Expanded variants (literal references resolved and deduplicated) */
+  variants: ResolvedLiteralVariant[];
+}
+
+/** Metadata for a literal definition (union type) */
+export interface LiteralMetadata {
+  /** Literal name (e.g., "Status") */
+  name: string;
+  /** Expanded variants (literal references resolved and deduplicated) */
+  variants: ResolvedLiteralVariant[];
+}
+
+/** Registry of all literals indexed by literal name */
+export interface LiteralRegistry {
+  [literalName: string]: LiteralMetadata;
 }
 
 /** Composite index/unique directive metadata */

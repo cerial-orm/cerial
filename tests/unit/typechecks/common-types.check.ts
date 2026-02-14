@@ -133,6 +133,7 @@ type ExpectedFieldTypes =
   | 'record'
   | 'relation'
   | 'object'
-  | 'tuple';
+  | 'tuple'
+  | 'literal';
 
 Test.checks([Test.check<SchemaFieldType, ExpectedFieldTypes, Test.Pass>()]);

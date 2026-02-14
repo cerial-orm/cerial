@@ -9,17 +9,17 @@ import { createTestClient, CerialClient, testConfig } from '../test-client';
 /** Tables used by composite index E2E tests */
 const INDEX_TABLES = ['staff', 'warehouse', 'registration', 'attendee', 'workshop'];
 
-/** Create a connected client with cleaned-up tables and fresh migrations */
-export async function setupIndexClient(): Promise<CerialClient> {
-  const client = createTestClient();
-  await client.connect(testConfig);
+/**
+ * Clean index tables and re-run migrations.
+ * Use in `beforeEach` when the client is connected via `beforeAll`.
+ */
+export async function cleanAndPrepare(client: CerialClient): Promise<void> {
   await cleanIndexTables(client);
+  client.resetMigrationState();
   await client.migrate();
-
-  return client;
 }
 
-/** Remove all tables used by index tests and re-run migrations */
+/** Remove all tables used by index tests */
 export async function cleanIndexTables(client: CerialClient): Promise<void> {
   const surreal = client.getSurreal();
   if (!surreal) return;
@@ -43,7 +43,26 @@ export async function cleanTable(client: CerialClient, table: string): Promise<v
   } catch {
     // ignore
   }
+  client.resetMigrationState();
   await client.migrate();
+}
+
+/**
+ * Truncate index tables by deleting all rows.
+ * Lightweight alternative to cleanAndPrepare — preserves schema, just clears data.
+ * Use in `beforeEach` for fast per-test cleanup.
+ */
+export async function truncateIndexTables(client: CerialClient): Promise<void> {
+  const surreal = client.getSurreal();
+  if (!surreal) return;
+
+  for (const table of INDEX_TABLES) {
+    try {
+      await surreal.query(`DELETE FROM ${table};`);
+    } catch {
+      // Ignore errors - table may not exist yet
+    }
+  }
 }
 
 export { createTestClient, CerialClient, testConfig };

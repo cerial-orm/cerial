@@ -9,21 +9,25 @@
  * FK on Profile side (required) - User deletion cascades to Profile.
  */
 
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import { cleanupTables, createTestClient, CerialClient, tables, testConfig, uniqueEmail } from '../../test-helper';
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { cleanupTables, createTestClient, truncateTables, CerialClient, tables, testConfig, uniqueEmail } from '../../test-helper';
 import { isCerialId } from 'cerial';
 
 describe('E2E One-to-One Required: Create', () => {
   let client: CerialClient;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     client = createTestClient();
     await client.connect(testConfig);
     await cleanupTables(client, tables.oneToOneRequired);
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await client.disconnect();
+  });
+
+  beforeEach(async () => {
+    await truncateTables(client, tables.oneToOneRequired);
   });
 
   describe('nested create from PK side (Profile)', () => {

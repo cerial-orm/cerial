@@ -5,6 +5,7 @@
 import type {
   CompositeIndex,
   FieldMetadata,
+  LiteralRegistry,
   ModelMetadata,
   ModelRegistry,
   ObjectMetadata,
@@ -76,6 +77,7 @@ export function generateDefineField(
   model: ModelMetadata,
   options: DefineFieldOptions = {},
   tupleRegistry?: TupleRegistry,
+  literalRegistry?: LiteralRegistry,
 ): string {
   const opts = { ...DEFAULT_FIELD_OPTIONS, ...options };
 
@@ -104,7 +106,7 @@ export function generateDefineField(
   }
 
   // Add TYPE clause (pass field and model for Record type handling, tupleRegistry for tuple type literals)
-  parts.push(generateTypeClause(field.type, field.isRequired, field, model, tupleRegistry));
+  parts.push(generateTypeClause(field.type, field.isRequired, field, model, tupleRegistry, literalRegistry));
 
   // Add FLEXIBLE for @flexible object fields — allows arbitrary extra fields alongside defined sub-fields
   if (field.isFlexible && field.type === 'object') {
@@ -607,6 +609,7 @@ export function generateModelDefineStatements(
   fieldOptions?: DefineFieldOptions,
   objectRegistry?: ObjectRegistry,
   tupleRegistry?: TupleRegistry,
+  literalRegistry?: LiteralRegistry,
 ): string[] {
   const statements: string[] = [];
 
@@ -615,7 +618,7 @@ export function generateModelDefineStatements(
 
   // 2. Define each field (skips id and relation fields)
   for (const field of model.fields) {
-    const fieldDef = generateDefineField(field, model.tableName, model, fieldOptions, tupleRegistry);
+    const fieldDef = generateDefineField(field, model.tableName, model, fieldOptions, tupleRegistry, literalRegistry);
     if (fieldDef) statements.push(fieldDef);
 
     // For object fields, generate sub-field DEFINE statements
@@ -707,6 +710,7 @@ export function generateRegistryDefineStatements(
   fieldOptions?: DefineFieldOptions,
   objectRegistry?: ObjectRegistry,
   tupleRegistry?: TupleRegistry,
+  literalRegistry?: LiteralRegistry,
 ): string[] {
   const statements: string[] = [];
 
@@ -719,6 +723,7 @@ export function generateRegistryDefineStatements(
       fieldOptions,
       objectRegistry,
       tupleRegistry,
+      literalRegistry,
     );
     statements.push(...modelStatements);
   }
@@ -733,6 +738,7 @@ export function generateMigrationQuery(
   fieldOptions?: DefineFieldOptions,
   objectRegistry?: ObjectRegistry,
   tupleRegistry?: TupleRegistry,
+  literalRegistry?: LiteralRegistry,
 ): string {
   const statements = generateRegistryDefineStatements(
     registry,
@@ -740,6 +746,7 @@ export function generateMigrationQuery(
     fieldOptions,
     objectRegistry,
     tupleRegistry,
+    literalRegistry,
   );
 
   return statements.join('\n');
@@ -780,13 +787,21 @@ export function generateModelMigrationMap(
   fieldOptions?: DefineFieldOptions,
   objectRegistry?: ObjectRegistry,
   tupleRegistry?: TupleRegistry,
+  literalRegistry?: LiteralRegistry,
 ): ModelMigrationMap {
   const map: ModelMigrationMap = {};
 
   for (const modelName in registry) {
     const model = registry[modelName];
     if (!model) continue;
-    map[modelName] = generateModelDefineStatements(model, tableOptions, fieldOptions, objectRegistry, tupleRegistry);
+    map[modelName] = generateModelDefineStatements(
+      model,
+      tableOptions,
+      fieldOptions,
+      objectRegistry,
+      tupleRegistry,
+      literalRegistry,
+    );
   }
 
   return map;
@@ -802,6 +817,7 @@ export function generatePerModelMigrationCode(
   models: ModelMetadata[],
   objectRegistry?: ObjectRegistry,
   tupleRegistry?: TupleRegistry,
+  literalRegistry?: LiteralRegistry,
 ): string {
   const registry: ModelRegistry = {};
   for (const model of models) {
@@ -809,7 +825,14 @@ export function generatePerModelMigrationCode(
   }
 
   // Generate per-model map
-  const migrationMap = generateModelMigrationMap(registry, undefined, undefined, objectRegistry, tupleRegistry);
+  const migrationMap = generateModelMigrationMap(
+    registry,
+    undefined,
+    undefined,
+    objectRegistry,
+    tupleRegistry,
+    literalRegistry,
+  );
   const mapEntries = Object.entries(migrationMap)
     .map(([modelName, modelStatements]) => {
       const modelStatementsStr = modelStatements.map((s) => `    '${escapeSingleQuotes(s)}'`).join(',\n');

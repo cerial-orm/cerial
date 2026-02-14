@@ -5,15 +5,25 @@
  * Verifies delete by email, return: true semantics, and return: 'before'.
  */
 
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import { isCerialId } from 'cerial';
-import { setupIndexClient, CerialClient } from '../../test-helper';
+import { cleanAndPrepare, truncateIndexTables, createTestClient, CerialClient, testConfig } from '../../test-helper';
 
 describe('Single @unique — deleteUnique', () => {
   let client: CerialClient;
 
+  beforeAll(async () => {
+    client = createTestClient();
+    await client.connect(testConfig);
+    await cleanAndPrepare(client);
+  });
+
+  afterAll(async () => {
+    await client.disconnect();
+  });
+
   beforeEach(async () => {
-    client = await setupIndexClient();
+    await truncateIndexTables(client);
 
     await client.db.Staff.create({
       data: {
@@ -24,10 +34,6 @@ describe('Single @unique — deleteUnique', () => {
         age: 35,
       },
     });
-  });
-
-  afterEach(async () => {
-    await client.disconnect();
   });
 
   test('deletes a record by unique email and verifies it is gone', async () => {

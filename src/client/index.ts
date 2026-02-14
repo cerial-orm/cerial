@@ -11,5 +11,5 @@ export { clearModelCache, createModelProxy, createProxyHandler } from './proxy';
 export type { DatabaseProxy, ProxyOptions, PerModelCallbacks } from './proxy';
 
 // Connection manager
-export { ConnectionManager, createConnectionManager } from './connection';
+export { ConnectionManager, createConnectionManager, resetConnectionPool } from './connection';
 export type { ConnectionManagerOptions } from './connection';

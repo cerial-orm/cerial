@@ -8,20 +8,24 @@
  * Tests restrict delete behavior - error when trying to delete user with profile.
  */
 
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import { cleanupTables, createTestClient, CerialClient, tables, testConfig } from '../../test-helper';
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { cleanupTables, createTestClient, truncateTables, CerialClient, tables, testConfig } from '../../test-helper';
 
 describe('E2E One-to-One @onDelete(Restrict)', () => {
   let client: CerialClient;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     client = createTestClient();
     await client.connect(testConfig);
     await cleanupTables(client, tables.oneToOneRestrict);
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await client.disconnect();
+  });
+
+  beforeEach(async () => {
+    await truncateTables(client, tables.oneToOneRestrict);
   });
 
   describe('restrict behavior', () => {

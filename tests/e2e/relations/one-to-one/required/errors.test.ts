@@ -6,20 +6,24 @@
  * Note: Type-level constraints are tested in typechecks/*.check.ts files.
  */
 
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import { cleanupTables, createTestClient, CerialClient, tables, testConfig, uniqueEmail } from '../../test-helper';
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { cleanupTables, createTestClient, truncateTables, CerialClient, tables, testConfig, uniqueEmail } from '../../test-helper';
 
 describe('E2E One-to-One Required: Errors', () => {
   let client: CerialClient;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     client = createTestClient();
     await client.connect(testConfig);
     await cleanupTables(client, tables.oneToOneRequired);
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await client.disconnect();
+  });
+
+  beforeEach(async () => {
+    await truncateTables(client, tables.oneToOneRequired);
   });
 
   describe('disconnect blocked on required FK', () => {

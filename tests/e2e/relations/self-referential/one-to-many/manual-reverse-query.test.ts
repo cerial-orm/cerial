@@ -5,10 +5,10 @@
  * Tests manual reverse lookup (no directReports field).
  */
 
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import {
   cleanupTables,
-  createTestClient,
+  createTestClient, truncateTables,
   CerialClient,
   tables,
   testConfig,
@@ -17,14 +17,18 @@ import {
 describe('E2E Self-Ref One-to-Many: Manual Reverse Query', () => {
   let client: CerialClient;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     client = createTestClient();
     await client.connect(testConfig);
     await cleanupTables(client, tables.selfRefOneToMany);
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await client.disconnect();
+  });
+
+  beforeEach(async () => {
+    await truncateTables(client, tables.selfRefOneToMany);
   });
 
   describe('no directReports field', () => {

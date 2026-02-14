@@ -13,7 +13,8 @@ export type SchemaFieldType =
   | 'record'
   | 'relation'
   | 'object'
-  | 'tuple';
+  | 'tuple'
+  | 'literal';
 
 /** Supported decorator types in schema definitions */
 export type SchemaDecorator =
@@ -53,6 +54,7 @@ export type FieldTypeMapping = {
   relation: unknown; // Virtual type - actual type determined by target model
   object: unknown; // Embedded object type - actual type determined by object definition
   tuple: unknown[]; // Tuple type - actual element types determined by tuple definition
+  literal: unknown; // Literal type - actual union type determined by literal definition
 };
 
 /** Field type to SurrealDB type mapping */
@@ -67,6 +69,7 @@ export type SurrealTypeMapping = {
   relation: never; // Virtual type - not stored in database
   object: 'object'; // Embedded object type
   tuple: 'array'; // Tuple type - stored as typed array literal
+  literal: 'literal'; // Literal type - stored as union type
 };
 
 /** Generic result type for operations */

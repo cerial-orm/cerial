@@ -33,6 +33,11 @@ function generateElementWhereType(element: TupleElementMetadata): string {
     return `${element.tupleInfo.tupleName}Where`;
   }
 
+  // For literal-typed elements, reference the literal's Where type
+  if (element.type === 'literal' && element.literalInfo) {
+    return `${element.literalInfo.literalName}Where`;
+  }
+
   // Create a synthetic FieldMetadata for primitive elements
   const syntheticField = {
     name: element.name ?? `${element.index}`,

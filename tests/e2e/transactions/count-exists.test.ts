@@ -5,11 +5,12 @@
  * within a transaction alongside other query types.
  */
 
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import {
   CerialClient,
   cleanupTables,
   createTestClient,
+  truncateTables,
   tables,
   testConfig,
   uniqueEmail,
@@ -19,14 +20,18 @@ import {
 describe('E2E Transactions: Count and Exists', () => {
   let client: CerialClient;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     client = createTestClient();
     await client.connect(testConfig);
     await cleanupTables(client, tables.basics);
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await client.disconnect();
+  });
+
+  beforeEach(async () => {
+    await truncateTables(client, tables.basics);
   });
 
   test('count inside transaction', async () => {

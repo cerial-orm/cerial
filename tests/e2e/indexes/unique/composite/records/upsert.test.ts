@@ -7,19 +7,25 @@
  * Tests upsert operations using composite unique key where the key fields are Record types.
  */
 
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import { isCerialId } from 'cerial';
-import { setupIndexClient, CerialClient } from '../../../test-helper';
+import { cleanAndPrepare, truncateIndexTables, createTestClient, CerialClient, testConfig } from '../../../test-helper';
 
 describe('Composite Unique Records: upsert', () => {
   let client: CerialClient;
 
-  beforeEach(async () => {
-    client = await setupIndexClient();
+  beforeAll(async () => {
+    client = createTestClient();
+    await client.connect(testConfig);
+    await cleanAndPrepare(client);
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await client.disconnect();
+  });
+
+  beforeEach(async () => {
+    await truncateIndexTables(client);
   });
 
   test('create path: registration does not exist, creates with create data', async () => {

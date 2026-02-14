@@ -5,10 +5,10 @@
  * Tests including friends relation.
  */
 
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import {
   cleanupTables,
-  createTestClient,
+  createTestClient, truncateTables,
   CerialClient,
   tables,
   testConfig,
@@ -17,14 +17,18 @@ import {
 describe('E2E Self-Ref Many-to-Many Symmetric: Include', () => {
   let client: CerialClient;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     client = createTestClient();
     await client.connect(testConfig);
     await cleanupTables(client, tables.selfRefManyToManySymmetric);
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await client.disconnect();
+  });
+
+  beforeEach(async () => {
+    await truncateTables(client, tables.selfRefManyToManySymmetric);
   });
 
   describe('include friends', () => {

@@ -5,21 +5,25 @@
  * The client is generated from test.schema before these tests run.
  */
 
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import { CerialId, isCerialId } from 'cerial';
-import { cleanupTables, createTestClient, CerialClient, testConfig } from './test-client';
+import { cleanupTables, createTestClient, truncateTables, CerialClient, testConfig } from './test-client';
 
 describe('E2E CRUD Operations', () => {
   let client: CerialClient;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     client = createTestClient();
     await client.connect(testConfig);
     await cleanupTables(client);
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await client.disconnect();
+  });
+
+  beforeEach(async () => {
+    await truncateTables(client);
   });
 
   describe('Create', () => {

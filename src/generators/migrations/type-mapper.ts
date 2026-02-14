@@ -4,8 +4,12 @@
 
 import type {
   FieldMetadata,
+  LiteralFieldMetadata,
+  LiteralRegistry,
   ModelMetadata,
+  ObjectFieldMetadata,
   ObjectRegistry,
+  ResolvedLiteralVariant,
   SchemaFieldType,
   TupleElementMetadata,
   TupleFieldMetadata,
@@ -13,7 +17,17 @@ import type {
 } from '../../types';
 
 /** SurrealQL type string */
-export type SurrealQLType = 'string' | 'int' | 'float' | 'bool' | 'datetime' | 'uuid' | 'record' | 'array' | 'object';
+export type SurrealQLType =
+  | 'string'
+  | 'int'
+  | 'float'
+  | 'bool'
+  | 'datetime'
+  | 'uuid'
+  | 'record'
+  | 'array'
+  | 'object'
+  | 'literal';
 
 /** Mapping from schema types to SurrealQL types */
 const TYPE_MAP: Record<SchemaFieldType, SurrealQLType> = {
@@ -27,6 +41,7 @@ const TYPE_MAP: Record<SchemaFieldType, SurrealQLType> = {
   relation: 'string', // Virtual type - should not be used directly
   object: 'object', // Embedded object type
   tuple: 'array', // Tuple type - actual type is literal array [type1, type2, ...]
+  literal: 'literal', // Literal type - actual type is union of variants
 };
 
 /** Schema types that require additional assertions */
@@ -80,6 +95,93 @@ function wrapTypeModifiers(baseType: string, isRequired: boolean, isNullable?: b
   return `option<${baseType} | null>`;
 }
 
+/** Map a broad type name to its SurrealQL equivalent */
+function broadTypeToSurreal(typeName: string): string {
+  const map: Record<string, string> = {
+    String: 'string',
+    Int: 'int',
+    Float: 'float',
+    Bool: 'bool',
+    Date: 'datetime',
+  };
+
+  return map[typeName] ?? 'string';
+}
+
+/** Generate the SurrealQL type string for a single literal variant */
+function variantToSurrealType(variant: ResolvedLiteralVariant, tupleRegistry?: TupleRegistry): string {
+  switch (variant.kind) {
+    case 'string':
+      return `'${variant.value}'`;
+    case 'int':
+    case 'float':
+      return `${variant.value}`;
+    case 'bool':
+      return `${variant.value}`;
+    case 'broadType':
+      return broadTypeToSurreal(variant.typeName);
+    case 'tupleRef':
+      return generateTupleSurrealTypeLiteral(variant.tupleInfo, tupleRegistry);
+    case 'objectRef':
+      return generateObjectSurrealTypeLiteral(variant.objectInfo, tupleRegistry);
+  }
+}
+
+/**
+ * Generate the inline SurrealQL object type literal for an object variant in a literal.
+ * Produces `{ fieldName: type, ... }` with proper optional/nullable modifiers.
+ *
+ * Only type-level modifiers (optional, @nullable) are expressed — decorators like
+ * @default, @createdAt, @readonly cannot be represented in inline type syntax.
+ */
+export function generateObjectSurrealTypeLiteral(
+  objectInfo: ObjectFieldMetadata,
+  tupleRegistry?: TupleRegistry,
+): string {
+  const fieldParts = objectInfo.fields.map((field) => {
+    const fieldType = generateObjectFieldSurrealType(field, tupleRegistry);
+
+    return `${field.name}: ${fieldType}`;
+  });
+
+  return `{ ${fieldParts.join(', ')} }`;
+}
+
+/**
+ * Generate the SurrealQL type for a single field inside an inline object literal.
+ * Handles primitives, arrays, and literal-typed sub-fields.
+ */
+function generateObjectFieldSurrealType(field: FieldMetadata, tupleRegistry?: TupleRegistry): string {
+  // Array fields: array<baseType>
+  if (field.isArray) {
+    let baseType: string;
+    if (field.type === 'literal' && field.literalInfo) {
+      baseType = generateLiteralSurrealType(field.literalInfo, tupleRegistry);
+    } else {
+      baseType = mapToSurrealType(field.type);
+    }
+
+    return `array<${baseType}>`;
+  }
+
+  // Literal-typed sub-fields: inline the literal union
+  if (field.type === 'literal' && field.literalInfo) {
+    const literalUnion = generateLiteralSurrealType(field.literalInfo, tupleRegistry);
+
+    return wrapTypeModifiers(literalUnion, field.isRequired, field.isNullable);
+  }
+
+  // Primitive fields
+  const baseType = mapToSurrealType(field.type);
+
+  return wrapTypeModifiers(baseType, field.isRequired, field.isNullable);
+}
+
+/** Generate the pipe-separated union type string for a literal field */
+export function generateLiteralSurrealType(literalInfo: LiteralFieldMetadata, tupleRegistry?: TupleRegistry): string {
+  return literalInfo.variants.map((v) => variantToSurrealType(v, tupleRegistry)).join(' | ');
+}
+
 /**
  * Generate the TYPE clause for a field
  * Handles Record and Record[] with proper record<table> syntax
@@ -96,6 +198,7 @@ export function generateTypeClause(
   field?: FieldMetadata,
   model?: ModelMetadata,
   tupleRegistry?: TupleRegistry,
+  literalRegistry?: LiteralRegistry,
 ): string {
   const isNullable = field?.isNullable;
 
@@ -129,6 +232,15 @@ export function generateTypeClause(
 
     // Tuples can be @nullable (unlike objects) — SurrealDB supports `[T, T] | null`
     return `TYPE ${wrapTypeModifiers(tupleLiteral, isRequired, isNullable)}`;
+  }
+
+  // Handle literal types — emit pipe-separated union of variant types
+  if (schemaType === 'literal' && field?.literalInfo) {
+    const literalUnion = generateLiteralSurrealType(field.literalInfo, tupleRegistry);
+
+    if (field.isArray) return `TYPE array<${literalUnion}>`;
+
+    return `TYPE ${wrapTypeModifiers(literalUnion, isRequired, isNullable)}`;
   }
 
   // Handle primitive array types (String[], Int[], Date[], etc.)

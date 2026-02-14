@@ -26,8 +26,8 @@
  *                Cerial injects `field = NONE` on UPDATE when user omits the field.
  */
 
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import { cleanupTables, createTestClient, CerialClient, testConfig } from '../relations/test-helper';
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { cleanupTables, createTestClient, truncateTables, CerialClient, testConfig } from '../relations/test-helper';
 
 const TIMESTAMP_TABLES = ['timestamp_test'];
 
@@ -48,14 +48,18 @@ function expectApproximatelyNow(date: Date | null | undefined, tolerance = TIME_
 describe('E2E Timestamp Decorators', () => {
   let client: CerialClient;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     client = createTestClient();
     await client.connect(testConfig);
     await cleanupTables(client, TIMESTAMP_TABLES);
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await client.disconnect();
+  });
+
+  beforeEach(async () => {
+    await truncateTables(client, TIMESTAMP_TABLES);
   });
 
   // ─── @createdAt Tests ─────────────────────────────────────────────────────

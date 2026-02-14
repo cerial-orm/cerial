@@ -67,6 +67,16 @@ Tuples do **not** generate: `OrderBy`, `Create`, `Include`, or `GetPayload` type
 
 When a tuple is used as a model field, the model's `Update` type includes full-replace (`CoordinateInput`), per-element update (`{ update: CoordinateUpdate }`), and `push`/`set` operations for tuple arrays. The model's `Select` type includes `boolean | CoordinateSelect` when the tuple has object elements at any depth, or just `boolean` otherwise.
 
+## Types Generated Per Literal
+
+For each `literal` in your schema, Cerial generates a focused set of types. Literals are union types representing a fixed set of allowed values.
+
+| Type          | Description                                                      |
+| ------------- | ---------------------------------------------------------------- |
+| `{Name}`      | Output type — union of variant values/types                      |
+| `{Name}Input` | Input type — only when literal has object/tuple variants         |
+| `{Name}Where` | Where filter type with eq/neq/in/notIn (+ conditional operators) |
+
 ## Example: Generated Output Interface
 
 Given this schema:
@@ -319,6 +329,35 @@ Key features:
 - Object fields in `select` accept `boolean | ObjectSelect` for sub-field narrowing
 - `include` relation entries accept `boolean` (simple include) or an object with nested query options
 - Array relations in `include` support `where`, `orderBy`, `limit`, and `offset` for filtering and pagination
+
+## Generated Literal Types
+
+For a literal definition:
+
+```cerial
+literal Status { 'active', 'inactive', 'pending' }
+```
+
+Cerial generates:
+
+```typescript
+type Status = 'active' | 'inactive' | 'pending';
+
+interface StatusWhere {
+  eq?: Status;
+  neq?: Status;
+  in?: Status[];
+  notIn?: Status[];
+}
+```
+
+Key points:
+
+- Literals with object/tuple variants also generate an `Input` type (uses input variants for objects/tuples)
+- Numeric-only literals get additional comparison operators (`gt`, `gte`, `lt`, `lte`, `between`)
+- Literals with broad `String` type get string operators (`contains`, `startsWith`, `endsWith`)
+- Literal fields are excluded from `OrderBy` types
+- Literal fields use boolean-only select (no sub-field selection)
 
 ## CerialQueryPromise
 

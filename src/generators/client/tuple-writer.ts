@@ -2,7 +2,7 @@
  * Tuple writer - writes per-tuple type files to the tuples/ directory
  */
 
-import type { ObjectRegistry, TupleMetadata, TupleRegistry } from '../../types';
+import type { LiteralRegistry, ObjectRegistry, TupleMetadata, TupleRegistry } from '../../types';
 import { ensureDir, formatCode } from '../shared';
 import {
   generateTupleInterfaces,
@@ -15,8 +15,10 @@ import {
   NONE_IMPORT,
   collectTupleObjectNamesDeep,
   collectTupleTupleNamesDeep,
+  generateLiteralImports,
   generateObjectImports,
   generateTupleImports,
+  getTupleReferencedLiteralNames,
   getTupleReferencedObjectNames,
   getTupleReferencedTupleNames,
 } from './import-helpers';
@@ -27,6 +29,7 @@ export async function writeTupleTypes(
   tuple: TupleMetadata,
   tupleRegistry?: TupleRegistry,
   objectRegistry?: ObjectRegistry,
+  literalRegistry?: LiteralRegistry,
 ): Promise<string> {
   const tuplesDir = `${outputDir}/tuples`;
   await ensureDir(tuplesDir);
@@ -64,6 +67,10 @@ export async function writeTupleTypes(
   const referencedTuples = Array.from(referencedTuplesSet);
   const tupleImports = generateTupleImports(referencedTuples, tupleRegistry);
 
+  // Get referenced literal names for imports (cross-directory)
+  const referencedLiterals = getTupleReferencedLiteralNames(tuple);
+  const literalImports = generateLiteralImports(referencedLiterals, literalRegistry, '../literals');
+
   // Generate all type content for this tuple
   const interfaceCode = generateTupleInterfaces([tuple], tupleRegistry, objectRegistry);
   const whereCode = generateTupleWhereInterface(tuple, tupleRegistry, objectRegistry);
@@ -80,7 +87,7 @@ export async function writeTupleTypes(
  * Do not edit manually
  */
 
-${noneImport}${objectImports}${tupleImports}${interfaceCode}
+${noneImport}${objectImports}${tupleImports}${literalImports}${interfaceCode}
 
 ${whereCode}
 

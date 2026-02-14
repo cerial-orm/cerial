@@ -4,20 +4,24 @@
  * Tests including related records in query results.
  */
 
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import { CerialClient, cleanupTables, createTestClient, testConfig } from './test-client';
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { CerialClient, cleanupTables, createTestClient, truncateTables, testConfig } from './test-client';
 
 describe('E2E Include', () => {
   let client: CerialClient;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     client = createTestClient();
     await client.connect(testConfig);
     await cleanupTables(client);
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await client.disconnect();
+  });
+
+  beforeEach(async () => {
+    await truncateTables(client);
   });
 
   describe('Include forward relation (single)', () => {

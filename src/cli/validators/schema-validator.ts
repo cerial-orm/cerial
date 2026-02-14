@@ -736,6 +736,71 @@ export function validateTupleObjectCombination(ast: SchemaAST): SchemaValidation
   return errors;
 }
 
+/** Decorators that are NOT allowed on literal-typed fields */
+const DISALLOWED_LITERAL_DECORATORS = new Set([
+  'flexible',
+  'now',
+  'createdAt',
+  'updatedAt',
+  'id',
+  'field',
+  'model',
+  'onDelete',
+  'key',
+]);
+
+/** Error messages for disallowed decorators on literal fields */
+function getLiteralDecoratorError(decoratorType: string): string {
+  if (decoratorType === 'flexible') return '@flexible is only allowed on object-type fields';
+  if (decoratorType === 'now' || decoratorType === 'createdAt' || decoratorType === 'updatedAt')
+    return 'timestamp decorators are only allowed on Date fields';
+  if (decoratorType === 'id') return '@id is only allowed on Record fields';
+
+  // Relation decorators
+  return `@${decoratorType} is a relation decorator and is not allowed on literal fields`;
+}
+
+/** Validate decorators on literal-typed fields across models and objects */
+export function validateLiteralDecorators(ast: SchemaAST): SchemaValidationError[] {
+  const errors: SchemaValidationError[] = [];
+
+  // Validate model fields
+  for (const model of ast.models) {
+    for (const field of model.fields) {
+      if (field.type !== 'literal') continue;
+
+      for (const dec of field.decorators) {
+        if (DISALLOWED_LITERAL_DECORATORS.has(dec.type)) {
+          errors.push({
+            message: `${getLiteralDecoratorError(dec.type)}. Field '${field.name}' in model ${model.name} is a literal type.`,
+            model: model.name,
+            field: field.name,
+            line: field.range.start.line,
+          });
+        }
+      }
+    }
+  }
+
+  // Validate object fields
+  for (const object of ast.objects) {
+    for (const field of object.fields) {
+      if (field.type !== 'literal') continue;
+
+      for (const dec of field.decorators) {
+        if (DISALLOWED_LITERAL_DECORATORS.has(dec.type)) {
+          errors.push({
+            message: `${getLiteralDecoratorError(dec.type)}. Field '${field.name}' in object ${object.name} is a literal type.`,
+            line: field.range.start.line,
+          });
+        }
+      }
+    }
+  }
+
+  return errors;
+}
+
 /** Validate entire schema */
 export function validateSchema(ast: SchemaAST): SchemaValidationResult {
   const errors: SchemaValidationError[] = [
@@ -756,6 +821,7 @@ export function validateSchema(ast: SchemaAST): SchemaValidationResult {
     ...validateNullableOnTupleElements(ast),
     ...validateTupleElementDecorators(ast),
     ...validateTupleObjectCombination(ast),
+    ...validateLiteralDecorators(ast),
   ];
 
   return {

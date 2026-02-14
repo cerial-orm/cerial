@@ -2,8 +2,9 @@
  * Client index writer - writes the top-level generated index.ts with all type re-exports
  */
 
-import type { ModelMetadata, ObjectMetadata, ObjectRegistry, TupleMetadata } from '../../types';
+import type { LiteralMetadata, ModelMetadata, ObjectMetadata, ObjectRegistry, TupleMetadata } from '../../types';
 import { ensureDir, formatCode } from '../shared';
+import { literalNeedsInputType } from '../types/literals';
 import { objectHasDefaultOrTimestamp, tupleHasObjectElementsDeep, tupleHasUnsetableElements } from '../types';
 import { hasRelations } from './import-helpers';
 import { RETURN_UTILITY_TYPES, SAFE_UNSET_TYPE, SELECT_UTILITY_TYPES } from './utility-types';
@@ -14,6 +15,7 @@ export async function writeClientIndex(
   models: ModelMetadata[],
   objects: ObjectMetadata[] = [],
   tuples: TupleMetadata[] = [],
+  literals: LiteralMetadata[] = [],
 ): Promise<string> {
   await ensureDir(outputDir);
 
@@ -217,6 +219,37 @@ export type {
 export type {
   ${tupUnsets},
 } from './tuples';
+`;
+    }
+  }
+
+  // Add Literal type exports if there are literals
+  if (literals.length > 0) {
+    const litOutputTypes = literals.map((l) => l.name).join(',\n  ');
+    const litWheres = literals.map((l) => `${l.name}Where`).join(',\n  ');
+
+    // Only export Input types for literals with tupleRef/objectRef variants
+    const literalsWithInput = literals.filter((l) => literalNeedsInputType(l));
+
+    content += `
+// Literal types (output types - union of variant values)
+export type {
+  ${litOutputTypes},
+} from './literals';
+
+// Literal where types
+export type {
+  ${litWheres},
+} from './literals';
+`;
+
+    if (literalsWithInput.length) {
+      const litInputTypes = literalsWithInput.map((l) => `${l.name}Input`).join(',\n  ');
+      content += `
+// Literal input types (with Input variants for tupleRef/objectRef)
+export type {
+  ${litInputTypes},
+} from './literals';
 `;
     }
   }

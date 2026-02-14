@@ -8,18 +8,24 @@
  * Staff has no relations, so include is not applicable — only select is tested.
  */
 
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import { setupIndexClient, CerialClient } from '../../../test-helper';
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { cleanAndPrepare, truncateIndexTables, createTestClient, CerialClient, testConfig } from '../../../test-helper';
 
 describe('Composite Unique Primitives: select', () => {
   let client: CerialClient;
 
-  beforeEach(async () => {
-    client = await setupIndexClient();
+  beforeAll(async () => {
+    client = createTestClient();
+    await client.connect(testConfig);
+    await cleanAndPrepare(client);
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await client.disconnect();
+  });
+
+  beforeEach(async () => {
+    await truncateIndexTables(client);
   });
 
   test('findUnique with composite key and select returns only selected fields', async () => {

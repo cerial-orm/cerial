@@ -8,18 +8,24 @@
  * Tests deleting records by composite unique keys that use object dot-notation fields.
  */
 
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import { setupIndexClient, CerialClient } from '../../../test-helper';
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { cleanAndPrepare, truncateIndexTables, createTestClient, CerialClient, testConfig } from '../../../test-helper';
 
 describe('Composite Unique Objects: deleteUnique', () => {
   let client: CerialClient;
 
-  beforeEach(async () => {
-    client = await setupIndexClient();
+  beforeAll(async () => {
+    client = createTestClient();
+    await client.connect(testConfig);
+    await cleanAndPrepare(client);
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await client.disconnect();
+  });
+
+  beforeEach(async () => {
+    await truncateIndexTables(client);
   });
 
   test('delete by cityZip, verify record is gone', async () => {

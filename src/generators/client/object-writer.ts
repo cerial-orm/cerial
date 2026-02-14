@@ -2,13 +2,15 @@
  * Object writer - writes per-object type files to the objects/ directory
  */
 
-import type { ObjectMetadata, ObjectRegistry, TupleRegistry } from '../../types';
+import type { LiteralRegistry, ObjectMetadata, ObjectRegistry, TupleRegistry } from '../../types';
 import { ensureDir, formatCode } from '../shared';
 import { generateObjectDerivedTypes, generateObjectInterfaces, generateObjectWhereInterface } from '../types';
 import {
   CERIAL_ID_IMPORT,
+  generateLiteralImports,
   generateObjectImports,
   generateTupleImports,
+  getObjectReferencedLiteralNames,
   getObjectReferencedObjectNames,
   getObjectReferencedTupleNames,
 } from './import-helpers';
@@ -19,6 +21,7 @@ export async function writeObjectTypes(
   object: ObjectMetadata,
   objectRegistry?: ObjectRegistry,
   tupleRegistry?: TupleRegistry,
+  literalRegistry?: LiteralRegistry,
 ): Promise<string> {
   const objectsDir = `${outputDir}/objects`;
   await ensureDir(objectsDir);
@@ -32,6 +35,10 @@ export async function writeObjectTypes(
   // Get referenced tuple names for imports (cross-directory)
   const referencedTuples = getObjectReferencedTupleNames(object);
   const tupleImports = generateTupleImports(referencedTuples, tupleRegistry, '../tuples');
+
+  // Get referenced literal names for imports (cross-directory)
+  const referencedLiterals = getObjectReferencedLiteralNames(object);
+  const literalImports = generateLiteralImports(referencedLiterals, literalRegistry, '../literals');
 
   // Determine if we need CerialId import (for Record fields in objects)
   const hasRecordFields = object.fields.some((f) => f.type === 'record');
@@ -47,7 +54,7 @@ export async function writeObjectTypes(
  * Do not edit manually
  */
 
-${cerialIdImport}${objectImports}${tupleImports}${interfaceCode}
+${cerialIdImport}${objectImports}${tupleImports}${literalImports}${interfaceCode}
 
 ${whereCode}
 

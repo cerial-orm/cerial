@@ -8,19 +8,25 @@
  * that combines a primitive field (name) with a dot-notation object subfield (location.city).
  */
 
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import { CerialId } from 'cerial';
-import { setupIndexClient, CerialClient } from '../../../test-helper';
+import { cleanAndPrepare, truncateIndexTables, createTestClient, CerialClient, testConfig } from '../../../test-helper';
 
 describe('Composite Unique Mixed: findUnique', () => {
   let client: CerialClient;
 
-  beforeEach(async () => {
-    client = await setupIndexClient();
+  beforeAll(async () => {
+    client = createTestClient();
+    await client.connect(testConfig);
+    await cleanAndPrepare(client);
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await client.disconnect();
+  });
+
+  beforeEach(async () => {
+    await truncateIndexTables(client);
   });
 
   test('find by mixed composite (nameCity) returns correct record', async () => {

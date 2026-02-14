@@ -30,7 +30,7 @@
   "scripts": {
     "generate:test-client": "bun run bin/cerial.ts generate -o tests/e2e/generated",
     "typecheck": "tsc --noEmit -p tests/e2e/typechecks/tsconfig.json",
-    "test": "bun test",
+    "test": "bun test --concurrency 5",
     "test:full": "bun generate:test-client && bun typecheck && bun test"
   }
 }

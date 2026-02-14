@@ -4,10 +4,12 @@
 
 import type {
   FieldMetadata,
+  LiteralMetadata,
   ModelMetadata,
   ModelRegistry,
   ObjectMetadata,
   ObjectRegistry,
+  ResolvedLiteralVariant,
   TupleElementMetadata,
   TupleMetadata,
   TupleRegistry,
@@ -89,6 +91,16 @@ function generateFieldMetadata(field: FieldMetadata): string {
     }
   }
 
+  // Include literalInfo when present
+  if (field.literalInfo) {
+    if (field.literalInfo.variants.length) {
+      const inlineVariants = field.literalInfo.variants.map((v) => generateLiteralVariantCode(v)).join(', ');
+      parts.push(`literalInfo: { literalName: '${field.literalInfo.literalName}', variants: [${inlineVariants}] }`);
+    } else {
+      parts.push(`literalInfo: { literalName: '${field.literalInfo.literalName}', variants: [] }`);
+    }
+  }
+
   // Include relationInfo when present
   if (field.relationInfo) {
     const relParts = [
@@ -134,6 +146,65 @@ ${fields}
     ],
     compositeDirectives: [${composites}]
   }`;
+}
+
+/** Generate a single ResolvedLiteralVariant as TypeScript code */
+export function generateLiteralVariantCode(variant: ResolvedLiteralVariant): string {
+  switch (variant.kind) {
+    case 'string':
+      return `{ kind: 'string', value: '${variant.value}' }`;
+    case 'int':
+      return `{ kind: 'int', value: ${variant.value} }`;
+    case 'float':
+      return `{ kind: 'float', value: ${variant.value} }`;
+    case 'bool':
+      return `{ kind: 'bool', value: ${variant.value} }`;
+    case 'broadType':
+      return `{ kind: 'broadType', typeName: '${variant.typeName}' }`;
+    case 'tupleRef': {
+      const elements = variant.tupleInfo.elements.length
+        ? variant.tupleInfo.elements.map((e) => generateTupleElementMetadata(e)).join(', ')
+        : '';
+
+      return `{ kind: 'tupleRef', tupleName: '${variant.tupleName}', tupleInfo: { tupleName: '${variant.tupleInfo.tupleName}', elements: [${elements}] } }`;
+    }
+    case 'objectRef': {
+      const fields = variant.objectInfo.fields.length
+        ? variant.objectInfo.fields.map((f) => generateFieldMetadata(f)).join(', ')
+        : '';
+
+      return `{ kind: 'objectRef', objectName: '${variant.objectName}', objectInfo: { objectName: '${variant.objectInfo.objectName}', fields: [${fields}] } }`;
+    }
+  }
+}
+
+/** Generate LiteralMetadata as TypeScript code */
+export function generateLiteralMetadataCode(literal: LiteralMetadata): string {
+  const variants = literal.variants.map((v) => `      ${generateLiteralVariantCode(v)}`).join(',\n');
+
+  return `  ${literal.name}: {
+    name: '${literal.name}',
+    variants: [
+${variants}
+    ]
+  }`;
+}
+
+/** Generate literal registry code */
+export function generateLiteralRegistryCode(literals: LiteralMetadata[]): string {
+  if (!literals.length) return '';
+
+  const literalEntries = literals.map(generateLiteralMetadataCode).join(',\n');
+
+  return `
+import type { LiteralRegistry } from 'cerial';
+
+export const literalRegistry: LiteralRegistry = {
+${literalEntries}
+};
+
+export type { LiteralRegistry };
+`;
 }
 
 /** Generate model registry code */
@@ -278,16 +349,18 @@ export type { TupleRegistry };
 `;
 }
 
-/** Generate combined registry code (models + objects + tuples) */
+/** Generate combined registry code (models + objects + tuples + literals) */
 export function generateFullRegistryCode(
   models: ModelMetadata[],
   objects: ObjectMetadata[],
   tuples: TupleMetadata[],
+  literals: LiteralMetadata[] = [],
 ): string {
   const modelEntries = models.map(generateModelMetadata).join(',\n');
   const importTypes = ['ModelRegistry'];
   if (objects.length) importTypes.push('ObjectRegistry');
   if (tuples.length) importTypes.push('TupleRegistry');
+  if (literals.length) importTypes.push('LiteralRegistry');
 
   let code = `/**
  * Generated model registry
@@ -322,6 +395,17 @@ ${tupleEntries}
 };
 
 export type { TupleRegistry };
+`;
+  }
+
+  if (literals.length) {
+    const literalEntries = literals.map(generateLiteralMetadataCode).join(',\n');
+    code += `
+export const literalRegistry: LiteralRegistry = {
+${literalEntries}
+};
+
+export type { LiteralRegistry };
 `;
   }
 

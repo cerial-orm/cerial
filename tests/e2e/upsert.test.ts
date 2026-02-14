@@ -11,21 +11,25 @@
  * `create` is required. `update` is optional.
  */
 
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import { isCerialId } from 'cerial';
-import { cleanupTables, createTestClient, CerialClient, testConfig } from './test-client';
+import { cleanupTables, createTestClient, truncateTables, CerialClient, testConfig } from './test-client';
 
 describe('E2E Upsert Operations', () => {
   let client: CerialClient;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     client = createTestClient();
     await client.connect(testConfig);
     await cleanupTables(client);
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await client.disconnect();
+  });
+
+  beforeEach(async () => {
+    await truncateTables(client);
   });
 
   // ==========================================================================

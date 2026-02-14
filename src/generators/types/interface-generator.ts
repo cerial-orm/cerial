@@ -10,6 +10,7 @@
 
 import type { FieldMetadata, ModelMetadata, ModelRegistry } from '../../types';
 import { schemaTypeToTsType } from '../../utils/type-utils';
+import { literalNeedsInputType } from './literals';
 
 /**
  * Get the TypeScript output type for a field
@@ -20,6 +21,7 @@ function getOutputType(field: FieldMetadata): string {
   if (field.type === 'record') return 'CerialId';
   if (field.type === 'object' && field.objectInfo) return field.objectInfo.objectName;
   if (field.type === 'tuple' && field.tupleInfo) return field.tupleInfo.tupleName;
+  if (field.type === 'literal' && field.literalInfo) return field.literalInfo.literalName;
 
   return schemaTypeToTsType(field.type);
 }
@@ -33,6 +35,12 @@ function getInputType(field: FieldMetadata): string {
   if (field.type === 'record') return 'RecordIdInput';
   if (field.type === 'object' && field.objectInfo) return `${field.objectInfo.objectName}Input`;
   if (field.type === 'tuple' && field.tupleInfo) return `${field.tupleInfo.tupleName}Input`;
+  if (field.type === 'literal' && field.literalInfo) {
+    const lit = field.literalInfo;
+    if (literalNeedsInputType({ name: lit.literalName, variants: lit.variants })) return `${lit.literalName}Input`;
+
+    return lit.literalName;
+  }
 
   return schemaTypeToTsType(field.type);
 }

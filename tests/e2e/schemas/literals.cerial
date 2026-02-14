@@ -1,0 +1,115 @@
+literal Status { 'active', 'inactive', 'pending' }
+
+literal Priority { 1, 2, 3 }
+
+literal Mixed { 'low', 'high', 1, 2, true }
+
+literal ExtendedStatus { Status, 'archived', 'deleted' }
+
+literal Broad { String, Int }
+
+literal NumericOnly { 1, 2, 3, 4, 5 }
+
+model LiteralBasic {
+  id Record @id
+  name String
+  status Status
+  priority Priority
+  optStatus Status?
+  nullStatus Status? @nullable
+  statuses Status[]
+  mixed Mixed
+}
+
+model LiteralDefaults {
+  id Record @id
+  label String
+  status Status @default('active')
+  priority Priority @default(1)
+}
+
+model LiteralBroad {
+  id Record @id
+  value Broad
+  values Broad[]
+}
+
+model LiteralExtended {
+  id Record @id
+  status ExtendedStatus
+}
+
+model LiteralNumeric {
+  id Record @id
+  rank NumericOnly
+  optRank NumericOnly?
+}
+
+object LiteralAddress {
+  city String
+  status Status
+}
+
+model LiteralWithObject {
+  id Record @id
+  name String
+  address LiteralAddress
+  optAddress LiteralAddress?
+}
+
+// Simple flat tuple for literal variant use
+tuple LiteralCoord {
+  x Float,
+  y Float
+}
+
+// Simple flat object for literal variant use (no decorators)
+object LiteralPoint {
+  label String
+  value Int
+}
+
+// Literal with tuple variant
+literal WithTuple { 'none', LiteralCoord }
+
+// Literal with object variant
+literal WithObject { 'empty', LiteralPoint }
+
+// Literal with both tuple and object variants
+literal WithBoth { 'none', 'empty', LiteralCoord, LiteralPoint }
+
+model LiteralWithTuple {
+  id Record @id
+  payload WithTuple
+  optPayload WithTuple?
+  payloads WithTuple[]
+}
+
+model LiteralWithObjectVariant {
+  id Record @id
+  payload WithObject
+  optPayload WithObject?
+  payloads WithObject[]
+}
+
+model LiteralWithBoth {
+  id Record @id
+  data WithBoth
+  optData WithBoth?
+}
+
+// Object with optional and nullable fields for literal variant use
+object LiteralPointOpt {
+  label String
+  count Int?
+  tag String? @nullable
+}
+
+// Literal with object variant that has optional/nullable fields
+literal WithObjectOpt { 'empty', LiteralPointOpt }
+
+model LiteralWithObjectOpt {
+  id Record @id
+  payload WithObjectOpt
+  optPayload WithObjectOpt?
+}

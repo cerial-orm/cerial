@@ -9,6 +9,8 @@ import type {
   ASTObject,
   ASTTuple,
   ASTTupleElement,
+  ASTLiteral,
+  ASTLiteralVariant,
   ASTField,
   ASTDecorator,
   ASTCompositeDirective,
@@ -26,6 +28,7 @@ import {
   createObject,
   createTuple,
   createTupleElement,
+  createLiteral,
   createRange,
   createPosition,
   parseFieldDeclaration,
@@ -33,6 +36,7 @@ import {
   modelNameToTableName,
   extractObjectName,
   extractTupleName,
+  extractLiteralName,
   extractDefaultValue,
 } from './types';
 import { extractDefaultAlwaysValue } from './types/field-decorators';
@@ -45,24 +49,34 @@ interface ParserState {
   models: ASTModel[];
   objects: ASTObject[];
   tuples: ASTTuple[];
+  literals: ASTLiteral[];
   errors: ParseError[];
   /** Known object names for type resolution (populated in two-pass parsing) */
   objectNames: Set<string>;
   /** Known tuple names for type resolution (populated in two-pass parsing) */
   tupleNames: Set<string>;
+  /** Known literal names for type resolution (populated in two-pass parsing) */
+  literalNames: Set<string>;
 }
 
 /** Create initial parser state */
-function createState(source: string, objectNames?: Set<string>, tupleNames?: Set<string>): ParserState {
+function createState(
+  source: string,
+  objectNames?: Set<string>,
+  tupleNames?: Set<string>,
+  literalNames?: Set<string>,
+): ParserState {
   return {
     lines: source.split('\n'),
     currentLine: 0,
     models: [],
     objects: [],
     tuples: [],
+    literals: [],
     errors: [],
     objectNames: objectNames ?? new Set(),
     tupleNames: tupleNames ?? new Set(),
+    literalNames: literalNames ?? new Set(),
   };
 }
 
@@ -121,6 +135,21 @@ function extractObjectNameFromLine(line: string): string | null {
 function extractTupleNameFromLine(line: string): string | null {
   const trimmed = removeComments(line).trim();
   const match = trimmed.match(/^tuple\s+(\w+)/);
+
+  return match ? match[1]! : null;
+}
+
+/** Check if line is a literal declaration */
+function isLiteralLine(line: string): boolean {
+  const trimmed = removeComments(line).trim();
+
+  return trimmed.startsWith('literal ');
+}
+
+/** Extract literal name from line */
+function extractLiteralNameFromLine(line: string): string | null {
+  const trimmed = removeComments(line).trim();
+  const match = trimmed.match(/^literal\s+(\w+)/);
 
   return match ? match[1]! : null;
 }
@@ -262,7 +291,13 @@ function parseModel(state: ParserState): ASTModel | null {
     }
 
     // Parse field (pass objectNames and tupleNames for type resolution)
-    const result = parseFieldDeclaration(fieldLine, state.currentLine + 1, state.objectNames, state.tupleNames);
+    const result = parseFieldDeclaration(
+      fieldLine,
+      state.currentLine + 1,
+      state.objectNames,
+      state.tupleNames,
+      state.literalNames,
+    );
     if (result.error) {
       addError(state, result.error);
     } else if (result.field) {
@@ -331,7 +366,13 @@ function parseObject(state: ParserState): ASTObject | null {
     }
 
     // Parse field (pass objectNames and tupleNames for type resolution)
-    const result = parseFieldDeclaration(fieldLine, state.currentLine + 1, state.objectNames, state.tupleNames);
+    const result = parseFieldDeclaration(
+      fieldLine,
+      state.currentLine + 1,
+      state.objectNames,
+      state.tupleNames,
+      state.literalNames,
+    );
     if (result.error) {
       addError(state, result.error);
     } else if (result.field) {
@@ -360,7 +401,12 @@ function parseObject(state: ParserState): ASTObject | null {
  *   lat Float? @nullable → named "lat", optional and nullable
  *   ts Date @createdAt → named "ts", with createdAt decorator
  */
-function parseTupleElement(token: string, objectNames: Set<string>, tupleNames: Set<string>): ASTTupleElement | null {
+function parseTupleElement(
+  token: string,
+  objectNames: Set<string>,
+  tupleNames: Set<string>,
+  literalNames: Set<string>,
+): ASTTupleElement | null {
   const trimmed = token.trim();
   if (!trimmed) return null;
 
@@ -411,12 +457,13 @@ function parseTupleElement(token: string, objectNames: Set<string>, tupleNames: 
   }
 
   // Resolve type
-  const fieldType = parseFieldType(typeStr, objectNames, tupleNames);
+  const fieldType = parseFieldType(typeStr, objectNames, tupleNames, literalNames);
   if (!fieldType) return null;
 
-  // Extract object/tuple name if applicable
+  // Extract object/tuple/literal name if applicable
   const objectName = fieldType === 'object' ? extractObjectName(typeStr) : undefined;
   const tupleName = fieldType === 'tuple' ? extractTupleName(typeStr) : undefined;
+  const literalName = fieldType === 'literal' ? extractLiteralName(typeStr) : undefined;
 
   return createTupleElement(
     fieldType,
@@ -425,6 +472,7 @@ function parseTupleElement(token: string, objectNames: Set<string>, tupleNames: 
     objectName,
     tupleName,
     decorators.length ? decorators : undefined,
+    literalName,
   );
 }
 
@@ -543,7 +591,7 @@ function parseTupleElements(content: string, tupleName: string, state: ParserSta
     .filter((p) => p.length > 0);
 
   for (const part of parts) {
-    const element = parseTupleElement(part, state.objectNames, state.tupleNames);
+    const element = parseTupleElement(part, state.objectNames, state.tupleNames, state.literalNames);
     if (element) {
       elements.push(element);
     } else {
@@ -554,6 +602,192 @@ function parseTupleElements(content: string, tupleName: string, state: ParserSta
   return elements;
 }
 
+/** Broad type names recognized in literal blocks */
+const BROAD_TYPE_NAMES: Record<string, string> = {
+  String: 'String',
+  Int: 'Int',
+  Float: 'Float',
+  Bool: 'Bool',
+  Date: 'Date',
+};
+
+/**
+ * Parse a single literal variant token.
+ * Supports: 'string', 42, 1.5, -1, true/false, String/Int/Float/Bool/Date (broad types),
+ *           and references to other literals, tuples, or objects by name.
+ */
+function parseLiteralVariant(token: string, state: ParserState, literalName: string): ASTLiteralVariant | null {
+  const trimmed = token.trim();
+  if (!trimmed) return null;
+
+  // String literal: 'value' or "value"
+  if ((trimmed.startsWith("'") && trimmed.endsWith("'")) || (trimmed.startsWith('"') && trimmed.endsWith('"'))) {
+    const value = trimmed.slice(1, -1);
+
+    return { kind: 'string', value };
+  }
+
+  // Boolean literal: true / false
+  if (trimmed === 'true') return { kind: 'bool', value: true };
+  if (trimmed === 'false') return { kind: 'bool', value: false };
+
+  // null is not allowed in literal blocks
+  if (trimmed === 'null') {
+    addError(state, `null is not allowed in literal ${literalName}. Use @nullable on the field instead.`);
+
+    return null;
+  }
+
+  // Numeric literal: int or float (supports negative)
+  if (/^-?\d+(\.\d+)?$/.test(trimmed)) {
+    const num = Number(trimmed);
+    if (trimmed.includes('.')) return { kind: 'float', value: num };
+
+    return { kind: 'int', value: num };
+  }
+
+  // Broad type name: String, Int, Float, Bool, Date
+  if (BROAD_TYPE_NAMES[trimmed]) return { kind: 'broadType', typeName: trimmed };
+
+  // Reference to another literal (must come before tuple/object check for priority)
+  if (state.literalNames.has(trimmed)) {
+    if (trimmed === literalName) {
+      addError(state, `Literal ${literalName} cannot reference itself`);
+
+      return null;
+    }
+
+    return { kind: 'literalRef', literalName: trimmed };
+  }
+
+  // Reference to a tuple
+  if (state.tupleNames.has(trimmed)) return { kind: 'tupleRef', tupleName: trimmed };
+
+  // Reference to an object
+  if (state.objectNames.has(trimmed)) return { kind: 'objectRef', objectName: trimmed };
+
+  addError(state, `Unknown variant '${trimmed}' in literal ${literalName}`);
+
+  return null;
+}
+
+/**
+ * Parse comma-separated literal variants from collected content.
+ */
+function parseLiteralVariants(content: string, literalName: string, state: ParserState): ASTLiteralVariant[] {
+  const variants: ASTLiteralVariant[] = [];
+  if (!content.trim()) return variants;
+
+  const parts = content
+    .split(',')
+    .map((p) => p.trim())
+    .filter((p) => p.length > 0);
+
+  for (const part of parts) {
+    const variant = parseLiteralVariant(part, state, literalName);
+    if (variant) {
+      variants.push(variant);
+    }
+  }
+
+  return variants;
+}
+
+/** Parse a literal block */
+function parseLiteral(state: ParserState): ASTLiteral | null {
+  const line = currentLine(state);
+  if (line === undefined) return null;
+
+  // Extract literal name
+  const litName = extractLiteralNameFromLine(line);
+  if (!litName) {
+    addError(state, `Invalid literal declaration: ${line}`);
+    advance(state);
+
+    return null;
+  }
+
+  const startLine = state.currentLine;
+  advance(state);
+
+  // Check for single-line literal: "literal Name { variants }" — both { and } on same line
+  const cleanedLine = removeComments(line);
+  const singleLineBraceIdx = cleanedLine.indexOf('{');
+  if (singleLineBraceIdx !== -1) {
+    const afterBrace = cleanedLine.substring(singleLineBraceIdx + 1).trim();
+    if (afterBrace.endsWith('}')) {
+      const content = afterBrace.slice(0, -1).trim();
+      const variants = parseLiteralVariants(content, litName, state);
+      const range = createRange(createPosition(startLine + 1, 0, 0), createPosition(state.currentLine, 0, 0));
+
+      return createLiteral(litName, variants, range);
+    }
+  }
+
+  // Find the opening brace
+  if (!isBlockStart(line)) {
+    while (!isEnd(state)) {
+      const nextLine = currentLine(state);
+      if (nextLine === undefined) break;
+      if (isEmptyOrComment(nextLine)) {
+        advance(state);
+        continue;
+      }
+      if (isBlockStart(nextLine)) {
+        advance(state);
+        break;
+      }
+      addError(state, `Expected '{' for literal ${litName}`);
+
+      return null;
+    }
+  }
+
+  // Collect all content between { and }
+  let content = '';
+
+  const braceIdx = removeComments(line).indexOf('{');
+  if (braceIdx !== -1) {
+    const afterBrace = removeComments(line)
+      .substring(braceIdx + 1)
+      .trim();
+    if (afterBrace && afterBrace !== '}') {
+      content += afterBrace;
+    }
+  }
+
+  while (!isEnd(state)) {
+    const elementLine = currentLine(state);
+    if (elementLine === undefined) break;
+
+    const trimmedLine = removeComments(elementLine).trim();
+
+    if (trimmedLine === '}') {
+      advance(state);
+      break;
+    }
+
+    if (trimmedLine.endsWith('}')) {
+      content += (content ? ' ' : '') + trimmedLine.slice(0, -1).trim();
+      advance(state);
+      break;
+    }
+
+    if (!trimmedLine) {
+      advance(state);
+      continue;
+    }
+
+    content += (content ? ' ' : '') + trimmedLine;
+    advance(state);
+  }
+
+  const variants = parseLiteralVariants(content, litName, state);
+  const range = createRange(createPosition(startLine + 1, 0, 0), createPosition(state.currentLine, 0, 0));
+
+  return createLiteral(litName, variants, range);
+}
+
 /**
  * First pass: collect all object, model, and tuple names without parsing fields.
  * This enables forward references (objects/models/tuples defined after usage).
@@ -562,10 +796,12 @@ function collectNames(source: string): {
   objectNames: Set<string>;
   modelNames: Set<string>;
   tupleNames: Set<string>;
+  literalNames: Set<string>;
 } {
   const objectNames = new Set<string>();
   const modelNames = new Set<string>();
   const tupleNames = new Set<string>();
+  const literalNames = new Set<string>();
   const lines = source.split('\n');
 
   for (const line of lines) {
@@ -579,27 +815,36 @@ function collectNames(source: string): {
     } else if (trimmed.startsWith('tuple ')) {
       const match = trimmed.match(/^tuple\s+(\w+)/);
       if (match) tupleNames.add(match[1]!);
+    } else if (trimmed.startsWith('literal ')) {
+      const match = trimmed.match(/^literal\s+(\w+)/);
+      if (match) literalNames.add(match[1]!);
     }
   }
 
-  return { objectNames, modelNames, tupleNames };
+  return { objectNames, modelNames, tupleNames, literalNames };
 }
 
-/** Parse schema source (supports object/tuple {} blocks with two-pass name resolution) */
+/** Parse schema source (supports object/tuple/literal {} blocks with two-pass name resolution) */
 export function parse(
   source: string,
   externalObjectNames?: Set<string>,
   externalTupleNames?: Set<string>,
+  externalLiteralNames?: Set<string>,
 ): ParseResult {
-  // First pass: collect all object and tuple names for forward reference resolution
-  const { objectNames: localObjectNames, tupleNames: localTupleNames } = collectNames(source);
+  // First pass: collect all object, tuple, and literal names for forward reference resolution
+  const {
+    objectNames: localObjectNames,
+    tupleNames: localTupleNames,
+    literalNames: localLiteralNames,
+  } = collectNames(source);
 
   // Merge with any external names (from other schema files)
   const allObjectNames = new Set<string>([...localObjectNames, ...(externalObjectNames ?? [])]);
   const allTupleNames = new Set<string>([...localTupleNames, ...(externalTupleNames ?? [])]);
+  const allLiteralNames = new Set<string>([...localLiteralNames, ...(externalLiteralNames ?? [])]);
 
-  // Second pass: full parse with object and tuple names context
-  const state = createState(source, allObjectNames, allTupleNames);
+  // Second pass: full parse with object, tuple, and literal names context
+  const state = createState(source, allObjectNames, allTupleNames, allLiteralNames);
 
   while (!isEnd(state)) {
     const line = currentLine(state);
@@ -608,6 +853,15 @@ export function parse(
     // Skip empty lines and comments
     if (isEmptyOrComment(line)) {
       advance(state);
+      continue;
+    }
+
+    // Parse literal (before tuple/object since they share similar structure)
+    if (isLiteralLine(line)) {
+      const literal = parseLiteral(state);
+      if (literal) {
+        state.literals.push(literal);
+      }
       continue;
     }
 
@@ -643,7 +897,7 @@ export function parse(
   }
 
   return {
-    ast: createSchemaAST(state.models, source, state.objects, state.tuples),
+    ast: createSchemaAST(state.models, source, state.objects, state.tuples, state.literals),
     errors: state.errors,
   };
 }
@@ -1228,6 +1482,250 @@ export function validateSchema(ast: SchemaAST): ParseError[] {
     }
   }
 
+  // Check for duplicate literal names and validate literal definitions
+  const literalNames = new Set<string>();
+  for (const literal of ast.literals) {
+    if (literalNames.has(literal.name)) {
+      errors.push({
+        message: `Duplicate literal name: ${literal.name}`,
+        position: literal.range.start,
+      });
+    }
+    // Check for name collision with model names
+    if (modelNames.has(literal.name)) {
+      errors.push({
+        message: `Literal name '${literal.name}' conflicts with model name`,
+        position: literal.range.start,
+      });
+    }
+    // Check for name collision with object names
+    if (objectNames.has(literal.name)) {
+      errors.push({
+        message: `Literal name '${literal.name}' conflicts with object name`,
+        position: literal.range.start,
+      });
+    }
+    // Check for name collision with tuple names
+    if (tupleNames.has(literal.name)) {
+      errors.push({
+        message: `Literal name '${literal.name}' conflicts with tuple name`,
+        position: literal.range.start,
+      });
+    }
+    literalNames.add(literal.name);
+
+    // Literal must have at least one variant
+    if (!literal.variants.length) {
+      errors.push({
+        message: `Literal ${literal.name} must have at least one variant`,
+        position: literal.range.start,
+      });
+    }
+
+    // Check for duplicate variants
+    const seenVariants = new Set<string>();
+    for (const variant of literal.variants) {
+      let key: string;
+      switch (variant.kind) {
+        case 'string':
+          key = `string:${variant.value}`;
+          break;
+        case 'int':
+          key = `int:${variant.value}`;
+          break;
+        case 'float':
+          key = `float:${variant.value}`;
+          break;
+        case 'bool':
+          key = `bool:${variant.value}`;
+          break;
+        case 'broadType':
+          key = `broadType:${variant.typeName}`;
+          break;
+        case 'tupleRef':
+          key = `tupleRef:${variant.tupleName}`;
+          break;
+        case 'objectRef':
+          key = `objectRef:${variant.objectName}`;
+          break;
+        case 'literalRef':
+          key = `literalRef:${variant.literalName}`;
+          break;
+      }
+      if (seenVariants.has(key)) {
+        errors.push({
+          message: `Duplicate variant in literal ${literal.name}`,
+          position: literal.range.start,
+        });
+      }
+      seenVariants.add(key);
+    }
+
+    // Validate references
+    for (const variant of literal.variants) {
+      if (variant.kind === 'tupleRef') {
+        const tup = ast.tuples.find((t) => t.name === variant.tupleName);
+        if (!tup) {
+          errors.push({
+            message: `Literal ${literal.name} references unknown tuple '${variant.tupleName}'`,
+            position: literal.range.start,
+          });
+        } else {
+          // Validate tuple has no nested object/tuple/complex-literal elements
+          for (const el of tup.elements) {
+            const elemName = el.name ?? `element[${tup.elements.indexOf(el)}]`;
+            if (el.type === 'object') {
+              errors.push({
+                message: `Tuple '${variant.tupleName}' referenced in literal '${literal.name}' contains object element '${elemName}'. Only primitive and simple literal-typed elements are allowed in literal-referenced tuples`,
+                position: literal.range.start,
+              });
+            }
+            if (el.type === 'tuple') {
+              errors.push({
+                message: `Tuple '${variant.tupleName}' referenced in literal '${literal.name}' contains nested tuple element '${elemName}'. Only primitive and simple literal-typed elements are allowed in literal-referenced tuples`,
+                position: literal.range.start,
+              });
+            }
+            if (el.type === 'literal' && el.literalName) {
+              const referencedLit = ast.literals.find((l) => l.name === el.literalName);
+              if (referencedLit) {
+                const hasComplexVariant = referencedLit.variants.some(
+                  (v) => v.kind === 'tupleRef' || v.kind === 'objectRef' || v.kind === 'literalRef',
+                );
+                if (hasComplexVariant) {
+                  errors.push({
+                    message: `Tuple '${variant.tupleName}' referenced in literal '${literal.name}' contains literal element '${elemName}' referencing '${el.literalName}' which has non-primitive variants. Nested literals must only contain primitive variants`,
+                    position: literal.range.start,
+                  });
+                }
+              }
+            }
+          }
+        }
+      }
+      if (variant.kind === 'objectRef') {
+        const obj = ast.objects.find((o) => o.name === variant.objectName);
+        if (!obj) {
+          errors.push({
+            message: `Literal ${literal.name} references unknown object '${variant.objectName}'`,
+            position: literal.range.start,
+          });
+        } else {
+          // Validate object has no nested object/tuple/complex-literal fields
+          for (const field of obj.fields) {
+            if (field.type === 'object') {
+              errors.push({
+                message: `Object '${variant.objectName}' referenced in literal '${literal.name}' contains object field '${field.name}'. Only primitive and simple literal-typed fields are allowed in literal-referenced objects`,
+                position: literal.range.start,
+              });
+            }
+            if (field.type === 'tuple') {
+              errors.push({
+                message: `Object '${variant.objectName}' referenced in literal '${literal.name}' contains tuple field '${field.name}'. Only primitive and simple literal-typed fields are allowed in literal-referenced objects`,
+                position: literal.range.start,
+              });
+            }
+            if (field.type === 'literal' && field.literalName) {
+              const referencedLit = ast.literals.find((l) => l.name === field.literalName);
+              if (referencedLit) {
+                const hasComplexVariant = referencedLit.variants.some(
+                  (v) => v.kind === 'tupleRef' || v.kind === 'objectRef' || v.kind === 'literalRef',
+                );
+                if (hasComplexVariant) {
+                  errors.push({
+                    message: `Object '${variant.objectName}' referenced in literal '${literal.name}' contains literal field '${field.name}' referencing '${field.literalName}' which has non-primitive variants. Nested literals must only contain primitive variants`,
+                    position: literal.range.start,
+                  });
+                }
+              }
+            }
+          }
+        }
+      }
+      if (variant.kind === 'literalRef') {
+        const litExists = ast.literals.some((l) => l.name === variant.literalName);
+        if (!litExists) {
+          errors.push({
+            message: `Literal ${literal.name} references unknown literal '${variant.literalName}'`,
+            position: literal.range.start,
+          });
+        }
+      }
+    }
+  }
+
+  // Detect circular literal references
+  function hasCircularLiteralRef(name: string, visited: Set<string>): boolean {
+    if (visited.has(name)) return true;
+    visited.add(name);
+    const lit = ast.literals.find((l) => l.name === name);
+    if (!lit) return false;
+    for (const v of lit.variants) {
+      if (v.kind === 'literalRef') {
+        if (hasCircularLiteralRef(v.literalName, new Set(visited))) return true;
+      }
+    }
+
+    return false;
+  }
+
+  for (const literal of ast.literals) {
+    const refs = literal.variants.filter((v) => v.kind === 'literalRef');
+    for (const ref of refs) {
+      if (ref.kind === 'literalRef') {
+        if (hasCircularLiteralRef(ref.literalName, new Set([literal.name]))) {
+          errors.push({
+            message: `Circular literal reference detected: ${literal.name} -> ${ref.literalName}`,
+            position: literal.range.start,
+          });
+        }
+      }
+    }
+  }
+
+  // Validate literal-typed fields reference valid literals
+  for (const model of ast.models) {
+    for (const field of model.fields) {
+      if (field.type === 'literal' && field.literalName) {
+        const litExists = ast.literals.some((l) => l.name === field.literalName);
+        if (!litExists) {
+          errors.push({
+            message: `Field '${field.name}' in model ${model.name} references unknown literal '${field.literalName}'`,
+            position: field.range.start,
+          });
+        }
+      }
+    }
+  }
+
+  for (const object of ast.objects) {
+    for (const field of object.fields) {
+      if (field.type === 'literal' && field.literalName) {
+        const litExists = ast.literals.some((l) => l.name === field.literalName);
+        if (!litExists) {
+          errors.push({
+            message: `Field '${field.name}' in object ${object.name} references unknown literal '${field.literalName}'`,
+            position: field.range.start,
+          });
+        }
+      }
+    }
+  }
+
+  for (const tuple of ast.tuples) {
+    for (const element of tuple.elements) {
+      if (element.type === 'literal' && element.literalName) {
+        const litExists = ast.literals.some((l) => l.name === element.literalName);
+        if (!litExists) {
+          errors.push({
+            message: `Tuple element references unknown literal '${element.literalName}' in tuple ${tuple.name}`,
+            position: tuple.range.start,
+          });
+        }
+      }
+    }
+  }
+
   return errors;
 }
 
@@ -1239,4 +1737,9 @@ export function collectObjectNames(source: string): Set<string> {
 /** Collect all tuple names from a source (first-pass only, for external use) */
 export function collectTupleNames(source: string): Set<string> {
   return collectNames(source).tupleNames;
+}
+
+/** Collect all literal names from a source (first-pass only, for external use) */
+export function collectLiteralNames(source: string): Set<string> {
+  return collectNames(source).literalNames;
 }

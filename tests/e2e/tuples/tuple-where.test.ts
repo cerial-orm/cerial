@@ -5,26 +5,37 @@
  * operators, array quantifiers (some/every/none).
  */
 
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import { cleanupTables, createTestClient, CerialClient, tables, testConfig } from '../relations/test-helper';
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import {
+  cleanupTables,
+  createTestClient,
+  truncateTables,
+  CerialClient,
+  tables,
+  testConfig,
+} from '../relations/test-helper';
 
 describe('E2E Tuples: Where Filtering', () => {
   let client: CerialClient;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     client = createTestClient();
     await client.connect(testConfig);
     await cleanupTables(client, tables.tuples);
+  });
+
+  afterAll(async () => {
+    await client.disconnect();
+  });
+
+  beforeEach(async () => {
+    await truncateTables(client, tables.tuples);
 
     // Seed test data
     await client.db.TupleBasic.create({ data: { name: 'NYC', location: [40.7, -74.0] } });
     await client.db.TupleBasic.create({ data: { name: 'LA', location: [34.0, -118.2] } });
     await client.db.TupleBasic.create({ data: { name: 'London', location: [51.5, -0.1] } });
     await client.db.TupleBasic.create({ data: { name: 'Tokyo', location: [35.7, 139.7] } });
-  });
-
-  afterEach(async () => {
-    await client.disconnect();
   });
 
   describe('named key equality (shorthand)', () => {

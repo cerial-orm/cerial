@@ -3,6 +3,8 @@
  */
 
 import type {
+  LiteralMetadata,
+  LiteralRegistry,
   ModelMetadata,
   ObjectMetadata,
   ObjectRegistry,
@@ -10,6 +12,7 @@ import type {
   TupleMetadata,
   TupleRegistry,
 } from '../../types';
+import { literalNeedsInputType } from '../types/literals';
 import { objectHasDefaultOrTimestamp, tupleHasObjectElementsDeep, tupleHasUnsetableElements } from '../types';
 
 // ─── Import Constants ─────────────────────────────────────────────────────────
@@ -286,6 +289,146 @@ export function generateTupleImports(
         importNames.push(`${name}Unset`);
       }
     }
+
+    return `import type { ${importNames.join(', ')} } from '${importPrefix}/${fileName}';`;
+  });
+
+  return imports.join('\n') + '\n';
+}
+
+// ─── Literal Import Resolvers ─────────────────────────────────────────────────
+
+/** Get referenced object names from a literal's objectRef variants */
+export function getLiteralReferencedObjectNames(literal: LiteralMetadata): string[] {
+  const objectNames = new Set<string>();
+
+  for (const variant of literal.variants) {
+    if (variant.kind === 'objectRef') {
+      objectNames.add(variant.objectName);
+    }
+  }
+
+  return Array.from(objectNames);
+}
+
+/** Get referenced tuple names from a literal's tupleRef variants */
+export function getLiteralReferencedTupleNames(literal: LiteralMetadata): string[] {
+  const tupleNames = new Set<string>();
+
+  for (const variant of literal.variants) {
+    if (variant.kind === 'tupleRef') {
+      tupleNames.add(variant.tupleName);
+    }
+  }
+
+  return Array.from(tupleNames);
+}
+
+/** Get referenced literal names from a model's literal fields */
+export function getModelReferencedLiteralNames(model: ModelMetadata): string[] {
+  const literalNames = new Set<string>();
+
+  for (const field of model.fields) {
+    if (field.type === 'literal' && field.literalInfo) {
+      literalNames.add(field.literalInfo.literalName);
+    }
+  }
+
+  return Array.from(literalNames);
+}
+
+/** Get referenced literal names from an object's literal fields */
+export function getObjectReferencedLiteralNames(object: ObjectMetadata): string[] {
+  const literalNames = new Set<string>();
+
+  for (const field of object.fields) {
+    if (field.type === 'literal' && field.literalInfo) {
+      literalNames.add(field.literalInfo.literalName);
+    }
+  }
+
+  return Array.from(literalNames);
+}
+
+/** Get referenced literal names from a tuple's literal elements */
+export function getTupleReferencedLiteralNames(tuple: TupleMetadata): string[] {
+  const literalNames = new Set<string>();
+
+  for (const element of tuple.elements) {
+    if (element.type === 'literal' && element.literalInfo) {
+      literalNames.add(element.literalInfo.literalName);
+    }
+  }
+
+  return Array.from(literalNames);
+}
+
+// ─── Literal Import Statement Generators ──────────────────────────────────────
+
+/**
+ * Generate import statements for referenced literal types (from model/object/tuple files).
+ * @param importPrefix - Directory prefix for import path (e.g., `'../literals'` for cross-directory)
+ */
+export function generateLiteralImports(
+  literalNames: string[],
+  literalRegistry?: LiteralRegistry,
+  importPrefix: string = '.',
+): string {
+  if (!literalNames.length) return '';
+
+  const imports = literalNames.map((name) => {
+    const fileName = name.toLowerCase();
+    const importNames = [name, `${name}Where`];
+
+    // Conditionally add Input type for literals with tupleRef/objectRef variants
+    if (literalRegistry) {
+      const litMeta = literalRegistry[name];
+      if (litMeta && literalNeedsInputType(litMeta)) {
+        importNames.push(`${name}Input`);
+      }
+    }
+
+    return `import type { ${importNames.join(', ')} } from '${importPrefix}/${fileName}';`;
+  });
+
+  return imports.join('\n') + '\n';
+}
+
+/**
+ * Generate import statements for object types referenced by a literal's objectRef variants.
+ * Used inside literal type files.
+ */
+export function generateLiteralObjectImports(
+  objectNames: string[],
+  objectRegistry?: ObjectRegistry,
+  importPrefix: string = '../objects',
+): string {
+  if (!objectNames.length) return '';
+
+  const imports = objectNames.map((name) => {
+    const fileName = name.toLowerCase();
+    const importNames = [name, `${name}Input`];
+
+    return `import type { ${importNames.join(', ')} } from '${importPrefix}/${fileName}';`;
+  });
+
+  return imports.join('\n') + '\n';
+}
+
+/**
+ * Generate import statements for tuple types referenced by a literal's tupleRef variants.
+ * Used inside literal type files.
+ */
+export function generateLiteralTupleImports(
+  tupleNames: string[],
+  tupleRegistry?: TupleRegistry,
+  importPrefix: string = '../tuples',
+): string {
+  if (!tupleNames.length) return '';
+
+  const imports = tupleNames.map((name) => {
+    const fileName = name.toLowerCase();
+    const importNames = [name, `${name}Input`];
 
     return `import type { ${importNames.join(', ')} } from '${importPrefix}/${fileName}';`;
   });

@@ -5,21 +5,25 @@
  * full replace, null→NONE, array push/set, and return options.
  */
 
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import { NONE } from '../../../src/utils/none';
-import { cleanupTables, createTestClient, CerialClient, tables, testConfig } from '../relations/test-helper';
+import { cleanupTables, createTestClient, truncateTables, CerialClient, tables, testConfig } from '../relations/test-helper';
 
 describe('E2E Tuples: Update', () => {
   let client: CerialClient;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     client = createTestClient();
     await client.connect(testConfig);
     await cleanupTables(client, tables.tuples);
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await client.disconnect();
+  });
+
+  beforeEach(async () => {
+    await truncateTables(client, tables.tuples);
   });
 
   describe('updateUnique - single tuple replace', () => {

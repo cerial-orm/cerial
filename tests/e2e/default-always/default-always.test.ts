@@ -26,22 +26,26 @@
  * - On objects: dot-notation NONE injection for sub-fields on merge updates.
  */
 
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import { cleanupTables, createTestClient, CerialClient, testConfig } from '../relations/test-helper';
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { cleanupTables, createTestClient, truncateTables, CerialClient, testConfig } from '../relations/test-helper';
 
 const CONTENT_TABLES = ['content_item'];
 
 describe('E2E @defaultAlways Decorator', () => {
   let client: CerialClient;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     client = createTestClient();
     await client.connect(testConfig);
     await cleanupTables(client, CONTENT_TABLES);
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await client.disconnect();
+  });
+
+  beforeEach(async () => {
+    await truncateTables(client, CONTENT_TABLES);
   });
 
   // ─── Bool field: reviewed @defaultAlways(false) ────────────────────────────

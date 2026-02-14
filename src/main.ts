@@ -170,6 +170,9 @@ export type {
   TupleFieldMetadata,
   TupleMetadata,
   TupleRegistry,
+  LiteralFieldMetadata,
+  LiteralMetadata,
+  LiteralRegistry,
   WhereClause,
 } from './types';
 

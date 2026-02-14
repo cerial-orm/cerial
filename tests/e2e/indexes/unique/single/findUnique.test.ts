@@ -5,16 +5,26 @@
  * Verifies lookup by unique email, null on miss, select support, and id fallback.
  */
 
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import { CerialId, isCerialId } from 'cerial';
-import { setupIndexClient, CerialClient } from '../../test-helper';
+import { cleanAndPrepare, truncateIndexTables, createTestClient, CerialClient, testConfig } from '../../test-helper';
 
 describe('Single @unique — findUnique', () => {
   let client: CerialClient;
   let staffId: CerialId;
 
+  beforeAll(async () => {
+    client = createTestClient();
+    await client.connect(testConfig);
+    await cleanAndPrepare(client);
+  });
+
+  afterAll(async () => {
+    await client.disconnect();
+  });
+
   beforeEach(async () => {
-    client = await setupIndexClient();
+    await truncateIndexTables(client);
 
     const staff = await client.db.Staff.create({
       data: {
@@ -26,10 +36,6 @@ describe('Single @unique — findUnique', () => {
       },
     });
     staffId = staff.id;
-  });
-
-  afterEach(async () => {
-    await client.disconnect();
   });
 
   test('finds a record by unique email', async () => {

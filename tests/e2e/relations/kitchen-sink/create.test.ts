@@ -12,10 +12,10 @@
  * - User -> Badges: n-n one-directional (Badges don't track users)
  */
 
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import {
   cleanupTables,
-  createTestClient,
+  createTestClient, truncateTables,
   CerialClient,
   tables,
   testConfig,
@@ -25,14 +25,18 @@ import {
 describe('E2E Kitchen Sink: Create', () => {
   let client: CerialClient;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     client = createTestClient();
     await client.connect(testConfig);
     await cleanupTables(client, tables.kitchenSink);
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await client.disconnect();
+  });
+
+  beforeEach(async () => {
+    await truncateTables(client, tables.kitchenSink);
   });
 
   describe('create user with profile (1-1 reverse)', () => {

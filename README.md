@@ -10,6 +10,7 @@ A Prisma-like ORM for [SurrealDB](https://surrealdb.com/) with schema-driven cod
 - **Dynamic return types** - Return types narrow based on `select` and `include`
 - **Embedded objects** - Inline `object {}` types with sub-field select, filtering, and updates
 - **Tuples** - Fixed-length typed arrays with `tuple {}` blocks, named elements, and flexible input forms
+- **Literal types** — Define union types for fields with specific values, broad types, or structured variants
 - **Relations** - 1:1, 1:N, N:N with nested create/connect/disconnect and bidirectional sync
 - **Array support** - `String[]`, `Int[]`, `Date[]`, `Record[]`, `ObjectType[]` with query and update operators
 - **Advanced filtering** - Comparison, string, array, logical, nested relation, and object operators
@@ -112,6 +113,7 @@ Full documentation is available at the [Cerial Docs](docs/) site, covering:
 - [Schema](docs/schema/) - Field types, decorators, arrays, optionals, cross-file references
 - [Embedded Objects](docs/objects/) - Defining objects, sub-field select, filtering, updates
 - [Tuples](docs/tuples/) - Fixed-length typed arrays, named elements, where filtering, array operations
+- [Literals](docs/schema/literals.md) - Union types with specific values, broad types, and structured variants
 - [Relations](docs/relations/) - 1:1, 1:N, N:N, self-referential, nested operations, delete behavior
 - [Queries](docs/queries/) - findOne, findMany, findUnique, create, upsert, update, delete, count, exists, $transaction
 - [Filtering](docs/filtering/) - Comparison, string, array, logical, special, nested, object operators

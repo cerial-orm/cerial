@@ -4,21 +4,25 @@
  * Tests create/connect/disconnect nested operations on relations.
  */
 
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import { isCerialId } from 'cerial';
-import { CerialClient, cleanupTables, createTestClient, testConfig } from './test-client';
+import { CerialClient, cleanupTables, createTestClient, truncateTables, testConfig } from './test-client';
 
 describe('E2E Nested Operations', () => {
   let client: CerialClient;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     client = createTestClient();
     await client.connect(testConfig);
     await cleanupTables(client);
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await client.disconnect();
+  });
+
+  beforeEach(async () => {
+    await truncateTables(client);
   });
 
   describe('nested create (1-1 relation)', () => {

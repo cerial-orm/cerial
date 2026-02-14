@@ -6,6 +6,7 @@ export {
   generateAssertClause,
   generateComputedClause,
   generateDefaultClause,
+  generateLiteralSurrealType,
   generateTypeClause,
   getTypeAssertion,
   hasTypeAssertion,

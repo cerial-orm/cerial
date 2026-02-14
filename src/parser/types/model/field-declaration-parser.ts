@@ -47,7 +47,14 @@ import {
   parseUniqueDecorator,
   parseUpdatedAtDecorator,
 } from '../field-decorators';
-import { extractObjectName, extractTupleName, isArrayType, isObjectType, parseFieldType } from '../field-types';
+import {
+  extractLiteralName,
+  extractObjectName,
+  extractTupleName,
+  isArrayType,
+  isObjectType,
+  parseFieldType,
+} from '../field-types';
 
 /** Result of parsing a field line */
 export interface FieldParseResult {
@@ -140,6 +147,7 @@ export function parseFieldDeclaration(
   lineNumber: number,
   objectNames?: Set<string>,
   tupleNames?: Set<string>,
+  literalNames?: Set<string>,
 ): FieldParseResult {
   const trimmed = line.trim();
 
@@ -179,8 +187,8 @@ export function parseFieldDeclaration(
     return { field: null, error: `Invalid field name: ${fieldName}` };
   }
 
-  // Parse field type (pass objectNames and tupleNames for type resolution)
-  const fieldType = parseFieldType(typeStr, objectNames, tupleNames);
+  // Parse field type (pass objectNames, tupleNames, and literalNames for type resolution)
+  const fieldType = parseFieldType(typeStr, objectNames, tupleNames, literalNames);
   if (!fieldType) {
     return {
       field: null,
@@ -195,7 +203,9 @@ export function parseFieldDeclaration(
   const objName = fieldType === 'object' ? extractObjectName(typeStr) : undefined;
   // For tuple types, extract the tuple name
   const tupName = fieldType === 'tuple' ? extractTupleName(typeStr) : undefined;
-  const field = createField(fieldName, fieldType, isOptional, decorators, range, isArray, objName, tupName);
+  // For literal types, extract the literal name
+  const litName = fieldType === 'literal' ? extractLiteralName(typeStr) : undefined;
+  const field = createField(fieldName, fieldType, isOptional, decorators, range, isArray, objName, tupName, litName);
 
   return { field, error: null };
 }

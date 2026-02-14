@@ -5,22 +5,26 @@
  * Validates that CerialId is properly returned and can be used in queries.
  */
 
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import { RecordId, StringRecordId } from 'surrealdb';
 import { CerialId, isCerialId, type RecordIdInput } from 'cerial';
-import { cleanupTables, createTestClient, CerialClient, testConfig } from '../test-client';
+import { cleanupTables, createTestClient, truncateTables, CerialClient, testConfig } from '../test-client';
 
 describe('E2E CerialId - One Level', () => {
   let client: CerialClient;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     client = createTestClient();
     await client.connect(testConfig);
     await cleanupTables(client);
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await client.disconnect();
+  });
+
+  beforeEach(async () => {
+    await truncateTables(client);
   });
 
   describe('Create with CerialId', () => {

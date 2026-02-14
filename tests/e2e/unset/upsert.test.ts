@@ -6,8 +6,8 @@
  * branch ignores unset entirely.
  */
 
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import { cleanupTables, createTestClient, CerialClient, testConfig, tables } from '../relations/test-helper';
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { cleanupTables, createTestClient, truncateTables, CerialClient, testConfig, tables } from '../relations/test-helper';
 
 const UNSET_TABLES = tables.unset;
 const NESTED = { title: 'T', mid: { label: 'L', deep: { code: 'C' } } };
@@ -22,14 +22,18 @@ const CREATE_BASE = {
 describe('Unset: Upsert', () => {
   let client: CerialClient;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     client = createTestClient();
     await client.connect(testConfig);
     await cleanupTables(client, UNSET_TABLES);
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await client.disconnect();
+  });
+
+  beforeEach(async () => {
+    await truncateTables(client, UNSET_TABLES);
   });
 
   // ─── Primitive ────────────────────────────────────────────────────────────

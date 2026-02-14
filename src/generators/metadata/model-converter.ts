@@ -4,14 +4,20 @@
  */
 
 import type {
+  ASTLiteral,
+  ASTLiteralVariant,
   ASTModel,
   ASTObject,
   ASTTuple,
   CompositeIndex,
   FieldMetadata,
+  LiteralFieldMetadata,
+  LiteralMetadata,
+  LiteralRegistry,
   ModelMetadata,
   ObjectMetadata,
   ObjectRegistry,
+  ResolvedLiteralVariant,
   TupleElementMetadata,
   TupleFieldMetadata,
   TupleMetadata,
@@ -68,15 +74,23 @@ export function resolveObjectFields(
   objects: ObjectMetadata[],
   objectRegistry: ObjectRegistry,
   tupleRegistry?: TupleRegistry,
+  literalRegistry?: LiteralRegistry,
 ): void {
+  // Resolve literal variant tuple/object info from registries
+  if (literalRegistry) {
+    resolveLiteralVariants(literalRegistry, objectRegistry, tupleRegistry);
+  }
+
   // Resolve fields on all model fields
   for (const model of models) {
     resolveFieldsRecursive(model.fields, objectRegistry, tupleRegistry);
+    if (literalRegistry) resolveLiteralFields(model.fields, literalRegistry);
   }
 
   // Resolve fields on all object fields (for nested objects and tuples inside objects)
   for (const object of objects) {
     resolveFieldsRecursive(object.fields, objectRegistry, tupleRegistry);
+    if (literalRegistry) resolveLiteralFields(object.fields, literalRegistry);
   }
 
   // Resolve elements on all tuple elements (for nested tuples and objects inside tuples)
@@ -84,6 +98,15 @@ export function resolveObjectFields(
     for (const tupleName of Object.keys(tupleRegistry)) {
       const tupleMeta = tupleRegistry[tupleName]!;
       resolveTupleElementsRecursive(tupleMeta.elements, objectRegistry, tupleRegistry);
+      // Resolve literal-typed tuple elements
+      if (literalRegistry) {
+        for (const el of tupleMeta.elements) {
+          if (el.type === 'literal' && el.literalInfo && !el.literalInfo.variants.length) {
+            const litMeta = literalRegistry[el.literalInfo.literalName];
+            if (litMeta) el.literalInfo.variants = JSON.parse(JSON.stringify(litMeta.variants));
+          }
+        }
+      }
     }
   }
 }
@@ -115,6 +138,9 @@ function convertTupleElement(element: import('../../types').ASTTupleElement, ind
   if (element.type === 'tuple' && element.tupleName) {
     metadata.tupleInfo = { tupleName: element.tupleName, elements: [] };
   }
+  if (element.type === 'literal' && element.literalName) {
+    metadata.literalInfo = { literalName: element.literalName, variants: [] };
+  }
 
   return metadata;
 }
@@ -141,6 +167,136 @@ export function createTupleRegistry(tuples: TupleMetadata[]): TupleRegistry {
   }
 
   return registry;
+}
+
+/**
+ * Expand literal references and resolve AST literal variants to ResolvedLiteralVariant[].
+ * Recursively expands literalRef variants and deduplicates.
+ */
+function expandLiteralVariants(
+  variants: ASTLiteralVariant[],
+  allLiterals: ASTLiteral[],
+  visited: Set<string> = new Set(),
+): ResolvedLiteralVariant[] {
+  const result: ResolvedLiteralVariant[] = [];
+  const seen = new Set<string>();
+
+  for (const v of variants) {
+    if (v.kind === 'literalRef') {
+      if (visited.has(v.literalName)) continue;
+      const refLiteral = allLiterals.find((l) => l.name === v.literalName);
+      if (!refLiteral) continue;
+      const nextVisited = new Set(visited);
+      nextVisited.add(v.literalName);
+      const expanded = expandLiteralVariants(refLiteral.variants, allLiterals, nextVisited);
+      for (const ev of expanded) {
+        const key = variantKey(ev);
+        if (!seen.has(key)) {
+          seen.add(key);
+          result.push(ev);
+        }
+      }
+    } else {
+      let resolved: ResolvedLiteralVariant;
+      if (v.kind === 'tupleRef') {
+        resolved = { kind: 'tupleRef', tupleName: v.tupleName, tupleInfo: { tupleName: v.tupleName, elements: [] } };
+      } else if (v.kind === 'objectRef') {
+        resolved = {
+          kind: 'objectRef',
+          objectName: v.objectName,
+          objectInfo: { objectName: v.objectName, fields: [] },
+        };
+      } else {
+        resolved = v as ResolvedLiteralVariant;
+      }
+      const key = variantKey(resolved);
+      if (!seen.has(key)) {
+        seen.add(key);
+        result.push(resolved);
+      }
+    }
+  }
+
+  return result;
+}
+
+/** Get a unique key for a literal variant (for deduplication) */
+function variantKey(v: ResolvedLiteralVariant): string {
+  switch (v.kind) {
+    case 'string':
+      return `string:${v.value}`;
+    case 'int':
+      return `int:${v.value}`;
+    case 'float':
+      return `float:${v.value}`;
+    case 'bool':
+      return `bool:${v.value}`;
+    case 'broadType':
+      return `broadType:${v.typeName}`;
+    case 'tupleRef':
+      return `tupleRef:${v.tupleName}`;
+    case 'objectRef':
+      return `objectRef:${v.objectName}`;
+  }
+}
+
+/** Convert AST literal to LiteralMetadata (resolves literal references) */
+export function convertLiteral(astLiteral: ASTLiteral, allLiterals: ASTLiteral[]): LiteralMetadata {
+  const variants = expandLiteralVariants(astLiteral.variants, allLiterals, new Set([astLiteral.name]));
+
+  return { name: astLiteral.name, variants };
+}
+
+/** Convert multiple AST literals to LiteralMetadata array */
+export function convertLiterals(literals: ASTLiteral[]): LiteralMetadata[] {
+  return literals.map((l) => convertLiteral(l, literals));
+}
+
+/** Create LiteralRegistry object from literals */
+export function createLiteralRegistry(literals: LiteralMetadata[]): LiteralRegistry {
+  const registry: LiteralRegistry = {};
+  for (const lit of literals) {
+    registry[lit.name] = lit;
+  }
+
+  return registry;
+}
+
+/** Resolve tuple/object info on literal variants from registries */
+export function resolveLiteralVariants(
+  literalRegistry: LiteralRegistry,
+  objectRegistry: ObjectRegistry,
+  tupleRegistry?: TupleRegistry,
+): void {
+  for (const litName of Object.keys(literalRegistry)) {
+    const lit = literalRegistry[litName]!;
+    for (const v of lit.variants) {
+      if (v.kind === 'tupleRef' && tupleRegistry) {
+        const tupleMeta = tupleRegistry[v.tupleName];
+        if (tupleMeta) {
+          v.tupleInfo = { tupleName: v.tupleName, elements: JSON.parse(JSON.stringify(tupleMeta.elements)) };
+        }
+      }
+      if (v.kind === 'objectRef') {
+        const objectMeta = objectRegistry[v.objectName];
+        if (objectMeta) {
+          v.objectInfo = { objectName: v.objectName, fields: JSON.parse(JSON.stringify(objectMeta.fields)) };
+        }
+      }
+    }
+  }
+}
+
+/** Resolve literalInfo.variants on fields that reference literals */
+function resolveLiteralFields(fields: FieldMetadata[], literalRegistry: LiteralRegistry): void {
+  for (const field of fields) {
+    if (field.type === 'literal' && field.literalInfo && !field.literalInfo.variants.length) {
+      const litMeta = literalRegistry[field.literalInfo.literalName];
+      if (litMeta) {
+        field.literalInfo.variants = JSON.parse(JSON.stringify(litMeta.variants));
+      }
+    }
+  }
 }
 
 /** Recursively resolve objectInfo.fields and tupleInfo.elements on a field list */

@@ -4,6 +4,35 @@
 
 import type { SchemaDecorator, SchemaFieldType, SourcePosition, SourceRange } from './common.types';
 
+/** Variant kind in a literal definition */
+export type ASTLiteralVariantKind =
+  | 'string'
+  | 'int'
+  | 'float'
+  | 'bool'
+  | 'broadType'
+  | 'tupleRef'
+  | 'objectRef'
+  | 'literalRef';
+
+/** AST node for a single variant in a literal definition */
+export type ASTLiteralVariant =
+  | { kind: 'string'; value: string }
+  | { kind: 'int'; value: number }
+  | { kind: 'float'; value: number }
+  | { kind: 'bool'; value: boolean }
+  | { kind: 'broadType'; typeName: string }
+  | { kind: 'tupleRef'; tupleName: string }
+  | { kind: 'objectRef'; objectName: string }
+  | { kind: 'literalRef'; literalName: string };
+
+/** AST node for a literal definition (union type) */
+export interface ASTLiteral {
+  name: string;
+  variants: ASTLiteralVariant[];
+  range: SourceRange;
+}
+
 /** AST node for a model-level composite directive (@@index or @@unique) */
 export interface ASTCompositeDirective {
   /** Whether this is an 'index' or 'unique' composite */
@@ -85,6 +114,8 @@ export interface ASTField {
   objectName?: string;
   /** For tuple-typed fields: the name of the referenced tuple definition */
   tupleName?: string;
+  /** For literal-typed fields: the name of the referenced literal definition */
+  literalName?: string;
 }
 
 /** AST node for a model */
@@ -119,6 +150,8 @@ export interface ASTTupleElement {
   objectName?: string;
   /** For tuple-typed elements: the name of the referenced tuple definition */
   tupleName?: string;
+  /** For literal-typed elements: the name of the referenced literal definition */
+  literalName?: string;
 }
 
 /** AST node for a tuple definition (positional typed array) */
@@ -128,11 +161,12 @@ export interface ASTTuple {
   range: SourceRange;
 }
 
-/** Top-level AST containing all models, objects, and tuples */
+/** Top-level AST containing all models, objects, tuples, and literals */
 export interface SchemaAST {
   models: ASTModel[];
   objects: ASTObject[];
   tuples: ASTTuple[];
+  literals: ASTLiteral[];
   source: string;
 }
 

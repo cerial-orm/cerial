@@ -29,6 +29,7 @@ Cerial provides a rich set of filter operators for querying your data. Filters a
 | [Special](./special-operators)                  | `isNull`, `between`, `isNone`                                          |
 | [Nested Relations](./nested-relation-filtering) | Relation field filtering                                               |
 | [Object](./object-filtering)                    | Embedded object field filtering, quantifiers (`some`, `every`, `none`) |
+| [Literal](../schema/literals#filtering)         | Filtering on union-typed literal fields                                |
 
 ## Basic Syntax
 
@@ -84,7 +85,7 @@ const users = await db.User.findMany({
 
 ## Type Safety
 
-All filter operators are fully typed based on your schema. The `where` clause only accepts fields defined on the model, and operator values must match the field's type. For example, you cannot use `{ age: { contains: 'text' } }` because `contains` is a string operator and `age` is a number field.
+All filter operators are fully typed based on your schema. The `where` clause only accepts fields defined on the model, and operator values must match the field's type. For example, you cannot use `{ age: { contains: 'text' } }` because `contains` is a string operator and `age` is a number field. For [literal fields](../schema/literals#filtering), the available operators are derived from the union's constituent types — comparison operators for numeric variants, string operators only when all variants are string-compatible.
 
 ```typescript
 // Type error: 'contains' does not exist on number fields

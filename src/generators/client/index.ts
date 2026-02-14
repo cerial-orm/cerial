@@ -8,7 +8,7 @@ export { generateConnectionExports } from './connection-template';
 
 export { formatCode, writeClient, writeClientMain } from './writer';
 
-export { writeModelsIndex, writeObjectsIndex, writeTuplesIndex } from './barrel-writer';
+export { writeLiteralsIndex, writeModelsIndex, writeObjectsIndex, writeTuplesIndex } from './barrel-writer';
 
 export { writeClientIndex } from './client-index-writer';
 
@@ -18,6 +18,8 @@ export { writeObjectTypes } from './object-writer';
 
 export { writeTupleTypes } from './tuple-writer';
 
+export { writeLiteralFile } from './literal-writer';
+
 export {
   CERIAL_ID_IMPORT,
   NONE_IMPORT,
@@ -26,14 +28,22 @@ export {
   collectTupleObjectNamesDeep,
   collectTupleTupleNamesDeep,
   createRegistryFromModels,
+  generateLiteralImports,
+  generateLiteralObjectImports,
+  generateLiteralTupleImports,
   generateObjectImports,
   generateRelatedImports,
   generateTupleImports,
+  getLiteralReferencedObjectNames,
+  getLiteralReferencedTupleNames,
+  getModelReferencedLiteralNames,
+  getObjectReferencedLiteralNames,
   getObjectReferencedObjectNames,
   getObjectReferencedTupleNames,
   getReferencedObjectNames,
   getReferencedTupleNames,
   getRelatedModelNames,
+  getTupleReferencedLiteralNames,
   getTupleReferencedObjectNames,
   getTupleReferencedTupleNames,
   hasRelations,

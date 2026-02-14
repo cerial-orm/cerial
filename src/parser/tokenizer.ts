@@ -6,7 +6,7 @@
 import type { Token, TokenType, SourcePosition } from '../types';
 
 /** Keywords in the schema language */
-const KEYWORDS = new Set(['model', 'object', 'tuple']);
+const KEYWORDS = new Set(['model', 'object', 'tuple', 'literal']);
 
 /** Punctuation characters */
 const PUNCTUATION = new Set(['{', '}', ':', '?', '(', ')']);

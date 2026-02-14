@@ -7,18 +7,24 @@
  * Tests updating records by composite unique key where the key fields are Record types.
  */
 
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import { setupIndexClient, CerialClient } from '../../../test-helper';
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { cleanAndPrepare, truncateIndexTables, createTestClient, CerialClient, testConfig } from '../../../test-helper';
 
 describe('Composite Unique Records: updateUnique', () => {
   let client: CerialClient;
 
-  beforeEach(async () => {
-    client = await setupIndexClient();
+  beforeAll(async () => {
+    client = createTestClient();
+    await client.connect(testConfig);
+    await cleanAndPrepare(client);
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await client.disconnect();
+  });
+
+  beforeEach(async () => {
+    await truncateIndexTables(client);
   });
 
   test('update record by composite key (change role)', async () => {

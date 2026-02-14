@@ -10,10 +10,10 @@
  * Tests order with required customer and optional assignee.
  */
 
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import {
   cleanupTables,
-  createTestClient,
+  createTestClient, truncateTables,
   CerialClient,
   tables,
   testConfig,
@@ -22,14 +22,18 @@ import {
 describe('E2E Mixed Optionality: Create', () => {
   let client: CerialClient;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     client = createTestClient();
     await client.connect(testConfig);
     await cleanupTables(client, tables.mixedOptionality);
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await client.disconnect();
+  });
+
+  beforeEach(async () => {
+    await truncateTables(client, tables.mixedOptionality);
   });
 
   describe('create order with customer only', () => {

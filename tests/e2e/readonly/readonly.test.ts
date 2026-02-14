@@ -39,22 +39,26 @@
  * - Runtime error if passed to update
  */
 
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import { cleanupTables, createTestClient, CerialClient, testConfig } from '../relations/test-helper';
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { cleanupTables, createTestClient, truncateTables, CerialClient, testConfig } from '../relations/test-helper';
 
 const READONLY_TABLES = ['readonly_test', 'readonly_record'];
 
 describe('E2E @readonly Decorator', () => {
   let client: CerialClient;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     client = createTestClient();
     await client.connect(testConfig);
     await cleanupTables(client, READONLY_TABLES);
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await client.disconnect();
+  });
+
+  beforeEach(async () => {
+    await truncateTables(client, READONLY_TABLES);
   });
 
   // ─── CREATE with @readonly fields ──────────────────────────────────

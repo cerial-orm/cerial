@@ -37,6 +37,19 @@ export function generateObjectWhereInterface(object: ObjectMetadata, _objectRegi
         // Tuple fields don't support null, only NONE (absent)
         fields.push(`  ${field.name}?: ${tupleWhere};`);
       }
+    } else if (field.type === 'literal' && field.literalInfo) {
+      // Literal fields get literal where type
+      const literalName = field.literalInfo.literalName;
+      const literalWhere = `${literalName}Where`;
+      const nullPrefix = field.isNullable ? 'null | ' : '';
+
+      if (field.isArray) {
+        fields.push(
+          `  ${field.name}?: { has?: ${literalName}; hasAll?: ${literalName}[]; hasAny?: ${literalName}[]; isEmpty?: boolean; };`,
+        );
+      } else {
+        fields.push(`  ${field.name}?: ${nullPrefix}${literalName} | ${literalWhere};`);
+      }
     } else {
       const whereType = generateFieldWhereType(field);
       if (whereType) {

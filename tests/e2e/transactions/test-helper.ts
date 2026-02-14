@@ -46,9 +46,9 @@ export async function cleanupTables(client: CerialClient, tables: string[]): Pro
     }
   }
 
-  // Run all migrations to ensure tables are recreated with correct schema
-  // This is needed because lazy migrations only run for the queried model,
-  // not for related models used in includes
+  // Reset migration tracking so migrate() re-runs DEFINE statements
+  // (needed when reusing the same client across tests via beforeAll)
+  client.resetMigrationState();
   await client.migrate();
 }
 
@@ -72,6 +72,24 @@ export const tables = {
   // mixed-optionality.cerial
   mixedOptionality: ['customer', 'agent', 'order'],
 };
+
+/**
+ * Truncate specific tables by deleting all rows.
+ * Lightweight alternative to cleanupTables — preserves schema, just clears data.
+ * Use in `beforeEach` for fast per-test cleanup.
+ */
+export async function truncateTables(client: CerialClient, tablesToTruncate: string[]): Promise<void> {
+  const surreal = client.getSurreal();
+  if (!surreal) return;
+
+  for (const table of tablesToTruncate) {
+    try {
+      await surreal.query(`DELETE FROM ${table};`);
+    } catch {
+      // Ignore errors - table may not exist yet
+    }
+  }
+}
 
 /**
  * Generate a unique ID suffix for test isolation

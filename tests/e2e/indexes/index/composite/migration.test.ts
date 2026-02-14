@@ -8,18 +8,24 @@
  * and that it does NOT enforce uniqueness.
  */
 
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import { setupIndexClient, CerialClient } from '../../test-helper';
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { cleanAndPrepare, truncateIndexTables, createTestClient, CerialClient, testConfig } from '../../test-helper';
 
 describe('@@index Composite: migration', () => {
   let client: CerialClient;
 
-  beforeEach(async () => {
-    client = await setupIndexClient();
+  beforeAll(async () => {
+    client = createTestClient();
+    await client.connect(testConfig);
+    await cleanAndPrepare(client);
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await client.disconnect();
+  });
+
+  beforeEach(async () => {
+    await truncateIndexTables(client);
   });
 
   test('after migration, the composite index exists in the DB', async () => {

@@ -26,6 +26,10 @@ export {
   hasTuple,
   getTuple,
   getTupleNames,
+  createLiteral,
+  hasLiteral,
+  getLiteral,
+  getLiteralNames,
 } from './ast';
 
 // Field decorators
@@ -61,6 +65,8 @@ export {
   extractObjectName,
   isTupleType,
   extractTupleName,
+  isLiteralType,
+  extractLiteralName,
   isArrayType,
 } from './field-types';
 

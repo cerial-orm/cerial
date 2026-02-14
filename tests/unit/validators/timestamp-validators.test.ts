@@ -53,7 +53,7 @@ function makeObject(overrides: Partial<ASTObject> = {}): ASTObject {
 }
 
 function makeAST(models: ASTModel[] = [], objects: ASTObject[] = []): SchemaAST {
-  return { source: '', models, objects, tuples: [] };
+  return { source: '', models, objects, tuples: [], literals: [] };
 }
 
 describe('Timestamp Decorator Validators', () => {

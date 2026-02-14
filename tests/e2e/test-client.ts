@@ -33,20 +33,41 @@ export const testConfig = {
   },
 };
 
-// Helper to clean up test tables
+// Tables used by the root-level E2E test files
+const ROOT_TABLES = ['user', 'profile', 'post', 'tag', 'array_decorator_test'];
+
+// Helper to clean up test tables (REMOVE + migrate — heavy, use in beforeAll)
 export async function cleanupTables(client: CerialClient): Promise<void> {
   const surreal = client.getSurreal();
   if (surreal) {
-    try {
-      await surreal.query('REMOVE TABLE IF EXISTS user;');
-      await surreal.query('REMOVE TABLE IF EXISTS profile;');
-      await surreal.query('REMOVE TABLE IF EXISTS post;');
-      await surreal.query('REMOVE TABLE IF EXISTS tag;');
-      await surreal.query('REMOVE TABLE IF EXISTS array_decorator_test;');
-    } catch {
-      // Ignore errors
+    for (const table of ROOT_TABLES) {
+      try {
+        await surreal.query(`REMOVE TABLE IF EXISTS ${table};`);
+      } catch {
+        // Ignore errors
+      }
     }
   }
+  // Reset migration tracking so migrate() re-runs DEFINE statements
+  client.resetMigrationState();
   // Re-run migrations to recreate tables with correct schema
   await client.migrate();
+}
+
+/**
+ * Truncate root tables by deleting all rows.
+ * Lightweight alternative to cleanupTables — preserves schema, just clears data.
+ * Use in `beforeEach` for fast per-test cleanup.
+ */
+export async function truncateTables(client: CerialClient): Promise<void> {
+  const surreal = client.getSurreal();
+  if (!surreal) return;
+
+  for (const table of ROOT_TABLES) {
+    try {
+      await surreal.query(`DELETE FROM ${table};`);
+    } catch {
+      // Ignore errors - table may not exist yet
+    }
+  }
 }

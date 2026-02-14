@@ -2,7 +2,7 @@
  * Barrel writer - writes index.ts barrel files for models/, objects/, and tuples/ directories
  */
 
-import type { ModelMetadata, ObjectMetadata, TupleMetadata } from '../../types';
+import type { LiteralMetadata, ModelMetadata, ObjectMetadata, TupleMetadata } from '../../types';
 import { ensureDir, formatCode } from '../shared';
 
 /** Write models/index.ts barrel file (models only) */
@@ -63,6 +63,30 @@ export async function writeTuplesIndex(outputDir: string, tuples: TupleMetadata[
 
   const content = `/**
  * Generated tuple exports
+ * Do not edit manually
+ */
+
+${exports}
+`;
+
+  const formatted = await formatCode(content, outputDir);
+  await Bun.write(filePath, formatted);
+
+  return filePath;
+}
+
+/** Write literals/index.ts barrel file (literals only) */
+export async function writeLiteralsIndex(outputDir: string, literals: LiteralMetadata[]): Promise<string> {
+  if (!literals.length) return '';
+
+  const literalsDir = `${outputDir}/literals`;
+  await ensureDir(literalsDir);
+
+  const filePath = `${literalsDir}/index.ts`;
+  const exports = literals.map((l) => `export * from './${l.name.toLowerCase()}';`).join('\n');
+
+  const content = `/**
+ * Generated literal exports
  * Do not edit manually
  */
 

@@ -154,6 +154,20 @@ export const tables = {
   // unset.cerial (unset parameter tests)
   unset: ['unset_test'],
 
+  // literals.cerial (literal type tests)
+  literals: [
+    'literal_basic',
+    'literal_defaults',
+    'literal_broad',
+    'literal_extended',
+    'literal_numeric',
+    'literal_with_object',
+    'literal_with_tuple',
+    'literal_with_object_variant',
+    'literal_with_both',
+    'literal_with_object_opt',
+  ],
+
   // tuples.cerial (tuple type tests)
   tuples: [
     'tuple_basic',
@@ -165,6 +179,24 @@ export const tables = {
     'tuple_deep_nest',
   ],
 };
+
+/**
+ * Truncate specific tables by deleting all rows.
+ * Lightweight alternative to cleanupTables — preserves schema, just clears data.
+ * Use in `beforeEach` for fast per-test cleanup.
+ */
+export async function truncateTables(client: CerialClient, tablesToTruncate: string[]): Promise<void> {
+  const surreal = client.getSurreal();
+  if (!surreal) return;
+
+  for (const table of tablesToTruncate) {
+    try {
+      await surreal.query(`DELETE FROM ${table};`);
+    } catch {
+      // Ignore errors - table may not exist yet
+    }
+  }
+}
 
 /**
  * Helper to wait for a condition to be true

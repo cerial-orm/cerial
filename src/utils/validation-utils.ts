@@ -41,6 +41,10 @@ export function validateFieldType(value: unknown, type: SchemaFieldType): boolea
     case 'tuple':
       // Tuple type: array form [1, 2] or object form { lat: 1, lng: 2 }
       return Array.isArray(value) || (typeof value === 'object' && value !== null);
+    case 'literal':
+      // Literal values can be strings, numbers, booleans, arrays (tuple variant), or objects (object variant)
+      // Specific variant validation is handled by the type system at compile time
+      return value !== undefined && value !== null;
     default:
       return false;
   }

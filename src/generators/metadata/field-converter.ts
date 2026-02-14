@@ -77,6 +77,11 @@ export function convertField(field: ASTField): FieldMetadata {
     metadata.tupleInfo = { tupleName: field.tupleName, elements: [] };
   }
 
+  // Handle literal type (variants will be resolved later)
+  if (field.type === 'literal' && field.literalName) {
+    metadata.literalInfo = { literalName: field.literalName, variants: [] };
+  }
+
   // Handle relation type
   if (field.type === 'relation') {
     const modelDecorator = getDecorator(field, 'model');

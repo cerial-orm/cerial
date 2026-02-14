@@ -7,8 +7,8 @@
  *   UnsetDeepInner { code, note? }
  */
 
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import { cleanupTables, createTestClient, CerialClient, testConfig, tables } from '../relations/test-helper';
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { cleanupTables, createTestClient, truncateTables, CerialClient, testConfig, tables } from '../relations/test-helper';
 
 const UNSET_TABLES = tables.unset;
 const NESTED = { title: 'T', mid: { label: 'L', deep: { code: 'C' } } };
@@ -17,14 +17,18 @@ const NESTED_FULL = { title: 'T', mid: { label: 'L', score: 99, deep: { code: 'C
 describe('Unset: Deep Nested Objects', () => {
   let client: CerialClient;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     client = createTestClient();
     await client.connect(testConfig);
     await cleanupTables(client, UNSET_TABLES);
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await client.disconnect();
+  });
+
+  beforeEach(async () => {
+    await truncateTables(client, UNSET_TABLES);
   });
 
   // ─── Required deep object (nested) ────────────────────────────────────────

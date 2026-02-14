@@ -2,7 +2,7 @@
  * Model writer - writes per-model type files to the models/ directory
  */
 
-import type { ModelMetadata, ObjectRegistry, TupleRegistry } from '../../types';
+import type { LiteralRegistry, ModelMetadata, ObjectRegistry, TupleRegistry } from '../../types';
 import { ensureDir, formatCode } from '../shared';
 import { generateAllDerivedTypes, generateInterfaces, generateModelTypes, generateWhereTypes } from '../types';
 import { generateFindUniqueWhereType } from '../types/method-generator';
@@ -14,9 +14,11 @@ import {
   collectTupleObjectNamesDeep,
   collectTupleTupleNamesDeep,
   createRegistryFromModels,
+  generateLiteralImports,
   generateObjectImports,
   generateRelatedImports,
   generateTupleImports,
+  getModelReferencedLiteralNames,
   getReferencedObjectNames,
   getReferencedTupleNames,
   getRelatedModelNames,
@@ -30,6 +32,7 @@ export async function writeModelTypes(
   allModels: ModelMetadata[],
   objectRegistry?: ObjectRegistry,
   tupleRegistry?: TupleRegistry,
+  literalRegistry?: LiteralRegistry,
 ): Promise<string> {
   const modelsDir = `${outputDir}/models`;
   await ensureDir(modelsDir);
@@ -72,6 +75,10 @@ export async function writeModelTypes(
   const referencedTuples = Array.from(referencedTuplesSet);
   const tupleImports = generateTupleImports(referencedTuples, tupleRegistry, '../tuples');
 
+  // Get referenced literal names for imports
+  const referencedLiterals = getModelReferencedLiteralNames(model);
+  const literalImports = generateLiteralImports(referencedLiterals, literalRegistry, '../literals');
+
   // Create registry for Include type generation
   const registry = createRegistryFromModels(allModels);
 
@@ -93,7 +100,7 @@ export async function writeModelTypes(
 ${TS_TOOLBELT_IMPORT}
 ${CERIAL_ID_IMPORT}${noneImport}
 ${UNIQUE_TYPES_IMPORT}
-${relatedImports}${objectImports}${tupleImports}${interfaceCode}
+${relatedImports}${objectImports}${tupleImports}${literalImports}${interfaceCode}
 
 ${whereCode}
 

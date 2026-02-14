@@ -61,7 +61,7 @@ function createTuple(name: string, elements: ASTTupleElement[]): ASTTuple {
 }
 
 function createAST(models: ASTModel[] = [], objects: ASTObject[] = [], tuples: ASTTuple[] = []): SchemaAST {
-  return { source: '', models, objects, tuples };
+  return { source: '', models, objects, tuples, literals: [] };
 }
 
 function dec(type: string, value?: unknown): ASTDecorator {

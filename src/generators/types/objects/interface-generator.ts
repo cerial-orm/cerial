@@ -9,6 +9,7 @@
 
 import type { FieldMetadata, ObjectMetadata, ObjectRegistry } from '../../../types';
 import { schemaTypeToTsType } from '../../../utils/type-utils';
+import { literalNeedsInputType } from '../literals';
 
 /**
  * Get the TypeScript output type for a field
@@ -19,6 +20,7 @@ function getOutputType(field: FieldMetadata): string {
   if (field.type === 'record') return 'CerialId';
   if (field.type === 'object' && field.objectInfo) return field.objectInfo.objectName;
   if (field.type === 'tuple' && field.tupleInfo) return field.tupleInfo.tupleName;
+  if (field.type === 'literal' && field.literalInfo) return field.literalInfo.literalName;
 
   return schemaTypeToTsType(field.type);
 }
@@ -28,11 +30,18 @@ function getOutputType(field: FieldMetadata): string {
  * For Record fields, uses RecordIdInput instead of CerialId
  * For Object fields, uses the object's Input interface name
  * For Tuple fields, uses the tuple's Input type name
+ * For Literal fields, uses the literal type name or Input variant
  */
 function getInputType(field: FieldMetadata): string {
   if (field.type === 'record') return 'RecordIdInput';
   if (field.type === 'object' && field.objectInfo) return `${field.objectInfo.objectName}Input`;
   if (field.type === 'tuple' && field.tupleInfo) return `${field.tupleInfo.tupleName}Input`;
+  if (field.type === 'literal' && field.literalInfo) {
+    const lit = field.literalInfo;
+    if (literalNeedsInputType({ name: lit.literalName, variants: lit.variants })) return `${lit.literalName}Input`;
+
+    return lit.literalName;
+  }
 
   return schemaTypeToTsType(field.type);
 }
@@ -53,6 +62,13 @@ function getCreateInputType(field: FieldMetadata, objectRegistry?: ObjectRegistr
   }
   // Tuples don't have CreateInput — always use Input
   if (field.type === 'tuple' && field.tupleInfo) return `${field.tupleInfo.tupleName}Input`;
+  // Literals don't have CreateInput — use Input when has refs, otherwise output type
+  if (field.type === 'literal' && field.literalInfo) {
+    const lit = field.literalInfo;
+    if (literalNeedsInputType({ name: lit.literalName, variants: lit.variants })) return `${lit.literalName}Input`;
+
+    return lit.literalName;
+  }
 
   return schemaTypeToTsType(field.type);
 }

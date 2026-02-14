@@ -4,6 +4,7 @@
 
 import { RecordId, StringRecordId } from 'surrealdb';
 import type {
+  LiteralFieldMetadata,
   ModelMetadata,
   ObjectFieldMetadata,
   SchemaFieldType,
@@ -368,6 +369,63 @@ function transformTupleElementUpdate(
   return result;
 }
 
+/**
+ * Transform a literal field value.
+ * Primitives (string, number, boolean, Date) pass through unchanged.
+ * Arrays are matched against tuple variants and transformed if applicable.
+ * Objects are passed through (SurrealDB handles object variants without sub-field constraints).
+ */
+function transformLiteralValue(value: unknown, literalInfo: LiteralFieldMetadata): unknown {
+  if (value === null || value === undefined) return value;
+
+  // Primitive values — pass through unchanged
+  if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') return value;
+  if (value instanceof Date) return value;
+
+  // Array value — might be a tuple variant
+  if (Array.isArray(value)) {
+    const tupleVariant = literalInfo.variants.find(
+      (v) => v.kind === 'tupleRef' && v.tupleInfo.elements.length === value.length,
+    );
+    if (tupleVariant && tupleVariant.kind === 'tupleRef') {
+      return transformTupleData(value, tupleVariant.tupleInfo);
+    }
+
+    return value;
+  }
+
+  // Object value — might be tuple object-form or an object variant
+  if (typeof value === 'object') {
+    // Check if this matches a tuple variant's named elements (object form input)
+    // Only attempt conversion when no object variant has the same keys (avoid ambiguity)
+    const tupleVariants = literalInfo.variants.filter((v) => v.kind === 'tupleRef');
+    const objectVariants = literalInfo.variants.filter((v) => v.kind === 'objectRef');
+    const keys = Object.keys(value as Record<string, unknown>);
+
+    for (const tv of tupleVariants) {
+      if (tv.kind !== 'tupleRef') continue;
+      const elementNames = tv.tupleInfo.elements.map((e) => e.name).filter(Boolean);
+      const elementIndexes = tv.tupleInfo.elements.map((e) => String(e.index));
+      const allValidKeys = [...elementNames, ...elementIndexes];
+      const isMatch = keys.length > 0 && keys.every((k) => allValidKeys.includes(k));
+      if (isMatch) {
+        // Check for ambiguity with object variants
+        const isAmbiguous = objectVariants.some((ov) => {
+          if (ov.kind !== 'objectRef') return false;
+          const objFieldNames = ov.objectInfo.fields.map((f) => f.name);
+
+          return keys.every((k) => objFieldNames.includes(k));
+        });
+        if (!isAmbiguous) return transformTupleData(value, tv.tupleInfo);
+      }
+    }
+
+    return value;
+  }
+
+  return value;
+}
+
 /** Transform data object based on model fields */
 export function transformData(
   data: Record<string, unknown>,
@@ -498,6 +556,30 @@ export function transformData(
         } else {
           // Create context or array form: full tuple replace/input
           result[key] = transformTupleData(value, field.tupleInfo);
+        }
+      } else if (field.type === 'literal' && field.literalInfo) {
+        // Handle literal fields - pass primitive values through,
+        // transform tuple/object variants if needed
+        if (value === undefined) continue;
+        if (isNone(value)) {
+          result[key] = NONE;
+          continue;
+        }
+        if (value === null) {
+          result[key] = null;
+          continue;
+        }
+        if (field.isArray) {
+          if (Array.isArray(value)) {
+            result[key] = value.map((item) => transformLiteralValue(item, field.literalInfo!));
+          } else if (typeof value === 'object' && value !== null) {
+            // Push/unset operations - pass through as-is (handled by update builder)
+            result[key] = value;
+          } else {
+            result[key] = value;
+          }
+        } else {
+          result[key] = transformLiteralValue(value, field.literalInfo!);
         }
       } else if (field.isArray) {
         // Handle array fields - direct assignment or push/unset operations

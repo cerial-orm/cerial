@@ -8,18 +8,24 @@
  * and that partial matches on the composite key do not violate the constraint.
  */
 
-import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import { setupIndexClient, CerialClient } from '../../../test-helper';
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { cleanAndPrepare, truncateIndexTables, createTestClient, CerialClient, testConfig } from '../../../test-helper';
 
 describe('Composite Unique Records: errors', () => {
   let client: CerialClient;
 
-  beforeEach(async () => {
-    client = await setupIndexClient();
+  beforeAll(async () => {
+    client = createTestClient();
+    await client.connect(testConfig);
+    await cleanAndPrepare(client);
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await client.disconnect();
+  });
+
+  beforeEach(async () => {
+    await truncateIndexTables(client);
   });
 
   test('DB rejects duplicate attendeeId + workshopId combination', async () => {

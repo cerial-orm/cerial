@@ -6,6 +6,8 @@ import type {
   ASTCompositeDirective,
   ASTDecorator,
   ASTField,
+  ASTLiteral,
+  ASTLiteralVariant,
   ASTModel,
   ASTObject,
   ASTTuple,
@@ -42,12 +44,14 @@ export function createField(
   isArray?: boolean,
   objectName?: string,
   tupleName?: string,
+  literalName?: string,
 ): ASTField {
   const field: ASTField = { name, type, isOptional, decorators, range };
   if (decorators.some((d) => d.type === 'nullable')) field.isNullable = true;
   if (isArray) field.isArray = true;
   if (objectName) field.objectName = objectName;
   if (tupleName) field.tupleName = tupleName;
+  if (literalName) field.literalName = literalName;
 
   return field;
 }
@@ -83,8 +87,9 @@ export function createSchemaAST(
   source: string,
   objects: ASTObject[] = [],
   tuples: ASTTuple[] = [],
+  literals: ASTLiteral[] = [],
 ): SchemaAST {
-  return { models, objects, tuples, source };
+  return { models, objects, tuples, literals, source };
 }
 
 /** Check if AST has a model with given name */
@@ -140,11 +145,13 @@ export function createTupleElement(
   objectName?: string,
   tupleName?: string,
   decorators?: ASTDecorator[],
+  literalName?: string,
 ): ASTTupleElement {
   const element: ASTTupleElement = { type, isOptional };
   if (name) element.name = name;
   if (objectName) element.objectName = objectName;
   if (tupleName) element.tupleName = tupleName;
+  if (literalName) element.literalName = literalName;
   if (decorators?.length) {
     element.decorators = decorators;
     if (decorators.some((d) => d.type === 'nullable')) element.isNullable = true;
@@ -171,4 +178,24 @@ export function getTuple(ast: SchemaAST, name: string): ASTTuple | undefined {
 /** Get all tuple names from AST */
 export function getTupleNames(ast: SchemaAST): string[] {
   return ast.tuples.map((t) => t.name);
+}
+
+/** Create an AST literal node */
+export function createLiteral(name: string, variants: ASTLiteralVariant[], range: SourceRange): ASTLiteral {
+  return { name, variants, range };
+}
+
+/** Check if AST has a literal with given name */
+export function hasLiteral(ast: SchemaAST, name: string): boolean {
+  return ast.literals.some((l) => l.name === name);
+}
+
+/** Get a literal by name from AST */
+export function getLiteral(ast: SchemaAST, name: string): ASTLiteral | undefined {
+  return ast.literals.find((l) => l.name === name);
+}
+
+/** Get all literal names from AST */
+export function getLiteralNames(ast: SchemaAST): string[] {
+  return ast.literals.map((l) => l.name);
 }

@@ -2,7 +2,7 @@
  * Migration writer - writes migration-related generated files
  */
 
-import type { ModelMetadata, ObjectRegistry, TupleRegistry } from '../../types';
+import type { LiteralRegistry, ModelMetadata, ObjectRegistry, TupleRegistry } from '../../types';
 import { ensureDir, formatCode } from '../shared';
 import { generatePerModelMigrationCode } from './define-generator';
 
@@ -12,6 +12,7 @@ export async function writeMigrationFile(
   models: ModelMetadata[],
   objectRegistry?: ObjectRegistry,
   tupleRegistry?: TupleRegistry,
+  literalRegistry?: LiteralRegistry,
 ): Promise<string> {
   const internalDir = `${outputDir}/internal`;
   await ensureDir(internalDir);
@@ -22,7 +23,7 @@ export async function writeMigrationFile(
  * Do not edit manually
  */
 
-${generatePerModelMigrationCode(models, objectRegistry, tupleRegistry)}
+${generatePerModelMigrationCode(models, objectRegistry, tupleRegistry, literalRegistry)}
 `;
 
   const formatted = await formatCode(content, outputDir);

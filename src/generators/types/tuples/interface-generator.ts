@@ -8,6 +8,7 @@
 
 import type { ObjectRegistry, TupleElementMetadata, TupleMetadata, TupleRegistry } from '../../../types';
 import { schemaTypeToTsType } from '../../../utils/type-utils';
+import { literalNeedsInputType } from '../literals';
 
 /**
  * Get the TypeScript output type for a tuple element
@@ -16,17 +17,25 @@ import { schemaTypeToTsType } from '../../../utils/type-utils';
 function getElementOutputType(element: TupleElementMetadata): string {
   if (element.type === 'object' && element.objectInfo) return element.objectInfo.objectName;
   if (element.type === 'tuple' && element.tupleInfo) return element.tupleInfo.tupleName;
+  if (element.type === 'literal' && element.literalInfo) return element.literalInfo.literalName;
 
   return schemaTypeToTsType(element.type);
 }
 
 /**
  * Get the TypeScript input type for a tuple element
- * Objects use their Input interface, nested tuples use their Input type, primitives use TS type
+ * Objects use their Input interface, nested tuples use their Input type,
+ * literals use Input variant when has tuple/object refs, primitives use TS type
  */
 function getElementInputType(element: TupleElementMetadata): string {
   if (element.type === 'object' && element.objectInfo) return `${element.objectInfo.objectName}Input`;
   if (element.type === 'tuple' && element.tupleInfo) return `${element.tupleInfo.tupleName}Input`;
+  if (element.type === 'literal' && element.literalInfo) {
+    const lit = element.literalInfo;
+    if (literalNeedsInputType({ name: lit.literalName, variants: lit.variants })) return `${lit.literalName}Input`;
+
+    return lit.literalName;
+  }
 
   return schemaTypeToTsType(element.type);
 }
