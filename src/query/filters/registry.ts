@@ -7,7 +7,16 @@ import type { QueryFragment } from '../compile/types';
 import type { FilterCompileContext } from '../compile/var-allocator';
 
 // Comparison operators
-import { handleEq, handleGt, handleGte, handleIsNone, handleLt, handleLte, handleNeq, handleNot } from './comparison-operators';
+import {
+  handleEq,
+  handleGt,
+  handleGte,
+  handleIsNone,
+  handleLt,
+  handleLte,
+  handleNeq,
+  handleNot,
+} from './comparison-operators';
 
 // String operators
 import { handleContains, handleEndsWith, handleStartsWith } from './string-operators';
@@ -16,7 +25,7 @@ import { handleContains, handleEndsWith, handleStartsWith } from './string-opera
 import { handleHas, handleHasAll, handleHasAny, handleIn, handleIsEmpty, handleNotIn } from './array-operators';
 
 // Special operators
-import { handleBetween, handleIsDefined, handleIsNull } from './special-operators';
+import { handleBetween, handleIsDefined, handleIsNotDefined, handleIsNotNull, handleIsNull } from './special-operators';
 
 /** Operator handler signature */
 export type OperatorHandler = (
@@ -53,13 +62,15 @@ const operatorRegistry: Record<string, OperatorHandler> = {
   isEmpty: handleIsEmpty as OperatorHandler,
 
   // Special operators
-  isNull: (ctx, field, value, _meta) => {
+  isNull: (_ctx, field, value, _meta) => {
     if (value === true) return handleIsNull(field);
-    return handleIsDefined(field);
+
+    return handleIsNotNull(field);
   },
-  isDefined: (ctx, field, value, _meta) => {
+  isDefined: (_ctx, field, value, _meta) => {
     if (value === true) return handleIsDefined(field);
-    return handleIsNull(field);
+
+    return handleIsNotDefined(field);
   },
   between: handleBetween as OperatorHandler,
 

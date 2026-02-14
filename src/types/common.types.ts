@@ -32,10 +32,11 @@ export type SchemaDecorator =
   | 'sort'
   | 'defaultAlways'
   | 'flexible'
-  | 'readonly';
+  | 'readonly'
+  | 'nullable';
 
 /** Supported onDelete actions for relations */
-export type OnDeleteAction = 'Cascade' | 'SetNull' | 'Restrict' | 'NoAction';
+export type OnDeleteAction = 'Cascade' | 'SetNull' | 'SetNone' | 'Restrict' | 'NoAction';
 
 /** Supported constraint types in schema definitions */
 export type SchemaConstraint = 'required' | 'optional';

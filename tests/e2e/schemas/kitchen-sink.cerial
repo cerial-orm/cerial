@@ -15,7 +15,7 @@ model KitchenSinkUser {
   posts Relation[] @model(KitchenSinkPost)
   tagIds Record[]
   tags Relation[] @field(tagIds) @model(KitchenSinkTag)
-  settingsId Record?
+  settingsId Record? @nullable
   settings Relation? @field(settingsId) @model(KitchenSinkSettings)
   badgeIds Record[]
   badges Relation[] @field(badgeIds) @model(KitchenSinkBadge)
@@ -45,7 +45,7 @@ model KitchenSinkTag {
 model KitchenSinkSettings {
   id Record @id
   theme String
-  userId Record?
+  userId Record? @nullable
   user Relation? @field(userId) @model(KitchenSinkUser) @onDelete(Cascade)
 }
 

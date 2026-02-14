@@ -41,6 +41,7 @@ model User {
 | [`@distinct`](distinct)                   | Array deduplication     | Array fields                 |
 | [`@sort` / `@sort(false)`](sort)          | Array ordering          | Array fields                 |
 | [`@flexible`](flexible)                   | Allow extra fields      | Object-type fields           |
+| [`@nullable`](nullable)                   | Allow null values       | Any field (not object/tuple) |
 | [`@readonly`](readonly)                   | Write-once field        | Any storable field           |
 
 ## Composite Directives
@@ -52,7 +53,7 @@ model User {
 
 ## Decorators on Object Fields
 
-A subset of decorators can also be applied to fields within object definitions. Relation and identity decorators (`@id`, `@field`, `@model`, `@onDelete`, `@key`) are not allowed on object fields. Allowed decorators on object fields: `@default`, `@defaultAlways`, `@now`, `@createdAt`, `@updatedAt`, `@unique`, `@index`, `@distinct`, `@sort`, `@flexible`, `@readonly`.
+A subset of decorators can also be applied to fields within object definitions. Relation and identity decorators (`@id`, `@field`, `@model`, `@onDelete`, `@key`) are not allowed on object fields. Allowed decorators on object fields: `@default`, `@defaultAlways`, `@nullable`, `@now`, `@createdAt`, `@updatedAt`, `@unique`, `@index`, `@distinct`, `@sort`, `@flexible`, `@readonly`. Note: `@nullable` is allowed on object **sub-fields** but not on object-type fields themselves.
 
 ```cerial
 object ContactInfo {

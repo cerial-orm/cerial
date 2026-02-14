@@ -3,7 +3,7 @@
 object FlexAddress {
   street String
   city String
-  zip String?
+  zip String? @nullable
 }
 
 object FlexMeta {

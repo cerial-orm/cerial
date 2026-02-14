@@ -44,7 +44,7 @@ Test.checks([
 // Optional fields (phone is explicitly optional, createdAt has @now)
 Test.checks([
   Test.check<ContactInfo['phone'], string | null | undefined, Test.Pass>(),
-  Test.check<ContactInfo['createdAt'], Date | null | undefined, Test.Pass>(),
+  Test.check<ContactInfo['createdAt'], Date | undefined, Test.Pass>(),
 ]);
 
 // =============================================================================
@@ -57,7 +57,7 @@ Test.checks([
   Test.check<ContactInfoInput['city'], string, Test.Pass>(),
   Test.check<ContactInfoInput['tags'], string[], Test.Pass>(),
   Test.check<ContactInfoInput['phone'], string | null | undefined, Test.Pass>(),
-  Test.check<ContactInfoInput['createdAt'], Date | null | undefined, Test.Pass>(),
+  Test.check<ContactInfoInput['createdAt'], Date | undefined, Test.Pass>(),
 ]);
 
 // =============================================================================
@@ -67,11 +67,11 @@ Test.checks([
 // email remains required (no @default or @now)
 Test.checks([Test.check<ContactInfoCreateInput['email'], string, Test.Pass>()]);
 
-// city has @default("Unknown") — becomes optional in CreateInput
-Test.checks([Test.check<ContactInfoCreateInput['city'], string | null | undefined, Test.Pass>()]);
+// city has @default("Unknown") — becomes optional in CreateInput (no null without @nullable)
+Test.checks([Test.check<ContactInfoCreateInput['city'], string | undefined, Test.Pass>()]);
 
-// createdAt has @now — becomes optional in CreateInput
-Test.checks([Test.check<ContactInfoCreateInput['createdAt'], Date | null | undefined, Test.Pass>()]);
+// createdAt has @createdAt — becomes optional in CreateInput (no null without @nullable)
+Test.checks([Test.check<ContactInfoCreateInput['createdAt'], Date | undefined, Test.Pass>()]);
 
 // tags is array with @distinct — arrays are optional in create (default [])
 Test.checks([Test.check<ContactInfoCreateInput['tags'], string[] | undefined, Test.Pass>()]);

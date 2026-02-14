@@ -5,6 +5,12 @@
 import { getDecorator, hasDecorator } from '../../parser/types/ast';
 import type { SchemaAST } from '../../types';
 import { isValidFieldName, isValidModelName, isValidObjectName } from '../../utils/validation-utils';
+import {
+  validateNullableDecorator,
+  validateNullableOnObjectFields,
+  validateNullableOnTupleElements,
+  validateTupleElementDecorators,
+} from './nullable-validator';
 import { validateRelationRules } from './relation-validator';
 
 /** Validation error */
@@ -471,6 +477,7 @@ export function validateObjectFields(ast: SchemaAST): SchemaValidationError[] {
         'sort',
         'flexible',
         'readonly',
+        'nullable',
       ]);
       for (const dec of field.decorators) {
         if (!ALLOWED_OBJECT_DECORATORS.has(dec.type)) {
@@ -481,7 +488,7 @@ export function validateObjectFields(ast: SchemaAST): SchemaValidationError[] {
             });
           } else {
             errors.push({
-              message: `Decorator @${dec.type} is not allowed on object fields. Allowed: @default, @defaultAlways, @createdAt, @updatedAt, @index, @unique, @distinct, @sort, @flexible, @readonly.`,
+              message: `Decorator @${dec.type} is not allowed on object fields. Allowed: @default, @defaultAlways, @createdAt, @updatedAt, @index, @unique, @distinct, @sort, @flexible, @readonly, @nullable.`,
               line: field.range.start.line,
             });
           }
@@ -672,6 +679,10 @@ export function validateSchema(ast: SchemaAST): SchemaValidationResult {
     ...validateObjectReferences(ast),
     ...validateFlexibleDecorator(ast),
     ...validateReadonlyDecorator(ast),
+    ...validateNullableDecorator(ast),
+    ...validateNullableOnObjectFields(ast),
+    ...validateNullableOnTupleElements(ast),
+    ...validateTupleElementDecorators(ast),
   ];
 
   return {

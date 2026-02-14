@@ -37,7 +37,9 @@ export {
   // Array operators
   handleIn,
   handleIsDefined,
+  handleIsNotDefined,
   // Special operators
+  handleIsNotNull,
   handleIsNull,
   handleLt,
   handleLte,

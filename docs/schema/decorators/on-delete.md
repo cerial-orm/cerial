@@ -20,7 +20,8 @@ Controls what happens to a record when the related record it points to is delete
 | Action     | Behavior                                                                  |
 | ---------- | ------------------------------------------------------------------------- |
 | `Cascade`  | Delete this record when the related record is deleted                     |
-| `SetNull`  | Set the FK to null when the related record is deleted (default)           |
+| `SetNull`  | Set the FK to null when the related record is deleted                     |
+| `SetNone`  | Remove the FK field entirely (NONE) when the related record is deleted    |
 | `Restrict` | Prevent deletion of the related record if this record still references it |
 | `NoAction` | Do nothing (leaves a dangling reference)                                  |
 
@@ -28,15 +29,22 @@ Controls what happens to a record when the related record it points to is delete
 
 The allowed delete behavior depends on the relation type:
 
-| Relation Type          | Default Behavior                      | `@onDelete` Allowed?               |
-| ---------------------- | ------------------------------------- | ---------------------------------- |
-| `Relation` (required)  | Auto-cascade                          | No — `@onDelete` is not allowed    |
-| `Relation?` (optional) | SetNull                               | Yes — can override with any action |
-| `Relation[]` (array)   | Auto-cleanup (removes ID from arrays) | No — `@onDelete` is not allowed    |
+| Relation Type                                | Default Behavior                      | `@onDelete` Allowed?               |
+| -------------------------------------------- | ------------------------------------- | ---------------------------------- |
+| `Relation` (required)                        | Auto-cascade                          | No — `@onDelete` is not allowed    |
+| `Relation?` (optional, no `@nullable` on FK) | SetNone                               | Yes — can override with any action |
+| `Relation?` (optional, `@nullable` on FK)    | SetNull                               | Yes — can override with any action |
+| `Relation[]` (array)                         | Auto-cleanup (removes ID from arrays) | No — `@onDelete` is not allowed    |
 
 **Required relations** always cascade — if a user is deleted, all posts with a required `author Relation` pointing to that user are also deleted. This cannot be changed because the FK field is required and can't be null.
 
+**Optional relations** default to `SetNone` (removes the FK field) unless the FK Record field has `@nullable`, in which case the default is `SetNull` (sets FK to null). You can override this with any `@onDelete` action.
+
 **Array relations** automatically remove the deleted record's ID from the array. No configuration is needed.
+
+### SetNull vs SetNone
+
+`SetNull` requires the FK Record field to have `@nullable` — it sets the FK to `null` (the field still exists). `SetNone` removes the FK field entirely (the field is absent/NONE). If you specify `@onDelete(SetNull)` on a non-`@nullable` field, Cerial will report a validation error.
 
 ## Examples
 

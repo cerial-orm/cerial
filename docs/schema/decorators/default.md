@@ -51,14 +51,18 @@ const urgent = await db.Task.create({
 
 ## The `@default(null)` Pattern
 
-The `@default(null)` decorator has special semantics for optional fields. It changes how omitted values are handled:
+The `@default(null)` decorator changes how omitted values are handled for `@nullable` fields. It converts omissions from NONE to null:
+
+{: .important }
+
+> `@default(null)` requires `@nullable` on the field. Without `@nullable`, the field cannot hold null, so a null default would be invalid.
 
 **Without `@default(null)`:**
 
 ```cerial
 model User {
   id Record @id
-  bio String?           # no default
+  bio String? @nullable           # optional and nullable, no default
 }
 ```
 
@@ -72,14 +76,14 @@ await db.User.create({ data: { name: 'Alice' } });
 ```cerial
 model User {
   id Record @id
-  bio String? @default(null)
+  bio String? @nullable @default(null)
 }
 ```
 
 ```typescript
 // Omitting bio → null (field stored as null in DB)
 await db.User.create({ data: { name: 'Alice' } });
-// bio is stored as null, queryable with { bio: { eq: null } }
+// bio is stored as null, queryable with { bio: { isNull: true } }
 ```
 
 This distinction matters because SurrealDB treats NONE (field absent) and null (field exists with null value) differently. See [Optional Fields](../optional-fields) for details on NONE vs null semantics.
@@ -114,13 +118,13 @@ const user = await db.User.create({
 
 ## Summary
 
-| Schema                              | Omitted on create | Explicit value      |
-| ----------------------------------- | ----------------- | ------------------- |
-| `status String @default("pending")` | `"pending"`       | Uses provided value |
-| `count Int @default(0)`             | `0`               | Uses provided value |
-| `active Bool @default(true)`        | `true`            | Uses provided value |
-| `bio String?`                       | NONE (absent)     | Uses provided value |
-| `bio String? @default(null)`        | `null`            | Uses provided value |
+| Schema                                 | Omitted on create | Explicit value      |
+| -------------------------------------- | ----------------- | ------------------- |
+| `status String @default("pending")`    | `"pending"`       | Uses provided value |
+| `count Int @default(0)`                | `0`               | Uses provided value |
+| `active Bool @default(true)`           | `true`            | Uses provided value |
+| `bio String?`                          | NONE (absent)     | Uses provided value |
+| `bio String? @nullable @default(null)` | `null`            | Uses provided value |
 
 ## See Also
 

@@ -32,11 +32,12 @@ function getElementInputType(element: TupleElementMetadata): string {
 }
 
 /**
- * Wrap an element type with optional marker if the element is optional
- * Optional elements produce `T | null` in the output tuple
+ * Wrap an element type with null union if the element is optional or nullable
+ * Optional elements produce `T | null` in the output tuple (SurrealDB returns null for absent positions)
+ * @nullable elements also produce `T | null` (the element can hold null as a value)
  */
-function wrapOptional(type: string, isOptional: boolean): string {
-  if (!isOptional) return type;
+function wrapNullable(type: string, isOptional: boolean, isNullable?: boolean): string {
+  if (!isOptional && !isNullable) return type;
 
   return `${type} | null`;
 }
@@ -47,7 +48,7 @@ export function generateTupleOutputType(tuple: TupleMetadata): string {
     .map((e) => {
       const type = getElementOutputType(e);
 
-      return wrapOptional(type, e.isOptional);
+      return wrapNullable(type, e.isOptional, e.isNullable);
     })
     .join(', ');
 
@@ -60,7 +61,7 @@ function generateTupleInputArrayType(tuple: TupleMetadata): string {
     .map((e) => {
       const type = getElementInputType(e);
 
-      return wrapOptional(type, e.isOptional);
+      return wrapNullable(type, e.isOptional, e.isNullable);
     })
     .join(', ');
 
@@ -77,7 +78,7 @@ function generateTupleInputObjectType(tuple: TupleMetadata): string {
 
   for (const element of tuple.elements) {
     const inputType = getElementInputType(element);
-    const type = wrapOptional(inputType, element.isOptional);
+    const type = wrapNullable(inputType, element.isOptional, element.isNullable);
 
     // Index-based key (always available)
     fields.push(`  ${element.index}?: ${type};`);

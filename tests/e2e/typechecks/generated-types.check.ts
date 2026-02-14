@@ -35,7 +35,7 @@ Test.checks([
 
   // Optional fields (nullable)
   Test.check<User['age'], number | null | undefined, Test.Pass>(),
-  Test.check<User['createdAt'], Date | null | undefined, Test.Pass>(),
+  Test.check<User['createdAt'], Date | undefined, Test.Pass>(),
   Test.check<User['profileId'], CerialId | null | undefined, Test.Pass>(),
 
   // Array fields

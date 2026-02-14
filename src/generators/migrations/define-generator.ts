@@ -288,17 +288,15 @@ export function generateObjectFieldDefines(
       // The field will still be excluded from Create/Update/Where at the type level.
       if (subField.timestampDecorator === 'now') continue;
 
-      // Generate TYPE clause for the sub-field
+      // Generate TYPE clause for the sub-field using generateTypeClause for consistency
       // Sub-fields retain their own types (not affected by parent optionality)
+      // This handles nullable/optional modifiers correctly
       if (subField.isArray) {
         const surrealType = mapToSurrealType(subField.type);
         parts.push(`TYPE array<${surrealType}>`);
-      } else if (subField.isRequired) {
-        const surrealType = mapToSurrealType(subField.type);
-        parts.push(`TYPE ${surrealType}`);
       } else {
-        const surrealType = mapToSurrealType(subField.type);
-        parts.push(`TYPE option<${surrealType} | null>`);
+        // Use the same nullable/optional semantics as top-level fields
+        parts.push(generateTypeClause(subField.type, subField.isRequired, subField));
       }
 
       // Add VALUE clause for array fields with @distinct/@sort decorators
@@ -472,11 +470,24 @@ export function generateTupleFieldDefines(
       parts.push('ON TABLE');
       parts.push(tableName);
 
-      if (element.isOptional) {
+      // Nested tuple elements can be optional and/or @nullable
+      if (!element.isOptional && !element.isNullable) {
+        parts.push(`TYPE ${tupleLiteral}`);
+      } else if (!element.isOptional && element.isNullable) {
+        parts.push(`TYPE ${tupleLiteral} | null`);
+      } else if (element.isOptional && !element.isNullable) {
         parts.push(`TYPE option<${tupleLiteral}>`);
       } else {
-        parts.push(`TYPE ${tupleLiteral}`);
+        parts.push(`TYPE option<${tupleLiteral} | null>`);
       }
+
+      // Add DEFAULT/timestamp clause for element decorators
+      const nestedDefault = generateDefaultClause(
+        element.timestampDecorator,
+        element.defaultValue,
+        element.defaultAlwaysValue,
+      );
+      if (nestedDefault) parts.push(nestedDefault);
 
       statements.push(parts.join(' ') + ';');
 
@@ -510,11 +521,20 @@ export function generateTupleFieldDefines(
       parts.push('ON TABLE');
       parts.push(tableName);
 
+      // Object elements can be optional but not @nullable (validated)
       if (element.isOptional) {
         parts.push('TYPE option<object>');
       } else {
         parts.push('TYPE object');
       }
+
+      // Add DEFAULT/timestamp clause for element decorators
+      const elementDefault = generateDefaultClause(
+        element.timestampDecorator,
+        element.defaultValue,
+        element.defaultAlwaysValue,
+      );
+      if (elementDefault) parts.push(elementDefault);
 
       statements.push(parts.join(' ') + ';');
 
@@ -528,7 +548,7 @@ export function generateTupleFieldDefines(
         );
       }
     } else {
-      // Primitive element — define with primitive type
+      // Primitive element — define with primitive type and nullable/optional modifiers
       const surrealType = mapToSurrealType(element.type);
       const parts: string[] = ['DEFINE FIELD'];
       if (opts.overwrite) parts.push('OVERWRITE');
@@ -537,11 +557,24 @@ export function generateTupleFieldDefines(
       parts.push('ON TABLE');
       parts.push(tableName);
 
-      if (element.isOptional) {
+      // Use wrapTypeModifiers-style logic for nullable/optional
+      if (!element.isOptional && !element.isNullable) {
+        parts.push(`TYPE ${surrealType}`);
+      } else if (!element.isOptional && element.isNullable) {
+        parts.push(`TYPE ${surrealType} | null`);
+      } else if (element.isOptional && !element.isNullable) {
         parts.push(`TYPE option<${surrealType}>`);
       } else {
-        parts.push(`TYPE ${surrealType}`);
+        parts.push(`TYPE option<${surrealType} | null>`);
       }
+
+      // Add DEFAULT/timestamp clause for element decorators
+      const elementDefault = generateDefaultClause(
+        element.timestampDecorator,
+        element.defaultValue,
+        element.defaultAlwaysValue,
+      );
+      if (elementDefault) parts.push(elementDefault);
 
       statements.push(parts.join(' ') + ';');
     }

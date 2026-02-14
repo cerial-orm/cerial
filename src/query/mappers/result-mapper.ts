@@ -13,7 +13,8 @@ function isRecordId(value: unknown): value is RecordId {
 
 /** Map a single field value from SurrealDB result */
 export function mapFieldValue(value: unknown, fieldType: SchemaFieldType): unknown {
-  if (value === null || value === undefined) return null;
+  // Preserve null/undefined distinction: null = stored null (@nullable), undefined = absent (NONE)
+  if (value === null || value === undefined) return value;
 
   switch (fieldType) {
     case 'date':
@@ -158,8 +159,9 @@ function mapObjectRecord(obj: Record<string, unknown>, objectInfo: ObjectFieldMe
       continue;
     }
 
+    // Preserve null/undefined distinction
     if (value === null || value === undefined) {
-      result[key] = null;
+      result[key] = value;
       continue;
     }
 
@@ -255,7 +257,8 @@ export function mapRecord(record: Record<string, unknown>, model: ModelMetadata)
       // Handle object fields - recursively map
       if (field.type === 'object' && field.objectInfo) {
         if (value === null || value === undefined) {
-          result[key] = null;
+          // Preserve null/undefined distinction
+          result[key] = value;
         } else if (field.isArray && Array.isArray(value)) {
           result[key] = value.map((item) =>
             typeof item === 'object' && item !== null
@@ -270,13 +273,29 @@ export function mapRecord(record: Record<string, unknown>, model: ModelMetadata)
       } else if (field.type === 'tuple' && field.tupleInfo) {
         // Handle tuple fields - map each element by type
         if (value === null || value === undefined) {
-          result[key] = null;
+          // Preserve null/undefined distinction
+          result[key] = value;
         } else if (field.isArray && Array.isArray(value)) {
           result[key] = value.map((item) => (Array.isArray(item) ? mapTupleRecord(item, field.tupleInfo!) : item));
         } else if (Array.isArray(value)) {
           result[key] = mapTupleRecord(value, field.tupleInfo);
         } else {
           result[key] = value;
+        }
+      } else if (field.type === 'relation') {
+        // Handle included relation fields
+        // For non-array relations, normalize missing/null results:
+        // - SurrealDB dot-notation (forward) may return [null] for null record links
+        // - SurrealDB subquery (reverse) may return undefined for no match
+        // Both should map to null for singular relations
+        if (field.isArray) {
+          result[key] = processNestedValue(value);
+        } else {
+          let mapped = processNestedValue(value);
+          if (Array.isArray(mapped)) {
+            mapped = mapped[0] ?? null;
+          }
+          result[key] = mapped ?? null;
         }
       } else if (field.isArray && Array.isArray(value)) {
         // Handle array fields - map each element
@@ -291,10 +310,15 @@ export function mapRecord(record: Record<string, unknown>, model: ModelMetadata)
     }
   }
 
-  // Then, ensure optional Record fields not in the result are set to null
+  // Then, ensure optional Record fields not in the result are set correctly:
+  // @nullable fields → null (absent = stored null for queryability)
+  // Non-@nullable fields → leave absent (undefined — field doesn't exist in result object)
   for (const field of model.fields) {
     if (field.type === 'record' && !field.isRequired && !(field.name in result)) {
-      result[field.name] = null;
+      if (field.isNullable) {
+        result[field.name] = null;
+      }
+      // Non-@nullable: field stays absent (undefined when accessed)
     }
   }
 

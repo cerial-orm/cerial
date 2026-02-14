@@ -61,7 +61,7 @@ const article = await db.Article.findOne({
   where: { id: articleId },
   include: { author: true },
 });
-// article: { id: CerialId, title: string, authorId: CerialId | null, author: Writer | null }
+// article: { id: CerialId, title: string, authorId?: CerialId, author: Writer | null }
 ```
 
 ### Querying the reverse direction manually
@@ -84,7 +84,7 @@ await db.Article.updateMany({
   data: { author: { connect: newWriterId } },
 });
 
-// Remove the author (sets authorId to null)
+// Remove the author (removes authorId — NONE)
 await db.Article.updateMany({
   where: { id: articleId },
   data: { author: { disconnect: true } },
@@ -114,7 +114,7 @@ Single-sided relations are appropriate when the reverse lookup is not needed in 
 
 ## Delete Behavior
 
-Since the relation is optional (`Record?`), the default delete behavior is `SetNull`. When the referenced Writer is deleted, `Article.authorId` is set to null. You can override this with `@onDelete`:
+Since the relation is optional (`Record?`), the default delete behavior is `SetNone`. When the referenced Writer is deleted, `Article.authorId` is removed (NONE). Add `@nullable` to `authorId` for `SetNull` behavior. You can override this with `@onDelete`:
 
 ```cerial
 model Article {

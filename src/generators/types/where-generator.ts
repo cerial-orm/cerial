@@ -43,32 +43,63 @@ function generateArrayOps(tsType: string): string {
 }
 
 /** Generate special operators for numeric/date types (includes between) */
-function generateNumericSpecialOps(tsType: string, isRequired: boolean, isId: boolean): string {
-  // @id fields are always present in DB, so never include isNull/not
-  if (isRequired || isId) {
+function generateNumericSpecialOps(tsType: string, isRequired: boolean, isId: boolean, isNullable?: boolean): string {
+  // @id fields are always present in DB, so never include isNull/isNone/not
+  if (isId) {
     return `{
     between?: [${tsType}, ${tsType}];
   }`;
   }
 
-  return `{
-    not?: ${tsType} | null;
-    isNull?: boolean;
-    between?: [${tsType}, ${tsType}];
-  }`;
+  const ops: string[] = [];
+
+  // `not` operator: always available but type includes | null only if @nullable
+  if (!isRequired || isNullable) {
+    ops.push(`    not?: ${tsType}${isNullable ? ' | null' : ''};`);
+  }
+
+  // isNull only on @nullable fields
+  if (isNullable) {
+    ops.push(`    isNull?: boolean;`);
+  }
+
+  // isNone only on optional (?) fields
+  if (!isRequired) {
+    ops.push(`    isNone?: boolean;`);
+  }
+
+  ops.push(`    between?: [${tsType}, ${tsType}];`);
+
+  return `{\n${ops.join('\n')}\n  }`;
 }
 
 /** Generate special operators for string types (no between) */
-function generateStringSpecialOps(isRequired: boolean, isId: boolean): string {
-  // @id fields are always present in DB, so never include isNull/not
-  if (isRequired || isId) {
+function generateStringSpecialOps(isRequired: boolean, isId: boolean, isNullable?: boolean): string {
+  // @id fields are always present in DB, so never include isNull/isNone/not
+  if (isId) {
     return `{}`;
   }
 
-  return `{
-    not?: string | null;
-    isNull?: boolean;
-  }`;
+  const ops: string[] = [];
+
+  // `not` operator: always available but type includes | null only if @nullable
+  if (!isRequired || isNullable) {
+    ops.push(`    not?: string${isNullable ? ' | null' : ''};`);
+  }
+
+  // isNull only on @nullable fields
+  if (isNullable) {
+    ops.push(`    isNull?: boolean;`);
+  }
+
+  // isNone only on optional (?) fields
+  if (!isRequired) {
+    ops.push(`    isNone?: boolean;`);
+  }
+
+  if (!ops.length) return `{}`;
+
+  return `{\n${ops.join('\n')}\n  }`;
 }
 
 /** Generate array field operators for any array type */
@@ -84,10 +115,10 @@ function generateArrayFieldOps(elementType: string): string {
 /** Generate field where type */
 export function generateFieldWhereType(field: FieldMetadata, _registry?: ModelRegistry): string {
   const tsType = schemaTypeToTsType(field.type);
-  const { isRequired, isId } = field;
+  const { isRequired, isId, isNullable } = field;
 
-  // Optional non-id fields can be queried with `null` directly (Prisma-like syntax)
-  const nullablePrefix = !isRequired && !isId ? 'null | ' : '';
+  // @nullable fields can be queried with `null` directly (filter for null values)
+  const nullablePrefix = isNullable && !isId ? 'null | ' : '';
 
   // Skip Relation fields in base where type generation
   // They are handled separately with nested where support
@@ -109,7 +140,7 @@ export function generateFieldWhereType(field: FieldMetadata, _registry?: ModelRe
     ${generateStringComparisonOps('RecordIdInput')} &
     ${generateStringOps()} &
     ${generateArrayOps('RecordIdInput')} &
-    ${generateStringSpecialOps(isRequired, isId)}
+    ${generateStringSpecialOps(isRequired, isId, isNullable)}
   )`;
   }
 
@@ -118,7 +149,7 @@ export function generateFieldWhereType(field: FieldMetadata, _registry?: ModelRe
     return `${nullablePrefix}${tsType} | (
     ${generateNumericComparisonOps(tsType)} &
     ${generateArrayOps(tsType)} &
-    ${generateNumericSpecialOps(tsType, isRequired, isId)}
+    ${generateNumericSpecialOps(tsType, isRequired, isId, isNullable)}
   )`;
   }
 
@@ -128,7 +159,7 @@ export function generateFieldWhereType(field: FieldMetadata, _registry?: ModelRe
     ${generateStringComparisonOps(tsType)} &
     ${generateStringOps()} &
     ${generateArrayOps(tsType)} &
-    ${generateStringSpecialOps(isRequired, isId)}
+    ${generateStringSpecialOps(isRequired, isId, isNullable)}
   )`;
   }
 
@@ -137,7 +168,7 @@ export function generateFieldWhereType(field: FieldMetadata, _registry?: ModelRe
     return `${nullablePrefix}${tsType} | (
     ${generateNumericComparisonOps(tsType)} &
     ${generateArrayOps(tsType)} &
-    ${generateNumericSpecialOps(tsType, isRequired, isId)}
+    ${generateNumericSpecialOps(tsType, isRequired, isId, isNullable)}
   )`;
   }
 
@@ -145,7 +176,7 @@ export function generateFieldWhereType(field: FieldMetadata, _registry?: ModelRe
   if (field.type === 'bool') {
     return `${nullablePrefix}${tsType} | (
     ${generateStringComparisonOps(tsType)} &
-    ${generateStringSpecialOps(isRequired, isId)}
+    ${generateStringSpecialOps(isRequired, isId, isNullable)}
   )`;
   }
 
@@ -153,7 +184,7 @@ export function generateFieldWhereType(field: FieldMetadata, _registry?: ModelRe
   return `${nullablePrefix}${tsType} | (
     ${generateStringComparisonOps(tsType)} &
     ${generateArrayOps(tsType)} &
-    ${generateStringSpecialOps(isRequired, isId)}
+    ${generateStringSpecialOps(isRequired, isId, isNullable)}
   )`;
 }
 
@@ -228,8 +259,12 @@ export function generateWhereInterface(model: ModelMetadata, registry?: ModelReg
           if (jsDoc) fields.push(jsDoc);
           fields.push(`  ${field.name}?: { some?: ${targetWhere}; every?: ${targetWhere}; none?: ${targetWhere}; };`);
         } else {
-          // Single relations - optional ones also accept `null` to filter by null underlying record field
-          const nullPrefix = !field.isRequired ? 'null | ' : '';
+          // Single relations - @nullable ones accept `null` to filter by null underlying record field
+          // Look at the storage field for nullable info
+          const storageField = field.relationInfo.fieldRef
+            ? model.fields.find((f) => f.name === field.relationInfo!.fieldRef)
+            : null;
+          const nullPrefix = storageField?.isNullable ? 'null | ' : '';
           if (jsDoc) fields.push(jsDoc);
           fields.push(`  ${field.name}?: ${nullPrefix}${targetWhere};`);
         }

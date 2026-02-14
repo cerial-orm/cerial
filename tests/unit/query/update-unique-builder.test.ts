@@ -222,13 +222,13 @@ describe('update-unique-builder', () => {
     const registry = astToRegistry(ast);
     const userModel = registry.User!;
 
-    test('handles null for optional fields', () => {
+    test('handles null for optional fields (non-@nullable → NONE)', () => {
       const where = { id: 'abc123' };
       const data = { age: null };
       const query = buildUpdateUniqueQuery(userModel, where, data, undefined);
 
-      expect(query.text).toContain('SET age = $age_set_0');
-      expect(query.vars.age_set_0).toBeNull();
+      // Without @nullable, null on an optional field is treated as NONE (absent)
+      expect(query.text).toContain('SET age = NONE');
     });
 
     test('skips undefined values', () => {

@@ -685,6 +685,7 @@ export function buildUpdateWithNestedTransaction(
   const reverseDisconnects: Array<{
     targetModel: ModelMetadata;
     targetRecordField: string;
+    isTargetFieldNullable?: boolean;
   }> = [];
 
   const reverseConnects: Array<{
@@ -737,10 +738,12 @@ export function buildUpdateWithNestedTransaction(
           statements.push(`CREATE ${targetModel.tableName} CONTENT $${varName};`);
         });
       } else if (isNestedDisconnect(op)) {
-        // Reverse disconnect: update target records to set their reference to null
+        // Reverse disconnect: update target records to clear their reference
+        const targetRecordFieldMeta = targetModel.fields.find((f) => f.name === reverseFieldName);
         reverseDisconnects.push({
           targetModel,
           targetRecordField: reverseFieldName,
+          isTargetFieldNullable: targetRecordFieldMeta?.isNullable,
         });
       } else if (isNestedConnect(op)) {
         // Reverse connect: update target records to point to us
@@ -860,10 +863,12 @@ export function buildUpdateWithNestedTransaction(
             }
           }
         } else {
-          // Single disconnect - set to null (only if field is optional)
-          // Use NULL (not NONE) so it can be queried with { field: null }
+          // Single disconnect - clear the field (only if field is optional)
           if (!field.isRequired) {
-            fieldUpdates.push(`${recordFieldName} = NULL`);
+            // @nullable fields use NULL (so it can be queried with { field: null })
+            // Non-@nullable fields use NONE (field absent)
+            const clearValue = recordField?.isNullable ? 'NULL' : 'NONE';
+            fieldUpdates.push(`${recordFieldName} = ${clearValue}`);
           }
         }
       }
@@ -950,12 +955,13 @@ export function buildUpdateWithNestedTransaction(
     );
   });
 
-  // Handle reverse disconnects (update target records to set their reference to null)
-  // Use NULL (not NONE) so it can be queried with { field: null }
+  // Handle reverse disconnects (update target records to clear their reference)
   reverseDisconnects.forEach((rd) => {
+    // @nullable fields use NULL (queryable), non-@nullable fields use NONE (absent)
+    const clearValue = rd.isTargetFieldNullable ? 'NULL' : 'NONE';
     // Update all records in target model where the reference points to our record
     statements.push(
-      `UPDATE ${rd.targetModel.tableName} SET ${rd.targetRecordField} = NULL WHERE ${rd.targetRecordField} = $result[0].id;`,
+      `UPDATE ${rd.targetModel.tableName} SET ${rd.targetRecordField} = ${clearValue} WHERE ${rd.targetRecordField} = $result[0].id;`,
     );
   });
 

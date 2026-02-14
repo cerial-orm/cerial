@@ -134,8 +134,9 @@ export function generateObjectInterface(object: ObjectMetadata): string {
       const tsType = getOutputType(f);
       if (f.isArray) return `  ${f.name}: ${wrapFlexible(tsType, f, true)};`;
       const optional = f.isRequired ? '' : '?';
-      // Object and tuple fields don't support null — only NONE (absent) or a valid value
-      const type = f.isRequired ? tsType : f.type === 'object' || f.type === 'tuple' ? tsType : `${tsType} | null`;
+      // @nullable adds | null (distinct from optional/NONE)
+      // Object and tuple fields cannot be @nullable (validated in Phase 2)
+      const type = f.isNullable ? `${tsType} | null` : tsType;
 
       return `  ${f.name}${optional}: ${wrapFlexible(type, f)};`;
     })
@@ -157,8 +158,9 @@ export function generateObjectInputInterface(object: ObjectMetadata, objectRegis
       const tsType = getInputType(f);
       if (f.isArray) return `  ${f.name}: ${wrapFlexible(tsType, f, true)};`;
       const optional = f.isRequired ? '' : '?';
-      // Object and tuple fields don't support null — only NONE (absent) or a valid value
-      const type = f.isRequired ? tsType : f.type === 'object' || f.type === 'tuple' ? tsType : `${tsType} | null`;
+      // @nullable adds | null (distinct from optional/NONE)
+      // Object and tuple fields cannot be @nullable (validated in Phase 2)
+      const type = f.isNullable ? `${tsType} | null` : tsType;
 
       return `  ${f.name}${optional}: ${wrapFlexible(type, f)};`;
     })
@@ -197,9 +199,9 @@ export function generateObjectCreateInputInterface(object: ObjectMetadata, objec
         f.timestampDecorator === 'createdAt' ||
         f.timestampDecorator === 'updatedAt';
       const optional = !f.isRequired || hasDefault ? '?' : '';
-      // Object and tuple fields don't support null — only NONE (absent) or a valid value
-      const type =
-        f.isRequired && !hasDefault ? tsType : f.type === 'object' || f.type === 'tuple' ? tsType : `${tsType} | null`;
+      // @nullable adds | null (distinct from optional/NONE)
+      // Object and tuple fields cannot be @nullable (validated in Phase 2)
+      const type = f.isNullable ? `${tsType} | null` : tsType;
 
       return `  ${f.name}${optional}: ${type};`;
     })

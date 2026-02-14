@@ -76,7 +76,7 @@ describe('Object Type Mapper', () => {
       expect(stmts[1]).toContain('address.city');
       expect(stmts[1]).toContain('TYPE string');
       expect(stmts[2]).toContain('address.zipCode');
-      expect(stmts[2]).toContain('TYPE option<string | null>');
+      expect(stmts[2]).toContain('TYPE option<string>');
     });
 
     test('should use ON TABLE clause correctly', () => {
@@ -126,9 +126,9 @@ describe('Object Type Mapper', () => {
       expect(stmts.some((s) => s.includes('primaryLocation.lng') && s.includes('TYPE float'))).toBe(true);
       expect(stmts.some((s) => s.includes('primaryLocation.label') && s.includes('TYPE option<object>'))).toBe(true);
       expect(stmts.some((s) => s.includes('primaryLocation.label.city') && s.includes('TYPE string'))).toBe(true);
-      expect(
-        stmts.some((s) => s.includes('primaryLocation.label.zipCode') && s.includes('TYPE option<string | null>')),
-      ).toBe(true);
+      expect(stmts.some((s) => s.includes('primaryLocation.label.zipCode') && s.includes('TYPE option<string>'))).toBe(
+        true,
+      );
     });
 
     test('should generate nested object in array with .* notation', () => {

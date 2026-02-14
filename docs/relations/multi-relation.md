@@ -160,11 +160,11 @@ model Document {
   authorId Record
   author Relation @field(authorId) @model(Writer) @key(author)
   reviewerId Record?
-  reviewer Relation? @field(reviewerId) @model(Writer) @key(reviewer) @onDelete(SetNull)
+  reviewer Relation? @field(reviewerId) @model(Writer) @key(reviewer)
 }
 ```
 
 - Deleting a Writer who is an `author` of documents: cascades (required FK).
-- Deleting a Writer who is a `reviewer` of documents: sets `reviewerId` to null (optional FK with SetNull).
+- Deleting a Writer who is a `reviewer` of documents: removes `reviewerId` (optional FK, default SetNone).
 
 See [Delete Behavior](on-delete.md) for all `@onDelete` options.

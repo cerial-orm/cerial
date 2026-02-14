@@ -8,6 +8,6 @@ model UserCascade {
 model ProfileCascade {
   id Record @id
   bio String?
-  userId Record?
+  userId Record? @nullable
   user Relation? @field(userId) @model(UserCascade) @onDelete(Cascade)
 }

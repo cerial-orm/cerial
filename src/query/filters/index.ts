@@ -15,7 +15,7 @@ export { handleIn, handleNotIn } from './array-operators';
 export { handleAnd, handleNot, handleOr } from './logical-operators';
 
 // Special operators
-export { handleBetween, handleIsDefined, handleIsNull } from './special-operators';
+export { handleBetween, handleIsDefined, handleIsNotDefined, handleIsNotNull, handleIsNull } from './special-operators';
 
 // Registry
 export { getOperatorHandler, getRegisteredOperators, isRegisteredOperator, registerOperator } from './registry';

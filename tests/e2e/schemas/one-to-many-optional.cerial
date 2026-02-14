@@ -9,6 +9,6 @@ model Book {
   id Record @id
   title String
   isbn String @unique
-  publisherId Record?
+  publisherId Record? @nullable
   publisher Relation? @field(publisherId) @model(Publisher)
 }

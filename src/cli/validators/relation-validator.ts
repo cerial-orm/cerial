@@ -278,6 +278,7 @@ export function validateNToNCompleteness(ast: SchemaAST): SchemaValidationError[
 
 /**
  * Rule 5: @onDelete placement - Only on optional Relation (not required, not array)
+ * Also validates SetNull requires @nullable on backing Record, SetNone requires optional
  */
 export function validateOnDeletePlacement(ast: SchemaAST): SchemaValidationError[] {
   const errors: SchemaValidationError[] = [];
@@ -289,10 +290,12 @@ export function validateOnDeletePlacement(ast: SchemaAST): SchemaValidationError
       const onDeleteDecorator = getDecorator(field, 'onDelete');
       if (!onDeleteDecorator) continue;
 
-      // @onDelete only allowed on optional singular relations
-      if (!field.isOptional) {
+      const action = onDeleteDecorator.value as string | undefined;
+
+      // @onDelete only allowed on optional or nullable singular relations
+      if (!field.isOptional && !field.isNullable) {
         errors.push({
-          message: `@onDelete is only allowed on optional relations. "${field.name}" is required - required relations auto-cascade on delete`,
+          message: `@onDelete is only allowed on optional or nullable relations. "${field.name}" is required - required relations auto-cascade on delete`,
           model: model.name,
           field: field.name,
           line: field.range.start.line,
@@ -317,6 +320,32 @@ export function validateOnDeletePlacement(ast: SchemaAST): SchemaValidationError
           field: field.name,
           line: field.range.start.line,
         });
+      }
+
+      // @onDelete(SetNull) requires @nullable on the backing Record field
+      if (action === 'SetNull' && fieldDecorator) {
+        const backingRecord = model.fields.find((f) => f.name === fieldDecorator.value);
+        if (backingRecord && !backingRecord.isNullable) {
+          errors.push({
+            message: `@onDelete(SetNull) requires @nullable on the backing Record field "${fieldDecorator.value}" in model ${model.name}. Without @nullable, the field cannot hold null.`,
+            model: model.name,
+            field: field.name,
+            line: field.range.start.line,
+          });
+        }
+      }
+
+      // @onDelete(SetNone) requires optional (?) on the backing Record field
+      if (action === 'SetNone' && fieldDecorator) {
+        const backingRecord = model.fields.find((f) => f.name === fieldDecorator.value);
+        if (backingRecord && !backingRecord.isOptional) {
+          errors.push({
+            message: `@onDelete(SetNone) requires optional (?) on the backing Record field "${fieldDecorator.value}" in model ${model.name}. Without ?, the field cannot be absent (NONE).`,
+            model: model.name,
+            field: field.name,
+            line: field.range.start.line,
+          });
+        }
       }
     }
   }

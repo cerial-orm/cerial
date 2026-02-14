@@ -10,6 +10,7 @@ import type {
   ASTTuple,
   ASTTupleElement,
   ASTField,
+  ASTDecorator,
   ASTCompositeDirective,
   ParseResult,
   ParseError,
@@ -21,6 +22,7 @@ import {
   createSchemaAST,
   createModel,
   createCompositeDirective,
+  createDecorator,
   createObject,
   createTuple,
   createTupleElement,
@@ -31,7 +33,9 @@ import {
   modelNameToTableName,
   extractObjectName,
   extractTupleName,
+  extractDefaultValue,
 } from './types';
+import { extractDefaultAlwaysValue } from './types/field-decorators';
 import { removeComments } from '../utils/string-utils';
 
 /** Parser state */
@@ -344,17 +348,48 @@ function parseObject(state: ParserState): ASTObject | null {
 
 /**
  * Parse a tuple element declaration.
- * Format: [name] Type[?]
+ * Format: [name] Type[?] [@decorator...]
  * Examples:
- *   Float           → unnamed, required
- *   lat Float       → named "lat", required
- *   Float?          → unnamed, optional
- *   lat Float?      → named "lat", optional
- *   Address         → unnamed, object type
- *   Point           → unnamed, tuple type (if Point is a known tuple)
+ *   Float              → unnamed, required
+ *   lat Float          → named "lat", required
+ *   Float?             → unnamed, optional
+ *   lat Float?         → named "lat", optional
+ *   Address            → unnamed, object type
+ *   Point              → unnamed, tuple type (if Point is a known tuple)
+ *   Float @nullable    → unnamed, nullable (can hold null)
+ *   lat Float? @nullable → named "lat", optional and nullable
+ *   ts Date @createdAt → named "ts", with createdAt decorator
  */
 function parseTupleElement(token: string, objectNames: Set<string>, tupleNames: Set<string>): ASTTupleElement | null {
-  const parts = token.trim().split(/\s+/);
+  const trimmed = token.trim();
+  if (!trimmed) return null;
+
+  // Extract decorators from the element token
+  const decoratorMatches = [...trimmed.matchAll(/@\w+(?:\([^)]*\))?/g)];
+  const decorators: ASTDecorator[] = [];
+
+  for (const match of decoratorMatches) {
+    const dToken = match[0];
+    const range = createRange(createPosition(0, 0, 0), createPosition(0, dToken.length, 0));
+
+    if (dToken === '@nullable') {
+      decorators.push(createDecorator('nullable', range));
+    } else if (dToken === '@createdAt') {
+      decorators.push(createDecorator('createdAt', range));
+    } else if (dToken === '@updatedAt') {
+      decorators.push(createDecorator('updatedAt', range));
+    } else if (dToken.startsWith('@default(')) {
+      const value = extractDefaultValue(dToken);
+      decorators.push(createDecorator('default', range, value));
+    } else if (dToken.startsWith('@defaultAlways(')) {
+      const value = extractDefaultAlwaysValue(dToken);
+      decorators.push(createDecorator('defaultAlways', range, value));
+    }
+  }
+
+  // Remove decorators from the token for type parsing
+  const withoutDecorators = trimmed.replace(/@\w+(?:\([^)]*\))?/g, '').trim();
+  const parts = withoutDecorators.split(/\s+/);
   if (!parts.length) return null;
 
   let name: string | undefined;
@@ -383,7 +418,14 @@ function parseTupleElement(token: string, objectNames: Set<string>, tupleNames: 
   const objectName = fieldType === 'object' ? extractObjectName(typeStr) : undefined;
   const tupleName = fieldType === 'tuple' ? extractTupleName(typeStr) : undefined;
 
-  return createTupleElement(fieldType, isOptional, name, objectName, tupleName);
+  return createTupleElement(
+    fieldType,
+    isOptional,
+    name,
+    objectName,
+    tupleName,
+    decorators.length ? decorators : undefined,
+  );
 }
 
 /** Parse a tuple block */
@@ -1020,13 +1062,16 @@ export function validateSchema(ast: SchemaAST): ParseError[] {
       // Validate decorators on object fields — only specific decorators are allowed
       const ALLOWED_OBJECT_DECORATORS = new Set([
         'default',
+        'defaultAlways',
         'createdAt',
         'updatedAt',
         'index',
         'unique',
         'distinct',
         'sort',
+        'flexible',
         'readonly',
+        'nullable',
       ]);
       for (const dec of field.decorators) {
         if (!ALLOWED_OBJECT_DECORATORS.has(dec.type)) {
@@ -1037,7 +1082,7 @@ export function validateSchema(ast: SchemaAST): ParseError[] {
             });
           } else {
             errors.push({
-              message: `Decorator @${dec.type} is not allowed on object fields. Allowed: @default, @createdAt, @updatedAt, @index, @unique, @distinct, @sort, @readonly.`,
+              message: `Decorator @${dec.type} is not allowed on object fields. Allowed: @default, @defaultAlways, @createdAt, @updatedAt, @index, @unique, @distinct, @sort, @flexible, @readonly, @nullable.`,
               position: field.range.start,
             });
           }

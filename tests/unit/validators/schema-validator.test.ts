@@ -48,6 +48,7 @@ describe('Schema Validator', () => {
       const ast: SchemaAST = {
         source: '',
         objects: [],
+        tuples: [],
         models: [createASTModel({ name: 'User' }), createASTModel({ name: 'UserProfile' })],
       };
 
@@ -59,6 +60,7 @@ describe('Schema Validator', () => {
       const ast: SchemaAST = {
         source: '',
         objects: [],
+        tuples: [],
         models: [createASTModel({ name: 'User' }), createASTModel({ name: 'User' })],
       };
 
@@ -71,6 +73,7 @@ describe('Schema Validator', () => {
       const ast: SchemaAST = {
         source: '',
         objects: [],
+        tuples: [],
         models: [createASTModel({ name: 'user' })], // lowercase
       };
 
@@ -85,6 +88,7 @@ describe('Schema Validator', () => {
       const ast: SchemaAST = {
         source: '',
         objects: [],
+        tuples: [],
         models: [
           createASTModel({
             name: 'User',
@@ -105,6 +109,7 @@ describe('Schema Validator', () => {
       const ast: SchemaAST = {
         source: '',
         objects: [],
+        tuples: [],
         models: [
           createASTModel({
             name: 'User',
@@ -124,6 +129,7 @@ describe('Schema Validator', () => {
       const ast: SchemaAST = {
         source: '',
         objects: [],
+        tuples: [],
         models: [
           createASTModel({
             name: 'User',
@@ -147,6 +153,7 @@ describe('Schema Validator', () => {
       const ast: SchemaAST = {
         source: '',
         objects: [],
+        tuples: [],
         models: [
           createASTModel({
             name: 'User',
@@ -179,6 +186,7 @@ describe('Schema Validator', () => {
       const ast: SchemaAST = {
         source: '',
         objects: [],
+        tuples: [],
         models: [
           createASTModel({
             name: 'User',
@@ -212,6 +220,7 @@ describe('Schema Validator', () => {
       const ast: SchemaAST = {
         source: '',
         objects: [],
+        tuples: [],
         models: [
           createASTModel({
             name: 'Post',
@@ -254,6 +263,7 @@ describe('Schema Validator', () => {
       const ast: SchemaAST = {
         source: '',
         objects: [],
+        tuples: [],
         models: [
           createASTModel({
             name: 'User',
@@ -271,6 +281,7 @@ describe('Schema Validator', () => {
       const ast: SchemaAST = {
         source: '',
         objects: [],
+        tuples: [],
         models: [
           createASTModel({ name: 'user' }), // Invalid: lowercase
         ],

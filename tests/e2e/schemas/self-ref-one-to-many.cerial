@@ -3,6 +3,6 @@
 model EmployeeSingleSided {
   id Record @id
   name String
-  managerId Record?
+  managerId Record? @nullable
   manager Relation? @field(managerId) @model(EmployeeSingleSided)
 }

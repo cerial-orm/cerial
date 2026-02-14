@@ -32,7 +32,7 @@ Test.checks([
   Test.check<RelationFieldMetadata['fieldRef'], string | undefined, Test.Pass>(),
   Test.check<
     RelationFieldMetadata['onDelete'],
-    'Cascade' | 'SetNull' | 'Restrict' | 'NoAction' | undefined,
+    'Cascade' | 'SetNull' | 'SetNone' | 'Restrict' | 'NoAction' | undefined,
     Test.Pass
   >(),
   Test.check<RelationFieldMetadata['key'], string | undefined, Test.Pass>(),

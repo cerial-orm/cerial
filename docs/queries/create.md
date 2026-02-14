@@ -151,10 +151,19 @@ const user = await db.User.create({
 
 ## NONE vs null for Optional Fields
 
-How optional fields are handled on create depends on their schema definition:
+How optional fields are handled on create depends on their schema modifiers (`?` and `@nullable`):
 
 ```typescript
-// field String? (no @default)
+// field String? — optional only, no @nullable
+{
+  bio: 'Hello';
+} // bio = 'Hello'
+{
+  bio: undefined;
+} // bio field NOT stored (NONE)
+// { bio: null }      // Error: bio is not nullable
+
+// field String? @nullable — optional and nullable
 {
   bio: 'Hello';
 } // bio = 'Hello'
@@ -165,7 +174,7 @@ How optional fields are handled on create depends on their schema definition:
   bio: null;
 } // bio = null (explicit null stored)
 
-// field String? @default(null)
+// field String? @nullable @default(null)
 {
   bio: undefined;
 } // bio = null (default applied)
@@ -173,7 +182,16 @@ How optional fields are handled on create depends on their schema definition:
   bio: null;
 } // bio = null (explicit null)
 
-// field Record? (record references can't be null)
+// field Record? — optional record, no @nullable
+{
+  userId: 'abc';
+} // userId = record reference
+{
+  userId: undefined;
+} // userId field NOT stored (NONE)
+// { userId: null }   // Error: userId is not nullable
+
+// field Record? @nullable — optional nullable record
 {
   userId: 'abc';
 } // userId = record reference
@@ -182,7 +200,7 @@ How optional fields are handled on create depends on their schema definition:
 } // userId field NOT stored (NONE)
 {
   userId: null;
-} // userId field NOT stored (NONE)
+} // userId = null (explicit null)
 ```
 
 ## Return Value

@@ -2,6 +2,6 @@
  * Special operators barrel export
  */
 
-export { handleIsNull } from './isNull-handler';
-export { handleIsDefined } from './isDefined-handler';
+export { handleIsNull, handleIsNotNull } from './isNull-handler';
+export { handleIsDefined, handleIsNotDefined } from './isDefined-handler';
 export { handleBetween } from './between-handler';

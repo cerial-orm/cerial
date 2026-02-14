@@ -5,10 +5,13 @@
 import { RecordId, StringRecordId } from 'surrealdb';
 import type { ModelMetadata, ObjectFieldMetadata, SchemaFieldType, TupleFieldMetadata } from '../../types';
 import { CerialId, type RecordIdInput } from '../../utils/cerial-id';
+import { isNone, NONE } from '../../utils/none';
 
 /** Transform a value based on field type */
 export function transformValue(value: unknown, fieldType: SchemaFieldType): unknown {
   if (value === null || value === undefined) return value;
+  // NONE sentinel passes through — handled by update/create builders
+  if (isNone(value)) return NONE;
 
   switch (fieldType) {
     case 'date':
@@ -285,10 +288,15 @@ export function transformData(data: Record<string, unknown>, model: ModelMetadat
       if (field.isId && value !== undefined && value !== null) {
         result[key] = transformRecordId(model.tableName, toRecordIdInput(value));
       } else if (field.type === 'record') {
-        // For record fields, skip undefined but pass null through
-        // The update builder handles null -> NONE translation
+        // For record fields, skip undefined but pass null and NONE sentinel through
+        // The update builder handles null/NONE → SurrealQL NONE/NULL translation
         if (value === undefined) continue;
-        // Pass null through - update builder will handle it
+        // NONE sentinel → pass through for builder to handle
+        if (isNone(value)) {
+          result[key] = NONE;
+          continue;
+        }
+        // null → pass through for builder to handle (NONE for non-nullable, NULL for nullable)
         if (value === null) {
           result[key] = null;
           continue;
@@ -328,8 +336,13 @@ export function transformData(data: Record<string, unknown>, model: ModelMetadat
         }
       } else if (field.type === 'object' && field.objectInfo) {
         // Handle object fields - recursively transform
-        // Object fields don't support null — treat null as NONE (skip like undefined)
+        // Objects cannot be @nullable (validated in schema), so null → skip (NONE)
         if (value === undefined || value === null) continue;
+        // NONE sentinel → pass through for builder to handle
+        if (isNone(value)) {
+          result[key] = NONE;
+          continue;
+        }
         if (field.isArray && Array.isArray(value)) {
           result[key] = value.map((item) =>
             typeof item === 'object' && item !== null
@@ -344,7 +357,12 @@ export function transformData(data: Record<string, unknown>, model: ModelMetadat
       } else if (field.type === 'tuple' && field.tupleInfo) {
         // Handle tuple fields - transform and normalize to array
         if (value === undefined) continue;
-        // Pass null through — update builder converts null → NONE for optional tuples
+        // NONE sentinel → pass through for builder to handle
+        if (isNone(value)) {
+          result[key] = NONE;
+          continue;
+        }
+        // Pass null through — builder converts to NONE (non-nullable) or NULL (@nullable)
         if (value === null) {
           result[key] = null;
           continue;
@@ -415,10 +433,11 @@ export function transformData(data: Record<string, unknown>, model: ModelMetadat
  * - NONE: field doesn't exist (omit from data)
  * - null: field exists with null value
  *
- * Schema semantics:
+ * Schema semantics (with @nullable):
  * - `field String?` (no @default): undefined → NONE (omit field)
- * - `field String? @default(null)`: undefined → null (store null)
- * - `field Record?`: undefined → null (so they can be queried for null)
+ * - `field String? @default(null)`: undefined → null (store null, requires @nullable)
+ * - `field Record? @nullable`: undefined → null (so they can be queried for null)
+ * - `field Record?` (non-nullable): undefined → NONE (omit field)
  */
 export function applyFieldDefaults(data: Record<string, unknown>, model: ModelMetadata): Record<string, unknown> {
   const result: Record<string, unknown> = { ...data };
@@ -436,11 +455,13 @@ export function applyFieldDefaults(data: Record<string, unknown>, model: ModelMe
       continue;
     }
 
-    // For optional record fields, default undefined to null (so they can be queried for null)
-    // This allows: { where: { authorId: null } } to find records without authors
+    // For optional @nullable record fields, default undefined to null (so they can be queried for null)
+    // For optional non-nullable record fields, leave as undefined (NONE)
     // Skip @id fields - they should remain undefined for auto-generation
     if (field.type === 'record' && !field.isRequired && !field.isId && result[field.name] === undefined) {
-      result[field.name] = null;
+      if (field.isNullable) {
+        result[field.name] = null;
+      }
       continue;
     }
 

@@ -6,6 +6,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
+import { NONE } from '../../../src/utils/none';
 import { cleanupTables, createTestClient, CerialClient, tables, testConfig } from '../relations/test-helper';
 
 describe('E2E Tuples: Update', () => {
@@ -51,14 +52,14 @@ describe('E2E Tuples: Update', () => {
       expect(updated!.backup).toEqual([50, 60]);
     });
 
-    test('should clear optional tuple with null (NONE)', async () => {
+    test('should clear optional tuple with NONE', async () => {
       const created = await client.db.TupleBasic.create({
         data: { name: 'Carol', location: [0, 0], backup: [10, 20] },
       });
 
       const updated = await client.db.TupleBasic.updateUnique({
         where: { id: created.id },
-        data: { backup: null },
+        data: { backup: NONE },
       });
 
       expect(updated).not.toBeNull();

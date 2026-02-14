@@ -9,7 +9,7 @@ model Author {
 model PostRequired {
   id Record @id
   title String
-  content String?
+  content String? @nullable
   authorId Record
   author Relation @field(authorId) @model(Author)
   createdAt Date @createdAt

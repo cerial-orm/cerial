@@ -2,12 +2,15 @@
  * Validators barrel export
  */
 
-export {
-  validateFieldNames,
-  validateModelNames,
-  validateSchema,
-} from './schema-validator';
+export { validateFieldNames, validateModelNames, validateSchema } from './schema-validator';
 export type { SchemaValidationError, SchemaValidationResult } from './schema-validator';
+
+export {
+  validateNullableDecorator,
+  validateNullableOnObjectFields,
+  validateNullableOnTupleElements,
+  validateTupleElementDecorators,
+} from './nullable-validator';
 
 export { getDefaultOptions, validateOptions } from './options-validator';
 export type { CLIOptions, LogOutputLevel, OptionsValidationError, OptionsValidationResult } from './options-validator';

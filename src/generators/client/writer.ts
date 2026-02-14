@@ -28,6 +28,9 @@ const TS_TOOLBELT_IMPORT = `import type { Object as O, Any as A } from 'ts-toolb
 const CERIAL_ID_IMPORT = `import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';`;
 
+/** NONE sentinel import for nullable/optional update types */
+const NONE_IMPORT = `import type { CerialNone } from 'cerial';`;
+
 /** DeleteUnique, UpdateUnique, Upsert, select utility types, and CerialQueryPromise import for model files */
 const UNIQUE_TYPES_IMPORT = `import type { DeleteUniqueReturn, DeleteUniqueReturnType, UpdateUniqueReturn, UpdateUniqueReturnType, UpsertReturn, UpsertReturnType, UpsertArrayReturnType, ResolveFieldSelect } from '..';
 import type { CerialQueryPromise } from '..';`;
@@ -183,6 +186,20 @@ function hasRelations(model: ModelMetadata): boolean {
   return model.fields.some((f) => f.type === 'relation' && f.relationInfo);
 }
 
+/** Check if a model's Update type needs CerialNone (has optional non-array non-id non-readonly fields) */
+function needsCerialNone(model: ModelMetadata): boolean {
+  return model.fields.some((f) => {
+    if (f.isId || f.isReadonly || f.type === 'relation' || f.isArray) return false;
+    if (f.timestampDecorator === 'now') return false;
+    // Optional non-array fields (object, tuple, or primitive) can be cleared with NONE
+    if (!f.isRequired) return true;
+    // Nullable non-array fields can be set to null (handled by | null, not CerialNone)
+    // But nullable + optional needs CerialNone too — already covered above
+
+    return false;
+  });
+}
+
 /** Generate import statements for related model types */
 function generateRelatedImports(relatedModels: string[], allModels: ModelMetadata[]): string {
   if (relatedModels.length === 0) return '';
@@ -278,6 +295,9 @@ export async function writeModelTypes(
   // Create registry for Include type generation
   const registry = createRegistryFromModels(allModels);
 
+  // Check if CerialNone import is needed for this model's Update type
+  const noneImport = needsCerialNone(model) ? `\n${NONE_IMPORT}` : '';
+
   // Generate all type content for this model
   const interfaceCode = generateInterfaces([model]);
   const whereCode = generateWhereTypes([model]);
@@ -291,7 +311,7 @@ export async function writeModelTypes(
  */
 
 ${TS_TOOLBELT_IMPORT}
-${CERIAL_ID_IMPORT}
+${CERIAL_ID_IMPORT}${noneImport}
 ${UNIQUE_TYPES_IMPORT}
 ${relatedImports}${objectImports}${tupleImports}${interfaceCode}
 
@@ -636,6 +656,10 @@ export type { ConnectionConfig, TypedDb } from './client';
 export { CerialQueryPromise } from 'cerial';
 export type { QueryResultType } from 'cerial';
 
+// NONE sentinel (for explicitly unsetting optional fields)
+export { NONE } from 'cerial';
+export type { CerialNone } from 'cerial';
+
 // Registry
 export { modelRegistry } from './internal';
 
@@ -654,9 +678,13 @@ export type ResolveFieldSelect<FieldType, SelectValue> = SelectValue extends tru
   : SelectValue extends Record<string, any>
     ? FieldType extends (infer E)[]
       ? ApplyObjectSelect<NonNullable<E>, SelectValue>[]
-      : undefined extends FieldType
-        ? ApplyObjectSelect<NonNullable<FieldType>, SelectValue> | undefined
-        : ApplyObjectSelect<NonNullable<FieldType>, SelectValue>
+      : null extends FieldType
+        ? undefined extends FieldType
+          ? ApplyObjectSelect<NonNullable<FieldType>, SelectValue> | null | undefined
+          : ApplyObjectSelect<NonNullable<FieldType>, SelectValue> | null
+        : undefined extends FieldType
+          ? ApplyObjectSelect<NonNullable<FieldType>, SelectValue> | undefined
+          : ApplyObjectSelect<NonNullable<FieldType>, SelectValue>
     : never;
 
 /** Recursively apply sub-field selection to an object type */

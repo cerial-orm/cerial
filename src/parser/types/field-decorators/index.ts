@@ -24,6 +24,7 @@ export {
   parseOnDeleteDecorator,
 } from './ondelete-parser';
 export { extractSortValue, isSortDecorator, parseSortDecorator } from './sort-parser';
+export { isNullableDecorator, parseNullableDecorator } from './nullable-parser';
 export { isReadonlyDecorator, parseReadonlyDecorator } from './readonly-parser';
 export { isUniqueDecorator, parseUniqueDecorator } from './unique-parser';
 export { isUpdatedAtDecorator, parseUpdatedAtDecorator } from './updated-at-parser';

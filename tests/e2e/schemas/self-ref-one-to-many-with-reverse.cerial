@@ -2,7 +2,7 @@
 model EmployeeWithReports {
   id Record @id
   name String
-  managerId Record?
+  managerId Record? @nullable
   manager Relation? @field(managerId) @model(EmployeeWithReports) @key(manages)
   directReports Relation[] @model(EmployeeWithReports) @key(manages)
 }

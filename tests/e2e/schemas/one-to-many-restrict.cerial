@@ -8,6 +8,6 @@ model Department {
 model Employee {
   id Record @id
   name String
-  departmentId Record?
+  departmentId Record? @nullable
   department Relation? @field(departmentId) @model(Department) @onDelete(Restrict)
 }

@@ -76,9 +76,9 @@ describe('CerialId Receive Transformation', () => {
       expect(result).toBeNull();
     });
 
-    test('returns null for undefined value', () => {
+    test('returns undefined for undefined value', () => {
       const result = mapFieldValue(undefined, 'record');
-      expect(result).toBeNull();
+      expect(result).toBeUndefined();
     });
   });
 
@@ -127,7 +127,7 @@ describe('CerialId Receive Transformation', () => {
       expect((result.userId as CerialId).id).toBe('user123');
     });
 
-    test('sets optional Record fields to null when missing', () => {
+    test('leaves optional Record fields undefined when missing (non-@nullable)', () => {
       const model = createModelMetadata([
         { name: 'id', type: 'record', isId: true, isRequired: true, isArray: false },
         { name: 'userId', type: 'record', isRequired: false, isArray: false },
@@ -136,6 +136,36 @@ describe('CerialId Receive Transformation', () => {
       const dbRecord = {
         id: new RecordId('test_model', 'abc'),
         // userId is missing
+      };
+
+      const result = mapRecord(dbRecord, model);
+      expect(result.userId).toBeUndefined();
+    });
+
+    test('sets @nullable optional Record fields to null when missing', () => {
+      const model = createModelMetadata([
+        { name: 'id', type: 'record', isId: true, isRequired: true, isArray: false },
+        { name: 'userId', type: 'record', isRequired: false, isArray: false, isNullable: true },
+      ]);
+
+      const dbRecord = {
+        id: new RecordId('test_model', 'abc'),
+        // userId is missing — but @nullable → should be null
+      };
+
+      const result = mapRecord(dbRecord, model);
+      expect(result.userId).toBeNull();
+    });
+
+    test('preserves null for @nullable Record field', () => {
+      const model = createModelMetadata([
+        { name: 'id', type: 'record', isId: true, isRequired: true, isArray: false },
+        { name: 'userId', type: 'record', isRequired: false, isArray: false, isNullable: true },
+      ]);
+
+      const dbRecord = {
+        id: new RecordId('test_model', 'abc'),
+        userId: null,
       };
 
       const result = mapRecord(dbRecord, model);

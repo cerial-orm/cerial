@@ -5,13 +5,13 @@ model User {
   id Record @id
   email Email @unique
   name String
-  age Int?
+  age Int? @nullable
   isActive Bool
   createdAt Date @createdAt
   nicknames String[]
   scores Int[]
   loginDates Date[]
-  profileId Record?
+  profileId Record? @nullable
   profile Relation? @field(profileId) @model(Profile)
   tagIds Record[]
   tags Relation[] @field(tagIds) @model(Tag)
@@ -20,9 +20,9 @@ model User {
 
 model Profile {
   id Record @id
-  bio String?
+  bio String? @nullable
   avatarUrl String?
-  userId Record?
+  userId Record? @nullable
   user Relation? @field(userId) @model(User)
 }
 

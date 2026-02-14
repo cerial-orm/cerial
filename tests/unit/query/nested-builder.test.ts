@@ -246,8 +246,8 @@ describe('nested-builder', () => {
       const query = buildUpdateWithNestedTransaction(userModel, where, data, nestedOps, registry);
 
       expect(query.text).toContain('BEGIN TRANSACTION');
-      // Uses NULL (not NONE) so the field can be queried with { field: null }
-      expect(query.text).toContain('profileId = NULL');
+      // Uses NONE for non-@nullable optional fields (field becomes absent)
+      expect(query.text).toContain('profileId = NONE');
       expect(query.text).toContain('COMMIT TRANSACTION');
     });
 

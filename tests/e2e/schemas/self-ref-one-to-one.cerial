@@ -3,6 +3,6 @@
 model Person {
   id Record @id
   name String
-  mentorId Record?
+  mentorId Record? @nullable
   mentor Relation? @field(mentorId) @model(Person)
 }

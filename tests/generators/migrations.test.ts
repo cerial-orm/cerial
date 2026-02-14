@@ -266,14 +266,14 @@ model Tag {
       expect(userIdStmt).toContain('TYPE record<user>');
     });
 
-    test('generates option<record<table> | null> for optional Record?', () => {
+    test('generates option<record<table>> for optional Record? (no null without @nullable)', () => {
       const registry = parseModelRegistry(recordDsl);
       const model = registry['User']!;
       const statements = generateModelDefineStatements(model);
 
       const profileIdStmt = statements.find((s) => s.includes('profileId'));
-      // Optional fields use option<T | null> to support both NONE (absent) and null values
-      expect(profileIdStmt).toContain('TYPE option<record<profile> | null>');
+      // Optional fields use option<T> — null requires @nullable
+      expect(profileIdStmt).toContain('TYPE option<record<profile>>');
     });
 
     test('generates array<record<table>> with distinct for Record[]', () => {
@@ -361,9 +361,7 @@ model Tag {
       // Dot notation sub-fields
       expect(statements.some((s) => s.includes('address.street') && s.includes('TYPE string'))).toBe(true);
       expect(statements.some((s) => s.includes('address.city') && s.includes('TYPE string'))).toBe(true);
-      expect(statements.some((s) => s.includes('address.zipCode') && s.includes('TYPE option<string | null>'))).toBe(
-        true,
-      );
+      expect(statements.some((s) => s.includes('address.zipCode') && s.includes('TYPE option<string>'))).toBe(true);
     });
 
     test('generates DEFINE FIELD with TYPE option<object> for optional object (no null)', () => {
@@ -557,7 +555,7 @@ model Tag {
       const createdStmt = statements.find((s) => s.includes('createdAt'));
 
       expect(createdStmt).toBeDefined();
-      expect(createdStmt).toContain('TYPE option<datetime | null>');
+      expect(createdStmt).toContain('TYPE option<datetime>');
       expect(createdStmt).toContain('DEFAULT time::now()');
       expect(createdStmt).not.toContain('COMPUTED');
       expect(createdStmt).not.toContain('ALWAYS');
@@ -577,7 +575,7 @@ model Tag {
       const updatedStmt = statements.find((s) => s.includes('updatedAt'));
 
       expect(updatedStmt).toBeDefined();
-      expect(updatedStmt).toContain('TYPE option<datetime | null>');
+      expect(updatedStmt).toContain('TYPE option<datetime>');
       expect(updatedStmt).toContain('DEFAULT ALWAYS time::now()');
       expect(updatedStmt).not.toContain('COMPUTED');
     });
@@ -667,7 +665,7 @@ model Tag {
       const createdStmt = statements.find((s) => s.includes('meta.createdAt'));
 
       expect(createdStmt).toBeDefined();
-      expect(createdStmt).toContain('TYPE option<datetime | null>');
+      expect(createdStmt).toContain('TYPE option<datetime>');
       expect(createdStmt).toContain('DEFAULT time::now()');
       expect(createdStmt).not.toContain('ALWAYS');
       expect(createdStmt).not.toContain('COMPUTED');
@@ -692,7 +690,7 @@ model Tag {
       const updatedStmt = statements.find((s) => s.includes('meta.updatedAt'));
 
       expect(updatedStmt).toBeDefined();
-      expect(updatedStmt).toContain('TYPE option<datetime | null>');
+      expect(updatedStmt).toContain('TYPE option<datetime>');
       expect(updatedStmt).toContain('DEFAULT ALWAYS time::now()');
       expect(updatedStmt).not.toContain('COMPUTED');
     });

@@ -8,7 +8,7 @@ import type { ASTDecorator, OnDeleteAction, SourceRange } from '../../../types';
 import { createDecorator } from '../ast';
 
 /** Valid onDelete actions */
-const VALID_ACTIONS: OnDeleteAction[] = ['Cascade', 'SetNull', 'Restrict', 'NoAction'];
+const VALID_ACTIONS: OnDeleteAction[] = ['Cascade', 'SetNull', 'SetNone', 'Restrict', 'NoAction'];
 
 /** Check if a token is the @onDelete decorator */
 export function isOnDeleteDecorator(token: string): boolean {

@@ -12,6 +12,6 @@ model Document {
   title String
   authorId Record
   author Relation @field(authorId) @model(Writer) @key(author)
-  reviewerId Record?
+  reviewerId Record? @nullable
   reviewer Relation? @field(reviewerId) @model(Writer) @key(reviewer)
 }

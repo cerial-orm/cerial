@@ -9,6 +9,6 @@ model UserSetNull {
 model ProfileSetNull {
   id Record @id
   bio String?
-  userId Record?
+  userId Record? @nullable
   user Relation? @field(userId) @model(UserSetNull) @onDelete(SetNull)
 }

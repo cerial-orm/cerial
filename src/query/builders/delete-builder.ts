@@ -89,9 +89,12 @@ function findDependentRelations(
       } else if (isRequired) {
         // Required relations auto-cascade
         onDelete = 'Cascade';
-      } else {
-        // Optional relations and array relations: SetNull (or remove from array)
+      } else if (recordField?.isNullable) {
+        // @nullable optional relations: SetNull (store null for queryability)
         onDelete = 'SetNull';
+      } else {
+        // Non-nullable optional relations and array relations: SetNone (clear the field)
+        onDelete = 'SetNone';
       }
 
       dependents.push({
@@ -185,7 +188,7 @@ export function buildDeleteWithCascade(
         break;
 
       case 'SetNull':
-        // Set FK to null (not NONE) so it can be queried with { field: null }
+        // Set FK to null (for @nullable fields — stores queryable null value)
         if (dep.isArray) {
           statements.push(
             `UPDATE ${dep.model.tableName} SET ${recordFieldName} -= $to_delete.id WHERE ${recordFieldName} CONTAINSANY $to_delete.id`,
@@ -193,6 +196,19 @@ export function buildDeleteWithCascade(
         } else {
           statements.push(
             `UPDATE ${dep.model.tableName} SET ${recordFieldName} = NULL WHERE ${recordFieldName} IN $to_delete.id`,
+          );
+        }
+        break;
+
+      case 'SetNone':
+        // Set FK to NONE (for non-@nullable optional fields — field absent)
+        if (dep.isArray) {
+          statements.push(
+            `UPDATE ${dep.model.tableName} SET ${recordFieldName} -= $to_delete.id WHERE ${recordFieldName} CONTAINSANY $to_delete.id`,
+          );
+        } else {
+          statements.push(
+            `UPDATE ${dep.model.tableName} SET ${recordFieldName} = NONE WHERE ${recordFieldName} IN $to_delete.id`,
           );
         }
         break;
@@ -379,6 +395,18 @@ export function buildDeleteUniqueWithCascade(
         } else {
           statements.push(
             `UPDATE ${dep.model.tableName} SET ${recordFieldName} = NULL WHERE ${recordFieldName} IN $to_delete`,
+          );
+        }
+        break;
+
+      case 'SetNone':
+        if (dep.isArray) {
+          statements.push(
+            `UPDATE ${dep.model.tableName} SET ${recordFieldName} -= $to_delete WHERE ${recordFieldName} CONTAINSANY $to_delete`,
+          );
+        } else {
+          statements.push(
+            `UPDATE ${dep.model.tableName} SET ${recordFieldName} = NONE WHERE ${recordFieldName} IN $to_delete`,
           );
         }
         break;

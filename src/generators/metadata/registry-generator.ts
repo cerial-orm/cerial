@@ -64,6 +64,11 @@ function generateFieldMetadata(field: FieldMetadata): string {
     parts.push(`isReadonly: true`);
   }
 
+  // Include isNullable when true
+  if (field.isNullable) {
+    parts.push(`isNullable: true`);
+  }
+
   // Include objectInfo when present (with inline fields for runtime query building)
   if (field.objectInfo) {
     if (field.objectInfo.fields.length) {
@@ -217,6 +222,10 @@ function generateTupleElementMetadata(element: TupleElementMetadata): string {
 
   if (element.name) {
     parts.push(`name: '${element.name}'`);
+  }
+
+  if (element.isNullable) {
+    parts.push(`isNullable: true`);
   }
 
   if (element.objectInfo) {

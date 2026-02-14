@@ -68,3 +68,7 @@ export {
 // CerialId - Record ID wrapper
 export { CerialId, isCerialId } from './cerial-id';
 export type { RecordIdInput } from './cerial-id';
+
+// NONE sentinel
+export { NONE, isNone } from './none';
+export type { CerialNone } from './none';

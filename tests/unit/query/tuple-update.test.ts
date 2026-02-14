@@ -96,11 +96,11 @@ describe('Tuple Update Builder', () => {
       expect(result.text).not.toContain('backup = NONE');
     });
 
-    test('should not convert null to NONE for required tuple', () => {
-      // Required tuples should not generate NONE — null should be bound as variable
+    test('should convert null to NONE for non-@nullable required tuple', () => {
+      // Without @nullable, null is treated as NONE (field absent) regardless of required status
       const result = buildUpdateManyQuery(userModel, { name: 'Alice' }, { location: null as any });
 
-      expect(result.text).not.toContain('location = NONE');
+      expect(result.text).toContain('location = NONE');
     });
   });
 

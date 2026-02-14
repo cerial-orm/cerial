@@ -16,6 +16,6 @@ model Order {
   orderNumber String @unique
   customerId Record
   customer Relation @field(customerId) @model(Customer)
-  assigneeId Record?
+  assigneeId Record? @nullable
   assignee Relation? @field(assigneeId) @model(Agent)
 }

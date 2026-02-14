@@ -69,7 +69,7 @@ const profile = await db.Profile.findOne({
   where: { id: profileId },
   include: { user: true },
 });
-// profile: { id: CerialId, bio: string | null, userId: CerialId, user: User }
+// profile: { id: CerialId, bio?: string, userId: CerialId, user: User }
 ```
 
 ## Optional One-to-One
@@ -87,15 +87,15 @@ model Profile {
   id Record @id
   bio String?
   userId Record?                                  # FK storage (optional)
-  user Relation? @field(userId) @model(User) @onDelete(SetNull)
+  user Relation? @field(userId) @model(User)
 }
 ```
 
 Key differences from required:
 
 - `Profile.userId` is `Record?` — a Profile can exist without a User.
-- `Profile.user` and `User.profile` are `Relation?` — they may resolve to `null`.
-- Deleting a User **sets `userId` to null** on the Profile (SetNull is the default for optional relations). You can change this with `@onDelete`.
+- `Profile.user` and `User.profile` are `Relation?` — they may resolve to `null` when included.
+- Deleting a User clears `userId` on the Profile. The default action is `SetNone` (field removed) unless `userId` has `@nullable`, in which case the default is `SetNull`. You can change this with `@onDelete`.
 
 ### Creating an Optional 1:1
 
@@ -117,7 +117,7 @@ const profile = await db.Profile.create({
 ### Disconnecting an Optional 1:1
 
 ```typescript
-// Remove the link between profile and user (sets userId to null)
+// Remove the link between profile and user (clears userId)
 await db.Profile.updateMany({
   where: { id: profileId },
   data: { user: { disconnect: true } },
@@ -138,9 +138,9 @@ const user = await db.User.findOne({
 
 ## When to Use Required vs Optional
 
-| Scenario                                           | Use                                    |
-| -------------------------------------------------- | -------------------------------------- |
-| Every user must have exactly one profile           | Required 1:1                           |
-| A profile may or may not be linked to a user       | Optional 1:1                           |
-| Deleting a user should delete the profile          | Required 1:1 (auto-cascade)            |
-| Deleting a user should unlink but keep the profile | Optional 1:1 with `@onDelete(SetNull)` |
+| Scenario                                           | Use                                                                        |
+| -------------------------------------------------- | -------------------------------------------------------------------------- |
+| Every user must have exactly one profile           | Required 1:1                                                               |
+| A profile may or may not be linked to a user       | Optional 1:1                                                               |
+| Deleting a user should delete the profile          | Required 1:1 (auto-cascade)                                                |
+| Deleting a user should unlink but keep the profile | Optional 1:1 (default `@onDelete(SetNone)`, or `SetNull` with `@nullable`) |

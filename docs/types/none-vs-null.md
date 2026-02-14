@@ -6,141 +6,154 @@ nav_order: 2
 
 # NONE vs null
 
-SurrealDB distinguishes between two kinds of "empty" values:
+SurrealDB distinguishes between three field states:
 
+- **Value** — the field exists and has a typed value
 - **NONE** — the field doesn't exist at all (absent from the record)
 - **null** — the field exists and its value is explicitly `null`
 
-This is different from most databases where `NULL` means both "absent" and "no value." Cerial's type system preserves this distinction in TypeScript using `undefined` for NONE and `null` for null.
+Cerial models these states using two independent schema modifiers:
 
-## Schema-Level Behavior
+- **`?` (optional)** — enables NONE. Maps to `undefined` in TypeScript.
+- **`@nullable`** — enables null. Maps to `| null` in TypeScript.
 
-How your schema definition maps to TypeScript types and runtime behavior:
+## The Three-State Model
 
-| Schema                         | TypeScript Type            | `undefined` on create         | `null` on create                 |
-| ------------------------------ | -------------------------- | ----------------------------- | -------------------------------- |
-| `field String?`                | `field?: string \| null`   | NONE (field absent)           | null stored in DB                |
-| `field String? @default(null)` | `field?: string \| null`   | null stored (default applies) | null stored in DB                |
-| `field Relation?`              | `field?: Related \| null`  | NONE                          | null stored                      |
-| `field Record?`                | `field?: CerialId \| null` | NONE                          | NONE (record refs can't be null) |
+| Schema                  | TypeScript Output      | Allowed States    | Migration                     |
+| ----------------------- | ---------------------- | ----------------- | ----------------------------- |
+| `name String`           | `name: string`         | value             | `TYPE string`                 |
+| `bio String?`           | `bio?: string`         | value, NONE       | `TYPE option<string>`         |
+| `bio String @nullable`  | `bio: string \| null`  | value, null       | `TYPE string \| null`         |
+| `bio String? @nullable` | `bio?: string \| null` | value, null, NONE | `TYPE option<string \| null>` |
 
 Key observations:
 
-- **Optional fields without `@default`** treat `undefined` as NONE — the field is simply not stored.
-- **Optional fields with `@default(null)`** treat `undefined` as "apply the default" — so `null` gets stored.
-- **Optional Record fields** treat `null` as NONE because SurrealDB record references cannot hold a null value.
+- **`?` without `@nullable`** — the field can be absent (NONE) but **cannot** be null. Passing `null` is a validation error.
+- **`@nullable` without `?`** — the field must always be present but can be null. The field is required on create (you must pass a value or `null`).
+- **Both `?` and `@nullable`** — the field can be any of: a typed value, `null`, or absent (NONE).
 
 ## Runtime Behavior
 
-### Optional String (no default)
+### Optional-Only (`String?`)
 
 ```typescript
-// field String? — user chooses NONE or null
+// Schema: bio String?
 
-await db.User.create({ data: { name: 'John' } });
-// name = 'John'
+await db.User.create({ data: { name: 'Alice' } });
+// bio is NONE (field absent in DB)
 
-await db.User.create({ data: { name: undefined } });
-// name field NOT stored (NONE)
-
-await db.User.create({ data: { name: null } });
-// name = null (explicitly stored)
-```
-
-### Optional String with @default(null)
-
-```typescript
-// field String? @default(null) — undefined defaults to null
-
-await db.User.create({ data: { bio: 'Hello' } });
+await db.User.create({ data: { name: 'Bob', bio: 'Hello' } });
 // bio = 'Hello'
 
-await db.User.create({ data: { bio: undefined } });
-// bio = null (default applied by Cerial)
-
-await db.User.create({ data: { bio: null } });
-// bio = null (explicit null)
+await db.User.create({ data: { name: 'Carol', bio: null } });
+// Error: bio is not nullable — use undefined/omit to unset
 ```
 
-### Optional Record Field
+### Nullable-Only (`String @nullable`)
 
 ```typescript
-// field Record? — null is treated as NONE
+// Schema: deletedAt Date @nullable
 
-await db.User.create({ data: { profileId: 'abc' } });
-// profileId = record reference to profile:abc
+await db.User.create({ data: { name: 'Alice', deletedAt: null } });
+// deletedAt = null (stored as null)
 
-await db.User.create({ data: { profileId: undefined } });
-// profileId NOT stored (NONE)
+await db.User.create({ data: { name: 'Bob', deletedAt: new Date() } });
+// deletedAt = current date
 
-await db.User.create({ data: { profileId: null } });
-// profileId NOT stored (NONE — record refs can't be null)
+await db.User.create({ data: { name: 'Carol' } });
+// Error: deletedAt is required (must be a Date or null)
 ```
+
+### Optional + Nullable (`String? @nullable`)
+
+```typescript
+// Schema: bio String? @nullable
+
+await db.User.create({ data: { name: 'Alice' } });
+// bio is NONE (field absent)
+
+await db.User.create({ data: { name: 'Bob', bio: null } });
+// bio = null (explicit null stored)
+
+await db.User.create({ data: { name: 'Carol', bio: 'Hello' } });
+// bio = 'Hello'
+```
+
+### Optional Record Fields
+
+```typescript
+// Schema: authorId Record? @nullable
+
+await db.Post.create({ data: { title: 'Draft' } });
+// authorId is NONE (field absent — no FK stored)
+
+await db.Post.create({ data: { title: 'Orphan', authorId: null } });
+// authorId = null (explicit null — "unassigned")
+
+await db.Post.create({ data: { title: 'Post', authorId: userId } });
+// authorId = record reference to user
+```
+
+Without `@nullable`, `Record?` only supports value or NONE — `null` is rejected.
 
 ## Query Operators
 
-Cerial provides specific operators for querying NONE and null values:
+Cerial provides specific operators based on the field modifiers:
 
-| Operator            | SurrealQL       | Description                       |
-| ------------------- | --------------- | --------------------------------- |
-| `{ eq: null }`      | `field = NULL`  | Field is null (not NONE)          |
-| `{ neq: null }`     | `field != NULL` | Field is not null (could be NONE) |
-| `{ isNone: true }`  | `field = NONE`  | Field is absent                   |
-| `{ isNone: false }` | `field != NONE` | Field is present (could be null)  |
+| Operator           | Available on          | SurrealQL       | Description               |
+| ------------------ | --------------------- | --------------- | ------------------------- |
+| `isNull: true`     | `@nullable` fields    | `field = NULL`  | Field is null             |
+| `isNull: false`    | `@nullable` fields    | `field != NULL` | Field is not null         |
+| `isNone: true`     | `?` (optional) fields | `field = NONE`  | Field is absent           |
+| `isNone: false`    | `?` (optional) fields | `field != NONE` | Field is present          |
+| `isDefined: true`  | `?` (optional) fields | `field != NONE` | Alias for `isNone: false` |
+| `isDefined: false` | `?` (optional) fields | `field = NONE`  | Alias for `isNone: true`  |
 
 ### Finding null Values
 
 ```typescript
-// Find users where bio is explicitly null
+// Only on @nullable fields
 await db.User.findMany({
-  where: { bio: { eq: null } },
+  where: { deletedAt: { isNull: true } },
 });
-// SurrealQL: SELECT * FROM user WHERE bio = NULL
+// SurrealQL: WHERE deletedAt = NULL
 ```
 
 ### Finding Absent Fields (NONE)
 
 ```typescript
-// Find users where bio doesn't exist at all
+// Only on optional (?) fields
 await db.User.findMany({
   where: { bio: { isNone: true } },
 });
-// SurrealQL: SELECT * FROM user WHERE bio = NONE
+// SurrealQL: WHERE bio = NONE
 ```
 
-### Finding Present Fields
+### Combining on Optional + Nullable Fields
 
 ```typescript
-// Find users where bio exists (could be null or have a value)
-await db.User.findMany({
-  where: { bio: { isNone: false } },
-});
-// SurrealQL: SELECT * FROM user WHERE bio != NONE
-```
+// Schema: bio String? @nullable — has all three operators
 
-### Combining Operators
+// Find users where bio doesn't exist at all
+await db.User.findMany({ where: { bio: { isNone: true } } });
 
-```typescript
-// Find users where bio exists AND is not null (has an actual value)
+// Find users where bio is explicitly null
+await db.User.findMany({ where: { bio: { isNull: true } } });
+
+// Find users where bio has an actual value (not null, not NONE)
 await db.User.findMany({
-  where: {
-    bio: {
-      isNone: false,
-      neq: null,
-    },
-  },
+  where: { bio: { isNone: false, isNull: false } },
 });
 ```
 
 ## Update Behavior
 
-When updating records, the distinction between NONE and null determines whether a field is cleared or removed:
-
 ### Setting a Field to null
 
-Sets the field value to `null` in the database. The field still exists and is queryable with `{ eq: null }`.
+Only works on `@nullable` fields. Sets the field value to `null` in the database:
 
 ```typescript
+// Schema: bio String? @nullable
 await db.User.updateMany({
   where: { id: userId },
   data: { bio: null },
@@ -150,48 +163,62 @@ await db.User.updateMany({
 
 ### Removing a Field (NONE)
 
-Removes the field entirely from the record. After this, `{ isNone: true }` will match.
+Only works on optional (`?`) fields. Import the `NONE` sentinel from cerial:
 
 ```typescript
+import { NONE } from 'cerial';
+
 await db.User.updateMany({
   where: { id: userId },
-  data: { bio: { unset: true } },
+  data: { bio: NONE },
 });
 // SurrealQL: UPDATE user SET bio = NONE
 ```
 
 ### Disconnecting Optional Relations
 
-For optional relation fields, disconnecting sets the field to `NULL` (so it's queryable):
+How disconnect works depends on `@nullable`:
 
 ```typescript
-await db.User.updateUnique({
-  where: { id: userId },
-  data: {
-    profile: { disconnect: true },
-  },
+// Record? (no @nullable) — disconnect sets FK to NONE
+await db.Post.updateUnique({
+  where: { id: postId },
+  data: { author: { disconnect: true } },
 });
-// SurrealQL: UPDATE user SET profileId = NULL
+// SurrealQL: UPDATE post SET authorId = NONE
+
+// Record? @nullable — disconnect sets FK to NULL
+await db.Post.updateUnique({
+  where: { id: postId },
+  data: { author: { disconnect: true } },
+});
+// SurrealQL: UPDATE post SET authorId = NULL
 ```
 
-## Implementation Details
+## The `@default(null)` Pattern
 
-The NONE/null distinction is handled in several places:
+`@default(null)` requires `@nullable` on the field. It converts omitted values to `null` on create:
 
-| Component                                     | Responsibility                                                                          |
-| --------------------------------------------- | --------------------------------------------------------------------------------------- |
-| `applyNowDefaults()` in `data-transformer.ts` | Applies `@default(null)` — converts `undefined` to `null` for fields with null defaults |
-| `applyNowDefaults()` in `data-transformer.ts` | Filters out `null` for Record fields — converts to NONE since record refs can't be null |
-| Nested builder                                | Skips `undefined` values (NONE) and `null` for Record fields                            |
-| Type generator                                | Adds `\| null` for all optional non-Record fields                                       |
-| Migration generator                           | Uses `option<T \| null>` for optional fields to accept both NONE and null               |
+```cerial
+model User {
+  id Record @id
+  bio String? @nullable @default(null)
+}
+```
+
+```typescript
+// Without @default(null): omitting = NONE
+// With @default(null): omitting = null (default applied)
+await db.User.create({ data: { name: 'Alice' } });
+// bio = null (not NONE)
+```
 
 ## Practical Guidelines
 
-1. **Use `null` when you want to explicitly mark a field as "no value"** — the field still exists and can be queried with `{ eq: null }`.
+1. **Use `?` alone when the field is truly optional** — it either has a value or doesn't exist. Most optional fields fall here.
 
-2. **Use `undefined` (or omit the field) when the field shouldn't exist** — this is useful for sparse data where most records don't have a particular field.
+2. **Use `@nullable` alone for soft-delete patterns** — `deletedAt Date @nullable` is required but can be null (not deleted) or a Date (deleted at timestamp).
 
-3. **Use `@default(null)` when you want optional fields to always have a value** — this ensures the field is never NONE, making queries simpler since you only need to check for `null`.
+3. **Use `? @nullable` for FK fields that need null queries** — `authorId Record? @nullable` lets you query `{ isNull: true }` to find unassigned records, and `{ isNone: true }` to find records where the field was never set.
 
-4. **Remember that Record fields can't be null** — if you set a Record field to `null`, Cerial silently treats it as NONE. This is by design since SurrealDB record references must point to a valid record or not exist.
+4. **Use `@default(null)` with `@nullable`** to ensure optional fields are always queryable by null instead of being absent.

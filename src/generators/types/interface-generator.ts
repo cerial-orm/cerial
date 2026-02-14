@@ -40,13 +40,10 @@ function getInputType(field: FieldMetadata): string {
 /**
  * Generate TypeScript type for a field (output type - what you get back from queries)
  *
- * NONE vs null semantics (both have same TS type, different runtime behavior):
- * - `field String?` → `field?: string | null`
- *   - undefined → NONE (field absent in DB)
- *   - null → null stored in DB
- * - `field String? @default(null)` → `field?: string | null`
- *   - undefined → null stored (default applied)
- *   - null → null stored in DB
+ * NONE vs null semantics:
+ * - `field String?` → `field?: string` (NONE only — field absent or string value)
+ * - `field String @nullable` → `field: string | null` (null only — required but can be null)
+ * - `field String? @nullable` → `field?: string | null` (both NONE and null)
  */
 export function generateFieldType(field: FieldMetadata): string {
   const tsType = getOutputType(field);
@@ -56,17 +53,13 @@ export function generateFieldType(field: FieldMetadata): string {
     return `${tsType}[]`;
   }
 
-  // Required fields: just the type
-  if (field.isRequired) {
-    return tsType;
+  // @nullable adds | null to the type
+  if (field.isNullable) {
+    return `${tsType} | null`;
   }
 
-  // Optional fields: user can pass value or undefined
-  // The difference between ? and ?+@default(null) is runtime behavior, not TS type
-  // Object and tuple fields don't support null — only NONE (absent) or a valid value
-  if (field.type === 'object' || field.type === 'tuple') return tsType;
-
-  return `${tsType} | null`;
+  // Without @nullable, the type is just the base type (optional adds ? on the property, not | null)
+  return tsType;
 }
 
 /** Wrap a type with Record<string, any> intersection for @flexible fields */
@@ -117,16 +110,13 @@ export function generateInputFieldType(field: FieldMetadata): string {
     return `${tsType}[]`;
   }
 
-  // Required fields: just the type
-  if (field.isRequired) {
-    return tsType;
+  // @nullable adds | null to the type
+  if (field.isNullable) {
+    return `${tsType} | null`;
   }
 
-  // Optional fields
-  // Object and tuple fields don't support null — only NONE (absent) or a valid value
-  if (field.type === 'object' || field.type === 'tuple') return tsType;
-
-  return `${tsType} | null`;
+  // Without @nullable, the type is just the base type
+  return tsType;
 }
 
 /** Generate a single input field definition */
@@ -237,12 +227,18 @@ export function generateWithRelationsInterface(model: ModelMetadata, _registry: 
       if (field.relationInfo.isReverse) {
         // Reverse relation - could be single or array depending on source
         // For now, assume single for reverse relations (one-to-one from the other side)
+        // Reverse relations are always optional (NONE) and nullable (the related record may not exist)
         return `  ${field.name}?: ${targetModel} | null;`;
       }
 
       // Single relation (one-to-one forward)
-      const optional = !storageField || !storageField.isRequired;
-      return `  ${field.name}${optional ? '?' : ''}: ${targetModel}${optional ? ' | null' : ''};`;
+      // Optional (?) means the storage field can be NONE (absent) → field?: T
+      // @nullable means the storage field can be null → T | null
+      const isOptional = !storageField || !storageField.isRequired;
+      const isNullable = storageField?.isNullable || false;
+      const nullSuffix = isNullable ? ' | null' : '';
+
+      return `  ${field.name}${isOptional ? '?' : ''}: ${targetModel}${nullSuffix};`;
     })
     .filter((line) => line !== '')
     .join('\n');

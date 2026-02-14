@@ -11,6 +11,7 @@ import type {
   UpdateUniqueReturn,
   WhereClause,
 } from '../../types';
+import { isNone } from '../../utils/none';
 import type { CompiledQuery } from '../compile/types';
 import { createCompileContext, type FilterCompileContext } from '../compile/var-allocator';
 import { transformWhereClause } from '../filters/transformer';
@@ -88,15 +89,23 @@ export function buildUpdateManyQuery(
     // Find field metadata
     const fieldMetadata = model.fields.find((f) => f.name === field);
 
-    // Handle null values for optional record fields - use NONE instead of NULL
-    if (value === null && fieldMetadata?.type === 'record' && !fieldMetadata.isRequired) {
+    // NONE sentinel → always emit field = NONE (clear the field)
+    if (isNone(value)) {
       setParts.push(`${field} = NONE`);
       continue;
     }
 
-    // Handle null values for optional tuple fields - use NONE (tuples don't support null)
-    if (value === null && fieldMetadata?.type === 'tuple' && !fieldMetadata.isRequired) {
-      setParts.push(`${field} = NONE`);
+    // Handle null values based on @nullable
+    if (value === null && fieldMetadata) {
+      if (fieldMetadata.isNullable) {
+        // @nullable field → emit parameterized NULL (SurrealDB stores null)
+        const varBinding = ctx.bind(field, 'set', null, fieldMetadata.type);
+        setParts.push(`${field} = ${varBinding.placeholder}`);
+        Object.assign(setVars, varBinding.vars);
+      } else {
+        // Non-@nullable field → emit NONE (clear the field / set absent)
+        setParts.push(`${field} = NONE`);
+      }
       continue;
     }
 
@@ -267,8 +276,8 @@ function buildObjectUpdateClauses(
 ): void {
   if (!fieldMetadata.objectInfo) return;
 
-  // null → clear optional object (use NONE since object fields don't support null)
-  if (value === null) {
+  // NONE sentinel or null → clear optional object (use NONE since object fields can't be @nullable)
+  if (isNone(value) || value === null) {
     setParts.push(`${field} = NONE`);
 
     return;
@@ -359,15 +368,23 @@ function buildSetClause(
     // Find field metadata
     const fieldMetadata = model.fields.find((f) => f.name === field);
 
-    // Handle null values for optional record fields - use NONE instead of NULL
-    if (value === null && fieldMetadata?.type === 'record' && !fieldMetadata.isRequired) {
+    // NONE sentinel → always emit field = NONE (clear the field)
+    if (isNone(value)) {
       setParts.push(`${field} = NONE`);
       continue;
     }
 
-    // Handle null values for optional tuple fields - use NONE (tuples don't support null)
-    if (value === null && fieldMetadata?.type === 'tuple' && !fieldMetadata.isRequired) {
-      setParts.push(`${field} = NONE`);
+    // Handle null values based on @nullable
+    if (value === null && fieldMetadata) {
+      if (fieldMetadata.isNullable) {
+        // @nullable field → emit parameterized NULL (SurrealDB stores null)
+        const varBinding = ctx.bind(field, 'set', null, fieldMetadata.type);
+        setParts.push(`${field} = ${varBinding.placeholder}`);
+        Object.assign(setVars, varBinding.vars);
+      } else {
+        // Non-@nullable field → emit NONE (clear the field / set absent)
+        setParts.push(`${field} = NONE`);
+      }
       continue;
     }
 

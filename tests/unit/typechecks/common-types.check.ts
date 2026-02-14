@@ -115,7 +115,7 @@ Test.checks([Test.check<SchemaAST['models'], ASTModel[], Test.Pass>()]);
 // OnDeleteAction
 // =============================================================================
 
-type ExpectedOnDeleteActions = 'Cascade' | 'SetNull' | 'Restrict' | 'NoAction';
+type ExpectedOnDeleteActions = 'Cascade' | 'SetNull' | 'SetNone' | 'Restrict' | 'NoAction';
 
 Test.checks([Test.check<OnDeleteAction, ExpectedOnDeleteActions, Test.Pass>()]);
 
@@ -123,6 +123,16 @@ Test.checks([Test.check<OnDeleteAction, ExpectedOnDeleteActions, Test.Pass>()]);
 // SchemaFieldType
 // =============================================================================
 
-type ExpectedFieldTypes = 'string' | 'email' | 'int' | 'float' | 'bool' | 'date' | 'record' | 'relation' | 'object';
+type ExpectedFieldTypes =
+  | 'string'
+  | 'email'
+  | 'int'
+  | 'float'
+  | 'bool'
+  | 'date'
+  | 'record'
+  | 'relation'
+  | 'object'
+  | 'tuple';
 
 Test.checks([Test.check<SchemaFieldType, ExpectedFieldTypes, Test.Pass>()]);

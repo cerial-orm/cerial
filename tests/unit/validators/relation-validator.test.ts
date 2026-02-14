@@ -62,6 +62,7 @@ describe('Relation Validator', () => {
       const ast: SchemaAST = {
         source: '',
         objects: [],
+        tuples: [],
         models: [
           createASTModel({
             name: 'Post',
@@ -85,6 +86,7 @@ describe('Relation Validator', () => {
       const ast: SchemaAST = {
         source: '',
         objects: [],
+        tuples: [],
         models: [
           createASTModel({
             name: 'Post',
@@ -109,15 +111,17 @@ describe('Relation Validator', () => {
       const ast: SchemaAST = {
         source: '',
         objects: [],
+        tuples: [],
         models: [
           createASTModel({
             name: 'Post',
             fields: [
-              createASTField({ name: 'authorId', type: 'record', isOptional: true }),
+              createASTField({ name: 'authorId', type: 'record', isOptional: true, isNullable: true }),
               createASTField({
                 name: 'author',
                 type: 'relation',
                 isOptional: true,
+                isNullable: true,
                 decorators: [
                   createDecorator('model', 'User'),
                   createDecorator('field', 'authorId'),
@@ -137,6 +141,7 @@ describe('Relation Validator', () => {
       const ast: SchemaAST = {
         source: '',
         objects: [],
+        tuples: [],
         models: [
           createASTModel({
             name: 'Post',
@@ -166,6 +171,7 @@ describe('Relation Validator', () => {
       const ast: SchemaAST = {
         source: '',
         objects: [],
+        tuples: [],
         models: [
           createASTModel({
             name: 'User',
@@ -195,6 +201,7 @@ describe('Relation Validator', () => {
       const ast: SchemaAST = {
         source: '',
         objects: [],
+        tuples: [],
         models: [
           createASTModel({
             name: 'User',
@@ -226,6 +233,7 @@ describe('Relation Validator', () => {
       const ast: SchemaAST = {
         source: '',
         objects: [],
+        tuples: [],
         models: [
           createASTModel({
             name: 'Post',
@@ -249,6 +257,7 @@ describe('Relation Validator', () => {
       const ast: SchemaAST = {
         source: '',
         objects: [],
+        tuples: [],
         models: [
           createASTModel({
             name: 'User',
@@ -277,6 +286,7 @@ describe('Relation Validator', () => {
       const ast: SchemaAST = {
         source: '',
         objects: [],
+        tuples: [],
         models: [
           createASTModel({
             name: 'User',
@@ -306,6 +316,7 @@ describe('Relation Validator', () => {
       const ast: SchemaAST = {
         source: '',
         objects: [],
+        tuples: [],
         models: [
           createASTModel({
             name: 'Post',
@@ -337,6 +348,7 @@ describe('Relation Validator', () => {
       const ast: SchemaAST = {
         source: '',
         objects: [],
+        tuples: [],
         models: [
           createASTModel({
             name: 'Post',
@@ -360,6 +372,7 @@ describe('Relation Validator', () => {
       const ast: SchemaAST = {
         source: '',
         objects: [],
+        tuples: [],
         models: [
           createASTModel({
             name: 'Document',
@@ -399,6 +412,7 @@ describe('Relation Validator', () => {
       const ast: SchemaAST = {
         source: '',
         objects: [],
+        tuples: [],
         models: [
           createASTModel({
             name: 'Document',
@@ -439,6 +453,7 @@ describe('Relation Validator', () => {
       const ast: SchemaAST = {
         source: '',
         objects: [],
+        tuples: [],
         models: [
           createASTModel({
             name: 'Post',
@@ -461,6 +476,7 @@ describe('Relation Validator', () => {
       const ast: SchemaAST = {
         source: '',
         objects: [],
+        tuples: [],
         models: [
           createASTModel({
             name: 'Post',
@@ -484,6 +500,7 @@ describe('Relation Validator', () => {
       const ast: SchemaAST = {
         source: '',
         objects: [],
+        tuples: [],
         models: [
           createASTModel({
             name: 'Post',

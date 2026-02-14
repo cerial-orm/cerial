@@ -89,10 +89,10 @@ describe('Migration', () => {
     expect(nameField).toContain('TYPE string');
 
     // Check for optional age field
-    // Optional fields use option<T | null> to support both NONE (absent) and null values
+    // Optional fields use option<T> — null requires @nullable
     const ageField = statements.find((s) => s.includes('DEFINE FIELD') && s.includes('age'));
     expect(ageField).toBeDefined();
-    expect(ageField).toContain('TYPE option<int | null>');
+    expect(ageField).toContain('TYPE option<int>');
 
     // Check for createdAt field with default
     const createdAtField = statements.find((s) => s.includes('DEFINE FIELD') && s.includes('createdAt'));

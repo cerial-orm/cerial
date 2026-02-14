@@ -2,7 +2,7 @@
 model CategoryTree {
   id Record @id
   name String
-  parentId Record?
+  parentId Record? @nullable
   parent Relation? @field(parentId) @model(CategoryTree) @key(hierarchy)
   children Relation[] @model(CategoryTree) @key(hierarchy)
 }

@@ -40,6 +40,7 @@ function generateElementWhereType(element: TupleElementMetadata): string {
     isId: false,
     isUnique: false,
     isRequired: !element.isOptional,
+    isNullable: element.isNullable,
   };
 
   return generateFieldWhereType(syntheticField);

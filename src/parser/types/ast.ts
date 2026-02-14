@@ -44,6 +44,7 @@ export function createField(
   tupleName?: string,
 ): ASTField {
   const field: ASTField = { name, type, isOptional, decorators, range };
+  if (decorators.some((d) => d.type === 'nullable')) field.isNullable = true;
   if (isArray) field.isArray = true;
   if (objectName) field.objectName = objectName;
   if (tupleName) field.tupleName = tupleName;
@@ -138,11 +139,16 @@ export function createTupleElement(
   name?: string,
   objectName?: string,
   tupleName?: string,
+  decorators?: ASTDecorator[],
 ): ASTTupleElement {
   const element: ASTTupleElement = { type, isOptional };
   if (name) element.name = name;
   if (objectName) element.objectName = objectName;
   if (tupleName) element.tupleName = tupleName;
+  if (decorators?.length) {
+    element.decorators = decorators;
+    if (decorators.some((d) => d.type === 'nullable')) element.isNullable = true;
+  }
 
   return element;
 }

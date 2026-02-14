@@ -3,7 +3,7 @@
 model Assistant {
   id Record @id
   name String
-  assistsId Record?
+  assistsId Record? @nullable
   assists Relation? @field(assistsId) @model(Assistant) @key(assist)
   assistedBy Relation? @model(Assistant) @key(assist)
 }

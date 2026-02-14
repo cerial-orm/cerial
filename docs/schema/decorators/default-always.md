@@ -17,13 +17,13 @@ Sets a default value for a field that is re-applied on **every write** (create a
 
 Supported value types:
 
-| Value            | Example                   | Description           |
-| ---------------- | ------------------------- | --------------------- |
-| String literal   | `@defaultAlways("dirty")` | Default string value  |
-| Integer literal  | `@defaultAlways(0)`       | Default integer value |
-| Float literal    | `@defaultAlways(1.5)`     | Default float value   |
-| `true` / `false` | `@defaultAlways(false)`   | Default boolean value |
-| `null`           | `@defaultAlways(null)`    | Default to null       |
+| Value            | Example                   | Description                            |
+| ---------------- | ------------------------- | -------------------------------------- |
+| String literal   | `@defaultAlways("dirty")` | Default string value                   |
+| Integer literal  | `@defaultAlways(0)`       | Default integer value                  |
+| Float literal    | `@defaultAlways(1.5)`     | Default float value                    |
+| `true` / `false` | `@defaultAlways(false)`   | Default boolean value                  |
+| `null`           | `@defaultAlways(null)`    | Default to null (requires `@nullable`) |
 
 ## When to Use
 

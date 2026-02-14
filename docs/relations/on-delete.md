@@ -10,11 +10,12 @@ When you delete a record that is referenced by other records, Cerial determines 
 
 ## Default Behavior by Relation Type
 
-| FK Type              | Default Behavior                          | Configurable         |
-| -------------------- | ----------------------------------------- | -------------------- |
-| Required (`Record`)  | **Cascade** — deletes dependent records   | No (always cascade)  |
-| Optional (`Record?`) | **SetNull** — sets FK to null             | Yes, via `@onDelete` |
-| Array (`Record[]`)   | **Auto cleanup** — removes ID from arrays | Automatic            |
+| FK Type                                   | Default Behavior                          | Configurable         |
+| ----------------------------------------- | ----------------------------------------- | -------------------- |
+| Required (`Record`)                       | **Cascade** — deletes dependent records   | No (always cascade)  |
+| Optional (`Record?`)                      | **SetNone** — removes FK field (NONE)     | Yes, via `@onDelete` |
+| Optional + nullable (`Record? @nullable`) | **SetNull** — sets FK to null             | Yes, via `@onDelete` |
+| Array (`Record[]`)                        | **Auto cleanup** — removes ID from arrays | Automatic            |
 
 ## Required Relations (Auto-Cascade)
 
@@ -67,15 +68,15 @@ await db.User.deleteMany({ where: { id: userId } });
 
 Use `Cascade` when the dependent record has no meaning without its parent — even though the FK is technically optional.
 
-### SetNull (Default)
+### SetNull
 
-Sets the FK to null on the dependent record when the referenced record is deleted. This is the **default behavior** for optional relations.
+Sets the FK to null on the dependent record when the referenced record is deleted. This is the **default behavior** for optional relations where the FK has `@nullable`.
 
 ```cerial
 model Post {
   id Record @id
   title String
-  authorId Record?
+  authorId Record? @nullable
   author Relation? @field(authorId) @model(User) @onDelete(SetNull)
 }
 ```
@@ -86,14 +87,37 @@ await db.User.deleteMany({ where: { id: userId } });
 // The Posts themselves are preserved
 ```
 
-Since `SetNull` is the default, these two declarations are equivalent:
+Since `SetNull` is the default for `@nullable` FK fields, these two declarations are equivalent:
 
 ```cerial
 # Explicit
 author Relation? @field(authorId) @model(User) @onDelete(SetNull)
 
-# Implicit (same behavior)
+# Implicit (same behavior when authorId has @nullable)
 author Relation? @field(authorId) @model(User)
+```
+
+{: .note }
+
+> `SetNull` requires the FK Record field to have `@nullable`. If the FK is `Record?` without `@nullable`, the default is `SetNone` instead.
+
+### SetNone
+
+Removes the FK field entirely (sets to NONE) when the referenced record is deleted. This is the **default behavior** for optional relations where the FK does **not** have `@nullable`.
+
+```cerial
+model Post {
+  id Record @id
+  title String
+  authorId Record?
+  author Relation? @field(authorId) @model(User) @onDelete(SetNone)
+}
+```
+
+```typescript
+await db.User.deleteMany({ where: { id: userId } });
+// All Posts where authorId = userId have authorId removed (NONE)
+// The Posts themselves are preserved
 ```
 
 ### Restrict
@@ -213,11 +237,12 @@ Delete operations with cascade/restrict/setNull behavior also work inside [`$tra
 
 ## Summary
 
-| Decorator             | Behavior             | Use Case                                            |
-| --------------------- | -------------------- | --------------------------------------------------- |
-| _(none, required FK)_ | Cascade (always)     | Child can't exist without parent                    |
-| `@onDelete(SetNull)`  | Set FK to null       | Default for optional; preserve the child            |
-| `@onDelete(Cascade)`  | Delete dependents    | Optional FK but child is meaningless without parent |
-| `@onDelete(Restrict)` | Block deletion       | Protect referential integrity                       |
-| `@onDelete(NoAction)` | Leave dangling ref   | Audit logs, historical records                      |
-| _(array FK)_          | Remove ID from array | Automatic for all `Record[]` fields                 |
+| Decorator             | Behavior             | Use Case                                                 |
+| --------------------- | -------------------- | -------------------------------------------------------- |
+| _(none, required FK)_ | Cascade (always)     | Child can't exist without parent                         |
+| `@onDelete(SetNull)`  | Set FK to null       | Default for `@nullable` optional; preserve the child     |
+| `@onDelete(SetNone)`  | Remove FK (NONE)     | Default for non-`@nullable` optional; preserve the child |
+| `@onDelete(Cascade)`  | Delete dependents    | Optional FK but child is meaningless without parent      |
+| `@onDelete(Restrict)` | Block deletion       | Protect referential integrity                            |
+| `@onDelete(NoAction)` | Leave dangling ref   | Audit logs, historical records                           |
+| _(array FK)_          | Remove ID from array | Automatic for all `Record[]` fields                      |

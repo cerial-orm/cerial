@@ -284,7 +284,8 @@ has_children: true # only on section index pages
 - **Relation** = Virtual field, not stored in DB. Forward has `@field()`, reverse doesn't
 - **CerialId** = Wrapper for record IDs with `.table`, `.id`, `.equals()`, `.toString()`
 - **RecordIdInput** = `string | CerialId | RecordId | StringRecordId` (accepted as input)
-- **NONE vs null** = SurrealDB distinguishes absent fields (NONE) from null-valued fields (null)
+- **NONE vs null** = SurrealDB distinguishes absent fields (NONE) from null-valued fields (null). `?` enables NONE (maps to `undefined`), `@nullable` enables null (maps to `| null`). They are independent modifiers
+- **@nullable** = Field-level decorator enabling explicit null values. `@nullable` on its own = required nullable (`T | null`). With `?` = optional nullable (`T | null | undefined`). Not allowed on object/tuple fields (SurrealDB can't define sub-fields on nullable parents). Allowed on tuple elements. `@default(null)` requires `@nullable`. Affects disconnect (NULL vs NONE) and default `@onDelete` (SetNull vs SetNone)
 - **PK side** = Forward relation with `Record` + `Relation @field` (stores FK)
 - **Non-PK side** = Reverse relation with `Relation @model` only (queries related table)
 - **@now** = COMPUTED `time::now()` — not stored, computed at query time. Output-only (excluded from Create/Update/Where)
@@ -304,16 +305,19 @@ has_children: true # only on section index pages
 
 - E2E tests MUST use `--preload` flag or generated client won't exist
 - Array fields default to `[]` on create if not provided
-- `null` without `@default(null)` is treated as NONE (field absent)
+- `null` requires `@nullable` on the field — without it, passing `null` is a validation error
+- `@default(null)` requires `@nullable` — null default on a non-nullable field is invalid
 - `id Record @id` fields skip the "Record needs paired Relation" validation
 - Optional object fields (`Address?`) produce `field?: Address` (NOT `| null` like primitives)
 - `select` within `include` is type-level only - runtime returns full related objects
 - `none` quantifier for array object where uses `!(arr.any(...))` syntax for SurrealDB 3.x compatibility
 - `@onDelete` is only allowed on optional `Relation?` fields - required relations auto-cascade
 - N:N relations require BOTH sides to define `Record[]` + `Relation[]` for bidirectional sync
+- N:N relations require BOTH sides to define `Record[]` + `Relation[]` for bidirectional sync
 - `CerialQueryPromise` is a thenable (not `instanceof Promise`) — bun's `expect().rejects` requires wrapping: `await expect((async () => { await query; })()).rejects.toThrow()`
 - `$transaction` queries are independent — one query cannot reference another's result
 - Tuple output is always array form `[1.5, 2.5]` — never object form, even when elements are named
 - Optional tuple fields (`Coordinate?`) produce `field?: Coordinate` (NOT `| null` like primitives) in output, but update type includes `| null` for clearing (null → NONE)
+- `@nullable` is not allowed on object/tuple fields — SurrealDB can't define sub-fields on nullable parents. Allowed on tuple elements.
 - Tuple array push with single tuple `[3, 4]` is wrapped to `[[3, 4]]` for SurrealDB `+=` to add one element (not two)
 - No Record/Relation types allowed in tuple elements

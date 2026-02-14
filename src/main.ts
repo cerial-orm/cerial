@@ -273,6 +273,8 @@ export {
   handleGte,
   handleIn,
   handleIsDefined,
+  handleIsNotDefined,
+  handleIsNotNull,
   handleIsNull,
   handleLt,
   handleLte,

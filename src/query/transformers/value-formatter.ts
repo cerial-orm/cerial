@@ -3,12 +3,19 @@
  */
 
 import type { SchemaFieldType } from '../../types';
+import { isNone } from '../../utils/none';
 import { escapeString } from '../../utils/string-utils';
 
 /** Format a value for direct inclusion in a query (non-parameterized) */
 export function formatValue(value: unknown, fieldType: SchemaFieldType): string {
-  if (value === null || value === undefined) {
+  // NONE sentinel or undefined → SurrealDB NONE (field absent)
+  if (value === undefined || isNone(value)) {
     return 'NONE';
+  }
+
+  // null → SurrealDB NULL (explicit null value, for @nullable fields)
+  if (value === null) {
+    return 'NULL';
   }
 
   switch (fieldType) {

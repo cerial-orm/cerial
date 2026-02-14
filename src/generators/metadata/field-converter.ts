@@ -62,6 +62,11 @@ export function convertField(field: ASTField): FieldMetadata {
     metadata.isReadonly = true;
   }
 
+  // Handle @nullable decorator
+  if (hasDecorator(field, 'nullable') || field.isNullable) {
+    metadata.isNullable = true;
+  }
+
   // Handle object type (fields will be resolved later by resolveObjectFields)
   if (field.type === 'object' && field.objectName) {
     metadata.objectInfo = { objectName: field.objectName, fields: [] };
@@ -94,7 +99,7 @@ export function convertField(field: ASTField): FieldMetadata {
 
       // Add onDelete action if specified
       if (onDeleteDecorator?.value) {
-        relationInfo.onDelete = onDeleteDecorator.value as 'Cascade' | 'SetNull' | 'Restrict' | 'NoAction';
+        relationInfo.onDelete = onDeleteDecorator.value as 'Cascade' | 'SetNull' | 'SetNone' | 'Restrict' | 'NoAction';
       }
 
       // Add key for disambiguation if specified

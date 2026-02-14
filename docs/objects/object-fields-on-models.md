@@ -36,7 +36,7 @@ An optional object field can be omitted entirely on create. When omitted, it is 
 
 {: .important }
 
-> Optional object fields produce `field?: ObjectType` — there is **no** `| null` in the type, unlike optional primitive fields which produce `field?: string | null`. This is because embedded objects are either present or absent, not null.
+> Optional object fields produce `field?: ObjectType` — there is **no** `| null` in the type. Embedded objects are either present or absent (NONE), not null. The `@nullable` decorator is not supported on object-type fields because SurrealDB cannot define sub-fields on a nullable parent.
 
 ## Array of Objects
 

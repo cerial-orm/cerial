@@ -8,6 +8,6 @@ model Team {
 model Member {
   id Record @id
   name String
-  teamId Record?
+  teamId Record? @nullable
   team Relation? @field(teamId) @model(Team) @onDelete(Cascade)
 }

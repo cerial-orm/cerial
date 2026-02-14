@@ -81,9 +81,9 @@ describe('Type Mapper', () => {
       expect(generateTypeClause('string', true)).toBe('TYPE string');
     });
 
-    test('should generate TYPE option<string | null> for optional string field', () => {
-      // option<T | null> allows both NONE (absent) and null (explicit null value)
-      expect(generateTypeClause('string', false)).toBe('TYPE option<string | null>');
+    test('should generate TYPE option<string> for optional string field', () => {
+      // option<T> allows NONE (absent) or typed value — null requires @nullable
+      expect(generateTypeClause('string', false)).toBe('TYPE option<string>');
     });
 
     test('should generate TYPE int for required int field', () => {
@@ -194,6 +194,71 @@ describe('Type Mapper', () => {
       };
 
       expect(generateTypeClause('string', true, field)).toBe('TYPE array<string>');
+    });
+
+    test('should generate TYPE string | null for required @nullable string field', () => {
+      const field: FieldMetadata = {
+        name: 'bio',
+        type: 'string',
+        isRequired: true,
+        isId: false,
+        isUnique: false,
+        isNullable: true,
+      };
+
+      expect(generateTypeClause('string', true, field)).toBe('TYPE string | null');
+    });
+
+    test('should generate TYPE option<string | null> for optional @nullable string field', () => {
+      const field: FieldMetadata = {
+        name: 'bio',
+        type: 'string',
+        isRequired: false,
+        isId: false,
+        isUnique: false,
+        isNullable: true,
+      };
+
+      expect(generateTypeClause('string', false, field)).toBe('TYPE option<string | null>');
+    });
+
+    test('should generate TYPE int | null for required @nullable int field', () => {
+      const field: FieldMetadata = {
+        name: 'age',
+        type: 'int',
+        isRequired: true,
+        isId: false,
+        isUnique: false,
+        isNullable: true,
+      };
+
+      expect(generateTypeClause('int', true, field)).toBe('TYPE int | null');
+    });
+
+    test('should generate TYPE option<datetime | null> for optional @nullable date field', () => {
+      const field: FieldMetadata = {
+        name: 'deletedAt',
+        type: 'date',
+        isRequired: false,
+        isId: false,
+        isUnique: false,
+        isNullable: true,
+      };
+
+      expect(generateTypeClause('date', false, field)).toBe('TYPE option<datetime | null>');
+    });
+
+    test('should generate TYPE option<string> for optional non-@nullable field (no null)', () => {
+      const field: FieldMetadata = {
+        name: 'bio',
+        type: 'string',
+        isRequired: false,
+        isId: false,
+        isUnique: false,
+        // isNullable not set
+      };
+
+      expect(generateTypeClause('string', false, field)).toBe('TYPE option<string>');
     });
   });
 

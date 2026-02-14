@@ -124,7 +124,7 @@ describe('delete-builder', () => {
   });
 
   describe('buildDeleteWithCascade', () => {
-    test('uses SetNull by default for optional relations without @onDelete', () => {
+    test('uses SetNone by default for optional relations without @onDelete', () => {
       const { ast } = parse(schemaNoOnDelete);
       const registry = astToRegistry(ast);
       const userModel = registry.User!;
@@ -132,11 +132,11 @@ describe('delete-builder', () => {
       const where = { id: 'user:123' };
       const query = buildDeleteWithCascade(userModel, where, registry);
 
-      // Optional relations without @onDelete default to SetNull behavior
-      // This means a transaction is used to clean up the FK reference
+      // Optional non-@nullable relations without @onDelete default to SetNone behavior
+      // This means a transaction is used to clear the FK reference (set to NONE/absent)
       expect(query.text).toContain('BEGIN TRANSACTION');
       expect(query.text).toContain('LET $to_delete = (SELECT id FROM user');
-      expect(query.text).toContain('UPDATE profile SET userId = NULL WHERE userId IN $to_delete.id');
+      expect(query.text).toContain('UPDATE profile SET userId = NONE WHERE userId IN $to_delete.id');
       expect(query.text).toContain('DELETE FROM user');
       expect(query.text).toContain('RETURN BEFORE');
       expect(query.text).toContain('COMMIT TRANSACTION');

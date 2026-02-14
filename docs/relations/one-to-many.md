@@ -43,12 +43,12 @@ model Post {
   id Record @id
   title String
   authorId Record?                                        # FK storage (optional)
-  author Relation? @field(authorId) @model(User) @onDelete(SetNull)
+  author Relation? @field(authorId) @model(User)
 }
 ```
 
 - `Post.authorId` is `Record?` — a Post can exist without an author.
-- Deleting a User **sets `authorId` to null** on all Posts (default for optional relations).
+- Deleting a User **removes `authorId`** from all Posts (default `SetNone` for optional relations). Add `@nullable` to `authorId` for `SetNull` behavior instead.
 
 ## Creating Records
 
@@ -166,7 +166,7 @@ await db.Post.updateMany({
   where: { id: postId },
   data: { author: { disconnect: true } },
 });
-// Sets authorId to null
+// Removes authorId (NONE) — or sets to NULL if authorId has @nullable
 ```
 
 ### Add posts to a user from the reverse side
@@ -185,9 +185,10 @@ await db.User.updateMany({
 
 ## Delete Behavior
 
-| FK Type              | Default Behavior                    | Configurable         |
-| -------------------- | ----------------------------------- | -------------------- |
-| Required (`Record`)  | Cascade — deletes all related Posts | No (always cascade)  |
-| Optional (`Record?`) | SetNull — sets `authorId` to null   | Yes, via `@onDelete` |
+| FK Type                                      | Default Behavior                    | Configurable         |
+| -------------------------------------------- | ----------------------------------- | -------------------- |
+| Required (`Record`)                          | Cascade — deletes all related Posts | No (always cascade)  |
+| Optional (`Record?`)                         | SetNone — removes `authorId` (NONE) | Yes, via `@onDelete` |
+| Optional + `@nullable` (`Record? @nullable`) | SetNull — sets `authorId` to null   | Yes, via `@onDelete` |
 
 See [Delete Behavior](on-delete.md) for all `@onDelete` options.

@@ -50,8 +50,20 @@ describe('Object Where Generator', () => {
       expect(result).toContain('endsWith?');
     });
 
-    test('should generate where with optional string field (adds not, isNull)', () => {
+    test('should generate where with optional string field (adds not, isNone)', () => {
       const addr = obj('Address', [field({ name: 'zipCode', type: 'string', isRequired: false })]);
+
+      const result = generateObjectWhereInterface(addr);
+
+      expect(result).toContain('zipCode?:');
+      expect(result).not.toContain('null |'); // no nullable prefix without @nullable
+      expect(result).toContain('not?');
+      expect(result).toContain('isNone?');
+      expect(result).not.toContain('isNull?');
+    });
+
+    test('should generate where with @nullable field (adds not, isNull)', () => {
+      const addr = obj('Address', [field({ name: 'zipCode', type: 'string', isRequired: true, isNullable: true })]);
 
       const result = generateObjectWhereInterface(addr);
 
@@ -59,6 +71,19 @@ describe('Object Where Generator', () => {
       expect(result).toContain('null |'); // nullable prefix
       expect(result).toContain('not?');
       expect(result).toContain('isNull?');
+      expect(result).not.toContain('isNone?'); // Not optional, so no isNone
+    });
+
+    test('should generate where with optional @nullable field (adds not, isNull, isNone)', () => {
+      const addr = obj('Address', [field({ name: 'zipCode', type: 'string', isRequired: false, isNullable: true })]);
+
+      const result = generateObjectWhereInterface(addr);
+
+      expect(result).toContain('zipCode?:');
+      expect(result).toContain('null |'); // nullable prefix
+      expect(result).toContain('not?');
+      expect(result).toContain('isNull?');
+      expect(result).toContain('isNone?');
     });
 
     test('should generate where with AND/OR/NOT logical operators', () => {

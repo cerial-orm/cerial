@@ -56,7 +56,7 @@ describe('Readonly Migration Generator', () => {
 
       const stmts = generateModelDefineStatements(m);
       const scoreStmt = stmts.find((s) => s.includes(' score '));
-      expect(scoreStmt).toContain('TYPE option<int | null>');
+      expect(scoreStmt).toContain('TYPE option<int>');
       expect(scoreStmt).toContain('READONLY');
     });
 

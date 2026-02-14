@@ -97,6 +97,18 @@ function convertTupleElement(element: import('../../types').ASTTupleElement, ind
   };
 
   if (element.name) metadata.name = element.name;
+  if (element.isNullable) metadata.isNullable = true;
+
+  // Handle decorators on tuple elements
+  if (element.decorators?.length) {
+    for (const dec of element.decorators) {
+      if (dec.type === 'default') metadata.defaultValue = dec.value;
+      if (dec.type === 'defaultAlways') metadata.defaultAlwaysValue = dec.value;
+      if (dec.type === 'createdAt') metadata.timestampDecorator = 'createdAt';
+      if (dec.type === 'updatedAt') metadata.timestampDecorator = 'updatedAt';
+    }
+  }
+
   if (element.type === 'object' && element.objectName) {
     metadata.objectInfo = { objectName: element.objectName, fields: [] };
   }

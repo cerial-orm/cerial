@@ -51,7 +51,7 @@ describe('Object Interface Generator', () => {
       expect(result).toContain('city: string;');
     });
 
-    test('should generate object interface with optional field (nullable)', () => {
+    test('should generate object interface with optional field', () => {
       const addr = obj('Address', [
         field({ name: 'street', type: 'string', isRequired: true }),
         field({ name: 'zipCode', type: 'string', isRequired: false }),
@@ -60,7 +60,7 @@ describe('Object Interface Generator', () => {
       const result = generateObjectInterface(addr);
 
       expect(result).toContain('street: string;');
-      expect(result).toContain('zipCode?: string | null;');
+      expect(result).toContain('zipCode?: string;');
     });
 
     test('should generate object interface with array field', () => {
@@ -98,6 +98,30 @@ describe('Object Interface Generator', () => {
 
       expect(result).toContain('lat: number;');
       expect(result).toContain('label?: Address;');
+    });
+
+    test('should generate object interface with @nullable field', () => {
+      const addr = obj('Address', [
+        field({ name: 'street', type: 'string', isRequired: true }),
+        field({ name: 'zipCode', type: 'string', isRequired: true, isNullable: true }),
+      ]);
+
+      const result = generateObjectInterface(addr);
+
+      expect(result).toContain('street: string;');
+      expect(result).toContain('zipCode: string | null;');
+    });
+
+    test('should generate object interface with optional @nullable field', () => {
+      const addr = obj('Address', [
+        field({ name: 'street', type: 'string', isRequired: true }),
+        field({ name: 'zipCode', type: 'string', isRequired: false, isNullable: true }),
+      ]);
+
+      const result = generateObjectInterface(addr);
+
+      expect(result).toContain('street: string;');
+      expect(result).toContain('zipCode?: string | null;');
     });
 
     test('should generate object interface with Record field (uses CerialId)', () => {
@@ -334,7 +358,7 @@ describe('Object Interface Generator', () => {
 
       expect(result).toContain('export interface AddressCreateInput');
       expect(result).toContain('street: string;');
-      expect(result).toContain('city?: string | null;');
+      expect(result).toContain('city?: string;');
     });
 
     test('should make @now field optional', () => {
@@ -346,7 +370,7 @@ describe('Object Interface Generator', () => {
       const result = generateObjectCreateInputInterface(addr);
 
       expect(result).toContain('street: string;');
-      expect(result).toContain('createdAt?: Date | null;');
+      expect(result).toContain('createdAt?: Date;');
     });
 
     test('should keep already-optional fields optional', () => {
@@ -358,7 +382,7 @@ describe('Object Interface Generator', () => {
       const result = generateObjectCreateInputInterface(addr);
 
       expect(result).toContain('street: string;');
-      expect(result).toContain('zipCode?: string | null;');
+      expect(result).toContain('zipCode?: string;');
     });
 
     test('should make array fields optional in create (default to [])', () => {
@@ -383,7 +407,7 @@ describe('Object Interface Generator', () => {
       const result = generateObjectCreateInputInterface(o, registry);
 
       expect(result).toContain('label: string;');
-      expect(result).toContain('refId?: RecordIdInput | null;');
+      expect(result).toContain('refId?: RecordIdInput;');
     });
 
     test('should use nested CreateInput for objects with defaults', () => {
@@ -418,7 +442,7 @@ describe('Object Interface Generator', () => {
 
       const result = generateObjectCreateInputInterface(outer, registry);
 
-      expect(result).toContain('name?: string | null;');
+      expect(result).toContain('name?: string;');
       expect(result).toContain('inner: InnerInput;');
     });
 
@@ -430,8 +454,8 @@ describe('Object Interface Generator', () => {
 
       const result = generateObjectCreateInputInterface(o);
 
-      expect(result).toContain('createdAt?: Date | null;');
-      expect(result).toContain('status?: string | null;');
+      expect(result).toContain('createdAt?: Date;');
+      expect(result).toContain('status?: string;');
     });
 
     test('should handle optional object field in create', () => {

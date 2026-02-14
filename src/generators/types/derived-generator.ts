@@ -8,10 +8,18 @@
  */
 
 import type { FieldMetadata, ModelMetadata, ModelRegistry, ObjectRegistry } from '../../types';
+import { schemaTypeToTsType } from '../../utils/type-utils';
 import { objectHasDefaultOrTimestamp } from './objects/interface-generator';
 
 /** Whether to use ts-toolbelt utilities in generated types */
 const USE_TS_TOOLBELT = true;
+
+/** Get the TypeScript input type for a field (for use in update type generation) */
+function getInputType(field: FieldMetadata): string {
+  if (field.type === 'record') return 'RecordIdInput';
+
+  return schemaTypeToTsType(field.type);
+}
 
 /** Get fields that should be omitted from create (auto-generated or computed) */
 function getOmitForCreate(model: ModelMetadata): string[] {
@@ -488,9 +496,26 @@ export function generateUpdateType(model: ModelMetadata): string {
     ...readonlyFields.map((f) => f.name),
   ];
 
-  // Fields that need special handling (arrays, objects, and tuples) — omit from base Partial
+  // Primitive fields that need nullable/NONE handling in update
+  // These are non-array, non-relation, non-object, non-tuple fields that have @nullable or are optional
+  const nullableOrOptionalPrimitives = model.fields.filter((f) => {
+    if (f.isId) return false;
+    if (f.isReadonly) return false;
+    if (f.type === 'relation') return false;
+    if (f.type === 'object') return false;
+    if (f.type === 'tuple') return false;
+    if (f.isArray) return false;
+    if (f.timestampDecorator === 'now') return false;
+
+    // Only need special handling if nullable or optional (needs | null or | CerialNone)
+    return f.isNullable || !f.isRequired;
+  });
+
+  // Fields that need special handling (arrays, objects, tuples, and nullable/optional primitives) — omit from base Partial
   // Exclude @readonly fields from special handling — they're already excluded from update entirely
-  const specialFields = [...arrayFields, ...objectFields, ...tupleFields].filter((f) => !f.isReadonly);
+  const specialFields = [...arrayFields, ...objectFields, ...tupleFields, ...nullableOrOptionalPrimitives].filter(
+    (f) => !f.isReadonly,
+  );
   const hasSpecialFields = specialFields.length > 0;
 
   if (!hasSpecialFields) {
@@ -564,6 +589,11 @@ export function generateUpdateType(model: ModelMetadata): string {
     };
     unset?: { where: ${flexWhere} };
   };`);
+      } else if (!f.isRequired) {
+        // Optional flexible single object: partial merge, full replace, or CerialNone (to clear)
+        specialFieldTypes.push(
+          `  ${f.name}?: ${partialFlexInput} | { set: ${inputName} & Record<string, any> } | CerialNone;`,
+        );
       } else {
         specialFieldTypes.push(`  ${f.name}?: ${partialFlexInput} | { set: ${inputName} & Record<string, any> };`);
       }
@@ -582,8 +612,9 @@ export function generateUpdateType(model: ModelMetadata): string {
       // Required single object: partial merge or full replace
       specialFieldTypes.push(`  ${f.name}?: ${partialInput} | { set: ${inputName} };`);
     } else {
-      // Optional single object: partial merge or full replace (no null — object fields don't support null)
-      specialFieldTypes.push(`  ${f.name}?: ${partialInput} | { set: ${inputName} };`);
+      // Optional single object: partial merge, full replace, or CerialNone (to clear/remove)
+      // Objects cannot be @nullable (validated), so only NONE is supported for clearing
+      specialFieldTypes.push(`  ${f.name}?: ${partialInput} | { set: ${inputName} } | CerialNone;`);
     }
   }
 
@@ -598,12 +629,33 @@ export function generateUpdateType(model: ModelMetadata): string {
     push?: ${tupleInputName} | ${tupleInputName}[];
     set?: ${tupleInputName}[];
   };`);
-    } else if (f.isRequired) {
-      // Required single tuple: full replace only (tuples are positional, no partial merge)
+    } else if (f.isRequired && !f.isNullable) {
+      // Required non-nullable single tuple: full replace only
       specialFieldTypes.push(`  ${f.name}?: ${tupleInputName};`);
-    } else {
-      // Optional single tuple: full replace or null (null → NONE at runtime)
+    } else if (f.isRequired && f.isNullable) {
+      // Required nullable single tuple: full replace or null (to set null)
       specialFieldTypes.push(`  ${f.name}?: ${tupleInputName} | null;`);
+    } else if (!f.isRequired && f.isNullable) {
+      // Optional nullable single tuple: full replace, null, or CerialNone (to clear)
+      specialFieldTypes.push(`  ${f.name}?: ${tupleInputName} | null | CerialNone;`);
+    } else {
+      // Optional non-nullable single tuple: full replace or CerialNone (to clear)
+      specialFieldTypes.push(`  ${f.name}?: ${tupleInputName} | CerialNone;`);
+    }
+  }
+
+  // Nullable/optional primitive fields — need | null or | CerialNone in update
+  for (const f of nullableOrOptionalPrimitives.filter((pf) => !pf.isReadonly)) {
+    const tsType = getInputType(f);
+    if (f.isNullable && !f.isRequired) {
+      // Optional + nullable: can set value, null, or NONE
+      specialFieldTypes.push(`  ${f.name}?: ${tsType} | null | CerialNone;`);
+    } else if (f.isNullable) {
+      // Required + nullable: can set value or null
+      specialFieldTypes.push(`  ${f.name}?: ${tsType} | null;`);
+    } else {
+      // Optional + non-nullable: can set value or NONE
+      specialFieldTypes.push(`  ${f.name}?: ${tsType} | CerialNone;`);
     }
   }
 

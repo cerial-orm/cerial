@@ -67,4 +67,4 @@ Only `authorId` is persisted to the database. Both `author` and `posts` are reso
 - [Multiple Relations](multi-relation.md) — Multiple relations between the same models using `@key`
 - [Nested Create](nested-create.md) — Creating related records inline
 - [Connect & Disconnect](connect-disconnect.md) — Linking and unlinking existing records
-- [Delete Behavior](on-delete.md) — Cascade, SetNull, Restrict, and NoAction
+- [Delete Behavior](on-delete.md) — Cascade, SetNull, SetNone, Restrict, and NoAction

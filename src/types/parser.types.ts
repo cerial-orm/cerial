@@ -76,6 +76,8 @@ export interface ASTField {
   name: string;
   type: SchemaFieldType;
   isOptional: boolean;
+  /** Whether the field has @nullable decorator (can hold null as a value) */
+  isNullable?: boolean;
   isArray?: boolean; // true for Record[] or Object[] type
   decorators: ASTDecorator[];
   range: SourceRange;
@@ -109,6 +111,10 @@ export interface ASTTupleElement {
   type: SchemaFieldType;
   /** Whether this element is optional (e.g., Float?) */
   isOptional: boolean;
+  /** Whether the element has @nullable decorator (can hold null as a value) */
+  isNullable?: boolean;
+  /** Decorators on the tuple element (e.g., @nullable, @default, @createdAt, @updatedAt) */
+  decorators?: ASTDecorator[];
   /** For object-typed elements: the name of the referenced object definition */
   objectName?: string;
   /** For tuple-typed elements: the name of the referenced tuple definition */

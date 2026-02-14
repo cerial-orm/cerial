@@ -119,15 +119,24 @@ await db.Post.updateMany({
 ## Setting Optional Fields to null or NONE
 
 ```typescript
-// Set to null (field present with null value)
+// Set to null — requires @nullable on the field
 await db.User.updateMany({
   where: { id: userId },
   data: { bio: null },
 });
+// SurrealQL: UPDATE user SET bio = NULL
 
-// To remove a field entirely (NONE), omit it from the data object.
-// Fields not included in data are left unchanged.
+// Remove a field entirely (NONE) — requires ? on the field
+import { NONE } from 'cerial';
+
+await db.User.updateMany({
+  where: { id: userId },
+  data: { bio: NONE },
+});
+// SurrealQL: UPDATE user SET bio = NONE
 ```
+
+Fields not included in the `data` object are left unchanged.
 
 ## Return Value
 

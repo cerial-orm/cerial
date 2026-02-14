@@ -5,6 +5,7 @@
 import { RecordId, StringRecordId } from 'surrealdb';
 import type { ModelMetadata, SchemaFieldType } from '../../types';
 import { CerialId } from '../../utils/cerial-id';
+import { isNone } from '../../utils/none';
 import { isValidEmail, validateFieldType } from '../../utils/validation-utils';
 
 /** Check if value is a RecordIdInput type (valid for ID/Record fields) */
@@ -33,12 +34,38 @@ export function validateFieldValue(
   fieldType: SchemaFieldType,
   isRequired: boolean,
   isArray?: boolean,
+  isNullable?: boolean,
 ): DataValidationError | null {
-  // Check required
-  if (value === undefined || value === null) {
+  // NONE sentinel is always valid for optional fields (clear the field)
+  if (isNone(value)) {
+    if (isRequired) {
+      return { field: fieldName, message: `${fieldName} is required and cannot be set to NONE` };
+    }
+
+    return null;
+  }
+
+  // Check null — only allowed on @nullable fields
+  if (value === null) {
+    if (isRequired && !isNullable) {
+      return { field: fieldName, message: `${fieldName} is required` };
+    }
+    if (!isNullable) {
+      return {
+        field: fieldName,
+        message: `${fieldName} is not nullable — use NONE to unset, or add @nullable to the schema`,
+      };
+    }
+
+    return null;
+  }
+
+  // Check undefined (field omitted) — valid for optional or defaulted fields
+  if (value === undefined) {
     if (isRequired) {
       return { field: fieldName, message: `${fieldName} is required` };
     }
+
     return null;
   }
 
@@ -128,7 +155,7 @@ export function validateCreateData(
     // Skip Record fields that will be populated by nested operations
     if (field.type === 'record' && fieldsFromNestedOps.has(field.name)) continue;
 
-    const error = validateFieldValue(field.name, value, field.type, field.isRequired, field.isArray);
+    const error = validateFieldValue(field.name, value, field.type, field.isRequired, field.isArray, field.isNullable);
     if (error) {
       errors.push(error);
     }
@@ -168,8 +195,12 @@ export function validateUpdateData(data: Record<string, unknown>, model: ModelMe
       continue;
     }
 
+    // NONE sentinel is always valid in updates (clears the field)
+    if (isNone(value)) continue;
+
     // For updates, don't require fields - just validate types
-    const error = validateFieldValue(fieldName, value, field.type, false, field.isArray);
+    // Pass isNullable to correctly validate null values
+    const error = validateFieldValue(fieldName, value, field.type, false, field.isArray, field.isNullable);
     if (error) {
       errors.push(error);
     }

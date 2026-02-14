@@ -64,9 +64,31 @@ export function findRecordTargetTable(field: FieldMetadata, model: ModelMetadata
 }
 
 /**
+ * Wrap a SurrealQL type with option/null based on nullable/optional flags.
+ *
+ * Semantics:
+ * - Required + not nullable: `T`
+ * - Required + nullable: `T | null`
+ * - Optional + not nullable: `option<T>`
+ * - Optional + nullable: `option<T | null>`
+ */
+function wrapTypeModifiers(baseType: string, isRequired: boolean, isNullable?: boolean): string {
+  if (isRequired && !isNullable) return baseType;
+  if (isRequired && isNullable) return `${baseType} | null`;
+  if (!isRequired && !isNullable) return `option<${baseType}>`;
+
+  return `option<${baseType} | null>`;
+}
+
+/**
  * Generate the TYPE clause for a field
  * Handles Record and Record[] with proper record<table> syntax
  * Handles primitive arrays like String[], Int[], Date[]
+ *
+ * NONE vs null semantics:
+ * - `field?` → `option<T>` (NONE only — field absent or typed value)
+ * - `field @nullable` → `T | null` (null only — required but can be null)
+ * - `field? @nullable` → `option<T | null>` (both NONE and null)
  */
 export function generateTypeClause(
   schemaType: SchemaFieldType,
@@ -75,6 +97,8 @@ export function generateTypeClause(
   model?: ModelMetadata,
   tupleRegistry?: TupleRegistry,
 ): string {
+  const isNullable = field?.isNullable;
+
   // Handle Record types with target table
   if (schemaType === 'record' && field && model) {
     const targetTable = findRecordTargetTable(field, model);
@@ -85,22 +109,16 @@ export function generateTypeClause(
         return `TYPE array<record<${targetTable}>>`;
       }
 
-      // Single Record type: record<table> or option<record<table> | null>
-      // Optional record fields can be NONE (absent) or null (for querying)
-      if (isRequired) {
-        return `TYPE record<${targetTable}>`;
-      }
-
-      return `TYPE option<record<${targetTable}> | null>`;
+      // Single Record type with nullable/optional modifiers
+      return `TYPE ${wrapTypeModifiers(`record<${targetTable}>`, isRequired, isNullable)}`;
     }
 
     // Fallback if no target table found
     if (field.isArray) {
       return 'TYPE array<record>';
     }
-    if (isRequired) return 'TYPE record';
 
-    return 'TYPE option<record | null>';
+    return `TYPE ${wrapTypeModifiers('record', isRequired, isNullable)}`;
   }
 
   // Handle tuple types — emit typed array literal [type1, type2, ...]
@@ -108,10 +126,9 @@ export function generateTypeClause(
     const tupleLiteral = generateTupleSurrealTypeLiteral(field.tupleInfo, tupleRegistry);
 
     if (field.isArray) return `TYPE array<${tupleLiteral}>`;
-    if (isRequired) return `TYPE ${tupleLiteral}`;
 
-    // Optional tuples don't support null — only NONE (absent) or a valid tuple value
-    return `TYPE option<${tupleLiteral}>`;
+    // Tuples can be @nullable (unlike objects) — SurrealDB supports `[T, T] | null`
+    return `TYPE ${wrapTypeModifiers(tupleLiteral, isRequired, isNullable)}`;
   }
 
   // Handle primitive array types (String[], Int[], Date[], etc.)
@@ -120,22 +137,21 @@ export function generateTypeClause(
     return `TYPE array<${surrealType}>`;
   }
 
-  // Standard types
-  // For optional fields: option<T | null> allows both NONE and null
-  // - NONE: field is absent (user passes undefined)
-  // - null: field exists with null value (user passes null)
-  // Exception: object and tuple fields don't support null (only NONE or value)
+  // Standard types with nullable/optional modifiers
+  // Objects cannot be @nullable (validated), so they'll only get option<object> for optional
   const surrealType = mapToSurrealType(schemaType);
-  if (isRequired) return `TYPE ${surrealType}`;
 
-  if (schemaType === 'object') return `TYPE option<${surrealType}>`;
-
-  return `TYPE option<${surrealType} | null>`;
+  return `TYPE ${wrapTypeModifiers(surrealType, isRequired, isNullable)}`;
 }
 
 /**
  * Generate the SurrealDB type literal for a tuple element.
  * Handles primitives, objects, and nested tuples recursively.
+ *
+ * Uses same nullable/optional semantics as model fields:
+ * - optional → option<T>
+ * - @nullable → T | null
+ * - optional + @nullable → option<T | null>
  */
 function generateTupleElementSurrealType(element: TupleElementMetadata, tupleRegistry?: TupleRegistry): string {
   let baseType: string;
@@ -149,9 +165,7 @@ function generateTupleElementSurrealType(element: TupleElementMetadata, tupleReg
     baseType = mapToSurrealType(element.type);
   }
 
-  if (element.isOptional) return `option<${baseType}>`;
-
-  return baseType;
+  return wrapTypeModifiers(baseType, !element.isOptional, element.isNullable);
 }
 
 /**

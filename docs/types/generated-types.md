@@ -93,12 +93,12 @@ export interface User {
   id: CerialId;
   email: string;
   name: string;
-  age?: number | null;
+  age?: number;
   isActive: boolean;
   createdAt: Date;
   address: Address;
   shipping?: Address;
-  profileId?: CerialId | null;
+  profileId?: CerialId;
   tagIds: CerialId[];
   nicknames: string[];
 }
@@ -107,10 +107,10 @@ export interface User {
 Key points:
 
 - `id` is `CerialId`, not `string`
-- `age` is `number | null` with `?` (optional) — can be NONE or null
+- `age` is `number` with `?` (optional) — can be a number or NONE (absent). Add `@nullable` to allow null.
 - `isActive` is non-optional in output even though it has `@default` — the default ensures it always has a value
 - `shipping` is `Address` with `?` (optional) — object fields use `undefined`, not `| null`
-- `profileId` is `CerialId | null` with `?` — record refs can be NONE or null in types (though null becomes NONE at runtime)
+- `profileId` is `CerialId` with `?` — optional record ref can be a value or NONE. Add `@nullable` to allow null.
 - `tagIds` and `nicknames` are non-optional arrays — array fields always have a value (default `[]`)
 
 ## Example: Generated Create Type
@@ -119,12 +119,12 @@ Key points:
 export interface UserCreate {
   email: string;
   name: string;
-  age?: number | null;
+  age?: number;
   isActive?: boolean; // Optional — has @default(true)
   createdAt?: Date; // Optional — has @createdAt
   address: AddressInput;
   shipping?: AddressInput;
-  profileId?: RecordIdInput | null;
+  profileId?: RecordIdInput;
   tagIds?: RecordIdInput[]; // Optional — defaults to []
   nicknames?: string[]; // Optional — defaults to []
   // Relation fields use nested operations
@@ -148,11 +148,11 @@ Key differences from the output interface:
 export interface UserUpdate {
   email?: string;
   name?: string;
-  age?: number | null;
+  age?: number | typeof NONE;
   isActive?: boolean;
   address?: AddressInput | { set: AddressInput };
   shipping?: AddressInput | { set: AddressInput };
-  profileId?: RecordIdInput | null;
+  profileId?: RecordIdInput | typeof NONE;
   tagIds?: RecordIdInput[];
   nicknames?: string[] | { push: string | string[] } | { unset: string | string[] };
   // Relation fields use update operations
@@ -168,6 +168,8 @@ export interface UserUpdate {
 Key features:
 
 - All fields are optional (only update what you need)
+- Optional fields accept `NONE` sentinel to remove the field (set to NONE in SurrealDB)
+- `@nullable` fields also accept `null` to set the field to null
 - Object fields accept partial data (merge) or `{ set: ... }` (full replacement)
 - Array primitive fields support `{ push: ... }` and `{ unset: ... }` (value-based removal)
 - Relation fields support `create`, `connect`, and `disconnect` operations
@@ -180,14 +182,13 @@ export interface UserWhere {
   email?:
     | string
     | {
-        eq?: string | null;
-        neq?: string | null;
+        eq?: string;
+        neq?: string;
         contains?: string;
         startsWith?: string;
         endsWith?: string;
         in?: string[];
         notIn?: string[];
-        isNone?: boolean;
       };
   name?:
     | string
@@ -203,15 +204,16 @@ export interface UserWhere {
   age?:
     | number
     | {
-        eq?: number | null;
-        neq?: number | null;
+        eq?: number;
+        neq?: number;
         gt?: number;
         gte?: number;
         lt?: number;
         lte?: number;
         in?: number[];
         notIn?: number[];
-        isNone?: boolean;
+        isNone?: boolean; // available because age is optional (?)
+        isDefined?: boolean; // alias for !isNone
       };
   isActive?: boolean | { eq?: boolean; neq?: boolean };
   address?: AddressWhere;

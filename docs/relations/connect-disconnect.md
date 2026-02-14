@@ -84,14 +84,21 @@ await db.User.updateMany({
 
 ### Disconnect a Singular Relation
 
-Disconnecting a singular relation sets the FK to null. This only works on **optional** relations (`Record?`):
+Disconnecting a singular relation clears the FK. This only works on **optional** relations (`Record?`). The clear behavior depends on whether the FK has `@nullable`:
+
+| FK Schema                  | Disconnect sets FK to    | Description                       |
+| -------------------------- | ------------------------ | --------------------------------- |
+| `Record?` (no `@nullable`) | NONE (field removed)     | Field can only be value or absent |
+| `Record? @nullable`        | NULL (field set to null) | Field supports null               |
 
 ```typescript
-// Remove the author from a post (sets authorId to null)
+// Remove the author from a post
 await db.Post.updateMany({
   where: { id: postId },
   data: { author: { disconnect: true } },
 });
+// If authorId has @nullable: sets authorId = NULL
+// If authorId has no @nullable: sets authorId = NONE
 ```
 
 For singular relations, `disconnect` takes a boolean `true` — there is only one value to disconnect.
@@ -178,11 +185,11 @@ IF $exists_0_0 IS NONE { THROW "Cannot connect to non-existent User record" };
 
 ## Summary
 
-| Operation           | Singular Relation               | Array Relation              |
-| ------------------- | ------------------------------- | --------------------------- |
-| `connect` on create | Sets FK to record ID            | Sets FK array to record IDs |
-| `connect` on update | Replaces FK value               | Appends to FK array         |
-| `disconnect: true`  | Sets FK to null (optional only) | N/A                         |
-| `disconnect: [ids]` | N/A                             | Removes IDs from FK array   |
-| Bidirectional sync  | N/A                             | Automatic for N:N           |
-| Validation          | Target must exist               | All targets must exist      |
+| Operation           | Singular Relation                             | Array Relation              |
+| ------------------- | --------------------------------------------- | --------------------------- |
+| `connect` on create | Sets FK to record ID                          | Sets FK array to record IDs |
+| `connect` on update | Replaces FK value                             | Appends to FK array         |
+| `disconnect: true`  | Clears FK (NONE or NULL based on `@nullable`) | N/A                         |
+| `disconnect: [ids]` | N/A                                           | Removes IDs from FK array   |
+| Bidirectional sync  | N/A                                           | Automatic for N:N           |
+| Validation          | Target must exist                             | All targets must exist      |

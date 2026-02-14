@@ -1,6 +1,6 @@
 object ContactInfo {
   email Email
-  phone String?
+  phone String? @nullable
   city String @default("Unknown")
   createdAt Date @createdAt
   tags String[] @distinct

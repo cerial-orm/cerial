@@ -8,6 +8,6 @@ model UserNoAction {
 model ProfileNoAction {
   id Record @id
   bio String?
-  userId Record?
+  userId Record? @nullable
   user Relation? @field(userId) @model(UserNoAction) @onDelete(NoAction)
 }

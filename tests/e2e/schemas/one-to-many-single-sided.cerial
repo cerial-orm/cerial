@@ -7,6 +7,6 @@ model Article {
 model Comment {
   id Record @id
   text String
-  articleId Record?
+  articleId Record? @nullable
   article Relation? @field(articleId) @model(Article)
 }

@@ -36,6 +36,8 @@ export interface FieldMetadata {
   timestampDecorator?: 'now' | 'createdAt' | 'updatedAt';
   /** Whether the field is required (no ? marker) */
   isRequired: boolean;
+  /** Whether the field has @nullable decorator (can hold null as a value, distinct from NONE/absent) */
+  isNullable?: boolean;
   /** Default value if specified with @default(value) */
   defaultValue?: unknown;
   /** Default-always value if specified with @defaultAlways(value) — resets on every write */
@@ -89,6 +91,14 @@ export interface TupleElementMetadata {
   type: SchemaFieldType;
   /** Whether this element is optional */
   isOptional: boolean;
+  /** Whether the element has @nullable decorator (can hold null as a value) */
+  isNullable?: boolean;
+  /** Default value if specified with @default(value) on the element */
+  defaultValue?: unknown;
+  /** Default-always value if specified with @defaultAlways(value) on the element */
+  defaultAlwaysValue?: unknown;
+  /** Timestamp decorator on the element: 'createdAt' or 'updatedAt' */
+  timestampDecorator?: 'createdAt' | 'updatedAt';
   /** For object-typed elements: object metadata with inline fields */
   objectInfo?: ObjectFieldMetadata;
   /** For tuple-typed elements: tuple metadata with inline elements */

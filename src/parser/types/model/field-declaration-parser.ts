@@ -19,6 +19,7 @@ import {
   isFieldDecorator,
   isFlexibleDecorator,
   isIdDecorator,
+  isNullableDecorator,
   isReadonlyDecorator,
   isIndexDecorator,
   isKeyDecorator,
@@ -35,6 +36,7 @@ import {
   parseFieldDecorator,
   parseFlexibleDecorator,
   parseIdDecorator,
+  parseNullableDecorator,
   parseReadonlyDecorator,
   parseIndexDecorator,
   parseKeyDecorator,
@@ -111,6 +113,8 @@ export function parseDecorators(line: string, lineNumber: number): ASTDecorator[
       decorators.push(parseSortDecorator(token, range));
     } else if (isFlexibleDecorator(token)) {
       decorators.push(parseFlexibleDecorator(range));
+    } else if (isNullableDecorator(token)) {
+      decorators.push(parseNullableDecorator(range));
     } else if (isReadonlyDecorator(token)) {
       decorators.push(parseReadonlyDecorator(range));
     }
