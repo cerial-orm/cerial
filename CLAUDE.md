@@ -112,19 +112,21 @@ Schema (.cerial files) → Parser (AST) → Generators → TypeScript Client
 # Query
 curl -s -X POST http://127.0.0.1:8000/sql \
   -H "Accept: application/json" \
-  -H "NS: main" -H "DB: main" \
+  -H "surreal-ns: main" -H "surreal-db: main" \
   -u "root:root" \
   -d "YOUR SURREALQL HERE"
 
 # Multiple statements in one request (semicolon-separated)
 curl -s -X POST http://127.0.0.1:8000/sql \
   -H "Accept: application/json" \
-  -H "NS: main" -H "DB: main" \
+  -H "surreal-ns: main" -H "surreal-db: main" \
   -u "root:root" \
   -d "DEFINE TABLE test SCHEMALESS; CREATE test SET foo = [1,2,3]; SELECT foo[0] FROM test;"
 ```
 
-Use sandbox tests to validate assumptions about SurrealQL behavior before writing runtime code. Clean up test tables afterward with `REMOVE TABLE tablename`.
+**Important:** Use `surreal-ns` and `surreal-db` headers (NOT `NS`/`DB`). The short-form headers are rejected by SurrealDB.
+
+Sandbox testing is **allowed in plan mode** — it is investigative research to verify DB-level behavior, not a codebase modification. Always clean up test tables afterward with `REMOVE TABLE tablename`.
 
 **When query format changes**, update expectations in:
 
