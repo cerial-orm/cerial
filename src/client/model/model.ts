@@ -170,7 +170,7 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
   }
 
   /** Update records matching where clause */
-  updateMany(options: UpdateOptions<Partial<T>>): CerialQueryPromise<T[]> {
+  updateMany(options: UpdateOptions<Partial<T>> & { unset?: Record<string, unknown> }): CerialQueryPromise<T[]> {
     const compiled = compileUpdateMany(this.metadata, options as UpdateOptions<Record<string, unknown>>, this.registry);
 
     return new CerialQueryPromise<T[]>(
@@ -197,6 +197,7 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
   updateUnique<R extends UpdateUniqueReturn = undefined>(options: {
     where: WhereClause;
     data: Partial<T>;
+    unset?: Record<string, unknown>;
     select?: SelectClause;
     include?: IncludeClause;
     return?: R;
@@ -206,6 +207,7 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
       {
         where: options.where,
         data: options.data as Record<string, unknown>,
+        unset: options.unset,
         select: options.select,
         include: options.include,
         return: options.return,
@@ -315,6 +317,7 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
     where: Record<string, unknown>;
     create: Record<string, unknown>;
     update?: Record<string, unknown>;
+    unset?: Record<string, unknown>;
     select?: Record<string, boolean>;
     include?: Record<string, boolean | object>;
     return?: R;
@@ -325,6 +328,7 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
         where: options.where,
         create: options.create,
         update: options.update,
+        unset: options.unset,
         select: options.select,
         include: options.include,
         return: options.return,

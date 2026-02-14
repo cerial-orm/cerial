@@ -23,6 +23,7 @@ For each model in your schema, Cerial generates the following types:
 | `UserSelect`               | Field selection type. Each field is `boolean`. Object fields accept `boolean \| ObjectSelect` for sub-field narrowing. Tuple fields with object elements accept `boolean \| TupleSelect`.                         |
 | `UserInclude`              | Relation include type. Each relation accepts `boolean` or an object with nested `where`, `select`, `include`, `orderBy`, `limit`, `offset`.                                                                       |
 | `UserOrderBy`              | Ordering type. Each field accepts `'asc' \| 'desc'`. Supports nested object field ordering.                                                                                                                       |
+| `UserUnset`                | Unset type for `updateMany()`, `updateUnique()`, and `upsert()`. Specifies which optional fields to remove (set to NONE). Supports nested object fields and tuple elements.                                       |
 | `UserFindUniqueWhere`      | Where clause for unique lookups. Requires exactly one unique field (typically `id`).                                                                                                                              |
 | `User$Relations`           | Relation metadata mapping. Maps relation names to their target model and cardinality.                                                                                                                             |
 | `GetUserPayload<S, I>`     | Dynamic return type. Computes the result type based on `select` (`S`) and `include` (`I`) options. See [Dynamic Return Types](dynamic-return-types.md).                                                           |
@@ -56,8 +57,11 @@ For each `tuple` in your schema, Cerial generates a focused set of types. Tuples
 | `CoordinateWhere`  | Where clause type with named keys, index keys, and comparison operators for each element.                                                  |
 | `CoordinateUpdate` | Per-element update type — allows updating individual elements without replacing the entire tuple. See [Updating Tuples](../tuples/update). |
 | `CoordinateSelect` | Sub-field select type — only generated when the tuple contains object elements at any depth. See [Tuple Select](../tuples/select).         |
+| `CoordinateUnset`  | Per-element unset type — only generated when the tuple has optional elements. Allows unsetting individual tuple elements by name or index. |
 
 `CoordinateSelect` is conditionally generated: it only exists when the tuple has object elements (directly or via nested tuples). Primitive-only tuples use simple `boolean` selection on the parent model.
+
+`CoordinateUnset` is conditionally generated: it only exists when the tuple has at least one optional element. If the tuple field itself is optional, the model's `Unset` type accepts `true` (unset entire field) or `CoordinateUnset` (unset specific elements).
 
 Tuples do **not** generate: `OrderBy`, `Create`, `Include`, or `GetPayload` types.
 
@@ -177,6 +181,26 @@ Key features:
 - Object fields accept partial data (merge) or `{ set: ... }` (full replacement)
 - Array primitive fields support `{ push: ... }` and `{ unset: ... }` (value-based removal)
 - Relation fields support `create`, `connect`, and `disconnect` operations
+
+## Example: Generated Unset Type
+
+```typescript
+export interface UserUnset {
+  age?: true; // optional primitive — can be unset
+  shipping?: true | { zipCode?: true }; // optional object with optional children — unset whole or nested
+  address?: { zipCode?: true }; // required object with optional children — only nested unset
+  // Required primitives, arrays, relations, @readonly, and id are NOT included
+}
+```
+
+Key features:
+
+- Only optional fields or fields with optional children appear in `Unset`
+- `true` means "unset this entire field" (set to NONE in SurrealDB)
+- Object fields with optional children allow nested unset: `{ subField: true }`
+- Required objects with optional children only allow nested form (can't unset a required field)
+- `@readonly` fields, relations, arrays, and `id` are excluded
+- TypeScript prevents conflicts between `data` and `unset` using the `SafeUnset<Unset, Data>` utility type
 
 ## Example: Generated Where Type
 

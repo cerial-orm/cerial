@@ -151,6 +151,9 @@ export const tables = {
   // readonly.cerial (@readonly decorator)
   readonly: ['readonly_test', 'readonly_record'],
 
+  // unset.cerial (unset parameter tests)
+  unset: ['unset_test'],
+
   // tuples.cerial (tuple type tests)
   tuples: [
     'tuple_basic',

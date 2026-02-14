@@ -14,6 +14,7 @@ Updates a single record identified by a unique field. Provides flexible return o
 | --------- | ------------------------------------------ | -------- | -------------------------------------------------------------- |
 | `where`   | `UniqueWhereInput`                         | Yes      | Must contain a unique field; may include additional conditions |
 | `data`    | `UpdateInput`                              | Yes      | The fields and values to update                                |
+| `unset`   | `UnsetInput`                               | No       | Fields to remove (set to NONE) in bulk                         |
 | `select`  | `SelectInput`                              | No       | Narrow returned fields (not available with `return: 'before'`) |
 | `include` | `IncludeInput`                             | No       | Include relations (not available with `return: 'before'`)      |
 | `return`  | `undefined \| 'after' \| true \| 'before'` | No       | Controls the return value                                      |
@@ -108,6 +109,19 @@ const user = await db.User.updateUnique({
 });
 // Only updates if BOTH id matches AND isActive is true
 // Returns null if the record exists but isActive is false
+```
+
+## Unsetting Fields
+
+The `unset` parameter removes optional fields in bulk. See [`updateMany` — Unsetting Fields](update-many#unsetting-fields) for full details and examples. The behavior is identical for `updateUnique`:
+
+```typescript
+const user = await db.User.updateUnique({
+  where: { id: '123' },
+  data: { name: 'Updated' },
+  unset: { bio: true, address: { zip: true } },
+});
+// Updates name, removes bio and address.zip
 ```
 
 ## Nested Relation Operations

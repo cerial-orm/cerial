@@ -103,6 +103,7 @@ Schema (.cerial files) → Parser (AST) → Generators → TypeScript Client
 | `tests/e2e/tuples/`       | Tuple E2E tests           | 10 files |
 | `tests/e2e/transactions/` | Transaction E2E tests     | 10 files |
 | `tests/e2e/timestamps/`   | Timestamp E2E tests       | 1 file   |
+| `tests/e2e/unset/`        | Unset parameter E2E tests | ~9 files |
 | `tests/e2e/typechecks/`   | Compile-time type checks  | 25 files |
 
 **Sandbox testing** = Running raw SurrealQL against the live SurrealDB instance to verify DB-level behavior before implementing in code. Use this when you need to confirm how SurrealDB handles a specific query pattern (e.g., `$this` reconstruction, dot-notation merge, SELECT expression shapes). When the user says "sandbox test", execute queries via curl:
@@ -261,6 +262,10 @@ has_children: true # only on section index pages
     - Integration with other features (select, include, $transaction, nested relations)
   - **Unit tests must verify generated query structure** — Not just "contains this string" but the full shape: correct keywords, correct variable bindings, correct conditional logic per field
   - When in doubt, write more tests. A test that seems "obvious" today catches a regression tomorrow.
+- **E2E test file organization** — Each E2E feature folder (`tests/e2e/<feature>/`) should contain multiple focused test files, one per sub-topic. Do NOT put all tests in a single large file. Follow the pattern used by `tests/e2e/objects/` and `tests/e2e/tuples/`:
+  - One file per sub-topic (e.g., `primitive.test.ts`, `object.test.ts`, `deep-nested.test.ts`, `upsert.test.ts`, `validation.test.ts`)
+  - Shared helpers (client setup, cleanup) imported from a common helper file
+  - Each file should be independently runnable with `bun test tests/e2e/<feature>/<file> --preload ./tests/e2e/preload.ts`
 
 ### When Adding New Features
 
@@ -343,3 +348,6 @@ has_children: true # only on section index pages
 - Per-element update (object form) is NOT available on array tuple fields — only push/set
 - `TupleSelect` is only generated for tuples with object elements at any nesting depth — primitive-only tuples use boolean select
 - No Record/Relation types allowed in tuple elements
+- **SurrealDB tuple+object bug** — SurrealDB has a bug where optional tuple fields with sub-field constraints (`DEFINE FIELD field[N]`) get initialized as `{}` (empty object) instead of NONE when the parent is absent and certain optional object fields exist on the same table. Mitigation: skip `DEFINE FIELD` for ALL primitive tuple elements that have no decorators and are not `@nullable` (the parent tuple type literal already enforces element types, length, and optionality). Only emit sub-field constraints for elements with decorators (`@default`, `@defaultAlways`, `@createdAt`, `@updatedAt`) or `@nullable`. A schema validator (`validateTupleObjectCombination()`) errors when a model combines an optional tuple with required-decorated elements and an optional object field
+- **`unset` parameter** — Available on `updateMany`, `updateUnique`, and `upsert` (update portion). Uses object form syntax: `{ field: true }` for flat fields, `{ object: { subField: true } }` for nested. Tuple elements use `$this` reconstruction (`SET field = [$this.field[0], NONE, $this.field[2]]`). Runtime merges unset fields into data as NONE values before processing. `SafeUnset<Unset, Data>` prevents data/unset conflicts at compile time
+- **No relation orderBy** — SurrealDB 3.x does not resolve record-link dot notation in ORDER BY (e.g., `ORDER BY authorId.name ASC` silently returns insertion order). Relation fields are excluded from `{Model}OrderBy` types. Object field ordering works fine. OrderBy inside `include` (ordering included children) is unaffected — that uses subqueries

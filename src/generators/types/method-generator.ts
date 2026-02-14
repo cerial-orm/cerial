@@ -398,9 +398,14 @@ export function generateCreateMethod(model: ModelMetadata): string {
 export function generateUpdateMethod(model: ModelMetadata): string {
   // UpdateMany doesn't support include, only select
   // Use UpdateInput to support both raw fields and nested relations
-  return `updateMany<S extends ${model.name}Select | undefined = undefined>(options: {
+  // Generic D enables SafeUnset to cross-exclude fields that appear in data
+  return `updateMany<
+    S extends ${model.name}Select | undefined = undefined,
+    D extends ${model.name}UpdateInput = ${model.name}UpdateInput
+  >(options: {
     where: ${model.name}Where;
-    data: ${model.name}UpdateInput;
+    data: D;
+    unset?: SafeUnset<${model.name}Unset, D>;
     select?: S;
   }): CerialQueryPromise<Get${model.name}Payload<S>[]>;`;
 }
@@ -439,10 +444,12 @@ export function generateUpdateUniqueMethod(model: ModelMetadata): string {
     // No relations - simpler generic signature (no include)
     return `updateUnique<
     S extends ${model.name}Select | undefined = undefined,
+    D extends ${model.name}UpdateInput = ${model.name}UpdateInput,
     R extends UpdateUniqueReturn = undefined
   >(options: {
     where: ${model.name}FindUniqueWhere;
-    data: ${model.name}UpdateInput;
+    data: D;
+    unset?: SafeUnset<${model.name}Unset, D>;
     select?: S;
     /**
      * Return option for the updated record
@@ -458,10 +465,12 @@ export function generateUpdateUniqueMethod(model: ModelMetadata): string {
   return `updateUnique<
     S extends ${model.name}Select | undefined = undefined,
     I extends ${model.name}Include | undefined = undefined,
+    D extends ${model.name}UpdateInput = ${model.name}UpdateInput,
     R extends UpdateUniqueReturn = undefined
   >(options: {
     where: ${model.name}FindUniqueWhere;
-    data: ${model.name}UpdateInput;
+    data: D;
+    unset?: SafeUnset<${model.name}Unset, D>;
     select?: S;
     include?: I;
     /**
@@ -492,11 +501,13 @@ function generateUpsertUniqueOverload(model: ModelMetadata): string {
   if (!hasRelations(model)) {
     return `upsert<
     S extends ${model.name}Select | undefined = undefined,
+    D extends ${model.name}UpdateInput = ${model.name}UpdateInput,
     R extends UpsertReturn = undefined
   >(options: {
     where: ${model.name}FindUniqueWhere;
     create: ${model.name}CreateInput;
-    update?: ${model.name}UpdateInput;
+    update?: D;
+    unset?: SafeUnset<${model.name}Unset, D>;
     select?: S;
     /**
      * Return option for the upserted record
@@ -511,11 +522,13 @@ function generateUpsertUniqueOverload(model: ModelMetadata): string {
   return `upsert<
     S extends ${model.name}Select | undefined = undefined,
     I extends ${model.name}Include | undefined = undefined,
+    D extends ${model.name}UpdateInput = ${model.name}UpdateInput,
     R extends UpsertReturn = undefined
   >(options: {
     where: ${model.name}FindUniqueWhere;
     create: ${model.name}CreateInput;
-    update?: ${model.name}UpdateInput;
+    update?: D;
+    unset?: SafeUnset<${model.name}Unset, D>;
     select?: S;
     include?: I;
     /**
@@ -533,11 +546,13 @@ function generateUpsertArrayOverload(model: ModelMetadata): string {
   if (!hasRelations(model)) {
     return `upsert<
     S extends ${model.name}Select | undefined = undefined,
+    D extends ${model.name}UpdateInput = ${model.name}UpdateInput,
     R extends UpsertReturn = undefined
   >(options: {
     where: ${model.name}Where;
     create: ${model.name}CreateInput;
-    update?: ${model.name}UpdateInput;
+    update?: D;
+    unset?: SafeUnset<${model.name}Unset, D>;
     select?: S;
     /**
      * Return option for the upserted record
@@ -552,11 +567,13 @@ function generateUpsertArrayOverload(model: ModelMetadata): string {
   return `upsert<
     S extends ${model.name}Select | undefined = undefined,
     I extends ${model.name}Include | undefined = undefined,
+    D extends ${model.name}UpdateInput = ${model.name}UpdateInput,
     R extends UpsertReturn = undefined
   >(options: {
     where: ${model.name}Where;
     create: ${model.name}CreateInput;
-    update?: ${model.name}UpdateInput;
+    update?: D;
+    unset?: SafeUnset<${model.name}Unset, D>;
     select?: S;
     include?: I;
     /**

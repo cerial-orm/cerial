@@ -33,6 +33,7 @@ Each tuple definition generates the following TypeScript types:
 | `CoordinateWhere`  | Where clause type for filtering by element values                                           |
 | `CoordinateUpdate` | Per-element update type — update individual elements without full replacement               |
 | `CoordinateSelect` | Sub-field select type — only generated when the tuple contains object elements at any depth |
+| `CoordinateUnset`  | Per-element unset type — only generated when the tuple has optional elements                |
 
 Tuples do **not** generate: `OrderBy`, `Create`, `Include`, or `GetPayload` types. They are operated on through their parent model.
 

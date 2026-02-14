@@ -13,7 +13,7 @@ import type {
   UpdateUniqueReturn,
   WhereClause,
 } from '../../types';
-import { isNone } from '../../utils/none';
+import { NONE, isNone } from '../../utils/none';
 import type { CompiledQuery } from '../compile/types';
 import { createCompileContext, type FilterCompileContext } from '../compile/var-allocator';
 import { transformWhereClause } from '../filters/transformer';
@@ -22,6 +22,72 @@ import { buildArrayUpdateClause, isArrayField, isArrayUpdateOps } from './array-
 import { getRecordIdFromWhere } from './delete-builder';
 import { type IncludeClause, combineSelectWithIncludes } from './relation-builder';
 import { buildSelectFields } from './select-builder';
+
+/**
+ * Merge unset fields into data as NONE values.
+ * This allows the existing builder infrastructure to handle unset uniformly.
+ *
+ * - `true` → NONE (clear entire field)
+ * - Object → recursively merge sub-field unsets as NONE
+ * - Data takes priority: if a field is in both data and unset, data wins
+ */
+export function mergeUnsetIntoData(
+  data: Record<string, unknown>,
+  unset: Record<string, unknown>,
+): Record<string, unknown> {
+  const merged = { ...data };
+
+  for (const [key, unsetValue] of Object.entries(unset)) {
+    if (unsetValue === undefined) continue;
+
+    if (unsetValue === true) {
+      // Only set NONE if not already in data (data takes priority)
+      if (!(key in merged) || merged[key] === undefined) {
+        merged[key] = NONE;
+      }
+      continue;
+    }
+
+    // Sub-field unset (object or tuple)
+    if (typeof unsetValue === 'object' && unsetValue !== null) {
+      const existingValue = merged[key];
+
+      if (
+        typeof existingValue === 'object' &&
+        existingValue !== null &&
+        !isNone(existingValue) &&
+        !Array.isArray(existingValue)
+      ) {
+        // Data already has an object at this key — deep merge
+        merged[key] = mergeUnsetIntoData(
+          existingValue as Record<string, unknown>,
+          unsetValue as Record<string, unknown>,
+        );
+      } else if (existingValue === undefined) {
+        // Data doesn't have this field — convert all unset entries to NONE
+        merged[key] = convertUnsetToNoneValues(unsetValue as Record<string, unknown>);
+      }
+      // If data has a non-object value (NONE, primitive, array), data wins
+    }
+  }
+
+  return merged;
+}
+
+/** Convert an unset sub-tree to NONE values */
+function convertUnsetToNoneValues(unset: Record<string, unknown>): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
+
+  for (const [key, value] of Object.entries(unset)) {
+    if (value === true) {
+      result[key] = NONE;
+    } else if (typeof value === 'object' && value !== null) {
+      result[key] = convertUnsetToNoneValues(value as Record<string, unknown>);
+    }
+  }
+
+  return result;
+}
 
 /**
  * Inject NONE for @updatedAt and @defaultAlways fields not already in the update data.
@@ -66,16 +132,22 @@ function injectDefaultAlwaysFieldsForUpdate(
   return processedFields;
 }
 
-/** Build UPDATE query */
-export function buildUpdateManyQuery(
-  model: ModelMetadata,
-  where: WhereClause,
+/**
+ * Build SET clauses for update data, handling objects, tuples, arrays, NONE, null, etc.
+ * Shared by both UPDATE and UPSERT (ID-based) builders.
+ *
+ * @param ctx - Compile context for variable binding
+ * @param data - Transformed update data (may include NONE sentinels from unset merge)
+ * @param model - Model metadata for field lookup
+ * @param varPrefix - Prefix for variable names (e.g., 'set' for update, 'update' for upsert)
+ * @returns Set clause parts and variables
+ */
+export function buildUpdateSetClauses(
+  ctx: FilterCompileContext,
   data: Record<string, unknown>,
-  select?: SelectClause,
-): CompiledQuery {
-  const ctx = createCompileContext();
-
-  // Build SET clause
+  model: ModelMetadata,
+  varPrefix: string = 'set',
+): { setParts: string[]; setVars: Record<string, unknown> } {
   const setVars: Record<string, unknown> = {};
   const setParts: string[] = [];
 
@@ -101,7 +173,7 @@ export function buildUpdateManyQuery(
     if (value === null && fieldMetadata) {
       if (fieldMetadata.isNullable) {
         // @nullable field → emit parameterized NULL (SurrealDB stores null)
-        const varBinding = ctx.bind(field, 'set', null, fieldMetadata.type);
+        const varBinding = ctx.bind(field, varPrefix, null, fieldMetadata.type);
         setParts.push(`${field} = ${varBinding.placeholder}`);
         Object.assign(setVars, varBinding.vars);
       } else {
@@ -131,7 +203,7 @@ export function buildUpdateManyQuery(
         );
       } else {
         // Array form = full tuple replace
-        const varBinding = ctx.bind(field, 'set', value, fieldMetadata.type);
+        const varBinding = ctx.bind(field, varPrefix, value, fieldMetadata.type);
         setParts.push(`${field} = ${varBinding.placeholder}`);
         Object.assign(setVars, varBinding.vars);
       }
@@ -149,10 +221,29 @@ export function buildUpdateManyQuery(
     }
 
     // Standard field update
-    const varBinding = ctx.bind(field, 'set', value, fieldMetadata?.type || 'string');
+    const varBinding = ctx.bind(field, varPrefix, value, fieldMetadata?.type || 'string');
     setParts.push(`${field} = ${varBinding.placeholder}`);
     Object.assign(setVars, varBinding.vars);
   }
+
+  return { setParts, setVars };
+}
+
+/** Build UPDATE query */
+export function buildUpdateManyQuery(
+  model: ModelMetadata,
+  where: WhereClause,
+  data: Record<string, unknown>,
+  select?: SelectClause,
+  unset?: Record<string, unknown>,
+): CompiledQuery {
+  const ctx = createCompileContext();
+
+  // Merge unset into data as NONE values so the builder handles everything uniformly
+  const mergedData = unset ? mergeUnsetIntoData(data, unset) : data;
+
+  // Build SET clauses
+  const { setParts, setVars } = buildUpdateSetClauses(ctx, mergedData, model);
 
   // Build WHERE clause
   const whereClause = transformWhereClause(where, model);
@@ -340,6 +431,26 @@ function buildObjectMergeClauses(
   for (const [subKey, subValue] of Object.entries(data)) {
     if (subValue === undefined) continue;
 
+    // NONE sentinel in sub-field (from unset merge) → emit dot-notation NONE
+    if (isNone(subValue)) {
+      setParts.push(`${fieldPath}.${subKey} = NONE`);
+      continue;
+    }
+
+    // null in sub-field — check @nullable
+    if (subValue === null) {
+      const subField = objectInfo.fields.find((f) => f.name === subKey);
+      if (subField?.isNullable) {
+        const subPath = `${fieldPath}.${subKey}`;
+        const varBinding = ctx.bind(subPath.replace(/\./g, '_'), 'set', null, subField.type);
+        setParts.push(`${subPath} = ${varBinding.placeholder}`);
+        Object.assign(setVars, varBinding.vars);
+      } else {
+        setParts.push(`${fieldPath}.${subKey} = NONE`);
+      }
+      continue;
+    }
+
     const subField = objectInfo.fields.find((f) => f.name === subKey);
 
     // Unknown field — pass through for @flexible objects
@@ -497,93 +608,18 @@ function buildObjectUpdateClauses(
 }
 
 /**
- * Build SET clause for update
- * Returns the SET parts and variables
+ * Build SET clause for updateUnique — thin wrapper around buildUpdateSetClauses
+ * that merges unset into data first.
  */
 function buildSetClause(
   data: Record<string, unknown>,
   model: ModelMetadata,
+  unset?: Record<string, unknown>,
 ): { setParts: string[]; setVars: Record<string, unknown> } {
   const ctx = createCompileContext();
-  const setVars: Record<string, unknown> = {};
-  const setParts: string[] = [];
+  const mergedData = unset ? mergeUnsetIntoData(data, unset) : data;
 
-  // Inject NONE for @updatedAt/@defaultAlways fields and strip @now fields
-  const timestampFields = injectDefaultAlwaysFieldsForUpdate(data, model, setParts);
-
-  for (const [field, value] of Object.entries(data)) {
-    if (value === undefined) continue;
-
-    // Skip fields already handled by timestamp injection
-    if (timestampFields.has(field)) continue;
-
-    // Find field metadata
-    const fieldMetadata = model.fields.find((f) => f.name === field);
-
-    // NONE sentinel → always emit field = NONE (clear the field)
-    if (isNone(value)) {
-      setParts.push(`${field} = NONE`);
-      continue;
-    }
-
-    // Handle null values based on @nullable
-    if (value === null && fieldMetadata) {
-      if (fieldMetadata.isNullable) {
-        // @nullable field → emit parameterized NULL (SurrealDB stores null)
-        const varBinding = ctx.bind(field, 'set', null, fieldMetadata.type);
-        setParts.push(`${field} = ${varBinding.placeholder}`);
-        Object.assign(setVars, varBinding.vars);
-      } else {
-        // Non-@nullable field → emit NONE (clear the field / set absent)
-        setParts.push(`${field} = NONE`);
-      }
-      continue;
-    }
-
-    // Handle object fields with merge/set/array operations
-    if (fieldMetadata?.type === 'object' && fieldMetadata.objectInfo) {
-      buildObjectUpdateClauses(ctx, field, value, fieldMetadata, setParts, setVars);
-      continue;
-    }
-
-    // Handle single tuple: array = full replace, object = per-element update
-    if (fieldMetadata?.type === 'tuple' && fieldMetadata.tupleInfo && !fieldMetadata.isArray) {
-      if (!Array.isArray(value) && typeof value === 'object' && value !== null) {
-        // Object form = per-element update
-        buildTupleUpdateClauses(
-          ctx,
-          field,
-          value as Record<string, unknown>,
-          fieldMetadata.tupleInfo,
-          setParts,
-          setVars,
-        );
-      } else {
-        // Array form = full tuple replace
-        const varBinding = ctx.bind(field, 'set', value, fieldMetadata.type);
-        setParts.push(`${field} = ${varBinding.placeholder}`);
-        Object.assign(setVars, varBinding.vars);
-      }
-      continue;
-    }
-
-    // Handle array fields with push/unset/set operations (covers Record[], Tuple[], primitives)
-    if (fieldMetadata && isArrayField(fieldMetadata) && (Array.isArray(value) || isArrayUpdateOps(value))) {
-      const arrayUpdate = buildArrayUpdateClause(ctx, field, value, fieldMetadata);
-      if (arrayUpdate.clause) {
-        setParts.push(arrayUpdate.clause);
-        Object.assign(setVars, arrayUpdate.vars);
-      }
-      continue;
-    }
-
-    // Standard field update
-    const varBinding = ctx.bind(field, 'set', value, fieldMetadata?.type || 'string');
-    setParts.push(`${field} = ${varBinding.placeholder}`);
-    Object.assign(setVars, varBinding.vars);
-  }
-
-  return { setParts, setVars };
+  return buildUpdateSetClauses(ctx, mergedData, model);
 }
 
 /**
@@ -630,11 +666,12 @@ export function buildUpdateUniqueQuery(
   select?: SelectClause,
   include?: IncludeClause,
   registry?: ModelRegistry,
+  unset?: Record<string, unknown>,
 ): CompiledQuery {
   const { hasId, id, expandedWhere } = getRecordIdFromWhere(where, model, 'updateUnique');
 
   // Build SET clause
-  const { setParts, setVars } = buildSetClause(data, model);
+  const { setParts, setVars } = buildSetClause(data, model, unset);
 
   // Build RETURN clause
   const returnClause = buildUpdateUniqueReturnClause(returnOption, select, include, model, registry);

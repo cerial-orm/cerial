@@ -7,10 +7,17 @@
  * - A.Compute<T> - flatten complex nested types for better IDE tooltips
  */
 
-import type { FieldMetadata, ModelMetadata, ModelRegistry, ObjectRegistry, TupleFieldMetadata } from '../../types';
+import type {
+  FieldMetadata,
+  ModelMetadata,
+  ModelRegistry,
+  ObjectFieldMetadata,
+  ObjectRegistry,
+  TupleFieldMetadata,
+} from '../../types';
 import { schemaTypeToTsType } from '../../utils/type-utils';
 import { objectHasDefaultOrTimestamp } from './objects/interface-generator';
-import { generateTupleArrayForm } from './tuples';
+import { generateTupleArrayForm, tupleHasUnsetableElements } from './tuples';
 
 /** Whether to use ts-toolbelt utilities in generated types */
 const USE_TS_TOOLBELT = true;
@@ -745,10 +752,10 @@ export function generateOrderByType(model: ModelMetadata): string {
 
   for (const field of model.fields) {
     if (field.type === 'relation') {
-      // Single relations support nested ordering (e.g., orderBy: { author: { name: 'asc' } })
-      if (field.relationInfo && !field.isArray) {
-        fields.push(`  ${field.name}?: ${field.relationInfo.targetModel}OrderBy;`);
-      }
+      // Relation fields are excluded from OrderBy — SurrealDB 3.x does not support
+      // ORDER BY through record link dot notation (e.g., authorId.name).
+      // Ordering by related fields silently returns insertion order.
+      continue;
     } else if (field.type === 'object' && field.objectInfo) {
       // Object fields support nested ordering (e.g., orderBy: { address: { city: 'asc' } })
       fields.push(`  ${field.name}?: ${field.objectInfo.objectName}OrderBy;`);
@@ -955,6 +962,129 @@ export function generateGetPayloadType(model: ModelMetadata): string {
 > = ${wrapCompute(innerType)};`;
 }
 
+/**
+ * Generate inline object unset fields for an object field.
+ * Returns field definitions for optional sub-fields that can be individually unset.
+ */
+function generateObjectUnsetFields(objectInfo: ObjectFieldMetadata, indent: string = '  '): string[] {
+  const fields: string[] = [];
+
+  for (const field of objectInfo.fields) {
+    // Skip readonly, relations, id, @now
+    if (field.isReadonly || field.type === 'relation' || field.isId) continue;
+    if (field.timestampDecorator === 'now') continue;
+
+    const isOptional = !field.isRequired;
+
+    if (field.type === 'object' && field.objectInfo) {
+      const children = generateObjectUnsetFields(field.objectInfo, indent + '  ');
+      const hasOptionalChildren = children.length > 0;
+
+      if (isOptional && hasOptionalChildren) {
+        fields.push(`${indent}${field.name}?: true | {\n${children.join('\n')}\n${indent}};`);
+      } else if (isOptional) {
+        fields.push(`${indent}${field.name}?: true;`);
+      } else if (hasOptionalChildren) {
+        fields.push(`${indent}${field.name}?: {\n${children.join('\n')}\n${indent}};`);
+      }
+    } else if (field.type === 'tuple' && field.tupleInfo) {
+      const hasUnsetable = tupleHasUnsetableElements({
+        name: field.tupleInfo.tupleName,
+        elements: field.tupleInfo.elements,
+      });
+      const tupleName = field.tupleInfo.tupleName;
+
+      if (isOptional && hasUnsetable) {
+        fields.push(`${indent}${field.name}?: true | ${tupleName}Unset;`);
+      } else if (isOptional) {
+        fields.push(`${indent}${field.name}?: true;`);
+      } else if (hasUnsetable) {
+        fields.push(`${indent}${field.name}?: ${tupleName}Unset;`);
+      }
+    } else if (isOptional) {
+      // Primitive/Record — only if optional
+      fields.push(`${indent}${field.name}?: true;`);
+    }
+  }
+
+  return fields;
+}
+
+/**
+ * Generate Unset type for a model.
+ *
+ * Rules per field kind:
+ * | Field kind        | Optional? | Has optional children? | Output                    |
+ * |-------------------|-----------|------------------------|---------------------------|
+ * | Primitive/Record  | yes       | N/A                    | `true`                    |
+ * | Object            | yes       | yes                    | `true \| { ...children }` |
+ * | Object            | yes       | no                     | `true`                    |
+ * | Object            | no        | yes                    | `{ ...children }` only    |
+ * | Object            | no        | no                     | skip                      |
+ * | Tuple field       | yes       | has optional elements  | `true \| TupleUnset`      |
+ * | Tuple field       | yes       | no optional elements   | `true`                    |
+ * | Tuple field       | no        | has optional elements  | `TupleUnset` only         |
+ * | Tuple field       | no        | no optional elements   | skip                      |
+ * | @readonly, Rel, id| any       | any                    | skip                      |
+ */
+export function generateUnsetType(model: ModelMetadata): string {
+  const fields: string[] = [];
+
+  for (const field of model.fields) {
+    // Skip: readonly, relation, id, @now (computed)
+    if (field.isReadonly || field.type === 'relation' || field.isId) continue;
+    if (field.timestampDecorator === 'now') continue;
+
+    const isOptional = !field.isRequired;
+
+    // Array fields: optional → true, required → skip. No sub-field unset for arrays.
+    if (field.isArray) {
+      if (isOptional) {
+        fields.push(`  ${field.name}?: true;`);
+      }
+      continue;
+    }
+
+    if (field.type === 'object' && field.objectInfo) {
+      const children = generateObjectUnsetFields(field.objectInfo);
+      const hasOptionalChildren = children.length > 0;
+
+      if (isOptional && hasOptionalChildren) {
+        fields.push(`  ${field.name}?: true | {\n${children.join('\n')}\n  };`);
+      } else if (isOptional) {
+        fields.push(`  ${field.name}?: true;`);
+      } else if (hasOptionalChildren) {
+        fields.push(`  ${field.name}?: {\n${children.join('\n')}\n  };`);
+      }
+      continue;
+    }
+
+    if (field.type === 'tuple' && field.tupleInfo) {
+      const hasUnsetable = tupleHasUnsetableElements({
+        name: field.tupleInfo.tupleName,
+        elements: field.tupleInfo.elements,
+      });
+      const tupleName = field.tupleInfo.tupleName;
+
+      if (isOptional && hasUnsetable) {
+        fields.push(`  ${field.name}?: true | ${tupleName}Unset;`);
+      } else if (isOptional) {
+        fields.push(`  ${field.name}?: true;`);
+      } else if (hasUnsetable) {
+        fields.push(`  ${field.name}?: ${tupleName}Unset;`);
+      }
+      continue;
+    }
+
+    // Primitive/Record — only optional fields
+    if (isOptional) {
+      fields.push(`  ${field.name}?: true;`);
+    }
+  }
+
+  return `export type ${model.name}Unset = {\n${fields.join('\n')}\n};`;
+}
+
 /** Generate all derived types for a model */
 export function generateDerivedTypes(
   model: ModelMetadata,
@@ -967,6 +1097,7 @@ export function generateDerivedTypes(
     generateCreateInputType(model),
     generateUpdateType(model),
     generateUpdateInputType(model),
+    generateUnsetType(model),
     generateSelectType(model),
     generateOrderByType(model),
   ];

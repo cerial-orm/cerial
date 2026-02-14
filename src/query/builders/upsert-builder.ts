@@ -20,6 +20,7 @@
  */
 
 import type { FieldMetadata, ModelMetadata, ModelRegistry, SelectClause, UpsertReturn, WhereClause } from '../../types';
+import { isNone } from '../../utils/none';
 import type { CompiledQuery } from '../compile/types';
 import { createCompileContext, type FilterCompileContext } from '../compile/var-allocator';
 import { transformWhereClause } from '../filters/transformer';
@@ -39,6 +40,7 @@ import {
 } from './nested-builder';
 import { type IncludeClause, combineSelectWithIncludes } from './relation-builder';
 import { buildSelectFields } from './select-builder';
+import { buildUpdateSetClauses, mergeUnsetIntoData } from './update-builder';
 
 /**
  * Build RETURN clause for upsert based on return option and select/include
@@ -80,8 +82,9 @@ function buildUpsertFieldClause(
 
   if (!inCreate && !inUpdate) return null;
 
-  // Handle null for optional record fields - use NONE
+  // Handle NONE sentinel and null for optional record fields
   const resolveValue = (value: unknown, prefix: string): string => {
+    if (isNone(value)) return 'NONE';
     if (value === null && fieldMetadata?.type === 'record' && !fieldMetadata.isRequired) return 'NONE';
 
     const binding = ctx.bind(fieldName, prefix, value, fieldMetadata?.type || 'string');
@@ -303,41 +306,12 @@ export function buildUpsertIdQuery(
   const createBinding = ctx.bind('content', 'create', createData, 'string');
   Object.assign(vars, createBinding.vars);
 
-  // Build UPDATE SET clauses (only if update data provided)
+  // Build UPDATE SET clauses using shared builder (handles objects, tuples, NONE, etc.)
   const updateSetParts: string[] = [];
   if (hasUpdate) {
-    // Inject NONE for @updatedAt/@defaultAlways fields not in update data, strip @now fields
-    const timestampFields = new Set<string>();
-    for (const field of model.fields) {
-      if (field.timestampDecorator === 'now') {
-        timestampFields.add(field.name);
-        continue;
-      }
-      if (field.timestampDecorator === 'updatedAt' && !(field.name in updateData)) {
-        updateSetParts.push(`${field.name} = NONE`);
-        timestampFields.add(field.name);
-      }
-      if (field.defaultAlwaysValue !== undefined && !(field.name in updateData)) {
-        updateSetParts.push(`${field.name} = NONE`);
-        timestampFields.add(field.name);
-      }
-    }
-
-    for (const [field, value] of Object.entries(updateData)) {
-      if (value === undefined) continue;
-      if (timestampFields.has(field)) continue;
-      const fieldMetadata = model.fields.find((f) => f.name === field);
-      if (fieldMetadata?.type === 'relation') continue;
-
-      if (value === null && fieldMetadata?.type === 'record' && !fieldMetadata.isRequired) {
-        updateSetParts.push(`${field} = NONE`);
-        continue;
-      }
-
-      const binding = ctx.bind(field, 'update', value, fieldMetadata?.type || 'string');
-      updateSetParts.push(`${field} = ${binding.placeholder}`);
-      Object.assign(vars, binding.vars);
-    }
+    const { setParts, setVars } = buildUpdateSetClauses(ctx, updateData, model, 'update');
+    updateSetParts.push(...setParts);
+    Object.assign(vars, setVars);
   }
 
   // Build the transaction
@@ -435,11 +409,15 @@ export function buildUpsertQuery(
   select?: SelectClause,
   include?: IncludeClause,
   registry?: ModelRegistry,
+  unset?: Record<string, unknown>,
 ): CompiledQuery {
   const { hasId } = checkForIdInWhere(where, model);
 
+  // Merge unset into update data — unset applies to the update branch only
+  const mergedUpdateData = unset ? mergeUnsetIntoData(updateData, unset) : updateData;
+
   if (hasId) {
-    return buildUpsertIdQuery(model, where, createData, updateData, returnOption, select, include, registry);
+    return buildUpsertIdQuery(model, where, createData, mergedUpdateData, returnOption, select, include, registry);
   }
 
   // Expand composite keys and object @unique keys for WHERE-based path
@@ -453,7 +431,7 @@ export function buildUpsertQuery(
     model,
     expandedWhere,
     createData,
-    updateData,
+    mergedUpdateData,
     hasUniqueField,
     returnOption,
     select,

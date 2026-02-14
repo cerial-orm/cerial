@@ -548,35 +548,52 @@ export function generateTupleFieldDefines(
         );
       }
     } else {
-      // Primitive element — define with primitive type and nullable/optional modifiers
-      const surrealType = mapToSurrealType(element.type);
-      const parts: string[] = ['DEFINE FIELD'];
-      if (opts.overwrite) parts.push('OVERWRITE');
-      else if (opts.ifNotExists) parts.push('IF NOT EXISTS');
-      parts.push(elementPath);
-      parts.push('ON TABLE');
-      parts.push(tableName);
-
-      // Use wrapTypeModifiers-style logic for nullable/optional
-      if (!element.isOptional && !element.isNullable) {
-        parts.push(`TYPE ${surrealType}`);
-      } else if (!element.isOptional && element.isNullable) {
-        parts.push(`TYPE ${surrealType} | null`);
-      } else if (element.isOptional && !element.isNullable) {
-        parts.push(`TYPE option<${surrealType}>`);
-      } else {
-        parts.push(`TYPE option<${surrealType} | null>`);
-      }
-
-      // Add DEFAULT/timestamp clause for element decorators
-      const elementDefault = generateDefaultClause(
-        element.timestampDecorator,
-        element.defaultValue,
-        element.defaultAlwaysValue,
+      // Primitive element — the parent tuple type literal already enforces element
+      // types, length, and optionality, so sub-field constraints are only needed when:
+      //   - The element is nullable (needs | null — not expressible in parent type alone)
+      //   - The element has a decorator (DEFAULT / timestamp clause)
+      //
+      // For elements without decorators and without @nullable we skip the DEFINE FIELD
+      // to work around a SurrealDB bug where sub-field constraints on tuple elements
+      // within optional tuples cause the tuple to be initialized as {} (empty object)
+      // when the parent is absent (NONE) and any option<object> field with sub-fields
+      // exists on the same table. Schema validation (validateTupleObjectCombination)
+      // catches the remaining case where a required element HAS a decorator.
+      const hasDecorator = !!(
+        element.timestampDecorator ||
+        element.defaultValue !== undefined ||
+        element.defaultAlwaysValue !== undefined
       );
-      if (elementDefault) parts.push(elementDefault);
+      const needsSubField = element.isNullable || hasDecorator;
 
-      statements.push(parts.join(' ') + ';');
+      if (needsSubField) {
+        const surrealType = mapToSurrealType(element.type);
+        const parts: string[] = ['DEFINE FIELD'];
+        if (opts.overwrite) parts.push('OVERWRITE');
+        else if (opts.ifNotExists) parts.push('IF NOT EXISTS');
+        parts.push(elementPath);
+        parts.push('ON TABLE');
+        parts.push(tableName);
+
+        if (!element.isOptional && !element.isNullable) {
+          parts.push(`TYPE ${surrealType}`);
+        } else if (!element.isOptional && element.isNullable) {
+          parts.push(`TYPE ${surrealType} | null`);
+        } else if (element.isOptional && !element.isNullable) {
+          parts.push(`TYPE option<${surrealType}>`);
+        } else {
+          parts.push(`TYPE option<${surrealType} | null>`);
+        }
+
+        const elementDefault = generateDefaultClause(
+          element.timestampDecorator,
+          element.defaultValue,
+          element.defaultAlwaysValue,
+        );
+        if (elementDefault) parts.push(elementDefault);
+
+        statements.push(parts.join(' ') + ';');
+      }
     }
   }
 

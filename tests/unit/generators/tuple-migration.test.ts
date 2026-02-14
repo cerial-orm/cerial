@@ -181,20 +181,25 @@ describe('Tuple Migration Generator', () => {
   });
 
   describe('generateTupleFieldDefines', () => {
-    test('should generate DEFINE FIELD for each element with index notation', () => {
+    // NOTE: After SurrealDB bug mitigation, primitive elements WITHOUT decorators
+    // or @nullable are skipped (parent tuple type literal already enforces types).
+    // Sub-field DEFINE statements are only emitted for:
+    //   - Elements with decorators (@default, @defaultAlways, @createdAt, @updatedAt)
+    //   - Elements with @nullable (need | null type wrapper)
+    //   - Object elements (need sub-field structure)
+    //   - Nested tuple elements (need sub-field structure)
+
+    test('should skip sub-field defines for primitive elements without decorators', () => {
       const info = ti('Coordinate', [elem({ index: 0, type: 'float' }), elem({ index: 1, type: 'float' })]);
 
       const stmts = generateTupleFieldDefines('location', 'user', info, emptyTupleRegistry, emptyObjRegistry);
 
-      expect(
-        stmts.some((s) => s.includes('DEFINE FIELD') && s.includes('location[0]') && s.includes('TYPE float')),
-      ).toBe(true);
-      expect(
-        stmts.some((s) => s.includes('DEFINE FIELD') && s.includes('location[1]') && s.includes('TYPE float')),
-      ).toBe(true);
+      // Primitive elements without decorators should NOT produce sub-field defines
+      expect(stmts.some((s) => s.includes('location[0]'))).toBe(false);
+      expect(stmts.some((s) => s.includes('location[1]'))).toBe(false);
     });
 
-    test('should generate optional element with option<type>', () => {
+    test('should skip sub-field defines for optional primitive elements without decorators', () => {
       const info = ti('MaybePoint', [
         elem({ index: 0, type: 'float' }),
         elem({ index: 1, type: 'float', isOptional: true }),
@@ -202,8 +207,39 @@ describe('Tuple Migration Generator', () => {
 
       const stmts = generateTupleFieldDefines('point', 'user', info, emptyTupleRegistry, emptyObjRegistry);
 
-      expect(stmts.some((s) => s.includes('point[0]') && s.includes('TYPE float'))).toBe(true);
-      expect(stmts.some((s) => s.includes('point[1]') && s.includes('option<float>'))).toBe(true);
+      // Both elements lack decorators/@nullable — skipped
+      expect(stmts.some((s) => s.includes('point[0]'))).toBe(false);
+      expect(stmts.some((s) => s.includes('point[1]'))).toBe(false);
+    });
+
+    test('should emit sub-field for element with @default decorator', () => {
+      const info = ti('WithDefault', [
+        elem({ index: 0, type: 'string', defaultValue: 'hello' }),
+        elem({ index: 1, type: 'float', isOptional: true }),
+      ]);
+
+      const stmts = generateTupleFieldDefines('data', 'user', info, emptyTupleRegistry, emptyObjRegistry);
+
+      // Element with @default gets sub-field
+      expect(stmts.some((s) => s.includes('data[0]') && s.includes("DEFAULT 'hello'"))).toBe(true);
+      // Plain optional element without decorator is skipped
+      expect(stmts.some((s) => s.includes('data[1]'))).toBe(false);
+    });
+
+    test('should emit sub-field for element with @nullable', () => {
+      const info = ti('NullableTuple', [
+        elem({ index: 0, type: 'string' }),
+        elem({ index: 1, type: 'float', isOptional: true, isNullable: true }),
+      ]);
+
+      const stmts = generateTupleFieldDefines('data', 'user', info, emptyTupleRegistry, emptyObjRegistry);
+
+      // Required element without decorator is skipped
+      expect(stmts.some((s) => s.includes('data[0]'))).toBe(false);
+      // @nullable element gets sub-field
+      const nullableStmt = stmts.find((s) => s.includes('data[1]'));
+      expect(nullableStmt).toBeDefined();
+      expect(nullableStmt).toContain('| null');
     });
 
     test('should generate nested tuple sub-element defines', () => {
@@ -215,10 +251,13 @@ describe('Tuple Migration Generator', () => {
 
       const stmts = generateTupleFieldDefines('data', 'user', info, emptyTupleRegistry, emptyObjRegistry);
 
-      expect(stmts.some((s) => s.includes('data[0]') && s.includes('TYPE string'))).toBe(true);
+      // Primitive element without decorator is skipped
+      expect(stmts.some((s) => s.includes('data[0]'))).toBe(false);
+      // Nested tuple element gets sub-field define
       expect(stmts.some((s) => s.includes('data[1]') && s.includes('[int, int]'))).toBe(true);
-      expect(stmts.some((s) => s.includes('data[1][0]') && s.includes('TYPE int'))).toBe(true);
-      expect(stmts.some((s) => s.includes('data[1][1]') && s.includes('TYPE int'))).toBe(true);
+      // Nested tuple's primitive elements without decorators are also skipped
+      expect(stmts.some((s) => s.includes('data[1][0]'))).toBe(false);
+      expect(stmts.some((s) => s.includes('data[1][1]'))).toBe(false);
     });
 
     test('should generate object-typed element with DEFINE FIELD for object sub-fields', () => {
@@ -244,32 +283,36 @@ describe('Tuple Migration Generator', () => {
 
       const stmts = generateTupleFieldDefines('place', 'user', info, emptyTupleRegistry, objRegistry);
 
-      expect(stmts.some((s) => s.includes('place[0]') && s.includes('TYPE string'))).toBe(true);
+      // Primitive element without decorator is skipped
+      expect(stmts.some((s) => s.includes('place[0]'))).toBe(false);
+      // Object element always gets sub-field defines
       expect(stmts.some((s) => s.includes('place[1]') && s.includes('TYPE object'))).toBe(true);
       expect(stmts.some((s) => s.includes('place[1].street') && s.includes('TYPE string'))).toBe(true);
       expect(stmts.some((s) => s.includes('place[1].city') && s.includes('TYPE string'))).toBe(true);
     });
 
-    test('should handle array path prefix (field.* notation)', () => {
+    test('should skip sub-field defines for array path primitive elements without decorators', () => {
       const info = ti('Coordinate', [elem({ index: 0, type: 'float' }), elem({ index: 1, type: 'float' })]);
 
       const stmts = generateTupleFieldDefines('history.*', 'user', info, emptyTupleRegistry, emptyObjRegistry);
 
-      expect(stmts.some((s) => s.includes('history.*[0]'))).toBe(true);
-      expect(stmts.some((s) => s.includes('history.*[1]'))).toBe(true);
+      // Primitive elements without decorators are skipped even with array path
+      expect(stmts.some((s) => s.includes('history.*[0]'))).toBe(false);
+      expect(stmts.some((s) => s.includes('history.*[1]'))).toBe(false);
     });
 
-    test('should generate single-element tuple', () => {
+    test('should skip sub-field define for single primitive element without decorator', () => {
       const info = ti('Single', [elem({ index: 0, type: 'string' })]);
 
       const stmts = generateTupleFieldDefines('tag', 'user', info, emptyTupleRegistry, emptyObjRegistry);
 
-      expect(stmts.some((s) => s.includes('tag[0]') && s.includes('TYPE string'))).toBe(true);
+      // Single primitive element without decorator is skipped
+      expect(stmts.some((s) => s.includes('tag[0]'))).toBe(false);
     });
   });
 
   describe('generateModelDefineStatements with tuples', () => {
-    test('should include tuple field type and sub-field defines', () => {
+    test('should include tuple field type but skip primitive sub-field defines without decorators', () => {
       const m = mdl('User', 'user', [
         field({ name: 'id', type: 'record', isId: true, isRequired: true }),
         field({
@@ -284,11 +327,12 @@ describe('Tuple Migration Generator', () => {
 
       expect(stmts.some((s) => s.includes('DEFINE TABLE'))).toBe(true);
       expect(stmts.some((s) => s.includes('location') && s.includes('[float, float]'))).toBe(true);
-      expect(stmts.some((s) => s.includes('location[0]'))).toBe(true);
-      expect(stmts.some((s) => s.includes('location[1]'))).toBe(true);
+      // Primitive elements without decorators are skipped
+      expect(stmts.some((s) => s.includes('location[0]'))).toBe(false);
+      expect(stmts.some((s) => s.includes('location[1]'))).toBe(false);
     });
 
-    test('should include array tuple field with correct type', () => {
+    test('should include array tuple field type but skip primitive sub-field defines without decorators', () => {
       const m = mdl('User', 'user', [
         field({ name: 'id', type: 'record', isId: true, isRequired: true }),
         field({
@@ -303,8 +347,9 @@ describe('Tuple Migration Generator', () => {
       const stmts = generateModelDefineStatements(m, undefined, undefined, emptyObjRegistry, emptyTupleRegistry);
 
       expect(stmts.some((s) => s.includes('history') && s.includes('array<[float, float]>'))).toBe(true);
-      expect(stmts.some((s) => s.includes('history.*[0]'))).toBe(true);
-      expect(stmts.some((s) => s.includes('history.*[1]'))).toBe(true);
+      // Primitive elements without decorators are skipped
+      expect(stmts.some((s) => s.includes('history.*[0]'))).toBe(false);
+      expect(stmts.some((s) => s.includes('history.*[1]'))).toBe(false);
     });
 
     test('should include optional tuple field with correct type', () => {

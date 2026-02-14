@@ -36,6 +36,7 @@ export {
   generateObjectSelectType,
   generateOrderByType,
   generateSelectType,
+  generateUnsetType,
   generateUpdateType,
 } from './derived-generator';
 
@@ -63,6 +64,7 @@ export {
 
 export {
   generateAllTupleSelectTypes,
+  generateAllTupleUnsetTypes,
   generateAllTupleUpdateTypes,
   generateTupleArrayForm,
   generateTupleInputInterface,
@@ -70,6 +72,7 @@ export {
   generateTupleInterfaces,
   generateTupleOutputType,
   generateTupleSelectType,
+  generateTupleUnsetType,
   generateTupleUpdateType,
   generateTupleWhereInterface,
   generateTupleWhereTypes,
@@ -77,4 +80,5 @@ export {
   tupleHasObjectElements,
   tupleHasObjectElementsDeep,
   tupleHasTupleElements,
+  tupleHasUnsetableElements,
 } from './tuples';

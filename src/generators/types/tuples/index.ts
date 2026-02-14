@@ -18,3 +18,5 @@ export { generateTupleWhereInterface, generateTupleWhereTypes } from './where-ge
 export { generateTupleArrayForm, generateTupleUpdateType, generateAllTupleUpdateTypes } from './update-generator';
 
 export { generateTupleSelectType, generateAllTupleSelectTypes } from './select-generator';
+
+export { generateTupleUnsetType, generateAllTupleUnsetTypes, tupleHasUnsetableElements } from './unset-generator';

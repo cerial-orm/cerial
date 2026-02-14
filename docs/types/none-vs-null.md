@@ -163,17 +163,27 @@ await db.User.updateMany({
 
 ### Removing a Field (NONE)
 
-Only works on optional (`?`) fields. Import the `NONE` sentinel from cerial:
+Only works on optional (`?`) fields. You can either use the `NONE` sentinel in `data` or the `unset` parameter:
 
 ```typescript
 import { NONE } from 'cerial';
 
+// Option 1: NONE sentinel in data
 await db.User.updateMany({
   where: { id: userId },
   data: { bio: NONE },
 });
-// SurrealQL: UPDATE user SET bio = NONE
+
+// Option 2: unset parameter (cleaner for multiple fields)
+await db.User.updateMany({
+  where: { id: userId },
+  data: {},
+  unset: { bio: true },
+});
+// Both produce: UPDATE user SET bio = NONE
 ```
+
+The `unset` parameter also supports nested object fields and tuple elements. See the [updateMany](../queries/update-many.md), [updateUnique](../queries/update-unique.md), and [upsert](../queries/upsert.md) docs for details.
 
 ### Disconnecting Optional Relations
 

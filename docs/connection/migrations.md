@@ -185,6 +185,40 @@ DEFINE INDEX user_email_unique ON TABLE user FIELDS email UNIQUE;
 DEFINE INDEX tag_name_unique ON TABLE tag FIELDS name UNIQUE;
 ```
 
+### Tuple Fields
+
+Tuple fields generate a `DEFINE FIELD` with a typed array literal that enforces element types, count, and optionality:
+
+```sql
+-- Required tuple: [float, float]
+DEFINE FIELD location ON TABLE user TYPE [float, float];
+
+-- Optional tuple: option<[float, float]>
+DEFINE FIELD backup ON TABLE user TYPE option<[float, float]>;
+
+-- Tuple with optional element: [float, option<float>]
+DEFINE FIELD coords ON TABLE user TYPE [float, option<float>];
+
+-- Array of tuples: array<[float, float]>
+DEFINE FIELD history ON TABLE user TYPE array<[float, float]>;
+```
+
+**Sub-field constraints** are only emitted for tuple elements that need them — elements with decorators (`@default`, `@defaultAlways`, `@createdAt`, `@updatedAt`), `@nullable` elements, or object/nested-tuple elements:
+
+```sql
+-- Element with @default
+DEFINE FIELD data[0] ON TABLE user TYPE string DEFAULT 'hello';
+
+-- @nullable element
+DEFINE FIELD data[1] ON TABLE user TYPE option<float | null>;
+
+-- Object element with sub-fields
+DEFINE FIELD data[2] ON TABLE user TYPE object;
+DEFINE FIELD data[2].name ON TABLE user TYPE string;
+```
+
+Plain primitive elements (with no decorators or `@nullable`) do **not** get sub-field `DEFINE FIELD` statements — the parent tuple type literal already enforces their types. This is intentional to avoid a [known SurrealDB issue](#known-limitation-tuple--object-interaction) where sub-field constraints on tuple elements can cause incorrect initialization.
+
 ### ID Fields
 
 The `id` field with `@id` decorator is **not** included in migrations. SurrealDB automatically manages the `id` field for every table.
@@ -274,3 +308,14 @@ Removing a field from the schema removes its `DEFINE FIELD` statement from the g
 **Changing a field type:**
 
 Changing a field type regenerates the `DEFINE FIELD` with the new type. SurrealDB will enforce the new type on future writes, but existing data with the old type may cause runtime errors until updated.
+
+## Known Limitation: Tuple + Object Interaction
+
+SurrealDB has a bug where optional tuple fields with sub-field constraints (`DEFINE FIELD field[N]`) can be incorrectly initialized as `{}` (empty object) instead of NONE when:
+
+1. The model has an optional tuple field with per-element `DEFINE FIELD` sub-field constraints
+2. The model also has an optional object field with its own sub-field constraints
+
+Cerial mitigates this by skipping sub-field `DEFINE FIELD` statements for primitive tuple elements that don't need them (no decorators, not `@nullable`). The parent tuple type literal already enforces element types, so the sub-field constraints are redundant for plain primitives.
+
+For models that combine optional tuples with required-decorated elements (which _need_ sub-field constraints) and optional object fields, Cerial's schema validator will report an error at generation time. This prevents deploying a schema that would trigger the bug.

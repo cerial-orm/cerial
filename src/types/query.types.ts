@@ -90,6 +90,7 @@ export interface CreateOptions<T> {
 export interface UpdateOptions<T> {
   where: WhereClause;
   data: Partial<T>;
+  unset?: Record<string, unknown>;
   select?: SelectClause;
 }
 

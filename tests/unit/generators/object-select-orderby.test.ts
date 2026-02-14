@@ -236,6 +236,66 @@ describe('Model OrderBy Type with Objects', () => {
   });
 });
 
+describe('Model OrderBy Type excludes relation fields', () => {
+  test('should exclude single relation from orderBy', () => {
+    const m = model('Post', 'post', [
+      field({ name: 'id', type: 'record', isId: true, isRequired: true }),
+      field({ name: 'title', type: 'string', isRequired: true }),
+      field({
+        name: 'author',
+        type: 'relation',
+        isRequired: false,
+        relationInfo: { targetModel: 'Author', targetTable: 'author', isReverse: false },
+      }),
+    ]);
+
+    const result = generateOrderByType(m);
+
+    expect(result).toContain('title?:');
+    expect(result).not.toContain('author');
+    expect(result).not.toContain('AuthorOrderBy');
+  });
+
+  test('should exclude array relation from orderBy', () => {
+    const m = model('Author', 'author', [
+      field({ name: 'id', type: 'record', isId: true, isRequired: true }),
+      field({ name: 'name', type: 'string', isRequired: true }),
+      field({
+        name: 'posts',
+        type: 'relation',
+        isRequired: false,
+        isArray: true,
+        relationInfo: { targetModel: 'Post', targetTable: 'post', isReverse: true },
+      }),
+    ]);
+
+    const result = generateOrderByType(m);
+
+    expect(result).toContain('name?:');
+    expect(result).not.toContain('posts');
+    expect(result).not.toContain('PostOrderBy');
+  });
+
+  test('should exclude reverse single relation from orderBy', () => {
+    const m = model('Profile', 'profile', [
+      field({ name: 'id', type: 'record', isId: true, isRequired: true }),
+      field({ name: 'bio', type: 'string', isRequired: false }),
+      field({
+        name: 'user',
+        type: 'relation',
+        isRequired: false,
+        relationInfo: { targetModel: 'User', targetTable: 'user', isReverse: true },
+      }),
+    ]);
+
+    const result = generateOrderByType(m);
+
+    expect(result).toContain('bio?:');
+    expect(result).not.toContain('user');
+    expect(result).not.toContain('UserOrderBy');
+  });
+});
+
 describe('Select Query Builder with Objects', () => {
   const userModel = model('User', 'user', [
     field({ name: 'id', type: 'record', isId: true, isRequired: true }),

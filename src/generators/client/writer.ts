@@ -21,11 +21,13 @@ import {
   generateObjectWhereInterface,
   generateTupleInterfaces,
   generateTupleSelectType,
+  generateTupleUnsetType,
   generateTupleUpdateType,
   generateTupleWhereInterface,
   generateWhereTypes,
   objectHasDefaultOrTimestamp,
   tupleHasObjectElementsDeep,
+  tupleHasUnsetableElements,
 } from '../types';
 import { generateFindUniqueWhereType } from '../types/method-generator';
 import { generateConnectionExports } from './connection-template';
@@ -41,8 +43,8 @@ import type { RecordIdInput } from 'cerial';`;
 /** NONE sentinel import for nullable/optional update types */
 const NONE_IMPORT = `import type { CerialNone } from 'cerial';`;
 
-/** DeleteUnique, UpdateUnique, Upsert, select utility types, and CerialQueryPromise import for model files */
-const UNIQUE_TYPES_IMPORT = `import type { DeleteUniqueReturn, DeleteUniqueReturnType, UpdateUniqueReturn, UpdateUniqueReturnType, UpsertReturn, UpsertReturnType, UpsertArrayReturnType, ResolveFieldSelect } from '..';
+/** DeleteUnique, UpdateUnique, Upsert, select utility types, SafeUnset, and CerialQueryPromise import for model files */
+const UNIQUE_TYPES_IMPORT = `import type { DeleteUniqueReturn, DeleteUniqueReturnType, UpdateUniqueReturn, UpdateUniqueReturnType, UpsertReturn, UpsertReturnType, UpsertArrayReturnType, ResolveFieldSelect, SafeUnset } from '..';
 import type { CerialQueryPromise } from '..';`;
 
 /** Prettier config cache */
@@ -308,11 +310,15 @@ function generateTupleImports(tupleNames: string[], tupleRegistry?: TupleRegistr
     const fileName = name.toLowerCase();
     const importNames = [name, `${name}Input`, `${name}Where`, `${name}Update`];
 
-    // Conditionally add Select import for tuples with object elements at any depth
     if (tupleRegistry) {
       const tupleMeta = tupleRegistry[name];
+      // Conditionally add Select import for tuples with object elements at any depth
       if (tupleMeta && tupleHasObjectElementsDeep(tupleMeta)) {
         importNames.push(`${name}Select`);
+      }
+      // Conditionally add Unset import for tuples with unsetable elements
+      if (tupleMeta && tupleHasUnsetableElements(tupleMeta)) {
+        importNames.push(`${name}Unset`);
       }
     }
 
@@ -498,7 +504,7 @@ export async function writeTupleTypes(
   for (const element of tuple.elements) {
     if (element.type === 'tuple' && element.tupleInfo) {
       for (const name of collectTupleTupleNamesDeep(element.tupleInfo)) {
-        referencedTuplesSet.add(name);
+        if (name !== tuple.name) referencedTuplesSet.add(name);
       }
     }
   }
@@ -511,6 +517,7 @@ export async function writeTupleTypes(
   const whereCode = generateTupleWhereInterface(tuple, tupleRegistry, objectRegistry);
   const updateCode = generateTupleUpdateType(tuple);
   const selectCode = generateTupleSelectType(tuple);
+  const unsetCode = generateTupleUnsetType(tuple);
 
   // Check if CerialNone import is needed (optional elements in update type)
   const needsNone = tuple.elements.some((e) => e.isOptional);
@@ -526,7 +533,7 @@ ${noneImport}${objectImports}${tupleImports}${interfaceCode}
 ${whereCode}
 
 ${updateCode}
-${selectCode ? '\n' + selectCode + '\n' : ''}
+${selectCode ? '\n' + selectCode + '\n' : ''}${unsetCode ? '\n' + unsetCode + '\n' : ''}
 `;
 
   const formatted = await formatCode(content, outputDir);
@@ -583,6 +590,7 @@ export async function writeClientIndex(
   const createInputExports = models.map((m) => `${m.name}CreateInput`).join(',\n  ');
   const updateExports = models.map((m) => `${m.name}Update`).join(',\n  ');
   const updateInputExports = models.map((m) => `${m.name}UpdateInput`).join(',\n  ');
+  const unsetExports = models.map((m) => `${m.name}Unset`).join(',\n  ');
   const whereExports = models.map((m) => `${m.name}Where`).join(',\n  ');
   const findUniqueWhereExports = models.map((m) => `${m.name}FindUniqueWhere`).join(',\n  ');
   const selectExports = models.map((m) => `${m.name}Select`).join(',\n  ');
@@ -634,6 +642,11 @@ export type {
 // UpdateInput types (with nested relation operations)
 export type {
   ${updateInputExports},
+} from './models';
+
+// Unset types (for bulk field removal)
+export type {
+  ${unsetExports},
 } from './models';
 
 // Where types
@@ -726,6 +739,8 @@ export type {
 
     // Only tuples with object elements at any depth get Select types
     const tuplesWithSelect = tuples.filter((t) => tupleHasObjectElementsDeep(t));
+    // Only tuples with unsetable elements get Unset types
+    const tuplesWithUnset = tuples.filter((t) => tupleHasUnsetableElements(t));
 
     content += `
 // Tuple types (output types - TypeScript tuple literals)
@@ -755,6 +770,16 @@ export type {
 // Tuple select types (sub-field selection for tuples with object elements)
 export type {
   ${tupSelects},
+} from './models';
+`;
+    }
+
+    if (tuplesWithUnset.length) {
+      const tupUnsets = tuplesWithUnset.map((t) => `${t.name}Unset`).join(',\n  ');
+      content += `
+// Tuple unset types (per-element unset for tuples with optional elements)
+export type {
+  ${tupUnsets},
 } from './models';
 `;
     }
@@ -855,6 +880,37 @@ export type ApplyObjectSelect<T, S extends Record<string, any>> = {
   [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof T
     ? ResolveFieldSelect<T[K], S[K]>
     : never;
+};
+
+/**
+ * Cross-exclude utility for unset — removes fields from Unset that conflict
+ * with fields being set in Data. Recursively narrows for nested objects/tuples.
+ *
+ * Rules:
+ * - Field NOT in Data → fully available in Unset
+ * - Field in Data AND Data[K] is array → excluded (array replace in data)
+ * - Field in Data AND Unset[K] is only \`true\` → excluded (leaf conflict)
+ * - Field in Data AND Unset[K] has sub-structure → recurse into sub-fields
+ */
+export type SafeUnset<Unset, Data> = {
+  [K in keyof Unset as K extends keyof Data
+    ? Data[K] extends any[]
+      ? never
+      : NonNullable<Exclude<Unset[K], true>> extends never
+        ? never
+        : NonNullable<Exclude<Unset[K], true>> extends Record<string, any>
+          ? K
+          : never
+    : K
+  ]?: K extends keyof Data
+    ? NonNullable<Exclude<Unset[K], true>> extends infer Clean
+      ? Clean extends Record<string, any>
+        ? Data[K] extends Record<string, any>
+          ? SafeUnset<Clean, Data[K]>
+          : never
+        : never
+      : never
+    : Unset[K];
 };
 
 /**

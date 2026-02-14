@@ -167,6 +167,162 @@ export function validateCreateData(
   };
 }
 
+/**
+ * Validate unset object for update operations.
+ * Ensures all fields in unset are valid model fields that can be unset.
+ */
+export function validateUnset(unset: Record<string, unknown>, model: ModelMetadata): DataValidationResult {
+  const errors: DataValidationError[] = [];
+
+  for (const [fieldName, value] of Object.entries(unset)) {
+    if (value === undefined) continue;
+
+    const field = model.fields.find((f) => f.name === fieldName);
+    if (!field) {
+      errors.push({ field: fieldName, message: `Unknown field '${fieldName}' in unset` });
+      continue;
+    }
+
+    // Cannot unset readonly, relation, id, or @now fields
+    if (field.isReadonly) {
+      errors.push({ field: fieldName, message: `Cannot unset readonly field '${fieldName}'` });
+      continue;
+    }
+    if (field.type === 'relation') {
+      errors.push({ field: fieldName, message: `Cannot unset relation field '${fieldName}' — use disconnect instead` });
+      continue;
+    }
+    if (field.isId) {
+      errors.push({ field: fieldName, message: `Cannot unset id field '${fieldName}'` });
+      continue;
+    }
+    if (field.timestampDecorator === 'now') {
+      errors.push({ field: fieldName, message: `Cannot unset computed field '${fieldName}'` });
+      continue;
+    }
+
+    // true = unset entire field — must be optional
+    if (value === true) {
+      if (field.isRequired) {
+        errors.push({
+          field: fieldName,
+          message: `Cannot unset required field '${fieldName}' — only optional fields can be unset`,
+        });
+      }
+      continue;
+    }
+
+    // Object value = sub-field unset — validate recursively
+    if (typeof value === 'object' && value !== null) {
+      // Sub-field unset on objects and tuples is valid if the sub-fields exist
+      // Deep validation is handled by the type system; runtime just checks structure
+      continue;
+    }
+
+    errors.push({
+      field: fieldName,
+      message: `Invalid unset value for '${fieldName}' — expected true or sub-field object`,
+    });
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors,
+  };
+}
+
+/**
+ * Validate that data and unset don't have leaf-level conflicts.
+ * Data takes priority — conflicting fields in unset are errors.
+ */
+export function validateDataUnsetOverlap(
+  data: Record<string, unknown>,
+  unset: Record<string, unknown>,
+  model: ModelMetadata,
+): DataValidationResult {
+  const errors: DataValidationError[] = [];
+
+  for (const [fieldName, unsetValue] of Object.entries(unset)) {
+    if (unsetValue === undefined) continue;
+    if (!(fieldName in data) || data[fieldName] === undefined) continue;
+
+    // Both data and unset touch this field
+    if (unsetValue === true) {
+      // Leaf conflict: data sets a value, unset tries to clear it
+      errors.push({
+        field: fieldName,
+        message: `Field '${fieldName}' appears in both data and unset — cannot set and unset the same field`,
+      });
+      continue;
+    }
+
+    // Sub-field unset — only a conflict if data also has an object at this key
+    // Deep overlap checking is best-effort; the type system handles most cases
+    const dataValue = data[fieldName];
+    if (
+      typeof unsetValue === 'object' &&
+      typeof dataValue === 'object' &&
+      dataValue !== null &&
+      !Array.isArray(dataValue)
+    ) {
+      // Both are objects — check for leaf-level overlap recursively
+      const subErrors = validateDataUnsetOverlapDeep(
+        dataValue as Record<string, unknown>,
+        unsetValue as Record<string, unknown>,
+        fieldName,
+      );
+      errors.push(...subErrors);
+    }
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors,
+  };
+}
+
+/** Recursively check data/unset overlap at sub-field level */
+function validateDataUnsetOverlapDeep(
+  data: Record<string, unknown>,
+  unset: Record<string, unknown>,
+  parentPath: string,
+): DataValidationError[] {
+  const errors: DataValidationError[] = [];
+
+  for (const [key, unsetValue] of Object.entries(unset)) {
+    if (unsetValue === undefined) continue;
+    if (!(key in data) || data[key] === undefined) continue;
+
+    const path = `${parentPath}.${key}`;
+
+    if (unsetValue === true) {
+      errors.push({
+        field: path,
+        message: `Field '${path}' appears in both data and unset — cannot set and unset the same field`,
+      });
+      continue;
+    }
+
+    const dataValue = data[key];
+    if (
+      typeof unsetValue === 'object' &&
+      typeof dataValue === 'object' &&
+      dataValue !== null &&
+      !Array.isArray(dataValue)
+    ) {
+      errors.push(
+        ...validateDataUnsetOverlapDeep(
+          dataValue as Record<string, unknown>,
+          unsetValue as Record<string, unknown>,
+          path,
+        ),
+      );
+    }
+  }
+
+  return errors;
+}
+
 /** Validate data for update operation */
 export function validateUpdateData(data: Record<string, unknown>, model: ModelMetadata): DataValidationResult {
   const errors: DataValidationError[] = [];

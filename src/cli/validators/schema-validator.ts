@@ -2,8 +2,8 @@
  * Schema validator - validates schema files
  */
 
-import { getDecorator, hasDecorator } from '../../parser/types/ast';
-import type { SchemaAST } from '../../types';
+import { getDecorator, getTuple, hasDecorator } from '../../parser/types/ast';
+import type { ASTTuple, SchemaAST } from '../../types';
 import { isValidFieldName, isValidModelName, isValidObjectName } from '../../utils/validation-utils';
 import {
   validateNullableDecorator,
@@ -664,6 +664,78 @@ export function validateObjectReferences(ast: SchemaAST): SchemaValidationError[
   return errors;
 }
 
+/**
+ * Check if a tuple has a required element with a decorator that forces a DEFINE FIELD sub-constraint.
+ * These decorators are: @default, @defaultAlways, @createdAt, @updatedAt.
+ * (Optional/nullable elements always get sub-field constraints regardless.)
+ */
+function tupleHasDecoratedRequiredElement(tuple: ASTTuple): boolean {
+  return tuple.elements.some((el) => {
+    if (el.isOptional) return false;
+    if (!el.decorators?.length) return false;
+
+    return el.decorators.some(
+      (d) => d.type === 'default' || d.type === 'defaultAlways' || d.type === 'createdAt' || d.type === 'updatedAt',
+    );
+  });
+}
+
+/**
+ * Validate that a model does not trigger a SurrealDB bug with optional tuples + optional objects.
+ *
+ * SurrealDB bug: When a SCHEMAFULL table has ALL of:
+ *   1. An optional tuple field with at least one optional element AND at least one
+ *      required element that has a decorator (forcing a DEFINE FIELD sub-constraint)
+ *   2. Any optional object field on the same table
+ *
+ * Then creating a record without providing the tuple fails with a type coercion error
+ * on the required element's sub-field constraint.
+ *
+ * The migration generator already skips sub-field constraints for required primitive
+ * elements WITHOUT decorators (Step 1 mitigation). This validation catches the remaining
+ * case where a required element HAS a decorator and the sub-field can't be skipped.
+ */
+export function validateTupleObjectCombination(ast: SchemaAST): SchemaValidationError[] {
+  const errors: SchemaValidationError[] = [];
+
+  for (const model of ast.models) {
+    // Check if model has any optional object field
+    const hasOptionalObject = model.fields.some((f) => f.type === 'object' && f.isOptional);
+    if (!hasOptionalObject) continue;
+
+    // Check each optional tuple field
+    for (const field of model.fields) {
+      if (field.type !== 'tuple' || !field.isOptional || !field.tupleName) continue;
+
+      const tuple = getTuple(ast, field.tupleName);
+      if (!tuple) continue;
+
+      // Does the tuple have at least one optional element?
+      const hasOptionalElement = tuple.elements.some((el) => el.isOptional);
+      if (!hasOptionalElement) continue;
+
+      // Does the tuple have a required element with a decorator?
+      if (!tupleHasDecoratedRequiredElement(tuple)) continue;
+
+      // All conditions met — this triggers the SurrealDB bug
+      const optionalObjectFields = model.fields.filter((f) => f.type === 'object' && f.isOptional).map((f) => f.name);
+
+      errors.push({
+        message:
+          `Model '${model.name}' has an optional tuple field '${field.name}' (${field.tupleName}) with a decorated required element ` +
+          `and optional object field(s) (${optionalObjectFields.join(', ')}). This combination triggers a SurrealDB bug where ` +
+          `creating a record without the tuple fails. Workarounds: (1) make the tuple field required, ` +
+          `(2) remove the decorator from the required tuple element, or (3) make the object field(s) required.`,
+        model: model.name,
+        field: field.name,
+        line: field.range.start.line,
+      });
+    }
+  }
+
+  return errors;
+}
+
 /** Validate entire schema */
 export function validateSchema(ast: SchemaAST): SchemaValidationResult {
   const errors: SchemaValidationError[] = [
@@ -683,6 +755,7 @@ export function validateSchema(ast: SchemaAST): SchemaValidationResult {
     ...validateNullableOnObjectFields(ast),
     ...validateNullableOnTupleElements(ast),
     ...validateTupleElementDecorators(ast),
+    ...validateTupleObjectCombination(ast),
   ];
 
   return {

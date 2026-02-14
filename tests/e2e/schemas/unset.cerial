@@ -1,0 +1,85 @@
+# Unset feature test schema
+# Tests unset parameter on updateMany, updateUnique, and upsert
+# Includes primitives, objects, and tuples with optional fields
+# Includes deeply nested objects (3 levels) for deep unset testing
+
+object UnsetAddress {
+  street String
+  city String
+  zip String?
+}
+
+tuple UnsetCoord {
+  lat Float,
+  lng Float
+}
+
+tuple UnsetOptTuple {
+  label String,
+  Float?
+}
+
+object UnsetInner {
+  value String
+  extra String?
+}
+
+tuple UnsetObjTuple {
+  tag String,
+  UnsetInner
+}
+
+# Deep nesting: 3 levels of objects
+object UnsetDeepInner {
+  code String
+  note String?
+}
+
+object UnsetDeepMid {
+  label String
+  score Int?
+  deep UnsetDeepInner
+}
+
+object UnsetDeepOuter {
+  title String
+  mid UnsetDeepMid
+  desc String?
+}
+
+# Tuple with deeply nested object (object-in-object inside tuple)
+tuple UnsetDeepTuple {
+  name String,
+  UnsetDeepMid
+}
+
+# Self-referencing object (recursive tree)
+object UnsetTreeNode {
+  value String
+  extra String?
+  child UnsetTreeNode?
+}
+
+# Self-referencing tuple (recursive)
+tuple UnsetRecursive {
+  label String,
+  UnsetRecursive?
+}
+
+model UnsetTest {
+  id Record @id
+  name String
+  bio String?
+  age Int?
+  address UnsetAddress
+  shipping UnsetAddress?
+  pos UnsetCoord
+  backup UnsetCoord?
+  opt UnsetOptTuple?
+  tagged UnsetObjTuple?
+  nested UnsetDeepOuter
+  optNested UnsetDeepOuter?
+  deepTuple UnsetDeepTuple?
+  tree UnsetTreeNode?
+  recursive UnsetRecursive?
+}

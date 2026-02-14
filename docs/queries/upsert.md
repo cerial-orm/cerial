@@ -10,14 +10,15 @@ Creates a record if it doesn't exist, or updates it if it does. The `where` clau
 
 ## Options
 
-| Option    | Type                                       | Required | Description                                                |
-| --------- | ------------------------------------------ | -------- | ---------------------------------------------------------- |
-| `where`   | `WhereInput` or `UniqueWhereInput`         | Yes      | Identifies the record to upsert                            |
-| `create`  | `CreateInput`                              | Yes      | Data used when creating a new record (all required fields) |
-| `update`  | `UpdateInput`                              | No       | Data used when updating an existing record (partial)       |
-| `select`  | `SelectInput`                              | No       | Narrow which fields are returned                           |
-| `include` | `IncludeInput`                             | No       | Include relations in the result                            |
-| `return`  | `undefined \| 'after' \| true \| 'before'` | No       | Controls the return value                                  |
+| Option    | Type                                       | Required | Description                                                  |
+| --------- | ------------------------------------------ | -------- | ------------------------------------------------------------ |
+| `where`   | `WhereInput` or `UniqueWhereInput`         | Yes      | Identifies the record to upsert                              |
+| `create`  | `CreateInput`                              | Yes      | Data used when creating a new record (all required fields)   |
+| `update`  | `UpdateInput`                              | No       | Data used when updating an existing record (partial)         |
+| `unset`   | `UnsetInput`                               | No       | Fields to remove on update (set to NONE). Ignored on create. |
+| `select`  | `SelectInput`                              | No       | Narrow which fields are returned                             |
+| `include` | `IncludeInput`                             | No       | Include relations in the result                              |
+| `return`  | `undefined \| 'after' \| true \| 'before'` | No       | Controls the return value                                    |
 
 ## Return Type
 
@@ -183,6 +184,23 @@ const profile = await db.Profile.upsert({
 ```
 
 When the record is created, nested operations from the `create` data are executed. When the record is updated, nested operations from the `update` data are executed.
+
+## Unsetting Fields
+
+The `unset` parameter removes optional fields by setting them to NONE. It only applies to the **update path** — when a new record is created, `unset` is ignored:
+
+```typescript
+const user = await db.User.upsert({
+  where: { email: 'jane@example.com' },
+  create: { name: 'Jane', email: 'jane@example.com', bio: 'Hello' },
+  update: { name: 'Jane Updated' },
+  unset: { bio: true },
+});
+// Create path: bio = 'Hello' (unset ignored)
+// Update path: name updated, bio removed
+```
+
+See [`updateMany` — Unsetting Fields](update-many#unsetting-fields) for full details on nested object/tuple unset syntax and `SafeUnset` cross-exclusion with `update` data.
 
 ## Field Behavior
 

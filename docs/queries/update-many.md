@@ -10,11 +10,12 @@ Updates all records matching the where clause. Returns the updated records as an
 
 ## Options
 
-| Option   | Type          | Required | Description                        |
-| -------- | ------------- | -------- | ---------------------------------- |
-| `where`  | `WhereInput`  | Yes      | Filter conditions to match records |
-| `data`   | `UpdateInput` | Yes      | The fields and values to update    |
-| `select` | `SelectInput` | No       | Narrow which fields are returned   |
+| Option   | Type          | Required | Description                            |
+| -------- | ------------- | -------- | -------------------------------------- |
+| `where`  | `WhereInput`  | Yes      | Filter conditions to match records     |
+| `data`   | `UpdateInput` | Yes      | The fields and values to update        |
+| `unset`  | `UnsetInput`  | No       | Fields to remove (set to NONE) in bulk |
+| `select` | `SelectInput` | No       | Narrow which fields are returned       |
 
 ## Basic Usage
 
@@ -116,6 +117,55 @@ await db.Post.updateMany({
 });
 ```
 
+## Unsetting Fields
+
+The `unset` parameter removes optional fields in bulk by setting them to NONE (absent). This is a declarative alternative to importing and passing `NONE` in `data`.
+
+```typescript
+await db.User.updateMany({
+  where: { isActive: false },
+  unset: { bio: true, age: true },
+});
+// Removes bio and age from all matching records
+```
+
+### Nested Object Fields
+
+Unset specific sub-fields within objects using nested syntax:
+
+```typescript
+await db.User.updateMany({
+  where: { id: userId },
+  unset: { address: { zip: true } },
+});
+// Removes only address.zip, preserving other address sub-fields
+```
+
+Optional objects can also be unset entirely:
+
+```typescript
+await db.User.updateMany({
+  where: { id: userId },
+  unset: { shipping: true },
+});
+// Removes the entire shipping object
+```
+
+### Combining data and unset
+
+You can use `data` and `unset` together, as long as they don't conflict at the leaf level:
+
+```typescript
+await db.User.updateMany({
+  where: { id: userId },
+  data: { name: 'Updated' },
+  unset: { bio: true, address: { zip: true } },
+});
+// Updates name, removes bio and address.zip
+```
+
+TypeScript's `SafeUnset` utility type prevents leaf-level conflicts at compile time — if a field appears in `data`, it is excluded from the `unset` type. For objects, only conflicting sub-fields are excluded; non-overlapping sub-fields remain available.
+
 ## Setting Optional Fields to null or NONE
 
 ```typescript
@@ -136,7 +186,9 @@ await db.User.updateMany({
 // SurrealQL: UPDATE user SET bio = NONE
 ```
 
-Fields not included in the `data` object are left unchanged.
+Both `unset` and `NONE` in `data` achieve the same result. Use `unset` for bulk removal of multiple fields; use `NONE` in `data` when removing a single field inline.
+
+Fields not included in `data` or `unset` are left unchanged.
 
 ## Return Value
 

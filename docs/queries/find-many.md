@@ -91,6 +91,8 @@ const users = await db.User.findMany({
 });
 ```
 
+Ordering supports nested object fields (e.g., `orderBy: { address: { city: 'asc' } }`). Ordering by relation fields is not currently supported due to a SurrealDB limitation with record-link dot notation in ORDER BY clauses.
+
 ## With Select
 
 ```typescript

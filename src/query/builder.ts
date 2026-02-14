@@ -52,7 +52,13 @@ import type { CompiledQuery } from './compile/types';
 import { executeQuery, executeQuerySingle } from './executor';
 import { mapResult, mapSingleResult } from './mappers';
 import { applyFieldDefaults, transformData, transformOrValidateRecordId } from './transformers';
-import { validateCreateData, validateUpdateData, validateWhere } from './validators';
+import {
+  validateCreateData,
+  validateUpdateData,
+  validateUnset,
+  validateDataUnsetOverlap,
+  validateWhere,
+} from './validators';
 
 /** Extended find options with include support */
 export interface FindOneOptionsWithInclude extends FindOneOptions {
@@ -157,7 +163,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
 
   /** Update records matching where clause */
   async updateMany(options: UpdateOptions<Partial<T>>): Promise<T[]> {
-    const { where, data, select } = options;
+    const { where, data, select, unset } = options;
 
     // Validate where clause
     const whereValidation = validateWhere(where, this.model);
@@ -174,6 +180,17 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     if (!dataValidation.valid)
       throw new Error(`Invalid data: ${dataValidation.errors.map((e) => e.message).join(', ')}`);
 
+    // Validate unset fields
+    if (unset) {
+      const unsetValidation = validateUnset(unset, this.model);
+      if (!unsetValidation.valid)
+        throw new Error(`Invalid unset: ${unsetValidation.errors.map((e) => e.message).join(', ')}`);
+
+      const overlapValidation = validateDataUnsetOverlap(transformedData, unset, this.model);
+      if (!overlapValidation.valid)
+        throw new Error(`Invalid unset: ${overlapValidation.errors.map((e) => e.message).join(', ')}`);
+    }
+
     // If there are nested operations, use the transaction builder
     if (nestedOps.size > 0 && this.registry) {
       const query = buildUpdateWithNestedTransaction(this.model, where, transformedData, nestedOps, this.registry);
@@ -183,7 +200,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     }
 
     // Simple update without nested operations
-    const query = buildUpdateManyQuery(this.model, where, transformedData, select);
+    const query = buildUpdateManyQuery(this.model, where, transformedData, select, unset);
     const result = await executeQuery(this.db, query);
 
     return mapResult<T>(result, this.model);
@@ -200,11 +217,12 @@ export class QueryBuilder<T extends Record<string, unknown>> {
   async updateUnique<R extends UpdateUniqueReturn = undefined>(options: {
     where: WhereClause;
     data: Partial<T>;
+    unset?: Record<string, unknown>;
     select?: SelectClause;
     include?: IncludeClause;
     return?: R;
   }): Promise<UpdateUniqueResult<T, R>> {
-    const { where, data, select, include, return: returnOption } = options;
+    const { where, data, select, include, return: returnOption, unset } = options;
 
     // Validate where clause
     const whereValidation = validateWhere(where, this.model);
@@ -223,6 +241,17 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     const dataValidation = validateUpdateData(transformedData, this.model);
     if (!dataValidation.valid)
       throw new Error(`Invalid data: ${dataValidation.errors.map((e) => e.message).join(', ')}`);
+
+    // Validate unset fields
+    if (unset) {
+      const unsetValidation = validateUnset(unset, this.model);
+      if (!unsetValidation.valid)
+        throw new Error(`Invalid unset: ${unsetValidation.errors.map((e) => e.message).join(', ')}`);
+
+      const overlapValidation = validateDataUnsetOverlap(transformedData, unset, this.model);
+      if (!overlapValidation.valid)
+        throw new Error(`Invalid unset: ${overlapValidation.errors.map((e) => e.message).join(', ')}`);
+    }
 
     // If there are nested operations, use the transaction builder
     // TODO: Add support for nested operations with updateUnique
@@ -251,6 +280,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
       select,
       include,
       this.registry,
+      unset,
     );
 
     // Execute query - UPDATE ONLY returns single result, UPDATE returns array
@@ -425,11 +455,12 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     where: WhereClause;
     create: Record<string, unknown>;
     update?: Record<string, unknown>;
+    unset?: Record<string, unknown>;
     select?: SelectClause;
     include?: IncludeClause;
     return?: R;
   }): Promise<unknown> {
-    const { where, create: createData, update: updateData, select, include, return: returnOption } = options;
+    const { where, create: createData, update: updateData, unset, select, include, return: returnOption } = options;
 
     // Validate where clause
     const whereValidation = validateWhere(where, this.model);
@@ -456,6 +487,19 @@ export class QueryBuilder<T extends Record<string, unknown>> {
       const updateValidation = validateUpdateData(transformedUpdateData, this.model);
       if (!updateValidation.valid)
         throw new Error(`Invalid update data: ${updateValidation.errors.map((e) => e.message).join(', ')}`);
+    }
+
+    // Validate unset fields (applies to update portion of upsert)
+    if (unset) {
+      const unsetValidation = validateUnset(unset, this.model);
+      if (!unsetValidation.valid)
+        throw new Error(`Invalid unset: ${unsetValidation.errors.map((e) => e.message).join(', ')}`);
+
+      if (updateData) {
+        const overlapValidation = validateDataUnsetOverlap(transformedUpdateData, unset, this.model);
+        if (!overlapValidation.valid)
+          throw new Error(`Invalid unset: ${overlapValidation.errors.map((e) => e.message).join(', ')}`);
+      }
     }
 
     // Determine if this is ID-based or WHERE-based (without requiring unique fields)
@@ -494,6 +538,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
       select,
       include,
       this.registry,
+      unset,
     );
 
     if (hasId) {
@@ -689,7 +734,7 @@ export function compileUpdateMany(
   options: UpdateOptions<Record<string, unknown>>,
   registry?: ModelRegistry,
 ): CompiledQueryDescriptor {
-  const { where, data, select } = options;
+  const { where, data, select, unset } = options;
 
   const whereValidation = validateWhere(where, model);
   if (!whereValidation.valid)
@@ -701,6 +746,17 @@ export function compileUpdateMany(
   const dataValidation = validateUpdateData(transformedData, model);
   if (!dataValidation.valid) throw new Error(`Invalid data: ${dataValidation.errors.map((e) => e.message).join(', ')}`);
 
+  // Validate unset fields
+  if (unset) {
+    const unsetValidation = validateUnset(unset, model);
+    if (!unsetValidation.valid)
+      throw new Error(`Invalid unset: ${unsetValidation.errors.map((e) => e.message).join(', ')}`);
+
+    const overlapValidation = validateDataUnsetOverlap(transformedData, unset, model);
+    if (!overlapValidation.valid)
+      throw new Error(`Invalid unset: ${overlapValidation.errors.map((e) => e.message).join(', ')}`);
+  }
+
   if (nestedOps.size > 0 && registry) {
     return {
       query: buildUpdateWithNestedTransaction(model, where, transformedData, nestedOps, registry),
@@ -709,7 +765,7 @@ export function compileUpdateMany(
   }
 
   return {
-    query: buildUpdateManyQuery(model, where, transformedData, select),
+    query: buildUpdateManyQuery(model, where, transformedData, select, unset),
     resultType: 'array',
   };
 }
@@ -720,13 +776,14 @@ export function compileUpdateUnique(
   options: {
     where: WhereClause;
     data: Record<string, unknown>;
+    unset?: Record<string, unknown>;
     select?: SelectClause;
     include?: IncludeClause;
     return?: UpdateUniqueReturn;
   },
   registry?: ModelRegistry,
 ): CompiledQueryDescriptor {
-  const { where, data, select, include, return: returnOption } = options;
+  const { where, data, select, include, return: returnOption, unset } = options;
 
   const whereValidation = validateWhere(where, model);
   if (!whereValidation.valid)
@@ -740,6 +797,17 @@ export function compileUpdateUnique(
   const dataValidation = validateUpdateData(transformedData, model);
   if (!dataValidation.valid) throw new Error(`Invalid data: ${dataValidation.errors.map((e) => e.message).join(', ')}`);
 
+  // Validate unset fields
+  if (unset) {
+    const unsetValidation = validateUnset(unset, model);
+    if (!unsetValidation.valid)
+      throw new Error(`Invalid unset: ${unsetValidation.errors.map((e) => e.message).join(', ')}`);
+
+    const overlapValidation = validateDataUnsetOverlap(transformedData, unset, model);
+    if (!overlapValidation.valid)
+      throw new Error(`Invalid unset: ${overlapValidation.errors.map((e) => e.message).join(', ')}`);
+  }
+
   if (nestedOps.size > 0 && registry) {
     return {
       query: buildUpdateWithNestedTransaction(model, expandedWhere, transformedData, nestedOps, registry),
@@ -751,7 +819,16 @@ export function compileUpdateUnique(
 
   return {
     // Pass original where — buildUpdateUniqueQuery does its own expansion internally
-    query: buildUpdateUniqueQuery(model, where, transformedData, returnOption ?? undefined, select, include, registry),
+    query: buildUpdateUniqueQuery(
+      model,
+      where,
+      transformedData,
+      returnOption ?? undefined,
+      select,
+      include,
+      registry,
+      unset,
+    ),
     resultType: hasId ? 'single' : 'array',
     hasId,
     returnOption,
@@ -870,13 +947,14 @@ export function compileUpsert(
     where: WhereClause;
     create: Record<string, unknown>;
     update?: Record<string, unknown>;
+    unset?: Record<string, unknown>;
     select?: SelectClause;
     include?: IncludeClause;
     return?: UpsertReturn;
   },
   registry?: ModelRegistry,
 ): CompiledQueryDescriptor {
-  const { where, create: createData, update: updateData, select, include, return: returnOption } = options;
+  const { where, create: createData, update: updateData, unset, select, include, return: returnOption } = options;
 
   const whereValidation = validateWhere(where, model);
   if (!whereValidation.valid)
@@ -899,6 +977,19 @@ export function compileUpsert(
       throw new Error(`Invalid update data: ${updateValidation.errors.map((e) => e.message).join(', ')}`);
   }
 
+  // Validate unset fields (applies to update portion of upsert)
+  if (unset) {
+    const unsetValidation = validateUnset(unset, model);
+    if (!unsetValidation.valid)
+      throw new Error(`Invalid unset: ${unsetValidation.errors.map((e) => e.message).join(', ')}`);
+
+    if (updateData) {
+      const overlapValidation = validateDataUnsetOverlap(transformedUpdateData, unset, model);
+      if (!overlapValidation.valid)
+        throw new Error(`Invalid unset: ${overlapValidation.errors.map((e) => e.message).join(', ')}`);
+    }
+  }
+
   // Check for id and unique fields without requiring them
   const idField = model.fields.find((f) => f.isId);
   const hasId = !!(idField && where[idField.name] !== undefined && where[idField.name] !== null);
@@ -919,6 +1010,7 @@ export function compileUpsert(
     select,
     include,
     registry,
+    unset,
   );
 
   // Determine result type
@@ -1044,6 +1136,7 @@ export const QueryBuilderStatic = {
     options: {
       where: WhereClause;
       data: Partial<T>;
+      unset?: Record<string, unknown>;
       select?: SelectClause;
       include?: IncludeClause;
       return?: R;
@@ -1080,6 +1173,7 @@ export const QueryBuilderStatic = {
       where: WhereClause;
       create: Record<string, unknown>;
       update?: Record<string, unknown>;
+      unset?: Record<string, unknown>;
       select?: SelectClause;
       include?: IncludeClause;
       return?: R;

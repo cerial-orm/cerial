@@ -143,6 +143,51 @@ await db.User.updateUnique({
 
 After clearing, the field will be absent from the result (`undefined`).
 
+## Unsetting with the `unset` Parameter
+
+Instead of importing `NONE` and passing it in `data`, you can use the `unset` parameter on `updateMany`, `updateUnique`, and `upsert` to declaratively remove optional tuple elements and fields:
+
+### Unsetting Tuple Elements
+
+```typescript
+// Clear optional element by name or index
+await db.Model.updateUnique({
+  where: { id: recordId },
+  data: {},
+  unset: { location: { altitude: true } },
+});
+
+// Equivalent to: data: { location: { altitude: NONE } }
+```
+
+### Unsetting Optional Tuple Fields
+
+```typescript
+// Remove the entire optional tuple field
+await db.User.updateUnique({
+  where: { id: userId },
+  data: {},
+  unset: { backup: true },
+});
+
+// Equivalent to: data: { backup: NONE }
+```
+
+### Combining with data
+
+You can update some elements while unsetting others:
+
+```typescript
+await db.User.updateUnique({
+  where: { id: userId },
+  data: { location: { lat: 42.0 } },
+  unset: { location: { altitude: true } },
+});
+// Updates lat, clears altitude, preserves lng
+```
+
+TypeScript's `SafeUnset` utility type prevents conflicts — if a field appears in `data`, it's excluded from the `unset` type. See [`updateMany` — Unsetting Fields](../queries/update-many#unsetting-fields) for full details.
+
 ## Array Tuple: Push
 
 Add one or more tuples to an array field:
