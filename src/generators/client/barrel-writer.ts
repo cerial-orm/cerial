@@ -1,0 +1,76 @@
+/**
+ * Barrel writer - writes index.ts barrel files for models/, objects/, and tuples/ directories
+ */
+
+import type { ModelMetadata, ObjectMetadata, TupleMetadata } from '../../types';
+import { ensureDir, formatCode } from '../shared';
+
+/** Write models/index.ts barrel file (models only) */
+export async function writeModelsIndex(outputDir: string, models: ModelMetadata[]): Promise<string> {
+  const modelsDir = `${outputDir}/models`;
+  await ensureDir(modelsDir);
+
+  const filePath = `${modelsDir}/index.ts`;
+  const exports = models.map((m) => `export * from './${m.name.toLowerCase()}';`).join('\n');
+
+  const content = `/**
+ * Generated model exports
+ * Do not edit manually
+ */
+
+${exports}
+`;
+
+  const formatted = await formatCode(content, outputDir);
+  await Bun.write(filePath, formatted);
+
+  return filePath;
+}
+
+/** Write objects/index.ts barrel file (objects only) */
+export async function writeObjectsIndex(outputDir: string, objects: ObjectMetadata[]): Promise<string> {
+  if (!objects.length) return '';
+
+  const objectsDir = `${outputDir}/objects`;
+  await ensureDir(objectsDir);
+
+  const filePath = `${objectsDir}/index.ts`;
+  const exports = objects.map((o) => `export * from './${o.name.toLowerCase()}';`).join('\n');
+
+  const content = `/**
+ * Generated object exports
+ * Do not edit manually
+ */
+
+${exports}
+`;
+
+  const formatted = await formatCode(content, outputDir);
+  await Bun.write(filePath, formatted);
+
+  return filePath;
+}
+
+/** Write tuples/index.ts barrel file (tuples only) */
+export async function writeTuplesIndex(outputDir: string, tuples: TupleMetadata[]): Promise<string> {
+  if (!tuples.length) return '';
+
+  const tuplesDir = `${outputDir}/tuples`;
+  await ensureDir(tuplesDir);
+
+  const filePath = `${tuplesDir}/index.ts`;
+  const exports = tuples.map((t) => `export * from './${t.name.toLowerCase()}';`).join('\n');
+
+  const content = `/**
+ * Generated tuple exports
+ * Do not edit manually
+ */
+
+${exports}
+`;
+
+  const formatted = await formatCode(content, outputDir);
+  await Bun.write(filePath, formatted);
+
+  return filePath;
+}

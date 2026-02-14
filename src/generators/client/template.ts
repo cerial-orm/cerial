@@ -16,26 +16,6 @@ import { migrationsByModel, getModelMigrationQuery, getMigrationModelNames, type
 import type { ${modelImports}, ${modelTypeImports} } from './models';`;
 }
 
-/** Generate client setup code */
-export function generateClientSetup(): string {
-  return ``;
-}
-
-/** Generate connect function */
-export function generateConnectFunction(): string {
-  return ``;
-}
-
-/** Generate disconnect function */
-export function generateDisconnectFunction(): string {
-  return ``;
-}
-
-/** Generate useConnection function */
-export function generateUseConnectionFunction(): string {
-  return ``;
-}
-
 /** Generate TypedDb interface for typed model access */
 export function generateTypedDbInterface(models: ModelMetadata[]): string {
   const modelTypes = models.map((m) => `  ${m.name}: ${m.name}Model;`).join('\n');

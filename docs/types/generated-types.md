@@ -343,17 +343,22 @@ import { CerialQueryPromise } from './db-client';
 
 ## Generated File Structure
 
-All types are generated into the output directory (typically `db-client/` or a configured path):
+All types are generated into the output directory (typically `db-client/` or a configured path). Models, objects, and tuples each get their own directory:
 
 ```
 db-client/
 ├── client.ts               # CerialClient class with Model proxies
-├── models/
-│   ├── user.ts              # User, UserInput, UserCreate, UserUpdate, UserWhere,
-│   │                        #   UserSelect, UserInclude, UserOrderBy, GetUserPayload, ...
-│   ├── post.ts              # Post types...
-│   ├── profile.ts           # Profile types...
-│   └── address.ts           # Address, AddressInput, AddressWhere, AddressSelect, AddressOrderBy
+├── models/                  # Model types (User, UserCreate, UserWhere, ...)
+│   ├── user.ts
+│   ├── post.ts
+│   ├── profile.ts
+│   └── index.ts
+├── objects/                 # Object types (Address, AddressInput, AddressWhere, ...)
+│   ├── address.ts
+│   └── index.ts
+├── tuples/                  # Tuple types (Coordinate, CoordinateInput, CoordinateWhere, ...)
+│   ├── coordinate.ts
+│   └── index.ts
 ├── internal/
 │   ├── model-registry.ts    # Runtime model metadata (fields, relations, types)
 │   └── migrations.ts        # DEFINE TABLE / DEFINE FIELD statements

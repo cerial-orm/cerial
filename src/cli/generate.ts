@@ -2,6 +2,8 @@
  * Generate command - orchestrates the generation process
  */
 
+import { readdir, rm } from 'node:fs/promises';
+import { resolve } from 'node:path';
 import { writeClient } from '../generators/client/writer';
 import {
   convertModels,
@@ -11,7 +13,8 @@ import {
   createTupleRegistry,
   resolveObjectFields,
 } from '../generators/metadata';
-import { writeInternalIndex, writeModelRegistry } from '../generators/metadata/writer';
+import { writeModelRegistry } from '../generators/metadata/registry-writer';
+import { writeInternalIndex } from '../generators/metadata/internal-writer';
 import { writeMigrationFile } from '../generators/migrations/writer';
 import { collectObjectNames, collectTupleNames, parse } from '../parser/parser';
 import type { ASTModel, ASTObject, ASTTuple } from '../types';
@@ -25,6 +28,53 @@ export interface GenerateResult {
   success: boolean;
   files: string[];
   errors: string[];
+}
+
+/**
+ * Delete the entire output directory and all its contents.
+ * Used when the --clean flag is passed.
+ */
+async function cleanOutputDir(outputDir: string): Promise<void> {
+  await rm(outputDir, { recursive: true, force: true });
+}
+
+/**
+ * Remove stale .ts files from the output directory that were not part of the current generation.
+ * Recursively scans the output tree, deletes orphaned .ts files, and removes empty directories.
+ */
+async function removeStaleFiles(outputDir: string, generatedFiles: string[]): Promise<string[]> {
+  const generatedSet = new Set(generatedFiles.map((f) => resolve(f)));
+  const staleFiles: string[] = [];
+
+  async function scan(dir: string): Promise<void> {
+    let entries;
+    try {
+      entries = await readdir(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+
+    for (const entry of entries) {
+      const fullPath = `${dir}/${entry.name}`;
+      if (entry.isDirectory()) {
+        await scan(fullPath);
+        // Remove directory if it became empty after cleaning
+        try {
+          const remaining = await readdir(fullPath);
+          if (!remaining.length) await rm(fullPath, { recursive: true, force: true });
+        } catch {
+          // Ignore errors on cleanup
+        }
+      } else if (entry.isFile() && entry.name.endsWith('.ts') && !generatedSet.has(resolve(fullPath))) {
+        staleFiles.push(fullPath);
+      }
+    }
+  }
+
+  await scan(outputDir);
+  await Promise.all(staleFiles.map((f) => rm(f, { force: true })));
+
+  return staleFiles;
 }
 
 /** Run the generate command */
@@ -162,6 +212,12 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
       resolveObjectFields(models, objects, objRegistry ?? {}, tupRegistry);
     }
 
+    // Clean output directory if --clean flag is set
+    if (options.clean) {
+      logger.progress('Cleaning output directory...');
+      await cleanOutputDir(outputDir);
+    }
+
     // Generate files
     logger.progress('Generating files...');
 
@@ -193,6 +249,15 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
       logger.info(`  ${modelFiles.length} model files`);
       logger.info(`  3 internal files`);
       logger.info(`  ${clientFiles.length - modelFiles.length} client files`);
+    }
+
+    // Remove stale files from previous generations (skipped if --clean already wiped the directory)
+    if (!options.clean) {
+      const staleFiles = await removeStaleFiles(outputDir, result.files);
+      if (staleFiles.length) {
+        logger.info(`Removed ${staleFiles.length} stale file(s)`);
+        if (logLevel === 'full') staleFiles.forEach((f) => logger.debug(`  removed ${f}`));
+      }
     }
 
     result.success = true;

@@ -17,6 +17,8 @@ export interface CLIOptions {
   verbose?: boolean;
   /** Log output level (minimal, medium, full) */
   log?: LogOutputLevel;
+  /** Delete entire output directory before generating (default: false, only stale files are removed) */
+  clean?: boolean;
 }
 
 /** Validation error */

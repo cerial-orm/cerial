@@ -10,6 +10,8 @@ After running `bunx cerial generate`, the output directory contains a complete T
 
 ## Directory Structure
 
+Models, objects, and tuples are each generated into their own directory so you can tell at a glance which is which:
+
 ```
 db-client/
 ├── client.ts             # CerialClient class with connect/disconnect/migrate
@@ -18,8 +20,13 @@ db-client/
 │   ├── profile.ts        # Profile interface + all derived types
 │   ├── post.ts           # Post interface + all derived types
 │   ├── tag.ts            # Tag interface + all derived types
+│   └── index.ts          # Re-exports all model types
+├── objects/
 │   ├── address.ts        # Address object interface + types
-│   └── index.ts          # Re-exports all model/object types
+│   └── index.ts          # Re-exports all object types
+├── tuples/
+│   ├── coordinate.ts     # Coordinate tuple literal + types
+│   └── index.ts          # Re-exports all tuple types
 ├── internal/
 │   ├── model-registry.ts # Runtime metadata (fields, relations, decorators)
 │   ├── migrations.ts     # DEFINE TABLE/FIELD/INDEX statements
@@ -61,7 +68,7 @@ The `db` property is a JavaScript Proxy that intercepts property access and rout
 
 ## models/\*.ts
 
-One file is generated per model and per object defined in your schema.
+One file is generated per `model` defined in your schema.
 
 ### Model Types
 
@@ -139,9 +146,9 @@ export interface UserWhere {
 }
 ```
 
-### Object Types
+## objects/\*.ts
 
-For each `object` in your schema, a smaller set of types is generated:
+One file is generated per `object` defined in your schema. For each object, a smaller set of types is generated:
 
 | Type             | Description                                       |
 | ---------------- | ------------------------------------------------- |
@@ -187,6 +194,21 @@ export interface AddressSelect {
   zipCode?: boolean;
 }
 ```
+
+## tuples/\*.ts
+
+One file is generated per `tuple` defined in your schema:
+
+| Type               | Description                                                        |
+| ------------------ | ------------------------------------------------------------------ |
+| `Coordinate`       | Output type - TypeScript tuple literal                             |
+| `CoordinateInput`  | Input type - accepts array or named object form                    |
+| `CoordinateWhere`  | Filter conditions for tuple fields                                 |
+| `CoordinateUpdate` | Per-element update type (object form for selective element update) |
+| `CoordinateSelect` | Sub-field selection (only if tuple contains object elements)       |
+| `CoordinateUnset`  | Per-element unset (only if tuple has optional elements)            |
+
+Tuples do **not** generate `Create`, `Include`, `OrderBy`, `GetPayload`, or `$Relations` types. Like objects, tuples are embedded inline within models and are not standalone tables.
 
 ## internal/model-registry.ts
 
@@ -298,4 +320,14 @@ bunx cerial generate
 bunx cerial generate --watch
 ```
 
-All existing files in the output directory are overwritten on each generation. Do not manually edit generated files - your changes will be lost.
+### Automatic Cleanup
+
+When you regenerate, stale files from previous generations are automatically removed. If you rename a model from `User` to `Account`, the old `models/user.ts` is deleted and `models/account.ts` is created. Empty directories left behind are also cleaned up.
+
+For a guaranteed clean slate (e.g., after major schema restructuring), use the `--clean` flag to wipe the entire output directory before generating:
+
+```bash
+bunx cerial generate --clean
+```
+
+Do not manually edit generated files - your changes will be lost on the next regeneration.

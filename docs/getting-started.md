@@ -89,12 +89,15 @@ The generated output includes:
 ```
 db-client/
 ├── client.ts             # CerialClient class
-├── models/
-│   ├── user.ts           # User interface + types
-│   ├── profile.ts        # Profile interface + types
-│   ├── post.ts           # Post interface + types
-│   ├── tag.ts            # Tag interface + types
-│   └── index.ts          # Model exports
+├── models/               # Model types (one file per model)
+│   ├── user.ts
+│   ├── profile.ts
+│   ├── post.ts
+│   ├── tag.ts
+│   └── index.ts
+├── objects/              # Object types (one file per object)
+│   ├── address.ts
+│   └── index.ts
 ├── internal/
 │   ├── model-registry.ts # Runtime model metadata
 │   ├── migrations.ts     # DEFINE TABLE/FIELD statements

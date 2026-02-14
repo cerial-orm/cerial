@@ -2,28 +2,42 @@
  * Client generators barrel export
  */
 
-export {
-  generateClientClass,
-  generateClientSetup,
-  generateClientTemplate,
-  generateConnectFunction,
-  generateDisconnectFunction,
-  generateImports,
-  generateTypedDbInterface,
-  generateUseConnectionFunction,
-} from './template';
+export { generateClientClass, generateClientTemplate, generateImports, generateTypedDbInterface } from './template';
+
+export { generateConnectionExports } from './connection-template';
+
+export { formatCode, writeClient, writeClientMain } from './writer';
+
+export { writeModelsIndex, writeObjectsIndex, writeTuplesIndex } from './barrel-writer';
+
+export { writeClientIndex } from './client-index-writer';
+
+export { writeModelTypes } from './model-writer';
+
+export { writeObjectTypes } from './object-writer';
+
+export { writeTupleTypes } from './tuple-writer';
 
 export {
-  generateConnectionConfigInterface,
-  generateConnectionExports,
-  generateDbProxyInterface,
-} from './connection-template';
+  CERIAL_ID_IMPORT,
+  NONE_IMPORT,
+  TS_TOOLBELT_IMPORT,
+  UNIQUE_TYPES_IMPORT,
+  collectTupleObjectNamesDeep,
+  collectTupleTupleNamesDeep,
+  createRegistryFromModels,
+  generateObjectImports,
+  generateRelatedImports,
+  generateTupleImports,
+  getObjectReferencedObjectNames,
+  getObjectReferencedTupleNames,
+  getReferencedObjectNames,
+  getReferencedTupleNames,
+  getRelatedModelNames,
+  getTupleReferencedObjectNames,
+  getTupleReferencedTupleNames,
+  hasRelations,
+  needsCerialNone,
+} from './import-helpers';
 
-export {
-  formatCode,
-  writeClient,
-  writeClientIndex,
-  writeClientMain,
-  writeModelsIndex,
-  writeModelTypes,
-} from './writer';
+export { RETURN_UTILITY_TYPES, SAFE_UNSET_TYPE, SELECT_UTILITY_TYPES } from './utility-types';

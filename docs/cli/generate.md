@@ -14,13 +14,14 @@ bunx cerial generate [options]
 
 ## Options
 
-| Flag              | Alias | Description                               | Default       |
-| ----------------- | ----- | ----------------------------------------- | ------------- |
-| `--schema <path>` | `-s`  | Path to schema file or directory          | `./schemas`   |
-| `--output <path>` | `-o`  | Output directory for generated client     | `./db-client` |
-| `--watch`         | `-w`  | Watch for schema changes and regenerate   | `false`       |
-| `--verbose`       | `-v`  | Verbose output showing generation details | `false`       |
-| `--help`          | `-h`  | Show help message                         | -             |
+| Flag              | Alias | Description                                      | Default       |
+| ----------------- | ----- | ------------------------------------------------ | ------------- |
+| `--schema <path>` | `-s`  | Path to schema file or directory                 | `./schemas`   |
+| `--output <path>` | `-o`  | Output directory for generated client            | `./db-client` |
+| `--clean`         | `-c`  | Delete entire output directory before generating | `false`       |
+| `--watch`         | `-w`  | Watch for schema changes and regenerate          | `false`       |
+| `--verbose`       | `-v`  | Verbose output showing generation details        | `false`       |
+| `--help`          | `-h`  | Show help message                                | -             |
 
 ## Examples
 
@@ -57,6 +58,16 @@ bunx cerial generate -s ./schemas -o ./db-client --watch
 ```
 
 Watch mode monitors the schema directory (or file) for changes and triggers a full regeneration cycle each time a `.cerial` file is created, modified, or deleted.
+
+### Clean output
+
+Delete the entire output directory before generating, ensuring a completely fresh output with no leftover files:
+
+```bash
+bunx cerial generate -s ./schemas -o ./db-client --clean
+```
+
+Without `--clean`, stale files from previous generations (e.g., types for renamed or removed models) are automatically detected and removed after generating. The `--clean` flag is useful when you want a guaranteed clean slate, such as after major schema restructuring.
 
 ### Verbose output
 
@@ -153,6 +164,12 @@ The `CerialClient` class is generated with:
 ### 8. Formatting and Output
 
 All generated files are formatted with Prettier and written to the output directory. Existing files in the output directory are overwritten.
+
+### 9. Stale File Cleanup
+
+After writing all files, the generator scans the output directory for `.ts` files that were not part of the current generation and removes them. This handles renamed or deleted models, objects, and tuples without requiring a full directory wipe. Empty directories left behind are also cleaned up.
+
+If the `--clean` flag was used, this step is skipped since the output directory was already wiped before generating.
 
 ## Typical Workflow
 

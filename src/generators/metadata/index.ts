@@ -21,4 +21,5 @@ export {
   createRegistry,
   createObjectRegistry,
 } from './registry-generator';
-export { writeModelRegistry, writeInternalIndex } from './writer';
+export { writeModelRegistry } from './registry-writer';
+export { writeInternalIndex } from './internal-writer';

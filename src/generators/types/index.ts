@@ -56,13 +56,6 @@ export {
 export { generateDbClientInterface, generateModelInterface, generateModelTypes } from './model-generator';
 
 export {
-  generateClientIndex,
-  generateInternalIndex,
-  generateModelExports,
-  generateModelsIndex,
-} from './export-generator';
-
-export {
   generateAllTupleSelectTypes,
   generateAllTupleUnsetTypes,
   generateAllTupleUpdateTypes,
