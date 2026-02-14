@@ -195,6 +195,18 @@ export function validateUpdateData(data: Record<string, unknown>, model: ModelMe
       continue;
     }
 
+    // Skip tuple per-element update wrappers — validated by types + builder
+    if (
+      field.type === 'tuple' &&
+      !field.isArray &&
+      typeof value === 'object' &&
+      value !== null &&
+      !Array.isArray(value) &&
+      'update' in value
+    ) {
+      continue;
+    }
+
     // NONE sentinel is always valid in updates (clears the field)
     if (isNone(value)) continue;
 

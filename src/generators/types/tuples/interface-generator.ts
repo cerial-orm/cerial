@@ -122,6 +122,30 @@ export function tupleHasObjectElements(
 }
 
 /**
+ * Check if a tuple has object elements at any nesting depth (through nested tuples).
+ * Used for determining whether to generate a TupleSelect type.
+ * Unlike tupleHasObjectElements (which only checks direct elements for import needs),
+ * this recurses into nested tuples to find objects at any depth.
+ */
+export function tupleHasObjectElementsDeep(tuple: TupleMetadata, visited: Set<string> = new Set()): boolean {
+  if (visited.has(tuple.name)) return false;
+  visited.add(tuple.name);
+
+  for (const element of tuple.elements) {
+    if (element.type === 'object') return true;
+    if (element.type === 'tuple' && element.tupleInfo) {
+      const nestedTuple: TupleMetadata = {
+        name: element.tupleInfo.tupleName,
+        elements: element.tupleInfo.elements,
+      };
+      if (tupleHasObjectElementsDeep(nestedTuple, visited)) return true;
+    }
+  }
+
+  return false;
+}
+
+/**
  * Check if a tuple has any nested tuple elements (determines import needs)
  */
 export function tupleHasTupleElements(tuple: TupleMetadata): boolean {

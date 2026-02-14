@@ -6,12 +6,14 @@ nav_order: 4
 
 # Updating Tuples
 
-Tuple updates are always **full replacements** — there is no partial merge like with objects. This is because tuples are positional data structures where every element has meaning.
+Tuple fields support two update strategies: **full replacement** (replace the entire tuple) and **per-element update** (update individual elements without touching the rest).
 
-## Single Tuple: Full Replace
+## Full Replacement
+
+Replace the entire tuple value at once:
 
 ```typescript
-// Replace the entire tuple value
+// Array form
 await db.User.updateUnique({
   where: { id: userId },
   data: { location: [99.0, 88.0] },
@@ -24,18 +26,127 @@ await db.User.updateUnique({
 });
 ```
 
-## Optional Tuple: Clear with null
+## Per-Element Update
 
-For optional tuple fields, pass `null` to remove the value (sets to NONE in SurrealDB):
+Use the `{ update: ... }` wrapper to update individual elements without replacing the entire tuple. Elements you don't specify remain unchanged:
+
+```cerial
+tuple Coordinate {
+  lat Float,
+  lng Float
+}
+
+model User {
+  id Record @id
+  location Coordinate
+}
+```
 
 ```typescript
+// Update only lat, keep lng unchanged
 await db.User.updateUnique({
   where: { id: userId },
-  data: { backup: null },
+  data: { location: { update: { lat: 99.0 } } },
+});
+
+// Update by index key
+await db.User.updateUnique({
+  where: { id: userId },
+  data: { location: { update: { 0: 99.0 } } },
 });
 ```
 
-After clearing, the field will be absent from the result (not `null`).
+The `{ update: ... }` wrapper is required to distinguish per-element update from the object form of full replacement. Without it, `{ lat: 99.0, lng: 88.0 }` is treated as a full replace.
+
+### Object Elements: Merge Semantics
+
+When a tuple contains object elements, the per-element update merges object fields (like regular object updates):
+
+```cerial
+object Address {
+  street String
+  city String
+}
+
+tuple Located {
+  tag String,
+  Address
+}
+```
+
+```typescript
+// Merge: update only city, keep street unchanged
+await db.Place.updateUnique({
+  where: { id: placeId },
+  data: { place: { update: { 1: { city: 'NYC' } } } },
+});
+
+// Full replace the object element with { set: ... }
+await db.Place.updateUnique({
+  where: { id: placeId },
+  data: { place: { update: { 1: { set: { street: '5th Ave', city: 'NYC' } } } } },
+});
+```
+
+### Nested Tuple Elements: Recursive Per-Element Update
+
+When a tuple contains another tuple, you can nest `{ update: ... }` wrappers to update elements at any depth:
+
+```cerial
+tuple Inner {
+  x Int,
+  y Int
+}
+
+tuple Outer {
+  label String,
+  Inner
+}
+```
+
+```typescript
+// Update only the inner tuple's x, keep label and y unchanged
+await db.Model.updateUnique({
+  where: { id: recordId },
+  data: { data: { update: { 1: { update: { x: 42 } } } } },
+});
+
+// Or full-replace just the inner tuple element
+await db.Model.updateUnique({
+  where: { id: recordId },
+  data: { data: { update: { 1: [42, 99] } } },
+});
+```
+
+### Optional Elements: NONE
+
+For tuples with optional elements, pass `NONE` to clear an element (set it to absent):
+
+```typescript
+import { NONE } from './db-client';
+
+await db.Model.updateUnique({
+  where: { id: recordId },
+  data: { tuple: { update: { 1: NONE } } },
+});
+```
+
+After clearing, that element position will be `undefined` in the output.
+
+## Optional Tuple: Clear with NONE
+
+For optional tuple fields, pass `NONE` to remove the value:
+
+```typescript
+import { NONE } from './db-client';
+
+await db.User.updateUnique({
+  where: { id: userId },
+  data: { backup: NONE },
+});
+```
+
+After clearing, the field will be absent from the result (`undefined`).
 
 ## Array Tuple: Push
 
@@ -103,11 +214,18 @@ await db.User.updateUnique({
 });
 ```
 
+**Note:** Array tuple fields do **not** support per-element update — only `push`, `set`, and direct assignment.
+
 ## Generated Update Type
 
 For a model with tuple fields:
 
 ```cerial
+tuple Coordinate {
+  lat Float,
+  lng Float
+}
+
 model User {
   id Record @id
   location Coordinate
@@ -119,9 +237,16 @@ model User {
 The update type is:
 
 ```typescript
+type CoordinateUpdate = {
+  lat?: number;
+  0?: number;
+  lng?: number;
+  1?: number;
+};
+
 type UserUpdate = {
-  location?: CoordinateInput;
-  backup?: CoordinateInput | null; // null clears to NONE
+  location?: CoordinateInput | { update: CoordinateUpdate };
+  backup?: CoordinateInput | { update: CoordinateUpdate } | typeof NONE; // NONE clears the field
   history?:
     | CoordinateInput[]
     | {
@@ -130,5 +255,7 @@ type UserUpdate = {
       };
 };
 ```
+
+The `TupleUpdate` type includes both named keys and index keys (when elements are named). Object elements use `Partial<ObjInput> | { set: ObjInput }` and nested tuple elements use `TupleInput | { update: TupleUpdate }`.
 
 Note that `CoordinateInput` accepts both array form (`[number, number]`) and object form (`{ lat: number; lng: number }`).

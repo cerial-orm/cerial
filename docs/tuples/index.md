@@ -18,21 +18,23 @@ Tuples are fixed-length, typed arrays defined with the `tuple {}` keyword in Cer
 - Optional elements are supported (`Float?`)
 - **No decorators** on tuple elements
 - Tuples can reference other tuples and objects as element types
-- **No partial updates** — tuples are always replaced as a whole
-- **Select is boolean only** — no per-element selection
+- **Per-element update** — update individual elements with `{ update: { lat: 5 } }` without replacing the whole tuple
+- **Sub-field select** — narrow object sub-fields within tuples (only for tuples with object elements)
 - **No OrderBy** on tuple fields
 
 ## Generated TypeScript Types
 
 Each tuple definition generates the following TypeScript types:
 
-| Generated Type    | Purpose                                                              |
-| ----------------- | -------------------------------------------------------------------- |
-| `Coordinate`      | Output type — a TypeScript tuple `[number, number]`                  |
-| `CoordinateInput` | Input type — accepts array form or object form with named/index keys |
-| `CoordinateWhere` | Where clause type for filtering by element values                    |
+| Generated Type     | Purpose                                                                                     |
+| ------------------ | ------------------------------------------------------------------------------------------- |
+| `Coordinate`       | Output type — a TypeScript tuple `[number, number]`                                         |
+| `CoordinateInput`  | Input type — accepts array form or object form with named/index keys                        |
+| `CoordinateWhere`  | Where clause type for filtering by element values                                           |
+| `CoordinateUpdate` | Per-element update type — update individual elements without full replacement               |
+| `CoordinateSelect` | Sub-field select type — only generated when the tuple contains object elements at any depth |
 
-Tuples do **not** generate: `Select`, `OrderBy`, `Create`, `Update`, or `Include` types. They are always operated on as atomic values through their parent model.
+Tuples do **not** generate: `OrderBy`, `Create`, `Include`, or `GetPayload` types. They are operated on through their parent model.
 
 ## Example
 
@@ -74,4 +76,5 @@ console.log(user.location[1]); // -74.0 (lng)
 - [Defining Tuples](defining-tuples) — Schema syntax for declaring tuple types
 - [Tuple Fields on Models](tuple-fields-on-models) — Using tuples as required, optional, or array fields on models
 - [Where Filtering](where) — Filtering queries by tuple element values
-- [Updating Tuples](update) — Full replacement, array push/set, and clearing
+- [Updating Tuples](update) — Full replacement, per-element update, array push/set, and clearing
+- [Select](select) — Sub-field selection for tuples with object elements

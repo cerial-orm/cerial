@@ -8,6 +8,8 @@ import type {
   ModelRegistry,
   ObjectFieldMetadata,
   SelectClause,
+  TupleElementMetadata,
+  TupleFieldMetadata,
   UpdateUniqueReturn,
   WhereClause,
 } from '../../types';
@@ -115,6 +117,17 @@ export function buildUpdateManyQuery(
       continue;
     }
 
+    // Handle single tuple per-element update: { update: { lat: 5 } }
+    if (
+      fieldMetadata?.type === 'tuple' &&
+      fieldMetadata.tupleInfo &&
+      !fieldMetadata.isArray &&
+      isUpdateWrapper(value)
+    ) {
+      buildTupleUpdateClauses(ctx, field, value.update, fieldMetadata.tupleInfo, setParts, setVars);
+      continue;
+    }
+
     // Handle array fields with push/unset/set operations (covers Record[], Tuple[], primitives)
     if (fieldMetadata && isArrayField(fieldMetadata) && (Array.isArray(value) || isArrayUpdateOps(value))) {
       const arrayUpdate = buildArrayUpdateClause(ctx, field, value, fieldMetadata);
@@ -191,6 +204,121 @@ function isObjectArrayUpdateOps(value: unknown): boolean {
 }
 
 /**
+ * Check if a value is a per-element tuple update wrapper ({ update: {...} })
+ */
+function isUpdateWrapper(value: unknown): value is { update: Record<string, unknown> } {
+  return typeof value === 'object' && value !== null && 'update' in value && Object.keys(value).length === 1;
+}
+
+/**
+ * Resolve the value for a tuple element from the update data object.
+ * Checks named key first, then index key. Returns undefined if not provided.
+ */
+function resolveElementValue(element: TupleElementMetadata, data: Record<string, unknown>): unknown {
+  if (element.name !== undefined && element.name in data) return data[element.name];
+  const indexKey = String(element.index);
+  if (indexKey in data) return data[indexKey];
+
+  return undefined;
+}
+
+/**
+ * Build SET clauses for a per-element tuple update using $this reconstruction.
+ *
+ * Phase 1: Builds a $this reconstruction array where unchanged elements use
+ * `$this.field[N]` references and changed elements use bound variables.
+ *
+ * Phase 2: Generates dot-notation SET clauses for object element merges
+ * and recursive calls for nested tuple per-element updates.
+ */
+function buildTupleUpdateClauses(
+  ctx: FilterCompileContext,
+  fieldPath: string,
+  data: Record<string, unknown>,
+  tupleInfo: TupleFieldMetadata,
+  setParts: string[],
+  setVars: Record<string, unknown>,
+): void {
+  const reconstructionParts: string[] = [];
+  const objectMerges: { element: TupleElementMetadata; data: Record<string, unknown> }[] = [];
+  const tupleUpdates: { element: TupleElementMetadata; data: Record<string, unknown> }[] = [];
+
+  // Phase 1: Build $this reconstruction array
+  for (const element of tupleInfo.elements) {
+    const value = resolveElementValue(element, data);
+
+    // Not provided — use $this reference to preserve current value
+    if (value === undefined) {
+      reconstructionParts.push(`$this.${fieldPath}[${element.index}]`);
+      continue;
+    }
+
+    // NONE sentinel → set element to NONE (clears optional element)
+    if (isNone(value)) {
+      reconstructionParts.push('NONE');
+      continue;
+    }
+
+    // null → set element to NULL (for @nullable elements)
+    if (value === null) {
+      reconstructionParts.push('NULL');
+      continue;
+    }
+
+    // Object element
+    if (element.type === 'object' && element.objectInfo) {
+      if (isSetWrapper(value)) {
+        // Full replace: bind the entire object as a parameter
+        const varName = `${fieldPath}_${element.index}`.replace(/[^a-zA-Z0-9_]/g, '_');
+        const varBinding = ctx.bind(varName, 'set', (value as { set: unknown }).set, element.type);
+        reconstructionParts.push(varBinding.placeholder);
+        Object.assign(setVars, varBinding.vars);
+      } else {
+        // Partial merge: use $this to preserve, then dot-notation in phase 2
+        reconstructionParts.push(`$this.${fieldPath}[${element.index}]`);
+        objectMerges.push({ element, data: value as Record<string, unknown> });
+      }
+      continue;
+    }
+
+    // Nested tuple element
+    if (element.type === 'tuple' && element.tupleInfo) {
+      if (isUpdateWrapper(value)) {
+        // Per-element update: use $this to preserve, then recurse in phase 2
+        reconstructionParts.push(`$this.${fieldPath}[${element.index}]`);
+        tupleUpdates.push({ element, data: value.update });
+      } else {
+        // Full replace: bind the entire tuple as a parameter
+        const varName = `${fieldPath}_${element.index}`.replace(/[^a-zA-Z0-9_]/g, '_');
+        const varBinding = ctx.bind(varName, 'set', value, element.type);
+        reconstructionParts.push(varBinding.placeholder);
+        Object.assign(setVars, varBinding.vars);
+      }
+      continue;
+    }
+
+    // Primitive element: bind as parameter
+    const varName = `${fieldPath}_${element.index}`.replace(/[^a-zA-Z0-9_]/g, '_');
+    const varBinding = ctx.bind(varName, 'set', value, element.type);
+    reconstructionParts.push(varBinding.placeholder);
+    Object.assign(setVars, varBinding.vars);
+  }
+
+  // Emit $this reconstruction SET clause
+  setParts.push(`${fieldPath} = [${reconstructionParts.join(', ')}]`);
+
+  // Phase 2: Object merges at sub-paths (dot-notation)
+  for (const { element, data: mergeData } of objectMerges) {
+    buildObjectMergeClauses(ctx, `${fieldPath}[${element.index}]`, mergeData, element.objectInfo!, setParts, setVars);
+  }
+
+  // Phase 2: Nested tuple per-element updates (recursive)
+  for (const { element, data: updateData } of tupleUpdates) {
+    buildTupleUpdateClauses(ctx, `${fieldPath}[${element.index}]`, updateData, element.tupleInfo!, setParts, setVars);
+  }
+}
+
+/**
  * Build SET clauses for a partial object merge (dot notation).
  * { city: 'NYC', street: '123 Main' } → ['address.city = $p0', 'address.street = $p1']
  *
@@ -241,6 +369,20 @@ function buildObjectMergeClauses(
         setVars,
         subField.isFlexible,
       );
+      continue;
+    }
+
+    // Tuple field within object merge — per-element update or full replace
+    if (subField.type === 'tuple' && subField.tupleInfo) {
+      if (isUpdateWrapper(subValue)) {
+        // Per-element tuple update within object merge (mutual recursion)
+        buildTupleUpdateClauses(ctx, subPath, subValue.update, subField.tupleInfo, setParts, setVars);
+      } else {
+        // Full tuple replace via dot-notation
+        const varBinding = ctx.bind(subPath.replace(/[.\[\]]/g, '_'), 'set', subValue, subField.type);
+        setParts.push(`${subPath} = ${varBinding.placeholder}`);
+        Object.assign(setVars, varBinding.vars);
+      }
       continue;
     }
 
@@ -391,6 +533,17 @@ function buildSetClause(
     // Handle object fields with merge/set/array operations
     if (fieldMetadata?.type === 'object' && fieldMetadata.objectInfo) {
       buildObjectUpdateClauses(ctx, field, value, fieldMetadata, setParts, setVars);
+      continue;
+    }
+
+    // Handle single tuple per-element update: { update: { lat: 5 } }
+    if (
+      fieldMetadata?.type === 'tuple' &&
+      fieldMetadata.tupleInfo &&
+      !fieldMetadata.isArray &&
+      isUpdateWrapper(value)
+    ) {
+      buildTupleUpdateClauses(ctx, field, value.update, fieldMetadata.tupleInfo, setParts, setVars);
       continue;
     }
 

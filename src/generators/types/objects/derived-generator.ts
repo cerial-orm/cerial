@@ -5,11 +5,31 @@
  * in queries.
  */
 
-import type { FieldMetadata, ObjectMetadata } from '../../../types';
+import type { FieldMetadata, ObjectMetadata, TupleFieldMetadata } from '../../../types';
 
-/** Get the select type for a field (boolean for primitives, boolean | ObjectSelect for objects) */
+/**
+ * Check if a tuple field has object elements at any nesting depth.
+ */
+function tupleFieldHasObjectsDeep(tupleInfo: TupleFieldMetadata, visited: Set<string> = new Set()): boolean {
+  if (visited.has(tupleInfo.tupleName)) return false;
+  visited.add(tupleInfo.tupleName);
+
+  for (const element of tupleInfo.elements) {
+    if (element.type === 'object') return true;
+    if (element.type === 'tuple' && element.tupleInfo) {
+      if (tupleFieldHasObjectsDeep(element.tupleInfo, visited)) return true;
+    }
+  }
+
+  return false;
+}
+
+/** Get the select type for a field (boolean for primitives, boolean | ObjectSelect for objects, boolean | TupleSelect for tuples with objects) */
 function getFieldSelectType(field: FieldMetadata): string {
   if (field.type === 'object' && field.objectInfo) return `boolean | ${field.objectInfo.objectName}Select`;
+  if (field.type === 'tuple' && field.tupleInfo && tupleFieldHasObjectsDeep(field.tupleInfo)) {
+    return `boolean | ${field.tupleInfo.tupleName}Select`;
+  }
 
   return 'boolean';
 }
@@ -33,9 +53,9 @@ export function generateObjectSelectType(object: ObjectMetadata): string {
   const variants = fields.map((field) => {
     const selectType = getFieldSelectType(field);
     const otherFields = fields.filter((f) => f.name !== field.name);
-    const hasObjectOthers = otherFields.some((f) => f.type === 'object' && f.objectInfo);
+    const hasNonBooleanOthers = otherFields.some((f) => getFieldSelectType(f) !== 'boolean');
 
-    if (hasObjectOthers) {
+    if (hasNonBooleanOthers) {
       const otherFieldDefs = otherFields.map((f) => `${f.name}?: ${getFieldSelectType(f)}`).join('; ');
 
       return `  | { ${field.name}: ${selectType} } & { ${otherFieldDefs} }`;

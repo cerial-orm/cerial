@@ -9,7 +9,12 @@ export {
   generateTupleOutputType,
   tupleHasNamedElements,
   tupleHasObjectElements,
+  tupleHasObjectElementsDeep,
   tupleHasTupleElements,
 } from './interface-generator';
 
 export { generateTupleWhereInterface, generateTupleWhereTypes } from './where-generator';
+
+export { generateTupleUpdateType, generateAllTupleUpdateTypes } from './update-generator';
+
+export { generateTupleSelectType, generateAllTupleSelectTypes } from './select-generator';

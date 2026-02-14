@@ -7,7 +7,7 @@
  * - A.Compute<T> - flatten complex nested types for better IDE tooltips
  */
 
-import type { FieldMetadata, ModelMetadata, ModelRegistry, ObjectRegistry } from '../../types';
+import type { FieldMetadata, ModelMetadata, ModelRegistry, ObjectRegistry, TupleFieldMetadata } from '../../types';
 import { schemaTypeToTsType } from '../../utils/type-utils';
 import { objectHasDefaultOrTimestamp } from './objects/interface-generator';
 
@@ -622,25 +622,26 @@ export function generateUpdateType(model: ModelMetadata): string {
   for (const f of tupleFields.filter((tf) => !tf.isReadonly)) {
     const tupleName = f.tupleInfo!.tupleName;
     const tupleInputName = `${tupleName}Input`;
+    const tupleUpdateName = `${tupleName}Update`;
 
     if (f.isArray) {
-      // Array of tuples: full replace, push, set
+      // Array of tuples: full replace, push, set — NO per-element update for arrays
       specialFieldTypes.push(`  ${f.name}?: ${tupleInputName}[] | {
     push?: ${tupleInputName} | ${tupleInputName}[];
     set?: ${tupleInputName}[];
   };`);
     } else if (f.isRequired && !f.isNullable) {
-      // Required non-nullable single tuple: full replace only
-      specialFieldTypes.push(`  ${f.name}?: ${tupleInputName};`);
+      // Required non-nullable single tuple: full replace or per-element update
+      specialFieldTypes.push(`  ${f.name}?: ${tupleInputName} | { update: ${tupleUpdateName} };`);
     } else if (f.isRequired && f.isNullable) {
-      // Required nullable single tuple: full replace or null (to set null)
-      specialFieldTypes.push(`  ${f.name}?: ${tupleInputName} | null;`);
+      // Required nullable single tuple: full replace, per-element update, or null
+      specialFieldTypes.push(`  ${f.name}?: ${tupleInputName} | { update: ${tupleUpdateName} } | null;`);
     } else if (!f.isRequired && f.isNullable) {
-      // Optional nullable single tuple: full replace, null, or CerialNone (to clear)
-      specialFieldTypes.push(`  ${f.name}?: ${tupleInputName} | null | CerialNone;`);
+      // Optional nullable single tuple: full replace, per-element update, null, or CerialNone
+      specialFieldTypes.push(`  ${f.name}?: ${tupleInputName} | { update: ${tupleUpdateName} } | null | CerialNone;`);
     } else {
-      // Optional non-nullable single tuple: full replace or CerialNone (to clear)
-      specialFieldTypes.push(`  ${f.name}?: ${tupleInputName} | CerialNone;`);
+      // Optional non-nullable single tuple: full replace, per-element update, or CerialNone
+      specialFieldTypes.push(`  ${f.name}?: ${tupleInputName} | { update: ${tupleUpdateName} } | CerialNone;`);
     }
   }
 
@@ -664,9 +665,30 @@ ${specialFieldTypes.join('\n')}
 };`;
 }
 
-/** Get the select type for a field (boolean for primitives, boolean | ObjectSelect for objects) */
+/**
+ * Check if a tuple field has object elements at any nesting depth.
+ * Uses TupleFieldMetadata (runtime metadata) for recursive checking.
+ */
+function tupleFieldHasObjectsDeep(tupleInfo: TupleFieldMetadata, visited: Set<string> = new Set()): boolean {
+  if (visited.has(tupleInfo.tupleName)) return false;
+  visited.add(tupleInfo.tupleName);
+
+  for (const element of tupleInfo.elements) {
+    if (element.type === 'object') return true;
+    if (element.type === 'tuple' && element.tupleInfo) {
+      if (tupleFieldHasObjectsDeep(element.tupleInfo, visited)) return true;
+    }
+  }
+
+  return false;
+}
+
+/** Get the select type for a field (boolean for primitives, boolean | ObjectSelect for objects, boolean | TupleSelect for tuples with objects) */
 function getFieldSelectType(field: FieldMetadata): string {
   if (field.type === 'object' && field.objectInfo) return `boolean | ${field.objectInfo.objectName}Select`;
+  if (field.type === 'tuple' && field.tupleInfo && tupleFieldHasObjectsDeep(field.tupleInfo)) {
+    return `boolean | ${field.tupleInfo.tupleName}Select`;
+  }
 
   return 'boolean';
 }
@@ -694,10 +716,10 @@ export function generateSelectType(model: ModelMetadata): string {
     const otherFields = selectableFields.filter((f) => f.name !== field.name);
 
     // Build the Partial record for other fields, each with their own select type
-    const hasObjectOthers = otherFields.some((f) => f.type === 'object' && f.objectInfo);
+    const hasNonBooleanOthers = otherFields.some((f) => getFieldSelectType(f) !== 'boolean');
 
-    if (hasObjectOthers) {
-      // When some other fields are objects, we need per-field optional types
+    if (hasNonBooleanOthers) {
+      // When some other fields have non-boolean select types (objects, tuples with objects), we need per-field optional types
       const otherFieldDefs = otherFields.map((f) => `${f.name}?: ${getFieldSelectType(f)}`).join('; ');
 
       return `  | { ${field.name}: ${selectType} } & { ${otherFieldDefs} }`;
@@ -899,7 +921,8 @@ export function generateGetPayloadType(model: ModelMetadata): string {
   const hasRelationFields = model.fields.some((f) => f.type === 'relation' && f.relationInfo);
 
   // A.Compute flattens complex conditional types for better IDE tooltips
-  const wrapCompute = (type: string) => (USE_TS_TOOLBELT ? `A.Compute<${type}>` : type);
+  // 'flat' mode preserves tuple identity — 'deep' mode destroys mapped tuples via recursive flattening
+  const wrapCompute = (type: string) => (USE_TS_TOOLBELT ? `A.Compute<${type}, 'flat'>` : type);
 
   if (!hasRelationFields) {
     // No relations - simple select-only inference

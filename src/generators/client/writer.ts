@@ -13,9 +13,12 @@ import {
   generateObjectInterfaces,
   generateObjectWhereInterface,
   generateTupleInterfaces,
+  generateTupleSelectType,
+  generateTupleUpdateType,
   generateTupleWhereInterface,
   generateWhereTypes,
   objectHasDefaultOrTimestamp,
+  tupleHasObjectElementsDeep,
 } from '../types';
 import { generateFindUniqueWhereType } from '../types/method-generator';
 import { generateConnectionExports } from './connection-template';
@@ -245,12 +248,20 @@ function generateObjectImports(objectNames: string[], objectRegistry?: ObjectReg
 }
 
 /** Generate import statements for referenced tuple types */
-function generateTupleImports(tupleNames: string[]): string {
+function generateTupleImports(tupleNames: string[], tupleRegistry?: TupleRegistry): string {
   if (tupleNames.length === 0) return '';
 
   const imports = tupleNames.map((name) => {
     const fileName = name.toLowerCase();
-    const importNames = [name, `${name}Input`, `${name}Where`];
+    const importNames = [name, `${name}Input`, `${name}Where`, `${name}Update`];
+
+    // Conditionally add Select import for tuples with object elements at any depth
+    if (tupleRegistry) {
+      const tupleMeta = tupleRegistry[name];
+      if (tupleMeta && tupleHasObjectElementsDeep(tupleMeta)) {
+        importNames.push(`${name}Select`);
+      }
+    }
 
     return `import type { ${importNames.join(', ')} } from './${fileName}';`;
   });
@@ -290,7 +301,7 @@ export async function writeModelTypes(
 
   // Get referenced tuple names for imports
   const referencedTuples = getReferencedTupleNames(model);
-  const tupleImports = generateTupleImports(referencedTuples);
+  const tupleImports = generateTupleImports(referencedTuples, tupleRegistry);
 
   // Create registry for Include type generation
   const registry = createRegistryFromModels(allModels);
@@ -346,7 +357,7 @@ export async function writeObjectTypes(
 
   // Get referenced tuple names for imports
   const referencedTuples = getObjectReferencedTupleNames(object);
-  const tupleImports = generateTupleImports(referencedTuples);
+  const tupleImports = generateTupleImports(referencedTuples, tupleRegistry);
 
   // Determine if we need CerialId import (for Record fields in objects)
   const hasRecordFields = object.fields.some((f) => f.type === 'record');
@@ -393,20 +404,29 @@ export async function writeTupleTypes(
 
   // Get cross-referenced tuple names for imports (nested tuple elements)
   const referencedTuples = getTupleReferencedTupleNames(tuple);
-  const tupleImports = generateTupleImports(referencedTuples);
+  const tupleImports = generateTupleImports(referencedTuples, tupleRegistry);
 
   // Generate all type content for this tuple
   const interfaceCode = generateTupleInterfaces([tuple], tupleRegistry, objectRegistry);
   const whereCode = generateTupleWhereInterface(tuple, tupleRegistry, objectRegistry);
+  const updateCode = generateTupleUpdateType(tuple);
+  const selectCode = generateTupleSelectType(tuple);
+
+  // Check if CerialNone import is needed (optional elements in update type)
+  const needsNone = tuple.elements.some((e) => e.isOptional);
+  const noneImport = needsNone ? `${NONE_IMPORT}\n` : '';
 
   const content = `/**
  * Generated types for ${tuple.name}
  * Do not edit manually
  */
 
-${objectImports}${tupleImports}${interfaceCode}
+${noneImport}${objectImports}${tupleImports}${interfaceCode}
 
 ${whereCode}
+
+${updateCode}
+${selectCode ? '\n' + selectCode + '\n' : ''}
 `;
 
   const formatted = await formatCode(content, outputDir);
@@ -602,6 +622,10 @@ export type {
     const tupInterfaces = tuples.map((t) => t.name).join(',\n  ');
     const tupInputs = tuples.map((t) => `${t.name}Input`).join(',\n  ');
     const tupWheres = tuples.map((t) => `${t.name}Where`).join(',\n  ');
+    const tupUpdates = tuples.map((t) => `${t.name}Update`).join(',\n  ');
+
+    // Only tuples with object elements at any depth get Select types
+    const tuplesWithSelect = tuples.filter((t) => tupleHasObjectElementsDeep(t));
 
     content += `
 // Tuple types (output types - TypeScript tuple literals)
@@ -618,7 +642,22 @@ export type {
 export type {
   ${tupWheres},
 } from './models';
+
+// Tuple update types (per-element update)
+export type {
+  ${tupUpdates},
+} from './models';
 `;
+
+    if (tuplesWithSelect.length) {
+      const tupSelects = tuplesWithSelect.map((t) => `${t.name}Select`).join(',\n  ');
+      content += `
+// Tuple select types (sub-field selection for tuples with object elements)
+export type {
+  ${tupSelects},
+} from './models';
+`;
+    }
   }
 
   // Add Include exports if there are models with relations
@@ -672,19 +711,43 @@ export type Optional<T extends object, K extends keyof T> = O.Optional<T, K>;
 // Simplified type helper
 export type Simplify<T> = { [K in keyof T]: T[K] } & {};
 
+/** Check if a type is a tuple (fixed-length array) rather than a dynamic array */
+export type IsTuple<T> = T extends readonly any[]
+  ? number extends T['length'] ? false : true
+  : false;
+
+/** Apply per-element select to a tuple type, narrowing object sub-fields within selected elements.
+ * The length intersection preserves tuple identity through A.Compute. */
+export type ApplyTupleSelect<T extends any[], S extends Record<string | number, any>> = {
+  [K in keyof T]: K extends \`\${infer N extends number}\`
+    ? N extends keyof S
+      ? S[N] extends true ? T[K]
+        : S[N] extends Record<string, any> ? ResolveFieldSelect<T[K], S[N]> : T[K]
+      : T[K]
+    : T[K]
+} & { readonly length: T['length'] };
+
 /** Resolve a field's return type based on its select value (true = full type, object = sub-field select) */
 export type ResolveFieldSelect<FieldType, SelectValue> = SelectValue extends true
   ? FieldType
   : SelectValue extends Record<string, any>
-    ? FieldType extends (infer E)[]
-      ? ApplyObjectSelect<NonNullable<E>, SelectValue>[]
-      : null extends FieldType
+    ? IsTuple<NonNullable<FieldType>> extends true
+      ? null extends FieldType
         ? undefined extends FieldType
-          ? ApplyObjectSelect<NonNullable<FieldType>, SelectValue> | null | undefined
-          : ApplyObjectSelect<NonNullable<FieldType>, SelectValue> | null
+          ? ApplyTupleSelect<NonNullable<FieldType> & any[], SelectValue> | null | undefined
+          : ApplyTupleSelect<NonNullable<FieldType> & any[], SelectValue> | null
         : undefined extends FieldType
-          ? ApplyObjectSelect<NonNullable<FieldType>, SelectValue> | undefined
-          : ApplyObjectSelect<NonNullable<FieldType>, SelectValue>
+          ? ApplyTupleSelect<NonNullable<FieldType> & any[], SelectValue> | undefined
+          : ApplyTupleSelect<NonNullable<FieldType> & any[], SelectValue>
+      : FieldType extends (infer E)[]
+        ? ApplyObjectSelect<NonNullable<E>, SelectValue>[]
+        : null extends FieldType
+          ? undefined extends FieldType
+            ? ApplyObjectSelect<NonNullable<FieldType>, SelectValue> | null | undefined
+            : ApplyObjectSelect<NonNullable<FieldType>, SelectValue> | null
+          : undefined extends FieldType
+            ? ApplyObjectSelect<NonNullable<FieldType>, SelectValue> | undefined
+            : ApplyObjectSelect<NonNullable<FieldType>, SelectValue>
     : never;
 
 /** Recursively apply sub-field selection to an object type */

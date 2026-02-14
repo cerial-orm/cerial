@@ -62,13 +62,18 @@ export {
 } from './export-generator';
 
 export {
+  generateAllTupleSelectTypes,
+  generateAllTupleUpdateTypes,
   generateTupleInputInterface,
   generateTupleInterface,
   generateTupleInterfaces,
   generateTupleOutputType,
+  generateTupleSelectType,
+  generateTupleUpdateType,
   generateTupleWhereInterface,
   generateTupleWhereTypes,
   tupleHasNamedElements,
   tupleHasObjectElements,
+  tupleHasObjectElementsDeep,
   tupleHasTupleElements,
 } from './tuples';

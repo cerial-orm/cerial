@@ -9,8 +9,11 @@ import type {
   FindUniqueOptions,
   ModelMetadata,
   ModelRegistry,
+  ObjectFieldMetadata,
   OrderByClause,
   SelectClause,
+  TupleElementMetadata,
+  TupleFieldMetadata,
   WhereClause,
 } from '../../types';
 import type { CompiledQuery } from '../compile/types';
@@ -73,6 +76,125 @@ function buildObjectSelectInner(fieldName: string, selectValue: Record<string, u
   return `${fieldName}.{ ${subFields.join(', ')} }`;
 }
 
+/**
+ * Resolve a tuple element by its select key (index or name).
+ * The select type allows both numeric index keys and named keys.
+ */
+function resolveElementBySelectKey(key: string, elements: TupleElementMetadata[]): TupleElementMetadata | undefined {
+  // Try numeric index first
+  const numKey = Number(key);
+  if (!isNaN(numKey)) return elements.find((e) => e.index === numKey);
+
+  // Try named key
+  return elements.find((e) => e.name === key);
+}
+
+/**
+ * Build explicit object construction for an object within a tuple.
+ * Unlike `.{ ... }` destructuring, this uses `{ key: path.key }` syntax
+ * which works correctly when embedded inside tuple array reconstruction.
+ *
+ * Example: buildObjectSelectExplicit('loc[1]', { city: true, zip: true }, objectInfo)
+ * → '{ city: loc[1].city, zip: loc[1].zip }'
+ */
+function buildObjectSelectExplicit(
+  fieldPath: string,
+  selectValue: Record<string, unknown>,
+  objectInfo: ObjectFieldMetadata,
+): string {
+  const entries: string[] = [];
+
+  for (const [key, val] of Object.entries(selectValue)) {
+    if (!val) continue;
+
+    const subField = objectInfo.fields.find((f) => f.name === key);
+    if (!subField) continue;
+
+    const subPath = `${fieldPath}.${key}`;
+
+    if (val === true) {
+      entries.push(`${key}: ${subPath}`);
+    } else if (typeof val === 'object' && val !== null) {
+      // Nested object or tuple within object
+      if (subField.type === 'tuple' && subField.tupleInfo) {
+        const inner = buildTupleSelectInner(subPath, val as Record<string, unknown>, subField.tupleInfo);
+        entries.push(`${key}: ${inner}`);
+      } else if (subField.type === 'object' && subField.objectInfo) {
+        const inner = buildObjectSelectExplicit(subPath, val as Record<string, unknown>, subField.objectInfo);
+        entries.push(`${key}: ${inner}`);
+      }
+    }
+  }
+
+  if (!entries.length) return fieldPath;
+
+  return `{ ${entries.join(', ')} }`;
+}
+
+/**
+ * Build tuple select inner expression (no alias) — returns `[expr0, expr1, ...]`.
+ * Each element is either `$this.path[i]` (full element) or a narrowed sub-select.
+ * Object elements use explicit object construction. Nested tuples recurse.
+ */
+function buildTupleSelectInner(
+  fieldPath: string,
+  selectValue: Record<string, unknown>,
+  tupleInfo: TupleFieldMetadata,
+): string {
+  // Build a map of element index → select value from the user's select object
+  const selectMap = new Map<number, unknown>();
+  for (const [key, val] of Object.entries(selectValue)) {
+    if (!val) continue;
+    const element = resolveElementBySelectKey(key, tupleInfo.elements);
+    if (element) selectMap.set(element.index, val);
+  }
+
+  const elementExprs: string[] = [];
+
+  for (const element of tupleInfo.elements) {
+    const elemPath = `${fieldPath}[${element.index}]`;
+    const selectVal = selectMap.get(element.index);
+
+    if (!selectVal || selectVal === true) {
+      // No select for this element or `true` → return full element
+      elementExprs.push(elemPath);
+    } else if (typeof selectVal === 'object' && selectVal !== null) {
+      // Sub-select: object or nested tuple
+      if (element.type === 'object' && element.objectInfo) {
+        elementExprs.push(
+          buildObjectSelectExplicit(elemPath, selectVal as Record<string, unknown>, element.objectInfo),
+        );
+      } else if (element.type === 'tuple' && element.tupleInfo) {
+        elementExprs.push(buildTupleSelectInner(elemPath, selectVal as Record<string, unknown>, element.tupleInfo));
+      } else {
+        // Primitive with object select value — shouldn't happen, fall back to full element
+        elementExprs.push(elemPath);
+      }
+    } else {
+      elementExprs.push(elemPath);
+    }
+  }
+
+  return `[${elementExprs.join(', ')}]`;
+}
+
+/**
+ * Build top-level tuple select expression with alias.
+ * Reconstructs the tuple array with sub-field narrowing on object/tuple elements.
+ *
+ * Example: buildTupleSelect('loc', { 1: { city: true } }, tupleInfo)
+ * → '[loc[0], { city: loc[1].city }] as loc'
+ */
+export function buildTupleSelect(
+  fieldPath: string,
+  selectValue: Record<string, unknown>,
+  tupleInfo: TupleFieldMetadata,
+): string {
+  const inner = buildTupleSelectInner(fieldPath, selectValue, tupleInfo);
+
+  return `${inner} as ${fieldPath}`;
+}
+
 /** Build SELECT field list */
 export function buildSelectFields(
   select: SelectClause | undefined,
@@ -88,8 +210,14 @@ export function buildSelectFields(
     const fields = Object.entries(select)
       .filter(([_, include]) => include)
       .map(([field, selectValue]) => {
-        // Object sub-field select: { address: { city: true } }
         if (typeof selectValue === 'object' && selectValue !== null) {
+          // Check if this is a tuple field (needs array reconstruction, not destructuring)
+          const fieldMeta = model.fields.find((f) => f.name === field);
+          if (fieldMeta?.type === 'tuple' && fieldMeta.tupleInfo) {
+            return buildTupleSelect(field, selectValue as Record<string, unknown>, fieldMeta.tupleInfo);
+          }
+
+          // Object sub-field select: { address: { city: true } }
           return buildObjectSelect(field, selectValue as Record<string, unknown>);
         }
         // Boolean true: select entire field

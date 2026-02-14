@@ -20,7 +20,7 @@ For each model in your schema, Cerial generates the following types:
 | `UserNestedCreate`         | Data type for nested creates inside relation operations. Omits the `id` field since SurrealDB auto-generates it.                                                                                                  |
 | `UserUpdate`               | Data type for `updateUnique()` / `updateMany()`. All fields optional. Supports array `push`/`unset` and object `merge`/`set` operations.                                                                          |
 | `UserWhere`                | Where clause type. Includes comparison operators, logical operators (`AND`, `OR`, `NOT`), nested relation filtering, and object field filtering.                                                                  |
-| `UserSelect`               | Field selection type. Each field is `boolean`. Object fields accept `boolean \| ObjectSelect` for sub-field narrowing.                                                                                            |
+| `UserSelect`               | Field selection type. Each field is `boolean`. Object fields accept `boolean \| ObjectSelect` for sub-field narrowing. Tuple fields with object elements accept `boolean \| TupleSelect`.                         |
 | `UserInclude`              | Relation include type. Each relation accepts `boolean` or an object with nested `where`, `select`, `include`, `orderBy`, `limit`, `offset`.                                                                       |
 | `UserOrderBy`              | Ordering type. Each field accepts `'asc' \| 'desc'`. Supports nested object field ordering.                                                                                                                       |
 | `UserFindUniqueWhere`      | Where clause for unique lookups. Requires exactly one unique field (typically `id`).                                                                                                                              |
@@ -47,17 +47,21 @@ Objects do **not** generate: `GetPayload`, `Include`, `Create`, `Update`, or Mod
 
 ## Types Generated Per Tuple
 
-For each `tuple` in your schema, Cerial generates a focused set of types. Tuples are fixed-length typed arrays — they have no partial merge, no ordering, and no sub-field selection.
+For each `tuple` in your schema, Cerial generates a focused set of types. Tuples are fixed-length typed arrays with no ordering support.
 
-| Type              | Description                                                                               |
-| ----------------- | ----------------------------------------------------------------------------------------- |
-| `Coordinate`      | Output type — a TypeScript tuple type (e.g., `[number, number]`).                         |
-| `CoordinateInput` | Input type — accepts array form, object form (with named/index keys), or mixed.           |
-| `CoordinateWhere` | Where clause type with named keys, index keys, and comparison operators for each element. |
+| Type               | Description                                                                                                                                |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Coordinate`       | Output type — a TypeScript tuple type (e.g., `[number, number]`).                                                                          |
+| `CoordinateInput`  | Input type — accepts array form, object form (with named/index keys), or mixed.                                                            |
+| `CoordinateWhere`  | Where clause type with named keys, index keys, and comparison operators for each element.                                                  |
+| `CoordinateUpdate` | Per-element update type — allows updating individual elements without replacing the entire tuple. See [Updating Tuples](../tuples/update). |
+| `CoordinateSelect` | Sub-field select type — only generated when the tuple contains object elements at any depth. See [Tuple Select](../tuples/select).         |
 
-Tuples do **not** generate: `Select`, `OrderBy`, `Create`, `Update`, `Include`, or `GetPayload` types. They are always operated on as atomic values through their parent model.
+`CoordinateSelect` is conditionally generated: it only exists when the tuple has object elements (directly or via nested tuples). Primitive-only tuples use simple `boolean` selection on the parent model.
 
-When a tuple is used as a model field, the model's `Update` type includes full-replace and `push`/`set` operations for tuple arrays. The model's `Create` type uses `CoordinateInput` for tuple fields.
+Tuples do **not** generate: `OrderBy`, `Create`, `Include`, or `GetPayload` types.
+
+When a tuple is used as a model field, the model's `Update` type includes full-replace (`CoordinateInput`), per-element update (`{ update: CoordinateUpdate }`), and `push`/`set` operations for tuple arrays. The model's `Select` type includes `boolean | CoordinateSelect` when the tuple has object elements at any depth, or just `boolean` otherwise.
 
 ## Example: Generated Output Interface
 

@@ -43,12 +43,12 @@ cerial/
 │   ├── unit/                        # Unit tests (no DB)
 │   ├── integration/                 # Integration tests (DB required)
 │   ├── e2e/                         # End-to-end tests
-│   │   ├── schemas/                 #   33 .cerial test schemas
+│   │   ├── schemas/                 #   37 .cerial test schemas
 │   │   ├── generated/               #   Generated client (gitignored)
 │   │   ├── relations/               #   91 relation test files
-│   │   ├── objects/                 #   7 object test files
+│   │   ├── objects/                 #   9 object test files
 │   │   ├── timestamps/              #   Timestamp decorator E2E tests
-│   │   ├── typechecks/              #   18 compile-time type checks
+│   │   ├── typechecks/              #   25 compile-time type checks
 │   │   ├── preload.ts               #   Generates client before tests
 │   │   └── test-client.ts           #   Test helpers
 │   └── generators/                  # Generator tests
@@ -60,18 +60,18 @@ cerial/
 
 ### Key Files
 
-| File                                          | Purpose                                                                  |
-| --------------------------------------------- | ------------------------------------------------------------------------ |
-| `src/utils/cerial-id.ts`                      | `CerialId` class and `RecordIdInput` union type                          |
-| `src/query/transformers/data-transformer.ts`  | Input transformation, `@default`/timestamp handling, NONE/null logic     |
-| `src/query/mappers/result-mapper.ts`          | Output transformation (RecordId → CerialId)                              |
-| `src/query/builders/nested-builder.ts`        | Nested create/connect/disconnect in transactions                         |
-| `src/generators/types/derived-generator.ts`   | Generates Select, OrderBy, GetPayload, Include types                     |
-| `src/generators/types/interface-generator.ts` | Generates model/object interfaces                                        |
-| `src/generators/types/where-generator.ts`     | Generates Where types with nested/object filtering                       |
-| `src/generators/client/writer.ts`             | Writes client files, contains `ResolveFieldSelect` / `ApplyObjectSelect` |
-| `src/cli/validators/relation-validator.ts`    | Validates relation rules (PK/non-PK, @key, @onDelete)                    |
-| `src/query/filters/registry.ts`               | Operator handler registry                                                |
+| File                                          | Purpose                                                                                       |
+| --------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `src/utils/cerial-id.ts`                      | `CerialId` class and `RecordIdInput` union type                                               |
+| `src/query/transformers/data-transformer.ts`  | Input transformation, `@default`/timestamp handling, NONE/null logic                          |
+| `src/query/mappers/result-mapper.ts`          | Output transformation (RecordId → CerialId)                                                   |
+| `src/query/builders/nested-builder.ts`        | Nested create/connect/disconnect in transactions                                              |
+| `src/generators/types/derived-generator.ts`   | Generates Select, OrderBy, GetPayload, Include types                                          |
+| `src/generators/types/interface-generator.ts` | Generates model/object interfaces                                                             |
+| `src/generators/types/where-generator.ts`     | Generates Where types with nested/object filtering                                            |
+| `src/generators/client/writer.ts`             | Writes client files, contains `ResolveFieldSelect` / `ApplyObjectSelect` / `ApplyTupleSelect` |
+| `src/cli/validators/relation-validator.ts`    | Validates relation rules (PK/non-PK, @key, @onDelete)                                         |
+| `src/query/filters/registry.ts`               | Operator handler registry                                                                     |
 
 ## Architecture
 
@@ -96,14 +96,34 @@ Schema (.cerial files) → Parser (AST) → Generators → TypeScript Client
 
 | Location                  | Type                      | Count    |
 | ------------------------- | ------------------------- | -------- |
-| `tests/unit/`             | Unit tests (no DB)        | ~1086    |
+| `tests/unit/`             | Unit tests (no DB)        | ~1211    |
 | `tests/integration/`      | Integration (DB required) | ~49      |
 | `tests/e2e/relations/`    | Relation E2E tests        | 91 files |
 | `tests/e2e/objects/`      | Object E2E tests          | 9 files  |
-| `tests/e2e/tuples/`       | Tuple E2E tests           | 8 files  |
+| `tests/e2e/tuples/`       | Tuple E2E tests           | 10 files |
 | `tests/e2e/transactions/` | Transaction E2E tests     | 10 files |
 | `tests/e2e/timestamps/`   | Timestamp E2E tests       | 1 file   |
-| `tests/e2e/typechecks/`   | Compile-time type checks  | 22 files |
+| `tests/e2e/typechecks/`   | Compile-time type checks  | 25 files |
+
+**Sandbox testing** = Running raw SurrealQL against the live SurrealDB instance to verify DB-level behavior before implementing in code. Use this when you need to confirm how SurrealDB handles a specific query pattern (e.g., `$this` reconstruction, dot-notation merge, SELECT expression shapes). When the user says "sandbox test", execute queries via curl:
+
+```bash
+# Query
+curl -s -X POST http://127.0.0.1:8000/sql \
+  -H "Accept: application/json" \
+  -H "NS: main" -H "DB: main" \
+  -u "root:root" \
+  -d "YOUR SURREALQL HERE"
+
+# Multiple statements in one request (semicolon-separated)
+curl -s -X POST http://127.0.0.1:8000/sql \
+  -H "Accept: application/json" \
+  -H "NS: main" -H "DB: main" \
+  -u "root:root" \
+  -d "DEFINE TABLE test SCHEMALESS; CREATE test SET foo = [1,2,3]; SELECT foo[0] FROM test;"
+```
+
+Use sandbox tests to validate assumptions about SurrealQL behavior before writing runtime code. Clean up test tables afterward with `REMOVE TABLE tablename`.
 
 **When query format changes**, update expectations in:
 
@@ -296,7 +316,7 @@ has_children: true # only on section index pages
 - **@flexible** = Field-level decorator for object-type fields. Adds `FLEXIBLE` to migration, generates `& Record<string, any>` intersection in types. Same object can be flexible on one field, strict on another. Where types get `& { [key: string]: any }` for filtering extra keys
 - **@readonly** = Write-once field decorator. Adds `READONLY` to migration. Field settable on CREATE, excluded from Update types. Runtime error if passed to update. Incompatible with `@now` (COMPUTED), `@defaultAlways`, and `@id`. Allowed on model fields and object sub-fields. When on a PK Record field, the relation's nested update ops (connect/disconnect) are excluded from UpdateInput
 - **Object types** = Embedded inline, no id, no relations. Allowed decorators: `@default`, `@defaultAlways`, `@createdAt`, `@updatedAt`, `@flexible`, `@readonly`
-- **Tuple types** = Fixed-length typed arrays defined with `tuple {}`. Elements are comma-separated, optionally named. Input accepts array or object form; output is always array. No decorators on elements. No partial updates, no per-element select, no orderBy. Supports nested tuples, objects in tuples, tuples in objects. Self-referencing requires optional element.
+- **Tuple types** = Fixed-length typed arrays defined with `tuple {}`. Elements are comma-separated, optionally named. Input accepts array or object form; output is always array. No decorators on elements. Per-element update via `{ update: TupleUpdate }` wrapper. Sub-field select on tuples with object elements (at any nesting depth) via `TupleSelect`. No orderBy. Supports nested tuples, objects in tuples, tuples in objects. Self-referencing requires optional element.
 - **Parameterized queries** = Values bound via `$varName`, never inlined
 - **CerialQueryPromise** = Thenable returned by model methods. Auto-executes on `await`, collectible by `$transaction`
 - **$transaction** = Atomic batch execution of independent queries with typed tuple results
@@ -317,7 +337,9 @@ has_children: true # only on section index pages
 - `CerialQueryPromise` is a thenable (not `instanceof Promise`) — bun's `expect().rejects` requires wrapping: `await expect((async () => { await query; })()).rejects.toThrow()`
 - `$transaction` queries are independent — one query cannot reference another's result
 - Tuple output is always array form `[1.5, 2.5]` — never object form, even when elements are named
-- Optional tuple fields (`Coordinate?`) produce `field?: Coordinate` (NOT `| null` like primitives) in output, but update type includes `| null` for clearing (null → NONE)
+- Optional tuple fields (`Coordinate?`) produce `field?: Coordinate` (NOT `| null` like primitives) in output, update type includes `| CerialNone` for clearing (same as other optional fields)
 - `@nullable` is not allowed on object/tuple fields — SurrealDB can't define sub-fields on nullable parents. Allowed on tuple elements.
 - Tuple array push with single tuple `[3, 4]` is wrapped to `[[3, 4]]` for SurrealDB `+=` to add one element (not two)
+- Per-element update (`{ update: ... }`) is NOT available on array tuple fields — only push/set
+- `TupleSelect` is only generated for tuples with object elements at any nesting depth — primitive-only tuples use boolean select
 - No Record/Relation types allowed in tuple elements

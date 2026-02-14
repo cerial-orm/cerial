@@ -159,6 +159,7 @@ export const tables = {
     'tuple_in_obj',
     'tuple_with_relation',
     'tuple_related_post',
+    'tuple_deep_nest',
   ],
 };
 

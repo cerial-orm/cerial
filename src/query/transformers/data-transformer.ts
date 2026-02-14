@@ -3,7 +3,13 @@
  */
 
 import { RecordId, StringRecordId } from 'surrealdb';
-import type { ModelMetadata, ObjectFieldMetadata, SchemaFieldType, TupleFieldMetadata } from '../../types';
+import type {
+  ModelMetadata,
+  ObjectFieldMetadata,
+  SchemaFieldType,
+  TupleElementMetadata,
+  TupleFieldMetadata,
+} from '../../types';
 import { CerialId, type RecordIdInput } from '../../utils/cerial-id';
 import { isNone, NONE } from '../../utils/none';
 
@@ -277,6 +283,86 @@ function transformTupleData(data: unknown, tupleInfo: TupleFieldMetadata): unkno
   return arr;
 }
 
+/** Check if a value is an `{ update: {...} }` per-element tuple update wrapper */
+function isUpdateWrapper(value: unknown): value is { update: Record<string, unknown> } {
+  return typeof value === 'object' && value !== null && 'update' in value && Object.keys(value).length === 1;
+}
+
+/** Check if a value is a `{ set: {...} }` full-replace wrapper */
+function isSetWrapper(value: unknown): value is { set: unknown } {
+  return typeof value === 'object' && value !== null && 'set' in value && Object.keys(value).length === 1;
+}
+
+/** Resolve a tuple element by name or index key */
+function resolveElementByKey(key: string, tupleInfo: TupleFieldMetadata): TupleElementMetadata | undefined {
+  const byName = tupleInfo.elements.find((e) => e.name === key);
+  if (byName) return byName;
+  const index = parseInt(key, 10);
+  if (!isNaN(index)) return tupleInfo.elements.find((e) => e.index === index);
+
+  return undefined;
+}
+
+/**
+ * Transform per-element tuple update data.
+ * Only transforms the provided elements — does not normalize to array form.
+ * Preserves original keys (named or index) for the update builder to use.
+ */
+function transformTupleElementUpdate(
+  data: Record<string, unknown>,
+  tupleInfo: TupleFieldMetadata,
+): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
+
+  for (const [key, value] of Object.entries(data)) {
+    const element = resolveElementByKey(key, tupleInfo);
+    if (!element) continue;
+
+    // null, undefined, NONE sentinel — pass through for builder to handle
+    if (value === null || value === undefined || isNone(value)) {
+      result[key] = value;
+      continue;
+    }
+
+    // Object element
+    if (element.type === 'object' && element.objectInfo) {
+      if (isSetWrapper(value)) {
+        // { set: ObjectInput } — transform the full object value
+        result[key] = { set: transformObjectData(value.set as Record<string, unknown>, element.objectInfo) };
+      } else if (typeof value === 'object' && !Array.isArray(value)) {
+        // Partial object merge — transform the provided fields
+        result[key] = transformObjectData(value as Record<string, unknown>, element.objectInfo);
+      } else {
+        result[key] = value;
+      }
+      continue;
+    }
+
+    // Nested tuple element
+    if (element.type === 'tuple' && element.tupleInfo) {
+      if (isUpdateWrapper(value)) {
+        // Nested per-element update — recurse
+        result[key] = { update: transformTupleElementUpdate(value.update, element.tupleInfo) };
+      } else {
+        // Full tuple replace
+        result[key] = transformTupleData(value, element.tupleInfo);
+      }
+      continue;
+    }
+
+    // Record element
+    if (element.type === 'record') {
+      result[key] = parseRecordIdInput(toRecordIdInput(value));
+      continue;
+    }
+
+    // Primitive element
+    result[key] = transformValue(value, element.type);
+  }
+
+  return result;
+}
+
 /** Transform data object based on model fields */
 export function transformData(data: Record<string, unknown>, model: ModelMetadata): Record<string, unknown> {
   const result: Record<string, unknown> = {};
@@ -397,6 +483,9 @@ export function transformData(data: Record<string, unknown>, model: ModelMetadat
           } else {
             result[key] = value;
           }
+        } else if (isUpdateWrapper(value)) {
+          // Per-element tuple update: { update: { lat: 5 } }
+          result[key] = { update: transformTupleElementUpdate(value.update, field.tupleInfo) };
         } else {
           result[key] = transformTupleData(value, field.tupleInfo);
         }

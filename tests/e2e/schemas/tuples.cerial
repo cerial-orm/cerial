@@ -78,3 +78,35 @@ model TupleRelatedPost {
   authorId Record
   author Relation @field(authorId) @model(TupleWithRelation)
 }
+
+object DeepInnerObj {
+  value String
+  extra String
+}
+
+tuple DeepInnerTuple {
+  Float,
+  DeepInnerObj
+}
+
+object DeepMidObj {
+  name String
+  age Int?
+  pos DeepInnerTuple
+}
+
+tuple DeepMidTuple {
+  String,
+  DeepMidObj
+}
+
+tuple DeepOuterTuple {
+  String,
+  DeepMidTuple
+}
+
+model TupleDeepNest {
+  id Record @id
+  deep DeepOuterTuple
+  deepOpt DeepOuterTuple?
+}
