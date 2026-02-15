@@ -2,7 +2,7 @@
  * Data transformer - transforms data for queries
  */
 
-import { Decimal, Duration, RecordId, StringRecordId, Uuid } from 'surrealdb';
+import { Decimal, Duration, Geometry, RecordId, StringRecordId, Uuid } from 'surrealdb';
 import type {
   LiteralFieldMetadata,
   ModelMetadata,
@@ -14,6 +14,7 @@ import type {
 import { CerialBytes } from '../../utils/cerial-bytes';
 import { CerialDecimal } from '../../utils/cerial-decimal';
 import { CerialDuration } from '../../utils/cerial-duration';
+import { CerialGeometry } from '../../utils/cerial-geometry';
 import { CerialId, type RecordIdInput } from '../../utils/cerial-id';
 import { CerialUuid } from '../../utils/cerial-uuid';
 import { isNone, NONE } from '../../utils/none';
@@ -81,6 +82,18 @@ export function transformValue(value: unknown, fieldType: SchemaFieldType): unkn
       if (value instanceof CerialBytes) return value.toNative();
       if (value instanceof Uint8Array) return value;
       if (typeof value === 'string') return CerialBytes.fromBase64(value).toNative();
+
+      return value;
+
+    case 'geometry':
+      if (CerialGeometry.is(value)) return value.toNative();
+      if (value instanceof Geometry) return value;
+      if (Array.isArray(value) && value.length === 2 && typeof value[0] === 'number') {
+        return CerialGeometry.from(value as [number, number]).toNative();
+      }
+      if (typeof value === 'object' && value !== null && 'type' in value) {
+        return CerialGeometry.from(value as Parameters<typeof CerialGeometry.from>[0]).toNative();
+      }
 
       return value;
 
@@ -323,6 +336,17 @@ function transformTupleData(data: unknown, tupleInfo: TupleFieldMetadata): unkno
       arr[element.index] = parseRecordIdInput(toRecordIdInput(value));
     } else {
       arr[element.index] = transformValue(value, element.type);
+    }
+  }
+
+  // SurrealDB CBOR bug: CBOR null in the same array as a Geometry tag prevents
+  // geometry deserialization. Convert null → undefined only for optional non-nullable
+  // elements (option<T> accepts NONE, not NULL). Nullable elements keep null.
+  if (arr.some((v) => v instanceof Geometry)) {
+    for (const element of tupleInfo.elements) {
+      if (arr[element.index] === null && element.isOptional && !element.isNullable) {
+        arr[element.index] = undefined;
+      }
     }
   }
 

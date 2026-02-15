@@ -85,6 +85,30 @@ export type { CerialDecimalInput } from './cerial-decimal';
 export { CerialBytes, isCerialBytes } from './cerial-bytes';
 export type { CerialBytesInput } from './cerial-bytes';
 
+// CerialGeometry - Geometry class hierarchy
+export {
+  CerialGeometry,
+  CerialPoint,
+  CerialLineString,
+  CerialPolygon,
+  CerialMultiPoint,
+  CerialMultiLineString,
+  CerialMultiPolygon,
+  CerialGeometryCollection,
+  isCerialGeometry,
+} from './cerial-geometry';
+export type {
+  CerialGeometryType,
+  CerialGeometryInput,
+  CerialPointInput,
+  CerialLineStringInput,
+  CerialPolygonInput,
+  CerialMultiPointInput,
+  CerialMultiLineStringInput,
+  CerialMultiPolygonInput,
+  CerialGeometryCollectionInput,
+} from './cerial-geometry';
+
 // NONE sentinel
 export { NONE, isNone } from './none';
 export type { CerialNone } from './none';

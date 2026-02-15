@@ -80,6 +80,8 @@ export function generateObjectOrderByType(object: ObjectMetadata): string {
     } else if (field.type === 'tuple') {
       // Tuple fields do not support ordering — skip
       continue;
+    } else if (field.type === 'geometry') {
+      continue;
     } else if (field.type === 'literal') {
       if (field.literalInfo?.isEnum) {
         // Enum fields are string-only — ordering works fine

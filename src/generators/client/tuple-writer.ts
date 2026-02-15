@@ -15,6 +15,7 @@ import {
   CERIAL_BYTES_IMPORT,
   CERIAL_DECIMAL_IMPORT,
   CERIAL_DURATION_IMPORT,
+  CERIAL_GEOMETRY_IMPORT,
   CERIAL_UUID_IMPORT,
   NONE_IMPORT,
   collectTupleObjectNamesDeep,
@@ -30,6 +31,7 @@ import {
   tupleHasBytesElements,
   tupleHasDecimalElements,
   tupleHasDurationElements,
+  tupleHasGeometryElements,
   tupleHasUuidElements,
 } from './import-helpers';
 
@@ -98,13 +100,14 @@ export async function writeTupleTypes(
   const durationImport = tupleHasDurationElements(tuple) ? `${CERIAL_DURATION_IMPORT}\n` : '';
   const decimalImport = tupleHasDecimalElements(tuple) ? `${CERIAL_DECIMAL_IMPORT}\n` : '';
   const bytesImport = tupleHasBytesElements(tuple) ? `${CERIAL_BYTES_IMPORT}\n` : '';
+  const geometryImport = tupleHasGeometryElements(tuple) ? `${CERIAL_GEOMETRY_IMPORT}\n` : '';
 
   const content = `/**
  * Generated types for ${tuple.name}
  * Do not edit manually
  */
 
-${noneImport}${uuidImport}${durationImport}${decimalImport}${bytesImport}${objectImports}${tupleImports}${literalImports}${enumImports}${interfaceCode}
+${noneImport}${uuidImport}${durationImport}${decimalImport}${bytesImport}${geometryImport}${objectImports}${tupleImports}${literalImports}${enumImports}${interfaceCode}
 
 ${whereCode}
 

@@ -31,7 +31,8 @@ export type SurrealQLType =
   | 'literal'
   | 'duration'
   | 'decimal'
-  | 'bytes';
+  | 'bytes'
+  | 'geometry';
 
 /** Mapping from schema types to SurrealQL types */
 const TYPE_MAP: Record<SchemaFieldType, SurrealQLType> = {
@@ -51,6 +52,7 @@ const TYPE_MAP: Record<SchemaFieldType, SurrealQLType> = {
   duration: 'duration',
   decimal: 'decimal',
   bytes: 'bytes',
+  geometry: 'geometry',
 } as Record<SchemaFieldType, SurrealQLType>;
 
 /** Schema types that require additional assertions */
@@ -252,14 +254,26 @@ export function generateTypeClause(
     return `TYPE ${wrapTypeModifiers(literalUnion, isRequired, isNullable)}`;
   }
 
+  // Handle geometry types with optional subtype narrowing
+  if (schemaType === 'geometry' && field) {
+    const subtypes = field.geometrySubtypes;
+    let geoType: string;
+    if (subtypes && subtypes.length) {
+      geoType = `geometry<${subtypes.join(' | ')}>`;
+    } else {
+      geoType = 'geometry<point | line | polygon | multipoint | multiline | multipolygon | collection>';
+    }
+    if (field.isArray) return `TYPE array<${geoType}>`;
+
+    return `TYPE ${wrapTypeModifiers(geoType, isRequired, isNullable)}`;
+  }
+
   // Handle primitive array types (String[], Int[], Date[], etc.)
   if (field?.isArray) {
     const surrealType = mapToSurrealType(schemaType);
     return `TYPE array<${surrealType}>`;
   }
 
-  // Standard types with nullable/optional modifiers
-  // Objects cannot be @nullable (validated), so they'll only get option<object> for optional
   const surrealType = mapToSurrealType(schemaType);
 
   return `TYPE ${wrapTypeModifiers(surrealType, isRequired, isNullable)}`;

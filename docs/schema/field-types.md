@@ -6,7 +6,7 @@ nav_order: 1
 
 # Field Types
 
-Cerial supports 13 built-in field types plus user-defined enum, tuple, object, and literal types. Each type maps to a specific SurrealDB type and TypeScript type.
+Cerial supports 14 built-in field types plus user-defined enum, tuple, object, and literal types. Each type maps to a specific SurrealDB type and TypeScript type.
 
 ## Type Reference
 
@@ -23,6 +23,7 @@ Cerial supports 13 built-in field types plus user-defined enum, tuple, object, a
 | `Duration` | Time duration                                    | `CerialDuration` (output) / `CerialDurationInput` (input) | `duration`                                    | Yes             | Yes             |
 | `Decimal`  | Arbitrary-precision decimal                      | `CerialDecimal` (output) / `CerialDecimalInput` (input)   | `decimal`                                     | Yes             | Yes             |
 | `Bytes`    | Binary data                                      | `CerialBytes` (output) / `CerialBytesInput` (input)       | `bytes`                                       | Yes             | Yes             |
+| `Geometry` | Geospatial data                                  | `CerialGeometry` (output) / `CerialGeometryInput` (input) | `geometry<subtype>`                           | Yes             | Yes             |
 | `Record`   | Record reference                                 | `CerialId` (output) / `RecordIdInput` (input)             | `record<tablename>`                           | Yes             | Yes             |
 | `Relation` | Virtual relation                                 | N/A (not stored)                                          | Virtual                                       | As `Relation[]` | As `Relation?`  |
 | `Enum`     | Named string constants                           | `'VALUE1' \| 'VALUE2'`                                    | `'VALUE1' \| 'VALUE2'`                        | Yes             | Yes             |
@@ -226,6 +227,54 @@ console.log(doc.payload.length); // 5
 ```
 
 See [Bytes field type](field-types/bytes) for the full CerialBytes API and filtering details.
+
+## Geometry
+
+Geospatial data stored using SurrealDB's native `geometry` type. Use subtype decorators (`@point`, `@line`, `@polygon`, etc.) to constrain which geometry types a field accepts. Without decorators, a field accepts any geometry subtype.
+
+- **Output type**: `CerialGeometry` (or narrowed subclass like `CerialPoint` with decorators)
+- **Input type**: `CerialGeometryInput` — accepts GeoJSON objects, `[lon, lat]` shorthand for points, `CerialGeometry` instances, or SDK types
+
+```cerial
+model Location {
+  id Record @id
+  point Geometry @point
+  area Geometry @polygon
+  shape Geometry
+  multi Geometry @point @polygon
+}
+```
+
+```typescript
+const loc = await db.Location.create({
+  data: {
+    point: [1.5, 2.5],
+    area: {
+      type: 'Polygon',
+      coordinates: [
+        [
+          [0, 0],
+          [1, 0],
+          [1, 1],
+          [0, 0],
+        ],
+      ],
+    },
+    shape: {
+      type: 'LineString',
+      coordinates: [
+        [0, 0],
+        [5, 5],
+      ],
+    },
+    multi: [3, 4],
+  },
+});
+console.log(loc.point); // CerialPoint instance
+console.log(loc.point.coordinates); // [1.5, 2.5]
+```
+
+See [Geometry field type](field-types/geometry) for the full CerialGeometry API, subtype decorators, and filtering details.
 
 ## Record
 

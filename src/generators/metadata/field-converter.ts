@@ -3,7 +3,7 @@
  */
 
 import { getDecorator, hasDecorator } from '../../parser/types/ast';
-import type { ASTField, FieldMetadata, RelationFieldMetadata } from '../../types';
+import type { ASTField, FieldMetadata, RelationFieldMetadata, SchemaDecorator } from '../../types';
 import { toSnakeCase } from '../../utils/string-utils';
 
 function resolveTimestampDecorator(field: ASTField): 'now' | 'createdAt' | 'updatedAt' | undefined {
@@ -89,6 +89,29 @@ export function convertField(field: ASTField): FieldMetadata {
   // Handle literal type (variants will be resolved later)
   if (field.type === 'literal' && field.literalName) {
     metadata.literalInfo = { literalName: field.literalName, variants: [] };
+  }
+
+  // Handle geometry subtype decorators
+  if (field.type === 'geometry') {
+    const subtypes: FieldMetadata['geometrySubtypes'] = [];
+    type GeoSubtype = 'point' | 'line' | 'polygon' | 'multipoint' | 'multiline' | 'multipolygon' | 'collection';
+    const geoDecoratorToSubtype: [SchemaDecorator, GeoSubtype][] = [
+      ['point', 'point'],
+      ['line', 'line'],
+      ['polygon', 'polygon'],
+      ['multipoint', 'multipoint'],
+      ['multiline', 'multiline'],
+      ['multipolygon', 'multipolygon'],
+      ['geoCollection', 'collection'],
+    ];
+    for (const [decorator, subtype] of geoDecoratorToSubtype) {
+      if (hasDecorator(field, decorator)) {
+        subtypes.push(subtype);
+      }
+    }
+    if (subtypes.length) {
+      metadata.geometrySubtypes = subtypes;
+    }
   }
 
   // Handle relation type

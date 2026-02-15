@@ -481,6 +481,13 @@ export function validateObjectFields(ast: SchemaAST): SchemaValidationError[] {
         'uuid',
         'uuid4',
         'uuid7',
+        'point',
+        'line',
+        'polygon',
+        'multipoint',
+        'multiline',
+        'multipolygon',
+        'geoCollection',
       ]);
       for (const dec of field.decorators) {
         if (!ALLOWED_OBJECT_DECORATORS.has(dec.type)) {
@@ -491,7 +498,7 @@ export function validateObjectFields(ast: SchemaAST): SchemaValidationError[] {
             });
           } else {
             errors.push({
-              message: `Decorator @${dec.type} is not allowed on object fields. Allowed: @default, @defaultAlways, @createdAt, @updatedAt, @index, @unique, @distinct, @sort, @flexible, @readonly, @nullable, @uuid, @uuid4, @uuid7.`,
+              message: `Decorator @${dec.type} is not allowed on object fields. Allowed: @default, @defaultAlways, @createdAt, @updatedAt, @index, @unique, @distinct, @sort, @flexible, @readonly, @nullable, @uuid, @uuid4, @uuid7, @point, @line, @polygon, @multipoint, @multiline, @multipolygon, @geoCollection.`,
               line: field.range.start.line,
             });
           }

@@ -196,6 +196,12 @@ export const tables = {
 
   // bytes.cerial (bytes field type tests)
   bytes: ['bytes_basic', 'bytes_with_object', 'bytes_with_tuple'],
+
+  // geometry.cerial (geometry field type tests)
+  geometry: ['geometry_basic', 'geometry_with_object', 'geometry_with_tuple'],
+
+  // any.cerial (any field type tests)
+  any: ['any_basic', 'any_with_object', 'any_with_tuple'],
 };
 
 /**

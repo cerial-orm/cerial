@@ -9,6 +9,7 @@ import {
   CERIAL_BYTES_IMPORT,
   CERIAL_DECIMAL_IMPORT,
   CERIAL_DURATION_IMPORT,
+  CERIAL_GEOMETRY_IMPORT,
   CERIAL_ID_IMPORT,
   CERIAL_UUID_IMPORT,
   generateEnumImports,
@@ -22,6 +23,7 @@ import {
   objectHasBytesFields,
   objectHasDecimalFields,
   objectHasDurationFields,
+  objectHasGeometryFields,
   objectHasUuidFields,
 } from './import-helpers';
 
@@ -64,6 +66,8 @@ export async function writeObjectTypes(
   const cerialDecimalImport = hasDecimalFields ? `${CERIAL_DECIMAL_IMPORT}\n` : '';
   const hasBytesFields = objectHasBytesFields(object, objectRegistry);
   const cerialBytesImport = hasBytesFields ? `${CERIAL_BYTES_IMPORT}\n` : '';
+  const hasGeometryFields = objectHasGeometryFields(object, objectRegistry);
+  const cerialGeometryImport = hasGeometryFields ? `${CERIAL_GEOMETRY_IMPORT}\n` : '';
 
   // Generate all type content for this object
   const interfaceCode = generateObjectInterfaces([object], objectRegistry);
@@ -75,7 +79,7 @@ export async function writeObjectTypes(
  * Do not edit manually
  */
 
-${cerialIdImport}${cerialUuidImport}${cerialDurationImport}${cerialDecimalImport}${cerialBytesImport}${objectImports}${tupleImports}${literalImports}${enumImports}${interfaceCode}
+${cerialIdImport}${cerialUuidImport}${cerialDurationImport}${cerialDecimalImport}${cerialBytesImport}${cerialGeometryImport}${objectImports}${tupleImports}${literalImports}${enumImports}${interfaceCode}
 
 ${whereCode}
 

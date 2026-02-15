@@ -8,11 +8,11 @@ import { CerialBytes } from '../../utils/cerial-bytes';
 import { CerialDecimal } from '../../utils/cerial-decimal';
 import { CerialId } from '../../utils/cerial-id';
 import { CerialDuration } from '../../utils/cerial-duration';
+import { CerialGeometry } from '../../utils/cerial-geometry';
 import { CerialUuid } from '../../utils/cerial-uuid';
 import { isObject } from '../../utils/type-utils';
 import { isRegisteredOperator } from '../filters/registry';
 
-/** Check if a value is a direct value (not an operator object) — wrapper classes, RecordId types */
 function isDirectValue(value: unknown): boolean {
   return (
     CerialId.is(value) ||
@@ -22,7 +22,8 @@ function isDirectValue(value: unknown): boolean {
     CerialDuration.is(value) ||
     CerialDecimal.is(value) ||
     CerialBytes.is(value) ||
-    value instanceof Uint8Array
+    value instanceof Uint8Array ||
+    CerialGeometry.is(value)
   );
 }
 

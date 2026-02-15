@@ -5,6 +5,7 @@
 import type { FieldMetadata, ModelMetadata, ModelRegistry } from '../../types';
 import { schemaTypeToTsType } from '../../utils/type-utils';
 import { getLiteralTypeName, getLiteralWhereName } from './enums';
+import { getGeometryInputType } from './geometry-helpers';
 
 /** Generate comparison operators for numeric types */
 function generateNumericComparisonOps(tsType: string): string {
@@ -140,6 +141,7 @@ export function generateFieldWhereType(field: FieldMetadata, _registry?: ModelRe
     else if (field.type === 'duration') inputType = 'CerialDurationInput';
     else if (field.type === 'decimal') inputType = 'CerialDecimalInput';
     else if (field.type === 'bytes') inputType = 'CerialBytesInput';
+    else if (field.type === 'geometry') inputType = getGeometryInputType(field);
     else inputType = tsType;
 
     return `${inputType}[] | ${generateArrayFieldOps(inputType)}`;
@@ -223,6 +225,17 @@ export function generateFieldWhereType(field: FieldMetadata, _registry?: ModelRe
   if (field.type === 'bool') {
     return `${nullablePrefix}${tsType} | (
     ${generateStringComparisonOps(tsType)} &
+    ${generateStringSpecialOps(isRequired, isId, isNullable)}
+  )`;
+  }
+
+  // Geometry: equality + array ops only (no ordering, no string ops, no between)
+  if (field.type === 'geometry') {
+    const geoInputType = getGeometryInputType(field);
+
+    return `${nullablePrefix}${geoInputType} | (
+    ${generateStringComparisonOps(geoInputType)} &
+    ${generateArrayOps(geoInputType)} &
     ${generateStringSpecialOps(isRequired, isId, isNullable)}
   )`;
   }

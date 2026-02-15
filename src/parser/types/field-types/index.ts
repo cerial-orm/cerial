@@ -16,6 +16,7 @@ import { getBytesFieldType, isBytesType } from './bytes-parser';
 import { getDecimalFieldType, isDecimalType } from './decimal-parser';
 import { getDurationFieldType, isDurationType } from './duration-parser';
 import { getUuidFieldType, isUuidType } from './uuid-parser';
+import { getGeometryFieldType, isGeometryType } from './geometry-parser';
 
 export { getBytesFieldType, isBytesType } from './bytes-parser';
 export { getDecimalFieldType, isDecimalType } from './decimal-parser';
@@ -30,6 +31,7 @@ export { getRecordFieldType, isRecordArray, isRecordType } from './record-parser
 export { getRelationFieldType, isRelationArray, isRelationType } from './relation-parser';
 export { getStringFieldType, isStringType } from './string-parser';
 export { getUuidFieldType, isUuidType } from './uuid-parser';
+export { getGeometryFieldType, isGeometryType } from './geometry-parser';
 
 /** Parse a type token to SchemaFieldType (handles Record[] by stripping []) */
 export function parseFieldType(
@@ -52,6 +54,7 @@ export function parseFieldType(
   if (isDurationType(baseToken)) return getDurationFieldType();
   if (isDecimalType(baseToken)) return getDecimalFieldType();
   if (isBytesType(baseToken)) return getBytesFieldType();
+  if (isGeometryType(baseToken)) return getGeometryFieldType();
   if (isRecordType(token)) return getRecordFieldType(); // Use original token for Record[]
   if (isRelationType(token)) return getRelationFieldType(); // Use original token for Relation[]
 

@@ -20,6 +20,7 @@ function getElementOutputType(element: TupleElementMetadata): string {
   if (element.type === 'duration') return 'CerialDuration';
   if (element.type === 'decimal') return 'CerialDecimal';
   if (element.type === 'bytes') return 'CerialBytes';
+  if (element.type === 'geometry') return 'CerialGeometry';
   if (element.type === 'object' && element.objectInfo) return element.objectInfo.objectName;
   if (element.type === 'tuple' && element.tupleInfo) return element.tupleInfo.tupleName;
   if (element.type === 'literal' && element.literalInfo) return getLiteralTypeName(element.literalInfo);
@@ -37,6 +38,7 @@ function getElementInputType(element: TupleElementMetadata): string {
   if (element.type === 'duration') return 'CerialDurationInput';
   if (element.type === 'decimal') return 'CerialDecimalInput';
   if (element.type === 'bytes') return 'CerialBytesInput';
+  if (element.type === 'geometry') return 'CerialGeometryInput';
   if (element.type === 'object' && element.objectInfo) return `${element.objectInfo.objectName}Input`;
   if (element.type === 'tuple' && element.tupleInfo) return `${element.tupleInfo.tupleName}Input`;
   if (element.type === 'literal' && element.literalInfo) {

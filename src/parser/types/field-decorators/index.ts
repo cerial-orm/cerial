@@ -36,3 +36,4 @@ export {
   parseUuid4Decorator,
   parseUuid7Decorator,
 } from './uuid-decorator-parser';
+export { isGeometryDecorator, parseGeometryDecorator } from './geometry-decorator-parser';

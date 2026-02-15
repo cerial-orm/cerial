@@ -32,6 +32,7 @@ import {
   isUuidDecorator,
   isUuid4Decorator,
   isUuid7Decorator,
+  isGeometryDecorator,
   parseCreatedAtDecorator,
   parseDefaultAlwaysDecorator,
   parseDefaultDecorator,
@@ -52,6 +53,7 @@ import {
   parseUuidDecorator,
   parseUuid4Decorator,
   parseUuid7Decorator,
+  parseGeometryDecorator,
 } from '../field-decorators';
 import {
   extractLiteralName,
@@ -136,6 +138,8 @@ export function parseDecorators(line: string, lineNumber: number): ASTDecorator[
       decorators.push(parseUuid4Decorator(token, range));
     } else if (isUuid7Decorator(token)) {
       decorators.push(parseUuid7Decorator(token, range));
+    } else if (isGeometryDecorator(token)) {
+      decorators.push(parseGeometryDecorator(token, range));
     }
   }
 

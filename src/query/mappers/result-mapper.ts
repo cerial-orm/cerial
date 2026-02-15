@@ -3,11 +3,12 @@
  */
 
 import type { RecordId } from 'surrealdb';
-import { Decimal, Duration, Uuid } from 'surrealdb';
+import { Decimal, Duration, Geometry, Uuid } from 'surrealdb';
 import type { ModelMetadata, ObjectFieldMetadata, SchemaFieldType, TupleFieldMetadata } from '../../types';
 import { CerialBytes } from '../../utils/cerial-bytes';
 import { CerialDecimal } from '../../utils/cerial-decimal';
 import { CerialDuration } from '../../utils/cerial-duration';
+import { CerialGeometry } from '../../utils/cerial-geometry';
 import { CerialId } from '../../utils/cerial-id';
 import { CerialUuid } from '../../utils/cerial-uuid';
 
@@ -83,6 +84,11 @@ export function mapFieldValue(value: unknown, fieldType: SchemaFieldType): unkno
     case 'bytes':
       if (value instanceof Uint8Array) return CerialBytes.from(value);
       if (value instanceof ArrayBuffer) return CerialBytes.from(new Uint8Array(value));
+
+      return value;
+
+    case 'geometry':
+      if (value instanceof Geometry) return CerialGeometry.fromNative(value);
 
       return value;
 

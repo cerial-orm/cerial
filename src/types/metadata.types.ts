@@ -63,6 +63,8 @@ export interface FieldMetadata {
   tupleInfo?: TupleFieldMetadata;
   /** Literal metadata for literal-typed fields */
   literalInfo?: LiteralFieldMetadata;
+  /** Geometry subtype decorators: which geometry subtypes this field accepts */
+  geometrySubtypes?: ('point' | 'line' | 'polygon' | 'multipoint' | 'multiline' | 'multipolygon' | 'collection')[];
 }
 
 /** Metadata for object-typed fields referencing an object definition */

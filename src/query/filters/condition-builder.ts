@@ -2,7 +2,7 @@
  * Condition builder - builds WHERE clause conditions
  */
 
-import { Decimal, Duration, RecordId, StringRecordId, Uuid } from 'surrealdb';
+import { Decimal, Duration, Geometry, RecordId, StringRecordId, Uuid } from 'surrealdb';
 import type {
   FieldMetadata,
   ModelMetadata,
@@ -14,6 +14,7 @@ import type {
 import { CerialBytes } from '../../utils/cerial-bytes';
 import { CerialDecimal } from '../../utils/cerial-decimal';
 import { CerialDuration } from '../../utils/cerial-duration';
+import { CerialGeometry } from '../../utils/cerial-geometry';
 import { CerialId, type RecordIdInput } from '../../utils/cerial-id';
 import { CerialUuid } from '../../utils/cerial-uuid';
 import { isObject } from '../../utils/type-utils';
@@ -73,6 +74,19 @@ function transformBytesValue(value: unknown): unknown {
   return value;
 }
 
+function transformGeometryValue(value: unknown): unknown {
+  if (value instanceof Geometry) return value;
+  if (CerialGeometry.is(value)) return value.toNative();
+  if (Array.isArray(value) && value.length === 2 && typeof value[0] === 'number') {
+    return CerialGeometry.from(value as [number, number]).toNative();
+  }
+  if (typeof value === 'object' && value !== null && 'type' in value) {
+    return CerialGeometry.from(value as Parameters<typeof CerialGeometry.from>[0]).toNative();
+  }
+
+  return value;
+}
+
 /** Transform value for ID, Record, or UUID fields - handles all input types */
 function transformFieldValue(value: unknown, fieldMetadata: FieldMetadata, model: ModelMetadata): unknown {
   // Transform ID field values to RecordId
@@ -127,13 +141,20 @@ function transformFieldValue(value: unknown, fieldMetadata: FieldMetadata, model
     return transformDecimalValue(value);
   }
 
-  // Transform Bytes field values to Uint8Array
   if (fieldMetadata.type === 'bytes') {
     if (Array.isArray(value)) {
       return value.map((v) => transformBytesValue(v));
     }
 
     return transformBytesValue(value);
+  }
+
+  if (fieldMetadata.type === 'geometry') {
+    if (Array.isArray(value) && value.length > 0 && Array.isArray(value[0])) {
+      return value.map((v) => transformGeometryValue(v));
+    }
+
+    return transformGeometryValue(value);
   }
 
   return value;
@@ -198,10 +219,9 @@ export function isOperatorObject(value: unknown): value is Record<string, unknow
   if (CerialDuration.is(value)) return false;
   // CerialDecimal instances are direct values, not operator objects
   if (CerialDecimal.is(value)) return false;
-  // CerialBytes instances are direct values, not operator objects
   if (CerialBytes.is(value)) return false;
-  // Uint8Array (bytes input) is a direct value, not an operator object
   if (value instanceof Uint8Array) return false;
+  if (CerialGeometry.is(value)) return false;
   const keys = Object.keys(value);
   return keys.some((k) => isRegisteredOperator(k));
 }

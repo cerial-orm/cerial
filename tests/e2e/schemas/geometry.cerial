@@ -1,0 +1,33 @@
+model GeometryBasic {
+  id Record @id
+  name String
+  location Geometry @point
+  area Geometry @polygon
+  shape Geometry
+  route Geometry @line
+  multi Geometry @point @polygon
+  optionalGeo Geometry? @point
+  geoArray Geometry[] @point
+}
+
+object GeoInfo {
+  position Geometry @point
+  boundary Geometry?
+}
+
+tuple GeoPair {
+  Geometry,
+  Geometry?
+}
+
+model GeometryWithObject {
+  id Record @id
+  name String
+  geo GeoInfo
+}
+
+model GeometryWithTuple {
+  id Record @id
+  name String
+  pair GeoPair
+}

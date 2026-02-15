@@ -17,6 +17,7 @@ import type {
 } from '../../types';
 import { schemaTypeToTsType } from '../../utils/type-utils';
 import { getLiteralTypeName } from './enums';
+import { getGeometryInputType } from './geometry-helpers';
 import { literalNeedsInputType } from './literals';
 import { objectHasDefaultOrTimestamp } from './objects/interface-generator';
 import { generateTupleArrayForm, tupleHasUnsetableElements } from './tuples';
@@ -30,6 +31,7 @@ function getInputType(field: FieldMetadata): string {
   if (field.type === 'duration') return 'CerialDurationInput';
   if (field.type === 'decimal') return 'CerialDecimalInput';
   if (field.type === 'bytes') return 'CerialBytesInput';
+  if (field.type === 'geometry') return getGeometryInputType(field);
   if (field.type === 'literal' && field.literalInfo) {
     const lit = field.literalInfo;
     if (lit.isEnum) return getLiteralTypeName(lit);
@@ -290,6 +292,7 @@ function getArrayElementType(schemaType: string, field?: FieldMetadata): string 
     duration: 'CerialDurationInput',
     decimal: 'CerialDecimalInput',
     bytes: 'CerialBytesInput',
+    geometry: 'CerialGeometryInput',
   };
 
   return typeMap[schemaType] ?? 'unknown';
@@ -789,6 +792,9 @@ export function generateOrderByType(model: ModelMetadata): string {
       fields.push(`  ${field.name}?: ${field.objectInfo.objectName}OrderBy;`);
     } else if (field.type === 'tuple') {
       // Tuple fields do not support ordering — skip
+      continue;
+    } else if (field.type === 'geometry') {
+      // Geometry fields do not support ordering — skip
       continue;
     } else if (field.type === 'literal') {
       if (field.literalInfo?.isEnum) {

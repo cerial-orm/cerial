@@ -58,7 +58,9 @@ export function getSchemaFieldType(typeStr: string): SchemaFieldType | null {
     duration: 'duration',
     decimal: 'decimal',
     bytes: 'bytes',
+    geometry: 'geometry',
   };
+
   return typeMap[normalized] ?? null;
 }
 
@@ -81,6 +83,7 @@ export function schemaTypeToTsType(type: SchemaFieldType): string {
     duration: 'string',
     decimal: 'string',
     bytes: 'string',
+    geometry: 'unknown',
   };
 
   return typeMap[type];
@@ -105,6 +108,7 @@ export function schemaTypeToSurrealType(type: SchemaFieldType): string {
     duration: 'duration',
     decimal: 'decimal',
     bytes: 'bytes',
+    geometry: 'geometry',
   };
 
   return typeMap[type];
@@ -125,5 +129,6 @@ export function isPrimitiveType(type: SchemaFieldType): boolean {
     'duration',
     'decimal',
     'bytes',
+    'geometry',
   ].includes(type);
 }

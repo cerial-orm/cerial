@@ -19,7 +19,8 @@ export type SchemaFieldType =
   | 'uuid'
   | 'duration'
   | 'decimal'
-  | 'bytes';
+  | 'bytes'
+  | 'geometry';
 
 /** Supported decorator types in schema definitions */
 export type SchemaDecorator =
@@ -42,7 +43,14 @@ export type SchemaDecorator =
   | 'nullable'
   | 'uuid'
   | 'uuid4'
-  | 'uuid7';
+  | 'uuid7'
+  | 'point'
+  | 'line'
+  | 'polygon'
+  | 'multipoint'
+  | 'multiline'
+  | 'multipolygon'
+  | 'geoCollection';
 
 /** Supported onDelete actions for relations */
 export type OnDeleteAction = 'Cascade' | 'SetNull' | 'SetNone' | 'Restrict' | 'NoAction';
@@ -68,6 +76,7 @@ export type FieldTypeMapping = {
   duration: string; // Duration type - represented as string in TS output mapping
   decimal: string; // Decimal type - represented as string in TS output mapping
   bytes: string; // Bytes type - represented as string in TS output mapping
+  geometry: unknown; // Geometry type - actual type determined by subtype decorators
 };
 
 /** Field type to SurrealDB type mapping */
@@ -88,6 +97,7 @@ export type SurrealTypeMapping = {
   duration: 'duration'; // Duration type
   decimal: 'decimal'; // Decimal type
   bytes: 'bytes'; // Bytes type
+  geometry: 'geometry'; // Geometry type
 };
 
 /** Generic result type for operations */

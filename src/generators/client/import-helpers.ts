@@ -36,6 +36,9 @@ import type { CerialDecimalInput } from 'cerial';`;
 export const CERIAL_BYTES_IMPORT = `import { CerialBytes } from 'cerial';
 import type { CerialBytesInput } from 'cerial';`;
 
+export const CERIAL_GEOMETRY_IMPORT = `import { CerialGeometry, CerialPoint, CerialLineString, CerialPolygon, CerialMultiPoint, CerialMultiLineString, CerialMultiPolygon, CerialGeometryCollection } from 'cerial';
+import type { CerialGeometryInput, CerialPointInput, CerialLineStringInput, CerialPolygonInput, CerialMultiPointInput, CerialMultiLineStringInput, CerialMultiPolygonInput, CerialGeometryCollectionInput } from 'cerial';`;
+
 /** NONE sentinel import for nullable/optional update types */
 export const NONE_IMPORT = `import type { CerialNone } from 'cerial';`;
 
@@ -308,6 +311,36 @@ export function objectHasBytesFields(
 
 export function tupleHasBytesElements(tuple: TupleMetadata): boolean {
   return tuple.elements.some((e) => e.type === 'bytes');
+}
+
+export function modelHasGeometryFields(model: ModelMetadata): boolean {
+  return model.fields.some((f) => f.type === 'geometry');
+}
+
+export function objectHasGeometryFields(
+  object: ObjectMetadata,
+  objectRegistry?: ObjectRegistry,
+  visited: Set<string> = new Set(),
+): boolean {
+  for (const field of object.fields) {
+    if (field.type === 'geometry') return true;
+    if (field.type === 'object' && field.objectInfo && objectRegistry) {
+      const nestedName = field.objectInfo.objectName;
+      if (visited.has(nestedName)) continue;
+      const nested = objectRegistry[nestedName];
+      if (nested) {
+        const nextVisited = new Set(visited);
+        nextVisited.add(nestedName);
+        if (objectHasGeometryFields(nested, objectRegistry, nextVisited)) return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+export function tupleHasGeometryElements(tuple: TupleMetadata): boolean {
+  return tuple.elements.some((e) => e.type === 'geometry');
 }
 
 /** Check if a model has any relation fields */

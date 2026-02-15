@@ -139,6 +139,7 @@ type ExpectedFieldTypes =
   | 'uuid'
   | 'duration'
   | 'decimal'
-  | 'bytes';
+  | 'bytes'
+  | 'geometry';
 
 Test.checks([Test.check<SchemaFieldType, ExpectedFieldTypes, Test.Pass>()]);
