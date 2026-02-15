@@ -17,7 +17,7 @@ object GeoInfo {
 
 tuple GeoPair {
   Geometry,
-  Geometry?
+  Geometry @nullable
 }
 
 model GeometryWithObject {

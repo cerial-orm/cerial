@@ -259,8 +259,8 @@ describe('E2E Number: Create', () => {
 
     expect(result.coord[0]).toBe(15);
     expect(result.coord[1]).toBe(25);
-    // Optional element omitted → SurrealDB returns NONE → mapper returns undefined
-    expect(result.coord[2]).toBeUndefined();
+    // Nullable element omitted → SurrealDB returns null → mapper returns null
+    expect(result.coord[2]).toBeNull();
   });
 
   test('create with optional tuple field omitted', async () => {

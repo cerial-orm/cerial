@@ -321,6 +321,13 @@ function transformTupleData(data: unknown, tupleInfo: TupleFieldMetadata): unkno
     return data as unknown[];
   }
 
+  // Fill absent @nullable elements with null (SurrealDB rejects NONE for `T | null` fields)
+  for (const element of tupleInfo.elements) {
+    if (arr[element.index] === undefined && element.isNullable) {
+      arr[element.index] = null;
+    }
+  }
+
   // Transform each element by type
   for (const element of tupleInfo.elements) {
     const value = arr[element.index];

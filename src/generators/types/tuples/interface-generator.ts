@@ -53,9 +53,9 @@ function getElementInputType(element: TupleElementMetadata): string {
 }
 
 /**
- * Wrap an element type with null union if the element is optional or nullable
- * Optional elements produce `T | null` in the output tuple (SurrealDB returns null for absent positions)
- * @nullable elements also produce `T | null` (the element can hold null as a value)
+ * Wrap a tuple element type with `| null` if the element is nullable.
+ * Optional (?) elements are disallowed on tuples by the schema validator.
+ * SurrealDB returns null for absent tuple positions, so only @nullable is supported.
  */
 function wrapNullable(type: string, isOptional: boolean, isNullable?: boolean): string {
   if (!isOptional && !isNullable) return type;

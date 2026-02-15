@@ -180,6 +180,7 @@ export const tables = {
     'tuple_with_relation',
     'tuple_related_post',
     'tuple_deep_nest',
+    'tuple_nullable',
   ],
 
   // uuid.cerial (uuid field type tests)

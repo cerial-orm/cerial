@@ -153,10 +153,10 @@ Test.checks([
 const _minObjCreate: GeoInfoCreateInput = { position: [1, 2] };
 
 // =============================================================================
-// GeoPair Tuple — output is [CerialGeometry, CerialGeometry | undefined]
+// GeoPair Tuple — output is [CerialGeometry, CerialGeometry | null]
 // =============================================================================
 
-Test.checks([Test.check<GeoPair, [CerialGeometry, CerialGeometry | undefined], Test.Pass>()]);
+Test.checks([Test.check<GeoPair, [CerialGeometry, CerialGeometry | null], Test.Pass>()]);
 
 const _tupleArr: GeoPairInput = [
   [1, 2],

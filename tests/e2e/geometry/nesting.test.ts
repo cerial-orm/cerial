@@ -97,13 +97,13 @@ describe('E2E Geometry: Tuple Nesting', () => {
 
   test('create with geometry in tuple', async () => {
     const result = await client.db.GeometryWithTuple.create({
-      data: { name: 'tup-test', pair: [[1, 2], undefined] },
+      data: { name: 'tup-test', pair: [[1, 2], null] },
     });
 
     expect(CerialGeometry.is(result.pair[0])).toBe(true);
     expect(result.pair[0]).toBeInstanceOf(CerialPoint);
     expect((result.pair[0] as CerialPoint).coordinates).toEqual([1, 2]);
-    expect(result.pair[1]).toBeUndefined();
+    expect(result.pair[1]).toBeNull();
   });
 
   test('create with both tuple elements', async () => {
@@ -124,7 +124,7 @@ describe('E2E Geometry: Tuple Nesting', () => {
 
   test('update geometry in tuple (full replace)', async () => {
     const result = await client.db.GeometryWithTuple.create({
-      data: { name: 'upd-tup', pair: [[1, 2], undefined] },
+      data: { name: 'upd-tup', pair: [[1, 2], null] },
     });
 
     const updated = await client.db.GeometryWithTuple.updateUnique({
@@ -144,7 +144,7 @@ describe('E2E Geometry: Tuple Nesting', () => {
 
   test('findMany with geometry in tuple roundtrip', async () => {
     await client.db.GeometryWithTuple.create({
-      data: { name: 'find-tup', pair: [[55, 66], undefined] },
+      data: { name: 'find-tup', pair: [[55, 66], null] },
     });
 
     const found = await client.db.GeometryWithTuple.findMany({
@@ -154,6 +154,6 @@ describe('E2E Geometry: Tuple Nesting', () => {
     expect(found).toHaveLength(1);
     expect(CerialGeometry.is(found[0]!.pair[0])).toBe(true);
     expect((found[0]!.pair[0] as CerialPoint).coordinates).toEqual([55, 66]);
-    expect(found[0]!.pair[1]).toBeUndefined();
+    expect(found[0]!.pair[1]).toBeNull();
   });
 });

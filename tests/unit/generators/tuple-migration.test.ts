@@ -182,10 +182,9 @@ describe('Tuple Migration Generator', () => {
 
   describe('generateTupleFieldDefines', () => {
     // NOTE: After SurrealDB bug mitigation, primitive elements WITHOUT decorators
-    // or @nullable are skipped (parent tuple type literal already enforces types).
+    // are skipped (parent tuple type literal already enforces types including | null).
     // Sub-field DEFINE statements are only emitted for:
     //   - Elements with decorators (@default, @defaultAlways, @createdAt, @updatedAt)
-    //   - Elements with @nullable (need | null type wrapper)
     //   - Object elements (need sub-field structure)
     //   - Nested tuple elements (need sub-field structure)
 
@@ -226,20 +225,31 @@ describe('Tuple Migration Generator', () => {
       expect(stmts.some((s) => s.includes('data[1]'))).toBe(false);
     });
 
-    test('should emit sub-field for element with @nullable', () => {
+    test('should skip sub-field for @nullable-only element (parent type literal enforces it)', () => {
       const info = ti('NullableTuple', [
         elem({ index: 0, type: 'string' }),
-        elem({ index: 1, type: 'float', isOptional: true, isNullable: true }),
+        elem({ index: 1, type: 'float', isNullable: true }),
       ]);
 
       const stmts = generateTupleFieldDefines('data', 'user', info, emptyTupleRegistry, emptyObjRegistry);
 
-      // Required element without decorator is skipped
       expect(stmts.some((s) => s.includes('data[0]'))).toBe(false);
-      // @nullable element gets sub-field
+      expect(stmts.some((s) => s.includes('data[1]'))).toBe(false);
+    });
+
+    test('should emit sub-field for @nullable element with @default decorator', () => {
+      const info = ti('NullableWithDefault', [
+        elem({ index: 0, type: 'string' }),
+        elem({ index: 1, type: 'float', isNullable: true, defaultValue: 0.0 }),
+      ]);
+
+      const stmts = generateTupleFieldDefines('data', 'user', info, emptyTupleRegistry, emptyObjRegistry);
+
+      expect(stmts.some((s) => s.includes('data[0]'))).toBe(false);
       const nullableStmt = stmts.find((s) => s.includes('data[1]'));
       expect(nullableStmt).toBeDefined();
       expect(nullableStmt).toContain('| null');
+      expect(nullableStmt).toContain('DEFAULT 0');
     });
 
     test('should generate nested tuple sub-element defines', () => {

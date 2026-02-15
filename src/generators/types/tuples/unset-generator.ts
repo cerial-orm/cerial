@@ -67,15 +67,15 @@ function generateInlineObjectUnsetFields(objectInfo: ObjectFieldMetadata, indent
  * Returns the type string (e.g., 'true', 'true | { ... }', '{ ... }') or null if skipped.
  */
 function generateElementUnsetEntry(element: TupleElementMetadata): string | null {
-  const isOptional = element.isOptional;
+  const canClear = element.isOptional || element.isNullable;
 
   if (element.type === 'object' && element.objectInfo) {
     const children = generateInlineObjectUnsetFields(element.objectInfo);
     const hasOptionalChildren = children.length > 0;
 
-    if (isOptional && hasOptionalChildren) {
+    if (canClear && hasOptionalChildren) {
       return `true | {\n${children.join('\n')}\n  }`;
-    } else if (isOptional) {
+    } else if (canClear) {
       return 'true';
     } else if (hasOptionalChildren) {
       return `{\n${children.join('\n')}\n  }`;
@@ -88,9 +88,9 @@ function generateElementUnsetEntry(element: TupleElementMetadata): string | null
     const hasOptionalElements = tupleInfoHasUnsetableElements(element.tupleInfo);
     const tupleName = element.tupleInfo.tupleName;
 
-    if (isOptional && hasOptionalElements) {
+    if (canClear && hasOptionalElements) {
       return `true | ${tupleName}Unset`;
-    } else if (isOptional) {
+    } else if (canClear) {
       return 'true';
     } else if (hasOptionalElements) {
       return `${tupleName}Unset`;
@@ -99,8 +99,7 @@ function generateElementUnsetEntry(element: TupleElementMetadata): string | null
     return null;
   }
 
-  // Primitive
-  if (isOptional) return 'true';
+  if (canClear) return 'true';
 
   return null;
 }

@@ -60,11 +60,11 @@ describe('E2E Duration: Nesting', () => {
 
   test('duration tuple with undefined optional element', async () => {
     const result = await client.db.DurationWithTuple.create({
-      data: { name: 'test', pair: ['1h', undefined] },
+      data: { name: 'test', pair: ['1h', null] },
     });
 
     expect(CerialDuration.is(result.pair[0])).toBe(true);
-    expect(result.pair[1]).toBeUndefined();
+    expect(result.pair[1]).toBeNull();
   });
 
   test('object duration where filter', async () => {

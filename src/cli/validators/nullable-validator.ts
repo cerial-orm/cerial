@@ -112,13 +112,33 @@ export function validateNullableOnTupleElements(ast: SchemaAST): SchemaValidatio
 
       const elemName = element.name ?? `element[${i}]`;
 
-      // @nullable not allowed on object-type or tuple-type tuple elements
-      if (element.type === 'object' || element.type === 'tuple') {
+      // @nullable not allowed on object-type tuple elements
+      if (element.type === 'object') {
         errors.push({
-          message: `@nullable is not allowed on ${element.type} tuple element '${elemName}' in tuple ${tuple.name}. SurrealDB cannot define sub-field schemas on nullable ${element.type} parents.`,
+          message: `@nullable is not allowed on object tuple element '${elemName}' in tuple ${tuple.name}. SurrealDB cannot define sub-field schemas on nullable object parents.`,
           line: tuple.range.start.line,
         });
       }
+    }
+  }
+
+  return errors;
+}
+
+/** Validate that tuple elements do not use the `?` (optional) modifier */
+export function validateNoOptionalTupleElements(ast: SchemaAST): SchemaValidationError[] {
+  const errors: SchemaValidationError[] = [];
+
+  for (const tuple of ast.tuples) {
+    for (let i = 0; i < tuple.elements.length; i++) {
+      const element = tuple.elements[i]!;
+      if (!element.isOptional) continue;
+
+      const elemName = element.name ?? `element[${i}]`;
+      errors.push({
+        message: `Optional elements (?) are not allowed in tuples. Use @nullable instead. SurrealDB returns null (not undefined) for absent tuple positions, making ? semantically incorrect. Element '${elemName}' in tuple ${tuple.name}.`,
+        line: tuple.range.start.line,
+      });
     }
   }
 

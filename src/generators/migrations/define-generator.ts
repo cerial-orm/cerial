@@ -556,22 +556,22 @@ export function generateTupleFieldDefines(
       }
     } else {
       // Primitive element — the parent tuple type literal already enforces element
-      // types, length, and optionality, so sub-field constraints are only needed when:
-      //   - The element is nullable (needs | null — not expressible in parent type alone)
-      //   - The element has a decorator (DEFAULT / timestamp clause)
+      // types, length, and optionality (including | null for @nullable), so sub-field
+      // constraints are only needed when the element has a decorator (DEFAULT / timestamp).
       //
-      // For elements without decorators and without @nullable we skip the DEFINE FIELD
-      // to work around a SurrealDB bug where sub-field constraints on tuple elements
-      // within optional tuples cause the tuple to be initialized as {} (empty object)
-      // when the parent is absent (NONE) and any option<object> field with sub-fields
-      // exists on the same table. Schema validation (validateTupleObjectCombination)
-      // catches the remaining case where a required element HAS a decorator.
+      // Elements that are ONLY @nullable (no other decorators) do NOT need a sub-field
+      // constraint — the parent type literal `[..., float | null, ...]` already enforces
+      // the nullable type. Emitting a redundant `DEFINE FIELD tuple[N] TYPE float | null`
+      // triggers a SurrealDB bug where sub-field constraints on tuple elements within
+      // optional tuples cause the tuple to be initialized as {} (empty object) when the
+      // parent is absent (NONE) and any option<object> field with sub-fields exists on
+      // the same table.
       const hasDecorator = !!(
         element.timestampDecorator ||
         element.defaultValue !== undefined ||
         element.defaultAlwaysValue !== undefined
       );
-      const needsSubField = element.isNullable || hasDecorator;
+      const needsSubField = hasDecorator;
 
       if (needsSubField) {
         const surrealType = mapToSurrealType(element.type);

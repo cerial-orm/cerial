@@ -101,12 +101,12 @@ describe('E2E Bytes: Tuple Nesting', () => {
   test('create with bytes in tuple', async () => {
     const first = new Uint8Array([1, 2]);
     const result = await client.db.BytesWithTuple.create({
-      data: { name: 'tup-test', pair: [first, undefined] },
+      data: { name: 'tup-test', pair: [first, null] },
     });
 
     expect(CerialBytes.is(result.pair[0])).toBe(true);
     expect(result.pair[0].toUint8Array()).toEqual(first);
-    expect(result.pair[1]).toBeUndefined();
+    expect(result.pair[1]).toBeNull();
   });
 
   test('create with both tuple elements', async () => {

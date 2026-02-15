@@ -21,7 +21,7 @@ object DurationInfo {
 
 tuple DurationPair {
   Duration,
-  Duration?
+  Duration @nullable
 }
 
 model DurationWithObject {

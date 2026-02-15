@@ -72,7 +72,7 @@ Test.checks([Test.check<Extends<[string, { street: string; city: string }], Loca
 // WithOptional Tuple Input
 // =============================================================================
 
-// Array form: [string, number | null | undefined]
+// Array form: [string, number | null]
 Test.checks([Test.check<Extends<[string, number], WithOptionalInput>, 1, Test.Pass>()]);
 
 // Object form

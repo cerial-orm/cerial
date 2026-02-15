@@ -19,6 +19,7 @@ import type {
   UnsetAddress,
   UnsetOptTupleUnset,
   UnsetObjTupleUnset,
+  UnsetRecursiveUnset,
   SafeUnset,
 } from '../generated';
 
@@ -54,22 +55,34 @@ checks([check<HasKey<UnsetTestUnset, 'pos'>, 0, Test.Pass>()]);
 // Optional tuple (no optional elements) → true only
 checks([check<HasKey<UnsetTestUnset, 'backup'>, 1, Test.Pass>()]);
 
-// Optional tuple with optional elements → true | TupleUnset
+// Optional tuple with @nullable element → true | UnsetOptTupleUnset
 checks([check<HasKey<UnsetTestUnset, 'opt'>, 1, Test.Pass>()]);
 
 // Optional tuple with object element (optional sub-fields) → true | TupleUnset
 checks([check<HasKey<UnsetTestUnset, 'tagged'>, 1, Test.Pass>()]);
 
+// Optional recursive tuple with @nullable element → true | UnsetRecursiveUnset
+checks([check<HasKey<UnsetTestUnset, 'recursive'>, 1, Test.Pass>()]);
+
 // =============================================================================
-// UnsetOptTupleUnset Type Shape (tuple with optional element)
+// UnsetOptTupleUnset Type Shape (tuple with @nullable element)
 // =============================================================================
 
-// Element 1 (Float?) → index key (numeric key, matching keyof behavior)
+// Element 1 (Float @nullable) → unsetable (sets to null)
 checks([check<HasKey<UnsetOptTupleUnset, 1>, 1, Test.Pass>()]);
 
 // Element 0 (String, required) → not present
 checks([check<HasKey<UnsetOptTupleUnset, 0>, 0, Test.Pass>()]);
-checks([check<HasKey<UnsetOptTupleUnset, 'label'>, 0, Test.Pass>()]);
+
+// =============================================================================
+// UnsetRecursiveUnset Type Shape (self-referencing tuple with @nullable element)
+// =============================================================================
+
+// Element 1 (UnsetRecursive @nullable) → unsetable (sets to null)
+checks([check<HasKey<UnsetRecursiveUnset, 1>, 1, Test.Pass>()]);
+
+// Element 0 (String, required) → not present
+checks([check<HasKey<UnsetRecursiveUnset, 0>, 0, Test.Pass>()]);
 
 // =============================================================================
 // UnsetObjTupleUnset Type Shape (tuple with object element having optional sub-fields)

@@ -89,7 +89,7 @@ const withOptionalTupleInfo: TupleFieldMetadata = {
   tupleName: 'WithOptional',
   elements: [
     { name: 'text', index: 0, type: 'string', isOptional: false },
-    { index: 1, type: 'float', isOptional: true },
+    { index: 1, type: 'float', isOptional: false, isNullable: true },
   ],
 };
 
@@ -307,13 +307,13 @@ describe('buildUpdateManyQuery with unset + tuples', () => {
     expect(query.text).toContain('backup = NONE');
   });
 
-  test('emits $this reconstruction with NONE for tuple element unset', () => {
-    // WithOptional has: [String, Float?]
-    // Unsetting the optional Float element (index 1)
+  test('emits $this reconstruction with NULL for @nullable tuple element unset', () => {
+    // WithOptional has: [String, Float @nullable]
+    // Unsetting the @nullable Float element (index 1)
     const query = buildUpdateManyQuery(locationModel, { name: { equals: 'HQ' } }, {}, undefined, { opt: { 1: true } });
 
-    // Should use $this reconstruction: opt = [$this.opt[0], NONE]
-    expect(query.text).toContain('opt = [$this.opt[0], NONE]');
+    // Should use $this reconstruction: opt = [$this.opt[0], NULL]
+    expect(query.text).toContain('opt = [$this.opt[0], NULL]');
   });
 
   test('emits $this reconstruction with NONE for object-in-tuple sub-field', () => {
@@ -330,7 +330,7 @@ describe('buildUpdateManyQuery with unset + tuples', () => {
   });
 
   test('combines tuple element unset with data on different element', () => {
-    // WithOptional: [String, Float?] — update text (index 0) and unset Float (index 1)
+    // WithOptional: [String, Float @nullable] — update text (index 0) and unset Float (index 1)
     const query = buildUpdateManyQuery(
       locationModel,
       { name: { equals: 'HQ' } },
@@ -339,10 +339,10 @@ describe('buildUpdateManyQuery with unset + tuples', () => {
       { opt: { 1: true } },
     );
 
-    // The merged data should have both: text = 'new-label', 1 = NONE
-    // Reconstruction: opt = [$opt_0_set_X, NONE]
+    // The merged data should have both: text = 'new-label', 1 = NONE → NULL for @nullable
+    // Reconstruction: opt = [$opt_0_set_X, NULL]
     expect(query.text).toContain('opt = [');
-    expect(query.text).toContain('NONE');
+    expect(query.text).toContain('NULL');
   });
 });
 

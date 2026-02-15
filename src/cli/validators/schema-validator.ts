@@ -9,6 +9,7 @@ import {
   validateNullableDecorator,
   validateNullableOnObjectFields,
   validateNullableOnTupleElements,
+  validateNoOptionalTupleElements,
   validateTupleElementDecorators,
 } from './nullable-validator';
 import { validateRelationRules } from './relation-validator';
@@ -904,6 +905,7 @@ export function validateSchema(ast: SchemaAST): SchemaValidationResult {
     ...validateNullableOnObjectFields(ast),
     ...validateNullableOnTupleElements(ast),
     ...validateTupleElementDecorators(ast),
+    ...validateNoOptionalTupleElements(ast),
     ...validateTupleObjectCombination(ast),
     ...validateLiteralDecorators(ast),
     ...validateUuidFields(ast),

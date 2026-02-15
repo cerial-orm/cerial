@@ -14,7 +14,7 @@ object BytesInfo {
 
 tuple BytesPair {
   Bytes,
-  Bytes?
+  Bytes @nullable
 }
 
 model BytesWithObject {

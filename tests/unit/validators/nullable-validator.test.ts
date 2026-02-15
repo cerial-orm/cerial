@@ -9,6 +9,7 @@ import {
   validateNullableDecorator,
   validateNullableOnObjectFields,
   validateNullableOnTupleElements,
+  validateNoOptionalTupleElements,
   validateTupleElementDecorators,
 } from '../../../src/cli/validators/nullable-validator';
 import type {
@@ -447,7 +448,7 @@ describe('Nullable Validator', () => {
       expect(errors[0]!.message).toContain('@nullable is not allowed on object tuple element');
     });
 
-    test('should fail for @nullable on tuple-type tuple element', () => {
+    test('should pass for @nullable on tuple-type tuple element', () => {
       const ast = createAST(
         [],
         [],
@@ -459,8 +460,7 @@ describe('Nullable Validator', () => {
       );
 
       const errors = validateNullableOnTupleElements(ast);
-      expect(errors).toHaveLength(1);
-      expect(errors[0]!.message).toContain('@nullable is not allowed on tuple tuple element');
+      expect(errors).toHaveLength(0);
     });
 
     test('should use element name when available', () => {
@@ -506,6 +506,115 @@ describe('Nullable Validator', () => {
 
       const errors = validateNullableOnTupleElements(ast);
       expect(errors).toHaveLength(0);
+    });
+  });
+
+  describe('validateNoOptionalTupleElements', () => {
+    test('should fail for tuple element with isOptional: true', () => {
+      const ast = createAST(
+        [],
+        [],
+        [
+          createTuple('Pair', [
+            { type: 'float', isOptional: false },
+            { type: 'float', isOptional: true },
+          ]),
+        ],
+      );
+
+      const errors = validateNoOptionalTupleElements(ast);
+      expect(errors).toHaveLength(1);
+      expect(errors[0]!.message).toContain('Optional elements (?) are not allowed in tuples');
+      expect(errors[0]!.message).toContain('Use @nullable instead');
+    });
+
+    test('should pass for @nullable element (isNullable: true, isOptional: false)', () => {
+      const ast = createAST(
+        [],
+        [],
+        [
+          createTuple('Pair', [
+            { type: 'float', isOptional: false },
+            { type: 'float', isOptional: false, isNullable: true, decorators: [dec('nullable')] },
+          ]),
+        ],
+      );
+
+      const errors = validateNoOptionalTupleElements(ast);
+      expect(errors).toHaveLength(0);
+    });
+
+    test('should pass for element with no modifiers', () => {
+      const ast = createAST(
+        [],
+        [],
+        [
+          createTuple('Pair', [
+            { type: 'float', isOptional: false },
+            { type: 'float', isOptional: false },
+          ]),
+        ],
+      );
+
+      const errors = validateNoOptionalTupleElements(ast);
+      expect(errors).toHaveLength(0);
+    });
+
+    test('should include element name in error when available', () => {
+      const ast = createAST([], [], [createTuple('Coord', [{ name: 'lat', type: 'float', isOptional: true }])]);
+
+      const errors = validateNoOptionalTupleElements(ast);
+      expect(errors).toHaveLength(1);
+      expect(errors[0]!.message).toContain("'lat'");
+      expect(errors[0]!.message).toContain('tuple Coord');
+    });
+
+    test('should use element[index] when no name', () => {
+      const ast = createAST(
+        [],
+        [],
+        [
+          createTuple('Coord', [
+            { type: 'float', isOptional: false },
+            { type: 'float', isOptional: true },
+          ]),
+        ],
+      );
+
+      const errors = validateNoOptionalTupleElements(ast);
+      expect(errors).toHaveLength(1);
+      expect(errors[0]!.message).toContain("'element[1]'");
+    });
+
+    test('should collect errors from multiple optional elements', () => {
+      const ast = createAST(
+        [],
+        [],
+        [
+          createTuple('Multi', [
+            { type: 'string', isOptional: true },
+            { type: 'int', isOptional: true },
+            { type: 'float', isOptional: false },
+          ]),
+        ],
+      );
+
+      const errors = validateNoOptionalTupleElements(ast);
+      expect(errors).toHaveLength(2);
+    });
+
+    test('should collect errors from multiple tuples', () => {
+      const ast = createAST(
+        [],
+        [],
+        [
+          createTuple('A', [{ type: 'float', isOptional: true }]),
+          createTuple('B', [{ type: 'int', isOptional: true }]),
+        ],
+      );
+
+      const errors = validateNoOptionalTupleElements(ast);
+      expect(errors).toHaveLength(2);
     });
   });
 

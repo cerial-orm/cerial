@@ -7,7 +7,14 @@
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import { cleanupTables, createTestClient, truncateTables, CerialClient, testConfig, tables } from '../relations/test-helper';
+import {
+  cleanupTables,
+  createTestClient,
+  truncateTables,
+  CerialClient,
+  testConfig,
+  tables,
+} from '../relations/test-helper';
 
 const UNSET_TABLES = tables.unset;
 const NESTED = { title: 'T', mid: { label: 'L', deep: { code: 'C' } } };
@@ -132,10 +139,9 @@ describe('Unset: Self-Referencing Types', () => {
           address: { street: 'E', city: 'NYC' },
           pos: [40.0, -74.0],
           nested: NESTED,
-          recursive: ['outer', undefined],
+          recursive: ['outer', null],
         },
       });
-      expect(record.recursive).toBeDefined();
 
       const updated = await client.db.UnsetTest.updateUnique({
         where: { id: record.id },
@@ -153,7 +159,7 @@ describe('Unset: Self-Referencing Types', () => {
           address: { street: 'F', city: 'NYC' },
           pos: [40.0, -74.0],
           nested: NESTED,
-          recursive: ['outer', undefined],
+          recursive: ['outer', null],
         },
       });
 
@@ -165,7 +171,7 @@ describe('Unset: Self-Referencing Types', () => {
 
       expect(updated!.recursive).toBeDefined();
       expect(updated!.recursive![0]).toBe('outer');
-      expect(updated!.recursive![1]).toBeUndefined();
+      expect(updated!.recursive![1]).toBeNull();
     });
   });
 });

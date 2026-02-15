@@ -71,13 +71,13 @@ describe('E2E Decimal: Nesting', () => {
 
   test('create with tuple containing decimal', async () => {
     const result = await client.db.DecimalWithTuple.create({
-      data: { name: 'test', pair: [10.5, undefined] },
+      data: { name: 'test', pair: [10.5, null] },
     });
 
     expect(isCerialId(result.id)).toBe(true);
     expect(CerialDecimal.is(result.pair[0])).toBe(true);
     expect(result.pair[0].toString()).toBe('10.5');
-    expect(result.pair[1]).toBeUndefined();
+    expect(result.pair[1]).toBeNull();
   });
 
   test('create with tuple both elements', async () => {

@@ -40,18 +40,22 @@ tuple Entry {
 
 Named elements provide convenience for input — users can pass `{ lat: 1.5, lng: 2.5 }` instead of `[1.5, 2.5]`. The output is always an array regardless of element names.
 
-## Optional Elements
+## Nullable Elements
 
-Individual elements can be optional:
+Individual elements can be nullable using `@nullable`:
 
 ```cerial
 tuple WithOptional {
   label String,
-  Float?          # this element can be absent
+  Float @nullable   # this element can be null
 }
 ```
 
-Optional elements produce `option<type>` in SurrealDB and `type | undefined` at the corresponding array position.
+Nullable elements produce `type | null` in SurrealDB and `type | null` at the corresponding array position.
+
+{: .warning }
+
+> The `?` modifier is **not allowed** on tuple elements. Use `@nullable` instead. SurrealDB returns `null` (not `undefined`) for absent tuple positions, so `?` would be semantically incorrect. The validator will reject `?` on tuple elements with a clear error.
 
 ## Nested Tuples
 
@@ -128,16 +132,16 @@ The object's input type uses `CoordinateInput` (accepts both array and object fo
 
 ## Self-Referencing Tuples
 
-A tuple can reference itself, but the self-referencing element **must be optional** to avoid infinite recursion:
+A tuple can reference itself, but the self-referencing element **must be nullable** to avoid infinite recursion:
 
 ```cerial
 tuple TreeNode {
   value Int,
-  TreeNode?       # optional self-reference
+  TreeNode @nullable   # nullable self-reference
 }
 ```
 
-Non-optional self-references are a parse error.
+Non-nullable self-references are a parse error.
 
 ## Reusing Tuples
 

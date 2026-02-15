@@ -11,7 +11,7 @@ object NumberInfo {
 tuple NumberCoord {
   Number,
   Number,
-  Number?
+  Number @nullable
 }
 
 model NumberBasic {

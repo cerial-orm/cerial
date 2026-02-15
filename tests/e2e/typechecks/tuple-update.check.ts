@@ -57,16 +57,16 @@ Test.checks([
 ]);
 
 // =============================================================================
-// Optional Element with CerialNone
+// Nullable Element
 // =============================================================================
 
-// WithOptionalUpdate: optional element gets CerialNone union
+// WithOptionalUpdate: nullable element gets | null union
 Test.checks([
-  // Element 0 is required string — no CerialNone
+  // Element 0 is required string
   Test.check<WithOptionalUpdate['0'], string | undefined, Test.Pass>(),
   Test.check<WithOptionalUpdate['text'], string | undefined, Test.Pass>(),
-  // Element 1 is optional float — gets CerialNone
-  Test.check<WithOptionalUpdate['1'], number | CerialNone | undefined, Test.Pass>(),
+  // Element 1 is nullable float — gets | null
+  Test.check<WithOptionalUpdate['1'], number | null | undefined, Test.Pass>(),
 ]);
 
 // =============================================================================

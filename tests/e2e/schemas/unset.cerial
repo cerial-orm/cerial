@@ -16,7 +16,7 @@ tuple UnsetCoord {
 
 tuple UnsetOptTuple {
   label String,
-  Float?
+  Float @nullable
 }
 
 object UnsetInner {
@@ -63,7 +63,7 @@ object UnsetTreeNode {
 # Self-referencing tuple (recursive)
 tuple UnsetRecursive {
   label String,
-  UnsetRecursive?
+  UnsetRecursive @nullable
 }
 
 model UnsetTest {

@@ -347,9 +347,11 @@ function buildTupleUpdateClauses(
       continue;
     }
 
-    // NONE sentinel → set element to NONE (clears optional element)
+    // NONE sentinel → clear the element
+    // For @nullable (non-optional) elements, use NULL (NONE is invalid for `T | null` types)
+    // For optional elements, use NONE (clears via option<T>)
     if (isNone(value)) {
-      reconstructionParts.push('NONE');
+      reconstructionParts.push(element.isNullable && !element.isOptional ? 'NULL' : 'NONE');
       continue;
     }
 

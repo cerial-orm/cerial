@@ -134,7 +134,7 @@ Test.checks([
 const _minObjCreate: DurationInfoCreateInput = { expires: '1h' };
 
 // =============================================================================
-// DurationPair Tuple — output is [CerialDuration, CerialDuration | undefined]
+// DurationPair Tuple — output is [CerialDuration, CerialDuration | null]
 // =============================================================================
 
 Test.checks([Test.check<DurationPair, [CerialDuration, CerialDuration | null], Test.Pass>()]);

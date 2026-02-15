@@ -31,7 +31,7 @@ tuple Located {
 
 tuple WithOptional {
   text String,
-  Float?
+  Float @nullable
 }
 
 model TupleBasic {
@@ -109,4 +109,29 @@ model TupleDeepNest {
   id Record @id
   deep DeepOuterTuple
   deepOpt DeepOuterTuple?
+}
+
+tuple NullablePair {
+  label String,
+  count Int @nullable
+}
+
+tuple OptNullPair {
+  tag String,
+  score Float @nullable
+}
+
+tuple MixedNullability {
+  required String,
+  optOnly Int @nullable,
+  nullOnly Float @nullable,
+  both Bool @nullable
+}
+
+model TupleNullable {
+  id Record @id
+  name String
+  pair NullablePair
+  optNull OptNullPair
+  mixed MixedNullability
 }

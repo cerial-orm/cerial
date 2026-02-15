@@ -21,7 +21,7 @@ object DecimalInfo {
 
 tuple DecimalPair {
   Decimal,
-  Decimal?
+  Decimal @nullable
 }
 
 model DecimalWithObject {

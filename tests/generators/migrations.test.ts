@@ -1250,18 +1250,16 @@ model Tag {
       expect(statements.some((s) => s.includes('data[1]'))).toBe(false);
     });
 
-    test('emits sub-field for element with @nullable', () => {
+    test('skips sub-field for @nullable-only element (parent type literal enforces it)', () => {
       const { model, tupleRegistry } = buildTupleModel('data', false, 'NullableTuple', [
         { index: 0, type: 'string', isOptional: false },
-        { index: 1, type: 'float', isOptional: true, isNullable: true },
+        { index: 1, type: 'float', isOptional: false, isNullable: true },
       ]);
 
       const statements = generateModelDefineStatements(model, undefined, undefined, undefined, tupleRegistry);
 
       expect(statements.some((s) => s.includes('data[0]'))).toBe(false);
-      const nullableStmt = statements.find((s) => s.includes('data[1]'));
-      expect(nullableStmt).toBeDefined();
-      expect(nullableStmt).toContain('| null');
+      expect(statements.some((s) => s.includes('data[1]'))).toBe(false);
     });
 
     test('emits sub-field for element with @createdAt', () => {
