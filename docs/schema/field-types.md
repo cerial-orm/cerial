@@ -6,24 +6,25 @@ nav_order: 1
 
 # Field Types
 
-Cerial supports 10 built-in field types plus user-defined enum, tuple, object, and literal types. Each type maps to a specific SurrealDB type and TypeScript type.
+Cerial supports 11 built-in field types plus user-defined enum, tuple, object, and literal types. Each type maps to a specific SurrealDB type and TypeScript type.
 
 ## Type Reference
 
-| Type       | Description                                      | TypeScript                                        | SurrealDB                                     | Can be Array    | Can be Optional |
-| ---------- | ------------------------------------------------ | ------------------------------------------------- | --------------------------------------------- | --------------- | --------------- |
-| `String`   | Text string                                      | `string`                                          | `string`                                      | Yes             | Yes             |
-| `Email`    | Email address (validated)                        | `string`                                          | `string` (with `string::is::email` assertion) | No              | Yes             |
-| `Int`      | Integer number                                   | `number`                                          | `int`                                         | Yes             | Yes             |
-| `Float`    | Floating point number                            | `number`                                          | `float`                                       | Yes             | Yes             |
-| `Number`   | Auto-detect numeric (int or float)               | `number`                                          | `number`                                      | Yes             | Yes             |
-| `Bool`     | Boolean value                                    | `boolean`                                         | `bool`                                        | Yes             | Yes             |
-| `Date`     | Date/DateTime                                    | `Date`                                            | `datetime`                                    | Yes             | Yes             |
-| `Uuid`     | UUID identifier                                  | `CerialUuid` (output) / `CerialUuidInput` (input) | `uuid`                                        | Yes             | Yes             |
-| `Record`   | Record reference                                 | `CerialId` (output) / `RecordIdInput` (input)     | `record<tablename>`                           | Yes             | Yes             |
-| `Relation` | Virtual relation                                 | N/A (not stored)                                  | Virtual                                       | As `Relation[]` | As `Relation?`  |
-| `Enum`     | Named string constants                           | `'VALUE1' \| 'VALUE2'`                            | `'VALUE1' \| 'VALUE2'`                        | Yes             | Yes             |
-| `Literal`  | Union type (specific values or structured types) | `'value' \| number \| Object \| Tuple`            | `'value' \| int \| { ... } \| [...]`          | Yes             | Yes             |
+| Type       | Description                                      | TypeScript                                                | SurrealDB                                     | Can be Array    | Can be Optional |
+| ---------- | ------------------------------------------------ | --------------------------------------------------------- | --------------------------------------------- | --------------- | --------------- |
+| `String`   | Text string                                      | `string`                                                  | `string`                                      | Yes             | Yes             |
+| `Email`    | Email address (validated)                        | `string`                                                  | `string` (with `string::is::email` assertion) | No              | Yes             |
+| `Int`      | Integer number                                   | `number`                                                  | `int`                                         | Yes             | Yes             |
+| `Float`    | Floating point number                            | `number`                                                  | `float`                                       | Yes             | Yes             |
+| `Number`   | Auto-detect numeric (int or float)               | `number`                                                  | `number`                                      | Yes             | Yes             |
+| `Bool`     | Boolean value                                    | `boolean`                                                 | `bool`                                        | Yes             | Yes             |
+| `Date`     | Date/DateTime                                    | `Date`                                                    | `datetime`                                    | Yes             | Yes             |
+| `Uuid`     | UUID identifier                                  | `CerialUuid` (output) / `CerialUuidInput` (input)         | `uuid`                                        | Yes             | Yes             |
+| `Duration` | Time duration                                    | `CerialDuration` (output) / `CerialDurationInput` (input) | `duration`                                    | Yes             | Yes             |
+| `Record`   | Record reference                                 | `CerialId` (output) / `RecordIdInput` (input)             | `record<tablename>`                           | Yes             | Yes             |
+| `Relation` | Virtual relation                                 | N/A (not stored)                                          | Virtual                                       | As `Relation[]` | As `Relation?`  |
+| `Enum`     | Named string constants                           | `'VALUE1' \| 'VALUE2'`                                    | `'VALUE1' \| 'VALUE2'`                        | Yes             | Yes             |
+| `Literal`  | Union type (specific values or structured types) | `'value' \| number \| Object \| Tuple`                    | `'value' \| int \| { ... } \| [...]`          | Yes             | Yes             |
 
 ## String
 
@@ -139,6 +140,35 @@ console.log(session.token.toString()); // '550e8400-e29b-41d4-a716-446655440000'
 ```
 
 See [Uuid field type](field-types/uuid) for the full CerialUuid API and filtering details.
+
+## Duration
+
+A time duration value. Stored as SurrealDB's native `duration` type, represented as a `CerialDuration` in TypeScript.
+
+- **Output type**: `CerialDuration` — an object with accessors (`.hours`, `.minutes`, `.seconds`, etc.), `.toString()`, `.toNative()`, `.equals()`, and `.compareTo()` methods
+- **Input type**: `CerialDurationInput` — accepts `string`, `CerialDuration`, or SDK `Duration`
+
+```cerial
+model Task {
+  id Record @id
+  name String
+  ttl Duration
+  timeout Duration?
+  intervals Duration[]
+}
+```
+
+```typescript
+const task = await db.Task.create({
+  data: { name: 'job', ttl: '2h30m' },
+});
+console.log(task.ttl); // CerialDuration instance
+console.log(task.ttl.toString()); // '2h30m'
+console.log(task.ttl.hours); // 2
+console.log(task.ttl.minutes); // 150
+```
+
+See [Duration field type](field-types/duration) for the full CerialDuration API and filtering details.
 
 ## Record
 

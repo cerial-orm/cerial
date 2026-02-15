@@ -136,6 +136,7 @@ type ExpectedFieldTypes =
   | 'object'
   | 'tuple'
   | 'literal'
-  | 'uuid';
+  | 'uuid'
+  | 'duration';
 
 Test.checks([Test.check<SchemaFieldType, ExpectedFieldTypes, Test.Pass>()]);

@@ -3,8 +3,9 @@
  */
 
 import type { RecordId } from 'surrealdb';
-import { Uuid } from 'surrealdb';
+import { Duration, Uuid } from 'surrealdb';
 import type { ModelMetadata, ObjectFieldMetadata, SchemaFieldType, TupleFieldMetadata } from '../../types';
+import { CerialDuration } from '../../utils/cerial-duration';
 import { CerialId } from '../../utils/cerial-id';
 import { CerialUuid } from '../../utils/cerial-uuid';
 
@@ -61,6 +62,12 @@ export function mapFieldValue(value: unknown, fieldType: SchemaFieldType): unkno
     case 'uuid':
       if (value instanceof Uuid) return CerialUuid.fromNative(value);
       if (typeof value === 'string') return CerialUuid.fromString(value);
+
+      return value;
+
+    case 'duration':
+      if (value instanceof Duration) return CerialDuration.from(value);
+      if (typeof value === 'string') return CerialDuration.from(value);
 
       return value;
 

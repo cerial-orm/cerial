@@ -187,6 +187,9 @@ export const tables = {
 
   // number.cerial (number field type tests)
   number: ['number_basic', 'number_decorated', 'number_with_object', 'number_with_tuple'],
+
+  // duration.cerial (duration field type tests)
+  duration: ['duration_basic', 'duration_decorated', 'duration_with_object', 'duration_with_tuple'],
 };
 
 /**

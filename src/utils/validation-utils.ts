@@ -2,8 +2,9 @@
  * Validation utility functions
  */
 
-import { RecordId, StringRecordId, Uuid } from 'surrealdb';
+import { Duration, RecordId, StringRecordId, Uuid } from 'surrealdb';
 import type { SchemaFieldType } from '../types/common.types';
+import { CerialDuration } from './cerial-duration';
 import { CerialId } from './cerial-id';
 import { CerialUuid } from './cerial-uuid';
 import { isBoolean, isDate, isNumber, isString } from './type-utils';
@@ -51,6 +52,8 @@ export function validateFieldType(value: unknown, type: SchemaFieldType): boolea
       return Array.isArray(value) || (typeof value === 'object' && value !== null);
     case 'uuid':
       return CerialUuid.is(value) || value instanceof Uuid || isValidUuidString(value);
+    case 'duration':
+      return CerialDuration.is(value) || value instanceof Duration || typeof value === 'string';
     case 'literal':
       // Literal values can be strings, numbers, booleans, arrays (tuple variant), or objects (object variant)
       // Specific variant validation is handled by the type system at compile time

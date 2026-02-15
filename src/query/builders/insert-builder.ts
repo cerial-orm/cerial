@@ -5,6 +5,7 @@
 import type { ModelMetadata, SelectClause } from '../../types';
 import type { CompiledQuery } from '../compile/types';
 import { createCompileContext } from '../compile/var-allocator';
+import { transformValue } from '../transformers/data-transformer';
 import { buildSelectFields } from './select-builder';
 
 /**
@@ -24,13 +25,13 @@ export function stripComputedFields<T extends Record<string, unknown>>(data: T, 
   return result;
 }
 
-/** Apply @default values to data */
+/** Apply @default values to data, transforming SDK types (duration, uuid) */
 export function applyDefaultValues<T extends Record<string, unknown>>(data: T, model: ModelMetadata): T {
   const result = { ...data };
 
   for (const field of model.fields) {
     if (field.defaultValue !== undefined && result[field.name] === undefined) {
-      (result as Record<string, unknown>)[field.name] = field.defaultValue;
+      (result as Record<string, unknown>)[field.name] = transformValue(field.defaultValue, field.type);
     }
   }
 

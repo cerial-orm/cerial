@@ -73,6 +73,10 @@ export type { RecordIdInput } from './cerial-id';
 export { CerialUuid, isCerialUuid } from './cerial-uuid';
 export type { CerialUuidInput } from './cerial-uuid';
 
+// CerialDuration - Duration wrapper
+export { CerialDuration, isCerialDuration } from './cerial-duration';
+export type { CerialDurationInput } from './cerial-duration';
+
 // NONE sentinel
 export { NONE, isNone } from './none';
 export type { CerialNone } from './none';

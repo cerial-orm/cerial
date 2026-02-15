@@ -7,6 +7,7 @@ import { ensureDir, formatCode } from '../shared';
 import { generateAllDerivedTypes, generateInterfaces, generateModelTypes, generateWhereTypes } from '../types';
 import { generateFindUniqueWhereType } from '../types/method-generator';
 import {
+  CERIAL_DURATION_IMPORT,
   CERIAL_ID_IMPORT,
   CERIAL_UUID_IMPORT,
   NONE_IMPORT,
@@ -25,6 +26,7 @@ import {
   getReferencedObjectNames,
   getReferencedTupleNames,
   getRelatedModelNames,
+  modelHasDurationFields,
   modelHasUuidFields,
   needsCerialNone,
 } from './import-helpers';
@@ -92,6 +94,7 @@ export async function writeModelTypes(
 
   const noneImport = needsCerialNone(model) ? `\n${NONE_IMPORT}` : '';
   const uuidImport = modelHasUuidFields(model) ? `\n${CERIAL_UUID_IMPORT}` : '';
+  const durationImport = modelHasDurationFields(model) ? `\n${CERIAL_DURATION_IMPORT}` : '';
 
   const interfaceCode = generateInterfaces([model]);
   const whereCode = generateWhereTypes([model]);
@@ -105,7 +108,7 @@ export async function writeModelTypes(
  */
 
 ${TS_TOOLBELT_IMPORT}
-${CERIAL_ID_IMPORT}${noneImport}${uuidImport}
+${CERIAL_ID_IMPORT}${noneImport}${uuidImport}${durationImport}
 ${UNIQUE_TYPES_IMPORT}
 ${relatedImports}${objectImports}${tupleImports}${literalImports}${enumImports}${interfaceCode}
 

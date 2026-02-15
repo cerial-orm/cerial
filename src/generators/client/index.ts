@@ -21,6 +21,7 @@ export { writeTupleTypes } from './tuple-writer';
 export { writeLiteralFile } from './literal-writer';
 
 export {
+  CERIAL_DURATION_IMPORT,
   CERIAL_ID_IMPORT,
   CERIAL_UUID_IMPORT,
   NONE_IMPORT,
@@ -48,9 +49,12 @@ export {
   getTupleReferencedObjectNames,
   getTupleReferencedTupleNames,
   hasRelations,
+  modelHasDurationFields,
   modelHasUuidFields,
   needsCerialNone,
+  objectHasDurationFields,
   objectHasUuidFields,
+  tupleHasDurationElements,
   tupleHasUuidElements,
 } from './import-helpers';
 

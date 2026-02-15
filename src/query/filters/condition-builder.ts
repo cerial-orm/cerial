@@ -2,7 +2,7 @@
  * Condition builder - builds WHERE clause conditions
  */
 
-import { RecordId, StringRecordId, Uuid } from 'surrealdb';
+import { Duration, RecordId, StringRecordId, Uuid } from 'surrealdb';
 import type {
   FieldMetadata,
   ModelMetadata,
@@ -11,6 +11,7 @@ import type {
   TupleFieldMetadata,
   WhereClause,
 } from '../../types';
+import { CerialDuration } from '../../utils/cerial-duration';
 import { CerialId, type RecordIdInput } from '../../utils/cerial-id';
 import { CerialUuid } from '../../utils/cerial-uuid';
 import { isObject } from '../../utils/type-utils';
@@ -41,6 +42,14 @@ function transformUuidValue(value: unknown): unknown {
   if (value instanceof Uuid) return value;
   if (value instanceof CerialUuid) return value.toNative();
   if (typeof value === 'string') return new Uuid(value);
+
+  return value;
+}
+
+function transformDurationValue(value: unknown): unknown {
+  if (value instanceof Duration) return value;
+  if (value instanceof CerialDuration) return value.toNative();
+  if (typeof value === 'string') return new Duration(value);
 
   return value;
 }
@@ -79,6 +88,15 @@ function transformFieldValue(value: unknown, fieldMetadata: FieldMetadata, model
     }
 
     return transformUuidValue(value);
+  }
+
+  // Transform Duration field values to SDK Duration
+  if (fieldMetadata.type === 'duration') {
+    if (Array.isArray(value)) {
+      return value.map((v) => transformDurationValue(v));
+    }
+
+    return transformDurationValue(value);
   }
 
   return value;
@@ -139,6 +157,8 @@ export function isOperatorObject(value: unknown): value is Record<string, unknow
   if (isRecordIdInput(value)) return false;
   // CerialUuid instances are direct values, not operator objects
   if (CerialUuid.is(value)) return false;
+  // CerialDuration instances are direct values, not operator objects
+  if (CerialDuration.is(value)) return false;
   const keys = Object.keys(value);
   return keys.some((k) => isRegisteredOperator(k));
 }

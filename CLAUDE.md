@@ -273,6 +273,10 @@ has_children: true # only on section index pages
   - Shared helpers (client setup, cleanup) imported from a common helper file
   - Each file should be independently runnable with `bun test tests/e2e/<feature>/<file> --preload ./tests/e2e/preload.ts`
 
+### SurrealDB Reserved Keywords
+
+Do NOT use SurrealDB reserved keywords as field names, model names, or object names in `.cerial` schema files. SurrealDB's parser will misinterpret them, causing migration failures. Known reserved keywords that cause issues: `info`, `select`, `create`, `update`, `delete`, `from`, `where`, `table`, `field`, `type`, `value`, `index`, `for`, `on`, `set`, `define`, `remove`, `begin`, `commit`, `cancel`, `return`, `limit`, `start`, `order`, `group`, `fetch`, `timeout`, `parallel`, `content`, `merge`, `patch`, `let`, `if`, `else`, `then`, `end`, `throw`, `break`, `continue`, `none`, `null`, `true`, `false`, `and`, `or`, `not`, `is`, `in`, `contains`, `inside`, `outside`, `intersects`, `only`, `full`, `as`. When in doubt, avoid common SQL/SurrealQL keywords as identifiers.
+
 ### When Adding New Features
 
 1. Implement the feature in `src/`

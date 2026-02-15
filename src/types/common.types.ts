@@ -16,7 +16,8 @@ export type SchemaFieldType =
   | 'object'
   | 'tuple'
   | 'literal'
-  | 'uuid';
+  | 'uuid'
+  | 'duration';
 
 /** Supported decorator types in schema definitions */
 export type SchemaDecorator =
@@ -62,6 +63,7 @@ export type FieldTypeMapping = {
   tuple: unknown[]; // Tuple type - actual element types determined by tuple definition
   literal: unknown; // Literal type - actual union type determined by literal definition
   uuid: string; // UUID type - represented as string in TS output mapping
+  duration: string; // Duration type - represented as string in TS output mapping
 };
 
 /** Field type to SurrealDB type mapping */
@@ -79,6 +81,7 @@ export type SurrealTypeMapping = {
   tuple: 'array'; // Tuple type - stored as typed array literal
   literal: 'literal'; // Literal type - stored as union type
   uuid: 'uuid'; // UUID type
+  duration: 'duration'; // Duration type
 };
 
 /** Generic result type for operations */

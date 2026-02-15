@@ -12,8 +12,10 @@ import { getNumberFieldType, isNumberType } from './number-parser';
 import { getRecordFieldType, isRecordType } from './record-parser';
 import { getRelationFieldType, isRelationType } from './relation-parser';
 import { getStringFieldType, isStringType } from './string-parser';
+import { getDurationFieldType, isDurationType } from './duration-parser';
 import { getUuidFieldType, isUuidType } from './uuid-parser';
 
+export { getDurationFieldType, isDurationType } from './duration-parser';
 export { getBoolFieldType, isBoolType } from './bool-parser';
 export { getDateFieldType, isDateType } from './date-parser';
 export { getEmailFieldType, isEmailType } from './email-parser';
@@ -43,6 +45,7 @@ export function parseFieldType(
   if (isFloatType(baseToken)) return getFloatFieldType();
   if (isNumberType(baseToken)) return getNumberFieldType();
   if (isUuidType(baseToken)) return getUuidFieldType();
+  if (isDurationType(baseToken)) return getDurationFieldType();
   if (isRecordType(token)) return getRecordFieldType(); // Use original token for Record[]
   if (isRelationType(token)) return getRelationFieldType(); // Use original token for Relation[]
 

@@ -28,7 +28,8 @@ export type SurrealQLType =
   | 'record'
   | 'array'
   | 'object'
-  | 'literal';
+  | 'literal'
+  | 'duration';
 
 /** Mapping from schema types to SurrealQL types */
 const TYPE_MAP: Record<SchemaFieldType, SurrealQLType> = {
@@ -45,7 +46,8 @@ const TYPE_MAP: Record<SchemaFieldType, SurrealQLType> = {
   tuple: 'array', // Tuple type - actual type is literal array [type1, type2, ...]
   literal: 'literal', // Literal type - actual type is union of variants
   uuid: 'uuid',
-};
+  duration: 'duration',
+} as Record<SchemaFieldType, SurrealQLType>;
 
 /** Schema types that require additional assertions */
 const TYPE_ASSERTIONS: Partial<Record<SchemaFieldType, string>> = {
@@ -302,7 +304,12 @@ export function generateAssertClause(schemaType: SchemaFieldType): string | unde
 
 /** Format a value for a DEFAULT clause */
 function formatDefaultValue(value: unknown): string {
-  if (typeof value === 'string') return `'${value}'`;
+  if (typeof value === 'string') {
+    // Duration literal pattern: digits followed by duration unit(s)
+    if (/^\d+[smhdwy]/.test(value)) return value;
+
+    return `'${value}'`;
+  }
   if (typeof value === 'boolean') return `${value}`;
   if (typeof value === 'number') return `${value}`;
 

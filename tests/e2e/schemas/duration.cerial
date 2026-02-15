@@ -1,0 +1,37 @@
+model DurationBasic {
+  id Record @id
+  name String
+  ttl Duration
+  timeout Duration?
+  cooldown Duration @nullable
+  intervals Duration[]
+}
+
+model DurationDecorated {
+  id Record @id
+  name String
+  defaultTtl Duration @default(1h)
+  alwaysTtl Duration @defaultAlways(30m)
+}
+
+object DurationInfo {
+  expires Duration
+  grace Duration?
+}
+
+tuple DurationPair {
+  Duration,
+  Duration?
+}
+
+model DurationWithObject {
+  id Record @id
+  name String
+  timing DurationInfo
+}
+
+model DurationWithTuple {
+  id Record @id
+  name String
+  pair DurationPair
+}

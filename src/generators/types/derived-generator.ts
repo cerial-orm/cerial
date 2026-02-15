@@ -27,6 +27,7 @@ const USE_TS_TOOLBELT = true;
 function getInputType(field: FieldMetadata): string {
   if (field.type === 'record') return 'RecordIdInput';
   if (field.type === 'uuid') return 'CerialUuidInput';
+  if (field.type === 'duration') return 'CerialDurationInput';
   if (field.type === 'literal' && field.literalInfo) {
     const lit = field.literalInfo;
     if (lit.isEnum) return getLiteralTypeName(lit);
@@ -284,6 +285,7 @@ function getArrayElementType(schemaType: string, field?: FieldMetadata): string 
     date: 'Date',
     record: 'RecordIdInput',
     uuid: 'CerialUuidInput',
+    duration: 'CerialDurationInput',
   };
 
   return typeMap[schemaType] ?? 'unknown';

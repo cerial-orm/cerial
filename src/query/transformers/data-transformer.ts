@@ -2,7 +2,7 @@
  * Data transformer - transforms data for queries
  */
 
-import { RecordId, StringRecordId, Uuid } from 'surrealdb';
+import { Duration, RecordId, StringRecordId, Uuid } from 'surrealdb';
 import type {
   LiteralFieldMetadata,
   ModelMetadata,
@@ -11,6 +11,7 @@ import type {
   TupleElementMetadata,
   TupleFieldMetadata,
 } from '../../types';
+import { CerialDuration } from '../../utils/cerial-duration';
 import { CerialId, type RecordIdInput } from '../../utils/cerial-id';
 import { CerialUuid } from '../../utils/cerial-uuid';
 import { isNone, NONE } from '../../utils/none';
@@ -56,6 +57,13 @@ export function transformValue(value: unknown, fieldType: SchemaFieldType): unkn
       if (value instanceof CerialUuid) return value.toNative();
       if (value instanceof Uuid) return value;
       if (typeof value === 'string') return new Uuid(value);
+
+      return value;
+
+    case 'duration':
+      if (value instanceof CerialDuration) return value.toNative();
+      if (value instanceof Duration) return value;
+      if (typeof value === 'string') return new Duration(value);
 
       return value;
 
@@ -595,10 +603,8 @@ export function transformData(
         }
       } else if (field.type === 'uuid' && field.isArray) {
         if (Array.isArray(value)) {
-          // Direct array assignment - transform each element
           result[key] = value.map((element) => transformValue(element, 'uuid'));
         } else if (typeof value === 'object' && value !== null) {
-          // Push/set operations for Uuid[]
           const ops = value as Record<string, unknown>;
           const transformed: Record<string, unknown> = {};
           if ('push' in ops && ops.push !== undefined) {
@@ -613,6 +619,29 @@ export function transformData(
             transformed.unset = Array.isArray(ops.unset)
               ? ops.unset.map((el) => transformValue(el, 'uuid'))
               : transformValue(ops.unset, 'uuid');
+          }
+          result[key] = Object.keys(transformed).length ? transformed : value;
+        } else {
+          result[key] = value;
+        }
+      } else if (field.type === 'duration' && field.isArray) {
+        if (Array.isArray(value)) {
+          result[key] = value.map((element) => transformValue(element, 'duration'));
+        } else if (typeof value === 'object' && value !== null) {
+          const ops = value as Record<string, unknown>;
+          const transformed: Record<string, unknown> = {};
+          if ('push' in ops && ops.push !== undefined) {
+            transformed.push = Array.isArray(ops.push)
+              ? ops.push.map((el) => transformValue(el, 'duration'))
+              : transformValue(ops.push, 'duration');
+          }
+          if ('set' in ops && ops.set !== undefined) {
+            transformed.set = Array.isArray(ops.set) ? ops.set.map((el) => transformValue(el, 'duration')) : ops.set;
+          }
+          if ('unset' in ops && ops.unset !== undefined) {
+            transformed.unset = Array.isArray(ops.unset)
+              ? ops.unset.map((el) => transformValue(el, 'duration'))
+              : transformValue(ops.unset, 'duration');
           }
           result[key] = Object.keys(transformed).length ? transformed : value;
         } else {

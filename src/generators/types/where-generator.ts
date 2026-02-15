@@ -178,6 +178,15 @@ export function generateFieldWhereType(field: FieldMetadata, _registry?: ModelRe
   )`;
   }
 
+  // Duration supports comparison + array operators (orderable in SurrealDB)
+  if (field.type === 'duration') {
+    return `${nullablePrefix}CerialDurationInput | (
+    ${generateNumericComparisonOps('CerialDurationInput')} &
+    ${generateArrayOps('CerialDurationInput')} &
+    ${generateNumericSpecialOps('CerialDurationInput', isRequired, isId, isNullable)}
+  )`;
+  }
+
   // For date types, include comparison, array, and between (no string ops)
   if (field.type === 'date') {
     return `${nullablePrefix}${tsType} | (
