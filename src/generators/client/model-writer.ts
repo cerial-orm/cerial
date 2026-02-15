@@ -8,6 +8,7 @@ import { generateAllDerivedTypes, generateInterfaces, generateModelTypes, genera
 import { generateFindUniqueWhereType } from '../types/method-generator';
 import {
   CERIAL_ID_IMPORT,
+  CERIAL_UUID_IMPORT,
   NONE_IMPORT,
   TS_TOOLBELT_IMPORT,
   UNIQUE_TYPES_IMPORT,
@@ -24,6 +25,7 @@ import {
   getReferencedObjectNames,
   getReferencedTupleNames,
   getRelatedModelNames,
+  modelHasUuidFields,
   needsCerialNone,
 } from './import-helpers';
 
@@ -88,10 +90,9 @@ export async function writeModelTypes(
   // Create registry for Include type generation
   const registry = createRegistryFromModels(allModels);
 
-  // Check if CerialNone import is needed for this model's Update type
   const noneImport = needsCerialNone(model) ? `\n${NONE_IMPORT}` : '';
+  const uuidImport = modelHasUuidFields(model) ? `\n${CERIAL_UUID_IMPORT}` : '';
 
-  // Generate all type content for this model
   const interfaceCode = generateInterfaces([model]);
   const whereCode = generateWhereTypes([model]);
   const findUniqueWhereCode = generateFindUniqueWhereType(model, objectRegistry);
@@ -104,7 +105,7 @@ export async function writeModelTypes(
  */
 
 ${TS_TOOLBELT_IMPORT}
-${CERIAL_ID_IMPORT}${noneImport}
+${CERIAL_ID_IMPORT}${noneImport}${uuidImport}
 ${UNIQUE_TYPES_IMPORT}
 ${relatedImports}${objectImports}${tupleImports}${literalImports}${enumImports}${interfaceCode}
 

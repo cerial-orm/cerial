@@ -22,6 +22,7 @@ export { writeLiteralFile } from './literal-writer';
 
 export {
   CERIAL_ID_IMPORT,
+  CERIAL_UUID_IMPORT,
   NONE_IMPORT,
   TS_TOOLBELT_IMPORT,
   UNIQUE_TYPES_IMPORT,
@@ -47,7 +48,10 @@ export {
   getTupleReferencedObjectNames,
   getTupleReferencedTupleNames,
   hasRelations,
+  modelHasUuidFields,
   needsCerialNone,
+  objectHasUuidFields,
+  tupleHasUuidElements,
 } from './import-helpers';
 
 export { RETURN_UTILITY_TYPES, SAFE_UNSET_TYPE, SELECT_UTILITY_TYPES } from './utility-types';

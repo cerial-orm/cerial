@@ -6,11 +6,18 @@ import { getDecorator, hasDecorator } from '../../parser/types/ast';
 import type { ASTField, FieldMetadata, RelationFieldMetadata } from '../../types';
 import { toSnakeCase } from '../../utils/string-utils';
 
-/** Resolve the timestamp decorator from an AST field */
 function resolveTimestampDecorator(field: ASTField): 'now' | 'createdAt' | 'updatedAt' | undefined {
   if (hasDecorator(field, 'now')) return 'now';
   if (hasDecorator(field, 'createdAt')) return 'createdAt';
   if (hasDecorator(field, 'updatedAt')) return 'updatedAt';
+
+  return undefined;
+}
+
+function resolveUuidDecorator(field: ASTField): 'uuid' | 'uuid4' | 'uuid7' | undefined {
+  if (hasDecorator(field, 'uuid')) return 'uuid';
+  if (hasDecorator(field, 'uuid4')) return 'uuid4';
+  if (hasDecorator(field, 'uuid7')) return 'uuid7';
 
   return undefined;
 }
@@ -21,6 +28,7 @@ export function convertField(field: ASTField): FieldMetadata {
   const defaultAlwaysDecorator = getDecorator(field, 'defaultAlways');
   const isId = hasDecorator(field, 'id');
   const timestampDec = resolveTimestampDecorator(field);
+  const uuidDec = resolveUuidDecorator(field);
   const hasDefaultAlways = defaultAlwaysDecorator !== undefined;
 
   const metadata: FieldMetadata = {
@@ -30,7 +38,8 @@ export function convertField(field: ASTField): FieldMetadata {
     isUnique: isId || hasDecorator(field, 'unique'),
     isIndexed: hasDecorator(field, 'index'),
     timestampDecorator: timestampDec,
-    isRequired: !isId && !timestampDec && !hasDefaultAlways && !field.isOptional,
+    uuidDecorator: uuidDec,
+    isRequired: !isId && !timestampDec && !uuidDec && !hasDefaultAlways && !field.isOptional,
     defaultValue: defaultDecorator?.value,
     defaultAlwaysValue: defaultAlwaysDecorator?.value,
   };

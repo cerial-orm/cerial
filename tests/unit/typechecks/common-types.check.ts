@@ -134,6 +134,7 @@ type ExpectedFieldTypes =
   | 'relation'
   | 'object'
   | 'tuple'
-  | 'literal';
+  | 'literal'
+  | 'uuid';
 
 Test.checks([Test.check<SchemaFieldType, ExpectedFieldTypes, Test.Pass>()]);

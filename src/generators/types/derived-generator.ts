@@ -24,9 +24,9 @@ import { generateTupleArrayForm, tupleHasUnsetableElements } from './tuples';
 /** Whether to use ts-toolbelt utilities in generated types */
 const USE_TS_TOOLBELT = true;
 
-/** Get the TypeScript input type for a field (for use in update type generation) */
 function getInputType(field: FieldMetadata): string {
   if (field.type === 'record') return 'RecordIdInput';
+  if (field.type === 'uuid') return 'CerialUuidInput';
   if (field.type === 'literal' && field.literalInfo) {
     const lit = field.literalInfo;
     if (lit.isEnum) return getLiteralTypeName(lit);
@@ -110,6 +110,10 @@ function getOptionalForCreate(model: ModelMetadata): string[] {
     }
     // @createdAt and @updatedAt fields are optional (db can auto-generate)
     if (field.timestampDecorator === 'createdAt' || field.timestampDecorator === 'updatedAt') {
+      optional.add(field.name);
+    }
+    // @uuid/@uuid4/@uuid7 fields are optional (db can auto-generate)
+    if (field.uuidDecorator) {
       optional.add(field.name);
     }
     // @defaultAlways fields are optional (db fills via DEFAULT ALWAYS)
@@ -279,6 +283,7 @@ function getArrayElementType(schemaType: string, field?: FieldMetadata): string 
     bool: 'boolean',
     date: 'Date',
     record: 'RecordIdInput',
+    uuid: 'CerialUuidInput',
   };
 
   return typeMap[schemaType] ?? 'unknown';

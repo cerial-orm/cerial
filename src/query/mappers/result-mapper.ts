@@ -3,8 +3,10 @@
  */
 
 import type { RecordId } from 'surrealdb';
+import { Uuid } from 'surrealdb';
 import type { ModelMetadata, ObjectFieldMetadata, SchemaFieldType, TupleFieldMetadata } from '../../types';
 import { CerialId } from '../../utils/cerial-id';
+import { CerialUuid } from '../../utils/cerial-uuid';
 
 /** Check if value is a RecordId-like object */
 function isRecordId(value: unknown): value is RecordId {
@@ -52,8 +54,13 @@ export function mapFieldValue(value: unknown, fieldType: SchemaFieldType): unkno
     case 'email':
       return String(value);
 
+    case 'uuid':
+      if (value instanceof Uuid) return CerialUuid.fromNative(value);
+      if (typeof value === 'string') return CerialUuid.fromString(value);
+
+      return value;
+
     case 'record':
-      // Convert RecordId to CerialId
       if (isRecordId(value)) {
         return transformRecordIdToCerialId(value);
       }

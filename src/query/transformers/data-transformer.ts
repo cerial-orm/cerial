@@ -2,7 +2,7 @@
  * Data transformer - transforms data for queries
  */
 
-import { RecordId, StringRecordId } from 'surrealdb';
+import { RecordId, StringRecordId, Uuid } from 'surrealdb';
 import type {
   LiteralFieldMetadata,
   ModelMetadata,
@@ -12,6 +12,7 @@ import type {
   TupleFieldMetadata,
 } from '../../types';
 import { CerialId, type RecordIdInput } from '../../utils/cerial-id';
+import { CerialUuid } from '../../utils/cerial-uuid';
 import { isNone, NONE } from '../../utils/none';
 
 /** Transform a value based on field type */
@@ -46,8 +47,14 @@ export function transformValue(value: unknown, fieldType: SchemaFieldType): unkn
     case 'email':
       return String(value);
 
+    case 'uuid':
+      if (value instanceof CerialUuid) return value.toNative();
+      if (value instanceof Uuid) return value;
+      if (typeof value === 'string') return new Uuid(value);
+
+      return value;
+
     case 'record':
-      // RecordId is handled separately in transformRecordId
       return value;
 
     default:
@@ -581,14 +588,47 @@ export function transformData(
         } else {
           result[key] = transformLiteralValue(value, field.literalInfo!);
         }
+      } else if (field.type === 'uuid' && field.isArray) {
+        if (Array.isArray(value)) {
+          // Direct array assignment - transform each element
+          result[key] = value.map((element) => transformValue(element, 'uuid'));
+        } else if (typeof value === 'object' && value !== null) {
+          // Push/set operations for Uuid[]
+          const ops = value as Record<string, unknown>;
+          const transformed: Record<string, unknown> = {};
+          if ('push' in ops && ops.push !== undefined) {
+            transformed.push = Array.isArray(ops.push)
+              ? ops.push.map((el) => transformValue(el, 'uuid'))
+              : transformValue(ops.push, 'uuid');
+          }
+          if ('set' in ops && ops.set !== undefined) {
+            transformed.set = Array.isArray(ops.set) ? ops.set.map((el) => transformValue(el, 'uuid')) : ops.set;
+          }
+          if ('unset' in ops && ops.unset !== undefined) {
+            transformed.unset = Array.isArray(ops.unset)
+              ? ops.unset.map((el) => transformValue(el, 'uuid'))
+              : transformValue(ops.unset, 'uuid');
+          }
+          result[key] = Object.keys(transformed).length ? transformed : value;
+        } else {
+          result[key] = value;
+        }
       } else if (field.isArray) {
         // Handle array fields - direct assignment or push/unset operations
         if (Array.isArray(value)) {
-          // Direct array assignment - transform each element
           result[key] = value.map((element) => transformValue(element, field.type));
         } else if (typeof value === 'object' && value !== null) {
-          // Push/unset operations - pass through as-is (handled by update builder)
-          result[key] = value;
+          const ops = value as Record<string, unknown>;
+          if ('push' in ops && ops.push !== undefined) {
+            const transformed: Record<string, unknown> = {};
+            transformed.push = Array.isArray(ops.push)
+              ? ops.push.map((el) => transformValue(el, field.type))
+              : transformValue(ops.push, field.type);
+            if ('unset' in ops) transformed.unset = ops.unset;
+            result[key] = transformed;
+          } else {
+            result[key] = value;
+          }
         } else {
           result[key] = value;
         }

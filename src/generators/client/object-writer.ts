@@ -7,6 +7,7 @@ import { ensureDir, formatCode } from '../shared';
 import { generateObjectDerivedTypes, generateObjectInterfaces, generateObjectWhereInterface } from '../types';
 import {
   CERIAL_ID_IMPORT,
+  CERIAL_UUID_IMPORT,
   generateEnumImports,
   generateLiteralImports,
   generateObjectImports,
@@ -15,6 +16,7 @@ import {
   getObjectReferencedLiteralNames,
   getObjectReferencedObjectNames,
   getObjectReferencedTupleNames,
+  objectHasUuidFields,
 } from './import-helpers';
 
 /** Write object type file to objects/ directory */
@@ -46,9 +48,10 @@ export async function writeObjectTypes(
   const referencedEnums = getObjectReferencedEnumNames(object);
   const enumImports = generateEnumImports(referencedEnums, '../enums');
 
-  // Determine if we need CerialId import (for Record fields in objects)
   const hasRecordFields = object.fields.some((f) => f.type === 'record');
   const cerialIdImport = hasRecordFields ? `${CERIAL_ID_IMPORT}\n` : '';
+  const hasUuidFields = objectHasUuidFields(object, objectRegistry);
+  const cerialUuidImport = hasUuidFields ? `${CERIAL_UUID_IMPORT}\n` : '';
 
   // Generate all type content for this object
   const interfaceCode = generateObjectInterfaces([object], objectRegistry);
@@ -60,7 +63,7 @@ export async function writeObjectTypes(
  * Do not edit manually
  */
 
-${cerialIdImport}${objectImports}${tupleImports}${literalImports}${enumImports}${interfaceCode}
+${cerialIdImport}${cerialUuidImport}${objectImports}${tupleImports}${literalImports}${enumImports}${interfaceCode}
 
 ${whereCode}
 

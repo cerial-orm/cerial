@@ -181,6 +181,9 @@ export const tables = {
     'tuple_related_post',
     'tuple_deep_nest',
   ],
+
+  // uuid.cerial (uuid field type tests)
+  uuid: ['uuid_basic', 'uuid_decorated', 'uuid_with_object', 'uuid_with_tuple'],
 };
 
 /**

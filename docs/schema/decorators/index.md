@@ -43,6 +43,7 @@ model User {
 | [`@flexible`](flexible)                   | Allow extra fields      | Object-type fields           |
 | [`@nullable`](nullable)                   | Allow null values       | Any field (not object/tuple) |
 | [`@readonly`](readonly)                   | Write-once field        | Any storable field           |
+| [`@uuid` / `@uuid4` / `@uuid7`](uuid)     | Auto-generate UUID      | `Uuid` fields                |
 
 ## Composite Directives
 
@@ -53,7 +54,7 @@ model User {
 
 ## Decorators on Object Fields
 
-A subset of decorators can also be applied to fields within object definitions. Relation and identity decorators (`@id`, `@field`, `@model`, `@onDelete`, `@key`) are not allowed on object fields. Allowed decorators on object fields: `@default`, `@defaultAlways`, `@nullable`, `@now`, `@createdAt`, `@updatedAt`, `@unique`, `@index`, `@distinct`, `@sort`, `@flexible`, `@readonly`. Note: `@nullable` is allowed on object **sub-fields** but not on object-type fields themselves.
+A subset of decorators can also be applied to fields within object definitions. Relation and identity decorators (`@id`, `@field`, `@model`, `@onDelete`, `@key`) are not allowed on object fields. Allowed decorators on object fields: `@default`, `@defaultAlways`, `@nullable`, `@now`, `@createdAt`, `@updatedAt`, `@uuid`, `@uuid4`, `@uuid7`, `@unique`, `@index`, `@distinct`, `@sort`, `@flexible`, `@readonly`. Note: `@nullable` is allowed on object **sub-fields** but not on object-type fields themselves.
 
 ```cerial
 object ContactInfo {

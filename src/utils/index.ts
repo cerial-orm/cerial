@@ -69,6 +69,10 @@ export {
 export { CerialId, isCerialId } from './cerial-id';
 export type { RecordIdInput } from './cerial-id';
 
+// CerialUuid - UUID wrapper
+export { CerialUuid, isCerialUuid } from './cerial-uuid';
+export type { CerialUuidInput } from './cerial-uuid';
+
 // NONE sentinel
 export { NONE, isNone } from './none';
 export type { CerialNone } from './none';

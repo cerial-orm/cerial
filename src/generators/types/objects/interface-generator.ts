@@ -19,6 +19,7 @@ import { literalNeedsInputType } from '../literals';
  */
 function getOutputType(field: FieldMetadata): string {
   if (field.type === 'record') return 'CerialId';
+  if (field.type === 'uuid') return 'CerialUuid';
   if (field.type === 'object' && field.objectInfo) return field.objectInfo.objectName;
   if (field.type === 'tuple' && field.tupleInfo) return field.tupleInfo.tupleName;
   if (field.type === 'literal' && field.literalInfo) return getLiteralTypeName(field.literalInfo);
@@ -35,6 +36,7 @@ function getOutputType(field: FieldMetadata): string {
  */
 function getInputType(field: FieldMetadata): string {
   if (field.type === 'record') return 'RecordIdInput';
+  if (field.type === 'uuid') return 'CerialUuidInput';
   if (field.type === 'object' && field.objectInfo) return `${field.objectInfo.objectName}Input`;
   if (field.type === 'tuple' && field.tupleInfo) return `${field.tupleInfo.tupleName}Input`;
   if (field.type === 'literal' && field.literalInfo) {
@@ -54,6 +56,7 @@ function getInputType(field: FieldMetadata): string {
  */
 function getCreateInputType(field: FieldMetadata, objectRegistry?: ObjectRegistry): string {
   if (field.type === 'record') return 'RecordIdInput';
+  if (field.type === 'uuid') return 'CerialUuidInput';
   if (field.type === 'object' && field.objectInfo && objectRegistry) {
     const nested = objectRegistry[field.objectInfo.objectName];
     if (nested && objectHasDefaultOrTimestamp(nested, objectRegistry)) {
@@ -122,6 +125,8 @@ export function objectHasDefaultOrTimestamp(
     if (field.timestampDecorator === 'createdAt' || field.timestampDecorator === 'updatedAt') return true;
     // @now needs CreateInput too (fields are omitted entirely)
     if (field.timestampDecorator === 'now') return true;
+    // @uuid/@uuid4/@uuid7 need CreateInput (fields are optional, DB auto-generates)
+    if (field.uuidDecorator) return true;
     // Check nested objects recursively (with cycle detection for self-referencing objects)
     if (field.type === 'object' && field.objectInfo && objectRegistry) {
       const nestedName = field.objectInfo.objectName;
@@ -216,7 +221,8 @@ export function generateObjectCreateInputInterface(object: ObjectMetadata, objec
         f.defaultValue !== undefined ||
         f.defaultAlwaysValue !== undefined ||
         f.timestampDecorator === 'createdAt' ||
-        f.timestampDecorator === 'updatedAt';
+        f.timestampDecorator === 'updatedAt' ||
+        !!f.uuidDecorator;
       const optional = !f.isRequired || hasDefault ? '?' : '';
       // @nullable adds | null (distinct from optional/NONE)
       // Object and tuple fields cannot be @nullable (validated in Phase 2)

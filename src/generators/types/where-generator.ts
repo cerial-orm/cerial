@@ -169,6 +169,15 @@ export function generateFieldWhereType(field: FieldMetadata, _registry?: ModelRe
   )`;
   }
 
+  // UUID supports comparison + array operators (orderable in SurrealDB)
+  if (field.type === 'uuid') {
+    return `${nullablePrefix}CerialUuidInput | (
+    ${generateNumericComparisonOps('CerialUuidInput')} &
+    ${generateArrayOps('CerialUuidInput')} &
+    ${generateStringSpecialOps(isRequired, isId, isNullable)}
+  )`;
+  }
+
   // For date types, include comparison, array, and between (no string ops)
   if (field.type === 'date') {
     return `${nullablePrefix}${tsType} | (

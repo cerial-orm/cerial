@@ -143,6 +143,9 @@ export function validateCreateData(
     if ((field.timestampDecorator === 'createdAt' || field.timestampDecorator === 'updatedAt') && value === undefined)
       continue;
 
+    // Skip @uuid/@uuid4/@uuid7 fields when undefined (handled by database via DEFAULT)
+    if (field.uuidDecorator && value === undefined) continue;
+
     // Skip fields with default value (if not provided)
     if (field.defaultValue !== undefined && value === undefined) continue;
 

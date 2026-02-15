@@ -29,6 +29,9 @@ import {
   isSortDecorator,
   isUniqueDecorator,
   isUpdatedAtDecorator,
+  isUuidDecorator,
+  isUuid4Decorator,
+  isUuid7Decorator,
   parseCreatedAtDecorator,
   parseDefaultAlwaysDecorator,
   parseDefaultDecorator,
@@ -46,6 +49,9 @@ import {
   parseSortDecorator,
   parseUniqueDecorator,
   parseUpdatedAtDecorator,
+  parseUuidDecorator,
+  parseUuid4Decorator,
+  parseUuid7Decorator,
 } from '../field-decorators';
 import {
   extractLiteralName,
@@ -124,6 +130,12 @@ export function parseDecorators(line: string, lineNumber: number): ASTDecorator[
       decorators.push(parseNullableDecorator(range));
     } else if (isReadonlyDecorator(token)) {
       decorators.push(parseReadonlyDecorator(range));
+    } else if (isUuidDecorator(token)) {
+      decorators.push(parseUuidDecorator(token, range));
+    } else if (isUuid4Decorator(token)) {
+      decorators.push(parseUuid4Decorator(token, range));
+    } else if (isUuid7Decorator(token)) {
+      decorators.push(parseUuid7Decorator(token, range));
     }
   }
 
@@ -192,7 +204,7 @@ export function parseFieldDeclaration(
   if (!fieldType) {
     return {
       field: null,
-      error: `Invalid field type: ${typeStr}. Use String, Email, Int, Date, Bool, Float, Record, Relation, or array types (String[], Int[], Date[], Record[], Relation[]).`,
+      error: `Invalid field type: ${typeStr}. Use String, Email, Int, Date, Bool, Float, Uuid, Record, Relation, or array types (String[], Int[], Date[], Uuid[], Record[], Relation[]).`,
     };
   }
 

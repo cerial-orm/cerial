@@ -2,15 +2,21 @@
  * Validation utility functions
  */
 
-import { RecordId, StringRecordId } from 'surrealdb';
+import { RecordId, StringRecordId, Uuid } from 'surrealdb';
 import type { SchemaFieldType } from '../types/common.types';
 import { CerialId } from './cerial-id';
+import { CerialUuid } from './cerial-uuid';
 import { isBoolean, isDate, isNumber, isString } from './type-utils';
 
 /** Validate email format */
 export function isValidEmail(value: string): boolean {
-  // Simple email regex
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export function isValidUuidString(value: unknown): boolean {
+  return typeof value === 'string' && UUID_REGEX.test(value);
 }
 
 /** Check if value is a RecordIdInput type (CerialId, RecordId, StringRecordId, string) */
@@ -41,6 +47,8 @@ export function validateFieldType(value: unknown, type: SchemaFieldType): boolea
     case 'tuple':
       // Tuple type: array form [1, 2] or object form { lat: 1, lng: 2 }
       return Array.isArray(value) || (typeof value === 'object' && value !== null);
+    case 'uuid':
+      return CerialUuid.is(value) || value instanceof Uuid || isValidUuidString(value);
     case 'literal':
       // Literal values can be strings, numbers, booleans, arrays (tuple variant), or objects (object variant)
       // Specific variant validation is handled by the type system at compile time

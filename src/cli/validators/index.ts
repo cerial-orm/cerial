@@ -2,7 +2,7 @@
  * Validators barrel export
  */
 
-export { validateFieldNames, validateModelNames, validateSchema } from './schema-validator';
+export { validateFieldNames, validateModelNames, validateSchema, validateUuidFields } from './schema-validator';
 export type { SchemaValidationError, SchemaValidationResult } from './schema-validator';
 
 export {

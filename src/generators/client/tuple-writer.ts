@@ -12,6 +12,7 @@ import {
   generateTupleWhereInterface,
 } from '../types';
 import {
+  CERIAL_UUID_IMPORT,
   NONE_IMPORT,
   collectTupleObjectNamesDeep,
   collectTupleTupleNamesDeep,
@@ -23,6 +24,7 @@ import {
   getTupleReferencedLiteralNames,
   getTupleReferencedObjectNames,
   getTupleReferencedTupleNames,
+  tupleHasUuidElements,
 } from './import-helpers';
 
 /** Write tuple type file to tuples/ directory */
@@ -84,16 +86,16 @@ export async function writeTupleTypes(
   const selectCode = generateTupleSelectType(tuple);
   const unsetCode = generateTupleUnsetType(tuple);
 
-  // Check if CerialNone import is needed (optional elements in update type)
   const needsNone = tuple.elements.some((e) => e.isOptional);
   const noneImport = needsNone ? `${NONE_IMPORT}\n` : '';
+  const uuidImport = tupleHasUuidElements(tuple) ? `${CERIAL_UUID_IMPORT}\n` : '';
 
   const content = `/**
  * Generated types for ${tuple.name}
  * Do not edit manually
  */
 
-${noneImport}${objectImports}${tupleImports}${literalImports}${enumImports}${interfaceCode}
+${noneImport}${uuidImport}${objectImports}${tupleImports}${literalImports}${enumImports}${interfaceCode}
 
 ${whereCode}
 

@@ -20,6 +20,7 @@ import { literalNeedsInputType } from './literals';
  */
 function getOutputType(field: FieldMetadata): string {
   if (field.type === 'record') return 'CerialId';
+  if (field.type === 'uuid') return 'CerialUuid';
   if (field.type === 'object' && field.objectInfo) return field.objectInfo.objectName;
   if (field.type === 'tuple' && field.tupleInfo) return field.tupleInfo.tupleName;
   if (field.type === 'literal' && field.literalInfo) return getLiteralTypeName(field.literalInfo);
@@ -34,6 +35,7 @@ function getOutputType(field: FieldMetadata): string {
  */
 function getInputType(field: FieldMetadata): string {
   if (field.type === 'record') return 'RecordIdInput';
+  if (field.type === 'uuid') return 'CerialUuidInput';
   if (field.type === 'object' && field.objectInfo) return `${field.objectInfo.objectName}Input`;
   if (field.type === 'tuple' && field.tupleInfo) return `${field.tupleInfo.tupleName}Input`;
   if (field.type === 'literal' && field.literalInfo) {

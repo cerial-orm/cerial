@@ -1,0 +1,47 @@
+# UUID field type test schema
+# Tests Uuid fields: required, optional, nullable, array, decorators (@uuid, @uuid4, @uuid7)
+# Also tests Uuid in objects and tuples
+
+object UuidInfo {
+  label String
+  trackingId Uuid
+  optionalId Uuid?
+  autoGenId Uuid @uuid
+}
+
+tuple UuidPair {
+  Uuid,
+  Uuid
+}
+
+model UuidBasic {
+  id Record @id
+  name String
+  token Uuid
+  optionalToken Uuid?
+  nullableToken Uuid? @nullable
+  tags Uuid[]
+}
+
+model UuidDecorated {
+  id Record @id
+  name String
+  autoId Uuid @uuid
+  autoV4 Uuid @uuid4
+  autoV7 Uuid @uuid7
+  optAutoId Uuid? @uuid
+}
+
+model UuidWithObject {
+  id Record @id
+  name String
+  meta UuidInfo
+  optMeta UuidInfo?
+}
+
+model UuidWithTuple {
+  id Record @id
+  name String
+  pair UuidPair
+  optPair UuidPair?
+}

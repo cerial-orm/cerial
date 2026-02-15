@@ -24,6 +24,9 @@ export const TS_TOOLBELT_IMPORT = `import type { Object as O, Any as A } from 't
 export const CERIAL_ID_IMPORT = `import { CerialId } from 'cerial';
 import type { RecordIdInput } from 'cerial';`;
 
+export const CERIAL_UUID_IMPORT = `import { CerialUuid } from 'cerial';
+import type { CerialUuidInput } from 'cerial';`;
+
 /** NONE sentinel import for nullable/optional update types */
 export const NONE_IMPORT = `import type { CerialNone } from 'cerial';`;
 
@@ -177,6 +180,36 @@ export function getTupleReferencedTupleNames(tuple: TupleMetadata): string[] {
 }
 
 // ─── Condition Checkers ───────────────────────────────────────────────────────
+
+export function modelHasUuidFields(model: ModelMetadata): boolean {
+  return model.fields.some((f) => f.type === 'uuid');
+}
+
+export function objectHasUuidFields(
+  object: ObjectMetadata,
+  objectRegistry?: ObjectRegistry,
+  visited: Set<string> = new Set(),
+): boolean {
+  for (const field of object.fields) {
+    if (field.type === 'uuid') return true;
+    if (field.type === 'object' && field.objectInfo && objectRegistry) {
+      const nestedName = field.objectInfo.objectName;
+      if (visited.has(nestedName)) continue;
+      const nested = objectRegistry[nestedName];
+      if (nested) {
+        const nextVisited = new Set(visited);
+        nextVisited.add(nestedName);
+        if (objectHasUuidFields(nested, objectRegistry, nextVisited)) return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+export function tupleHasUuidElements(tuple: TupleMetadata): boolean {
+  return tuple.elements.some((e) => e.type === 'uuid');
+}
 
 /** Check if a model has any relation fields */
 export function hasRelations(model: ModelMetadata): boolean {

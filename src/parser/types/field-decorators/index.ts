@@ -28,3 +28,11 @@ export { isNullableDecorator, parseNullableDecorator } from './nullable-parser';
 export { isReadonlyDecorator, parseReadonlyDecorator } from './readonly-parser';
 export { isUniqueDecorator, parseUniqueDecorator } from './unique-parser';
 export { isUpdatedAtDecorator, parseUpdatedAtDecorator } from './updated-at-parser';
+export {
+  isUuidDecorator,
+  isUuid4Decorator,
+  isUuid7Decorator,
+  parseUuidDecorator,
+  parseUuid4Decorator,
+  parseUuid7Decorator,
+} from './uuid-decorator-parser';

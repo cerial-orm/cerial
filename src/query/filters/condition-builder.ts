@@ -2,7 +2,7 @@
  * Condition builder - builds WHERE clause conditions
  */
 
-import { RecordId, StringRecordId } from 'surrealdb';
+import { RecordId, StringRecordId, Uuid } from 'surrealdb';
 import type {
   FieldMetadata,
   ModelMetadata,
@@ -12,6 +12,7 @@ import type {
   WhereClause,
 } from '../../types';
 import { CerialId, type RecordIdInput } from '../../utils/cerial-id';
+import { CerialUuid } from '../../utils/cerial-uuid';
 import { isObject } from '../../utils/type-utils';
 import { joinFragments } from '../compile/fragment';
 import type { QueryFragment } from '../compile/types';
@@ -35,7 +36,16 @@ function isRecordIdInput(value: unknown): value is RecordIdInput {
   );
 }
 
-/** Transform value for ID or Record fields - handles all RecordIdInput types */
+/** Transform a UUID value to SDK Uuid */
+function transformUuidValue(value: unknown): unknown {
+  if (value instanceof Uuid) return value;
+  if (value instanceof CerialUuid) return value.toNative();
+  if (typeof value === 'string') return new Uuid(value);
+
+  return value;
+}
+
+/** Transform value for ID, Record, or UUID fields - handles all input types */
 function transformFieldValue(value: unknown, fieldMetadata: FieldMetadata, model: ModelMetadata): unknown {
   // Transform ID field values to RecordId
   if (fieldMetadata.isId) {
@@ -60,6 +70,15 @@ function transformFieldValue(value: unknown, fieldMetadata: FieldMetadata, model
         return value.map((v) => (isRecordIdInput(v) ? transformOrValidateRecordId(targetTable, v) : v));
       }
     }
+  }
+
+  // Transform UUID field values to SDK Uuid
+  if (fieldMetadata.type === 'uuid') {
+    if (Array.isArray(value)) {
+      return value.map((v) => transformUuidValue(v));
+    }
+
+    return transformUuidValue(value);
   }
 
   return value;
@@ -118,6 +137,8 @@ export function isOperatorObject(value: unknown): value is Record<string, unknow
   if (!isObject(value)) return false;
   // RecordIdInput types (CerialId, RecordId, StringRecordId) are direct values, not operator objects
   if (isRecordIdInput(value)) return false;
+  // CerialUuid instances are direct values, not operator objects
+  if (CerialUuid.is(value)) return false;
   const keys = Object.keys(value);
   return keys.some((k) => isRegisteredOperator(k));
 }

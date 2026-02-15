@@ -16,6 +16,7 @@ import { literalNeedsInputType } from '../literals';
  * Objects use their interface name, nested tuples use their output type, primitives use TS type
  */
 function getElementOutputType(element: TupleElementMetadata): string {
+  if (element.type === 'uuid') return 'CerialUuid';
   if (element.type === 'object' && element.objectInfo) return element.objectInfo.objectName;
   if (element.type === 'tuple' && element.tupleInfo) return element.tupleInfo.tupleName;
   if (element.type === 'literal' && element.literalInfo) return getLiteralTypeName(element.literalInfo);
@@ -29,6 +30,7 @@ function getElementOutputType(element: TupleElementMetadata): string {
  * literals use Input variant when has tuple/object refs, primitives use TS type
  */
 function getElementInputType(element: TupleElementMetadata): string {
+  if (element.type === 'uuid') return 'CerialUuidInput';
   if (element.type === 'object' && element.objectInfo) return `${element.objectInfo.objectName}Input`;
   if (element.type === 'tuple' && element.tupleInfo) return `${element.tupleInfo.tupleName}Input`;
   if (element.type === 'literal' && element.literalInfo) {

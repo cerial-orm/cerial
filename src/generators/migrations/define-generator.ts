@@ -122,7 +122,12 @@ export function generateDefineField(
   if (assertClause) parts.push(assertClause);
 
   // Add DEFAULT clause if needed (@createdAt, @updatedAt, @default, or @defaultAlways)
-  const defaultClause = generateDefaultClause(field.timestampDecorator, field.defaultValue, field.defaultAlwaysValue);
+  const defaultClause = generateDefaultClause(
+    field.timestampDecorator,
+    field.defaultValue,
+    field.defaultAlwaysValue,
+    field.uuidDecorator,
+  );
   if (defaultClause) parts.push(defaultClause);
 
   // Add READONLY for @readonly fields — prevents updates after initial creation
@@ -315,11 +320,11 @@ export function generateObjectFieldDefines(
       const assertClause = generateAssertClause(subField.type);
       if (assertClause) parts.push(assertClause);
 
-      // Add DEFAULT clause for @createdAt, @updatedAt, @default, or @defaultAlways decorators
       const defaultClause = generateDefaultClause(
         subField.timestampDecorator,
         subField.defaultValue,
         subField.defaultAlwaysValue,
+        subField.uuidDecorator,
       );
       if (defaultClause) parts.push(defaultClause);
 

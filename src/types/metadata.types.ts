@@ -35,6 +35,8 @@ export interface FieldMetadata {
   isIndexed?: boolean;
   /** Timestamp decorator: 'now' (computed), 'createdAt' (default), 'updatedAt' (default always) */
   timestampDecorator?: 'now' | 'createdAt' | 'updatedAt';
+  /** UUID auto-generation decorator: 'uuid' (v7 default), 'uuid4' (v4), 'uuid7' (v7 explicit) */
+  uuidDecorator?: 'uuid' | 'uuid4' | 'uuid7';
   /** Whether the field is required (no ? marker) */
   isRequired: boolean;
   /** Whether the field has @nullable decorator (can hold null as a value, distinct from NONE/absent) */

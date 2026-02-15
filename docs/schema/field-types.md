@@ -6,22 +6,23 @@ nav_order: 1
 
 # Field Types
 
-Cerial supports 8 built-in field types plus user-defined enum, tuple, object, and literal types. Each type maps to a specific SurrealDB type and TypeScript type.
+Cerial supports 9 built-in field types plus user-defined enum, tuple, object, and literal types. Each type maps to a specific SurrealDB type and TypeScript type.
 
 ## Type Reference
 
-| Type       | Description                                      | TypeScript                                    | SurrealDB                                     | Can be Array    | Can be Optional |
-| ---------- | ------------------------------------------------ | --------------------------------------------- | --------------------------------------------- | --------------- | --------------- |
-| `String`   | Text string                                      | `string`                                      | `string`                                      | Yes             | Yes             |
-| `Email`    | Email address (validated)                        | `string`                                      | `string` (with `string::is::email` assertion) | No              | Yes             |
-| `Int`      | Integer number                                   | `number`                                      | `int`                                         | Yes             | Yes             |
-| `Float`    | Floating point number                            | `number`                                      | `float`                                       | Yes             | Yes             |
-| `Bool`     | Boolean value                                    | `boolean`                                     | `bool`                                        | Yes             | Yes             |
-| `Date`     | Date/DateTime                                    | `Date`                                        | `datetime`                                    | Yes             | Yes             |
-| `Record`   | Record reference                                 | `CerialId` (output) / `RecordIdInput` (input) | `record<tablename>`                           | Yes             | Yes             |
-| `Relation` | Virtual relation                                 | N/A (not stored)                              | Virtual                                       | As `Relation[]` | As `Relation?`  |
-| `Enum`     | Named string constants                           | `'VALUE1' \| 'VALUE2'`                        | `'VALUE1' \| 'VALUE2'`                        | Yes             | Yes             |
-| `Literal`  | Union type (specific values or structured types) | `'value' \| number \| Object \| Tuple`        | `'value' \| int \| { ... } \| [...]`          | Yes             | Yes             |
+| Type       | Description                                      | TypeScript                                        | SurrealDB                                     | Can be Array    | Can be Optional |
+| ---------- | ------------------------------------------------ | ------------------------------------------------- | --------------------------------------------- | --------------- | --------------- |
+| `String`   | Text string                                      | `string`                                          | `string`                                      | Yes             | Yes             |
+| `Email`    | Email address (validated)                        | `string`                                          | `string` (with `string::is::email` assertion) | No              | Yes             |
+| `Int`      | Integer number                                   | `number`                                          | `int`                                         | Yes             | Yes             |
+| `Float`    | Floating point number                            | `number`                                          | `float`                                       | Yes             | Yes             |
+| `Bool`     | Boolean value                                    | `boolean`                                         | `bool`                                        | Yes             | Yes             |
+| `Date`     | Date/DateTime                                    | `Date`                                            | `datetime`                                    | Yes             | Yes             |
+| `Uuid`     | UUID identifier                                  | `CerialUuid` (output) / `CerialUuidInput` (input) | `uuid`                                        | Yes             | Yes             |
+| `Record`   | Record reference                                 | `CerialId` (output) / `RecordIdInput` (input)     | `record<tablename>`                           | Yes             | Yes             |
+| `Relation` | Virtual relation                                 | N/A (not stored)                                  | Virtual                                       | As `Relation[]` | As `Relation?`  |
+| `Enum`     | Named string constants                           | `'VALUE1' \| 'VALUE2'`                            | `'VALUE1' \| 'VALUE2'`                        | Yes             | Yes             |
+| `Literal`  | Union type (specific values or structured types) | `'value' \| number \| Object \| Tuple`            | `'value' \| int \| { ... } \| [...]`          | Yes             | Yes             |
 
 ## String
 
@@ -97,6 +98,32 @@ model Event {
   createdAt Date @createdAt
 }
 ```
+
+## Uuid
+
+A universally unique identifier. Stored as SurrealDB's native `uuid` type, represented as a `CerialUuid` in TypeScript.
+
+- **Output type**: `CerialUuid` — an object with `.value`, `.toString()`, `.toNative()`, and `.equals()` methods
+- **Input type**: `CerialUuidInput` — accepts `string`, `CerialUuid`, or SDK `Uuid`
+
+```cerial
+model Session {
+  id Record @id
+  token Uuid
+  autoId Uuid @uuid       # auto-generated on create
+  tokens Uuid[]
+}
+```
+
+```typescript
+const session = await db.Session.create({
+  data: { token: '550e8400-e29b-41d4-a716-446655440000' },
+});
+console.log(session.token); // CerialUuid instance
+console.log(session.token.toString()); // '550e8400-e29b-41d4-a716-446655440000'
+```
+
+See [Uuid field type](field-types/uuid) for the full CerialUuid API and filtering details.
 
 ## Record
 

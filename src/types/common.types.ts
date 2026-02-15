@@ -14,7 +14,8 @@ export type SchemaFieldType =
   | 'relation'
   | 'object'
   | 'tuple'
-  | 'literal';
+  | 'literal'
+  | 'uuid';
 
 /** Supported decorator types in schema definitions */
 export type SchemaDecorator =
@@ -34,7 +35,10 @@ export type SchemaDecorator =
   | 'defaultAlways'
   | 'flexible'
   | 'readonly'
-  | 'nullable';
+  | 'nullable'
+  | 'uuid'
+  | 'uuid4'
+  | 'uuid7';
 
 /** Supported onDelete actions for relations */
 export type OnDeleteAction = 'Cascade' | 'SetNull' | 'SetNone' | 'Restrict' | 'NoAction';
@@ -55,6 +59,7 @@ export type FieldTypeMapping = {
   object: unknown; // Embedded object type - actual type determined by object definition
   tuple: unknown[]; // Tuple type - actual element types determined by tuple definition
   literal: unknown; // Literal type - actual union type determined by literal definition
+  uuid: string; // UUID type - represented as string in TS output mapping
 };
 
 /** Field type to SurrealDB type mapping */
@@ -70,6 +75,7 @@ export type SurrealTypeMapping = {
   object: 'object'; // Embedded object type
   tuple: 'array'; // Tuple type - stored as typed array literal
   literal: 'literal'; // Literal type - stored as union type
+  uuid: 'uuid'; // UUID type
 };
 
 /** Generic result type for operations */

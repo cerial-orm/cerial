@@ -42,6 +42,7 @@ const TYPE_MAP: Record<SchemaFieldType, SurrealQLType> = {
   object: 'object', // Embedded object type
   tuple: 'array', // Tuple type - actual type is literal array [type1, type2, ...]
   literal: 'literal', // Literal type - actual type is union of variants
+  uuid: 'uuid',
 };
 
 /** Schema types that require additional assertions */
@@ -311,12 +312,17 @@ export function generateDefaultClause(
   timestampDecorator?: 'now' | 'createdAt' | 'updatedAt',
   defaultValue?: unknown,
   defaultAlwaysValue?: unknown,
+  uuidDecorator?: 'uuid' | 'uuid4' | 'uuid7',
 ): string | undefined {
   // @now is COMPUTED, not DEFAULT — handled by generateComputedClause
   // @createdAt uses DEFAULT time::now() — set on creation when field is absent
   if (timestampDecorator === 'createdAt') return 'DEFAULT time::now()';
   // @updatedAt uses DEFAULT ALWAYS time::now() — set on creation and re-set on every update when field is absent
   if (timestampDecorator === 'updatedAt') return 'DEFAULT ALWAYS time::now()';
+
+  if (uuidDecorator === 'uuid') return 'DEFAULT rand::uuid()';
+  if (uuidDecorator === 'uuid4') return 'DEFAULT rand::uuid::v4()';
+  if (uuidDecorator === 'uuid7') return 'DEFAULT rand::uuid::v7()';
 
   // @defaultAlways(value) uses DEFAULT ALWAYS — re-set on every write when field is absent
   if (defaultAlwaysValue !== undefined) return `DEFAULT ALWAYS ${formatDefaultValue(defaultAlwaysValue)}`;

@@ -478,6 +478,9 @@ export function validateObjectFields(ast: SchemaAST): SchemaValidationError[] {
         'flexible',
         'readonly',
         'nullable',
+        'uuid',
+        'uuid4',
+        'uuid7',
       ]);
       for (const dec of field.decorators) {
         if (!ALLOWED_OBJECT_DECORATORS.has(dec.type)) {
@@ -488,7 +491,7 @@ export function validateObjectFields(ast: SchemaAST): SchemaValidationError[] {
             });
           } else {
             errors.push({
-              message: `Decorator @${dec.type} is not allowed on object fields. Allowed: @default, @defaultAlways, @createdAt, @updatedAt, @index, @unique, @distinct, @sort, @flexible, @readonly, @nullable.`,
+              message: `Decorator @${dec.type} is not allowed on object fields. Allowed: @default, @defaultAlways, @createdAt, @updatedAt, @index, @unique, @distinct, @sort, @flexible, @readonly, @nullable, @uuid, @uuid4, @uuid7.`,
               line: field.range.start.line,
             });
           }
@@ -503,10 +506,11 @@ export function validateObjectFields(ast: SchemaAST): SchemaValidationError[] {
         });
       }
 
-      // Validate timestamp, @defaultAlways, and @readonly decorators on object fields
+      // Validate timestamp, @defaultAlways, @readonly, and UUID decorators on object fields
       errors.push(...validateTimestampDecorators(field, `object ${object.name}`));
       errors.push(...validateDefaultAlwaysDecorator(field, `object ${object.name}`));
       errors.push(...validateReadonlyField(field, `object ${object.name}`));
+      errors.push(...validateUuidDecorators(field, `object ${object.name}`));
 
       // Validate @index and @unique mutual exclusivity on object fields
       if (hasDecorator(field, 'index') && hasDecorator(field, 'unique')) {
@@ -801,6 +805,79 @@ export function validateLiteralDecorators(ast: SchemaAST): SchemaValidationError
   return errors;
 }
 
+const UUID_DECORATORS = new Set(['uuid', 'uuid4', 'uuid7']);
+
+function validateUuidDecorators(
+  field: { name: string; type: string; decorators: Array<{ type: string }>; range: { start: { line: number } } },
+  parentName: string,
+): SchemaValidationError[] {
+  const errors: SchemaValidationError[] = [];
+  const uuidDecs = field.decorators.filter((d) => UUID_DECORATORS.has(d.type));
+
+  if (!uuidDecs.length) return errors;
+
+  // UUID decorators must be on Uuid fields only
+  for (const dec of uuidDecs) {
+    if (field.type !== 'uuid') {
+      errors.push({
+        message: `@${dec.type} can only be used on Uuid fields, but '${field.name}' in ${parentName} is of type '${field.type}'.`,
+        line: field.range.start.line,
+      });
+    }
+  }
+
+  // Mutual exclusivity: only one UUID decorator per field
+  if (uuidDecs.length > 1) {
+    const names = uuidDecs.map((d) => `@${d.type}`).join(', ');
+    errors.push({
+      message: `Field '${field.name}' in ${parentName} has multiple UUID decorators (${names}). Only one of @uuid, @uuid4, @uuid7 is allowed per field.`,
+      line: field.range.start.line,
+    });
+  }
+
+  // Conflict with default strategy decorators
+  for (const dec of uuidDecs) {
+    if (field.decorators.some((d) => d.type === 'default')) {
+      errors.push({
+        message: `@${dec.type} and @default cannot be used together on field '${field.name}' in ${parentName}.`,
+        line: field.range.start.line,
+      });
+    }
+    if (field.decorators.some((d) => d.type === 'defaultAlways')) {
+      errors.push({
+        message: `@${dec.type} and @defaultAlways cannot be used together on field '${field.name}' in ${parentName}.`,
+        line: field.range.start.line,
+      });
+    }
+    if (field.decorators.some((d) => TIMESTAMP_DECORATORS.has(d.type))) {
+      errors.push({
+        message: `@${dec.type} cannot be combined with timestamp decorators on field '${field.name}' in ${parentName}.`,
+        line: field.range.start.line,
+      });
+    }
+  }
+
+  return errors;
+}
+
+export function validateUuidFields(ast: SchemaAST): SchemaValidationError[] {
+  const errors: SchemaValidationError[] = [];
+
+  for (const model of ast.models) {
+    for (const field of model.fields) {
+      errors.push(...validateUuidDecorators(field, `model ${model.name}`));
+    }
+  }
+
+  for (const object of ast.objects) {
+    for (const field of object.fields) {
+      errors.push(...validateUuidDecorators(field, `object ${object.name}`));
+    }
+  }
+
+  return errors;
+}
+
 /** Validate entire schema */
 export function validateSchema(ast: SchemaAST): SchemaValidationResult {
   const errors: SchemaValidationError[] = [
@@ -822,6 +899,7 @@ export function validateSchema(ast: SchemaAST): SchemaValidationResult {
     ...validateTupleElementDecorators(ast),
     ...validateTupleObjectCombination(ast),
     ...validateLiteralDecorators(ast),
+    ...validateUuidFields(ast),
   ];
 
   return {
