@@ -30,6 +30,10 @@ export {
   hasLiteral,
   getLiteral,
   getLiteralNames,
+  createEnum,
+  hasEnum,
+  getEnum,
+  getEnumNames,
 } from './ast';
 
 // Field decorators

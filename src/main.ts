@@ -123,6 +123,7 @@ export { Cerial as C };
 export type {
   ArrayOperators,
   ASTDecorator,
+  ASTEnum,
   ASTField,
   ASTModel,
   ComparisonOperators,

@@ -14,10 +14,12 @@ import {
   collectTupleObjectNamesDeep,
   collectTupleTupleNamesDeep,
   createRegistryFromModels,
+  generateEnumImports,
   generateLiteralImports,
   generateObjectImports,
   generateRelatedImports,
   generateTupleImports,
+  getModelReferencedEnumNames,
   getModelReferencedLiteralNames,
   getReferencedObjectNames,
   getReferencedTupleNames,
@@ -75,9 +77,13 @@ export async function writeModelTypes(
   const referencedTuples = Array.from(referencedTuplesSet);
   const tupleImports = generateTupleImports(referencedTuples, tupleRegistry, '../tuples');
 
-  // Get referenced literal names for imports
+  // Get referenced literal names for imports (excludes enums)
   const referencedLiterals = getModelReferencedLiteralNames(model);
   const literalImports = generateLiteralImports(referencedLiterals, literalRegistry, '../literals');
+
+  // Get referenced enum names for imports
+  const referencedEnums = getModelReferencedEnumNames(model);
+  const enumImports = generateEnumImports(referencedEnums, '../enums');
 
   // Create registry for Include type generation
   const registry = createRegistryFromModels(allModels);
@@ -100,7 +106,7 @@ export async function writeModelTypes(
 ${TS_TOOLBELT_IMPORT}
 ${CERIAL_ID_IMPORT}${noneImport}
 ${UNIQUE_TYPES_IMPORT}
-${relatedImports}${objectImports}${tupleImports}${literalImports}${interfaceCode}
+${relatedImports}${objectImports}${tupleImports}${literalImports}${enumImports}${interfaceCode}
 
 ${whereCode}
 

@@ -8,10 +8,13 @@ has_children: true
 
 Cerial schemas are defined in `.cerial` files using a concise, Prisma-like syntax. Schemas describe your database structure and are used to generate a fully type-safe TypeScript client.
 
-A schema consists of two building blocks:
+A schema consists of several building blocks:
 
 - **Models** — Map to SurrealDB tables. Models have fields, decorators, and relations.
 - **Objects** — Embedded types stored inline within models. Objects have fields but no decorators, no relations, and no `id`.
+- **Enums** — Named sets of string constants. Generate a const object and a union type.
+- **Tuples** — Fixed-length typed arrays with named or positional elements.
+- **Literals** — Union types supporting any combination of values and structured types.
 
 ## Basic Format
 
@@ -21,11 +24,14 @@ model ModelName {
   fieldName Type?          # optional field
   fieldName Type[]         # array field
   fieldName ObjectName     # embedded object field
+  fieldName EnumName       # enum field
 }
 
 object ObjectName {
   fieldName Type           # no decorators, no relations
 }
+
+enum EnumName { VALUE1, VALUE2, VALUE3 }
 ```
 
 ## Syntax Rules
@@ -48,11 +54,15 @@ object Address {
   zipCode String?
 }
 
+# Enum for user roles
+enum Role { ADMIN, EDITOR, VIEWER }
+
 # User model
 model User {
   id Record @id
   email Email @unique
   name String
+  role Role @default('VIEWER')
   bio String? @default(null)
   address Address?
   createdAt Date @createdAt
@@ -76,4 +86,6 @@ model Post {
 - [Optional Fields](optional-fields) — Optional field semantics and NONE vs null
 - [Decorators](decorators/) — All decorators (`@id`, `@unique`, `@default`, `@field`, `@model`, etc.)
 - [Comments](comments) — Comment syntax
+- [Enums](enums) — Named string constants with const object and union type
+- [Enums vs Literals](enums-vs-literals) — When to use enums vs literals
 - [Cross-File References](cross-file-references) — Splitting schemas across multiple files

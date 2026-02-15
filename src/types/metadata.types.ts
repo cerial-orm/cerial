@@ -147,6 +147,8 @@ export interface LiteralFieldMetadata {
   literalName: string;
   /** Expanded variants (literal references resolved and deduplicated) */
   variants: ResolvedLiteralVariant[];
+  /** Whether this literal originates from an enum definition */
+  isEnum?: boolean;
 }
 
 /** Metadata for a literal definition (union type) */
@@ -155,6 +157,8 @@ export interface LiteralMetadata {
   name: string;
   /** Expanded variants (literal references resolved and deduplicated) */
   variants: ResolvedLiteralVariant[];
+  /** Whether this literal originates from an enum definition */
+  isEnum?: boolean;
 }
 
 /** Registry of all literals indexed by literal name */

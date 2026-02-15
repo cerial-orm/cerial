@@ -8,6 +8,7 @@
 
 import type { ObjectRegistry, TupleElementMetadata, TupleMetadata, TupleRegistry } from '../../../types';
 import { schemaTypeToTsType } from '../../../utils/type-utils';
+import { getLiteralTypeName } from '../enums';
 import { literalNeedsInputType } from '../literals';
 
 /**
@@ -17,7 +18,7 @@ import { literalNeedsInputType } from '../literals';
 function getElementOutputType(element: TupleElementMetadata): string {
   if (element.type === 'object' && element.objectInfo) return element.objectInfo.objectName;
   if (element.type === 'tuple' && element.tupleInfo) return element.tupleInfo.tupleName;
-  if (element.type === 'literal' && element.literalInfo) return element.literalInfo.literalName;
+  if (element.type === 'literal' && element.literalInfo) return getLiteralTypeName(element.literalInfo);
 
   return schemaTypeToTsType(element.type);
 }
@@ -32,6 +33,7 @@ function getElementInputType(element: TupleElementMetadata): string {
   if (element.type === 'tuple' && element.tupleInfo) return `${element.tupleInfo.tupleName}Input`;
   if (element.type === 'literal' && element.literalInfo) {
     const lit = element.literalInfo;
+    if (lit.isEnum) return getLiteralTypeName(lit);
     if (literalNeedsInputType({ name: lit.literalName, variants: lit.variants })) return `${lit.literalName}Input`;
 
     return lit.literalName;

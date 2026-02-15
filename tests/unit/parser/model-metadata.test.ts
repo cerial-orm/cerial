@@ -244,7 +244,7 @@ describe('modelToMetadata', () => {
 
 describe('astToRegistry', () => {
   test('should create empty registry from empty AST', () => {
-    const ast: SchemaAST = { models: [], objects: [], tuples: [], literals: [], source: '' };
+    const ast: SchemaAST = { models: [], objects: [], tuples: [], literals: [], enums: [], source: '' };
     const registry = astToRegistry(ast);
 
     expect(Object.keys(registry)).toHaveLength(0);
@@ -256,6 +256,7 @@ describe('astToRegistry', () => {
       objects: [],
       tuples: [],
       literals: [],
+      enums: [],
       source: '',
     };
     const registry = astToRegistry(ast);
@@ -273,6 +274,7 @@ describe('getModelMetadata', () => {
       objects: [],
       tuples: [],
       literals: [],
+      enums: [],
       source: '',
     };
     const registry = astToRegistry(ast);
@@ -282,7 +284,7 @@ describe('getModelMetadata', () => {
   });
 
   test('should return undefined for non-existent model', () => {
-    const registry = astToRegistry({ models: [], objects: [], tuples: [], literals: [], source: '' });
+    const registry = astToRegistry({ models: [], objects: [], tuples: [], literals: [], enums: [], source: '' });
 
     const metadata = getModelMetadata(registry, 'User');
     expect(metadata).toBeUndefined();

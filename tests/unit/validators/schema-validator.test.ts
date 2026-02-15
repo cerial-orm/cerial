@@ -51,6 +51,7 @@ describe('Schema Validator', () => {
         objects: [],
         tuples: [],
         literals: [],
+        enums: [],
         models: [createASTModel({ name: 'User' }), createASTModel({ name: 'UserProfile' })],
       };
 
@@ -64,6 +65,7 @@ describe('Schema Validator', () => {
         objects: [],
         tuples: [],
         literals: [],
+        enums: [],
         models: [createASTModel({ name: 'User' }), createASTModel({ name: 'User' })],
       };
 
@@ -78,6 +80,7 @@ describe('Schema Validator', () => {
         objects: [],
         tuples: [],
         literals: [],
+        enums: [],
         models: [createASTModel({ name: 'user' })], // lowercase
       };
 
@@ -94,6 +97,7 @@ describe('Schema Validator', () => {
         objects: [],
         tuples: [],
         literals: [],
+        enums: [],
         models: [
           createASTModel({
             name: 'User',
@@ -116,6 +120,7 @@ describe('Schema Validator', () => {
         objects: [],
         tuples: [],
         literals: [],
+        enums: [],
         models: [
           createASTModel({
             name: 'User',
@@ -137,6 +142,7 @@ describe('Schema Validator', () => {
         objects: [],
         tuples: [],
         literals: [],
+        enums: [],
         models: [
           createASTModel({
             name: 'User',
@@ -162,6 +168,7 @@ describe('Schema Validator', () => {
         objects: [],
         tuples: [],
         literals: [],
+        enums: [],
         models: [
           createASTModel({
             name: 'User',
@@ -196,6 +203,7 @@ describe('Schema Validator', () => {
         objects: [],
         tuples: [],
         literals: [],
+        enums: [],
         models: [
           createASTModel({
             name: 'User',
@@ -231,6 +239,7 @@ describe('Schema Validator', () => {
         objects: [],
         tuples: [],
         literals: [],
+        enums: [],
         models: [
           createASTModel({
             name: 'Post',
@@ -275,6 +284,7 @@ describe('Schema Validator', () => {
         objects: [],
         tuples: [],
         literals: [],
+        enums: [],
         models: [
           createASTModel({
             name: 'User',
@@ -294,6 +304,7 @@ describe('Schema Validator', () => {
         objects: [],
         tuples: [],
         literals: [],
+        enums: [],
         models: [
           createASTModel({ name: 'user' }), // Invalid: lowercase
         ],
@@ -320,6 +331,7 @@ describe('Schema Validator', () => {
       const ast: SchemaAST = {
         source: '',
         objects: [],
+        enums: [],
         tuples: [
           createTuple({
             name: 'MyTuple',
@@ -346,6 +358,7 @@ describe('Schema Validator', () => {
       const ast: SchemaAST = {
         source: '',
         objects: [],
+        enums: [],
         tuples: [
           createTuple({
             name: 'MyTuple',
@@ -372,6 +385,7 @@ describe('Schema Validator', () => {
       const ast: SchemaAST = {
         source: '',
         objects: [],
+        enums: [],
         tuples: [
           createTuple({
             name: 'MyTuple',
@@ -401,6 +415,7 @@ describe('Schema Validator', () => {
       const ast: SchemaAST = {
         source: '',
         objects: [],
+        enums: [],
         tuples: [
           createTuple({
             name: 'MyTuple',
@@ -436,6 +451,7 @@ describe('Schema Validator', () => {
       const ast: SchemaAST = {
         source: '',
         objects: [],
+        enums: [],
         tuples: [
           createTuple({
             name: 'MyTuple',
@@ -469,6 +485,7 @@ describe('Schema Validator', () => {
       const ast: SchemaAST = {
         source: '',
         objects: [],
+        enums: [],
         tuples: [
           createTuple({
             name: 'MyTuple',
@@ -501,6 +518,7 @@ describe('Schema Validator', () => {
       const ast: SchemaAST = {
         source: '',
         objects: [],
+        enums: [],
         tuples: [
           createTuple({
             name: 'MyTuple',
@@ -535,6 +553,7 @@ describe('Schema Validator', () => {
       const ast: SchemaAST = {
         source: '',
         objects: [],
+        enums: [],
         tuples: [
           createTuple({
             name: 'Tuple1',

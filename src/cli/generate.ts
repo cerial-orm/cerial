@@ -18,8 +18,9 @@ import {
 import { writeModelRegistry } from '../generators/metadata/registry-writer';
 import { writeInternalIndex } from '../generators/metadata/internal-writer';
 import { writeMigrationFile } from '../generators/migrations/writer';
-import { collectLiteralNames, collectObjectNames, collectTupleNames, parse } from '../parser/parser';
+import { collectEnumNames, collectLiteralNames, collectObjectNames, collectTupleNames, parse } from '../parser/parser';
 import type {
+  ASTEnum,
   ASTLiteral,
   ASTModel,
   ASTObject,
@@ -222,10 +223,11 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
       }),
     );
 
-    // Two-pass parsing: first collect all object, tuple, and literal names across all files
+    // Two-pass parsing: first collect all object, tuple, literal, and enum names across all files
     const allObjectNames = new Set<string>();
     const allTupleNames = new Set<string>();
     const allLiteralNames = new Set<string>();
+    const allEnumNames = new Set<string>();
     for (const { content } of schemaContents) {
       const objNames = collectObjectNames(content);
       for (const name of objNames) {
@@ -239,17 +241,22 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
       for (const name of litNames) {
         allLiteralNames.add(name);
       }
+      const enumNms = collectEnumNames(content);
+      for (const name of enumNms) {
+        allEnumNames.add(name);
+      }
     }
 
-    // Second pass: parse each schema with full object and tuple name context
+    // Second pass: parse each schema with full object, tuple, literal, and enum name context
     const allModels: ASTModel[] = [];
     const allObjects: ASTObject[] = [];
     const allTuples: ASTTuple[] = [];
     const allLiterals: ASTLiteral[] = [];
+    const allEnums: ASTEnum[] = [];
     const parseErrors: string[] = [];
 
     for (const { path, content } of schemaContents) {
-      const parseResult = parse(content, allObjectNames, allTupleNames, allLiteralNames);
+      const parseResult = parse(content, allObjectNames, allTupleNames, allLiteralNames, allEnumNames);
 
       if (parseResult.errors.length) {
         for (const error of parseResult.errors) {
@@ -262,6 +269,7 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
       allObjects.push(...parseResult.ast.objects);
       allTuples.push(...parseResult.ast.tuples);
       allLiterals.push(...parseResult.ast.literals);
+      allEnums.push(...parseResult.ast.enums);
     }
 
     // Check for parse errors before validation
@@ -273,12 +281,13 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
       return result;
     }
 
-    // Validate combined schema (all models, objects, and tuples together)
-    const combinedAST = {
+    // Validate combined schema (all models, objects, tuples, literals, and enums together)
+    const combinedAST: import('../types').SchemaAST = {
       models: allModels,
       objects: allObjects,
       tuples: allTuples,
       literals: allLiterals,
+      enums: allEnums,
       source: '',
     };
     const validation = validateSchema(combinedAST);
@@ -305,10 +314,12 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
     const objectCount = allObjects.length;
     const tupleCount = allTuples.length;
     const literalCount = allLiterals.length;
+    const enumCount = allEnums.length;
     const extraInfo = [
       objectCount ? `${objectCount} object(s)` : '',
       tupleCount ? `${tupleCount} tuple(s)` : '',
       literalCount ? `${literalCount} literal(s)` : '',
+      enumCount ? `${enumCount} enum(s)` : '',
     ]
       .filter(Boolean)
       .join(' and ');
@@ -318,7 +329,22 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
     const models = convertModels(allModels);
     const objects = convertObjects(allObjects);
     const tuples = convertTuples(allTuples);
-    const literals = convertLiterals(allLiterals);
+
+    // Convert enums to synthetic ASTLiteral entries for the literal pipeline
+    // This merges enum definitions into the literal conversion so literalRef expansion works
+    const syntheticEnumLiterals: ASTLiteral[] = allEnums.map((e) => ({
+      name: e.name,
+      variants: e.values.map((v): import('../types').ASTLiteralVariant => ({ kind: 'string', value: v })),
+      range: e.range,
+    }));
+    const allLiteralsForConversion = [...allLiterals, ...syntheticEnumLiterals];
+    const literals = convertLiterals(allLiteralsForConversion);
+    // Mark enum-originating entries with isEnum flag
+    for (const lit of literals) {
+      if (allEnums.some((e) => e.name === lit.name)) {
+        lit.isEnum = true;
+      }
+    }
 
     // Resolve inline object, tuple, and literal fields
     const objRegistry = objects.length ? createObjectRegistry(objects) : undefined;
@@ -368,16 +394,21 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
     result.files.push(internalIndexPath);
     if (logLevel === 'full') logger.fileCreated(internalIndexPath);
 
-    // Write client files (including object, tuple, and literal type files)
+    // Split literals into actual literals and enum-derived literals
+    const actualLiterals = literals.filter((l) => !l.isEnum);
+    const enumLiterals = literals.filter((l) => l.isEnum);
+
+    // Write client files (including object, tuple, literal, and enum type files)
     const clientFiles = await writeClient(
       outputDir,
       models,
       objects,
       tuples,
-      literals,
+      actualLiterals,
       objectRegistry,
       tupleRegistry,
       literalRegistry,
+      enumLiterals,
     );
     result.files.push(...clientFiles);
     if (logLevel === 'full') clientFiles.forEach((f) => logger.fileCreated(f));

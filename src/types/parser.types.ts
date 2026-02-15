@@ -161,12 +161,20 @@ export interface ASTTuple {
   range: SourceRange;
 }
 
-/** Top-level AST containing all models, objects, tuples, and literals */
+/** AST node for an enum definition (named string constants) */
+export interface ASTEnum {
+  name: string;
+  values: string[];
+  range: SourceRange;
+}
+
+/** Top-level AST containing all models, objects, tuples, literals, and enums */
 export interface SchemaAST {
   models: ASTModel[];
   objects: ASTObject[];
   tuples: ASTTuple[];
   literals: ASTLiteral[];
+  enums: ASTEnum[];
   source: string;
 }
 

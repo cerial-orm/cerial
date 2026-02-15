@@ -16,6 +16,7 @@ export async function writeClientIndex(
   objects: ObjectMetadata[] = [],
   tuples: TupleMetadata[] = [],
   literals: LiteralMetadata[] = [],
+  enums: LiteralMetadata[] = [],
 ): Promise<string> {
   await ensureDir(outputDir);
 
@@ -252,6 +253,30 @@ export type {
 } from './literals';
 `;
     }
+  }
+
+  // Add Enum type exports if there are enums
+  if (enums.length > 0) {
+    const enumConsts = enums.map((e) => `${e.name}Enum`).join(',\n  ');
+    const enumTypes = enums.map((e) => `${e.name}EnumType`).join(',\n  ');
+    const enumWheres = enums.map((e) => `${e.name}EnumWhere`).join(',\n  ');
+
+    content += `
+// Enum const objects
+export {
+  ${enumConsts},
+} from './enums';
+
+// Enum union types
+export type {
+  ${enumTypes},
+} from './enums';
+
+// Enum where types
+export type {
+  ${enumWheres},
+} from './enums';
+`;
   }
 
   // Add Include exports if there are models with relations

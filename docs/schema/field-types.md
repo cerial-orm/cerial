@@ -6,7 +6,7 @@ nav_order: 1
 
 # Field Types
 
-Cerial supports 8 built-in field types plus user-defined tuple and object types. Each type maps to a specific SurrealDB type and TypeScript type.
+Cerial supports 8 built-in field types plus user-defined enum, tuple, object, and literal types. Each type maps to a specific SurrealDB type and TypeScript type.
 
 ## Type Reference
 
@@ -20,6 +20,7 @@ Cerial supports 8 built-in field types plus user-defined tuple and object types.
 | `Date`     | Date/DateTime                                    | `Date`                                        | `datetime`                                    | Yes             | Yes             |
 | `Record`   | Record reference                                 | `CerialId` (output) / `RecordIdInput` (input) | `record<tablename>`                           | Yes             | Yes             |
 | `Relation` | Virtual relation                                 | N/A (not stored)                              | Virtual                                       | As `Relation[]` | As `Relation?`  |
+| `Enum`     | Named string constants                           | `'VALUE1' \| 'VALUE2'`                        | `'VALUE1' \| 'VALUE2'`                        | Yes             | Yes             |
 | `Literal`  | Union type (specific values or structured types) | `'value' \| number \| Object \| Tuple`        | `'value' \| int \| { ... } \| [...]`          | Yes             | Yes             |
 
 ## String
@@ -153,6 +154,31 @@ model Post {
 ```
 
 See [@field and @model](decorators/field-and-model) for full relation configuration.
+
+## Enum Types
+
+Enums define a fixed set of named string constants. They resolve to SurrealDB `literal` types internally, but are declared with the `enum` keyword and generate a const object for runtime access.
+
+```cerial
+enum Status { ACTIVE, INACTIVE, PENDING }
+
+model User {
+  id Record @id
+  name String
+  status Status          # required enum
+  role Status?           # optional enum
+  tags Status[]          # array of enum values
+}
+```
+
+```typescript
+import { StatusEnum } from './generated/client';
+
+// Runtime access via const object
+console.log(StatusEnum.ACTIVE); // 'ACTIVE'
+```
+
+See [Enums](enums) for full syntax, generated types, and filtering details.
 
 ## Object Types
 

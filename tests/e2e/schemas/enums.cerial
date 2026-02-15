@@ -1,0 +1,49 @@
+enum Role { ADMIN, USER, MODERATOR }
+
+enum Color { RED, GREEN, BLUE }
+
+enum Severity { LOW, MEDIUM, HIGH, CRITICAL }
+
+model EnumBasic {
+  id Record @id
+  name String
+  role Role
+  optRole Role?
+  nullRole Role? @nullable
+  roles Role[]
+}
+
+model EnumDefaults {
+  id Record @id
+  label String
+  role Role @default('ADMIN')
+  severity Severity @default('LOW')
+}
+
+model EnumMultiple {
+  id Record @id
+  title String
+  role Role
+  color Color
+  severity Severity
+}
+
+object EnumAddress {
+  city String
+  severity Severity
+}
+
+model EnumWithObject {
+  id Record @id
+  name String
+  address EnumAddress
+  optAddress EnumAddress?
+}
+
+// Literal that references an enum via literalRef
+literal RoleOrCustom { Role, 'custom' }
+
+model EnumLiteralRef {
+  id Record @id
+  access RoleOrCustom
+}

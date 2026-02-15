@@ -4,6 +4,7 @@
  */
 
 import type {
+  ASTEnum,
   ASTLiteral,
   ASTLiteralVariant,
   ASTModel,
@@ -103,7 +104,10 @@ export function resolveObjectFields(
         for (const el of tupleMeta.elements) {
           if (el.type === 'literal' && el.literalInfo && !el.literalInfo.variants.length) {
             const litMeta = literalRegistry[el.literalInfo.literalName];
-            if (litMeta) el.literalInfo.variants = JSON.parse(JSON.stringify(litMeta.variants));
+            if (litMeta) {
+              el.literalInfo.variants = JSON.parse(JSON.stringify(litMeta.variants));
+              if (litMeta.isEnum) el.literalInfo.isEnum = true;
+            }
           }
         }
       }
@@ -252,6 +256,15 @@ export function convertLiterals(literals: ASTLiteral[]): LiteralMetadata[] {
   return literals.map((l) => convertLiteral(l, literals));
 }
 
+/** Convert AST enums to LiteralMetadata with isEnum flag */
+export function convertEnums(enums: ASTEnum[], allLiterals: ASTLiteral[] = []): LiteralMetadata[] {
+  return enums.map((e) => ({
+    name: e.name,
+    variants: e.values.map((v) => ({ kind: 'string' as const, value: v })),
+    isEnum: true,
+  }));
+}
+
 /** Create LiteralRegistry object from literals */
 export function createLiteralRegistry(literals: LiteralMetadata[]): LiteralRegistry {
   const registry: LiteralRegistry = {};
@@ -294,6 +307,7 @@ function resolveLiteralFields(fields: FieldMetadata[], literalRegistry: LiteralR
       const litMeta = literalRegistry[field.literalInfo.literalName];
       if (litMeta) {
         field.literalInfo.variants = JSON.parse(JSON.stringify(litMeta.variants));
+        if (litMeta.isEnum) field.literalInfo.isEnum = true;
       }
     }
   }

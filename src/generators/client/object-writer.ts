@@ -7,9 +7,11 @@ import { ensureDir, formatCode } from '../shared';
 import { generateObjectDerivedTypes, generateObjectInterfaces, generateObjectWhereInterface } from '../types';
 import {
   CERIAL_ID_IMPORT,
+  generateEnumImports,
   generateLiteralImports,
   generateObjectImports,
   generateTupleImports,
+  getObjectReferencedEnumNames,
   getObjectReferencedLiteralNames,
   getObjectReferencedObjectNames,
   getObjectReferencedTupleNames,
@@ -36,9 +38,13 @@ export async function writeObjectTypes(
   const referencedTuples = getObjectReferencedTupleNames(object);
   const tupleImports = generateTupleImports(referencedTuples, tupleRegistry, '../tuples');
 
-  // Get referenced literal names for imports (cross-directory)
+  // Get referenced literal names for imports (cross-directory, excludes enums)
   const referencedLiterals = getObjectReferencedLiteralNames(object);
   const literalImports = generateLiteralImports(referencedLiterals, literalRegistry, '../literals');
+
+  // Get referenced enum names for imports (cross-directory)
+  const referencedEnums = getObjectReferencedEnumNames(object);
+  const enumImports = generateEnumImports(referencedEnums, '../enums');
 
   // Determine if we need CerialId import (for Record fields in objects)
   const hasRecordFields = object.fields.some((f) => f.type === 'record');
@@ -54,7 +60,7 @@ export async function writeObjectTypes(
  * Do not edit manually
  */
 
-${cerialIdImport}${objectImports}${tupleImports}${literalImports}${interfaceCode}
+${cerialIdImport}${objectImports}${tupleImports}${literalImports}${enumImports}${interfaceCode}
 
 ${whereCode}
 

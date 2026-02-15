@@ -14,8 +14,15 @@ import type {
 import { ensureDir, formatCode } from '../shared';
 import { generateConnectionExports } from './connection-template';
 import { generateClientTemplate } from './template';
-import { writeLiteralsIndex, writeModelsIndex, writeObjectsIndex, writeTuplesIndex } from './barrel-writer';
+import {
+  writeEnumsIndex,
+  writeLiteralsIndex,
+  writeModelsIndex,
+  writeObjectsIndex,
+  writeTuplesIndex,
+} from './barrel-writer';
 import { writeClientIndex } from './client-index-writer';
+import { writeEnumFile } from './enum-writer';
 import { writeLiteralFile } from './literal-writer';
 import { writeModelTypes } from './model-writer';
 import { writeObjectTypes } from './object-writer';
@@ -52,13 +59,19 @@ export async function writeClient(
   objectRegistry?: ObjectRegistry,
   tupleRegistry?: TupleRegistry,
   literalRegistry?: LiteralRegistry,
+  enums: LiteralMetadata[] = [],
 ): Promise<string[]> {
   const files: string[] = [];
 
   // Write client main
   files.push(await writeClientMain(outputDir, models));
 
-  // Write literal types first (they don't depend on anything except objects/tuples they reference)
+  // Write enum types first (string-only, no dependencies)
+  for (const enumMeta of enums) {
+    files.push(await writeEnumFile(outputDir, enumMeta));
+  }
+
+  // Write literal types (they don't depend on anything except objects/tuples they reference)
   for (const literal of literals) {
     files.push(await writeLiteralFile(outputDir, literal, objectRegistry, tupleRegistry));
   }
@@ -86,9 +99,11 @@ export async function writeClient(
   if (tuplesIndex) files.push(tuplesIndex);
   const literalsIndex = await writeLiteralsIndex(outputDir, literals);
   if (literalsIndex) files.push(literalsIndex);
+  const enumsIndex = await writeEnumsIndex(outputDir, enums);
+  if (enumsIndex) files.push(enumsIndex);
 
-  // Write main index (includes model, object, tuple, and literal exports)
-  files.push(await writeClientIndex(outputDir, models, objects, tuples, literals));
+  // Write main index (includes model, object, tuple, literal, and enum exports)
+  files.push(await writeClientIndex(outputDir, models, objects, tuples, literals, enums));
 
   return files;
 }

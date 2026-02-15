@@ -11,6 +11,7 @@ import type {
   ASTTupleElement,
   ASTLiteral,
   ASTLiteralVariant,
+  ASTEnum,
   ASTField,
   ASTDecorator,
   ASTCompositeDirective,
@@ -29,6 +30,7 @@ import {
   createTuple,
   createTupleElement,
   createLiteral,
+  createEnum,
   createRange,
   createPosition,
   parseFieldDeclaration,
@@ -50,13 +52,16 @@ interface ParserState {
   objects: ASTObject[];
   tuples: ASTTuple[];
   literals: ASTLiteral[];
+  enums: ASTEnum[];
   errors: ParseError[];
   /** Known object names for type resolution (populated in two-pass parsing) */
   objectNames: Set<string>;
   /** Known tuple names for type resolution (populated in two-pass parsing) */
   tupleNames: Set<string>;
-  /** Known literal names for type resolution (populated in two-pass parsing) */
+  /** Known literal names for type resolution (populated in two-pass parsing, includes enum names) */
   literalNames: Set<string>;
+  /** Known enum names for block parsing (populated in two-pass parsing) */
+  enumNames: Set<string>;
 }
 
 /** Create initial parser state */
@@ -65,6 +70,7 @@ function createState(
   objectNames?: Set<string>,
   tupleNames?: Set<string>,
   literalNames?: Set<string>,
+  enumNames?: Set<string>,
 ): ParserState {
   return {
     lines: source.split('\n'),
@@ -73,10 +79,12 @@ function createState(
     objects: [],
     tuples: [],
     literals: [],
+    enums: [],
     errors: [],
     objectNames: objectNames ?? new Set(),
     tupleNames: tupleNames ?? new Set(),
     literalNames: literalNames ?? new Set(),
+    enumNames: enumNames ?? new Set(),
   };
 }
 
@@ -150,6 +158,21 @@ function isLiteralLine(line: string): boolean {
 function extractLiteralNameFromLine(line: string): string | null {
   const trimmed = removeComments(line).trim();
   const match = trimmed.match(/^literal\s+(\w+)/);
+
+  return match ? match[1]! : null;
+}
+
+/** Check if line is an enum declaration */
+function isEnumLine(line: string): boolean {
+  const trimmed = removeComments(line).trim();
+
+  return trimmed.startsWith('enum ');
+}
+
+/** Extract enum name from line */
+function extractEnumNameFromLine(line: string): string | null {
+  const trimmed = removeComments(line).trim();
+  const match = trimmed.match(/^enum\s+(\w+)/);
 
   return match ? match[1]! : null;
 }
@@ -789,6 +812,162 @@ function parseLiteral(state: ParserState): ASTLiteral | null {
 }
 
 /**
+ * Parse enum values from content string.
+ * Values are bare identifiers (no quotes). Supports comma-separated or newline-separated
+ * (but only one style per block — detected automatically).
+ */
+function parseEnumValues(content: string, enumName: string, state: ParserState): string[] {
+  if (!content.trim()) return [];
+
+  // Detect separator style: if content contains commas, use comma mode
+  const hasCommas = content.includes(',');
+
+  let rawValues: string[];
+  if (hasCommas) {
+    rawValues = content
+      .split(',')
+      .map((v) => v.trim())
+      .filter(Boolean);
+  } else {
+    // Newline/space separated — split by whitespace
+    rawValues = content
+      .split(/\s+/)
+      .map((v) => v.trim())
+      .filter(Boolean);
+  }
+
+  const values: string[] = [];
+  for (const raw of rawValues) {
+    // Remove inline comments
+    const cleaned = removeComments(raw).trim();
+    if (!cleaned) continue;
+
+    // Reject quoted strings
+    if (cleaned.startsWith("'") || cleaned.startsWith('"')) {
+      addError(state, `Enum ${enumName}: values must be bare identifiers, not quoted strings: ${cleaned}`);
+      continue;
+    }
+
+    // Reject numeric values
+    if (/^-?\d+(\.\d+)?$/.test(cleaned)) {
+      addError(state, `Enum ${enumName}: values must be bare identifiers, not numbers: ${cleaned}`);
+      continue;
+    }
+
+    // Reject boolean values
+    if (cleaned === 'true' || cleaned === 'false') {
+      addError(state, `Enum ${enumName}: values must be bare identifiers, not booleans: ${cleaned}`);
+      continue;
+    }
+
+    // Must be a valid identifier
+    if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(cleaned)) {
+      addError(state, `Enum ${enumName}: invalid value '${cleaned}'. Values must be valid identifiers`);
+      continue;
+    }
+
+    values.push(cleaned);
+  }
+
+  return values;
+}
+
+/** Parse an enum block */
+function parseEnum(state: ParserState): ASTEnum | null {
+  const line = currentLine(state);
+  if (line === undefined) return null;
+
+  // Extract enum name
+  const enumName = extractEnumNameFromLine(line);
+  if (!enumName) {
+    addError(state, `Invalid enum declaration: ${line}`);
+    advance(state);
+
+    return null;
+  }
+
+  const startLine = state.currentLine;
+  advance(state);
+
+  // Check for single-line enum: "enum Name { VALUE1, VALUE2 }"
+  const cleanedLine = removeComments(line);
+  const singleLineBraceIdx = cleanedLine.indexOf('{');
+  if (singleLineBraceIdx !== -1) {
+    const afterBrace = cleanedLine.substring(singleLineBraceIdx + 1).trim();
+    if (afterBrace.endsWith('}')) {
+      const content = afterBrace.slice(0, -1).trim();
+      const values = parseEnumValues(content, enumName, state);
+      const range = createRange(createPosition(startLine + 1, 0, 0), createPosition(state.currentLine, 0, 0));
+
+      return createEnum(enumName, values, range);
+    }
+  }
+
+  // Find the opening brace
+  if (!isBlockStart(line)) {
+    while (!isEnd(state)) {
+      const nextLine = currentLine(state);
+      if (nextLine === undefined) break;
+      if (isEmptyOrComment(nextLine)) {
+        advance(state);
+        continue;
+      }
+      if (isBlockStart(nextLine)) {
+        advance(state);
+        break;
+      }
+      addError(state, `Expected '{' for enum ${enumName}`);
+
+      return null;
+    }
+  }
+
+  // Collect all content between { and }
+  let content = '';
+
+  const braceIdx = removeComments(line).indexOf('{');
+  if (braceIdx !== -1) {
+    const afterBrace = removeComments(line)
+      .substring(braceIdx + 1)
+      .trim();
+    if (afterBrace && afterBrace !== '}') {
+      content += afterBrace;
+    }
+  }
+
+  while (!isEnd(state)) {
+    const elementLine = currentLine(state);
+    if (elementLine === undefined) break;
+
+    const trimmedLine = removeComments(elementLine).trim();
+
+    if (trimmedLine === '}') {
+      advance(state);
+      break;
+    }
+
+    if (trimmedLine.endsWith('}')) {
+      content += (content ? ' ' : '') + trimmedLine.slice(0, -1).trim();
+      advance(state);
+      break;
+    }
+
+    if (!trimmedLine) {
+      advance(state);
+      continue;
+    }
+
+    content += (content ? ' ' : '') + trimmedLine;
+    advance(state);
+  }
+
+  const values = parseEnumValues(content, enumName, state);
+  const range = createRange(createPosition(startLine + 1, 0, 0), createPosition(state.currentLine, 0, 0));
+
+  return createEnum(enumName, values, range);
+}
+
+/**
  * First pass: collect all object, model, and tuple names without parsing fields.
  * This enables forward references (objects/models/tuples defined after usage).
  */
@@ -797,11 +976,13 @@ function collectNames(source: string): {
   modelNames: Set<string>;
   tupleNames: Set<string>;
   literalNames: Set<string>;
+  enumNames: Set<string>;
 } {
   const objectNames = new Set<string>();
   const modelNames = new Set<string>();
   const tupleNames = new Set<string>();
   const literalNames = new Set<string>();
+  const enumNames = new Set<string>();
   const lines = source.split('\n');
 
   for (const line of lines) {
@@ -818,33 +999,49 @@ function collectNames(source: string): {
     } else if (trimmed.startsWith('literal ')) {
       const match = trimmed.match(/^literal\s+(\w+)/);
       if (match) literalNames.add(match[1]!);
+    } else if (trimmed.startsWith('enum ')) {
+      const match = trimmed.match(/^enum\s+(\w+)/);
+      if (match) {
+        enumNames.add(match[1]!);
+        // Merge enum names into literal names so parseFieldType() and parseLiteralVariant()
+        // resolve enum references automatically (enum fields use type: 'literal')
+        literalNames.add(match[1]!);
+      }
     }
   }
 
-  return { objectNames, modelNames, tupleNames, literalNames };
+  return { objectNames, modelNames, tupleNames, literalNames, enumNames };
 }
 
-/** Parse schema source (supports object/tuple/literal {} blocks with two-pass name resolution) */
+/** Parse schema source (supports object/tuple/literal/enum {} blocks with two-pass name resolution) */
 export function parse(
   source: string,
   externalObjectNames?: Set<string>,
   externalTupleNames?: Set<string>,
   externalLiteralNames?: Set<string>,
+  externalEnumNames?: Set<string>,
 ): ParseResult {
-  // First pass: collect all object, tuple, and literal names for forward reference resolution
+  // First pass: collect all object, tuple, literal, and enum names for forward reference resolution
   const {
     objectNames: localObjectNames,
     tupleNames: localTupleNames,
     literalNames: localLiteralNames,
+    enumNames: localEnumNames,
   } = collectNames(source);
 
   // Merge with any external names (from other schema files)
   const allObjectNames = new Set<string>([...localObjectNames, ...(externalObjectNames ?? [])]);
   const allTupleNames = new Set<string>([...localTupleNames, ...(externalTupleNames ?? [])]);
-  const allLiteralNames = new Set<string>([...localLiteralNames, ...(externalLiteralNames ?? [])]);
+  // Enum names are already merged into literalNames by collectNames, also merge external enum names
+  const allLiteralNames = new Set<string>([
+    ...localLiteralNames,
+    ...(externalLiteralNames ?? []),
+    ...(externalEnumNames ?? []),
+  ]);
+  const allEnumNames = new Set<string>([...localEnumNames, ...(externalEnumNames ?? [])]);
 
-  // Second pass: full parse with object, tuple, and literal names context
-  const state = createState(source, allObjectNames, allTupleNames, allLiteralNames);
+  // Second pass: full parse with object, tuple, literal, and enum names context
+  const state = createState(source, allObjectNames, allTupleNames, allLiteralNames, allEnumNames);
 
   while (!isEnd(state)) {
     const line = currentLine(state);
@@ -853,6 +1050,15 @@ export function parse(
     // Skip empty lines and comments
     if (isEmptyOrComment(line)) {
       advance(state);
+      continue;
+    }
+
+    // Parse enum (before literal since both share similar structure but 'enum' prefix is distinct)
+    if (isEnumLine(line)) {
+      const enumNode = parseEnum(state);
+      if (enumNode) {
+        state.enums.push(enumNode);
+      }
       continue;
     }
 
@@ -897,7 +1103,7 @@ export function parse(
   }
 
   return {
-    ast: createSchemaAST(state.models, source, state.objects, state.tuples, state.literals),
+    ast: createSchemaAST(state.models, source, state.objects, state.tuples, state.literals, state.enums),
     errors: state.errors,
   };
 }
@@ -1643,7 +1849,9 @@ export function validateSchema(ast: SchemaAST): ParseError[] {
         }
       }
       if (variant.kind === 'literalRef') {
-        const litExists = ast.literals.some((l) => l.name === variant.literalName);
+        const litExists =
+          ast.literals.some((l) => l.name === variant.literalName) ||
+          ast.enums.some((e) => e.name === variant.literalName);
         if (!litExists) {
           errors.push({
             message: `Literal ${literal.name} references unknown literal '${variant.literalName}'`,
@@ -1683,12 +1891,13 @@ export function validateSchema(ast: SchemaAST): ParseError[] {
     }
   }
 
-  // Validate literal-typed fields reference valid literals
+  // Validate literal-typed fields reference valid literals or enums
+  const allLiteralOrEnumNames = new Set<string>([...ast.literals.map((l) => l.name), ...ast.enums.map((e) => e.name)]);
+
   for (const model of ast.models) {
     for (const field of model.fields) {
       if (field.type === 'literal' && field.literalName) {
-        const litExists = ast.literals.some((l) => l.name === field.literalName);
-        if (!litExists) {
+        if (!allLiteralOrEnumNames.has(field.literalName)) {
           errors.push({
             message: `Field '${field.name}' in model ${model.name} references unknown literal '${field.literalName}'`,
             position: field.range.start,
@@ -1701,8 +1910,7 @@ export function validateSchema(ast: SchemaAST): ParseError[] {
   for (const object of ast.objects) {
     for (const field of object.fields) {
       if (field.type === 'literal' && field.literalName) {
-        const litExists = ast.literals.some((l) => l.name === field.literalName);
-        if (!litExists) {
+        if (!allLiteralOrEnumNames.has(field.literalName)) {
           errors.push({
             message: `Field '${field.name}' in object ${object.name} references unknown literal '${field.literalName}'`,
             position: field.range.start,
@@ -1715,14 +1923,83 @@ export function validateSchema(ast: SchemaAST): ParseError[] {
   for (const tuple of ast.tuples) {
     for (const element of tuple.elements) {
       if (element.type === 'literal' && element.literalName) {
-        const litExists = ast.literals.some((l) => l.name === element.literalName);
-        if (!litExists) {
+        if (!allLiteralOrEnumNames.has(element.literalName)) {
           errors.push({
             message: `Tuple element references unknown literal '${element.literalName}' in tuple ${tuple.name}`,
             position: tuple.range.start,
           });
         }
       }
+    }
+  }
+
+  // Check for duplicate enum names and validate enum definitions
+  const enumNames = new Set<string>();
+  for (const enumDef of ast.enums) {
+    if (enumNames.has(enumDef.name)) {
+      errors.push({
+        message: `Duplicate enum name: ${enumDef.name}`,
+        position: enumDef.range.start,
+      });
+    }
+    // Check for name collision with model names
+    if (modelNames.has(enumDef.name)) {
+      errors.push({
+        message: `Enum name '${enumDef.name}' conflicts with model name`,
+        position: enumDef.range.start,
+      });
+    }
+    // Check for name collision with object names
+    if (objectNames.has(enumDef.name)) {
+      errors.push({
+        message: `Enum name '${enumDef.name}' conflicts with object name`,
+        position: enumDef.range.start,
+      });
+    }
+    // Check for name collision with tuple names
+    if (tupleNames.has(enumDef.name)) {
+      errors.push({
+        message: `Enum name '${enumDef.name}' conflicts with tuple name`,
+        position: enumDef.range.start,
+      });
+    }
+    // Check for name collision with literal names
+    if (literalNames.has(enumDef.name)) {
+      errors.push({
+        message: `Enum name '${enumDef.name}' conflicts with literal name`,
+        position: enumDef.range.start,
+      });
+    }
+    enumNames.add(enumDef.name);
+
+    // Enum must have at least one value
+    if (!enumDef.values.length) {
+      errors.push({
+        message: `Enum ${enumDef.name} must have at least one value`,
+        position: enumDef.range.start,
+      });
+    }
+
+    // Check for duplicate values within enum
+    const seenValues = new Set<string>();
+    for (const value of enumDef.values) {
+      if (seenValues.has(value)) {
+        errors.push({
+          message: `Duplicate value '${value}' in enum ${enumDef.name}`,
+          position: enumDef.range.start,
+        });
+      }
+      seenValues.add(value);
+    }
+  }
+
+  // Also check literal names don't conflict with enum names
+  for (const literal of ast.literals) {
+    if (enumNames.has(literal.name)) {
+      errors.push({
+        message: `Literal name '${literal.name}' conflicts with enum name`,
+        position: literal.range.start,
+      });
     }
   }
 
@@ -1742,4 +2019,9 @@ export function collectTupleNames(source: string): Set<string> {
 /** Collect all literal names from a source (first-pass only, for external use) */
 export function collectLiteralNames(source: string): Set<string> {
   return collectNames(source).literalNames;
+}
+
+/** Collect all enum names from a source (first-pass only, for external use) */
+export function collectEnumNames(source: string): Set<string> {
+  return collectNames(source).enumNames;
 }

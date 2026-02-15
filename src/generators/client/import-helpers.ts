@@ -324,12 +324,12 @@ export function getLiteralReferencedTupleNames(literal: LiteralMetadata): string
   return Array.from(tupleNames);
 }
 
-/** Get referenced literal names from a model's literal fields */
+/** Get referenced literal names from a model's literal fields (excludes enums) */
 export function getModelReferencedLiteralNames(model: ModelMetadata): string[] {
   const literalNames = new Set<string>();
 
   for (const field of model.fields) {
-    if (field.type === 'literal' && field.literalInfo) {
+    if (field.type === 'literal' && field.literalInfo && !field.literalInfo.isEnum) {
       literalNames.add(field.literalInfo.literalName);
     }
   }
@@ -337,12 +337,25 @@ export function getModelReferencedLiteralNames(model: ModelMetadata): string[] {
   return Array.from(literalNames);
 }
 
-/** Get referenced literal names from an object's literal fields */
+/** Get referenced enum names from a model's literal fields */
+export function getModelReferencedEnumNames(model: ModelMetadata): string[] {
+  const enumNames = new Set<string>();
+
+  for (const field of model.fields) {
+    if (field.type === 'literal' && field.literalInfo?.isEnum) {
+      enumNames.add(field.literalInfo.literalName);
+    }
+  }
+
+  return Array.from(enumNames);
+}
+
+/** Get referenced literal names from an object's literal fields (excludes enums) */
 export function getObjectReferencedLiteralNames(object: ObjectMetadata): string[] {
   const literalNames = new Set<string>();
 
   for (const field of object.fields) {
-    if (field.type === 'literal' && field.literalInfo) {
+    if (field.type === 'literal' && field.literalInfo && !field.literalInfo.isEnum) {
       literalNames.add(field.literalInfo.literalName);
     }
   }
@@ -350,17 +363,43 @@ export function getObjectReferencedLiteralNames(object: ObjectMetadata): string[
   return Array.from(literalNames);
 }
 
-/** Get referenced literal names from a tuple's literal elements */
+/** Get referenced enum names from an object's literal fields */
+export function getObjectReferencedEnumNames(object: ObjectMetadata): string[] {
+  const enumNames = new Set<string>();
+
+  for (const field of object.fields) {
+    if (field.type === 'literal' && field.literalInfo?.isEnum) {
+      enumNames.add(field.literalInfo.literalName);
+    }
+  }
+
+  return Array.from(enumNames);
+}
+
+/** Get referenced literal names from a tuple's literal elements (excludes enums) */
 export function getTupleReferencedLiteralNames(tuple: TupleMetadata): string[] {
   const literalNames = new Set<string>();
 
   for (const element of tuple.elements) {
-    if (element.type === 'literal' && element.literalInfo) {
+    if (element.type === 'literal' && element.literalInfo && !element.literalInfo.isEnum) {
       literalNames.add(element.literalInfo.literalName);
     }
   }
 
   return Array.from(literalNames);
+}
+
+/** Get referenced enum names from a tuple's literal elements */
+export function getTupleReferencedEnumNames(tuple: TupleMetadata): string[] {
+  const enumNames = new Set<string>();
+
+  for (const element of tuple.elements) {
+    if (element.type === 'literal' && element.literalInfo?.isEnum) {
+      enumNames.add(element.literalInfo.literalName);
+    }
+  }
+
+  return Array.from(enumNames);
 }
 
 // ─── Literal Import Statement Generators ──────────────────────────────────────
@@ -389,6 +428,28 @@ export function generateLiteralImports(
     }
 
     return `import type { ${importNames.join(', ')} } from '${importPrefix}/${fileName}';`;
+  });
+
+  return imports.join('\n') + '\n';
+}
+
+// ─── Enum Import Statement Generators ─────────────────────────────────────────
+
+/**
+ * Generate import statements for referenced enum types (from model/object/tuple files).
+ * Enums import EnumType and EnumWhere (and the const) from the enums/ directory.
+ * @param importPrefix - Directory prefix for import path (e.g., `'../enums'` for cross-directory)
+ */
+export function generateEnumImports(enumNames: string[], importPrefix: string = '.'): string {
+  if (!enumNames.length) return '';
+
+  const imports = enumNames.map((name) => {
+    const fileName = name.toLowerCase();
+    const constName = `${name}Enum`;
+    const typeName = `${name}EnumType`;
+    const whereName = `${name}EnumWhere`;
+
+    return `import { ${constName} } from '${importPrefix}/${fileName}';\nimport type { ${typeName}, ${whereName} } from '${importPrefix}/${fileName}';`;
   });
 
   return imports.join('\n') + '\n';

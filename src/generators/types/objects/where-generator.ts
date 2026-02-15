@@ -6,6 +6,7 @@
  */
 
 import type { ObjectMetadata, ObjectRegistry } from '../../../types';
+import { getLiteralTypeName, getLiteralWhereName } from '../enums';
 import { generateFieldWhereType } from '../where-generator';
 
 /** Generate Where interface for an object definition */
@@ -38,17 +39,17 @@ export function generateObjectWhereInterface(object: ObjectMetadata, _objectRegi
         fields.push(`  ${field.name}?: ${tupleWhere};`);
       }
     } else if (field.type === 'literal' && field.literalInfo) {
-      // Literal fields get literal where type
-      const literalName = field.literalInfo.literalName;
-      const literalWhere = `${literalName}Where`;
+      // Literal/enum fields get literal/enum where type
+      const typeName = getLiteralTypeName(field.literalInfo);
+      const whereName = getLiteralWhereName(field.literalInfo);
       const nullPrefix = field.isNullable ? 'null | ' : '';
 
       if (field.isArray) {
         fields.push(
-          `  ${field.name}?: { has?: ${literalName}; hasAll?: ${literalName}[]; hasAny?: ${literalName}[]; isEmpty?: boolean; };`,
+          `  ${field.name}?: { has?: ${typeName}; hasAll?: ${typeName}[]; hasAny?: ${typeName}[]; isEmpty?: boolean; };`,
         );
       } else {
-        fields.push(`  ${field.name}?: ${nullPrefix}${literalName} | ${literalWhere};`);
+        fields.push(`  ${field.name}?: ${nullPrefix}${typeName} | ${whereName};`);
       }
     } else {
       const whereType = generateFieldWhereType(field);

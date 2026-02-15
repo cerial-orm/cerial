@@ -16,6 +16,7 @@
  */
 
 import type { ObjectRegistry, TupleElementMetadata, TupleMetadata, TupleRegistry } from '../../../types';
+import { getLiteralWhereName } from '../enums';
 import { generateFieldWhereType } from '../where-generator';
 
 /**
@@ -33,9 +34,9 @@ function generateElementWhereType(element: TupleElementMetadata): string {
     return `${element.tupleInfo.tupleName}Where`;
   }
 
-  // For literal-typed elements, reference the literal's Where type
+  // For literal-typed elements, reference the literal/enum's Where type
   if (element.type === 'literal' && element.literalInfo) {
-    return `${element.literalInfo.literalName}Where`;
+    return getLiteralWhereName(element.literalInfo);
   }
 
   // Create a synthetic FieldMetadata for primitive elements

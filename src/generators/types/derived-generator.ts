@@ -16,6 +16,7 @@ import type {
   TupleFieldMetadata,
 } from '../../types';
 import { schemaTypeToTsType } from '../../utils/type-utils';
+import { getLiteralTypeName } from './enums';
 import { literalNeedsInputType } from './literals';
 import { objectHasDefaultOrTimestamp } from './objects/interface-generator';
 import { generateTupleArrayForm, tupleHasUnsetableElements } from './tuples';
@@ -28,6 +29,7 @@ function getInputType(field: FieldMetadata): string {
   if (field.type === 'record') return 'RecordIdInput';
   if (field.type === 'literal' && field.literalInfo) {
     const lit = field.literalInfo;
+    if (lit.isEnum) return getLiteralTypeName(lit);
     if (literalNeedsInputType({ name: lit.literalName, variants: lit.variants })) return `${lit.literalName}Input`;
 
     return lit.literalName;
@@ -263,6 +265,7 @@ ${objectFieldDefs.join('\n')}
 function getArrayElementType(schemaType: string, field?: FieldMetadata): string {
   if (schemaType === 'literal' && field?.literalInfo) {
     const lit = field.literalInfo;
+    if (lit.isEnum) return getLiteralTypeName(lit);
     if (literalNeedsInputType({ name: lit.literalName, variants: lit.variants })) return `${lit.literalName}Input`;
 
     return lit.literalName;
@@ -777,7 +780,11 @@ export function generateOrderByType(model: ModelMetadata): string {
       // Tuple fields do not support ordering — skip
       continue;
     } else if (field.type === 'literal') {
-      // Literal fields do not support ordering — skip
+      if (field.literalInfo?.isEnum) {
+        // Enum fields are string-only — ordering works fine
+        fields.push(`  ${field.name}?: 'asc' | 'desc';`);
+      }
+      // Non-enum literals may contain mixed types — skip
       continue;
     } else {
       fields.push(`  ${field.name}?: 'asc' | 'desc';`);

@@ -15,9 +15,11 @@ import {
   NONE_IMPORT,
   collectTupleObjectNamesDeep,
   collectTupleTupleNamesDeep,
+  generateEnumImports,
   generateLiteralImports,
   generateObjectImports,
   generateTupleImports,
+  getTupleReferencedEnumNames,
   getTupleReferencedLiteralNames,
   getTupleReferencedObjectNames,
   getTupleReferencedTupleNames,
@@ -67,9 +69,13 @@ export async function writeTupleTypes(
   const referencedTuples = Array.from(referencedTuplesSet);
   const tupleImports = generateTupleImports(referencedTuples, tupleRegistry);
 
-  // Get referenced literal names for imports (cross-directory)
+  // Get referenced literal names for imports (cross-directory, excludes enums)
   const referencedLiterals = getTupleReferencedLiteralNames(tuple);
   const literalImports = generateLiteralImports(referencedLiterals, literalRegistry, '../literals');
+
+  // Get referenced enum names for imports (cross-directory)
+  const referencedEnums = getTupleReferencedEnumNames(tuple);
+  const enumImports = generateEnumImports(referencedEnums, '../enums');
 
   // Generate all type content for this tuple
   const interfaceCode = generateTupleInterfaces([tuple], tupleRegistry, objectRegistry);
@@ -87,7 +93,7 @@ export async function writeTupleTypes(
  * Do not edit manually
  */
 
-${noneImport}${objectImports}${tupleImports}${literalImports}${interfaceCode}
+${noneImport}${objectImports}${tupleImports}${literalImports}${enumImports}${interfaceCode}
 
 ${whereCode}
 

@@ -5,6 +5,7 @@
 import type {
   ASTCompositeDirective,
   ASTDecorator,
+  ASTEnum,
   ASTField,
   ASTLiteral,
   ASTLiteralVariant,
@@ -88,8 +89,9 @@ export function createSchemaAST(
   objects: ASTObject[] = [],
   tuples: ASTTuple[] = [],
   literals: ASTLiteral[] = [],
+  enums: ASTEnum[] = [],
 ): SchemaAST {
-  return { models, objects, tuples, literals, source };
+  return { models, objects, tuples, literals, enums, source };
 }
 
 /** Check if AST has a model with given name */
@@ -198,4 +200,24 @@ export function getLiteral(ast: SchemaAST, name: string): ASTLiteral | undefined
 /** Get all literal names from AST */
 export function getLiteralNames(ast: SchemaAST): string[] {
   return ast.literals.map((l) => l.name);
+}
+
+/** Create an AST enum node */
+export function createEnum(name: string, values: string[], range: SourceRange): ASTEnum {
+  return { name, values, range };
+}
+
+/** Check if AST has an enum with given name */
+export function hasEnum(ast: SchemaAST, name: string): boolean {
+  return ast.enums.some((e) => e.name === name);
+}
+
+/** Get an enum by name from AST */
+export function getEnum(ast: SchemaAST, name: string): ASTEnum | undefined {
+  return ast.enums.find((e) => e.name === name);
+}
+
+/** Get all enum names from AST */
+export function getEnumNames(ast: SchemaAST): string[] {
+  return ast.enums.map((e) => e.name);
 }

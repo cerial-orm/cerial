@@ -168,6 +168,9 @@ export const tables = {
     'literal_with_object_opt',
   ],
 
+  // enums.cerial (enum type tests)
+  enums: ['enum_basic', 'enum_defaults', 'enum_multiple', 'enum_with_object', 'enum_literal_ref'],
+
   // tuples.cerial (tuple type tests)
   tuples: [
     'tuple_basic',

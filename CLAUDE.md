@@ -26,7 +26,8 @@ cerial/
 │   │   ├── client/                  #   Client template + writer
 │   │   ├── metadata/               #   Model registry generator
 │   │   ├── migrations/             #   DEFINE TABLE/FIELD/INDEX generator
-│   │   └── types/                  #   Interface, derived, where, method generators
+│   │   └── types/                  #   Interface, derived, where, method, enum generators
+│   │       └── enums/              #     Enum type name helpers + generators
 │   ├── parser/                      # Schema lexer, tokenizer, parser → AST
 │   │   └── types/                  #   Field types, decorators, constraints parsers
 │   ├── query/                       # Query building + execution
@@ -48,7 +49,7 @@ cerial/
 │   │   ├── relations/               #   91 relation test files
 │   │   ├── objects/                 #   9 object test files
 │   │   ├── timestamps/              #   Timestamp decorator E2E tests
-│   │   ├── typechecks/              #   25 compile-time type checks
+│   │   ├── typechecks/              #   26 compile-time type checks
 │   │   ├── preload.ts               #   Generates client before tests
 │   │   └── test-client.ts           #   Test helpers
 │   └── generators/                  # Generator tests
@@ -72,6 +73,8 @@ cerial/
 | `src/generators/client/writer.ts`             | Writes client files, contains `ResolveFieldSelect` / `ApplyObjectSelect` / `ApplyTupleSelect` |
 | `src/cli/validators/relation-validator.ts`    | Validates relation rules (PK/non-PK, @key, @onDelete)                                         |
 | `src/query/filters/registry.ts`               | Operator handler registry                                                                     |
+| `src/generators/types/enums/name-helpers.ts`  | Enum/literal type name resolution (isEnum dispatch)                                           |
+| `src/generators/client/enum-writer.ts`        | Writes per-enum type files                                                                    |
 
 ## Architecture
 
@@ -79,7 +82,7 @@ cerial/
 Schema (.cerial files) → Parser (AST) → Generators → TypeScript Client
 ```
 
-- **Parser** - Lexes/tokenizes `.cerial` files into `SchemaAST` (models + objects + tuples)
+- **Parser** - Lexes/tokenizes `.cerial` files into `SchemaAST` (models + objects + tuples + enums)
 - **Generators** - Produces TypeScript types, client class, model registry, migrations
 - **Query Builder** - Converts typed query objects into parameterized SurrealQL
 - **Client** - Proxy-based model access (`client.db.User.findMany(...)`)
@@ -103,8 +106,9 @@ Schema (.cerial files) → Parser (AST) → Generators → TypeScript Client
 | `tests/e2e/tuples/`       | Tuple E2E tests           | 10 files |
 | `tests/e2e/transactions/` | Transaction E2E tests     | 10 files |
 | `tests/e2e/timestamps/`   | Timestamp E2E tests       | 1 file   |
+| `tests/e2e/enums/`        | Enum E2E tests            | 7 files  |
 | `tests/e2e/unset/`        | Unset parameter E2E tests | ~9 files |
-| `tests/e2e/typechecks/`   | Compile-time type checks  | 25 files |
+| `tests/e2e/typechecks/`   | Compile-time type checks  | 26 files |
 
 **Sandbox testing** = Running raw SurrealQL against the live SurrealDB instance to verify DB-level behavior before implementing in code. Use this when you need to confirm how SurrealDB handles a specific query pattern (e.g., `$this` reconstruction, dot-notation merge, SELECT expression shapes). When the user says "sandbox test", execute queries via curl:
 
@@ -324,7 +328,8 @@ has_children: true # only on section index pages
 - **@readonly** = Write-once field decorator. Adds `READONLY` to migration. Field settable on CREATE, excluded from Update types. Runtime error if passed to update. Incompatible with `@now` (COMPUTED), `@defaultAlways`, and `@id`. Allowed on model fields and object sub-fields. When on a PK Record field, the relation's nested update ops (connect/disconnect) are excluded from UpdateInput
 - **Object types** = Embedded inline, no id, no relations. Allowed decorators: `@default`, `@defaultAlways`, `@createdAt`, `@updatedAt`, `@flexible`, `@readonly`
 - **Tuple types** = Fixed-length typed arrays defined with `tuple {}`. Elements are comma-separated, optionally named. Input accepts array or object form; output is always array. No decorators on elements. Per-element update via array/object disambiguation at all levels: array = full replace, object = per-element update. Sub-field select on tuples with object elements (at any nesting depth) via `TupleSelect`. No orderBy. Supports nested tuples, objects in tuples, tuples in objects. Self-referencing requires optional element.
-- **Literal types** = Union type for fields, defined with `literal {}`. Variants: string/int/float/bool values, broad types (`String`/`Int`/`Float`/`Bool`/`Date`), object refs, tuple refs, literal refs (composed unions). Nesting restriction: objects/tuples inside literals can only contain primitives and simple literals (no deep objectRef/tupleRef/literalRef). Only `?` and `@nullable` honored on object/tuple sub-fields inside literals; other decorators emit a warning. Migration uses inline object syntax `{ field: type }` (not bare `object`). Literal fields excluded from OrderBy. Boolean-only select. Values are atomic — full replacement on update, no partial merge. Filtering uses the union's constituent operators (comparison for numbers, string ops only when all variants are string-compatible)
+- **Literal types** = Union type for fields, defined with `literal {}`. Variants: string/int/float/bool values, broad types (`String`/`Int`/`Float`/`Bool`/`Date`), object refs, tuple refs, literal refs (composed unions), enum refs. Nesting restriction: objects/tuples inside literals can only contain primitives and simple literals (no deep objectRef/tupleRef/literalRef). Only `?` and `@nullable` honored on object/tuple sub-fields inside literals; other decorators emit a warning. Migration uses inline object syntax `{ field: type }` (not bare `object`). Non-enum literal fields excluded from OrderBy (mixed types make ordering ambiguous). Boolean-only select. Values are atomic — full replacement on update, no partial merge. Filtering uses the union's constituent operators (comparison for numbers, string ops only when all variants are string-compatible)
+- **Enum types** = String-only named constants defined with `enum {}`. Values are bare identifiers. Generates `as const` object (`XEnum`), union type (`XEnumType`), and where type (`XEnumWhere`). Resolves to SurrealDB literal type. Literals can reference enums via literalRef. Enum fields support OrderBy (string ordering) — unlike non-enum literals which are excluded
 - **Parameterized queries** = Values bound via `$varName`, never inlined
 - **CerialQueryPromise** = Thenable returned by model methods. Auto-executes on `await`, collectible by `$transaction`
 - **$transaction** = Atomic batch execution of independent queries with typed tuple results
@@ -357,3 +362,6 @@ has_children: true # only on section index pages
 - **Literal object inline migration** — Object variants in `literal {}` use inline syntax `{ label: string, count: option<int> }` in `TYPE` definitions, not bare `object`. SurrealDB enforces the full shape (required fields, optional via `option<T>`, nullable via `T | null`). No separate `DEFINE FIELD` needed for literal object sub-fields
 - **Literal decorator restrictions** — Only `?` and `@nullable` are honored on object/tuple fields inside literals. Other decorators (`@default`, `@createdAt`, `@readonly`, etc.) emit a warning during generation since they can't be expressed in inline type syntax
 - **Literal nesting depth** — Objects/tuples inside a literal can reference other literals, but those inner literals must only contain simple variants (string/int/float/bool/broadType). No objectRef/tupleRef/literalRef inside nested literals — parse-time error
+- **Enum name collisions** — Enum names cannot collide with literal, model, object, or tuple names across all schema files
+- **Enum values are string-only** — No numeric or boolean values allowed. Use `literal {}` for mixed types
+- **Enum fields use literal internally** — Enum fields use `type: 'literal'` internally — query builders/filters/validators work automatically via existing literal infrastructure

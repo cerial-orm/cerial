@@ -58,6 +58,7 @@ export type {
 export type {
   ASTCompositeDirective,
   ASTDecorator,
+  ASTEnum,
   ASTField,
   ASTLiteral,
   ASTLiteralVariant,

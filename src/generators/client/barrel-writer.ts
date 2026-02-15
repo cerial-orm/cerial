@@ -98,3 +98,27 @@ ${exports}
 
   return filePath;
 }
+
+/** Write enums/index.ts barrel file (enums only) */
+export async function writeEnumsIndex(outputDir: string, enums: LiteralMetadata[]): Promise<string> {
+  if (!enums.length) return '';
+
+  const enumsDir = `${outputDir}/enums`;
+  await ensureDir(enumsDir);
+
+  const filePath = `${enumsDir}/index.ts`;
+  const exports = enums.map((e) => `export * from './${e.name.toLowerCase()}';`).join('\n');
+
+  const content = `/**
+ * Generated enum exports
+ * Do not edit manually
+ */
+
+${exports}
+`;
+
+  const formatted = await formatCode(content, outputDir);
+  await Bun.write(filePath, formatted);
+
+  return filePath;
+}

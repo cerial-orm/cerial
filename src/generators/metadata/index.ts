@@ -12,6 +12,7 @@ export {
   convertTuples,
   convertLiteral,
   convertLiterals,
+  convertEnums,
   createTupleRegistry,
   createLiteralRegistry,
   resolveLiteralVariants,

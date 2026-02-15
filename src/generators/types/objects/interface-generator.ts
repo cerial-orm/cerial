@@ -9,6 +9,7 @@
 
 import type { FieldMetadata, ObjectMetadata, ObjectRegistry } from '../../../types';
 import { schemaTypeToTsType } from '../../../utils/type-utils';
+import { getLiteralTypeName } from '../enums';
 import { literalNeedsInputType } from '../literals';
 
 /**
@@ -20,7 +21,7 @@ function getOutputType(field: FieldMetadata): string {
   if (field.type === 'record') return 'CerialId';
   if (field.type === 'object' && field.objectInfo) return field.objectInfo.objectName;
   if (field.type === 'tuple' && field.tupleInfo) return field.tupleInfo.tupleName;
-  if (field.type === 'literal' && field.literalInfo) return field.literalInfo.literalName;
+  if (field.type === 'literal' && field.literalInfo) return getLiteralTypeName(field.literalInfo);
 
   return schemaTypeToTsType(field.type);
 }
@@ -38,6 +39,7 @@ function getInputType(field: FieldMetadata): string {
   if (field.type === 'tuple' && field.tupleInfo) return `${field.tupleInfo.tupleName}Input`;
   if (field.type === 'literal' && field.literalInfo) {
     const lit = field.literalInfo;
+    if (lit.isEnum) return getLiteralTypeName(lit);
     if (literalNeedsInputType({ name: lit.literalName, variants: lit.variants })) return `${lit.literalName}Input`;
 
     return lit.literalName;
@@ -62,9 +64,10 @@ function getCreateInputType(field: FieldMetadata, objectRegistry?: ObjectRegistr
   }
   // Tuples don't have CreateInput — always use Input
   if (field.type === 'tuple' && field.tupleInfo) return `${field.tupleInfo.tupleName}Input`;
-  // Literals don't have CreateInput — use Input when has refs, otherwise output type
+  // Literals/enums don't have CreateInput — use Input when has refs, otherwise output type
   if (field.type === 'literal' && field.literalInfo) {
     const lit = field.literalInfo;
+    if (lit.isEnum) return getLiteralTypeName(lit);
     if (literalNeedsInputType({ name: lit.literalName, variants: lit.variants })) return `${lit.literalName}Input`;
 
     return lit.literalName;

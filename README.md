@@ -11,6 +11,7 @@ A Prisma-like ORM for [SurrealDB](https://surrealdb.com/) with schema-driven cod
 - **Embedded objects** - Inline `object {}` types with sub-field select, filtering, and updates
 - **Tuples** - Fixed-length typed arrays with `tuple {}` blocks, named elements, and flexible input forms
 - **Literal types** — Define union types for fields with specific values, broad types, or structured variants
+- **Enums** — String-only named constants with `enum {}`, generating `as const` objects and union types
 - **Relations** - 1:1, 1:N, N:N with nested create/connect/disconnect and bidirectional sync
 - **Array support** - `String[]`, `Int[]`, `Date[]`, `Record[]`, `ObjectType[]` with query and update operators
 - **Advanced filtering** - Comparison, string, array, logical, nested relation, and object operators
@@ -32,11 +33,18 @@ bun add cerial
 ### 1. Define your schema
 
 ```
+enum Role {
+  Admin
+  Editor
+  Viewer
+}
+
 model User {
   id Record @id
   email Email @unique
   name String
   age Int?
+  role Role @default(Viewer)
   isActive Bool @default(true)
   createdAt Date @createdAt
   updatedAt Date @updatedAt
@@ -114,6 +122,8 @@ Full documentation is available at the [Cerial Docs](docs/) site, covering:
 - [Embedded Objects](docs/objects/) - Defining objects, sub-field select, filtering, updates
 - [Tuples](docs/tuples/) - Fixed-length typed arrays, named elements, where filtering, array operations
 - [Literals](docs/schema/literals.md) - Union types with specific values, broad types, and structured variants
+- [Enums](docs/schema/enums.md) - String-only named constants with generated types and filtering
+- [Enums vs Literals](docs/schema/enums-vs-literals.md) - When to use enums vs literal types
 - [Relations](docs/relations/) - 1:1, 1:N, N:N, self-referential, nested operations, delete behavior
 - [Queries](docs/queries/) - findOne, findMany, findUnique, create, upsert, update, delete, count, exists, $transaction
 - [Filtering](docs/filtering/) - Comparison, string, array, logical, special, nested, object operators

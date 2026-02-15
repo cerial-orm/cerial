@@ -64,6 +64,7 @@ describe('Relation Validator', () => {
         objects: [],
         tuples: [],
         literals: [],
+        enums: [],
         models: [
           createASTModel({
             name: 'Post',
@@ -89,6 +90,7 @@ describe('Relation Validator', () => {
         objects: [],
         tuples: [],
         literals: [],
+        enums: [],
         models: [
           createASTModel({
             name: 'Post',
@@ -115,6 +117,7 @@ describe('Relation Validator', () => {
         objects: [],
         tuples: [],
         literals: [],
+        enums: [],
         models: [
           createASTModel({
             name: 'Post',
@@ -146,6 +149,7 @@ describe('Relation Validator', () => {
         objects: [],
         tuples: [],
         literals: [],
+        enums: [],
         models: [
           createASTModel({
             name: 'Post',
@@ -177,6 +181,7 @@ describe('Relation Validator', () => {
         objects: [],
         tuples: [],
         literals: [],
+        enums: [],
         models: [
           createASTModel({
             name: 'User',
@@ -208,6 +213,7 @@ describe('Relation Validator', () => {
         objects: [],
         tuples: [],
         literals: [],
+        enums: [],
         models: [
           createASTModel({
             name: 'User',
@@ -241,6 +247,7 @@ describe('Relation Validator', () => {
         objects: [],
         tuples: [],
         literals: [],
+        enums: [],
         models: [
           createASTModel({
             name: 'Post',
@@ -266,6 +273,7 @@ describe('Relation Validator', () => {
         objects: [],
         tuples: [],
         literals: [],
+        enums: [],
         models: [
           createASTModel({
             name: 'User',
@@ -296,6 +304,7 @@ describe('Relation Validator', () => {
         objects: [],
         tuples: [],
         literals: [],
+        enums: [],
         models: [
           createASTModel({
             name: 'User',
@@ -327,6 +336,7 @@ describe('Relation Validator', () => {
         objects: [],
         tuples: [],
         literals: [],
+        enums: [],
         models: [
           createASTModel({
             name: 'Post',
@@ -360,6 +370,7 @@ describe('Relation Validator', () => {
         objects: [],
         tuples: [],
         literals: [],
+        enums: [],
         models: [
           createASTModel({
             name: 'Post',
@@ -385,6 +396,7 @@ describe('Relation Validator', () => {
         objects: [],
         tuples: [],
         literals: [],
+        enums: [],
         models: [
           createASTModel({
             name: 'Document',
@@ -426,6 +438,7 @@ describe('Relation Validator', () => {
         objects: [],
         tuples: [],
         literals: [],
+        enums: [],
         models: [
           createASTModel({
             name: 'Document',
@@ -468,6 +481,7 @@ describe('Relation Validator', () => {
         objects: [],
         tuples: [],
         literals: [],
+        enums: [],
         models: [
           createASTModel({
             name: 'Post',
@@ -492,6 +506,7 @@ describe('Relation Validator', () => {
         objects: [],
         tuples: [],
         literals: [],
+        enums: [],
         models: [
           createASTModel({
             name: 'Post',
@@ -517,6 +532,7 @@ describe('Relation Validator', () => {
         objects: [],
         tuples: [],
         literals: [],
+        enums: [],
         models: [
           createASTModel({
             name: 'Post',

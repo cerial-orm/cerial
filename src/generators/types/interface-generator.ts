@@ -10,6 +10,7 @@
 
 import type { FieldMetadata, ModelMetadata, ModelRegistry } from '../../types';
 import { schemaTypeToTsType } from '../../utils/type-utils';
+import { getLiteralTypeName } from './enums';
 import { literalNeedsInputType } from './literals';
 
 /**
@@ -21,7 +22,7 @@ function getOutputType(field: FieldMetadata): string {
   if (field.type === 'record') return 'CerialId';
   if (field.type === 'object' && field.objectInfo) return field.objectInfo.objectName;
   if (field.type === 'tuple' && field.tupleInfo) return field.tupleInfo.tupleName;
-  if (field.type === 'literal' && field.literalInfo) return field.literalInfo.literalName;
+  if (field.type === 'literal' && field.literalInfo) return getLiteralTypeName(field.literalInfo);
 
   return schemaTypeToTsType(field.type);
 }
@@ -37,6 +38,8 @@ function getInputType(field: FieldMetadata): string {
   if (field.type === 'tuple' && field.tupleInfo) return `${field.tupleInfo.tupleName}Input`;
   if (field.type === 'literal' && field.literalInfo) {
     const lit = field.literalInfo;
+    // Enums are string-only — no separate Input type needed
+    if (lit.isEnum) return getLiteralTypeName(lit);
     if (literalNeedsInputType({ name: lit.literalName, variants: lit.variants })) return `${lit.literalName}Input`;
 
     return lit.literalName;

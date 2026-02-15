@@ -4,6 +4,7 @@
 
 import type { FieldMetadata, ModelMetadata, ModelRegistry } from '../../types';
 import { schemaTypeToTsType } from '../../utils/type-utils';
+import { getLiteralTypeName, getLiteralWhereName } from './enums';
 
 /** Generate comparison operators for numeric types */
 function generateNumericComparisonOps(tsType: string): string {
@@ -305,19 +306,19 @@ export function generateWhereInterface(model: ModelMetadata, registry?: ModelReg
         fields.push(`  ${field.name}?: ${tupleWhere};`);
       }
     } else if (field.type === 'literal' && field.literalInfo) {
-      // Literal fields get literal where type
-      const literalName = field.literalInfo.literalName;
-      const literalWhere = `${literalName}Where`;
+      // Literal/enum fields get literal/enum where type
+      const typeName = getLiteralTypeName(field.literalInfo);
+      const whereName = getLiteralWhereName(field.literalInfo);
       const nullPrefix = field.isNullable ? 'null | ' : '';
 
       if (field.isArray) {
         if (jsDoc) fields.push(jsDoc);
         fields.push(
-          `  ${field.name}?: { has?: ${literalName}; hasAll?: ${literalName}[]; hasAny?: ${literalName}[]; isEmpty?: boolean; };`,
+          `  ${field.name}?: { has?: ${typeName}; hasAll?: ${typeName}[]; hasAny?: ${typeName}[]; isEmpty?: boolean; };`,
         );
       } else {
         if (jsDoc) fields.push(jsDoc);
-        fields.push(`  ${field.name}?: ${nullPrefix}${literalName} | ${literalWhere};`);
+        fields.push(`  ${field.name}?: ${nullPrefix}${typeName} | ${whereName};`);
       }
     } else {
       const whereType = generateFieldWhereType(field, registry);
