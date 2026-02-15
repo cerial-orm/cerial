@@ -30,6 +30,9 @@ import type { CerialUuidInput } from 'cerial';`;
 export const CERIAL_DURATION_IMPORT = `import { CerialDuration } from 'cerial';
 import type { CerialDurationInput } from 'cerial';`;
 
+export const CERIAL_DECIMAL_IMPORT = `import { CerialDecimal } from 'cerial';
+import type { CerialDecimalInput } from 'cerial';`;
+
 /** NONE sentinel import for nullable/optional update types */
 export const NONE_IMPORT = `import type { CerialNone } from 'cerial';`;
 
@@ -242,6 +245,36 @@ export function tupleHasUuidElements(tuple: TupleMetadata): boolean {
 
 export function tupleHasDurationElements(tuple: TupleMetadata): boolean {
   return tuple.elements.some((e) => e.type === 'duration');
+}
+
+export function modelHasDecimalFields(model: ModelMetadata): boolean {
+  return model.fields.some((f) => f.type === 'decimal');
+}
+
+export function objectHasDecimalFields(
+  object: ObjectMetadata,
+  objectRegistry?: ObjectRegistry,
+  visited: Set<string> = new Set(),
+): boolean {
+  for (const field of object.fields) {
+    if (field.type === 'decimal') return true;
+    if (field.type === 'object' && field.objectInfo && objectRegistry) {
+      const nestedName = field.objectInfo.objectName;
+      if (visited.has(nestedName)) continue;
+      const nested = objectRegistry[nestedName];
+      if (nested) {
+        const nextVisited = new Set(visited);
+        nextVisited.add(nestedName);
+        if (objectHasDecimalFields(nested, objectRegistry, nextVisited)) return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+export function tupleHasDecimalElements(tuple: TupleMetadata): boolean {
+  return tuple.elements.some((e) => e.type === 'decimal');
 }
 
 /** Check if a model has any relation fields */

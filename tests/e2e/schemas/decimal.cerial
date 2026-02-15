@@ -1,0 +1,37 @@
+model DecimalBasic {
+  id Record @id
+  name String
+  price Decimal
+  discount Decimal?
+  tax Decimal @nullable
+  amounts Decimal[]
+}
+
+model DecimalDecorated {
+  id Record @id
+  name String
+  defaultPrice Decimal @default(99.99)
+  alwaysPrice Decimal @defaultAlways(0)
+}
+
+object DecimalInfo {
+  amount Decimal
+  fee Decimal?
+}
+
+tuple DecimalPair {
+  Decimal,
+  Decimal?
+}
+
+model DecimalWithObject {
+  id Record @id
+  name String
+  pricing DecimalInfo
+}
+
+model DecimalWithTuple {
+  id Record @id
+  name String
+  pair DecimalPair
+}

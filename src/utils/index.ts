@@ -77,6 +77,10 @@ export type { CerialUuidInput } from './cerial-uuid';
 export { CerialDuration, isCerialDuration } from './cerial-duration';
 export type { CerialDurationInput } from './cerial-duration';
 
+// CerialDecimal - Decimal wrapper
+export { CerialDecimal, isCerialDecimal } from './cerial-decimal';
+export type { CerialDecimalInput } from './cerial-decimal';
+
 // NONE sentinel
 export { NONE, isNone } from './none';
 export type { CerialNone } from './none';

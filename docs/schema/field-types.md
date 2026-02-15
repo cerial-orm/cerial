@@ -6,7 +6,7 @@ nav_order: 1
 
 # Field Types
 
-Cerial supports 11 built-in field types plus user-defined enum, tuple, object, and literal types. Each type maps to a specific SurrealDB type and TypeScript type.
+Cerial supports 12 built-in field types plus user-defined enum, tuple, object, and literal types. Each type maps to a specific SurrealDB type and TypeScript type.
 
 ## Type Reference
 
@@ -21,6 +21,7 @@ Cerial supports 11 built-in field types plus user-defined enum, tuple, object, a
 | `Date`     | Date/DateTime                                    | `Date`                                                    | `datetime`                                    | Yes             | Yes             |
 | `Uuid`     | UUID identifier                                  | `CerialUuid` (output) / `CerialUuidInput` (input)         | `uuid`                                        | Yes             | Yes             |
 | `Duration` | Time duration                                    | `CerialDuration` (output) / `CerialDurationInput` (input) | `duration`                                    | Yes             | Yes             |
+| `Decimal`  | Arbitrary-precision decimal                      | `CerialDecimal` (output) / `CerialDecimalInput` (input)   | `decimal`                                     | Yes             | Yes             |
 | `Record`   | Record reference                                 | `CerialId` (output) / `RecordIdInput` (input)             | `record<tablename>`                           | Yes             | Yes             |
 | `Relation` | Virtual relation                                 | N/A (not stored)                                          | Virtual                                       | As `Relation[]` | As `Relation?`  |
 | `Enum`     | Named string constants                           | `'VALUE1' \| 'VALUE2'`                                    | `'VALUE1' \| 'VALUE2'`                        | Yes             | Yes             |
@@ -169,6 +170,34 @@ console.log(task.ttl.minutes); // 150
 ```
 
 See [Duration field type](field-types/duration) for the full CerialDuration API and filtering details.
+
+## Decimal
+
+An arbitrary-precision decimal number. Use for financial calculations, precise measurements, or any value where floating-point rounding is unacceptable. Stored as SurrealDB's native `decimal` type, represented as a `CerialDecimal` in TypeScript.
+
+- **Output type**: `CerialDecimal` — an object with arithmetic methods (`.add()`, `.sub()`, `.mul()`, `.div()`), comparison (`.equals()`, `.compareTo()`), `.toNumber()`, `.toString()`, `.toNative()`, and `.clone()` methods
+- **Input type**: `CerialDecimalInput` — accepts `number`, `string`, `CerialDecimal`, or SDK `Decimal`
+
+```cerial
+model Product {
+  id Record @id
+  name String
+  price Decimal
+  discount Decimal?
+  amounts Decimal[]
+}
+```
+
+```typescript
+const product = await db.Product.create({
+  data: { name: 'Widget', price: '99999999.99' },
+});
+console.log(product.price); // CerialDecimal instance
+console.log(product.price.toString()); // '99999999.99'
+console.log(product.price.toNumber()); // 99999999.99
+```
+
+See [Decimal field type](field-types/decimal) for the full CerialDecimal API and filtering details.
 
 ## Record
 

@@ -56,6 +56,7 @@ export function getSchemaFieldType(typeStr: string): SchemaFieldType | null {
     double: 'float',
     uuid: 'uuid',
     duration: 'duration',
+    decimal: 'decimal',
   };
   return typeMap[normalized] ?? null;
 }
@@ -77,6 +78,7 @@ export function schemaTypeToTsType(type: SchemaFieldType): string {
     literal: 'unknown', // Literal type - actual union type determined by literal definition
     uuid: 'string',
     duration: 'string',
+    decimal: 'string',
   };
 
   return typeMap[type];
@@ -99,6 +101,7 @@ export function schemaTypeToSurrealType(type: SchemaFieldType): string {
     literal: 'literal', // Literal type - stored as union type
     uuid: 'uuid',
     duration: 'duration',
+    decimal: 'decimal',
   };
 
   return typeMap[type];
@@ -106,5 +109,17 @@ export function schemaTypeToSurrealType(type: SchemaFieldType): string {
 
 /** Check if a type is a primitive type */
 export function isPrimitiveType(type: SchemaFieldType): boolean {
-  return ['string', 'email', 'int', 'date', 'bool', 'float', 'number', 'record', 'uuid', 'duration'].includes(type);
+  return [
+    'string',
+    'email',
+    'int',
+    'date',
+    'bool',
+    'float',
+    'number',
+    'record',
+    'uuid',
+    'duration',
+    'decimal',
+  ].includes(type);
 }

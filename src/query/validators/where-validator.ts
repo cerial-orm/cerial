@@ -4,6 +4,7 @@
 
 import { RecordId, StringRecordId } from 'surrealdb';
 import type { ModelMetadata, WhereClause } from '../../types';
+import { CerialDecimal } from '../../utils/cerial-decimal';
 import { CerialId } from '../../utils/cerial-id';
 import { CerialDuration } from '../../utils/cerial-duration';
 import { CerialUuid } from '../../utils/cerial-uuid';
@@ -17,7 +18,8 @@ function isDirectValue(value: unknown): boolean {
     value instanceof RecordId ||
     value instanceof StringRecordId ||
     CerialUuid.is(value) ||
-    CerialDuration.is(value)
+    CerialDuration.is(value) ||
+    CerialDecimal.is(value)
   );
 }
 

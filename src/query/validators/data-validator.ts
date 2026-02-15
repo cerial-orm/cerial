@@ -2,7 +2,7 @@
  * Data validator - validates data for create/update operations
  */
 
-import { Duration, RecordId, StringRecordId } from 'surrealdb';
+import { Decimal, Duration, RecordId, StringRecordId } from 'surrealdb';
 import type { ModelMetadata, SchemaFieldType } from '../../types';
 import { CerialId } from '../../utils/cerial-id';
 import { isNone } from '../../utils/none';

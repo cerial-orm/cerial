@@ -6,6 +6,7 @@ import type { LiteralRegistry, ObjectMetadata, ObjectRegistry, TupleRegistry } f
 import { ensureDir, formatCode } from '../shared';
 import { generateObjectDerivedTypes, generateObjectInterfaces, generateObjectWhereInterface } from '../types';
 import {
+  CERIAL_DECIMAL_IMPORT,
   CERIAL_DURATION_IMPORT,
   CERIAL_ID_IMPORT,
   CERIAL_UUID_IMPORT,
@@ -17,6 +18,7 @@ import {
   getObjectReferencedLiteralNames,
   getObjectReferencedObjectNames,
   getObjectReferencedTupleNames,
+  objectHasDecimalFields,
   objectHasDurationFields,
   objectHasUuidFields,
 } from './import-helpers';
@@ -56,6 +58,8 @@ export async function writeObjectTypes(
   const cerialUuidImport = hasUuidFields ? `${CERIAL_UUID_IMPORT}\n` : '';
   const hasDurationFields = objectHasDurationFields(object, objectRegistry);
   const cerialDurationImport = hasDurationFields ? `${CERIAL_DURATION_IMPORT}\n` : '';
+  const hasDecimalFields = objectHasDecimalFields(object, objectRegistry);
+  const cerialDecimalImport = hasDecimalFields ? `${CERIAL_DECIMAL_IMPORT}\n` : '';
 
   // Generate all type content for this object
   const interfaceCode = generateObjectInterfaces([object], objectRegistry);
@@ -67,7 +71,7 @@ export async function writeObjectTypes(
  * Do not edit manually
  */
 
-${cerialIdImport}${cerialUuidImport}${cerialDurationImport}${objectImports}${tupleImports}${literalImports}${enumImports}${interfaceCode}
+${cerialIdImport}${cerialUuidImport}${cerialDurationImport}${cerialDecimalImport}${objectImports}${tupleImports}${literalImports}${enumImports}${interfaceCode}
 
 ${whereCode}
 

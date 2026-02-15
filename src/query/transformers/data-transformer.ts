@@ -2,7 +2,7 @@
  * Data transformer - transforms data for queries
  */
 
-import { Duration, RecordId, StringRecordId, Uuid } from 'surrealdb';
+import { Decimal, Duration, RecordId, StringRecordId, Uuid } from 'surrealdb';
 import type {
   LiteralFieldMetadata,
   ModelMetadata,
@@ -11,6 +11,7 @@ import type {
   TupleElementMetadata,
   TupleFieldMetadata,
 } from '../../types';
+import { CerialDecimal } from '../../utils/cerial-decimal';
 import { CerialDuration } from '../../utils/cerial-duration';
 import { CerialId, type RecordIdInput } from '../../utils/cerial-id';
 import { CerialUuid } from '../../utils/cerial-uuid';
@@ -64,6 +65,14 @@ export function transformValue(value: unknown, fieldType: SchemaFieldType): unkn
       if (value instanceof CerialDuration) return value.toNative();
       if (value instanceof Duration) return value;
       if (typeof value === 'string') return new Duration(value);
+
+      return value;
+
+    case 'decimal':
+      if (value instanceof CerialDecimal) return value.toNative();
+      if (value instanceof Decimal) return value;
+      if (typeof value === 'number') return new Decimal(value);
+      if (typeof value === 'string') return new Decimal(value);
 
       return value;
 
@@ -642,6 +651,29 @@ export function transformData(
             transformed.unset = Array.isArray(ops.unset)
               ? ops.unset.map((el) => transformValue(el, 'duration'))
               : transformValue(ops.unset, 'duration');
+          }
+          result[key] = Object.keys(transformed).length ? transformed : value;
+        } else {
+          result[key] = value;
+        }
+      } else if (field.type === 'decimal' && field.isArray) {
+        if (Array.isArray(value)) {
+          result[key] = value.map((element) => transformValue(element, 'decimal'));
+        } else if (typeof value === 'object' && value !== null) {
+          const ops = value as Record<string, unknown>;
+          const transformed: Record<string, unknown> = {};
+          if ('push' in ops && ops.push !== undefined) {
+            transformed.push = Array.isArray(ops.push)
+              ? ops.push.map((el) => transformValue(el, 'decimal'))
+              : transformValue(ops.push, 'decimal');
+          }
+          if ('set' in ops && ops.set !== undefined) {
+            transformed.set = Array.isArray(ops.set) ? ops.set.map((el) => transformValue(el, 'decimal')) : ops.set;
+          }
+          if ('unset' in ops && ops.unset !== undefined) {
+            transformed.unset = Array.isArray(ops.unset)
+              ? ops.unset.map((el) => transformValue(el, 'decimal'))
+              : transformValue(ops.unset, 'decimal');
           }
           result[key] = Object.keys(transformed).length ? transformed : value;
         } else {

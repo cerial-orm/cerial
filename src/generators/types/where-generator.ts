@@ -134,8 +134,12 @@ export function generateFieldWhereType(field: FieldMetadata, _registry?: ModelRe
 
   // Handle array types (String[], Int[], Date[], Record[], etc.)
   if (field.isArray) {
-    // For Record[] arrays, use RecordIdInput for input types
-    const inputType = field.type === 'record' ? 'RecordIdInput' : tsType;
+    let inputType: string;
+    if (field.type === 'record') inputType = 'RecordIdInput';
+    else if (field.type === 'uuid') inputType = 'CerialUuidInput';
+    else if (field.type === 'duration') inputType = 'CerialDurationInput';
+    else if (field.type === 'decimal') inputType = 'CerialDecimalInput';
+    else inputType = tsType;
 
     return `${inputType}[] | ${generateArrayFieldOps(inputType)}`;
   }
@@ -184,6 +188,15 @@ export function generateFieldWhereType(field: FieldMetadata, _registry?: ModelRe
     ${generateNumericComparisonOps('CerialDurationInput')} &
     ${generateArrayOps('CerialDurationInput')} &
     ${generateNumericSpecialOps('CerialDurationInput', isRequired, isId, isNullable)}
+  )`;
+  }
+
+  // Decimal supports comparison + array operators (orderable in SurrealDB)
+  if (field.type === 'decimal') {
+    return `${nullablePrefix}CerialDecimalInput | (
+    ${generateNumericComparisonOps('CerialDecimalInput')} &
+    ${generateArrayOps('CerialDecimalInput')} &
+    ${generateNumericSpecialOps('CerialDecimalInput', isRequired, isId, isNullable)}
   )`;
   }
 

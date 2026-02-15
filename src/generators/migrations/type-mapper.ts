@@ -29,7 +29,8 @@ export type SurrealQLType =
   | 'array'
   | 'object'
   | 'literal'
-  | 'duration';
+  | 'duration'
+  | 'decimal';
 
 /** Mapping from schema types to SurrealQL types */
 const TYPE_MAP: Record<SchemaFieldType, SurrealQLType> = {
@@ -47,6 +48,7 @@ const TYPE_MAP: Record<SchemaFieldType, SurrealQLType> = {
   literal: 'literal', // Literal type - actual type is union of variants
   uuid: 'uuid',
   duration: 'duration',
+  decimal: 'decimal',
 } as Record<SchemaFieldType, SurrealQLType>;
 
 /** Schema types that require additional assertions */

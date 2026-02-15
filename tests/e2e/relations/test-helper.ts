@@ -190,6 +190,9 @@ export const tables = {
 
   // duration.cerial (duration field type tests)
   duration: ['duration_basic', 'duration_decorated', 'duration_with_object', 'duration_with_tuple'],
+
+  // decimal.cerial (decimal field type tests)
+  decimal: ['decimal_basic', 'decimal_decorated', 'decimal_with_object', 'decimal_with_tuple'],
 };
 
 /**

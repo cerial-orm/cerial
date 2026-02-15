@@ -18,6 +18,7 @@ import { literalNeedsInputType } from '../literals';
 function getElementOutputType(element: TupleElementMetadata): string {
   if (element.type === 'uuid') return 'CerialUuid';
   if (element.type === 'duration') return 'CerialDuration';
+  if (element.type === 'decimal') return 'CerialDecimal';
   if (element.type === 'object' && element.objectInfo) return element.objectInfo.objectName;
   if (element.type === 'tuple' && element.tupleInfo) return element.tupleInfo.tupleName;
   if (element.type === 'literal' && element.literalInfo) return getLiteralTypeName(element.literalInfo);
@@ -33,6 +34,7 @@ function getElementOutputType(element: TupleElementMetadata): string {
 function getElementInputType(element: TupleElementMetadata): string {
   if (element.type === 'uuid') return 'CerialUuidInput';
   if (element.type === 'duration') return 'CerialDurationInput';
+  if (element.type === 'decimal') return 'CerialDecimalInput';
   if (element.type === 'object' && element.objectInfo) return `${element.objectInfo.objectName}Input`;
   if (element.type === 'tuple' && element.tupleInfo) return `${element.tupleInfo.tupleName}Input`;
   if (element.type === 'literal' && element.literalInfo) {

@@ -2,7 +2,7 @@
  * Condition builder - builds WHERE clause conditions
  */
 
-import { Duration, RecordId, StringRecordId, Uuid } from 'surrealdb';
+import { Decimal, Duration, RecordId, StringRecordId, Uuid } from 'surrealdb';
 import type {
   FieldMetadata,
   ModelMetadata,
@@ -11,6 +11,7 @@ import type {
   TupleFieldMetadata,
   WhereClause,
 } from '../../types';
+import { CerialDecimal } from '../../utils/cerial-decimal';
 import { CerialDuration } from '../../utils/cerial-duration';
 import { CerialId, type RecordIdInput } from '../../utils/cerial-id';
 import { CerialUuid } from '../../utils/cerial-uuid';
@@ -50,6 +51,15 @@ function transformDurationValue(value: unknown): unknown {
   if (value instanceof Duration) return value;
   if (value instanceof CerialDuration) return value.toNative();
   if (typeof value === 'string') return new Duration(value);
+
+  return value;
+}
+
+function transformDecimalValue(value: unknown): unknown {
+  if (value instanceof Decimal) return value;
+  if (value instanceof CerialDecimal) return value.toNative();
+  if (typeof value === 'number') return new Decimal(value);
+  if (typeof value === 'string') return new Decimal(value);
 
   return value;
 }
@@ -97,6 +107,15 @@ function transformFieldValue(value: unknown, fieldMetadata: FieldMetadata, model
     }
 
     return transformDurationValue(value);
+  }
+
+  // Transform Decimal field values to SDK Decimal
+  if (fieldMetadata.type === 'decimal') {
+    if (Array.isArray(value)) {
+      return value.map((v) => transformDecimalValue(v));
+    }
+
+    return transformDecimalValue(value);
   }
 
   return value;
@@ -159,6 +178,8 @@ export function isOperatorObject(value: unknown): value is Record<string, unknow
   if (CerialUuid.is(value)) return false;
   // CerialDuration instances are direct values, not operator objects
   if (CerialDuration.is(value)) return false;
+  // CerialDecimal instances are direct values, not operator objects
+  if (CerialDecimal.is(value)) return false;
   const keys = Object.keys(value);
   return keys.some((k) => isRegisteredOperator(k));
 }
