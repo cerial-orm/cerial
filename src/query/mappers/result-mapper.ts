@@ -5,6 +5,7 @@
 import type { RecordId } from 'surrealdb';
 import { Decimal, Duration, Uuid } from 'surrealdb';
 import type { ModelMetadata, ObjectFieldMetadata, SchemaFieldType, TupleFieldMetadata } from '../../types';
+import { CerialBytes } from '../../utils/cerial-bytes';
 import { CerialDecimal } from '../../utils/cerial-decimal';
 import { CerialDuration } from '../../utils/cerial-duration';
 import { CerialId } from '../../utils/cerial-id';
@@ -76,6 +77,12 @@ export function mapFieldValue(value: unknown, fieldType: SchemaFieldType): unkno
       if (value instanceof Decimal) return CerialDecimal.from(value);
       if (typeof value === 'number') return CerialDecimal.from(value);
       if (typeof value === 'string') return CerialDecimal.from(value);
+
+      return value;
+
+    case 'bytes':
+      if (value instanceof Uint8Array) return CerialBytes.from(value);
+      if (value instanceof ArrayBuffer) return CerialBytes.from(new Uint8Array(value));
 
       return value;
 

@@ -33,6 +33,9 @@ import type { CerialDurationInput } from 'cerial';`;
 export const CERIAL_DECIMAL_IMPORT = `import { CerialDecimal } from 'cerial';
 import type { CerialDecimalInput } from 'cerial';`;
 
+export const CERIAL_BYTES_IMPORT = `import { CerialBytes } from 'cerial';
+import type { CerialBytesInput } from 'cerial';`;
+
 /** NONE sentinel import for nullable/optional update types */
 export const NONE_IMPORT = `import type { CerialNone } from 'cerial';`;
 
@@ -275,6 +278,36 @@ export function objectHasDecimalFields(
 
 export function tupleHasDecimalElements(tuple: TupleMetadata): boolean {
   return tuple.elements.some((e) => e.type === 'decimal');
+}
+
+export function modelHasBytesFields(model: ModelMetadata): boolean {
+  return model.fields.some((f) => f.type === 'bytes');
+}
+
+export function objectHasBytesFields(
+  object: ObjectMetadata,
+  objectRegistry?: ObjectRegistry,
+  visited: Set<string> = new Set(),
+): boolean {
+  for (const field of object.fields) {
+    if (field.type === 'bytes') return true;
+    if (field.type === 'object' && field.objectInfo && objectRegistry) {
+      const nestedName = field.objectInfo.objectName;
+      if (visited.has(nestedName)) continue;
+      const nested = objectRegistry[nestedName];
+      if (nested) {
+        const nextVisited = new Set(visited);
+        nextVisited.add(nestedName);
+        if (objectHasBytesFields(nested, objectRegistry, nextVisited)) return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+export function tupleHasBytesElements(tuple: TupleMetadata): boolean {
+  return tuple.elements.some((e) => e.type === 'bytes');
 }
 
 /** Check if a model has any relation fields */

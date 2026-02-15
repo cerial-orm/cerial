@@ -12,6 +12,7 @@ import {
   generateTupleWhereInterface,
 } from '../types';
 import {
+  CERIAL_BYTES_IMPORT,
   CERIAL_DECIMAL_IMPORT,
   CERIAL_DURATION_IMPORT,
   CERIAL_UUID_IMPORT,
@@ -26,6 +27,7 @@ import {
   getTupleReferencedLiteralNames,
   getTupleReferencedObjectNames,
   getTupleReferencedTupleNames,
+  tupleHasBytesElements,
   tupleHasDecimalElements,
   tupleHasDurationElements,
   tupleHasUuidElements,
@@ -95,13 +97,14 @@ export async function writeTupleTypes(
   const uuidImport = tupleHasUuidElements(tuple) ? `${CERIAL_UUID_IMPORT}\n` : '';
   const durationImport = tupleHasDurationElements(tuple) ? `${CERIAL_DURATION_IMPORT}\n` : '';
   const decimalImport = tupleHasDecimalElements(tuple) ? `${CERIAL_DECIMAL_IMPORT}\n` : '';
+  const bytesImport = tupleHasBytesElements(tuple) ? `${CERIAL_BYTES_IMPORT}\n` : '';
 
   const content = `/**
  * Generated types for ${tuple.name}
  * Do not edit manually
  */
 
-${noneImport}${uuidImport}${durationImport}${decimalImport}${objectImports}${tupleImports}${literalImports}${enumImports}${interfaceCode}
+${noneImport}${uuidImport}${durationImport}${decimalImport}${bytesImport}${objectImports}${tupleImports}${literalImports}${enumImports}${interfaceCode}
 
 ${whereCode}
 

@@ -4,6 +4,7 @@
 
 import { Decimal, Duration, RecordId, StringRecordId, Uuid } from 'surrealdb';
 import type { SchemaFieldType } from '../types/common.types';
+import { CerialBytes } from './cerial-bytes';
 import { CerialDecimal } from './cerial-decimal';
 import { CerialDuration } from './cerial-duration';
 import { CerialId } from './cerial-id';
@@ -59,6 +60,8 @@ export function validateFieldType(value: unknown, type: SchemaFieldType): boolea
       return (
         CerialDecimal.is(value) || value instanceof Decimal || typeof value === 'number' || typeof value === 'string'
       );
+    case 'bytes':
+      return CerialBytes.is(value) || value instanceof Uint8Array || typeof value === 'string';
     case 'literal':
       // Literal values can be strings, numbers, booleans, arrays (tuple variant), or objects (object variant)
       // Specific variant validation is handled by the type system at compile time

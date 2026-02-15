@@ -1,0 +1,30 @@
+model BytesBasic {
+  id Record @id
+  name String
+  payload Bytes
+  metadata Bytes?
+  tag Bytes @nullable
+  chunks Bytes[]
+}
+
+object BytesInfo {
+  content Bytes
+  extra Bytes?
+}
+
+tuple BytesPair {
+  Bytes,
+  Bytes?
+}
+
+model BytesWithObject {
+  id Record @id
+  name String
+  details BytesInfo
+}
+
+model BytesWithTuple {
+  id Record @id
+  name String
+  pair BytesPair
+}

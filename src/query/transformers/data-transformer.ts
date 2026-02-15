@@ -11,6 +11,7 @@ import type {
   TupleElementMetadata,
   TupleFieldMetadata,
 } from '../../types';
+import { CerialBytes } from '../../utils/cerial-bytes';
 import { CerialDecimal } from '../../utils/cerial-decimal';
 import { CerialDuration } from '../../utils/cerial-duration';
 import { CerialId, type RecordIdInput } from '../../utils/cerial-id';
@@ -73,6 +74,13 @@ export function transformValue(value: unknown, fieldType: SchemaFieldType): unkn
       if (value instanceof Decimal) return value;
       if (typeof value === 'number') return new Decimal(value);
       if (typeof value === 'string') return new Decimal(value);
+
+      return value;
+
+    case 'bytes':
+      if (value instanceof CerialBytes) return value.toNative();
+      if (value instanceof Uint8Array) return value;
+      if (typeof value === 'string') return CerialBytes.fromBase64(value).toNative();
 
       return value;
 
@@ -651,6 +659,29 @@ export function transformData(
             transformed.unset = Array.isArray(ops.unset)
               ? ops.unset.map((el) => transformValue(el, 'duration'))
               : transformValue(ops.unset, 'duration');
+          }
+          result[key] = Object.keys(transformed).length ? transformed : value;
+        } else {
+          result[key] = value;
+        }
+      } else if (field.type === 'bytes' && field.isArray) {
+        if (Array.isArray(value)) {
+          result[key] = value.map((element) => transformValue(element, 'bytes'));
+        } else if (typeof value === 'object' && value !== null) {
+          const ops = value as Record<string, unknown>;
+          const transformed: Record<string, unknown> = {};
+          if ('push' in ops && ops.push !== undefined) {
+            transformed.push = Array.isArray(ops.push)
+              ? ops.push.map((el) => transformValue(el, 'bytes'))
+              : transformValue(ops.push, 'bytes');
+          }
+          if ('set' in ops && ops.set !== undefined) {
+            transformed.set = Array.isArray(ops.set) ? ops.set.map((el) => transformValue(el, 'bytes')) : ops.set;
+          }
+          if ('unset' in ops && ops.unset !== undefined) {
+            transformed.unset = Array.isArray(ops.unset)
+              ? ops.unset.map((el) => transformValue(el, 'bytes'))
+              : transformValue(ops.unset, 'bytes');
           }
           result[key] = Object.keys(transformed).length ? transformed : value;
         } else {

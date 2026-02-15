@@ -29,6 +29,7 @@ function getInputType(field: FieldMetadata): string {
   if (field.type === 'uuid') return 'CerialUuidInput';
   if (field.type === 'duration') return 'CerialDurationInput';
   if (field.type === 'decimal') return 'CerialDecimalInput';
+  if (field.type === 'bytes') return 'CerialBytesInput';
   if (field.type === 'literal' && field.literalInfo) {
     const lit = field.literalInfo;
     if (lit.isEnum) return getLiteralTypeName(lit);
@@ -288,6 +289,7 @@ function getArrayElementType(schemaType: string, field?: FieldMetadata): string 
     uuid: 'CerialUuidInput',
     duration: 'CerialDurationInput',
     decimal: 'CerialDecimalInput',
+    bytes: 'CerialBytesInput',
   };
 
   return typeMap[schemaType] ?? 'unknown';

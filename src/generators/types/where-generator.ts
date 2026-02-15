@@ -139,6 +139,7 @@ export function generateFieldWhereType(field: FieldMetadata, _registry?: ModelRe
     else if (field.type === 'uuid') inputType = 'CerialUuidInput';
     else if (field.type === 'duration') inputType = 'CerialDurationInput';
     else if (field.type === 'decimal') inputType = 'CerialDecimalInput';
+    else if (field.type === 'bytes') inputType = 'CerialBytesInput';
     else inputType = tsType;
 
     return `${inputType}[] | ${generateArrayFieldOps(inputType)}`;
@@ -197,6 +198,15 @@ export function generateFieldWhereType(field: FieldMetadata, _registry?: ModelRe
     ${generateNumericComparisonOps('CerialDecimalInput')} &
     ${generateArrayOps('CerialDecimalInput')} &
     ${generateNumericSpecialOps('CerialDecimalInput', isRequired, isId, isNullable)}
+  )`;
+  }
+
+  // Bytes: equality only (no gt/lt/gte/lte/between — binary data has no meaningful ordering)
+  if (field.type === 'bytes') {
+    return `${nullablePrefix}CerialBytesInput | (
+    ${generateStringComparisonOps('CerialBytesInput')} &
+    ${generateArrayOps('CerialBytesInput')} &
+    ${generateStringSpecialOps(isRequired, isId, isNullable)}
   )`;
   }
 

@@ -23,6 +23,7 @@ function getOutputType(field: FieldMetadata): string {
   if (field.type === 'uuid') return 'CerialUuid';
   if (field.type === 'duration') return 'CerialDuration';
   if (field.type === 'decimal') return 'CerialDecimal';
+  if (field.type === 'bytes') return 'CerialBytes';
   if (field.type === 'object' && field.objectInfo) return field.objectInfo.objectName;
   if (field.type === 'tuple' && field.tupleInfo) return field.tupleInfo.tupleName;
   if (field.type === 'literal' && field.literalInfo) return getLiteralTypeName(field.literalInfo);
@@ -40,6 +41,7 @@ function getInputType(field: FieldMetadata): string {
   if (field.type === 'uuid') return 'CerialUuidInput';
   if (field.type === 'duration') return 'CerialDurationInput';
   if (field.type === 'decimal') return 'CerialDecimalInput';
+  if (field.type === 'bytes') return 'CerialBytesInput';
   if (field.type === 'object' && field.objectInfo) return `${field.objectInfo.objectName}Input`;
   if (field.type === 'tuple' && field.tupleInfo) return `${field.tupleInfo.tupleName}Input`;
   if (field.type === 'literal' && field.literalInfo) {

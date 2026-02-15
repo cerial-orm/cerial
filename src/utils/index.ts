@@ -81,6 +81,10 @@ export type { CerialDurationInput } from './cerial-duration';
 export { CerialDecimal, isCerialDecimal } from './cerial-decimal';
 export type { CerialDecimalInput } from './cerial-decimal';
 
+// CerialBytes - Bytes wrapper
+export { CerialBytes, isCerialBytes } from './cerial-bytes';
+export type { CerialBytesInput } from './cerial-bytes';
+
 // NONE sentinel
 export { NONE, isNone } from './none';
 export type { CerialNone } from './none';

@@ -11,6 +11,7 @@ import type {
   TupleFieldMetadata,
   WhereClause,
 } from '../../types';
+import { CerialBytes } from '../../utils/cerial-bytes';
 import { CerialDecimal } from '../../utils/cerial-decimal';
 import { CerialDuration } from '../../utils/cerial-duration';
 import { CerialId, type RecordIdInput } from '../../utils/cerial-id';
@@ -60,6 +61,14 @@ function transformDecimalValue(value: unknown): unknown {
   if (value instanceof CerialDecimal) return value.toNative();
   if (typeof value === 'number') return new Decimal(value);
   if (typeof value === 'string') return new Decimal(value);
+
+  return value;
+}
+
+function transformBytesValue(value: unknown): unknown {
+  if (value instanceof Uint8Array) return value;
+  if (value instanceof CerialBytes) return value.toNative();
+  if (typeof value === 'string') return CerialBytes.fromBase64(value).toNative();
 
   return value;
 }
@@ -116,6 +125,15 @@ function transformFieldValue(value: unknown, fieldMetadata: FieldMetadata, model
     }
 
     return transformDecimalValue(value);
+  }
+
+  // Transform Bytes field values to Uint8Array
+  if (fieldMetadata.type === 'bytes') {
+    if (Array.isArray(value)) {
+      return value.map((v) => transformBytesValue(v));
+    }
+
+    return transformBytesValue(value);
   }
 
   return value;
@@ -180,6 +198,10 @@ export function isOperatorObject(value: unknown): value is Record<string, unknow
   if (CerialDuration.is(value)) return false;
   // CerialDecimal instances are direct values, not operator objects
   if (CerialDecimal.is(value)) return false;
+  // CerialBytes instances are direct values, not operator objects
+  if (CerialBytes.is(value)) return false;
+  // Uint8Array (bytes input) is a direct value, not an operator object
+  if (value instanceof Uint8Array) return false;
   const keys = Object.keys(value);
   return keys.some((k) => isRegisteredOperator(k));
 }

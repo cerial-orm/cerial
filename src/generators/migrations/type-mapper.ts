@@ -30,7 +30,8 @@ export type SurrealQLType =
   | 'object'
   | 'literal'
   | 'duration'
-  | 'decimal';
+  | 'decimal'
+  | 'bytes';
 
 /** Mapping from schema types to SurrealQL types */
 const TYPE_MAP: Record<SchemaFieldType, SurrealQLType> = {
@@ -49,6 +50,7 @@ const TYPE_MAP: Record<SchemaFieldType, SurrealQLType> = {
   uuid: 'uuid',
   duration: 'duration',
   decimal: 'decimal',
+  bytes: 'bytes',
 } as Record<SchemaFieldType, SurrealQLType>;
 
 /** Schema types that require additional assertions */

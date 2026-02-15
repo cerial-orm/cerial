@@ -57,6 +57,7 @@ export function getSchemaFieldType(typeStr: string): SchemaFieldType | null {
     uuid: 'uuid',
     duration: 'duration',
     decimal: 'decimal',
+    bytes: 'bytes',
   };
   return typeMap[normalized] ?? null;
 }
@@ -79,6 +80,7 @@ export function schemaTypeToTsType(type: SchemaFieldType): string {
     uuid: 'string',
     duration: 'string',
     decimal: 'string',
+    bytes: 'string',
   };
 
   return typeMap[type];
@@ -102,6 +104,7 @@ export function schemaTypeToSurrealType(type: SchemaFieldType): string {
     uuid: 'uuid',
     duration: 'duration',
     decimal: 'decimal',
+    bytes: 'bytes',
   };
 
   return typeMap[type];
@@ -121,5 +124,6 @@ export function isPrimitiveType(type: SchemaFieldType): boolean {
     'uuid',
     'duration',
     'decimal',
+    'bytes',
   ].includes(type);
 }

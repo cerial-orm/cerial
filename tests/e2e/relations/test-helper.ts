@@ -193,6 +193,9 @@ export const tables = {
 
   // decimal.cerial (decimal field type tests)
   decimal: ['decimal_basic', 'decimal_decorated', 'decimal_with_object', 'decimal_with_tuple'],
+
+  // bytes.cerial (bytes field type tests)
+  bytes: ['bytes_basic', 'bytes_with_object', 'bytes_with_tuple'],
 };
 
 /**

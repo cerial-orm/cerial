@@ -6,7 +6,7 @@ nav_order: 1
 
 # Field Types
 
-Cerial supports 12 built-in field types plus user-defined enum, tuple, object, and literal types. Each type maps to a specific SurrealDB type and TypeScript type.
+Cerial supports 13 built-in field types plus user-defined enum, tuple, object, and literal types. Each type maps to a specific SurrealDB type and TypeScript type.
 
 ## Type Reference
 
@@ -22,6 +22,7 @@ Cerial supports 12 built-in field types plus user-defined enum, tuple, object, a
 | `Uuid`     | UUID identifier                                  | `CerialUuid` (output) / `CerialUuidInput` (input)         | `uuid`                                        | Yes             | Yes             |
 | `Duration` | Time duration                                    | `CerialDuration` (output) / `CerialDurationInput` (input) | `duration`                                    | Yes             | Yes             |
 | `Decimal`  | Arbitrary-precision decimal                      | `CerialDecimal` (output) / `CerialDecimalInput` (input)   | `decimal`                                     | Yes             | Yes             |
+| `Bytes`    | Binary data                                      | `CerialBytes` (output) / `CerialBytesInput` (input)       | `bytes`                                       | Yes             | Yes             |
 | `Record`   | Record reference                                 | `CerialId` (output) / `RecordIdInput` (input)             | `record<tablename>`                           | Yes             | Yes             |
 | `Relation` | Virtual relation                                 | N/A (not stored)                                          | Virtual                                       | As `Relation[]` | As `Relation?`  |
 | `Enum`     | Named string constants                           | `'VALUE1' \| 'VALUE2'`                                    | `'VALUE1' \| 'VALUE2'`                        | Yes             | Yes             |
@@ -198,6 +199,33 @@ console.log(product.price.toNumber()); // 99999999.99
 ```
 
 See [Decimal field type](field-types/decimal) for the full CerialDecimal API and filtering details.
+
+## Bytes
+
+Binary data stored as SurrealDB's native `bytes` type, represented as a `CerialBytes` in TypeScript.
+
+- **Output type**: `CerialBytes` — an object with `.toUint8Array()`, `.toBuffer()`, `.toBase64()`, `.toString()`, `.toNative()`, `.equals()`, and `.clone()` methods
+- **Input type**: `CerialBytesInput` — accepts `Uint8Array`, base64 `string`, or `CerialBytes`
+
+```cerial
+model Document {
+  id Record @id
+  payload Bytes
+  thumbnail Bytes?
+  chunks Bytes[]
+}
+```
+
+```typescript
+const doc = await db.Document.create({
+  data: { payload: new Uint8Array([0x48, 0x65, 0x6c, 0x6c, 0x6f]) },
+});
+console.log(doc.payload); // CerialBytes instance
+console.log(doc.payload.toBase64()); // 'SGVsbG8='
+console.log(doc.payload.length); // 5
+```
+
+See [Bytes field type](field-types/bytes) for the full CerialBytes API and filtering details.
 
 ## Record
 

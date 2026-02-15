@@ -18,7 +18,8 @@ export type SchemaFieldType =
   | 'literal'
   | 'uuid'
   | 'duration'
-  | 'decimal';
+  | 'decimal'
+  | 'bytes';
 
 /** Supported decorator types in schema definitions */
 export type SchemaDecorator =
@@ -66,6 +67,7 @@ export type FieldTypeMapping = {
   uuid: string; // UUID type - represented as string in TS output mapping
   duration: string; // Duration type - represented as string in TS output mapping
   decimal: string; // Decimal type - represented as string in TS output mapping
+  bytes: string; // Bytes type - represented as string in TS output mapping
 };
 
 /** Field type to SurrealDB type mapping */
@@ -85,6 +87,7 @@ export type SurrealTypeMapping = {
   uuid: 'uuid'; // UUID type
   duration: 'duration'; // Duration type
   decimal: 'decimal'; // Decimal type
+  bytes: 'bytes'; // Bytes type
 };
 
 /** Generic result type for operations */
