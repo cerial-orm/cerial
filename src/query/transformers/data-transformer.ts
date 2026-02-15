@@ -38,6 +38,11 @@ export function transformValue(value: unknown, fieldType: SchemaFieldType): unkn
       if (typeof value === 'string') return parseFloat(value);
       return value;
 
+    case 'number':
+      if (typeof value === 'number') return value;
+      if (typeof value === 'string') return parseFloat(value);
+      return value;
+
     case 'bool':
       if (typeof value === 'boolean') return value;
       if (typeof value === 'string') return value.toLowerCase() === 'true';

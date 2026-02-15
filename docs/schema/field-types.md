@@ -6,7 +6,7 @@ nav_order: 1
 
 # Field Types
 
-Cerial supports 9 built-in field types plus user-defined enum, tuple, object, and literal types. Each type maps to a specific SurrealDB type and TypeScript type.
+Cerial supports 10 built-in field types plus user-defined enum, tuple, object, and literal types. Each type maps to a specific SurrealDB type and TypeScript type.
 
 ## Type Reference
 
@@ -16,6 +16,7 @@ Cerial supports 9 built-in field types plus user-defined enum, tuple, object, an
 | `Email`    | Email address (validated)                        | `string`                                          | `string` (with `string::is::email` assertion) | No              | Yes             |
 | `Int`      | Integer number                                   | `number`                                          | `int`                                         | Yes             | Yes             |
 | `Float`    | Floating point number                            | `number`                                          | `float`                                       | Yes             | Yes             |
+| `Number`   | Auto-detect numeric (int or float)               | `number`                                          | `number`                                      | Yes             | Yes             |
 | `Bool`     | Boolean value                                    | `boolean`                                         | `bool`                                        | Yes             | Yes             |
 | `Date`     | Date/DateTime                                    | `Date`                                            | `datetime`                                    | Yes             | Yes             |
 | `Uuid`     | UUID identifier                                  | `CerialUuid` (output) / `CerialUuidInput` (input) | `uuid`                                        | Yes             | Yes             |
@@ -71,6 +72,20 @@ model GeoLocation {
   lng Float
 }
 ```
+
+## Number
+
+Auto-detect numeric type (integer or decimal). Use when you want to accept both integers and decimals without explicit type conversion. SurrealDB decides the internal representation based on the value.
+
+```cerial
+model Product {
+  id Record @id
+  price Number
+  rating Number?
+}
+```
+
+See [Number field type](field-types/number) for detailed comparison with Int and Float.
 
 ## Bool
 

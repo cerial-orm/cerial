@@ -47,6 +47,10 @@ export function mapFieldValue(value: unknown, fieldType: SchemaFieldType): unkno
       if (typeof value === 'number') return value;
       return null;
 
+    case 'number':
+      if (typeof value === 'number') return value;
+      return null;
+
     case 'bool':
       return Boolean(value);
 

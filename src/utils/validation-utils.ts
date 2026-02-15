@@ -34,6 +34,8 @@ export function validateFieldType(value: unknown, type: SchemaFieldType): boolea
       return isNumber(value) && Number.isInteger(value);
     case 'float':
       return isNumber(value);
+    case 'number':
+      return isNumber(value);
     case 'bool':
       return isBoolean(value);
     case 'date':

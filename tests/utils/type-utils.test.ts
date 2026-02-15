@@ -73,7 +73,7 @@ describe('type-utils', () => {
       expect(getSchemaFieldType('bool')).toBe('bool');
       expect(getSchemaFieldType('boolean')).toBe('bool');
       expect(getSchemaFieldType('float')).toBe('float');
-      expect(getSchemaFieldType('number')).toBe('float');
+      expect(getSchemaFieldType('number')).toBe('number');
       expect(getSchemaFieldType('invalid')).toBe(null);
     });
 

@@ -1,0 +1,45 @@
+# Number field type test schema
+# Tests Number fields: required, optional, nullable, array, decorators (@default, @defaultAlways)
+# Also tests Number in objects and tuples
+
+object NumberInfo {
+  views Number
+  downloads Number?
+  rating Number @default(0)
+}
+
+tuple NumberCoord {
+  Number,
+  Number,
+  Number?
+}
+
+model NumberBasic {
+  id Record @id
+  name String
+  price Number
+  rating Number?
+  weight Number @nullable
+  scores Number[]
+}
+
+model NumberDecorated {
+  id Record @id
+  name String
+  score Number @default(0)
+  multiplier Number @defaultAlways(1)
+}
+
+model NumberWithObject {
+  id Record @id
+  name String
+  stats NumberInfo
+  optStats NumberInfo?
+}
+
+model NumberWithTuple {
+  id Record @id
+  name String
+  coord NumberCoord
+  optCoord NumberCoord?
+}

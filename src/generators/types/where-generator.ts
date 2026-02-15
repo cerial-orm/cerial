@@ -151,7 +151,7 @@ export function generateFieldWhereType(field: FieldMetadata, _registry?: ModelRe
   }
 
   // For numeric types, include all comparison operators and between
-  if (field.type === 'int' || field.type === 'float') {
+  if (field.type === 'int' || field.type === 'float' || field.type === 'number') {
     return `${nullablePrefix}${tsType} | (
     ${generateNumericComparisonOps(tsType)} &
     ${generateArrayOps(tsType)} &

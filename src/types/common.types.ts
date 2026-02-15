@@ -10,6 +10,7 @@ export type SchemaFieldType =
   | 'date'
   | 'bool'
   | 'float'
+  | 'number'
   | 'record'
   | 'relation'
   | 'object'
@@ -54,6 +55,7 @@ export type FieldTypeMapping = {
   date: Date;
   bool: boolean;
   float: number;
+  number: number;
   record: string;
   relation: unknown; // Virtual type - actual type determined by target model
   object: unknown; // Embedded object type - actual type determined by object definition
@@ -70,6 +72,7 @@ export type SurrealTypeMapping = {
   date: 'datetime';
   bool: 'bool';
   float: 'float';
+  number: 'number';
   record: 'record';
   relation: never; // Virtual type - not stored in database
   object: 'object'; // Embedded object type

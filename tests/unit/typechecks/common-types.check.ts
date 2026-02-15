@@ -128,6 +128,7 @@ type ExpectedFieldTypes =
   | 'email'
   | 'int'
   | 'float'
+  | 'number'
   | 'bool'
   | 'date'
   | 'record'

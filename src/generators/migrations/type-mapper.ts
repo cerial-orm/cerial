@@ -21,6 +21,7 @@ export type SurrealQLType =
   | 'string'
   | 'int'
   | 'float'
+  | 'number'
   | 'bool'
   | 'datetime'
   | 'uuid'
@@ -35,6 +36,7 @@ const TYPE_MAP: Record<SchemaFieldType, SurrealQLType> = {
   email: 'string',
   int: 'int',
   float: 'float',
+  number: 'number',
   bool: 'bool',
   date: 'datetime',
   record: 'record',

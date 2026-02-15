@@ -52,7 +52,7 @@ export function getSchemaFieldType(typeStr: string): SchemaFieldType | null {
     bool: 'bool',
     boolean: 'bool',
     float: 'float',
-    number: 'float',
+    number: 'number',
     double: 'float',
     uuid: 'uuid',
   };
@@ -68,6 +68,7 @@ export function schemaTypeToTsType(type: SchemaFieldType): string {
     date: 'Date',
     bool: 'boolean',
     float: 'number',
+    number: 'number',
     record: 'string',
     relation: 'unknown', // Virtual type - actual type determined by include
     object: 'unknown', // Embedded object type - actual type determined by object definition
@@ -88,6 +89,7 @@ export function schemaTypeToSurrealType(type: SchemaFieldType): string {
     date: 'datetime',
     bool: 'bool',
     float: 'float',
+    number: 'number',
     record: 'record',
     relation: '', // Virtual type - not stored in database
     object: 'object', // Embedded object type
@@ -101,5 +103,5 @@ export function schemaTypeToSurrealType(type: SchemaFieldType): string {
 
 /** Check if a type is a primitive type */
 export function isPrimitiveType(type: SchemaFieldType): boolean {
-  return ['string', 'email', 'int', 'date', 'bool', 'float', 'record', 'uuid'].includes(type);
+  return ['string', 'email', 'int', 'date', 'bool', 'float', 'number', 'record', 'uuid'].includes(type);
 }

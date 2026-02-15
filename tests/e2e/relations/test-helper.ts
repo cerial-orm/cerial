@@ -184,6 +184,9 @@ export const tables = {
 
   // uuid.cerial (uuid field type tests)
   uuid: ['uuid_basic', 'uuid_decorated', 'uuid_with_object', 'uuid_with_tuple'],
+
+  // number.cerial (number field type tests)
+  number: ['number_basic', 'number_decorated', 'number_with_object', 'number_with_tuple'],
 };
 
 /**
