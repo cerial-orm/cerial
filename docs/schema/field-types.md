@@ -25,7 +25,7 @@ Cerial supports 15 built-in field types plus user-defined enum, tuple, object, a
 | `Bytes`    | Binary data                                      | `CerialBytes` (output) / `CerialBytesInput` (input)       | `bytes`                                       | Yes             | Yes             |
 | `Geometry` | Geospatial data                                  | `CerialGeometry` (output) / `CerialGeometryInput` (input) | `geometry<subtype>`                           | Yes             | Yes             |
 | `Any`      | Pass-through (any SurrealDB value)               | `CerialAny`                                               | `any`                                         | Yes             | No              |
-| `Record`   | Record reference                                 | `CerialId` (output) / `RecordIdInput` (input)             | `record<tablename>`                           | Yes             | Yes             |
+| `Record`   | Record reference (supports typed IDs)            | `CerialId<T>` (output) / `RecordIdInput<T>` (input)       | `record<tablename>`                           | Yes             | Yes             |
 | `Relation` | Virtual relation                                 | N/A (not stored)                                          | Virtual                                       | As `Relation[]` | As `Relation?`  |
 | `Enum`     | Named string constants                           | `'VALUE1' \| 'VALUE2'`                                    | `'VALUE1' \| 'VALUE2'`                        | Yes             | Yes             |
 | `Literal`  | Union type (specific values or structured types) | `'value' \| number \| Object \| Tuple`                    | `'value' \| int \| { ... } \| [...]`          | Yes             | Yes             |
@@ -300,8 +300,8 @@ See [Any field type](field-types/any) for the full CerialAny definition and filt
 
 A SurrealDB record reference. Record fields store foreign keys in the `table:id` format. They are the storage mechanism for relations.
 
-- **Output type**: `CerialId` — an object with `.table`, `.id`, `.toString()`, `.toRecordId()`, and `.equals()` methods
-- **Input type**: `RecordIdInput` — accepts `string`, `CerialId`, `RecordId`, or `StringRecordId`
+- **Output type**: `CerialId<T>` — an object with `.table`, `.id` (typed as `T`), `.toString()`, `.toRecordId()`, and `.equals()` methods
+- **Input type**: `RecordIdInput<T>` — accepts `T`, `CerialId<T>`, `RecordId`, or `StringRecordId`
 
 ```cerial
 model Post {
@@ -318,13 +318,49 @@ const post = await db.Post.create({
 });
 
 // Output: CerialId object
-console.log(post.authorId); // CerialId { table: 'user', id: 'user-abc' }
+console.log(post.authorId); // CerialId<string>
 console.log(post.authorId.id); // 'user-abc'
 console.log(post.authorId.table); // 'user'
 console.log(post.authorId.toString()); // 'user:user-abc'
 ```
 
 The `id Record @id` field is a special case — it serves as the model's primary key and has special handling (see [@id decorator](decorators/id)).
+
+### Typed Record IDs
+
+Record fields support typed IDs using `Record(Type)` syntax. This controls the ID's value type and affects whether the ID is required or optional when creating records.
+
+```cerial
+model Product {
+  id Record(int) @id        // integer IDs, required on create
+  name String
+}
+
+model Session {
+  id Record(uuid) @id       // UUID IDs, auto-generated if omitted
+  token String
+}
+
+model FlexModel {
+  id Record(string, int) @id  // string or integer IDs
+  label String
+}
+```
+
+When a model has a typed ID, FK fields pointing to it get typed automatically:
+
+```typescript
+// Product has Record(int) @id
+const product = await db.Product.create({ data: { id: 1, name: 'Widget' } });
+product.id; // CerialId<number>
+product.id.id; // 1 (number)
+
+// Order.productId infers CerialId<number> from Product's @id type
+const order = await db.Order.findOne({ where: { id: 'ord1' } });
+order.productId.id; // number
+```
+
+See [Typed IDs](typed-ids) for full syntax, union types, optionality rules, and FK type inference.
 
 ## Relation
 

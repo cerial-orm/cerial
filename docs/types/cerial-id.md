@@ -8,56 +8,79 @@ nav_order: 1
 
 SurrealDB uses a `table:id` format for record IDs (e.g., `user:abc123`). Rather than exposing raw strings, Cerial wraps all record IDs in `CerialId` objects on output and accepts a flexible `RecordIdInput` union on input.
 
+Both types are generic. `CerialId<T>` preserves the ID's value type, so `.id` returns `T` instead of always returning `string`. When a model uses typed IDs (e.g., `Record(int) @id`), the generated types carry that type through automatically.
+
 ## CerialId Properties and Methods
 
-| Property/Method  | Type       | Description                                       |
-| ---------------- | ---------- | ------------------------------------------------- |
-| `.id`            | `string`   | The raw ID portion (e.g., `'abc123'`)             |
-| `.table`         | `string`   | The table name (e.g., `'user'`)                   |
-| `.toString()`    | `string`   | Full record ID string (e.g., `'user:abc123'`)     |
-| `.toRecordId()`  | `RecordId` | Convert to a native SurrealDB `RecordId` instance |
-| `.equals(other)` | `boolean`  | Compare with another `CerialId` by value          |
+| Property/Method  | Type       | Description                                                  |
+| ---------------- | ---------- | ------------------------------------------------------------ |
+| `.id`            | `T`        | The raw ID value (type depends on the record's ID type)      |
+| `.table`         | `string`   | The table name (e.g., `'user'`)                              |
+| `.toString()`    | `string`   | Full record ID string, properly escaped (e.g., `'user:123'`) |
+| `.toRecordId()`  | `RecordId` | Convert to a native SurrealDB `RecordId` instance            |
+| `.equals(other)` | `boolean`  | Deep comparison with any value                               |
+
+The default type parameter is `RecordIdValue`, which covers all possible SurrealDB ID types: `string`, `number`, `object`, and more. When a model declares a specific ID type, `T` narrows accordingly.
 
 ## Output Types Return CerialId
 
 Every query that returns data produces `CerialId` objects for ID fields and record reference fields:
 
 ```typescript
+// String IDs (default Record @id)
 const user = await db.User.findOne({ where: { id: '123' } });
-
-console.log(user.id); // CerialId { table: 'user', id: '123' }
-console.log(user.id.id); // '123'
+console.log(user.id); // CerialId<string>
+console.log(user.id.id); // '123' (string)
 console.log(user.id.table); // 'user'
 console.log(user.id.toString()); // 'user:123'
-console.log(user.id.toRecordId()); // RecordId('user', '123')
+
+// Integer IDs (Record(int) @id)
+const product = await db.Product.findOne({ where: { id: 42 } });
+console.log(product.id); // CerialId<number>
+console.log(product.id.id); // 42 (number)
+console.log(product.id.toString()); // 'product:42'
 ```
 
-Record reference fields (defined as `Record` in your schema) also return `CerialId`:
+Record reference fields (defined as `Record` in your schema) also return `CerialId`. When the referenced model has a typed ID, the FK field carries that type:
 
 ```typescript
-const post = await db.Post.findOne({ where: { id: 'post1' } });
-
-console.log(post.authorId); // CerialId { table: 'user', id: 'abc123' }
-console.log(post.authorId.table); // 'user'
-console.log(post.authorId.id); // 'abc123'
+// If Product has Record(int) @id, then Order.productId is CerialId<number>
+const order = await db.Order.findOne({ where: { id: 'order1' } });
+console.log(order.productId); // CerialId<number>
+console.log(order.productId.id); // 42 (number)
+console.log(order.productId.table); // 'product'
 ```
 
 ## RecordIdInput — The Input Union Type
 
-Input types accept any of the following via the `RecordIdInput` union:
+Input types accept any of the following via the `RecordIdInput<T>` union:
 
 ```typescript
-type RecordIdInput = string | CerialId | RecordId | StringRecordId;
+type RecordIdInput<T extends RecordIdValue = RecordIdValue> = T | CerialId<T> | RecordId | StringRecordId;
+```
+
+When a model has a typed ID, `T` narrows the accepted values:
+
+```typescript
+// Record(int) @id model: T = number
+type ProductIdInput = number | CerialId<number> | RecordId | StringRecordId;
+
+// Record(string, int) @id model: T = string | number
+type FlexIdInput = string | number | CerialId<string | number> | RecordId | StringRecordId;
 ```
 
 This gives you flexibility in how you pass IDs to queries:
 
-### Plain String
+### Plain Value
 
-Pass just the ID portion as a string. Cerial resolves the table name from the schema.
+Pass the ID value directly. Cerial resolves the table name from the schema.
 
 ```typescript
+// String IDs
 await db.User.findOne({ where: { id: '123' } });
+
+// Integer IDs
+await db.Product.findOne({ where: { id: 42 } });
 ```
 
 ### CerialId from a Previous Query
@@ -101,21 +124,61 @@ await db.User.findOne({
 Always use the `.equals()` method to compare `CerialId` values. Do **not** use `==` or `===`.
 
 ```typescript
-// Correct — compares by value
+// Correct: compares by value (deep comparison)
 user1.id.equals(user2.id); // true or false
 
-// Wrong — compares object references, not values
+// Wrong: compares object references, not values
 user1.id === user2.id; // false (different object instances!)
 user1.id == user2.id; // false (same problem)
 ```
 
-The `.equals()` method compares both the `table` and `id` properties, so two `CerialId` instances pointing to the same record will always be equal:
+The `.equals()` method accepts `unknown` and performs a deep comparison of both the `table` and `id` properties. Two `CerialId` instances pointing to the same record will always be equal, regardless of how they were created:
 
 ```typescript
 const a = await db.User.findOne({ where: { id: '123' } });
 const b = await db.User.findOne({ where: { id: '123' } });
 
-a.id.equals(b.id); // true — same table and id
+a.id.equals(b.id); // true
+```
+
+You can also compare against non-CerialId values. The method returns `false` for anything that isn't a matching `CerialId`:
+
+```typescript
+user.id.equals('not a cerial id'); // false
+user.id.equals(null); // false
+user.id.equals(42); // false
+```
+
+## CerialId with Different ID Types
+
+`CerialId<T>` preserves the ID's type through the generic parameter:
+
+```typescript
+// CerialId<string> — default, from Record @id
+const userId: CerialId<string> = user.id;
+userId.id; // string
+
+// CerialId<number> — from Record(int) @id
+const productId: CerialId<number> = product.id;
+productId.id; // number
+
+// CerialId<string | number> — from Record(string, int) @id
+const flexId: CerialId<string | number> = flexModel.id;
+flexId.id; // string | number
+```
+
+### Converting from RecordId
+
+`CerialId.fromRecordId()` preserves the typed ID value from a native SurrealDB `RecordId`:
+
+```typescript
+import { RecordId } from 'surrealdb';
+
+const nativeId = new RecordId('product', 42);
+const cerialId = CerialId.fromRecordId(nativeId);
+
+cerialId.id; // 42 (number preserved, not stringified)
+cerialId.table; // 'product'
 ```
 
 ## Transformation Flow
@@ -124,31 +187,23 @@ Cerial handles the conversion between `RecordIdInput` and `CerialId` automatical
 
 ### Sending to SurrealDB (Input)
 
-When you pass a `RecordIdInput` value in a query, Cerial calls `transformOrValidateRecordId(tableName, value)` to convert it into a native `RecordId(table, id)` that SurrealDB understands.
+When you pass a `RecordIdInput` value in a query, Cerial converts it into a native `RecordId(table, id)` that SurrealDB understands.
 
 ```
-RecordIdInput → transformOrValidateRecordId() → RecordId(table, id) → SurrealDB
+RecordIdInput<T> → transform → RecordId(table, id) → SurrealDB
 ```
 
-- **`string`** — wrapped as `RecordId(tableName, value)`
+- **Raw value (`T`)** — wrapped as `RecordId(tableName, value)`
 - **`CerialId`** — extracted via `.toRecordId()`
 - **`RecordId`** — passed through directly
 - **`StringRecordId`** — parsed and converted
 
 ### Receiving from SurrealDB (Output)
 
-When SurrealDB returns query results, Cerial calls `transformRecordIdToValue(recordId)` to convert native `RecordId` instances into `CerialId` objects.
+When SurrealDB returns query results, Cerial converts native `RecordId` instances into `CerialId<T>` objects, preserving the typed ID value.
 
 ```
-SurrealDB → RecordId → transformRecordIdToValue() → CerialId → Your Code
+SurrealDB → RecordId → transform → CerialId<T> → Your Code
 ```
 
 This transformation is applied recursively to all fields in the result, so nested record references (e.g., inside included relations) are also converted.
-
-## Key Source Files
-
-| File                                         | Purpose                                              |
-| -------------------------------------------- | ---------------------------------------------------- |
-| `src/utils/cerial-id.ts`                     | `CerialId` class definition and `RecordIdInput` type |
-| `src/query/mappers/result-mapper.ts`         | Converts `RecordId` → `CerialId` on query output     |
-| `src/query/transformers/data-transformer.ts` | Converts `RecordIdInput` → `RecordId` on query input |

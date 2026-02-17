@@ -341,8 +341,11 @@ Do NOT use SurrealDB reserved keywords as field names, model names, or object na
 
 - **Record** = SurrealDB record reference (`table:id` format), stored as `record<tablename>`
 - **Relation** = Virtual field, not stored in DB. Forward has `@field()`, reverse doesn't
-- **CerialId** = Wrapper for record IDs with `.table`, `.id`, `.equals()`, `.toString()`
-- **RecordIdInput** = `string | CerialId | RecordId | StringRecordId` (accepted as input)
+- **CerialId\<T\>** = Generic wrapper for record IDs. `.id` returns `T` (e.g., `number` for `Record(int) @id`). `.table` returns `string`. `.equals()` takes `unknown` and does deep comparison. `.toString()` returns properly escaped `table:id`. `CerialId.fromRecordId()` preserves typed ID values
+- **RecordIdInput\<T\>** = `T | CerialId<T> | RecordId | StringRecordId` (accepted as input). Generic narrows accepted values based on target model's ID type
+- **Record(Type) @id** = Typed ID syntax. Supported: `int`, `float`, `number`, `string`, `uuid`, tuple refs, object refs, unions (`Record(string, int)`). Plain `Record @id` = backward-compatible string IDs
+- **FK type inference** = When a model has `Record(int) @id`, any FK Record field pointing to it via `@model()` automatically gets typed as `CerialId<number>` output / `RecordIdInput<number>` input. Users must NOT add `Record(Type)` on FK fields
+- **Standalone Record typing** = `Record(int)` without Relation for explicit typing of non-FK record fields. Produces `CerialId<number>` output, `number | RecordIdInput<number>` input
 - **NONE vs null** = SurrealDB distinguishes absent fields (NONE) from null-valued fields (null). `?` enables NONE (maps to `undefined`), `@nullable` enables null (maps to `| null`). They are independent modifiers
 - **@nullable** = Field-level decorator enabling explicit null values. `@nullable` on its own = required nullable (`T | null`). With `?` = optional nullable (`T | null | undefined`). Not allowed on object/tuple fields (SurrealDB can't define sub-fields on nullable parents). Allowed on tuple elements. `@default(null)` requires `@nullable`. Affects disconnect (NULL vs NONE) and default `@onDelete` (SetNull vs SetNone)
 - **PK side** = Forward relation with `Record` + `Relation @field` (stores FK)
@@ -378,6 +381,9 @@ Do NOT use SurrealDB reserved keywords as field names, model names, or object na
 - `null` requires `@nullable` on the field — without it, passing `null` is a validation error
 - `@default(null)` requires `@nullable` — null default on a non-nullable field is invalid
 - `id Record @id` fields skip the "Record needs paired Relation" validation
+- FK fields must NOT use `Record(Type)` — types are inferred from the target model's `@id` type. Explicit `Record(int)` on a FK field is an error
+- Union ID optionality: if `string` or `uuid` is in the union, the ID is optional in create (SurrealDB auto-generates). Otherwise required
+- `DEFINE FIELD OVERWRITE` is used for typed `@id` fields to allow re-running migrations safely
 - Optional object fields (`Address?`) produce `field?: Address` (NOT `| null` like primitives)
 - `select` within `include` is type-level only - runtime returns full related objects
 - `none` quantifier for array object where uses `!(arr.any(...))` syntax for SurrealDB 3.x compatibility

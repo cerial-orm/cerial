@@ -29,6 +29,7 @@ A Prisma-like ORM for [SurrealDB](https://surrealdb.com/) with schema-driven cod
 - **Number fields** - Auto-detect numeric type for flexible integer/float input
 - **Any type** - Store any SurrealDB value with type-safe CerialAny union
 - **Set arrays** - `@set` decorator for auto-deduplicated, sorted arrays
+- **Typed IDs** - `Record(int) @id`, `Record(uuid) @id`, union types, and automatic FK type inference
 
 ## Installation
 
@@ -128,6 +129,7 @@ Full documentation is available at the [Cerial Docs](docs/) site, covering:
 - [Getting Started](docs/getting-started.md) - Installation, setup, first queries
 - [Schema](docs/schema/) - Field types, decorators, arrays, optionals, cross-file references
 - [Field Types](docs/schema/field-types/) - Uuid, Number, Duration, Decimal, Bytes, Geometry, Any, and more
+- [Typed IDs](docs/schema/typed-ids.md) - `Record(int) @id`, union types, FK type inference, create optionality
 - [Embedded Objects](docs/objects/) - Defining objects, sub-field select, filtering, updates
 - [Tuples](docs/tuples/) - Fixed-length typed arrays, named elements, where filtering, array operations
 - [Literals](docs/schema/literals.md) - Union types with specific values, broad types, and structured variants
