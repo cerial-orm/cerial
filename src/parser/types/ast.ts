@@ -46,6 +46,7 @@ export function createField(
   objectName?: string,
   tupleName?: string,
   literalName?: string,
+  recordIdTypes?: string[],
 ): ASTField {
   const field: ASTField = { name, type, isOptional, decorators, range };
   if (decorators.some((d) => d.type === 'nullable')) field.isNullable = true;
@@ -53,6 +54,7 @@ export function createField(
   if (objectName) field.objectName = objectName;
   if (tupleName) field.tupleName = tupleName;
   if (literalName) field.literalName = literalName;
+  if (recordIdTypes?.length) field.recordIdTypes = recordIdTypes;
 
   return field;
 }

@@ -64,6 +64,7 @@ import {
   isArrayType,
   isObjectType,
   parseFieldType,
+  parseRecordIdTypes,
 } from '../field-types';
 
 /** Result of parsing a field line */
@@ -193,6 +194,15 @@ export function parseFieldDeclaration(
   const fieldName = parts[0]!;
   let typeStr = parts[1]!;
 
+  // Handle Record(Type, Type) syntax — spaces after commas cause split issues
+  if (typeStr.startsWith('Record(') && !typeStr.includes(')')) {
+    let i = 2;
+    while (i < parts.length && !typeStr.includes(')')) {
+      typeStr += parts[i];
+      i++;
+    }
+  }
+
   // Check for optional marker (Type?) - but not for array types like Record[]
   const isOptional = typeStr.endsWith('?') && !typeStr.endsWith('[]?');
   if (isOptional) {
@@ -225,7 +235,19 @@ export function parseFieldDeclaration(
   const tupName = fieldType === 'tuple' ? extractTupleName(typeStr) : undefined;
   // For literal types, extract the literal name
   const litName = fieldType === 'literal' ? extractLiteralName(typeStr) : undefined;
-  const field = createField(fieldName, fieldType, isOptional, decorators, range, isArray, objName, tupName, litName);
+  const recordIdTypes = fieldType === 'record' ? parseRecordIdTypes(typeStr, tupleNames, objectNames) : undefined;
+  const field = createField(
+    fieldName,
+    fieldType,
+    isOptional,
+    decorators,
+    range,
+    isArray,
+    objName,
+    tupName,
+    litName,
+    recordIdTypes,
+  );
 
   return { field, error: null };
 }

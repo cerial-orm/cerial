@@ -29,7 +29,7 @@ export { getEmailFieldType, isEmailType } from './email-parser';
 export { getFloatFieldType, isFloatType } from './float-parser';
 export { getIntFieldType, isIntType } from './int-parser';
 export { getNumberFieldType, isNumberType } from './number-parser';
-export { getRecordFieldType, isRecordArray, isRecordType } from './record-parser';
+export { getRecordFieldType, isRecordArray, isRecordType, parseRecordIdTypes } from './record-parser';
 export { getRelationFieldType, isRelationArray, isRelationType } from './relation-parser';
 export { getStringFieldType, isStringType } from './string-parser';
 export { getUuidFieldType, isUuidType } from './uuid-parser';
