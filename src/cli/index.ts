@@ -11,7 +11,13 @@ export { ensureDir, ensureParentDir, ensureDirs, writeFile, writeFiles, Logger, 
 export type { WriteOptions, LogLevel, LoggerOptions } from './utils';
 
 // Validators
-export { validateOptions, getDefaultOptions, validateSchema, validateModelNames, validateFieldNames } from './validators';
+export {
+  validateOptions,
+  getDefaultOptions,
+  validateSchema,
+  validateModelNames,
+  validateFieldNames,
+} from './validators';
 export type {
   CLIOptions,
   OptionsValidationError,

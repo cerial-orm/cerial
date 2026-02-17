@@ -10,13 +10,7 @@
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import {
-  cleanupTables,
-  createTestClient, truncateTables,
-  CerialClient,
-  tables,
-  testConfig,
-} from '../../test-helper';
+import { cleanupTables, createTestClient, truncateTables, CerialClient, tables, testConfig } from '../../test-helper';
 
 describe('E2E One-to-One @onDelete(Cascade)', () => {
   let client: CerialClient;
@@ -49,12 +43,8 @@ describe('E2E One-to-One @onDelete(Cascade)', () => {
       });
 
       // Verify both exist
-      expect(
-        await client.db.UserCascade.findOne({ where: { id: user.id } })
-      ).toBeDefined();
-      expect(
-        await client.db.ProfileCascade.findOne({ where: { id: profile.id } })
-      ).toBeDefined();
+      expect(await client.db.UserCascade.findOne({ where: { id: user.id } })).toBeDefined();
+      expect(await client.db.ProfileCascade.findOne({ where: { id: profile.id } })).toBeDefined();
 
       // Delete user
       await client.db.UserCascade.deleteMany({
@@ -124,14 +114,14 @@ describe('E2E One-to-One @onDelete(Cascade)', () => {
       expect(
         await client.db.ProfileCascade.findOne({
           where: { id: connectedProfile.id },
-        })
+        }),
       ).toBeNull();
 
       // Orphan profile still exists
       expect(
         await client.db.ProfileCascade.findOne({
           where: { id: orphanProfile.id },
-        })
+        }),
       ).toBeDefined();
     });
   });
@@ -179,14 +169,10 @@ describe('E2E One-to-One @onDelete(Cascade)', () => {
       });
 
       // Profile gone
-      expect(
-        await client.db.ProfileCascade.findOne({ where: { id: profile.id } })
-      ).toBeNull();
+      expect(await client.db.ProfileCascade.findOne({ where: { id: profile.id } })).toBeNull();
 
       // User still exists
-      expect(
-        await client.db.UserCascade.findOne({ where: { id: user.id } })
-      ).toBeDefined();
+      expect(await client.db.UserCascade.findOne({ where: { id: user.id } })).toBeDefined();
     });
   });
 });

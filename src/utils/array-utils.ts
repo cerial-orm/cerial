@@ -44,10 +44,7 @@ export function flatten<T>(arr: T[][]): T[] {
 }
 
 /** Group array by key */
-export function groupBy<T, K extends string | number>(
-  arr: T[],
-  keyFn: (item: T) => K,
-): Record<K, T[]> {
+export function groupBy<T, K extends string | number>(arr: T[], keyFn: (item: T) => K): Record<K, T[]> {
   return arr.reduce(
     (acc, item) => {
       const key = keyFn(item);
@@ -60,10 +57,7 @@ export function groupBy<T, K extends string | number>(
 }
 
 /** Partition array into two by predicate */
-export function partition<T>(
-  arr: T[],
-  predicate: (item: T) => boolean,
-): [T[], T[]] {
+export function partition<T>(arr: T[], predicate: (item: T) => boolean): [T[], T[]] {
   const pass: T[] = [];
   const fail: T[] = [];
   for (const item of arr) {

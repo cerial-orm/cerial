@@ -6,13 +6,7 @@
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import {
-  cleanupTables,
-  createTestClient, truncateTables,
-  CerialClient,
-  tables,
-  testConfig,
-} from '../test-helper';
+import { cleanupTables, createTestClient, truncateTables, CerialClient, tables, testConfig } from '../test-helper';
 
 describe('E2E Multi-Relation: Include', () => {
   let client: CerialClient;
@@ -172,10 +166,7 @@ describe('E2E Multi-Relation: Include', () => {
         },
       });
 
-      expect(result?.authoredDocs?.map((d) => d.title)).toEqual([
-        'Alpha',
-        'Zebra',
-      ]);
+      expect(result?.authoredDocs?.map((d) => d.title)).toEqual(['Alpha', 'Zebra']);
     });
   });
 });

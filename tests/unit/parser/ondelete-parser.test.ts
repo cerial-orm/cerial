@@ -87,15 +87,9 @@ describe('OnDelete Parser', () => {
     });
 
     test('should parse all valid actions', () => {
-      expect(parseOnDeleteDecorator('@onDelete(SetNull)', range).value).toBe(
-        'SetNull'
-      );
-      expect(parseOnDeleteDecorator('@onDelete(Restrict)', range).value).toBe(
-        'Restrict'
-      );
-      expect(parseOnDeleteDecorator('@onDelete(NoAction)', range).value).toBe(
-        'NoAction'
-      );
+      expect(parseOnDeleteDecorator('@onDelete(SetNull)', range).value).toBe('SetNull');
+      expect(parseOnDeleteDecorator('@onDelete(Restrict)', range).value).toBe('Restrict');
+      expect(parseOnDeleteDecorator('@onDelete(NoAction)', range).value).toBe('NoAction');
     });
 
     test('should handle invalid action gracefully', () => {

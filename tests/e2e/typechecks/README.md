@@ -23,16 +23,11 @@ import { Test } from 'ts-toolbelt';
 import type { User, GetUserPayload } from '../generated';
 
 // Verify field types
-Test.checks([
-  Test.check<User['id'], string, Test.Pass>(),
-  Test.check<User['email'], string, Test.Pass>(),
-]);
+Test.checks([Test.check<User['id'], string, Test.Pass>(), Test.check<User['email'], string, Test.Pass>()]);
 
 // Verify type inference
 type Result = GetUserPayload<{ id: true }>;
-Test.checks([
-  Test.check<Result['id'], string, Test.Pass>(),
-]);
+Test.checks([Test.check<Result['id'], string, Test.Pass>()]);
 
 // Verify type extension
 type Extends<A, B> = A extends B ? 1 : 0;
@@ -44,7 +39,7 @@ Test.checks([
 ### Pattern
 
 ```typescript
-Test.check<ActualType, ExpectedType, Test.Pass>()
+Test.check<ActualType, ExpectedType, Test.Pass>();
 ```
 
 - If `ActualType` equals `ExpectedType`, the check passes
@@ -63,6 +58,7 @@ ts-toolbelt's `Test.check` returns a type-level result (`1` for pass), not a run
 2. Bun/Node cannot execute pure type operations
 
 By using `tsc --noEmit`, we get:
+
 - **Compile-time verification** - Errors caught before runtime
 - **Zero runtime overhead** - No test execution needed
 - **Better error messages** - TypeScript shows exactly which type doesn't match

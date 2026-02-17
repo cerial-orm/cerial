@@ -7,7 +7,14 @@
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import { NONE } from '../../../src/utils/none';
-import { cleanupTables, createTestClient, truncateTables, CerialClient, tables, testConfig } from '../relations/test-helper';
+import {
+  cleanupTables,
+  createTestClient,
+  truncateTables,
+  CerialClient,
+  tables,
+  testConfig,
+} from '../relations/test-helper';
 
 describe('E2E Tuples: Update', () => {
   let client: CerialClient;

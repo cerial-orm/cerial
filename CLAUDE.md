@@ -49,7 +49,15 @@ cerial/
 │   │   ├── relations/               #   91 relation test files
 │   │   ├── objects/                 #   9 object test files
 │   │   ├── timestamps/              #   Timestamp decorator E2E tests
-│   │   ├── typechecks/              #   26 compile-time type checks
+│   │   ├── typechecks/              #   36 compile-time type checks
+│   │   ├── uuid/                    #   5 UUID E2E test files
+│   │   ├── number/                  #   4 Number E2E test files
+│   │   ├── duration/                #   5 Duration E2E test files
+│   │   ├── decimal/                 #   5 Decimal E2E test files
+│   │   ├── bytes/                   #   4 Bytes E2E test files
+│   │   ├── geometry/                #   3 Geometry E2E test files
+│   │   ├── any/                     #   4 Any E2E test files
+│   │   ├── set/                     #   3 Set E2E test files
 │   │   ├── preload.ts               #   Generates client before tests
 │   │   └── test-client.ts           #   Test helpers
 │   └── generators/                  # Generator tests
@@ -75,6 +83,13 @@ cerial/
 | `src/query/filters/registry.ts`               | Operator handler registry                                                                     |
 | `src/generators/types/enums/name-helpers.ts`  | Enum/literal type name resolution (isEnum dispatch)                                           |
 | `src/generators/client/enum-writer.ts`        | Writes per-enum type files                                                                    |
+| `src/utils/cerial-uuid.ts`                    | `CerialUuid` class and `CerialUuidInput` union type                                           |
+| `src/utils/cerial-duration.ts`                | `CerialDuration` class and `CerialDurationInput` union type                                   |
+| `src/utils/cerial-decimal.ts`                 | `CerialDecimal` class with arithmetic, `CerialDecimalInput` union type                        |
+| `src/utils/cerial-bytes.ts`                   | `CerialBytes` class and `CerialBytesInput` union type                                         |
+| `src/utils/cerial-geometry.ts`                | `CerialGeometry` hierarchy (7 subtypes) and `CerialGeometryInput` union type                  |
+| `src/utils/cerial-any.ts`                     | `CerialAny` recursive union type                                                              |
+| `src/utils/cerial-set.ts`                     | `CerialSet<T>` branded array type                                                             |
 
 ## Architecture
 
@@ -99,16 +114,25 @@ Schema (.cerial files) → Parser (AST) → Generators → TypeScript Client
 
 | Location                  | Type                      | Count    |
 | ------------------------- | ------------------------- | -------- |
-| `tests/unit/`             | Unit tests (no DB)        | ~1211    |
+| `tests/unit/`             | Unit tests (no DB)        | ~1693    |
 | `tests/integration/`      | Integration (DB required) | ~49      |
-| `tests/e2e/relations/`    | Relation E2E tests        | 91 files |
+| `tests/e2e/relations/`    | Relation E2E tests        | 95 files |
 | `tests/e2e/objects/`      | Object E2E tests          | 9 files  |
 | `tests/e2e/tuples/`       | Tuple E2E tests           | 10 files |
 | `tests/e2e/transactions/` | Transaction E2E tests     | 10 files |
 | `tests/e2e/timestamps/`   | Timestamp E2E tests       | 1 file   |
-| `tests/e2e/enums/`        | Enum E2E tests            | 7 files  |
-| `tests/e2e/unset/`        | Unset parameter E2E tests | ~9 files |
-| `tests/e2e/typechecks/`   | Compile-time type checks  | 26 files |
+| `tests/e2e/enums/`        | Enum E2E tests            | 8 files  |
+| `tests/e2e/literals/`     | Literal E2E tests         | 15 files |
+| `tests/e2e/unset/`        | Unset parameter E2E tests | 8 files  |
+| `tests/e2e/uuid/`         | UUID E2E tests            | 5 files  |
+| `tests/e2e/number/`       | Number E2E tests          | 4 files  |
+| `tests/e2e/duration/`     | Duration E2E tests        | 5 files  |
+| `tests/e2e/decimal/`      | Decimal E2E tests         | 5 files  |
+| `tests/e2e/bytes/`        | Bytes E2E tests           | 4 files  |
+| `tests/e2e/geometry/`     | Geometry E2E tests        | 3 files  |
+| `tests/e2e/any/`          | Any E2E tests             | 4 files  |
+| `tests/e2e/set/`          | Set E2E tests             | 3 files  |
+| `tests/e2e/typechecks/`   | Compile-time type checks  | 36 files |
 
 **Sandbox testing** = Running raw SurrealQL against the live SurrealDB instance to verify DB-level behavior before implementing in code. Use this when you need to confirm how SurrealDB handles a specific query pattern (e.g., `$this` reconstruction, dot-notation merge, SELECT expression shapes). When the user says "sandbox test", execute queries via curl:
 
@@ -337,6 +361,13 @@ Do NOT use SurrealDB reserved keywords as field names, model names, or object na
 - **Parameterized queries** = Values bound via `$varName`, never inlined
 - **CerialQueryPromise** = Thenable returned by model methods. Auto-executes on `await`, collectible by `$transaction`
 - **$transaction** = Atomic batch execution of independent queries with typed tuple results
+- **Uuid** = UUID identifier field type. `CerialUuid` wrapper with `.toString()`, `.equals()`, `.toNative()`. Input: `CerialUuidInput = string | CerialUuid | Uuid (SDK)`. Supports comparison operators and OrderBy. Works in objects, tuples, literals
+- **UUID decorators** = `@uuid` (v7 default), `@uuid4`, `@uuid7` for server-side auto-generation (`DEFAULT rand::uuid()`). Field becomes optional in CreateInput. Model + object fields only (NOT tuples). Mutually exclusive with `@default`, `@defaultAlways`, `@createdAt`, `@updatedAt`, `@now`, and each other
+- **Number** = Auto-detect numeric type (`int` or `float`). SurrealDB decides representation based on value. Maps to `number` in TypeScript (same as Int/Float). Distinct SurrealQL type `number` (not aliased to `float`). Supports all numeric comparison operators and OrderBy
+- **Duration** = Time duration. `CerialDuration` wrapper with accessors (`.hours`, `.minutes`, `.seconds`, etc.), `.toString()`, `.compareTo()`, `.toNative()`. Input: `CerialDurationInput = string | CerialDuration | Duration (SDK)`. String format: `'2h30m15s'`. Supports comparison operators and OrderBy
+- **Decimal** = Arbitrary-precision decimal number. `CerialDecimal` wrapper with arithmetic (`.add()`, `.sub()`, `.mul()`, `.div()`), `.toString()`, `.toNumber()` (lossy!), `.toNative()`. Input: `CerialDecimalInput = number | string | CerialDecimal | Decimal (SDK)`. Supports comparison operators and OrderBy
+- **Bytes** = Binary data. `CerialBytes` wrapper with `.toUint8Array()`, `.toBuffer()`, `.toBase64()`, `.toString()`. Input: `CerialBytesInput = Uint8Array | string (base64) | CerialBytes`. Equality-only WHERE operators (no gt/lt). OrderBy supported (lexicographic). No `@default` support
+- **Geometry** = Geospatial data with 7 subtypes via decorators (`@point`, `@line`, `@polygon`, `@multipoint`, `@multiline`, `@multipolygon`, `@collection`). Bare `Geometry` = all subtypes. Multi-type: `Geometry @point @polygon`. CerialGeometry class hierarchy. Point input shorthand: `[lon, lat]`. Equality-only WHERE. No OrderBy. No spatial operators (future feature)
 - **Any type** = `Any` field stores any SurrealDB value. `CerialAny` recursive union (NOT bare TS `any`). No `?`, no `@nullable` (TYPE any already accepts NONE/null). Full WHERE operator set. Excluded from OrderBy. Not allowed in tuple elements
 - **@set decorator** = `String[] @set` generates `set<T>` instead of `array<T>`. Auto-dedup and sort at DB level. Output type `CerialSet<T>` (branded array). Input accepts regular arrays. Not allowed on Decimal[], Object[], Tuple[], Record[]. Mutually exclusive with @distinct/@sort
 
@@ -374,3 +405,11 @@ Do NOT use SurrealDB reserved keywords as field names, model names, or object na
 - **Any type restrictions** — `Any?` and `Any @nullable` are blocked. SurrealDB `TYPE any` natively accepts NONE and null, so `CerialAny` already covers both. Not allowed in tuple elements
 - **@set requires cast** — SurrealDB 3.x doesn't auto-coerce arrays to sets. Cerial automatically wraps set field values with `<set>` cast in queries
 - **@set excluded types** — `Decimal[] @set` errors in SurrealDB (`set<decimal>` bug). Object[], Tuple[], Record[] arrays cannot use @set
+- **UUID decorators on tuples** — `@uuid`/`@uuid4`/`@uuid7` NOT allowed on tuple elements. SurrealDB doesn't support DEFAULT on tuple elements (sandbox verified). Model + object fields only
+- **UUID decorator exclusivity** — `@uuid`/`@uuid4`/`@uuid7` mutually exclusive with `@default`, `@defaultAlways`, `@createdAt`, `@updatedAt`, `@now`, and each other. Only one auto-generation decorator per field
+- **Duration @default format** — Duration `@default` values are output unquoted in migrations: `@default(1h30m)` → `DEFAULT 1h30m` (not `DEFAULT '1h30m'`). Pattern-recognized via `/^\d+[smhdwy]/` regex
+- **Decimal toNumber() is lossy** — `CerialDecimal.toNumber()` truncates to IEEE 754 double precision. Use `.toString()` for lossless serialization
+- **Bytes no @default** — `@default` not supported on Bytes fields. SurrealDB needs `<bytes>''` syntax which `@default` parser can't express
+- **Geometry no spatial operators** — No `nearTo`, `within`, `intersects` filters. Standard equality comparison only. Spatial operators are a separate future feature
+- **Geometry no OrderBy** — Geometry fields excluded from OrderBy types (not orderable)
+- **Number is distinct from Float** — `Number` maps to SurrealDB `number` (auto-detect), not `float`. `Float` maps to `float` (always IEEE 754 double). `Int` maps to `int` (always integer). All three produce `number` in TypeScript

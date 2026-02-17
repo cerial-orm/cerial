@@ -8,7 +8,8 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import {
   cleanupTables,
-  createTestClient, truncateTables,
+  createTestClient,
+  truncateTables,
   CerialClient,
   tables,
   testConfig,
@@ -56,10 +57,7 @@ describe('E2E Many-to-Many Bidirectional: Include', () => {
       });
 
       expect(result?.courses).toHaveLength(2);
-      expect(result?.courses?.map((c) => c.name).sort()).toEqual([
-        'Math',
-        'Science',
-      ]);
+      expect(result?.courses?.map((c) => c.name).sort()).toEqual(['Math', 'Science']);
     });
 
     test('should return empty array when student has no courses', async () => {
@@ -99,10 +97,7 @@ describe('E2E Many-to-Many Bidirectional: Include', () => {
       });
 
       expect(result?.students).toHaveLength(2);
-      expect(result?.students?.map((s) => s.name).sort()).toEqual([
-        'Alice',
-        'Bob',
-      ]);
+      expect(result?.students?.map((s) => s.name).sort()).toEqual(['Alice', 'Bob']);
     });
   });
 

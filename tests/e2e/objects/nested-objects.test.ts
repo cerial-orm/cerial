@@ -6,7 +6,14 @@
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import { cleanupTables, createTestClient, truncateTables, CerialClient, tables, testConfig } from '../relations/test-helper';
+import {
+  cleanupTables,
+  createTestClient,
+  truncateTables,
+  CerialClient,
+  tables,
+  testConfig,
+} from '../relations/test-helper';
 
 describe('E2E Objects: Nested & Self-Referencing', () => {
   let client: CerialClient;

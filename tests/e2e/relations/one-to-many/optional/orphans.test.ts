@@ -8,7 +8,8 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import {
   cleanupTables,
-  createTestClient, truncateTables,
+  createTestClient,
+  truncateTables,
   CerialClient,
   tables,
   testConfig,
@@ -156,12 +157,8 @@ describe('E2E One-to-Many Optional: Orphans', () => {
         data: { title: 'O1', isbn: `ISBN-${uniqueId()}` },
       });
 
-      const orphanCount = (
-        await client.db.Book.findMany({ where: { publisherId: null } })
-      ).length;
-      const publishedCount = (
-        await client.db.Book.findMany({ where: { publisherId: { not: null } } })
-      ).length;
+      const orphanCount = (await client.db.Book.findMany({ where: { publisherId: null } })).length;
+      const publishedCount = (await client.db.Book.findMany({ where: { publisherId: { not: null } } })).length;
 
       expect(orphanCount).toBe(1);
       expect(publishedCount).toBe(2);

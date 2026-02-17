@@ -6,13 +6,7 @@
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import {
-  cleanupTables,
-  createTestClient, truncateTables,
-  CerialClient,
-  tables,
-  testConfig,
-} from '../../test-helper';
+import { cleanupTables, createTestClient, truncateTables, CerialClient, tables, testConfig } from '../../test-helper';
 
 describe('E2E Many-to-Many One-Directional: Include', () => {
   let client: CerialClient;
@@ -48,10 +42,7 @@ describe('E2E Many-to-Many One-Directional: Include', () => {
       });
 
       expect(result?.labels).toHaveLength(2);
-      expect(result?.labels?.map((l) => l.name).sort()).toEqual([
-        'Tech',
-        'Travel',
-      ]);
+      expect(result?.labels?.map((l) => l.name).sort()).toEqual(['Tech', 'Travel']);
     });
 
     test('should return empty array when blogger has no labels', async () => {
@@ -105,11 +96,7 @@ describe('E2E Many-to-Many One-Directional: Include', () => {
         },
       });
 
-      expect(result?.labels?.map((l) => l.name)).toEqual([
-        'Alpha',
-        'Middle',
-        'Zebra',
-      ]);
+      expect(result?.labels?.map((l) => l.name)).toEqual(['Alpha', 'Middle', 'Zebra']);
     });
   });
 

@@ -6,13 +6,7 @@
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import {
-  cleanupTables,
-  createTestClient, truncateTables,
-  CerialClient,
-  tables,
-  testConfig,
-} from '../../test-helper';
+import { cleanupTables, createTestClient, truncateTables, CerialClient, tables, testConfig } from '../../test-helper';
 
 describe('E2E Self-Ref One-to-Many: Manual Reverse Query', () => {
   let client: CerialClient;
@@ -65,10 +59,7 @@ describe('E2E Self-Ref One-to-Many: Manual Reverse Query', () => {
       });
 
       expect(directReports).toHaveLength(2);
-      expect(directReports.map((r) => r.name).sort()).toEqual([
-        'Report 1',
-        'Report 2',
-      ]);
+      expect(directReports.map((r) => r.name).sort()).toEqual(['Report 1', 'Report 2']);
     });
 
     test('should return empty for manager with no reports', async () => {

@@ -9,7 +9,8 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import {
   cleanupTables,
-  createTestClient, truncateTables,
+  createTestClient,
+  truncateTables,
   CerialClient,
   tables,
   testConfig,

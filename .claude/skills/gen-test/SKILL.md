@@ -16,16 +16,19 @@ Create tests for Cerial following project conventions.
 ## Test Types
 
 ### Unit Tests (`tests/unit/<module>/*.test.ts`)
+
 - No database required
 - Test pure functions and transformations
 - Mock external dependencies
 
 ### E2E Tests (`tests/e2e/relations/*.test.ts`)
+
 - Require SurrealDB running at `http://127.0.0.1:8000`
 - Use `--preload ./tests/e2e/preload.ts` when running
 - Generated client lives in `tests/e2e/generated/`
 
 ### Type Checks (`tests/e2e/typechecks/*.check.ts`)
+
 - Compile-time type verification using ts-toolbelt
 - No runtime execution - verified by `bun run typecheck`
 
@@ -45,7 +48,9 @@ describe('ModuleName', () => {
   describe('functionName', () => {
     it('should handle basic case', () => {
       // Arrange
-      const input = { /* ... */ };
+      const input = {
+        /* ... */
+      };
 
       // Act
       const result = functionName(input);
@@ -73,7 +78,11 @@ describe('Feature E2E', () => {
   });
 
   it('should perform operation', async () => {
-    const result = await client.db.Model.create({ data: { /* ... */ } });
+    const result = await client.db.Model.create({
+      data: {
+        /* ... */
+      },
+    });
     expect(result.id).toBeDefined();
   });
 });

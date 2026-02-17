@@ -11,11 +11,7 @@ export interface WriteOptions {
 }
 
 /** Write a file */
-export async function writeFile(
-  path: string,
-  content: string,
-  options: WriteOptions = {},
-): Promise<void> {
+export async function writeFile(path: string, content: string, options: WriteOptions = {}): Promise<void> {
   const { createDirs = true } = options;
 
   if (createDirs) {

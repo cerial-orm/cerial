@@ -21,11 +21,7 @@ export interface FindSchemasOptions {
 
 /** Find all schema files in a directory */
 export async function findSchemaFiles(options: FindSchemasOptions = {}): Promise<string[]> {
-  const {
-    cwd = process.cwd(),
-    patterns = DEFAULT_PATTERNS,
-    includeHidden = false,
-  } = options;
+  const { cwd = process.cwd(), patterns = DEFAULT_PATTERNS, includeHidden = false } = options;
 
   const files: string[] = [];
 

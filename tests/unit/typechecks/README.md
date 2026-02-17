@@ -24,7 +24,7 @@ This runs `tsc --noEmit` on all `.check.ts` files. If any type assertions fail, 
 ## Pattern
 
 ```typescript
-Test.check<ActualType, ExpectedType, Test.Pass>()
+Test.check<ActualType, ExpectedType, Test.Pass>();
 ```
 
 - If `ActualType` equals `ExpectedType`, the check passes

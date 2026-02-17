@@ -8,7 +8,8 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import {
   cleanupTables,
-  createTestClient, truncateTables,
+  createTestClient,
+  truncateTables,
   CerialClient,
   tables,
   testConfig,
@@ -39,11 +40,7 @@ describe('E2E One-to-Many Required: Delete', () => {
           name: 'Author',
           email: uniqueEmail(),
           posts: {
-            create: [
-              { title: 'Post 1' },
-              { title: 'Post 2' },
-              { title: 'Post 3' },
-            ],
+            create: [{ title: 'Post 1' }, { title: 'Post 2' }, { title: 'Post 3' }],
           },
         },
       });
@@ -60,9 +57,7 @@ describe('E2E One-to-Many Required: Delete', () => {
       });
 
       // Author gone
-      expect(
-        await client.db.Author.findOne({ where: { id: author.id } })
-      ).toBeNull();
+      expect(await client.db.Author.findOne({ where: { id: author.id } })).toBeNull();
 
       // All posts gone (cascaded)
       const postsAfter = await client.db.PostRequired.findMany({
@@ -96,14 +91,14 @@ describe('E2E One-to-Many Required: Delete', () => {
       expect(
         await client.db.PostRequired.findMany({
           where: { authorId: author1.id },
-        })
+        }),
       ).toHaveLength(0);
 
       // Author2 posts remain
       expect(
         await client.db.PostRequired.findMany({
           where: { authorId: author2.id },
-        })
+        }),
       ).toHaveLength(1);
     });
   });
@@ -129,14 +124,10 @@ describe('E2E One-to-Many Required: Delete', () => {
       });
 
       // Author still exists
-      expect(
-        await client.db.Author.findOne({ where: { id: author.id } })
-      ).toBeDefined();
+      expect(await client.db.Author.findOne({ where: { id: author.id } })).toBeDefined();
 
       // Only one post remains
-      expect(
-        await client.db.PostRequired.findMany({ where: { authorId: author.id } })
-      ).toHaveLength(1);
+      expect(await client.db.PostRequired.findMany({ where: { authorId: author.id } })).toHaveLength(1);
     });
   });
 
@@ -150,9 +141,7 @@ describe('E2E One-to-Many Required: Delete', () => {
         where: { id: author.id },
       });
 
-      expect(
-        await client.db.Author.findOne({ where: { id: author.id } })
-      ).toBeNull();
+      expect(await client.db.Author.findOne({ where: { id: author.id } })).toBeNull();
     });
   });
 

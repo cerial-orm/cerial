@@ -8,13 +8,7 @@
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import {
-  cleanupTables,
-  createTestClient, truncateTables,
-  CerialClient,
-  tables,
-  testConfig,
-} from '../../test-helper';
+import { cleanupTables, createTestClient, truncateTables, CerialClient, tables, testConfig } from '../../test-helper';
 
 describe('E2E Self-Ref Single-Sided Array: Create', () => {
   let client: CerialClient;
@@ -81,10 +75,7 @@ describe('E2E Self-Ref Single-Sided Array: Create', () => {
       const following = await client.db.SocialUser.findMany({
         where: { id: { in: user.followingIds } },
       });
-      expect(following.map((f) => f.name).sort()).toEqual([
-        'New Celeb 1',
-        'New Celeb 2',
-      ]);
+      expect(following.map((f) => f.name).sort()).toEqual(['New Celeb 1', 'New Celeb 2']);
     });
   });
 

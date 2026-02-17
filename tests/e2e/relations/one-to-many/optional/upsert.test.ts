@@ -10,7 +10,15 @@
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import { cleanupTables, createTestClient, truncateTables, CerialClient, tables, testConfig, uniqueId } from '../../test-helper';
+import {
+  cleanupTables,
+  createTestClient,
+  truncateTables,
+  CerialClient,
+  tables,
+  testConfig,
+  uniqueId,
+} from '../../test-helper';
 
 describe('E2E One-to-Many Optional: Upsert', () => {
   let client: CerialClient;

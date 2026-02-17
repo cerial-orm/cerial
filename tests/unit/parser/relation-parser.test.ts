@@ -5,10 +5,7 @@
  */
 
 import { describe, expect, test } from 'bun:test';
-import {
-  isRelationType,
-  parseRelationType,
-} from '../../../src/parser/types/field-types/relation-parser';
+import { isRelationType, parseRelationType } from '../../../src/parser/types/field-types/relation-parser';
 
 describe('Relation Parser', () => {
   describe('isRelationType', () => {

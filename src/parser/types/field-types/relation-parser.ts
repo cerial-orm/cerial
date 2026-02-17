@@ -26,16 +26,18 @@ export function getRelationFieldType(): SchemaFieldType {
 interface RelationTypeResult {
   type: SchemaFieldType;
   isArray: boolean;
-  range: { start: { line: number; column: number; offset: number }; end: { line: number; column: number; offset: number } };
+  range: {
+    start: { line: number; column: number; offset: number };
+    end: { line: number; column: number; offset: number };
+  };
 }
 
 /** Parse Relation type token */
 export function parseRelationType(
   _token: string,
   range: RelationTypeResult['range'],
-  isArray: boolean
+  isArray: boolean,
 ): RelationTypeResult {
-
   return {
     type: 'relation',
     isArray,

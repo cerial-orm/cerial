@@ -23,7 +23,11 @@ export type IncludeClause = Record<string, boolean | IncludeOptions>;
  * Used for reverse relations to find which field to query on
  * @param key - Optional @key value to match when multiple relations exist
  */
-function findReverseSourceField(sourceModel: ModelMetadata, targetModel: ModelMetadata, key?: string): string | undefined {
+function findReverseSourceField(
+  sourceModel: ModelMetadata,
+  targetModel: ModelMetadata,
+  key?: string,
+): string | undefined {
   // Look for a forward Relation in target that targets our source model
   // If key is provided, must match the key
   for (const targetField of targetModel.fields) {
@@ -112,7 +116,8 @@ function buildForwardRelationSelectInternal(
   const targetTable = field.relationInfo.targetTable;
 
   // Check for nested includes, orderBy, limit, or offset
-  const needsSubquery = options?.include || options?.orderBy || options?.limit !== undefined || options?.offset !== undefined;
+  const needsSubquery =
+    options?.include || options?.orderBy || options?.limit !== undefined || options?.offset !== undefined;
 
   if (needsSubquery && targetModel) {
     const nestedSelect = options?.include ? buildNestedSelectFields(options.include, targetModel, registry) : '*';

@@ -8,13 +8,7 @@
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import {
-  cleanupTables,
-  createTestClient, truncateTables,
-  CerialClient,
-  tables,
-  testConfig,
-} from '../../test-helper';
+import { cleanupTables, createTestClient, truncateTables, CerialClient, tables, testConfig } from '../../test-helper';
 
 describe('E2E Self-Ref Many-to-Many Symmetric: Create', () => {
   let client: CerialClient;
@@ -81,10 +75,7 @@ describe('E2E Self-Ref Many-to-Many Symmetric: Create', () => {
       const friends = await client.db.Friend.findMany({
         where: { id: { in: person.friendIds } },
       });
-      expect(friends.map((f) => f.name).sort()).toEqual([
-        'New Friend 1',
-        'New Friend 2',
-      ]);
+      expect(friends.map((f) => f.name).sort()).toEqual(['New Friend 1', 'New Friend 2']);
     });
   });
 

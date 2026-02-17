@@ -10,7 +10,14 @@
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import { NONE } from '../../../src/utils/none';
-import { cleanupTables, createTestClient, truncateTables, CerialClient, tables, testConfig } from '../relations/test-helper';
+import {
+  cleanupTables,
+  createTestClient,
+  truncateTables,
+  CerialClient,
+  tables,
+  testConfig,
+} from '../relations/test-helper';
 import type { DeepOuterTupleInput } from '../generated';
 
 describe('E2E Tuples: Per-Element Update', () => {

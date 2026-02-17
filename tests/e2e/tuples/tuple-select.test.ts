@@ -8,7 +8,14 @@
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import { cleanupTables, createTestClient, truncateTables, CerialClient, tables, testConfig } from '../relations/test-helper';
+import {
+  cleanupTables,
+  createTestClient,
+  truncateTables,
+  CerialClient,
+  tables,
+  testConfig,
+} from '../relations/test-helper';
 import type { DeepOuterTupleInput } from '../generated';
 
 describe('E2E Tuples: Sub-Field Select', () => {

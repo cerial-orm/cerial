@@ -6,13 +6,7 @@
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import {
-  cleanupTables,
-  createTestClient, truncateTables,
-  CerialClient,
-  tables,
-  testConfig,
-} from '../../test-helper';
+import { cleanupTables, createTestClient, truncateTables, CerialClient, tables, testConfig } from '../../test-helper';
 
 describe('E2E Self-Ref Many-to-Many Symmetric: Manual Sync', () => {
   let client: CerialClient;
@@ -166,10 +160,7 @@ describe('E2E Self-Ref Many-to-Many Symmetric: Manual Sync', () => {
         where: { id: bob.id },
         include: { friends: true },
       });
-      expect(bobWithFriends?.friends?.map((f) => f.name).sort()).toEqual([
-        'Alice',
-        'Charlie',
-      ]);
+      expect(bobWithFriends?.friends?.map((f) => f.name).sort()).toEqual(['Alice', 'Charlie']);
     });
   });
 });

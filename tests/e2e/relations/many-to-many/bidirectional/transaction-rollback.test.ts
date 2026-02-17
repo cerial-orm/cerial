@@ -8,7 +8,8 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import {
   cleanupTables,
-  createTestClient, truncateTables,
+  createTestClient,
+  truncateTables,
   CerialClient,
   tables,
   testConfig,
@@ -51,9 +52,7 @@ describe('E2E Many-to-Many Bidirectional: Transaction Rollback', () => {
       const s = await client.db.Student.findOne({ where: { id: student.id } });
       const c = await client.db.Course.findOne({ where: { id: course.id } });
 
-      expect(s?.courseIds.includes(course.id)).toBe(
-        c?.studentIds.includes(student.id)
-      );
+      expect(s?.courseIds.includes(course.id)).toBe(c?.studentIds.includes(student.id));
     });
 
     test('update connect should be atomic', async () => {
@@ -75,9 +74,7 @@ describe('E2E Many-to-Many Bidirectional: Transaction Rollback', () => {
       const s = await client.db.Student.findOne({ where: { id: student.id } });
       const c = await client.db.Course.findOne({ where: { id: course.id } });
 
-      expect(s?.courseIds.includes(course.id)).toBe(
-        c?.studentIds.includes(student.id)
-      );
+      expect(s?.courseIds.includes(course.id)).toBe(c?.studentIds.includes(student.id));
     });
 
     test('update disconnect should be atomic', async () => {
@@ -103,9 +100,7 @@ describe('E2E Many-to-Many Bidirectional: Transaction Rollback', () => {
       const s = await client.db.Student.findOne({ where: { id: student.id } });
       const c = await client.db.Course.findOne({ where: { id: course.id } });
 
-      expect(s?.courseIds.includes(course.id)).toBe(
-        c?.studentIds.includes(student.id)
-      );
+      expect(s?.courseIds.includes(course.id)).toBe(c?.studentIds.includes(student.id));
       expect(s?.courseIds.includes(course.id)).toBe(false);
     });
   });
@@ -135,9 +130,7 @@ describe('E2E Many-to-Many Bidirectional: Transaction Rollback', () => {
       const s = await client.db.Student.findOne({ where: { id: student.id } });
       const c = await client.db.Course.findOne({ where: { id: course.id } });
 
-      expect(!!s?.courseIds.includes(course.id)).toBe(
-        !!c?.studentIds.includes(student.id)
-      );
+      expect(!!s?.courseIds.includes(course.id)).toBe(!!c?.studentIds.includes(student.id));
     });
   });
 
@@ -155,7 +148,7 @@ describe('E2E Many-to-Many Bidirectional: Transaction Rollback', () => {
             email: uniqueEmail(`s${i}`),
             courses: { connect: [course.id] },
           },
-        })
+        }),
       );
 
       await Promise.all(promises);

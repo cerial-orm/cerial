@@ -6,13 +6,7 @@
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import {
-  cleanupTables,
-  createTestClient, truncateTables,
-  CerialClient,
-  tables,
-  testConfig,
-} from '../../test-helper';
+import { cleanupTables, createTestClient, truncateTables, CerialClient, tables, testConfig } from '../../test-helper';
 
 describe('E2E Self-Ref Single-Sided Array: Include', () => {
   let client: CerialClient;
@@ -48,10 +42,7 @@ describe('E2E Self-Ref Single-Sided Array: Include', () => {
       });
 
       expect(result?.following).toHaveLength(2);
-      expect(result?.following?.map((f) => f.name).sort()).toEqual([
-        'Celeb 1',
-        'Celeb 2',
-      ]);
+      expect(result?.following?.map((f) => f.name).sort()).toEqual(['Celeb 1', 'Celeb 2']);
     });
 
     test('should return empty array for user following nobody', async () => {
@@ -105,11 +96,7 @@ describe('E2E Self-Ref Single-Sided Array: Include', () => {
         },
       });
 
-      expect(result?.following?.map((f) => f.name)).toEqual([
-        'Alpha',
-        'Middle',
-        'Zebra',
-      ]);
+      expect(result?.following?.map((f) => f.name)).toEqual(['Alpha', 'Middle', 'Zebra']);
     });
   });
 

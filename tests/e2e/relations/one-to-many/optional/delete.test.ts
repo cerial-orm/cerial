@@ -8,7 +8,8 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import {
   cleanupTables,
-  createTestClient, truncateTables,
+  createTestClient,
+  truncateTables,
   CerialClient,
   tables,
   testConfig,
@@ -122,14 +123,10 @@ describe('E2E One-to-Many Optional: Delete', () => {
       });
 
       // Publisher still exists
-      expect(
-        await client.db.Publisher.findOne({ where: { id: publisher.id } })
-      ).toBeDefined();
+      expect(await client.db.Publisher.findOne({ where: { id: publisher.id } })).toBeDefined();
 
       // Only one book remains
-      expect(
-        await client.db.Book.findMany({ where: { publisherId: publisher.id } })
-      ).toHaveLength(1);
+      expect(await client.db.Book.findMany({ where: { publisherId: publisher.id } })).toHaveLength(1);
     });
   });
 
@@ -143,9 +140,7 @@ describe('E2E One-to-Many Optional: Delete', () => {
         where: { id: book.id },
       });
 
-      expect(
-        await client.db.Book.findOne({ where: { id: book.id } })
-      ).toBeNull();
+      expect(await client.db.Book.findOne({ where: { id: book.id } })).toBeNull();
     });
   });
 });

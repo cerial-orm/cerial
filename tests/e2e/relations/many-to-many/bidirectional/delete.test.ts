@@ -8,7 +8,8 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import {
   cleanupTables,
-  createTestClient, truncateTables,
+  createTestClient,
+  truncateTables,
   CerialClient,
   tables,
   testConfig,
@@ -113,9 +114,7 @@ describe('E2E Many-to-Many Bidirectional: Delete', () => {
         where: { id: student.id },
       });
 
-      expect(
-        await client.db.Student.findOne({ where: { id: student.id } })
-      ).toBeNull();
+      expect(await client.db.Student.findOne({ where: { id: student.id } })).toBeNull();
     });
 
     test('should delete course with no students', async () => {
@@ -127,9 +126,7 @@ describe('E2E Many-to-Many Bidirectional: Delete', () => {
         where: { id: course.id },
       });
 
-      expect(
-        await client.db.Course.findOne({ where: { id: course.id } })
-      ).toBeNull();
+      expect(await client.db.Course.findOne({ where: { id: course.id } })).toBeNull();
     });
   });
 

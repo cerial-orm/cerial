@@ -6,13 +6,7 @@
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import {
-  cleanupTables,
-  createTestClient, truncateTables,
-  CerialClient,
-  tables,
-  testConfig,
-} from '../../test-helper';
+import { cleanupTables, createTestClient, truncateTables, CerialClient, tables, testConfig } from '../../test-helper';
 
 describe('E2E Self-Ref One-to-Many with Reverse: Direct Reports', () => {
   let client: CerialClient;
@@ -50,10 +44,7 @@ describe('E2E Self-Ref One-to-Many with Reverse: Direct Reports', () => {
       });
 
       expect(result?.directReports).toHaveLength(2);
-      expect(result?.directReports?.map((r) => r.name).sort()).toEqual([
-        'Report 1',
-        'Report 2',
-      ]);
+      expect(result?.directReports?.map((r) => r.name).sort()).toEqual(['Report 1', 'Report 2']);
     });
 
     test('should return empty array for employee with no reports', async () => {
@@ -120,9 +111,7 @@ describe('E2E Self-Ref One-to-Many with Reverse: Direct Reports', () => {
       });
 
       expect(result?.directReports?.[0]?.name).toBe('VP');
-      expect(result?.directReports?.[0]?.directReports?.[0]?.name).toBe(
-        'Director'
-      );
+      expect(result?.directReports?.[0]?.directReports?.[0]?.name).toBe('Director');
     });
   });
 });

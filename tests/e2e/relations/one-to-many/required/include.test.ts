@@ -8,7 +8,8 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import {
   cleanupTables,
-  createTestClient, truncateTables,
+  createTestClient,
+  truncateTables,
   CerialClient,
   tables,
   testConfig,
@@ -51,10 +52,7 @@ describe('E2E One-to-Many Required: Include', () => {
 
       expect(result?.posts).toBeDefined();
       expect(result?.posts).toHaveLength(2);
-      expect(result?.posts?.map((p) => p.title).sort()).toEqual([
-        'Post 1',
-        'Post 2',
-      ]);
+      expect(result?.posts?.map((p) => p.title).sort()).toEqual(['Post 1', 'Post 2']);
     });
 
     test('should return empty array when author has no posts', async () => {
@@ -98,11 +96,7 @@ describe('E2E One-to-Many Required: Include', () => {
           name: 'Author',
           email: uniqueEmail(),
           posts: {
-            create: [
-              { title: 'Zebra' },
-              { title: 'Alpha' },
-              { title: 'Middle' },
-            ],
+            create: [{ title: 'Zebra' }, { title: 'Alpha' }, { title: 'Middle' }],
           },
         },
       });
@@ -116,11 +110,7 @@ describe('E2E One-to-Many Required: Include', () => {
         },
       });
 
-      expect(result?.posts?.map((p) => p.title)).toEqual([
-        'Alpha',
-        'Middle',
-        'Zebra',
-      ]);
+      expect(result?.posts?.map((p) => p.title)).toEqual(['Alpha', 'Middle', 'Zebra']);
     });
   });
 
@@ -162,11 +152,7 @@ describe('E2E One-to-Many Required: Include', () => {
           name: 'Author',
           email: uniqueEmail(),
           posts: {
-            create: [
-              { title: 'Post 1' },
-              { title: 'Post 2' },
-              { title: 'Post 3' },
-            ],
+            create: [{ title: 'Post 1' }, { title: 'Post 2' }, { title: 'Post 3' }],
           },
         },
       });

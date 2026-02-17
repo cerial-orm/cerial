@@ -85,9 +85,7 @@ describe('Lexer', () => {
       const tokens = tokenize(source);
       const result = lex(tokens);
 
-      const uniqueDecorator = result.lexemes.find(
-        (l) => l.type === 'decorator_unique'
-      );
+      const uniqueDecorator = result.lexemes.find((l) => l.type === 'decorator_unique');
       expect(uniqueDecorator?.value).toBe('@unique');
     });
 
@@ -96,9 +94,7 @@ describe('Lexer', () => {
       const tokens = tokenize(source);
       const result = lex(tokens);
 
-      const nowDecorator = result.lexemes.find(
-        (l) => l.type === 'decorator_now'
-      );
+      const nowDecorator = result.lexemes.find((l) => l.type === 'decorator_now');
       expect(nowDecorator?.value).toBe('@now');
     });
 
@@ -107,9 +103,7 @@ describe('Lexer', () => {
       const tokens = tokenize(source);
       const result = lex(tokens);
 
-      const defaultDecorator = result.lexemes.find(
-        (l) => l.type === 'decorator_default'
-      );
+      const defaultDecorator = result.lexemes.find((l) => l.type === 'decorator_default');
       expect(defaultDecorator?.value).toBe('@default(true)');
     });
   });
@@ -123,9 +117,7 @@ describe('Lexer', () => {
       const tokens = tokenize(source);
       const result = lex(tokens);
 
-      const modelKeywords = result.lexemes.filter(
-        (l) => l.type === 'model_keyword'
-      );
+      const modelKeywords = result.lexemes.filter((l) => l.type === 'model_keyword');
       const modelNames = result.lexemes.filter((l) => l.type === 'model_name');
 
       expect(modelKeywords).toHaveLength(2);
@@ -158,9 +150,7 @@ describe('Lexer', () => {
       const tokens = tokenize(source);
       const result = lex(tokens);
 
-      const modelKeyword = result.lexemes.find(
-        (l) => l.type === 'model_keyword'
-      );
+      const modelKeyword = result.lexemes.find((l) => l.type === 'model_keyword');
       expect(modelKeyword?.position).toBeDefined();
       expect(modelKeyword?.position.line).toBe(1);
     });

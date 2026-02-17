@@ -15,7 +15,7 @@ export function parseModelRegistry(dsl: string): ModelRegistry {
   const result = parse(dsl);
 
   if (result.errors.length > 0) {
-    throw new Error(`Failed to parse model DSL: ${result.errors.map(e => e.message).join(', ')}`);
+    throw new Error(`Failed to parse model DSL: ${result.errors.map((e) => e.message).join(', ')}`);
   }
 
   return astToRegistry(result.ast);

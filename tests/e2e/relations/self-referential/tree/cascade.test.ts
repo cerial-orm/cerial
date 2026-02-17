@@ -6,13 +6,7 @@
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import {
-  cleanupTables,
-  createTestClient, truncateTables,
-  CerialClient,
-  tables,
-  testConfig,
-} from '../../test-helper';
+import { cleanupTables, createTestClient, truncateTables, CerialClient, tables, testConfig } from '../../test-helper';
 
 describe('E2E Self-Ref Tree: Cascade', () => {
   let client: CerialClient;
@@ -51,14 +45,10 @@ describe('E2E Self-Ref Tree: Cascade', () => {
       });
 
       // Parent still exists
-      expect(
-        await client.db.CategoryTree.findOne({ where: { id: parent.id } })
-      ).toBeDefined();
+      expect(await client.db.CategoryTree.findOne({ where: { id: parent.id } })).toBeDefined();
 
       // Child is gone
-      expect(
-        await client.db.CategoryTree.findOne({ where: { id: child.id } })
-      ).toBeNull();
+      expect(await client.db.CategoryTree.findOne({ where: { id: child.id } })).toBeNull();
     });
   });
 
@@ -84,9 +74,7 @@ describe('E2E Self-Ref Tree: Cascade', () => {
       });
 
       // Parent gone
-      expect(
-        await client.db.CategoryTree.findOne({ where: { id: parent.id } })
-      ).toBeNull();
+      expect(await client.db.CategoryTree.findOne({ where: { id: parent.id } })).toBeNull();
 
       // Children behavior: SetNull default for optional relations
       // Without explicit @onDelete, children get their parentId set to null
@@ -123,14 +111,10 @@ describe('E2E Self-Ref Tree: Cascade', () => {
       });
 
       // Branch gone
-      expect(
-        await client.db.CategoryTree.findOne({ where: { id: branch.id } })
-      ).toBeNull();
+      expect(await client.db.CategoryTree.findOne({ where: { id: branch.id } })).toBeNull();
 
       // Root still exists
-      expect(
-        await client.db.CategoryTree.findOne({ where: { id: root.id } })
-      ).toBeDefined();
+      expect(await client.db.CategoryTree.findOne({ where: { id: root.id } })).toBeDefined();
     });
   });
 
@@ -147,9 +131,7 @@ describe('E2E Self-Ref Tree: Cascade', () => {
         where: { id: root.id },
       });
 
-      expect(
-        await client.db.CategoryTree.findOne({ where: { id: root.id } })
-      ).toBeNull();
+      expect(await client.db.CategoryTree.findOne({ where: { id: root.id } })).toBeNull();
     });
   });
 });

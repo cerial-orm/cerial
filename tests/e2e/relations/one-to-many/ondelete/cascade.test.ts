@@ -9,13 +9,7 @@
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import {
-  cleanupTables,
-  createTestClient, truncateTables,
-  CerialClient,
-  tables,
-  testConfig,
-} from '../../test-helper';
+import { cleanupTables, createTestClient, truncateTables, CerialClient, tables, testConfig } from '../../test-helper';
 
 describe('E2E One-to-Many @onDelete(Cascade)', () => {
   let client: CerialClient;
@@ -40,11 +34,7 @@ describe('E2E One-to-Many @onDelete(Cascade)', () => {
         data: {
           name: 'Team',
           members: {
-            create: [
-              { name: 'Member 1' },
-              { name: 'Member 2' },
-              { name: 'Member 3' },
-            ],
+            create: [{ name: 'Member 1' }, { name: 'Member 2' }, { name: 'Member 3' }],
           },
         },
       });
