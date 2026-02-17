@@ -12,6 +12,7 @@ import { schemaTypeToTsType } from '../../../utils/type-utils';
 import { getLiteralTypeName } from '../enums';
 import { getGeometryInputType, getGeometryOutputType } from '../geometry-helpers';
 import { literalNeedsInputType } from '../literals';
+import { getRecordInputType, getRecordOutputType } from '../record-type-helpers';
 
 /**
  * Get the TypeScript output type for a field
@@ -19,7 +20,7 @@ import { literalNeedsInputType } from '../literals';
  * For Object fields, uses the object's interface name
  */
 function getOutputType(field: FieldMetadata): string {
-  if (field.type === 'record') return 'CerialId';
+  if (field.type === 'record') return getRecordOutputType(field);
   if (field.type === 'uuid') return 'CerialUuid';
   if (field.type === 'duration') return 'CerialDuration';
   if (field.type === 'decimal') return 'CerialDecimal';
@@ -41,7 +42,7 @@ function getOutputType(field: FieldMetadata): string {
  * For Literal fields, uses the literal type name or Input variant
  */
 function getInputType(field: FieldMetadata): string {
-  if (field.type === 'record') return 'RecordIdInput';
+  if (field.type === 'record') return getRecordInputType(field);
   if (field.type === 'uuid') return 'CerialUuidInput';
   if (field.type === 'duration') return 'CerialDurationInput';
   if (field.type === 'decimal') return 'CerialDecimalInput';
@@ -66,7 +67,7 @@ function getInputType(field: FieldMetadata): string {
  * Same as getInputType but uses CreateInput for nested objects that have @default/@now fields
  */
 function getCreateInputType(field: FieldMetadata, objectRegistry?: ObjectRegistry): string {
-  if (field.type === 'record') return 'RecordIdInput';
+  if (field.type === 'record') return getRecordInputType(field);
   if (field.type === 'uuid') return 'CerialUuidInput';
   if (field.type === 'duration') return 'CerialDurationInput';
   if (field.type === 'decimal') return 'CerialDecimalInput';

@@ -31,3 +31,4 @@ export {
 } from './registry-generator';
 export { writeModelRegistry } from './registry-writer';
 export { writeInternalIndex } from './internal-writer';
+export { inferFKTypes } from './fk-type-inference';

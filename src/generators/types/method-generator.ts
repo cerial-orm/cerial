@@ -5,6 +5,7 @@
 import { getUniqueFields } from '../../parser/model-metadata';
 import type { CompositeIndex, FieldMetadata, ModelMetadata, ObjectMetadata, ObjectRegistry } from '../../types';
 import { schemaTypeToTsType } from '../../utils/type-utils';
+import { getRecordInputType } from './record-type-helpers';
 
 /** Check if model has relation fields */
 function hasRelations(model: ModelMetadata): boolean {
@@ -61,7 +62,7 @@ export function generateFindManyMethod(model: ModelMetadata): string {
 
 /** Get input type for a field (RecordIdInput for ID/Record, object type for objects, regular type for primitives) */
 function getFieldInputType(field: FieldMetadata): string {
-  if (field.isId || field.type === 'record') return 'RecordIdInput';
+  if (field.isId || field.type === 'record') return getRecordInputType(field);
   if (field.type === 'object' && field.objectInfo) return field.objectInfo.objectName;
 
   return schemaTypeToTsType(field.type as Parameters<typeof schemaTypeToTsType>[0]);
@@ -340,7 +341,9 @@ export function generateFindUniqueWhereType(model: ModelMetadata, objectRegistry
   // ID variant: { id: RecordIdInput } & { email?: string } & Omit<UserWhere, 'id' | 'email'>
   if (idField) {
     const optionalUnique = buildOptionalUniqueFields(idField.name);
-    variants.push(`({ ${idField.name}: RecordIdInput }${optionalUnique} & Omit<${model.name}Where, ${omitStr}>)`);
+    variants.push(
+      `({ ${idField.name}: ${getRecordInputType(idField)} }${optionalUnique} & Omit<${model.name}Where, ${omitStr}>)`,
+    );
   }
 
   // Single-field unique variants: { email: string } & { id?: RecordIdInput } & Omit<UserWhere, ...>

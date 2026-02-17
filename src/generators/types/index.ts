@@ -100,3 +100,10 @@ export {
   getLiteralTypeName,
   getLiteralWhereName,
 } from './enums';
+
+export {
+  getIdCreateInputType,
+  getRecordInputType,
+  getRecordOutputType,
+  isIdOptionalInCreate,
+} from './record-type-helpers';

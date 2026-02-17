@@ -7,6 +7,20 @@ import { schemaTypeToTsType } from '../../utils/type-utils';
 import { getLiteralTypeName, getLiteralWhereName } from './enums';
 import { getGeometryInputType } from './geometry-helpers';
 
+/** Get typed RecordIdInput for a Record field based on recordIdTypes */
+function getRecordWhereInputType(field: FieldMetadata): string {
+  if (!field.recordIdTypes?.length) return 'RecordIdInput';
+  const tsTypes = field.recordIdTypes.map((t) => {
+    if (t === 'int' || t === 'number' || t === 'float') return 'number';
+    if (t === 'string' || t === 'uuid') return 'string';
+
+    return t;
+  });
+  const unionType = [...new Set(tsTypes)].join(' | ');
+
+  return `RecordIdInput<${unionType}>`;
+}
+
 /** Generate comparison operators for numeric types */
 function generateNumericComparisonOps(tsType: string): string {
   return `{
@@ -136,7 +150,7 @@ export function generateFieldWhereType(field: FieldMetadata, _registry?: ModelRe
   // Handle array types (String[], Int[], Date[], Record[], etc.)
   if (field.isArray) {
     let inputType: string;
-    if (field.type === 'record') inputType = 'RecordIdInput';
+    if (field.type === 'record') inputType = getRecordWhereInputType(field);
     else if (field.type === 'uuid') inputType = 'CerialUuidInput';
     else if (field.type === 'duration') inputType = 'CerialDurationInput';
     else if (field.type === 'decimal') inputType = 'CerialDecimalInput';
@@ -150,10 +164,12 @@ export function generateFieldWhereType(field: FieldMetadata, _registry?: ModelRe
 
   // Handle Record (single record ID) - accepts RecordIdInput
   if (field.type === 'record') {
-    return `${nullablePrefix}RecordIdInput | (
-    ${generateStringComparisonOps('RecordIdInput')} &
+    const inputType = getRecordWhereInputType(field);
+
+    return `${nullablePrefix}${inputType} | (
+    ${generateStringComparisonOps(inputType)} &
     ${generateStringOps()} &
-    ${generateArrayOps('RecordIdInput')} &
+    ${generateArrayOps(inputType)} &
     ${generateStringSpecialOps(isRequired, isId, isNullable)}
   )`;
   }

@@ -13,7 +13,9 @@ import {
   createObjectRegistry,
   createTupleRegistry,
   createLiteralRegistry,
+  createRegistry,
   resolveObjectFields,
+  inferFKTypes,
 } from '../generators/metadata';
 import { writeModelRegistry } from '../generators/metadata/registry-writer';
 import { writeInternalIndex } from '../generators/metadata/internal-writer';
@@ -353,6 +355,9 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
     if (objects.length || tuples.length || literals.length) {
       resolveObjectFields(models, objects, objRegistry ?? {}, tupRegistry, litRegistry);
     }
+
+    const modelRegistry = createRegistry(models);
+    inferFKTypes(models, modelRegistry);
 
     // Check for literal decorator warnings
     if (literals.length && (objRegistry || tupRegistry)) {

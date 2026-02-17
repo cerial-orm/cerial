@@ -76,6 +76,11 @@ function generateFieldMetadata(field: FieldMetadata): string {
     parts.push(`isNullable: true`);
   }
 
+  // Include recordIdTypes when present (for typed Record IDs)
+  if (field.recordIdTypes?.length) {
+    parts.push(`recordIdTypes: [${field.recordIdTypes.map((t) => `'${t}'`).join(', ')}]`);
+  }
+
   // Include objectInfo when present (with inline fields for runtime query building)
   if (field.objectInfo) {
     if (field.objectInfo.fields.length) {

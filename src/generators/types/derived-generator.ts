@@ -20,13 +20,14 @@ import { getLiteralTypeName } from './enums';
 import { getGeometryInputType } from './geometry-helpers';
 import { literalNeedsInputType } from './literals';
 import { objectHasDefaultOrTimestamp } from './objects/interface-generator';
+import { getRecordInputType, isIdOptionalInCreate } from './record-type-helpers';
 import { generateTupleArrayForm, tupleHasUnsetableElements } from './tuples';
 
 /** Whether to use ts-toolbelt utilities in generated types */
 const USE_TS_TOOLBELT = true;
 
 function getInputType(field: FieldMetadata): string {
-  if (field.type === 'record') return 'RecordIdInput';
+  if (field.type === 'record') return getRecordInputType(field);
   if (field.type === 'uuid') return 'CerialUuidInput';
   if (field.type === 'duration') return 'CerialDurationInput';
   if (field.type === 'decimal') return 'CerialDecimalInput';
@@ -110,8 +111,7 @@ function getOptionalForCreate(model: ModelMetadata): string[] {
     if (field.defaultValue !== undefined) {
       optional.add(field.name);
     }
-    // @id fields are optional (db can auto-generate)
-    if (field.isId) {
+    if (field.isId && isIdOptionalInCreate(field.recordIdTypes)) {
       optional.add(field.name);
     }
     // @createdAt and @updatedAt fields are optional (db can auto-generate)
@@ -280,6 +280,8 @@ function getArrayElementType(schemaType: string, field?: FieldMetadata): string 
 
     return lit.literalName;
   }
+
+  if (schemaType === 'record' && field) return getRecordInputType(field);
 
   const typeMap: Record<string, string> = {
     string: 'string',

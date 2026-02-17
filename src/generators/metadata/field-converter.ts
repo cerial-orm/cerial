@@ -81,6 +81,11 @@ export function convertField(field: ASTField): FieldMetadata {
     metadata.isNullable = true;
   }
 
+  // Handle recordIdTypes for typed Record IDs
+  if (field.recordIdTypes?.length) {
+    metadata.recordIdTypes = field.recordIdTypes;
+  }
+
   // Handle object type (fields will be resolved later by resolveObjectFields)
   if (field.type === 'object' && field.objectName) {
     metadata.objectInfo = { objectName: field.objectName, fields: [] };
