@@ -6,7 +6,7 @@ import { Decimal, Duration, RecordId, StringRecordId } from 'surrealdb';
 import type { ModelMetadata, SchemaFieldType } from '../../types';
 import { CerialId, isRecordIdInput } from '../../utils/cerial-id';
 import { isNone } from '../../utils/none';
-import { isValidEmail, validateFieldType } from '../../utils/validation-utils';
+import { isValidEmail, validateFieldType, validateTypedRecordId } from '../../utils/validation-utils';
 
 /** Validation error */
 export interface DataValidationError {
@@ -28,6 +28,7 @@ export function validateFieldValue(
   isRequired: boolean,
   isArray?: boolean,
   isNullable?: boolean,
+  recordIdTypes?: string[],
 ): DataValidationError | null {
   // NONE sentinel is always valid for optional fields (clear the field)
   if (isNone(value)) {
@@ -84,6 +85,16 @@ export function validateFieldValue(
     return { field: fieldName, message: `${fieldName} must be of type ${fieldType}` };
   }
 
+  // For record fields with recordIdTypes, validate against expected ID types
+  if (fieldType === 'record' && recordIdTypes?.length) {
+    if (!validateTypedRecordId(value, recordIdTypes)) {
+      return {
+        field: fieldName,
+        message: `${fieldName} must be a valid ${recordIdTypes.join(' | ')} record ID`,
+      };
+    }
+  }
+
   // Special validation for email
   if (fieldType === 'email' && typeof value === 'string') {
     if (!isValidEmail(value)) {
@@ -120,11 +131,16 @@ export function validateCreateData(
     // Skip relation fields - they're virtual and don't exist in database
     if (field.type === 'relation') continue;
 
-    // For id fields: if user provides a value, validate it; otherwise skip (auto-generated)
     if (field.isId) {
       if (value !== undefined && value !== null) {
-        // Validate user-provided id (accepts RecordIdInput: string, CerialId, RecordId, StringRecordId)
-        if (!isRecordIdInput(value)) {
+        if (field.recordIdTypes?.length) {
+          if (!validateTypedRecordId(value, field.recordIdTypes)) {
+            errors.push({
+              field: field.name,
+              message: `${field.name} must be a valid ${field.recordIdTypes.join(' | ')} record ID`,
+            });
+          }
+        } else if (!isRecordIdInput(value)) {
           errors.push({ field: field.name, message: `${field.name} must be a valid record ID` });
         }
       }
@@ -153,7 +169,15 @@ export function validateCreateData(
     // Skip Record fields that will be populated by nested operations
     if (field.type === 'record' && fieldsFromNestedOps.has(field.name)) continue;
 
-    const error = validateFieldValue(field.name, value, field.type, field.isRequired, field.isArray, field.isNullable);
+    const error = validateFieldValue(
+      field.name,
+      value,
+      field.type,
+      field.isRequired,
+      field.isArray,
+      field.isNullable,
+      field.recordIdTypes,
+    );
     if (error) {
       errors.push(error);
     }
@@ -364,8 +388,15 @@ export function validateUpdateData(data: Record<string, unknown>, model: ModelMe
     if (isNone(value)) continue;
 
     // For updates, don't require fields - just validate types
-    // Pass isNullable to correctly validate null values
-    const error = validateFieldValue(fieldName, value, field.type, false, field.isArray, field.isNullable);
+    const error = validateFieldValue(
+      fieldName,
+      value,
+      field.type,
+      false,
+      field.isArray,
+      field.isNullable,
+      field.recordIdTypes,
+    );
     if (error) {
       errors.push(error);
     }

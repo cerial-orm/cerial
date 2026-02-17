@@ -12,6 +12,44 @@ import { CerialId, isRecordIdInput } from './cerial-id';
 import { CerialUuid } from './cerial-uuid';
 import { isBoolean, isDate, isNumber, isString } from './type-utils';
 
+/**
+ * Validate a value matches expected record ID types.
+ * Used for Record(Type) @id fields and FK fields with inferred types.
+ * Wrapper types (CerialId, RecordId, StringRecordId) are always accepted
+ * — the inner type can't be validated at runtime without unwrapping.
+ * @param value The value to validate
+ * @param recordIdTypes The expected type strings (e.g., ['int'], ['string', 'int'])
+ * @returns true if value matches any of the expected types
+ */
+export function validateTypedRecordId(value: unknown, recordIdTypes: string[]): boolean {
+  // Wrapper types always valid — DB enforces the type
+  if (CerialId.is(value) || value instanceof RecordId || value instanceof StringRecordId) return true;
+
+  // Check if value matches any expected type
+  return recordIdTypes.some((idType) => matchesIdType(value, idType));
+}
+
+function matchesIdType(value: unknown, idType: string): boolean {
+  switch (idType.toLowerCase()) {
+    case 'string':
+      return typeof value === 'string';
+    case 'int':
+      return typeof value === 'number' && Number.isInteger(value);
+    case 'number':
+      return typeof value === 'number';
+    case 'uuid':
+      return CerialUuid.is(value) || value instanceof Uuid || isValidUuidString(value);
+    default:
+      // Tuple types → array input
+      // Object types → plain object input
+      // For complex types, accept arrays and objects broadly
+      if (Array.isArray(value)) return true; // Could be a tuple ID
+      if (typeof value === 'object' && value !== null) return true; // Could be an object ID
+
+      return false;
+  }
+}
+
 /** Validate email format */
 export function isValidEmail(value: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);

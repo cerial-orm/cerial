@@ -41,7 +41,14 @@ function isRecordId(value: unknown): value is RecordId {
  */
 export function isRecordIdInput(value: unknown): value is RecordIdInput {
   return (
-    CerialId.is(value) || value instanceof RecordId || value instanceof StringRecordId || typeof value === 'string'
+    CerialId.is(value) ||
+    value instanceof RecordId ||
+    value instanceof StringRecordId ||
+    typeof value === 'string' ||
+    typeof value === 'number' ||
+    typeof value === 'bigint' ||
+    Array.isArray(value) ||
+    (typeof value === 'object' && value !== null)
   );
 }
 

@@ -36,6 +36,7 @@ export {
 export {
   isValidEmail,
   validateFieldType,
+  validateTypedRecordId,
   isValidModelName,
   isValidFieldName,
   isComparisonOperator,

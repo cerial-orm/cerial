@@ -15,7 +15,7 @@ import { CerialBytes } from '../../utils/cerial-bytes';
 import { CerialDecimal } from '../../utils/cerial-decimal';
 import { CerialDuration } from '../../utils/cerial-duration';
 import { CerialGeometry } from '../../utils/cerial-geometry';
-import { CerialId, isRecordIdInput, type RecordIdInput } from '../../utils/cerial-id';
+import { CerialId, isRecordIdInput } from '../../utils/cerial-id';
 import { CerialUuid } from '../../utils/cerial-uuid';
 import { isObject } from '../../utils/type-utils';
 import { joinFragments } from '../compile/fragment';
@@ -84,12 +84,17 @@ function transformGeometryValue(value: unknown): unknown {
 function transformFieldValue(value: unknown, fieldMetadata: FieldMetadata, model: ModelMetadata): unknown {
   // Transform ID field values to RecordId
   if (fieldMetadata.isId) {
+    // Check arrays first — isRecordIdInput matches arrays (valid RecordIdValue),
+    // but in WHERE context arrays mean "list of IDs" not "single array-typed ID"
+    if (Array.isArray(value)) {
+      return value.map((v) => {
+        if (isRecordIdInput(v)) return transformOrValidateRecordId(model.tableName, v);
+
+        return v;
+      });
+    }
     if (isRecordIdInput(value)) {
       return transformOrValidateRecordId(model.tableName, value);
-    }
-    // Handle arrays of IDs (for in/notIn operators)
-    if (Array.isArray(value)) {
-      return value.map((v) => (isRecordIdInput(v) ? transformOrValidateRecordId(model.tableName, v) : v));
     }
   }
 
@@ -97,12 +102,17 @@ function transformFieldValue(value: unknown, fieldMetadata: FieldMetadata, model
   if (fieldMetadata.type === 'record') {
     const targetTable = findRecordTargetTable(fieldMetadata.name, model);
     if (targetTable) {
+      // Check arrays first — isRecordIdInput matches arrays (valid RecordIdValue),
+      // but in WHERE context arrays mean "list of IDs" not "single array-typed ID"
+      if (Array.isArray(value)) {
+        return value.map((v) => {
+          if (isRecordIdInput(v)) return transformOrValidateRecordId(targetTable, v);
+
+          return v;
+        });
+      }
       if (isRecordIdInput(value)) {
         return transformOrValidateRecordId(targetTable, value);
-      }
-      // Handle arrays of values (for in/notIn, hasAll, hasAny operators)
-      if (Array.isArray(value)) {
-        return value.map((v) => (isRecordIdInput(v) ? transformOrValidateRecordId(targetTable, v) : v));
       }
     }
   }
@@ -206,17 +216,18 @@ export function isOperatorObject(value: unknown): value is Record<string, unknow
   // Check for non-object types first
   if (value instanceof Uint8Array) return false;
   if (!isObject(value)) return false;
-  // RecordIdInput types (CerialId, RecordId, StringRecordId) are direct values, not operator objects
-  if (isRecordIdInput(value)) return false;
-  // CerialUuid instances are direct values, not operator objects
+  // Known wrapper types are direct values, not operator objects
+  if (CerialId.is(value)) return false;
+  if (value instanceof RecordId) return false;
+  if (value instanceof StringRecordId) return false;
   if (CerialUuid.is(value)) return false;
-  // CerialDuration instances are direct values, not operator objects
   if (CerialDuration.is(value)) return false;
-  // CerialDecimal instances are direct values, not operator objects
   if (CerialDecimal.is(value)) return false;
   if (CerialBytes.is(value)) return false;
   if (CerialGeometry.is(value)) return false;
+  // Operator keys distinguish operator objects ({eq: 42}) from typed ID objects ({service: 'api', ts: 123})
   const keys = Object.keys(value);
+
   return keys.some((k) => isRegisteredOperator(k));
 }
 

@@ -11,6 +11,8 @@ import { CerialDuration } from '../../utils/cerial-duration';
 import { CerialGeometry } from '../../utils/cerial-geometry';
 import { CerialUuid } from '../../utils/cerial-uuid';
 import { isObject } from '../../utils/type-utils';
+import { validateTypedRecordId } from '../../utils/validation-utils';
+import { isOperatorObject } from '../filters/condition-builder';
 import { isRegisteredOperator } from '../filters/registry';
 
 function isDirectValue(value: unknown): boolean {
@@ -61,6 +63,27 @@ export function validateFieldFilter(
   if (!field) {
     errors.push({ path, message: `Unknown field: ${fieldName}` });
     return errors;
+  }
+
+  // For record fields with typed IDs, validate direct values against expected types
+  if (field.type === 'record' && field.recordIdTypes?.length) {
+    if (!isObject(filter)) {
+      if (!validateTypedRecordId(filter, field.recordIdTypes)) {
+        errors.push({
+          path,
+          message: `${fieldName} must be a valid ${field.recordIdTypes.join(' | ')} record ID`,
+        });
+      }
+
+      return errors;
+    }
+
+    if (!isDirectValue(filter) && !isOperatorObject(filter)) {
+      const hasObjectOrTupleIdType = field.recordIdTypes!.some(
+        (t) => !['int', 'float', 'number', 'string', 'uuid'].includes(t),
+      );
+      if (hasObjectOrTupleIdType) return errors;
+    }
   }
 
   // If filter is an object, validate operators

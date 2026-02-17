@@ -164,6 +164,10 @@ export function transformOrValidateRecordId(tableName: string, value: RecordIdIn
     return cerialId.toRecordId();
   }
 
+  if (typeof value === 'number' || typeof value === 'bigint') return new RecordId(tableName, value);
+  if (Array.isArray(value)) return new RecordId(tableName, value);
+  if (typeof value === 'object' && value !== null) return new RecordId(tableName, value);
+
   throw new Error(`Invalid RecordIdInput type: ${typeof value}`);
 }
 
@@ -175,27 +179,34 @@ function findRecordTargetTable(fieldName: string, model: ModelMetadata): string 
 }
 
 /**
- * Convert a value to RecordIdInput for use with transformOrValidateRecordId
- * Handles CerialId, RecordId, StringRecordId, and string
+ * Convert a value to RecordIdInput for use with transformOrValidateRecordId.
+ * Handles CerialId, RecordId, StringRecordId, string, and raw typed ID values
+ * (number, bigint, array, object) which are valid RecordIdInput via the T union.
  */
-function toRecordIdInput(value: unknown): RecordIdInput {
+export function toRecordIdInput(value: unknown): RecordIdInput {
   if (CerialId.is(value)) return value;
   if (value instanceof RecordId) return value;
   if (value instanceof StringRecordId) return value;
 
+  if (typeof value === 'number') return value;
+  if (typeof value === 'bigint') return value;
+  if (Array.isArray(value)) return value;
+  if (typeof value === 'object' && value !== null) return value as RecordIdInput;
+
+  // String and fallback
   return String(value);
 }
 
-/**
- * Parse a RecordIdInput into a RecordId without table validation.
- * Used for Record fields within objects where no target table is known.
- */
-function parseRecordIdInput(value: RecordIdInput): RecordId {
+export function parseRecordIdInput(value: RecordIdInput): RecordId {
   if (value instanceof RecordId) return value;
   if (CerialId.is(value)) return value.toRecordId();
   if (value instanceof StringRecordId) return CerialId.parse(value).toRecordId();
   if (typeof value === 'string') return CerialId.parse(value).toRecordId();
-  throw new Error(`Invalid RecordIdInput type: ${typeof value}`);
+
+  throw new Error(
+    `Cannot parse ${typeof value} as RecordId without table context. ` +
+      `Wrap in CerialId or RecordId with a table name.`,
+  );
 }
 
 /**
