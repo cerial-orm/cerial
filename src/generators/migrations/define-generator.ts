@@ -18,6 +18,7 @@ import {
   generateAssertClause,
   generateComputedClause,
   generateDefaultClause,
+  generateIdTypeClause,
   generateTupleSurrealTypeLiteral,
   generateTypeClause,
   generateValueClause,
@@ -78,11 +79,21 @@ export function generateDefineField(
   options: DefineFieldOptions = {},
   tupleRegistry?: TupleRegistry,
   literalRegistry?: LiteralRegistry,
+  objectRegistry?: ObjectRegistry,
 ): string {
   const opts = { ...DEFAULT_FIELD_OPTIONS, ...options };
 
-  // Skip id field - SurrealDB manages this automatically
-  if (field.isId) return '';
+  if (field.isId) {
+    if (!field.recordIdTypes?.length) return '';
+
+    const parts: string[] = ['DEFINE FIELD OVERWRITE'];
+    parts.push(field.name);
+    parts.push('ON TABLE');
+    parts.push(tableName);
+    parts.push(`TYPE ${generateIdTypeClause(field.recordIdTypes, tupleRegistry, objectRegistry)}`);
+
+    return parts.join(' ') + ';';
+  }
 
   // Skip Relation fields - they are virtual and not stored in database
   if (field.type === 'relation') return '';
@@ -627,7 +638,15 @@ export function generateModelDefineStatements(
 
   // 2. Define each field (skips id and relation fields)
   for (const field of model.fields) {
-    const fieldDef = generateDefineField(field, model.tableName, model, fieldOptions, tupleRegistry, literalRegistry);
+    const fieldDef = generateDefineField(
+      field,
+      model.tableName,
+      model,
+      fieldOptions,
+      tupleRegistry,
+      literalRegistry,
+      objectRegistry,
+    );
     if (fieldDef) statements.push(fieldDef);
 
     // For object fields, generate sub-field DEFINE statements

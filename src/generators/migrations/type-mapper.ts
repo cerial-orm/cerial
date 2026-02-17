@@ -304,6 +304,73 @@ export function generateTypeClause(
 }
 
 /**
+ * Generate the TYPE clause for a typed @id field.
+ * Maps recordIdTypes to SurrealQL type strings.
+ *
+ * Examples:
+ *   ['int'] → 'int'
+ *   ['string'] → 'string'
+ *   ['uuid'] → 'uuid'
+ *   ['number'] → 'number'
+ *   ['string', 'int'] → 'string | int'
+ *   ['MyTuple'] → '[float, float]' (resolved from tupleRegistry)
+ *   ['MyObject'] → '{ x: float, y: float }' (resolved from objectRegistry)
+ *   ['int', 'MyTuple'] → 'int | [float, float]'
+ */
+export function generateIdTypeClause(
+  recordIdTypes: string[],
+  tupleRegistry?: TupleRegistry,
+  objectRegistry?: ObjectRegistry,
+): string {
+  const surrealTypes = recordIdTypes.map((typeName) => {
+    switch (typeName) {
+      case 'int':
+        return 'int';
+      case 'number':
+        return 'number';
+      case 'string':
+        return 'string';
+      case 'uuid':
+        return 'uuid';
+    }
+
+    if (tupleRegistry) {
+      for (const tupleName in tupleRegistry) {
+        if (tupleName === typeName) {
+          const tupleMeta = tupleRegistry[tupleName]!;
+
+          return generateTupleSurrealTypeLiteral(
+            { tupleName: tupleMeta.name, elements: tupleMeta.elements },
+            tupleRegistry,
+          );
+        }
+      }
+    }
+
+    if (objectRegistry) {
+      for (const objectName in objectRegistry) {
+        if (objectName === typeName) {
+          const objectMeta = objectRegistry[objectName]!;
+          const fieldParts = objectMeta.fields.map((f) => {
+            const fieldType = mapToSurrealType(f.type);
+            if (!f.isRequired) return `${f.name}: option<${fieldType}>`;
+            if (f.isNullable) return `${f.name}: ${fieldType} | null`;
+
+            return `${f.name}: ${fieldType}`;
+          });
+
+          return `{ ${fieldParts.join(', ')} }`;
+        }
+      }
+    }
+
+    return typeName;
+  });
+
+  return surrealTypes.join(' | ');
+}
+
+/**
  * Generate the SurrealDB type literal for a tuple element.
  * Handles primitives, objects, and nested tuples recursively.
  *
