@@ -51,6 +51,8 @@ export interface FieldMetadata {
   relationInfo?: RelationFieldMetadata;
   /** Whether the field has @distinct decorator (for arrays) */
   isDistinct?: boolean;
+  /** Whether the field has @set decorator (SurrealDB set type — deduplicated and sorted) */
+  isSet?: boolean;
   /** Sort order from @sort decorator: 'asc' (default) or 'desc' */
   sortOrder?: 'asc' | 'desc';
   /** Whether the field has @flexible decorator (for object-typed fields) */

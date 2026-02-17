@@ -1,0 +1,7 @@
+model SetBasic {
+  id Record @id
+  name String
+  tags String[] @set
+  numbers Int[] @set
+  uuids Uuid[] @set
+}

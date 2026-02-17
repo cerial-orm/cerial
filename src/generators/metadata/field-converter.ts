@@ -54,6 +54,11 @@ export function convertField(field: ASTField): FieldMetadata {
     metadata.isDistinct = true;
   }
 
+  // Handle @set decorator
+  if (hasDecorator(field, 'set')) {
+    metadata.isSet = true;
+  }
+
   // Handle @sort decorator
   const sortDecorator = getDecorator(field, 'sort');
   if (sortDecorator) {

@@ -222,7 +222,8 @@ export function buildUpdateSetClauses(
 
     // Standard field update
     const varBinding = ctx.bind(field, varPrefix, value, fieldMetadata?.type || 'string');
-    setParts.push(`${field} = ${varBinding.placeholder}`);
+    const placeholder = fieldMetadata?.isSet ? `<set>${varBinding.placeholder}` : varBinding.placeholder;
+    setParts.push(`${field} = ${placeholder}`);
     Object.assign(setVars, varBinding.vars);
   }
 

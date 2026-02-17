@@ -21,6 +21,8 @@ A Prisma-like ORM for [SurrealDB](https://surrealdb.com/) with schema-driven cod
 - **Auto migrations** - Schema changes generate SurrealQL `DEFINE TABLE/FIELD/INDEX` statements
 - **Write-once fields** - `@readonly` decorator for immutable fields, enforced at type level and runtime
 - **NONE vs null** - Clean separation of absent fields (`?`) from null values (`@nullable`)
+- **Any type** - Store any SurrealDB value with type-safe CerialAny union
+- **Set arrays** - `@set` decorator for auto-deduplicated, sorted arrays
 
 ## Installation
 

@@ -51,6 +51,11 @@ function generateFieldMetadata(field: FieldMetadata): string {
     parts.push(`isDistinct: true`);
   }
 
+  // Include isSet when true
+  if (field.isSet) {
+    parts.push(`isSet: true`);
+  }
+
   // Include sortOrder when present
   if (field.sortOrder) {
     parts.push(`sortOrder: '${field.sortOrder}'`);

@@ -109,6 +109,12 @@ export type {
   CerialGeometryCollectionInput,
 } from './cerial-geometry';
 
+// CerialAny - Recursive any type
+export type { CerialAny } from './cerial-any';
+
+// CerialSet - Branded set type
+export type { CerialSet } from './cerial-set';
+
 // NONE sentinel
 export { NONE, isNone } from './none';
 export type { CerialNone } from './none';

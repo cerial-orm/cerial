@@ -337,6 +337,8 @@ Do NOT use SurrealDB reserved keywords as field names, model names, or object na
 - **Parameterized queries** = Values bound via `$varName`, never inlined
 - **CerialQueryPromise** = Thenable returned by model methods. Auto-executes on `await`, collectible by `$transaction`
 - **$transaction** = Atomic batch execution of independent queries with typed tuple results
+- **Any type** = `Any` field stores any SurrealDB value. `CerialAny` recursive union (NOT bare TS `any`). No `?`, no `@nullable` (TYPE any already accepts NONE/null). Full WHERE operator set. Excluded from OrderBy. Not allowed in tuple elements
+- **@set decorator** = `String[] @set` generates `set<T>` instead of `array<T>`. Auto-dedup and sort at DB level. Output type `CerialSet<T>` (branded array). Input accepts regular arrays. Not allowed on Decimal[], Object[], Tuple[], Record[]. Mutually exclusive with @distinct/@sort
 
 ## Gotchas
 
@@ -369,3 +371,6 @@ Do NOT use SurrealDB reserved keywords as field names, model names, or object na
 - **Enum name collisions** — Enum names cannot collide with literal, model, object, or tuple names across all schema files
 - **Enum values are string-only** — No numeric or boolean values allowed. Use `literal {}` for mixed types
 - **Enum fields use literal internally** — Enum fields use `type: 'literal'` internally — query builders/filters/validators work automatically via existing literal infrastructure
+- **Any type restrictions** — `Any?` and `Any @nullable` are blocked. SurrealDB `TYPE any` natively accepts NONE and null, so `CerialAny` already covers both. Not allowed in tuple elements
+- **@set requires cast** — SurrealDB 3.x doesn't auto-coerce arrays to sets. Cerial automatically wraps set field values with `<set>` cast in queries
+- **@set excluded types** — `Decimal[] @set` errors in SurrealDB (`set<decimal>` bug). Object[], Tuple[], Record[] arrays cannot use @set

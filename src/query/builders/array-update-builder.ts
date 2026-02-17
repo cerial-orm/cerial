@@ -20,15 +20,24 @@ export function isArrayUpdateOps(value: unknown): value is ArrayUpdateOps {
   return 'push' in ops || 'unset' in ops;
 }
 
-/** Build push operation (SET field += value)
- * Adds elements to array. SurrealDB handles deduplication via VALUE $value.distinct()
- */
+/** Build push operation (SET field += value) */
 export function buildPushOperation(
   ctx: FilterCompileContext,
   field: string,
   value: unknown,
   fieldMetadata: FieldMetadata,
 ): { clause: string; vars: Record<string, unknown> } {
+  // SurrealDB sets don't support += — use set::union instead
+  if (fieldMetadata.isSet) {
+    const pushValue = Array.isArray(value) ? value : [value];
+    const varBinding = ctx.bind(field, 'push', pushValue, fieldMetadata.type);
+
+    return {
+      clause: `${field} = set::union(${field}, <set>${varBinding.placeholder})`,
+      vars: varBinding.vars,
+    };
+  }
+
   const varBinding = ctx.bind(field, 'push', value, fieldMetadata.type);
 
   return {
@@ -37,15 +46,24 @@ export function buildPushOperation(
   };
 }
 
-/** Build unset operation (SET field -= value)
- * Removes elements from array
- */
+/** Build unset operation (SET field -= value) */
 export function buildUnsetOperation(
   ctx: FilterCompileContext,
   field: string,
   value: unknown,
   fieldMetadata: FieldMetadata,
 ): { clause: string; vars: Record<string, unknown> } {
+  // SurrealDB sets don't support -= — use set::difference instead
+  if (fieldMetadata.isSet) {
+    const unsetValue = Array.isArray(value) ? value : [value];
+    const varBinding = ctx.bind(field, 'unset', unsetValue, fieldMetadata.type);
+
+    return {
+      clause: `${field} = set::difference(${field}, <set>${varBinding.placeholder})`,
+      vars: varBinding.vars,
+    };
+  }
+
   const varBinding = ctx.bind(field, 'unset', value, fieldMetadata.type);
 
   return {
@@ -66,8 +84,10 @@ export function buildArrayUpdateClause(
   // Direct array assignment (overwrite)
   if (Array.isArray(value)) {
     const varBinding = ctx.bind(field, 'set', value, fieldMetadata.type);
+    const placeholder = fieldMetadata.isSet ? `<set>${varBinding.placeholder}` : varBinding.placeholder;
+
     return {
-      clause: `${field} = ${varBinding.placeholder}`,
+      clause: `${field} = ${placeholder}`,
       vars: varBinding.vars,
     };
   }

@@ -32,7 +32,8 @@ export type SurrealQLType =
   | 'duration'
   | 'decimal'
   | 'bytes'
-  | 'geometry';
+  | 'geometry'
+  | 'any';
 
 /** Mapping from schema types to SurrealQL types */
 const TYPE_MAP: Record<SchemaFieldType, SurrealQLType> = {
@@ -53,6 +54,7 @@ const TYPE_MAP: Record<SchemaFieldType, SurrealQLType> = {
   decimal: 'decimal',
   bytes: 'bytes',
   geometry: 'geometry',
+  any: 'any',
 } as Record<SchemaFieldType, SurrealQLType>;
 
 /** Schema types that require additional assertions */
@@ -213,14 +215,20 @@ export function generateTypeClause(
 ): string {
   const isNullable = field?.isNullable;
 
+  // Any type — TYPE any accepts all values including NONE and null natively
+  // No need for option<any> or any | null wrappers
+  if (schemaType === 'any') return 'TYPE any';
+
   // Handle Record types with target table
   if (schemaType === 'record' && field && model) {
     const targetTable = findRecordTargetTable(field, model);
 
     if (targetTable) {
-      // Array Record type: array<record<table>> VALUE $value.distinct()
+      // Array Record type: array<record<table>> or set<record<table>>
       if (field.isArray) {
-        return `TYPE array<record<${targetTable}>>`;
+        const containerType = field.isSet ? 'set' : 'array';
+
+        return `TYPE ${containerType}<record<${targetTable}>>`;
       }
 
       // Single Record type with nullable/optional modifiers
@@ -229,7 +237,9 @@ export function generateTypeClause(
 
     // Fallback if no target table found
     if (field.isArray) {
-      return 'TYPE array<record>';
+      const containerType = field.isSet ? 'set' : 'array';
+
+      return `TYPE ${containerType}<record>`;
     }
 
     return `TYPE ${wrapTypeModifiers('record', isRequired, isNullable)}`;
@@ -239,7 +249,11 @@ export function generateTypeClause(
   if (schemaType === 'tuple' && field?.tupleInfo) {
     const tupleLiteral = generateTupleSurrealTypeLiteral(field.tupleInfo, tupleRegistry);
 
-    if (field.isArray) return `TYPE array<${tupleLiteral}>`;
+    if (field.isArray) {
+      const containerType = field.isSet ? 'set' : 'array';
+
+      return `TYPE ${containerType}<${tupleLiteral}>`;
+    }
 
     // Tuples can be @nullable (unlike objects) — SurrealDB supports `[T, T] | null`
     return `TYPE ${wrapTypeModifiers(tupleLiteral, isRequired, isNullable)}`;
@@ -249,7 +263,11 @@ export function generateTypeClause(
   if (schemaType === 'literal' && field?.literalInfo) {
     const literalUnion = generateLiteralSurrealType(field.literalInfo, tupleRegistry);
 
-    if (field.isArray) return `TYPE array<${literalUnion}>`;
+    if (field.isArray) {
+      const containerType = field.isSet ? 'set' : 'array';
+
+      return `TYPE ${containerType}<${literalUnion}>`;
+    }
 
     return `TYPE ${wrapTypeModifiers(literalUnion, isRequired, isNullable)}`;
   }
@@ -263,7 +281,11 @@ export function generateTypeClause(
     } else {
       geoType = 'geometry<point | line | polygon | multipoint | multiline | multipolygon | collection>';
     }
-    if (field.isArray) return `TYPE array<${geoType}>`;
+    if (field.isArray) {
+      const containerType = field.isSet ? 'set' : 'array';
+
+      return `TYPE ${containerType}<${geoType}>`;
+    }
 
     return `TYPE ${wrapTypeModifiers(geoType, isRequired, isNullable)}`;
   }
@@ -271,7 +293,9 @@ export function generateTypeClause(
   // Handle primitive array types (String[], Int[], Date[], etc.)
   if (field?.isArray) {
     const surrealType = mapToSurrealType(schemaType);
-    return `TYPE array<${surrealType}>`;
+    const containerType = field.isSet ? 'set' : 'array';
+
+    return `TYPE ${containerType}<${surrealType}>`;
   }
 
   const surrealType = mapToSurrealType(schemaType);
@@ -387,6 +411,9 @@ export function hasPairedRelation(field: FieldMetadata, model: ModelMetadata): b
  * Uses conditional to handle NONE values gracefully
  */
 export function generateValueClause(field: FieldMetadata, model?: ModelMetadata): string | undefined {
+  // @set fields don't need VALUE clause — SurrealDB set type handles dedup/sort natively
+  if (field.isSet) return undefined;
+
   // Record[] paired with Relation - always distinct (existing behavior)
   if (field.type === 'record' && field.isArray && model) {
     if (hasPairedRelation(field, model)) {

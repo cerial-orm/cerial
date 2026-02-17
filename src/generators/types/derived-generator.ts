@@ -31,6 +31,7 @@ function getInputType(field: FieldMetadata): string {
   if (field.type === 'duration') return 'CerialDurationInput';
   if (field.type === 'decimal') return 'CerialDecimalInput';
   if (field.type === 'bytes') return 'CerialBytesInput';
+  if (field.type === 'any') return 'CerialAny';
   if (field.type === 'geometry') return getGeometryInputType(field);
   if (field.type === 'literal' && field.literalInfo) {
     const lit = field.literalInfo;
@@ -293,6 +294,7 @@ function getArrayElementType(schemaType: string, field?: FieldMetadata): string 
     decimal: 'CerialDecimalInput',
     bytes: 'CerialBytesInput',
     geometry: 'CerialGeometryInput',
+    any: 'CerialAny',
   };
 
   return typeMap[schemaType] ?? 'unknown';
@@ -795,6 +797,8 @@ export function generateOrderByType(model: ModelMetadata): string {
       continue;
     } else if (field.type === 'geometry') {
       // Geometry fields do not support ordering — skip
+      continue;
+    } else if (field.type === 'any') {
       continue;
     } else if (field.type === 'literal') {
       if (field.literalInfo?.isEnum) {

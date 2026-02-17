@@ -84,6 +84,7 @@ export function schemaTypeToTsType(type: SchemaFieldType): string {
     decimal: 'string',
     bytes: 'string',
     geometry: 'unknown',
+    any: 'unknown',
   };
 
   return typeMap[type];
@@ -100,15 +101,16 @@ export function schemaTypeToSurrealType(type: SchemaFieldType): string {
     float: 'float',
     number: 'number',
     record: 'record',
-    relation: '', // Virtual type - not stored in database
-    object: 'object', // Embedded object type
-    tuple: 'array', // Tuple type - stored as typed array literal
-    literal: 'literal', // Literal type - stored as union type
+    relation: '',
+    object: 'object',
+    tuple: 'array',
+    literal: 'literal',
     uuid: 'uuid',
     duration: 'duration',
     decimal: 'decimal',
     bytes: 'bytes',
     geometry: 'geometry',
+    any: 'any',
   };
 
   return typeMap[type];

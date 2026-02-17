@@ -67,6 +67,8 @@ export function validateFieldType(value: unknown, type: SchemaFieldType): boolea
       return CerialGeometry.is(value) || value instanceof Geometry || (typeof value === 'object' && value !== null);
     case 'literal':
       return value !== undefined && value !== null;
+    case 'any':
+      return true;
     default:
       return false;
   }

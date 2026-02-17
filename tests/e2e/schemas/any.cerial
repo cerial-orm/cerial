@@ -1,0 +1,32 @@
+object AnyMeta {
+  data Any
+  label String
+}
+
+model AnyBasic {
+  id Record @id
+  name String
+  data Any
+  items Any[]
+}
+
+model AnyWithObject {
+  id Record @id
+  name String
+  meta AnyMeta
+}
+
+model AnyDecorated {
+  id Record @id
+  defData Any @default("hello")
+  alwaysData Any @defaultAlways(42)
+  readonlyData Any @readonly
+  indexedData Any @index
+  sortedItems Any[] @sort
+  distinctItems Any[] @distinct
+}
+
+model AnyUnique {
+  id Record @id
+  uniqueData Any @unique
+}

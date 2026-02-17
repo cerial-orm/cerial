@@ -97,6 +97,7 @@ export function transformValue(value: unknown, fieldType: SchemaFieldType): unkn
 
       return value;
 
+    case 'any':
     case 'record':
       return value;
 

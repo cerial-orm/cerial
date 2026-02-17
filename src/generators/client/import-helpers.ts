@@ -39,6 +39,10 @@ import type { CerialBytesInput } from 'cerial';`;
 export const CERIAL_GEOMETRY_IMPORT = `import { CerialGeometry, CerialPoint, CerialLineString, CerialPolygon, CerialMultiPoint, CerialMultiLineString, CerialMultiPolygon, CerialGeometryCollection } from 'cerial';
 import type { CerialGeometryInput, CerialPointInput, CerialLineStringInput, CerialPolygonInput, CerialMultiPointInput, CerialMultiLineStringInput, CerialMultiPolygonInput, CerialGeometryCollectionInput } from 'cerial';`;
 
+export const CERIAL_ANY_IMPORT = `import type { CerialAny } from 'cerial';`;
+
+export const CERIAL_SET_IMPORT = `import type { CerialSet } from 'cerial';`;
+
 /** NONE sentinel import for nullable/optional update types */
 export const NONE_IMPORT = `import type { CerialNone } from 'cerial';`;
 
@@ -341,6 +345,40 @@ export function objectHasGeometryFields(
 
 export function tupleHasGeometryElements(tuple: TupleMetadata): boolean {
   return tuple.elements.some((e) => e.type === 'geometry');
+}
+
+export function modelHasAnyFields(model: ModelMetadata): boolean {
+  return model.fields.some((f) => f.type === 'any');
+}
+
+export function modelHasSetFields(model: ModelMetadata): boolean {
+  return model.fields.some((f) => f.isSet);
+}
+
+export function objectHasAnyFields(
+  object: ObjectMetadata,
+  objectRegistry?: ObjectRegistry,
+  visited: Set<string> = new Set(),
+): boolean {
+  for (const field of object.fields) {
+    if (field.type === 'any') return true;
+    if (field.type === 'object' && field.objectInfo && objectRegistry) {
+      const nestedName = field.objectInfo.objectName;
+      if (visited.has(nestedName)) continue;
+      const nested = objectRegistry[nestedName];
+      if (nested) {
+        const nextVisited = new Set(visited);
+        nextVisited.add(nestedName);
+        if (objectHasAnyFields(nested, objectRegistry, nextVisited)) return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+export function tupleHasAnyElements(tuple: TupleMetadata): boolean {
+  return tuple.elements.some((e) => e.type === 'any');
 }
 
 /** Check if a model has any relation fields */

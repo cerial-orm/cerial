@@ -6,7 +6,7 @@ nav_order: 1
 
 # Field Types
 
-Cerial supports 14 built-in field types plus user-defined enum, tuple, object, and literal types. Each type maps to a specific SurrealDB type and TypeScript type.
+Cerial supports 15 built-in field types plus user-defined enum, tuple, object, and literal types. Each type maps to a specific SurrealDB type and TypeScript type.
 
 ## Type Reference
 
@@ -24,6 +24,7 @@ Cerial supports 14 built-in field types plus user-defined enum, tuple, object, a
 | `Decimal`  | Arbitrary-precision decimal                      | `CerialDecimal` (output) / `CerialDecimalInput` (input)   | `decimal`                                     | Yes             | Yes             |
 | `Bytes`    | Binary data                                      | `CerialBytes` (output) / `CerialBytesInput` (input)       | `bytes`                                       | Yes             | Yes             |
 | `Geometry` | Geospatial data                                  | `CerialGeometry` (output) / `CerialGeometryInput` (input) | `geometry<subtype>`                           | Yes             | Yes             |
+| `Any`      | Pass-through (any SurrealDB value)               | `CerialAny`                                               | `any`                                         | Yes             | No              |
 | `Record`   | Record reference                                 | `CerialId` (output) / `RecordIdInput` (input)             | `record<tablename>`                           | Yes             | Yes             |
 | `Relation` | Virtual relation                                 | N/A (not stored)                                          | Virtual                                       | As `Relation[]` | As `Relation?`  |
 | `Enum`     | Named string constants                           | `'VALUE1' \| 'VALUE2'`                                    | `'VALUE1' \| 'VALUE2'`                        | Yes             | Yes             |
@@ -275,6 +276,25 @@ console.log(loc.point.coordinates); // [1.5, 2.5]
 ```
 
 See [Geometry field type](field-types/geometry) for the full CerialGeometry API, subtype decorators, and filtering details.
+
+## Any
+
+A pass-through type that stores any SurrealDB value. Uses the `CerialAny` recursive union type.
+
+- **Output type**: `CerialAny` — a recursive union of all Cerial types including string, number, boolean, Date, CerialId, null, arrays, and objects
+- **Input type**: `CerialAny`
+- **No optional (`?`)** — SurrealDB `TYPE any` natively accepts NONE and null
+- **No `@nullable`** — CerialAny already includes null
+
+```cerial
+model Flexible {
+  id Record @id
+  data Any
+  items Any[]
+}
+```
+
+See [Any field type](field-types/any) for the full CerialAny definition and filtering.
 
 ## Record
 

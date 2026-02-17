@@ -17,7 +17,9 @@ import { getDecimalFieldType, isDecimalType } from './decimal-parser';
 import { getDurationFieldType, isDurationType } from './duration-parser';
 import { getUuidFieldType, isUuidType } from './uuid-parser';
 import { getGeometryFieldType, isGeometryType } from './geometry-parser';
+import { getAnyFieldType, isAnyType } from './any-parser';
 
+export { getAnyFieldType, isAnyType } from './any-parser';
 export { getBytesFieldType, isBytesType } from './bytes-parser';
 export { getDecimalFieldType, isDecimalType } from './decimal-parser';
 export { getDurationFieldType, isDurationType } from './duration-parser';
@@ -55,6 +57,7 @@ export function parseFieldType(
   if (isDecimalType(baseToken)) return getDecimalFieldType();
   if (isBytesType(baseToken)) return getBytesFieldType();
   if (isGeometryType(baseToken)) return getGeometryFieldType();
+  if (isAnyType(baseToken)) return getAnyFieldType();
   if (isRecordType(token)) return getRecordFieldType(); // Use original token for Record[]
   if (isRelationType(token)) return getRelationFieldType(); // Use original token for Relation[]
 

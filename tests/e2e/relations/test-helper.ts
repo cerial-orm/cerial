@@ -202,7 +202,10 @@ export const tables = {
   geometry: ['geometry_basic', 'geometry_with_object', 'geometry_with_tuple'],
 
   // any.cerial (any field type tests)
-  any: ['any_basic', 'any_with_object', 'any_with_tuple'],
+  any: ['any_basic', 'any_with_object', 'any_decorated', 'any_unique'],
+
+  // set.cerial (@set decorator tests)
+  set: ['set_basic'],
 };
 
 /**

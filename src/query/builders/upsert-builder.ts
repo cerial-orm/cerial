@@ -26,6 +26,7 @@ import { createCompileContext, type FilterCompileContext } from '../compile/var-
 import { transformWhereClause } from '../filters/transformer';
 import { transformOrValidateRecordId } from '../transformers';
 import { getRecordIdFromWhere } from './delete-builder';
+import { buildCreateSetClauses } from './insert-builder';
 import {
   expandCompositeKey,
   expandObjectUniqueKey,
@@ -82,7 +83,6 @@ function buildUpsertFieldClause(
 
   if (!inCreate && !inUpdate) return null;
 
-  // Handle NONE sentinel and null for optional record fields
   const resolveValue = (value: unknown, prefix: string): string => {
     if (isNone(value)) return 'NONE';
     if (value === null && fieldMetadata?.type === 'record' && !fieldMetadata.isRequired) return 'NONE';
@@ -90,7 +90,7 @@ function buildUpsertFieldClause(
     const binding = ctx.bind(fieldName, prefix, value, fieldMetadata?.type || 'string');
     Object.assign(vars, binding.vars);
 
-    return binding.placeholder;
+    return fieldMetadata?.isSet ? `<set>${binding.placeholder}` : binding.placeholder;
   };
 
   if (inCreate && inUpdate) {
@@ -175,7 +175,8 @@ function buildUpsertSetClauses(
         // Create has a value, update doesn't — preserve create value, NONE on update
         const binding = ctx.bind(fieldName, 'create', createValue, fieldMetadata?.type || 'string');
         Object.assign(setVars, binding.vars);
-        setParts.push(`${fieldName} = IF $this == NONE THEN ${binding.placeholder} ELSE NONE END`);
+        const placeholder = fieldMetadata?.isSet ? `<set>${binding.placeholder}` : binding.placeholder;
+        setParts.push(`${fieldName} = IF $this == NONE THEN ${placeholder} ELSE NONE END`);
         continue;
       }
     }
@@ -302,9 +303,19 @@ export function buildUpsertIdQuery(
 
   const hasUpdate = Object.keys(updateData).length > 0;
 
-  // Build CREATE content
-  const createBinding = ctx.bind('content', 'create', createData, 'string');
-  Object.assign(vars, createBinding.vars);
+  const hasSetFields = model.fields.some((f) => f.isSet);
+
+  // Build CREATE — use SET syntax for models with @set fields, CONTENT otherwise
+  let createSetParts: string[] | undefined;
+  let createBinding: { placeholder: string; vars: Record<string, unknown> } | undefined;
+  if (hasSetFields) {
+    const result = buildCreateSetClauses(ctx, createData, model);
+    createSetParts = result.setParts;
+    Object.assign(vars, result.setVars);
+  } else {
+    createBinding = ctx.bind('content', 'create', createData, 'string');
+    Object.assign(vars, createBinding.vars);
+  }
 
   // Build UPDATE SET clauses using shared builder (handles objects, tuples, NONE, etc.)
   const updateSetParts: string[] = [];
@@ -314,14 +325,15 @@ export function buildUpsertIdQuery(
     Object.assign(vars, setVars);
   }
 
-  // Build the transaction
   const statements: string[] = ['BEGIN TRANSACTION;'];
-
-  // Check if record exists
   statements.push(`LET $exists = (SELECT * FROM ONLY ${recordId.toString()});`);
 
-  // Build create branch (always available since create is required)
-  const createQuery = `CREATE ONLY ${recordId.toString()} CONTENT ${createBinding.placeholder}${createReturn ? ` ${createReturn}` : ''}`;
+  let createQuery: string;
+  if (hasSetFields && createSetParts) {
+    createQuery = `CREATE ONLY ${recordId.toString()} SET ${createSetParts.join(', ')}${createReturn ? ` ${createReturn}` : ''}`;
+  } else {
+    createQuery = `CREATE ONLY ${recordId.toString()} CONTENT ${createBinding!.placeholder}${createReturn ? ` ${createReturn}` : ''}`;
+  }
 
   // Build update branch
   let updateQuery: string;

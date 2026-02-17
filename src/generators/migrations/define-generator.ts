@@ -299,11 +299,15 @@ export function generateObjectFieldDefines(
       // Sub-fields retain their own types (not affected by parent optionality)
       // This handles nullable/optional modifiers correctly
       if (subField.isArray) {
-        const surrealType = mapToSurrealType(subField.type);
-        parts.push(`TYPE array<${surrealType}>`);
+        if (subField.type === 'any') {
+          parts.push('TYPE array');
+        } else {
+          const surrealType = mapToSurrealType(subField.type);
+          parts.push(`TYPE array<${surrealType}>`);
+        }
       } else {
-        // Use the same nullable/optional semantics as top-level fields
-        parts.push(generateTypeClause(subField.type, subField.isRequired, subField));
+        const typeClause = generateTypeClause(subField.type, subField.isRequired, subField);
+        if (typeClause) parts.push(typeClause);
       }
 
       // Add VALUE clause for array fields with @distinct/@sort decorators

@@ -20,7 +20,8 @@ export type SchemaFieldType =
   | 'duration'
   | 'decimal'
   | 'bytes'
-  | 'geometry';
+  | 'geometry'
+  | 'any';
 
 /** Supported decorator types in schema definitions */
 export type SchemaDecorator =
@@ -37,6 +38,7 @@ export type SchemaDecorator =
   | 'key'
   | 'distinct'
   | 'sort'
+  | 'set'
   | 'defaultAlways'
   | 'flexible'
   | 'readonly'
@@ -77,6 +79,7 @@ export type FieldTypeMapping = {
   decimal: string; // Decimal type - represented as string in TS output mapping
   bytes: string; // Bytes type - represented as string in TS output mapping
   geometry: unknown; // Geometry type - actual type determined by subtype decorators
+  any: unknown; // Any type - accepts any SurrealDB value
 };
 
 /** Field type to SurrealDB type mapping */
@@ -98,6 +101,7 @@ export type SurrealTypeMapping = {
   decimal: 'decimal'; // Decimal type
   bytes: 'bytes'; // Bytes type
   geometry: 'geometry'; // Geometry type
+  any: 'any'; // Any type
 };
 
 /** Generic result type for operations */

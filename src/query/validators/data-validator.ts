@@ -45,8 +45,10 @@ export function validateFieldValue(
     return null;
   }
 
-  // Check null — only allowed on @nullable fields
+  // Check null — only allowed on @nullable fields or Any type (CerialAny includes null)
   if (value === null) {
+    if (fieldType === 'any') return null;
+
     if (isRequired && !isNullable) {
       return { field: fieldName, message: `${fieldName} is required` };
     }

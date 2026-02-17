@@ -142,6 +142,7 @@ export function generateFieldWhereType(field: FieldMetadata, _registry?: ModelRe
     else if (field.type === 'decimal') inputType = 'CerialDecimalInput';
     else if (field.type === 'bytes') inputType = 'CerialBytesInput';
     else if (field.type === 'geometry') inputType = getGeometryInputType(field);
+    else if (field.type === 'any') inputType = 'CerialAny';
     else inputType = tsType;
 
     return `${inputType}[] | ${generateArrayFieldOps(inputType)}`;
@@ -226,6 +227,16 @@ export function generateFieldWhereType(field: FieldMetadata, _registry?: ModelRe
     return `${nullablePrefix}${tsType} | (
     ${generateStringComparisonOps(tsType)} &
     ${generateStringSpecialOps(isRequired, isId, isNullable)}
+  )`;
+  }
+
+  // Any: full operator set (SurrealDB handles type mismatches at query time)
+  if (field.type === 'any') {
+    return `${nullablePrefix}CerialAny | (
+    ${generateNumericComparisonOps('CerialAny')} &
+    ${generateStringOps()} &
+    ${generateArrayOps('CerialAny')} &
+    ${generateNumericSpecialOps('CerialAny', isRequired, isId, isNullable)}
   )`;
   }
 

@@ -140,6 +140,7 @@ type ExpectedFieldTypes =
   | 'duration'
   | 'decimal'
   | 'bytes'
-  | 'geometry';
+  | 'geometry'
+  | 'any';
 
 Test.checks([Test.check<SchemaFieldType, ExpectedFieldTypes, Test.Pass>()]);

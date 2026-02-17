@@ -7,6 +7,8 @@ import { ensureDir, formatCode } from '../shared';
 import { generateAllDerivedTypes, generateInterfaces, generateModelTypes, generateWhereTypes } from '../types';
 import { generateFindUniqueWhereType } from '../types/method-generator';
 import {
+  CERIAL_ANY_IMPORT,
+  CERIAL_SET_IMPORT,
   CERIAL_BYTES_IMPORT,
   CERIAL_DECIMAL_IMPORT,
   CERIAL_DURATION_IMPORT,
@@ -29,6 +31,8 @@ import {
   getReferencedObjectNames,
   getReferencedTupleNames,
   getRelatedModelNames,
+  modelHasAnyFields,
+  modelHasSetFields,
   modelHasBytesFields,
   modelHasDecimalFields,
   modelHasDurationFields,
@@ -104,6 +108,8 @@ export async function writeModelTypes(
   const decimalImport = modelHasDecimalFields(model) ? `\n${CERIAL_DECIMAL_IMPORT}` : '';
   const bytesImport = modelHasBytesFields(model) ? `\n${CERIAL_BYTES_IMPORT}` : '';
   const geometryImport = modelHasGeometryFields(model) ? `\n${CERIAL_GEOMETRY_IMPORT}` : '';
+  const anyImport = modelHasAnyFields(model) ? `\n${CERIAL_ANY_IMPORT}` : '';
+  const setImport = modelHasSetFields(model) ? `\n${CERIAL_SET_IMPORT}` : '';
 
   const interfaceCode = generateInterfaces([model]);
   const whereCode = generateWhereTypes([model]);
@@ -117,7 +123,7 @@ export async function writeModelTypes(
  */
 
 ${TS_TOOLBELT_IMPORT}
-${CERIAL_ID_IMPORT}${noneImport}${uuidImport}${durationImport}${decimalImport}${bytesImport}${geometryImport}
+${CERIAL_ID_IMPORT}${noneImport}${uuidImport}${durationImport}${decimalImport}${bytesImport}${geometryImport}${anyImport}${setImport}
 ${UNIQUE_TYPES_IMPORT}
 ${relatedImports}${objectImports}${tupleImports}${literalImports}${enumImports}${interfaceCode}
 

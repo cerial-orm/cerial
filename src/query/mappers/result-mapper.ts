@@ -92,6 +92,9 @@ export function mapFieldValue(value: unknown, fieldType: SchemaFieldType): unkno
 
       return value;
 
+    case 'any':
+      return value;
+
     case 'record':
       if (isRecordId(value)) {
         return transformRecordIdToCerialId(value);
@@ -336,9 +339,14 @@ export function mapRecord(record: Record<string, unknown>, model: ModelMetadata)
           }
           result[key] = mapped ?? null;
         }
-      } else if (field.isArray && Array.isArray(value)) {
-        // Handle array fields - map each element
-        result[key] = value.map((element) => mapFieldValue(element, field.type));
+      } else if (field.isArray) {
+        // Convert Set objects to arrays (SurrealDB returns native Set for set<T> fields)
+        const arrayValue = value instanceof Set ? [...value] : value;
+        if (Array.isArray(arrayValue)) {
+          result[key] = arrayValue.map((element) => mapFieldValue(element, field.type));
+        } else {
+          result[key] = mapFieldValue(value, field.type);
+        }
       } else {
         result[key] = mapFieldValue(value, field.type);
       }

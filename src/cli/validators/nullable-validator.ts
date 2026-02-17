@@ -17,8 +17,8 @@ import type { SchemaAST } from '../../types';
 import { hasDecorator, getDecorator } from '../../parser/types/ast';
 import type { SchemaValidationError } from './schema-validator';
 
-/** Types that cannot be @nullable (SurrealDB sub-field limitation) */
-const DISALLOWED_NULLABLE_TYPES = new Set(['object', 'tuple', 'relation']);
+/** Types that cannot be @nullable */
+const DISALLOWED_NULLABLE_TYPES = new Set(['object', 'tuple', 'relation', 'any']);
 
 /** Validate @nullable decorator on a single field */
 function validateNullableField(
@@ -45,10 +45,13 @@ function validateNullableField(
 
   if (!hasNullable) return errors;
 
-  // @nullable not allowed on object-type, tuple-type, or relation fields
   if (DISALLOWED_NULLABLE_TYPES.has(field.type)) {
+    const reason =
+      field.type === 'any'
+        ? 'CerialAny already includes null in its union type.'
+        : `SurrealDB cannot define sub-field schemas on nullable ${field.type} parents.`;
     errors.push({
-      message: `@nullable is not allowed on ${field.type} field '${field.name}' in ${parentName}. SurrealDB cannot define sub-field schemas on nullable ${field.type} parents.`,
+      message: `@nullable is not allowed on ${field.type} field '${field.name}' in ${parentName}. ${reason}`,
       line: field.range.start.line,
     });
   }
@@ -117,6 +120,35 @@ export function validateNullableOnTupleElements(ast: SchemaAST): SchemaValidatio
         errors.push({
           message: `@nullable is not allowed on object tuple element '${elemName}' in tuple ${tuple.name}. SurrealDB cannot define sub-field schemas on nullable object parents.`,
           line: tuple.range.start.line,
+        });
+      }
+    }
+  }
+
+  return errors;
+}
+
+/** Validate that Any fields do not use the `?` (optional) modifier */
+export function validateNoOptionalAnyFields(ast: SchemaAST): SchemaValidationError[] {
+  const errors: SchemaValidationError[] = [];
+
+  for (const model of ast.models) {
+    for (const field of model.fields) {
+      if (field.type === 'any' && field.isOptional) {
+        errors.push({
+          message: `Optional (?) is not allowed on Any field '${field.name}' in model ${model.name}. TYPE any natively accepts NONE and CerialAny includes null.`,
+          line: field.range.start.line,
+        });
+      }
+    }
+  }
+
+  for (const object of ast.objects) {
+    for (const field of object.fields) {
+      if (field.type === 'any' && field.isOptional) {
+        errors.push({
+          message: `Optional (?) is not allowed on Any field '${field.name}' in object ${object.name}. TYPE any natively accepts NONE and CerialAny includes null.`,
+          line: field.range.start.line,
         });
       }
     }

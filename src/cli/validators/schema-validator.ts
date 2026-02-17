@@ -10,6 +10,7 @@ import {
   validateNullableOnObjectFields,
   validateNullableOnTupleElements,
   validateNoOptionalTupleElements,
+  validateNoOptionalAnyFields,
   validateTupleElementDecorators,
 } from './nullable-validator';
 import { validateRelationRules } from './relation-validator';
@@ -476,6 +477,7 @@ export function validateObjectFields(ast: SchemaAST): SchemaValidationError[] {
         'unique',
         'distinct',
         'sort',
+        'set',
         'flexible',
         'readonly',
         'nullable',
@@ -499,7 +501,7 @@ export function validateObjectFields(ast: SchemaAST): SchemaValidationError[] {
             });
           } else {
             errors.push({
-              message: `Decorator @${dec.type} is not allowed on object fields. Allowed: @default, @defaultAlways, @createdAt, @updatedAt, @index, @unique, @distinct, @sort, @flexible, @readonly, @nullable, @uuid, @uuid4, @uuid7, @point, @line, @polygon, @multipoint, @multiline, @multipolygon, @geoCollection.`,
+              message: `Decorator @${dec.type} is not allowed on object fields. Allowed: @default, @defaultAlways, @createdAt, @updatedAt, @index, @unique, @distinct, @sort, @set, @flexible, @readonly, @nullable, @uuid, @uuid4, @uuid7, @point, @line, @polygon, @multipoint, @multiline, @multipolygon, @geoCollection.`,
               line: field.range.start.line,
             });
           }
@@ -886,6 +888,92 @@ export function validateUuidFields(ast: SchemaAST): SchemaValidationError[] {
   return errors;
 }
 
+/** Primitive types allowed with @set (SurrealDB set type) */
+const SET_ALLOWED_TYPES = new Set([
+  'string',
+  'email',
+  'int',
+  'float',
+  'bool',
+  'date',
+  'uuid',
+  'duration',
+  'number',
+  'bytes',
+  'geometry',
+  'any',
+]);
+
+/** Validate @set decorator on model and object fields */
+export function validateSetDecorator(ast: SchemaAST): SchemaValidationError[] {
+  const errors: SchemaValidationError[] = [];
+
+  const validateField = (
+    field: {
+      name: string;
+      type: string;
+      isArray?: boolean;
+      decorators: Array<{ type: string }>;
+      range: { start: { line: number } };
+    },
+    parentName: string,
+  ): void => {
+    const hasSet = field.decorators.some((d) => d.type === 'set');
+    if (!hasSet) return;
+
+    if (!field.isArray) {
+      errors.push({
+        message: `@set can only be used on array fields, but '${field.name}' in ${parentName} is not an array.`,
+        line: field.range.start.line,
+      });
+
+      return;
+    }
+
+    if (field.type === 'decimal') {
+      errors.push({
+        message: `@set is not allowed on Decimal[] fields (SurrealDB set<decimal> has known issues). Field '${field.name}' in ${parentName}.`,
+        line: field.range.start.line,
+      });
+    }
+
+    if (!SET_ALLOWED_TYPES.has(field.type)) {
+      errors.push({
+        message: `@set is only allowed on primitive array fields. Field '${field.name}' in ${parentName} is of type '${field.type}[]'.`,
+        line: field.range.start.line,
+      });
+    }
+
+    if (field.decorators.some((d) => d.type === 'distinct')) {
+      errors.push({
+        message: `@set and @distinct cannot be used together on field '${field.name}' in ${parentName}. Sets are inherently distinct.`,
+        line: field.range.start.line,
+      });
+    }
+
+    if (field.decorators.some((d) => d.type === 'sort')) {
+      errors.push({
+        message: `@set and @sort cannot be used together on field '${field.name}' in ${parentName}. Sets are inherently sorted.`,
+        line: field.range.start.line,
+      });
+    }
+  };
+
+  for (const model of ast.models) {
+    for (const field of model.fields) {
+      validateField(field, `model ${model.name}`);
+    }
+  }
+
+  for (const object of ast.objects) {
+    for (const field of object.fields) {
+      validateField(field, `object ${object.name}`);
+    }
+  }
+
+  return errors;
+}
+
 /** Validate entire schema */
 export function validateSchema(ast: SchemaAST): SchemaValidationResult {
   const errors: SchemaValidationError[] = [
@@ -906,9 +994,11 @@ export function validateSchema(ast: SchemaAST): SchemaValidationResult {
     ...validateNullableOnTupleElements(ast),
     ...validateTupleElementDecorators(ast),
     ...validateNoOptionalTupleElements(ast),
+    ...validateNoOptionalAnyFields(ast),
     ...validateTupleObjectCombination(ast),
     ...validateLiteralDecorators(ast),
     ...validateUuidFields(ast),
+    ...validateSetDecorator(ast),
   ];
 
   return {

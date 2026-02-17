@@ -24,6 +24,7 @@ function getOutputType(field: FieldMetadata): string {
   if (field.type === 'duration') return 'CerialDuration';
   if (field.type === 'decimal') return 'CerialDecimal';
   if (field.type === 'bytes') return 'CerialBytes';
+  if (field.type === 'any') return 'CerialAny';
   if (field.type === 'geometry') return getGeometryOutputType(field);
   if (field.type === 'object' && field.objectInfo) return field.objectInfo.objectName;
   if (field.type === 'tuple' && field.tupleInfo) return field.tupleInfo.tupleName;
@@ -45,6 +46,7 @@ function getInputType(field: FieldMetadata): string {
   if (field.type === 'duration') return 'CerialDurationInput';
   if (field.type === 'decimal') return 'CerialDecimalInput';
   if (field.type === 'bytes') return 'CerialBytesInput';
+  if (field.type === 'any') return 'CerialAny';
   if (field.type === 'geometry') return getGeometryInputType(field);
   if (field.type === 'object' && field.objectInfo) return `${field.objectInfo.objectName}Input`;
   if (field.type === 'tuple' && field.tupleInfo) return `${field.tupleInfo.tupleName}Input`;
@@ -69,6 +71,7 @@ function getCreateInputType(field: FieldMetadata, objectRegistry?: ObjectRegistr
   if (field.type === 'duration') return 'CerialDurationInput';
   if (field.type === 'decimal') return 'CerialDecimalInput';
   if (field.type === 'bytes') return 'CerialBytesInput';
+  if (field.type === 'any') return 'CerialAny';
   if (field.type === 'geometry') return getGeometryInputType(field);
   if (field.type === 'object' && field.objectInfo && objectRegistry) {
     const nested = objectRegistry[field.objectInfo.objectName];

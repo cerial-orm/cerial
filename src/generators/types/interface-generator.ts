@@ -25,6 +25,7 @@ function getOutputType(field: FieldMetadata): string {
   if (field.type === 'duration') return 'CerialDuration';
   if (field.type === 'decimal') return 'CerialDecimal';
   if (field.type === 'bytes') return 'CerialBytes';
+  if (field.type === 'any') return 'CerialAny';
   if (field.type === 'geometry') return getGeometryOutputType(field);
   if (field.type === 'object' && field.objectInfo) return field.objectInfo.objectName;
   if (field.type === 'tuple' && field.tupleInfo) return field.tupleInfo.tupleName;
@@ -44,6 +45,7 @@ function getInputType(field: FieldMetadata): string {
   if (field.type === 'duration') return 'CerialDurationInput';
   if (field.type === 'decimal') return 'CerialDecimalInput';
   if (field.type === 'bytes') return 'CerialBytesInput';
+  if (field.type === 'any') return 'CerialAny';
   if (field.type === 'geometry') return getGeometryInputType(field);
   if (field.type === 'object' && field.objectInfo) return `${field.objectInfo.objectName}Input`;
   if (field.type === 'tuple' && field.tupleInfo) return `${field.tupleInfo.tupleName}Input`;
@@ -72,6 +74,8 @@ export function generateFieldType(field: FieldMetadata): string {
 
   // Handle array types (String[] -> string[], Int[] -> number[], Date[] -> Date[], Record[] -> CerialId[])
   if (field.isArray) {
+    if (field.isSet) return `CerialSet<${tsType}>`;
+
     return `${tsType}[]`;
   }
 
@@ -109,6 +113,7 @@ export function generateFieldDefinition(field: FieldMetadata): string {
     if (field.isFlexible) {
       return `${field.name}: (${tsType} & Record<string, any>)[];`;
     }
+    if (field.isSet) return `${field.name}: CerialSet<${tsType}>;`;
 
     return `${field.name}: ${tsType}[];`;
   }

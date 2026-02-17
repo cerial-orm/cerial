@@ -11,6 +11,7 @@ export {
 export { extractDefaultValue, isDefaultDecorator, parseDefaultDecorator } from './default-parser';
 export { isFlexibleDecorator, parseFlexibleDecorator } from './flexible-parser';
 export { isDistinctDecorator, parseDistinctDecorator } from './distinct-parser';
+export { isSetDecorator, parseSetDecorator } from './set-parser';
 export { extractFieldRef, isFieldDecorator, parseFieldDecorator } from './field-parser';
 export { isIdDecorator, parseIdDecorator } from './id-parser';
 export { isIndexDecorator, parseIndexDecorator } from './index-parser';
