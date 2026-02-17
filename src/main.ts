@@ -364,3 +364,7 @@ export type {
 
 // Export utils
 export * from './utils';
+
+// SurrealDB SDK re-exports for typed ID support
+export { RecordId, StringRecordId, Table, equals, escapeIdent, escapeIdPart } from 'surrealdb';
+export type { RecordIdValue } from 'surrealdb';
