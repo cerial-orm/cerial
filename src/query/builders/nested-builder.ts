@@ -464,10 +464,8 @@ export function buildCreateWithNestedTransaction(
         }
       }
     } else if (hasConnect) {
-      // Single relation connect
-      const connectIds = Array.isArray(op.connect) ? op.connect : [op.connect];
+      const connectIds = (Array.isArray(op.connect) ? op.connect : [op.connect]) as RecordIdInput[];
 
-      // Track for existence validation
       connectValidations.push({
         targetModel,
         targetIds: connectIds,
@@ -746,8 +744,7 @@ export function buildUpdateWithNestedTransaction(
           isTargetFieldNullable: targetRecordFieldMeta?.isNullable,
         });
       } else if (isNestedConnect(op)) {
-        // Reverse connect: update target records to point to us
-        const connectIds = Array.isArray(op.connect) ? op.connect : [op.connect];
+        const connectIds = (Array.isArray(op.connect) ? op.connect : [op.connect]) as RecordIdInput[];
         reverseConnects.push({
           targetModel,
           targetIds: connectIds,
@@ -814,9 +811,8 @@ export function buildUpdateWithNestedTransaction(
       // Process them independently to support { connect: [...], disconnect: [...] }
 
       if (isNestedConnect(op)) {
-        const connectIds = Array.isArray(op.connect) ? op.connect : [op.connect];
+        const connectIds = (Array.isArray(op.connect) ? op.connect : [op.connect]) as RecordIdInput[];
         const varName = `$${fieldName}_connect`;
-        // Transform connect IDs to RecordId objects
         const transformedIds = connectIds.map((id) => transformOrValidateRecordId(targetModel.tableName, id));
         vars[`${fieldName}_connect`] = transformedIds;
 

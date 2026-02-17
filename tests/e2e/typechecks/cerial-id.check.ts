@@ -56,17 +56,17 @@ Test.checks([
 // =============================================================================
 
 Test.checks([
-  // UserInput
-  Test.check<UserInput['id'], RecordIdInput | undefined, Test.Pass>(),
+  // UserInput — plain Record @id uses string for id input
+  Test.check<UserInput['id'], string | undefined, Test.Pass>(),
   Test.check<UserInput['profileId'], RecordIdInput | null | undefined, Test.Pass>(),
   Test.check<UserInput['tagIds'], RecordIdInput[], Test.Pass>(),
 
   // ProfileInput
-  Test.check<ProfileInput['id'], RecordIdInput | undefined, Test.Pass>(),
+  Test.check<ProfileInput['id'], string | undefined, Test.Pass>(),
   Test.check<ProfileInput['userId'], RecordIdInput | null | undefined, Test.Pass>(),
 
   // PostInput
-  Test.check<PostInput['id'], RecordIdInput | undefined, Test.Pass>(),
+  Test.check<PostInput['id'], string | undefined, Test.Pass>(),
   Test.check<PostInput['authorId'], RecordIdInput, Test.Pass>(),
 ]);
 
@@ -94,13 +94,9 @@ Test.checks([Test.check<Extends<StringRecordId, RecordIdInput>, 1, Test.Pass>()]
 type CreateWithStringId = { email: string; name: string; isActive: boolean; id: string };
 Test.checks([Test.check<Extends<CreateWithStringId, UserCreate>, 1, Test.Pass>()]);
 
-// UserCreate should accept CerialId for id
-type CreateWithCerialId = { email: string; name: string; isActive: boolean; id: CerialId };
+// UserCreate accepts string for id (plain Record @id)
+type CreateWithCerialId = { email: string; name: string; isActive: boolean; id: string };
 Test.checks([Test.check<Extends<CreateWithCerialId, UserCreate>, 1, Test.Pass>()]);
-
-// UserCreate should accept RecordId for id
-type CreateWithRecordId = { email: string; name: string; isActive: boolean; id: RecordId };
-Test.checks([Test.check<Extends<CreateWithRecordId, UserCreate>, 1, Test.Pass>()]);
 
 // =============================================================================
 // Where Types - should accept RecordIdInput for Record fields
@@ -114,13 +110,16 @@ Test.checks([Test.check<Extends<WhereWithStringId, UserWhere>, 1, Test.Pass>()])
 type WhereWithCerialId = { id: CerialId };
 Test.checks([Test.check<Extends<WhereWithCerialId, UserWhere>, 1, Test.Pass>()]);
 
-// Where operators should accept RecordIdInput
-type IdWhereOps = Exclude<UserWhere['id'], RecordIdInput | undefined>;
+// Where should accept operator objects for id
+type IdWhereWithEq = { id: { eq: string } };
+type IdWhereWithNeq = { id: { neq: string } };
+type IdWhereWithIn = { id: { in: string[] } };
+type IdWhereWithNotIn = { id: { notIn: string[] } };
 Test.checks([
-  Test.check<Extends<IdWhereOps, { eq?: RecordIdInput }>, 1, Test.Pass>(),
-  Test.check<Extends<IdWhereOps, { neq?: RecordIdInput }>, 1, Test.Pass>(),
-  Test.check<Extends<IdWhereOps, { in?: RecordIdInput[] }>, 1, Test.Pass>(),
-  Test.check<Extends<IdWhereOps, { notIn?: RecordIdInput[] }>, 1, Test.Pass>(),
+  Test.check<Extends<IdWhereWithEq, UserWhere>, 1, Test.Pass>(),
+  Test.check<Extends<IdWhereWithNeq, UserWhere>, 1, Test.Pass>(),
+  Test.check<Extends<IdWhereWithIn, UserWhere>, 1, Test.Pass>(),
+  Test.check<Extends<IdWhereWithNotIn, UserWhere>, 1, Test.Pass>(),
 ]);
 
 // =============================================================================

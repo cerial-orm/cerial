@@ -1,6 +1,6 @@
-tuple Coordinate { Float, Float }
+tuple IdCoord { Float, Float }
 
-object MetricKey {
+object IdMetricKey {
   service String
   timestamp Int
 }
@@ -26,12 +26,12 @@ model UuidIdModel {
 }
 
 model TupleIdModel {
-  id Record(Coordinate) @id
+  id Record(IdCoord) @id
   city String
 }
 
 model ObjectIdModel {
-  id Record(MetricKey) @id
+  id Record(IdMetricKey) @id
   value Float
 }
 

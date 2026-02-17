@@ -72,9 +72,6 @@ export async function writeModelTypes(
     }
   }
 
-  const referencedObjects = Array.from(referencedObjectsSet);
-  const objectImports = generateObjectImports(referencedObjects, objectRegistry, '../objects');
-
   // Get referenced tuple names for imports (direct tuple fields + nested tuples from array-forms)
   const referencedTuplesSet = new Set(getReferencedTupleNames(model));
 
@@ -87,6 +84,20 @@ export async function writeModelTypes(
       }
     }
   }
+
+  // Check recordIdTypes for tuple/object references (Record(TupleName) @id, Record(ObjectName) @id)
+  for (const field of model.fields) {
+    if (field.recordIdTypes?.length) {
+      for (const idType of field.recordIdTypes) {
+        if (['int', 'number', 'string', 'uuid'].includes(idType.toLowerCase())) continue;
+        if (objectRegistry?.[idType]) referencedObjectsSet.add(idType);
+        if (tupleRegistry?.[idType]) referencedTuplesSet.add(idType);
+      }
+    }
+  }
+
+  const referencedObjects = Array.from(referencedObjectsSet);
+  const objectImports = generateObjectImports(referencedObjects, objectRegistry, '../objects');
 
   const referencedTuples = Array.from(referencedTuplesSet);
   const tupleImports = generateTupleImports(referencedTuples, tupleRegistry, '../tuples');

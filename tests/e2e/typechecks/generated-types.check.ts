@@ -84,14 +84,18 @@ Test.checks([Test.check<Extends<ArrayOps, TagIdsUpdate>, 1, Test.Pass>()]);
 // UserWhere Type - Operators
 // =============================================================================
 
-// Record field operators (id is RecordIdInput in Where)
-type IdWhere = Exclude<UserWhere['id'], RecordIdInput | undefined>;
+// Record field operators (id accepts operator objects in Where)
+type IdWhereEq = { id: { eq: string } };
+type IdWhereNeq = { id: { neq: string } };
+type IdWhereContains = { id: { contains: string } };
+type IdWhereStartsWith = { id: { startsWith: string } };
+type IdWhereEndsWith = { id: { endsWith: string } };
 Test.checks([
-  Test.check<Extends<IdWhere, { eq?: RecordIdInput }>, 1, Test.Pass>(),
-  Test.check<Extends<IdWhere, { neq?: RecordIdInput }>, 1, Test.Pass>(),
-  Test.check<Extends<IdWhere, { contains?: string }>, 1, Test.Pass>(),
-  Test.check<Extends<IdWhere, { startsWith?: string }>, 1, Test.Pass>(),
-  Test.check<Extends<IdWhere, { endsWith?: string }>, 1, Test.Pass>(),
+  Test.check<Extends<IdWhereEq, UserWhere>, 1, Test.Pass>(),
+  Test.check<Extends<IdWhereNeq, UserWhere>, 1, Test.Pass>(),
+  Test.check<Extends<IdWhereContains, UserWhere>, 1, Test.Pass>(),
+  Test.check<Extends<IdWhereStartsWith, UserWhere>, 1, Test.Pass>(),
+  Test.check<Extends<IdWhereEndsWith, UserWhere>, 1, Test.Pass>(),
 ]);
 
 // Number field operators (optional fields also accept null for querying)

@@ -142,6 +142,6 @@ describe('E2E Transactions: Basic CRUD', () => {
     expect(user.id).toBeDefined();
     expect(isCerialId(user.id)).toBe(true);
     expect(user.id.table).toBe('user');
-    expect(user.id.id.length).toBeGreaterThan(0);
+    expect((user.id.id as string).length).toBeGreaterThan(0);
   });
 });

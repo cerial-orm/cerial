@@ -160,6 +160,6 @@ describe('E2E Transactions: Nested Create', () => {
     expect(user.id).toBeDefined();
     expect(isCerialId(user.id)).toBe(true);
     expect(user.id.table).toBe('user_required');
-    expect(user.id.id.length).toBeGreaterThan(0);
+    expect((user.id.id as string).length).toBeGreaterThan(0);
   });
 });

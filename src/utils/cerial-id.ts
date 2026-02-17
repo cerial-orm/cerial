@@ -15,11 +15,7 @@ import type { RecordIdValue } from 'surrealdb';
 /**
  * Union type for all acceptable record ID input formats (generic)
  */
-export type RecordIdInput<T extends RecordIdValue = RecordIdValue> =
-  | T
-  | CerialId<T>
-  | RecordId<string, T>
-  | StringRecordId;
+export type RecordIdInput<T = RecordIdValue> = T | CerialId<T> | RecordId<string, any> | StringRecordId;
 
 /**
  * Check if a value is a StringRecordId instance
@@ -134,7 +130,7 @@ function cloneIdValue<V extends RecordIdValue>(value: V): V {
  * CerialId class for handling SurrealDB record IDs
  * Generic over the ID value type for type-safe typed IDs
  */
-export class CerialId<T extends RecordIdValue = RecordIdValue> {
+export class CerialId<T = RecordIdValue> {
   /** The table name (unescaped). May be undefined for ID-only values. */
   public table: string | undefined;
 
@@ -151,7 +147,7 @@ export class CerialId<T extends RecordIdValue = RecordIdValue> {
   constructor(input: string, tableOverride?: string);
   constructor(input: StringRecordId, tableOverride?: string);
   constructor(input: CerialId<T>, tableOverride?: string);
-  constructor(input: RecordId<string, T>, tableOverride?: string);
+  constructor(input: RecordId<string, any>, tableOverride?: string);
   constructor(input: T, tableOverride?: string);
   constructor(input: RecordIdInput<T>, tableOverride?: string);
   constructor(input: RecordIdInput<T>, tableOverride?: string) {
@@ -238,7 +234,7 @@ export class CerialId<T extends RecordIdValue = RecordIdValue> {
    * @param value - Any supported input type
    * @param expectedTable - Expected table name (throws if mismatch, sets if missing)
    */
-  static parse(value: RecordIdInput, expectedTable?: string): CerialId {
+  static parse(value: RecordIdInput, expectedTable?: string): CerialId<any> {
     const cerialId = new CerialId(value);
 
     if (expectedTable !== undefined) {
@@ -285,7 +281,7 @@ export class CerialId<T extends RecordIdValue = RecordIdValue> {
       return String(this.id);
     }
 
-    return new RecordId(this.table!, this.id).toString();
+    return new RecordId(this.table!, this.id as any).toString();
   }
 
   /**
@@ -343,7 +339,7 @@ export class CerialId<T extends RecordIdValue = RecordIdValue> {
   clone(): CerialId<T> {
     const cloned = Object.create(CerialId.prototype) as CerialId<T>;
     cloned.table = this.table;
-    cloned.id = cloneIdValue(this.id) as T;
+    cloned.id = cloneIdValue(this.id as any) as T;
 
     return cloned;
   }
@@ -388,12 +384,12 @@ export class CerialId<T extends RecordIdValue = RecordIdValue> {
    * Passes native id directly for lossless round-trip
    * @throws Error if table is undefined
    */
-  toRecordId(): RecordId<string, T> {
+  toRecordId(): RecordId<string, any> {
     if (!this.hasTable) {
       throw new Error('Cannot create RecordId: table is undefined');
     }
 
-    return new RecordId(this.table!, this.id) as RecordId<string, T>;
+    return new RecordId(this.table!, this.id as any) as RecordId<string, any>;
   }
 }
 

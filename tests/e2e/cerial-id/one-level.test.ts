@@ -41,7 +41,7 @@ describe('E2E CerialId - One Level', () => {
       expect(isCerialId(user.id)).toBe(true);
       expect(user.id.table).toBe('user');
       expect(user.id.id).toBeDefined();
-      expect(user.id.id.length).toBeGreaterThan(0);
+      expect((user.id.id as string).length).toBeGreaterThan(0);
     });
 
     test('should accept CerialId as input', async () => {
@@ -50,7 +50,7 @@ describe('E2E CerialId - One Level', () => {
 
       const user = await client.db.User.create({
         data: {
-          id: inputId,
+          id: inputId.toString(),
           email: 'cerial@example.com',
           name: 'CerialId User',
           isActive: true,
@@ -99,7 +99,7 @@ describe('E2E CerialId - One Level', () => {
 
       const user = await client.db.User.create({
         data: {
-          id: recordId,
+          id: recordId.toString(),
           email: 'recordid@example.com',
           name: 'RecordId User',
           isActive: true,
@@ -116,7 +116,7 @@ describe('E2E CerialId - One Level', () => {
 
       const user = await client.db.User.create({
         data: {
-          id: stringRecordId,
+          id: stringRecordId.toString(),
           email: 'stringrecordid@example.com',
           name: 'StringRecordId User',
           isActive: true,

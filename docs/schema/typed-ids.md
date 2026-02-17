@@ -26,7 +26,6 @@ Replace `Type` with one or more supported ID types. Multiple types create a unio
 | _(default)_ | `Record @id`              | `string`           | No (auto-generated) |
 | `string`    | `Record(string) @id`      | `string`           | No (auto-generated) |
 | `int`       | `Record(int) @id`         | `number`           | Yes                 |
-| `float`     | `Record(float) @id`       | `number`           | Yes                 |
 | `number`    | `Record(number) @id`      | `number`           | Yes                 |
 | `uuid`      | `Record(uuid) @id`        | `string`           | No (auto-generated) |
 | Tuple ref   | `Record(TupleName) @id`   | `TupleName`        | Yes                 |

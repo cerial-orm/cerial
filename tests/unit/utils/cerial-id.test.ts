@@ -966,8 +966,7 @@ describe('CerialId', () => {
     });
 
     test('invalid constructor input throws', () => {
-      // @ts-expect-error — testing runtime error for invalid input type (boolean)
-      expect(() => new CerialId(true)).toThrow('Invalid input type for CerialId');
+      expect(() => new CerialId(true as any)).toThrow('Invalid input type for CerialId');
     });
 
     test('equals() returns false when this has no table', () => {

@@ -3,25 +3,6 @@
     "allow": ["Bash(bun:*)", "Bash(bunx:*)", "Bash(git:*)"]
   },
   "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bunx prettier --write \"$CLAUDE_FILE_PATHS\" 2>/dev/null || true"
-          }
-        ]
-      },
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bunx tsc --noEmit 2>&1 | head -20 || true"
-          }
-        ]
-      }
-    ]
+    "PostToolUse": []
   }
 }

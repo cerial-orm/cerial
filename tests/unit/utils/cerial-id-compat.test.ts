@@ -750,13 +750,11 @@ describe('CerialId Inverse / Negative Tests', () => {
 
   describe('constructor failures', () => {
     test('boolean input throws', () => {
-      // @ts-expect-error — testing runtime error for invalid input type
-      expect(() => new CerialId(true)).toThrow('Invalid input type for CerialId');
+      expect(() => new CerialId(true as any)).toThrow('Invalid input type for CerialId');
     });
 
     test('false input throws', () => {
-      // @ts-expect-error — testing runtime error for invalid input type
-      expect(() => new CerialId(false)).toThrow('Invalid input type for CerialId');
+      expect(() => new CerialId(false as any)).toThrow('Invalid input type for CerialId');
     });
   });
 
