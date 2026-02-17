@@ -2,18 +2,24 @@
  * CerialId - A wrapper class for SurrealDB record IDs
  *
  * Provides a consistent interface for working with record IDs that:
- * - Accepts multiple input formats (CerialId, RecordId, StringRecordId, string)
- * - Normalizes values internally (unescaped table and id)
+ * - Accepts multiple input formats (CerialId, RecordId, StringRecordId, string, number, array, object, bigint)
+ * - Preserves native typed ID values (no string coercion)
+ * - Normalizes string values internally (unescaped table and id)
  * - Outputs properly escaped format via toString()
  * - Validates table names when paired with Relations
  */
 
 import { RecordId, StringRecordId } from 'surrealdb';
+import type { RecordIdValue } from 'surrealdb';
 
 /**
- * Union type for all acceptable record ID input formats
+ * Union type for all acceptable record ID input formats (generic)
  */
-export type RecordIdInput = CerialId | RecordId | StringRecordId | string;
+export type RecordIdInput<T extends RecordIdValue = RecordIdValue> =
+  | T
+  | CerialId<T>
+  | RecordId<string, T>
+  | StringRecordId;
 
 /**
  * Check if a value is a StringRecordId instance
@@ -38,6 +44,8 @@ function isRecordId(value: unknown): value is RecordId {
  * - '⟨table⟩:⟨id⟩' (both escaped)
  * - '`table`:id' (backtick escaped - user input)
  * - 'id' (no table, just id)
+ *
+ * TODO: Replace with RecordId.parse() when available in surrealdb SDK
  */
 function parseRecordString(str: string): { table: string | undefined; id: string } {
   // Handle backtick escaping: `table`:id (user might type this)
@@ -83,39 +91,83 @@ function parseRecordString(str: string): { table: string | undefined; id: string
 }
 
 /**
- * CerialId class for handling SurrealDB record IDs
+ * Deep clone a RecordIdValue. Primitives and class instances (Uuid) are returned as-is.
+ * Arrays and plain objects are deep-cloned via structuredClone.
  */
-export class CerialId {
+function cloneIdValue<V extends RecordIdValue>(value: V): V {
+  if (typeof value === 'string' || typeof value === 'number' || typeof value === 'bigint') {
+    return value;
+  }
+  if (Array.isArray(value)) {
+    return structuredClone(value) as V;
+  }
+  if (typeof value === 'object' && value !== null) {
+    // Plain objects get deep-cloned; class instances (Uuid, etc.) are immutable — return as-is
+    if (Object.getPrototypeOf(value) === Object.prototype) {
+      return structuredClone(value) as V;
+    }
+
+    return value;
+  }
+
+  return value;
+}
+
+/**
+ * CerialId class for handling SurrealDB record IDs
+ * Generic over the ID value type for type-safe typed IDs
+ */
+export class CerialId<T extends RecordIdValue = RecordIdValue> {
   /** The table name (unescaped). May be undefined for ID-only values. */
   public table: string | undefined;
 
-  /** The ID value (unescaped, always string). */
-  public id: string;
+  /** The ID value (preserves native type: string, number, array, object, bigint, Uuid). */
+  public id: T;
 
   /**
    * Create a new CerialId
-   * @param input - CerialId, RecordId, StringRecordId, or string
+   * @param input - CerialId, RecordId, StringRecordId, string, number, bigint, array, or object
    * @param tableOverride - Optional table name to set/override
    */
-  constructor(input: RecordIdInput, tableOverride?: string) {
+  // Overloads: string inputs widen to CerialId<string> (parsing changes the value),
+  // typed inputs preserve their exact type via generic inference
+  constructor(input: string, tableOverride?: string);
+  constructor(input: StringRecordId, tableOverride?: string);
+  constructor(input: CerialId<T>, tableOverride?: string);
+  constructor(input: RecordId<string, T>, tableOverride?: string);
+  constructor(input: T, tableOverride?: string);
+  constructor(input: RecordIdInput<T>, tableOverride?: string);
+  constructor(input: RecordIdInput<T>, tableOverride?: string) {
     if (input instanceof CerialId) {
       // Clone from another CerialId
       this.table = input.table;
-      this.id = input.id;
+      this.id = input.id as T;
     } else if (isRecordId(input)) {
-      // Extract from RecordId (already normalized)
+      // Extract from RecordId — preserve native typed ID (NO .toString())
       this.table = input.table.name;
-      this.id = input.id.toString();
+      this.id = input.id as T;
     } else if (isStringRecordId(input)) {
       // Parse StringRecordId's string representation
       const parsed = parseRecordString(input.toString());
       this.table = parsed.table;
-      this.id = parsed.id;
+      this.id = parsed.id as T;
     } else if (typeof input === 'string') {
       // Parse string
       const parsed = parseRecordString(input);
       this.table = parsed.table;
-      this.id = parsed.id;
+      this.id = parsed.id as T;
+    } else if (typeof input === 'number' || typeof input === 'bigint') {
+      // Store numeric types directly — no table
+      this.table = undefined;
+      this.id = input as T;
+    } else if (Array.isArray(input)) {
+      // Store array IDs directly — no table
+      this.table = undefined;
+      this.id = input as T;
+    } else if (typeof input === 'object' && input !== null) {
+      // Store object IDs (including Uuid) directly — no table
+      this.table = undefined;
+      this.id = input as T;
     } else {
       throw new Error(`Invalid input type for CerialId: ${typeof input}`);
     }
@@ -125,12 +177,12 @@ export class CerialId {
       this.table = tableOverride;
     }
 
-    // Normalize via RecordId if we have both table and id
-    // This ensures consistent internal representation
-    if (this.table !== undefined && this.id !== undefined) {
+    // Normalize via RecordId if we have both table and a STRING id
+    // Typed IDs (number, array, object) don't need normalization
+    if (this.table !== undefined && typeof this.id === 'string') {
       const recordId = new RecordId(this.table, this.id);
       this.table = recordId.table.name;
-      this.id = recordId.id.toString();
+      this.id = recordId.id as T;
     }
   }
 
@@ -141,29 +193,27 @@ export class CerialId {
     return value instanceof CerialId;
   }
 
-  /**
-   * Create a CerialId from any supported input type
-   * @param value - CerialId, RecordId, StringRecordId, or string
-   * @param table - Optional table name to set/override
-   */
-  static from(value: RecordIdInput, table?: string): CerialId {
-    return new CerialId(value, table);
+  static from(value: string, table?: string): CerialId<string>;
+  static from(value: StringRecordId, table?: string): CerialId<string>;
+  static from<U extends RecordIdValue = RecordIdValue>(value: RecordIdInput<U>, table?: string): CerialId<U>;
+  static from<U extends RecordIdValue = RecordIdValue>(value: RecordIdInput<U>, table?: string): CerialId<U> {
+    return new CerialId<U>(value, table);
   }
 
   /**
    * Create a CerialId from a string
    * @param str - String in 'table:id' or 'id' format
    */
-  static fromString(str: string): CerialId {
-    return new CerialId(str);
+  static fromString(str: string): CerialId<string> {
+    return new CerialId<string>(str);
   }
 
   /**
-   * Create a CerialId from a RecordId
+   * Create a CerialId from a RecordId (generic — preserves typed ID)
    * @param recordId - SurrealDB RecordId instance
    */
-  static fromRecordId(recordId: RecordId): CerialId {
-    return new CerialId(recordId);
+  static fromRecordId<U extends RecordIdValue>(recordId: RecordId<string, U>): CerialId<U> {
+    return new CerialId<U>(recordId);
   }
 
   /**
@@ -180,10 +230,12 @@ export class CerialId {
       }
       if (!cerialId.hasTable) {
         cerialId.table = expectedTable;
-        // Re-normalize with the new table
-        const recordId = new RecordId(expectedTable, cerialId.id);
-        cerialId.table = recordId.table.name;
-        cerialId.id = recordId.id.toString();
+        // Re-normalize with the new table (only for string IDs)
+        if (typeof cerialId.id === 'string') {
+          const recordId = new RecordId(expectedTable, cerialId.id);
+          cerialId.table = recordId.table.name;
+          cerialId.id = recordId.id;
+        }
       }
     }
 
@@ -207,10 +259,14 @@ export class CerialId {
   /**
    * Convert to string representation
    * Uses RecordId.toString() for proper escaping of special characters
-   * @returns 'table:id' format (escaped) or just 'id' if no table
+   * @returns 'table:id' format (escaped) or string representation of id if no table
    */
   toString(): string {
-    if (!this.hasTable) return this.id;
+    if (!this.hasTable) {
+      if (typeof this.id === 'string') return this.id;
+
+      return String(this.id);
+    }
 
     return new RecordId(this.table!, this.id).toString();
   }
@@ -225,8 +281,6 @@ export class CerialId {
 
   /**
    * Primitive value for comparisons
-   * Enables: cerialId == 'user:abc' (returns true)
-   * Note: cerialId1 == cerialId2 still returns false for different instances
    * @returns Same as toString()
    */
   valueOf(): string {
@@ -235,10 +289,10 @@ export class CerialId {
 
   /**
    * Compare with another record ID value
-   * @param other - CerialId, RecordId, StringRecordId, or string
+   * @param other - Any value; returns false for non-recognizable types
    * @returns true if both represent the same record
    */
-  equals(other: RecordIdInput): boolean {
+  equals(other: unknown): boolean {
     if (!this.hasTable) return false;
 
     const thisRecordId = this.toRecordId();
@@ -254,34 +308,42 @@ export class CerialId {
       const parsed = parseRecordString(other.toString());
       if (!parsed.table) return false;
       otherRecordId = new RecordId(parsed.table, parsed.id);
-    } else {
-      // String
+    } else if (typeof other === 'string') {
       const parsed = parseRecordString(other);
       if (!parsed.table) return false;
       otherRecordId = new RecordId(parsed.table, parsed.id);
+    } else {
+      // Non-recognizable type — return false
+      return false;
     }
 
     return thisRecordId.equals(otherRecordId);
   }
 
   /**
-   * Create a copy of this CerialId
+   * Create a deep copy of this CerialId
    */
-  clone(): CerialId {
-    return new CerialId(this);
+  clone(): CerialId<T> {
+    const cloned = Object.create(CerialId.prototype) as CerialId<T>;
+    cloned.table = this.table;
+    cloned.id = cloneIdValue(this.id) as T;
+
+    return cloned;
   }
 
   /**
    * Create a new CerialId with a different table
    * @param newTable - The new table name
    */
-  withTable(newTable: string): CerialId {
+  withTable(newTable: string): CerialId<T> {
     const cloned = this.clone();
     cloned.table = newTable;
-    // Re-normalize
-    const recordId = new RecordId(newTable, cloned.id);
-    cloned.table = recordId.table.name;
-    cloned.id = recordId.id.toString();
+    // Re-normalize table name only for string IDs
+    if (typeof cloned.id === 'string') {
+      const recordId = new RecordId(newTable, cloned.id);
+      cloned.table = recordId.table.name;
+      cloned.id = recordId.id as T;
+    }
 
     return cloned;
   }
@@ -290,29 +352,31 @@ export class CerialId {
    * Create a new CerialId with a different id
    * @param newId - The new id value
    */
-  withId(newId: string): CerialId {
-    const cloned = this.clone();
-    cloned.id = newId;
-    // Re-normalize if we have a table
-    if (cloned.table) {
-      const recordId = new RecordId(cloned.table, newId);
-      cloned.table = recordId.table.name;
-      cloned.id = recordId.id.toString();
+  withId<U extends RecordIdValue>(newId: U): CerialId<U> {
+    const result = Object.create(CerialId.prototype) as CerialId<U>;
+    result.table = this.table;
+    result.id = newId;
+    // Re-normalize if we have a table and string id
+    if (result.table && typeof newId === 'string') {
+      const recordId = new RecordId(result.table, newId);
+      result.table = recordId.table.name;
+      result.id = recordId.id as U;
     }
 
-    return cloned;
+    return result;
   }
 
   /**
    * Convert to a SurrealDB RecordId
+   * Passes native id directly for lossless round-trip
    * @throws Error if table is undefined
    */
-  toRecordId(): RecordId {
+  toRecordId(): RecordId<string, T> {
     if (!this.hasTable) {
       throw new Error('Cannot create RecordId: table is undefined');
     }
 
-    return new RecordId(this.table!, this.id);
+    return new RecordId(this.table!, this.id) as RecordId<string, T>;
   }
 }
 
