@@ -13,6 +13,7 @@ import {
   validateNoOptionalAnyFields,
   validateTupleElementDecorators,
 } from './nullable-validator';
+import { validateRecordIdTypes } from './record-type-validator';
 import { validateRelationRules } from './relation-validator';
 
 /** Validation error */
@@ -999,6 +1000,7 @@ export function validateSchema(ast: SchemaAST): SchemaValidationResult {
     ...validateLiteralDecorators(ast),
     ...validateUuidFields(ast),
     ...validateSetDecorator(ast),
+    ...validateRecordIdTypes(ast),
   ];
 
   return {

@@ -13,6 +13,8 @@ export {
 } from './nullable-validator';
 
 export { getDefaultOptions, validateOptions } from './options-validator';
+
+export { validateRecordIdTypes } from './record-type-validator';
 export type { CLIOptions, LogOutputLevel, OptionsValidationError, OptionsValidationResult } from './options-validator';
 
 export {
