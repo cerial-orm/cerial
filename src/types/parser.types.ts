@@ -116,6 +116,8 @@ export interface ASTField {
   tupleName?: string;
   /** For literal-typed fields: the name of the referenced literal definition */
   literalName?: string;
+  /** For record-typed fields: the ID type parameters (e.g., ['int'], ['string', 'int']) */
+  recordIdTypes?: string[];
 }
 
 /** AST node for a model */

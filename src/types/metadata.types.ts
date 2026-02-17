@@ -67,6 +67,8 @@ export interface FieldMetadata {
   literalInfo?: LiteralFieldMetadata;
   /** Geometry subtype decorators: which geometry subtypes this field accepts */
   geometrySubtypes?: ('point' | 'line' | 'polygon' | 'multipoint' | 'multiline' | 'multipolygon' | 'collection')[];
+  /** For record-typed fields: the ID type parameters from Record(Type) syntax */
+  recordIdTypes?: string[];
 }
 
 /** Metadata for object-typed fields referencing an object definition */

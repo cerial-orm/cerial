@@ -89,6 +89,11 @@ export function fieldToMetadata(field: ASTField): FieldMetadata {
     }
   }
 
+  // Handle Record(Type) id types
+  if (field.recordIdTypes?.length) {
+    metadata.recordIdTypes = field.recordIdTypes;
+  }
+
   return metadata;
 }
 
