@@ -1,0 +1,66 @@
+tuple Coordinate { Float, Float }
+
+object MetricKey {
+  service String
+  timestamp Int
+}
+
+model IntIdModel {
+  id Record(int) @id
+  name String
+}
+
+model NumberIdModel {
+  id Record(number) @id
+  label String
+}
+
+model StringIdModel {
+  id Record(string) @id
+  value String
+}
+
+model UuidIdModel {
+  id Record(uuid) @id
+  data String
+}
+
+model TupleIdModel {
+  id Record(Coordinate) @id
+  city String
+}
+
+model ObjectIdModel {
+  id Record(MetricKey) @id
+  value Float
+}
+
+model UnionIdModel {
+  id Record(string, int) @id
+  label String
+}
+
+model IntUnionIdModel {
+  id Record(int, uuid) @id
+  label String
+}
+
+model FkTargetIntId {
+  id Record(int) @id
+  label String
+  children Relation[] @model(FkChildModel)
+}
+
+model FkChildModel {
+  id Record @id
+  parentId Record
+  parent Relation @field(parentId) @model(FkTargetIntId)
+  note String
+}
+
+model StandaloneRefModel {
+  id Record @id
+  externalRef Record(int)
+  externalRefs Record(int)[]
+  label String
+}
