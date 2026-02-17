@@ -8,7 +8,7 @@ import { CerialBytes } from './cerial-bytes';
 import { CerialDecimal } from './cerial-decimal';
 import { CerialDuration } from './cerial-duration';
 import { CerialGeometry } from './cerial-geometry';
-import { CerialId } from './cerial-id';
+import { CerialId, isRecordIdInput } from './cerial-id';
 import { CerialUuid } from './cerial-uuid';
 import { isBoolean, isDate, isNumber, isString } from './type-utils';
 
@@ -21,11 +21,6 @@ const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12
 
 export function isValidUuidString(value: unknown): boolean {
   return typeof value === 'string' && UUID_REGEX.test(value);
-}
-
-/** Check if value is a RecordIdInput type (CerialId, RecordId, StringRecordId, string) */
-function isRecordIdInput(value: unknown): boolean {
-  return CerialId.is(value) || value instanceof RecordId || value instanceof StringRecordId || isString(value);
 }
 
 /** Validate value matches schema field type */

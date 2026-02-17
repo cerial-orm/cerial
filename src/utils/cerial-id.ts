@@ -36,6 +36,16 @@ function isRecordId(value: unknown): value is RecordId {
 }
 
 /**
+ * Check if a value is a valid RecordIdInput type.
+ * Matches: CerialId, RecordId, StringRecordId, or string
+ */
+export function isRecordIdInput(value: unknown): value is RecordIdInput {
+  return (
+    CerialId.is(value) || value instanceof RecordId || value instanceof StringRecordId || typeof value === 'string'
+  );
+}
+
+/**
  * Parse a record string into table and id components
  * Handles various formats:
  * - 'table:id' (simple)

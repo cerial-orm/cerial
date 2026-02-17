@@ -15,7 +15,7 @@ import { CerialBytes } from '../../utils/cerial-bytes';
 import { CerialDecimal } from '../../utils/cerial-decimal';
 import { CerialDuration } from '../../utils/cerial-duration';
 import { CerialGeometry } from '../../utils/cerial-geometry';
-import { CerialId, type RecordIdInput } from '../../utils/cerial-id';
+import { CerialId, isRecordIdInput, type RecordIdInput } from '../../utils/cerial-id';
 import { CerialUuid } from '../../utils/cerial-uuid';
 import { isObject } from '../../utils/type-utils';
 import { joinFragments } from '../compile/fragment';
@@ -31,13 +31,6 @@ function findRecordTargetTable(fieldName: string, model: ModelMetadata): string 
   const pairedRelation = model.fields.find((f) => f.type === 'relation' && f.relationInfo?.fieldRef === fieldName);
 
   return pairedRelation?.relationInfo?.targetTable;
-}
-
-/** Check if a value is a RecordIdInput type */
-function isRecordIdInput(value: unknown): value is RecordIdInput {
-  return (
-    CerialId.is(value) || value instanceof RecordId || value instanceof StringRecordId || typeof value === 'string'
-  );
 }
 
 /** Transform a UUID value to SDK Uuid */
@@ -210,6 +203,8 @@ export function buildDirectCondition(
 
 /** Check if a value is an operator object */
 export function isOperatorObject(value: unknown): value is Record<string, unknown> {
+  // Check for non-object types first
+  if (value instanceof Uint8Array) return false;
   if (!isObject(value)) return false;
   // RecordIdInput types (CerialId, RecordId, StringRecordId) are direct values, not operator objects
   if (isRecordIdInput(value)) return false;
@@ -220,7 +215,6 @@ export function isOperatorObject(value: unknown): value is Record<string, unknow
   // CerialDecimal instances are direct values, not operator objects
   if (CerialDecimal.is(value)) return false;
   if (CerialBytes.is(value)) return false;
-  if (value instanceof Uint8Array) return false;
   if (CerialGeometry.is(value)) return false;
   const keys = Object.keys(value);
   return keys.some((k) => isRegisteredOperator(k));

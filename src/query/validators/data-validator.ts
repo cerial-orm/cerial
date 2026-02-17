@@ -4,16 +4,9 @@
 
 import { Decimal, Duration, RecordId, StringRecordId } from 'surrealdb';
 import type { ModelMetadata, SchemaFieldType } from '../../types';
-import { CerialId } from '../../utils/cerial-id';
+import { CerialId, isRecordIdInput } from '../../utils/cerial-id';
 import { isNone } from '../../utils/none';
 import { isValidEmail, validateFieldType } from '../../utils/validation-utils';
-
-/** Check if value is a RecordIdInput type (valid for ID/Record fields) */
-function isRecordIdInput(value: unknown): boolean {
-  return (
-    CerialId.is(value) || value instanceof RecordId || value instanceof StringRecordId || typeof value === 'string'
-  );
-}
 
 /** Validation error */
 export interface DataValidationError {

@@ -66,7 +66,7 @@ export {
 } from './array-utils';
 
 // CerialId - Record ID wrapper
-export { CerialId, isCerialId } from './cerial-id';
+export { CerialId, isCerialId, isRecordIdInput } from './cerial-id';
 export type { RecordIdInput } from './cerial-id';
 
 // CerialUuid - UUID wrapper

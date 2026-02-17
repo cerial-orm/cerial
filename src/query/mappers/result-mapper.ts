@@ -2,7 +2,7 @@
  * Result mapper - maps query results to typed responses
  */
 
-import type { RecordId } from 'surrealdb';
+import { RecordId } from 'surrealdb';
 import { Decimal, Duration, Geometry, Uuid } from 'surrealdb';
 import type { ModelMetadata, ObjectFieldMetadata, SchemaFieldType, TupleFieldMetadata } from '../../types';
 import { CerialBytes } from '../../utils/cerial-bytes';
@@ -12,9 +12,9 @@ import { CerialGeometry } from '../../utils/cerial-geometry';
 import { CerialId } from '../../utils/cerial-id';
 import { CerialUuid } from '../../utils/cerial-uuid';
 
-/** Check if value is a RecordId-like object */
+/** Check if value is a RecordId instance */
 function isRecordId(value: unknown): value is RecordId {
-  return typeof value === 'object' && value !== null && 'id' in value && 'table' in value;
+  return value instanceof RecordId;
 }
 
 /** Map a single field value from SurrealDB result */

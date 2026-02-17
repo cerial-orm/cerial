@@ -369,7 +369,7 @@ export function buildCreateWithNestedTransaction(
 
       // Process connect operations
       if (hasConnect) {
-        const connectIds = Array.isArray(op.connect) ? op.connect : [op.connect];
+        const connectIds = (Array.isArray(op.connect) ? op.connect : [op.connect]) as RecordIdInput[];
 
         // Track for existence validation
         connectValidations.push({
@@ -421,7 +421,7 @@ export function buildCreateWithNestedTransaction(
           if (hasConnect && Array.isArray(op.connect)) {
             arrayConnects.push({
               targetModel,
-              targetIds: op.connect,
+              targetIds: op.connect as RecordIdInput[],
               targetRecordField: bidirectional.targetRecordField,
               idsVarName: `${fieldName}_connect`,
             });
