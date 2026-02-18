@@ -1,6 +1,13 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import { CerialId } from '../../../src/utils/cerial-id';
-import { createTestClient, testConfig, TYPED_ID_TABLES, CerialClient, cleanupTables, truncateTables } from '../test-helper';
+import {
+  createTestClient,
+  testConfig,
+  TYPED_ID_TABLES,
+  CerialClient,
+  cleanupTables,
+  truncateTables,
+} from '../test-helper';
 
 describe('E2E Typed IDs: FK Type Inference', () => {
   let client: CerialClient;
@@ -58,7 +65,7 @@ describe('E2E Typed IDs: FK Type Inference', () => {
     });
 
     const child = await client.db.FkChildModel.create({
-      data: { parentId: 300 as any, note: 'raw-number' },
+      data: { parentId: 300, note: 'raw-number' },
     });
 
     expect(child.parentId).toBeInstanceOf(CerialId);

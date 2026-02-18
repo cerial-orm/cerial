@@ -1,6 +1,13 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import { CerialId } from '../../../src/utils/cerial-id';
-import { createTestClient, testConfig, TYPED_ID_TABLES, CerialClient, cleanupTables, truncateTables } from '../test-helper';
+import {
+  createTestClient,
+  testConfig,
+  TYPED_ID_TABLES,
+  CerialClient,
+  cleanupTables,
+  truncateTables,
+} from '../test-helper';
 
 describe('E2E Typed IDs: Object ID', () => {
   let client: CerialClient;
@@ -26,7 +33,7 @@ describe('E2E Typed IDs: Object ID', () => {
 
     expect(result.id).toBeInstanceOf(CerialId);
     expect(typeof result.id.id).toBe('object');
-    const idObj = result.id.id as unknown as Record<string, unknown>;
+    const idObj = result.id.id;
     expect(idObj.service).toBe('api');
     expect(idObj.timestamp).toBe(123);
     expect(result.value).toBe(9.5);
@@ -43,7 +50,7 @@ describe('E2E Typed IDs: Object ID', () => {
 
     expect(found).not.toBeNull();
     expect(found!.value).toBe(9.5);
-    const idObj = found!.id.id as unknown as Record<string, unknown>;
+    const idObj = found!.id.id;
     expect(idObj.service).toBe('api');
   });
 

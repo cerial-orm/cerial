@@ -1,6 +1,13 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import { CerialId } from '../../../src/utils/cerial-id';
-import { createTestClient, testConfig, TYPED_ID_TABLES, CerialClient, cleanupTables, truncateTables } from '../test-helper';
+import {
+  createTestClient,
+  testConfig,
+  TYPED_ID_TABLES,
+  CerialClient,
+  cleanupTables,
+  truncateTables,
+} from '../test-helper';
 
 describe('E2E Typed IDs: Tuple ID', () => {
   let client: CerialClient;
@@ -26,7 +33,7 @@ describe('E2E Typed IDs: Tuple ID', () => {
 
     expect(result.id).toBeInstanceOf(CerialId);
     expect(Array.isArray(result.id.id)).toBe(true);
-    const idArr = result.id.id as number[];
+    const idArr = result.id.id;
     expect(idArr[0]).toBe(51.5);
     expect(idArr[1]).toBe(-0.1);
     expect(result.city).toBe('London');
@@ -43,7 +50,7 @@ describe('E2E Typed IDs: Tuple ID', () => {
 
     expect(found).not.toBeNull();
     expect(found!.city).toBe('London');
-    const idArr = found!.id.id as number[];
+    const idArr = found!.id.id;
     expect(idArr[0]).toBe(51.5);
     expect(idArr[1]).toBe(-0.1);
   });
