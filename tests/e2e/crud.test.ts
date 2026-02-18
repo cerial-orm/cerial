@@ -70,7 +70,7 @@ describe('E2E CRUD Operations', () => {
       expect(user.id).toBeDefined();
       expect(isCerialId(user.id)).toBe(true);
       expect(user.id.table).toBe('user');
-      expect((user.id.id as string).length).toBeGreaterThan(0);
+      expect(user.id.id.length).toBeGreaterThan(0);
     });
 
     test('should create with custom id', async () => {
@@ -209,7 +209,7 @@ describe('E2E CRUD Operations', () => {
   });
 
   describe('FindUnique', () => {
-    let testUserId: CerialId;
+    let testUserId: CerialId<string>;
 
     beforeEach(async () => {
       const user = await client.db.User.create({
@@ -415,7 +415,7 @@ describe('E2E CRUD Operations', () => {
   });
 
   describe('DeleteUnique', () => {
-    let testUserId: CerialId;
+    let testUserId: CerialId<string>;
 
     beforeEach(async () => {
       const user = await client.db.User.create({
@@ -538,7 +538,7 @@ describe('E2E CRUD Operations', () => {
   });
 
   describe('UpdateUnique', () => {
-    let testUserId: CerialId;
+    let testUserId: CerialId<string>;
 
     beforeEach(async () => {
       const user = await client.db.User.create({

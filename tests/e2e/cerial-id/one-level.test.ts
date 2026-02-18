@@ -41,7 +41,7 @@ describe('E2E CerialId - One Level', () => {
       expect(isCerialId(user.id)).toBe(true);
       expect(user.id.table).toBe('user');
       expect(user.id.id).toBeDefined();
-      expect((user.id.id as string).length).toBeGreaterThan(0);
+      expect(user.id.id.length).toBeGreaterThan(0);
     });
 
     test('should accept CerialId as input', async () => {
@@ -130,7 +130,7 @@ describe('E2E CerialId - One Level', () => {
   });
 
   describe('Query with CerialId', () => {
-    let userId: CerialId;
+    let userId: CerialId<string>;
 
     beforeEach(async () => {
       const user = await client.db.User.create({

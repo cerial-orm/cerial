@@ -7,11 +7,18 @@
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import { CerialId, isCerialId } from 'cerial';
-import { cleanupTables, truncateTables, INDEX_TABLES, createTestClient, CerialClient, testConfig } from '../../../test-helper';
+import {
+  cleanupTables,
+  truncateTables,
+  INDEX_TABLES,
+  createTestClient,
+  CerialClient,
+  testConfig,
+} from '../../../test-helper';
 
 describe('Single @unique — findUnique', () => {
   let client: CerialClient;
-  let staffId: CerialId;
+  let staffId: CerialId<string>;
 
   beforeAll(async () => {
     client = createTestClient();
