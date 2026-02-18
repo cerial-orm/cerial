@@ -131,8 +131,8 @@ describe('mapFieldValue for record type', () => {
     const result = mapFieldValue(rid, 'record');
 
     expect(result).toBeInstanceOf(CerialId);
-    expect((result as CerialId).id).toBe(42);
-    expect((result as CerialId).table).toBe('user');
+    expect(result!.id).toBe(42);
+    expect(result!.table).toBe('user');
   });
 
   test('RecordId with array id → CerialId with array .id', () => {
@@ -140,7 +140,7 @@ describe('mapFieldValue for record type', () => {
     const result = mapFieldValue(rid, 'record');
 
     expect(result).toBeInstanceOf(CerialId);
-    expect((result as CerialId).id).toEqual([1, 2]);
+    expect(result!.id).toEqual([1, 2]);
   });
 
   test('RecordId with object id → CerialId with object .id', () => {
@@ -148,7 +148,7 @@ describe('mapFieldValue for record type', () => {
     const result = mapFieldValue(rid, 'record');
 
     expect(result).toBeInstanceOf(CerialId);
-    expect((result as CerialId).id).toEqual({ key: 'val' });
+    expect(result!.id).toEqual({ key: 'val' });
   });
 
   test('RecordId with string id → CerialId with string .id', () => {
@@ -156,7 +156,7 @@ describe('mapFieldValue for record type', () => {
     const result = mapFieldValue(rid, 'record');
 
     expect(result).toBeInstanceOf(CerialId);
-    expect((result as CerialId).id).toBe('abc');
+    expect(result!.id).toBe('abc');
   });
 
   test('RecordId with Uuid id → CerialId with Uuid .id', () => {
@@ -165,15 +165,15 @@ describe('mapFieldValue for record type', () => {
     const result = mapFieldValue(rid, 'record');
 
     expect(result).toBeInstanceOf(CerialId);
-    expect((result as CerialId).id).toBe(uuid);
+    expect(result!.id).toBe(uuid);
   });
 
   test('string value → CerialId from string (backward compat)', () => {
     const result = mapFieldValue('user:abc', 'record');
 
     expect(result).toBeInstanceOf(CerialId);
-    expect((result as CerialId).table).toBe('user');
-    expect((result as CerialId).id).toBe('abc');
+    expect(result!.table).toBe('user');
+    expect(result!.id).toBe('abc');
   });
 
   test('null → null', () => {
@@ -193,7 +193,7 @@ describe('mapFieldValue for record type', () => {
     const result = mapFieldValue(rid, 'record');
 
     expect(result).toBeInstanceOf(CerialId);
-    expect((result as CerialId).id).toBe(0);
+    expect(result!.id).toBe(0);
   });
 });
 
@@ -586,7 +586,8 @@ describe('edge cases', () => {
 
   test('mapFieldValue passthrough for non-RecordId non-string values', () => {
     // If something unexpected shows up for 'record' type, it passes through
-    const result = mapFieldValue(42, 'record');
+    // Annotate as unknown — overload narrows to CerialId but runtime passes through non-RecordId values
+    const result: unknown = mapFieldValue(42, 'record');
 
     expect(result).toBe(42);
   });

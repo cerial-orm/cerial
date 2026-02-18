@@ -60,15 +60,15 @@ describe('CerialId Receive Transformation', () => {
       const recordId = new RecordId('user', 'abc123');
       const result = mapFieldValue(recordId, 'record');
       expect(CerialId.is(result)).toBe(true);
-      expect((result as CerialId).table).toBe('user');
-      expect((result as CerialId).id).toBe('abc123');
+      expect(result!.table).toBe('user');
+      expect(result!.id).toBe('abc123');
     });
 
     test('converts string to CerialId', () => {
       const result = mapFieldValue('user:abc123', 'record');
       expect(CerialId.is(result)).toBe(true);
-      expect((result as CerialId).table).toBe('user');
-      expect((result as CerialId).id).toBe('abc123');
+      expect(result!.table).toBe('user');
+      expect(result!.id).toBe('abc123');
     });
 
     test('returns null for null value', () => {

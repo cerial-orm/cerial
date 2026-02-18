@@ -52,7 +52,8 @@ describe('bytes result mapper', () => {
   });
 
   test('mapFieldValue passes non-Uint8Array through', () => {
-    const result = mapFieldValue('not-bytes', 'bytes');
+    // Annotate as unknown — overload narrows to CerialBytes but runtime passes through non-Uint8Array values
+    const result: unknown = mapFieldValue('not-bytes', 'bytes');
     expect(result).toBe('not-bytes');
   });
 });
