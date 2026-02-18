@@ -12,8 +12,8 @@ import type {
   TupleMetadata,
   TupleRegistry,
 } from '../../types';
-import { literalNeedsInputType } from '../types/literals';
 import { objectHasDefaultOrTimestamp, tupleHasObjectElementsDeep, tupleHasUnsetableElements } from '../types';
+import { literalNeedsInputType } from '../types/literals';
 
 // ─── Import Constants ─────────────────────────────────────────────────────────
 
@@ -434,7 +434,7 @@ export function generateRelatedImports(relatedModels: string[], allModels: Model
     return `import type { ${baseImports.join(', ')} } from './${fileName}';`;
   });
 
-  return imports.join('\n') + '\n';
+  return `${imports.join('\n')}\n`;
 }
 
 /**
@@ -463,7 +463,7 @@ export function generateObjectImports(
     return `import type { ${importNames.join(', ')} } from '${importPrefix}/${fileName}';`;
   });
 
-  return imports.join('\n') + '\n';
+  return `${imports.join('\n')}\n`;
 }
 
 /**
@@ -496,7 +496,7 @@ export function generateTupleImports(
     return `import type { ${importNames.join(', ')} } from '${importPrefix}/${fileName}';`;
   });
 
-  return imports.join('\n') + '\n';
+  return `${imports.join('\n')}\n`;
 }
 
 // ─── Literal Import Resolvers ─────────────────────────────────────────────────
@@ -633,7 +633,7 @@ export function generateLiteralImports(
     return `import type { ${importNames.join(', ')} } from '${importPrefix}/${fileName}';`;
   });
 
-  return imports.join('\n') + '\n';
+  return `${imports.join('\n')}\n`;
 }
 
 // ─── Enum Import Statement Generators ─────────────────────────────────────────
@@ -655,7 +655,7 @@ export function generateEnumImports(enumNames: string[], importPrefix: string = 
     return `import { ${constName} } from '${importPrefix}/${fileName}';\nimport type { ${typeName}, ${whereName} } from '${importPrefix}/${fileName}';`;
   });
 
-  return imports.join('\n') + '\n';
+  return `${imports.join('\n')}\n`;
 }
 
 /**
@@ -664,7 +664,7 @@ export function generateEnumImports(enumNames: string[], importPrefix: string = 
  */
 export function generateLiteralObjectImports(
   objectNames: string[],
-  objectRegistry?: ObjectRegistry,
+  _objectRegistry?: ObjectRegistry,
   importPrefix: string = '../objects',
 ): string {
   if (!objectNames.length) return '';
@@ -676,7 +676,7 @@ export function generateLiteralObjectImports(
     return `import type { ${importNames.join(', ')} } from '${importPrefix}/${fileName}';`;
   });
 
-  return imports.join('\n') + '\n';
+  return `${imports.join('\n')}\n`;
 }
 
 /**
@@ -685,7 +685,7 @@ export function generateLiteralObjectImports(
  */
 export function generateLiteralTupleImports(
   tupleNames: string[],
-  tupleRegistry?: TupleRegistry,
+  _tupleRegistry?: TupleRegistry,
   importPrefix: string = '../tuples',
 ): string {
   if (!tupleNames.length) return '';
@@ -697,5 +697,5 @@ export function generateLiteralTupleImports(
     return `import type { ${importNames.join(', ')} } from '${importPrefix}/${fileName}';`;
   });
 
-  return imports.join('\n') + '\n';
+  return `${imports.join('\n')}\n`;
 }

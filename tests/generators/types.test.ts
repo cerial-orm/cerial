@@ -27,7 +27,7 @@ model User {
 `;
 
 const registry = parseModelRegistry(dsl);
-const userModel = registry['User']!;
+const userModel = registry.User!;
 
 // Parse model with Record[] for array testing
 const dslWithRecords = `
@@ -49,7 +49,7 @@ model Tag {
 `;
 
 const registryWithRecords = parseModelRegistry(dslWithRecords);
-const userWithRecordsModel = registryWithRecords['User']!;
+const userWithRecordsModel = registryWithRecords.User!;
 
 describe('types generator', () => {
   describe('generateInterface', () => {
@@ -142,7 +142,7 @@ model User {
 }
 `;
     const registryWithArrays = parseModelRegistry(dslWithArrays);
-    const userWithArraysModel = registryWithArrays['User']!;
+    const userWithArraysModel = registryWithArrays.User!;
 
     test('generates interface with primitive arrays', () => {
       const result = generateInterface(userWithArraysModel);
@@ -185,7 +185,7 @@ model Profile {
 }
 `;
     const registryForward = parseModelRegistry(dslForwardRelation);
-    const userForward = registryForward['User']!;
+    const userForward = registryForward.User!;
 
     const dslReverseRelation = `
 model User {
@@ -200,7 +200,7 @@ model Post {
 }
 `;
     const registryReverse = parseModelRegistry(dslReverseRelation);
-    const userReverse = registryReverse['User']!;
+    const userReverse = registryReverse.User!;
 
     test('forward relation has correct relationInfo', () => {
       const profileField = userForward.fields.find((f) => f.name === 'profile');

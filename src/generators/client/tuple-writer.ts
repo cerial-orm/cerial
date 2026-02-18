@@ -17,7 +17,6 @@ import {
   CERIAL_DURATION_IMPORT,
   CERIAL_GEOMETRY_IMPORT,
   CERIAL_UUID_IMPORT,
-  NONE_IMPORT,
   collectTupleObjectNamesDeep,
   collectTupleTupleNamesDeep,
   generateEnumImports,
@@ -28,6 +27,7 @@ import {
   getTupleReferencedLiteralNames,
   getTupleReferencedObjectNames,
   getTupleReferencedTupleNames,
+  NONE_IMPORT,
   tupleHasBytesElements,
   tupleHasDecimalElements,
   tupleHasDurationElements,
@@ -112,7 +112,7 @@ ${noneImport}${uuidImport}${durationImport}${decimalImport}${bytesImport}${geome
 ${whereCode}
 
 ${updateCode}
-${selectCode ? '\n' + selectCode + '\n' : ''}${unsetCode ? '\n' + unsetCode + '\n' : ''}
+${selectCode ? `\n${selectCode}\n` : ''}${unsetCode ? `\n${unsetCode}\n` : ''}
 `;
 
   const formatted = await formatCode(content, outputDir);

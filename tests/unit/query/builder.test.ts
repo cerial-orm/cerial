@@ -5,8 +5,8 @@
  */
 
 import { describe, expect, test } from 'bun:test';
-import { parse } from '../../../src/parser/parser';
 import { astToRegistry } from '../../../src/parser/model-metadata';
+import { parse } from '../../../src/parser/parser';
 
 // Simple test schema
 const schema = `
@@ -21,7 +21,7 @@ model User {
 
 const { ast } = parse(schema);
 const registry = astToRegistry(ast);
-const userModel = registry['User']!;
+const userModel = registry.User!;
 
 describe('Query Builder Base', () => {
   describe('Model Metadata', () => {

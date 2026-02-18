@@ -7,12 +7,12 @@
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import {
+  type CerialClient,
   cleanupTables,
   createTestClient,
-  truncateTables,
-  CerialClient,
   tables,
   testConfig,
+  truncateTables,
   uniqueEmail,
 } from '../../../test-helper';
 
@@ -35,7 +35,7 @@ describe('E2E One-to-Many Required: Where', () => {
 
   describe('filter by related parent', () => {
     test('should filter posts by author name', async () => {
-      const author1 = await client.db.Author.create({
+      const _author1 = await client.db.Author.create({
         data: {
           name: 'John Doe',
           email: uniqueEmail('john'),

@@ -2,8 +2,8 @@
  * NOT operator handler
  */
 
-import type { QueryFragment } from '../../compile/types';
 import { wrapParens } from '../../compile/fragment';
+import type { QueryFragment } from '../../compile/types';
 
 /** Handle NOT logic - negates a condition */
 export function handleNot(condition: QueryFragment): QueryFragment {

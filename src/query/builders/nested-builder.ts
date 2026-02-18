@@ -118,9 +118,9 @@ export function buildNestedCreateStatements(
  * When connecting A to B, also adds A to B's array
  */
 export function buildBidirectionalSyncStatements(
-  sourceModel: ModelMetadata,
-  targetModel: ModelMetadata,
-  sourceFieldName: string,
+  _sourceModel: ModelMetadata,
+  _targetModel: ModelMetadata,
+  _sourceFieldName: string,
   targetFieldName: string,
   sourceId: string,
   targetIds: string[],

@@ -1,14 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import {
-  cleanupTables,
-  createTestClient,
-  truncateTables,
-  CerialClient,
-  tables,
-  testConfig,
-} from '../test-helper';
 import { CerialDecimal, isCerialId } from 'cerial';
 import { Decimal } from 'surrealdb';
+import { type CerialClient, cleanupTables, createTestClient, tables, testConfig, truncateTables } from '../test-helper';
 
 const DECIMAL_TABLES = tables.decimal;
 

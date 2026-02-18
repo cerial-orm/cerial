@@ -9,7 +9,14 @@
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import { cleanupTables, createTestClient, truncateTables, CerialClient, tables, testConfig } from '../../../test-helper';
+import {
+  type CerialClient,
+  cleanupTables,
+  createTestClient,
+  tables,
+  testConfig,
+  truncateTables,
+} from '../../../test-helper';
 
 describe('E2E One-to-One @onDelete(Restrict)', () => {
   let client: CerialClient;
@@ -139,7 +146,7 @@ describe('E2E One-to-One @onDelete(Restrict)', () => {
       const user1 = await client.db.UserRestrict.create({
         data: { name: 'User 1' },
       });
-      const user2 = await client.db.UserRestrict.create({
+      const _user2 = await client.db.UserRestrict.create({
         data: { name: 'User 2' },
       });
 

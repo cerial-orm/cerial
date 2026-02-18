@@ -1,13 +1,6 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import {
-  cleanupTables,
-  createTestClient,
-  truncateTables,
-  CerialClient,
-  tables,
-  testConfig,
-} from '../test-helper';
+import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { CerialDecimal } from 'cerial';
+import { type CerialClient, cleanupTables, createTestClient, tables, testConfig } from '../test-helper';
 
 const DECIMAL_TABLES = tables.decimal;
 

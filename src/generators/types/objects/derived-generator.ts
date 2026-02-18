@@ -78,17 +78,12 @@ export function generateObjectOrderByType(object: ObjectMetadata): string {
     if (field.type === 'object' && field.objectInfo) {
       fields.push(`  ${field.name}?: ${field.objectInfo.objectName}OrderBy;`);
     } else if (field.type === 'tuple') {
-      // Tuple fields do not support ordering — skip
-      continue;
     } else if (field.type === 'geometry') {
-      continue;
     } else if (field.type === 'literal') {
       if (field.literalInfo?.isEnum) {
         // Enum fields are string-only — ordering works fine
         fields.push(`  ${field.name}?: 'asc' | 'desc';`);
       }
-      // Non-enum literals may contain mixed types — skip
-      continue;
     } else {
       fields.push(`  ${field.name}?: 'asc' | 'desc';`);
     }

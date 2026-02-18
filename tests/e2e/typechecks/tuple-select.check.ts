@@ -5,20 +5,20 @@
  * Run: bun run typecheck
  */
 
+import type { CerialId } from 'cerial';
 import { Test } from 'ts-toolbelt';
 import type {
-  LocatedSelect,
-  DeepOuterTupleSelect,
-  DeepMidTupleSelect,
   DeepInnerTupleSelect,
-  TupleObjInTupleSelect,
-  TupleDeepNestSelect,
-  TupleBasicSelect,
-  GetTupleObjInTuplePayload,
+  DeepMidTupleSelect,
+  DeepOuterTupleSelect,
   GetTupleDeepNestPayload,
+  GetTupleObjInTuplePayload,
   Located,
+  LocatedSelect,
+  TupleBasicSelect,
+  TupleDeepNestSelect,
+  TupleObjInTupleSelect,
 } from '../generated';
-import type { CerialId } from 'cerial';
 
 // Helper for extension checks
 type Extends<A, B> = A extends B ? 1 : 0;

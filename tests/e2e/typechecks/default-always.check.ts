@@ -13,9 +13,9 @@ import { Test } from 'ts-toolbelt';
 import type {
   ContentItem,
   ContentItemCreate,
+  ContentItemSelect,
   ContentItemUpdate,
   ContentItemWhere,
-  ContentItemSelect,
   ReviewMetaCreateInput,
 } from '../generated';
 

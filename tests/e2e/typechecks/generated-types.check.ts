@@ -5,7 +5,7 @@
  * Run: bun run typecheck
  */
 
-import { CerialId, type RecordIdInput } from 'cerial';
+import type { CerialId, RecordIdInput } from 'cerial';
 import { Test } from 'ts-toolbelt';
 import type {
   Post,

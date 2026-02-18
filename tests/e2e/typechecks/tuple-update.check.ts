@@ -5,26 +5,22 @@
  * Run: bun run typecheck
  */
 
+import type { CerialNone } from 'cerial';
 import { Test } from 'ts-toolbelt';
 import type {
   CoordinateInput,
   CoordinateUpdate,
-  LocatedUpdate,
-  LocatedInput,
-  DeepOuterTupleUpdate,
-  DeepMidTupleUpdate,
-  DeepMidTupleInput,
   DeepMidObjInput,
-  DeepInnerTupleUpdate,
-  DeepInnerTupleInput,
-  TupleBasicUpdate,
-  TupleObjInTupleUpdate,
-  TupleDeepNestUpdate,
-  TupleAddress,
+  DeepMidTupleInput,
+  DeepMidTupleUpdate,
+  DeepOuterTupleUpdate,
+  LocatedUpdate,
   TupleAddressInput,
+  TupleBasicUpdate,
+  TupleDeepNestUpdate,
+  TupleObjInTupleUpdate,
   WithOptionalUpdate,
 } from '../generated';
-import type { CerialNone } from 'cerial';
 
 // Helper for extension checks
 type Extends<A, B> = A extends B ? 1 : 0;

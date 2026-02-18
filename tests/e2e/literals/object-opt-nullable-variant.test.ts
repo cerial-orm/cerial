@@ -11,15 +11,8 @@
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import {
-  cleanupTables,
-  createTestClient,
-  truncateTables,
-  CerialClient,
-  tables,
-  testConfig,
-} from '../test-helper';
-import { NONE, isCerialId } from 'cerial';
+import { isCerialId, NONE } from 'cerial';
+import { type CerialClient, cleanupTables, createTestClient, tables, testConfig, truncateTables } from '../test-helper';
 
 describe('E2E Literals: Object Variant with Optional/Nullable Fields', () => {
   let client: CerialClient;

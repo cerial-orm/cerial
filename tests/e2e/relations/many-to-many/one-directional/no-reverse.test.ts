@@ -6,7 +6,14 @@
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import { cleanupTables, createTestClient, truncateTables, CerialClient, tables, testConfig } from '../../../test-helper';
+import {
+  type CerialClient,
+  cleanupTables,
+  createTestClient,
+  tables,
+  testConfig,
+  truncateTables,
+} from '../../../test-helper';
 
 describe('E2E Many-to-Many One-Directional: No Reverse', () => {
   let client: CerialClient;

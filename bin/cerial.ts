@@ -3,7 +3,7 @@
  * cerial CLI entry point
  */
 
-import { parseArgs, printHelp, generate } from '../src/cli';
+import { generate, parseArgs, printHelp } from '../src/cli';
 
 const args = process.argv.slice(2);
 

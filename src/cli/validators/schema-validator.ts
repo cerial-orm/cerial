@@ -6,11 +6,11 @@ import { getDecorator, getTuple, hasDecorator } from '../../parser/types/ast';
 import type { ASTTuple, SchemaAST } from '../../types';
 import { isValidFieldName, isValidModelName, isValidObjectName } from '../../utils/validation-utils';
 import {
+  validateNoOptionalAnyFields,
+  validateNoOptionalTupleElements,
   validateNullableDecorator,
   validateNullableOnObjectFields,
   validateNullableOnTupleElements,
-  validateNoOptionalTupleElements,
-  validateNoOptionalAnyFields,
   validateTupleElementDecorators,
 } from './nullable-validator';
 import { validateRecordIdTypes } from './record-type-validator';
@@ -297,7 +297,7 @@ export function validateArrayDecorators(ast: SchemaAST): SchemaValidationError[]
 const TIMESTAMP_DECORATORS = new Set(['now', 'createdAt', 'updatedAt']);
 
 /** All decorators that provide a default value strategy (mutually exclusive) */
-const DEFAULT_STRATEGY_DECORATORS = new Set(['default', 'defaultAlways', 'now', 'createdAt', 'updatedAt']);
+const _DEFAULT_STRATEGY_DECORATORS = new Set(['default', 'defaultAlways', 'now', 'createdAt', 'updatedAt']);
 
 /** Validate timestamp decorator rules on a single field (shared by model and object validation) */
 function validateTimestampDecorators(

@@ -1,11 +1,11 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import { CerialId } from '../../../src/utils/cerial-id';
 import {
-  createTestClient,
-  testConfig,
-  TYPED_ID_TABLES,
-  CerialClient,
+  type CerialClient,
   cleanupTables,
+  createTestClient,
+  TYPED_ID_TABLES,
+  testConfig,
   truncateTables,
 } from '../test-helper';
 

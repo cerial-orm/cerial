@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'bun:test';
+import { describe, expect, it } from 'bun:test';
 import { getNumberFieldType, isNumberType } from '../../../src/parser/types/field-types/number-parser';
 
 describe('Number parser', () => {

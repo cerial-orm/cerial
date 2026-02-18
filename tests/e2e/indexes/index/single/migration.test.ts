@@ -9,7 +9,14 @@
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import { cleanupTables, truncateTables, INDEX_TABLES, createTestClient, CerialClient, testConfig } from '../../../test-helper';
+import {
+  type CerialClient,
+  cleanupTables,
+  createTestClient,
+  INDEX_TABLES,
+  testConfig,
+  truncateTables,
+} from '../../../test-helper';
 
 describe('@index Single Field: migration', () => {
   let client: CerialClient;
@@ -36,7 +43,7 @@ describe('@index Single Field: migration', () => {
     const indexes = info.indexes as Record<string, string>;
 
     // The single-field @index generates: DEFINE INDEX warehouse_name_index ON warehouse COLUMNS name
-    const nameIndex = indexes['warehouse_name_index'];
+    const nameIndex = indexes.warehouse_name_index;
     expect(nameIndex).toBeDefined();
     expect(nameIndex).toContain('name');
     // Should NOT contain UNIQUE

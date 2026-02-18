@@ -1,23 +1,19 @@
+import type { CerialDecimal, CerialDecimalInput } from 'cerial';
 import { Test } from 'ts-toolbelt';
 import type {
   DecimalBasic,
-  DecimalBasicInput,
   DecimalBasicCreate,
-  DecimalBasicUpdate,
-  DecimalBasicWhere,
+  DecimalBasicInput,
   DecimalBasicOrderBy,
   DecimalBasicSelect,
+  DecimalBasicUpdate,
+  DecimalBasicWhere,
   DecimalDecorated,
   DecimalDecoratedCreate,
-  DecimalDecoratedUpdate,
-  DecimalInfo,
-  DecimalInfoInput,
   DecimalInfoInput as DecimalInfoCreateInput,
-  DecimalInfoWhere,
   DecimalPair,
   DecimalPairInput,
 } from '../generated';
-import type { CerialDecimal, CerialDecimalInput } from 'cerial';
 
 type HasKey<T, K extends string> = K extends keyof T ? 1 : 0;
 type Extends<A, B> = A extends B ? 1 : 0;

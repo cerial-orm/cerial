@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { isGeometryType, getGeometryFieldType } from '../../../src/parser/types/field-types/geometry-parser';
+import { getGeometryFieldType, isGeometryType } from '../../../src/parser/types/field-types/geometry-parser';
 
 describe('geometry-parser', () => {
   test('isGeometryType returns true for Geometry', () => {

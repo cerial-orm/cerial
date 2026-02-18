@@ -3,9 +3,9 @@
  * Provides utilities for writing tests using DSL instead of manual ModelRegistry construction
  */
 
-import type { ModelRegistry, ModelMetadata } from '../src/types';
-import { parse } from '../src/parser/parser';
 import { astToRegistry } from '../src/parser/model-metadata';
+import { parse } from '../src/parser/parser';
+import type { ModelMetadata, ModelRegistry } from '../src/types';
 
 /**
  * Parse a model DSL string and get the ModelRegistry

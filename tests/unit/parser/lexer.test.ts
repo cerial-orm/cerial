@@ -5,8 +5,8 @@
  */
 
 import { describe, expect, test } from 'bun:test';
-import { tokenize } from '../../../src/parser/tokenizer';
 import { lex } from '../../../src/parser/lexer';
+import { tokenize } from '../../../src/parser/tokenizer';
 
 describe('Lexer', () => {
   describe('lex', () => {

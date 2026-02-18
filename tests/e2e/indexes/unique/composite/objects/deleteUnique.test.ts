@@ -9,7 +9,14 @@
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import { cleanupTables, truncateTables, INDEX_TABLES, createTestClient, CerialClient, testConfig } from '../../../../test-helper';
+import {
+  type CerialClient,
+  cleanupTables,
+  createTestClient,
+  INDEX_TABLES,
+  testConfig,
+  truncateTables,
+} from '../../../../test-helper';
 
 describe('Composite Unique Objects: deleteUnique', () => {
   let client: CerialClient;

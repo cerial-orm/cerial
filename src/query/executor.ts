@@ -2,10 +2,10 @@
  * Query executor - executes queries via SurrealDB SDK
  */
 
-import { type Surreal, BoundQuery } from 'surrealdb';
-import type { CompiledQuery } from './compile/types';
+import { BoundQuery, type Surreal } from 'surrealdb';
 import type { ModelMetadata, ModelRegistry } from '../types';
 import type { QueryResultType } from './cerial-query-promise';
+import type { CompiledQuery } from './compile/types';
 import { mapResult, mapSingleResult } from './mappers';
 
 /** Query execution options */
@@ -111,7 +111,7 @@ export async function executeQuerySingle<T = unknown>(
       // Only retry on transaction conflicts
       if (isTransactionConflict(error) && attempt < maxRetries) {
         // Exponential backoff with jitter: 10ms, 20ms, 40ms, etc.
-        const delay = Math.pow(2, attempt) * 10 + Math.random() * 10;
+        const delay = 2 ** attempt * 10 + Math.random() * 10;
         await sleep(delay);
         continue;
       }
@@ -371,7 +371,7 @@ export async function executeClientTransaction(db: Surreal, items: TransactionIt
         // Has an explicit RETURN clause — add all inner statements, then capture return
         for (const stmt of innerStatements) {
           const trimmed = stmt.trim();
-          if (trimmed) statements.push(trimmed + ';');
+          if (trimmed) statements.push(`${trimmed};`);
         }
 
         // Capture the RETURN expression
@@ -422,7 +422,7 @@ export async function executeClientTransaction(db: Surreal, items: TransactionIt
             statements.push(`LET ${resultVar} = (${trimmed});`);
             resultVarNames.push(resultVar);
           } else {
-            statements.push(trimmed + ';');
+            statements.push(`${trimmed};`);
           }
         }
 
@@ -430,7 +430,7 @@ export async function executeClientTransaction(db: Surreal, items: TransactionIt
         if (!resultVarNames.includes(resultVar)) {
           // Try to find the last LET variable as the result
           const allLets = innerText.match(/LET\s+(\$\w+)/gi);
-          if (allLets && allLets.length) {
+          if (allLets?.length) {
             const lastLet = allLets[allLets.length - 1]!.match(/\$\w+/);
             if (lastLet) {
               resultVarNames.push(lastLet[0]!);
@@ -495,7 +495,7 @@ export async function executeClientTransaction(db: Surreal, items: TransactionIt
       lastError = error;
 
       if (isTransactionConflict(error) && attempt < maxRetries) {
-        const delay = Math.pow(2, attempt) * 10 + Math.random() * 10;
+        const delay = 2 ** attempt * 10 + Math.random() * 10;
         await sleep(delay);
         continue;
       }

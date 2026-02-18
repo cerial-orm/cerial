@@ -7,9 +7,9 @@
 
 import { describe, expect, test } from 'bun:test';
 import {
-  generateUpdateType,
-  generateUpdateInputType,
   generateCreateType,
+  generateUpdateInputType,
+  generateUpdateType,
 } from '../../../src/generators/types/derived-generator';
 import type { FieldMetadata, ModelMetadata } from '../../../src/types';
 

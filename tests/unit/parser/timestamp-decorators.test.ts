@@ -5,11 +5,11 @@
  */
 
 import { describe, expect, test } from 'bun:test';
-import { isNowDecorator, parseNowDecorator } from '../../../src/parser/types/field-decorators/now-parser';
 import {
   isCreatedAtDecorator,
   parseCreatedAtDecorator,
 } from '../../../src/parser/types/field-decorators/created-at-parser';
+import { isNowDecorator, parseNowDecorator } from '../../../src/parser/types/field-decorators/now-parser';
 import {
   isUpdatedAtDecorator,
   parseUpdatedAtDecorator,

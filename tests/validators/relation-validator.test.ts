@@ -3,14 +3,14 @@
  */
 
 import { describe, expect, test } from 'bun:test';
-import { parse } from '../../src/parser/parser';
 import {
-  validatePKStructure,
   validateCardinalityMatch,
-  validateOnDeletePlacement,
   validateKeyRequired,
+  validateOnDeletePlacement,
+  validatePKStructure,
   validateRelationRules,
 } from '../../src/cli/validators/relation-validator';
+import { parse } from '../../src/parser/parser';
 
 describe('relation-validator', () => {
   describe('validatePKStructure', () => {

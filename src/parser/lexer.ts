@@ -3,7 +3,7 @@
  * Validates tokens and converts to typed lexemes
  */
 
-import type { Token, Lexeme, LexemeType, SourcePosition, ParseError } from '../types';
+import type { Lexeme, LexemeType, ParseError, SourcePosition, Token } from '../types';
 import { filterTokens } from './tokenizer';
 
 /** Lexer result */
@@ -46,7 +46,7 @@ function current(state: LexerState): Token | undefined {
 }
 
 /** Peek ahead */
-function peek(state: LexerState, offset: number = 1): Token | undefined {
+function _peek(state: LexerState, offset: number = 1): Token | undefined {
   return state.tokens[state.position + offset];
 }
 

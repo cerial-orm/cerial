@@ -1,11 +1,11 @@
-import { describe, it, expect } from 'bun:test';
+import { describe, expect, it } from 'bun:test';
 import {
-  getRecordOutputType,
-  getRecordInputType,
   getIdCreateInputType,
+  getRecordInputType,
+  getRecordOutputType,
   isIdOptionalInCreate,
 } from '../../../src/generators/types/record-type-helpers';
-import type { FieldMetadata, TupleRegistry, ObjectRegistry } from '../../../src/types';
+import type { FieldMetadata, ObjectRegistry, TupleRegistry } from '../../../src/types';
 
 /** Helper to create a minimal FieldMetadata for record fields */
 function makeField(overrides: Partial<FieldMetadata> = {}): FieldMetadata {

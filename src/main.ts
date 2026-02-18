@@ -119,64 +119,46 @@ export class Cerial {
 
 export { Cerial as C };
 
-// Export types (explicit to avoid conflicts)
+export type { RecordIdValue } from 'surrealdb';
+// SurrealDB SDK re-exports for typed ID support
+export { equals, escapeIdent, escapeIdPart, RecordId, StringRecordId, Table } from 'surrealdb';
 export type {
-  ArrayOperators,
-  ASTDecorator,
-  ASTEnum,
-  ASTField,
-  ASTModel,
-  ComparisonOperators,
-  ConnectionConfig,
-  CreateOptions,
-  DeleteManyOptions,
-  FieldFilter,
-  FieldMetadata,
-  FieldTypeMapping,
-  FindManyOptions,
-  FindOneOptions,
-  FindOptions,
-  Lexeme,
-  LexemeType,
-  ModelMetadata,
-  ModelRegistry,
-  ObjectFieldMetadata,
-  ObjectMetadata,
-  ObjectRegistry,
-  NamedConnection,
-  OperatorHandler,
-  OperatorRegistry,
-  OrderByClause,
-  OrderDirection,
-  ParseError,
-  ParseResult,
-  QueryResult,
-  Result,
-  SchemaAST,
-  SchemaConstraint,
-  SchemaDecorator,
-  SchemaFieldType,
-  SchemaFile,
-  SelectClause,
-  SingleResult,
-  SourcePosition,
-  SourceRange,
-  SpecialOperators,
-  StringOperators,
-  SurrealTypeMapping,
-  Token,
-  TokenType,
-  UpdateOptions,
-  TupleElementMetadata,
-  TupleFieldMetadata,
-  TupleMetadata,
-  TupleRegistry,
-  LiteralFieldMetadata,
-  LiteralMetadata,
-  LiteralRegistry,
-  WhereClause,
-} from './types';
-
+  CLIOptions,
+  GenerateResult,
+  LoggerOptions,
+  LogLevel,
+  OptionsValidationError,
+  OptionsValidationResult,
+  SchemaResolveOptions,
+  SchemaValidationError,
+  SchemaValidationResult,
+  WriteOptions,
+} from './cli';
+// Export CLI (explicit to avoid conflicts)
+export {
+  ensureDir,
+  ensureDirs,
+  ensureParentDir,
+  findSchemasInDir,
+  generate,
+  getDefaultOptions,
+  Logger,
+  logger,
+  parseArgs,
+  printHelp,
+  resolveSchemas,
+  resolveSinglePath,
+  validateFieldNames,
+  validateModelNames,
+  validateOptions,
+  writeFile,
+  writeFiles,
+} from './cli';
+// Export client
+export * from './client';
+// Export generators
+export * from './generators';
+export type { FindSchemasOptions, LexerResult } from './parser';
 // Export parser (explicit to avoid conflicts)
 export {
   astToRegistry,
@@ -197,9 +179,9 @@ export {
   getModel,
   getModelMetadata,
   getModelNames,
-  getTimestampFields,
   getOptionalFields,
   getRequiredFields,
+  getTimestampFields,
   getUniqueFields,
   hasDecorator,
   hasField,
@@ -220,18 +202,25 @@ export {
   tokenize,
   validateSchema,
 } from './parser';
-
-export type { FindSchemasOptions, LexerResult } from './parser';
-
-// Export generators
-export * from './generators';
-
+export type {
+  CompiledQuery,
+  CompiledQueryDescriptor,
+  DataValidationError,
+  DataValidationResult,
+  ExecuteOptions,
+  QueryFragment,
+  QueryResultType,
+  QueryVars,
+  TransactionItem,
+  ValidationError,
+  VarBinding,
+  WhereValidationResult,
+} from './query';
 // Export query (explicit exports to avoid conflicts)
 export {
   applyDefaultValues,
   applyFieldDefaults,
   applyNowDefaults,
-  stripComputedFields,
   buildConditions,
   buildCreateQuery,
   buildDeleteQuery,
@@ -299,6 +288,7 @@ export {
   QueryBuilder,
   QueryBuilderStatic,
   registerOperator,
+  stripComputedFields,
   transformData,
   transformValue,
   transformWhere,
@@ -309,62 +299,62 @@ export {
   validateWhereClause,
   wrapParens,
 } from './query';
-
+// Export types (explicit to avoid conflicts)
 export type {
-  CompiledQuery,
-  CompiledQueryDescriptor,
-  DataValidationError,
-  DataValidationResult,
-  ExecuteOptions,
-  QueryFragment,
-  QueryResultType,
-  QueryVars,
-  TransactionItem,
-  ValidationError,
-  VarBinding,
-  WhereValidationResult,
-} from './query';
-
-// Export client
-export * from './client';
-
-// Export CLI (explicit to avoid conflicts)
-export {
-  ensureDir,
-  ensureDirs,
-  ensureParentDir,
-  findSchemasInDir,
-  generate,
-  getDefaultOptions,
-  Logger,
-  logger,
-  parseArgs,
-  printHelp,
-  resolveSchemas,
-  resolveSinglePath,
-  validateFieldNames,
-  validateModelNames,
-  validateOptions,
-  writeFile,
-  writeFiles,
-} from './cli';
-
-export type {
-  CLIOptions,
-  GenerateResult,
-  LoggerOptions,
-  LogLevel,
-  OptionsValidationError,
-  OptionsValidationResult,
-  SchemaResolveOptions,
-  SchemaValidationError,
-  SchemaValidationResult,
-  WriteOptions,
-} from './cli';
-
+  ArrayOperators,
+  ASTDecorator,
+  ASTEnum,
+  ASTField,
+  ASTModel,
+  ComparisonOperators,
+  ConnectionConfig,
+  CreateOptions,
+  DeleteManyOptions,
+  FieldFilter,
+  FieldMetadata,
+  FieldTypeMapping,
+  FindManyOptions,
+  FindOneOptions,
+  FindOptions,
+  Lexeme,
+  LexemeType,
+  LiteralFieldMetadata,
+  LiteralMetadata,
+  LiteralRegistry,
+  ModelMetadata,
+  ModelRegistry,
+  NamedConnection,
+  ObjectFieldMetadata,
+  ObjectMetadata,
+  ObjectRegistry,
+  OperatorHandler,
+  OperatorRegistry,
+  OrderByClause,
+  OrderDirection,
+  ParseError,
+  ParseResult,
+  QueryResult,
+  Result,
+  SchemaAST,
+  SchemaConstraint,
+  SchemaDecorator,
+  SchemaFieldType,
+  SchemaFile,
+  SelectClause,
+  SingleResult,
+  SourcePosition,
+  SourceRange,
+  SpecialOperators,
+  StringOperators,
+  SurrealTypeMapping,
+  Token,
+  TokenType,
+  TupleElementMetadata,
+  TupleFieldMetadata,
+  TupleMetadata,
+  TupleRegistry,
+  UpdateOptions,
+  WhereClause,
+} from './types';
 // Export utils
 export * from './utils';
-
-// SurrealDB SDK re-exports for typed ID support
-export { RecordId, StringRecordId, Table, equals, escapeIdent, escapeIdPart } from 'surrealdb';
-export type { RecordIdValue } from 'surrealdb';

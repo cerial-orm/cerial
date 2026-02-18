@@ -6,14 +6,14 @@
  */
 
 import { describe, expect, test } from 'bun:test';
-import type { ModelMetadata, WhereClause } from '../../../src/types';
+import { getRecordIdFromWhere } from '../../../src/query/builders/delete-builder';
 import {
+  buildFindUniqueQuery,
   expandCompositeKey,
   findCompositeUniqueKey,
   validateUniqueField,
-  buildFindUniqueQuery,
 } from '../../../src/query/builders/select-builder';
-import { getRecordIdFromWhere } from '../../../src/query/builders/delete-builder';
+import type { ModelMetadata, WhereClause } from '../../../src/types';
 
 /** Test model with a composite unique on (firstName, lastName) */
 const userModel: ModelMetadata = {

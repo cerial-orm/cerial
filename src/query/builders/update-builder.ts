@@ -13,14 +13,14 @@ import type {
   UpdateUniqueReturn,
   WhereClause,
 } from '../../types';
-import { NONE, isNone } from '../../utils/none';
+import { isNone, NONE } from '../../utils/none';
 import type { CompiledQuery } from '../compile/types';
 import { createCompileContext, type FilterCompileContext } from '../compile/var-allocator';
 import { transformWhereClause } from '../filters/transformer';
 import { transformOrValidateRecordId } from '../transformers';
 import { buildArrayUpdateClause, isArrayField, isArrayUpdateOps } from './array-update-builder';
 import { getRecordIdFromWhere } from './delete-builder';
-import { type IncludeClause, combineSelectWithIncludes } from './relation-builder';
+import { combineSelectWithIncludes, type IncludeClause } from './relation-builder';
 import { buildSelectFields } from './select-builder';
 
 /**
@@ -503,7 +503,7 @@ function buildObjectMergeClauses(
         );
       } else {
         // Array form = full tuple replace via dot-notation
-        const varBinding = ctx.bind(subPath.replace(/[.\[\]]/g, '_'), 'set', subValue, subField.type);
+        const varBinding = ctx.bind(subPath.replace(/[.[\]]/g, '_'), 'set', subValue, subField.type);
         setParts.push(`${subPath} = ${varBinding.placeholder}`);
         Object.assign(setVars, varBinding.vars);
       }

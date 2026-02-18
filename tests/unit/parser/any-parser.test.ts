@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { isAnyType, getAnyFieldType } from '../../../src/parser/types/field-types/any-parser';
+import { getAnyFieldType, isAnyType } from '../../../src/parser/types/field-types/any-parser';
 
 describe('any-parser', () => {
   test('isAnyType returns true for "Any"', () => {

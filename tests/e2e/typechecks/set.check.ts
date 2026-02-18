@@ -1,13 +1,13 @@
+import type { CerialId, CerialSet, CerialUuid, CerialUuidInput } from 'cerial';
 import { Test } from 'ts-toolbelt';
 import type {
   SetBasic,
-  SetBasicInput,
   SetBasicCreate,
+  SetBasicInput,
+  SetBasicSelect,
   SetBasicUpdate,
   SetBasicWhere,
-  SetBasicSelect,
 } from '../generated';
-import type { CerialId, CerialSet, CerialUuid, CerialUuidInput } from 'cerial';
 
 type HasKey<T, K extends string> = K extends keyof T ? 1 : 0;
 

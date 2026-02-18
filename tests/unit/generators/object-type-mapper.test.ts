@@ -10,7 +10,7 @@ import {
   generateModelDefineStatements,
   generateObjectFieldDefines,
 } from '../../../src/generators/migrations/define-generator';
-import { mapToSurrealType, generateTypeClause } from '../../../src/generators/migrations/type-mapper';
+import { generateTypeClause, mapToSurrealType } from '../../../src/generators/migrations/type-mapper';
 import type { FieldMetadata, ModelMetadata, ObjectMetadata, ObjectRegistry } from '../../../src/types';
 
 // Helper to create a minimal FieldMetadata

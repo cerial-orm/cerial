@@ -6,7 +6,7 @@
  */
 
 import { Test } from 'ts-toolbelt';
-import type { User, UserFindUniqueWhere, DeleteUniqueReturn, DeleteUniqueReturnType } from '../generated';
+import type { DeleteUniqueReturn, DeleteUniqueReturnType, User, UserFindUniqueWhere } from '../generated';
 
 // Helper for extension checks
 type Extends<A, B> = A extends B ? 1 : 0;

@@ -12,12 +12,12 @@
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import {
+  type CerialClient,
   cleanupTables,
   createTestClient,
-  truncateTables,
-  CerialClient,
   tables,
   testConfig,
+  truncateTables,
   uniqueEmail,
   uniqueId,
 } from '../../../test-helper';
@@ -262,7 +262,7 @@ describe('E2E Many-to-Many Bidirectional: Upsert', () => {
       });
 
       const email = uniqueEmail('co');
-      const student = await client.db.Student.create({
+      const _student = await client.db.Student.create({
         data: {
           name: 'Original',
           email,

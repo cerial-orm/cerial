@@ -2,9 +2,9 @@
  * Not operator handler - handles { not: value } syntax
  */
 
+import type { FieldMetadata } from '../../../types';
 import type { QueryFragment } from '../../compile/types';
 import type { FilterCompileContext } from '../../compile/var-allocator';
-import type { FieldMetadata } from '../../../types';
 
 /** Handle not operator - negates a value comparison */
 export function handleNot(

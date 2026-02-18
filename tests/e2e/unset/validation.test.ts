@@ -8,14 +8,7 @@
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import {
-  cleanupTables,
-  createTestClient,
-  truncateTables,
-  CerialClient,
-  testConfig,
-  tables,
-} from '../test-helper';
+import { type CerialClient, cleanupTables, createTestClient, tables, testConfig, truncateTables } from '../test-helper';
 
 const UNSET_TABLES = tables.unset;
 const NESTED = { title: 'T', mid: { label: 'L', deep: { code: 'C' } } };
@@ -87,7 +80,7 @@ describe('Unset: Validation', () => {
   });
 
   test('rejects leaf-level overlap in updateMany', async () => {
-    const record = await client.db.UnsetTest.create({
+    const _record = await client.db.UnsetTest.create({
       data: { name: 'Val4', bio: 'test', address: { street: 'J', city: 'NYC' }, pos: [40.0, -74.0], nested: NESTED },
     });
 

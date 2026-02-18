@@ -6,19 +6,19 @@ import { readdir, rm } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { writeClient } from '../generators/client/writer';
 import {
+  convertLiterals,
   convertModels,
   convertObjects,
   convertTuples,
-  convertLiterals,
-  createObjectRegistry,
-  createTupleRegistry,
   createLiteralRegistry,
+  createObjectRegistry,
   createRegistry,
-  resolveObjectFields,
+  createTupleRegistry,
   inferFKTypes,
+  resolveObjectFields,
 } from '../generators/metadata';
-import { writeModelRegistry } from '../generators/metadata/registry-writer';
 import { writeInternalIndex } from '../generators/metadata/internal-writer';
+import { writeModelRegistry } from '../generators/metadata/registry-writer';
 import { writeMigrationFile } from '../generators/migrations/writer';
 import { collectEnumNames, collectLiteralNames, collectObjectNames, collectTupleNames, parse } from '../parser/parser';
 import type {

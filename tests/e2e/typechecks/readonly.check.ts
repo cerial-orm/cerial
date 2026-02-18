@@ -12,15 +12,15 @@
 
 import { Test } from 'ts-toolbelt';
 import type {
-  ReadonlyTest,
-  ReadonlyTestCreate,
-  ReadonlyTestUpdate,
-  ReadonlyTestWhere,
-  ReadonlyTestSelect,
   ReadonlyRecord,
   ReadonlyRecordCreate,
   ReadonlyRecordUpdate,
   ReadonlyRecordUpdateInput,
+  ReadonlyTest,
+  ReadonlyTestCreate,
+  ReadonlyTestSelect,
+  ReadonlyTestUpdate,
+  ReadonlyTestWhere,
 } from '../generated';
 
 const { checks, check } = Test;

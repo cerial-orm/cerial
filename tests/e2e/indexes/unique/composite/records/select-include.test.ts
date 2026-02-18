@@ -10,7 +10,14 @@
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import { CerialId } from 'cerial';
-import { cleanupTables, truncateTables, INDEX_TABLES, createTestClient, CerialClient, testConfig } from '../../../../test-helper';
+import {
+  type CerialClient,
+  cleanupTables,
+  createTestClient,
+  INDEX_TABLES,
+  testConfig,
+  truncateTables,
+} from '../../../../test-helper';
 
 describe('Composite Unique Records: select & include', () => {
   let client: CerialClient;

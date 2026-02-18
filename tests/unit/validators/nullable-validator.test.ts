@@ -6,20 +6,20 @@
 
 import { describe, expect, test } from 'bun:test';
 import {
+  validateNoOptionalTupleElements,
   validateNullableDecorator,
   validateNullableOnObjectFields,
   validateNullableOnTupleElements,
-  validateNoOptionalTupleElements,
   validateTupleElementDecorators,
 } from '../../../src/cli/validators/nullable-validator';
 import type {
+  ASTDecorator,
   ASTField,
   ASTModel,
   ASTObject,
   ASTTuple,
   ASTTupleElement,
   SchemaAST,
-  ASTDecorator,
 } from '../../../src/types';
 
 const range = {

@@ -1,21 +1,21 @@
+import type { CerialAny, CerialId } from 'cerial';
 import { Test } from 'ts-toolbelt';
 import type {
   AnyBasic,
-  AnyBasicInput,
   AnyBasicCreate,
-  AnyBasicWhere,
+  AnyBasicInput,
   AnyBasicSelect,
-  AnyWithObject,
-  AnyMeta,
-  AnyMetaInput,
+  AnyBasicWhere,
   AnyDecorated,
   AnyDecoratedCreate,
-  AnyDecoratedUpdate,
   AnyDecoratedUnset,
+  AnyDecoratedUpdate,
+  AnyMeta,
+  AnyMetaInput,
   AnyUnique,
   AnyUniqueCreate,
+  AnyWithObject,
 } from '../generated';
-import type { CerialAny, CerialId } from 'cerial';
 
 type HasKey<T, K extends string> = K extends keyof T ? 1 : 0;
 

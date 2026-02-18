@@ -6,17 +6,17 @@
 
 import { describe, expect, test } from 'bun:test';
 import {
-  fieldToMetadata,
-  modelToMetadata,
   astToRegistry,
-  getModelMetadata,
+  fieldToMetadata,
   getFieldMetadata,
-  hasField,
-  getUniqueFields,
-  getRequiredFields,
-  getOptionalFields,
-  getTimestampFields,
   getFieldsWithDefaults,
+  getModelMetadata,
+  getOptionalFields,
+  getRequiredFields,
+  getTimestampFields,
+  getUniqueFields,
+  hasField,
+  modelToMetadata,
 } from '../../../src/parser/model-metadata';
 import type { ASTField, ASTModel, SchemaAST } from '../../../src/types';
 
@@ -262,8 +262,8 @@ describe('astToRegistry', () => {
     const registry = astToRegistry(ast);
 
     expect(Object.keys(registry)).toHaveLength(2);
-    expect(registry['User']).toBeDefined();
-    expect(registry['Post']).toBeDefined();
+    expect(registry.User).toBeDefined();
+    expect(registry.Post).toBeDefined();
   });
 });
 

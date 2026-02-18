@@ -1,24 +1,24 @@
 import { describe, expect, test } from 'bun:test';
 import {
+  GeometryCollection,
+  GeometryLine,
+  GeometryMultiLine,
+  GeometryMultiPoint,
+  GeometryMultiPolygon,
+  GeometryPoint,
+  GeometryPolygon,
+} from 'surrealdb';
+import {
   CerialGeometry,
-  CerialPoint,
-  CerialLineString,
-  CerialPolygon,
-  CerialMultiPoint,
-  CerialMultiLineString,
-  CerialMultiPolygon,
   CerialGeometryCollection,
+  CerialLineString,
+  CerialMultiLineString,
+  CerialMultiPoint,
+  CerialMultiPolygon,
+  CerialPoint,
+  CerialPolygon,
   isCerialGeometry,
 } from '../../../src/utils/cerial-geometry';
-import {
-  GeometryPoint,
-  GeometryLine,
-  GeometryPolygon,
-  GeometryMultiPoint,
-  GeometryMultiLine,
-  GeometryMultiPolygon,
-  GeometryCollection,
-} from 'surrealdb';
 
 // ─── CerialPoint ──────────────────────────────────────────────────────────────
 

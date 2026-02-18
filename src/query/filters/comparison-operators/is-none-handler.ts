@@ -7,9 +7,9 @@
  * - { isNone: false } → field is present (not NONE, but could be NULL or have a value)
  */
 
+import type { FieldMetadata } from '../../../types';
 import type { QueryFragment } from '../../compile/types';
 import type { FilterCompileContext } from '../../compile/var-allocator';
-import type { FieldMetadata } from '../../../types';
 
 /** Handle isNone operator - checks if field is absent (NONE) */
 export function handleIsNone(

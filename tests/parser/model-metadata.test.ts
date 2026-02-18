@@ -23,10 +23,10 @@ describe('model-metadata', () => {
     const result = parse(source);
     const registry = astToRegistry(result.ast);
 
-    expect(registry['User']).toBeDefined();
-    expect(registry['User']?.name).toBe('User');
-    expect(registry['User']?.tableName).toBe('user');
-    expect(registry['User']?.fields.length).toBe(3);
+    expect(registry.User).toBeDefined();
+    expect(registry.User?.name).toBe('User');
+    expect(registry.User?.tableName).toBe('user');
+    expect(registry.User?.fields.length).toBe(3);
   });
 
   test('converts field with @id to metadata', () => {
@@ -77,7 +77,7 @@ describe('model-metadata', () => {
 }`;
     const result = parse(source);
     const registry = astToRegistry(result.ast);
-    const uniqueFields = getUniqueFields(registry['User']!);
+    const uniqueFields = getUniqueFields(registry.User!);
 
     // Only email has @unique, @id is separate from @unique
     expect(uniqueFields.length).toBe(1);
@@ -93,7 +93,7 @@ describe('model-metadata', () => {
 }`;
     const result = parse(source);
     const registry = astToRegistry(result.ast);
-    const user = registry['User']!;
+    const user = registry.User!;
 
     const idField = user.fields.find((f) => f.name === 'id');
     const emailField = user.fields.find((f) => f.name === 'email');
@@ -117,7 +117,7 @@ describe('model-metadata', () => {
 }`;
     const result = parse(source);
     const registry = astToRegistry(result.ast);
-    const timestampFields = getTimestampFields(registry['User']!);
+    const timestampFields = getTimestampFields(registry.User!);
 
     expect(timestampFields.length).toBe(2);
     expect(timestampFields.every((f) => f.timestampDecorator)).toBe(true);
@@ -130,7 +130,7 @@ describe('model-metadata', () => {
 }`;
     const result = parse(source);
     const registry = astToRegistry(result.ast);
-    const user = registry['User']!;
+    const user = registry.User!;
 
     const tagIdsField = user.fields.find((f) => f.name === 'tagIds');
     expect(tagIdsField).toBeDefined();
@@ -146,7 +146,7 @@ describe('model-metadata', () => {
 }`;
     const result = parse(source);
     const registry = astToRegistry(result.ast);
-    const user = registry['User']!;
+    const user = registry.User!;
 
     const profileIdField = user.fields.find((f) => f.name === 'profileId');
     expect(profileIdField).toBeDefined();
@@ -167,7 +167,7 @@ model Profile {
 }`;
     const result = parse(source);
     const registry = astToRegistry(result.ast);
-    const user = registry['User']!;
+    const user = registry.User!;
 
     const profileField = user.fields.find((f) => f.name === 'profile');
     expect(profileField).toBeDefined();
@@ -192,7 +192,7 @@ model Post {
 }`;
     const result = parse(source);
     const registry = astToRegistry(result.ast);
-    const user = registry['User']!;
+    const user = registry.User!;
 
     const postsField = user.fields.find((f) => f.name === 'posts');
     expect(postsField).toBeDefined();
@@ -212,7 +212,7 @@ model Post {
 }`;
       const result = parse(source);
       const registry = astToRegistry(result.ast);
-      const user = registry['User']!;
+      const user = registry.User!;
 
       const nicknamesField = user.fields.find((f) => f.name === 'nicknames');
       expect(nicknamesField).toBeDefined();
@@ -228,7 +228,7 @@ model Post {
 }`;
       const result = parse(source);
       const registry = astToRegistry(result.ast);
-      const user = registry['User']!;
+      const user = registry.User!;
 
       const scoresField = user.fields.find((f) => f.name === 'scores');
       expect(scoresField).toBeDefined();
@@ -243,7 +243,7 @@ model Post {
 }`;
       const result = parse(source);
       const registry = astToRegistry(result.ast);
-      const user = registry['User']!;
+      const user = registry.User!;
 
       const loginDatesField = user.fields.find((f) => f.name === 'loginDates');
       expect(loginDatesField).toBeDefined();
@@ -258,7 +258,7 @@ model Post {
 }`;
       const result = parse(source);
       const registry = astToRegistry(result.ast);
-      const user = registry['User']!;
+      const user = registry.User!;
 
       const ratingsField = user.fields.find((f) => f.name === 'ratings');
       expect(ratingsField).toBeDefined();
@@ -276,7 +276,7 @@ model Post {
 }`;
       const result = parse(source);
       const registry = astToRegistry(result.ast);
-      const user = registry['User']!;
+      const user = registry.User!;
 
       const tagsField = user.fields.find((f) => f.name === 'tags');
       const scoresField = user.fields.find((f) => f.name === 'scores');
@@ -308,7 +308,7 @@ model Post {
 }`;
       const result = parse(source);
       const registry = astToRegistry(result.ast);
-      const employee = registry['Employee']!;
+      const employee = registry.Employee!;
 
       const managerField = employee.fields.find((f) => f.name === 'manager');
       const reportsField = employee.fields.find((f) => f.name === 'directReports');
@@ -329,7 +329,7 @@ model User {
 }`;
       const result = parse(source);
       const registry = astToRegistry(result.ast);
-      const profile = registry['Profile']!;
+      const profile = registry.Profile!;
 
       const userField = profile.fields.find((f) => f.name === 'user');
 
@@ -354,7 +354,7 @@ model Parent {
 }`;
       const result = parse(source);
       const registry = astToRegistry(result.ast);
-      const child = registry['Child']!;
+      const child = registry.Child!;
 
       expect(child.fields.find((f) => f.name === 'cascade')?.relationInfo?.onDelete).toBe('Cascade');
       expect(child.fields.find((f) => f.name === 'setNull')?.relationInfo?.onDelete).toBe('SetNull');
@@ -374,7 +374,7 @@ model Tag {
 }`;
       const result = parse(source);
       const registry = astToRegistry(result.ast);
-      const user = registry['User']!;
+      const user = registry.User!;
 
       const tagsField = user.fields.find((f) => f.name === 'tags');
       expect(tagsField?.type).toBe('relation');
@@ -395,7 +395,7 @@ model User {
 }`;
       const result = parse(source);
       const registry = astToRegistry(result.ast);
-      const post = registry['Post']!;
+      const post = registry.Post!;
 
       const authorField = post.fields.find((f) => f.name === 'author');
       expect(authorField?.type).toBe('relation');
@@ -417,7 +417,7 @@ model Writer {
 }`;
       const result = parse(source);
       const registry = astToRegistry(result.ast);
-      const doc = registry['Document']!;
+      const doc = registry.Document!;
 
       const authorField = doc.fields.find((f) => f.name === 'author');
       const reviewerField = doc.fields.find((f) => f.name === 'reviewer');

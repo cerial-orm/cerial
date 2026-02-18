@@ -2,22 +2,17 @@
  * CLI module barrel export
  */
 
-// Resolvers
-export { resolveSchemas, resolveSinglePath, findSchemasInDir } from './resolvers';
+export type { GenerateResult } from './generate';
+// Generate
+export { generate } from './generate';
+// Parser
+export { parseArgs, printHelp } from './parser';
 export type { SchemaResolveOptions } from './resolvers';
-
+// Resolvers
+export { findSchemasInDir, resolveSchemas, resolveSinglePath } from './resolvers';
+export type { LoggerOptions, LogLevel, WriteOptions } from './utils';
 // Utils
-export { ensureDir, ensureParentDir, ensureDirs, writeFile, writeFiles, Logger, logger } from './utils';
-export type { WriteOptions, LogLevel, LoggerOptions } from './utils';
-
-// Validators
-export {
-  validateOptions,
-  getDefaultOptions,
-  validateSchema,
-  validateModelNames,
-  validateFieldNames,
-} from './validators';
+export { ensureDir, ensureDirs, ensureParentDir, Logger, logger, writeFile, writeFiles } from './utils';
 export type {
   CLIOptions,
   OptionsValidationError,
@@ -25,10 +20,11 @@ export type {
   SchemaValidationError,
   SchemaValidationResult,
 } from './validators';
-
-// Parser
-export { parseArgs, printHelp } from './parser';
-
-// Generate
-export { generate } from './generate';
-export type { GenerateResult } from './generate';
+// Validators
+export {
+  getDefaultOptions,
+  validateFieldNames,
+  validateModelNames,
+  validateOptions,
+  validateSchema,
+} from './validators';

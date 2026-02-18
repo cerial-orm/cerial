@@ -1,15 +1,14 @@
 import { describe, expect, test } from 'bun:test';
-import { RecordId, StringRecordId, Uuid } from 'surrealdb';
+import { RecordId, Uuid } from 'surrealdb';
+import { createCompileContext } from '../../../src/query/compile/var-allocator';
 import {
   buildConditions,
   buildDirectCondition,
   buildFieldCondition,
   isOperatorObject,
 } from '../../../src/query/filters/condition-builder';
-import { createCompileContext } from '../../../src/query/compile/var-allocator';
-import { CerialId } from '../../../src/utils/cerial-id';
-import { CerialUuid } from '../../../src/utils/cerial-uuid';
 import type { FieldMetadata, ModelMetadata } from '../../../src/types';
+import { CerialId } from '../../../src/utils/cerial-id';
 
 function makeField(overrides: Partial<FieldMetadata>): FieldMetadata {
   return {

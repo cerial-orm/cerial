@@ -49,8 +49,8 @@ describe('Migration Generator', () => {
       const map = generateModelMigrationMap(registry);
 
       expect(Object.keys(map)).toEqual(['User']);
-      expect(map['User']).toBeDefined();
-      expect(map['User']!.length).toBeGreaterThan(0);
+      expect(map.User).toBeDefined();
+      expect(map.User!.length).toBeGreaterThan(0);
     });
 
     test('generates map with multiple models', () => {
@@ -68,19 +68,19 @@ describe('Migration Generator', () => {
       const map = generateModelMigrationMap(registry);
 
       // User model should have table, fields, and index
-      expect(map['User']!.some((s) => s.includes('DEFINE TABLE'))).toBe(true);
-      expect(map['User']!.some((s) => s.includes('user'))).toBe(true);
-      expect(map['User']!.some((s) => s.includes('DEFINE INDEX') && s.includes('email'))).toBe(true);
+      expect(map.User!.some((s) => s.includes('DEFINE TABLE'))).toBe(true);
+      expect(map.User!.some((s) => s.includes('user'))).toBe(true);
+      expect(map.User!.some((s) => s.includes('DEFINE INDEX') && s.includes('email'))).toBe(true);
 
       // Post model should have table and fields
-      expect(map['Post']!.some((s) => s.includes('DEFINE TABLE'))).toBe(true);
-      expect(map['Post']!.some((s) => s.includes('post'))).toBe(true);
-      expect(map['Post']!.some((s) => s.includes('title'))).toBe(true);
+      expect(map.Post!.some((s) => s.includes('DEFINE TABLE'))).toBe(true);
+      expect(map.Post!.some((s) => s.includes('post'))).toBe(true);
+      expect(map.Post!.some((s) => s.includes('title'))).toBe(true);
 
       // Comment model should have table and fields with COMPUTED time::now()
-      expect(map['Comment']!.some((s) => s.includes('DEFINE TABLE'))).toBe(true);
-      expect(map['Comment']!.some((s) => s.includes('comment'))).toBe(true);
-      expect(map['Comment']!.some((s) => s.includes('time::now()'))).toBe(true);
+      expect(map.Comment!.some((s) => s.includes('DEFINE TABLE'))).toBe(true);
+      expect(map.Comment!.some((s) => s.includes('comment'))).toBe(true);
+      expect(map.Comment!.some((s) => s.includes('time::now()'))).toBe(true);
     });
   });
 
@@ -165,7 +165,7 @@ describe('Migration Generator', () => {
   describe('generateModelDefineStatements', () => {
     test('generates statements in correct order', () => {
       const registry = parseModelRegistry(singleModelDsl);
-      const model = registry['User']!;
+      const model = registry.User!;
       const statements = generateModelDefineStatements(model);
 
       // First statement should be DEFINE TABLE
@@ -178,7 +178,7 @@ describe('Migration Generator', () => {
 
     test('skips id field in DEFINE FIELD statements', () => {
       const registry = parseModelRegistry(singleModelDsl);
-      const model = registry['User']!;
+      const model = registry.User!;
       const statements = generateModelDefineStatements(model);
 
       // Should not have DEFINE FIELD for id
@@ -200,7 +200,7 @@ model User {
 
     test('generates array<string> for String[]', () => {
       const registry = parseModelRegistry(arrayDsl);
-      const model = registry['User']!;
+      const model = registry.User!;
       const statements = generateModelDefineStatements(model);
 
       const nicknamesStmt = statements.find((s) => s.includes('nicknames'));
@@ -209,7 +209,7 @@ model User {
 
     test('generates array<int> for Int[]', () => {
       const registry = parseModelRegistry(arrayDsl);
-      const model = registry['User']!;
+      const model = registry.User!;
       const statements = generateModelDefineStatements(model);
 
       const scoresStmt = statements.find((s) => s.includes('scores'));
@@ -218,7 +218,7 @@ model User {
 
     test('generates array<datetime> for Date[]', () => {
       const registry = parseModelRegistry(arrayDsl);
-      const model = registry['User']!;
+      const model = registry.User!;
       const statements = generateModelDefineStatements(model);
 
       const loginDatesStmt = statements.find((s) => s.includes('loginDates'));
@@ -227,7 +227,7 @@ model User {
 
     test('generates array<float> for Float[]', () => {
       const registry = parseModelRegistry(arrayDsl);
-      const model = registry['User']!;
+      const model = registry.User!;
       const statements = generateModelDefineStatements(model);
 
       const ratingsStmt = statements.find((s) => s.includes('ratings'));
@@ -259,7 +259,7 @@ model Tag {
 
     test('generates record<table> for required Record', () => {
       const registry = parseModelRegistry(recordDsl);
-      const model = registry['Profile']!;
+      const model = registry.Profile!;
       const statements = generateModelDefineStatements(model);
 
       const userIdStmt = statements.find((s) => s.includes('userId'));
@@ -268,7 +268,7 @@ model Tag {
 
     test('generates option<record<table>> for optional Record? (no null without @nullable)', () => {
       const registry = parseModelRegistry(recordDsl);
-      const model = registry['User']!;
+      const model = registry.User!;
       const statements = generateModelDefineStatements(model);
 
       const profileIdStmt = statements.find((s) => s.includes('profileId'));
@@ -278,7 +278,7 @@ model Tag {
 
     test('generates array<record<table>> with distinct for Record[]', () => {
       const registry = parseModelRegistry(recordDsl);
-      const model = registry['User']!;
+      const model = registry.User!;
       const statements = generateModelDefineStatements(model);
 
       const tagIdsStmt = statements.find((s) => s.includes('tagIds'));
@@ -289,7 +289,7 @@ model Tag {
 
     test('skips Relation fields in migration statements', () => {
       const registry = parseModelRegistry(recordDsl);
-      const model = registry['User']!;
+      const model = registry.User!;
       const statements = generateModelDefineStatements(model);
 
       // Should not have DEFINE FIELD for relation fields
@@ -400,7 +400,7 @@ model Tag {
           name String @index
         }
       `);
-      const statements = generateModelDefineStatements(registry['User']!);
+      const statements = generateModelDefineStatements(registry.User!);
 
       // @index generates non-unique DEFINE INDEX
       const indexStmt = statements.find((s) => s.includes('DEFINE INDEX') && s.includes('name'));
@@ -417,7 +417,7 @@ model Tag {
           name String
         }
       `);
-      const statements = generateModelDefineStatements(registry['User']!);
+      const statements = generateModelDefineStatements(registry.User!);
 
       const uniqueStmt = statements.find((s) => s.includes('DEFINE INDEX') && s.includes('email'));
       expect(uniqueStmt).toBeDefined();
@@ -434,7 +434,7 @@ model Tag {
           @@index(nameIdx, [firstName, lastName])
         }
       `);
-      const statements = generateModelDefineStatements(registry['User']!);
+      const statements = generateModelDefineStatements(registry.User!);
 
       const compositeStmt = statements.find((s) => s.includes('nameIdx'));
       expect(compositeStmt).toBeDefined();
@@ -453,7 +453,7 @@ model Tag {
           @@unique(firstLast, [firstName, lastName])
         }
       `);
-      const statements = generateModelDefineStatements(registry['User']!);
+      const statements = generateModelDefineStatements(registry.User!);
 
       const compositeStmt = statements.find((s) => s.includes('firstLast'));
       expect(compositeStmt).toBeDefined();
@@ -476,7 +476,7 @@ model Tag {
           @@unique(cityZip, [address.city, address.zip])
         }
       `);
-      const statements = generateModelDefineStatements(registry['Store']!);
+      const statements = generateModelDefineStatements(registry.Store!);
 
       const compositeStmt = statements.find((s) => s.includes('cityZip'));
       expect(compositeStmt).toBeDefined();
@@ -495,7 +495,7 @@ model Tag {
           @@unique(nameEmail, [firstName, email])
         }
       `);
-      const statements = generateModelDefineStatements(registry['User']!);
+      const statements = generateModelDefineStatements(registry.User!);
 
       const indexStmt = statements.find((s) => s.includes('nameIdx'));
       const uniqueStmt = statements.find((s) => s.includes('nameEmail'));

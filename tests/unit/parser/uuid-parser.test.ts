@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { isUuidType, getUuidFieldType } from '../../../src/parser/types/field-types/uuid-parser';
 import { parseFieldType } from '../../../src/parser/types/field-types';
+import { getUuidFieldType, isUuidType } from '../../../src/parser/types/field-types/uuid-parser';
 
 describe('UUID Parser', () => {
   describe('isUuidType', () => {

@@ -4,7 +4,7 @@
 
 import type { Surreal } from 'surrealdb';
 import type { ModelRegistry } from '../../types';
-import { Model, type BeforeQueryCallback, type ModelOptions } from '../model/model';
+import { type BeforeQueryCallback, Model, type ModelOptions } from '../model/model';
 
 /** Per-model callback configuration */
 export interface PerModelCallbacks {

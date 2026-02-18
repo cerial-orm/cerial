@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { isDurationType, getDurationFieldType } from '../../../src/parser/types/field-types/duration-parser';
 import { parseFieldType } from '../../../src/parser/types/field-types';
+import { getDurationFieldType, isDurationType } from '../../../src/parser/types/field-types/duration-parser';
 
 describe('Duration Parser', () => {
   describe('isDurationType', () => {

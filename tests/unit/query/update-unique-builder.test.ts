@@ -5,10 +5,10 @@
  */
 
 import { describe, expect, test } from 'bun:test';
-import { buildUpdateUniqueQuery } from '../../../src/query/builders/update-builder';
-import { getRecordIdFromWhere } from '../../../src/query/builders/delete-builder';
-import { parse } from '../../../src/parser/parser';
 import { astToRegistry } from '../../../src/parser/model-metadata';
+import { parse } from '../../../src/parser/parser';
+import { getRecordIdFromWhere } from '../../../src/query/builders/delete-builder';
+import { buildUpdateUniqueQuery } from '../../../src/query/builders/update-builder';
 
 // Schema with unique fields
 const schemaBasic = `

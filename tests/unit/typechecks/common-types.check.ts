@@ -7,17 +7,17 @@
 
 import { Test } from 'ts-toolbelt';
 import type {
-  Token,
-  TokenType,
-  SourcePosition,
-  SourceRange,
   ASTDecorator,
   ASTField,
   ASTModel,
-  SchemaAST,
   OnDeleteAction,
-  SchemaFieldType,
+  SchemaAST,
   SchemaDecorator,
+  SchemaFieldType,
+  SourcePosition,
+  SourceRange,
+  Token,
+  TokenType,
 } from '../../../src/types';
 
 // Helper for extension checks

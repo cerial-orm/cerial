@@ -6,14 +6,14 @@
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import { CerialId, isCerialId } from 'cerial';
+import { type CerialId, isCerialId } from 'cerial';
 import {
+  type CerialClient,
   cleanupTables,
-  truncateTables,
-  INDEX_TABLES,
   createTestClient,
-  CerialClient,
+  INDEX_TABLES,
   testConfig,
+  truncateTables,
 } from '../../../test-helper';
 
 describe('Single @unique — findUnique', () => {

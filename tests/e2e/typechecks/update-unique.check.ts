@@ -7,11 +7,11 @@
 
 import { Test } from 'ts-toolbelt';
 import type {
-  User,
-  UserFindUniqueWhere,
+  GetUserPayload,
   UpdateUniqueReturn,
   UpdateUniqueReturnType,
-  GetUserPayload,
+  User,
+  UserFindUniqueWhere,
 } from '../generated';
 
 // Helper for extension checks

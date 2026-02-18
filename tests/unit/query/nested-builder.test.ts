@@ -5,17 +5,17 @@
  */
 
 import { describe, expect, test } from 'bun:test';
+import { astToRegistry } from '../../../src/parser/model-metadata';
+import { parse } from '../../../src/parser/parser';
 import {
-  extractNestedOperations,
-  isNestedCreate,
-  isNestedConnect,
-  isNestedDisconnect,
-  isNestedOperation,
   buildCreateWithNestedTransaction,
   buildUpdateWithNestedTransaction,
+  extractNestedOperations,
+  isNestedConnect,
+  isNestedCreate,
+  isNestedDisconnect,
+  isNestedOperation,
 } from '../../../src/query/builders/nested-builder';
-import { parse } from '../../../src/parser/parser';
-import { astToRegistry } from '../../../src/parser/model-metadata';
 
 // Generate registry from schema
 const schema = `
@@ -44,7 +44,7 @@ model Tag {
 
 const { ast } = parse(schema);
 const registry = astToRegistry(ast);
-const userModel = registry['User']!;
+const userModel = registry.User!;
 
 describe('nested-builder', () => {
   describe('isNestedOperation', () => {

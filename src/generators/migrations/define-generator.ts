@@ -10,7 +10,6 @@ import type {
   ModelRegistry,
   ObjectMetadata,
   ObjectRegistry,
-  TupleElementMetadata,
   TupleFieldMetadata,
   TupleRegistry,
 } from '../../types';
@@ -68,7 +67,7 @@ export function generateDefineTable(model: ModelMetadata, options: DefineTableOp
 
   if (opts.schemafull) parts.push('SCHEMAFULL');
 
-  return parts.join(' ') + ';';
+  return `${parts.join(' ')};`;
 }
 
 /** Generate DEFINE FIELD statement for a single field */
@@ -92,7 +91,7 @@ export function generateDefineField(
     parts.push(tableName);
     parts.push(`TYPE ${generateIdTypeClause(field.recordIdTypes, tupleRegistry, objectRegistry)}`);
 
-    return parts.join(' ') + ';';
+    return `${parts.join(' ')};`;
   }
 
   // Skip Relation fields - they are virtual and not stored in database
@@ -113,7 +112,7 @@ export function generateDefineField(
     parts.push('TYPE datetime');
     parts.push(computedClause);
 
-    return parts.join(' ') + ';';
+    return `${parts.join(' ')};`;
   }
 
   // Add TYPE clause (pass field and model for Record type handling, tupleRegistry for tuple type literals)
@@ -146,7 +145,7 @@ export function generateDefineField(
     parts.push('READONLY');
   }
 
-  return parts.join(' ') + ';';
+  return `${parts.join(' ')};`;
 }
 
 /** Generate DEFINE INDEX statement for unique or indexed fields */
@@ -177,7 +176,7 @@ export function generateDefineIndex(field: FieldMetadata, tableName: string, opt
 
   if (isUnique) parts.push('UNIQUE');
 
-  return parts.join(' ') + ';';
+  return `${parts.join(' ')};`;
 }
 
 /** Generate DEFINE INDEX statement for a composite index/unique directive */
@@ -200,7 +199,7 @@ export function generateDefineCompositeIndex(
 
   if (directive.kind === 'unique') parts.push('UNIQUE');
 
-  return parts.join(' ') + ';';
+  return `${parts.join(' ')};`;
 }
 
 /**
@@ -250,7 +249,7 @@ export function generateObjectFieldDefines(
           parts.push('TYPE object FLEXIBLE');
         }
 
-        statements.push(parts.join(' ') + ';');
+        statements.push(`${parts.join(' ')};`);
         continue;
       }
 
@@ -280,7 +279,7 @@ export function generateObjectFieldDefines(
         parentParts.push('READONLY');
       }
 
-      statements.push(parentParts.join(' ') + ';');
+      statements.push(`${parentParts.join(' ')};`);
 
       // Recursively generate sub-fields for the nested object
       const nestedObject = objectRegistry[nestedObjectName];
@@ -348,7 +347,7 @@ export function generateObjectFieldDefines(
         parts.push('READONLY');
       }
 
-      statements.push(parts.join(' ') + ';');
+      statements.push(`${parts.join(' ')};`);
     }
   }
 
@@ -413,7 +412,7 @@ export function collectObjectFieldIndexes(
 
       if (isUnique) parts.push('UNIQUE');
 
-      statements.push(parts.join(' ') + ';');
+      statements.push(`${parts.join(' ')};`);
     }
   }
 
@@ -511,7 +510,7 @@ export function generateTupleFieldDefines(
       );
       if (nestedDefault) parts.push(nestedDefault);
 
-      statements.push(parts.join(' ') + ';');
+      statements.push(`${parts.join(' ')};`);
 
       // Recursively define nested tuple elements
       const nestedVisited = new Set(visited);
@@ -558,7 +557,7 @@ export function generateTupleFieldDefines(
       );
       if (elementDefault) parts.push(elementDefault);
 
-      statements.push(parts.join(' ') + ';');
+      statements.push(`${parts.join(' ')};`);
 
       // Recursively define object sub-fields
       const objectMeta = objectRegistry[objectName];
@@ -614,7 +613,7 @@ export function generateTupleFieldDefines(
         );
         if (elementDefault) parts.push(elementDefault);
 
-        statements.push(parts.join(' ') + ';');
+        statements.push(`${parts.join(' ')};`);
       }
     }
   }

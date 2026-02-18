@@ -3,38 +3,60 @@
  */
 
 import { mkdir } from 'node:fs/promises';
-import * as prettier from 'prettier';
+import { Biome } from '@biomejs/js-api/nodejs';
 
-/** Prettier config cache */
-let prettierConfig: prettier.Options | null = null;
+/** Biome instance cache */
+let biomeInstance: Biome | null = null;
+let biomeProjectKey: number | null = null;
 
 /** Ensure directory exists */
 export async function ensureDir(dir: string): Promise<void> {
   await mkdir(dir, { recursive: true });
 }
 
-/** Load prettier config from workspace root */
-async function loadPrettierConfig(outputDir: string): Promise<prettier.Options> {
-  if (prettierConfig) return prettierConfig;
+/** Get or create Biome instance with config */
+function getBiome(): { biome: Biome; projectKey: number } {
+  if (biomeInstance && biomeProjectKey) {
+    return { biome: biomeInstance, projectKey: biomeProjectKey };
+  }
 
-  const resolvedConfig = await prettier.resolveConfig(outputDir);
+  biomeInstance = new Biome();
+  const { projectKey } = biomeInstance.openProject();
 
-  prettierConfig = {
-    ...resolvedConfig,
-    parser: 'typescript',
-  };
+  biomeInstance.applyConfiguration(projectKey, {
+    formatter: {
+      indentStyle: 'space',
+      indentWidth: 2,
+      lineWidth: 120,
+      lineEnding: 'lf',
+    },
+    javascript: {
+      formatter: {
+        quoteStyle: 'single',
+        trailingCommas: 'all',
+        semicolons: 'always',
+        arrowParentheses: 'always',
+        bracketSpacing: true,
+      },
+    },
+  });
 
-  return prettierConfig;
+  biomeProjectKey = projectKey;
+
+  return { biome: biomeInstance, projectKey };
 }
 
-/** Format TypeScript code with prettier */
-export async function formatCode(code: string, outputDir: string): Promise<string> {
+/** Format TypeScript code with Biome */
+export async function formatCode(code: string, _outputDir: string): Promise<string> {
   try {
-    const config = await loadPrettierConfig(outputDir);
+    const { biome, projectKey } = getBiome();
+    const result = biome.formatContent(projectKey, code, {
+      filePath: 'generated.ts',
+    });
 
-    return await prettier.format(code, config);
+    return result.content;
   } catch {
-    // If prettier fails, return the original code
+    // If Biome fails, return the original code
     return code;
   }
 }

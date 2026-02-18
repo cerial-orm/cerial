@@ -382,7 +382,7 @@ function resolveElementByKey(key: string, tupleInfo: TupleFieldMetadata): TupleE
   const byName = tupleInfo.elements.find((e) => e.name === key);
   if (byName) return byName;
   const index = parseInt(key, 10);
-  if (!isNaN(index)) return tupleInfo.elements.find((e) => e.index === index);
+  if (!Number.isNaN(index)) return tupleInfo.elements.find((e) => e.index === index);
 
   return undefined;
 }

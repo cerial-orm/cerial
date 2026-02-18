@@ -6,13 +6,13 @@
  */
 
 import { describe, expect, test } from 'bun:test';
+import { createCompileContext } from '../../../src/query/compile/var-allocator';
 import {
-  buildTupleCondition,
   buildArrayTupleCondition,
   buildConditions,
+  buildTupleCondition,
 } from '../../../src/query/filters/condition-builder';
-import { createCompileContext } from '../../../src/query/compile/var-allocator';
-import type { FieldMetadata, ModelMetadata, TupleFieldMetadata, TupleElementMetadata } from '../../../src/types';
+import type { FieldMetadata, ModelMetadata, TupleElementMetadata, TupleFieldMetadata } from '../../../src/types';
 
 // Helper to create a minimal FieldMetadata
 function field(overrides: Partial<FieldMetadata>): FieldMetadata {

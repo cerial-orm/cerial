@@ -12,8 +12,6 @@ import type {
   TupleRegistry,
 } from '../../types';
 import { ensureDir, formatCode } from '../shared';
-import { generateConnectionExports } from './connection-template';
-import { generateClientTemplate } from './template';
 import {
   writeEnumsIndex,
   writeLiteralsIndex,
@@ -22,10 +20,12 @@ import {
   writeTuplesIndex,
 } from './barrel-writer';
 import { writeClientIndex } from './client-index-writer';
+import { generateConnectionExports } from './connection-template';
 import { writeEnumFile } from './enum-writer';
 import { writeLiteralFile } from './literal-writer';
 import { writeModelTypes } from './model-writer';
 import { writeObjectTypes } from './object-writer';
+import { generateClientTemplate } from './template';
 import { writeTupleTypes } from './tuple-writer';
 
 /** Write client main file */

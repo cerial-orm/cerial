@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { isBytesType, getBytesFieldType } from '../../../src/parser/types/field-types/bytes-parser';
+import { getBytesFieldType, isBytesType } from '../../../src/parser/types/field-types/bytes-parser';
 
 describe('bytes-parser', () => {
   test('isBytesType returns true for Bytes', () => {

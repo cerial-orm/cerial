@@ -4,7 +4,7 @@
  */
 
 import { describe, expect, mock, test } from 'bun:test';
-import { Model, type BeforeQueryCallback } from '../../src/client/model/model';
+import { type BeforeQueryCallback, Model } from '../../src/client/model/model';
 import { parseModelRegistry } from '../test-helpers';
 
 // Mock Surreal instance with proper query().collect() chain
@@ -25,7 +25,7 @@ model User {
 `;
 
 const registry = parseModelRegistry(dsl);
-const userMetadata = registry['User']!;
+const userMetadata = registry.User!;
 
 describe('Model Class', () => {
   describe('BeforeQueryCallback', () => {

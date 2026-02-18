@@ -12,11 +12,7 @@ export {
   tupleHasObjectElementsDeep,
   tupleHasTupleElements,
 } from './interface-generator';
-
+export { generateAllTupleSelectTypes, generateTupleSelectType } from './select-generator';
+export { generateAllTupleUnsetTypes, generateTupleUnsetType, tupleHasUnsetableElements } from './unset-generator';
+export { generateAllTupleUpdateTypes, generateTupleArrayForm, generateTupleUpdateType } from './update-generator';
 export { generateTupleWhereInterface, generateTupleWhereTypes } from './where-generator';
-
-export { generateTupleArrayForm, generateTupleUpdateType, generateAllTupleUpdateTypes } from './update-generator';
-
-export { generateTupleSelectType, generateAllTupleSelectTypes } from './select-generator';
-
-export { generateTupleUnsetType, generateAllTupleUnsetTypes, tupleHasUnsetableElements } from './unset-generator';

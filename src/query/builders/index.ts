@@ -3,26 +3,13 @@
  */
 
 export {
-  buildCountQuery,
-  buildFindManyQuery,
-  buildFindOneQuery,
-  buildFindUniqueQuery,
-  buildLimit,
-  buildOffset,
-  buildOrderBy,
-  buildSelectFields,
-  buildSelectQuery,
-  findCompositeUniqueKey,
-  findObjectUniqueKey,
-  validateUniqueField,
-  type FindOptionsWithInclude,
-  type FindUniqueOptionsWithInclude,
-} from './select-builder';
-
-export { applyDefaultValues, buildCreateQuery, stripComputedFields } from './insert-builder';
-
-export { buildUpdateManyQuery, buildUpdateUniqueQuery } from './update-builder';
-
+  type ArrayUpdateOps,
+  buildArrayUpdateClause,
+  buildPushOperation,
+  buildUnsetOperation,
+  isArrayField,
+  isArrayUpdateOps,
+} from './array-update-builder';
 export {
   buildDeleteQuery,
   buildDeleteQueryWithReturn,
@@ -31,32 +18,7 @@ export {
   buildDeleteWithCascade,
   getRecordIdFromWhere,
 } from './delete-builder';
-
-export {
-  buildForwardRelationSelect,
-  buildRelationSelectFields,
-  buildReverseRelationSelect,
-  combineSelectWithIncludes,
-  type IncludeClause,
-  type IncludeOptions,
-} from './relation-builder';
-
-export {
-  buildArrayUpdateClause,
-  buildPushOperation,
-  buildUnsetOperation,
-  isArrayField,
-  isArrayUpdateOps,
-  type ArrayUpdateOps,
-} from './array-update-builder';
-
-export {
-  buildUpsertIdQuery,
-  buildUpsertQuery,
-  buildUpsertWhereQuery,
-  buildUpsertWithNestedTransaction,
-} from './upsert-builder';
-
+export { applyDefaultValues, buildCreateQuery, stripComputedFields } from './insert-builder';
 export {
   buildBidirectionalSyncStatements,
   buildCreateWithNestedTransaction,
@@ -72,3 +34,35 @@ export {
   type NestedDisconnect,
   type NestedOperation,
 } from './nested-builder';
+
+export {
+  buildForwardRelationSelect,
+  buildRelationSelectFields,
+  buildReverseRelationSelect,
+  combineSelectWithIncludes,
+  type IncludeClause,
+  type IncludeOptions,
+} from './relation-builder';
+export {
+  buildCountQuery,
+  buildFindManyQuery,
+  buildFindOneQuery,
+  buildFindUniqueQuery,
+  buildLimit,
+  buildOffset,
+  buildOrderBy,
+  buildSelectFields,
+  buildSelectQuery,
+  type FindOptionsWithInclude,
+  type FindUniqueOptionsWithInclude,
+  findCompositeUniqueKey,
+  findObjectUniqueKey,
+  validateUniqueField,
+} from './select-builder';
+export { buildUpdateManyQuery, buildUpdateUniqueQuery } from './update-builder';
+export {
+  buildUpsertIdQuery,
+  buildUpsertQuery,
+  buildUpsertWhereQuery,
+  buildUpsertWithNestedTransaction,
+} from './upsert-builder';

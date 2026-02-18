@@ -2,63 +2,59 @@
  * Parser module barrel export
  */
 
-// Main parser
-export { parse, parseWithLexer, validateSchema, collectObjectNames } from './parser';
-
-// Tokenizer
-export { tokenize, filterTokens } from './tokenizer';
-
-// Lexer
-export { lex } from './lexer';
-export type { LexerResult } from './lexer';
-
+export type { FindSchemasOptions } from './file-reader';
 // File reader
 export {
+  fileExists,
   findSchemaFiles,
+  loadSchemas,
   readSchemaFile,
   readSchemaFiles,
-  loadSchemas,
-  fileExists,
   resolveSchemaPath,
 } from './file-reader';
-export type { FindSchemasOptions } from './file-reader';
-
+export type { LexerResult } from './lexer';
+// Lexer
+export { lex } from './lexer';
 // Model metadata
 export {
-  fieldToMetadata,
-  modelToMetadata,
   astToRegistry,
-  getModelMetadata,
+  fieldToMetadata,
   getFieldMetadata,
-  hasField,
-  getUniqueFields,
-  getRequiredFields,
-  getOptionalFields,
-  getTimestampFields,
   getFieldsWithDefaults,
+  getModelMetadata,
+  getOptionalFields,
+  getRequiredFields,
+  getTimestampFields,
+  getUniqueFields,
+  hasField,
+  modelToMetadata,
 } from './model-metadata';
+// Main parser
+export { collectObjectNames, parse, parseWithLexer, validateSchema } from './parser';
+// Tokenizer
+export { filterTokens, tokenize } from './tokenizer';
 
 // Types and helpers
 export {
-  createPosition,
-  createRange,
   createDecorator,
   createField,
   createModel,
   createObject,
+  createPosition,
+  createRange,
   createSchemaAST,
-  hasModel,
-  getModel,
-  hasDecorator,
   getDecorator,
   getFieldNames,
+  getModel,
   getModelNames,
-  hasObject,
   getObject,
   getObjectNames,
-  parseFieldType,
+  hasDecorator,
+  hasModel,
+  hasObject,
+  isFieldDeclaration,
+  isModelDeclaration,
   isValidFieldType,
   parseFieldDeclaration,
-  isModelDeclaration,
-  isFieldDeclaration,
+  parseFieldType,
 } from './types';

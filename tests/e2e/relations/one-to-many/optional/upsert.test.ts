@@ -11,12 +11,12 @@
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import {
+  type CerialClient,
   cleanupTables,
   createTestClient,
-  truncateTables,
-  CerialClient,
   tables,
   testConfig,
+  truncateTables,
   uniqueId,
 } from '../../../test-helper';
 
@@ -77,7 +77,7 @@ describe('E2E One-to-Many Optional: Upsert', () => {
       const pub2 = await client.db.Publisher.create({ data: { name: 'Pub 2' } });
 
       const isbn = `ISBN-${uniqueId()}`;
-      const book = await client.db.Book.create({
+      const _book = await client.db.Book.create({
         data: { title: 'Book', isbn, publisher: { connect: pub1.id } },
       });
 

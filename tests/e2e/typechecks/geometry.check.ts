@@ -1,31 +1,29 @@
-import { Test } from 'ts-toolbelt';
-import type {
-  GeometryBasic,
-  GeometryBasicInput,
-  GeometryBasicCreate,
-  GeometryBasicUpdate,
-  GeometryBasicWhere,
-  GeometryBasicOrderBy,
-  GeometryBasicSelect,
-  GeometryWithObject,
-  GeometryWithTuple,
-  GeoInfo,
-  GeoInfoInput,
-  GeoInfoInput as GeoInfoCreateInput,
-  GeoInfoWhere,
-  GeoPair,
-  GeoPairInput,
-} from '../generated';
 import type {
   CerialGeometry,
   CerialGeometryInput,
+  CerialLineString,
+  CerialLineStringInput,
   CerialPoint,
   CerialPointInput,
   CerialPolygon,
   CerialPolygonInput,
-  CerialLineString,
-  CerialLineStringInput,
 } from 'cerial';
+import { Test } from 'ts-toolbelt';
+import type {
+  GeoInfo,
+  GeoInfoInput as GeoInfoCreateInput,
+  GeometryBasic,
+  GeometryBasicCreate,
+  GeometryBasicInput,
+  GeometryBasicOrderBy,
+  GeometryBasicSelect,
+  GeometryBasicUpdate,
+  GeometryBasicWhere,
+  GeometryWithObject,
+  GeometryWithTuple,
+  GeoPair,
+  GeoPairInput,
+} from '../generated';
 
 type HasKey<T, K extends string> = K extends keyof T ? 1 : 0;
 type Extends<A, B> = A extends B ? 1 : 0;

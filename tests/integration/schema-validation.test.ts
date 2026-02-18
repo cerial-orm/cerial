@@ -2,7 +2,7 @@
  * Integration tests for schema validation
  */
 
-import { describe, expect, test, beforeEach, afterEach } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { ConnectionManager } from '../../src/client/connection';
 import { generateModelDefineStatements } from '../../src/generators/migrations/define-generator';
 import type { ConnectionConfig } from '../../src/types';

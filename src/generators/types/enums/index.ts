@@ -3,9 +3,6 @@
  */
 
 export { generateAllEnumTypes, generateEnumConst, generateEnumType, generateEnumTypes } from './interface-generator';
-
-export { generateAllEnumWhereTypes, generateEnumWhereInterface } from './where-generator';
-
 export {
   getEnumConstName,
   getEnumTypeName,
@@ -13,3 +10,4 @@ export {
   getLiteralTypeName,
   getLiteralWhereName,
 } from './name-helpers';
+export { generateAllEnumWhereTypes, generateEnumWhereInterface } from './where-generator';

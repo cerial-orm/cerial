@@ -211,7 +211,7 @@ export function generateTypeClause(
   field?: FieldMetadata,
   model?: ModelMetadata,
   tupleRegistry?: TupleRegistry,
-  literalRegistry?: LiteralRegistry,
+  _literalRegistry?: LiteralRegistry,
 ): string {
   const isNullable = field?.isNullable;
 
@@ -276,7 +276,7 @@ export function generateTypeClause(
   if (schemaType === 'geometry' && field) {
     const subtypes = field.geometrySubtypes;
     let geoType: string;
-    if (subtypes && subtypes.length) {
+    if (subtypes?.length) {
       geoType = `geometry<${subtypes.join(' | ')}>`;
     } else {
       geoType = 'geometry<point | line | polygon | multipoint | multiline | multipolygon | collection>';

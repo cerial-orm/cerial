@@ -6,8 +6,8 @@
  */
 
 import { describe, expect, test } from 'bun:test';
-import { mapRecord } from '../../../src/query/mappers/result-mapper';
 import { RecordId } from 'surrealdb';
+import { mapRecord } from '../../../src/query/mappers/result-mapper';
 import type { FieldMetadata, ModelMetadata, TupleElementMetadata, TupleFieldMetadata } from '../../../src/types';
 
 function field(overrides: Partial<FieldMetadata>): FieldMetadata {

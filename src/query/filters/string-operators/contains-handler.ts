@@ -2,9 +2,9 @@
  * Contains operator handler
  */
 
+import type { FieldMetadata } from '../../../types';
 import type { QueryFragment } from '../../compile/types';
 import type { FilterCompileContext } from '../../compile/var-allocator';
-import type { FieldMetadata } from '../../../types';
 
 /** Handle contains operator */
 export function handleContains(

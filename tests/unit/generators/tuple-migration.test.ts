@@ -17,7 +17,6 @@ import type {
   ObjectRegistry,
   TupleElementMetadata,
   TupleFieldMetadata,
-  TupleMetadata,
   TupleRegistry,
 } from '../../../src/types';
 

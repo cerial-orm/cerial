@@ -1,7 +1,7 @@
-import { describe, it, expect } from 'bun:test';
+import { describe, expect, it } from 'bun:test';
 import { convertField } from '../../../src/generators/metadata/field-converter';
 import { generateRegistryCode } from '../../../src/generators/metadata/registry-generator';
-import type { FieldMetadata, ASTField, ModelMetadata } from '../../../src/types';
+import type { ASTField, ModelMetadata } from '../../../src/types';
 
 describe('Metadata recordIdTypes', () => {
   describe('convertField', () => {

@@ -173,7 +173,7 @@ Sandbox testing is **allowed in plan mode** — it is investigative research to 
 
   ```typescript
   if (condition) return value;
-  if (!valid) throw new Error('Invalid');
+  if (!valid) throw new Error("Invalid");
   ```
 
 - **Array length checks** - Use truthy/falsy, not comparisons:
@@ -184,7 +184,7 @@ Sandbox testing is **allowed in plan mode** — it is investigative research to 
   ```
 
 - **Module exports** - Each module has `index.ts` that re-exports its public API
-- **Generated files** - Formatted with Prettier
+- **Generated files** - Formatted with Biome
 
 ### File & Folder Organization
 
@@ -280,6 +280,7 @@ has_children: true # only on section index pages
 - **Always run relevant tests** after making changes: `bun test` for full suite, or targeted test paths
 - **Run `bunx tsc --noEmit`** after modifying types or generators to catch type errors
 - **Bug fixes must include tests** - When fixing a bug that was not caught by existing tests, add a test that covers the specific bug being fixed. The test should fail without the fix and pass with it. This prevents regressions and ensures test coverage grows with each fix.
+- **Run `bun run format` before running full tests** - This formats, checks linting errors & tries to fix safely the codebase with Biome. Always run before `test:full` to ensure formatting is consistent.
 - **Run `bun run test:full` after all tasks are complete** - This regenerates the test client, runs typechecks, and runs all tests (unit, integration, client, parser, E2E). This is the final validation step before considering work done.
 - **Exhaustive edge-case coverage (CRITICAL)** - Every new feature must have tests that cover every small edge case, not just the happy path. Shallow tests that only verify "it works" miss logical flaws. Specifically:
   - **E2E tests must be exhaustive** — For each feature, enumerate every meaningful combination of inputs, options, and code paths, then write a dedicated test for each. Think: "what are all the ways a user could call this, and what should happen in each case?" This includes:

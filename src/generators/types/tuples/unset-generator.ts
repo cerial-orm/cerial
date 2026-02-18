@@ -32,7 +32,7 @@ function generateInlineObjectUnsetFields(objectInfo: ObjectFieldMetadata, indent
     const isOptional = !field.isRequired;
 
     if (field.type === 'object' && field.objectInfo) {
-      const children = generateInlineObjectUnsetFields(field.objectInfo, indent + '  ');
+      const children = generateInlineObjectUnsetFields(field.objectInfo, `${indent}  `);
       const hasOptionalChildren = children.length > 0;
 
       if (isOptional && hasOptionalChildren) {

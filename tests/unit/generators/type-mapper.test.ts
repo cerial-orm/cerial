@@ -6,14 +6,14 @@
 
 import { describe, expect, test } from 'bun:test';
 import {
-  mapToSurrealType,
+  generateAssertClause,
+  generateComputedClause,
+  generateDefaultClause,
+  generateTypeClause,
+  generateValueClause,
   getTypeAssertion,
   hasTypeAssertion,
-  generateTypeClause,
-  generateAssertClause,
-  generateDefaultClause,
-  generateComputedClause,
-  generateValueClause,
+  mapToSurrealType,
 } from '../../../src/generators/migrations/type-mapper';
 import type { FieldMetadata, ModelMetadata } from '../../../src/types';
 

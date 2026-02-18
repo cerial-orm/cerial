@@ -56,7 +56,7 @@ function getRelationInfo(field: ASTField, model: ASTModel): RelationInfo | null 
 }
 
 /** Get all relations from AST */
-function getAllRelations(ast: SchemaAST): RelationInfo[] {
+function _getAllRelations(ast: SchemaAST): RelationInfo[] {
   const relations: RelationInfo[] = [];
 
   for (const model of ast.models) {
@@ -75,7 +75,7 @@ function getRecordField(model: ASTModel, fieldName: string): ASTField | undefine
 }
 
 /** Check if a model has Record[] + Relation[] pointing to target */
-function hasArrayPKSide(model: ASTModel, targetModelName: string): boolean {
+function _hasArrayPKSide(model: ASTModel, targetModelName: string): boolean {
   for (const field of model.fields) {
     if (field.type !== 'relation' || !field.isArray) continue;
 
@@ -270,7 +270,7 @@ export function validateSingleSidedOptional(ast: SchemaAST): SchemaValidationErr
  * Rule 4: n-n completeness - Both models must have Record[] + Relation[] for true n-n
  * Note: One-directional many (only one side has Record[]) is allowed but doesn't get bidirectional sync
  */
-export function validateNToNCompleteness(ast: SchemaAST): SchemaValidationError[] {
+export function validateNToNCompleteness(_ast: SchemaAST): SchemaValidationError[] {
   // This is informational - one-directional many is valid
   // We don't enforce both sides, just detect true n-n for sync purposes
   return [];

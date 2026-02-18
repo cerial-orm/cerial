@@ -6,7 +6,7 @@
  */
 
 import { describe, expect, test } from 'bun:test';
-import { parse, validateSchema, collectObjectNames } from '../../../src/parser/parser';
+import { collectObjectNames, parse, validateSchema } from '../../../src/parser/parser';
 
 describe('Object Parser', () => {
   describe('basic parsing', () => {

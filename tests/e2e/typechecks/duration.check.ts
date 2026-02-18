@@ -1,23 +1,19 @@
+import type { CerialDuration, CerialDurationInput } from 'cerial';
 import { Test } from 'ts-toolbelt';
 import type {
   DurationBasic,
-  DurationBasicInput,
   DurationBasicCreate,
-  DurationBasicUpdate,
-  DurationBasicWhere,
+  DurationBasicInput,
   DurationBasicOrderBy,
   DurationBasicSelect,
+  DurationBasicUpdate,
+  DurationBasicWhere,
   DurationDecorated,
   DurationDecoratedCreate,
-  DurationDecoratedUpdate,
-  DurationInfo,
-  DurationInfoInput,
   DurationInfoInput as DurationInfoCreateInput,
-  DurationInfoWhere,
   DurationPair,
   DurationPairInput,
 } from '../generated';
-import type { CerialDuration, CerialDurationInput } from 'cerial';
 
 type HasKey<T, K extends string> = K extends keyof T ? 1 : 0;
 type Extends<A, B> = A extends B ? 1 : 0;

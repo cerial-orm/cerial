@@ -5,13 +5,13 @@
  */
 
 import { describe, expect, test } from 'bun:test';
+import { astToRegistry } from '../../../src/parser/model-metadata';
+import { parse } from '../../../src/parser/parser';
 import {
   buildDeleteUniqueQuery,
   buildDeleteUniqueWithCascade,
   getRecordIdFromWhere,
 } from '../../../src/query/builders/delete-builder';
-import { parse } from '../../../src/parser/parser';
-import { astToRegistry } from '../../../src/parser/model-metadata';
 
 // Schema with unique fields
 const schemaBasic = `

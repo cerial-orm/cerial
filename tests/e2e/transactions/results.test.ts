@@ -6,17 +6,17 @@
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { isCerialId } from 'cerial';
 import {
+  type CerialClient,
   cleanupTables,
   createTestClient,
-  truncateTables,
-  CerialClient,
   tables,
   testConfig,
+  truncateTables,
   uniqueEmail,
   uniqueId,
 } from '../test-helper';
-import { isCerialId } from 'cerial';
 
 describe('E2E Transactions: Results', () => {
   let client: CerialClient;

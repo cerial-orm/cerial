@@ -83,7 +83,7 @@ function buildObjectSelectInner(fieldName: string, selectValue: Record<string, u
 function resolveElementBySelectKey(key: string, elements: TupleElementMetadata[]): TupleElementMetadata | undefined {
   // Try numeric index first
   const numKey = Number(key);
-  if (!isNaN(numKey)) return elements.find((e) => e.index === numKey);
+  if (!Number.isNaN(numKey)) return elements.find((e) => e.index === numKey);
 
   // Try named key
   return elements.find((e) => e.name === key);

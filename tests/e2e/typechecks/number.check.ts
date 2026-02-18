@@ -1,23 +1,19 @@
 import { Test } from 'ts-toolbelt';
 import type {
   NumberBasic,
-  NumberBasicInput,
   NumberBasicCreate,
-  NumberBasicUpdate,
-  NumberBasicWhere,
+  NumberBasicInput,
   NumberBasicOrderBy,
   NumberBasicSelect,
-  NumberDecorated,
-  NumberDecoratedCreate,
-  NumberWithObject,
-  NumberWithObjectCreate,
-  NumberInfo,
-  NumberInfoInput,
-  NumberInfoCreateInput,
-  NumberWithTuple,
-  NumberWithTupleCreate,
+  NumberBasicUpdate,
+  NumberBasicWhere,
   NumberCoord,
   NumberCoordInput,
+  NumberDecorated,
+  NumberDecoratedCreate,
+  NumberInfoCreateInput,
+  NumberWithObjectCreate,
+  NumberWithTupleCreate,
 } from '../generated';
 
 type HasKey<T, K extends string> = K extends keyof T ? 1 : 0;

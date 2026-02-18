@@ -7,15 +7,15 @@
 
 import { describe, expect, test } from 'bun:test';
 import {
-  generateObjectSelectType,
-  generateObjectOrderByType,
-  generateObjectDerivedTypes,
   generateAllObjectDerivedTypes,
-  generateUpdateType,
-  generateSelectType,
+  generateObjectDerivedTypes,
+  generateObjectOrderByType,
+  generateObjectSelectType,
   generateOrderByType,
+  generateSelectType,
+  generateUpdateType,
 } from '../../../src/generators/types/derived-generator';
-import { buildSelectFields, buildOrderBy } from '../../../src/query/builders/select-builder';
+import { buildOrderBy, buildSelectFields } from '../../../src/query/builders/select-builder';
 import type { FieldMetadata, ModelMetadata, ObjectMetadata } from '../../../src/types';
 
 // Helper to create a minimal FieldMetadata

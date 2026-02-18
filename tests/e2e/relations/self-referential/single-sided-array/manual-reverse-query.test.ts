@@ -6,7 +6,14 @@
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import { cleanupTables, createTestClient, truncateTables, CerialClient, tables, testConfig } from '../../../test-helper';
+import {
+  type CerialClient,
+  cleanupTables,
+  createTestClient,
+  tables,
+  testConfig,
+  truncateTables,
+} from '../../../test-helper';
 
 describe('E2E Self-Ref Single-Sided Array: Manual Reverse Query', () => {
   let client: CerialClient;
@@ -98,7 +105,7 @@ describe('E2E Self-Ref Single-Sided Array: Manual Reverse Query', () => {
       const celeb2 = await client.db.SocialUser.create({
         data: { name: 'Celeb 2' },
       });
-      const fan = await client.db.SocialUser.create({
+      const _fan = await client.db.SocialUser.create({
         data: { name: 'Fan', following: { connect: [user.id] } },
       });
 

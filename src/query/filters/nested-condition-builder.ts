@@ -102,7 +102,7 @@ export function buildForwardNestedCondition(
   ctx: FilterCompileContext,
   relationField: FieldMetadata,
   nestedWhere: WhereClause,
-  model: ModelMetadata,
+  _model: ModelMetadata,
   registry: ModelRegistry,
 ): QueryFragment {
   if (!relationField.relationInfo || relationField.relationInfo.isReverse) {

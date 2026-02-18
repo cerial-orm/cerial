@@ -10,12 +10,12 @@
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import {
+  type CerialClient,
   cleanupTables,
   createTestClient,
-  truncateTables,
-  CerialClient,
   tables,
   testConfig,
+  truncateTables,
   uniqueId,
 } from '../../../test-helper';
 

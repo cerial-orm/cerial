@@ -7,7 +7,14 @@
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import { cleanupTables, createTestClient, truncateTables, CerialClient, tables, testConfig } from '../../../test-helper';
+import {
+  type CerialClient,
+  cleanupTables,
+  createTestClient,
+  tables,
+  testConfig,
+  truncateTables,
+} from '../../../test-helper';
 
 describe('E2E One-to-One Single-Sided: Include', () => {
   let client: CerialClient;

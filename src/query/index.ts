@@ -2,6 +2,38 @@
  * Query module barrel export
  */
 
+export type { CompiledQueryDescriptor } from './builder';
+// Builder
+export {
+  compileCount,
+  compileCreate,
+  compileDeleteMany,
+  compileDeleteUnique,
+  compileExists,
+  compileFindMany,
+  compileFindOne,
+  compileFindUnique,
+  compileUpdateMany,
+  compileUpdateUnique,
+  QueryBuilder,
+  QueryBuilderStatic,
+} from './builder';
+// Builders
+export {
+  applyDefaultValues,
+  buildCreateQuery,
+  buildDeleteQuery,
+  buildDeleteQueryWithReturn,
+  buildFindManyQuery,
+  buildFindOneQuery,
+  buildSelectQuery,
+  buildUpdateManyQuery,
+  stripComputedFields,
+} from './builders';
+export type { QueryResultType } from './cerial-query-promise';
+// CerialQueryPromise
+export { CerialQueryPromise } from './cerial-query-promise';
+export type { CompiledQuery, QueryFragment, QueryVars, VarBinding } from './compile';
 // Compile primitives
 export {
   createCompileContext,
@@ -15,8 +47,10 @@ export {
   mergeFragments,
   wrapParens,
 } from './compile';
-export type { CompiledQuery, QueryFragment, QueryVars, VarBinding } from './compile';
+export type { ExecuteOptions, TransactionItem } from './executor';
 
+// Executor
+export { executeClientTransaction, executeQuery, executeQuerySingle, executeRaw, executeTransaction } from './executor';
 // Filters
 export {
   // Condition builder
@@ -55,20 +89,8 @@ export {
   transformWhere,
   transformWhereClause,
 } from './filters';
-
-// Builders
-export {
-  applyDefaultValues,
-  buildCreateQuery,
-  stripComputedFields,
-  buildDeleteQuery,
-  buildDeleteQueryWithReturn,
-  buildFindManyQuery,
-  buildFindOneQuery,
-  buildSelectQuery,
-  buildUpdateManyQuery,
-} from './builders';
-
+// Mappers
+export { mapFieldValue, mapRecord, mapResult, mapSingleResult } from './mappers';
 // Transformers
 export {
   applyFieldDefaults,
@@ -80,35 +102,6 @@ export {
   transformData,
   transformValue,
 } from './transformers';
-
-// Mappers
-export { mapFieldValue, mapRecord, mapResult, mapSingleResult } from './mappers';
-
+export type { DataValidationError, DataValidationResult, ValidationError, WhereValidationResult } from './validators';
 // Validators
 export { validateCreateData, validateUpdateData, validateWhere, validateWhereClause } from './validators';
-export type { DataValidationError, DataValidationResult, ValidationError, WhereValidationResult } from './validators';
-
-// Executor
-export { executeQuery, executeQuerySingle, executeRaw, executeTransaction, executeClientTransaction } from './executor';
-export type { ExecuteOptions, TransactionItem } from './executor';
-
-// CerialQueryPromise
-export { CerialQueryPromise } from './cerial-query-promise';
-export type { QueryResultType } from './cerial-query-promise';
-
-// Builder
-export {
-  QueryBuilder,
-  QueryBuilderStatic,
-  compileFindOne,
-  compileFindMany,
-  compileFindUnique,
-  compileCreate,
-  compileUpdateMany,
-  compileUpdateUnique,
-  compileDeleteMany,
-  compileDeleteUnique,
-  compileCount,
-  compileExists,
-} from './builder';
-export type { CompiledQueryDescriptor } from './builder';

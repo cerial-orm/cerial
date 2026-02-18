@@ -303,7 +303,7 @@ model User {
   name String
 }
 `);
-    const model = registry['User']!;
+    const model = registry.User!;
     const statements = generateModelDefineStatements(model);
 
     const idStmt = statements.find((s) => s.includes('DEFINE FIELD') && s.match(/ id /));
@@ -317,7 +317,7 @@ model User {
   name String
 }
 `);
-    const model = registry['User']!;
+    const model = registry.User!;
     const statements = generateModelDefineStatements(model);
 
     const idStmt = statements.find((s) => s.includes('DEFINE FIELD') && s.match(/ id /));
@@ -332,7 +332,7 @@ model User {
   name String
 }
 `);
-    const model = registry['User']!;
+    const model = registry.User!;
     const statements = generateModelDefineStatements(model);
 
     const idStmt = statements.find((s) => s.includes('DEFINE FIELD') && s.match(/ id /));
@@ -346,7 +346,7 @@ model User {
   name String
 }
 `);
-    const model = registry['User']!;
+    const model = registry.User!;
     const statements = generateModelDefineStatements(model);
 
     const idStmt = statements.find((s) => s.includes('DEFINE FIELD') && s.match(/ id /));
@@ -360,7 +360,7 @@ model User {
   name String
 }
 `);
-    const model = registry['User']!;
+    const model = registry.User!;
     const statements = generateModelDefineStatements(model);
 
     const idStmt = statements.find((s) => s.includes('DEFINE FIELD') && s.match(/ id /));
@@ -374,7 +374,7 @@ model User {
   name String
 }
 `);
-    const model = registry['User']!;
+    const model = registry.User!;
     const statements = generateModelDefineStatements(model);
 
     const idStmt = statements.find((s) => s.includes('DEFINE FIELD') && s.match(/ id /));
@@ -389,7 +389,7 @@ model User {
   age Int?
 }
 `);
-    const model = registry['User']!;
+    const model = registry.User!;
     const statements = generateModelDefineStatements(model);
 
     // id field should be defined
@@ -413,7 +413,7 @@ model Post {
   title String
 }
 `);
-    const model = registry['User']!;
+    const model = registry.User!;
     const statements = generateModelDefineStatements(model);
 
     // authorId should still be record<post>, not affected by typed @id

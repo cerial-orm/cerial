@@ -2,14 +2,12 @@
  * Client module barrel export
  */
 
-// Model
-export { createModel, Model } from './model';
-export type { BeforeQueryCallback, ModelOptions } from './model';
-
-// Proxy
-export { clearModelCache, createModelProxy, createProxyHandler } from './proxy';
-export type { DatabaseProxy, ProxyOptions, PerModelCallbacks } from './proxy';
-
+export type { ConnectionManagerOptions } from './connection';
 // Connection manager
 export { ConnectionManager, createConnectionManager, resetConnectionPool } from './connection';
-export type { ConnectionManagerOptions } from './connection';
+export type { BeforeQueryCallback, ModelOptions } from './model';
+// Model
+export { createModel, Model } from './model';
+export type { DatabaseProxy, PerModelCallbacks, ProxyOptions } from './proxy';
+// Proxy
+export { clearModelCache, createModelProxy, createProxyHandler } from './proxy';

@@ -7,12 +7,12 @@
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import {
+  type CerialClient,
   cleanupTables,
   createTestClient,
-  truncateTables,
-  CerialClient,
   tables,
   testConfig,
+  truncateTables,
   uniqueEmail,
 } from '../../../test-helper';
 
@@ -156,7 +156,7 @@ describe('E2E One-to-One Required: Include', () => {
       const user1 = await client.db.UserRequired.create({
         data: { email: uniqueEmail('u1'), name: 'User 1' },
       });
-      const user2 = await client.db.UserRequired.create({
+      const _user2 = await client.db.UserRequired.create({
         data: { email: uniqueEmail('u2'), name: 'User 2' },
       });
 

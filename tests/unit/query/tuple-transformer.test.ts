@@ -41,7 +41,7 @@ const coordInfo = tupleInfo('Coordinate', [
 ]);
 
 // Entry with mixed types
-const entryInfo = tupleInfo('Entry', [
+const _entryInfo = tupleInfo('Entry', [
   elem({ index: 0, type: 'string', name: 'label' }),
   elem({ index: 1, type: 'int' }),
   elem({ index: 2, type: 'bool' }),

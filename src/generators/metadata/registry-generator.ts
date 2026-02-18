@@ -12,7 +12,6 @@ import type {
   ResolvedLiteralVariant,
   TupleElementMetadata,
   TupleMetadata,
-  TupleRegistry,
 } from '../../types';
 
 /** Generate FieldMetadata as TypeScript code */

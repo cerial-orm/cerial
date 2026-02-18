@@ -6,7 +6,7 @@
  */
 
 import { describe, expect, test } from 'bun:test';
-import { validateWhereClause, validateWhere } from '../../../src/query/validators/where-validator';
+import { validateWhere, validateWhereClause } from '../../../src/query/validators/where-validator';
 import type { FieldMetadata, ModelMetadata, TupleElementMetadata, TupleFieldMetadata } from '../../../src/types';
 
 function field(overrides: Partial<FieldMetadata>): FieldMetadata {

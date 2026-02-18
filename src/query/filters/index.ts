@@ -2,31 +2,15 @@
  * Filters module barrel export
  */
 
-// Comparison operators
-export { handleEq, handleGt, handleGte, handleLt, handleLte, handleNeq } from './comparison-operators';
-
-// String operators
-export { handleContains, handleEndsWith, handleStartsWith } from './string-operators';
-
 // Array operators
 export { handleIn, handleNotIn } from './array-operators';
-
-// Logical operators
-export { handleAnd, handleNot, handleOr } from './logical-operators';
-
-// Special operators
-export { handleBetween, handleIsDefined, handleIsNotDefined, handleIsNotNull, handleIsNull } from './special-operators';
-
-// Registry
-export { getOperatorHandler, getRegisteredOperators, isRegisteredOperator, registerOperator } from './registry';
-export type { OperatorHandler } from './registry';
-
+// Comparison operators
+export { handleEq, handleGt, handleGte, handleLt, handleLte, handleNeq } from './comparison-operators';
 // Condition builder
 export { buildConditions, buildDirectCondition, buildFieldCondition, isOperatorObject } from './condition-builder';
 
-// Transformer
-export { transformWhere, transformWhereClause } from './transformer';
-
+// Logical operators
+export { handleAnd, handleNot, handleOr } from './logical-operators';
 // Nested condition builder (for relations)
 export {
   buildForwardNestedCondition,
@@ -34,3 +18,12 @@ export {
   buildReverseNestedCondition,
   isNestedRelationCondition,
 } from './nested-condition-builder';
+export type { OperatorHandler } from './registry';
+// Registry
+export { getOperatorHandler, getRegisteredOperators, isRegisteredOperator, registerOperator } from './registry';
+// Special operators
+export { handleBetween, handleIsDefined, handleIsNotDefined, handleIsNotNull, handleIsNull } from './special-operators';
+// String operators
+export { handleContains, handleEndsWith, handleStartsWith } from './string-operators';
+// Transformer
+export { transformWhere, transformWhereClause } from './transformer';

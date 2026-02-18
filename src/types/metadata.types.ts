@@ -3,7 +3,6 @@
  */
 
 import type { OnDeleteAction, SchemaFieldType } from './common.types';
-import type { ASTLiteralVariantKind } from './parser.types';
 
 /** Metadata for relation fields */
 export interface RelationFieldMetadata {

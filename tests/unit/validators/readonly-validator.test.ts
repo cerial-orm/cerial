@@ -6,8 +6,8 @@
 
 import { describe, expect, test } from 'bun:test';
 import {
-  validateReadonlyDecorator,
   validateObjectFields,
+  validateReadonlyDecorator,
   validateSchema,
 } from '../../../src/cli/validators/schema-validator';
 import type { ASTDecorator, ASTField, ASTModel, ASTObject, SchemaAST } from '../../../src/types';

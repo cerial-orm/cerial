@@ -6,8 +6,8 @@
 
 import { describe, expect, test } from 'bun:test';
 import { RecordId, StringRecordId } from 'surrealdb';
-import { CerialId } from '../../../src/utils/cerial-id';
 import { transformOrValidateRecordId, transformRecordId } from '../../../src/query/transformers/data-transformer';
+import { CerialId } from '../../../src/utils/cerial-id';
 
 describe('CerialId Send Transformation', () => {
   describe('transformRecordId', () => {

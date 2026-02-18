@@ -1,23 +1,19 @@
+import type { CerialUuid, CerialUuidInput } from 'cerial';
 import { Test } from 'ts-toolbelt';
 import type {
   UuidBasic,
-  UuidBasicInput,
   UuidBasicCreate,
-  UuidBasicUpdate,
-  UuidBasicWhere,
+  UuidBasicInput,
   UuidBasicOrderBy,
   UuidBasicSelect,
+  UuidBasicUpdate,
+  UuidBasicWhere,
   UuidDecorated,
   UuidDecoratedCreate,
-  UuidDecoratedUpdate,
-  UuidInfo,
-  UuidInfoInput,
   UuidInfoCreateInput,
-  UuidInfoWhere,
   UuidPair,
   UuidPairInput,
 } from '../generated';
-import type { CerialUuid, CerialUuidInput } from 'cerial';
 
 type HasKey<T, K extends string> = K extends keyof T ? 1 : 0;
 type Extends<A, B> = A extends B ? 1 : 0;

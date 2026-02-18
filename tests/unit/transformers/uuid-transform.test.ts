@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test';
 import { Uuid } from 'surrealdb';
-import { CerialUuid } from '../../../src/utils/cerial-uuid';
-import { transformValue } from '../../../src/query/transformers/data-transformer';
 import { mapFieldValue } from '../../../src/query/mappers/result-mapper';
+import { transformValue } from '../../../src/query/transformers/data-transformer';
+import { CerialUuid } from '../../../src/utils/cerial-uuid';
 import { validateFieldType } from '../../../src/utils/validation-utils';
 
 const SAMPLE_UUID = '550e8400-e29b-41d4-a716-446655440000';

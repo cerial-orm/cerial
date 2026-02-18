@@ -28,19 +28,18 @@ import { transformOrValidateRecordId } from '../transformers';
 import { getRecordIdFromWhere } from './delete-builder';
 import { buildCreateSetClauses } from './insert-builder';
 import {
+  buildCreateWithNestedTransaction,
+  buildUpdateWithNestedTransaction,
+  type NestedOperation,
+} from './nested-builder';
+import { combineSelectWithIncludes, type IncludeClause } from './relation-builder';
+import {
+  buildSelectFields,
   expandCompositeKey,
   expandObjectUniqueKey,
   findCompositeUniqueKey,
   findObjectUniqueKey,
 } from './select-builder';
-import {
-  buildCreateWithNestedTransaction,
-  buildUpdateWithNestedTransaction,
-  extractNestedOperations,
-  type NestedOperation,
-} from './nested-builder';
-import { type IncludeClause, combineSelectWithIncludes } from './relation-builder';
-import { buildSelectFields } from './select-builder';
 import { buildUpdateSetClauses, mergeUnsetIntoData } from './update-builder';
 
 /**
@@ -151,8 +150,8 @@ function buildUpsertSetClauses(
     // Skip @now (COMPUTED) fields
     if (computedFields.has(fieldName)) continue;
 
-    let createValue = createData[fieldName];
-    let updateValue = updateData[fieldName];
+    const createValue = createData[fieldName];
+    const updateValue = updateData[fieldName];
     const fieldMetadata = model.fields.find((f) => f.name === fieldName);
 
     // Skip relation fields (virtual)
@@ -467,9 +466,9 @@ export function buildUpsertWithNestedTransaction(
   updateData: Record<string, unknown>,
   createNestedOps: Map<string, NestedOperation>,
   updateNestedOps: Map<string, NestedOperation>,
-  returnOption: UpsertReturn,
-  select: SelectClause | undefined,
-  include: IncludeClause | undefined,
+  _returnOption: UpsertReturn,
+  _select: SelectClause | undefined,
+  _include: IncludeClause | undefined,
   registry: ModelRegistry,
 ): { createQuery: CompiledQuery; updateQuery: CompiledQuery } {
   // Build the create path transaction

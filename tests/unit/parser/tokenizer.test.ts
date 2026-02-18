@@ -5,7 +5,7 @@
  */
 
 import { describe, expect, test } from 'bun:test';
-import { tokenize, filterTokens } from '../../../src/parser/tokenizer';
+import { filterTokens, tokenize } from '../../../src/parser/tokenizer';
 
 describe('Tokenizer', () => {
   describe('tokenize', () => {

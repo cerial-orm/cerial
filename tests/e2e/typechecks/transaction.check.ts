@@ -6,9 +6,7 @@
  */
 
 import { Test } from 'ts-toolbelt';
-import type { CerialId } from 'cerial';
-import type { User, Post, UserSelect, UserWhere } from '../generated';
-import { CerialQueryPromise } from '../generated';
+import type { CerialQueryPromise, Post, User } from '../generated';
 
 // Helper for extension checks
 type Extends<A, B> = A extends B ? 1 : 0;

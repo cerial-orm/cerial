@@ -8,10 +8,10 @@
 
 import { describe, expect, test } from 'bun:test';
 import {
-  generateUpdateType,
+  generateCreateType,
   generateOrderByType,
   generateSelectType,
-  generateCreateType,
+  generateUpdateType,
 } from '../../../src/generators/types/derived-generator';
 import type { FieldMetadata, ModelMetadata, TupleElementMetadata, TupleFieldMetadata } from '../../../src/types';
 

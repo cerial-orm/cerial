@@ -7,11 +7,11 @@
 
 import { Test } from 'ts-toolbelt';
 import type {
+  ConnectionConfig,
   FieldMetadata,
   ModelMetadata,
   ModelRegistry,
   RelationFieldMetadata,
-  ConnectionConfig,
   SchemaFieldType,
 } from '../../../src/types';
 

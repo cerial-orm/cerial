@@ -12,7 +12,6 @@ import type {
   ASTTuple,
   CompositeIndex,
   FieldMetadata,
-  LiteralFieldMetadata,
   LiteralMetadata,
   LiteralRegistry,
   ModelMetadata,
@@ -20,13 +19,11 @@ import type {
   ObjectRegistry,
   ResolvedLiteralVariant,
   TupleElementMetadata,
-  TupleFieldMetadata,
   TupleMetadata,
   TupleRegistry,
 } from '../../types';
-import { schemaTypeToTsType } from '../../utils/type-utils';
-import { convertFields } from './field-converter';
 import { toSnakeCase } from '../../utils/string-utils';
+import { convertFields } from './field-converter';
 
 /** Convert AST model to ModelMetadata */
 export function convertModel(model: ASTModel): ModelMetadata {
@@ -257,7 +254,7 @@ export function convertLiterals(literals: ASTLiteral[]): LiteralMetadata[] {
 }
 
 /** Convert AST enums to LiteralMetadata with isEnum flag */
-export function convertEnums(enums: ASTEnum[], allLiterals: ASTLiteral[] = []): LiteralMetadata[] {
+export function convertEnums(enums: ASTEnum[], _allLiterals: ASTLiteral[] = []): LiteralMetadata[] {
   return enums.map((e) => ({
     name: e.name,
     variants: e.values.map((v) => ({ kind: 'string' as const, value: v })),

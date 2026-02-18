@@ -14,7 +14,6 @@
  */
 
 import type { SchemaAST } from '../../types';
-import { hasDecorator, getDecorator } from '../../parser/types/ast';
 import type { SchemaValidationError } from './schema-validator';
 
 /** Types that cannot be @nullable */

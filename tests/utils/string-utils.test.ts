@@ -2,15 +2,15 @@
  * String utils tests
  */
 
-import { test, expect, describe } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import {
-  toSnakeCase,
-  toCamelCase,
-  toPascalCase,
+  capitalize,
   escapeRegex,
   escapeString,
   isValidIdentifier,
-  capitalize,
+  toCamelCase,
+  toPascalCase,
+  toSnakeCase,
   uncapitalize,
 } from '../../src/utils/string-utils';
 

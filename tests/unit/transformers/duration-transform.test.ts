@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test';
 import { Duration } from 'surrealdb';
-import { CerialDuration } from '../../../src/utils/cerial-duration';
-import { transformValue } from '../../../src/query/transformers/data-transformer';
 import { mapFieldValue } from '../../../src/query/mappers/result-mapper';
+import { transformValue } from '../../../src/query/transformers/data-transformer';
+import { CerialDuration } from '../../../src/utils/cerial-duration';
 import { validateFieldType } from '../../../src/utils/validation-utils';
 
 describe('Duration Transform Pipeline', () => {

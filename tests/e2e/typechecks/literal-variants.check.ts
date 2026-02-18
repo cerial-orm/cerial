@@ -5,21 +5,9 @@
  * Run: bun run typecheck
  */
 
+import type { CerialId, CerialNone } from 'cerial';
 import { Test } from 'ts-toolbelt';
 import type {
-  // Literal types
-  WithTuple,
-  WithTupleInput,
-  WithTupleWhere,
-  WithObject,
-  WithObjectInput,
-  WithObjectWhere,
-  WithBoth,
-  WithBothInput,
-  WithBothWhere,
-  WithObjectOpt,
-  WithObjectOptInput,
-  WithObjectOptWhere,
   // Referenced types
   LiteralCoord,
   LiteralCoordInput,
@@ -27,29 +15,41 @@ import type {
   LiteralPointInput,
   LiteralPointOpt,
   LiteralPointOptInput,
+  LiteralWithBoth,
+  LiteralWithBothCreate,
+  LiteralWithBothInput,
+  LiteralWithBothUpdate,
+  LiteralWithObjectOpt,
+  LiteralWithObjectOptCreate,
+  LiteralWithObjectOptInput,
+  LiteralWithObjectOptUpdate,
+  LiteralWithObjectVariant,
+  LiteralWithObjectVariantCreate,
+  LiteralWithObjectVariantInput,
+  LiteralWithObjectVariantUpdate,
   // Model types
   LiteralWithTuple,
-  LiteralWithTupleInput,
   LiteralWithTupleCreate,
+  LiteralWithTupleInput,
   LiteralWithTupleUpdate,
-  LiteralWithTupleWhere as ModelTupleWhere,
-  LiteralWithObjectVariant,
-  LiteralWithObjectVariantInput,
-  LiteralWithObjectVariantCreate,
-  LiteralWithObjectVariantUpdate,
-  LiteralWithObjectVariantWhere as ModelObjWhere,
-  LiteralWithBoth,
-  LiteralWithBothInput,
-  LiteralWithBothCreate,
-  LiteralWithBothUpdate,
   LiteralWithBothWhere as ModelBothWhere,
-  LiteralWithObjectOpt,
-  LiteralWithObjectOptInput,
-  LiteralWithObjectOptCreate,
-  LiteralWithObjectOptUpdate,
   LiteralWithObjectOptWhere as ModelObjOptWhere,
+  LiteralWithObjectVariantWhere as ModelObjWhere,
+  LiteralWithTupleWhere as ModelTupleWhere,
+  WithBoth,
+  WithBothInput,
+  WithBothWhere,
+  WithObject,
+  WithObjectInput,
+  WithObjectOpt,
+  WithObjectOptInput,
+  WithObjectOptWhere,
+  WithObjectWhere,
+  // Literal types
+  WithTuple,
+  WithTupleInput,
+  WithTupleWhere,
 } from '../generated';
-import type { CerialId, CerialNone } from 'cerial';
 
 // Helper for extension checks
 type Extends<A, B> = A extends B ? 1 : 0;

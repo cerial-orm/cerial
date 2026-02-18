@@ -1,13 +1,6 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import {
-  cleanupTables,
-  createTestClient,
-  truncateTables,
-  CerialClient,
-  tables,
-  testConfig,
-} from '../test-helper';
 import { CerialBytes, isCerialId } from 'cerial';
+import { type CerialClient, cleanupTables, createTestClient, tables, testConfig, truncateTables } from '../test-helper';
 
 const BYTES_TABLES = tables.bytes;
 

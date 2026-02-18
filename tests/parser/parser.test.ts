@@ -3,7 +3,7 @@
  * New schema format: fieldName Type @decorators
  */
 
-import { test, expect, describe } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import { parse, validateSchema } from '../../src/parser/parser';
 
 describe('parser', () => {

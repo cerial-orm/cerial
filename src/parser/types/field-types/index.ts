@@ -3,37 +3,37 @@
  */
 
 import type { SchemaFieldType } from '../../../types';
+import { getAnyFieldType, isAnyType } from './any-parser';
 import { getBoolFieldType, isBoolType } from './bool-parser';
+import { getBytesFieldType, isBytesType } from './bytes-parser';
 import { getDateFieldType, isDateType } from './date-parser';
+import { getDecimalFieldType, isDecimalType } from './decimal-parser';
+import { getDurationFieldType, isDurationType } from './duration-parser';
 import { getEmailFieldType, isEmailType } from './email-parser';
 import { getFloatFieldType, isFloatType } from './float-parser';
+import { getGeometryFieldType, isGeometryType } from './geometry-parser';
 import { getIntFieldType, isIntType } from './int-parser';
 import { getNumberFieldType, isNumberType } from './number-parser';
 import { getRecordFieldType, isRecordType } from './record-parser';
 import { getRelationFieldType, isRelationType } from './relation-parser';
 import { getStringFieldType, isStringType } from './string-parser';
-import { getBytesFieldType, isBytesType } from './bytes-parser';
-import { getDecimalFieldType, isDecimalType } from './decimal-parser';
-import { getDurationFieldType, isDurationType } from './duration-parser';
 import { getUuidFieldType, isUuidType } from './uuid-parser';
-import { getGeometryFieldType, isGeometryType } from './geometry-parser';
-import { getAnyFieldType, isAnyType } from './any-parser';
 
 export { getAnyFieldType, isAnyType } from './any-parser';
+export { getBoolFieldType, isBoolType } from './bool-parser';
 export { getBytesFieldType, isBytesType } from './bytes-parser';
+export { getDateFieldType, isDateType } from './date-parser';
 export { getDecimalFieldType, isDecimalType } from './decimal-parser';
 export { getDurationFieldType, isDurationType } from './duration-parser';
-export { getBoolFieldType, isBoolType } from './bool-parser';
-export { getDateFieldType, isDateType } from './date-parser';
 export { getEmailFieldType, isEmailType } from './email-parser';
 export { getFloatFieldType, isFloatType } from './float-parser';
+export { getGeometryFieldType, isGeometryType } from './geometry-parser';
 export { getIntFieldType, isIntType } from './int-parser';
 export { getNumberFieldType, isNumberType } from './number-parser';
 export { getRecordFieldType, isRecordArray, isRecordType, parseRecordIdTypes } from './record-parser';
 export { getRelationFieldType, isRelationArray, isRelationType } from './relation-parser';
 export { getStringFieldType, isStringType } from './string-parser';
 export { getUuidFieldType, isUuidType } from './uuid-parser';
-export { getGeometryFieldType, isGeometryType } from './geometry-parser';
 
 /** Parse a type token to SchemaFieldType (handles Record[] by stripping []) */
 export function parseFieldType(

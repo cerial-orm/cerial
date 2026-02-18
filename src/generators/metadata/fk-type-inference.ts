@@ -20,7 +20,7 @@ export function inferFKTypes(models: ModelMetadata[], registry: ModelRegistry): 
       if (!fkField) continue;
       if (fkField.type !== 'record') continue;
       if (fkField.isId) continue;
-      if (fkField.recordIdTypes && fkField.recordIdTypes.length) continue;
+      if (fkField.recordIdTypes?.length) continue;
 
       const targetModel = registry[targetModelName];
       if (!targetModel) continue;
@@ -28,7 +28,7 @@ export function inferFKTypes(models: ModelMetadata[], registry: ModelRegistry): 
       const targetIdField = targetModel.fields.find((f) => f.isId);
       if (!targetIdField) continue;
 
-      if (targetIdField.recordIdTypes && targetIdField.recordIdTypes.length) {
+      if (targetIdField.recordIdTypes?.length) {
         fkField.recordIdTypes = [...targetIdField.recordIdTypes];
       }
     }

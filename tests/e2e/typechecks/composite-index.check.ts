@@ -14,7 +14,6 @@
  */
 
 import { Test } from 'ts-toolbelt';
-import type { CerialId, RecordIdInput } from 'cerial';
 import type { StaffFindUniqueWhere, WarehouseFindUniqueWhere } from '../generated';
 
 // Helper for extension checks

@@ -3,8 +3,8 @@
  * New schema format: fieldName Type @decorators
  */
 
-import { test, expect, describe } from 'bun:test';
-import { tokenize, filterTokens } from '../../src/parser/tokenizer';
+import { describe, expect, test } from 'bun:test';
+import { filterTokens, tokenize } from '../../src/parser/tokenizer';
 
 describe('tokenizer', () => {
   test('tokenizes simple model declaration', () => {

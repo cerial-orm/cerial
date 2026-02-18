@@ -6,10 +6,10 @@
 
 import { describe, expect, test } from 'bun:test';
 import {
-  isOnDeleteDecorator,
   extractOnDeleteAction,
-  parseOnDeleteDecorator,
+  isOnDeleteDecorator,
   isValidOnDeleteAction,
+  parseOnDeleteDecorator,
 } from '../../../src/parser/types/field-decorators/ondelete-parser';
 
 describe('OnDelete Parser', () => {

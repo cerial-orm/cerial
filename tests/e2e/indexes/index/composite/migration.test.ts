@@ -9,7 +9,14 @@
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import { cleanupTables, truncateTables, INDEX_TABLES, createTestClient, CerialClient, testConfig } from '../../../test-helper';
+import {
+  type CerialClient,
+  cleanupTables,
+  createTestClient,
+  INDEX_TABLES,
+  testConfig,
+  truncateTables,
+} from '../../../test-helper';
 
 describe('@@index Composite: migration', () => {
   let client: CerialClient;
@@ -36,7 +43,7 @@ describe('@@index Composite: migration', () => {
     const indexes = info.indexes as Record<string, string>;
 
     // The composite @@index generates: DEFINE INDEX staffDeptName ON staff COLUMNS department, firstName
-    const deptNameIndex = indexes['staffDeptName'];
+    const deptNameIndex = indexes.staffDeptName;
     expect(deptNameIndex).toBeDefined();
     expect(deptNameIndex).toContain('department');
     expect(deptNameIndex).toContain('firstName');

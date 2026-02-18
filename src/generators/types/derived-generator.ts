@@ -144,7 +144,7 @@ function getOptionalForCreate(model: ModelMetadata): string[] {
  * Get object fields that need CreateInput substitution
  * These are object-typed fields where the nested object has @default/@now fields
  */
-function getObjectFieldsWithDefaults(model: ModelMetadata, objectRegistry?: ObjectRegistry): FieldMetadata[] {
+function _getObjectFieldsWithDefaults(model: ModelMetadata, objectRegistry?: ObjectRegistry): FieldMetadata[] {
   if (!objectRegistry) return [];
 
   return model.fields.filter((f) => {
@@ -428,7 +428,7 @@ export function generateCreateInputType(model: ModelMetadata): string {
     .join('\n');
 
   // Check if any relation is required
-  const hasRequiredRelation = relationFields.some((rf) => rf.isRequired && !rf.isReverse);
+  const _hasRequiredRelation = relationFields.some((rf) => rf.isRequired && !rf.isReverse);
 
   // Generate two variants as a union:
   // 1. Raw variant: allows direct Record field values (e.g., userId)
@@ -797,28 +797,17 @@ export function generateOrderByType(model: ModelMetadata): string {
 
   for (const field of model.fields) {
     if (field.type === 'relation') {
-      // Relation fields are excluded from OrderBy — SurrealDB 3.x does not support
-      // ORDER BY through record link dot notation (e.g., authorId.name).
-      // Ordering by related fields silently returns insertion order.
-      continue;
     } else if (field.type === 'object' && field.objectInfo) {
       // Object fields support nested ordering (e.g., orderBy: { address: { city: 'asc' } })
       fields.push(`  ${field.name}?: ${field.objectInfo.objectName}OrderBy;`);
     } else if (field.type === 'tuple') {
-      // Tuple fields do not support ordering — skip
-      continue;
     } else if (field.type === 'geometry') {
-      // Geometry fields do not support ordering — skip
-      continue;
     } else if (field.type === 'any') {
-      continue;
     } else if (field.type === 'literal') {
       if (field.literalInfo?.isEnum) {
         // Enum fields are string-only — ordering works fine
         fields.push(`  ${field.name}?: 'asc' | 'desc';`);
       }
-      // Non-enum literals may contain mixed types — skip
-      continue;
     } else {
       fields.push(`  ${field.name}?: 'asc' | 'desc';`);
     }
@@ -1034,7 +1023,7 @@ function generateObjectUnsetFields(objectInfo: ObjectFieldMetadata, indent: stri
     const isOptional = !field.isRequired;
 
     if (field.type === 'object' && field.objectInfo) {
-      const children = generateObjectUnsetFields(field.objectInfo, indent + '  ');
+      const children = generateObjectUnsetFields(field.objectInfo, `${indent}  `);
       const hasOptionalChildren = children.length > 0;
 
       if (isOptional && hasOptionalChildren) {

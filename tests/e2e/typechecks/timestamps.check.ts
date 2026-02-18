@@ -14,12 +14,12 @@
 
 import { Test } from 'ts-toolbelt';
 import type {
+  TimestampInfoCreateInput,
   TimestampTest,
   TimestampTestCreate,
+  TimestampTestSelect,
   TimestampTestUpdate,
   TimestampTestWhere,
-  TimestampTestSelect,
-  TimestampInfoCreateInput,
 } from '../generated';
 
 const { checks, check } = Test;

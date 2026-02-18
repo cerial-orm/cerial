@@ -6,7 +6,14 @@
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import { isCerialId } from 'cerial';
-import { CerialClient, cleanupTables, createTestClient, truncateTables, testConfig, ROOT_TABLES } from './test-helper';
+import {
+  type CerialClient,
+  cleanupTables,
+  createTestClient,
+  ROOT_TABLES,
+  testConfig,
+  truncateTables,
+} from './test-helper';
 
 describe('E2E Nested Operations', () => {
   let client: CerialClient;

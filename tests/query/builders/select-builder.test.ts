@@ -23,7 +23,7 @@ model User {
 `;
 const registry = parseModelRegistry(dsl);
 
-const userModel = registry['User']!;
+const userModel = registry.User!;
 
 describe('select builder', () => {
   test('builds simple SELECT query', () => {

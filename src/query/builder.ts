@@ -35,28 +35,28 @@ import {
   buildFindManyQuery,
   buildFindOneQuery,
   buildFindUniqueQuery,
-  findCompositeUniqueKey,
-  findObjectUniqueKey,
   buildUpdateManyQuery,
   buildUpdateUniqueQuery,
   buildUpdateWithNestedTransaction,
   buildUpsertQuery,
   extractNestedOperations,
-  getRecordIdFromWhere,
   type FindOptionsWithInclude,
   type FindUniqueOptionsWithInclude,
+  findCompositeUniqueKey,
+  findObjectUniqueKey,
+  getRecordIdFromWhere,
   type IncludeClause,
 } from './builders';
-import { type QueryResultType } from './cerial-query-promise';
+import type { QueryResultType } from './cerial-query-promise';
 import type { CompiledQuery } from './compile/types';
 import { executeQuery, executeQuerySingle } from './executor';
 import { mapResult, mapSingleResult } from './mappers';
 import { applyFieldDefaults, transformData, transformOrValidateRecordId } from './transformers';
 import {
   validateCreateData,
-  validateUpdateData,
-  validateUnset,
   validateDataUnsetOverlap,
+  validateUnset,
+  validateUpdateData,
   validateWhere,
 } from './validators';
 

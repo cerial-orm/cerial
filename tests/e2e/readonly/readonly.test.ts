@@ -40,7 +40,7 @@
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import { cleanupTables, createTestClient, truncateTables, CerialClient, testConfig } from '../test-helper';
+import { type CerialClient, cleanupTables, createTestClient, testConfig, truncateTables } from '../test-helper';
 
 const READONLY_TABLES = ['readonly_test', 'readonly_record'];
 

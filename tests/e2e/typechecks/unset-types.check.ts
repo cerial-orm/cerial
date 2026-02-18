@@ -13,14 +13,11 @@
 
 import { Test } from 'ts-toolbelt';
 import type {
-  UnsetTest,
-  UnsetTestUpdate,
-  UnsetTestUnset,
-  UnsetAddress,
-  UnsetOptTupleUnset,
-  UnsetObjTupleUnset,
-  UnsetRecursiveUnset,
   SafeUnset,
+  UnsetObjTupleUnset,
+  UnsetOptTupleUnset,
+  UnsetRecursiveUnset,
+  UnsetTestUnset,
 } from '../generated';
 
 const { checks, check } = Test;

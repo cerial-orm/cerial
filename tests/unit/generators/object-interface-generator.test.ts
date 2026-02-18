@@ -6,12 +6,12 @@
 
 import { describe, expect, test } from 'bun:test';
 import {
-  generateObjectInterface,
-  generateObjectInputInterface,
-  generateObjectCreateInputInterface,
-  generateObjectInterfaces,
-  generateInterface,
   generateInputInterface,
+  generateInterface,
+  generateObjectCreateInputInterface,
+  generateObjectInputInterface,
+  generateObjectInterface,
+  generateObjectInterfaces,
   objectHasDefaultOrTimestamp,
 } from '../../../src/generators/types/interface-generator';
 import type { FieldMetadata, ModelMetadata, ObjectMetadata, ObjectRegistry } from '../../../src/types';

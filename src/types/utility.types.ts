@@ -79,7 +79,7 @@ export type GetRelationPayload<RelationType, RelationInclude, IncludeValue> = In
  * Get the payload for all included relations
  * Maps each included relation key to its resolved type
  */
-export type GetIncludePayload<Model, ModelRelations, Include> = Include extends undefined
+export type GetIncludePayload<_Model, ModelRelations, Include> = Include extends undefined
   ? {}
   : Include extends Record<string, unknown>
     ? {

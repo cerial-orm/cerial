@@ -10,14 +10,14 @@
  */
 
 import { describe, expect, test } from 'bun:test';
+import { astToRegistry } from '../../../src/parser/model-metadata';
+import { parse } from '../../../src/parser/parser';
 import {
+  buildUpsertIdQuery,
   buildUpsertQuery,
   buildUpsertWhereQuery,
-  buildUpsertIdQuery,
   buildUpsertWithNestedTransaction,
 } from '../../../src/query/builders/upsert-builder';
-import { parse } from '../../../src/parser/parser';
-import { astToRegistry } from '../../../src/parser/model-metadata';
 
 // --------------------------------------------------------------------------
 // Schemas
@@ -56,7 +56,7 @@ model AuthorProfile {
 }
 `;
 
-const schemaWithDefault = `
+const _schemaWithDefault = `
 model Item {
   id Record @id
   sku String @unique

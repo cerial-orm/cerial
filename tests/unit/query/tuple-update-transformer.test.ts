@@ -9,8 +9,8 @@
 
 import { describe, expect, test } from 'bun:test';
 import { transformData } from '../../../src/query/transformers/data-transformer';
-import { NONE } from '../../../src/utils/none';
 import type { FieldMetadata, ModelMetadata, TupleElementMetadata, TupleFieldMetadata } from '../../../src/types';
+import { NONE } from '../../../src/utils/none';
 
 function field(overrides: Partial<FieldMetadata>): FieldMetadata {
   return {

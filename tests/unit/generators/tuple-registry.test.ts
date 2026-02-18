@@ -12,20 +12,18 @@ import {
   resolveObjectFields,
 } from '../../../src/generators/metadata/model-converter';
 import {
-  generateTupleRegistryCode,
   generateFullRegistryCode,
+  generateTupleRegistryCode,
 } from '../../../src/generators/metadata/registry-generator';
-import { convertField } from '../../../src/generators/metadata/field-converter';
 import type {
   ASTTuple,
   ASTTupleElement,
   FieldMetadata,
   ModelMetadata,
   ObjectMetadata,
-  TupleElementMetadata,
+  ObjectRegistry,
   TupleMetadata,
   TupleRegistry,
-  ObjectRegistry,
 } from '../../../src/types';
 
 // Helper to create AST tuple element
@@ -167,10 +165,10 @@ describe('Tuple Registry', () => {
 
       const registry = createTupleRegistry(tuples);
 
-      expect(registry['Coordinate']).toBeDefined();
-      expect(registry['Range']).toBeDefined();
-      expect(registry['Coordinate']!.name).toBe('Coordinate');
-      expect(registry['Range']!.name).toBe('Range');
+      expect(registry.Coordinate).toBeDefined();
+      expect(registry.Range).toBeDefined();
+      expect(registry.Coordinate!.name).toBe('Coordinate');
+      expect(registry.Range!.name).toBe('Range');
     });
 
     test('should return empty registry for empty input', () => {
@@ -231,7 +229,7 @@ describe('Tuple Registry', () => {
       resolveObjectFields([], [], objectRegistry, tupleRegistry);
 
       // Outer's element[1].tupleInfo.elements should now be resolved
-      const outerElem1 = tupleRegistry['Outer']!.elements[1]!;
+      const outerElem1 = tupleRegistry.Outer!.elements[1]!;
       expect(outerElem1.tupleInfo!.elements).toHaveLength(2);
       expect(outerElem1.tupleInfo!.elements[0]!.type).toBe('int');
     });
@@ -253,7 +251,7 @@ describe('Tuple Registry', () => {
 
       resolveObjectFields([], [addrObject], objectRegistry, tupleRegistry);
 
-      const objElem = tupleRegistry['Located']!.elements[1]!;
+      const objElem = tupleRegistry.Located!.elements[1]!;
       expect(objElem.objectInfo!.fields).toHaveLength(2);
       expect(objElem.objectInfo!.fields[0]!.name).toBe('street');
     });

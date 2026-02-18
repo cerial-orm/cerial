@@ -637,7 +637,7 @@ export function buildConditions(
     }
 
     // Find field metadata
-    let fieldMetadata = model.fields.find((f) => f.name === key);
+    const fieldMetadata = model.fields.find((f) => f.name === key);
 
     // Handle dot-notation keys from expanded composite directives (e.g., "address.city")
     if (!fieldMetadata && key.includes('.')) {

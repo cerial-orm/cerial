@@ -7,16 +7,16 @@
  */
 
 import { describe, expect, test } from 'bun:test';
+import { astToRegistry } from '../../../src/parser/model-metadata';
+import { parse } from '../../../src/parser/parser';
 import {
   buildUpdateManyQuery,
   buildUpdateUniqueQuery,
   mergeUnsetIntoData,
 } from '../../../src/query/builders/update-builder';
 import { buildUpsertQuery } from '../../../src/query/builders/upsert-builder';
-import { parse } from '../../../src/parser/parser';
-import { astToRegistry } from '../../../src/parser/model-metadata';
-import { NONE, isNone } from '../../../src/utils/none';
 import type { FieldMetadata, ModelMetadata, ObjectFieldMetadata, TupleFieldMetadata } from '../../../src/types';
+import { isNone, NONE } from '../../../src/utils/none';
 
 // ============================================================================
 // Helper: construct metadata manually (astToRegistry doesn't populate objectInfo/tupleInfo)

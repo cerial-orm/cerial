@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'bun:test';
 import {
-  isUuidDecorator,
   isUuid4Decorator,
   isUuid7Decorator,
-  parseUuidDecorator,
+  isUuidDecorator,
   parseUuid4Decorator,
   parseUuid7Decorator,
+  parseUuidDecorator,
 } from '../../../src/parser/types/field-decorators/uuid-decorator-parser';
 
 const range = {

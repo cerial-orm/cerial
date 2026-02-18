@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'bun:test';
+import { parseFieldType } from '../../../src/parser/types/field-types';
 import {
-  isRecordType,
-  isRecordArray,
   getRecordFieldType,
+  isRecordArray,
+  isRecordType,
   parseRecordIdTypes,
 } from '../../../src/parser/types/field-types/record-parser';
-import { parseFieldType } from '../../../src/parser/types/field-types';
 import { parseFieldDeclaration } from '../../../src/parser/types/model/field-declaration-parser';
 
 describe('Record Type Parser', () => {

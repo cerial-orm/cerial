@@ -8,12 +8,12 @@
  * - Array relations: Remove ID from arrays (cleanup)
  */
 
-import type { CompiledQuery } from '../compile/types';
+import { getUniqueFields } from '../../parser/model-metadata';
 import type { ModelMetadata, ModelRegistry, OnDeleteAction, WhereClause } from '../../types';
+import type { CompiledQuery } from '../compile/types';
 import { transformWhereClause } from '../filters/transformer';
 import { transformOrValidateRecordId } from '../transformers';
 import { expandCompositeKey, expandObjectUniqueKey, validateUniqueField } from './select-builder';
-import { getUniqueFields } from '../../parser/model-metadata';
 
 /** Build DELETE query */
 export function buildDeleteQuery(model: ModelMetadata, where: WhereClause): CompiledQuery {
@@ -226,7 +226,7 @@ export function buildDeleteWithCascade(
   statements.push('COMMIT TRANSACTION');
 
   return {
-    text: statements.join(';\n') + ';',
+    text: `${statements.join(';\n')};`,
     vars,
   };
 }
@@ -424,7 +424,7 @@ export function buildDeleteUniqueWithCascade(
   statements.push('COMMIT TRANSACTION');
 
   return {
-    text: statements.join(';\n') + ';',
+    text: `${statements.join(';\n')};`,
     vars,
   };
 }

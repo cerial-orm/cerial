@@ -3,14 +3,14 @@
  * Tests for per-model callbacks and callback array merging
  */
 
-import { describe, expect, test, mock } from 'bun:test';
-import {
-  createProxyHandler,
-  clearModelCache,
-  type ProxyOptions,
-  type PerModelCallbacks,
-} from '../../src/client/proxy/handler';
+import { describe, expect, mock, test } from 'bun:test';
 import type { BeforeQueryCallback } from '../../src/client/model/model';
+import {
+  clearModelCache,
+  createProxyHandler,
+  type PerModelCallbacks,
+  type ProxyOptions,
+} from '../../src/client/proxy/handler';
 import { parseModelRegistry } from '../test-helpers';
 
 // Mock Surreal instance with proper query().collect() chain

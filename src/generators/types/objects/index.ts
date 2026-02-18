@@ -3,6 +3,12 @@
  */
 
 export {
+  generateAllObjectDerivedTypes,
+  generateObjectDerivedTypes,
+  generateObjectOrderByType,
+  generateObjectSelectType,
+} from './derived-generator';
+export {
   generateObjectCreateInputInterface,
   generateObjectInputInterface,
   generateObjectInterface,
@@ -10,12 +16,4 @@ export {
   objectHasDefaultOrTimestamp,
   objectHasRecordFields,
 } from './interface-generator';
-
 export { generateObjectWhereInterface, generateObjectWhereTypes } from './where-generator';
-
-export {
-  generateAllObjectDerivedTypes,
-  generateObjectDerivedTypes,
-  generateObjectOrderByType,
-  generateObjectSelectType,
-} from './derived-generator';

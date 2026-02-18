@@ -2,8 +2,8 @@
  * AND operator handler
  */
 
-import type { QueryFragment } from '../../compile/types';
 import { joinFragments, wrapParens } from '../../compile/fragment';
+import type { QueryFragment } from '../../compile/types';
 
 /** Handle AND logic - combines conditions with AND */
 export function handleAnd(conditions: QueryFragment[]): QueryFragment {

@@ -6,12 +6,12 @@
  */
 
 import { describe, expect, test } from 'bun:test';
+import { createCompileContext } from '../../../src/query/compile/var-allocator';
 import {
-  buildObjectCondition,
   buildArrayObjectCondition,
   buildConditions,
+  buildObjectCondition,
 } from '../../../src/query/filters/condition-builder';
-import { createCompileContext } from '../../../src/query/compile/var-allocator';
 import type { FieldMetadata, ModelMetadata, ObjectFieldMetadata } from '../../../src/types';
 
 // Helper to create a minimal FieldMetadata

@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'bun:test';
+import { describe, expect, it } from 'bun:test';
 import { inferFKTypes } from '../../../src/generators/metadata/fk-type-inference';
 import type { FieldMetadata, ModelMetadata, ModelRegistry } from '../../../src/types/metadata.types';
 

@@ -2,18 +2,18 @@
  * Type utils tests
  */
 
-import { test, expect, describe } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import {
-  isString,
-  isNumber,
+  getSchemaFieldType,
+  isArray,
   isBoolean,
   isDate,
   isNullish,
+  isNumber,
   isObject,
-  isArray,
-  getSchemaFieldType,
-  schemaTypeToTsType,
+  isString,
   schemaTypeToSurrealType,
+  schemaTypeToTsType,
 } from '../../src/utils/type-utils';
 
 describe('type-utils', () => {

@@ -8,10 +8,10 @@
 import type { SchemaFieldType } from '../../../types';
 
 /** Valid primitive ID type parameters for Record(Type) */
-const VALID_ID_TYPES = new Set(['int', 'number', 'string', 'uuid']);
+const _VALID_ID_TYPES = new Set(['int', 'number', 'string', 'uuid']);
 
 /** Invalid ID type parameters — clear error messages */
-const INVALID_ID_TYPES = new Set([
+const _INVALID_ID_TYPES = new Set([
   'float',
   'bool',
   'date',
@@ -58,8 +58,8 @@ export function getRecordFieldType(): SchemaFieldType {
  */
 export function parseRecordIdTypes(
   token: string,
-  tupleNames?: Set<string>,
-  objectNames?: Set<string>,
+  _tupleNames?: Set<string>,
+  _objectNames?: Set<string>,
 ): string[] | undefined {
   const match = token.match(RECORD_TYPE_REGEX);
   if (!match || !match[1]) return undefined;

@@ -2,8 +2,7 @@
  * Result mapper - maps query results to typed responses
  */
 
-import { RecordId } from 'surrealdb';
-import { Decimal, Duration, Geometry, Uuid } from 'surrealdb';
+import { Decimal, Duration, Geometry, RecordId, Uuid } from 'surrealdb';
 import type { ModelMetadata, ObjectFieldMetadata, SchemaFieldType, TupleFieldMetadata } from '../../types';
 import { CerialBytes } from '../../utils/cerial-bytes';
 import { CerialDecimal } from '../../utils/cerial-decimal';
@@ -176,11 +175,11 @@ function processNestedValue(value: unknown): unknown {
       if (key === 'id') {
         // Transform id field to CerialId
         if (isRecordId(val)) {
-          result['id'] = transformRecordIdToCerialId(val);
+          result.id = transformRecordIdToCerialId(val);
         } else if (typeof val === 'string') {
-          result['id'] = transformIdString(val);
+          result.id = transformIdString(val);
         } else {
-          result['id'] = val;
+          result.id = val;
         }
       } else {
         // Recursively process nested values
@@ -293,12 +292,12 @@ export function mapRecord(record: Record<string, unknown>, model: ModelMetadata)
     if (key === 'id') {
       // Handle both RecordId objects and string IDs - convert to CerialId
       if (isRecordId(value)) {
-        result['id'] = transformRecordIdToCerialId(value);
+        result.id = transformRecordIdToCerialId(value);
       } else if (typeof value === 'string') {
         // Parse string to CerialId
-        result['id'] = transformIdString(value);
+        result.id = transformIdString(value);
       } else {
-        result['id'] = value;
+        result.id = value;
       }
       continue;
     }

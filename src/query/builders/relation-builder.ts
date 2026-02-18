@@ -209,7 +209,7 @@ function buildRelationSelectFieldsInternal(
 }
 
 /** Build a single forward relation select field (public API - backwards compatible) */
-export function buildForwardRelationSelect(field: FieldMetadata, options?: IncludeOptions): string {
+export function buildForwardRelationSelect(field: FieldMetadata, _options?: IncludeOptions): string {
   if (!field.relationInfo || !field.relationInfo.fieldRef) {
     return '';
   }

@@ -7,16 +7,9 @@
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import {
-  cleanupTables,
-  createTestClient,
-  truncateTables,
-  CerialClient,
-  tables,
-  testConfig,
-} from '../test-helper';
 import { isCerialId } from 'cerial';
 import { SeverityEnum } from '../generated';
+import { type CerialClient, cleanupTables, createTestClient, tables, testConfig, truncateTables } from '../test-helper';
 
 describe('E2E Enums: Object With Enum', () => {
   let client: CerialClient;

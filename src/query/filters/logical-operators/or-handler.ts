@@ -2,8 +2,8 @@
  * OR operator handler
  */
 
-import type { QueryFragment } from '../../compile/types';
 import { joinFragments, wrapParens } from '../../compile/fragment';
+import type { QueryFragment } from '../../compile/types';
 
 /** Handle OR logic - combines conditions with OR */
 export function handleOr(conditions: QueryFragment[]): QueryFragment {

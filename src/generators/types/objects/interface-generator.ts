@@ -202,7 +202,7 @@ export function generateObjectInputInterface(
   tupleRegistry?: TupleRegistry,
 ): string {
   // If object has no Record fields (direct or nested), input is identical to output
-  const hasRecords = objectHasRecordFields(object, objectRegistry);
+  const _hasRecords = objectHasRecordFields(object, objectRegistry);
 
   const fields = object.fields
     .map((f) => {

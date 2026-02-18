@@ -11,6 +11,7 @@
  * - @distinct on object array fields (no type impact beyond array)
  */
 
+import type { CerialId, RecordIdInput } from 'cerial';
 import { Test } from 'ts-toolbelt';
 import type {
   ContactInfo,
@@ -25,7 +26,6 @@ import type {
   ObjDecUserUpdate,
   ObjDecUserWhere,
 } from '../generated';
-import type { CerialId, RecordIdInput } from 'cerial';
 
 // Helper for extension checks
 type Extends<A, B> = A extends B ? 1 : 0;

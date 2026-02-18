@@ -5,11 +5,11 @@
  */
 
 import { describe, expect, test } from 'bun:test';
-import { handleIsNull, handleIsNotNull } from '../../../src/query/filters/special-operators/isNull-handler';
-import { handleIsDefined, handleIsNotDefined } from '../../../src/query/filters/special-operators/isDefined-handler';
+import { createCompileContext } from '../../../src/query/compile/var-allocator';
 import { handleIsNone } from '../../../src/query/filters/comparison-operators/is-none-handler';
 import { getOperatorHandler } from '../../../src/query/filters/registry';
-import { createCompileContext } from '../../../src/query/compile/var-allocator';
+import { handleIsDefined, handleIsNotDefined } from '../../../src/query/filters/special-operators/isDefined-handler';
+import { handleIsNotNull, handleIsNull } from '../../../src/query/filters/special-operators/isNull-handler';
 import type { FieldMetadata } from '../../../src/types';
 
 const dummyCtx = createCompileContext();

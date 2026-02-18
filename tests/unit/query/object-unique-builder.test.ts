@@ -6,8 +6,8 @@
 
 import { describe, expect, test } from 'bun:test';
 import {
-  findObjectUniqueKey,
   expandObjectUniqueKey,
+  findObjectUniqueKey,
   validateUniqueField,
 } from '../../../src/query/builders/select-builder';
 import type { FieldMetadata, ModelMetadata } from '../../../src/types';
@@ -163,7 +163,7 @@ describe('Object @unique query builder', () => {
       const result = expandObjectUniqueKey(where, modelWithObjectUnique);
 
       expect(result).toEqual({ 'location.zip': '10001' });
-      expect(result['location']).toBeUndefined();
+      expect(result.location).toBeUndefined();
     });
 
     test('should preserve non-object where fields', () => {
@@ -171,8 +171,8 @@ describe('Object @unique query builder', () => {
       const result = expandObjectUniqueKey(where, modelWithObjectUnique);
 
       expect(result['location.zip']).toBe('10001');
-      expect(result['name']).toBe('Alice');
-      expect(result['location']).toBeUndefined();
+      expect(result.name).toBe('Alice');
+      expect(result.location).toBeUndefined();
     });
 
     test('should return where unchanged when no object unique key', () => {

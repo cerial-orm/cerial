@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
+import { GeometryLine, GeometryPoint, GeometryPolygon } from 'surrealdb';
 import { transformValue } from '../../../src/query/transformers/data-transformer';
 import { CerialGeometry, CerialPoint, CerialPolygon } from '../../../src/utils/cerial-geometry';
-import { GeometryPoint, GeometryPolygon, GeometryLine, Geometry } from 'surrealdb';
 
 describe('transformValue for geometry', () => {
   test('null passes through', () => {

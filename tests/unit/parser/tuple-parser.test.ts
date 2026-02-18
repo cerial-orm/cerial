@@ -6,7 +6,7 @@
  */
 
 import { describe, expect, test } from 'bun:test';
-import { parse, validateSchema, collectTupleNames } from '../../../src/parser/parser';
+import { collectTupleNames, parse, validateSchema } from '../../../src/parser/parser';
 
 describe('Tuple Parser', () => {
   describe('basic parsing', () => {

@@ -13,14 +13,14 @@ export function isUuid7Decorator(token: string): boolean {
   return token === '@uuid7';
 }
 
-export function parseUuidDecorator(token: string, range: SourceRange): ASTDecorator {
+export function parseUuidDecorator(_token: string, range: SourceRange): ASTDecorator {
   return createDecorator('uuid', range);
 }
 
-export function parseUuid4Decorator(token: string, range: SourceRange): ASTDecorator {
+export function parseUuid4Decorator(_token: string, range: SourceRange): ASTDecorator {
   return createDecorator('uuid4', range);
 }
 
-export function parseUuid7Decorator(token: string, range: SourceRange): ASTDecorator {
+export function parseUuid7Decorator(_token: string, range: SourceRange): ASTDecorator {
   return createDecorator('uuid7', range);
 }

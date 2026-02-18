@@ -8,21 +8,23 @@
 
 import type { Surreal } from 'surrealdb';
 import {
-  QueryBuilderStatic,
-  compileFindOne,
-  compileFindMany,
-  compileFindUnique,
+  compileCount,
   compileCreate,
-  compileUpdateMany,
-  compileUpdateUnique,
   compileDeleteMany,
   compileDeleteUnique,
-  compileCount,
   compileExists,
+  compileFindMany,
+  compileFindOne,
+  compileFindUnique,
+  compileUpdateMany,
+  compileUpdateUnique,
   compileUpsert,
   type FindManyOptionsWithInclude,
   type FindOneOptionsWithInclude,
+  QueryBuilderStatic,
 } from '../../query/builder';
+import type { IncludeClause } from '../../query/builders';
+import { CerialQueryPromise } from '../../query/cerial-query-promise';
 import type {
   CreateOptions,
   DeleteManyOptions,
@@ -37,8 +39,6 @@ import type {
   UpsertReturn,
   WhereClause,
 } from '../../types';
-import type { IncludeClause } from '../../query/builders';
-import { CerialQueryPromise } from '../../query/cerial-query-promise';
 
 /** Extended find unique options with include support */
 export interface FindUniqueOptionsWithInclude {

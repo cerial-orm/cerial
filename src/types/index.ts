@@ -14,29 +14,14 @@ export type {
   SourceRange,
   SurrealTypeMapping,
 } from './common.types';
-
-// Utility types for inference
-export type {
-  ApplyObjectSelect,
-  ArrayResult,
-  DefaultArgs,
-  GetIncludePayload,
-  GetRelationPayload,
-  GetResult,
-  HasSelectOrInclude,
-  IsBooleanInclude,
-  NullableResult,
-  RelationDef,
-  ResolveFieldSelect,
-  SelectedKeys,
-  SelectSubset,
-} from './utility.types';
-
 // Metadata types
 export type {
   CompositeIndex,
   ConnectionConfig,
   FieldMetadata,
+  LiteralFieldMetadata,
+  LiteralMetadata,
+  LiteralRegistry,
   ModelMetadata,
   ModelRegistry,
   NamedConnection,
@@ -44,16 +29,12 @@ export type {
   ObjectMetadata,
   ObjectRegistry,
   RelationFieldMetadata,
+  ResolvedLiteralVariant,
   TupleElementMetadata,
   TupleFieldMetadata,
-  LiteralFieldMetadata,
-  LiteralMetadata,
-  LiteralRegistry,
-  ResolvedLiteralVariant,
   TupleMetadata,
   TupleRegistry,
 } from './metadata.types';
-
 // Parser types
 export type {
   ASTCompositeDirective,
@@ -76,7 +57,6 @@ export type {
   Token,
   TokenType,
 } from './parser.types';
-
 // Query types
 export type {
   ArrayOperators,
@@ -113,3 +93,19 @@ export type {
   VarBinding,
   WhereClause,
 } from './query.types';
+// Utility types for inference
+export type {
+  ApplyObjectSelect,
+  ArrayResult,
+  DefaultArgs,
+  GetIncludePayload,
+  GetRelationPayload,
+  GetResult,
+  HasSelectOrInclude,
+  IsBooleanInclude,
+  NullableResult,
+  RelationDef,
+  ResolveFieldSelect,
+  SelectedKeys,
+  SelectSubset,
+} from './utility.types';

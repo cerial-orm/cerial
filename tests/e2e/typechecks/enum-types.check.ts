@@ -15,39 +15,29 @@
 
 import { Test } from 'ts-toolbelt';
 import type {
-  // Enum types
-  RoleEnumType,
-  RoleEnumWhere,
   ColorEnumType,
-  SeverityEnumType,
-  SeverityEnumWhere,
-  // Model types
-  EnumBasic,
-  EnumBasicInput,
-  EnumBasicCreate,
-  EnumBasicUpdate,
-  EnumBasicWhere,
-  EnumBasicOrderBy,
-  EnumDefaults,
-  EnumDefaultsCreate,
-  EnumMultiple,
-  EnumMultipleWhere,
-  EnumMultipleOrderBy,
-  EnumWithObject,
-  EnumWithObjectWhere,
-  EnumWithObjectOrderBy,
-  EnumLiteralRef,
-  EnumLiteralRefWhere,
   // Object types
   EnumAddress,
   EnumAddressInput,
-  EnumAddressWhere,
   EnumAddressOrderBy,
+  // Model types
+  EnumBasic,
+  EnumBasicInput,
+  EnumBasicOrderBy,
+  EnumDefaultsCreate,
+  EnumLiteralRef,
+  EnumMultiple,
+  EnumMultipleOrderBy,
+  EnumWithObject,
+  EnumWithObjectOrderBy,
+  // Enum types
+  RoleEnumType,
+  RoleEnumWhere,
   // Literal type referencing enum
   RoleOrCustom,
-  RoleOrCustomWhere,
+  SeverityEnumType,
 } from '../generated';
-import { RoleEnum, ColorEnum, SeverityEnum } from '../generated';
+import { ColorEnum, RoleEnum, SeverityEnum } from '../generated';
 
 // Helper for extension checks
 type Extends<A, B> = A extends B ? 1 : 0;

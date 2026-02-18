@@ -11,12 +11,11 @@ import { Test } from 'ts-toolbelt';
 import type {
   CoordinateInput,
   EntryInput,
-  OuterInput,
-  InnerInput,
   LocatedInput,
-  WithOptionalInput,
+  OuterInput,
   TupleBasicCreate,
   TupleBasicUpdate,
+  WithOptionalInput,
 } from '../generated';
 
 // Helper for extension checks

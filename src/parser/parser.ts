@@ -4,45 +4,43 @@
  */
 
 import type {
-  SchemaAST,
+  ASTCompositeDirective,
+  ASTDecorator,
+  ASTEnum,
+  ASTField,
+  ASTLiteral,
+  ASTLiteralVariant,
   ASTModel,
   ASTObject,
   ASTTuple,
   ASTTupleElement,
-  ASTLiteral,
-  ASTLiteralVariant,
-  ASTEnum,
-  ASTField,
-  ASTDecorator,
-  ASTCompositeDirective,
-  ParseResult,
   ParseError,
-  SchemaFieldType,
+  ParseResult,
+  SchemaAST,
 } from '../types';
+import { removeComments } from '../utils/string-utils';
+import { lex } from './lexer';
 import { tokenize } from './tokenizer';
-import { lex, type LexerResult } from './lexer';
 import {
-  createSchemaAST,
-  createModel,
   createCompositeDirective,
   createDecorator,
+  createEnum,
+  createLiteral,
+  createModel,
   createObject,
+  createPosition,
+  createRange,
+  createSchemaAST,
   createTuple,
   createTupleElement,
-  createLiteral,
-  createEnum,
-  createRange,
-  createPosition,
-  parseFieldDeclaration,
-  parseFieldType,
-  modelNameToTableName,
+  extractDefaultValue,
+  extractLiteralName,
   extractObjectName,
   extractTupleName,
-  extractLiteralName,
-  extractDefaultValue,
+  parseFieldDeclaration,
+  parseFieldType,
 } from './types';
 import { extractDefaultAlwaysValue } from './types/field-decorators';
-import { removeComments } from '../utils/string-utils';
 
 /** Parser state */
 interface ParserState {

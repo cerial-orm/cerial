@@ -2,9 +2,8 @@
  * Data validator - validates data for create/update operations
  */
 
-import { Decimal, Duration, RecordId, StringRecordId } from 'surrealdb';
 import type { ModelMetadata, SchemaFieldType } from '../../types';
-import { CerialId, isRecordIdInput } from '../../utils/cerial-id';
+import { isRecordIdInput } from '../../utils/cerial-id';
 import { isNone } from '../../utils/none';
 import { isValidEmail, validateFieldType, validateTypedRecordId } from '../../utils/validation-utils';
 
@@ -260,7 +259,7 @@ export function validateUnset(unset: Record<string, unknown>, model: ModelMetada
 export function validateDataUnsetOverlap(
   data: Record<string, unknown>,
   unset: Record<string, unknown>,
-  model: ModelMetadata,
+  _model: ModelMetadata,
 ): DataValidationResult {
   const errors: DataValidationError[] = [];
 

@@ -5,7 +5,8 @@
 import type { FieldMetadata } from '../../types';
 import type { QueryFragment } from '../compile/types';
 import type { FilterCompileContext } from '../compile/var-allocator';
-
+// Array operators
+import { handleHas, handleHasAll, handleHasAny, handleIn, handleIsEmpty, handleNotIn } from './array-operators';
 // Comparison operators
 import {
   handleEq,
@@ -17,15 +18,10 @@ import {
   handleNeq,
   handleNot,
 } from './comparison-operators';
-
-// String operators
-import { handleContains, handleEndsWith, handleStartsWith } from './string-operators';
-
-// Array operators
-import { handleHas, handleHasAll, handleHasAny, handleIn, handleIsEmpty, handleNotIn } from './array-operators';
-
 // Special operators
 import { handleBetween, handleIsDefined, handleIsNotDefined, handleIsNotNull, handleIsNull } from './special-operators';
+// String operators
+import { handleContains, handleEndsWith, handleStartsWith } from './string-operators';
 
 /** Operator handler signature */
 export type OperatorHandler = (

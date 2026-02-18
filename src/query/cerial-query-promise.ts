@@ -12,8 +12,8 @@
  *   await expect(async () => { await query; }).rejects.toThrow()
  */
 
-import type { CompiledQuery } from './compile/types';
 import type { ModelMetadata, ModelRegistry } from '../types';
+import type { CompiledQuery } from './compile/types';
 
 /** Result type classification for transaction result mapping */
 export type QueryResultType = 'single' | 'array' | 'count' | 'boolean' | 'number' | 'void';

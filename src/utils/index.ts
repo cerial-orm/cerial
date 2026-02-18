@@ -2,120 +2,108 @@
  * Utilities barrel export
  */
 
-// String utilities
-export {
-  toSnakeCase,
-  toCamelCase,
-  toPascalCase,
-  escapeRegex,
-  escapeString,
-  isValidIdentifier,
-  capitalize,
-  uncapitalize,
-  normalizeWhitespace,
-  removeComments,
-  indent,
-} from './string-utils';
-
-// Type utilities
-export {
-  isString,
-  isNumber,
-  isBoolean,
-  isDate,
-  isNullish,
-  isObject,
-  isArray,
-  getSchemaFieldType,
-  schemaTypeToTsType,
-  schemaTypeToSurrealType,
-  isPrimitiveType,
-} from './type-utils';
-
-// Validation utilities
-export {
-  isValidEmail,
-  validateFieldType,
-  validateTypedRecordId,
-  isValidModelName,
-  isValidFieldName,
-  isComparisonOperator,
-  isStringOperator,
-  isArrayOperator,
-  isSpecialOperator,
-  isLogicalOperator,
-  isNotEmpty,
-  validResult,
-  invalidResult,
-} from './validation-utils';
-export type { ValidationResult } from './validation-utils';
-
 // Array utilities
 export {
-  isEmpty,
-  isNotEmpty as isArrayNotEmpty,
-  first,
-  last,
-  unique,
-  uniqueBy,
-  flatten,
-  groupBy,
-  partition,
   chunk,
   findIndex,
+  first,
+  flatten,
+  groupBy,
+  isEmpty,
+  isNotEmpty as isArrayNotEmpty,
+  last,
+  partition,
+  unique,
+  uniqueBy,
   zip,
 } from './array-utils';
-
-// CerialId - Record ID wrapper
-export { CerialId, isCerialId, isRecordIdInput } from './cerial-id';
-export type { RecordIdInput } from './cerial-id';
-
-// CerialUuid - UUID wrapper
-export { CerialUuid, isCerialUuid } from './cerial-uuid';
-export type { CerialUuidInput } from './cerial-uuid';
-
-// CerialDuration - Duration wrapper
-export { CerialDuration, isCerialDuration } from './cerial-duration';
-export type { CerialDurationInput } from './cerial-duration';
-
-// CerialDecimal - Decimal wrapper
-export { CerialDecimal, isCerialDecimal } from './cerial-decimal';
-export type { CerialDecimalInput } from './cerial-decimal';
-
+// CerialAny - Recursive any type
+export type { CerialAny } from './cerial-any';
+export type { CerialBytesInput } from './cerial-bytes';
 // CerialBytes - Bytes wrapper
 export { CerialBytes, isCerialBytes } from './cerial-bytes';
-export type { CerialBytesInput } from './cerial-bytes';
-
+export type { CerialDecimalInput } from './cerial-decimal';
+// CerialDecimal - Decimal wrapper
+export { CerialDecimal, isCerialDecimal } from './cerial-decimal';
+export type { CerialDurationInput } from './cerial-duration';
+// CerialDuration - Duration wrapper
+export { CerialDuration, isCerialDuration } from './cerial-duration';
+export type {
+  CerialGeometryCollectionInput,
+  CerialGeometryInput,
+  CerialGeometryType,
+  CerialLineStringInput,
+  CerialMultiLineStringInput,
+  CerialMultiPointInput,
+  CerialMultiPolygonInput,
+  CerialPointInput,
+  CerialPolygonInput,
+} from './cerial-geometry';
 // CerialGeometry - Geometry class hierarchy
 export {
   CerialGeometry,
-  CerialPoint,
-  CerialLineString,
-  CerialPolygon,
-  CerialMultiPoint,
-  CerialMultiLineString,
-  CerialMultiPolygon,
   CerialGeometryCollection,
+  CerialLineString,
+  CerialMultiLineString,
+  CerialMultiPoint,
+  CerialMultiPolygon,
+  CerialPoint,
+  CerialPolygon,
   isCerialGeometry,
 } from './cerial-geometry';
-export type {
-  CerialGeometryType,
-  CerialGeometryInput,
-  CerialPointInput,
-  CerialLineStringInput,
-  CerialPolygonInput,
-  CerialMultiPointInput,
-  CerialMultiLineStringInput,
-  CerialMultiPolygonInput,
-  CerialGeometryCollectionInput,
-} from './cerial-geometry';
-
-// CerialAny - Recursive any type
-export type { CerialAny } from './cerial-any';
-
+export type { RecordIdInput } from './cerial-id';
+// CerialId - Record ID wrapper
+export { CerialId, isCerialId, isRecordIdInput } from './cerial-id';
 // CerialSet - Branded set type
 export type { CerialSet } from './cerial-set';
-
-// NONE sentinel
-export { NONE, isNone } from './none';
+export type { CerialUuidInput } from './cerial-uuid';
+// CerialUuid - UUID wrapper
+export { CerialUuid, isCerialUuid } from './cerial-uuid';
 export type { CerialNone } from './none';
+// NONE sentinel
+export { isNone, NONE } from './none';
+// String utilities
+export {
+  capitalize,
+  escapeRegex,
+  escapeString,
+  indent,
+  isValidIdentifier,
+  normalizeWhitespace,
+  removeComments,
+  toCamelCase,
+  toPascalCase,
+  toSnakeCase,
+  uncapitalize,
+} from './string-utils';
+// Type utilities
+export {
+  getSchemaFieldType,
+  isArray,
+  isBoolean,
+  isDate,
+  isNullish,
+  isNumber,
+  isObject,
+  isPrimitiveType,
+  isString,
+  schemaTypeToSurrealType,
+  schemaTypeToTsType,
+} from './type-utils';
+export type { ValidationResult } from './validation-utils';
+// Validation utilities
+export {
+  invalidResult,
+  isArrayOperator,
+  isComparisonOperator,
+  isLogicalOperator,
+  isNotEmpty,
+  isSpecialOperator,
+  isStringOperator,
+  isValidEmail,
+  isValidFieldName,
+  isValidModelName,
+  validateFieldType,
+  validateTypedRecordId,
+  validResult,
+} from './validation-utils';

@@ -6,8 +6,8 @@
  */
 
 import { describe, expect, test } from 'bun:test';
-import { generateTupleSelectType } from '../../../src/generators/types/tuples/select-generator';
 import { tupleHasObjectElementsDeep } from '../../../src/generators/types/tuples/interface-generator';
+import { generateTupleSelectType } from '../../../src/generators/types/tuples/select-generator';
 import type { FieldMetadata, TupleElementMetadata, TupleMetadata } from '../../../src/types';
 
 function elem(

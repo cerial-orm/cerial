@@ -1,6 +1,13 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import { CerialId } from '../../../src/utils/cerial-id';
-import { createTestClient, testConfig, TYPED_ID_TABLES, CerialClient, cleanupTables, truncateTables } from '../test-helper';
+import {
+  type CerialClient,
+  cleanupTables,
+  createTestClient,
+  TYPED_ID_TABLES,
+  testConfig,
+  truncateTables,
+} from '../test-helper';
 
 describe('E2E Typed IDs: Edge Cases', () => {
   let client: CerialClient;
@@ -74,7 +81,7 @@ describe('E2E Typed IDs: Edge Cases', () => {
   // ─── $transaction ──────────────────────────────────────────────────────────
 
   test('$transaction with typed ID models', async () => {
-    const [created, found] = await client.$transaction([
+    const [created, _found] = await client.$transaction([
       client.db.IntIdModel.create({ data: { id: 77, name: 'txn-item' } }),
       client.db.IntIdModel.findOne({ where: { id: 77 } }),
     ]);

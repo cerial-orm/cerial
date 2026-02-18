@@ -18,8 +18,8 @@ describe('logical operators', () => {
     expect(result.text).toContain('AND');
     expect(result.text).toContain('age > 18');
     expect(result.text).toContain('name = "John"');
-    expect(result.vars['age_gt_0']).toBe(18);
-    expect(result.vars['name_eq_1']).toBe('John');
+    expect(result.vars.age_gt_0).toBe(18);
+    expect(result.vars.name_eq_1).toBe('John');
   });
 
   test('handleOr combines conditions with OR', () => {

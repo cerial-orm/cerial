@@ -38,19 +38,19 @@ describe('E2E Generated Client', () => {
 
   describe('Model registry', () => {
     test('should contain User model', () => {
-      expect(modelRegistry['User']).toBeDefined();
+      expect(modelRegistry.User).toBeDefined();
     });
 
     test('should contain Profile model', () => {
-      expect(modelRegistry['Profile']).toBeDefined();
+      expect(modelRegistry.Profile).toBeDefined();
     });
 
     test('should contain Post model', () => {
-      expect(modelRegistry['Post']).toBeDefined();
+      expect(modelRegistry.Post).toBeDefined();
     });
 
     test('should contain Tag model', () => {
-      expect(modelRegistry['Tag']).toBeDefined();
+      expect(modelRegistry.Tag).toBeDefined();
     });
   });
 });

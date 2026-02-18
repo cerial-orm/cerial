@@ -5,6 +5,7 @@
  * Run: bun run typecheck
  */
 
+import type { CerialId } from 'cerial';
 import { Test } from 'ts-toolbelt';
 import type {
   Coordinate,
@@ -14,28 +15,23 @@ import type {
   EntryInput,
   EntryWhere,
   Inner,
+  Located,
   Outer,
   OuterInput,
-  Located,
-  LocatedInput,
-  WithOptional,
   TupleBasic,
-  TupleBasicInput,
   TupleBasicCreate,
+  TupleBasicInput,
+  TupleBasicOrderBy,
+  TupleBasicSelect,
   TupleBasicUpdate,
   TupleBasicWhere,
-  TupleBasicSelect,
-  TupleBasicOrderBy,
+  TupleHolder,
+  TupleHolderOrderBy,
+  TupleHolderWhere,
   TupleNested,
   TupleNestedInput,
   TupleObjInTuple,
-  TupleInObj,
-  TupleHolder,
-  TupleHolderInput,
-  TupleHolderWhere,
-  TupleHolderOrderBy,
 } from '../generated';
-import type { CerialId } from 'cerial';
 
 // Helper for extension checks
 type Extends<A, B> = A extends B ? 1 : 0;

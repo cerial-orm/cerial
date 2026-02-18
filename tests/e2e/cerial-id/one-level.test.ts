@@ -6,9 +6,16 @@
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { CerialId, isCerialId } from 'cerial';
 import { RecordId, StringRecordId } from 'surrealdb';
-import { CerialId, isCerialId, type RecordIdInput } from 'cerial';
-import { cleanupTables, createTestClient, truncateTables, CerialClient, testConfig, ROOT_TABLES } from '../test-helper';
+import {
+  type CerialClient,
+  cleanupTables,
+  createTestClient,
+  ROOT_TABLES,
+  testConfig,
+  truncateTables,
+} from '../test-helper';
 
 describe('E2E CerialId - One Level', () => {
   let client: CerialClient;

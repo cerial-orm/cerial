@@ -9,8 +9,8 @@
  * - Validates table names when paired with Relations
  */
 
-import { RecordId, StringRecordId } from 'surrealdb';
 import type { RecordIdValue } from 'surrealdb';
+import { RecordId, StringRecordId } from 'surrealdb';
 
 /**
  * Union type for all acceptable record ID input formats (generic)

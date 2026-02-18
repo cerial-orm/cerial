@@ -3,29 +3,6 @@
  */
 
 export {
-  generateAllWithRelationsInterfaces,
-  generateFieldDefinition,
-  generateFieldType,
-  generateInterface,
-  generateInterfaces,
-  generateObjectCreateInputInterface,
-  generateObjectInputInterface,
-  generateObjectInterface,
-  generateObjectInterfaces,
-  objectHasDefaultOrTimestamp,
-  generateWithRelationsInterface,
-} from './interface-generator';
-
-export {
-  generateFieldWhereType,
-  generateObjectWhereInterface,
-  generateObjectWhereTypes,
-  generateWhereInputInterface,
-  generateWhereInterface,
-  generateWhereTypes,
-} from './where-generator';
-
-export {
   generateAllDerivedTypes,
   generateAllObjectDerivedTypes,
   generateCreateType,
@@ -39,7 +16,42 @@ export {
   generateUnsetType,
   generateUpdateType,
 } from './derived-generator';
-
+export {
+  generateAllEnumTypes,
+  generateAllEnumWhereTypes,
+  generateEnumConst,
+  generateEnumType,
+  generateEnumTypes,
+  generateEnumWhereInterface,
+  getEnumConstName,
+  getEnumTypeName,
+  getEnumWhereName,
+  getLiteralTypeName,
+  getLiteralWhereName,
+} from './enums';
+export {
+  generateAllWithRelationsInterfaces,
+  generateFieldDefinition,
+  generateFieldType,
+  generateInterface,
+  generateInterfaces,
+  generateObjectCreateInputInterface,
+  generateObjectInputInterface,
+  generateObjectInterface,
+  generateObjectInterfaces,
+  generateWithRelationsInterface,
+  objectHasDefaultOrTimestamp,
+} from './interface-generator';
+export {
+  analyzeLiteralTypes,
+  generateAllLiteralTypes,
+  generateAllLiteralWhereTypes,
+  generateLiteralInputType,
+  generateLiteralType,
+  generateLiteralTypes,
+  generateLiteralWhereInterface,
+  literalNeedsInputType,
+} from './literals';
 export {
   generateCountMethod,
   generateCreateMethod,
@@ -52,9 +64,13 @@ export {
   generateMethodSignatures,
   generateUpdateMethod,
 } from './method-generator';
-
 export { generateDbClientInterface, generateModelInterface, generateModelTypes } from './model-generator';
-
+export {
+  getIdCreateInputType,
+  getRecordInputType,
+  getRecordOutputType,
+  isIdOptionalInCreate,
+} from './record-type-helpers';
 export {
   generateAllTupleSelectTypes,
   generateAllTupleUnsetTypes,
@@ -75,35 +91,11 @@ export {
   tupleHasTupleElements,
   tupleHasUnsetableElements,
 } from './tuples';
-
 export {
-  analyzeLiteralTypes,
-  generateAllLiteralTypes,
-  generateAllLiteralWhereTypes,
-  generateLiteralInputType,
-  generateLiteralType,
-  generateLiteralTypes,
-  generateLiteralWhereInterface,
-  literalNeedsInputType,
-} from './literals';
-
-export {
-  generateAllEnumTypes,
-  generateAllEnumWhereTypes,
-  generateEnumConst,
-  generateEnumType,
-  generateEnumTypes,
-  generateEnumWhereInterface,
-  getEnumConstName,
-  getEnumTypeName,
-  getEnumWhereName,
-  getLiteralTypeName,
-  getLiteralWhereName,
-} from './enums';
-
-export {
-  getIdCreateInputType,
-  getRecordInputType,
-  getRecordOutputType,
-  isIdOptionalInCreate,
-} from './record-type-helpers';
+  generateFieldWhereType,
+  generateObjectWhereInterface,
+  generateObjectWhereTypes,
+  generateWhereInputInterface,
+  generateWhereInterface,
+  generateWhereTypes,
+} from './where-generator';

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { isDecimalType, getDecimalFieldType } from '../../../src/parser/types/field-types/decimal-parser';
+import { getDecimalFieldType, isDecimalType } from '../../../src/parser/types/field-types/decimal-parser';
 
 describe('Decimal Parser', () => {
   describe('isDecimalType', () => {

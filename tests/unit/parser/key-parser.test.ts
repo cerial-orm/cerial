@@ -6,8 +6,8 @@
 
 import { describe, expect, test } from 'bun:test';
 import {
-  isKeyDecorator,
   extractKeyName,
+  isKeyDecorator,
   parseKeyDecorator,
 } from '../../../src/parser/types/field-decorators/key-parser';
 

@@ -4,8 +4,8 @@
 
 import type { LiteralMetadata, ModelMetadata, ObjectMetadata, ObjectRegistry, TupleMetadata } from '../../types';
 import { ensureDir, formatCode } from '../shared';
-import { literalNeedsInputType } from '../types/literals';
 import { objectHasDefaultOrTimestamp, tupleHasObjectElementsDeep, tupleHasUnsetableElements } from '../types';
+import { literalNeedsInputType } from '../types/literals';
 import { hasRelations } from './import-helpers';
 import { RETURN_UTILITY_TYPES, SAFE_UNSET_TYPE, SELECT_UTILITY_TYPES } from './utility-types';
 

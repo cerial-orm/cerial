@@ -9,8 +9,8 @@
  * - Input types (UserCreate, UserUpdate, UserWhere) accept RecordIdInput
  */
 
-import { CerialId, type RecordIdInput } from 'cerial';
-import { RecordId, StringRecordId } from 'surrealdb';
+import type { CerialId, RecordIdInput } from 'cerial';
+import type { RecordId, StringRecordId } from 'surrealdb';
 import { Test } from 'ts-toolbelt';
 import type {
   Post,

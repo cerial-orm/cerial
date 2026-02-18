@@ -7,13 +7,12 @@
 
 import { Test } from 'ts-toolbelt';
 import type {
-  UserRequiredCreateInput,
-  ProfileRequiredCreateInput,
   AuthorCreateInput,
-  PostRequiredCreateInput,
-  StudentCreateInput,
-  CourseCreateInput,
   KitchenSinkUserCreateInput,
+  PostRequiredCreateInput,
+  ProfileRequiredCreateInput,
+  StudentCreateInput,
+  UserRequiredCreateInput,
 } from '../generated';
 
 // Helper for extension checks

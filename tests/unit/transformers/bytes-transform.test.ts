@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { transformValue } from '../../../src/query/transformers/data-transformer';
 import { mapFieldValue } from '../../../src/query/mappers/result-mapper';
+import { transformValue } from '../../../src/query/transformers/data-transformer';
 import { CerialBytes } from '../../../src/utils/cerial-bytes';
 
 describe('bytes transformer', () => {

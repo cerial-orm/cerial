@@ -2,9 +2,9 @@
  * Equality operator handler
  */
 
+import type { FieldMetadata } from '../../../types';
 import type { QueryFragment } from '../../compile/types';
 import type { FilterCompileContext } from '../../compile/var-allocator';
-import type { FieldMetadata } from '../../../types';
 
 /** Handle eq (equals) operator */
 export function handleEq(

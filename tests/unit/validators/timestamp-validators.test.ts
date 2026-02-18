@@ -7,9 +7,9 @@
 
 import { describe, expect, test } from 'bun:test';
 import {
-  validateTimestampFields,
   validateObjectFields,
   validateSchema,
+  validateTimestampFields,
 } from '../../../src/cli/validators/schema-validator';
 import type { ASTDecorator, ASTField, ASTModel, ASTObject, SchemaAST } from '../../../src/types';
 

@@ -3,7 +3,7 @@
  * Converts raw text into tokens
  */
 
-import type { Token, TokenType, SourcePosition } from '../types';
+import type { SourcePosition, Token, TokenType } from '../types';
 
 /** Keywords in the schema language */
 const KEYWORDS = new Set(['model', 'object', 'tuple', 'literal', 'enum']);

@@ -8,16 +8,13 @@ import { generateAllDerivedTypes, generateInterfaces, generateModelTypes, genera
 import { generateFindUniqueWhereType } from '../types/method-generator';
 import {
   CERIAL_ANY_IMPORT,
-  CERIAL_SET_IMPORT,
   CERIAL_BYTES_IMPORT,
   CERIAL_DECIMAL_IMPORT,
   CERIAL_DURATION_IMPORT,
   CERIAL_GEOMETRY_IMPORT,
   CERIAL_ID_IMPORT,
+  CERIAL_SET_IMPORT,
   CERIAL_UUID_IMPORT,
-  NONE_IMPORT,
-  TS_TOOLBELT_IMPORT,
-  UNIQUE_TYPES_IMPORT,
   collectTupleObjectNamesDeep,
   collectTupleTupleNamesDeep,
   createRegistryFromModels,
@@ -32,13 +29,16 @@ import {
   getReferencedTupleNames,
   getRelatedModelNames,
   modelHasAnyFields,
-  modelHasSetFields,
   modelHasBytesFields,
   modelHasDecimalFields,
   modelHasDurationFields,
   modelHasGeometryFields,
+  modelHasSetFields,
   modelHasUuidFields,
+  NONE_IMPORT,
   needsCerialNone,
+  TS_TOOLBELT_IMPORT,
+  UNIQUE_TYPES_IMPORT,
 } from './import-helpers';
 
 /** Write model type file to models/ directory */

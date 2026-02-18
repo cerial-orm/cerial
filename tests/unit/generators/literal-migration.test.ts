@@ -19,8 +19,8 @@ import type {
   ObjectFieldMetadata,
   ObjectRegistry,
   ResolvedLiteralVariant,
-  TupleFieldMetadata,
   TupleElementMetadata,
+  TupleFieldMetadata,
   TupleRegistry,
 } from '../../../src/types';
 

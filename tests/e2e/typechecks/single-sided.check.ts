@@ -8,27 +8,22 @@
  * Run: bun run typecheck
  */
 
+import type { CerialId } from 'cerial';
 import { Test } from 'ts-toolbelt';
-import { CerialId } from 'cerial';
 import type {
-  UserSingleSided,
-  ProfileSingleSided,
-  ProfileSingleSidedCreate,
-  ProfileSingleSidedCreateInput,
-  ProfileSingleSidedUpdate,
-  ProfileSingleSidedUpdateInput,
-  ProfileSingleSidedInclude,
   Article,
   Comment,
-  CommentCreate,
   CommentCreateInput,
   CommentUpdateInput,
-  CommentInclude,
+  ProfileSingleSided,
+  ProfileSingleSidedCreateInput,
+  ProfileSingleSidedInclude,
+  ProfileSingleSidedUpdateInput,
   SocialUser,
-  SocialUserCreate,
   SocialUserCreateInput,
-  SocialUserUpdateInput,
   SocialUserInclude,
+  SocialUserUpdateInput,
+  UserSingleSided,
 } from '../generated';
 
 // Helper for extension checks

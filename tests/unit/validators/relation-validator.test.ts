@@ -6,14 +6,13 @@
 
 import { describe, expect, test } from 'bun:test';
 import {
-  validatePKStructure,
-  validateOnDeletePlacement,
   validateCardinalityMatch,
   validateKeyRequired,
-  validateKeyPairing,
+  validateOnDeletePlacement,
+  validatePKStructure,
   validateRecordDecorators,
 } from '../../../src/cli/validators/relation-validator';
-import type { ASTField, ASTModel, SchemaAST, SchemaDecorator, ASTDecorator } from '../../../src/types';
+import type { ASTDecorator, ASTField, ASTModel, SchemaAST, SchemaDecorator } from '../../../src/types';
 
 // Helper to create a minimal ASTField
 function createASTField(overrides: Partial<ASTField> = {}): ASTField {

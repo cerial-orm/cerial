@@ -7,8 +7,8 @@
 
 import { describe, expect, test } from 'bun:test';
 import {
-  isSortDecorator,
   extractSortValue,
+  isSortDecorator,
   parseSortDecorator,
 } from '../../../src/parser/types/field-decorators/sort-parser';
 

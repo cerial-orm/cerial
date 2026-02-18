@@ -2,9 +2,9 @@
  * Schema resolver - resolves schema file locations
  */
 
-import { Glob } from 'bun';
 import { lstatSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { Glob } from 'bun';
 
 /** Default schema search paths */
 const DEFAULT_SEARCH_PATHS = ['schemas', 'schema'];

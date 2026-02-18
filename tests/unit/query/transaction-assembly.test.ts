@@ -6,8 +6,8 @@
  */
 
 import { describe, expect, test } from 'bun:test';
-import { prefixQueryVars, stripTransactionWrapper, isMultiStatementQuery } from '../../../src/query/executor';
 import type { CompiledQuery } from '../../../src/query/compile/types';
+import { isMultiStatementQuery, prefixQueryVars, stripTransactionWrapper } from '../../../src/query/executor';
 
 describe('Transaction Assembly', () => {
   describe('prefixQueryVars', () => {

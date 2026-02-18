@@ -7,8 +7,8 @@
 
 import { describe, expect, test } from 'bun:test';
 import {
-  generateTupleInterface,
   generateTupleInputInterface,
+  generateTupleInterface,
   generateTupleInterfaces,
   generateTupleOutputType,
   tupleHasNamedElements,

@@ -1,20 +1,17 @@
+import type { CerialBytes, CerialBytesInput } from 'cerial';
 import { Test } from 'ts-toolbelt';
 import type {
   BytesBasic,
-  BytesBasicInput,
   BytesBasicCreate,
-  BytesBasicUpdate,
-  BytesBasicWhere,
+  BytesBasicInput,
   BytesBasicOrderBy,
   BytesBasicSelect,
-  BytesInfo,
-  BytesInfoInput,
+  BytesBasicUpdate,
+  BytesBasicWhere,
   BytesInfoInput as BytesInfoCreateInput,
-  BytesInfoWhere,
   BytesPair,
   BytesPairInput,
 } from '../generated';
-import type { CerialBytes, CerialBytesInput } from 'cerial';
 
 type HasKey<T, K extends string> = K extends keyof T ? 1 : 0;
 type Extends<A, B> = A extends B ? 1 : 0;
