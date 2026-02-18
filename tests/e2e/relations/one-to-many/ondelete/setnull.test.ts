@@ -14,7 +14,7 @@ import {
   tables,
   testConfig,
   uniqueId,
-} from '../../test-helper';
+} from '../../../test-helper';
 
 describe('E2E One-to-Many @onDelete(SetNull)', () => {
   let client: CerialClient;

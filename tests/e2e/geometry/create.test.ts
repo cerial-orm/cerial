@@ -6,7 +6,7 @@ import {
   CerialClient,
   tables,
   testConfig,
-} from '../relations/test-helper';
+} from '../test-helper';
 import { CerialGeometry, CerialPoint, CerialLineString, CerialPolygon, isCerialId } from 'cerial';
 import { GeometryPoint } from 'surrealdb';
 

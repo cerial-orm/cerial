@@ -15,7 +15,7 @@ import {
   CerialClient,
   testConfig,
   tables,
-} from '../relations/test-helper';
+} from '../test-helper';
 
 const UNSET_TABLES = tables.unset;
 const NESTED = { title: 'T', mid: { label: 'L', deep: { code: 'C' } } };

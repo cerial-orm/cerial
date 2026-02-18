@@ -13,7 +13,7 @@ import {
   CerialClient,
   tables,
   testConfig,
-} from '../relations/test-helper';
+} from '../test-helper';
 
 describe('E2E Tuples: Where Filtering', () => {
   let client: CerialClient;

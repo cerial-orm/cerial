@@ -20,7 +20,7 @@ import {
   tables,
   testConfig,
   uniqueEmail,
-} from '../test-helper';
+} from '../../test-helper';
 
 describe('E2E Kitchen Sink: Update', () => {
   let client: CerialClient;

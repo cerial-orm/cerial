@@ -15,7 +15,7 @@ import {
   testConfig,
   uniqueEmail,
   uniqueId,
-} from '../../test-helper';
+} from '../../../test-helper';
 
 describe('E2E Many-to-Many Bidirectional: Delete', () => {
   let client: CerialClient;

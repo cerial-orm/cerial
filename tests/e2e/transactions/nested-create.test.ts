@@ -19,7 +19,7 @@ import {
   tables,
   testConfig,
   uniqueEmail,
-} from './test-helper';
+} from '../test-helper';
 
 describe('E2E Transactions: Nested Create', () => {
   let client: CerialClient;

@@ -17,7 +17,7 @@ import {
   CerialClient,
   tables,
   testConfig,
-} from '../relations/test-helper';
+} from '../test-helper';
 import type { DeepOuterTupleInput } from '../generated';
 
 describe('E2E Tuples: Per-Element Update', () => {

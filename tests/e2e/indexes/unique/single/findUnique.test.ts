@@ -7,7 +7,7 @@
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import { CerialId, isCerialId } from 'cerial';
-import { cleanAndPrepare, truncateIndexTables, createTestClient, CerialClient, testConfig } from '../../test-helper';
+import { cleanupTables, truncateTables, INDEX_TABLES, createTestClient, CerialClient, testConfig } from '../../../test-helper';
 
 describe('Single @unique — findUnique', () => {
   let client: CerialClient;
@@ -16,7 +16,7 @@ describe('Single @unique — findUnique', () => {
   beforeAll(async () => {
     client = createTestClient();
     await client.connect(testConfig);
-    await cleanAndPrepare(client);
+    await cleanupTables(client, INDEX_TABLES);
   });
 
   afterAll(async () => {
@@ -24,7 +24,7 @@ describe('Single @unique — findUnique', () => {
   });
 
   beforeEach(async () => {
-    await truncateIndexTables(client);
+    await truncateTables(client, INDEX_TABLES);
 
     const staff = await client.db.Staff.create({
       data: {

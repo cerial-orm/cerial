@@ -19,7 +19,7 @@ import {
   testConfig,
   uniqueEmail,
   uniqueId,
-} from './test-helper';
+} from '../test-helper';
 
 describe('E2E Transactions: Many-to-Many Sync', () => {
   let client: CerialClient;

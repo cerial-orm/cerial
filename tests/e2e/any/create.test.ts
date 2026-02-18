@@ -6,7 +6,7 @@ import {
   CerialClient,
   tables,
   testConfig,
-} from '../relations/test-helper';
+} from '../test-helper';
 import { isCerialId } from 'cerial';
 
 const ANY_TABLES = tables.any;

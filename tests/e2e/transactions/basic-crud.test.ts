@@ -15,7 +15,7 @@ import {
   tables,
   testConfig,
   uniqueEmail,
-} from './test-helper';
+} from '../test-helper';
 
 describe('E2E Transactions: Basic CRUD', () => {
   let client: CerialClient;

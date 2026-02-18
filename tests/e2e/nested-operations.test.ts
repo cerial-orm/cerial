@@ -6,7 +6,7 @@
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import { isCerialId } from 'cerial';
-import { CerialClient, cleanupTables, createTestClient, truncateTables, testConfig } from './test-client';
+import { CerialClient, cleanupTables, createTestClient, truncateTables, testConfig, ROOT_TABLES } from './test-helper';
 
 describe('E2E Nested Operations', () => {
   let client: CerialClient;
@@ -14,7 +14,7 @@ describe('E2E Nested Operations', () => {
   beforeAll(async () => {
     client = createTestClient();
     await client.connect(testConfig);
-    await cleanupTables(client);
+    await cleanupTables(client, ROOT_TABLES);
   });
 
   afterAll(async () => {
@@ -22,7 +22,7 @@ describe('E2E Nested Operations', () => {
   });
 
   beforeEach(async () => {
-    await truncateTables(client);
+    await truncateTables(client, ROOT_TABLES);
   });
 
   describe('nested create (1-1 relation)', () => {

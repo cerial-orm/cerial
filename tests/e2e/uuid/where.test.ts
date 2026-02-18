@@ -6,7 +6,7 @@ import {
   CerialClient,
   tables,
   testConfig,
-} from '../relations/test-helper';
+} from '../test-helper';
 
 const UUID_TABLES = tables.uuid;
 const UUID_A = '00000000-0000-4000-8000-000000000001';

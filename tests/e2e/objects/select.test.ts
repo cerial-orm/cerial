@@ -14,7 +14,7 @@ import {
   CerialClient,
   tables,
   testConfig,
-} from '../relations/test-helper';
+} from '../test-helper';
 
 describe('E2E Objects: Select', () => {
   let client: CerialClient;

@@ -7,7 +7,7 @@
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import { CerialId, isCerialId } from 'cerial';
-import { cleanupTables, createTestClient, truncateTables, CerialClient, testConfig } from './test-client';
+import { cleanupTables, createTestClient, truncateTables, CerialClient, testConfig, ROOT_TABLES } from './test-helper';
 
 describe('E2E CRUD Operations', () => {
   let client: CerialClient;
@@ -15,7 +15,7 @@ describe('E2E CRUD Operations', () => {
   beforeAll(async () => {
     client = createTestClient();
     await client.connect(testConfig);
-    await cleanupTables(client);
+    await cleanupTables(client, ROOT_TABLES);
   });
 
   afterAll(async () => {
@@ -23,7 +23,7 @@ describe('E2E CRUD Operations', () => {
   });
 
   beforeEach(async () => {
-    await truncateTables(client);
+    await truncateTables(client, ROOT_TABLES);
   });
 
   describe('Create', () => {

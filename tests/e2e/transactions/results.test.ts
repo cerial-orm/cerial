@@ -15,7 +15,7 @@ import {
   testConfig,
   uniqueEmail,
   uniqueId,
-} from './test-helper';
+} from '../test-helper';
 import { isCerialId } from 'cerial';
 
 describe('E2E Transactions: Results', () => {

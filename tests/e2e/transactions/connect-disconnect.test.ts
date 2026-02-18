@@ -18,7 +18,7 @@ import {
   testConfig,
   uniqueEmail,
   uniqueId,
-} from './test-helper';
+} from '../test-helper';
 
 describe('E2E Transactions: Connect/Disconnect', () => {
   let client: CerialClient;

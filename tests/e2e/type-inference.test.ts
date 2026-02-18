@@ -8,7 +8,7 @@
 
 import { describe, expect, test } from 'bun:test';
 import { modelRegistry } from './generated';
-import { CerialClient, createTestClient } from './test-client';
+import { CerialClient, createTestClient } from './test-helper';
 
 describe('E2E Generated Client', () => {
   describe('Exports', () => {

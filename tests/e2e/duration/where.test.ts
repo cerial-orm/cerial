@@ -6,7 +6,7 @@ import {
   CerialClient,
   tables,
   testConfig,
-} from '../relations/test-helper';
+} from '../test-helper';
 import { CerialDuration } from 'cerial';
 
 const DURATION_TABLES = tables.duration;

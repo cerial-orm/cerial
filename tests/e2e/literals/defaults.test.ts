@@ -13,7 +13,7 @@ import {
   CerialClient,
   tables,
   testConfig,
-} from '../relations/test-helper';
+} from '../test-helper';
 import { isCerialId } from 'cerial';
 
 describe('E2E Literals: Defaults', () => {

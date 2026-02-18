@@ -18,7 +18,7 @@ import {
   tables,
   testConfig,
   uniqueEmail,
-} from '../../test-helper';
+} from '../../../test-helper';
 import { isCerialId } from 'cerial';
 
 describe('E2E One-to-One Required: Create', () => {

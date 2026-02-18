@@ -6,7 +6,7 @@ import {
   CerialClient,
   tables,
   testConfig,
-} from '../relations/test-helper';
+} from '../test-helper';
 import { CerialDecimal, isCerialId } from 'cerial';
 
 const DECIMAL_TABLES = tables.decimal;

@@ -6,7 +6,7 @@ import {
   CerialClient,
   tables,
   testConfig,
-} from '../relations/test-helper';
+} from '../test-helper';
 import { CerialPoint } from 'cerial';
 
 const GEO_TABLES = tables.geometry;

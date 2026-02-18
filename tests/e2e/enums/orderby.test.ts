@@ -15,7 +15,7 @@ import {
   CerialClient,
   tables,
   testConfig,
-} from '../relations/test-helper';
+} from '../test-helper';
 import { NONE } from 'cerial';
 
 describe('E2E Enums: OrderBy', () => {

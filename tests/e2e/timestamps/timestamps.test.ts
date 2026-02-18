@@ -27,7 +27,7 @@
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import { cleanupTables, createTestClient, truncateTables, CerialClient, testConfig } from '../relations/test-helper';
+import { cleanupTables, createTestClient, truncateTables, CerialClient, testConfig } from '../test-helper';
 
 const TIMESTAMP_TABLES = ['timestamp_test'];
 

@@ -6,7 +6,7 @@ import {
   CerialClient,
   tables,
   testConfig,
-} from '../relations/test-helper';
+} from '../test-helper';
 import { CerialBytes } from 'cerial';
 
 const BYTES_TABLES = tables.bytes;

@@ -16,7 +16,7 @@ import {
   CerialClient,
   tables,
   testConfig,
-} from '../relations/test-helper';
+} from '../test-helper';
 
 describe('E2E Enums: Filtering', () => {
   let client: CerialClient;

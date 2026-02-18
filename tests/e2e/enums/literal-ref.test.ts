@@ -15,7 +15,7 @@ import {
   CerialClient,
   tables,
   testConfig,
-} from '../relations/test-helper';
+} from '../test-helper';
 import { isCerialId } from 'cerial';
 import { RoleEnum } from '../generated';
 

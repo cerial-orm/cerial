@@ -6,7 +6,7 @@ import {
   CerialClient,
   tables,
   testConfig,
-} from '../relations/test-helper';
+} from '../test-helper';
 import { CerialDuration, isCerialId } from 'cerial';
 import { Duration } from 'surrealdb';
 

@@ -14,7 +14,7 @@ import {
   CerialClient,
   tables,
   testConfig,
-} from '../relations/test-helper';
+} from '../test-helper';
 import { RoleEnum, ColorEnum, SeverityEnum } from '../generated';
 
 describe('E2E Enums: Const Object', () => {

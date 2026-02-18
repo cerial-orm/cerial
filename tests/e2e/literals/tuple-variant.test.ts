@@ -14,7 +14,7 @@ import {
   CerialClient,
   tables,
   testConfig,
-} from '../relations/test-helper';
+} from '../test-helper';
 import { NONE, isCerialId } from 'cerial';
 
 describe('E2E Literals: Tuple Variant', () => {

@@ -17,7 +17,7 @@ import {
   tables,
   testConfig,
   uniqueEmail,
-} from '../../test-helper';
+} from '../../../test-helper';
 
 describe('E2E One-to-Many Required: Create', () => {
   let client: CerialClient;

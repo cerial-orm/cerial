@@ -9,7 +9,7 @@
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import { cleanAndPrepare, truncateIndexTables, createTestClient, CerialClient, testConfig } from '../../../test-helper';
+import { cleanupTables, truncateTables, INDEX_TABLES, createTestClient, CerialClient, testConfig } from '../../../../test-helper';
 
 describe('Composite Unique Records: errors', () => {
   let client: CerialClient;
@@ -17,7 +17,7 @@ describe('Composite Unique Records: errors', () => {
   beforeAll(async () => {
     client = createTestClient();
     await client.connect(testConfig);
-    await cleanAndPrepare(client);
+    await cleanupTables(client, INDEX_TABLES);
   });
 
   afterAll(async () => {
@@ -25,7 +25,7 @@ describe('Composite Unique Records: errors', () => {
   });
 
   beforeEach(async () => {
-    await truncateIndexTables(client);
+    await truncateTables(client, INDEX_TABLES);
   });
 
   test('DB rejects duplicate attendeeId + workshopId combination', async () => {

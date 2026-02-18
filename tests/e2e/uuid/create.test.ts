@@ -6,7 +6,7 @@ import {
   CerialClient,
   tables,
   testConfig,
-} from '../relations/test-helper';
+} from '../test-helper';
 import { CerialUuid, isCerialId } from 'cerial';
 import { Uuid } from 'surrealdb';
 

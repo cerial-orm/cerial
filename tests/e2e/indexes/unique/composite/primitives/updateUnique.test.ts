@@ -8,7 +8,7 @@
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import { cleanAndPrepare, truncateIndexTables, createTestClient, CerialClient, testConfig } from '../../../test-helper';
+import { cleanupTables, truncateTables, INDEX_TABLES, createTestClient, CerialClient, testConfig } from '../../../../test-helper';
 
 describe('Composite Unique Primitives: updateUnique', () => {
   let client: CerialClient;
@@ -16,7 +16,7 @@ describe('Composite Unique Primitives: updateUnique', () => {
   beforeAll(async () => {
     client = createTestClient();
     await client.connect(testConfig);
-    await cleanAndPrepare(client);
+    await cleanupTables(client, INDEX_TABLES);
   });
 
   afterAll(async () => {
@@ -24,7 +24,7 @@ describe('Composite Unique Primitives: updateUnique', () => {
   });
 
   beforeEach(async () => {
-    await truncateIndexTables(client);
+    await truncateTables(client, INDEX_TABLES);
   });
 
   test('update record by composite key returns updated record', async () => {

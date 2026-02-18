@@ -18,7 +18,7 @@ import {
   tables,
   testConfig,
   uniqueId,
-} from '../../test-helper';
+} from '../../../test-helper';
 
 describe('E2E One-to-Many Optional: Upsert', () => {
   let client: CerialClient;
