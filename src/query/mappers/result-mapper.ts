@@ -18,6 +18,15 @@ function isRecordId(value: unknown): value is RecordId {
 }
 
 /** Map a single field value from SurrealDB result */
+export function mapFieldValue(value: unknown, fieldType: 'record'): CerialId | null | undefined;
+export function mapFieldValue(value: unknown, fieldType: 'uuid'): CerialUuid | null | undefined;
+export function mapFieldValue(value: unknown, fieldType: 'duration'): CerialDuration | null | undefined;
+export function mapFieldValue(value: unknown, fieldType: 'decimal'): CerialDecimal | null | undefined;
+export function mapFieldValue(value: unknown, fieldType: 'bytes'): CerialBytes | null | undefined;
+export function mapFieldValue(value: unknown, fieldType: 'geometry'): CerialGeometry | null | undefined;
+export function mapFieldValue(value: unknown, fieldType: 'date'): Date | null | undefined;
+export function mapFieldValue(value: unknown, fieldType: 'any'): unknown;
+export function mapFieldValue(value: unknown, fieldType: SchemaFieldType): unknown;
 export function mapFieldValue(value: unknown, fieldType: SchemaFieldType): unknown {
   // Preserve null/undefined distinction: null = stored null (@nullable), undefined = absent (NONE)
   if (value === null || value === undefined) return value;
