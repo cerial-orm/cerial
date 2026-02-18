@@ -112,7 +112,7 @@ Test.checks([
 Test.checks([
   // LiteralWithTuple.payload is WithTuple (output)
   Test.check<LiteralWithTuple['payload'], WithTuple, Test.Pass>(),
-  Test.check<LiteralWithTuple['id'], CerialId, Test.Pass>(),
+  Test.check<LiteralWithTuple['id'], CerialId<string>, Test.Pass>(),
 
   // LiteralWithObjectVariant.payload is WithObject (output)
   Test.check<LiteralWithObjectVariant['payload'], WithObject, Test.Pass>(),

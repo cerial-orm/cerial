@@ -28,7 +28,7 @@ type Extends<A, B> = A extends B ? 1 : 0;
 
 Test.checks([
   // Required fields
-  Test.check<User['id'], CerialId, Test.Pass>(),
+  Test.check<User['id'], CerialId<string>, Test.Pass>(),
   Test.check<User['email'], string, Test.Pass>(),
   Test.check<User['name'], string, Test.Pass>(),
   Test.check<User['isActive'], boolean, Test.Pass>(),
@@ -36,10 +36,10 @@ Test.checks([
   // Optional fields (nullable)
   Test.check<User['age'], number | null | undefined, Test.Pass>(),
   Test.check<User['createdAt'], Date | undefined, Test.Pass>(),
-  Test.check<User['profileId'], CerialId | null | undefined, Test.Pass>(),
+  Test.check<User['profileId'], CerialId<string> | null | undefined, Test.Pass>(),
 
   // Array fields
-  Test.check<User['tagIds'], CerialId[], Test.Pass>(),
+  Test.check<User['tagIds'], CerialId<string>[], Test.Pass>(),
   Test.check<User['nicknames'], string[], Test.Pass>(),
   Test.check<User['scores'], number[], Test.Pass>(),
   Test.check<User['loginDates'], Date[], Test.Pass>(),
@@ -76,8 +76,11 @@ type PartialUpdate = { name?: string; email?: string };
 Test.checks([Test.check<Extends<PartialUpdate, UserUpdate>, 1, Test.Pass>()]);
 
 // Array fields support push/unset operations
-type ArrayOps = { push?: RecordIdInput | RecordIdInput[]; unset?: RecordIdInput | RecordIdInput[] };
-type TagIdsUpdate = Exclude<UserUpdate['tagIds'], RecordIdInput[] | undefined>;
+type ArrayOps = {
+  push?: RecordIdInput<string> | RecordIdInput<string>[];
+  unset?: RecordIdInput<string> | RecordIdInput<string>[];
+};
+type TagIdsUpdate = Exclude<UserUpdate['tagIds'], RecordIdInput<string>[] | undefined>;
 Test.checks([Test.check<Extends<ArrayOps, TagIdsUpdate>, 1, Test.Pass>()]);
 
 // =============================================================================
@@ -174,13 +177,13 @@ Test.checks([Test.check<Extends<NestedInclude, UserInclude>, 1, Test.Pass>()]);
 
 Test.checks([
   // Profile
-  Test.check<Profile['id'], CerialId, Test.Pass>(),
+  Test.check<Profile['id'], CerialId<string>, Test.Pass>(),
   Test.check<Profile['bio'], string | null | undefined, Test.Pass>(),
 
   // Tag
-  Test.check<Tag['id'], CerialId, Test.Pass>(),
+  Test.check<Tag['id'], CerialId<string>, Test.Pass>(),
 
   // Post
-  Test.check<Post['id'], CerialId, Test.Pass>(),
-  Test.check<Post['authorId'], CerialId, Test.Pass>(),
+  Test.check<Post['id'], CerialId<string>, Test.Pass>(),
+  Test.check<Post['authorId'], CerialId<string>, Test.Pass>(),
 ]);

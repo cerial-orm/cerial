@@ -29,16 +29,16 @@ type Extends<A, B> = A extends B ? 1 : 0;
 
 // Author base type
 Test.checks([
-  Test.check<Author['id'], CerialId, Test.Pass>(),
+  Test.check<Author['id'], CerialId<string>, Test.Pass>(),
   Test.check<Author['name'], string, Test.Pass>(),
   Test.check<Author['email'], string, Test.Pass>(),
 ]);
 
 // PostRequired should have authorId (the FK)
 Test.checks([
-  Test.check<PostRequired['id'], CerialId, Test.Pass>(),
+  Test.check<PostRequired['id'], CerialId<string>, Test.Pass>(),
   Test.check<PostRequired['title'], string, Test.Pass>(),
-  Test.check<PostRequired['authorId'], CerialId, Test.Pass>(),
+  Test.check<PostRequired['authorId'], CerialId<string>, Test.Pass>(),
 ]);
 
 // =============================================================================

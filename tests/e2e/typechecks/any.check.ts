@@ -26,7 +26,7 @@ type HasKey<T, K extends string> = K extends keyof T ? 1 : 0;
 Test.checks([
   Test.check<AnyBasic['data'], CerialAny, Test.Pass>(),
   Test.check<AnyBasic['name'], string, Test.Pass>(),
-  Test.check<AnyBasic['id'], CerialId, Test.Pass>(),
+  Test.check<AnyBasic['id'], CerialId<string>, Test.Pass>(),
   Test.check<AnyBasic['items'], CerialAny[], Test.Pass>(),
 ]);
 

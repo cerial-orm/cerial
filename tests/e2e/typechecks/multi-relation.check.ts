@@ -32,13 +32,13 @@ type Extends<A, B> = A extends B ? 1 : 0;
 // =============================================================================
 
 // Writer base type
-Test.checks([Test.check<Writer['id'], CerialId, Test.Pass>(), Test.check<Writer['name'], string, Test.Pass>()]);
+Test.checks([Test.check<Writer['id'], CerialId<string>, Test.Pass>(), Test.check<Writer['name'], string, Test.Pass>()]);
 
 // Document should have authorId (required) and reviewerId (optional)
 Test.checks([
-  Test.check<Document['id'], CerialId, Test.Pass>(),
+  Test.check<Document['id'], CerialId<string>, Test.Pass>(),
   Test.check<Document['title'], string, Test.Pass>(),
-  Test.check<Document['authorId'], CerialId, Test.Pass>(),
+  Test.check<Document['authorId'], CerialId<string>, Test.Pass>(),
   Test.check<Extends<Document['reviewerId'], CerialId | null | undefined>, 1, Test.Pass>(),
 ]);
 
@@ -137,9 +137,9 @@ Test.checks([
 
 // Order should have customerId (required) and assigneeId (optional)
 Test.checks([
-  Test.check<Order['id'], CerialId, Test.Pass>(),
+  Test.check<Order['id'], CerialId<string>, Test.Pass>(),
   Test.check<Order['orderNumber'], string, Test.Pass>(),
-  Test.check<Order['customerId'], CerialId, Test.Pass>(),
+  Test.check<Order['customerId'], CerialId<string>, Test.Pass>(),
   Test.check<Extends<Order['assigneeId'], CerialId | null | undefined>, 1, Test.Pass>(),
 ]);
 

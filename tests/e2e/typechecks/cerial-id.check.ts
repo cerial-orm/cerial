@@ -35,20 +35,20 @@ type Extends<A, B> = A extends B ? 1 : 0;
 
 Test.checks([
   // User model
-  Test.check<User['id'], CerialId, Test.Pass>(),
-  Test.check<User['profileId'], CerialId | null | undefined, Test.Pass>(),
-  Test.check<User['tagIds'], CerialId[], Test.Pass>(),
+  Test.check<User['id'], CerialId<string>, Test.Pass>(),
+  Test.check<User['profileId'], CerialId<string> | null | undefined, Test.Pass>(),
+  Test.check<User['tagIds'], CerialId<string>[], Test.Pass>(),
 
   // Profile model
-  Test.check<Profile['id'], CerialId, Test.Pass>(),
-  Test.check<Profile['userId'], CerialId | null | undefined, Test.Pass>(),
+  Test.check<Profile['id'], CerialId<string>, Test.Pass>(),
+  Test.check<Profile['userId'], CerialId<string> | null | undefined, Test.Pass>(),
 
   // Post model
-  Test.check<Post['id'], CerialId, Test.Pass>(),
-  Test.check<Post['authorId'], CerialId, Test.Pass>(),
+  Test.check<Post['id'], CerialId<string>, Test.Pass>(),
+  Test.check<Post['authorId'], CerialId<string>, Test.Pass>(),
 
   // Tag model
-  Test.check<Tag['id'], CerialId, Test.Pass>(),
+  Test.check<Tag['id'], CerialId<string>, Test.Pass>(),
 ]);
 
 // =============================================================================
@@ -58,16 +58,16 @@ Test.checks([
 Test.checks([
   // UserInput — plain Record @id uses string for id input
   Test.check<UserInput['id'], string | undefined, Test.Pass>(),
-  Test.check<UserInput['profileId'], RecordIdInput | null | undefined, Test.Pass>(),
-  Test.check<UserInput['tagIds'], RecordIdInput[], Test.Pass>(),
+  Test.check<UserInput['profileId'], RecordIdInput<string> | null | undefined, Test.Pass>(),
+  Test.check<UserInput['tagIds'], RecordIdInput<string>[], Test.Pass>(),
 
   // ProfileInput
   Test.check<ProfileInput['id'], string | undefined, Test.Pass>(),
-  Test.check<ProfileInput['userId'], RecordIdInput | null | undefined, Test.Pass>(),
+  Test.check<ProfileInput['userId'], RecordIdInput<string> | null | undefined, Test.Pass>(),
 
   // PostInput
   Test.check<PostInput['id'], string | undefined, Test.Pass>(),
-  Test.check<PostInput['authorId'], RecordIdInput, Test.Pass>(),
+  Test.check<PostInput['authorId'], RecordIdInput<string>, Test.Pass>(),
 ]);
 
 // =============================================================================
@@ -107,7 +107,7 @@ type WhereWithStringId = { id: string };
 Test.checks([Test.check<Extends<WhereWithStringId, UserWhere>, 1, Test.Pass>()]);
 
 // Where should accept CerialId for id
-type WhereWithCerialId = { id: CerialId };
+type WhereWithCerialId = { id: CerialId<string> };
 Test.checks([Test.check<Extends<WhereWithCerialId, UserWhere>, 1, Test.Pass>()]);
 
 // Where should accept operator objects for id
@@ -131,7 +131,7 @@ type FindUniqueStringId = { id: string };
 Test.checks([Test.check<Extends<FindUniqueStringId, UserFindUniqueWhere>, 1, Test.Pass>()]);
 
 // FindUniqueWhere should accept CerialId for id
-type FindUniqueCerialId = { id: CerialId };
+type FindUniqueCerialId = { id: CerialId<string> };
 Test.checks([Test.check<Extends<FindUniqueCerialId, UserFindUniqueWhere>, 1, Test.Pass>()]);
 
 // FindUniqueWhere should accept RecordId for id
@@ -147,7 +147,7 @@ type UpdateWithStringProfileId = { profileId: string };
 Test.checks([Test.check<Extends<UpdateWithStringProfileId, UserUpdate>, 1, Test.Pass>()]);
 
 // Update should accept CerialId for profileId
-type UpdateWithCerialIdProfileId = { profileId: CerialId };
+type UpdateWithCerialIdProfileId = { profileId: CerialId<string> };
 Test.checks([Test.check<Extends<UpdateWithCerialIdProfileId, UserUpdate>, 1, Test.Pass>()]);
 
 // Update array operations should accept RecordIdInput

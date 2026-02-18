@@ -108,7 +108,7 @@ Test.checks([
 
 // TupleBasic output types
 Test.checks([
-  Test.check<TupleBasic['id'], CerialId, Test.Pass>(),
+  Test.check<TupleBasic['id'], CerialId<string>, Test.Pass>(),
   Test.check<TupleBasic['name'], string, Test.Pass>(),
   Test.check<TupleBasic['location'], Coordinate, Test.Pass>(),
   Test.check<TupleBasic['history'], Coordinate[], Test.Pass>(),

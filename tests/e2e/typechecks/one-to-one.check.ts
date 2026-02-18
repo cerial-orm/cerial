@@ -29,15 +29,15 @@ type Extends<A, B> = A extends B ? 1 : 0;
 
 // UserRequired base type should NOT include profile (it's virtual)
 Test.checks([
-  Test.check<UserRequired['id'], CerialId, Test.Pass>(),
+  Test.check<UserRequired['id'], CerialId<string>, Test.Pass>(),
   Test.check<UserRequired['email'], string, Test.Pass>(),
   Test.check<UserRequired['name'], string, Test.Pass>(),
 ]);
 
 // ProfileRequired should have userId (the FK)
 Test.checks([
-  Test.check<ProfileRequired['id'], CerialId, Test.Pass>(),
-  Test.check<ProfileRequired['userId'], CerialId, Test.Pass>(),
+  Test.check<ProfileRequired['id'], CerialId<string>, Test.Pass>(),
+  Test.check<ProfileRequired['userId'], CerialId<string>, Test.Pass>(),
 ]);
 
 // =============================================================================

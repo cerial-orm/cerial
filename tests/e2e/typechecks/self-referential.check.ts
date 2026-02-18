@@ -36,7 +36,7 @@ type Extends<A, B> = A extends B ? 1 : 0;
 
 // Person should have optional mentorId
 Test.checks([
-  Test.check<Person['id'], CerialId, Test.Pass>(),
+  Test.check<Person['id'], CerialId<string>, Test.Pass>(),
   Test.check<Person['name'], string, Test.Pass>(),
   Test.check<Extends<Person['mentorId'], CerialId | null | undefined>, 1, Test.Pass>(),
 ]);
@@ -59,7 +59,7 @@ Test.checks([Test.check<Extends<IncludeMentor, PersonInclude>, 1, Test.Pass>()])
 
 // EmployeeWithReports should have optional managerId
 Test.checks([
-  Test.check<EmployeeWithReports['id'], CerialId, Test.Pass>(),
+  Test.check<EmployeeWithReports['id'], CerialId<string>, Test.Pass>(),
   Test.check<EmployeeWithReports['name'], string, Test.Pass>(),
   Test.check<Extends<EmployeeWithReports['managerId'], CerialId | null | undefined>, 1, Test.Pass>(),
 ]);
@@ -91,7 +91,7 @@ Test.checks([
 
 // Assistant should have optional assistsId
 Test.checks([
-  Test.check<Assistant['id'], CerialId, Test.Pass>(),
+  Test.check<Assistant['id'], CerialId<string>, Test.Pass>(),
   Test.check<Assistant['name'], string, Test.Pass>(),
   Test.check<Extends<Assistant['assistsId'], CerialId | null | undefined>, 1, Test.Pass>(),
 ]);
@@ -114,9 +114,9 @@ Test.checks([
 
 // Friend should have friendIds array
 Test.checks([
-  Test.check<Friend['id'], CerialId, Test.Pass>(),
+  Test.check<Friend['id'], CerialId<string>, Test.Pass>(),
   Test.check<Friend['name'], string, Test.Pass>(),
-  Test.check<Friend['friendIds'], CerialId[], Test.Pass>(),
+  Test.check<Friend['friendIds'], CerialId<string>[], Test.Pass>(),
 ]);
 
 // Friend can connect to friends
@@ -141,7 +141,7 @@ Test.checks([Test.check<Extends<IncludeFriends, FriendInclude>, 1, Test.Pass>()]
 
 // CategoryTree should have optional parentId
 Test.checks([
-  Test.check<CategoryTree['id'], CerialId, Test.Pass>(),
+  Test.check<CategoryTree['id'], CerialId<string>, Test.Pass>(),
   Test.check<CategoryTree['name'], string, Test.Pass>(),
   Test.check<Extends<CategoryTree['parentId'], CerialId | null | undefined>, 1, Test.Pass>(),
 ]);

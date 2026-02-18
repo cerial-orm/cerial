@@ -27,7 +27,7 @@ import type {
 type FullUser = GetUserPayload<undefined, undefined>;
 
 Test.checks([
-  Test.check<FullUser['id'], CerialId, Test.Pass>(),
+  Test.check<FullUser['id'], CerialId<string>, Test.Pass>(),
   Test.check<FullUser['email'], string, Test.Pass>(),
   Test.check<FullUser['name'], string, Test.Pass>(),
   Test.check<FullUser['isActive'], boolean, Test.Pass>(),
@@ -40,7 +40,7 @@ Test.checks([
 // Select specific fields
 type SelectedFields = GetUserPayload<{ id: true; email: true }, undefined>;
 Test.checks([
-  Test.check<SelectedFields['id'], CerialId, Test.Pass>(),
+  Test.check<SelectedFields['id'], CerialId<string>, Test.Pass>(),
   Test.check<SelectedFields['email'], string, Test.Pass>(),
 ]);
 
@@ -51,7 +51,7 @@ Test.checks([Test.check<SingleField['name'], string, Test.Pass>()]);
 // Select array fields
 type ArrayFields = GetUserPayload<{ tagIds: true; nicknames: true }>;
 Test.checks([
-  Test.check<ArrayFields['tagIds'], CerialId[], Test.Pass>(),
+  Test.check<ArrayFields['tagIds'], CerialId<string>[], Test.Pass>(),
   Test.check<ArrayFields['nicknames'], string[], Test.Pass>(),
 ]);
 
@@ -62,13 +62,16 @@ Test.checks([
 // Include single relation
 type WithProfile = GetUserPayload<undefined, { profile: true }>;
 Test.checks([
-  Test.check<WithProfile['id'], CerialId, Test.Pass>(),
+  Test.check<WithProfile['id'], CerialId<string>, Test.Pass>(),
   Test.check<WithProfile['profile'], Profile, Test.Pass>(),
 ]);
 
 // Include array relation
 type WithTags = GetUserPayload<undefined, { tags: true }>;
-Test.checks([Test.check<WithTags['id'], CerialId, Test.Pass>(), Test.check<WithTags['tags'], Tag[], Test.Pass>()]);
+Test.checks([
+  Test.check<WithTags['id'], CerialId<string>, Test.Pass>(),
+  Test.check<WithTags['tags'], Tag[], Test.Pass>(),
+]);
 
 // Include multiple relations
 type WithMultiple = GetUserPayload<undefined, { profile: true; tags: true; posts: true }>;
@@ -84,7 +87,7 @@ Test.checks([
 
 type SelectAndInclude = GetUserPayload<{ id: true; email: true }, { profile: true }>;
 Test.checks([
-  Test.check<SelectAndInclude['id'], CerialId, Test.Pass>(),
+  Test.check<SelectAndInclude['id'], CerialId<string>, Test.Pass>(),
   Test.check<SelectAndInclude['email'], string, Test.Pass>(),
   Test.check<SelectAndInclude['profile'], Profile, Test.Pass>(),
 ]);
@@ -102,7 +105,7 @@ Test.checks([
 type NestedInclude = GetUserPayload<undefined, { profile: { select: { id: true; bio: true } } }>;
 type IncludedProfile = NestedInclude['profile'];
 Test.checks([
-  Test.check<IncludedProfile['id'], CerialId, Test.Pass>(),
+  Test.check<IncludedProfile['id'], CerialId<string>, Test.Pass>(),
   Test.check<IncludedProfile['bio'], string | null | undefined, Test.Pass>(),
 ]);
 
@@ -114,9 +117,9 @@ type FullProfile = GetProfilePayload<undefined>;
 type SelectedProfile = GetProfilePayload<{ id: true }>;
 
 Test.checks([
-  Test.check<FullProfile['id'], CerialId, Test.Pass>(),
+  Test.check<FullProfile['id'], CerialId<string>, Test.Pass>(),
   Test.check<FullProfile['bio'], string | null | undefined, Test.Pass>(),
-  Test.check<SelectedProfile['id'], CerialId, Test.Pass>(),
+  Test.check<SelectedProfile['id'], CerialId<string>, Test.Pass>(),
 ]);
 
 // =============================================================================
@@ -149,7 +152,7 @@ type EmpIncludeCompanyHQ = GetRelObjEmployeePayload<
 >;
 Test.checks([
   // Full employee fields present (no own select)
-  Test.check<EmpIncludeCompanyHQ['id'], CerialId, Test.Pass>(),
+  Test.check<EmpIncludeCompanyHQ['id'], CerialId<string>, Test.Pass>(),
   Test.check<EmpIncludeCompanyHQ['name'], string, Test.Pass>(),
   // Included company has narrowed headquarters
   Test.check<EmpIncludeCompanyHQ['company'], { headquarters: { city: string } }, Test.Pass>(),
@@ -203,7 +206,7 @@ Test.checks([Test.check<CompanyMetaTrue['meta'], CompanyMeta | undefined, Test.P
 // Select all fields from company (no select = full model)
 type CompanyFull = GetRelObjCompanyPayload<undefined>;
 Test.checks([
-  Test.check<CompanyFull['id'], CerialId, Test.Pass>(),
+  Test.check<CompanyFull['id'], CerialId<string>, Test.Pass>(),
   Test.check<CompanyFull['name'], string, Test.Pass>(),
   Test.check<CompanyFull['headquarters'], Address, Test.Pass>(),
   Test.check<CompanyFull['meta'], CompanyMeta | undefined, Test.Pass>(),

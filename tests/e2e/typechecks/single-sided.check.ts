@@ -40,14 +40,14 @@ type Extends<A, B> = A extends B ? 1 : 0;
 
 // ProfileSingleSided should have optional userId (single-sided must be optional)
 Test.checks([
-  Test.check<ProfileSingleSided['id'], CerialId, Test.Pass>(),
+  Test.check<ProfileSingleSided['id'], CerialId<string>, Test.Pass>(),
   // userId should be optional (CerialId | null | undefined)
   Test.check<Extends<ProfileSingleSided['userId'], CerialId | null | undefined>, 1, Test.Pass>(),
 ]);
 
 // UserSingleSided should NOT have profile relation (single-sided)
 Test.checks([
-  Test.check<UserSingleSided['id'], CerialId, Test.Pass>(),
+  Test.check<UserSingleSided['id'], CerialId<string>, Test.Pass>(),
   Test.check<UserSingleSided['name'], string, Test.Pass>(),
 ]);
 
@@ -85,12 +85,15 @@ Test.checks([Test.check<Extends<IncludeUser, ProfileSingleSidedInclude>, 1, Test
 
 // Comment should have optional articleId
 Test.checks([
-  Test.check<Comment['id'], CerialId, Test.Pass>(),
+  Test.check<Comment['id'], CerialId<string>, Test.Pass>(),
   Test.check<Extends<Comment['articleId'], CerialId | null | undefined>, 1, Test.Pass>(),
 ]);
 
 // Article should NOT have comments relation
-Test.checks([Test.check<Article['id'], CerialId, Test.Pass>(), Test.check<Article['title'], string, Test.Pass>()]);
+Test.checks([
+  Test.check<Article['id'], CerialId<string>, Test.Pass>(),
+  Test.check<Article['title'], string, Test.Pass>(),
+]);
 
 // Comment can be created without article
 type CommentWithoutArticle = { text: string };
@@ -110,9 +113,9 @@ Test.checks([Test.check<Extends<CommentDisconnect, CommentUpdateInput>, 1, Test.
 
 // SocialUser should have followingIds array but NO followers
 Test.checks([
-  Test.check<SocialUser['id'], CerialId, Test.Pass>(),
+  Test.check<SocialUser['id'], CerialId<string>, Test.Pass>(),
   Test.check<SocialUser['name'], string, Test.Pass>(),
-  Test.check<SocialUser['followingIds'], CerialId[], Test.Pass>(),
+  Test.check<SocialUser['followingIds'], CerialId<string>[], Test.Pass>(),
 ]);
 
 // SocialUser can be created with following

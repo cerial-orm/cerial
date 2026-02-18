@@ -118,7 +118,7 @@ Test.checks([
 // =============================================================================
 
 Test.checks([
-  Test.check<ObjDecUser['id'], CerialId, Test.Pass>(),
+  Test.check<ObjDecUser['id'], CerialId<string>, Test.Pass>(),
   Test.check<ObjDecUser['name'], string, Test.Pass>(),
   Test.check<ObjDecUser['contact'], ContactInfo, Test.Pass>(),
   Test.check<ObjDecUser['location'], LocationInfo, Test.Pass>(),
@@ -183,7 +183,7 @@ Test.checks([
 // =============================================================================
 
 // By id
-Test.checks([Test.check<Extends<{ id: RecordIdInput }, ObjDecUserFindUniqueWhere>, 1, Test.Pass>()]);
+Test.checks([Test.check<Extends<{ id: RecordIdInput<string> }, ObjDecUserFindUniqueWhere>, 1, Test.Pass>()]);
 
 // By location.zip (nested syntax)
 Test.checks([Test.check<Extends<{ location: { zip: string } }, ObjDecUserFindUniqueWhere>, 1, Test.Pass>()]);
@@ -206,7 +206,7 @@ Test.checks([
   // The id variant omits location and altLocation
   Test.check<
     Extends<
-      { id: RecordIdInput } & Omit<ObjDecUserWhere, 'id' | 'location' | 'altLocation'>,
+      { id: RecordIdInput<string> } & Omit<ObjDecUserWhere, 'id' | 'location' | 'altLocation'>,
       ObjDecUserFindUniqueWhere
     >,
     1,

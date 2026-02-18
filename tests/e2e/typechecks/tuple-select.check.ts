@@ -89,7 +89,7 @@ Test.checks([
 
 // No select → full type
 Test.checks([
-  Test.check<GetTupleObjInTuplePayload['id'], CerialId, Test.Pass>(),
+  Test.check<GetTupleObjInTuplePayload['id'], CerialId<string>, Test.Pass>(),
   Test.check<GetTupleObjInTuplePayload['place'], Located, Test.Pass>(),
 ]);
 

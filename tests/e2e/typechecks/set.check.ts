@@ -16,7 +16,7 @@ type HasKey<T, K extends string> = K extends keyof T ? 1 : 0;
 // =============================================================================
 
 Test.checks([
-  Test.check<SetBasic['id'], CerialId, Test.Pass>(),
+  Test.check<SetBasic['id'], CerialId<string>, Test.Pass>(),
   Test.check<SetBasic['name'], string, Test.Pass>(),
   Test.check<SetBasic['tags'], CerialSet<string>, Test.Pass>(),
   Test.check<SetBasic['numbers'], CerialSet<number>, Test.Pass>(),
