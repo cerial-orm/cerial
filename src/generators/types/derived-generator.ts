@@ -14,6 +14,7 @@ import type {
   ObjectFieldMetadata,
   ObjectRegistry,
   TupleFieldMetadata,
+  TupleRegistry,
 } from '../../types';
 import { schemaTypeToTsType } from '../../utils/type-utils';
 import { getLiteralTypeName } from './enums';
@@ -26,8 +27,8 @@ import { generateTupleArrayForm, tupleHasUnsetableElements } from './tuples';
 /** Whether to use ts-toolbelt utilities in generated types */
 const USE_TS_TOOLBELT = true;
 
-function getInputType(field: FieldMetadata): string {
-  if (field.type === 'record') return getRecordInputType(field);
+function getInputType(field: FieldMetadata, tupleRegistry?: TupleRegistry, objectRegistry?: ObjectRegistry): string {
+  if (field.type === 'record') return getRecordInputType(field, tupleRegistry, objectRegistry);
   if (field.type === 'uuid') return 'CerialUuidInput';
   if (field.type === 'duration') return 'CerialDurationInput';
   if (field.type === 'decimal') return 'CerialDecimalInput';
@@ -272,7 +273,12 @@ ${objectFieldDefs.join('\n')}
 }
 
 /** Map schema type to TypeScript array element type for input types */
-function getArrayElementType(schemaType: string, field?: FieldMetadata): string {
+function getArrayElementType(
+  schemaType: string,
+  field?: FieldMetadata,
+  tupleRegistry?: TupleRegistry,
+  objectRegistry?: ObjectRegistry,
+): string {
   if (schemaType === 'literal' && field?.literalInfo) {
     const lit = field.literalInfo;
     if (lit.isEnum) return getLiteralTypeName(lit);
@@ -281,7 +287,7 @@ function getArrayElementType(schemaType: string, field?: FieldMetadata): string 
     return lit.literalName;
   }
 
-  if (schemaType === 'record' && field) return getRecordInputType(field);
+  if (schemaType === 'record' && field) return getRecordInputType(field, tupleRegistry, objectRegistry);
 
   const typeMap: Record<string, string> = {
     string: 'string',
@@ -513,7 +519,11 @@ ${relationFieldTypes}
 }
 
 /** Generate Update type (all fields partial except id) with array operations for all array types */
-export function generateUpdateType(model: ModelMetadata): string {
+export function generateUpdateType(
+  model: ModelMetadata,
+  tupleRegistry?: TupleRegistry,
+  objectRegistry?: ObjectRegistry,
+): string {
   const idField = model.fields.find((f) => f.isId);
   const arrayFields = model.fields.filter(
     (f) => f.isArray && f.type !== 'relation' && f.type !== 'object' && f.type !== 'tuple',
@@ -588,7 +598,7 @@ export function generateUpdateType(model: ModelMetadata): string {
 
   // Array primitive fields (skip @readonly — already excluded from update)
   for (const f of arrayFields.filter((af) => !af.isReadonly)) {
-    const elementType = getArrayElementType(f.type, f);
+    const elementType = getArrayElementType(f.type, f, tupleRegistry, objectRegistry);
     specialFieldTypes.push(`  ${f.name}?: ${elementType}[] | {
     push?: ${elementType} | ${elementType}[];
     unset?: ${elementType} | ${elementType}[];
@@ -694,7 +704,7 @@ export function generateUpdateType(model: ModelMetadata): string {
 
   // Nullable/optional primitive fields — need | null or | CerialNone in update
   for (const f of nullableOrOptionalPrimitives.filter((pf) => !pf.isReadonly)) {
-    const tsType = getInputType(f);
+    const tsType = getInputType(f, tupleRegistry, objectRegistry);
     if (f.isNullable && !f.isRequired) {
       // Optional + nullable: can set value, null, or NONE
       specialFieldTypes.push(`  ${f.name}?: ${tsType} | null | CerialNone;`);
@@ -1137,12 +1147,13 @@ export function generateDerivedTypes(
   model: ModelMetadata,
   registry?: ModelRegistry,
   objectRegistry?: ObjectRegistry,
+  tupleRegistry?: TupleRegistry,
 ): string {
   const types = [
     generateCreateType(model, objectRegistry),
     generateNestedCreateType(model),
     generateCreateInputType(model),
-    generateUpdateType(model),
+    generateUpdateType(model, tupleRegistry, objectRegistry),
     generateUpdateInputType(model),
     generateUnsetType(model),
     generateSelectType(model),
@@ -1174,8 +1185,9 @@ export function generateAllDerivedTypes(
   models: ModelMetadata[],
   registry?: ModelRegistry,
   objectRegistry?: ObjectRegistry,
+  tupleRegistry?: TupleRegistry,
 ): string {
-  return models.map((model) => generateDerivedTypes(model, registry, objectRegistry)).join('\n\n');
+  return models.map((model) => generateDerivedTypes(model, registry, objectRegistry, tupleRegistry)).join('\n\n');
 }
 
 // Object-specific derived types have been moved to ./objects/derived-generator.ts

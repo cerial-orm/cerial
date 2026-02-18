@@ -9,7 +9,7 @@ import { getGeometryInputType } from './geometry-helpers';
 
 /** Get typed RecordIdInput for a Record field based on recordIdTypes */
 function getRecordWhereInputType(field: FieldMetadata): string {
-  if (!field.recordIdTypes?.length) return 'RecordIdInput';
+  if (!field.recordIdTypes?.length) return 'RecordIdInput<string>';
   const tsTypes = field.recordIdTypes.map((t) => {
     if (t === 'int' || t === 'number' || t === 'float') return 'number';
     if (t === 'string' || t === 'uuid') return 'string';

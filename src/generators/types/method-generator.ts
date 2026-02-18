@@ -3,7 +3,14 @@
  */
 
 import { getUniqueFields } from '../../parser/model-metadata';
-import type { CompositeIndex, FieldMetadata, ModelMetadata, ObjectMetadata, ObjectRegistry } from '../../types';
+import type {
+  CompositeIndex,
+  FieldMetadata,
+  ModelMetadata,
+  ObjectMetadata,
+  ObjectRegistry,
+  TupleRegistry,
+} from '../../types';
 import { schemaTypeToTsType } from '../../utils/type-utils';
 import { getRecordInputType } from './record-type-helpers';
 
@@ -61,8 +68,12 @@ export function generateFindManyMethod(model: ModelMetadata): string {
 }
 
 /** Get input type for a field (RecordIdInput for ID/Record, object type for objects, regular type for primitives) */
-function getFieldInputType(field: FieldMetadata): string {
-  if (field.isId || field.type === 'record') return getRecordInputType(field);
+function getFieldInputType(
+  field: FieldMetadata,
+  tupleRegistry?: TupleRegistry,
+  objectRegistry?: ObjectRegistry,
+): string {
+  if (field.isId || field.type === 'record') return getRecordInputType(field, tupleRegistry, objectRegistry);
   if (field.type === 'object' && field.objectInfo) return field.objectInfo.objectName;
 
   return schemaTypeToTsType(field.type as Parameters<typeof schemaTypeToTsType>[0]);
@@ -79,6 +90,7 @@ function buildCompositeKeyType(
   directive: CompositeIndex,
   model: ModelMetadata,
   objectRegistry?: ObjectRegistry,
+  tupleRegistry?: TupleRegistry,
 ): string {
   // Build a nested object structure for the fields
   interface TypeNode {
@@ -96,7 +108,7 @@ function buildCompositeKeyType(
       const field = model.fields.find((f) => f.name === fieldRef);
       if (!field) continue;
 
-      const tsType = getFieldInputType(field);
+      const tsType = getFieldInputType(field, tupleRegistry, objectRegistry);
       const nullSuffix = !field.isRequired && !field.isId ? ' | null' : '';
       root[fieldRef] = { type: `${tsType}${nullSuffix}` };
     } else {
@@ -290,7 +302,11 @@ function buildNestedTypeFromPath(path: string[], tsType: string): string {
 }
 
 /** Generate FindUniqueWhere type for a model */
-export function generateFindUniqueWhereType(model: ModelMetadata, objectRegistry?: ObjectRegistry): string {
+export function generateFindUniqueWhereType(
+  model: ModelMetadata,
+  objectRegistry?: ObjectRegistry,
+  tupleRegistry?: TupleRegistry,
+): string {
   // Get ID field
   const idField = model.fields.find((f) => f.isId);
 
@@ -329,7 +345,7 @@ export function generateFindUniqueWhereType(model: ModelMetadata, objectRegistry
     const optionalFields = otherUniqueFields
       .map((fieldName) => {
         const field = model.fields.find((f) => f.name === fieldName);
-        const tsType = getFieldInputType(field!);
+        const tsType = getFieldInputType(field!, tupleRegistry, objectRegistry);
 
         return `${fieldName}?: ${tsType}`;
       })
@@ -342,20 +358,20 @@ export function generateFindUniqueWhereType(model: ModelMetadata, objectRegistry
   if (idField) {
     const optionalUnique = buildOptionalUniqueFields(idField.name);
     variants.push(
-      `({ ${idField.name}: ${getRecordInputType(idField)} }${optionalUnique} & Omit<${model.name}Where, ${omitStr}>)`,
+      `({ ${idField.name}: ${getRecordInputType(idField, tupleRegistry, objectRegistry)} }${optionalUnique} & Omit<${model.name}Where, ${omitStr}>)`,
     );
   }
 
   // Single-field unique variants: { email: string } & { id?: RecordIdInput } & Omit<UserWhere, ...>
   for (const field of uniqueFields) {
-    const tsType = getFieldInputType(field);
+    const tsType = getFieldInputType(field, tupleRegistry, objectRegistry);
     const optionalUnique = buildOptionalUniqueFields(field.name);
     variants.push(`({ ${field.name}: ${tsType} }${optionalUnique} & Omit<${model.name}Where, ${omitStr}>)`);
   }
 
   // Composite unique variants: { compositeKeyName: { field1: Type1, field2: Type2 } } & Omit<...>
   for (const directive of compositeUniques) {
-    const keyType = buildCompositeKeyType(directive, model, objectRegistry);
+    const keyType = buildCompositeKeyType(directive, model, objectRegistry, tupleRegistry);
     const jsDoc = buildCompositeJsDoc(directive, model);
     variants.push(`(${jsDoc}\n  { ${directive.name}: ${keyType} } & Omit<${model.name}Where, ${omitStr}>)`);
   }

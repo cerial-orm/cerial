@@ -7,7 +7,7 @@
  * - CreateInput interface (AddressCreateInput): Fields with @default/@now become optional (only when needed)
  */
 
-import type { FieldMetadata, ObjectMetadata, ObjectRegistry } from '../../../types';
+import type { FieldMetadata, ObjectMetadata, ObjectRegistry, TupleRegistry } from '../../../types';
 import { schemaTypeToTsType } from '../../../utils/type-utils';
 import { getLiteralTypeName } from '../enums';
 import { getGeometryInputType, getGeometryOutputType } from '../geometry-helpers';
@@ -19,8 +19,8 @@ import { getRecordInputType, getRecordOutputType } from '../record-type-helpers'
  * For Record fields, uses CerialId instead of string
  * For Object fields, uses the object's interface name
  */
-function getOutputType(field: FieldMetadata): string {
-  if (field.type === 'record') return getRecordOutputType(field);
+function getOutputType(field: FieldMetadata, tupleRegistry?: TupleRegistry, objectRegistry?: ObjectRegistry): string {
+  if (field.type === 'record') return getRecordOutputType(field, tupleRegistry, objectRegistry);
   if (field.type === 'uuid') return 'CerialUuid';
   if (field.type === 'duration') return 'CerialDuration';
   if (field.type === 'decimal') return 'CerialDecimal';
@@ -41,8 +41,8 @@ function getOutputType(field: FieldMetadata): string {
  * For Tuple fields, uses the tuple's Input type name
  * For Literal fields, uses the literal type name or Input variant
  */
-function getInputType(field: FieldMetadata): string {
-  if (field.type === 'record') return getRecordInputType(field);
+function getInputType(field: FieldMetadata, tupleRegistry?: TupleRegistry, objectRegistry?: ObjectRegistry): string {
+  if (field.type === 'record') return getRecordInputType(field, tupleRegistry, objectRegistry);
   if (field.type === 'uuid') return 'CerialUuidInput';
   if (field.type === 'duration') return 'CerialDurationInput';
   if (field.type === 'decimal') return 'CerialDecimalInput';
@@ -66,8 +66,12 @@ function getInputType(field: FieldMetadata): string {
  * Get the TypeScript create input type for a field
  * Same as getInputType but uses CreateInput for nested objects that have @default/@now fields
  */
-function getCreateInputType(field: FieldMetadata, objectRegistry?: ObjectRegistry): string {
-  if (field.type === 'record') return getRecordInputType(field);
+function getCreateInputType(
+  field: FieldMetadata,
+  objectRegistry?: ObjectRegistry,
+  tupleRegistry?: TupleRegistry,
+): string {
+  if (field.type === 'record') return getRecordInputType(field, tupleRegistry, objectRegistry);
   if (field.type === 'uuid') return 'CerialUuidInput';
   if (field.type === 'duration') return 'CerialDurationInput';
   if (field.type === 'decimal') return 'CerialDecimalInput';
@@ -168,10 +172,14 @@ function wrapFlexible(type: string, field: FieldMetadata, isArray?: boolean): st
 }
 
 /** Generate output interface for an object definition */
-export function generateObjectInterface(object: ObjectMetadata): string {
+export function generateObjectInterface(
+  object: ObjectMetadata,
+  tupleRegistry?: TupleRegistry,
+  objectRegistry?: ObjectRegistry,
+): string {
   const fields = object.fields
     .map((f) => {
-      const tsType = getOutputType(f);
+      const tsType = getOutputType(f, tupleRegistry, objectRegistry);
       if (f.isArray) return `  ${f.name}: ${wrapFlexible(tsType, f, true)};`;
       const optional = f.isRequired ? '' : '?';
       // @nullable adds | null (distinct from optional/NONE)
@@ -188,14 +196,18 @@ ${fields}
 }
 
 /** Generate input interface for an object definition */
-export function generateObjectInputInterface(object: ObjectMetadata, objectRegistry?: ObjectRegistry): string {
+export function generateObjectInputInterface(
+  object: ObjectMetadata,
+  objectRegistry?: ObjectRegistry,
+  tupleRegistry?: TupleRegistry,
+): string {
   // If object has no Record fields (direct or nested), input is identical to output
   const hasRecords = objectHasRecordFields(object, objectRegistry);
 
   const fields = object.fields
     .map((f) => {
       // Always use getInputType for input interfaces — tuple input types differ from output types
-      const tsType = getInputType(f);
+      const tsType = getInputType(f, tupleRegistry, objectRegistry);
       if (f.isArray) return `  ${f.name}: ${wrapFlexible(tsType, f, true)};`;
       const optional = f.isRequired ? '' : '?';
       // @nullable adds | null (distinct from optional/NONE)
@@ -216,7 +228,11 @@ ${fields}
  * Only generated when the object has @default or @now fields (direct or nested)
  * Fields with @default/@now become optional, matching model Create type behavior
  */
-export function generateObjectCreateInputInterface(object: ObjectMetadata, objectRegistry?: ObjectRegistry): string {
+export function generateObjectCreateInputInterface(
+  object: ObjectMetadata,
+  objectRegistry?: ObjectRegistry,
+  tupleRegistry?: TupleRegistry,
+): string {
   const hasRecords = objectHasRecordFields(object, objectRegistry);
 
   const fields = object.fields
@@ -225,7 +241,9 @@ export function generateObjectCreateInputInterface(object: ObjectMetadata, objec
       return f.timestampDecorator !== 'now';
     })
     .map((f) => {
-      const tsType = hasRecords ? getCreateInputType(f, objectRegistry) : getCreateInputType(f, objectRegistry);
+      const tsType = hasRecords
+        ? getCreateInputType(f, objectRegistry, tupleRegistry)
+        : getCreateInputType(f, objectRegistry, tupleRegistry);
 
       if (f.isArray) {
         // Array fields are optional in create (default to [])
@@ -254,16 +272,20 @@ ${fields}
 }
 
 /** Generate interfaces for all objects (output, input, and optionally createInput) */
-export function generateObjectInterfaces(objects: ObjectMetadata[], objectRegistry?: ObjectRegistry): string {
+export function generateObjectInterfaces(
+  objects: ObjectMetadata[],
+  objectRegistry?: ObjectRegistry,
+  tupleRegistry?: TupleRegistry,
+): string {
   if (!objects.length) return '';
 
   const interfaces: string[] = [];
   for (const object of objects) {
-    interfaces.push(generateObjectInterface(object));
-    interfaces.push(generateObjectInputInterface(object, objectRegistry));
+    interfaces.push(generateObjectInterface(object, tupleRegistry, objectRegistry));
+    interfaces.push(generateObjectInputInterface(object, objectRegistry, tupleRegistry));
     // Only generate CreateInput when the object has @default or timestamp fields
     if (objectHasDefaultOrTimestamp(object, objectRegistry)) {
-      interfaces.push(generateObjectCreateInputInterface(object, objectRegistry));
+      interfaces.push(generateObjectCreateInputInterface(object, objectRegistry, tupleRegistry));
     }
   }
 

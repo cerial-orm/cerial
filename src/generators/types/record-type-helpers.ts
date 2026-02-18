@@ -111,7 +111,7 @@ export function getRecordOutputType(
   tupleRegistry?: TupleRegistry,
   objectRegistry?: ObjectRegistry,
 ): string {
-  if (!field.recordIdTypes?.length) return 'CerialId';
+  if (!field.recordIdTypes?.length) return 'CerialId<string>';
 
   const tsType = recordIdTypesToTsType(field.recordIdTypes, tupleRegistry, objectRegistry);
 
@@ -127,7 +127,7 @@ export function getRecordInputType(
   tupleRegistry?: TupleRegistry,
   objectRegistry?: ObjectRegistry,
 ): string {
-  if (!field.recordIdTypes?.length) return 'RecordIdInput';
+  if (!field.recordIdTypes?.length) return 'RecordIdInput<string>';
 
   const tsType = recordIdTypesToTsType(field.recordIdTypes, tupleRegistry, objectRegistry);
 

@@ -74,7 +74,7 @@ export async function writeObjectTypes(
   const cerialAnyImport = hasAnyFields ? `${CERIAL_ANY_IMPORT}\n` : '';
 
   // Generate all type content for this object
-  const interfaceCode = generateObjectInterfaces([object], objectRegistry);
+  const interfaceCode = generateObjectInterfaces([object], objectRegistry, tupleRegistry);
   const whereCode = generateObjectWhereInterface(object, objectRegistry);
   const derivedCode = generateObjectDerivedTypes(object);
 

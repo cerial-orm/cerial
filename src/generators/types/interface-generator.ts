@@ -8,7 +8,7 @@
  * Object interface generation lives in ./objects/interface-generator.ts
  */
 
-import type { FieldMetadata, ModelMetadata, ModelRegistry } from '../../types';
+import type { FieldMetadata, ModelMetadata, ModelRegistry, ObjectRegistry, TupleRegistry } from '../../types';
 import { schemaTypeToTsType } from '../../utils/type-utils';
 import { getLiteralTypeName } from './enums';
 import { getGeometryInputType, getGeometryOutputType } from './geometry-helpers';
@@ -25,8 +25,8 @@ import {
  * For Record fields, uses CerialId instead of string
  * For Object fields, uses the object's interface name
  */
-function getOutputType(field: FieldMetadata): string {
-  if (field.type === 'record') return getRecordOutputType(field);
+function getOutputType(field: FieldMetadata, tupleRegistry?: TupleRegistry, objectRegistry?: ObjectRegistry): string {
+  if (field.type === 'record') return getRecordOutputType(field, tupleRegistry, objectRegistry);
   if (field.type === 'uuid') return 'CerialUuid';
   if (field.type === 'duration') return 'CerialDuration';
   if (field.type === 'decimal') return 'CerialDecimal';
@@ -45,8 +45,8 @@ function getOutputType(field: FieldMetadata): string {
  * For Record fields, uses RecordIdInput instead of CerialId
  * For Object fields, uses the object's Input interface name
  */
-function getInputType(field: FieldMetadata): string {
-  if (field.type === 'record') return getRecordInputType(field);
+function getInputType(field: FieldMetadata, tupleRegistry?: TupleRegistry, objectRegistry?: ObjectRegistry): string {
+  if (field.type === 'record') return getRecordInputType(field, tupleRegistry, objectRegistry);
   if (field.type === 'uuid') return 'CerialUuidInput';
   if (field.type === 'duration') return 'CerialDurationInput';
   if (field.type === 'decimal') return 'CerialDecimalInput';
@@ -75,8 +75,12 @@ function getInputType(field: FieldMetadata): string {
  * - `field String @nullable` → `field: string | null` (null only — required but can be null)
  * - `field String? @nullable` → `field?: string | null` (both NONE and null)
  */
-export function generateFieldType(field: FieldMetadata): string {
-  const tsType = getOutputType(field);
+export function generateFieldType(
+  field: FieldMetadata,
+  tupleRegistry?: TupleRegistry,
+  objectRegistry?: ObjectRegistry,
+): string {
+  const tsType = getOutputType(field, tupleRegistry, objectRegistry);
 
   // Handle array types (String[] -> string[], Int[] -> number[], Date[] -> Date[], Record[] -> CerialId[])
   if (field.isArray) {
@@ -102,19 +106,23 @@ function wrapFlexible(type: string, field: FieldMetadata): string {
 }
 
 /** Generate a single field definition (output type) */
-export function generateFieldDefinition(field: FieldMetadata): string {
+export function generateFieldDefinition(
+  field: FieldMetadata,
+  tupleRegistry?: TupleRegistry,
+  objectRegistry?: ObjectRegistry,
+): string {
   // Skip Relation fields (virtual, not stored in database)
   if (field.type === 'relation') {
     return '';
   }
 
   if (field.isId) {
-    return `${field.name}: ${getRecordOutputType(field)};`;
+    return `${field.name}: ${getRecordOutputType(field, tupleRegistry, objectRegistry)};`;
   }
 
   // Handle array types - always required (defaults to empty array)
   if (field.isArray) {
-    const tsType = getOutputType(field);
+    const tsType = getOutputType(field, tupleRegistry, objectRegistry);
     if (field.isFlexible) {
       return `${field.name}: (${tsType} & Record<string, any>)[];`;
     }
@@ -124,7 +132,7 @@ export function generateFieldDefinition(field: FieldMetadata): string {
   }
 
   const optional = field.isRequired ? '' : '?';
-  const type = generateFieldType(field);
+  const type = generateFieldType(field, tupleRegistry, objectRegistry);
   const wrappedType = wrapFlexible(type, field);
 
   return `${field.name}${optional}: ${wrappedType};`;
@@ -134,8 +142,12 @@ export function generateFieldDefinition(field: FieldMetadata): string {
  * Generate TypeScript input type for a field
  * Uses RecordIdInput for Record fields
  */
-export function generateInputFieldType(field: FieldMetadata): string {
-  const tsType = getInputType(field);
+export function generateInputFieldType(
+  field: FieldMetadata,
+  tupleRegistry?: TupleRegistry,
+  objectRegistry?: ObjectRegistry,
+): string {
+  const tsType = getInputType(field, tupleRegistry, objectRegistry);
 
   // Handle array types
   if (field.isArray) {
@@ -152,14 +164,18 @@ export function generateInputFieldType(field: FieldMetadata): string {
 }
 
 /** Generate a single input field definition */
-export function generateInputFieldDefinition(field: FieldMetadata): string {
+export function generateInputFieldDefinition(
+  field: FieldMetadata,
+  tupleRegistry?: TupleRegistry,
+  objectRegistry?: ObjectRegistry,
+): string {
   // Skip Relation fields (virtual, not stored in database)
   if (field.type === 'relation') {
     return '';
   }
 
   if (field.isId) {
-    const inputType = getIdCreateInputType(field);
+    const inputType = getIdCreateInputType(field, tupleRegistry, objectRegistry);
     const optional = isIdOptionalInCreate(field.recordIdTypes) ? '?' : '';
 
     return `${field.name}${optional}: ${inputType};`;
@@ -167,7 +183,7 @@ export function generateInputFieldDefinition(field: FieldMetadata): string {
 
   // Handle array types - always required (defaults to empty array)
   if (field.isArray) {
-    const tsType = getInputType(field);
+    const tsType = getInputType(field, tupleRegistry, objectRegistry);
     if (field.isFlexible) {
       return `${field.name}: (${tsType} & Record<string, any>)[];`;
     }
@@ -176,16 +192,20 @@ export function generateInputFieldDefinition(field: FieldMetadata): string {
   }
 
   const optional = field.isRequired ? '' : '?';
-  const type = generateInputFieldType(field);
+  const type = generateInputFieldType(field, tupleRegistry, objectRegistry);
   const wrappedType = wrapFlexible(type, field);
 
   return `${field.name}${optional}: ${wrappedType};`;
 }
 
 /** Generate model interface (base interface without relations - output type) */
-export function generateInterface(model: ModelMetadata): string {
+export function generateInterface(
+  model: ModelMetadata,
+  tupleRegistry?: TupleRegistry,
+  objectRegistry?: ObjectRegistry,
+): string {
   const fields = model.fields
-    .map((f) => generateFieldDefinition(f))
+    .map((f) => generateFieldDefinition(f, tupleRegistry, objectRegistry))
     .filter((line) => line !== '') // Filter out empty lines from Relation fields
     .map((line) => `  ${line}`)
     .join('\n');
@@ -196,9 +216,13 @@ ${fields}
 }
 
 /** Generate model input interface (for create/update - accepts RecordIdInput) */
-export function generateInputInterface(model: ModelMetadata): string {
+export function generateInputInterface(
+  model: ModelMetadata,
+  tupleRegistry?: TupleRegistry,
+  objectRegistry?: ObjectRegistry,
+): string {
   const fields = model.fields
-    .map((f) => generateInputFieldDefinition(f))
+    .map((f) => generateInputFieldDefinition(f, tupleRegistry, objectRegistry))
     .filter((line) => line !== '') // Filter out empty lines from Relation fields
     .map((line) => `  ${line}`)
     .join('\n');
@@ -209,11 +233,15 @@ ${fields}
 }
 
 /** Generate interfaces for all models (both output and input) */
-export function generateInterfaces(models: ModelMetadata[]): string {
+export function generateInterfaces(
+  models: ModelMetadata[],
+  tupleRegistry?: TupleRegistry,
+  objectRegistry?: ObjectRegistry,
+): string {
   const interfaces: string[] = [];
   for (const model of models) {
-    interfaces.push(generateInterface(model));
-    interfaces.push(generateInputInterface(model));
+    interfaces.push(generateInterface(model, tupleRegistry, objectRegistry));
+    interfaces.push(generateInputInterface(model, tupleRegistry, objectRegistry));
   }
 
   return interfaces.join('\n\n');

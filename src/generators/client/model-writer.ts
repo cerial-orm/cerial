@@ -122,10 +122,10 @@ export async function writeModelTypes(
   const anyImport = modelHasAnyFields(model) ? `\n${CERIAL_ANY_IMPORT}` : '';
   const setImport = modelHasSetFields(model) ? `\n${CERIAL_SET_IMPORT}` : '';
 
-  const interfaceCode = generateInterfaces([model]);
+  const interfaceCode = generateInterfaces([model], tupleRegistry, objectRegistry);
   const whereCode = generateWhereTypes([model]);
-  const findUniqueWhereCode = generateFindUniqueWhereType(model, objectRegistry);
-  const derivedCode = generateAllDerivedTypes([model], registry, objectRegistry);
+  const findUniqueWhereCode = generateFindUniqueWhereType(model, objectRegistry, tupleRegistry);
+  const derivedCode = generateAllDerivedTypes([model], registry, objectRegistry, tupleRegistry);
   const modelCode = generateModelTypes([model]);
 
   const content = `/**
