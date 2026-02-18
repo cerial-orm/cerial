@@ -517,8 +517,8 @@ describe('E2E Upsert Operations', () => {
 
       expect(result).toBeDefined();
       expect(result!.name).toBe('Updated With Profile');
-      expect((result as any).profile).toBeDefined();
-      expect((result as any).profile.bio).toBe('Bio');
+      expect(result!.profile).toBeDefined();
+      expect(result!.profile!.bio).toBe('Bio');
     });
   });
 
@@ -538,10 +538,9 @@ describe('E2E Upsert Operations', () => {
       });
 
       expect(Array.isArray(result)).toBe(true);
-      const arr = result as any[];
-      expect(arr.length).toBe(2);
-      expect(arr[0].name).toBe('Bulk Updated');
-      expect(arr[1].name).toBe('Bulk Updated');
+      expect(result.length).toBe(2);
+      expect(result[0]!.name).toBe('Bulk Updated');
+      expect(result[1]!.name).toBe('Bulk Updated');
     });
 
     test('creates new record for non-unique where with no matches', async () => {
@@ -552,9 +551,8 @@ describe('E2E Upsert Operations', () => {
       });
 
       expect(Array.isArray(result)).toBe(true);
-      const arr = result as any[];
-      expect(arr.length).toBe(1);
-      expect(arr[0].name).toBe('Fresh');
+      expect(result.length).toBe(1);
+      expect(result[0]!.name).toBe('Fresh');
     });
 
     test('non-unique where with return before returns array', async () => {
@@ -568,10 +566,9 @@ describe('E2E Upsert Operations', () => {
       });
 
       expect(Array.isArray(result)).toBe(true);
-      const arr = result as any[];
       // Should have the pre-update state
-      if (arr.length) {
-        expect(arr[0].name).toBe('Alice');
+      if (result.length) {
+        expect(result[0]!.name).toBe('Alice');
       }
     });
 
@@ -600,10 +597,9 @@ describe('E2E Upsert Operations', () => {
       });
 
       expect(Array.isArray(result)).toBe(true);
-      const arr = result as any[];
-      expect(arr.length).toBeGreaterThan(0);
-      expect(arr[0].name).toBe('Updated');
-      expect(arr[0].email).toBeUndefined();
+      expect(result.length).toBeGreaterThan(0);
+      expect(result[0]!.name).toBe('Updated');
+      expect((result[0] as any).email).toBeUndefined();
     });
   });
 
@@ -627,9 +623,9 @@ describe('E2E Upsert Operations', () => {
       ]);
 
       expect(user1).toBeDefined();
-      expect((user1 as any).name).toBe('Txn User 1');
+      expect(user1!.name).toBe('Txn User 1');
       expect(user2).toBeDefined();
-      expect((user2 as any).name).toBe('Txn User 2');
+      expect(user2!.name).toBe('Txn User 2');
     });
 
     test('works with $transaction mixing upsert and other operations', async () => {

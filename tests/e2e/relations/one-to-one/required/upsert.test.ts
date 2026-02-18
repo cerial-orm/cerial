@@ -302,8 +302,8 @@ describe('E2E One-to-One Required: Upsert', () => {
 
       expect(result).toBeDefined();
       expect(result!.name).toBe('Updated');
-      expect((result as any).profile).toBeDefined();
-      expect((result as any).profile.bio).toBe('Profile Bio');
+      expect(result!.profile).toBeDefined();
+      expect(result!.profile.bio).toBe('Profile Bio');
     });
 
     test('includes user in profile upsert result', async () => {
@@ -324,8 +324,8 @@ describe('E2E One-to-One Required: Upsert', () => {
 
       expect(result).toBeDefined();
       expect(result!.bio).toBe('Updated');
-      expect((result as any).user).toBeDefined();
-      expect((result as any).user.name).toBe('Include User');
+      expect(result!.user).toBeDefined();
+      expect(result!.user.name).toBe('Include User');
     });
   });
 

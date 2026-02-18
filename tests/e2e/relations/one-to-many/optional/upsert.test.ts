@@ -317,9 +317,9 @@ describe('E2E One-to-Many Optional: Upsert', () => {
 
       expect(result).toBeDefined();
       expect(result!.name).toBe('Updated Publisher');
-      expect(Array.isArray((result as any).books)).toBe(true);
-      expect((result as any).books.length).toBe(1);
-      expect((result as any).books[0].title).toBe('Book 1');
+      expect(Array.isArray(result!.books)).toBe(true);
+      expect(result!.books.length).toBe(1);
+      expect(result!.books[0]!.title).toBe('Book 1');
     });
 
     test('includes publisher in book upsert result', async () => {
@@ -339,8 +339,8 @@ describe('E2E One-to-Many Optional: Upsert', () => {
 
       expect(result).toBeDefined();
       expect(result!.title).toBe('Updated');
-      expect((result as any).publisher).toBeDefined();
-      expect((result as any).publisher.name).toBe('Include Pub');
+      expect(result!.publisher).toBeDefined();
+      expect(result!.publisher!.name).toBe('Include Pub');
     });
 
     test('includes empty books array on publisher create path', async () => {
@@ -353,8 +353,8 @@ describe('E2E One-to-Many Optional: Upsert', () => {
 
       expect(result).toBeDefined();
       expect(result!.name).toBe('New Publisher');
-      expect(Array.isArray((result as any).books)).toBe(true);
-      expect((result as any).books.length).toBe(0);
+      expect(Array.isArray(result!.books)).toBe(true);
+      expect(result!.books.length).toBe(0);
     });
   });
 });

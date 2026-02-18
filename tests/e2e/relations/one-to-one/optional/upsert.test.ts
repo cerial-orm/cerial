@@ -330,8 +330,8 @@ describe('E2E One-to-One Optional: Upsert', () => {
 
       expect(result).toBeDefined();
       expect(result!.name).toBe('Updated With Profile');
-      expect((result as any).profile).toBeDefined();
-      expect((result as any).profile.bio).toBe('Bio');
+      expect(result!.profile).toBeDefined();
+      expect(result!.profile!.bio).toBe('Bio');
     });
 
     test('includes null profile on create path', async () => {
@@ -345,7 +345,7 @@ describe('E2E One-to-One Optional: Upsert', () => {
 
       expect(result).toBeDefined();
       expect(result!.name).toBe('New User');
-      expect((result as any).profile).toBeNull();
+      expect(result!.profile).toBeNull();
     });
 
     test('includes related user in profile upsert result', async () => {
@@ -366,8 +366,8 @@ describe('E2E One-to-One Optional: Upsert', () => {
 
       expect(result).toBeDefined();
       expect(result!.bio).toBe('Updated');
-      expect((result as any).user).toBeDefined();
-      expect((result as any).user.name).toBe('Include User');
+      expect(result!.user).toBeDefined();
+      expect(result!.user!.name).toBe('Include User');
     });
   });
 });

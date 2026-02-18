@@ -313,9 +313,9 @@ describe('E2E Many-to-Many Bidirectional: Upsert', () => {
 
       expect(result).toBeDefined();
       expect(result!.name).toBe('Updated');
-      expect(Array.isArray((result as any).courses)).toBe(true);
-      expect((result as any).courses.length).toBe(1);
-      expect((result as any).courses[0].name).toBe('Included Course');
+      expect(Array.isArray(result!.courses)).toBe(true);
+      expect(result!.courses.length).toBe(1);
+      expect(result!.courses[0]!.name).toBe('Included Course');
     });
 
     test('includes students in course upsert result', async () => {
@@ -341,9 +341,9 @@ describe('E2E Many-to-Many Bidirectional: Upsert', () => {
 
       expect(result).toBeDefined();
       expect(result!.name).toBe('Updated Course');
-      expect(Array.isArray((result as any).students)).toBe(true);
-      expect((result as any).students.length).toBe(1);
-      expect((result as any).students[0].name).toBe('Included Student');
+      expect(Array.isArray(result!.students)).toBe(true);
+      expect(result!.students.length).toBe(1);
+      expect(result!.students[0]!.name).toBe('Included Student');
     });
 
     test('includes empty courses array on student create path', async () => {
@@ -357,8 +357,8 @@ describe('E2E Many-to-Many Bidirectional: Upsert', () => {
 
       expect(result).toBeDefined();
       expect(result!.name).toBe('New Student');
-      expect(Array.isArray((result as any).courses)).toBe(true);
-      expect((result as any).courses.length).toBe(0);
+      expect(Array.isArray(result!.courses)).toBe(true);
+      expect(result!.courses.length).toBe(0);
     });
   });
 });
