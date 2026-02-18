@@ -48,7 +48,8 @@ export const NONE_IMPORT = `import type { CerialNone } from 'cerial';`;
 
 /** DeleteUnique, UpdateUnique, Upsert, select utility types, SafeUnset, and CerialQueryPromise import for model files */
 export const UNIQUE_TYPES_IMPORT = `import type { DeleteUniqueReturn, DeleteUniqueReturnType, UpdateUniqueReturn, UpdateUniqueReturnType, UpsertReturn, UpsertReturnType, UpsertArrayReturnType, ResolveFieldSelect, SafeUnset } from '..';
-import type { CerialQueryPromise } from '..';`;
+import type { CerialQueryPromise } from '..';
+import type { ModelMetadata } from 'cerial';`;
 
 // ─── Import Resolvers ─────────────────────────────────────────────────────────
 

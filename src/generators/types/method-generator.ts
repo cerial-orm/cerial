@@ -277,7 +277,10 @@ function collectUniqueSubfieldPaths(
     } else if (field.isUnique) {
       const tsType = schemaTypeToTsType(field.type as Parameters<typeof schemaTypeToTsType>[0]);
       const nullSuffix = !field.isRequired ? ' | null' : '';
-      results.push({ path: [...prefix, field.name], tsType: `${tsType}${nullSuffix}` });
+      results.push({
+        path: [...prefix, field.name],
+        tsType: `${tsType}${nullSuffix}`,
+      });
     }
   }
 
@@ -615,11 +618,22 @@ export function generateExistsMethod(model: ModelMetadata): string {
   return `exists(where?: ${model.name}Where): CerialQueryPromise<boolean>;`;
 }
 
+/** Generate findAll method signature (alias for findMany with no options) */
+export function generateFindAllMethod(model: ModelMetadata): string {
+  return `findAll(): CerialQueryPromise<${model.name}[]>;`;
+}
+
+/** Generate introspection method signatures (getMetadata, getName, getTableName) */
+export function generateIntrospectionMethods(): string {
+  return ['getMetadata(): ModelMetadata;', 'getName(): string;', 'getTableName(): string;'].join('\n\n  ');
+}
+
 /** Generate all method signatures for a model */
 export function generateMethodSignatures(model: ModelMetadata): string[] {
   return [
     generateFindOneMethod(model),
     generateFindManyMethod(model),
+    generateFindAllMethod(model),
     generateFindUniqueMethod(model),
     generateCreateMethod(model),
     generateUpdateMethod(model),
@@ -629,5 +643,6 @@ export function generateMethodSignatures(model: ModelMetadata): string[] {
     generateDeleteUniqueMethod(model),
     generateCountMethod(model),
     generateExistsMethod(model),
+    generateIntrospectionMethods(),
   ];
 }
