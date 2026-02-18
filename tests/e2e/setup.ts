@@ -40,6 +40,14 @@ export async function setup(): Promise<void> {
   }
 
   console.log(`[E2E Setup] Generated ${result.files.length} files`);
+
+  console.log('[E2E Setup] Running global database cleanup and migration...');
+  const { CerialClient, testConfig, globalCleanup } = await import('./test-helper');
+  const client = new CerialClient();
+  await client.connect(testConfig);
+  await globalCleanup(client);
+  await client.disconnect();
+  console.log('[E2E Setup] Database ready');
 }
 
 /**
@@ -59,15 +67,4 @@ export const paths = {
   e2eDir: E2E_DIR,
   schemaDir: SCHEMA_DIR,
   outputDir: OUTPUT_DIR,
-};
-
-// Default test database config
-export const testConfig = {
-  url: 'http://127.0.0.1:8000',
-  namespace: 'test',
-  database: 'e2e',
-  auth: {
-    username: 'root',
-    password: 'root',
-  },
 };

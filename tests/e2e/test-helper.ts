@@ -39,13 +39,11 @@ export function createTestClient(): CerialClient {
 }
 
 /**
- * Clean up specific tables by name.
- * Uses REMOVE TABLE IF EXISTS to completely drop tables, then runs migrations
- * to recreate them with the correct schema. This is necessary because
- * DEFINE FIELD OVERWRITE doesn't remove fields that were previously defined
- * but are no longer in the schema.
+ * Clean up specific tables by deleting all rows.
+ * Schema setup is handled globally by preload via globalCleanup().
+ * This is a lightweight per-file cleanup — preserves schema, just clears data.
  *
- * Heavy operation — use in `beforeAll` for test suite setup.
+ * Use in `beforeAll` for test suite setup.
  * Requires explicit table list to prevent accidental data loss.
  */
 export async function cleanupTables(client: CerialClient, tables: string[]): Promise<void> {
@@ -53,6 +51,39 @@ export async function cleanupTables(client: CerialClient, tables: string[]): Pro
   if (!surreal) return;
 
   for (const table of tables) {
+    try {
+      await surreal.query(`DELETE FROM ${table};`);
+    } catch {
+      // Ignore errors - table may not exist
+    }
+  }
+}
+
+/**
+ * Global cleanup — removes ALL known tables, resets migration state, and re-runs migrations.
+ * Called once during preload to set up the database schema before any test files run.
+ *
+ * Collects all table names from the `tables` registry, ROOT_TABLES, INDEX_TABLES,
+ * and TYPED_ID_TABLES, deduplicates them, removes them all via REMOVE TABLE IF EXISTS,
+ * then calls resetMigrationState() + migrate() to recreate everything.
+ */
+export async function globalCleanup(client: CerialClient): Promise<void> {
+  const surreal = client.getSurreal();
+  if (!surreal) return;
+
+  const allTables = new Set<string>();
+
+  for (const tableList of Object.values(tables)) {
+    for (const table of tableList) {
+      allTables.add(table);
+    }
+  }
+
+  for (const table of ROOT_TABLES) allTables.add(table);
+  for (const table of INDEX_TABLES) allTables.add(table);
+  for (const table of TYPED_ID_TABLES) allTables.add(table);
+
+  for (const table of allTables) {
     try {
       await surreal.query(`REMOVE TABLE IF EXISTS ${table};`);
     } catch {

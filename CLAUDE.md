@@ -296,6 +296,14 @@ has_children: true # only on section index pages
   - One file per sub-topic (e.g., `primitive.test.ts`, `object.test.ts`, `deep-nested.test.ts`, `upsert.test.ts`, `validation.test.ts`)
   - Shared helpers (client setup, cleanup) imported from a common helper file
   - Each file should be independently runnable with `bun test tests/e2e/<feature>/<file> --preload ./tests/e2e/preload.ts`
+- **E2E test global setup pattern (CRITICAL)** — The E2E preload (`tests/e2e/preload.ts`) runs `globalCleanup()` ONCE before any test file executes. This removes all tables and runs `migrate()` to establish the correct schema. Individual test files must NOT redo this work:
+  - `beforeAll`: Call `cleanupTables(client, YOUR_TABLES)` — this only does `DELETE FROM` (data cleanup, no schema changes)
+  - `beforeEach`: Call `truncateTables(client, YOUR_TABLES)` — same lightweight `DELETE FROM` per-test
+  - **Do NOT** call `REMOVE TABLE`, `resetMigrationState()`, or `client.migrate()` inside test files — these run once globally in preload
+  - **Do NOT** manually execute `DEFINE TABLE` or schema DDL in test files — `migrate()` handles this
+  - **Why**: Multiple test files running `REMOVE TABLE + migrate(134 models)` concurrently causes race conditions (tables removed while other tests query them, 134 competing DEFINE statements)
+- **E2E concurrency** — Always run E2E tests with `--concurrency 5` via `bun run test:e2e`. Running without concurrency limit works but `--concurrency 5` provides more predictable timing. Never rely on test file execution order
+- **New tables in E2E tests** — When adding a new schema file to `tests/e2e/schemas/`, add its table names to the `tables` registry in `tests/e2e/test-helper.ts`. This ensures `globalCleanup()` covers them. Also update the relevant `*_TABLES` constant if the tables belong to root, index, or typed-id groups
 
 ### SurrealDB Reserved Keywords
 
