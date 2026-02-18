@@ -215,6 +215,7 @@ Sandbox testing is **allowed in plan mode** — it is investigative research to 
 - **Be persistent** - Context window compacts automatically, continue from where you left off
 - **Ask before changing core features** - When a fix requires modifying type generators, query builders, or validators, ask the user first
 - **Validate test expectations before modifying source** - If a test fails, understand why before changing the test vs. the source
+- **Always run `bun run format` before committing** - Run Biome formatter on new/changed files before every git commit. This ensures consistent formatting and catches lint issues early. Never commit unformatted code
 
 ### Documentation Sync (CRITICAL)
 
