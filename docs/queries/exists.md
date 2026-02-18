@@ -1,7 +1,7 @@
 ---
 title: exists
 parent: Queries
-nav_order: 11
+nav_order: 12
 ---
 
 # exists

@@ -17,20 +17,21 @@ const user = await client.db.User.findOne({ where: { id: '123' } });
 
 ## Methods Overview
 
-| Method                          | Description                | Returns                |
-| ------------------------------- | -------------------------- | ---------------------- |
-| [`findOne`](find-one)           | Find first matching record | `T \| null`            |
-| [`findMany`](find-many)         | Find all matching records  | `T[]`                  |
-| [`findUnique`](find-unique)     | Find by unique field       | `T \| null`            |
-| [`create`](create)              | Create a new record        | `T`                    |
-| [`upsert`](upsert)              | Create or update a record  | `T \| null \| T[]`     |
-| [`updateMany`](update-many)     | Update matching records    | `T[]`                  |
-| [`updateUnique`](update-unique) | Update by unique field     | `T \| null \| boolean` |
-| [`deleteMany`](delete-many)     | Delete matching records    | `number`               |
-| [`deleteUnique`](delete-unique) | Delete by unique field     | `boolean \| T \| null` |
-| [`count`](count)                | Count matching records     | `number`               |
-| [`exists`](exists)              | Check if any match         | `boolean`              |
-| [`$transaction`](transaction)   | Atomic batch execution     | Typed tuple            |
+| Method                          | Description                           | Returns                |
+| ------------------------------- | ------------------------------------- | ---------------------- |
+| [`findOne`](find-one)           | Find first matching record            | `T \| null`            |
+| [`findMany`](find-many)         | Find all matching records             | `T[]`                  |
+| [`findAll`](find-all)           | Find all records (alias for findMany) | `T[]`                  |
+| [`findUnique`](find-unique)     | Find by unique field                  | `T \| null`            |
+| [`create`](create)              | Create a new record                   | `T`                    |
+| [`upsert`](upsert)              | Create or update a record             | `T \| null \| T[]`     |
+| [`updateMany`](update-many)     | Update matching records               | `T[]`                  |
+| [`updateUnique`](update-unique) | Update by unique field                | `T \| null \| boolean` |
+| [`deleteMany`](delete-many)     | Delete matching records               | `number`               |
+| [`deleteUnique`](delete-unique) | Delete by unique field                | `boolean \| T \| null` |
+| [`count`](count)                | Count matching records                | `number`               |
+| [`exists`](exists)              | Check if any match                    | `boolean`              |
+| [`$transaction`](transaction)   | Atomic batch execution                | Typed tuple            |
 
 ## Dynamic Return Types
 
@@ -100,3 +101,23 @@ console.log(user.id.toString()); // 'user:123'
 ```
 
 When passing IDs as input, you can use any of the accepted `RecordIdInput` types: a plain string, a `CerialId`, a `RecordId`, or a `StringRecordId`.
+
+## Introspection Methods
+
+Every model exposes metadata methods for runtime inspection:
+
+| Method           | Returns         | Description                                          |
+| ---------------- | --------------- | ---------------------------------------------------- |
+| `getMetadata()`  | `ModelMetadata` | Full model metadata (name, table, fields, relations) |
+| `getName()`      | `string`        | Model name (e.g., `'User'`)                          |
+| `getTableName()` | `string`        | SurrealDB table name (e.g., `'user'`)                |
+
+```typescript
+const metadata = client.db.User.getMetadata();
+console.log(metadata.name); // 'User'
+console.log(metadata.tableName); // 'user'
+console.log(metadata.fields); // Array of field definitions
+
+const name = client.db.User.getName(); // 'User'
+const table = client.db.User.getTableName(); // 'user'
+```

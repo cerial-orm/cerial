@@ -44,22 +44,24 @@ cerial/
 │   ├── unit/                        # Unit tests (no DB)
 │   ├── integration/                 # Integration tests (DB required)
 │   ├── e2e/                         # End-to-end tests
-│   │   ├── schemas/                 #   37 .cerial test schemas
+│   │   ├── schemas/                 #   49 .cerial test schemas (organized by feature)
+│   │   │   ├── core/               #     Core model schemas
+│   │   │   ├── relations/          #     Relation schemas
+│   │   │   ├── decorators/         #     Decorator schemas
+│   │   │   ├── complex-types/      #     Object/tuple/literal/enum schemas
+│   │   │   ├── data-types/         #     UUID/number/duration/etc schemas
+│   │   │   └── features/           #     Typed-ids, unset, etc schemas
 │   │   ├── generated/               #   Generated client (gitignored)
-│   │   ├── relations/               #   91 relation test files
-│   │   ├── objects/                 #   9 object test files
-│   │   ├── timestamps/              #   Timestamp decorator E2E tests
-│   │   ├── typechecks/              #   36 compile-time type checks
-│   │   ├── uuid/                    #   5 UUID E2E test files
-│   │   ├── number/                  #   4 Number E2E test files
-│   │   ├── duration/                #   5 Duration E2E test files
-│   │   ├── decimal/                 #   5 Decimal E2E test files
-│   │   ├── bytes/                   #   4 Bytes E2E test files
-│   │   ├── geometry/                #   3 Geometry E2E test files
-│   │   ├── any/                     #   4 Any E2E test files
-│   │   ├── set/                     #   3 Set E2E test files
+│   │   ├── core/                    #   Core CRUD, select, include, findAll, introspection tests (8 files)
+│   │   ├── relations/               #   Relation E2E tests (89 files)
+│   │   ├── decorators/              #   Decorator E2E tests (43 files)
+│   │   ├── complex-types/           #   Object/tuple/literal/enum tests (46 files)
+│   │   ├── data-types/              #   UUID/number/duration/decimal/bytes/geometry/any tests (37 files)
+│   │   ├── features/                #   Typed-ids, unset, transactions, on-before-query, pagination tests (35 files)
+│   │   ├── negative/                #   Cross-cutting error/validation tests (5 files)
+│   │   ├── typechecks/              #   36 compile-time type checks (6 subdirectories)
 │   │   ├── preload.ts               #   Generates client before tests
-│   │   └── test-client.ts           #   Test helpers
+│   │   └── test-helper.ts           #   Shared test infrastructure
 │   └── generators/                  # Generator tests
 ├── docs/                            # GitHub Pages documentation (Jekyll + just-the-docs)
 ├── package.json
@@ -112,27 +114,18 @@ Schema (.cerial files) → Parser (AST) → Generators → TypeScript Client
 
 **Test locations:**
 
-| Location                  | Type                      | Count    |
-| ------------------------- | ------------------------- | -------- |
-| `tests/unit/`             | Unit tests (no DB)        | ~1693    |
-| `tests/integration/`      | Integration (DB required) | ~49      |
-| `tests/e2e/relations/`    | Relation E2E tests        | 95 files |
-| `tests/e2e/objects/`      | Object E2E tests          | 9 files  |
-| `tests/e2e/tuples/`       | Tuple E2E tests           | 10 files |
-| `tests/e2e/transactions/` | Transaction E2E tests     | 10 files |
-| `tests/e2e/timestamps/`   | Timestamp E2E tests       | 1 file   |
-| `tests/e2e/enums/`        | Enum E2E tests            | 8 files  |
-| `tests/e2e/literals/`     | Literal E2E tests         | 15 files |
-| `tests/e2e/unset/`        | Unset parameter E2E tests | 8 files  |
-| `tests/e2e/uuid/`         | UUID E2E tests            | 5 files  |
-| `tests/e2e/number/`       | Number E2E tests          | 4 files  |
-| `tests/e2e/duration/`     | Duration E2E tests        | 5 files  |
-| `tests/e2e/decimal/`      | Decimal E2E tests         | 5 files  |
-| `tests/e2e/bytes/`        | Bytes E2E tests           | 4 files  |
-| `tests/e2e/geometry/`     | Geometry E2E tests        | 3 files  |
-| `tests/e2e/any/`          | Any E2E tests             | 4 files  |
-| `tests/e2e/set/`          | Set E2E tests             | 3 files  |
-| `tests/e2e/typechecks/`   | Compile-time type checks  | 36 files |
+| Location                   | Type                                                          | Count    |
+| -------------------------- | ------------------------------------------------------------- | -------- |
+| `tests/unit/`              | Unit tests (no DB)                                            | ~1693    |
+| `tests/integration/`       | Integration (DB required)                                     | ~49      |
+| `tests/e2e/core/`          | Core CRUD, select, include, findAll, introspection            | 8 files  |
+| `tests/e2e/relations/`     | Relation E2E tests                                            | 89 files |
+| `tests/e2e/decorators/`    | Decorator E2E tests                                           | 43 files |
+| `tests/e2e/complex-types/` | Object/tuple/literal/enum tests                               | 46 files |
+| `tests/e2e/data-types/`    | Data type tests (uuid, number, duration, decimal, bytes, etc) | 37 files |
+| `tests/e2e/features/`      | Typed-ids, unset, transactions, on-before-query, pagination   | 35 files |
+| `tests/e2e/negative/`      | Cross-cutting error/validation tests                          | 5 files  |
+| `tests/e2e/typechecks/`    | Compile-time type checks                                      | 36 files |
 
 **Sandbox testing** = Running raw SurrealQL against the live SurrealDB instance to verify DB-level behavior before implementing in code. Use this when you need to confirm how SurrealDB handles a specific query pattern (e.g., `$this` reconstruction, dot-notation merge, SELECT expression shapes). When the user says "sandbox test", execute queries via curl:
 
@@ -384,6 +377,8 @@ Do NOT use SurrealDB reserved keywords as field names, model names, or object na
 - **Geometry** = Geospatial data with 7 subtypes via decorators (`@point`, `@line`, `@polygon`, `@multipoint`, `@multiline`, `@multipolygon`, `@collection`). Bare `Geometry` = all subtypes. Multi-type: `Geometry @point @polygon`. CerialGeometry class hierarchy. Point input shorthand: `[lon, lat]`. Equality-only WHERE. No OrderBy. No spatial operators (future feature)
 - **Any type** = `Any` field stores any SurrealDB value. `CerialAny` recursive union (NOT bare TS `any`). No `?`, no `@nullable` (TYPE any already accepts NONE/null). Full WHERE operator set. Excluded from OrderBy. Not allowed in tuple elements
 - **@set decorator** = `String[] @set` generates `set<T>` instead of `array<T>`. Auto-dedup and sort at DB level. Output type `CerialSet<T>` (branded array). Input accepts regular arrays. Not allowed on Decimal[], Object[], Tuple[], Record[]. Mutually exclusive with @distinct/@sort
+- **findAll()** = Alias for `findMany()` with no options. Returns all records in the table as `T[]`. No `where`, `select`, `include`, `orderBy`, `limit`, or `offset` parameters
+- **Model introspection** = `getMetadata()`, `getName()`, `getTableName()` — available on every model instance for runtime metadata access. `getMetadata()` returns full `ModelMetadata` (name, table, fields, relations). `getName()` returns the model name. `getTableName()` returns the SurrealDB table name
 
 ## Gotchas
 

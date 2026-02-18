@@ -1,7 +1,7 @@
 ---
 title: upsert
 parent: Queries
-nav_order: 5
+nav_order: 6
 ---
 
 # upsert

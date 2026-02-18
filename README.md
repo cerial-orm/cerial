@@ -80,24 +80,24 @@ bunx cerial generate -s ./schemas -o ./db-client
 ### 3. Use it
 
 ```typescript
-import { CerialClient } from './db-client';
+import { CerialClient } from "./db-client";
 
 const client = new CerialClient();
 
 await client.connect({
-  url: 'http://localhost:8000',
-  namespace: 'main',
-  database: 'main',
-  auth: { username: 'root', password: 'root' },
+  url: "http://localhost:8000",
+  namespace: "main",
+  database: "main",
+  auth: { username: "root", password: "root" },
 });
 
 // Create
 const user = await client.db.User.create({
   data: {
-    email: 'john@example.com',
-    name: 'John Doe',
+    email: "john@example.com",
+    name: "John Doe",
     isActive: true,
-    nicknames: ['Johnny'],
+    nicknames: ["Johnny"],
   },
 });
 
@@ -105,7 +105,7 @@ const user = await client.db.User.create({
 const users = await client.db.User.findMany({
   where: { isActive: true, age: { gte: 18 } },
   select: { id: true, name: true, email: true },
-  orderBy: { createdAt: 'desc' },
+  orderBy: { createdAt: "desc" },
   limit: 10,
 });
 // users: { id: CerialId; name: string; email: string }[]
@@ -114,7 +114,7 @@ const users = await client.db.User.findMany({
 const userWithPosts = await client.db.User.findOne({
   where: { id: user.id },
   include: {
-    posts: { limit: 5, orderBy: { createdAt: 'desc' } },
+    posts: { limit: 5, orderBy: { createdAt: "desc" } },
   },
 });
 // userWithPosts: (User & { posts: Post[] }) | null
@@ -136,7 +136,7 @@ Full documentation is available at the [Cerial Docs](docs/) site, covering:
 - [Enums](docs/schema/enums.md) - String-only named constants with generated types and filtering
 - [Enums vs Literals](docs/schema/enums-vs-literals.md) - When to use enums vs literal types
 - [Relations](docs/relations/) - 1:1, 1:N, N:N, self-referential, nested operations, delete behavior
-- [Queries](docs/queries/) - findOne, findMany, findUnique, create, upsert, update, delete, count, exists, $transaction
+- [Queries](docs/queries/) - findOne, findMany, findAll, findUnique, create, upsert, update, delete, count, exists, $transaction
 - [Filtering](docs/filtering/) - Comparison, string, array, logical, special, nested, object operators
 - [Select & Include](docs/select-and-include/) - Dynamic return types, sub-field selection, nested includes
 - [Array Operations](docs/array-operations/) - push, unset, replace, @distinct, @sort decorators
