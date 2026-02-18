@@ -1,0 +1,11 @@
+# Schema for testing @distinct and @sort array decorators
+model ArrayDecoratorTest {
+  id Record @id
+  uniqueTags String[] @distinct
+  sortedScores Int[] @sort
+  recentDates Date[] @sort(false)
+  uniqueSortedCategories String[] @distinct @sort
+  uniqueSortedPriorities Int[] @distinct @sort(false)
+  normalTags String[]
+  normalScores Int[]
+}

@@ -316,4 +316,10 @@ export const tables = {
 
   // set.cerial (@set decorator tests)
   set: ['set_basic'],
+
+  // timestamps.cerial (timestamp decorator tests)
+  timestamps: ['timestamp_test'],
+
+  // default-always.cerial (@defaultAlways decorator tests)
+  defaultAlways: ['content_item'],
 };
