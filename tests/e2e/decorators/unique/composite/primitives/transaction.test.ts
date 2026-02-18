@@ -13,7 +13,7 @@ import {
   type CerialClient,
   cleanupTables,
   createTestClient,
-  INDEX_TABLES,
+  tables,
   testConfig,
   truncateTables,
 } from '../../../../test-helper';
@@ -24,7 +24,7 @@ describe('Composite Unique Primitives: $transaction', () => {
   beforeAll(async () => {
     client = createTestClient();
     await client.connect(testConfig);
-    await cleanupTables(client, INDEX_TABLES);
+    await cleanupTables(client, tables.indexes);
   });
 
   afterAll(async () => {
@@ -32,7 +32,7 @@ describe('Composite Unique Primitives: $transaction', () => {
   });
 
   beforeEach(async () => {
-    await truncateTables(client, INDEX_TABLES);
+    await truncateTables(client, tables.indexes);
   });
 
   test('$transaction with findUnique by composite key', async () => {

@@ -14,7 +14,7 @@ import {
   type CerialClient,
   cleanupTables,
   createTestClient,
-  INDEX_TABLES,
+  tables,
   testConfig,
   truncateTables,
 } from '../../../../test-helper';
@@ -25,7 +25,7 @@ describe('Composite Unique Mixed: errors', () => {
   beforeAll(async () => {
     client = createTestClient();
     await client.connect(testConfig);
-    await cleanupTables(client, INDEX_TABLES);
+    await cleanupTables(client, tables.indexes);
   });
 
   afterAll(async () => {
@@ -33,7 +33,7 @@ describe('Composite Unique Mixed: errors', () => {
   });
 
   beforeEach(async () => {
-    await truncateTables(client, INDEX_TABLES);
+    await truncateTables(client, tables.indexes);
   });
 
   test('DB rejects duplicate nameCity (same name+city, different zip)', async () => {

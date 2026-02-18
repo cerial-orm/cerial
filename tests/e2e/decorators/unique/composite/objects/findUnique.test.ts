@@ -14,7 +14,7 @@ import {
   type CerialClient,
   cleanupTables,
   createTestClient,
-  INDEX_TABLES,
+  tables,
   testConfig,
   truncateTables,
 } from '../../../../test-helper';
@@ -25,7 +25,7 @@ describe('Composite Unique Objects: findUnique', () => {
   beforeAll(async () => {
     client = createTestClient();
     await client.connect(testConfig);
-    await cleanupTables(client, INDEX_TABLES);
+    await cleanupTables(client, tables.indexes);
   });
 
   afterAll(async () => {
@@ -33,7 +33,7 @@ describe('Composite Unique Objects: findUnique', () => {
   });
 
   beforeEach(async () => {
-    await truncateTables(client, INDEX_TABLES);
+    await truncateTables(client, tables.indexes);
   });
 
   test('find by cityZip composite (both dot-notation fields) returns correct record', async () => {

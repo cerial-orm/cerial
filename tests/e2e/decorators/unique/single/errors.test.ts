@@ -10,7 +10,7 @@ import {
   type CerialClient,
   cleanupTables,
   createTestClient,
-  INDEX_TABLES,
+  tables,
   testConfig,
   truncateTables,
 } from '../../../test-helper';
@@ -21,7 +21,7 @@ describe('Single @unique — errors', () => {
   beforeAll(async () => {
     client = createTestClient();
     await client.connect(testConfig);
-    await cleanupTables(client, INDEX_TABLES);
+    await cleanupTables(client, tables.indexes);
   });
 
   afterAll(async () => {
@@ -29,7 +29,7 @@ describe('Single @unique — errors', () => {
   });
 
   beforeEach(async () => {
-    await truncateTables(client, INDEX_TABLES);
+    await truncateTables(client, tables.indexes);
   });
 
   test('DB rejects duplicate @unique email on create', async () => {

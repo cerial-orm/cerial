@@ -5,7 +5,7 @@ import {
   type CerialClient,
   cleanupTables,
   createTestClient,
-  TYPED_ID_TABLES,
+  tables,
   testConfig,
   truncateTables,
 } from '../../test-helper';
@@ -16,7 +16,7 @@ describe('E2E Typed IDs: Standalone Record', () => {
   beforeAll(async () => {
     client = createTestClient();
     await client.connect(testConfig);
-    await cleanupTables(client, TYPED_ID_TABLES);
+    await cleanupTables(client, tables.typedIds);
   });
 
   afterAll(async () => {
@@ -24,7 +24,7 @@ describe('E2E Typed IDs: Standalone Record', () => {
   });
 
   beforeEach(async () => {
-    await truncateTables(client, TYPED_ID_TABLES);
+    await truncateTables(client, tables.typedIds);
   });
 
   test('standalone Record(int) field stores and returns CerialId<number>', async () => {

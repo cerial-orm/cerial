@@ -4,7 +4,7 @@ import {
   type CerialClient,
   cleanupTables,
   createTestClient,
-  TYPED_ID_TABLES,
+  tables,
   testConfig,
   truncateTables,
 } from '../../test-helper';
@@ -15,7 +15,7 @@ describe('E2E Typed IDs: Number ID', () => {
   beforeAll(async () => {
     client = createTestClient();
     await client.connect(testConfig);
-    await cleanupTables(client, TYPED_ID_TABLES);
+    await cleanupTables(client, tables.typedIds);
   });
 
   afterAll(async () => {
@@ -23,7 +23,7 @@ describe('E2E Typed IDs: Number ID', () => {
   });
 
   beforeEach(async () => {
-    await truncateTables(client, TYPED_ID_TABLES);
+    await truncateTables(client, tables.typedIds);
   });
 
   test('create with integer number id', async () => {

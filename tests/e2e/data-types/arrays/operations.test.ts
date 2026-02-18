@@ -9,7 +9,7 @@ import {
   type CerialClient,
   cleanupTables,
   createTestClient,
-  ROOT_TABLES,
+  tables,
   testConfig,
   truncateTables,
 } from '../../test-helper';
@@ -20,7 +20,7 @@ describe('E2E Array Operations', () => {
   beforeAll(async () => {
     client = createTestClient();
     await client.connect(testConfig);
-    await cleanupTables(client, ROOT_TABLES);
+    await cleanupTables(client, tables.core);
   });
 
   afterAll(async () => {
@@ -28,7 +28,7 @@ describe('E2E Array Operations', () => {
   });
 
   beforeEach(async () => {
-    await truncateTables(client, ROOT_TABLES);
+    await truncateTables(client, tables.core);
   });
 
   describe('Create with arrays', () => {
