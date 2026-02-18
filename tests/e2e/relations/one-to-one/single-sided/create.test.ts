@@ -86,8 +86,8 @@ describe('E2E One-to-One Single-Sided: Create', () => {
       expect(user).toBeDefined();
       expect(user.name).toBe('Solo user');
       // User has no profile field at all
-      expect((user as any).profile).toBeUndefined();
-      expect((user as any).profileId).toBeUndefined();
+      expect('profile' in user).toBe(false);
+      expect('profileId' in user).toBe(false);
     });
 
     test('should not allow nested profile create from user side', async () => {
@@ -97,7 +97,7 @@ describe('E2E One-to-One Single-Sided: Create', () => {
         data: {
           name: 'User',
           // profile: { create: { bio: 'Should not work' } }  // Type error
-        } as any,
+        },
       });
 
       expect(user).toBeDefined();

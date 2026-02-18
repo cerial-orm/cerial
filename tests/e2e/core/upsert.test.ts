@@ -548,7 +548,7 @@ describe('E2E Upsert Operations', () => {
       expect(result).toBeDefined();
       expect(result!.id).toBeDefined();
       expect(result!.name).toBe('Select Test');
-      expect((result as any).email).toBeUndefined();
+      expect('email' in result!).toBe(false);
     });
 
     test('returns only selected fields on update path', async () => {
@@ -565,7 +565,7 @@ describe('E2E Upsert Operations', () => {
 
       expect(result).toBeDefined();
       expect(result!.name).toBe('Updated');
-      expect((result as any).email).toBeUndefined();
+      expect('email' in result!).toBe(false);
     });
 
     test('returns only selected fields for ID-based', async () => {
@@ -582,7 +582,7 @@ describe('E2E Upsert Operations', () => {
 
       expect(result).toBeDefined();
       expect(result!.name).toBe('Select ID');
-      expect((result as any).email).toBeUndefined();
+      expect('email' in result!).toBe(false);
     });
   });
 
@@ -710,7 +710,7 @@ describe('E2E Upsert Operations', () => {
       expect(Array.isArray(result)).toBe(true);
       expect(result.length).toBeGreaterThan(0);
       expect(result[0]!.name).toBe('Updated');
-      expect((result[0] as any).email).toBeUndefined();
+      expect('email' in result[0]!).toBe(false);
     });
   });
 

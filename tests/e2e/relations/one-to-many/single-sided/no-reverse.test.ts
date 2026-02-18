@@ -41,7 +41,7 @@ describe('E2E One-to-Many Single-Sided: No Reverse', () => {
       // Article only has id and title
       expect(article.id).toBeDefined();
       expect(article.title).toBe('Article');
-      expect((article as any).comments).toBeUndefined();
+      expect('comments' in article).toBe(false);
     });
 
     test('findOne on article should not have comments', async () => {

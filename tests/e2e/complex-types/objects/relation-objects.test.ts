@@ -38,7 +38,11 @@ describe('E2E Relations + Objects', () => {
       const company = await client.db.RelObjCompany.create({
         data: {
           name: 'Acme Corp',
-          headquarters: { street: '100 Main St', city: 'Springfield', state: 'IL' },
+          headquarters: {
+            street: '100 Main St',
+            city: 'Springfield',
+            state: 'IL',
+          },
           meta: { industry: 'Technology', founded: 1999 },
         },
       });
@@ -74,7 +78,12 @@ describe('E2E Relations + Objects', () => {
       const employee = await client.db.RelObjEmployee.create({
         data: {
           name: 'Alice',
-          homeAddress: { street: '10 Pine Rd', city: 'Austin', state: 'TX', zipCode: '73301' },
+          homeAddress: {
+            street: '10 Pine Rd',
+            city: 'Austin',
+            state: 'TX',
+            zipCode: '73301',
+          },
           companyId: company.id,
         },
       });
@@ -92,7 +101,11 @@ describe('E2E Relations + Objects', () => {
           company: {
             create: {
               name: 'Startup LLC',
-              headquarters: { street: '300 Startup Blvd', city: 'Denver', state: 'CO' },
+              headquarters: {
+                street: '300 Startup Blvd',
+                city: 'Denver',
+                state: 'CO',
+              },
             },
           },
         },
@@ -117,7 +130,12 @@ describe('E2E Relations + Objects', () => {
       const company = await client.db.RelObjCompany.create({
         data: {
           name: 'SelectCo',
-          headquarters: { street: '50 Select Ave', city: 'Boston', state: 'MA', zipCode: '02101' },
+          headquarters: {
+            street: '50 Select Ave',
+            city: 'Boston',
+            state: 'MA',
+            zipCode: '02101',
+          },
           meta: { industry: 'Finance', founded: 2005 },
         },
       });
@@ -131,8 +149,8 @@ describe('E2E Relations + Objects', () => {
       expect(result!.name).toBe('SelectCo');
       expect(result!.headquarters.city).toBe('Boston');
       // Excluded fields should not be present at runtime
-      expect((result!.headquarters as any).street).toBeUndefined();
-      expect((result!.headquarters as any).state).toBeUndefined();
+      expect('street' in result!.headquarters).toBe(false);
+      expect('state' in result!.headquarters).toBe(false);
     });
 
     test('should select sub-fields of optional object field', async () => {
@@ -152,7 +170,7 @@ describe('E2E Relations + Objects', () => {
       expect(result).toBeDefined();
       expect(result!.meta).toBeDefined();
       expect(result!.meta!.industry).toBe('Healthcare');
-      expect((result!.meta as any).founded).toBeUndefined();
+      expect('founded' in result!.meta!).toBe(false);
     });
 
     test('should select sub-fields from multiple object fields', async () => {
@@ -166,13 +184,16 @@ describe('E2E Relations + Objects', () => {
 
       const result = await client.db.RelObjCompany.findUnique({
         where: { id: company.id },
-        select: { headquarters: { city: true, state: true }, meta: { industry: true } },
+        select: {
+          headquarters: { city: true, state: true },
+          meta: { industry: true },
+        },
       });
 
       expect(result).toBeDefined();
       expect(result!.headquarters.city).toBe('Seattle');
       expect(result!.headquarters.state).toBe('WA');
-      expect((result!.headquarters as any).street).toBeUndefined();
+      expect('street' in result!.headquarters).toBe(false);
       expect(result!.meta!.industry).toBe('Retail');
     });
   });
@@ -182,7 +203,12 @@ describe('E2E Relations + Objects', () => {
       const company = await client.db.RelObjCompany.create({
         data: {
           name: 'IncludeCo',
-          headquarters: { street: '80 Include St', city: 'Chicago', state: 'IL', zipCode: '60601' },
+          headquarters: {
+            street: '80 Include St',
+            city: 'Chicago',
+            state: 'IL',
+            zipCode: '60601',
+          },
           meta: { industry: 'Manufacturing', founded: 1990 },
         },
       });
@@ -260,7 +286,12 @@ describe('E2E Relations + Objects', () => {
       await client.db.RelObjEmployee.create({
         data: {
           name: 'Eve',
-          homeAddress: { street: '30 Elm St', city: 'Brooklyn', state: 'NY', zipCode: '11201' },
+          homeAddress: {
+            street: '30 Elm St',
+            city: 'Brooklyn',
+            state: 'NY',
+            zipCode: '11201',
+          },
           companyId: company.id,
         },
       });
@@ -268,7 +299,12 @@ describe('E2E Relations + Objects', () => {
       await client.db.RelObjEmployee.create({
         data: {
           name: 'Frank',
-          homeAddress: { street: '40 Oak St', city: 'Queens', state: 'NY', zipCode: '11101' },
+          homeAddress: {
+            street: '40 Oak St',
+            city: 'Queens',
+            state: 'NY',
+            zipCode: '11101',
+          },
           companyId: company.id,
         },
       });
@@ -299,7 +335,11 @@ describe('E2E Relations + Objects', () => {
       const company = await client.db.RelObjCompany.create({
         data: {
           name: 'CombinedCo',
-          headquarters: { street: '110 Combined Way', city: 'Phoenix', state: 'AZ' },
+          headquarters: {
+            street: '110 Combined Way',
+            city: 'Phoenix',
+            state: 'AZ',
+          },
           meta: { industry: 'Aerospace', founded: 1960 },
         },
       });
@@ -307,7 +347,12 @@ describe('E2E Relations + Objects', () => {
       const employee = await client.db.RelObjEmployee.create({
         data: {
           name: 'Grace',
-          homeAddress: { street: '50 Home Ave', city: 'Tempe', state: 'AZ', zipCode: '85281' },
+          homeAddress: {
+            street: '50 Home Ave',
+            city: 'Tempe',
+            state: 'AZ',
+            zipCode: '85281',
+          },
           companyId: company.id,
         },
       });
@@ -326,7 +371,7 @@ describe('E2E Relations + Objects', () => {
       // Own select narrows own fields (top-level select works for object sub-fields)
       expect(result!.name).toBe('Grace');
       expect(result!.homeAddress.city).toBe('Tempe');
-      expect((result!.homeAddress as any).street).toBeUndefined();
+      expect('street' in result!.homeAddress).toBe(false);
       // Included company: select narrows top-level fields, but object sub-fields return full objects
       expect(result!.company.name).toBe('CombinedCo');
       expect(result!.company.headquarters.city).toBe('Phoenix');
@@ -355,7 +400,11 @@ describe('E2E Relations + Objects', () => {
       await client.db.RelObjEmployee.create({
         data: {
           name: 'Iris',
-          homeAddress: { street: '70 Second St', city: 'Marietta', state: 'GA' },
+          homeAddress: {
+            street: '70 Second St',
+            city: 'Marietta',
+            state: 'GA',
+          },
           companyId: company.id,
         },
       });

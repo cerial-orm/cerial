@@ -39,7 +39,12 @@ describe('Unset: Validation', () => {
 
   test('rejects unset on unknown field', async () => {
     const record = await client.db.UnsetTest.create({
-      data: { name: 'Val1', address: { street: 'G', city: 'NYC' }, pos: [40.0, -74.0], nested: NESTED },
+      data: {
+        name: 'Val1',
+        address: { street: 'G', city: 'NYC' },
+        pos: [40.0, -74.0],
+        nested: NESTED,
+      },
     });
 
     await expect(
@@ -47,7 +52,8 @@ describe('Unset: Validation', () => {
         await client.db.UnsetTest.updateUnique({
           where: { id: record.id },
           data: {},
-          unset: { nonExistent: true } as any,
+          // @ts-expect-error — testing runtime rejection of unknown unset field
+          unset: { nonExistent: true },
         });
       })(),
     ).rejects.toThrow('Unknown field');
@@ -55,7 +61,12 @@ describe('Unset: Validation', () => {
 
   test('rejects unset on required field', async () => {
     const record = await client.db.UnsetTest.create({
-      data: { name: 'Val2', address: { street: 'H', city: 'NYC' }, pos: [40.0, -74.0], nested: NESTED },
+      data: {
+        name: 'Val2',
+        address: { street: 'H', city: 'NYC' },
+        pos: [40.0, -74.0],
+        nested: NESTED,
+      },
     });
 
     await expect(
@@ -63,7 +74,8 @@ describe('Unset: Validation', () => {
         await client.db.UnsetTest.updateUnique({
           where: { id: record.id },
           data: {},
-          unset: { name: true } as any,
+          // @ts-expect-error — testing runtime rejection of unsetting required field
+          unset: { name: true },
         });
       })(),
     ).rejects.toThrow('Cannot unset required field');
@@ -71,7 +83,13 @@ describe('Unset: Validation', () => {
 
   test('rejects leaf-level data/unset overlap', async () => {
     const record = await client.db.UnsetTest.create({
-      data: { name: 'Val3', bio: 'test', address: { street: 'I', city: 'NYC' }, pos: [40.0, -74.0], nested: NESTED },
+      data: {
+        name: 'Val3',
+        bio: 'test',
+        address: { street: 'I', city: 'NYC' },
+        pos: [40.0, -74.0],
+        nested: NESTED,
+      },
     });
 
     await expect(
@@ -88,7 +106,13 @@ describe('Unset: Validation', () => {
 
   test('rejects leaf-level overlap in updateMany', async () => {
     const _record = await client.db.UnsetTest.create({
-      data: { name: 'Val4', bio: 'test', address: { street: 'J', city: 'NYC' }, pos: [40.0, -74.0], nested: NESTED },
+      data: {
+        name: 'Val4',
+        bio: 'test',
+        address: { street: 'J', city: 'NYC' },
+        pos: [40.0, -74.0],
+        nested: NESTED,
+      },
     });
 
     await expect(
@@ -105,14 +129,25 @@ describe('Unset: Validation', () => {
 
   test('rejects leaf-level overlap in upsert', async () => {
     const record = await client.db.UnsetTest.create({
-      data: { name: 'Val5', bio: 'test', address: { street: 'K', city: 'NYC' }, pos: [40.0, -74.0], nested: NESTED },
+      data: {
+        name: 'Val5',
+        bio: 'test',
+        address: { street: 'K', city: 'NYC' },
+        pos: [40.0, -74.0],
+        nested: NESTED,
+      },
     });
 
     await expect(
       (async () => {
         await client.db.UnsetTest.upsert({
           where: { id: record.id },
-          create: { name: 'New', address: { street: 'X', city: 'X' }, pos: [0, 0], nested: NESTED },
+          create: {
+            name: 'New',
+            address: { street: 'X', city: 'X' },
+            pos: [0, 0],
+            nested: NESTED,
+          },
           update: { bio: 'new' },
           // @ts-expect-error Type system correctly prevents leaf-level overlap; testing runtime validation
           unset: { bio: true },

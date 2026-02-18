@@ -36,7 +36,12 @@ describe('E2E Enums: Select', () => {
   describe('single field select', () => {
     test('should select only enum field', async () => {
       const created = await client.db.EnumBasic.create({
-        data: { name: 'Alice', role: 'ADMIN', optRole: 'USER', roles: ['MODERATOR'] },
+        data: {
+          name: 'Alice',
+          role: 'ADMIN',
+          optRole: 'USER',
+          roles: ['MODERATOR'],
+        },
       });
 
       const result = await client.db.EnumBasic.findUnique({
@@ -47,9 +52,9 @@ describe('E2E Enums: Select', () => {
       expect(result).toBeDefined();
       expect(result!.role).toBe('ADMIN');
       // Other fields should not be in the result
-      expect((result as any).name).toBeUndefined();
-      expect((result as any).optRole).toBeUndefined();
-      expect((result as any).roles).toBeUndefined();
+      expect('name' in result!).toBe(false);
+      expect('optRole' in result!).toBe(false);
+      expect('roles' in result!).toBe(false);
     });
 
     test('should select only name without enum field', async () => {
@@ -64,7 +69,7 @@ describe('E2E Enums: Select', () => {
 
       expect(result).toBeDefined();
       expect(result!.name).toBe('Bob');
-      expect((result as any).role).toBeUndefined();
+      expect('role' in result!).toBe(false);
     });
   });
 
@@ -98,7 +103,7 @@ describe('E2E Enums: Select', () => {
       expect(result).toBeDefined();
       expect(result!.id).toBeDefined();
       expect(result!.role).toBe('ADMIN');
-      expect((result as any).name).toBeUndefined();
+      expect('name' in result!).toBe(false);
     });
   });
 
@@ -174,13 +179,18 @@ describe('E2E Enums: Select', () => {
       expect(result).toBeDefined();
       expect(result!.role).toBe('ADMIN');
       expect(result!.color).toBe('RED');
-      expect((result as any).severity).toBeUndefined();
-      expect((result as any).title).toBeUndefined();
+      expect('severity' in result!).toBe(false);
+      expect('title' in result!).toBe(false);
     });
 
     test('should select all fields from multi-enum model', async () => {
       const created = await client.db.EnumMultiple.create({
-        data: { title: 'AllFields', role: 'USER', color: 'GREEN', severity: 'LOW' },
+        data: {
+          title: 'AllFields',
+          role: 'USER',
+          color: 'GREEN',
+          severity: 'LOW',
+        },
       });
 
       const result = await client.db.EnumMultiple.findUnique({
@@ -209,13 +219,17 @@ describe('E2E Enums: Select', () => {
       for (const r of results) {
         expect(r.name).toBeDefined();
         expect(r.role).toBeDefined();
-        expect((r as any).optRole).toBeUndefined();
+        expect('optRole' in r).toBe(false);
       }
     });
 
     test('should select with where and select combined', async () => {
-      await client.db.EnumBasic.create({ data: { name: 'Admin1', role: 'ADMIN' } });
-      await client.db.EnumBasic.create({ data: { name: 'User1', role: 'USER' } });
+      await client.db.EnumBasic.create({
+        data: { name: 'Admin1', role: 'ADMIN' },
+      });
+      await client.db.EnumBasic.create({
+        data: { name: 'User1', role: 'USER' },
+      });
 
       const results = await client.db.EnumBasic.findMany({
         where: { role: 'ADMIN' },
@@ -224,7 +238,7 @@ describe('E2E Enums: Select', () => {
 
       expect(results.length).toBe(1);
       expect(results[0]!.name).toBe('Admin1');
-      expect((results[0] as any).role).toBeUndefined();
+      expect('role' in results[0]!).toBe(false);
     });
   });
 });

@@ -79,9 +79,9 @@ describe('Single @unique — findUnique', () => {
     expect(result!.email).toBe('alice@example.com');
     expect(result!.firstName).toBe('Alice');
     // Non-selected fields should be absent
-    expect((result as any).lastName).toBeUndefined();
-    expect((result as any).department).toBeUndefined();
-    expect((result as any).age).toBeUndefined();
+    expect('lastName' in result!).toBe(false);
+    expect('department' in result!).toBe(false);
+    expect('age' in result!).toBe(false);
   });
 
   test('finds a record by id on a model with @unique fields', async () => {

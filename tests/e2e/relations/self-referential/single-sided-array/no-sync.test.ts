@@ -69,8 +69,8 @@ describe('E2E Self-Ref Single-Sided Array: No Sync', () => {
 
       expect(user.id).toBeDefined();
       expect(user.name).toBe('User');
-      expect((user as any).followers).toBeUndefined();
-      expect((user as any).followerIds).toBeUndefined();
+      expect('followers' in user).toBe(false);
+      expect('followerIds' in user).toBe(false);
     });
   });
 

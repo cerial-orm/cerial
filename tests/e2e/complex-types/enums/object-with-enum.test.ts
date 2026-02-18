@@ -330,7 +330,7 @@ describe('E2E Enums: Object With Enum', () => {
 
       expect(result).toBeDefined();
       expect(result!.address.severity).toBe('MEDIUM');
-      expect((result!.address as any).city).toBeUndefined();
+      expect('city' in result!.address).toBe(false);
     });
   });
 });

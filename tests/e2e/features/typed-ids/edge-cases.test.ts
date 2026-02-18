@@ -225,7 +225,7 @@ describe('E2E Typed IDs: Edge Cases', () => {
 
     expect(results).toHaveLength(1);
     expect(results[0]!.name).toBe('name-only');
-    expect((results[0] as any).id).toBeUndefined();
+    expect('id' in results[0]!).toBe(false);
   });
 
   // ─── orderBy ───────────────────────────────────────────────────────────────

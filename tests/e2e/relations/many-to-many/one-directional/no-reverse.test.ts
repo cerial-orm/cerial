@@ -41,8 +41,8 @@ describe('E2E Many-to-Many One-Directional: No Reverse', () => {
       // Label only has id and name
       expect(label.id).toBeDefined();
       expect(label.name).toBe('Label');
-      expect((label as any).bloggers).toBeUndefined();
-      expect((label as any).bloggerIds).toBeUndefined();
+      expect('bloggers' in label).toBe(false);
+      expect('bloggerIds' in label).toBe(false);
     });
 
     test('findOne on label should not have bloggers', async () => {

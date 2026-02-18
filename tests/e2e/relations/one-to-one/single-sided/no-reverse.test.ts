@@ -41,8 +41,8 @@ describe('E2E One-to-One Single-Sided: No Reverse', () => {
       // User only has id and name - no profile
       expect(user.id).toBeDefined();
       expect(user.name).toBe('User');
-      expect((user as any).profile).toBeUndefined();
-      expect((user as any).profileId).toBeUndefined();
+      expect('profile' in user).toBe(false);
+      expect('profileId' in user).toBe(false);
     });
 
     test('findOne on user should not have profile in result', async () => {

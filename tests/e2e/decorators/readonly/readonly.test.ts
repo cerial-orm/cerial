@@ -527,6 +527,7 @@ describe('E2E @readonly Decorator', () => {
 
       expect(result).toBeDefined();
       expect(result!.name).toBe('IncPost');
+      // MASKING BUG: include type doesn't resolve 'author' on ReadonlyRecord — investigate type generator
       expect((result as any).author).toBeDefined();
       expect((result as any).author.name).toBe('IncAuthor');
     });

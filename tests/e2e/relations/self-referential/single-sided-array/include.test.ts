@@ -79,7 +79,7 @@ describe('E2E Self-Ref Single-Sided Array: Include', () => {
       });
 
       expect(result).toBeDefined();
-      expect((result as any).followers).toBeUndefined();
+      expect('followers' in result!).toBe(false);
     });
   });
 

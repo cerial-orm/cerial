@@ -112,7 +112,7 @@ describe('E2E Self-Ref One-to-Many: Include', () => {
       });
 
       expect(result).toBeDefined();
-      expect((result as any).directReports).toBeUndefined();
+      expect('directReports' in result!).toBe(false);
     });
   });
 

@@ -105,10 +105,10 @@ describe('E2E One-to-Many Required: Create from Child', () => {
       await expect(
         (async () => {
           await client.db.PostRequired.create({
+            // @ts-expect-error — testing runtime validation: missing required 'author' field
             data: {
               title: 'Orphan Post',
-              // No author provided
-            } as any,
+            },
           });
         })(),
       ).rejects.toThrow();

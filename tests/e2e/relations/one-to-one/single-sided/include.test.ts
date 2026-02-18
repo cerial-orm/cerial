@@ -109,7 +109,7 @@ describe('E2E One-to-One Single-Sided: Include', () => {
       });
 
       expect(result).toBeDefined();
-      expect((result as any).profile).toBeUndefined();
+      expect('profile' in result!).toBe(false);
     });
   });
 

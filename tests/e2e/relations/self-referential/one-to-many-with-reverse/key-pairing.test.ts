@@ -101,7 +101,7 @@ describe('E2E Self-Ref One-to-Many with Reverse: Key Pairing', () => {
       });
 
       // No directReportIds field on model
-      expect((manager as any).directReportIds).toBeUndefined();
+      expect('directReportIds' in manager).toBe(false);
 
       await client.db.EmployeeWithReports.create({
         data: { name: 'Employee', manager: { connect: manager.id } },

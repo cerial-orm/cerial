@@ -88,7 +88,7 @@ describe('E2E One-to-Many Single-Sided: Child Only', () => {
       expect(article).toBeDefined();
       expect(article.title).toBe('Article');
       // Article has no comments field
-      expect((article as any).comments).toBeUndefined();
+      expect('comments' in article).toBe(false);
     });
   });
 

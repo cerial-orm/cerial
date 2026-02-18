@@ -40,7 +40,7 @@ describe('E2E Self-Ref One-to-Many: Manual Reverse Query', () => {
 
       expect(manager.id).toBeDefined();
       expect(manager.name).toBe('Manager');
-      expect((manager as any).directReports).toBeUndefined();
+      expect('directReports' in manager).toBe(false);
     });
   });
 

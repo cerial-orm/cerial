@@ -38,7 +38,12 @@ describe('E2E Objects: Select', () => {
       const user = await client.db.ObjectTestUser.create({
         data: {
           name: 'Alice',
-          address: { street: '1 Main', city: 'NYC', state: 'NY', zipCode: '10001' },
+          address: {
+            street: '1 Main',
+            city: 'NYC',
+            state: 'NY',
+            zipCode: '10001',
+          },
         },
       });
 
@@ -88,7 +93,7 @@ describe('E2E Objects: Select', () => {
       expect(result).toBeDefined();
       expect(result!.id).toBeDefined();
       // Address should not be in the result
-      expect((result as any).address).toBeUndefined();
+      expect('address' in result!).toBe(false);
     });
   });
 
@@ -97,7 +102,12 @@ describe('E2E Objects: Select', () => {
       const user = await client.db.ObjectTestUser.create({
         data: {
           name: 'Dave',
-          address: { street: '4 Elm', city: 'NYC', state: 'NY', zipCode: '10001' },
+          address: {
+            street: '4 Elm',
+            city: 'NYC',
+            state: 'NY',
+            zipCode: '10001',
+          },
         },
       });
 
@@ -110,15 +120,20 @@ describe('E2E Objects: Select', () => {
       expect(result!.address).toBeDefined();
       expect(result!.address.city).toBe('NYC');
       // Other sub-fields should be absent
-      expect((result!.address as any).street).toBeUndefined();
-      expect((result!.address as any).state).toBeUndefined();
+      expect('street' in result!.address).toBe(false);
+      expect('state' in result!.address).toBe(false);
     });
 
     test('should return multiple selected sub-fields', async () => {
       const user = await client.db.ObjectTestUser.create({
         data: {
           name: 'Eve',
-          address: { street: '5 Oak', city: 'LA', state: 'CA', zipCode: '90001' },
+          address: {
+            street: '5 Oak',
+            city: 'LA',
+            state: 'CA',
+            zipCode: '90001',
+          },
         },
       });
 
@@ -130,7 +145,7 @@ describe('E2E Objects: Select', () => {
       expect(result).toBeDefined();
       expect(result!.address.city).toBe('LA');
       expect(result!.address.zipCode).toBe('90001');
-      expect((result!.address as any).street).toBeUndefined();
+      expect('street' in result!.address).toBe(false);
     });
   });
 
@@ -155,7 +170,7 @@ describe('E2E Objects: Select', () => {
 
       expect(result).toBeDefined();
       expect(result!.primaryLocation!.lat).toBe(40.7128);
-      expect((result!.primaryLocation as any).lng).toBeUndefined();
+      expect('lng' in result!.primaryLocation!).toBe(false);
     });
 
     test('should return full nested object with boolean true for nested field', async () => {
@@ -227,7 +242,7 @@ describe('E2E Objects: Select', () => {
       expect(result).toBeDefined();
       expect(result!.locations).toHaveLength(2);
       expect(result!.locations[0]!.lat).toBe(40);
-      expect((result!.locations[0] as any).lng).toBeUndefined();
+      expect('lng' in result!.locations[0]!).toBe(false);
     });
   });
 
@@ -243,13 +258,17 @@ describe('E2E Objects: Select', () => {
 
       const result = await client.db.ObjectTestUser.findUnique({
         where: { id: user.id },
-        select: { name: true, address: { city: true }, locations: { lat: true } },
+        select: {
+          name: true,
+          address: { city: true },
+          locations: { lat: true },
+        },
       });
 
       expect(result).toBeDefined();
       expect(result!.name).toBe('Jack');
       expect(result!.address.city).toBe('NYC');
-      expect((result!.address as any).street).toBeUndefined();
+      expect('street' in result!.address).toBe(false);
       expect(result!.locations[0]!.lat).toBe(40);
     });
   });

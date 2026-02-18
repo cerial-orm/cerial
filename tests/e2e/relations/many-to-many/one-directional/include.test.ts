@@ -79,7 +79,7 @@ describe('E2E Many-to-Many One-Directional: Include', () => {
       });
 
       expect(result).toBeDefined();
-      expect((result as any).bloggers).toBeUndefined();
+      expect('bloggers' in result!).toBe(false);
     });
   });
 

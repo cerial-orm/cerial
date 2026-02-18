@@ -106,7 +106,7 @@ describe('E2E One-to-Many Single-Sided: Include', () => {
       });
 
       expect(result).toBeDefined();
-      expect((result as any).comments).toBeUndefined();
+      expect('comments' in result!).toBe(false);
     });
   });
 

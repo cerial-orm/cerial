@@ -168,6 +168,7 @@ Sandbox testing is **allowed in plan mode** — it is investigative research to 
 
 ## Code Style
 
+- **Single quotes** - Biome formatter enforces single quotes for all string literals. Always use `'single quotes'` in TypeScript/JavaScript code, never `"double quotes"`
 - **Newline before return** - Always add a blank line before `return` statements
 - **Inline single-statement if** - No braces for single-line `if`:
 

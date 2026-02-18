@@ -56,7 +56,7 @@ describe('E2E Many-to-Many One-Directional: Create', () => {
 
       // Labels should NOT have blogger reference (one-directional)
       const l1 = await client.db.Label.findOne({ where: { id: label1.id } });
-      expect((l1 as any).bloggerIds).toBeUndefined();
+      expect('bloggerIds' in l1!).toBe(false);
     });
 
     test('should create blogger with nested label creates', async () => {
@@ -94,8 +94,8 @@ describe('E2E Many-to-Many One-Directional: Create', () => {
       expect(label).toBeDefined();
       expect(label.name).toBe('Standalone');
       // Label has no blogger-related fields
-      expect((label as any).bloggers).toBeUndefined();
-      expect((label as any).bloggerIds).toBeUndefined();
+      expect('bloggers' in label).toBe(false);
+      expect('bloggerIds' in label).toBe(false);
     });
   });
 
