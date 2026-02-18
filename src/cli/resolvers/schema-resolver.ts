@@ -10,7 +10,7 @@ import { Glob } from 'bun';
 const DEFAULT_SEARCH_PATHS = ['schemas', 'schema'];
 
 /** Default schema file patterns */
-const DEFAULT_PATTERNS = ['*.cerial'];
+const DEFAULT_PATTERNS = ['**/*.cerial'];
 
 /** Options for schema resolution */
 export interface SchemaResolveOptions {
