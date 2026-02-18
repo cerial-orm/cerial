@@ -4,35 +4,16 @@
  * Tests primitive array types (String[], Int[], Date[]) and array operators.
  */
 
-import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import {
-  type CerialClient,
-  cleanupTables,
-  createTestClient,
-  tables,
-  testConfig,
-  truncateTables,
-} from '../../test-helper';
+import { beforeEach, describe, expect, test } from 'bun:test';
+import { tables } from '../../test-helper';
+import { setupDataTypeTests } from '../test-factory';
 
 describe('E2E Array Operations', () => {
-  let client: CerialClient;
-
-  beforeAll(async () => {
-    client = createTestClient();
-    await client.connect(testConfig);
-    await cleanupTables(client, tables.core);
-  });
-
-  afterAll(async () => {
-    await client.disconnect();
-  });
-
-  beforeEach(async () => {
-    await truncateTables(client, tables.core);
-  });
+  const { getClient } = setupDataTypeTests(tables.core);
 
   describe('Create with arrays', () => {
     test('should create with empty arrays by default', async () => {
+      const client = getClient();
       const user = await client.db.User.create({
         data: {
           email: 'test@example.com',
@@ -47,6 +28,7 @@ describe('E2E Array Operations', () => {
     });
 
     test('should create with String[] values', async () => {
+      const client = getClient();
       const user = await client.db.User.create({
         data: {
           email: 'test@example.com',
@@ -60,6 +42,7 @@ describe('E2E Array Operations', () => {
     });
 
     test('should create with Int[] values', async () => {
+      const client = getClient();
       const user = await client.db.User.create({
         data: {
           email: 'test@example.com',
@@ -73,6 +56,7 @@ describe('E2E Array Operations', () => {
     });
 
     test('should create with Date[] values', async () => {
+      const client = getClient();
       const dates = [new Date('2024-01-01'), new Date('2024-02-01')];
       const user = await client.db.User.create({
         data: {
@@ -89,6 +73,7 @@ describe('E2E Array Operations', () => {
 
   describe('Update with push', () => {
     test('should push single element to String[]', async () => {
+      const client = getClient();
       const user = await client.db.User.create({
         data: {
           email: 'test@example.com',
@@ -108,6 +93,7 @@ describe('E2E Array Operations', () => {
     });
 
     test('should push multiple elements to Int[]', async () => {
+      const client = getClient();
       const user = await client.db.User.create({
         data: {
           email: 'test@example.com',
@@ -130,6 +116,7 @@ describe('E2E Array Operations', () => {
 
   describe('Update with unset', () => {
     test('should unset single element from String[]', async () => {
+      const client = getClient();
       const user = await client.db.User.create({
         data: {
           email: 'test@example.com',
@@ -150,6 +137,7 @@ describe('E2E Array Operations', () => {
     });
 
     test('should unset multiple elements from Int[]', async () => {
+      const client = getClient();
       const user = await client.db.User.create({
         data: {
           email: 'test@example.com',
@@ -173,6 +161,7 @@ describe('E2E Array Operations', () => {
 
   describe('Update with direct assignment', () => {
     test('should replace entire array', async () => {
+      const client = getClient();
       const user = await client.db.User.create({
         data: {
           email: 'test@example.com',
@@ -193,6 +182,7 @@ describe('E2E Array Operations', () => {
 
   describe('Query with array operators', () => {
     beforeEach(async () => {
+      const client = getClient();
       await client.db.User.create({
         data: {
           email: 'user1@example.com',
@@ -223,6 +213,7 @@ describe('E2E Array Operations', () => {
     });
 
     test('should find with has operator', async () => {
+      const client = getClient();
       const results = await client.db.User.findMany({
         where: { nicknames: { has: 'alpha' } },
       });
@@ -232,6 +223,7 @@ describe('E2E Array Operations', () => {
     });
 
     test('should find with hasAll operator', async () => {
+      const client = getClient();
       const results = await client.db.User.findMany({
         where: { nicknames: { hasAll: ['alpha', 'beta'] } },
       });
@@ -241,6 +233,7 @@ describe('E2E Array Operations', () => {
     });
 
     test('should find with hasAny operator', async () => {
+      const client = getClient();
       const results = await client.db.User.findMany({
         where: { nicknames: { hasAny: ['alpha', 'gamma'] } },
       });
@@ -249,6 +242,7 @@ describe('E2E Array Operations', () => {
     });
 
     test('should find with isEmpty operator (true)', async () => {
+      const client = getClient();
       const results = await client.db.User.findMany({
         where: { nicknames: { isEmpty: true } },
       });
@@ -258,6 +252,7 @@ describe('E2E Array Operations', () => {
     });
 
     test('should find with isEmpty operator (false)', async () => {
+      const client = getClient();
       const results = await client.db.User.findMany({
         where: { nicknames: { isEmpty: false } },
       });
@@ -266,6 +261,7 @@ describe('E2E Array Operations', () => {
     });
 
     test('should find with has on Int[]', async () => {
+      const client = getClient();
       const results = await client.db.User.findMany({
         where: { scores: { has: 100 } },
       });

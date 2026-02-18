@@ -1,34 +1,13 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import { CerialDuration } from 'cerial';
-import {
-  type CerialClient,
-  cleanupTables,
-  createTestClient,
-  tables,
-  testConfig,
-  truncateTables,
-} from '../../test-helper';
-
-const DURATION_TABLES = tables.duration;
+import { tables } from '../../test-helper';
+import { setupDataTypeTests } from '../test-factory';
 
 describe('E2E Duration: Nesting', () => {
-  let client: CerialClient;
-
-  beforeAll(async () => {
-    client = createTestClient();
-    await client.connect(testConfig);
-    await cleanupTables(client, DURATION_TABLES);
-  });
-
-  afterAll(async () => {
-    await client.disconnect();
-  });
-
-  beforeEach(async () => {
-    await truncateTables(client, DURATION_TABLES);
-  });
+  const { getClient } = setupDataTypeTests(tables.duration);
 
   test('duration in object field', async () => {
+    const client = getClient();
     const result = await client.db.DurationWithObject.create({
       data: { name: 'test', timing: { expires: '24h' } },
     });
@@ -39,6 +18,7 @@ describe('E2E Duration: Nesting', () => {
   });
 
   test('duration in object with optional subfield', async () => {
+    const client = getClient();
     const result = await client.db.DurationWithObject.create({
       data: { name: 'test', timing: { expires: '1h', grace: '15m' } },
     });
@@ -48,6 +28,7 @@ describe('E2E Duration: Nesting', () => {
   });
 
   test('duration in tuple field', async () => {
+    const client = getClient();
     const result = await client.db.DurationWithTuple.create({
       data: { name: 'test', pair: ['1h', '30m'] },
     });
@@ -59,6 +40,7 @@ describe('E2E Duration: Nesting', () => {
   });
 
   test('duration tuple with undefined optional element', async () => {
+    const client = getClient();
     const result = await client.db.DurationWithTuple.create({
       data: { name: 'test', pair: ['1h', null] },
     });
@@ -68,6 +50,7 @@ describe('E2E Duration: Nesting', () => {
   });
 
   test('object duration where filter', async () => {
+    const client = getClient();
     await client.db.DurationWithObject.create({
       data: { name: 'fast', timing: { expires: '30m' } },
     });
@@ -84,6 +67,7 @@ describe('E2E Duration: Nesting', () => {
   });
 
   test('update object duration field', async () => {
+    const client = getClient();
     const created = await client.db.DurationWithObject.create({
       data: { name: 'test', timing: { expires: '1h' } },
     });

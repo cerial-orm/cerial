@@ -1,33 +1,12 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import {
-  type CerialClient,
-  cleanupTables,
-  createTestClient,
-  tables,
-  testConfig,
-  truncateTables,
-} from '../../test-helper';
-
-const ANY_TABLES = tables.any;
+import { describe, expect, test } from 'bun:test';
+import { tables } from '../../test-helper';
+import { setupDataTypeTests } from '../test-factory';
 
 describe('E2E Any: Nesting', () => {
-  let client: CerialClient;
-
-  beforeAll(async () => {
-    client = createTestClient();
-    await client.connect(testConfig);
-    await cleanupTables(client, ANY_TABLES);
-  });
-
-  afterAll(async () => {
-    await client.disconnect();
-  });
-
-  beforeEach(async () => {
-    await truncateTables(client, ANY_TABLES);
-  });
+  const { getClient } = setupDataTypeTests(tables.any);
 
   test('object with Any stores string', async () => {
+    const client = getClient();
     const result = await client.db.AnyWithObject.create({
       data: { name: 'str', meta: { data: 'hello', label: 'a' } },
     });
@@ -36,6 +15,7 @@ describe('E2E Any: Nesting', () => {
   });
 
   test('object with Any stores number', async () => {
+    const client = getClient();
     const result = await client.db.AnyWithObject.create({
       data: { name: 'num', meta: { data: 99.5, label: 'b' } },
     });
@@ -44,6 +24,7 @@ describe('E2E Any: Nesting', () => {
   });
 
   test('object with Any stores nested object', async () => {
+    const client = getClient();
     const nested = { x: 1, y: [2, 3] };
     const result = await client.db.AnyWithObject.create({
       data: { name: 'nested', meta: { data: nested, label: 'c' } },
@@ -53,6 +34,7 @@ describe('E2E Any: Nesting', () => {
   });
 
   test('object with Any stores array', async () => {
+    const client = getClient();
     const result = await client.db.AnyWithObject.create({
       data: { name: 'arr', meta: { data: [1, 'two', true], label: 'd' } },
     });
@@ -61,6 +43,7 @@ describe('E2E Any: Nesting', () => {
   });
 
   test('findMany on AnyWithObject returns correct data', async () => {
+    const client = getClient();
     await client.db.AnyWithObject.create({
       data: { name: 'search', meta: { data: { nested: true }, label: 'find-me' } },
     });
@@ -75,6 +58,7 @@ describe('E2E Any: Nesting', () => {
   });
 
   test('update Any field in AnyBasic', async () => {
+    const client = getClient();
     const created = await client.db.AnyBasic.create({
       data: { name: 'update-test', data: 'original' },
     });
@@ -93,6 +77,7 @@ describe('E2E Any: Nesting', () => {
   });
 
   test('select specific fields with Any', async () => {
+    const client = getClient();
     await client.db.AnyBasic.create({
       data: { name: 'select-test', data: 'val' },
     });

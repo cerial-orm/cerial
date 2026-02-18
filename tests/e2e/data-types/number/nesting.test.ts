@@ -1,33 +1,12 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import {
-  type CerialClient,
-  cleanupTables,
-  createTestClient,
-  tables,
-  testConfig,
-  truncateTables,
-} from '../../test-helper';
-
-const NUMBER_TABLES = tables.number;
+import { describe, expect, test } from 'bun:test';
+import { tables } from '../../test-helper';
+import { setupDataTypeTests } from '../test-factory';
 
 describe('E2E Number: Nesting in Objects and Tuples', () => {
-  let client: CerialClient;
-
-  beforeAll(async () => {
-    client = createTestClient();
-    await client.connect(testConfig);
-    await cleanupTables(client, NUMBER_TABLES);
-  });
-
-  afterAll(async () => {
-    await client.disconnect();
-  });
-
-  beforeEach(async () => {
-    await truncateTables(client, NUMBER_TABLES);
-  });
+  const { getClient } = setupDataTypeTests(tables.number);
 
   test('select Number fields from object', async () => {
+    const client = getClient();
     const created = await client.db.NumberWithObject.create({
       data: {
         name: 'ObjectSelect',
@@ -50,6 +29,7 @@ describe('E2E Number: Nesting in Objects and Tuples', () => {
   });
 
   test('updateUnique Number field in object', async () => {
+    const client = getClient();
     const created = await client.db.NumberWithObject.create({
       data: {
         name: 'ObjectUpdate',
@@ -76,6 +56,7 @@ describe('E2E Number: Nesting in Objects and Tuples', () => {
   });
 
   test('select Number elements from tuple', async () => {
+    const client = getClient();
     const created = await client.db.NumberWithTuple.create({
       data: {
         name: 'TupleSelect',
@@ -94,6 +75,7 @@ describe('E2E Number: Nesting in Objects and Tuples', () => {
   });
 
   test('updateUnique Number elements in tuple', async () => {
+    const client = getClient();
     const created = await client.db.NumberWithTuple.create({
       data: {
         name: 'TupleUpdate',
@@ -115,6 +97,7 @@ describe('E2E Number: Nesting in Objects and Tuples', () => {
   });
 
   test('filter by Number in object field', async () => {
+    const client = getClient();
     await client.db.NumberWithObject.create({
       data: {
         name: 'FilterObject1',

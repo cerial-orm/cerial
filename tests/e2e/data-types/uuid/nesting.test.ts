@@ -1,37 +1,17 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import { CerialUuid } from 'cerial';
-import {
-  type CerialClient,
-  cleanupTables,
-  createTestClient,
-  tables,
-  testConfig,
-  truncateTables,
-} from '../../test-helper';
+import { tables } from '../../test-helper';
+import { setupDataTypeTests } from '../test-factory';
 
-const UUID_TABLES = tables.uuid;
 const UUID_A = '550e8400-e29b-41d4-a716-446655440000';
 const UUID_B = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
 
 describe('E2E UUID: Nesting (Object + Tuple)', () => {
-  let client: CerialClient;
-
-  beforeAll(async () => {
-    client = createTestClient();
-    await client.connect(testConfig);
-    await cleanupTables(client, UUID_TABLES);
-  });
-
-  afterAll(async () => {
-    await client.disconnect();
-  });
-
-  beforeEach(async () => {
-    await truncateTables(client, UUID_TABLES);
-  });
+  const { getClient } = setupDataTypeTests(tables.uuid);
 
   describe('UUID in object fields', () => {
     test('create with required UUID in object', async () => {
+      const client = getClient();
       const result = await client.db.UuidWithObject.create({
         data: {
           name: 'nested-obj',
@@ -45,6 +25,7 @@ describe('E2E UUID: Nesting (Object + Tuple)', () => {
     });
 
     test('create with auto-generated UUID in object (@uuid)', async () => {
+      const client = getClient();
       const result = await client.db.UuidWithObject.create({
         data: {
           name: 'auto-obj',
@@ -56,6 +37,7 @@ describe('E2E UUID: Nesting (Object + Tuple)', () => {
     });
 
     test('create with optional UUID in object', async () => {
+      const client = getClient();
       const result = await client.db.UuidWithObject.create({
         data: {
           name: 'opt-uuid-obj',
@@ -68,6 +50,7 @@ describe('E2E UUID: Nesting (Object + Tuple)', () => {
     });
 
     test('roundtrip object UUID through findUnique', async () => {
+      const client = getClient();
       const created = await client.db.UuidWithObject.create({
         data: {
           name: 'roundtrip-obj',
@@ -83,6 +66,7 @@ describe('E2E UUID: Nesting (Object + Tuple)', () => {
     });
 
     test('optional object field omitted returns undefined', async () => {
+      const client = getClient();
       const result = await client.db.UuidWithObject.create({
         data: {
           name: 'no-opt-obj',
@@ -96,6 +80,7 @@ describe('E2E UUID: Nesting (Object + Tuple)', () => {
 
   describe('UUID in tuple fields', () => {
     test('create with UUID tuple (array form)', async () => {
+      const client = getClient();
       const result = await client.db.UuidWithTuple.create({
         data: {
           name: 'tuple-arr',
@@ -111,6 +96,7 @@ describe('E2E UUID: Nesting (Object + Tuple)', () => {
     });
 
     test('create with UUID tuple (object form)', async () => {
+      const client = getClient();
       const result = await client.db.UuidWithTuple.create({
         data: {
           name: 'tuple-obj',
@@ -124,6 +110,7 @@ describe('E2E UUID: Nesting (Object + Tuple)', () => {
     });
 
     test('roundtrip tuple UUID through findUnique', async () => {
+      const client = getClient();
       const created = await client.db.UuidWithTuple.create({
         data: {
           name: 'roundtrip-tuple',
@@ -140,6 +127,7 @@ describe('E2E UUID: Nesting (Object + Tuple)', () => {
     });
 
     test('optional tuple field omitted returns undefined', async () => {
+      const client = getClient();
       const result = await client.db.UuidWithTuple.create({
         data: {
           name: 'no-opt-tuple',

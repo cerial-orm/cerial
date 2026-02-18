@@ -1,39 +1,19 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import { CerialUuid } from 'cerial';
-import {
-  type CerialClient,
-  cleanupTables,
-  createTestClient,
-  tables,
-  testConfig,
-  truncateTables,
-} from '../../test-helper';
+import { tables } from '../../test-helper';
+import { setupDataTypeTests } from '../test-factory';
 
-const UUID_TABLES = tables.uuid;
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const UUID_V4_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const UUID_V7_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const SAMPLE_UUID = '550e8400-e29b-41d4-a716-446655440000';
 
 describe('E2E UUID: Decorators (@uuid, @uuid4, @uuid7)', () => {
-  let client: CerialClient;
-
-  beforeAll(async () => {
-    client = createTestClient();
-    await client.connect(testConfig);
-    await cleanupTables(client, UUID_TABLES);
-  });
-
-  afterAll(async () => {
-    await client.disconnect();
-  });
-
-  beforeEach(async () => {
-    await truncateTables(client, UUID_TABLES);
-  });
+  const { getClient } = setupDataTypeTests(tables.uuid);
 
   describe('@uuid (default auto-generation)', () => {
     test('auto-generates UUID when field omitted', async () => {
+      const client = getClient();
       const result = await client.db.UuidDecorated.create({
         data: { name: 'auto' },
       });
@@ -43,6 +23,7 @@ describe('E2E UUID: Decorators (@uuid, @uuid4, @uuid7)', () => {
     });
 
     test('uses provided UUID when explicitly set', async () => {
+      const client = getClient();
       const result = await client.db.UuidDecorated.create({
         data: { name: 'explicit', autoId: SAMPLE_UUID },
       });
@@ -51,6 +32,7 @@ describe('E2E UUID: Decorators (@uuid, @uuid4, @uuid7)', () => {
     });
 
     test('each create generates a unique UUID', async () => {
+      const client = getClient();
       const r1 = await client.db.UuidDecorated.create({ data: { name: 'u1' } });
       const r2 = await client.db.UuidDecorated.create({ data: { name: 'u2' } });
 
@@ -60,6 +42,7 @@ describe('E2E UUID: Decorators (@uuid, @uuid4, @uuid7)', () => {
 
   describe('@uuid4 (v4 auto-generation)', () => {
     test('auto-generates v4 UUID when field omitted', async () => {
+      const client = getClient();
       const result = await client.db.UuidDecorated.create({
         data: { name: 'auto-v4' },
       });
@@ -69,6 +52,7 @@ describe('E2E UUID: Decorators (@uuid, @uuid4, @uuid7)', () => {
     });
 
     test('uses provided UUID when explicitly set', async () => {
+      const client = getClient();
       const result = await client.db.UuidDecorated.create({
         data: { name: 'explicit-v4', autoV4: SAMPLE_UUID },
       });
@@ -79,6 +63,7 @@ describe('E2E UUID: Decorators (@uuid, @uuid4, @uuid7)', () => {
 
   describe('@uuid7 (v7 auto-generation)', () => {
     test('auto-generates v7 UUID when field omitted', async () => {
+      const client = getClient();
       const result = await client.db.UuidDecorated.create({
         data: { name: 'auto-v7' },
       });
@@ -88,6 +73,7 @@ describe('E2E UUID: Decorators (@uuid, @uuid4, @uuid7)', () => {
     });
 
     test('v7 UUIDs are time-ordered', async () => {
+      const client = getClient();
       const r1 = await client.db.UuidDecorated.create({ data: { name: 'ord1' } });
       await new Promise((r) => setTimeout(r, 10));
       const r2 = await client.db.UuidDecorated.create({ data: { name: 'ord2' } });
@@ -98,6 +84,7 @@ describe('E2E UUID: Decorators (@uuid, @uuid4, @uuid7)', () => {
 
   describe('optional @uuid field', () => {
     test('auto-generates when omitted (optional + @uuid)', async () => {
+      const client = getClient();
       const result = await client.db.UuidDecorated.create({
         data: { name: 'opt-auto' },
       });
@@ -106,6 +93,7 @@ describe('E2E UUID: Decorators (@uuid, @uuid4, @uuid7)', () => {
     });
 
     test('uses provided value when explicitly set', async () => {
+      const client = getClient();
       const result = await client.db.UuidDecorated.create({
         data: { name: 'opt-explicit', optAutoId: SAMPLE_UUID },
       });
@@ -116,6 +104,7 @@ describe('E2E UUID: Decorators (@uuid, @uuid4, @uuid7)', () => {
 
   describe('all decorators on same model', () => {
     test('all three decorator fields auto-generate independently', async () => {
+      const client = getClient();
       const result = await client.db.UuidDecorated.create({
         data: { name: 'all-auto' },
       });
@@ -130,6 +119,7 @@ describe('E2E UUID: Decorators (@uuid, @uuid4, @uuid7)', () => {
     });
 
     test('findUnique reads back all auto-generated UUIDs', async () => {
+      const client = getClient();
       const created = await client.db.UuidDecorated.create({
         data: { name: 'roundtrip-dec' },
       });
@@ -145,6 +135,7 @@ describe('E2E UUID: Decorators (@uuid, @uuid4, @uuid7)', () => {
 
   describe('object with @uuid decorator', () => {
     test('auto-generates UUID for object field with @uuid (autoGenId)', async () => {
+      const client = getClient();
       const result = await client.db.UuidWithObject.create({
         data: {
           name: 'obj-decorator',

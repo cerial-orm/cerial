@@ -1,34 +1,13 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import { CerialBytes, isCerialId } from 'cerial';
-import {
-  type CerialClient,
-  cleanupTables,
-  createTestClient,
-  tables,
-  testConfig,
-  truncateTables,
-} from '../../test-helper';
-
-const BYTES_TABLES = tables.bytes;
+import { tables } from '../../test-helper';
+import { setupDataTypeTests } from '../test-factory';
 
 describe('E2E Bytes: Create', () => {
-  let client: CerialClient;
-
-  beforeAll(async () => {
-    client = createTestClient();
-    await client.connect(testConfig);
-    await cleanupTables(client, BYTES_TABLES);
-  });
-
-  afterAll(async () => {
-    await client.disconnect();
-  });
-
-  beforeEach(async () => {
-    await truncateTables(client, BYTES_TABLES);
-  });
+  const { getClient } = setupDataTypeTests(tables.bytes);
 
   test('create with Uint8Array input', async () => {
+    const client = getClient();
     const payload = new Uint8Array([1, 2, 3, 4, 5]);
     const result = await client.db.BytesBasic.create({
       data: { name: 'test', payload, tag: null },
@@ -41,6 +20,7 @@ describe('E2E Bytes: Create', () => {
   });
 
   test('create with base64 string input', async () => {
+    const client = getClient();
     const data = new Uint8Array([10, 20, 30]);
     const b64 = Buffer.from(data).toString('base64');
     const result = await client.db.BytesBasic.create({
@@ -52,6 +32,7 @@ describe('E2E Bytes: Create', () => {
   });
 
   test('create with CerialBytes input', async () => {
+    const client = getClient();
     const input = CerialBytes.from(new Uint8Array([100, 200]));
     const result = await client.db.BytesBasic.create({
       data: { name: 'test', payload: input, tag: null },
@@ -62,6 +43,7 @@ describe('E2E Bytes: Create', () => {
   });
 
   test('create with Buffer input', async () => {
+    const client = getClient();
     const buf = Buffer.from([7, 8, 9]);
     const result = await client.db.BytesBasic.create({
       data: { name: 'test', payload: buf, tag: null },
@@ -72,6 +54,7 @@ describe('E2E Bytes: Create', () => {
   });
 
   test('create with optional field present', async () => {
+    const client = getClient();
     const meta = new Uint8Array([11, 22]);
     const result = await client.db.BytesBasic.create({
       data: { name: 'test', payload: new Uint8Array([1]), metadata: meta, tag: null },
@@ -82,6 +65,7 @@ describe('E2E Bytes: Create', () => {
   });
 
   test('create with optional field absent', async () => {
+    const client = getClient();
     const result = await client.db.BytesBasic.create({
       data: { name: 'test', payload: new Uint8Array([1]), tag: null },
     });
@@ -90,6 +74,7 @@ describe('E2E Bytes: Create', () => {
   });
 
   test('create with nullable field set to null', async () => {
+    const client = getClient();
     const result = await client.db.BytesBasic.create({
       data: { name: 'test', payload: new Uint8Array([1]), tag: null },
     });
@@ -98,6 +83,7 @@ describe('E2E Bytes: Create', () => {
   });
 
   test('create with nullable field set to value', async () => {
+    const client = getClient();
     const tagData = new Uint8Array([99]);
     const result = await client.db.BytesBasic.create({
       data: { name: 'test', payload: new Uint8Array([1]), tag: tagData },
@@ -108,6 +94,7 @@ describe('E2E Bytes: Create', () => {
   });
 
   test('create with array field', async () => {
+    const client = getClient();
     const c1 = new Uint8Array([1, 2]);
     const c2 = new Uint8Array([3, 4]);
     const result = await client.db.BytesBasic.create({
@@ -121,6 +108,7 @@ describe('E2E Bytes: Create', () => {
   });
 
   test('create with empty array field', async () => {
+    const client = getClient();
     const result = await client.db.BytesBasic.create({
       data: { name: 'test', payload: new Uint8Array([0]), tag: null },
     });
@@ -129,6 +117,7 @@ describe('E2E Bytes: Create', () => {
   });
 
   test('create and findMany roundtrip', async () => {
+    const client = getClient();
     const payload = new Uint8Array([50, 100, 150, 200, 250]);
     await client.db.BytesBasic.create({
       data: { name: 'roundtrip', payload, tag: null },

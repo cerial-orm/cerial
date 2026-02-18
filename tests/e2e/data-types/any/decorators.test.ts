@@ -1,38 +1,17 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import { isCerialId } from 'cerial';
-import {
-  type CerialClient,
-  cleanupTables,
-  createTestClient,
-  tables,
-  testConfig,
-  truncateTables,
-} from '../../test-helper';
-
-const ANY_TABLES = tables.any;
+import { tables } from '../../test-helper';
+import { setupDataTypeTests } from '../test-factory';
 
 describe('E2E Any: Decorators', () => {
-  let client: CerialClient;
-
-  beforeAll(async () => {
-    client = createTestClient();
-    await client.connect(testConfig);
-    await cleanupTables(client, ANY_TABLES);
-  });
-
-  afterAll(async () => {
-    await client.disconnect();
-  });
-
-  beforeEach(async () => {
-    await truncateTables(client, ANY_TABLES);
-  });
+  const { getClient } = setupDataTypeTests(tables.any);
 
   // ---------------------------------------------------------------------------
   // @default
   // ---------------------------------------------------------------------------
 
   test('@default — omitted field gets default value', async () => {
+    const client = getClient();
     const result = await client.db.AnyDecorated.create({
       data: { readonlyData: 'ro', indexedData: 'idx' },
     });
@@ -41,6 +20,7 @@ describe('E2E Any: Decorators', () => {
   });
 
   test('@default — explicit value overrides default', async () => {
+    const client = getClient();
     const result = await client.db.AnyDecorated.create({
       data: { defData: 999, readonlyData: 'ro', indexedData: 'idx' },
     });
@@ -49,6 +29,7 @@ describe('E2E Any: Decorators', () => {
   });
 
   test('@default — null overrides default', async () => {
+    const client = getClient();
     const result = await client.db.AnyDecorated.create({
       data: { defData: null, readonlyData: 'ro', indexedData: 'idx' },
     });
@@ -61,6 +42,7 @@ describe('E2E Any: Decorators', () => {
   // ---------------------------------------------------------------------------
 
   test('@defaultAlways — omitted field gets default on create', async () => {
+    const client = getClient();
     const result = await client.db.AnyDecorated.create({
       data: { readonlyData: 'ro', indexedData: 'idx' },
     });
@@ -69,6 +51,7 @@ describe('E2E Any: Decorators', () => {
   });
 
   test('@defaultAlways — explicit value overrides default on create', async () => {
+    const client = getClient();
     const result = await client.db.AnyDecorated.create({
       data: { alwaysData: 'custom', readonlyData: 'ro', indexedData: 'idx' },
     });
@@ -77,6 +60,7 @@ describe('E2E Any: Decorators', () => {
   });
 
   test('@defaultAlways — omitted field resets to default on update', async () => {
+    const client = getClient();
     const created = await client.db.AnyDecorated.create({
       data: { alwaysData: 'custom', readonlyData: 'ro', indexedData: 'idx' },
     });
@@ -91,6 +75,7 @@ describe('E2E Any: Decorators', () => {
   });
 
   test('@defaultAlways — explicit value on update persists', async () => {
+    const client = getClient();
     const created = await client.db.AnyDecorated.create({
       data: { readonlyData: 'ro', indexedData: 'idx' },
     });
@@ -109,6 +94,7 @@ describe('E2E Any: Decorators', () => {
   // ---------------------------------------------------------------------------
 
   test('@readonly — value set on create is stored', async () => {
+    const client = getClient();
     const result = await client.db.AnyDecorated.create({
       data: { readonlyData: { locked: true }, indexedData: 'idx' },
     });
@@ -117,6 +103,7 @@ describe('E2E Any: Decorators', () => {
   });
 
   test('@readonly — update without readonly field succeeds', async () => {
+    const client = getClient();
     const created = await client.db.AnyDecorated.create({
       data: { readonlyData: 'immutable', indexedData: 'idx' },
     });
@@ -136,6 +123,7 @@ describe('E2E Any: Decorators', () => {
   // ---------------------------------------------------------------------------
 
   test('@index — indexed field stores and retrieves correctly', async () => {
+    const client = getClient();
     await client.db.AnyDecorated.create({
       data: { readonlyData: 'ro', indexedData: 'searchable' },
     });
@@ -149,6 +137,7 @@ describe('E2E Any: Decorators', () => {
   });
 
   test('@index — indexed field works with numeric values', async () => {
+    const client = getClient();
     await client.db.AnyDecorated.create({
       data: { readonlyData: 'ro1', indexedData: 100 },
     });
@@ -169,6 +158,7 @@ describe('E2E Any: Decorators', () => {
   // ---------------------------------------------------------------------------
 
   test('@unique — first create succeeds', async () => {
+    const client = getClient();
     const result = await client.db.AnyUnique.create({
       data: { uniqueData: 'one-of-a-kind' },
     });
@@ -177,6 +167,7 @@ describe('E2E Any: Decorators', () => {
   });
 
   test('@unique — duplicate value throws', async () => {
+    const client = getClient();
     await client.db.AnyUnique.create({
       data: { uniqueData: 'taken' },
     });
@@ -191,6 +182,7 @@ describe('E2E Any: Decorators', () => {
   });
 
   test('@unique — different values succeed', async () => {
+    const client = getClient();
     await client.db.AnyUnique.create({ data: { uniqueData: 'first' } });
     const second = await client.db.AnyUnique.create({ data: { uniqueData: 'second' } });
 
@@ -202,6 +194,7 @@ describe('E2E Any: Decorators', () => {
   // ---------------------------------------------------------------------------
 
   test('@sort — array values come back sorted', async () => {
+    const client = getClient();
     const result = await client.db.AnyDecorated.create({
       data: { readonlyData: 'ro', indexedData: 'idx', sortedItems: [3, 1, 2] },
     });
@@ -210,6 +203,7 @@ describe('E2E Any: Decorators', () => {
   });
 
   test('@sort — string array comes back sorted', async () => {
+    const client = getClient();
     const result = await client.db.AnyDecorated.create({
       data: { readonlyData: 'ro', indexedData: 'idx', sortedItems: ['c', 'a', 'b'] },
     });
@@ -218,6 +212,7 @@ describe('E2E Any: Decorators', () => {
   });
 
   test('@sort — push maintains sort order', async () => {
+    const client = getClient();
     const created = await client.db.AnyDecorated.create({
       data: { readonlyData: 'ro', indexedData: 'idx', sortedItems: [1, 3] },
     });
@@ -236,6 +231,7 @@ describe('E2E Any: Decorators', () => {
   // ---------------------------------------------------------------------------
 
   test('@distinct — duplicates removed on create', async () => {
+    const client = getClient();
     const result = await client.db.AnyDecorated.create({
       data: { readonlyData: 'ro', indexedData: 'idx', distinctItems: [1, 2, 2, 3, 3, 3] },
     });
@@ -244,6 +240,7 @@ describe('E2E Any: Decorators', () => {
   });
 
   test('@distinct — push with existing value deduplicates', async () => {
+    const client = getClient();
     const created = await client.db.AnyDecorated.create({
       data: { readonlyData: 'ro', indexedData: 'idx', distinctItems: ['a', 'b'] },
     });
@@ -258,6 +255,7 @@ describe('E2E Any: Decorators', () => {
   });
 
   test('@distinct — push with new value adds it', async () => {
+    const client = getClient();
     const created = await client.db.AnyDecorated.create({
       data: { readonlyData: 'ro', indexedData: 'idx', distinctItems: ['a', 'b'] },
     });
@@ -277,6 +275,7 @@ describe('E2E Any: Decorators', () => {
   // ---------------------------------------------------------------------------
 
   test('all defaults applied when creating with minimal data', async () => {
+    const client = getClient();
     const result = await client.db.AnyDecorated.create({
       data: { readonlyData: 'ro', indexedData: 'idx' },
     });

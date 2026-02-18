@@ -1,37 +1,17 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import { CerialUuid } from 'cerial';
-import {
-  type CerialClient,
-  cleanupTables,
-  createTestClient,
-  tables,
-  testConfig,
-  truncateTables,
-} from '../../test-helper';
+import { tables } from '../../test-helper';
+import { setupDataTypeTests } from '../test-factory';
 
-const UUID_TABLES = tables.uuid;
 const UUID_A = '550e8400-e29b-41d4-a716-446655440000';
 const UUID_B = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
 const UUID_C = '00000000-0000-4000-8000-000000000003';
 
 describe('E2E UUID: Array Operations', () => {
-  let client: CerialClient;
-
-  beforeAll(async () => {
-    client = createTestClient();
-    await client.connect(testConfig);
-    await cleanupTables(client, UUID_TABLES);
-  });
-
-  afterAll(async () => {
-    await client.disconnect();
-  });
-
-  beforeEach(async () => {
-    await truncateTables(client, UUID_TABLES);
-  });
+  const { getClient } = setupDataTypeTests(tables.uuid);
 
   test('create with UUID array', async () => {
+    const client = getClient();
     const result = await client.db.UuidBasic.create({
       data: { name: 'arr', token: UUID_A, tags: [UUID_A, UUID_B] },
     });
@@ -41,6 +21,7 @@ describe('E2E UUID: Array Operations', () => {
   });
 
   test('create with empty UUID array', async () => {
+    const client = getClient();
     const result = await client.db.UuidBasic.create({
       data: { name: 'empty', token: UUID_A, tags: [] },
     });
@@ -49,6 +30,7 @@ describe('E2E UUID: Array Operations', () => {
   });
 
   test('update: set UUID array', async () => {
+    const client = getClient();
     const created = await client.db.UuidBasic.create({
       data: { name: 'set-arr', token: UUID_A, tags: [UUID_A] },
     });
@@ -65,6 +47,7 @@ describe('E2E UUID: Array Operations', () => {
   });
 
   test('update: push single UUID to array', async () => {
+    const client = getClient();
     const created = await client.db.UuidBasic.create({
       data: { name: 'push-single', token: UUID_A, tags: [UUID_A] },
     });
@@ -81,6 +64,7 @@ describe('E2E UUID: Array Operations', () => {
   });
 
   test('update: push multiple UUIDs to array', async () => {
+    const client = getClient();
     const created = await client.db.UuidBasic.create({
       data: { name: 'push-multi', token: UUID_A, tags: [] },
     });
@@ -95,6 +79,7 @@ describe('E2E UUID: Array Operations', () => {
   });
 
   test('update: replace entire array', async () => {
+    const client = getClient();
     const created = await client.db.UuidBasic.create({
       data: { name: 'replace', token: UUID_A, tags: [UUID_A, UUID_B, UUID_C] },
     });

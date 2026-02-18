@@ -1,37 +1,17 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import { CerialUuid, isCerialId } from 'cerial';
 import { Uuid } from 'surrealdb';
-import {
-  type CerialClient,
-  cleanupTables,
-  createTestClient,
-  tables,
-  testConfig,
-  truncateTables,
-} from '../../test-helper';
+import { tables } from '../../test-helper';
+import { setupDataTypeTests } from '../test-factory';
 
-const UUID_TABLES = tables.uuid;
 const SAMPLE_UUID = '550e8400-e29b-41d4-a716-446655440000';
 const SAMPLE_UUID2 = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
 
 describe('E2E UUID: Create', () => {
-  let client: CerialClient;
-
-  beforeAll(async () => {
-    client = createTestClient();
-    await client.connect(testConfig);
-    await cleanupTables(client, UUID_TABLES);
-  });
-
-  afterAll(async () => {
-    await client.disconnect();
-  });
-
-  beforeEach(async () => {
-    await truncateTables(client, UUID_TABLES);
-  });
+  const { getClient } = setupDataTypeTests(tables.uuid);
 
   test('create with explicit UUID string', async () => {
+    const client = getClient();
     const result = await client.db.UuidBasic.create({
       data: { name: 'test', token: SAMPLE_UUID },
     });
@@ -43,6 +23,7 @@ describe('E2E UUID: Create', () => {
   });
 
   test('create with CerialUuid input', async () => {
+    const client = getClient();
     const input = new CerialUuid(SAMPLE_UUID);
     const result = await client.db.UuidBasic.create({
       data: { name: 'test', token: input },
@@ -53,6 +34,7 @@ describe('E2E UUID: Create', () => {
   });
 
   test('create with SDK Uuid input', async () => {
+    const client = getClient();
     const native = new Uuid(SAMPLE_UUID);
     const result = await client.db.UuidBasic.create({
       data: { name: 'test', token: native },
@@ -63,6 +45,7 @@ describe('E2E UUID: Create', () => {
   });
 
   test('optional UUID omitted returns undefined', async () => {
+    const client = getClient();
     const result = await client.db.UuidBasic.create({
       data: { name: 'test', token: SAMPLE_UUID },
     });
@@ -71,6 +54,7 @@ describe('E2E UUID: Create', () => {
   });
 
   test('optional UUID provided returns CerialUuid', async () => {
+    const client = getClient();
     const result = await client.db.UuidBasic.create({
       data: { name: 'test', token: SAMPLE_UUID, optionalToken: SAMPLE_UUID2 },
     });
@@ -80,6 +64,7 @@ describe('E2E UUID: Create', () => {
   });
 
   test('nullable UUID set to null returns null', async () => {
+    const client = getClient();
     const result = await client.db.UuidBasic.create({
       data: { name: 'test', token: SAMPLE_UUID, nullableToken: null },
     });
@@ -88,6 +73,7 @@ describe('E2E UUID: Create', () => {
   });
 
   test('nullable UUID set to value returns CerialUuid', async () => {
+    const client = getClient();
     const result = await client.db.UuidBasic.create({
       data: { name: 'test', token: SAMPLE_UUID, nullableToken: SAMPLE_UUID2 },
     });
@@ -97,6 +83,7 @@ describe('E2E UUID: Create', () => {
   });
 
   test('UUID array defaults to empty when omitted', async () => {
+    const client = getClient();
     const result = await client.db.UuidBasic.create({
       data: { name: 'test', token: SAMPLE_UUID },
     });
@@ -105,8 +92,13 @@ describe('E2E UUID: Create', () => {
   });
 
   test('UUID array with values', async () => {
+    const client = getClient();
     const result = await client.db.UuidBasic.create({
-      data: { name: 'test', token: SAMPLE_UUID, tags: [SAMPLE_UUID, SAMPLE_UUID2] },
+      data: {
+        name: 'test',
+        token: SAMPLE_UUID,
+        tags: [SAMPLE_UUID, SAMPLE_UUID2],
+      },
     });
 
     expect(result.tags).toHaveLength(2);
@@ -117,6 +109,7 @@ describe('E2E UUID: Create', () => {
   });
 
   test('findUnique reads back UUID correctly', async () => {
+    const client = getClient();
     const created = await client.db.UuidBasic.create({
       data: {
         name: 'roundtrip',
@@ -127,7 +120,9 @@ describe('E2E UUID: Create', () => {
       },
     });
 
-    const found = await client.db.UuidBasic.findUnique({ where: { id: created.id } });
+    const found = await client.db.UuidBasic.findUnique({
+      where: { id: created.id },
+    });
 
     expect(found).not.toBeNull();
     expect(CerialUuid.is(found!.token)).toBe(true);
@@ -138,6 +133,7 @@ describe('E2E UUID: Create', () => {
   });
 
   test('update UUID field', async () => {
+    const client = getClient();
     const created = await client.db.UuidBasic.create({
       data: { name: 'upd', token: SAMPLE_UUID },
     });
@@ -152,13 +148,16 @@ describe('E2E UUID: Create', () => {
   });
 
   test('delete record with UUID fields', async () => {
+    const client = getClient();
     const created = await client.db.UuidBasic.create({
       data: { name: 'del', token: SAMPLE_UUID },
     });
 
     await client.db.UuidBasic.deleteUnique({ where: { id: created.id } });
 
-    const found = await client.db.UuidBasic.findUnique({ where: { id: created.id } });
+    const found = await client.db.UuidBasic.findUnique({
+      where: { id: created.id },
+    });
     expect(found).toBeNull();
   });
 });

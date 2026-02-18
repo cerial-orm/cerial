@@ -1,34 +1,13 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import { CerialDuration } from 'cerial';
-import {
-  type CerialClient,
-  cleanupTables,
-  createTestClient,
-  tables,
-  testConfig,
-  truncateTables,
-} from '../../test-helper';
-
-const DURATION_TABLES = tables.duration;
+import { tables } from '../../test-helper';
+import { setupDataTypeTests } from '../test-factory';
 
 describe('E2E Duration: Decorators', () => {
-  let client: CerialClient;
-
-  beforeAll(async () => {
-    client = createTestClient();
-    await client.connect(testConfig);
-    await cleanupTables(client, DURATION_TABLES);
-  });
-
-  afterAll(async () => {
-    await client.disconnect();
-  });
-
-  beforeEach(async () => {
-    await truncateTables(client, DURATION_TABLES);
-  });
+  const { getClient } = setupDataTypeTests(tables.duration);
 
   test('@default fills duration when omitted', async () => {
+    const client = getClient();
     const result = await client.db.DurationDecorated.create({
       data: { name: 'test' },
     });
@@ -38,6 +17,7 @@ describe('E2E Duration: Decorators', () => {
   });
 
   test('@default overridden when provided', async () => {
+    const client = getClient();
     const result = await client.db.DurationDecorated.create({
       data: { name: 'test', defaultTtl: '2h' },
     });
@@ -47,6 +27,7 @@ describe('E2E Duration: Decorators', () => {
   });
 
   test('@defaultAlways fills duration when omitted', async () => {
+    const client = getClient();
     const result = await client.db.DurationDecorated.create({
       data: { name: 'test' },
     });
@@ -57,6 +38,7 @@ describe('E2E Duration: Decorators', () => {
   });
 
   test('@defaultAlways resets on update when field omitted', async () => {
+    const client = getClient();
     const created = await client.db.DurationDecorated.create({
       data: { name: 'test', alwaysTtl: '5h' },
     });
@@ -75,6 +57,7 @@ describe('E2E Duration: Decorators', () => {
   });
 
   test('@defaultAlways overridden when provided on update', async () => {
+    const client = getClient();
     const created = await client.db.DurationDecorated.create({
       data: { name: 'test' },
     });
@@ -90,6 +73,7 @@ describe('E2E Duration: Decorators', () => {
   });
 
   test('select on decorated model', async () => {
+    const client = getClient();
     await client.db.DurationDecorated.create({ data: { name: 'test' } });
 
     const results = await client.db.DurationDecorated.findMany({

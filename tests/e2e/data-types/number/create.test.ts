@@ -1,33 +1,12 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import {
-  type CerialClient,
-  cleanupTables,
-  createTestClient,
-  tables,
-  testConfig,
-  truncateTables,
-} from '../../test-helper';
-
-const NUMBER_TABLES = tables.number;
+import { describe, expect, test } from 'bun:test';
+import { tables } from '../../test-helper';
+import { setupDataTypeTests } from '../test-factory';
 
 describe('E2E Number: Create', () => {
-  let client: CerialClient;
-
-  beforeAll(async () => {
-    client = createTestClient();
-    await client.connect(testConfig);
-    await cleanupTables(client, NUMBER_TABLES);
-  });
-
-  afterAll(async () => {
-    await client.disconnect();
-  });
-
-  beforeEach(async () => {
-    await truncateTables(client, NUMBER_TABLES);
-  });
+  const { getClient } = setupDataTypeTests(tables.number);
 
   test('create with required Number field', async () => {
+    const client = getClient();
     const result = await client.db.NumberBasic.create({
       data: {
         name: 'Widget',
@@ -41,6 +20,7 @@ describe('E2E Number: Create', () => {
   });
 
   test('create with integer Number field', async () => {
+    const client = getClient();
     const result = await client.db.NumberBasic.create({
       data: {
         name: 'Gadget',
@@ -53,6 +33,7 @@ describe('E2E Number: Create', () => {
   });
 
   test('create with optional Number field omitted', async () => {
+    const client = getClient();
     const result = await client.db.NumberBasic.create({
       data: {
         name: 'Item',
@@ -65,6 +46,7 @@ describe('E2E Number: Create', () => {
   });
 
   test('create with optional Number field provided', async () => {
+    const client = getClient();
     const result = await client.db.NumberBasic.create({
       data: {
         name: 'Item',
@@ -78,6 +60,7 @@ describe('E2E Number: Create', () => {
   });
 
   test('create with nullable Number field set to null', async () => {
+    const client = getClient();
     const result = await client.db.NumberBasic.create({
       data: {
         name: 'Thing',
@@ -90,6 +73,7 @@ describe('E2E Number: Create', () => {
   });
 
   test('create with nullable Number field set to value', async () => {
+    const client = getClient();
     const result = await client.db.NumberBasic.create({
       data: {
         name: 'Thing',
@@ -102,6 +86,7 @@ describe('E2E Number: Create', () => {
   });
 
   test('create with Number array defaults to empty', async () => {
+    const client = getClient();
     const result = await client.db.NumberBasic.create({
       data: {
         name: 'NoScores',
@@ -115,6 +100,7 @@ describe('E2E Number: Create', () => {
   });
 
   test('create with Number array provided', async () => {
+    const client = getClient();
     const result = await client.db.NumberBasic.create({
       data: {
         name: 'WithScores',
@@ -131,6 +117,7 @@ describe('E2E Number: Create', () => {
   });
 
   test('create with @default Number field', async () => {
+    const client = getClient();
     const result = await client.db.NumberDecorated.create({
       data: {
         name: 'DefaultTest',
@@ -141,6 +128,7 @@ describe('E2E Number: Create', () => {
   });
 
   test('create with @default Number field overridden', async () => {
+    const client = getClient();
     const result = await client.db.NumberDecorated.create({
       data: {
         name: 'OverrideTest',
@@ -152,6 +140,7 @@ describe('E2E Number: Create', () => {
   });
 
   test('create with @defaultAlways Number field', async () => {
+    const client = getClient();
     const result = await client.db.NumberDecorated.create({
       data: {
         name: 'DefaultAlwaysTest',
@@ -162,6 +151,7 @@ describe('E2E Number: Create', () => {
   });
 
   test('create with @defaultAlways Number field overridden', async () => {
+    const client = getClient();
     const result = await client.db.NumberDecorated.create({
       data: {
         name: 'DefaultAlwaysOverride',
@@ -173,6 +163,7 @@ describe('E2E Number: Create', () => {
   });
 
   test('create with Number in object field', async () => {
+    const client = getClient();
     const result = await client.db.NumberWithObject.create({
       data: {
         name: 'ObjectTest',
@@ -190,6 +181,7 @@ describe('E2E Number: Create', () => {
   });
 
   test('create with Number in object field with defaults', async () => {
+    const client = getClient();
     const result = await client.db.NumberWithObject.create({
       data: {
         name: 'ObjectDefaults',
@@ -205,6 +197,7 @@ describe('E2E Number: Create', () => {
   });
 
   test('create with optional object field omitted', async () => {
+    const client = getClient();
     const result = await client.db.NumberWithObject.create({
       data: {
         name: 'NoOptStats',
@@ -218,6 +211,7 @@ describe('E2E Number: Create', () => {
   });
 
   test('create with optional object field provided', async () => {
+    const client = getClient();
     const result = await client.db.NumberWithObject.create({
       data: {
         name: 'WithOptStats',
@@ -237,6 +231,7 @@ describe('E2E Number: Create', () => {
   });
 
   test('create with Number in tuple field', async () => {
+    const client = getClient();
     const result = await client.db.NumberWithTuple.create({
       data: {
         name: 'TupleTest',
@@ -250,6 +245,7 @@ describe('E2E Number: Create', () => {
   });
 
   test('create with Number in tuple field with optional element omitted (object form)', async () => {
+    const client = getClient();
     const result = await client.db.NumberWithTuple.create({
       data: {
         name: 'TupleOptional',
@@ -264,6 +260,7 @@ describe('E2E Number: Create', () => {
   });
 
   test('create with optional tuple field omitted', async () => {
+    const client = getClient();
     const result = await client.db.NumberWithTuple.create({
       data: {
         name: 'NoOptCoord',
@@ -275,6 +272,7 @@ describe('E2E Number: Create', () => {
   });
 
   test('create with optional tuple field provided', async () => {
+    const client = getClient();
     const result = await client.db.NumberWithTuple.create({
       data: {
         name: 'WithOptCoord',

@@ -1,34 +1,13 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import { CerialBytes } from 'cerial';
-import {
-  type CerialClient,
-  cleanupTables,
-  createTestClient,
-  tables,
-  testConfig,
-  truncateTables,
-} from '../../test-helper';
-
-const BYTES_TABLES = tables.bytes;
+import { tables } from '../../test-helper';
+import { setupDataTypeTests } from '../test-factory';
 
 describe('E2E Bytes: Array Operations', () => {
-  let client: CerialClient;
-
-  beforeAll(async () => {
-    client = createTestClient();
-    await client.connect(testConfig);
-    await cleanupTables(client, BYTES_TABLES);
-  });
-
-  afterAll(async () => {
-    await client.disconnect();
-  });
-
-  beforeEach(async () => {
-    await truncateTables(client, BYTES_TABLES);
-  });
+  const { getClient } = setupDataTypeTests(tables.bytes);
 
   test('push single element to array', async () => {
+    const client = getClient();
     const result = await client.db.BytesBasic.create({
       data: { name: 'push', payload: new Uint8Array([0]), tag: null, chunks: [new Uint8Array([1])] },
     });
@@ -45,6 +24,7 @@ describe('E2E Bytes: Array Operations', () => {
   });
 
   test('push multiple elements to array', async () => {
+    const client = getClient();
     const result = await client.db.BytesBasic.create({
       data: { name: 'push-multi', payload: new Uint8Array([0]), tag: null },
     });
@@ -59,6 +39,7 @@ describe('E2E Bytes: Array Operations', () => {
   });
 
   test('full replace array', async () => {
+    const client = getClient();
     const result = await client.db.BytesBasic.create({
       data: { name: 'replace', payload: new Uint8Array([0]), tag: null, chunks: [new Uint8Array([1])] },
     });
@@ -75,6 +56,7 @@ describe('E2E Bytes: Array Operations', () => {
   });
 
   test('array elements are CerialBytes on output', async () => {
+    const client = getClient();
     const result = await client.db.BytesBasic.create({
       data: { name: 'output-type', payload: new Uint8Array([0]), tag: null, chunks: [new Uint8Array([1, 2, 3])] },
     });
@@ -84,6 +66,7 @@ describe('E2E Bytes: Array Operations', () => {
   });
 
   test('create with base64 strings in array', async () => {
+    const client = getClient();
     const data1 = new Uint8Array([1, 2]);
     const data2 = new Uint8Array([3, 4]);
     const b64_1 = Buffer.from(data1).toString('base64');

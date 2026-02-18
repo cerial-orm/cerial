@@ -1,33 +1,12 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import {
-  type CerialClient,
-  cleanupTables,
-  createTestClient,
-  tables,
-  testConfig,
-  truncateTables,
-} from '../../test-helper';
-
-const NUMBER_TABLES = tables.number;
+import { describe, expect, test } from 'bun:test';
+import { tables } from '../../test-helper';
+import { setupDataTypeTests } from '../test-factory';
 
 describe('E2E Number: Array Operations', () => {
-  let client: CerialClient;
-
-  beforeAll(async () => {
-    client = createTestClient();
-    await client.connect(testConfig);
-    await cleanupTables(client, NUMBER_TABLES);
-  });
-
-  afterAll(async () => {
-    await client.disconnect();
-  });
-
-  beforeEach(async () => {
-    await truncateTables(client, NUMBER_TABLES);
-  });
+  const { getClient } = setupDataTypeTests(tables.number);
 
   test('create with empty Number array', async () => {
+    const client = getClient();
     const result = await client.db.NumberBasic.create({
       data: {
         name: 'EmptyScores',
@@ -41,6 +20,7 @@ describe('E2E Number: Array Operations', () => {
   });
 
   test('create with Number array', async () => {
+    const client = getClient();
     const result = await client.db.NumberBasic.create({
       data: {
         name: 'WithScores',
@@ -57,6 +37,7 @@ describe('E2E Number: Array Operations', () => {
   });
 
   test('updateUnique Number array', async () => {
+    const client = getClient();
     const created = await client.db.NumberBasic.create({
       data: {
         name: 'UpdateScores',

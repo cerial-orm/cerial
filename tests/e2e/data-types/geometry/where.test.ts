@@ -1,32 +1,10 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import { CerialPoint } from 'cerial';
-import {
-  type CerialClient,
-  cleanupTables,
-  createTestClient,
-  tables,
-  testConfig,
-  truncateTables,
-} from '../../test-helper';
-
-const GEO_TABLES = tables.geometry;
+import { tables } from '../../test-helper';
+import { setupDataTypeTests } from '../test-factory';
 
 describe('E2E Geometry: Where', () => {
-  let client: CerialClient;
-
-  beforeAll(async () => {
-    client = createTestClient();
-    await client.connect(testConfig);
-    await cleanupTables(client, GEO_TABLES);
-  });
-
-  afterAll(async () => {
-    await client.disconnect();
-  });
-
-  beforeEach(async () => {
-    await truncateTables(client, GEO_TABLES);
-  });
+  const { getClient } = setupDataTypeTests(tables.geometry);
 
   const baseData = (name: string, location: [number, number]) => ({
     name,
@@ -54,6 +32,7 @@ describe('E2E Geometry: Where', () => {
   });
 
   test('filter by direct equality with [lon, lat]', async () => {
+    const client = getClient();
     await client.db.GeometryBasic.create({ data: baseData('a', [1, 2]) });
     await client.db.GeometryBasic.create({ data: baseData('b', [3, 4]) });
 
@@ -66,6 +45,7 @@ describe('E2E Geometry: Where', () => {
   });
 
   test('filter by direct equality with CerialPoint', async () => {
+    const client = getClient();
     await client.db.GeometryBasic.create({ data: baseData('match', [10, 20]) });
     await client.db.GeometryBasic.create({ data: baseData('other', [30, 40]) });
 
@@ -78,6 +58,7 @@ describe('E2E Geometry: Where', () => {
   });
 
   test('filter by eq operator', async () => {
+    const client = getClient();
     await client.db.GeometryBasic.create({ data: baseData('eq-match', [5, 6]) });
 
     const found = await client.db.GeometryBasic.findMany({
@@ -89,6 +70,7 @@ describe('E2E Geometry: Where', () => {
   });
 
   test('filter by neq operator', async () => {
+    const client = getClient();
     await client.db.GeometryBasic.create({ data: baseData('a', [1, 1]) });
     await client.db.GeometryBasic.create({ data: baseData('b', [2, 2]) });
 
@@ -101,6 +83,7 @@ describe('E2E Geometry: Where', () => {
   });
 
   test('filter optional geometry field by isNone', async () => {
+    const client = getClient();
     await client.db.GeometryBasic.create({ data: { ...baseData('has-geo', [0, 0]), optionalGeo: [42, 43] } });
     await client.db.GeometryBasic.create({ data: baseData('no-geo', [0, 0]) });
 
@@ -113,6 +96,7 @@ describe('E2E Geometry: Where', () => {
   });
 
   test('filter array field with has operator', async () => {
+    const client = getClient();
     await client.db.GeometryBasic.create({
       data: {
         ...baseData('has-item', [0, 0]),
@@ -135,6 +119,7 @@ describe('E2E Geometry: Where', () => {
   });
 
   test('filter array field with isEmpty', async () => {
+    const client = getClient();
     await client.db.GeometryBasic.create({
       data: { ...baseData('empty', [0, 0]), geoArray: [] },
     });

@@ -1,33 +1,26 @@
-import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
+import { beforeEach, describe, expect, test } from 'bun:test';
 import { CerialDecimal } from 'cerial';
-import { type CerialClient, cleanupTables, createTestClient, tables, testConfig } from '../../test-helper';
-
-const DECIMAL_TABLES = tables.decimal;
+import { tables } from '../../test-helper';
+import { setupDataTypeTests } from '../test-factory';
 
 describe('E2E Decimal: Where', () => {
-  let client: CerialClient;
+  const { getClient } = setupDataTypeTests(tables.decimal);
 
-  beforeAll(async () => {
-    client = createTestClient();
-    await client.connect(testConfig);
-    await cleanupTables(client, DECIMAL_TABLES);
-
+  beforeEach(async () => {
+    const client = getClient();
     await client.db.DecimalBasic.create({ data: { name: 'cheap', price: 10, tax: null } });
     await client.db.DecimalBasic.create({ data: { name: 'mid', price: 50, tax: '5' } });
     await client.db.DecimalBasic.create({ data: { name: 'expensive', price: 100, tax: '10' } });
   });
-
-  afterAll(async () => {
-    await client.disconnect();
-  });
-
   test('direct value equality', async () => {
+    const client = getClient();
     const results = await client.db.DecimalBasic.findMany({ where: { price: 50 } });
     expect(results).toHaveLength(1);
     expect(results[0]!.name).toBe('mid');
   });
 
   test('CerialDecimal direct value', async () => {
+    const client = getClient();
     const results = await client.db.DecimalBasic.findMany({
       where: { price: CerialDecimal.from(10) },
     });
@@ -36,6 +29,7 @@ describe('E2E Decimal: Where', () => {
   });
 
   test('gt operator', async () => {
+    const client = getClient();
     const results = await client.db.DecimalBasic.findMany({
       where: { price: { gt: 50 } },
     });
@@ -44,6 +38,7 @@ describe('E2E Decimal: Where', () => {
   });
 
   test('gte operator', async () => {
+    const client = getClient();
     const results = await client.db.DecimalBasic.findMany({
       where: { price: { gte: 50 } },
     });
@@ -53,6 +48,7 @@ describe('E2E Decimal: Where', () => {
   });
 
   test('lt operator', async () => {
+    const client = getClient();
     const results = await client.db.DecimalBasic.findMany({
       where: { price: { lt: 50 } },
     });
@@ -61,6 +57,7 @@ describe('E2E Decimal: Where', () => {
   });
 
   test('lte operator', async () => {
+    const client = getClient();
     const results = await client.db.DecimalBasic.findMany({
       where: { price: { lte: 50 } },
     });
@@ -70,6 +67,7 @@ describe('E2E Decimal: Where', () => {
   });
 
   test('between operator', async () => {
+    const client = getClient();
     const results = await client.db.DecimalBasic.findMany({
       where: { price: { between: [10, 50] } },
     });
@@ -77,6 +75,7 @@ describe('E2E Decimal: Where', () => {
   });
 
   test('in operator', async () => {
+    const client = getClient();
     const results = await client.db.DecimalBasic.findMany({
       where: { price: { in: [10, 100] } },
     });
@@ -86,6 +85,7 @@ describe('E2E Decimal: Where', () => {
   });
 
   test('nullable field: isNull true', async () => {
+    const client = getClient();
     const results = await client.db.DecimalBasic.findMany({
       where: { tax: { isNull: true } },
     });
@@ -94,6 +94,7 @@ describe('E2E Decimal: Where', () => {
   });
 
   test('nullable field: isNull false', async () => {
+    const client = getClient();
     const results = await client.db.DecimalBasic.findMany({
       where: { tax: { isNull: false } },
     });
@@ -101,6 +102,7 @@ describe('E2E Decimal: Where', () => {
   });
 
   test('nullable field: null direct value', async () => {
+    const client = getClient();
     const results = await client.db.DecimalBasic.findMany({
       where: { tax: null },
     });

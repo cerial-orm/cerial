@@ -1,34 +1,13 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import { CerialDecimal } from 'cerial';
-import {
-  type CerialClient,
-  cleanupTables,
-  createTestClient,
-  tables,
-  testConfig,
-  truncateTables,
-} from '../../test-helper';
-
-const DECIMAL_TABLES = tables.decimal;
+import { tables } from '../../test-helper';
+import { setupDataTypeTests } from '../test-factory';
 
 describe('E2E Decimal: Decorators', () => {
-  let client: CerialClient;
-
-  beforeAll(async () => {
-    client = createTestClient();
-    await client.connect(testConfig);
-    await cleanupTables(client, DECIMAL_TABLES);
-  });
-
-  afterAll(async () => {
-    await client.disconnect();
-  });
-
-  beforeEach(async () => {
-    await truncateTables(client, DECIMAL_TABLES);
-  });
+  const { getClient } = setupDataTypeTests(tables.decimal);
 
   test('@default fills when not provided', async () => {
+    const client = getClient();
     const result = await client.db.DecimalDecorated.create({
       data: { name: 'test' },
     });
@@ -38,6 +17,7 @@ describe('E2E Decimal: Decorators', () => {
   });
 
   test('@default can be overridden', async () => {
+    const client = getClient();
     const result = await client.db.DecimalDecorated.create({
       data: { name: 'test', defaultPrice: 50 },
     });
@@ -46,6 +26,7 @@ describe('E2E Decimal: Decorators', () => {
   });
 
   test('@defaultAlways fills when not provided', async () => {
+    const client = getClient();
     const result = await client.db.DecimalDecorated.create({
       data: { name: 'test' },
     });
@@ -55,6 +36,7 @@ describe('E2E Decimal: Decorators', () => {
   });
 
   test('@defaultAlways resets on update when absent', async () => {
+    const client = getClient();
     const created = await client.db.DecimalDecorated.create({
       data: { name: 'test', alwaysPrice: 999 },
     });
@@ -70,6 +52,7 @@ describe('E2E Decimal: Decorators', () => {
   });
 
   test('@defaultAlways can be overridden on create', async () => {
+    const client = getClient();
     const result = await client.db.DecimalDecorated.create({
       data: { name: 'test', alwaysPrice: 123 },
     });
@@ -78,6 +61,7 @@ describe('E2E Decimal: Decorators', () => {
   });
 
   test('both decorators work together', async () => {
+    const client = getClient();
     const result = await client.db.DecimalDecorated.create({
       data: { name: 'test' },
     });

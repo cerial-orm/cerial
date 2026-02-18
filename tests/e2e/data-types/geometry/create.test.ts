@@ -1,35 +1,14 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import { CerialGeometry, CerialLineString, CerialPoint, CerialPolygon, isCerialId } from 'cerial';
 import { GeometryPoint } from 'surrealdb';
-import {
-  type CerialClient,
-  cleanupTables,
-  createTestClient,
-  tables,
-  testConfig,
-  truncateTables,
-} from '../../test-helper';
-
-const GEO_TABLES = tables.geometry;
+import { tables } from '../../test-helper';
+import { setupDataTypeTests } from '../test-factory';
 
 describe('E2E Geometry: Create', () => {
-  let client: CerialClient;
-
-  beforeAll(async () => {
-    client = createTestClient();
-    await client.connect(testConfig);
-    await cleanupTables(client, GEO_TABLES);
-  });
-
-  afterAll(async () => {
-    await client.disconnect();
-  });
-
-  beforeEach(async () => {
-    await truncateTables(client, GEO_TABLES);
-  });
+  const { getClient } = setupDataTypeTests(tables.geometry);
 
   test('create with [lon, lat] tuple shorthand for @point', async () => {
+    const client = getClient();
     const result = await client.db.GeometryBasic.create({
       data: {
         name: 'tuple-point',
@@ -64,6 +43,7 @@ describe('E2E Geometry: Create', () => {
   });
 
   test('create with GeoJSON Point object', async () => {
+    const client = getClient();
     const result = await client.db.GeometryBasic.create({
       data: {
         name: 'geojson-point',
@@ -96,6 +76,7 @@ describe('E2E Geometry: Create', () => {
   });
 
   test('create with CerialPoint instance', async () => {
+    const client = getClient();
     const point = new CerialPoint([7, 8]);
     const result = await client.db.GeometryBasic.create({
       data: {
@@ -129,6 +110,7 @@ describe('E2E Geometry: Create', () => {
   });
 
   test('create with SDK GeometryPoint', async () => {
+    const client = getClient();
     const native = new GeometryPoint([9, 10]);
     const result = await client.db.GeometryBasic.create({
       data: {
@@ -162,6 +144,7 @@ describe('E2E Geometry: Create', () => {
   });
 
   test('create with @polygon field', async () => {
+    const client = getClient();
     const ring: [number, number][] = [
       [0, 0],
       [10, 0],
@@ -191,6 +174,7 @@ describe('E2E Geometry: Create', () => {
   });
 
   test('create with @line field', async () => {
+    const client = getClient();
     const coords: [number, number][] = [
       [0, 0],
       [5, 5],
@@ -222,6 +206,7 @@ describe('E2E Geometry: Create', () => {
   });
 
   test('create with bare Geometry field (no decorator)', async () => {
+    const client = getClient();
     const result = await client.db.GeometryBasic.create({
       data: {
         name: 'bare-shape',
@@ -260,6 +245,7 @@ describe('E2E Geometry: Create', () => {
   });
 
   test('create with multi-type field (@point @polygon) using point', async () => {
+    const client = getClient();
     const result = await client.db.GeometryBasic.create({
       data: {
         name: 'multi-point',
@@ -292,6 +278,7 @@ describe('E2E Geometry: Create', () => {
   });
 
   test('create with multi-type field (@point @polygon) using polygon', async () => {
+    const client = getClient();
     const ring: [number, number][] = [
       [0, 0],
       [1, 0],
@@ -319,6 +306,7 @@ describe('E2E Geometry: Create', () => {
   });
 
   test('create with optional field present', async () => {
+    const client = getClient();
     const result = await client.db.GeometryBasic.create({
       data: {
         name: 'opt-present',
@@ -352,6 +340,7 @@ describe('E2E Geometry: Create', () => {
   });
 
   test('create with optional field absent', async () => {
+    const client = getClient();
     const result = await client.db.GeometryBasic.create({
       data: {
         name: 'opt-absent',
@@ -383,6 +372,7 @@ describe('E2E Geometry: Create', () => {
   });
 
   test('create with array field', async () => {
+    const client = getClient();
     const result = await client.db.GeometryBasic.create({
       data: {
         name: 'array',
@@ -423,6 +413,7 @@ describe('E2E Geometry: Create', () => {
   });
 
   test('create with empty array field', async () => {
+    const client = getClient();
     const result = await client.db.GeometryBasic.create({
       data: {
         name: 'empty-array',
@@ -454,6 +445,7 @@ describe('E2E Geometry: Create', () => {
   });
 
   test('create and findMany roundtrip', async () => {
+    const client = getClient();
     await client.db.GeometryBasic.create({
       data: {
         name: 'roundtrip',

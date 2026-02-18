@@ -1,35 +1,14 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import { CerialDuration, isCerialId } from 'cerial';
 import { Duration } from 'surrealdb';
-import {
-  type CerialClient,
-  cleanupTables,
-  createTestClient,
-  tables,
-  testConfig,
-  truncateTables,
-} from '../../test-helper';
-
-const DURATION_TABLES = tables.duration;
+import { tables } from '../../test-helper';
+import { setupDataTypeTests } from '../test-factory';
 
 describe('E2E Duration: Create', () => {
-  let client: CerialClient;
-
-  beforeAll(async () => {
-    client = createTestClient();
-    await client.connect(testConfig);
-    await cleanupTables(client, DURATION_TABLES);
-  });
-
-  afterAll(async () => {
-    await client.disconnect();
-  });
-
-  beforeEach(async () => {
-    await truncateTables(client, DURATION_TABLES);
-  });
+  const { getClient } = setupDataTypeTests(tables.duration);
 
   test('create with explicit duration string', async () => {
+    const client = getClient();
     const result = await client.db.DurationBasic.create({
       data: { name: 'test', ttl: '2h30m', cooldown: null },
     });
@@ -41,6 +20,7 @@ describe('E2E Duration: Create', () => {
   });
 
   test('create with CerialDuration input', async () => {
+    const client = getClient();
     const input = CerialDuration.from('1h15m');
     const result = await client.db.DurationBasic.create({
       data: { name: 'test', ttl: input, cooldown: null },
@@ -51,6 +31,7 @@ describe('E2E Duration: Create', () => {
   });
 
   test('create with SDK Duration input', async () => {
+    const client = getClient();
     const native = new Duration('45m');
     const result = await client.db.DurationBasic.create({
       data: { name: 'test', ttl: native, cooldown: null },
@@ -61,6 +42,7 @@ describe('E2E Duration: Create', () => {
   });
 
   test('optional duration field omitted → undefined', async () => {
+    const client = getClient();
     const result = await client.db.DurationBasic.create({
       data: { name: 'test', ttl: '1h', cooldown: null },
     });
@@ -69,6 +51,7 @@ describe('E2E Duration: Create', () => {
   });
 
   test('optional duration field provided', async () => {
+    const client = getClient();
     const result = await client.db.DurationBasic.create({
       data: { name: 'test', ttl: '1h', timeout: '30s', cooldown: null },
     });
@@ -78,6 +61,7 @@ describe('E2E Duration: Create', () => {
   });
 
   test('nullable duration field with null', async () => {
+    const client = getClient();
     const result = await client.db.DurationBasic.create({
       data: { name: 'test', ttl: '1h', cooldown: null },
     });
@@ -86,6 +70,7 @@ describe('E2E Duration: Create', () => {
   });
 
   test('nullable duration field with value', async () => {
+    const client = getClient();
     const result = await client.db.DurationBasic.create({
       data: { name: 'test', ttl: '1h', cooldown: '5m' },
     });
@@ -95,6 +80,7 @@ describe('E2E Duration: Create', () => {
   });
 
   test('duration array field', async () => {
+    const client = getClient();
     const result = await client.db.DurationBasic.create({
       data: { name: 'test', ttl: '1h', cooldown: null, intervals: ['10s', '30s', '1m'] },
     });
@@ -107,6 +93,7 @@ describe('E2E Duration: Create', () => {
   });
 
   test('duration array field empty', async () => {
+    const client = getClient();
     const result = await client.db.DurationBasic.create({
       data: { name: 'test', ttl: '1h', cooldown: null },
     });
@@ -115,6 +102,7 @@ describe('E2E Duration: Create', () => {
   });
 
   test('CerialDuration accessor methods', async () => {
+    const client = getClient();
     const result = await client.db.DurationBasic.create({
       data: { name: 'test', ttl: '2h30m15s', cooldown: null },
     });
@@ -125,6 +113,7 @@ describe('E2E Duration: Create', () => {
   });
 
   test('findMany returns CerialDuration instances', async () => {
+    const client = getClient();
     await client.db.DurationBasic.create({
       data: { name: 'a', ttl: '1h', cooldown: null },
     });
@@ -141,6 +130,7 @@ describe('E2E Duration: Create', () => {
   });
 
   test('updateUnique preserves duration type', async () => {
+    const client = getClient();
     const created = await client.db.DurationBasic.create({
       data: { name: 'test', ttl: '1h', cooldown: null },
     });

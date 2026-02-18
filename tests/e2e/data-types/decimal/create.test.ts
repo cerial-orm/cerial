@@ -1,35 +1,14 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import { CerialDecimal, isCerialId } from 'cerial';
 import { Decimal } from 'surrealdb';
-import {
-  type CerialClient,
-  cleanupTables,
-  createTestClient,
-  tables,
-  testConfig,
-  truncateTables,
-} from '../../test-helper';
-
-const DECIMAL_TABLES = tables.decimal;
+import { tables } from '../../test-helper';
+import { setupDataTypeTests } from '../test-factory';
 
 describe('E2E Decimal: Create', () => {
-  let client: CerialClient;
-
-  beforeAll(async () => {
-    client = createTestClient();
-    await client.connect(testConfig);
-    await cleanupTables(client, DECIMAL_TABLES);
-  });
-
-  afterAll(async () => {
-    await client.disconnect();
-  });
-
-  beforeEach(async () => {
-    await truncateTables(client, DECIMAL_TABLES);
-  });
+  const { getClient } = setupDataTypeTests(tables.decimal);
 
   test('create with number input', async () => {
+    const client = getClient();
     const result = await client.db.DecimalBasic.create({
       data: { name: 'test', price: 19.99, tax: null },
     });
@@ -41,6 +20,7 @@ describe('E2E Decimal: Create', () => {
   });
 
   test('create with string input', async () => {
+    const client = getClient();
     const result = await client.db.DecimalBasic.create({
       data: { name: 'test', price: '42.50', tax: null },
     });
@@ -50,6 +30,7 @@ describe('E2E Decimal: Create', () => {
   });
 
   test('create with CerialDecimal input', async () => {
+    const client = getClient();
     const input = CerialDecimal.from('123.456');
     const result = await client.db.DecimalBasic.create({
       data: { name: 'test', price: input, tax: null },
@@ -60,6 +41,7 @@ describe('E2E Decimal: Create', () => {
   });
 
   test('create with SDK Decimal input', async () => {
+    const client = getClient();
     const native = new Decimal('99.99');
     const result = await client.db.DecimalBasic.create({
       data: { name: 'test', price: native, tax: null },
@@ -70,6 +52,7 @@ describe('E2E Decimal: Create', () => {
   });
 
   test('create with optional field present', async () => {
+    const client = getClient();
     const result = await client.db.DecimalBasic.create({
       data: { name: 'test', price: 10, discount: '5.5', tax: null },
     });
@@ -79,6 +62,7 @@ describe('E2E Decimal: Create', () => {
   });
 
   test('create with optional field absent', async () => {
+    const client = getClient();
     const result = await client.db.DecimalBasic.create({
       data: { name: 'test', price: 10, tax: null },
     });
@@ -87,6 +71,7 @@ describe('E2E Decimal: Create', () => {
   });
 
   test('create with nullable field set to null', async () => {
+    const client = getClient();
     const result = await client.db.DecimalBasic.create({
       data: { name: 'test', price: 10, tax: null },
     });
@@ -95,6 +80,7 @@ describe('E2E Decimal: Create', () => {
   });
 
   test('create with nullable field set to value', async () => {
+    const client = getClient();
     const result = await client.db.DecimalBasic.create({
       data: { name: 'test', price: 10, tax: '7.5' },
     });
@@ -104,6 +90,7 @@ describe('E2E Decimal: Create', () => {
   });
 
   test('create with array field', async () => {
+    const client = getClient();
     const result = await client.db.DecimalBasic.create({
       data: { name: 'test', price: 10, tax: null, amounts: [1.5, '2.5', CerialDecimal.from('3.5')] },
     });
@@ -113,6 +100,7 @@ describe('E2E Decimal: Create', () => {
   });
 
   test('create with empty array defaults', async () => {
+    const client = getClient();
     const result = await client.db.DecimalBasic.create({
       data: { name: 'test', price: 10, tax: null },
     });
@@ -121,6 +109,7 @@ describe('E2E Decimal: Create', () => {
   });
 
   test('create with zero value', async () => {
+    const client = getClient();
     const result = await client.db.DecimalBasic.create({
       data: { name: 'test', price: 0, tax: null },
     });
@@ -130,6 +119,7 @@ describe('E2E Decimal: Create', () => {
   });
 
   test('create with negative value', async () => {
+    const client = getClient();
     const result = await client.db.DecimalBasic.create({
       data: { name: 'test', price: -5.5, tax: null },
     });

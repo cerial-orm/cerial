@@ -1,34 +1,13 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import { CerialBytes } from 'cerial';
-import {
-  type CerialClient,
-  cleanupTables,
-  createTestClient,
-  tables,
-  testConfig,
-  truncateTables,
-} from '../../test-helper';
-
-const BYTES_TABLES = tables.bytes;
+import { tables } from '../../test-helper';
+import { setupDataTypeTests } from '../test-factory';
 
 describe('E2E Bytes: Object Nesting', () => {
-  let client: CerialClient;
-
-  beforeAll(async () => {
-    client = createTestClient();
-    await client.connect(testConfig);
-    await cleanupTables(client, BYTES_TABLES);
-  });
-
-  afterAll(async () => {
-    await client.disconnect();
-  });
-
-  beforeEach(async () => {
-    await truncateTables(client, BYTES_TABLES);
-  });
+  const { getClient } = setupDataTypeTests(tables.bytes);
 
   test('create with bytes in object', async () => {
+    const client = getClient();
     const content = new Uint8Array([1, 2, 3]);
     const result = await client.db.BytesWithObject.create({
       data: { name: 'obj-test', details: { content } },
@@ -40,6 +19,7 @@ describe('E2E Bytes: Object Nesting', () => {
   });
 
   test('create with optional bytes in object', async () => {
+    const client = getClient();
     const content = new Uint8Array([1]);
     const extra = new Uint8Array([2, 3]);
     const result = await client.db.BytesWithObject.create({
@@ -51,6 +31,7 @@ describe('E2E Bytes: Object Nesting', () => {
   });
 
   test('update bytes in object', async () => {
+    const client = getClient();
     const result = await client.db.BytesWithObject.create({
       data: { name: 'upd', details: { content: new Uint8Array([1]) } },
     });
@@ -66,6 +47,7 @@ describe('E2E Bytes: Object Nesting', () => {
   });
 
   test('findMany with bytes in object roundtrip', async () => {
+    const client = getClient();
     const content = new Uint8Array([77, 88, 99]);
     await client.db.BytesWithObject.create({
       data: { name: 'find-obj', details: { content } },
@@ -82,23 +64,10 @@ describe('E2E Bytes: Object Nesting', () => {
 });
 
 describe('E2E Bytes: Tuple Nesting', () => {
-  let client: CerialClient;
-
-  beforeAll(async () => {
-    client = createTestClient();
-    await client.connect(testConfig);
-    await cleanupTables(client, BYTES_TABLES);
-  });
-
-  afterAll(async () => {
-    await client.disconnect();
-  });
-
-  beforeEach(async () => {
-    await truncateTables(client, BYTES_TABLES);
-  });
+  const { getClient } = setupDataTypeTests(tables.bytes);
 
   test('create with bytes in tuple', async () => {
+    const client = getClient();
     const first = new Uint8Array([1, 2]);
     const result = await client.db.BytesWithTuple.create({
       data: { name: 'tup-test', pair: [first, null] },
@@ -110,6 +79,7 @@ describe('E2E Bytes: Tuple Nesting', () => {
   });
 
   test('create with both tuple elements', async () => {
+    const client = getClient();
     const first = new Uint8Array([10]);
     const second = new Uint8Array([20]);
     const result = await client.db.BytesWithTuple.create({
@@ -123,6 +93,7 @@ describe('E2E Bytes: Tuple Nesting', () => {
   });
 
   test('update bytes in tuple (full replace)', async () => {
+    const client = getClient();
     const result = await client.db.BytesWithTuple.create({
       data: { name: 'upd-tup', pair: [new Uint8Array([1]), undefined] },
     });
@@ -138,6 +109,7 @@ describe('E2E Bytes: Tuple Nesting', () => {
   });
 
   test('findMany with bytes in tuple roundtrip', async () => {
+    const client = getClient();
     const first = new Uint8Array([55, 66]);
     await client.db.BytesWithTuple.create({
       data: { name: 'find-tup', pair: [first, undefined] },

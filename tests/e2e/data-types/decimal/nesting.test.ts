@@ -1,34 +1,13 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import { CerialDecimal, isCerialId } from 'cerial';
-import {
-  type CerialClient,
-  cleanupTables,
-  createTestClient,
-  tables,
-  testConfig,
-  truncateTables,
-} from '../../test-helper';
-
-const DECIMAL_TABLES = tables.decimal;
+import { tables } from '../../test-helper';
+import { setupDataTypeTests } from '../test-factory';
 
 describe('E2E Decimal: Nesting', () => {
-  let client: CerialClient;
-
-  beforeAll(async () => {
-    client = createTestClient();
-    await client.connect(testConfig);
-    await cleanupTables(client, DECIMAL_TABLES);
-  });
-
-  afterAll(async () => {
-    await client.disconnect();
-  });
-
-  beforeEach(async () => {
-    await truncateTables(client, DECIMAL_TABLES);
-  });
+  const { getClient } = setupDataTypeTests(tables.decimal);
 
   test('create with object containing decimal', async () => {
+    const client = getClient();
     const result = await client.db.DecimalWithObject.create({
       data: { name: 'test', pricing: { amount: '50.00' } },
     });
@@ -39,6 +18,7 @@ describe('E2E Decimal: Nesting', () => {
   });
 
   test('create with object decimal optional present', async () => {
+    const client = getClient();
     const result = await client.db.DecimalWithObject.create({
       data: { name: 'test', pricing: { amount: 100, fee: '5.5' } },
     });
@@ -48,6 +28,7 @@ describe('E2E Decimal: Nesting', () => {
   });
 
   test('create with object decimal optional absent', async () => {
+    const client = getClient();
     const result = await client.db.DecimalWithObject.create({
       data: { name: 'test', pricing: { amount: 100 } },
     });
@@ -56,6 +37,7 @@ describe('E2E Decimal: Nesting', () => {
   });
 
   test('update object decimal fields', async () => {
+    const client = getClient();
     const created = await client.db.DecimalWithObject.create({
       data: { name: 'test', pricing: { amount: 10 } },
     });
@@ -70,6 +52,7 @@ describe('E2E Decimal: Nesting', () => {
   });
 
   test('create with tuple containing decimal', async () => {
+    const client = getClient();
     const result = await client.db.DecimalWithTuple.create({
       data: { name: 'test', pair: [10.5, null] },
     });
@@ -81,6 +64,7 @@ describe('E2E Decimal: Nesting', () => {
   });
 
   test('create with tuple both elements', async () => {
+    const client = getClient();
     const result = await client.db.DecimalWithTuple.create({
       data: { name: 'test', pair: ['99.99', '0.01'] },
     });
@@ -92,6 +76,7 @@ describe('E2E Decimal: Nesting', () => {
   });
 
   test('where filter on object decimal field', async () => {
+    const client = getClient();
     await client.db.DecimalWithObject.create({
       data: { name: 'low', pricing: { amount: 10 } },
     });
@@ -108,6 +93,7 @@ describe('E2E Decimal: Nesting', () => {
   });
 
   test('where filter on tuple decimal element', async () => {
+    const client = getClient();
     await client.db.DecimalWithTuple.create({
       data: { name: 'small', pair: [5, undefined] },
     });

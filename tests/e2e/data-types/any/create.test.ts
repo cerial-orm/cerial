@@ -1,34 +1,13 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import { isCerialId } from 'cerial';
-import {
-  type CerialClient,
-  cleanupTables,
-  createTestClient,
-  tables,
-  testConfig,
-  truncateTables,
-} from '../../test-helper';
-
-const ANY_TABLES = tables.any;
+import { tables } from '../../test-helper';
+import { setupDataTypeTests } from '../test-factory';
 
 describe('E2E Any: Create', () => {
-  let client: CerialClient;
-
-  beforeAll(async () => {
-    client = createTestClient();
-    await client.connect(testConfig);
-    await cleanupTables(client, ANY_TABLES);
-  });
-
-  afterAll(async () => {
-    await client.disconnect();
-  });
-
-  beforeEach(async () => {
-    await truncateTables(client, ANY_TABLES);
-  });
+  const { getClient } = setupDataTypeTests(tables.any);
 
   test('create with string value', async () => {
+    const client = getClient();
     const result = await client.db.AnyBasic.create({
       data: { name: 'str-test', data: 'hello world' },
     });
@@ -40,6 +19,7 @@ describe('E2E Any: Create', () => {
   });
 
   test('create with number value', async () => {
+    const client = getClient();
     const result = await client.db.AnyBasic.create({
       data: { name: 'num-test', data: 42 },
     });
@@ -48,6 +28,7 @@ describe('E2E Any: Create', () => {
   });
 
   test('create with boolean value', async () => {
+    const client = getClient();
     const result = await client.db.AnyBasic.create({
       data: { name: 'bool-test', data: true },
     });
@@ -56,6 +37,7 @@ describe('E2E Any: Create', () => {
   });
 
   test('create with null value', async () => {
+    const client = getClient();
     const result = await client.db.AnyBasic.create({
       data: { name: 'null-test', data: null },
     });
@@ -64,6 +46,7 @@ describe('E2E Any: Create', () => {
   });
 
   test('create with object value', async () => {
+    const client = getClient();
     const result = await client.db.AnyBasic.create({
       data: { name: 'obj-test', data: { key: 'value', nested: { deep: true } } },
     });
@@ -72,6 +55,7 @@ describe('E2E Any: Create', () => {
   });
 
   test('create with array value', async () => {
+    const client = getClient();
     const result = await client.db.AnyBasic.create({
       data: { name: 'arr-test', data: [1, 'two', true] },
     });
@@ -80,6 +64,7 @@ describe('E2E Any: Create', () => {
   });
 
   test('create with items array containing mixed types', async () => {
+    const client = getClient();
     const result = await client.db.AnyBasic.create({
       data: { name: 'items-test', data: 'base', items: [1, 'two', false, { k: 'v' }] },
     });
@@ -88,6 +73,7 @@ describe('E2E Any: Create', () => {
   });
 
   test('create AnyWithObject with Any field in object', async () => {
+    const client = getClient();
     const result = await client.db.AnyWithObject.create({
       data: { name: 'obj-any', meta: { data: [1, 2, 3], label: 'test' } },
     });

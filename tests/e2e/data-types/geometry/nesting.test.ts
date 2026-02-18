@@ -1,34 +1,13 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import { CerialGeometry, CerialPoint } from 'cerial';
-import {
-  type CerialClient,
-  cleanupTables,
-  createTestClient,
-  tables,
-  testConfig,
-  truncateTables,
-} from '../../test-helper';
-
-const GEO_TABLES = tables.geometry;
+import { tables } from '../../test-helper';
+import { setupDataTypeTests } from '../test-factory';
 
 describe('E2E Geometry: Object Nesting', () => {
-  let client: CerialClient;
-
-  beforeAll(async () => {
-    client = createTestClient();
-    await client.connect(testConfig);
-    await cleanupTables(client, GEO_TABLES);
-  });
-
-  afterAll(async () => {
-    await client.disconnect();
-  });
-
-  beforeEach(async () => {
-    await truncateTables(client, GEO_TABLES);
-  });
+  const { getClient } = setupDataTypeTests(tables.geometry);
 
   test('create with geometry in object', async () => {
+    const client = getClient();
     const result = await client.db.GeometryWithObject.create({
       data: { name: 'obj-test', geo: { position: [1, 2] } },
     });
@@ -39,6 +18,7 @@ describe('E2E Geometry: Object Nesting', () => {
   });
 
   test('create with optional geometry in object', async () => {
+    const client = getClient();
     const result = await client.db.GeometryWithObject.create({
       data: { name: 'obj-boundary', geo: { position: [1, 2], boundary: [3, 4] } },
     });
@@ -49,6 +29,7 @@ describe('E2E Geometry: Object Nesting', () => {
   });
 
   test('update geometry in object', async () => {
+    const client = getClient();
     const result = await client.db.GeometryWithObject.create({
       data: { name: 'upd', geo: { position: [1, 2] } },
     });
@@ -64,6 +45,7 @@ describe('E2E Geometry: Object Nesting', () => {
   });
 
   test('findMany with geometry in object roundtrip', async () => {
+    const client = getClient();
     await client.db.GeometryWithObject.create({
       data: { name: 'find-obj', geo: { position: [77, 88] } },
     });
@@ -79,23 +61,10 @@ describe('E2E Geometry: Object Nesting', () => {
 });
 
 describe('E2E Geometry: Tuple Nesting', () => {
-  let client: CerialClient;
-
-  beforeAll(async () => {
-    client = createTestClient();
-    await client.connect(testConfig);
-    await cleanupTables(client, GEO_TABLES);
-  });
-
-  afterAll(async () => {
-    await client.disconnect();
-  });
-
-  beforeEach(async () => {
-    await truncateTables(client, GEO_TABLES);
-  });
+  const { getClient } = setupDataTypeTests(tables.geometry);
 
   test('create with geometry in tuple', async () => {
+    const client = getClient();
     const result = await client.db.GeometryWithTuple.create({
       data: { name: 'tup-test', pair: [[1, 2], null] },
     });
@@ -107,6 +76,7 @@ describe('E2E Geometry: Tuple Nesting', () => {
   });
 
   test('create with both tuple elements', async () => {
+    const client = getClient();
     const result = await client.db.GeometryWithTuple.create({
       data: {
         name: 'tup-both',
@@ -123,6 +93,7 @@ describe('E2E Geometry: Tuple Nesting', () => {
   });
 
   test('update geometry in tuple (full replace)', async () => {
+    const client = getClient();
     const result = await client.db.GeometryWithTuple.create({
       data: { name: 'upd-tup', pair: [[1, 2], null] },
     });
@@ -143,6 +114,7 @@ describe('E2E Geometry: Tuple Nesting', () => {
   });
 
   test('findMany with geometry in tuple roundtrip', async () => {
+    const client = getClient();
     await client.db.GeometryWithTuple.create({
       data: { name: 'find-tup', pair: [[55, 66], null] },
     });

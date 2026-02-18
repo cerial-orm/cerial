@@ -1,34 +1,13 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import { CerialDuration } from 'cerial';
-import {
-  type CerialClient,
-  cleanupTables,
-  createTestClient,
-  tables,
-  testConfig,
-  truncateTables,
-} from '../../test-helper';
-
-const DURATION_TABLES = tables.duration;
+import { tables } from '../../test-helper';
+import { setupDataTypeTests } from '../test-factory';
 
 describe('E2E Duration: Array', () => {
-  let client: CerialClient;
-
-  beforeAll(async () => {
-    client = createTestClient();
-    await client.connect(testConfig);
-    await cleanupTables(client, DURATION_TABLES);
-  });
-
-  afterAll(async () => {
-    await client.disconnect();
-  });
-
-  beforeEach(async () => {
-    await truncateTables(client, DURATION_TABLES);
-  });
+  const { getClient } = setupDataTypeTests(tables.duration);
 
   test('create with duration array', async () => {
+    const client = getClient();
     const result = await client.db.DurationBasic.create({
       data: { name: 'test', ttl: '1h', cooldown: null, intervals: ['10s', '1m', '5m'] },
     });
@@ -38,6 +17,7 @@ describe('E2E Duration: Array', () => {
   });
 
   test('push to duration array', async () => {
+    const client = getClient();
     const created = await client.db.DurationBasic.create({
       data: { name: 'test', ttl: '1h', cooldown: null, intervals: ['10s'] },
     });
@@ -53,6 +33,7 @@ describe('E2E Duration: Array', () => {
   });
 
   test('push multiple to duration array', async () => {
+    const client = getClient();
     const created = await client.db.DurationBasic.create({
       data: { name: 'test', ttl: '1h', cooldown: null, intervals: ['10s'] },
     });
@@ -67,6 +48,7 @@ describe('E2E Duration: Array', () => {
   });
 
   test('full replace duration array', async () => {
+    const client = getClient();
     const created = await client.db.DurationBasic.create({
       data: { name: 'test', ttl: '1h', cooldown: null, intervals: ['10s', '30s'] },
     });
@@ -82,6 +64,7 @@ describe('E2E Duration: Array', () => {
   });
 
   test('where filter on array field has', async () => {
+    const client = getClient();
     await client.db.DurationBasic.create({
       data: { name: 'a', ttl: '1h', cooldown: null, intervals: ['10s', '30s'] },
     });

@@ -1,37 +1,19 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { beforeEach, describe, expect, test } from 'bun:test';
 import { CerialDuration } from 'cerial';
-import {
-  type CerialClient,
-  cleanupTables,
-  createTestClient,
-  tables,
-  testConfig,
-  truncateTables,
-} from '../../test-helper';
-
-const DURATION_TABLES = tables.duration;
+import { tables } from '../../test-helper';
+import { setupDataTypeTests } from '../test-factory';
 
 describe('E2E Duration: Where', () => {
-  let client: CerialClient;
-
-  beforeAll(async () => {
-    client = createTestClient();
-    await client.connect(testConfig);
-    await cleanupTables(client, DURATION_TABLES);
-  });
-
-  afterAll(async () => {
-    await client.disconnect();
-  });
-
+  const { getClient } = setupDataTypeTests(tables.duration);
   beforeEach(async () => {
-    await truncateTables(client, DURATION_TABLES);
+    const client = getClient();
     await client.db.DurationBasic.create({ data: { name: 'short', ttl: '30m', cooldown: null } });
     await client.db.DurationBasic.create({ data: { name: 'medium', ttl: '2h', cooldown: '5m' } });
     await client.db.DurationBasic.create({ data: { name: 'long', ttl: '24h', cooldown: null } });
   });
 
   test('eq with string', async () => {
+    const client = getClient();
     const results = await client.db.DurationBasic.findMany({ where: { ttl: '2h' } });
 
     expect(results).toHaveLength(1);
@@ -39,6 +21,7 @@ describe('E2E Duration: Where', () => {
   });
 
   test('eq with CerialDuration', async () => {
+    const client = getClient();
     const dur = CerialDuration.from('30m');
     const results = await client.db.DurationBasic.findMany({ where: { ttl: dur } });
 
@@ -47,12 +30,14 @@ describe('E2E Duration: Where', () => {
   });
 
   test('neq operator', async () => {
+    const client = getClient();
     const results = await client.db.DurationBasic.findMany({ where: { ttl: { neq: '2h' } } });
 
     expect(results).toHaveLength(2);
   });
 
   test('gt operator', async () => {
+    const client = getClient();
     const results = await client.db.DurationBasic.findMany({ where: { ttl: { gt: '1h' } } });
 
     expect(results).toHaveLength(2);
@@ -60,12 +45,14 @@ describe('E2E Duration: Where', () => {
   });
 
   test('gte operator', async () => {
+    const client = getClient();
     const results = await client.db.DurationBasic.findMany({ where: { ttl: { gte: '2h' } } });
 
     expect(results).toHaveLength(2);
   });
 
   test('lt operator', async () => {
+    const client = getClient();
     const results = await client.db.DurationBasic.findMany({ where: { ttl: { lt: '2h' } } });
 
     expect(results).toHaveLength(1);
@@ -73,12 +60,14 @@ describe('E2E Duration: Where', () => {
   });
 
   test('lte operator', async () => {
+    const client = getClient();
     const results = await client.db.DurationBasic.findMany({ where: { ttl: { lte: '2h' } } });
 
     expect(results).toHaveLength(2);
   });
 
   test('in operator', async () => {
+    const client = getClient();
     const results = await client.db.DurationBasic.findMany({
       where: { ttl: { in: ['30m', '24h'] } },
     });
@@ -88,6 +77,7 @@ describe('E2E Duration: Where', () => {
   });
 
   test('notIn operator', async () => {
+    const client = getClient();
     const results = await client.db.DurationBasic.findMany({
       where: { ttl: { notIn: ['30m', '24h'] } },
     });
@@ -97,12 +87,14 @@ describe('E2E Duration: Where', () => {
   });
 
   test('nullable field filter with null', async () => {
+    const client = getClient();
     const results = await client.db.DurationBasic.findMany({ where: { cooldown: null } });
 
     expect(results).toHaveLength(2);
   });
 
   test('between operator', async () => {
+    const client = getClient();
     const results = await client.db.DurationBasic.findMany({
       where: { ttl: { between: ['1h', '12h'] } },
     });
@@ -112,6 +104,7 @@ describe('E2E Duration: Where', () => {
   });
 
   test('combined operators', async () => {
+    const client = getClient();
     const results = await client.db.DurationBasic.findMany({
       where: { ttl: { gte: '30m', lte: '2h' } },
     });

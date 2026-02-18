@@ -1,34 +1,13 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import { CerialDecimal } from 'cerial';
-import {
-  type CerialClient,
-  cleanupTables,
-  createTestClient,
-  tables,
-  testConfig,
-  truncateTables,
-} from '../../test-helper';
-
-const DECIMAL_TABLES = tables.decimal;
+import { tables } from '../../test-helper';
+import { setupDataTypeTests } from '../test-factory';
 
 describe('E2E Decimal: Array', () => {
-  let client: CerialClient;
-
-  beforeAll(async () => {
-    client = createTestClient();
-    await client.connect(testConfig);
-    await cleanupTables(client, DECIMAL_TABLES);
-  });
-
-  afterAll(async () => {
-    await client.disconnect();
-  });
-
-  beforeEach(async () => {
-    await truncateTables(client, DECIMAL_TABLES);
-  });
+  const { getClient } = setupDataTypeTests(tables.decimal);
 
   test('create with decimal array', async () => {
+    const client = getClient();
     const result = await client.db.DecimalBasic.create({
       data: { name: 'test', price: 10, tax: null, amounts: [1.5, '2.5', 3.5] },
     });
@@ -38,6 +17,7 @@ describe('E2E Decimal: Array', () => {
   });
 
   test('update with array push', async () => {
+    const client = getClient();
     const created = await client.db.DecimalBasic.create({
       data: { name: 'test', price: 10, tax: null, amounts: ['1.0'] },
     });
@@ -52,6 +32,7 @@ describe('E2E Decimal: Array', () => {
   });
 
   test('update with array push multiple', async () => {
+    const client = getClient();
     const created = await client.db.DecimalBasic.create({
       data: { name: 'test', price: 10, tax: null, amounts: ['1.0'] },
     });
@@ -66,6 +47,7 @@ describe('E2E Decimal: Array', () => {
   });
 
   test('update with array full replace', async () => {
+    const client = getClient();
     const created = await client.db.DecimalBasic.create({
       data: { name: 'test', price: 10, tax: null, amounts: ['1.0', '2.0'] },
     });
@@ -80,6 +62,7 @@ describe('E2E Decimal: Array', () => {
   });
 
   test('where has on array', async () => {
+    const client = getClient();
     await client.db.DecimalBasic.create({
       data: { name: 'a', price: 1, tax: null, amounts: [10, 20] },
     });
@@ -96,6 +79,7 @@ describe('E2E Decimal: Array', () => {
   });
 
   test('where isEmpty on array', async () => {
+    const client = getClient();
     await client.db.DecimalBasic.create({
       data: { name: 'empty', price: 1, tax: null },
     });

@@ -1,33 +1,12 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import {
-  type CerialClient,
-  cleanupTables,
-  createTestClient,
-  tables,
-  testConfig,
-  truncateTables,
-} from '../../test-helper';
-
-const ANY_TABLES = tables.any;
+import { describe, expect, test } from 'bun:test';
+import { tables } from '../../test-helper';
+import { setupDataTypeTests } from '../test-factory';
 
 describe('E2E Any: Where', () => {
-  let client: CerialClient;
-
-  beforeAll(async () => {
-    client = createTestClient();
-    await client.connect(testConfig);
-    await cleanupTables(client, ANY_TABLES);
-  });
-
-  afterAll(async () => {
-    await client.disconnect();
-  });
-
-  beforeEach(async () => {
-    await truncateTables(client, ANY_TABLES);
-  });
+  const { getClient } = setupDataTypeTests(tables.any);
 
   test('filter by exact string value', async () => {
+    const client = getClient();
     await client.db.AnyBasic.create({ data: { name: 'a', data: 'match' } });
     await client.db.AnyBasic.create({ data: { name: 'b', data: 'other' } });
 
@@ -40,6 +19,7 @@ describe('E2E Any: Where', () => {
   });
 
   test('filter by numeric comparison', async () => {
+    const client = getClient();
     await client.db.AnyBasic.create({ data: { name: 'low', data: 10 } });
     await client.db.AnyBasic.create({ data: { name: 'high', data: 100 } });
 
@@ -52,6 +32,7 @@ describe('E2E Any: Where', () => {
   });
 
   test('filter by neq', async () => {
+    const client = getClient();
     await client.db.AnyBasic.create({ data: { name: 'keep', data: 'yes' } });
     await client.db.AnyBasic.create({ data: { name: 'skip', data: 'no' } });
 
@@ -64,6 +45,7 @@ describe('E2E Any: Where', () => {
   });
 
   test('filter with in operator', async () => {
+    const client = getClient();
     await client.db.AnyBasic.create({ data: { name: 'one', data: 1 } });
     await client.db.AnyBasic.create({ data: { name: 'two', data: 2 } });
     await client.db.AnyBasic.create({ data: { name: 'three', data: 3 } });
