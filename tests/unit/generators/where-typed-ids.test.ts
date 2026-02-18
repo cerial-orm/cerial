@@ -22,8 +22,8 @@ describe('Where Generator - Typed Record IDs', () => {
     test('plain Record (no recordIdTypes) uses RecordIdInput', () => {
       const result = generateFieldWhereType(field({ type: 'record', isRequired: true }));
 
-      expect(result).toContain('RecordIdInput |');
-      expect(result).not.toContain('RecordIdInput<');
+      expect(result).toContain('RecordIdInput<string> |');
+      expect(result).not.toMatch(/RecordIdInput[^<]/);
     });
 
     test('Record with recordIdTypes: ["int"] uses RecordIdInput<number>', () => {
@@ -105,8 +105,8 @@ describe('Where Generator - Typed Record IDs', () => {
     test('@id field without recordIdTypes uses plain RecordIdInput', () => {
       const result = generateFieldWhereType(field({ type: 'record', isId: true, isRequired: true }));
 
-      expect(result).toContain('RecordIdInput |');
-      expect(result).not.toContain('RecordIdInput<');
+      expect(result).toContain('RecordIdInput<string>');
+      expect(result).not.toMatch(/RecordIdInput[^<]/);
     });
   });
 
@@ -143,9 +143,9 @@ describe('Where Generator - Typed Record IDs', () => {
     test('Record[] without recordIdTypes uses plain RecordIdInput', () => {
       const result = generateFieldWhereType(field({ type: 'record', isArray: true }));
 
-      expect(result).toContain('RecordIdInput[]');
-      expect(result).toContain('has?: RecordIdInput');
-      expect(result).not.toContain('RecordIdInput<');
+      expect(result).toContain('RecordIdInput<string>[]');
+      expect(result).toContain('has?: RecordIdInput<string>');
+      expect(result).not.toMatch(/RecordIdInput[^<]/);
     });
 
     test('Record[] with recordIdTypes: ["string", "int"] uses union typed input', () => {
@@ -181,8 +181,8 @@ describe('Where Generator - Typed Record IDs', () => {
 
       const result = generateWhereInterface(m);
 
-      expect(result).toContain('id?: RecordIdInput |');
-      expect(result).not.toContain('RecordIdInput<');
+      expect(result).toContain('id?: RecordIdInput<string>');
+      expect(result).not.toMatch(/RecordIdInput[^<]/);
     });
 
     test('model with typed FK Record field generates correct where type', () => {
@@ -193,8 +193,8 @@ describe('Where Generator - Typed Record IDs', () => {
 
       const result = generateWhereInterface(m);
 
-      // id should be plain
-      expect(result).toMatch(/id\?: RecordIdInput \|/);
+      // id should be plain (but now with <string>)
+      expect(result).toMatch(/id\?: RecordIdInput<string>/);
       // authorId should be typed
       expect(result).toContain('authorId?: RecordIdInput<string>');
     });
@@ -204,8 +204,8 @@ describe('Where Generator - Typed Record IDs', () => {
     test('empty recordIdTypes array falls back to plain RecordIdInput', () => {
       const result = generateFieldWhereType(field({ type: 'record', recordIdTypes: [] }));
 
-      expect(result).toContain('RecordIdInput |');
-      expect(result).not.toContain('RecordIdInput<');
+      expect(result).toContain('RecordIdInput<string> |');
+      expect(result).not.toMatch(/RecordIdInput[^<]/);
     });
   });
 });

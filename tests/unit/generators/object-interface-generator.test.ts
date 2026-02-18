@@ -129,7 +129,7 @@ describe('Object Interface Generator', () => {
 
       const result = generateObjectInterface(o);
 
-      expect(result).toContain('refId: CerialId;');
+      expect(result).toContain('refId: CerialId<string>;');
     });
 
     test('should generate self-referencing object interface', () => {
@@ -175,7 +175,7 @@ describe('Object Interface Generator', () => {
       const result = generateObjectInputInterface(o, registry);
 
       expect(result).toContain('export interface RefInput');
-      expect(result).toContain('refId: RecordIdInput;');
+      expect(result).toContain('refId: RecordIdInput<string>;');
     });
   });
 
@@ -407,7 +407,7 @@ describe('Object Interface Generator', () => {
       const result = generateObjectCreateInputInterface(o, registry);
 
       expect(result).toContain('label: string;');
-      expect(result).toContain('refId?: RecordIdInput;');
+      expect(result).toContain('refId?: RecordIdInput<string>;');
     });
 
     test('should use nested CreateInput for objects with defaults', () => {

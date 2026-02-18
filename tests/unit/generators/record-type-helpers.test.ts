@@ -26,13 +26,13 @@ describe('record-type-helpers', () => {
     it('should return broad CerialId for plain Record (no recordIdTypes)', () => {
       const field = makeField();
 
-      expect(getRecordOutputType(field)).toBe('CerialId');
+      expect(getRecordOutputType(field)).toBe('CerialId<string>');
     });
 
     it('should return broad CerialId for empty recordIdTypes', () => {
       const field = makeField({ recordIdTypes: [] });
 
-      expect(getRecordOutputType(field)).toBe('CerialId');
+      expect(getRecordOutputType(field)).toBe('CerialId<string>');
     });
 
     it('should return CerialId<number> for Record(int)', () => {
@@ -232,13 +232,13 @@ describe('record-type-helpers', () => {
     it('should return broad RecordIdInput for plain Record', () => {
       const field = makeField();
 
-      expect(getRecordInputType(field)).toBe('RecordIdInput');
+      expect(getRecordInputType(field)).toBe('RecordIdInput<string>');
     });
 
     it('should return broad RecordIdInput for empty recordIdTypes', () => {
       const field = makeField({ recordIdTypes: [] });
 
-      expect(getRecordInputType(field)).toBe('RecordIdInput');
+      expect(getRecordInputType(field)).toBe('RecordIdInput<string>');
     });
 
     it('should return RecordIdInput<number> for Record(int)', () => {
