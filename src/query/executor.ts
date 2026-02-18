@@ -186,7 +186,9 @@ export function prefixQueryVars(query: CompiledQuery, prefix: string): CompiledQ
   // Collect LET-assigned var names from the query text
   const letRegex = /LET\s+\$(\w+)/g;
   let match;
-  while ((match = letRegex.exec(text)) !== null) {
+  while (true) {
+    match = letRegex.exec(text);
+    if (match === null) break;
     allVarNames.add(match[1]!);
   }
 

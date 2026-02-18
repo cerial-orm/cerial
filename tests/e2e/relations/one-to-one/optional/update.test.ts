@@ -184,7 +184,7 @@ describe('E2E One-to-One Optional: Update', () => {
       expect(isCerialId(updated[0]?.userId)).toBe(true);
 
       const user = await client.db.UserOptional.findOne({
-        where: { id: updated[0]?.userId! },
+        where: { id: updated[0]!.userId! },
       });
       expect(user?.name).toBe('New User');
     });

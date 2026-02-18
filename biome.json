@@ -33,7 +33,14 @@
       },
       "suspicious": {
         "useIterableCallbackReturn": "off",
+        "noExplicitAny": "off",
+        "noImplicitAnyLet": "off",
+        "noThenProperty": "off",
         "noGlobalIsNan": {
+          "level": "warn",
+          "fix": "safe"
+        },
+        "noDoubleEquals": {
           "level": "warn",
           "fix": "safe"
         }

@@ -37,9 +37,9 @@ describe('Composite Directive Parsing', () => {
 
       expect(errors).toHaveLength(0);
       expect(model?.directives).toHaveLength(1);
-      expect(model?.directives![0]!.kind).toBe('index');
-      expect(model?.directives![0]!.name).toBe('nameIdx');
-      expect(model?.directives![0]!.fields).toEqual(['firstName', 'lastName']);
+      expect(model!.directives![0]!.kind).toBe('index');
+      expect(model!.directives![0]!.name).toBe('nameIdx');
+      expect(model!.directives![0]!.fields).toEqual(['firstName', 'lastName']);
     });
 
     test('should parse @@index with three fields', () => {
@@ -55,7 +55,7 @@ describe('Composite Directive Parsing', () => {
 
       expect(errors).toHaveLength(0);
       expect(model?.directives).toHaveLength(1);
-      expect(model?.directives![0]!.fields).toEqual(['firstName', 'lastName', 'age']);
+      expect(model!.directives![0]!.fields).toEqual(['firstName', 'lastName', 'age']);
     });
   });
 
@@ -72,9 +72,9 @@ describe('Composite Directive Parsing', () => {
 
       expect(errors).toHaveLength(0);
       expect(model?.directives).toHaveLength(1);
-      expect(model?.directives![0]!.kind).toBe('unique');
-      expect(model?.directives![0]!.name).toBe('emailUsername');
-      expect(model?.directives![0]!.fields).toEqual(['email', 'username']);
+      expect(model!.directives![0]!.kind).toBe('unique');
+      expect(model!.directives![0]!.name).toBe('emailUsername');
+      expect(model!.directives![0]!.fields).toEqual(['email', 'username']);
     });
   });
 
@@ -95,7 +95,7 @@ describe('Composite Directive Parsing', () => {
 
       expect(errors).toHaveLength(0);
       expect(model?.directives).toHaveLength(1);
-      expect(model?.directives![0]!.fields).toEqual(['address.city', 'address.zip']);
+      expect(model!.directives![0]!.fields).toEqual(['address.city', 'address.zip']);
     });
 
     test('should parse @@index with mixed dot-notation and primitive fields', () => {
@@ -113,7 +113,7 @@ describe('Composite Directive Parsing', () => {
       `);
 
       expect(errors).toHaveLength(0);
-      expect(model?.directives![0]!.fields).toEqual(['address.city', 'name']);
+      expect(model!.directives![0]!.fields).toEqual(['address.city', 'name']);
     });
   });
 
@@ -132,10 +132,10 @@ describe('Composite Directive Parsing', () => {
 
       expect(errors).toHaveLength(0);
       expect(model?.directives).toHaveLength(2);
-      expect(model?.directives![0]!.kind).toBe('index');
-      expect(model?.directives![0]!.name).toBe('nameIdx');
-      expect(model?.directives![1]!.kind).toBe('unique');
-      expect(model?.directives![1]!.name).toBe('nameEmail');
+      expect(model!.directives![0]!.kind).toBe('index');
+      expect(model!.directives![0]!.name).toBe('nameIdx');
+      expect(model!.directives![1]!.kind).toBe('unique');
+      expect(model!.directives![1]!.name).toBe('nameEmail');
     });
   });
 

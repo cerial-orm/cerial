@@ -21,7 +21,7 @@ import type {
 } from '../../../src/types';
 
 // Helper for extension checks
-type Extends<A, B> = A extends B ? 1 : 0;
+type _Extends<A, B> = A extends B ? 1 : 0;
 
 // =============================================================================
 // SourcePosition

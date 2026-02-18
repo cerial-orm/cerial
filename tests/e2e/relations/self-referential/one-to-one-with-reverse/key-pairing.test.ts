@@ -83,7 +83,7 @@ describe('E2E Self-Ref One-to-One with Reverse: Key Pairing', () => {
         include: { assistedBy: true },
       });
       // Depending on implementation, might return first or last
-      expect([assistant1.id, assistant2.id].some((id) => id.equals(bossResult?.assistedBy?.id!))).toBe(true);
+      expect([assistant1.id, assistant2.id].some((id) => id.equals(bossResult!.assistedBy!.id!))).toBe(true);
     });
   });
 });

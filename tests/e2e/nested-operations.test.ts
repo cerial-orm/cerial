@@ -361,7 +361,7 @@ describe('E2E Nested Operations', () => {
 
       // Verify profile was created
       const profile = await client.db.Profile.findOne({
-        where: { id: updated[0]?.profileId! },
+        where: { id: updated[0]!.profileId! },
       });
       expect(profile?.bio).toBe('New profile via update');
     });

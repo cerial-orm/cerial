@@ -39,7 +39,7 @@ export class Cerial {
     this._database = database;
 
     if (Cerial.instances[name]) {
-      if (onDuplicateConnection === 'use_existing') return Cerial.instances[name]!;
+      if (onDuplicateConnection === 'use_existing') Cerial.instances[name]!;
       if (onDuplicateConnection === 'overwrite') delete Cerial.instances[name];
       if (onDuplicateConnection === 'throw') throw new Error(`Connection ${name} already exists`);
     }

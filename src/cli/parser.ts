@@ -50,9 +50,11 @@ export function parseArgs(args: string[]): CLIOptions {
       }
 
       case '-h':
-      case '--help':
+      case '--help': {
         printHelp();
         process.exit(0);
+        break;
+      }
 
       default:
         // If no flag, treat as schema path
