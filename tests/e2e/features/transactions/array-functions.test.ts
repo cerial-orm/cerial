@@ -1,8 +1,5 @@
-// Array overload type only accepts CerialQueryPromise<any>[]; function items
-// require `as any` casts until the template accepts TransactionArrayItem[].
-
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import { isCerialId } from 'cerial';
+import { type CerialId, isCerialId } from 'cerial';
 import {
   type CerialClient,
   cleanupTables,
@@ -33,19 +30,19 @@ describe('E2E Transactions: Array Mode Function Items', () => {
   test('function item returns CerialQueryPromise', async () => {
     const email = uniqueEmail();
 
-    const [user, post] = (await client.$transaction([
+    const [user, post] = await client.$transaction([
       client.db.User.create({ data: { email, name: 'FnUser', isActive: true } }),
-      ((prev: unknown[]) => {
-        const created = prev[0] as { id: any };
+      (prev: unknown[]) => {
+        const created = prev[0] as { id: CerialId<string> };
 
         return client.db.Post.create({ data: { title: 'FnPost', authorId: created.id } });
-      }) as any,
-    ] as any)) as any[];
+      },
+    ]);
 
     expect(user).toBeDefined();
     expect(user.email).toBe(email);
     expect(post).toBeDefined();
-    expect(post.title).toBe('FnPost');
+    expect((post as { title: string }).title).toBe('FnPost');
 
     const users = await client.db.User.findMany();
     expect(users.length).toBe(1);
@@ -56,14 +53,14 @@ describe('E2E Transactions: Array Mode Function Items', () => {
   test('function item returns plain value', async () => {
     const email = uniqueEmail();
 
-    const results = (await client.$transaction([
+    const results = await client.$transaction([
       client.db.User.create({ data: { email, name: 'PlainVal', isActive: true } }),
-      ((prev: unknown[]) => {
+      (prev: unknown[]) => {
         const created = prev[0] as { name: string };
 
         return created.name;
-      }) as any,
-    ] as any)) as any[];
+      },
+    ]);
 
     expect(results[0]).toBeDefined();
     expect(results[0].email).toBe(email);
@@ -74,12 +71,12 @@ describe('E2E Transactions: Array Mode Function Items', () => {
     const email = uniqueEmail();
     let sideEffectRan = false;
 
-    const results = (await client.$transaction([
+    const results = await client.$transaction([
       client.db.User.create({ data: { email, name: 'Void', isActive: true } }),
-      (() => {
+      () => {
         sideEffectRan = true;
-      }) as any,
-    ] as any)) as any[];
+      },
+    ]);
 
     expect(results[0]).toBeDefined();
     expect(results[1]).toBeUndefined();
@@ -89,28 +86,28 @@ describe('E2E Transactions: Array Mode Function Items', () => {
   test('async function item', async () => {
     const email = uniqueEmail();
 
-    const results = (await client.$transaction([
+    const results = await client.$transaction([
       client.db.User.create({ data: { email, name: 'AsyncFn', isActive: true } }),
-      (async (prev: unknown[]) => {
-        const created = prev[0] as { id: any };
+      async (prev: unknown[]) => {
+        const created = prev[0] as { id: CerialId<string> };
 
         return client.db.Post.create({ data: { title: 'AsyncPost', authorId: created.id } });
-      }) as any,
-    ] as any)) as any[];
+      },
+    ]);
 
     expect(results[0]).toBeDefined();
     expect(results[0].name).toBe('AsyncFn');
     expect(results[1]).toBeDefined();
-    expect(results[1].title).toBe('AsyncPost');
+    expect((results[1] as { title: string }).title).toBe('AsyncPost');
   });
 
   test('sync function item returning CerialQueryPromise', async () => {
     const email = uniqueEmail();
 
-    const results = (await client.$transaction([
+    const results = await client.$transaction([
       client.db.User.create({ data: { email, name: 'SyncFn', isActive: true } }),
-      (() => client.db.Post.findMany()) as any,
-    ] as any)) as any[];
+      () => client.db.Post.findMany(),
+    ]);
 
     expect(results[0]).toBeDefined();
     expect(results[0].name).toBe('SyncFn');
@@ -121,9 +118,9 @@ describe('E2E Transactions: Array Mode Function Items', () => {
     const email = uniqueEmail();
     let receivedPrev: unknown[] = [];
 
-    const results = (await client.$transaction([
+    const results = await client.$transaction([
       client.db.User.create({ data: { email, name: 'PrevCheck', isActive: true } }),
-      ((prev: unknown[]) => {
+      (prev: unknown[]) => {
         receivedPrev = [...prev];
         const created = prev[0] as { id: unknown; name: string; email: string };
 
@@ -132,8 +129,8 @@ describe('E2E Transactions: Array Mode Function Items', () => {
         expect(created.email).toBe(email);
 
         return 'checked';
-      }) as any,
-    ] as any)) as any[];
+      },
+    ]);
 
     expect(results[0]).toBeDefined();
     expect(results[1]).toBe('checked');
@@ -147,10 +144,10 @@ describe('E2E Transactions: Array Mode Function Items', () => {
       (async () => {
         await client.$transaction([
           client.db.User.create({ data: { email, name: 'Rollback', isActive: true } }),
-          (() => {
+          () => {
             throw new Error('abort');
-          }) as any,
-        ] as any);
+          },
+        ]);
       })(),
     ).rejects.toThrow();
 
@@ -162,21 +159,21 @@ describe('E2E Transactions: Array Mode Function Items', () => {
     const email1 = uniqueEmail();
     const email2 = uniqueEmail();
 
-    const results = (await client.$transaction([
+    const results = await client.$transaction([
       client.db.User.create({ data: { email: email1, name: 'Mix1', isActive: true } }),
-      ((prev: unknown[]) => {
-        const user = prev[0] as { id: any };
+      (prev: unknown[]) => {
+        const user = prev[0] as { id: CerialId<string> };
 
         return client.db.Post.create({ data: { title: 'MixPost', authorId: user.id } });
-      }) as any,
+      },
       client.db.User.create({ data: { email: email2, name: 'Mix2', isActive: false } }),
-      ((prev: unknown[]) => prev.length) as any,
-    ] as any)) as any[];
+      (prev: unknown[]) => prev.length,
+    ]);
 
     expect(results[0]).toBeDefined();
     expect(results[0].name).toBe('Mix1');
     expect(results[1]).toBeDefined();
-    expect(results[1].title).toBe('MixPost');
+    expect((results[1] as { title: string }).title).toBe('MixPost');
     expect(results[2]).toBeDefined();
     expect(results[2].name).toBe('Mix2');
     expect(results[3]).toBe(3);
@@ -185,36 +182,36 @@ describe('E2E Transactions: Array Mode Function Items', () => {
   test('function at position 0 receives empty array', async () => {
     const email = uniqueEmail();
 
-    const results = (await client.$transaction([
-      ((prev: unknown[]) => {
+    const results = await client.$transaction([
+      (prev: unknown[]) => {
         expect(prev).toEqual([]);
 
         return client.db.User.create({ data: { email, name: 'First', isActive: true } });
-      }) as any,
-    ] as any)) as any[];
+      },
+    ]);
 
     expect(results[0]).toBeDefined();
-    expect(results[0].name).toBe('First');
+    expect((results[0] as { name: string }).name).toBe('First');
   });
 
   test('multiple consecutive functions', async () => {
-    const results = (await client.$transaction([
-      ((prev: unknown[]) => {
+    const results = await client.$transaction([
+      (prev: unknown[]) => {
         expect(prev).toEqual([]);
 
         return 'first';
-      }) as any,
-      ((prev: unknown[]) => {
+      },
+      (prev: unknown[]) => {
         expect(prev).toEqual(['first']);
 
         return 'second';
-      }) as any,
-      ((prev: unknown[]) => {
+      },
+      (prev: unknown[]) => {
         expect(prev).toEqual(['first', 'second']);
 
         return 'third';
-      }) as any,
-    ] as any)) as any[];
+      },
+    ]);
 
     expect(results[0]).toBe('first');
     expect(results[1]).toBe('second');
@@ -224,15 +221,15 @@ describe('E2E Transactions: Array Mode Function Items', () => {
   test('function result accumulates for subsequent functions', async () => {
     const email = uniqueEmail();
 
-    const results = (await client.$transaction([
+    const results = await client.$transaction([
       client.db.User.create({ data: { email, name: 'Accumulate', isActive: true } }),
-      ((_prev: unknown[]) => 42) as any,
-      ((prev: unknown[]) => {
+      (_prev: unknown[]) => 42,
+      (prev: unknown[]) => {
         const num = prev[1] as number;
 
         return num * 2;
-      }) as any,
-    ] as any)) as any[];
+      },
+    ]);
 
     expect(results[0]).toBeDefined();
     expect(results[0].name).toBe('Accumulate');
@@ -243,15 +240,15 @@ describe('E2E Transactions: Array Mode Function Items', () => {
   test('async function with delay executes correctly', async () => {
     const email = uniqueEmail();
 
-    const results = (await client.$transaction([
+    const results = await client.$transaction([
       client.db.User.create({ data: { email, name: 'Delayed', isActive: true } }),
-      (async (prev: unknown[]) => {
+      async (prev: unknown[]) => {
         await new Promise((resolve) => setTimeout(resolve, 10));
         const user = prev[0] as { name: string };
 
         return `processed-${user.name}`;
-      }) as any,
-    ] as any)) as any[];
+      },
+    ]);
 
     expect(results[0]).toBeDefined();
     expect(results[1]).toBe('processed-Delayed');

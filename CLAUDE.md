@@ -271,8 +271,8 @@ has_children: true # only on section index pages
 
 ### Testing Rules
 
-- **E2E tests should not use `as any` or `@ts-expect-error`** - If types don't match runtime behavior, fix the type generators
-  - Exception: Testing runtime error handling for operations the type system correctly prevents (use `@ts-expect-error` with explanation comment)
+- **No `as any` or blanket type casting in tests** - If types don't match runtime behavior, fix the type generators or source types. Use specific type assertions (`as User`, `as { id: string }`) ONLY when narrowing `unknown` (e.g., `prevResults[0] as { id: CerialId }`) — never `as any`. This applies to ALL tests (unit, integration, E2E)
+  - Exception: `@ts-expect-error` with an explanation comment is allowed ONLY for negative tests — testing runtime error handling for operations the type system correctly prevents
 - **Always run relevant tests** after making changes: `bun test` for full suite, or targeted test paths
 - **Run `bunx tsc --noEmit`** after modifying types or generators to catch type errors
 - **Bug fixes must include tests** - When fixing a bug that was not caught by existing tests, add a test that covers the specific bug being fixed. The test should fail without the fix and pass with it. This prevents regressions and ensures test coverage grows with each fix.

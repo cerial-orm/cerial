@@ -272,7 +272,8 @@ describe('E2E Transactions: Manual Mode', () => {
 
     expect(user?.name).toBe('Select Option');
     expect(user?.email).toBe(email);
-    expect((user as any)?.isActive).toBeUndefined();
+    // @ts-expect-error — isActive not selected, verifying it's absent at runtime
+    expect(user?.isActive).toBeUndefined();
   });
 
   test('edge: multiple models in same txn', async () => {
