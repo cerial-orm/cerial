@@ -127,6 +127,16 @@ describe('findSchemaRoots', () => {
       expect(Array.isArray(roots)).toBe(true);
     });
   });
+
+  describe('node_modules skip', () => {
+    it('should skip node_modules directories', async () => {
+      const roots = await findSchemaRoots(resolve(FIXTURES, 'with-marker'));
+
+      for (const root of roots) {
+        expect(root.path).not.toContain('node_modules/');
+      }
+    });
+  });
 });
 
 describe('discoverSchemas', () => {

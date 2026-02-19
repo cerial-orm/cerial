@@ -162,10 +162,23 @@ project/
 
 ### Allowed Keys
 
-| Field        | Type     | Description                                             | Default          |
-| ------------ | -------- | ------------------------------------------------------- | ---------------- |
-| `output`     | `string` | Output directory for generated client (relative to folder) | `./client`       |
-| `connection` | `object` | Connection config for this schema                        | None             |
+| Field        | Type     | Description                                             | Default            |
+| ------------ | -------- | ------------------------------------------------------- | ------------------ |
+| `output`     | `string` | Output directory for generated client (relative to folder) | `./client`         |
+| `name`       | `string` | Custom schema name (overrides directory basename)        | Directory basename |
+| `connection` | `object` | Connection config for this schema                        | None               |
+
+By default, Cerial derives the schema name from the directory basename (e.g., a folder config in `src/auth/` produces the schema name `auth`). Use `name` when two schema directories share the same basename and you need to disambiguate:
+
+```typescript
+// lib/auth/cerial.config.ts
+export default {
+  name: 'lib_auth',
+  output: './client',
+};
+```
+
+The name must be a valid JavaScript identifier (letters, numbers, `_`, `$`). Reserved names like `default` and `index` are not allowed.
 
 ### Example
 
@@ -262,6 +275,78 @@ project/
 Cerial logs a warning for each auto-discovered schema so you're aware of the extra generation. If you'd prefer explicit control, add the folder to your root config's `schemas` map instead.
 
 Schema names and output paths from auto-discovered folder configs must not collide with root-defined schemas. Collisions cause a validation error.
+
+#### Nesting Rules
+
+When folder configs and convention markers coexist across different directories, Cerial enforces strict nesting rules. Only one schema root is allowed per directory hierarchy.
+
+| Parent Directory Has | Child Directory Has | Result |
+| -------------------- | ------------------- | ------ |
+| Folder config | Folder config | Error. Only one config per hierarchy. |
+| Convention marker | Convention marker | Error. Only one marker per hierarchy. |
+| Folder config | Convention marker | Error. Config takes precedence, marker not allowed below. |
+| Convention marker | Folder config | Folder config wins. Parent marker and sibling `.cerial` files are ignored. |
+
+The last rule is worth highlighting. When a child directory has a folder config, it carves out its own schema boundary. The parent convention marker loses authority over that subtree:
+
+```
+project/
+├── src/
+│   └── schemas/
+│       ├── schema.cerial        ← ignored (child folder config takes over)
+│       ├── user.cerial           ← ignored
+│       └── auth/
+│           ├── cerial.config.ts  ← this folder config wins
+│           ├── login.cerial
+│           └── session.cerial
+```
+
+In this layout, only the `auth/` directory is treated as a schema root. The `schema.cerial` and `user.cerial` files in the parent are not part of any schema.
+
+---
+
+## Convention Markers
+
+Convention markers are specially named `.cerial` files that tell Cerial "this directory is a schema root." Place one of these files in a directory to mark it:
+
+- `schema.cerial`
+- `main.cerial`
+- `index.cerial`
+
+The marker file can contain model definitions or be empty. Its presence is what matters. When Cerial finds a convention marker, it treats that directory as a schema root and includes all `.cerial` files in the directory.
+
+```
+project/
+├── schemas/
+│   ├── auth/
+│   │   ├── schema.cerial       ← convention marker
+│   │   ├── user.cerial
+│   │   └── session.cerial
+│   └── cms/
+│       ├── main.cerial         ← convention marker
+│       ├── page.cerial
+│       └── block.cerial
+```
+
+### Schema Naming
+
+The schema name defaults to the directory basename. In the example above, `auth/schema.cerial` produces the schema name `auth`, and `cms/main.cerial` produces `cms`.
+
+### With a Root Config
+
+Convention markers interact with the root config the same way folder configs do:
+
+- **At a root-defined path**: If the root config already defines a schema at that directory, the marker has no additional effect. The root config already covers it.
+- **Inside a root-defined path**: A convention marker in a subdirectory of a root-defined path causes an error. This prevents ambiguous schema boundaries.
+- **Outside root-defined paths**: Convention markers in directories not covered by the root config are auto-discovered as additional schemas. Cerial logs a warning for each one so you know extra generation is happening.
+
+Auto-discovered convention markers follow the same collision rules as folder configs. Schema names and output paths must not overlap with root-defined schemas.
+
+### Without Any Config
+
+If your project has no root config and no folder configs, Cerial falls back to convention marker discovery. It scans the current directory tree for markers and generates schemas from them.
+
+A single marker produces a single schema with the default `CerialClient` class. Multiple markers produce a multi-schema setup where each schema is named after its directory basename and outputs to a `client/` folder inside that directory. If two markers share the same directory basename, Cerial reports a name collision error. Add a folder config with a `name` field to one of the directories to resolve it.
 
 ---
 

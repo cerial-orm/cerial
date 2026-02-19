@@ -11,6 +11,7 @@ export type { ConfigValidationError, ConfigValidationResult } from './validator'
 export {
   detectConfigsInsideRootPaths,
   detectNestedConfigs,
+  detectNestedSchemaRoots,
   validateCombinedEntries,
   validateConfig,
   validateFolderConfig,

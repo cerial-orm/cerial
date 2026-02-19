@@ -1,6 +1,8 @@
-import { loadConfig, resolveConfig } from '../config';
+import { basename, resolve } from 'node:path';
+import { detectNestedSchemaRoots, loadConfig, resolveConfig } from '../config';
 import { applyFolderOverridesAndDiscover, generate } from '../generate';
 import { parseArgs } from '../parser';
+import { findSchemaRoots } from '../resolvers';
 import type { WatchTarget } from '../watcher';
 import { startWatcher } from '../watcher';
 import type { Command } from './types';
@@ -33,6 +35,26 @@ async function buildWatchTargets(options: ReturnType<typeof parseArgs>): Promise
       outputDir: e.output,
       clientClassName: e.clientClassName,
     }));
+  }
+
+  // Try convention marker discovery
+  const schemaRoots = await findSchemaRoots(process.cwd());
+  if (schemaRoots.length) {
+    // Check for marker-to-marker nesting
+    const typedRoots = schemaRoots.map(({ path: mp }) => ({
+      path: mp,
+      type: 'convention-marker' as const,
+    }));
+    const { ignored } = detectNestedSchemaRoots(typedRoots);
+    const validRoots = schemaRoots.filter(({ path: mp }) => !ignored.has(mp));
+
+    if (validRoots.length) {
+      return validRoots.map(({ path: mp }) => ({
+        name: basename(mp),
+        schemaPath: mp,
+        outputDir: options.output ?? resolve(mp, 'client'),
+      }));
+    }
   }
 
   return [

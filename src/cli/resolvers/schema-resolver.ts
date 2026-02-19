@@ -132,6 +132,8 @@ export async function findSchemaRoots(cwd: string = process.cwd()): Promise<Sche
     const glob = new Glob(`**/${marker}`);
     try {
       for await (const match of glob.scan({ cwd })) {
+        if (match.includes('node_modules/')) continue;
+
         const fullPath = resolve(cwd, match);
         const dir = dirname(fullPath);
 

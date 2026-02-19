@@ -35,6 +35,8 @@ export interface CerialConfig {
  * The folder itself IS the schema root — no schema/schemas keys allowed.
  */
 export interface FolderConfig {
+  /** Optional schema name (overrides basename(dir)) */
+  name?: string;
   /** Output directory for generated client (default: ./client relative to folder) */
   output?: string;
   /** Connection config for this schema */

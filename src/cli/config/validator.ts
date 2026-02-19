@@ -63,6 +63,25 @@ export function validateFolderConfig(config: Record<string, unknown>): ConfigVal
     });
   }
 
+  if ('name' in config) {
+    if (typeof config.name !== 'string') {
+      errors.push({
+        field: 'name',
+        message: "'name' must be a string",
+      });
+    } else if (!isValidIdentifier(config.name)) {
+      errors.push({
+        field: 'name',
+        message: "'name' must be a valid JavaScript identifier",
+      });
+    } else if (_RESERVED_NAMES_ERROR.has(config.name)) {
+      errors.push({
+        field: 'name',
+        message: `Schema name '${config.name}' is reserved and cannot be used`,
+      });
+    }
+  }
+
   return { valid: errors.length === 0, errors };
 }
 
@@ -177,7 +196,13 @@ export async function detectConfigsInsideRootPaths(rootPaths: string[], _cwd: st
   for (const rootPath of rootPaths) {
     const normalizedRoot = normalize(resolve(rootPath));
 
-    for (const pattern of ['**/cerial.config.ts', '**/cerial.config.json']) {
+    for (const pattern of [
+      '**/cerial.config.ts',
+      '**/cerial.config.json',
+      '**/schema.cerial',
+      '**/main.cerial',
+      '**/index.cerial',
+    ]) {
       const glob = new Glob(pattern);
       try {
         for await (const match of glob.scan({ cwd: rootPath })) {
@@ -188,12 +213,15 @@ export async function detectConfigsInsideRootPaths(rootPaths: string[], _cwd: st
 
           if (configDir === normalizedRoot) continue;
 
+          const isConfig = pattern.endsWith('.ts') || pattern.endsWith('.json');
+          const fileType = isConfig ? 'config file' : 'convention marker';
+
           throw new Error(
-            `Found config file at '${configDir}' inside schema path '${normalizedRoot}' defined in root config. Remove the nested config or adjust root config paths.`,
+            `Found ${fileType} at '${configDir}' inside schema path '${normalizedRoot}' defined in root config. Remove the nested ${fileType} or adjust root config paths.`,
           );
         }
       } catch (error) {
-        if (error instanceof Error && error.message.includes('Found config file at')) {
+        if (error instanceof Error && error.message.includes('inside schema path')) {
           throw error;
         }
       }
@@ -205,6 +233,7 @@ export function validateCombinedEntries(
   rootEntries: ResolvedSchemaEntry[],
   discoveredEntries: ResolvedSchemaEntry[],
 ): void {
+  // Check root-vs-discovered collisions
   for (const discovered of discoveredEntries) {
     for (const root of rootEntries) {
       if (discovered.name === root.name) {
@@ -220,4 +249,58 @@ export function validateCombinedEntries(
       }
     }
   }
+
+  // Check discovered-vs-discovered collisions
+  for (let i = 0; i < discoveredEntries.length; i++) {
+    for (let j = i + 1; j < discoveredEntries.length; j++) {
+      const entry1 = discoveredEntries[i]!;
+      const entry2 = discoveredEntries[j]!;
+
+      if (entry1.name === entry2.name) {
+        throw new Error(
+          `Duplicate schema name '${entry1.name}' discovered at '${entry1.path}' and '${entry2.path}'. Add a 'name' field to the folder config in one of them to disambiguate.`,
+        );
+      }
+
+      if (pathsOverlap(entry1.output, entry2.output)) {
+        throw new Error(
+          `Discovered schema '${entry1.name}' output '${entry1.output}' collides with discovered schema '${entry2.name}'.`,
+        );
+      }
+    }
+  }
+}
+
+export function detectNestedSchemaRoots(roots: Array<{ path: string; type: 'folder-config' | 'convention-marker' }>): {
+  ignored: Set<string>;
+} {
+  const normalize = (p: string) => p.replace(/\\/g, '/').replace(/\/$/, '');
+  const ignored = new Set<string>();
+
+  for (let i = 0; i < roots.length; i++) {
+    for (let j = i + 1; j < roots.length; j++) {
+      const root1 = roots[i]!;
+      const root2 = roots[j]!;
+      const p1 = normalize(root1.path);
+      const p2 = normalize(root2.path);
+
+      // Check if one is nested inside the other
+      if (p1.startsWith(`${p2}/`) || p2.startsWith(`${p1}/`)) {
+        const [parent, child] = p1.startsWith(`${p2}/`) ? [root2, root1] : [root1, root2];
+
+        // Apply the 4-rule matrix
+        if (parent.type === 'convention-marker' && child.type === 'folder-config') {
+          // Rule 4: convention-marker parent + folder-config child → parent ignored
+          ignored.add(parent.path);
+        } else {
+          // Rules 1, 2, 3: all other combinations throw error
+          throw new Error(
+            `Nested schema roots detected: '${parent.path}' contains '${child.path}'. Only one config per schema hierarchy is allowed.`,
+          );
+        }
+      }
+    }
+  }
+
+  return { ignored };
 }

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'bun:test';
 import { resolve } from 'node:path';
 import type { ResolvedSchemaEntry } from '../../../src/cli/config';
+import { detectNestedSchemaRoots, validateCombinedEntries } from '../../../src/cli/config';
 import type {
   GenerateResult,
   MultiGenerateResult,
@@ -13,6 +14,7 @@ import {
   generateMultiSchema,
   generateSingleSchema,
 } from '../../../src/cli/generate';
+import { findSchemaRoots } from '../../../src/cli/resolvers';
 import { validateOptions } from '../../../src/cli/validators';
 
 describe('generate orchestration', () => {
@@ -252,6 +254,70 @@ describe('generate orchestration', () => {
       expect(Array.isArray(result.files)).toBe(true);
       expect(Array.isArray(result.errors)).toBe(true);
     });
+
+    describe('convention marker no-root-config path', () => {
+      const fixturesDir = resolve(__dirname, '../../fixtures/config-merge');
+
+      it('should return GenerateResult shape from generate()', async () => {
+        const result = await generate({ output: '/tmp/cerial-marker-test' });
+
+        expect(result).toHaveProperty('success');
+        expect(result).toHaveProperty('files');
+        expect(result).toHaveProperty('errors');
+        expect(typeof result.success).toBe('boolean');
+        expect(Array.isArray(result.files)).toBe(true);
+        expect(Array.isArray(result.errors)).toBe(true);
+      });
+
+      it('should fall through to legacy when no markers exist', async () => {
+        const result = await generate({ output: '/tmp/cerial-legacy-fallthrough' });
+
+        expect(result).toHaveProperty('success');
+        expect(result).toHaveProperty('files');
+        expect(result).toHaveProperty('errors');
+      });
+
+      it('should find convention markers in fixture directory', async () => {
+        const roots = await findSchemaRoots(resolve(fixturesDir, 'marker-at-root'));
+
+        expect(roots.length).toBe(1);
+        expect(roots[0]!.path).toBe(resolve(fixturesDir, 'marker-at-root'));
+        expect(roots[0]!.marker).toBe('schema.cerial');
+      });
+
+      it('should return empty roots for directory without markers', async () => {
+        const roots = await findSchemaRoots(resolve(fixturesDir, 'clean'));
+
+        expect(roots).toHaveLength(0);
+      });
+
+      it('should throw for nested marker-to-marker roots', () => {
+        const roots = [
+          { path: '/project/schemas', type: 'convention-marker' as const },
+          { path: '/project/schemas/sub', type: 'convention-marker' as const },
+        ];
+
+        expect(() => detectNestedSchemaRoots(roots)).toThrow(/Nested schema roots/);
+      });
+
+      it('should detect name collisions among discovered marker entries', () => {
+        const entries: ResolvedSchemaEntry[] = [
+          { name: 'dup', path: '/a/dup', output: '/out/a', clientClassName: 'DupCerialClient' },
+          { name: 'dup', path: '/b/dup', output: '/out/b', clientClassName: 'DupCerialClient' },
+        ];
+
+        expect(() => validateCombinedEntries([], entries)).toThrow(/Duplicate schema name/);
+      });
+
+      it('should detect output collisions among discovered marker entries', () => {
+        const entries: ResolvedSchemaEntry[] = [
+          { name: 'alpha', path: '/a/alpha', output: '/shared/out', clientClassName: 'AlphaCerialClient' },
+          { name: 'beta', path: '/b/beta', output: '/shared/out', clientClassName: 'BetaCerialClient' },
+        ];
+
+        expect(() => validateCombinedEntries([], entries)).toThrow(/output.*collides/);
+      });
+    });
   });
 
   describe('applyFolderOverridesAndDiscover', () => {
@@ -449,6 +515,126 @@ describe('generate orchestration', () => {
         await expect(applyFolderOverridesAndDiscover(entries, cwdPath)).rejects.toThrow(
           "Auto-discovered schema name 'collider' collides",
         );
+      });
+    });
+
+    describe('convention marker coexistence', () => {
+      it('should discover convention markers outside root paths', async () => {
+        const cwdPath = resolve(fixturesDir, 'marker-outside');
+        const entryPath = resolve(cwdPath, 'schema-a');
+        const entries: ResolvedSchemaEntry[] = [
+          {
+            name: 'alpha',
+            path: entryPath,
+            output: '/tmp/alpha',
+            clientClassName: 'AlphaCerialClient',
+          },
+        ];
+
+        const result = await applyFolderOverridesAndDiscover(entries, cwdPath);
+
+        const markerEntry = result.find((e) => e.name === 'marker-dir');
+        expect(markerEntry).toBeDefined();
+        expect(markerEntry!.path).toBe(resolve(cwdPath, 'marker-dir'));
+      });
+
+      it('should NOT discover convention markers at root paths', async () => {
+        const cwdPath = resolve(fixturesDir, 'marker-outside');
+        const markerAtRootPath = resolve(fixturesDir, 'marker-at-root');
+        const entries: ResolvedSchemaEntry[] = [
+          {
+            name: 'alpha',
+            path: markerAtRootPath,
+            output: '/tmp/alpha',
+            clientClassName: 'AlphaCerialClient',
+          },
+        ];
+
+        const result = await applyFolderOverridesAndDiscover(entries, cwdPath);
+
+        expect(result.find((e) => e.name === 'marker-at-root')).toBeUndefined();
+      });
+
+      it('should throw when convention marker found inside root path subdirectory', async () => {
+        const cwdPath = resolve(fixturesDir, 'marker-nested');
+        const entryPath = cwdPath;
+        const entries: ResolvedSchemaEntry[] = [
+          {
+            name: 'root-schema',
+            path: entryPath,
+            output: '/tmp/root-schema',
+            clientClassName: 'RootSchemaCerialClient',
+          },
+        ];
+
+        await expect(applyFolderOverridesAndDiscover(entries, cwdPath)).rejects.toThrow(
+          /Found convention marker at.*inside schema path/,
+        );
+      });
+
+      it('should set output to resolve(dir, client) for marker entries', async () => {
+        const cwdPath = resolve(fixturesDir, 'marker-outside');
+        const entryPath = resolve(cwdPath, 'schema-a');
+        const entries: ResolvedSchemaEntry[] = [
+          {
+            name: 'alpha',
+            path: entryPath,
+            output: '/tmp/alpha',
+            clientClassName: 'AlphaCerialClient',
+          },
+        ];
+
+        const result = await applyFolderOverridesAndDiscover(entries, cwdPath);
+
+        const markerEntry = result.find((e) => e.name === 'marker-dir');
+        expect(markerEntry!.output).toBe(resolve(cwdPath, 'marker-dir', 'client'));
+      });
+
+      it('should set correct clientClassName for marker entries', async () => {
+        const cwdPath = resolve(fixturesDir, 'marker-outside');
+        const entryPath = resolve(cwdPath, 'schema-a');
+        const entries: ResolvedSchemaEntry[] = [
+          {
+            name: 'alpha',
+            path: entryPath,
+            output: '/tmp/alpha',
+            clientClassName: 'AlphaCerialClient',
+          },
+        ];
+
+        const result = await applyFolderOverridesAndDiscover(entries, cwdPath);
+
+        const markerEntry = result.find((e) => e.name === 'marker-dir');
+        expect(markerEntry!.clientClassName).toBe('MarkerDirCerialClient');
+      });
+
+      it('should use config.name for discovered folder configs when available', async () => {
+        const cwdPath = resolve(fixturesDir, 'coexistence-root');
+        const entryPath = resolve(cwdPath, 'schema-a');
+        const entries: ResolvedSchemaEntry[] = [
+          {
+            name: 'alpha',
+            path: entryPath,
+            output: '/tmp/alpha',
+            clientClassName: 'AlphaCerialClient',
+          },
+        ];
+
+        const result = await applyFolderOverridesAndDiscover(entries, cwdPath);
+
+        const discovered = result.find((e) => e.path === resolve(cwdPath, 'schema-b'));
+        expect(discovered).toBeDefined();
+        expect(discovered!.name).toBe('schema-b');
+      });
+
+      it('should deduplicate markers with same basename — first wins', async () => {
+        const cwdPath = resolve(fixturesDir, 'marker-outside');
+        const entries: ResolvedSchemaEntry[] = [];
+
+        const result = await applyFolderOverridesAndDiscover(entries, cwdPath);
+
+        const markerEntries = result.filter((e) => e.name === 'marker-dir');
+        expect(markerEntries).toHaveLength(1);
       });
     });
 

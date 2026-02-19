@@ -140,6 +140,52 @@ describe('watcher', () => {
       expect(auth?.outputDir).toBe('./custom-output/auth');
       expect(core?.outputDir).toBe('./generated/core');
     });
+
+    it('should support convention marker watch target with name from basename', () => {
+      const target: WatchTarget = {
+        name: 'schemas',
+        schemaPath: './schemas',
+        outputDir: './schemas/client',
+      };
+
+      expect(target.name).toBe('schemas');
+      expect(target.schemaPath).toBe('./schemas');
+      expect(target.outputDir).toBe('./schemas/client');
+      expect(target.clientClassName).toBeUndefined();
+    });
+
+    it('should support multiple convention marker watch targets', () => {
+      const targets: WatchTarget[] = [
+        {
+          name: 'auth',
+          schemaPath: './auth',
+          outputDir: './auth/client',
+        },
+        {
+          name: 'core',
+          schemaPath: './core',
+          outputDir: './core/client',
+        },
+      ];
+
+      expect(targets).toHaveLength(2);
+      expect(targets[0]?.name).toBe('auth');
+      expect(targets[0]?.schemaPath).toBe('./auth');
+      expect(targets[0]?.outputDir).toBe('./auth/client');
+      expect(targets[1]?.name).toBe('core');
+      expect(targets[1]?.schemaPath).toBe('./core');
+      expect(targets[1]?.outputDir).toBe('./core/client');
+    });
+
+    it('should support convention marker with custom output override', () => {
+      const target: WatchTarget = {
+        name: 'schemas',
+        schemaPath: './schemas',
+        outputDir: './custom-output',
+      };
+
+      expect(target.outputDir).toBe('./custom-output');
+    });
   });
 
   describe('createDebouncer', () => {

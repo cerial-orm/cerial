@@ -34,6 +34,7 @@ import type {
 import type { ResolvedSchemaEntry } from './config';
 import {
   detectConfigsInsideRootPaths,
+  detectNestedSchemaRoots,
   findFolderConfigs,
   loadConfig,
   loadFolderConfig,
@@ -41,7 +42,7 @@ import {
   toClientClassName,
   validateCombinedEntries,
 } from './config';
-import { resolveSchemas, resolveSinglePath } from './resolvers';
+import { findSchemaRoots, resolveSchemas, resolveSinglePath } from './resolvers';
 import { logger } from './utils';
 import type { CLIOptions, LogOutputLevel } from './validators';
 import { validateOptions, validateSchema } from './validators';
@@ -529,7 +530,7 @@ export async function applyFolderOverridesAndDiscover(
   });
 
   const discoveredEntries: ResolvedSchemaEntry[] = discovered.map(({ dir, config }) => {
-    const name = basename(dir);
+    const name = config.name ?? basename(dir);
 
     return {
       name,
@@ -546,9 +547,61 @@ export async function applyFolderOverridesAndDiscover(
     );
   }
 
-  validateCombinedEntries(mergedEntries, discoveredEntries);
+  // Discover convention markers
+  const schemaRoots = await findSchemaRoots(cwd);
 
-  return [...mergedEntries, ...discoveredEntries];
+  // Filter out markers at/inside root paths (root config covers them)
+  const discoveredMarkers = schemaRoots.filter(({ path: markerPath }) => {
+    const resolvedMarker = resolve(markerPath);
+
+    return !rootPaths.some((rp) => resolvedMarker === rp || resolvedMarker.startsWith(`${rp}/`));
+  });
+
+  // Filter out markers where folder config already exists (folder config wins)
+  const folderConfigDirs = new Set(discovered.map(({ dir }) => resolve(dir)));
+  const uniqueMarkers = discoveredMarkers.filter(({ path: mp }) => !folderConfigDirs.has(resolve(mp)));
+
+  // Cross-method nesting detection (folder-config ↔ convention-marker)
+  const typedRoots: Array<{ path: string; type: 'folder-config' | 'convention-marker' }> = [
+    ...discovered.map(({ dir }) => ({ path: dir, type: 'folder-config' as const })),
+    ...uniqueMarkers.map(({ path: mp }) => ({ path: mp, type: 'convention-marker' as const })),
+  ];
+  const { ignored } = detectNestedSchemaRoots(typedRoots);
+
+  // Filter out ignored markers
+  const finalMarkers = uniqueMarkers.filter(({ path: mp }) => !ignored.has(mp));
+
+  const takenNames = new Set(discoveredEntries.map((e) => e.name));
+  const deduplicatedMarkers = finalMarkers.filter(({ path: mp }) => {
+    const name = basename(mp);
+    if (takenNames.has(name)) return false;
+    takenNames.add(name);
+
+    return true;
+  });
+
+  const markerEntries: ResolvedSchemaEntry[] = deduplicatedMarkers.map(({ path: mp }) => {
+    const name = basename(mp);
+
+    return {
+      name,
+      path: mp,
+      output: resolve(mp, 'client'),
+      clientClassName: toClientClassName(name),
+    };
+  });
+
+  for (const entry of markerEntries) {
+    logger.warn(
+      `Auto-discovered schema '${entry.name}' from convention marker at '${entry.path}' (not defined in root config)`,
+    );
+  }
+
+  // Combine ALL discovered entries (folder configs + convention markers)
+  const allDiscoveredEntries = [...discoveredEntries, ...markerEntries];
+  validateCombinedEntries(mergedEntries, allDiscoveredEntries);
+
+  return [...mergedEntries, ...allDiscoveredEntries];
 }
 
 /** Run the generate command */
@@ -663,6 +716,69 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
       const allFiles = Object.values(multiResult.results).flatMap((r) => r.files);
 
       return { success: multiResult.success, files: allFiles, errors: multiResult.errors };
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    result.errors.push(message);
+
+    return result;
+  }
+
+  // No folder configs → try convention marker discovery
+  try {
+    const schemaRoots = await findSchemaRoots(process.cwd());
+
+    if (schemaRoots.length) {
+      const logLevel = options.log ?? 'minimal';
+      logger.setOutputLevel(logLevel);
+
+      // Check for marker-to-marker nesting
+      const typedRoots = schemaRoots.map(({ path: mp }) => ({
+        path: mp,
+        type: 'convention-marker' as const,
+      }));
+      const { ignored } = detectNestedSchemaRoots(typedRoots);
+      const validRoots = schemaRoots.filter(({ path: mp }) => !ignored.has(mp));
+
+      if (validRoots.length === 1) {
+        const root = validRoots[0]!;
+        const outputDir = options.output ?? resolve(root.path, 'client');
+
+        return generateSingleSchema({
+          schemaPath: root.path,
+          outputDir,
+          logLevel: options.log,
+          verbose: options.verbose,
+          clean: options.clean,
+        });
+      }
+
+      if (validRoots.length > 1) {
+        const entries: ResolvedSchemaEntry[] = validRoots.map(({ path: mp }) => {
+          const name = basename(mp);
+          const output = options.output ?? resolve(mp, 'client');
+
+          return {
+            name,
+            path: mp,
+            output,
+            clientClassName: toClientClassName(name),
+          };
+        });
+
+        // Check for duplicate names/outputs among discovered markers
+        validateCombinedEntries([], entries);
+
+        const multiResult = await generateMultiSchema(entries, {
+          logLevel: options.log,
+          verbose: options.verbose,
+          clean: options.clean,
+        });
+
+        const allFiles = Object.values(multiResult.results).flatMap((r) => r.files);
+
+        return { success: multiResult.success, files: allFiles, errors: multiResult.errors };
+      }
     }
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
