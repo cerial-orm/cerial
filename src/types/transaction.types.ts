@@ -18,6 +18,14 @@ export type TransactionCallbackFn<R> = (tx: TransactionClient) => Promise<R> | R
 export interface TransactionOptions {
   /** Optional timeout in milliseconds for the transaction */
   timeout?: number;
+  /** Number of retry attempts on transaction conflict (default: 0 — no retry) */
+  retries?: number;
+  /**
+   * Custom backoff function: receives 0-based attempt number, returns delay in ms.
+   * Only used when retries > 0.
+   * Default: exponential backoff with jitter — `(attempt) => 2 ** attempt * 10 + Math.random() * 10`
+   */
+  backoff?: (attempt: number) => number;
 }
 
 /**

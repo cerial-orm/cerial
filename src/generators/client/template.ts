@@ -47,13 +47,13 @@ function _generateTransactionOverloads(): string {
     }
 
     overloads.push(
-      `  $transaction<${generics.join(', ')}>(queries: [${queryTypes.join(', ')}]): Promise<[${resultTypes.join(', ')}]>;`,
+      `  $transaction<${generics.join(', ')}>(queries: [${queryTypes.join(', ')}], options?: TransactionOptions): Promise<[${resultTypes.join(', ')}]>;`,
     );
   }
 
   // Fallback for 7+ items (prev is any[] — can't type across arbitrary positions)
   overloads.push(
-    `  $transaction<T extends (CerialQueryPromise<any> | ((prev: any[]) => any))[]>(queries: [...T]): Promise<{ [K in keyof T]: TransactionItemResult<T[K]> }>;`,
+    `  $transaction<T extends (CerialQueryPromise<any> | ((prev: any[]) => any))[]>(queries: [...T], options?: TransactionOptions): Promise<{ [K in keyof T]: TransactionItemResult<T[K]> }>;`,
   );
 
   return overloads.join('\n\n');
@@ -425,39 +425,62 @@ ${_generateTransactionOverloads()}
       const surreal = this.getTransactionSurreal();
       if (!surreal) throw new Error('No active connection.');
       await this.ensureMigrated();
-      const sdkTxn = await surreal.beginTransaction();
-      const tx = createCerialTransactionProxy(sdkTxn, modelRegistry);
 
-      let timeoutId: ReturnType<typeof setTimeout> | undefined;
-      try {
-        let result: unknown;
-        if (options?.timeout) {
-          const timeoutMs = options.timeout;
-          result = await Promise.race([
-            Promise.resolve(arg(tx)),
-            new Promise<never>((_, reject) => {
-              timeoutId = setTimeout(
-                () => reject(new Error('Transaction timeout')),
-                timeoutMs,
-              );
-            }),
-          ]);
-        } else {
-          result = await Promise.resolve(arg(tx));
-        }
-        await sdkTxn.commit();
+      const maxRetries = options?.retries ?? 0;
+      const backoffFn = options?.backoff ?? ((attempt: number) => 2 ** attempt * 10 + Math.random() * 10);
+      const isConflict = (e: unknown): boolean =>
+        e instanceof Error &&
+        (e.message.toLowerCase().includes('transaction conflict') ||
+          e.message.toLowerCase().includes('write conflict'));
+      let lastError: unknown;
 
-        return result;
-      } catch (error) {
+      for (let attempt = 0; attempt <= maxRetries; attempt++) {
         try {
-          await sdkTxn.cancel();
-        } catch {
-          // Ignore cancel errors — transaction may already be aborted
+          const sdkTxn = await surreal.beginTransaction();
+          const tx = createCerialTransactionProxy(sdkTxn, modelRegistry);
+
+          let timeoutId: ReturnType<typeof setTimeout> | undefined;
+          try {
+            let result: unknown;
+            if (options?.timeout) {
+              const timeoutMs = options.timeout;
+              result = await Promise.race([
+                Promise.resolve(arg(tx)),
+                new Promise<never>((_, reject) => {
+                  timeoutId = setTimeout(
+                    () => reject(new Error('Transaction timeout')),
+                    timeoutMs,
+                  );
+                }),
+              ]);
+            } else {
+              result = await Promise.resolve(arg(tx));
+            }
+            await sdkTxn.commit();
+
+            return result;
+          } catch (error) {
+            try {
+              await sdkTxn.cancel();
+            } catch {
+              // Ignore cancel errors — transaction may already be aborted
+            }
+            throw error;
+          } finally {
+            if (timeoutId !== undefined) clearTimeout(timeoutId);
+          }
+        } catch (error) {
+          lastError = error;
+          if (isConflict(error) && attempt < maxRetries) {
+            const delay = backoffFn(attempt);
+            await new Promise(resolve => setTimeout(resolve, delay));
+            continue;
+          }
+          throw error;
         }
-        throw error;
-      } finally {
-        if (timeoutId !== undefined) clearTimeout(timeoutId);
       }
+
+      throw lastError;
     }
 
     // Array mode
@@ -497,7 +520,7 @@ ${_generateTransactionOverloads()}
     });
 
     // Execute the transaction
-    const results = await executeClientTransaction(surreal, items);
+    const results = await executeClientTransaction(surreal, items, options);
 
     return results as any;
   }

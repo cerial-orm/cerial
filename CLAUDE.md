@@ -403,7 +403,7 @@ Do NOT use SurrealDB reserved keywords as field names, model names, or object na
 - WebSocket is required for `$transaction` — SDK native transactions only work over WebSocket. If user connects via HTTP, Cerial auto-creates a secondary WS connection. `closeHttp()` drops HTTP, `reopenHttp()` restores it. WS is always kept alive
 - `$transaction` nesting is blocked — accessing `$transaction` on a transaction client throws immediately. SurrealDB has no savepoints
 - Manual mode `txn` must be committed or cancelled — forgetting to call `commit()` or `cancel()` causes "transaction dropped" warnings. Use `await using` for automatic cleanup
-- Transaction conflict retry — Cerial retries transaction conflicts automatically (3 attempts, exponential backoff). Each retry begins a fresh transaction
+- Transaction conflict retry — Cerial does NOT retry by default (0 retries). Users opt in via `TransactionOptions.retries` and optional `backoff` function. Each retry begins a fresh transaction. Applies to array and callback modes only (manual mode is user-controlled)
 - Tuple output is always array form `[1.5, 2.5]` — never object form, even when elements are named
 - Optional tuple fields (`Coordinate?`) produce `field?: Coordinate` (NOT `| null` like primitives) in output, update type includes `| CerialNone` for clearing (same as other optional fields)
 - `@nullable` is not allowed on object/tuple fields — SurrealDB can't define sub-fields on nullable parents. Allowed on tuple elements (and is the ONLY way to make a tuple element nullable — `?` is disallowed on tuple elements because SurrealDB returns null, not NONE/undefined, for absent tuple positions)

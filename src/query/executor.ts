@@ -3,7 +3,7 @@
  */
 
 import { BoundQuery, type Surreal } from 'surrealdb';
-import type { ModelMetadata, ModelRegistry } from '../types';
+import type { ModelMetadata, ModelRegistry, TransactionOptions } from '../types';
 import { CerialQueryPromise, type QueryResultType } from './cerial-query-promise';
 import type { CompiledQuery } from './compile/types';
 import { mapResult, mapSingleResult } from './mappers';
@@ -12,7 +12,7 @@ import { mapResult, mapSingleResult } from './mappers';
 export interface ExecuteOptions {
   /** Whether to return raw results without mapping */
   raw?: boolean;
-  /** Maximum number of retries for transaction conflicts (default: 3) */
+  /** Maximum number of retries for transaction conflicts (default: 0) */
   maxRetries?: number;
 }
 
@@ -97,7 +97,7 @@ export async function executeQuerySingle<T = unknown>(
   query: CompiledQuery,
   options: ExecuteOptions = {},
 ): Promise<T | null> {
-  const maxRetries = options.maxRetries ?? 3;
+  const maxRetries = options.maxRetries ?? 0;
   let lastError: unknown;
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
@@ -394,13 +394,18 @@ async function executeMultiStatementInTransaction(
  * Supports function items that receive previous results and can return
  * a CerialQueryPromise (executed in the transaction) or a plain value.
  *
- * Retries on transaction conflict with exponential backoff (max 3 retries).
+ * Retries on transaction conflict if options.retries > 0 (default: 0 — no retry).
  * Each retry begins a FRESH transaction.
  */
-export async function executeClientTransaction(db: Surreal, items: TransactionExecutionItem[]): Promise<unknown[]> {
+export async function executeClientTransaction(
+  db: Surreal,
+  items: TransactionExecutionItem[],
+  options: TransactionOptions = {},
+): Promise<unknown[]> {
   if (!items.length) return [];
 
-  const maxRetries = 3;
+  const maxRetries = options.retries ?? 0;
+  const backoffFn = options.backoff ?? ((attempt: number) => 2 ** attempt * 10 + Math.random() * 10);
   let lastError: unknown;
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
@@ -455,7 +460,7 @@ export async function executeClientTransaction(db: Surreal, items: TransactionEx
       lastError = error;
 
       if (isTransactionConflict(error) && attempt < maxRetries) {
-        const delay = 2 ** attempt * 10 + Math.random() * 10;
+        const delay = backoffFn(attempt);
         await sleep(delay);
         continue;
       }

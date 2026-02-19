@@ -366,10 +366,38 @@ Transactions require a WebSocket connection to SurrealDB. If you connect via HTT
 
 For connection management, `closeHttp()` drops the HTTP connection and routes all operations through WebSocket. `reopenHttp()` restores the HTTP connection.
 
+## Conflict Retry
+
+By default, Cerial does **not** retry transaction conflicts. You can opt in by passing `retries` and an optional `backoff` function in the options:
+
+```typescript
+// Array mode with retry
+const [user] = await client.$transaction(
+  [client.db.User.create({ data: { email: 'a@b.c', name: 'A', isActive: true } })],
+  { retries: 3, backoff: (attempt) => 2 ** attempt * 100 },
+);
+
+// Callback mode with retry
+const result = await client.$transaction(
+  async (tx) => {
+    return tx.User.create({ data: { email: 'a@b.c', name: 'A', isActive: true } });
+  },
+  { retries: 3 },
+);
+```
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `retries` | `number` | `0` | Number of retry attempts on transaction conflict |
+| `backoff` | `(attempt: number) => number` | Exponential with jitter | Returns delay in ms for each attempt (0-based) |
+
+The default backoff uses exponential with jitter: `(attempt) => 2 ** attempt * 10 + Math.random() * 10`. Each retry begins a **fresh transaction**.
+
+Manual mode (`const txn = await client.$transaction()`) does not support retry options — you control the lifecycle yourself.
+
 ## Limitations
 
 - **No nesting.** SurrealDB doesn't support savepoints. Calling `$transaction` inside a transaction throws immediately.
 - **Array mode function items don't get `tx`.** Function items in array mode receive `prevResults` only. Cerial routes them through the transaction internally.
 - **Validation is eager.** Input validation happens when the model method is called, not when the transaction executes. Invalid inputs throw before the transaction starts.
 - **`$transaction` is blocked on `tx`/`txn`.** You can't call `$transaction` on a transaction client. Attempting it throws an error.
-- **No conflict retry control.** Cerial retries transaction conflicts automatically (3 attempts with exponential backoff). This is transparent, with no user-facing configuration.
