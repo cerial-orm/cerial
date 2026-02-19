@@ -22,6 +22,16 @@ export type QueryResultType = 'single' | 'array' | 'count' | 'boolean' | 'number
 const CERIAL_QUERY_SYMBOL = Symbol.for('cerial.query');
 
 /**
+ * Transaction array item - either a CerialQueryPromise or a function that returns one.
+ * Used for array mode with function items that can depend on previous results.
+ *
+ * @template T - The result type of the query
+ */
+export type TransactionArrayItem<T> =
+  | CerialQueryPromise<T>
+  | ((prevResults: unknown[]) => T | CerialQueryPromise<T> | Promise<T> | Promise<CerialQueryPromise<T>>);
+
+/**
  * A thenable query object that auto-executes when awaited but can be
  * collected by $transaction for batched execution.
  *

@@ -93,6 +93,12 @@ export type {
   VarBinding,
   WhereClause,
 } from './query.types';
+// Transaction types
+export type {
+  TransactionCallbackFn,
+  TransactionClient,
+  TransactionOptions,
+} from './transaction.types';
 // Utility types for inference
 export type {
   ApplyObjectSelect,

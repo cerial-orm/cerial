@@ -288,9 +288,10 @@ export function buildCreateWithNestedTransaction(
   data: Record<string, unknown>,
   nestedOps: Map<string, NestedOperation>,
   registry: ModelRegistry,
+  transactionMode?: boolean,
 ): CompiledQuery {
   const ctx = createCompileContext();
-  const statements: string[] = ['BEGIN TRANSACTION;'];
+  const statements: string[] = transactionMode ? [] : ['BEGIN TRANSACTION;'];
   const vars: Record<string, unknown> = {};
 
   // Track connected IDs that need existence validation
@@ -612,7 +613,7 @@ export function buildCreateWithNestedTransaction(
     }
   });
 
-  statements.push('COMMIT TRANSACTION;');
+  if (!transactionMode) statements.push('COMMIT TRANSACTION;');
   // Return the final record - SELECT from the stored id to get updated fields
   statements.push('RETURN SELECT * FROM ONLY $resultId;');
 
@@ -631,9 +632,10 @@ export function buildUpdateWithNestedTransaction(
   data: Record<string, unknown>,
   nestedOps: Map<string, NestedOperation>,
   registry: ModelRegistry,
+  transactionMode?: boolean,
 ): CompiledQuery {
   const ctx = createCompileContext();
-  const statements: string[] = ['BEGIN TRANSACTION;'];
+  const statements: string[] = transactionMode ? [] : ['BEGIN TRANSACTION;'];
   const vars: Record<string, unknown> = {};
 
   // Build where clause for the update
@@ -989,7 +991,7 @@ export function buildUpdateWithNestedTransaction(
     }
   });
 
-  statements.push('COMMIT TRANSACTION;');
+  if (!transactionMode) statements.push('COMMIT TRANSACTION;');
   statements.push('RETURN $result;');
 
   return {

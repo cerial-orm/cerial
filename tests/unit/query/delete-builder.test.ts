@@ -10,6 +10,7 @@ import { parse } from '../../../src/parser/parser';
 import {
   buildDeleteQuery,
   buildDeleteQueryWithReturn,
+  buildDeleteUniqueWithCascade,
   buildDeleteWithCascade,
 } from '../../../src/query/builders/delete-builder';
 
@@ -185,6 +186,95 @@ describe('delete-builder', () => {
       // Uses NULL (not NONE) so the field can be queried with { field: null }
       expect(query.text).toContain('UPDATE post SET authorId = NULL'); // SetNull
       expect(query.text).toContain('COMMIT TRANSACTION');
+    });
+  });
+
+  describe('transactionMode', () => {
+    describe('buildDeleteWithCascade', () => {
+      test('default (no flag) wraps in BEGIN/COMMIT', () => {
+        const { ast } = parse(schemaCascade);
+        const registry = astToRegistry(ast);
+        const userModel = registry.User!;
+
+        const where = { id: 'user:123' };
+        const query = buildDeleteWithCascade(userModel, where, registry);
+
+        expect(query.text).toContain('BEGIN TRANSACTION');
+        expect(query.text).toContain('COMMIT TRANSACTION');
+      });
+
+      test('transactionMode=true omits BEGIN/COMMIT but preserves cascade statements', () => {
+        const { ast } = parse(schemaCascade);
+        const registry = astToRegistry(ast);
+        const userModel = registry.User!;
+
+        const where = { id: 'user:123' };
+        const query = buildDeleteWithCascade(userModel, where, registry, true);
+
+        expect(query.text).not.toContain('BEGIN TRANSACTION');
+        expect(query.text).not.toContain('COMMIT TRANSACTION');
+        expect(query.text).toContain('LET $to_delete = (SELECT id FROM user');
+        expect(query.text).toContain('DELETE FROM profile WHERE userId IN $to_delete.id');
+        expect(query.text).toContain('DELETE FROM user');
+        expect(query.text).toContain('RETURN BEFORE');
+      });
+
+      test('transactionMode=true preserves multiple cascade actions', () => {
+        const { ast } = parse(schemaMultipleDeps);
+        const registry = astToRegistry(ast);
+        const userModel = registry.User!;
+
+        const where = { id: 'user:123' };
+        const query = buildDeleteWithCascade(userModel, where, registry, true);
+
+        expect(query.text).not.toContain('BEGIN TRANSACTION');
+        expect(query.text).not.toContain('COMMIT TRANSACTION');
+        expect(query.text).toContain('DELETE FROM profile');
+        expect(query.text).toContain('UPDATE post SET authorId = NULL');
+        expect(query.text).toContain('DELETE FROM user');
+        expect(query.text).toContain('RETURN BEFORE');
+      });
+
+      test('transactionMode=false wraps in BEGIN/COMMIT', () => {
+        const { ast } = parse(schemaCascade);
+        const registry = astToRegistry(ast);
+        const userModel = registry.User!;
+
+        const where = { id: 'user:123' };
+        const query = buildDeleteWithCascade(userModel, where, registry, false);
+
+        expect(query.text).toContain('BEGIN TRANSACTION');
+        expect(query.text).toContain('COMMIT TRANSACTION');
+      });
+    });
+
+    describe('buildDeleteUniqueWithCascade', () => {
+      test('transactionMode=true omits BEGIN/COMMIT but preserves cascade statements', () => {
+        const { ast } = parse(schemaCascade);
+        const registry = astToRegistry(ast);
+        const userModel = registry.User!;
+
+        const where = { id: 'user:123' };
+        const query = buildDeleteUniqueWithCascade(userModel, where, registry, true, true);
+
+        expect(query.text).not.toContain('BEGIN TRANSACTION');
+        expect(query.text).not.toContain('COMMIT TRANSACTION');
+        expect(query.text).toContain('LET $to_delete');
+        expect(query.text).toContain('DELETE FROM profile WHERE userId IN $to_delete');
+        expect(query.text).toContain('DELETE $deleteId RETURN BEFORE');
+      });
+
+      test('transactionMode=false wraps in BEGIN/COMMIT', () => {
+        const { ast } = parse(schemaCascade);
+        const registry = astToRegistry(ast);
+        const userModel = registry.User!;
+
+        const where = { id: 'user:123' };
+        const query = buildDeleteUniqueWithCascade(userModel, where, registry, true, false);
+
+        expect(query.text).toContain('BEGIN TRANSACTION');
+        expect(query.text).toContain('COMMIT TRANSACTION');
+      });
     });
   });
 });

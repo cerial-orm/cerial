@@ -280,6 +280,30 @@ export class CerialClient {
   }
 
   /**
+   * Get the WebSocket Surreal instance for transactions.
+   * Always returns the WS connection regardless of primary URL scheme.
+   */
+  getTransactionSurreal() {
+    return this.connectionManager.getTransactionSurreal();
+  }
+
+  /**
+   * Close the HTTP connection, falling back to WebSocket for all operations.
+   * No-op if connected via WebSocket URL only.
+   */
+  async closeHttp(): Promise<void> {
+    await this.connectionManager.closeHttp();
+  }
+
+  /**
+   * Reopen the HTTP connection after closeHttp().
+   * No-op if connected via WebSocket URL only.
+   */
+  async reopenHttp(): Promise<void> {
+    await this.connectionManager.reopenHttp();
+  }
+
+  /**
     * Execute a raw SurrealQL query
     * @param query - The query string
     * @param vars - Optional query variables

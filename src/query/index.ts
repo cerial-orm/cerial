@@ -30,7 +30,7 @@ export {
   buildUpdateManyQuery,
   stripComputedFields,
 } from './builders';
-export type { QueryResultType } from './cerial-query-promise';
+export type { QueryResultType, TransactionArrayItem } from './cerial-query-promise';
 // CerialQueryPromise
 export { CerialQueryPromise } from './cerial-query-promise';
 export type { CompiledQuery, QueryFragment, QueryVars, VarBinding } from './compile';

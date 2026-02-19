@@ -2,6 +2,8 @@
  * Client module barrel export
  */
 
+export type { TransactionState } from './cerial-transaction';
+export { CerialTransaction, createCerialTransactionProxy } from './cerial-transaction';
 export type { ConnectionManagerOptions } from './connection';
 // Connection manager
 export { ConnectionManager, createConnectionManager, resetConnectionPool } from './connection';

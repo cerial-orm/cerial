@@ -123,6 +123,7 @@ export function buildDeleteWithCascade(
   model: ModelMetadata,
   where: WhereClause,
   registry: ModelRegistry,
+  transactionMode?: boolean,
 ): CompiledQuery {
   // Build where clause
   const whereClause = transformWhereClause(where, model);
@@ -142,7 +143,7 @@ export function buildDeleteWithCascade(
 
   // Build statements with transaction for atomicity
   // Transaction ensures IF/THROW prevents subsequent operations
-  const statements: string[] = ['BEGIN TRANSACTION'];
+  const statements: string[] = transactionMode ? [] : ['BEGIN TRANSACTION'];
   const vars: Record<string, unknown> = { ...whereClause.vars };
 
   // Get records to be deleted first
@@ -223,7 +224,7 @@ export function buildDeleteWithCascade(
   statements.push(`DELETE FROM ${model.tableName} ${whereClause.text} RETURN BEFORE`);
 
   // Commit transaction
-  statements.push('COMMIT TRANSACTION');
+  if (!transactionMode) statements.push('COMMIT TRANSACTION');
 
   return {
     text: `${statements.join(';\n')};`,
@@ -312,6 +313,7 @@ export function buildDeleteUniqueWithCascade(
   where: WhereClause,
   registry: ModelRegistry,
   returnBefore: boolean,
+  transactionMode?: boolean,
 ): CompiledQuery {
   const { hasId, id, idFieldName, expandedWhere } = getRecordIdFromWhere(where, model);
 
@@ -329,7 +331,7 @@ export function buildDeleteUniqueWithCascade(
   }
 
   // Build transaction
-  const statements: string[] = ['BEGIN TRANSACTION'];
+  const statements: string[] = transactionMode ? [] : ['BEGIN TRANSACTION'];
   const vars: Record<string, unknown> = {};
 
   // If ID is provided, use it directly; otherwise look up by unique field
@@ -421,7 +423,7 @@ export function buildDeleteUniqueWithCascade(
   statements.push(`DELETE $deleteId ${returnClause}`);
 
   // Commit transaction
-  statements.push('COMMIT TRANSACTION');
+  if (!transactionMode) statements.push('COMMIT TRANSACTION');
 
   return {
     text: `${statements.join(';\n')};`,

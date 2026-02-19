@@ -293,4 +293,101 @@ describe('nested-builder', () => {
       );
     });
   });
+
+  describe('transactionMode', () => {
+    describe('buildCreateWithNestedTransaction', () => {
+      test('default (no flag) wraps in BEGIN/COMMIT', () => {
+        const data = { email: 'test@example.com', name: 'Test' };
+        const nestedOps = new Map([['profile', { create: { bio: 'Test bio' } }]]);
+
+        const query = buildCreateWithNestedTransaction(userModel, data, nestedOps, registry);
+
+        expect(query.text).toContain('BEGIN TRANSACTION');
+        expect(query.text).toContain('COMMIT TRANSACTION');
+      });
+
+      test('transactionMode=false wraps in BEGIN/COMMIT', () => {
+        const data = { email: 'test@example.com', name: 'Test' };
+        const nestedOps = new Map([['profile', { create: { bio: 'Test bio' } }]]);
+
+        const query = buildCreateWithNestedTransaction(userModel, data, nestedOps, registry, false);
+
+        expect(query.text).toContain('BEGIN TRANSACTION');
+        expect(query.text).toContain('COMMIT TRANSACTION');
+      });
+
+      test('transactionMode=true omits BEGIN/COMMIT but preserves statements and RETURN', () => {
+        const data = { email: 'test@example.com', name: 'Test' };
+        const nestedOps = new Map([['profile', { create: { bio: 'Test bio' } }]]);
+
+        const query = buildCreateWithNestedTransaction(userModel, data, nestedOps, registry, true);
+
+        expect(query.text).not.toContain('BEGIN TRANSACTION');
+        expect(query.text).not.toContain('COMMIT TRANSACTION');
+        expect(query.text).toContain('CREATE ONLY profile');
+        expect(query.text).toContain('CREATE ONLY user');
+        expect(query.text).toContain('LET $resultId = $result.id;');
+        expect(query.text).toContain('RETURN SELECT * FROM ONLY $resultId;');
+        expect(query.vars).toHaveProperty('profile_content');
+      });
+
+      test('transactionMode=true preserves array connect with bidirectional sync', () => {
+        const data = { email: 'test@example.com', name: 'Test' };
+        const nestedOps = new Map([['tags', { connect: ['tag:1', 'tag:2'] }]]);
+
+        const query = buildCreateWithNestedTransaction(userModel, data, nestedOps, registry, true);
+
+        expect(query.text).not.toContain('BEGIN TRANSACTION');
+        expect(query.text).not.toContain('COMMIT TRANSACTION');
+        expect(query.text).toContain('LET $exists_0_0');
+        expect(query.text).toContain('LET $exists_0_1');
+        expect(query.text).toContain('UPDATE $sync_0_0 SET userIds += $resultId');
+        expect(query.text).toContain('UPDATE $sync_0_1 SET userIds += $resultId');
+        expect(query.text).toContain('RETURN SELECT * FROM ONLY $resultId;');
+      });
+    });
+
+    describe('buildUpdateWithNestedTransaction', () => {
+      test('transactionMode=true omits BEGIN/COMMIT but preserves statements and RETURN', () => {
+        const where = { id: 'user:1' };
+        const data = {};
+        const nestedOps = new Map([['profile', { connect: 'profile:456' }]]);
+
+        const query = buildUpdateWithNestedTransaction(userModel, where, data, nestedOps, registry, true);
+
+        expect(query.text).not.toContain('BEGIN TRANSACTION');
+        expect(query.text).not.toContain('COMMIT TRANSACTION');
+        expect(query.text).toContain('UPDATE user SET profileId = $profile_connect[0]');
+        expect(query.text).toContain('RETURN $result;');
+        expect(query.vars).toHaveProperty('profile_connect');
+      });
+
+      test('transactionMode=true preserves disconnect operations', () => {
+        const where = { id: 'user:1' };
+        const data = {};
+        const nestedOps = new Map([['profile', { disconnect: true }]]);
+
+        const query = buildUpdateWithNestedTransaction(userModel, where, data, nestedOps, registry, true);
+
+        expect(query.text).not.toContain('BEGIN TRANSACTION');
+        expect(query.text).not.toContain('COMMIT TRANSACTION');
+        expect(query.text).toContain('profileId = NONE');
+        expect(query.text).toContain('RETURN $result;');
+      });
+
+      test('transactionMode=true preserves bidirectional sync for array connect', () => {
+        const where = { id: 'user:1' };
+        const data = {};
+        const nestedOps = new Map([['tags', { connect: ['tag:new'] }]]);
+
+        const query = buildUpdateWithNestedTransaction(userModel, where, data, nestedOps, registry, true);
+
+        expect(query.text).not.toContain('BEGIN TRANSACTION');
+        expect(query.text).not.toContain('COMMIT TRANSACTION');
+        expect(query.text).toContain('tagIds += $tags_connect');
+        expect(query.text).toContain('UPDATE tag SET userIds += $result[0].id WHERE id INSIDE $sync_connect_ids_0');
+        expect(query.text).toContain('RETURN $result;');
+      });
+    });
+  });
 });

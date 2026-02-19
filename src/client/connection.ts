@@ -36,6 +36,18 @@ function poolKey(config: ConnectionConfig): string {
   return `${config.url}|${auth}|${config.namespace ?? ''}|${config.database ?? ''}`;
 }
 
+/** Check if a URL uses the WebSocket scheme */
+function isWsUrl(url: string): boolean {
+  return url.startsWith('ws://') || url.startsWith('wss://');
+}
+
+/** Derive a WebSocket config from an HTTP config (same host/port/auth) */
+function deriveWsConfig(httpConfig: ConnectionConfig): ConnectionConfig {
+  const wsUrl = httpConfig.url.replace(/^http(s?):\/\//, 'ws$1://');
+
+  return { ...httpConfig, url: wsUrl };
+}
+
 /** Create and authenticate a fresh Surreal connection */
 async function connectSurreal(config: ConnectionConfig): Promise<Surreal> {
   const surreal = new Surreal();
@@ -163,10 +175,13 @@ export async function resetConnectionPool(): Promise<void> {
 /** Connection instance */
 interface ConnectionInstance<R extends ModelRegistry = ModelRegistry> {
   surreal: Surreal;
+  wsSurreal: Surreal | null;
+  wsConfig: ConnectionConfig | null;
   config: ConnectionConfig;
   isConnected: boolean;
   isMigrated: boolean;
   proxy: DatabaseProxy<R>;
+  httpClosed: boolean;
 }
 
 /** Connection manager options */
@@ -211,25 +226,40 @@ export class ConnectionManager<R extends ModelRegistry = ModelRegistry> {
       throw new Error('No connection config provided');
     }
 
-    // Check if already connected
     const existing = this.connections.get(name);
-    if (existing?.isConnected) {
-      return existing.proxy;
+    if (existing?.isConnected) return existing.proxy;
+
+    const wsOnly = isWsUrl(finalConfig.url);
+
+    let surreal: Surreal;
+    let wsSurreal: Surreal | null = null;
+    let wsConfig: ConnectionConfig | null = null;
+    let proxySurreal: Surreal;
+
+    if (wsOnly) {
+      // WS URL → single WS connection for everything
+      surreal = await acquireSurreal(finalConfig);
+      proxySurreal = surreal;
+    } else {
+      // HTTP URL → HTTP primary + auto-derived WS secondary
+      const derivedWsConfig = deriveWsConfig(finalConfig);
+      wsConfig = derivedWsConfig;
+      [surreal, wsSurreal] = await Promise.all([acquireSurreal(finalConfig), acquireSurreal(derivedWsConfig)]);
+      // Proxy uses WS surreal — always alive, even after closeHttp()
+      proxySurreal = wsSurreal;
     }
 
-    // Acquire from pool (reuses existing WebSocket or creates new)
-    const surreal = await acquireSurreal(finalConfig);
+    const proxy = createModelProxy<R>(proxySurreal, this.registry, this.proxyOptions);
 
-    // Create proxy with options (for before-query callbacks)
-    const proxy = createModelProxy<R>(surreal, this.registry, this.proxyOptions);
-
-    // Store connection
     this.connections.set(name, {
       surreal,
+      wsSurreal,
+      wsConfig,
       config: finalConfig,
       isConnected: true,
       isMigrated: false,
       proxy,
+      httpClosed: false,
     });
 
     return proxy;
@@ -240,12 +270,18 @@ export class ConnectionManager<R extends ModelRegistry = ModelRegistry> {
     const connection = this.connections.get(name);
     if (!connection) return;
 
-    // Update state
     connection.isConnected = false;
     this.connections.delete(name);
 
-    // Release to pool — socket stays alive for reuse
-    releaseSurreal(connection.config);
+    // Release HTTP from pool (if not already closed via closeHttp)
+    if (!connection.httpClosed) {
+      releaseSurreal(connection.config);
+    }
+
+    // Release WS from pool (dual mode only)
+    if (connection.wsConfig) {
+      releaseSurreal(connection.wsConfig);
+    }
   }
 
   /** Disconnect all connections */
@@ -259,9 +295,42 @@ export class ConnectionManager<R extends ModelRegistry = ModelRegistry> {
     return this.connections.get(name);
   }
 
-  /** Get the Surreal instance for a connection */
+  /** Get the primary Surreal instance (HTTP or WS). Falls back to WS after closeHttp(). */
   getSurreal(name: string = DEFAULT_CONNECTION_NAME): Surreal | undefined {
-    return this.connections.get(name)?.surreal;
+    const connection = this.connections.get(name);
+    if (!connection) return undefined;
+    if (connection.httpClosed && connection.wsSurreal) return connection.wsSurreal;
+
+    return connection.surreal;
+  }
+
+  /** Get the WS Surreal instance for transactions. Always returns the WS connection. */
+  getTransactionSurreal(name: string = DEFAULT_CONNECTION_NAME): Surreal | undefined {
+    const connection = this.connections.get(name);
+    if (!connection) return undefined;
+
+    return connection.wsSurreal ?? connection.surreal;
+  }
+
+  /** Close the HTTP connection, falling back to WS for all operations. No-op if WS-only. */
+  async closeHttp(name: string = DEFAULT_CONNECTION_NAME): Promise<void> {
+    const connection = this.connections.get(name);
+    if (!connection || !connection.wsSurreal) return;
+    if (connection.httpClosed) return;
+
+    connection.httpClosed = true;
+    releaseSurreal(connection.config);
+  }
+
+  /** Reopen the HTTP connection after closeHttp(). No-op if WS-only. */
+  async reopenHttp(name: string = DEFAULT_CONNECTION_NAME): Promise<void> {
+    const connection = this.connections.get(name);
+    if (!connection || !connection.wsSurreal) return;
+    if (!connection.httpClosed) return;
+
+    const surreal = await acquireSurreal(connection.config);
+    connection.surreal = surreal;
+    connection.httpClosed = false;
   }
 
   /** Get the database proxy for a connection */
