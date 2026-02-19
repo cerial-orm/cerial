@@ -26,6 +26,7 @@ export function generateFindOneMethod(model: ModelMetadata): string {
     return `findOne<S extends ${model.name}Select | undefined = undefined>(options?: {
     where?: ${model.name}Where;
     select?: S;
+    txn?: CerialTransaction;
   }): CerialQueryPromise<Get${model.name}Payload<S> | null>;`;
   }
 
@@ -37,6 +38,7 @@ export function generateFindOneMethod(model: ModelMetadata): string {
     where?: ${model.name}Where;
     select?: S;
     include?: I;
+    txn?: CerialTransaction;
   }): CerialQueryPromise<Get${model.name}Payload<S, I> | null>;`;
 }
 
@@ -50,6 +52,7 @@ export function generateFindManyMethod(model: ModelMetadata): string {
     orderBy?: ${model.name}OrderBy;
     limit?: number;
     offset?: number;
+    txn?: CerialTransaction;
   }): CerialQueryPromise<Get${model.name}Payload<S>[]>;`;
   }
 
@@ -64,6 +67,7 @@ export function generateFindManyMethod(model: ModelMetadata): string {
     limit?: number;
     offset?: number;
     include?: I;
+    txn?: CerialTransaction;
   }): CerialQueryPromise<Get${model.name}Payload<S, I>[]>;`;
 }
 
@@ -393,6 +397,7 @@ export function generateFindUniqueMethod(model: ModelMetadata): string {
     return `findUnique<S extends ${model.name}Select | undefined = undefined>(options: {
     where: ${model.name}FindUniqueWhere;
     select?: S;
+    txn?: CerialTransaction;
   }): CerialQueryPromise<Get${model.name}Payload<S> | null>;`;
   }
 
@@ -403,6 +408,7 @@ export function generateFindUniqueMethod(model: ModelMetadata): string {
     where: ${model.name}FindUniqueWhere;
     select?: S;
     include?: I;
+    txn?: CerialTransaction;
   }): CerialQueryPromise<Get${model.name}Payload<S, I> | null>;`;
 }
 
@@ -413,6 +419,7 @@ export function generateCreateMethod(model: ModelMetadata): string {
   return `create<S extends ${model.name}Select | undefined = undefined>(options: {
     data: ${model.name}CreateInput;
     select?: S;
+    txn?: CerialTransaction;
   }): CerialQueryPromise<Get${model.name}Payload<S>>;`;
 }
 
@@ -429,6 +436,7 @@ export function generateUpdateMethod(model: ModelMetadata): string {
     data: D;
     unset?: SafeUnset<${model.name}Unset, D>;
     select?: S;
+    txn?: CerialTransaction;
   }): CerialQueryPromise<Get${model.name}Payload<S>[]>;`;
 }
 
@@ -436,6 +444,7 @@ export function generateUpdateMethod(model: ModelMetadata): string {
 export function generateDeleteManyMethod(model: ModelMetadata): string {
   return `deleteMany(options: {
     where: ${model.name}Where;
+    txn?: CerialTransaction;
   }): CerialQueryPromise<number>;`;
 }
 
@@ -453,6 +462,7 @@ export function generateDeleteUniqueMethod(model: ModelMetadata): string {
      * - 'before': returns ${model.name} | null (deleted data)
      */
     return?: R;
+    txn?: CerialTransaction;
   }): CerialQueryPromise<DeleteUniqueReturnType<${model.name}, R>>;`;
 }
 
@@ -480,6 +490,7 @@ export function generateUpdateUniqueMethod(model: ModelMetadata): string {
      * - 'before': returns ${model.name} | null (pre-update state, no select support)
      */
     return?: R;
+    txn?: CerialTransaction;
   }): CerialQueryPromise<UpdateUniqueReturnType<Get${model.name}Payload<S>, R>>;`;
   }
 
@@ -502,6 +513,7 @@ export function generateUpdateUniqueMethod(model: ModelMetadata): string {
       * - 'before': returns ${model.name} | null (pre-update state, no select/include support)
       */
     return?: R;
+    txn?: CerialTransaction;
   }): CerialQueryPromise<UpdateUniqueReturnType<Get${model.name}Payload<S, I>, R>>;`;
 }
 
@@ -538,6 +550,7 @@ function generateUpsertUniqueOverload(model: ModelMetadata): string {
      * - 'before': returns previous state | null (null for new records)
      */
     return?: R;
+    txn?: CerialTransaction;
   }): CerialQueryPromise<UpsertReturnType<Get${model.name}Payload<S>, R>>;`;
   }
 
@@ -560,6 +573,7 @@ function generateUpsertUniqueOverload(model: ModelMetadata): string {
      * - 'before': returns previous state | null (null for new records)
      */
     return?: R;
+    txn?: CerialTransaction;
   }): CerialQueryPromise<UpsertReturnType<Get${model.name}Payload<S, I>, R>>;`;
 }
 
@@ -583,6 +597,7 @@ function generateUpsertArrayOverload(model: ModelMetadata): string {
      * - 'before': returns previous states of matched records
      */
     return?: R;
+    txn?: CerialTransaction;
   }): CerialQueryPromise<UpsertArrayReturnType<Get${model.name}Payload<S>, R>>;`;
   }
 
@@ -605,17 +620,18 @@ function generateUpsertArrayOverload(model: ModelMetadata): string {
      * - 'before': returns previous states of matched records
      */
     return?: R;
+    txn?: CerialTransaction;
   }): CerialQueryPromise<UpsertArrayReturnType<Get${model.name}Payload<S, I>, R>>;`;
 }
 
 /** Generate count method signature */
 export function generateCountMethod(model: ModelMetadata): string {
-  return `count(where?: ${model.name}Where): CerialQueryPromise<number>;`;
+  return `count(where?: ${model.name}Where, txn?: CerialTransaction): CerialQueryPromise<number>;`;
 }
 
 /** Generate exists method signature */
 export function generateExistsMethod(model: ModelMetadata): string {
-  return `exists(where?: ${model.name}Where): CerialQueryPromise<boolean>;`;
+  return `exists(where?: ${model.name}Where, txn?: CerialTransaction): CerialQueryPromise<boolean>;`;
 }
 
 /** Generate findAll method signature (alias for findMany with no options) */
