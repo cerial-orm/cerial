@@ -39,6 +39,7 @@ import type {
   UpsertReturn,
   WhereClause,
 } from '../../types';
+import type { CerialTransaction } from '../cerial-transaction';
 
 /** Extended find unique options with include support */
 export interface FindUniqueOptionsWithInclude {
@@ -81,6 +82,17 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
     }
   }
 
+  /** Resolve the db connection, routing through txn if provided */
+  private resolveDb(txn?: CerialTransaction): Surreal {
+    if (txn) {
+      txn._ensureActive();
+
+      return txn._raw as unknown as Surreal;
+    }
+
+    return this.db;
+  }
+
   /** Get model metadata */
   getMetadata(): ModelMetadata {
     return this.metadata;
@@ -97,14 +109,16 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
   }
 
   /** Find a single record */
-  findOne(options: FindOneOptionsWithInclude = {}): CerialQueryPromise<T | null> {
-    const compiled = compileFindOne(this.metadata, options, this.registry);
+  findOne(options: FindOneOptionsWithInclude & { txn?: CerialTransaction } = {}): CerialQueryPromise<T | null> {
+    const { txn, ...queryOptions } = options;
+    const compiled = compileFindOne(this.metadata, queryOptions, this.registry);
 
     return new CerialQueryPromise<T | null>(
       async () => {
         await this.beforeQuery();
+        const db = this.resolveDb(txn);
 
-        return QueryBuilderStatic.findOne<T>(this.db, this.metadata, options, this.registry);
+        return QueryBuilderStatic.findOne<T>(db, this.metadata, queryOptions, this.registry);
       },
       compiled.query,
       this.metadata,
@@ -114,14 +128,16 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
   }
 
   /** Find a unique record by id */
-  findUnique(options: FindUniqueOptionsWithInclude): CerialQueryPromise<T | null> {
-    const compiled = compileFindUnique(this.metadata, options, this.registry);
+  findUnique(options: FindUniqueOptionsWithInclude & { txn?: CerialTransaction }): CerialQueryPromise<T | null> {
+    const { txn, ...queryOptions } = options;
+    const compiled = compileFindUnique(this.metadata, queryOptions, this.registry);
 
     return new CerialQueryPromise<T | null>(
       async () => {
         await this.beforeQuery();
+        const db = this.resolveDb(txn);
 
-        return QueryBuilderStatic.findUnique<T>(this.db, this.metadata, options, this.registry);
+        return QueryBuilderStatic.findUnique<T>(db, this.metadata, queryOptions, this.registry);
       },
       compiled.query,
       this.metadata,
@@ -131,14 +147,16 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
   }
 
   /** Find multiple records */
-  findMany(options: FindManyOptionsWithInclude = {}): CerialQueryPromise<T[]> {
-    const compiled = compileFindMany(this.metadata, options, this.registry);
+  findMany(options: FindManyOptionsWithInclude & { txn?: CerialTransaction } = {}): CerialQueryPromise<T[]> {
+    const { txn, ...queryOptions } = options;
+    const compiled = compileFindMany(this.metadata, queryOptions, this.registry);
 
     return new CerialQueryPromise<T[]>(
       async () => {
         await this.beforeQuery();
+        const db = this.resolveDb(txn);
 
-        return QueryBuilderStatic.findMany<T>(this.db, this.metadata, options, this.registry);
+        return QueryBuilderStatic.findMany<T>(db, this.metadata, queryOptions, this.registry);
       },
       compiled.query,
       this.metadata,
@@ -153,14 +171,20 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
   }
 
   /** Create a new record */
-  create(options: CreateOptions<Partial<T>>): CerialQueryPromise<T | null> {
-    const compiled = compileCreate(this.metadata, options as CreateOptions<Record<string, unknown>>, this.registry);
+  create(options: CreateOptions<Partial<T>> & { txn?: CerialTransaction }): CerialQueryPromise<T | null> {
+    const { txn, ...queryOptions } = options;
+    const compiled = compileCreate(
+      this.metadata,
+      queryOptions as CreateOptions<Record<string, unknown>>,
+      this.registry,
+    );
 
     return new CerialQueryPromise<T | null>(
       async () => {
         await this.beforeQuery();
+        const db = this.resolveDb(txn);
 
-        return QueryBuilderStatic.create<T>(this.db, this.metadata, options, this.registry);
+        return QueryBuilderStatic.create<T>(db, this.metadata, queryOptions, this.registry);
       },
       compiled.query,
       this.metadata,
@@ -170,14 +194,22 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
   }
 
   /** Update records matching where clause */
-  updateMany(options: UpdateOptions<Partial<T>> & { unset?: Record<string, unknown> }): CerialQueryPromise<T[]> {
-    const compiled = compileUpdateMany(this.metadata, options as UpdateOptions<Record<string, unknown>>, this.registry);
+  updateMany(
+    options: UpdateOptions<Partial<T>> & { unset?: Record<string, unknown>; txn?: CerialTransaction },
+  ): CerialQueryPromise<T[]> {
+    const { txn, ...queryOptions } = options;
+    const compiled = compileUpdateMany(
+      this.metadata,
+      queryOptions as UpdateOptions<Record<string, unknown>>,
+      this.registry,
+    );
 
     return new CerialQueryPromise<T[]>(
       async () => {
         await this.beforeQuery();
+        const db = this.resolveDb(txn);
 
-        return QueryBuilderStatic.updateMany<T>(this.db, this.metadata, options, this.registry);
+        return QueryBuilderStatic.updateMany<T>(db, this.metadata, queryOptions, this.registry);
       },
       compiled.query,
       this.metadata,
@@ -201,16 +233,18 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
     select?: SelectClause;
     include?: IncludeClause;
     return?: R;
+    txn?: CerialTransaction;
   }): CerialQueryPromise<UpdateUniqueResult<T, R>> {
+    const { txn, ...queryOptions } = options;
     const compiled = compileUpdateUnique(
       this.metadata,
       {
-        where: options.where,
-        data: options.data as Record<string, unknown>,
-        unset: options.unset,
-        select: options.select,
-        include: options.include,
-        return: options.return,
+        where: queryOptions.where,
+        data: queryOptions.data as Record<string, unknown>,
+        unset: queryOptions.unset,
+        select: queryOptions.select,
+        include: queryOptions.include,
+        return: queryOptions.return,
       },
       this.registry,
     );
@@ -218,8 +252,9 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
     return new CerialQueryPromise<UpdateUniqueResult<T, R>>(
       async () => {
         await this.beforeQuery();
+        const db = this.resolveDb(txn);
 
-        return QueryBuilderStatic.updateUnique<T, R>(this.db, this.metadata, options, this.registry);
+        return QueryBuilderStatic.updateUnique<T, R>(db, this.metadata, queryOptions, this.registry);
       },
       compiled.query,
       this.metadata,
@@ -229,14 +264,16 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
   }
 
   /** Delete records matching where clause */
-  deleteMany(options: DeleteManyOptions): CerialQueryPromise<number> {
-    const compiled = compileDeleteMany(this.metadata, options, this.registry);
+  deleteMany(options: DeleteManyOptions & { txn?: CerialTransaction }): CerialQueryPromise<number> {
+    const { txn, ...queryOptions } = options;
+    const compiled = compileDeleteMany(this.metadata, queryOptions, this.registry);
 
     return new CerialQueryPromise<number>(
       async () => {
         await this.beforeQuery();
+        const db = this.resolveDb(txn);
 
-        return QueryBuilderStatic.deleteMany(this.db, this.metadata, options, this.registry);
+        return QueryBuilderStatic.deleteMany(db, this.metadata, queryOptions, this.registry);
       },
       compiled.query,
       this.metadata,
@@ -256,14 +293,17 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
   deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
     where: WhereClause;
     return?: R;
+    txn?: CerialTransaction;
   }): CerialQueryPromise<DeleteUniqueResult<T, R>> {
-    const compiled = compileDeleteUnique(this.metadata, options, this.registry);
+    const { txn, ...queryOptions } = options;
+    const compiled = compileDeleteUnique(this.metadata, queryOptions, this.registry);
 
     return new CerialQueryPromise<DeleteUniqueResult<T, R>>(
       async () => {
         await this.beforeQuery();
+        const db = this.resolveDb(txn);
 
-        return QueryBuilderStatic.deleteUnique<T, R>(this.db, this.metadata, options, this.registry);
+        return QueryBuilderStatic.deleteUnique<T, R>(db, this.metadata, queryOptions, this.registry);
       },
       compiled.query,
       this.metadata,
@@ -273,14 +313,15 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
   }
 
   /** Count records matching where clause using SELECT count() ... GROUP ALL */
-  count(where?: FindManyOptionsWithInclude['where']): CerialQueryPromise<number> {
+  count(where?: FindManyOptionsWithInclude['where'], txn?: CerialTransaction): CerialQueryPromise<number> {
     const compiled = compileCount(this.metadata, where, this.registry);
 
     return new CerialQueryPromise<number>(
       async () => {
         await this.beforeQuery();
+        const db = this.resolveDb(txn);
 
-        return QueryBuilderStatic.count(this.db, this.metadata, where, this.registry);
+        return QueryBuilderStatic.count(db, this.metadata, where, this.registry);
       },
       compiled.query,
       this.metadata,
@@ -290,14 +331,15 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
   }
 
   /** Check if any record exists matching where clause */
-  exists(where?: FindOneOptionsWithInclude['where']): CerialQueryPromise<boolean> {
+  exists(where?: FindOneOptionsWithInclude['where'], txn?: CerialTransaction): CerialQueryPromise<boolean> {
     const compiled = compileExists(this.metadata, where, this.registry);
 
     return new CerialQueryPromise<boolean>(
       async () => {
         await this.beforeQuery();
+        const db = this.resolveDb(txn);
 
-        return QueryBuilderStatic.exists(this.db, this.metadata, where, this.registry);
+        return QueryBuilderStatic.exists(db, this.metadata, where, this.registry);
       },
       compiled.query,
       this.metadata,
@@ -321,17 +363,19 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
     select?: Record<string, boolean>;
     include?: Record<string, boolean | object>;
     return?: R;
+    txn?: CerialTransaction;
   }): CerialQueryPromise<unknown> {
+    const { txn, ...queryOptions } = options;
     const compiled = compileUpsert(
       this.metadata,
       {
-        where: options.where,
-        create: options.create,
-        update: options.update,
-        unset: options.unset,
-        select: options.select,
-        include: options.include,
-        return: options.return,
+        where: queryOptions.where,
+        create: queryOptions.create,
+        update: queryOptions.update,
+        unset: queryOptions.unset,
+        select: queryOptions.select,
+        include: queryOptions.include,
+        return: queryOptions.return,
       },
       this.registry,
     );
@@ -339,8 +383,9 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
     return new CerialQueryPromise<unknown>(
       async () => {
         await this.beforeQuery();
+        const db = this.resolveDb(txn);
 
-        return QueryBuilderStatic.upsert(this.db, this.metadata, options, this.registry);
+        return QueryBuilderStatic.upsert(db, this.metadata, queryOptions, this.registry);
       },
       compiled.query,
       this.metadata,
