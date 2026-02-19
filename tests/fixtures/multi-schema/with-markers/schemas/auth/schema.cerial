@@ -1,0 +1,6 @@
+# Convention marker file for auth schema
+model MsMarkerAuthUser {
+  id Record @id
+  email Email @unique
+  name String
+}

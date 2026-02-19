@@ -1,0 +1,6 @@
+# Convention marker file for cms schema
+model MsMarkerCmsPage {
+  id Record @id
+  title String
+  slug String @unique
+}

@@ -1,0 +1,4 @@
+model Session {
+  id Record @id
+  token String
+}

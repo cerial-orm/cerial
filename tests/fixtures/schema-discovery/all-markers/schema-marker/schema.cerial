@@ -1,0 +1,4 @@
+model SchemaModel {
+  id Record @id
+  label String
+}

@@ -1,17 +1,35 @@
-/**
- * CLI module barrel export
- */
-
-export type { GenerateResult } from './generate';
-// Generate
-export { generate } from './generate';
-// Parser
+export type { Command } from './commands';
+export { generateCommand, initCommand } from './commands';
+export type {
+  CerialConfig,
+  ConfigValidationError,
+  ConfigValidationResult,
+  FolderConfig,
+  ResolvedSchemaEntry,
+  SchemaEntry,
+} from './config';
+export {
+  defineConfig,
+  detectNestedConfigs,
+  findFolderConfigs,
+  loadFolderConfig,
+  toClientClassName,
+  validateConfig,
+  validateFolderConfig,
+} from './config';
+export type { GenerateResult, MultiGenerateResult, MultiSchemaOptions, SingleSchemaOptions } from './generate';
+export { generate, generateMultiSchema, generateSingleSchema } from './generate';
 export { parseArgs, printHelp } from './parser';
-export type { SchemaResolveOptions } from './resolvers';
-// Resolvers
-export { findSchemasInDir, resolveSchemas, resolveSinglePath } from './resolvers';
+export type { DiscoveredSchema, SchemaResolveOptions, SchemaRoot } from './resolvers';
+export {
+  CONVENTION_MARKERS,
+  discoverSchemas,
+  findSchemaRoots,
+  findSchemasInDir,
+  resolveSchemas,
+  resolveSinglePath,
+} from './resolvers';
 export type { LoggerOptions, LogLevel, WriteOptions } from './utils';
-// Utils
 export { ensureDir, ensureDirs, ensureParentDir, Logger, logger, writeFile, writeFiles } from './utils';
 export type {
   CLIOptions,
@@ -20,7 +38,6 @@ export type {
   SchemaValidationError,
   SchemaValidationResult,
 } from './validators';
-// Validators
 export {
   getDefaultOptions,
   validateFieldNames,
@@ -28,3 +45,5 @@ export {
   validateOptions,
   validateSchema,
 } from './validators';
+export type { WatchTarget } from './watcher';
+export { startWatcher } from './watcher';

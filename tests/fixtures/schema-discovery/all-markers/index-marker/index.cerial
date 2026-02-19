@@ -1,0 +1,4 @@
+model IndexModel {
+  id Record @id
+  label String
+}

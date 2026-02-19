@@ -1,0 +1,6 @@
+# JSON config cms page
+model MsJsonCmsPage {
+  id Record @id
+  title String
+  slug String @unique
+}

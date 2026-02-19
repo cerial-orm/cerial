@@ -1,0 +1,4 @@
+model Page {
+  id Record @id
+  title String
+}

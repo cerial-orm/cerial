@@ -5,20 +5,16 @@
 /** Log output level */
 export type LogOutputLevel = 'minimal' | 'medium' | 'full';
 
-/** CLI options */
 export interface CLIOptions {
-  /** Schema file/directory path */
   schema?: string;
-  /** Output directory */
   output?: string;
-  /** Watch mode */
   watch?: boolean;
-  /** Verbose output */
   verbose?: boolean;
-  /** Log output level (minimal, medium, full) */
   log?: LogOutputLevel;
-  /** Delete entire output directory before generating (default: false, only stale files are removed) */
   clean?: boolean;
+  name?: string;
+  config?: string;
+  yes?: boolean;
 }
 
 /** Validation error */
@@ -37,11 +33,10 @@ export interface OptionsValidationResult {
 export function validateOptions(options: CLIOptions): OptionsValidationResult {
   const errors: OptionsValidationError[] = [];
 
-  // Output is required
-  if (!options.output) {
+  if (!options.output && !options.config) {
     errors.push({
       option: 'output',
-      message: 'Output directory is required (-o or --output)',
+      message: 'Output directory is required (-o or --output) when not using a config file',
     });
   }
 

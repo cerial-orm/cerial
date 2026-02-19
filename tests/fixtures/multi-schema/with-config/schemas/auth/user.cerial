@@ -1,0 +1,7 @@
+# Multi-schema auth user model
+model MsAuthUser {
+  id Record @id
+  email Email @unique
+  name String
+  isActive Bool @default(true)
+}

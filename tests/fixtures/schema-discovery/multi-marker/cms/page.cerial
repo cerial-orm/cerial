@@ -1,0 +1,4 @@
+model PageContent {
+  id Record @id
+  body String
+}

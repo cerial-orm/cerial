@@ -11,6 +11,10 @@ bun test tests/e2e/ --preload ./tests/e2e/preload.ts     # E2E tests (requires S
 bun run typecheck                                        # Type check generated types (ts-toolbelt)
 bunx tsc --noEmit                                        # Full TypeScript check
 bun run generate:test-client                            # Generate test client from schema
+bunx cerial init                                        # Initialize config file
+bunx cerial init --yes                                  # Non-interactive init
+bunx cerial generate -C ./cerial.config.ts              # Generate with specific config
+bunx cerial generate -n auth                            # Generate specific schema only
 ```
 
 ## Project Structure
@@ -19,7 +23,12 @@ bun run generate:test-client                            # Generate test client f
 cerial/
 ├── bin/cerial.ts                    # CLI entry point
 ├── src/
-│   ├── cli/                         # CLI commands, validators, schema resolution
+│   ├── cli/                         # CLI commands, validators, schema resolution, config
+│   │   ├── commands/                #   Command registry (generate, init)
+│   │   ├── config/                  #   Config types, loader, resolver, validator, defineConfig
+│   │   ├── resolvers/               #   Schema resolution, convention markers
+│   │   ├── validators/              #   CLI option + schema validators
+│   │   └── watcher.ts               #   File watcher with per-schema isolation
 │   ├── client/                      # Runtime client, Model class, Proxy factory
 │   ├── connection/                  # Connection manager, config types
 │   ├── generators/                  # Code generation from AST
@@ -60,6 +69,7 @@ cerial/
 │   │   ├── features/                #   Typed-ids, unset, transactions, on-before-query, pagination tests (35 files)
 │   │   ├── negative/                #   Cross-cutting error/validation tests (5 files)
 │   │   ├── typechecks/              #   36 compile-time type checks (6 subdirectories)
+│   │   ├── multi-schema/            #   Multi-schema E2E tests (4 files)
 │   │   ├── preload.ts               #   Generates client before tests
 │   │   └── test-helper.ts           #   Shared test infrastructure
 │   └── generators/                  # Generator tests
@@ -92,6 +102,11 @@ cerial/
 | `src/utils/cerial-geometry.ts`                | `CerialGeometry` hierarchy (7 subtypes) and `CerialGeometryInput` union type                  |
 | `src/utils/cerial-any.ts`                     | `CerialAny` recursive union type                                                              |
 | `src/utils/cerial-set.ts`                     | `CerialSet<T>` branded array type                                                             |
+| `src/cli/config/types.ts`                     | `CerialConfig`, `SchemaEntry`, `ResolvedSchemaEntry` types                                    |
+| `src/cli/config/loader.ts`                    | Config file loader (`cerial.config.ts`/`.json`)                                               |
+| `src/cli/config/define-config.ts`             | `defineConfig()` identity helper for type-safe config                                         |
+| `src/cli/commands/init.ts`                    | `cerial init` interactive command                                                             |
+| `src/cli/watcher.ts`                          | File watcher with debounce and per-schema isolation                                           |
 | `src/client/cerial-transaction.ts`            | `CerialTransaction` class, transaction proxy factory                                          |
 
 ## Architecture
@@ -117,7 +132,7 @@ Schema (.cerial files) → Parser (AST) → Generators → TypeScript Client
 
 | Location                   | Type                                                          | Count    |
 | -------------------------- | ------------------------------------------------------------- | -------- |
-| `tests/unit/`              | Unit tests (no DB)                                            | ~1693    |
+| `tests/unit/`              | Unit tests (no DB)                                            | ~2683    |
 | `tests/integration/`       | Integration (DB required)                                     | ~49      |
 | `tests/e2e/core/`          | Core CRUD, select, include, findAll, introspection            | 8 files  |
 | `tests/e2e/relations/`     | Relation E2E tests                                            | 89 files |
@@ -127,6 +142,7 @@ Schema (.cerial files) → Parser (AST) → Generators → TypeScript Client
 | `tests/e2e/features/`      | Typed-ids, unset, transactions, on-before-query, pagination   | 35 files |
 | `tests/e2e/negative/`      | Cross-cutting error/validation tests                          | 5 files  |
 | `tests/e2e/typechecks/`    | Compile-time type checks                                      | 36 files |
+| `tests/e2e/multi-schema/`  | Multi-schema E2E tests (config, convention, backward compat)   | 4 files  |
 
 **Sandbox testing** = Running raw SurrealQL against the live SurrealDB instance to verify DB-level behavior before implementing in code. Use this when you need to confirm how SurrealDB handles a specific query pattern (e.g., `$this` reconstruction, dot-notation merge, SELECT expression shapes). When the user says "sandbox test", execute queries via curl:
 
@@ -178,6 +194,7 @@ Sandbox testing is **allowed in plan mode** — it is investigative research to 
   if (results.length) process(results);
   ```
 
+- **Biome unused prefix** - Biome auto-prefixes unused variables/params with `_` (e.g., `x` → `_x`). When you later use that variable, remove the `_` prefix first (`_x` → `x`), unless `_` has a separate meaning in that context (e.g., lodash import)
 - **Module exports** - Each module has `index.ts` that re-exports its public API
 - **Generated files** - Formatted with Biome
 

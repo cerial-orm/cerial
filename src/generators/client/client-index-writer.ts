@@ -17,6 +17,7 @@ export async function writeClientIndex(
   tuples: TupleMetadata[] = [],
   literals: LiteralMetadata[] = [],
   enums: LiteralMetadata[] = [],
+  clientClassName: string = 'CerialClient',
 ): Promise<string> {
   await ensureDir(outputDir);
 
@@ -295,6 +296,7 @@ export type {
   }
 
   // Add Relations and GetPayload exports
+  const connectConfigName = `${clientClassName}ConnectConfig`;
   content += `
 // Relations types
 export type {
@@ -307,8 +309,8 @@ export type {
 } from './models';
 
 // Client exports
-export { CerialClient } from './client';
-export type { ConnectionConfig, TypedDb } from './client';
+export { ${clientClassName} } from './client';
+export type { ConnectionConfig, TypedDb, ${connectConfigName} } from './client';
 
 // CerialQueryPromise (for $transaction type inference)
 export { CerialQueryPromise } from 'cerial';

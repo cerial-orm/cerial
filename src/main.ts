@@ -136,6 +136,7 @@ export type {
 } from './cli';
 // Export CLI (explicit to avoid conflicts)
 export {
+  defineConfig,
   ensureDir,
   ensureDirs,
   ensureParentDir,

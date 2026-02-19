@@ -1,6 +1,9 @@
-/**
- * Resolvers barrel export
- */
-
-export type { SchemaResolveOptions } from './schema-resolver';
-export { findSchemasInDir, resolveSchemas, resolveSinglePath } from './schema-resolver';
+export type { DiscoveredSchema, SchemaResolveOptions, SchemaRoot } from './schema-resolver';
+export {
+  CONVENTION_MARKERS,
+  discoverSchemas,
+  findSchemaRoots,
+  findSchemasInDir,
+  resolveSchemas,
+  resolveSinglePath,
+} from './schema-resolver';

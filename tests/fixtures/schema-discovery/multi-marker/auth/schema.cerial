@@ -1,0 +1,4 @@
+model AuthUser {
+  id Record @id
+  email String
+}

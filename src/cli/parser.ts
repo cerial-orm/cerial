@@ -37,6 +37,21 @@ export function parseArgs(args: string[]): CLIOptions {
         options.clean = true;
         break;
 
+      case '-n':
+      case '--name':
+        options.name = args[++i];
+        break;
+
+      case '-C':
+      case '--config':
+        options.config = args[++i];
+        break;
+
+      case '-y':
+      case '--yes':
+        options.yes = true;
+        break;
+
       case '-l':
       case '--log': {
         const level = args[++i] as LogOutputLevel;
@@ -67,20 +82,26 @@ export function parseArgs(args: string[]): CLIOptions {
   return options;
 }
 
-/** Print help message */
 export function printHelp(): void {
   console.log(`
-cerial generate - Generate TypeScript client from schema files
+cerial - A Prisma-like ORM for SurrealDB
 
 Usage:
-  cerial generate [options]
+  cerial <command> [options]
+
+Commands:
+  generate, -g          Generate TypeScript client from schema files
+  init                  Initialize a cerial config file
 
 Options:
   -s, --schema <path>   Path to schema file or directory (default: ./schemas)
   -o, --output <path>   Output directory for generated files (required)
+  -n, --name <name>     Client class name (default: CerialClient)
+  -C, --config <path>   Path to config file
   -c, --clean           Delete entire output directory before generating
   -w, --watch           Watch for schema changes and regenerate
   -v, --verbose         Verbose output
+  -y, --yes             Accept all defaults, skip interactive prompts
   -l, --log <level>     Log output level: minimal (default), medium, full
   -h, --help            Show this help message
 
@@ -91,5 +112,7 @@ Examples:
   cerial generate -o ./db-client
   cerial generate -s ./schemas -o ./db-client
   cerial generate -s ./schemas -o ./db-client --clean
+  cerial generate -C ./cerial.config.ts
+  cerial init
 `);
 }

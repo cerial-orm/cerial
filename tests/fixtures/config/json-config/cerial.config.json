@@ -1,0 +1,4 @@
+{
+  "schema": "./schema.cerial",
+  "output": "./generated"
+}

@@ -1,0 +1,8 @@
+# Multi-schema CMS page model
+model MsCmsPage {
+  id Record @id
+  title String
+  slug String @unique
+  content String?
+  published Bool @default(false)
+}

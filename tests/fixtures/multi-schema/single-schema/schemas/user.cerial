@@ -1,0 +1,7 @@
+# Single schema fixture (no config file)
+model MsSingleUser {
+  id Record @id
+  email Email @unique
+  name String
+  isActive Bool @default(true)
+}

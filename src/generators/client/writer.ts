@@ -29,16 +29,20 @@ import { generateClientTemplate } from './template';
 import { writeTupleTypes } from './tuple-writer';
 
 /** Write client main file */
-export async function writeClientMain(outputDir: string, models: ModelMetadata[]): Promise<string> {
+export async function writeClientMain(
+  outputDir: string,
+  models: ModelMetadata[],
+  clientClassName: string = 'CerialClient',
+): Promise<string> {
   await ensureDir(outputDir);
 
   const filePath = `${outputDir}/client.ts`;
   const content = `/**
- * Generated database client
- * Do not edit manually
- */
+  * Generated database client
+  * Do not edit manually
+  */
 
-${generateClientTemplate(models)}
+${generateClientTemplate(models, clientClassName)}
 
 ${generateConnectionExports()}
 `;
@@ -60,11 +64,12 @@ export async function writeClient(
   tupleRegistry?: TupleRegistry,
   literalRegistry?: LiteralRegistry,
   enums: LiteralMetadata[] = [],
+  clientClassName: string = 'CerialClient',
 ): Promise<string[]> {
   const files: string[] = [];
 
   // Write client main
-  files.push(await writeClientMain(outputDir, models));
+  files.push(await writeClientMain(outputDir, models, clientClassName));
 
   // Write enum types first (string-only, no dependencies)
   for (const enumMeta of enums) {
@@ -103,7 +108,7 @@ export async function writeClient(
   if (enumsIndex) files.push(enumsIndex);
 
   // Write main index (includes model, object, tuple, literal, and enum exports)
-  files.push(await writeClientIndex(outputDir, models, objects, tuples, literals, enums));
+  files.push(await writeClientIndex(outputDir, models, objects, tuples, literals, enums, clientClassName));
 
   return files;
 }

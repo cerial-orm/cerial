@@ -60,15 +60,17 @@ function _generateTransactionOverloads(): string {
 }
 
 /** Generate the CerialClient class */
-export function generateClientClass(): string {
+export function generateClientClass(clientClassName: string = 'CerialClient'): string {
+  const connectConfigName = `${clientClassName}ConnectConfig`;
+
   return `/**
- * Migration event types
- */
+  * Migration event types
+  */
 export type MigrationEventType = 'start' | 'complete' | 'error';
 
 /**
- * Migration event callback
- */
+  * Migration event callback
+  */
 export type MigrationEventCallback = (event: {
   type: MigrationEventType;
   modelName: ModelName;
@@ -76,8 +78,8 @@ export type MigrationEventCallback = (event: {
 }) => void;
 
 /**
- * Client options for configuring callbacks and events
- */
+  * Client options for configuring callbacks and events
+  */
 export interface ClientOptions {
   /** Callback(s) to run before each query - can be single function or array */
   onBeforeQuery?: BeforeQueryCallback | BeforeQueryCallback[];
@@ -86,17 +88,17 @@ export interface ClientOptions {
 }
 
 /**
- * Extended connection config with per-model callbacks
- */
-export interface CerialClientConnectConfig extends ConnectionConfig {
+  * Extended connection config with per-model callbacks
+  */
+export interface ${connectConfigName} extends ConnectionConfig {
   /** Per-model callbacks to run before queries to specific models */
   perModelCallbacks?: PerModelCallbacks;
 }
 
 /**
- * SurrealDB client with typed model access and per-model lazy migrations
- */
-export class CerialClient {
+  * SurrealDB client with typed model access and per-model lazy migrations
+  */
+export class ${clientClassName} {
   private connectionManager: ConnectionManager<typeof modelRegistry>;
   private _db: DatabaseProxy<typeof modelRegistry> | null = null;
   private _migratedModels: Set<ModelName> = new Set();
@@ -176,11 +178,11 @@ export class CerialClient {
     return allModels.filter(model => !this._migratedModels.has(model));
   }
 
-  /**
-   * Connect to the database
-   * @param config - Connection configuration with optional per-model callbacks
-   */
-  async connect(config: CerialClientConnectConfig): Promise<void> {
+   /**
+    * Connect to the database
+    * @param config - Connection configuration with optional per-model callbacks
+    */
+   async connect(config: ${connectConfigName}): Promise<void> {
     // Store per-model callbacks for proxy creation
     this._perModelCallbacks = config.perModelCallbacks;
 
@@ -528,11 +530,11 @@ ${_generateTransactionOverloads()}
 }
 
 /** Generate the full client template */
-export function generateClientTemplate(models: ModelMetadata[]): string {
+export function generateClientTemplate(models: ModelMetadata[], clientClassName: string = 'CerialClient'): string {
   return `${generateImports(models)}
 
 ${generateTypedDbInterface(models)}
 
-${generateClientClass()}
+${generateClientClass(clientClassName)}
 `;
 }

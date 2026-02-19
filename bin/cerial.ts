@@ -1,31 +1,25 @@
 #!/usr/bin/env bun
-/**
- * cerial CLI entry point
- */
 
-import { generate, parseArgs, printHelp } from '../src/cli';
+import { printHelp } from '../src/cli';
+import type { Command } from '../src/cli/commands';
+import { generateCommand, initCommand } from '../src/cli/commands';
+
+const commands: Command[] = [generateCommand, initCommand];
 
 const args = process.argv.slice(2);
+const commandName = args[0];
 
-// Check for command
-const command = args[0];
-
-if (!command || command === '-h' || command === '--help') {
+if (!commandName || commandName === '-h' || commandName === '--help') {
   printHelp();
   process.exit(0);
 }
 
-if (command === 'generate' || command === '-g') {
-  // Parse remaining args
-  const options = parseArgs(args.slice(1));
-  const result = await generate(options);
+const cmd = commands.find((c) => c.name === commandName || c.aliases.includes(commandName));
 
-  if (!result.success) {
-    console.error('Error generating files:', result.errors);
-    process.exit(1);
-  }
+if (cmd) {
+  await cmd.run(args.slice(1));
 } else {
-  console.error(`Unknown command: ${command}`);
+  console.error(`Unknown command: ${commandName}`);
   printHelp();
   process.exit(1);
 }

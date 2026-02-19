@@ -1,0 +1,8 @@
+# Multi-schema CMS block model
+model MsCmsBlock {
+  id Record @id
+  name String
+  type String
+  data String?
+  order Int @default(0)
+}

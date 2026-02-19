@@ -1,0 +1,4 @@
+model MainModel {
+  id Record @id
+  label String
+}

@@ -1,0 +1,6 @@
+# JSON config auth user
+model MsJsonAuthUser {
+  id Record @id
+  email Email @unique
+  name String
+}

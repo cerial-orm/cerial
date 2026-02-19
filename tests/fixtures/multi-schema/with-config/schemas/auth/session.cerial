@@ -1,0 +1,7 @@
+# Multi-schema auth session model
+model MsAuthSession {
+  id Record @id
+  token String @unique
+  expiresAt Date
+  isValid Bool @default(true)
+}

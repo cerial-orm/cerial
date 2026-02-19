@@ -1,16 +1,27 @@
-/**
- * Schema resolver - resolves schema file locations
- */
-
 import { lstatSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { basename, dirname, resolve } from 'node:path';
 import { Glob } from 'bun';
+import { findFolderConfigs } from '../config/loader';
+import type { FolderConfig } from '../config/types';
 
-/** Default schema search paths */
 const DEFAULT_SEARCH_PATHS = ['schemas', 'schema'];
 
-/** Default schema file patterns */
 const DEFAULT_PATTERNS = ['**/*.cerial'];
+
+export const CONVENTION_MARKERS = ['schema.cerial', 'main.cerial', 'index.cerial'] as const;
+
+export interface SchemaRoot {
+  path: string;
+  marker: string | null;
+  files: string[];
+}
+
+export interface DiscoveredSchema {
+  name?: string;
+  path: string;
+  files: string[];
+  folderConfig?: FolderConfig;
+}
 
 /** Options for schema resolution */
 export interface SchemaResolveOptions {
@@ -112,4 +123,68 @@ export async function resolveSinglePath(path: string, cwd: string = process.cwd(
 
   // Treat as directory
   return findSchemasInDir(fullPath, DEFAULT_PATTERNS);
+}
+
+export async function findSchemaRoots(cwd: string = process.cwd()): Promise<SchemaRoot[]> {
+  const rootMap = new Map<string, SchemaRoot>();
+
+  for (const marker of CONVENTION_MARKERS) {
+    const glob = new Glob(`**/${marker}`);
+    try {
+      for await (const match of glob.scan({ cwd })) {
+        const fullPath = resolve(cwd, match);
+        const dir = dirname(fullPath);
+
+        if (rootMap.has(dir)) continue;
+
+        const files = await findSchemasInDir(dir, DEFAULT_PATTERNS);
+        rootMap.set(dir, { path: dir, marker: basename(match), files });
+      }
+    } catch {
+      // Directory might not exist
+    }
+  }
+
+  return [...rootMap.values()];
+}
+
+export async function discoverSchemas(cwd: string = process.cwd()): Promise<DiscoveredSchema[]> {
+  const folderConfigs = await findFolderConfigs(cwd);
+
+  if (folderConfigs.length) {
+    const schemas: DiscoveredSchema[] = [];
+    for (const { dir, config } of folderConfigs) {
+      const files = await findSchemasInDir(dir, DEFAULT_PATTERNS);
+      if (files.length) {
+        schemas.push({
+          name: basename(dir),
+          path: dir,
+          files,
+          folderConfig: config,
+        });
+      }
+    }
+
+    if (schemas.length) return schemas;
+  }
+
+  const roots = await findSchemaRoots(cwd);
+
+  if (!roots.length) {
+    const legacyFiles = await resolveSchemas({ cwd });
+    if (!legacyFiles.length) return [];
+
+    return [{ path: cwd, files: legacyFiles }];
+  }
+
+  if (roots.length === 1) {
+    const [root] = roots;
+
+    return [{ path: root!.path, files: root!.files }];
+  }
+
+  const paths = roots.map((r) => r.path).join(', ');
+  throw new Error(
+    `Found ${roots.length} schema roots (${paths}). Create a cerial.config.ts to configure them. Run 'cerial init' to get started.`,
+  );
 }

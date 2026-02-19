@@ -38,3 +38,6 @@ docs/_site/
 
 # Sisyphus orchestration state
 .sisyphus/
+
+# Temporary test directories
+tmp-schema-generates/

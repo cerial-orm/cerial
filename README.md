@@ -30,6 +30,10 @@ A Prisma-like ORM for [SurrealDB](https://surrealdb.com/) with schema-driven cod
 - **Any type** - Store any SurrealDB value with type-safe CerialAny union
 - **Set arrays** - `@set` decorator for auto-deduplicated, sorted arrays
 - **Typed IDs** - `Record(int) @id`, `Record(uuid) @id`, union types, and automatic FK type inference
+- **Multi-schema** - Multiple independent schema folders with per-schema client generation
+- **Configuration** - `cerial.config.ts` / `cerial.config.json` with `defineConfig()` helper
+- **Watch mode** - Auto-regenerate on schema changes with per-schema isolation
+- **CLI init** - `cerial init` scaffolds config from detected schemas
 
 ## Installation
 
@@ -75,6 +79,21 @@ model Post {
 
 ```bash
 bunx cerial generate -s ./schemas -o ./db-client
+```
+
+Or use a config file:
+
+```typescript
+// cerial.config.ts
+import { defineConfig } from 'cerial';
+export default defineConfig({
+  schema: './schemas',
+  output: './db-client',
+});
+```
+
+```bash
+bunx cerial generate
 ```
 
 ### 3. Use it
@@ -141,7 +160,10 @@ Full documentation is available at the [Cerial Docs](docs/) site, covering:
 - [Select & Include](docs/select-and-include/) - Dynamic return types, sub-field selection, nested includes
 - [Array Operations](docs/array-operations/) - push, unset, replace, @distinct, @sort decorators
 - [Type System](docs/types/) - CerialId, NONE vs null, generated types, dynamic return types
-- [CLI](docs/cli/) - generate command, flags, generated output structure
+- [CLI](docs/cli/) - generate, init, config, flags, output structure
+- [Configuration](docs/cli/configuration.md) - Config file formats, schema discovery, defineConfig
+- [Multi-Schema](docs/cli/multi-schema.md) - Multiple independent schemas in one project
+- [Init Command](docs/cli/init.md) - Auto-generate config with `cerial init`
 - [Connection](docs/connection/) - Client setup, connection config, migrations
 
 ## Requirements

@@ -3,7 +3,7 @@
  */
 
 import { readdir, rm } from 'node:fs/promises';
-import { resolve } from 'node:path';
+import { basename, resolve } from 'node:path';
 import { writeClient } from '../generators/client/writer';
 import {
   convertLiterals,
@@ -31,15 +31,49 @@ import type {
   ObjectRegistry,
   TupleRegistry,
 } from '../types';
+import type { ResolvedSchemaEntry } from './config';
+import {
+  detectConfigsInsideRootPaths,
+  findFolderConfigs,
+  loadConfig,
+  loadFolderConfig,
+  resolveConfig,
+  toClientClassName,
+  validateCombinedEntries,
+} from './config';
 import { resolveSchemas, resolveSinglePath } from './resolvers';
 import { logger } from './utils';
-import type { CLIOptions } from './validators';
+import type { CLIOptions, LogOutputLevel } from './validators';
 import { validateOptions, validateSchema } from './validators';
 
 /** Generation result */
 export interface GenerateResult {
   success: boolean;
   files: string[];
+  errors: string[];
+}
+
+/** Options for generating a single schema */
+export interface SingleSchemaOptions {
+  schemaPath?: string;
+  outputDir: string;
+  logLevel?: LogOutputLevel;
+  verbose?: boolean;
+  clean?: boolean;
+  clientClassName?: string;
+}
+
+/** Options for generating multiple schemas */
+export interface MultiSchemaOptions {
+  logLevel?: LogOutputLevel;
+  verbose?: boolean;
+  clean?: boolean;
+}
+
+/** Result from generating multiple schemas */
+export interface MultiGenerateResult {
+  success: boolean;
+  results: Record<string, GenerateResult>;
   errors: string[];
 }
 
@@ -176,31 +210,24 @@ function collectLiteralWarnings(
   return warnings;
 }
 
-/** Run the generate command */
-export async function generate(options: CLIOptions): Promise<GenerateResult> {
+/** Generate a single schema from resolved options */
+export async function generateSingleSchema(options: SingleSchemaOptions): Promise<GenerateResult> {
   const result: GenerateResult = {
     success: false,
     files: [],
     errors: [],
   };
 
-  // Validate options
-  const optionsValidation = validateOptions(options);
-  if (!optionsValidation.valid) {
-    result.errors = optionsValidation.errors.map((e) => e.message);
-
-    return result;
-  }
-
-  const outputDir = options.output!;
-  const logLevel = options.log ?? 'minimal';
+  const { outputDir, logLevel = 'minimal', clientClassName } = options;
   logger.setOutputLevel(logLevel);
 
   try {
     // Resolve schema files
     logger.progress('Finding schema files...');
 
-    const schemaFiles: string[] = options.schema ? await resolveSinglePath(options.schema) : await resolveSchemas();
+    const schemaFiles: string[] = options.schemaPath
+      ? await resolveSinglePath(options.schemaPath)
+      : await resolveSchemas();
 
     if (!schemaFiles.length) {
       result.errors.push('No schema files found');
@@ -216,11 +243,11 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
     // Load and parse schemas
     logger.progress('Parsing schemas...');
 
-    // Actually read the files directly since loadSchemas uses patterns
     const schemaContents = await Promise.all(
       schemaFiles.map(async (path) => {
         const file = Bun.file(path);
         const content = await file.text();
+
         return { path, content };
       }),
     );
@@ -333,7 +360,6 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
     const tuples = convertTuples(allTuples);
 
     // Convert enums to synthetic ASTLiteral entries for the literal pipeline
-    // This merges enum definitions into the literal conversion so literalRef expansion works
     const syntheticEnumLiterals: ASTLiteral[] = allEnums.map((e) => ({
       name: e.name,
       variants: e.values.map((v): import('../types').ASTLiteralVariant => ({ kind: 'string', value: v })),
@@ -341,7 +367,6 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
     }));
     const allLiteralsForConversion = [...allLiterals, ...syntheticEnumLiterals];
     const literals = convertLiterals(allLiteralsForConversion);
-    // Mark enum-originating entries with isEnum flag
     for (const lit of literals) {
       if (allEnums.some((e) => e.name === lit.name)) {
         lit.isEnum = true;
@@ -367,7 +392,6 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
       }
     }
 
-    // Clean output directory if --clean flag is set
     if (options.clean) {
       logger.progress('Cleaning output directory...');
       await cleanOutputDir(outputDir);
@@ -376,12 +400,10 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
     // Generate files
     logger.progress('Generating files...');
 
-    // Write model registry (includes object, tuple, and literal registries if they exist)
     const registryPath = await writeModelRegistry(outputDir, models, objects, tuples, literals);
     result.files.push(registryPath);
     if (logLevel === 'full') logger.fileCreated(registryPath);
 
-    // Write migration file (pass object/tuple/literal registries for sub-field DEFINE statements)
     const objectRegistry = objRegistry;
     const tupleRegistry = tupRegistry;
     const literalRegistry = litRegistry;
@@ -389,7 +411,6 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
     result.files.push(migrationPath);
     if (logLevel === 'full') logger.fileCreated(migrationPath);
 
-    // Write internal index
     const internalIndexPath = await writeInternalIndex(
       outputDir,
       objects.length > 0,
@@ -399,11 +420,9 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
     result.files.push(internalIndexPath);
     if (logLevel === 'full') logger.fileCreated(internalIndexPath);
 
-    // Split literals into actual literals and enum-derived literals
     const actualLiterals = literals.filter((l) => !l.isEnum);
     const enumLiterals = literals.filter((l) => l.isEnum);
 
-    // Write client files (including object, tuple, literal, and enum type files)
     const clientFiles = await writeClient(
       outputDir,
       models,
@@ -414,11 +433,11 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
       tupleRegistry,
       literalRegistry,
       enumLiterals,
+      clientClassName,
     );
     result.files.push(...clientFiles);
     if (logLevel === 'full') clientFiles.forEach((f) => logger.fileCreated(f));
 
-    // Medium level: show category summary
     if (logLevel === 'medium') {
       const modelFiles = clientFiles.filter((f) => f.includes('/models/') && !f.endsWith('index.ts'));
       logger.info(`  ${modelFiles.length} model files`);
@@ -426,7 +445,6 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
       logger.info(`  ${clientFiles.length - modelFiles.length} client files`);
     }
 
-    // Remove stale files from previous generations (skipped if --clean already wiped the directory)
     if (!options.clean) {
       const staleFiles = await removeStaleFiles(outputDir, result.files);
       if (staleFiles.length) {
@@ -443,6 +461,228 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
     const message = error instanceof Error ? error.message : String(error);
     result.errors.push(message);
     logger.error(message);
+
     return result;
   }
+}
+
+/** Generate multiple schemas sequentially */
+export async function generateMultiSchema(
+  entries: ResolvedSchemaEntry[],
+  options: MultiSchemaOptions,
+): Promise<MultiGenerateResult> {
+  const result: MultiGenerateResult = { success: true, results: {}, errors: [] };
+
+  for (let i = 0; i < entries.length; i++) {
+    const entry = entries[i]!;
+    logger.progress(`Generating schema '${entry.name}' (${i + 1} of ${entries.length})...`);
+
+    const singleResult = await generateSingleSchema({
+      schemaPath: entry.path,
+      outputDir: entry.output,
+      clientClassName: entry.clientClassName,
+      logLevel: options.logLevel,
+      verbose: options.verbose,
+      clean: options.clean,
+    });
+
+    result.results[entry.name] = singleResult;
+
+    if (!singleResult.success) {
+      result.success = false;
+      result.errors.push(...singleResult.errors.map((e) => `[${entry.name}] ${e}`));
+    }
+  }
+
+  return result;
+}
+
+export async function applyFolderOverridesAndDiscover(
+  entries: ResolvedSchemaEntry[],
+  cwd: string,
+): Promise<ResolvedSchemaEntry[]> {
+  const mergedEntries: ResolvedSchemaEntry[] = [];
+  for (const entry of entries) {
+    const folderConfig = await loadFolderConfig(entry.path);
+    if (folderConfig) {
+      mergedEntries.push({
+        ...entry,
+        ...(folderConfig.output ? { output: resolve(entry.path, folderConfig.output) } : {}),
+        ...(folderConfig.connection ? { connection: folderConfig.connection } : {}),
+      });
+    } else {
+      mergedEntries.push(entry);
+    }
+  }
+
+  await detectConfigsInsideRootPaths(
+    mergedEntries.map((e) => e.path),
+    cwd,
+  );
+
+  const allFolderConfigs = await findFolderConfigs(cwd);
+  const rootPaths = mergedEntries.map((e) => resolve(e.path));
+  const discovered = allFolderConfigs.filter(({ dir }) => {
+    const resolvedDir = resolve(dir);
+
+    return !rootPaths.some((rp) => resolvedDir === rp || resolvedDir.startsWith(`${rp}/`));
+  });
+
+  const discoveredEntries: ResolvedSchemaEntry[] = discovered.map(({ dir, config }) => {
+    const name = basename(dir);
+
+    return {
+      name,
+      path: dir,
+      output: config.output ? resolve(dir, config.output) : resolve(dir, 'client'),
+      clientClassName: toClientClassName(name),
+      connection: config.connection,
+    };
+  });
+
+  for (const entry of discoveredEntries) {
+    logger.warn(
+      `Auto-discovered schema '${entry.name}' from folder config at '${entry.path}' (not defined in root config)`,
+    );
+  }
+
+  validateCombinedEntries(mergedEntries, discoveredEntries);
+
+  return [...mergedEntries, ...discoveredEntries];
+}
+
+/** Run the generate command */
+export async function generate(options: CLIOptions): Promise<GenerateResult> {
+  const result: GenerateResult = {
+    success: false,
+    files: [],
+    errors: [],
+  };
+
+  // -s flag → single schema mode (backward compat, ignore config)
+  if (options.schema) {
+    const optionsValidation = validateOptions(options);
+    if (!optionsValidation.valid) {
+      result.errors = optionsValidation.errors.map((e) => e.message);
+
+      return result;
+    }
+
+    return generateSingleSchema({
+      schemaPath: options.schema,
+      outputDir: options.output!,
+      logLevel: options.log,
+      verbose: options.verbose,
+      clean: options.clean,
+    });
+  }
+
+  // Try loading config
+  try {
+    const config = await loadConfig(options.config);
+    if (config) {
+      const entries = resolveConfig(config);
+      const allEntries = await applyFolderOverridesAndDiscover(entries, process.cwd());
+
+      let targetEntries = allEntries;
+      if (options.name) {
+        targetEntries = allEntries.filter((e) => e.name === options.name);
+        if (!targetEntries.length) {
+          result.errors.push(
+            `Schema '${options.name}' not found. Available schemas: ${allEntries.map((e) => e.name).join(', ')}`,
+          );
+
+          return result;
+        }
+      }
+
+      // -o override
+      if (options.output) {
+        targetEntries = targetEntries.map((e) => ({ ...e, output: options.output! }));
+      }
+
+      const logLevel = options.log ?? 'minimal';
+      logger.setOutputLevel(logLevel);
+
+      const multiResult = await generateMultiSchema(targetEntries, {
+        logLevel: options.log,
+        verbose: options.verbose,
+        clean: options.clean,
+      });
+
+      const allFiles = Object.values(multiResult.results).flatMap((r) => r.files);
+
+      return { success: multiResult.success, files: allFiles, errors: multiResult.errors };
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    result.errors.push(message);
+
+    return result;
+  }
+
+  // No config, no -s → try folder config discovery, then legacy mode
+  try {
+    const folderConfigs = await findFolderConfigs(process.cwd());
+
+    if (folderConfigs.length) {
+      const logLevel = options.log ?? 'minimal';
+      logger.setOutputLevel(logLevel);
+
+      if (folderConfigs.length === 1) {
+        const { dir, config } = folderConfigs[0]!;
+        const outputDir = options.output ?? (config.output ? resolve(dir, config.output) : resolve(dir, 'client'));
+
+        return generateSingleSchema({
+          schemaPath: dir,
+          outputDir,
+          logLevel: options.log,
+          verbose: options.verbose,
+          clean: options.clean,
+        });
+      }
+
+      const entries: ResolvedSchemaEntry[] = folderConfigs.map(({ dir, config }) => {
+        const name = basename(dir);
+        const output = options.output ?? (config.output ? resolve(dir, config.output) : resolve(dir, 'client'));
+
+        return {
+          name,
+          path: dir,
+          output,
+          clientClassName: toClientClassName(name),
+        };
+      });
+
+      const multiResult = await generateMultiSchema(entries, {
+        logLevel: options.log,
+        verbose: options.verbose,
+        clean: options.clean,
+      });
+
+      const allFiles = Object.values(multiResult.results).flatMap((r) => r.files);
+
+      return { success: multiResult.success, files: allFiles, errors: multiResult.errors };
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    result.errors.push(message);
+
+    return result;
+  }
+
+  // Legacy fallback
+  const optionsValidation = validateOptions(options);
+  if (!optionsValidation.valid) {
+    result.errors = optionsValidation.errors.map((e) => e.message);
+
+    return result;
+  }
+
+  return generateSingleSchema({
+    outputDir: options.output!,
+    logLevel: options.log,
+    verbose: options.verbose,
+    clean: options.clean,
+  });
 }

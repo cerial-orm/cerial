@@ -1,0 +1,6 @@
+# Additional cms model
+model MsMarkerCmsBlock {
+  id Record @id
+  name String
+  type String
+}

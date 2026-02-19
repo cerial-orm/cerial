@@ -14,28 +14,43 @@ bunx cerial generate [options]
 
 ## Options
 
-| Flag              | Alias | Description                                      | Default       |
-| ----------------- | ----- | ------------------------------------------------ | ------------- |
-| `--schema <path>` | `-s`  | Path to schema file or directory                 | `./schemas`   |
-| `--output <path>` | `-o`  | Output directory for generated client            | `./db-client` |
-| `--clean`         | `-c`  | Delete entire output directory before generating | `false`       |
-| `--watch`         | `-w`  | Watch for schema changes and regenerate          | `false`       |
-| `--verbose`       | `-v`  | Verbose output showing generation details        | `false`       |
-| `--help`          | `-h`  | Show help message                                | -             |
+| Flag              | Alias | Description                                       | Default     |
+| ----------------- | ----- | ------------------------------------------------- | ----------- |
+| `--schema <path>` | `-s`  | Path to schema file or directory                  | `./schemas` |
+| `--output <path>` | `-o`  | Output directory for generated client             | -           |
+| `--config <path>` | `-C`  | Path to config file                               | -           |
+| `--name <name>`   | `-n`  | Target a specific schema by name (multi-schema)   | -           |
+| `--clean`         | `-c`  | Delete entire output directory before generating  | `false`     |
+| `--watch`         | `-w`  | Watch for schema changes and regenerate           | `false`     |
+| `--verbose`       | `-v`  | Verbose output showing generation details         | `false`     |
+| `--log <level>`   | `-l`  | Log output level: `minimal`, `medium`, or `full`  | `minimal`   |
+| `--help`          | `-h`  | Show help message                                 | -           |
+
+When using a [config file](./configuration), the `-o` flag is optional since output paths come from the config. Without a config, `-o` is required.
 
 ## Examples
 
-### Generate from default paths
+### Generate with a config file
 
-If your schema files are in `./schemas` and you want the client generated to `./db-client`:
+If you have a `cerial.config.ts` or `cerial.config.json` in your project root, just run:
 
 ```bash
 bunx cerial generate
 ```
 
-### Specify custom paths
+Cerial auto-discovers the config and uses its schema paths and output directories. See [Configuration](./configuration) for config file setup.
 
-Point the generator at a specific schema directory and output location:
+### Specify a config file path
+
+Point to a config file in a non-default location:
+
+```bash
+bunx cerial generate -C ./config/cerial.config.ts
+```
+
+### Specify paths directly
+
+Skip the config and pass schema and output paths on the command line:
 
 ```bash
 bunx cerial generate -s ./schemas -o ./db-client
@@ -49,15 +64,33 @@ Generate from a single `.cerial` file instead of a directory:
 bunx cerial generate -s ./schema.cerial -o ./generated
 ```
 
-### Watch mode
+### Target a specific schema
 
-Automatically regenerate the client whenever schema files change. This is useful during development when you're iterating on your schema:
+In a [multi-schema](./multi-schema) setup, regenerate just one schema by name:
 
 ```bash
-bunx cerial generate -s ./schemas -o ./db-client --watch
+bunx cerial generate -n auth
 ```
 
-Watch mode monitors the schema directory (or file) for changes and triggers a full regeneration cycle each time a `.cerial` file is created, modified, or deleted.
+The name matches a key in your config's `schemas` map. Only that schema is regenerated; the rest are untouched. This flag only works with a config file.
+
+### Watch mode
+
+Automatically regenerate the client whenever schema files change:
+
+```bash
+bunx cerial generate --watch
+```
+
+Watch mode monitors your schema files for changes and triggers regeneration each time a `.cerial` file is created, modified, or deleted. Changes are debounced (300ms) to coalesce rapid edits into a single rebuild.
+
+With a multi-schema config, each schema is watched independently. A change to one schema only regenerates that schema's client.
+
+You can combine `-n` with `--watch` to focus on a single schema:
+
+```bash
+bunx cerial generate -n auth --watch
+```
 
 ### Clean output
 
@@ -74,7 +107,7 @@ Without `--clean`, stale files from previous generations (e.g., types for rename
 See detailed information about what the generator is doing at each step:
 
 ```bash
-bunx cerial generate -s ./schemas -o ./db-client --verbose
+bunx cerial generate --verbose
 ```
 
 ## What Happens During Generation
@@ -83,7 +116,14 @@ The generation process follows a pipeline architecture:
 
 ### 1. Schema Discovery
 
-The generator resolves the schema path:
+The generator resolves schema files through a priority chain (see [Configuration](./configuration#schema-discovery) for full details):
+
+1. **CLI flags** (`-s`) - The given path is used directly
+2. **Config file** - Schema paths from `cerial.config.ts` or `cerial.config.json`
+3. **Convention markers** - Directories containing `schema.cerial`, `main.cerial`, or `index.cerial`
+4. **Legacy fallback** - A `schemas/` or `schema/` directory in the current working directory
+
+Once resolved, each path can be:
 
 - **Directory** - All `.cerial` files in the directory are discovered and loaded
 - **Single file** - Just that one file is loaded
@@ -175,15 +215,18 @@ If the `--clean` flag was used, this step is skipped since the output directory 
 
 ```bash
 # 1. Define your schema
-# schemas/main.cerial
+# schemas/schema.cerial
 
-# 2. Generate the client
+# 2. Set up a config (optional, but recommended)
+bunx cerial init
+
+# 3. Generate the client
 bunx cerial generate
 
-# 3. Import and use in your app
-# import { CerialClient } from './db-client';
+# 4. Import and use in your app
+# import { CerialClient } from './client';
 
-# 4. During development, use watch mode
+# 5. During development, use watch mode
 bunx cerial generate --watch
 ```
 

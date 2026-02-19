@@ -1,0 +1,6 @@
+# Additional auth model
+model MsMarkerAuthSession {
+  id Record @id
+  token String @unique
+  expiresAt Date
+}
