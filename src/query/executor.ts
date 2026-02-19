@@ -4,7 +4,7 @@
 
 import { BoundQuery, type Surreal } from 'surrealdb';
 import type { ModelMetadata, ModelRegistry } from '../types';
-import type { QueryResultType } from './cerial-query-promise';
+import { CerialQueryPromise, type QueryResultType } from './cerial-query-promise';
 import type { CompiledQuery } from './compile/types';
 import { mapResult, mapSingleResult } from './mappers';
 
@@ -23,6 +23,17 @@ export interface TransactionItem {
   resultType: QueryResultType;
   registry?: ModelRegistry;
 }
+
+/**
+ * An item in the SDK native transaction execution.
+ * Can be a pre-compiled TransactionItem or a function that receives
+ * previous results and returns a value, CerialQueryPromise, or Promise.
+ */
+export type TransactionExecutionItem =
+  | TransactionItem
+  | ((
+      prevResults: unknown[],
+    ) => unknown | CerialQueryPromise<unknown> | Promise<unknown> | Promise<CerialQueryPromise<unknown>>);
 
 /** Check if an error is a transaction conflict that can be retried */
 function isTransactionConflict(error: unknown): boolean {
@@ -256,14 +267,10 @@ function extractAndStripReturn(text: string): { text: string; returnExpr: string
   return { text: stripped.trim(), returnExpr };
 }
 
-/**
- * Map a single transaction result item based on its result type and model metadata.
- */
 function mapTransactionResult(rawResult: unknown, resultType: QueryResultType, metadata: ModelMetadata): unknown {
   switch (resultType) {
     case 'single': {
       if (rawResult === null || rawResult === undefined) return null;
-      // If it's an array (from multi-statement), take first element
       if (Array.isArray(rawResult)) {
         if (!rawResult.length) return null;
 
@@ -278,7 +285,6 @@ function mapTransactionResult(rawResult: unknown, resultType: QueryResultType, m
       return mapResult(rawResult, metadata);
     }
     case 'count': {
-      // COUNT queries return { count: N } or the count directly
       if (rawResult === null || rawResult === undefined) return 0;
       if (typeof rawResult === 'number') return rawResult;
       if (Array.isArray(rawResult)) {
@@ -292,7 +298,6 @@ function mapTransactionResult(rawResult: unknown, resultType: QueryResultType, m
       return 0;
     }
     case 'boolean': {
-      // EXISTS uses count internally — count > 0
       if (rawResult === null || rawResult === undefined) return false;
       if (typeof rawResult === 'boolean') return rawResult;
       if (typeof rawResult === 'number') return rawResult > 0;
@@ -307,7 +312,6 @@ function mapTransactionResult(rawResult: unknown, resultType: QueryResultType, m
       return false;
     }
     case 'number': {
-      // deleteMany returns count of deleted records
       if (rawResult === null || rawResult === undefined) return 0;
       if (typeof rawResult === 'number') return rawResult;
       if (Array.isArray(rawResult)) return rawResult.length;
@@ -315,7 +319,6 @@ function mapTransactionResult(rawResult: unknown, resultType: QueryResultType, m
       return 0;
     }
     case 'void': {
-      // Operations that always succeed (e.g., deleteUnique with default return)
       return true;
     }
     default:
@@ -323,20 +326,163 @@ function mapTransactionResult(rawResult: unknown, resultType: QueryResultType, m
   }
 }
 
+// =============================================================================
+// SDK Native Transaction Helpers
+// =============================================================================
+
+function isTransactionItem(item: TransactionExecutionItem): item is TransactionItem {
+  return typeof item === 'object' && item !== null && 'compiledQuery' in item;
+}
+
+function extractRawResult(results: unknown): unknown {
+  if (!results || !Array.isArray(results) || !results.length) return null;
+
+  for (let i = results.length - 1; i >= 0; i--) {
+    if (results[i] !== null && results[i] !== undefined) return results[i];
+  }
+
+  return null;
+}
+
+async function executeItemInTransaction(
+  db: Surreal,
+  item: TransactionItem,
+  prefixedQuery: CompiledQuery,
+): Promise<unknown> {
+  if (isMultiStatementQuery(prefixedQuery.text)) {
+    return executeMultiStatementInTransaction(db, prefixedQuery, item);
+  }
+
+  const boundQuery = new BoundQuery(prefixedQuery.text, prefixedQuery.vars);
+  const results = await db.query(boundQuery).collect();
+  const rawResult = extractRawResult(results);
+
+  return mapTransactionResult(rawResult, item.resultType, item.metadata);
+}
+
+async function executeMultiStatementInTransaction(
+  db: Surreal,
+  query: CompiledQuery,
+  item: TransactionItem,
+): Promise<unknown> {
+  const innerText = stripTransactionWrapper(query.text);
+  const { text: bodyText, returnExpr } = extractAndStripReturn(innerText);
+  const statements = splitStatements(bodyText);
+
+  let lastResult: unknown = null;
+  for (const stmt of statements) {
+    const trimmed = stmt.trim();
+    if (!trimmed) continue;
+
+    const boundQuery = new BoundQuery(trimmed, query.vars);
+    const results = await db.query(boundQuery).collect();
+    lastResult = extractRawResult(results);
+  }
+
+  if (returnExpr) {
+    const boundQuery = new BoundQuery(`RETURN ${returnExpr}`, query.vars);
+    const results = await db.query(boundQuery).collect();
+    lastResult = extractRawResult(results);
+  }
+
+  return mapTransactionResult(lastResult, item.resultType, item.metadata);
+}
+
 /**
- * Execute multiple CerialQueryPromise items as a single SurrealDB transaction.
+ * Execute transaction items using SDK native transactions.
  *
- * Assembles all queries into:
- *   BEGIN TRANSACTION;
- *   LET $tx_result_0 = (...);  -- or inlined multi-statement
- *   LET $tx_result_1 = (...);
- *   COMMIT TRANSACTION;
- *   RETURN [$tx_result_0, $tx_result_1, ...];
+ * Uses `db.beginTransaction()` to create a SurrealTransaction, then executes
+ * each item sequentially via `txn.query()`. Multi-statement queries (nested
+ * create, cascade delete) are split and executed as individual statements.
  *
- * Each query's variables are prefixed with `tx{index}_` to avoid collisions.
- * Inner transactions (from nested create, cascade delete) are stripped and flattened.
+ * Supports function items that receive previous results and can return
+ * a CerialQueryPromise (executed in the transaction) or a plain value.
+ *
+ * Retries on transaction conflict with exponential backoff (max 3 retries).
+ * Each retry begins a FRESH transaction.
  */
-export async function executeClientTransaction(db: Surreal, items: TransactionItem[]): Promise<unknown[]> {
+export async function executeClientTransaction(db: Surreal, items: TransactionExecutionItem[]): Promise<unknown[]> {
+  if (!items.length) return [];
+
+  const maxRetries = 3;
+  let lastError: unknown;
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const txn = await db.beginTransaction();
+      // SurrealTransaction extends SurrealQueryable — cast to Surreal for query() access
+      const txnDb = txn as unknown as Surreal;
+
+      try {
+        const results: unknown[] = [];
+
+        for (let i = 0; i < items.length; i++) {
+          const item = items[i]!;
+
+          if (isTransactionItem(item)) {
+            const prefix = `tx${i}_`;
+            const prefixed = prefixQueryVars(item.compiledQuery, prefix);
+            const result = await executeItemInTransaction(txnDb, item, prefixed);
+            results.push(result);
+          } else if (typeof item === 'function') {
+            const fnResult = await item(results);
+
+            if (CerialQueryPromise.isCerialQueryPromise(fnResult)) {
+              const txItem: TransactionItem = {
+                compiledQuery: fnResult.compiledQuery,
+                metadata: fnResult.metadata,
+                resultType: fnResult.resultType,
+                registry: fnResult.registry,
+              };
+              const prefix = `tx${i}_`;
+              const prefixed = prefixQueryVars(txItem.compiledQuery, prefix);
+              const result = await executeItemInTransaction(txnDb, txItem, prefixed);
+              results.push(result);
+            } else {
+              results.push(fnResult);
+            }
+          }
+        }
+
+        await txn.commit();
+
+        return results;
+      } catch (innerError) {
+        try {
+          await txn.cancel();
+        } catch {
+          // Ignore cancel errors — transaction may already be aborted by SurrealDB
+        }
+        throw innerError;
+      }
+    } catch (error) {
+      lastError = error;
+
+      if (isTransactionConflict(error) && attempt < maxRetries) {
+        const delay = 2 ** attempt * 10 + Math.random() * 10;
+        await sleep(delay);
+        continue;
+      }
+
+      throw error;
+    }
+  }
+
+  throw lastError;
+}
+
+// =============================================================================
+// Legacy Text-Based Transaction Assembly (Deprecated)
+// =============================================================================
+
+/**
+ * @deprecated Use `executeClientTransaction()` which uses SDK native transactions.
+ * This text-based assembly approach is preserved for backward compatibility only.
+ *
+ * Assembles all queries into a single text-based transaction:
+ *   BEGIN TRANSACTION; LET $tx_result_0 = (...); COMMIT TRANSACTION; RETURN [...];
+ */
+export async function executeClientTransactionLegacy(db: Surreal, items: TransactionItem[]): Promise<unknown[]> {
   if (!items.length) return [];
 
   const statements: string[] = [];
@@ -345,60 +491,39 @@ export async function executeClientTransaction(db: Surreal, items: TransactionIt
   const maxRetries = 3;
   let lastError: unknown;
 
-  // Build the transaction
   for (let i = 0; i < items.length; i++) {
     const item = items[i]!;
     const prefix = `tx${i}_`;
     const resultVar = `$tx_result_${i}`;
 
-    // Prefix variables to avoid collisions
     const prefixed = prefixQueryVars(item.compiledQuery, prefix);
-
-    // Merge prefixed vars
     Object.assign(allVars, prefixed.vars);
 
     if (isMultiStatementQuery(prefixed.text)) {
-      // Multi-statement query (nested create, cascade delete, etc.)
-      // 1. Strip inner BEGIN/COMMIT TRANSACTION
       let innerText = stripTransactionWrapper(prefixed.text);
-
-      // 2. Extract and strip the RETURN clause
       const { text: bodyText, returnExpr } = extractAndStripReturn(innerText);
       innerText = bodyText;
-
-      // 3. Split into individual statements
       const innerStatements = splitStatements(innerText);
 
       if (returnExpr) {
-        // Has an explicit RETURN clause — add all inner statements, then capture return
         for (const stmt of innerStatements) {
           const trimmed = stmt.trim();
           if (trimmed) statements.push(`${trimmed};`);
         }
 
-        // Capture the RETURN expression
         if (returnExpr.startsWith('$') && /^\$\w+$/.test(returnExpr)) {
-          // Simple variable reference (e.g., $tx0_result)
           resultVarNames.push(returnExpr);
         } else if (/^SELECT\s+\*\s+FROM\s+ONLY\s+(\$\w+)/i.test(returnExpr)) {
-          // Pattern: "SELECT * FROM ONLY $resultId"
-          // SurrealDB SDK bug: wrapping SELECT inside LET = (...) causes `id` to be undefined.
-          // Instead, find the $result variable that was set earlier (via CREATE/UPDATE)
-          // which already contains the full record with `id`.
           const idVarMatch = returnExpr.match(/\$(\w+)$/);
           if (idVarMatch) {
-            // The RETURN uses $resultId — look for the corresponding $result variable
-            // Convention: nested builder sets $resultId = $result.id, so $result is the record
-            const idVarName = idVarMatch[1]!; // e.g., "tx0_resultId"
-            const resultVarCandidate = idVarName.replace(/Id$/, ''); // e.g., "tx0_result"
-            // Check if $result was defined in inner statements
+            const idVarName = idVarMatch[1]!;
+            const resultVarCandidate = idVarName.replace(/Id$/, '');
             const hasResultVar = innerStatements.some((s) =>
               new RegExp(`LET\\s+\\$${resultVarCandidate}\\b`, 'i').test(s),
             );
             if (hasResultVar) {
               resultVarNames.push(`$${resultVarCandidate}`);
             } else {
-              // Fallback: use LET wrapping (may lose `id` but avoids breaking)
               statements.push(`LET ${resultVar} = (${returnExpr});`);
               resultVarNames.push(resultVar);
             }
@@ -407,20 +532,16 @@ export async function executeClientTransaction(db: Surreal, items: TransactionIt
             resultVarNames.push(resultVar);
           }
         } else {
-          // Other complex expressions
           statements.push(`LET ${resultVar} = (${returnExpr});`);
           resultVarNames.push(resultVar);
         }
       } else {
-        // No explicit RETURN — wrap the last result-producing statement in a LET
-        // to capture its output (e.g., DELETE ... RETURN BEFORE)
         const lastIdx = innerStatements.length - 1;
         for (let j = 0; j <= lastIdx; j++) {
           const trimmed = innerStatements[j]!.trim();
           if (!trimmed) continue;
 
           if (j === lastIdx && !trimmed.toUpperCase().startsWith('LET ') && !trimmed.toUpperCase().startsWith('IF ')) {
-            // Wrap last statement to capture its result
             statements.push(`LET ${resultVar} = (${trimmed});`);
             resultVarNames.push(resultVar);
           } else {
@@ -428,9 +549,7 @@ export async function executeClientTransaction(db: Surreal, items: TransactionIt
           }
         }
 
-        // If we didn't capture a result (e.g., last statement was LET/IF), fall back
         if (!resultVarNames.includes(resultVar)) {
-          // Try to find the last LET variable as the result
           const allLets = innerText.match(/LET\s+(\$\w+)/gi);
           if (allLets?.length) {
             const lastLet = allLets[allLets.length - 1]!.match(/\$\w+/);
@@ -445,29 +564,22 @@ export async function executeClientTransaction(db: Surreal, items: TransactionIt
         }
       }
     } else {
-      // Simple single-statement query
-      // Strip trailing semicolons and whitespace for clean wrapping
       const cleanText = prefixed.text.replace(/\s*;\s*$/, '').trim();
-
-      // Wrap in LET $tx_result_N = (query);
       statements.push(`LET ${resultVar} = (${cleanText});`);
       resultVarNames.push(resultVar);
     }
   }
 
-  // Build the final transaction query
   const returnArray = resultVarNames.map((v) => (v === 'NONE' ? 'NONE' : v)).join(', ');
   const transactionText = ['BEGIN TRANSACTION;', ...statements, 'COMMIT TRANSACTION;', `RETURN [${returnArray}];`].join(
     '\n',
   );
 
-  // Execute with retry for transaction conflicts
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       const boundQuery = new BoundQuery(transactionText, allVars);
       const results = await db.query<unknown[]>(boundQuery).collect();
 
-      // The RETURN statement is the last result — walk backwards to find the array
       let resultArray: unknown[] | null = null;
       if (results && results.length > 0) {
         for (let i = results.length - 1; i >= 0; i--) {
@@ -480,11 +592,9 @@ export async function executeClientTransaction(db: Surreal, items: TransactionIt
       }
 
       if (!resultArray) {
-        // Fallback: return nulls for each item
         return items.map(() => null);
       }
 
-      // Map each result through its model's mapper
       const mapped: unknown[] = [];
       for (let i = 0; i < items.length; i++) {
         const rawResult = i < resultArray.length ? resultArray[i] : null;

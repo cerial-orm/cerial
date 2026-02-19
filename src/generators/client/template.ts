@@ -9,7 +9,7 @@ export function generateImports(models: ModelMetadata[]): string {
   const modelImports = models.map((m) => m.name).join(', ');
   const modelTypeImports = models.map((m) => `${m.name}Model`).join(', ');
 
-  return `import { ConnectionManager, CerialQueryPromise, executeClientTransaction, type DatabaseProxy, type ModelRegistry, type BeforeQueryCallback, type PerModelCallbacks, type TransactionItem } from 'cerial';
+  return `import { ConnectionManager, CerialQueryPromise, executeClientTransaction, createCerialTransactionProxy, type CerialTransaction, type DatabaseProxy, type ModelRegistry, type BeforeQueryCallback, type PerModelCallbacks, type TransactionItem, type TransactionOptions, type TransactionClient } from 'cerial';
 import type { ConnectionConfig } from 'cerial';
 import { modelRegistry } from './internal/model-registry';
 import { migrationsByModel, getModelMigrationQuery, getMigrationModelNames, type ModelName } from './internal/migrations';
@@ -317,43 +317,137 @@ export class CerialClient {
   }
 
   /**
-    * Execute multiple queries in a single transaction.
-    * All queries are executed atomically — if any query fails, all changes are rolled back.
-    *
-    * @param queries - Array of CerialQueryPromise objects from model methods
-    * @returns Tuple of results matching the input query order
-    *
-    * @example
-    * \`\`\`ts
-    * const [user, posts] = await client.$transaction([
-    *   client.db.User.create({ data: { name: 'Alice', email: 'alice@test.com', isActive: true } }),
-    *   client.db.Post.findMany({ where: { published: true } }),
-    * ]);
-    * // user: User, posts: Post[]
-    * \`\`\`
-    */
-  async $transaction<T extends CerialQueryPromise<any>[]>(
+   * Execute multiple queries in a single transaction (array mode).
+   * All queries are executed atomically — if any query fails, all changes are rolled back.
+   *
+   * @param queries - Array of CerialQueryPromise objects from model methods
+   * @returns Tuple of results matching the input query order
+   *
+   * @example
+   * \`\`\`ts
+   * const [user, posts] = await client.$transaction([
+   *   client.db.User.create({ data: { name: 'Alice', email: 'alice@test.com', isActive: true } }),
+   *   client.db.Post.findMany({ where: { published: true } }),
+   * ]);
+   * // user: User, posts: Post[]
+   * \`\`\`
+   */
+  $transaction<T extends CerialQueryPromise<any>[]>(
     queries: [...T],
-  ): Promise<{ [K in keyof T]: T[K] extends CerialQueryPromise<infer R> ? R : never }> {
-    if (!this._db) throw new Error('Not connected. Call connect() first.');
-    if (!queries.length) return [] as any;
+  ): Promise<{ [K in keyof T]: T[K] extends CerialQueryPromise<infer R> ? R : never }>;
 
-    const surreal = this.getSurreal();
+  /**
+   * Execute a callback within a managed transaction (callback mode).
+   * The transaction is automatically committed on success or cancelled on error.
+   *
+   * @param fn - Callback receiving a transaction client with model access
+   * @param options - Optional transaction options (e.g., timeout)
+   * @returns The callback's return value
+   *
+   * @example
+   * \`\`\`ts
+   * const result = await client.$transaction(async (tx) => {
+   *   const user = await tx.User.create({ data: { name: 'Alice', email: 'alice@test.com', isActive: true } });
+   *   await tx.Post.create({ data: { title: 'Hello', authorId: user.id } });
+   *   return user;
+   * });
+   * \`\`\`
+   */
+  $transaction<R>(
+    fn: (tx: TransactionClient) => Promise<R> | R,
+    options?: TransactionOptions,
+  ): Promise<R>;
+
+  /**
+   * Begin a manual transaction for explicit commit/cancel control.
+   *
+   * @returns A transaction client with commit() and cancel() methods
+   *
+   * @example
+   * \`\`\`ts
+   * const tx = await client.$transaction();
+   * try {
+   *   await tx.User.create({ data: { name: 'Alice', email: 'alice@test.com', isActive: true } });
+   *   await tx.commit();
+   * } catch (error) {
+   *   await tx.cancel();
+   *   throw error;
+   * }
+   * \`\`\`
+   */
+  $transaction(): Promise<CerialTransaction>;
+
+  async $transaction(
+    arg?: CerialQueryPromise<any>[] | ((tx: TransactionClient) => unknown),
+    options?: TransactionOptions,
+  ): Promise<unknown> {
+    if (!this._db) throw new Error('Not connected. Call connect() first.');
+
+    // Manual mode: no arguments
+    if (arg === undefined) {
+      const surreal = this.getTransactionSurreal();
+      if (!surreal) throw new Error('No active connection.');
+      await this.ensureMigrated();
+      const sdkTxn = await surreal.beginTransaction();
+
+      return createCerialTransactionProxy(sdkTxn, modelRegistry);
+    }
+
+    // Callback mode: function argument
+    if (typeof arg === 'function') {
+      const surreal = this.getTransactionSurreal();
+      if (!surreal) throw new Error('No active connection.');
+      await this.ensureMigrated();
+      const sdkTxn = await surreal.beginTransaction();
+      const tx = createCerialTransactionProxy(sdkTxn, modelRegistry);
+
+      let timeoutId: ReturnType<typeof setTimeout> | undefined;
+      try {
+        let result: unknown;
+        if (options?.timeout) {
+          const timeoutMs = options.timeout;
+          result = await Promise.race([
+            Promise.resolve(arg(tx)),
+            new Promise<never>((_, reject) => {
+              timeoutId = setTimeout(
+                () => reject(new Error('Transaction timeout')),
+                timeoutMs,
+              );
+            }),
+          ]);
+        } else {
+          result = await Promise.resolve(arg(tx));
+        }
+        await sdkTxn.commit();
+
+        return result;
+      } catch (error) {
+        await sdkTxn.cancel();
+        throw error;
+      } finally {
+        if (timeoutId !== undefined) clearTimeout(timeoutId);
+      }
+    }
+
+    // Array mode
+    if (!arg.length) return [] as any;
+
+    const surreal = this.getTransactionSurreal();
     if (!surreal) throw new Error('No active connection.');
 
     // Validate all items are CerialQueryPromise instances
-    for (const q of queries) {
+    for (const q of arg) {
       if (!CerialQueryPromise.isCerialQueryPromise(q)) {
         throw new Error('$transaction only accepts CerialQueryPromise objects returned by model methods.');
       }
     }
 
     // Ensure all involved models are migrated before executing
-    const modelNames = new Set(queries.map(q => q.metadata.name));
+    const modelNames = new Set(arg.map(q => q.metadata.name));
     await Promise.all([...modelNames].map(name => this.ensureModelMigrated(name as ModelName)));
 
     // Build transaction items
-    const items: TransactionItem[] = queries.map(q => ({
+    const items: TransactionItem[] = arg.map(q => ({
       compiledQuery: q.compiledQuery,
       metadata: q.metadata,
       resultType: q.resultType,

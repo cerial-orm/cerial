@@ -47,10 +47,17 @@ export {
   mergeFragments,
   wrapParens,
 } from './compile';
-export type { ExecuteOptions, TransactionItem } from './executor';
+export type { ExecuteOptions, TransactionExecutionItem, TransactionItem } from './executor';
 
 // Executor
-export { executeClientTransaction, executeQuery, executeQuerySingle, executeRaw, executeTransaction } from './executor';
+export {
+  executeClientTransaction,
+  executeClientTransactionLegacy,
+  executeQuery,
+  executeQuerySingle,
+  executeRaw,
+  executeTransaction,
+} from './executor';
 // Filters
 export {
   // Condition builder
