@@ -18,7 +18,7 @@ const IGNORED_PROPERTIES = new Set([
   '_isMockFunction',
 ]);
 
-const KNOWN_PROPERTIES = new Set(['commit', 'cancel', 'state', '_raw', '_registryRef']);
+const KNOWN_PROPERTIES = new Set(['commit', 'cancel', 'state', '_raw', '_registryRef', '_ensureActive']);
 
 export class CerialTransaction {
   private _state: TransactionState = 'active';

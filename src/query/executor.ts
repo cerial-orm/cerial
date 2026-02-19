@@ -62,7 +62,13 @@ export async function executeQuery<T = unknown>(
   query: CompiledQuery,
   _options: ExecuteOptions = {},
 ): Promise<T[]> {
-  const boundQuery = createBoundQuery(query);
+  // Strip transaction wrappers from multi-statement queries (nested create, cascade delete)
+  // SDK transactions handle boundaries — inner BEGIN/COMMIT would cause "Cannot BEGIN within transaction"
+  let queryText = query.text;
+  if (isMultiStatementQuery(queryText)) {
+    queryText = stripTransactionWrapper(queryText);
+  }
+  const boundQuery = createBoundQuery({ text: queryText, vars: query.vars });
   const results = await db.query<[T[]]>(boundQuery).collect();
 
   // For simple queries, return first result set
@@ -96,7 +102,11 @@ export async function executeQuerySingle<T = unknown>(
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
-      const boundQuery = createBoundQuery(query);
+      let queryText = query.text;
+      if (isMultiStatementQuery(queryText)) {
+        queryText = stripTransactionWrapper(queryText);
+      }
+      const boundQuery = createBoundQuery({ text: queryText, vars: query.vars });
       const results = await db.query<T[]>(boundQuery).collect();
 
       // For transactions with RETURN at the end, get the last non-null result
