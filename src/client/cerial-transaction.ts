@@ -45,6 +45,25 @@ export class CerialTransaction {
     this._state = 'cancelled';
   }
 
+  async [Symbol.asyncDispose](): Promise<void> {
+    if (this._state === 'active') {
+      try {
+        await this._txn.cancel();
+        this._state = 'cancelled';
+      } catch {
+        // Ignore — transaction may already be ended
+      }
+    }
+  }
+
+  [Symbol.dispose](): void {
+    if (this._state === 'active') {
+      // Schedule cancel — can't await in sync dispose
+      this._txn.cancel().catch(() => {});
+      this._state = 'cancelled';
+    }
+  }
+
   /** @internal */
   get _raw(): SurrealTransaction {
     return this._txn;

@@ -9,7 +9,7 @@ export function generateImports(models: ModelMetadata[]): string {
   const modelImports = models.map((m) => m.name).join(', ');
   const modelTypeImports = models.map((m) => `${m.name}Model`).join(', ');
 
-  return `import { ConnectionManager, CerialQueryPromise, executeClientTransaction, createCerialTransactionProxy, type CerialTransaction, type DatabaseProxy, type ModelRegistry, type BeforeQueryCallback, type PerModelCallbacks, type TransactionItem, type TransactionOptions, type TransactionClient } from 'cerial';
+  return `import { ConnectionManager, CerialQueryPromise, executeClientTransaction, createCerialTransactionProxy, type CerialTransaction, type DatabaseProxy, type ModelRegistry, type BeforeQueryCallback, type PerModelCallbacks, type TransactionItem, type TransactionExecutionItem, type TransactionOptions, type TransactionClient } from 'cerial';
 import type { ConnectionConfig } from 'cerial';
 import { modelRegistry } from './internal/model-registry';
 import { migrationsByModel, getModelMigrationQuery, getMigrationModelNames, type ModelName } from './internal/migrations';
@@ -332,9 +332,9 @@ export class CerialClient {
    * // user: User, posts: Post[]
    * \`\`\`
    */
-  $transaction<T extends CerialQueryPromise<any>[]>(
+  $transaction<T extends (CerialQueryPromise<any> | ((prevResults: unknown[]) => unknown))[]>(
     queries: [...T],
-  ): Promise<{ [K in keyof T]: T[K] extends CerialQueryPromise<infer R> ? R : never }>;
+  ): Promise<{ [K in keyof T]: T[K] extends CerialQueryPromise<infer R> ? R : unknown }>;
 
   /**
    * Execute a callback within a managed transaction (callback mode).
@@ -378,7 +378,7 @@ export class CerialClient {
   $transaction(): Promise<CerialTransaction>;
 
   async $transaction(
-    arg?: CerialQueryPromise<any>[] | ((tx: TransactionClient) => unknown),
+    arg?: (CerialQueryPromise<any> | ((prevResults: unknown[]) => unknown))[] | ((tx: TransactionClient) => unknown),
     options?: TransactionOptions,
   ): Promise<unknown> {
     if (!this._db) throw new Error('Not connected. Call connect() first.');
@@ -422,7 +422,11 @@ export class CerialClient {
 
         return result;
       } catch (error) {
-        await sdkTxn.cancel();
+        try {
+          await sdkTxn.cancel();
+        } catch {
+          // Ignore cancel errors — transaction may already be aborted
+        }
         throw error;
       } finally {
         if (timeoutId !== undefined) clearTimeout(timeoutId);
@@ -435,24 +439,35 @@ export class CerialClient {
     const surreal = this.getTransactionSurreal();
     if (!surreal) throw new Error('No active connection.');
 
-    // Validate all items are CerialQueryPromise instances
+    // Validate all items are CerialQueryPromise or function
     for (const q of arg) {
-      if (!CerialQueryPromise.isCerialQueryPromise(q)) {
-        throw new Error('$transaction only accepts CerialQueryPromise objects returned by model methods.');
+      if (typeof q !== 'function' && !CerialQueryPromise.isCerialQueryPromise(q)) {
+        throw new Error('$transaction only accepts CerialQueryPromise objects or functions.');
       }
     }
 
     // Ensure all involved models are migrated before executing
-    const modelNames = new Set(arg.map(q => q.metadata.name));
-    await Promise.all([...modelNames].map(name => this.ensureModelMigrated(name as ModelName)));
+    const queryItems = arg.filter(q => CerialQueryPromise.isCerialQueryPromise(q)) as CerialQueryPromise<any>[];
+    const hasFunctions = arg.some(q => typeof q === 'function');
+    if (hasFunctions) {
+      // Functions could access any model — migrate all
+      await this.ensureMigrated();
+    } else {
+      const modelNames = new Set(queryItems.map(q => q.metadata.name));
+      await Promise.all([...modelNames].map(name => this.ensureModelMigrated(name as ModelName)));
+    }
 
-    // Build transaction items
-    const items: TransactionItem[] = arg.map(q => ({
-      compiledQuery: q.compiledQuery,
-      metadata: q.metadata,
-      resultType: q.resultType,
-      registry: q.registry,
-    }));
+    // Build transaction items — pass functions through, wrap CerialQueryPromise
+    const items: TransactionExecutionItem[] = arg.map(q => {
+      if (typeof q === 'function') return q as TransactionExecutionItem;
+
+      return {
+        compiledQuery: (q as CerialQueryPromise<any>).compiledQuery,
+        metadata: (q as CerialQueryPromise<any>).metadata,
+        resultType: (q as CerialQueryPromise<any>).resultType,
+        registry: (q as CerialQueryPromise<any>).registry,
+      };
+    });
 
     // Execute the transaction
     const results = await executeClientTransaction(surreal, items);

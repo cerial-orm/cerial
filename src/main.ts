@@ -212,6 +212,7 @@ export type {
   QueryResultType,
   QueryVars,
   TransactionArrayItem,
+  TransactionExecutionItem,
   TransactionItem,
   ValidationError,
   VarBinding,

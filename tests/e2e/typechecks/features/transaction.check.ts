@@ -5,10 +5,10 @@
  * Run: bun run typecheck
  */
 
+import type { CerialTransaction, TransactionArrayItem, TransactionClient, TransactionOptions } from 'cerial';
 import { Test } from 'ts-toolbelt';
 import type { CerialQueryPromise, Post, User } from '../../generated';
 
-// Helper for extension checks
 type Extends<A, B> = A extends B ? 1 : 0;
 
 // =============================================================================
@@ -63,3 +63,63 @@ Test.checks([
     Test.Pass
   >(),
 ]);
+
+// =============================================================================
+// Callback mode return type inference
+// =============================================================================
+
+type CallbackResult = Awaited<Promise<User>>;
+Test.checks([Test.check<CallbackResult, User, Test.Pass>()]);
+
+type CallbackReturnsNumber = Awaited<Promise<number>>;
+Test.checks([Test.check<CallbackReturnsNumber, number, Test.Pass>()]);
+
+// =============================================================================
+// CerialTransaction type structure
+// =============================================================================
+
+Test.checks([
+  Test.check<Extends<CerialTransaction, { commit: () => Promise<void> }>, 1, Test.Pass>(),
+  Test.check<Extends<CerialTransaction, { cancel: () => Promise<void> }>, 1, Test.Pass>(),
+]);
+
+// =============================================================================
+// TransactionOptions structure
+// =============================================================================
+
+Test.checks([
+  Test.check<Extends<{ timeout: number }, TransactionOptions>, 1, Test.Pass>(),
+  Test.check<Extends<{}, TransactionOptions>, 1, Test.Pass>(),
+]);
+
+// =============================================================================
+// TransactionClient is indexable (model proxy)
+// =============================================================================
+
+Test.checks([Test.check<Extends<TransactionClient, Record<string, any>>, 1, Test.Pass>()]);
+
+// =============================================================================
+// TransactionArrayItem accepts CerialQueryPromise or function
+// =============================================================================
+
+Test.checks([
+  Test.check<Extends<CerialQueryPromise<User>, TransactionArrayItem<User>>, 1, Test.Pass>(),
+  Test.check<Extends<(prev: unknown[]) => CerialQueryPromise<User>, TransactionArrayItem<User>>, 1, Test.Pass>(),
+  Test.check<Extends<(prev: unknown[]) => User, TransactionArrayItem<User>>, 1, Test.Pass>(),
+  Test.check<Extends<(prev: unknown[]) => Promise<User>, TransactionArrayItem<User>>, 1, Test.Pass>(),
+]);
+
+// =============================================================================
+// txn option accepted on model method types (via CerialTransaction)
+// =============================================================================
+
+type CreateWithTxn = { data: { email: string; name: string; isActive: boolean }; txn?: CerialTransaction };
+Test.checks([Test.check<Extends<CreateWithTxn, { txn?: CerialTransaction }>, 1, Test.Pass>()]);
+
+// =============================================================================
+// Callback fn signature matches TransactionClient → Promise<T>
+// =============================================================================
+
+type ValidCallback = (tx: TransactionClient) => Promise<User>;
+type CallbackOverload = <R>(fn: (tx: TransactionClient) => Promise<R> | R, options?: TransactionOptions) => Promise<R>;
+Test.checks([Test.check<Extends<ValidCallback, (tx: TransactionClient) => Promise<User> | User>, 1, Test.Pass>()]);
