@@ -366,26 +366,11 @@ async function executeMultiStatementInTransaction(
   item: TransactionItem,
 ): Promise<unknown> {
   const innerText = stripTransactionWrapper(query.text);
-  const { text: bodyText, returnExpr } = extractAndStripReturn(innerText);
-  const statements = splitStatements(bodyText);
+  const boundQuery = new BoundQuery(innerText, query.vars);
+  const results = await db.query(boundQuery).collect();
+  const rawResult = extractRawResult(results);
 
-  let lastResult: unknown = null;
-  for (const stmt of statements) {
-    const trimmed = stmt.trim();
-    if (!trimmed) continue;
-
-    const boundQuery = new BoundQuery(trimmed, query.vars);
-    const results = await db.query(boundQuery).collect();
-    lastResult = extractRawResult(results);
-  }
-
-  if (returnExpr) {
-    const boundQuery = new BoundQuery(`RETURN ${returnExpr}`, query.vars);
-    const results = await db.query(boundQuery).collect();
-    lastResult = extractRawResult(results);
-  }
-
-  return mapTransactionResult(lastResult, item.resultType, item.metadata);
+  return mapTransactionResult(rawResult, item.resultType, item.metadata);
 }
 
 /**
@@ -393,7 +378,8 @@ async function executeMultiStatementInTransaction(
  *
  * Uses `db.beginTransaction()` to create a SurrealTransaction, then executes
  * each item sequentially via `txn.query()`. Multi-statement queries (nested
- * create, cascade delete) are split and executed as individual statements.
+ * create, cascade delete) are sent as a single query string to preserve
+ * LET variable scope across statements.
  *
  * Supports function items that receive previous results and can return
  * a CerialQueryPromise (executed in the transaction) or a plain value.
