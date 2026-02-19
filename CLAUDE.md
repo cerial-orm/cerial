@@ -92,6 +92,7 @@ cerial/
 | `src/utils/cerial-geometry.ts`                | `CerialGeometry` hierarchy (7 subtypes) and `CerialGeometryInput` union type                  |
 | `src/utils/cerial-any.ts`                     | `CerialAny` recursive union type                                                              |
 | `src/utils/cerial-set.ts`                     | `CerialSet<T>` branded array type                                                             |
+| `src/client/cerial-transaction.ts`            | `CerialTransaction` class, transaction proxy factory                                          |
 
 ## Architecture
 
@@ -366,8 +367,9 @@ Do NOT use SurrealDB reserved keywords as field names, model names, or object na
 - **Literal types** = Union type for fields, defined with `literal {}`. Variants: string/int/float/bool values, broad types (`String`/`Int`/`Float`/`Bool`/`Date`), object refs, tuple refs, literal refs (composed unions), enum refs. Nesting restriction: objects/tuples inside literals can only contain primitives and simple literals (no deep objectRef/tupleRef/literalRef). Only `?` and `@nullable` honored on object/tuple sub-fields inside literals; other decorators emit a warning. Migration uses inline object syntax `{ field: type }` (not bare `object`). Non-enum literal fields excluded from OrderBy (mixed types make ordering ambiguous). Boolean-only select. Values are atomic — full replacement on update, no partial merge. Filtering uses the union's constituent operators (comparison for numbers, string ops only when all variants are string-compatible)
 - **Enum types** = String-only named constants defined with `enum {}`. Values are bare identifiers. Generates `as const` object (`XEnum`), union type (`XEnumType`), and where type (`XEnumWhere`). Resolves to SurrealDB literal type. Literals can reference enums via literalRef. Enum fields support OrderBy (string ordering) — unlike non-enum literals which are excluded
 - **Parameterized queries** = Values bound via `$varName`, never inlined
-- **CerialQueryPromise** = Thenable returned by model methods. Auto-executes on `await`, collectible by `$transaction`
-- **$transaction** = Atomic batch execution of independent queries with typed tuple results
+- **CerialQueryPromise** = Lazy thenable returned by model methods. Auto-executes on `await`, collectible by `$transaction`. Inside transaction proxies, converted to eager Promises that execute immediately on the transaction connection
+- **$transaction** = Three modes: (1) Array: `client.$transaction([q1, q2, fn])` — items can be CerialQueryPromise OR sync/async functions receiving `prevResults`. Any throw = full rollback. (2) Callback: `client.$transaction(async (tx) => { ... })` — `tx` has model access (`tx.User.create()`). Throw-to-rollback. Supports `{ timeout }` option. (3) Manual: `const txn = await client.$transaction()` — dual access: `txn.User.create()` (model proxy) OR `client.db.User.create({ txn })` (pass as option). `txn.commit()` / `txn.cancel()` for lifecycle. `await using` for automatic cleanup via `Symbol.asyncDispose`
+- **CerialTransaction** = Transaction handle for manual mode. State machine: `active` → `committed` | `cancelled`. Has `commit()`, `cancel()`, `state`, `Symbol.asyncDispose` (auto-cancel on scope exit). Proxy provides model access (`txn.User.create()`). Nesting blocked (`txn.$transaction` throws)
 - **Uuid** = UUID identifier field type. `CerialUuid` wrapper with `.toString()`, `.equals()`, `.toNative()`. Input: `CerialUuidInput = string | CerialUuid | Uuid (SDK)`. Supports comparison operators and OrderBy. Works in objects, tuples, literals
 - **UUID decorators** = `@uuid` (v7 default), `@uuid4`, `@uuid7` for server-side auto-generation (`DEFAULT rand::uuid()`). Field becomes optional in CreateInput. Model + object fields only (NOT tuples). Mutually exclusive with `@default`, `@defaultAlways`, `@createdAt`, `@updatedAt`, `@now`, and each other
 - **Number** = Auto-detect numeric type (`int` or `float`). SurrealDB decides representation based on value. Maps to `number` in TypeScript (same as Int/Float). Distinct SurrealQL type `number` (not aliased to `float`). Supports all numeric comparison operators and OrderBy
@@ -397,7 +399,11 @@ Do NOT use SurrealDB reserved keywords as field names, model names, or object na
 - N:N relations require BOTH sides to define `Record[]` + `Relation[]` for bidirectional sync
 - N:N relations require BOTH sides to define `Record[]` + `Relation[]` for bidirectional sync
 - `CerialQueryPromise` is a thenable (not `instanceof Promise`) — bun's `expect().rejects` requires wrapping: `await expect((async () => { await query; })()).rejects.toThrow()`
-- `$transaction` queries are independent — one query cannot reference another's result
+- `$transaction` array mode items are independent, but function items receive `prevResults` from preceding items. Callback and manual modes share a single transaction connection
+- WebSocket is required for `$transaction` — SDK native transactions only work over WebSocket. If user connects via HTTP, Cerial auto-creates a secondary WS connection. `closeHttp()` drops HTTP, `reopenHttp()` restores it. WS is always kept alive
+- `$transaction` nesting is blocked — accessing `$transaction` on a transaction client throws immediately. SurrealDB has no savepoints
+- Manual mode `txn` must be committed or cancelled — forgetting to call `commit()` or `cancel()` causes "transaction dropped" warnings. Use `await using` for automatic cleanup
+- Transaction conflict retry — Cerial retries transaction conflicts automatically (3 attempts, exponential backoff). Each retry begins a fresh transaction
 - Tuple output is always array form `[1.5, 2.5]` — never object form, even when elements are named
 - Optional tuple fields (`Coordinate?`) produce `field?: Coordinate` (NOT `| null` like primitives) in output, update type includes `| CerialNone` for clearing (same as other optional fields)
 - `@nullable` is not allowed on object/tuple fields — SurrealDB can't define sub-fields on nullable parents. Allowed on tuple elements (and is the ONLY way to make a tuple element nullable — `?` is disallowed on tuple elements because SurrealDB returns null, not NONE/undefined, for absent tuple positions)

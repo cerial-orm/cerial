@@ -16,7 +16,7 @@ A Prisma-like ORM for [SurrealDB](https://surrealdb.com/) with schema-driven cod
 - **Array support** - `String[]`, `Int[]`, `Date[]`, `Record[]`, `ObjectType[]` with query and update operators
 - **Advanced filtering** - Comparison, string, array, logical, nested relation, and object operators
 - **Upsert** - Create-or-update with `upsert` and conditional field logic
-- **Transactions** - Atomic batch execution with `$transaction` and typed tuple results
+- **Transactions** - Three modes: array (batch queries), callback (managed tx with model access), and manual (explicit commit/cancel with `txn` option)
 - **Parameterized queries** - All values bound via variables, safe from injection
 - **Auto migrations** - Schema changes generate SurrealQL `DEFINE TABLE/FIELD/INDEX` statements
 - **Write-once fields** - `@readonly` decorator for immutable fields, enforced at type level and runtime
