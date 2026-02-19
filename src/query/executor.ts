@@ -2,7 +2,7 @@
  * Query executor - executes queries via SurrealDB SDK
  */
 
-import { BoundQuery, type Surreal } from 'surrealdb';
+import { BoundQuery, type Surreal, SurrealTransaction } from 'surrealdb';
 import type { ModelMetadata, ModelRegistry, TransactionOptions } from '../types';
 import { CerialQueryPromise, type QueryResultType } from './cerial-query-promise';
 import type { CompiledQuery } from './compile/types';
@@ -62,13 +62,14 @@ export async function executeQuery<T = unknown>(
   query: CompiledQuery,
   _options: ExecuteOptions = {},
 ): Promise<T[]> {
-  // Strip transaction wrappers from multi-statement queries (nested create, cascade delete)
-  // SDK transactions handle boundaries — inner BEGIN/COMMIT would cause "Cannot BEGIN within transaction"
+  // Strip transaction wrappers only when running inside an SDK transaction
+  // Regular queries need their BEGIN/COMMIT for atomicity (cascade delete, restrict checks)
   let queryText = query.text;
-  if (isMultiStatementQuery(queryText)) {
+  if (db instanceof SurrealTransaction && isMultiStatementQuery(queryText)) {
     queryText = stripTransactionWrapper(queryText);
   }
-  const boundQuery = createBoundQuery({ text: queryText, vars: query.vars });
+  const effectiveQuery = queryText !== query.text ? { text: queryText, vars: query.vars } : query;
+  const boundQuery = createBoundQuery(effectiveQuery);
   const results = await db.query<[T[]]>(boundQuery).collect();
 
   // For simple queries, return first result set
@@ -103,10 +104,11 @@ export async function executeQuerySingle<T = unknown>(
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       let queryText = query.text;
-      if (isMultiStatementQuery(queryText)) {
+      if (db instanceof SurrealTransaction && isMultiStatementQuery(queryText)) {
         queryText = stripTransactionWrapper(queryText);
       }
-      const boundQuery = createBoundQuery({ text: queryText, vars: query.vars });
+      const effectiveQuery = queryText !== query.text ? { text: queryText, vars: query.vars } : query;
+      const boundQuery = createBoundQuery(effectiveQuery);
       const results = await db.query<T[]>(boundQuery).collect();
 
       // For transactions with RETURN at the end, get the last non-null result
