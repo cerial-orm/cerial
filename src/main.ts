@@ -352,6 +352,7 @@ export type {
   TokenType,
   TransactionCallbackFn,
   TransactionClient,
+  TransactionItemResult,
   TransactionOptions,
   TupleElementMetadata,
   TupleFieldMetadata,

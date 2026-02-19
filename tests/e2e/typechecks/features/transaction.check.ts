@@ -5,7 +5,13 @@
  * Run: bun run typecheck
  */
 
-import type { CerialTransaction, TransactionArrayItem, TransactionClient, TransactionOptions } from 'cerial';
+import type {
+  CerialTransaction,
+  TransactionArrayItem,
+  TransactionClient,
+  TransactionItemResult,
+  TransactionOptions,
+} from 'cerial';
 import { Test } from 'ts-toolbelt';
 import type { CerialQueryPromise, Post, User } from '../../generated';
 
@@ -104,9 +110,9 @@ Test.checks([Test.check<Extends<TransactionClient, Record<string, any>>, 1, Test
 
 Test.checks([
   Test.check<Extends<CerialQueryPromise<User>, TransactionArrayItem<User>>, 1, Test.Pass>(),
-  Test.check<Extends<(prev: unknown[]) => CerialQueryPromise<User>, TransactionArrayItem<User>>, 1, Test.Pass>(),
-  Test.check<Extends<(prev: unknown[]) => User, TransactionArrayItem<User>>, 1, Test.Pass>(),
-  Test.check<Extends<(prev: unknown[]) => Promise<User>, TransactionArrayItem<User>>, 1, Test.Pass>(),
+  Test.check<Extends<(prev: any[]) => CerialQueryPromise<User>, TransactionArrayItem<User>>, 1, Test.Pass>(),
+  Test.check<Extends<(prev: any[]) => User, TransactionArrayItem<User>>, 1, Test.Pass>(),
+  Test.check<Extends<(prev: any[]) => Promise<User>, TransactionArrayItem<User>>, 1, Test.Pass>(),
 ]);
 
 // =============================================================================
@@ -123,3 +129,24 @@ Test.checks([Test.check<Extends<CreateWithTxn, { txn?: CerialTransaction }>, 1, 
 type ValidCallback = (tx: TransactionClient) => Promise<User>;
 type CallbackOverload = <R>(fn: (tx: TransactionClient) => Promise<R> | R, options?: TransactionOptions) => Promise<R>;
 Test.checks([Test.check<Extends<ValidCallback, (tx: TransactionClient) => Promise<User> | User>, 1, Test.Pass>()]);
+
+// =============================================================================
+// TransactionItemResult helper — individual type extraction
+// =============================================================================
+
+Test.checks([
+  // CerialQueryPromise<User> → User
+  Test.check<TransactionItemResult<CerialQueryPromise<User>>, User, Test.Pass>(),
+
+  // Function returning CerialQueryPromise<Post> → Post
+  Test.check<TransactionItemResult<(prev: any[]) => CerialQueryPromise<Post>>, Post, Test.Pass>(),
+
+  // Function returning plain string → string
+  Test.check<TransactionItemResult<(prev: any[]) => string>, string, Test.Pass>(),
+
+  // Function returning Promise<number> → number
+  Test.check<TransactionItemResult<(prev: any[]) => Promise<number>>, number, Test.Pass>(),
+
+  // Function returning void → void
+  Test.check<TransactionItemResult<() => void>, void, Test.Pass>(),
+]);

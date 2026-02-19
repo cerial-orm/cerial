@@ -9,7 +9,7 @@ export function generateImports(models: ModelMetadata[]): string {
   const modelImports = models.map((m) => m.name).join(', ');
   const modelTypeImports = models.map((m) => `${m.name}Model`).join(', ');
 
-  return `import { ConnectionManager, CerialQueryPromise, executeClientTransaction, createCerialTransactionProxy, type CerialTransaction, type DatabaseProxy, type ModelRegistry, type BeforeQueryCallback, type PerModelCallbacks, type TransactionItem, type TransactionExecutionItem, type TransactionOptions, type TransactionClient } from 'cerial';
+  return `import { ConnectionManager, CerialQueryPromise, executeClientTransaction, createCerialTransactionProxy, type CerialTransaction, type DatabaseProxy, type ModelRegistry, type BeforeQueryCallback, type PerModelCallbacks, type TransactionItem, type TransactionExecutionItem, type TransactionItemResult, type TransactionOptions, type TransactionClient } from 'cerial';
 import type { ConnectionConfig } from 'cerial';
 import { modelRegistry } from './internal/model-registry';
 import { migrationsByModel, getModelMigrationQuery, getMigrationModelNames, type ModelName } from './internal/migrations';
@@ -26,6 +26,37 @@ export function generateTypedDbInterface(models: ModelMetadata[]): string {
 export interface TypedDb {
 ${modelTypes}
 }`;
+}
+
+/** Generate arity-specific $transaction overloads for array mode */
+function _generateTransactionOverloads(): string {
+  const MAX_ARITY = 6;
+  const overloads: string[] = [];
+
+  for (let n = 1; n <= MAX_ARITY; n++) {
+    const generics: string[] = [];
+    const queryTypes: string[] = [];
+    const resultTypes: string[] = [];
+
+    for (let i = 1; i <= n; i++) {
+      const prevTypes = Array.from({ length: i - 1 }, (_, j) => `TransactionItemResult<T${j + 1}>`).join(', ');
+
+      generics.push(`T${i} extends CerialQueryPromise<any> | ((prev: [${prevTypes}]) => any)`);
+      queryTypes.push(`T${i}`);
+      resultTypes.push(`TransactionItemResult<T${i}>`);
+    }
+
+    overloads.push(
+      `  $transaction<${generics.join(', ')}>(queries: [${queryTypes.join(', ')}]): Promise<[${resultTypes.join(', ')}]>;`,
+    );
+  }
+
+  // Fallback for 7+ items (prev is any[] — can't type across arbitrary positions)
+  overloads.push(
+    `  $transaction<T extends (CerialQueryPromise<any> | ((prev: any[]) => any))[]>(queries: [...T]): Promise<{ [K in keyof T]: TransactionItemResult<T[K]> }>;`,
+  );
+
+  return overloads.join('\n\n');
 }
 
 /** Generate the CerialClient class */
@@ -318,23 +349,19 @@ export class CerialClient {
 
   /**
    * Execute multiple queries in a single transaction (array mode).
-   * All queries are executed atomically — if any query fails, all changes are rolled back.
-   *
-   * @param queries - Array of CerialQueryPromise objects from model methods
-   * @returns Tuple of results matching the input query order
+   * Supports CerialQueryPromise items and function items with typed prev parameter.
+   * Functions receive accumulated results from preceding items with full type inference.
    *
    * @example
    * \`\`\`ts
-   * const [user, posts] = await client.$transaction([
+   * const [user, post] = await client.$transaction([
    *   client.db.User.create({ data: { name: 'Alice', email: 'alice@test.com', isActive: true } }),
-   *   client.db.Post.findMany({ where: { published: true } }),
+   *   (prev) => client.db.Post.create({ data: { title: 'Hello', authorId: prev[0].id } }),
+   *   // prev[0] is User — fully typed, no casting needed
    * ]);
-   * // user: User, posts: Post[]
    * \`\`\`
    */
-  $transaction<T extends (CerialQueryPromise<any> | ((prevResults: unknown[]) => unknown))[]>(
-    queries: [...T],
-  ): Promise<{ [K in keyof T]: T[K] extends CerialQueryPromise<infer R> ? R : unknown }>;
+${_generateTransactionOverloads()}
 
   /**
    * Execute a callback within a managed transaction (callback mode).
@@ -353,10 +380,10 @@ export class CerialClient {
    * });
    * \`\`\`
    */
-  $transaction<R>(
-    fn: (tx: TransactionClient) => Promise<R> | R,
-    options?: TransactionOptions,
-  ): Promise<R>;
+   $transaction<R>(
+     fn: (tx: Omit<TypedDb, '$transaction'>) => Promise<R> | R,
+     options?: TransactionOptions,
+   ): Promise<R>;
 
   /**
    * Begin a manual transaction for explicit commit/cancel control.
@@ -375,12 +402,12 @@ export class CerialClient {
    * }
    * \`\`\`
    */
-  $transaction(): Promise<CerialTransaction>;
+   $transaction(): Promise<CerialTransaction & TypedDb>;
 
-  async $transaction(
-    arg?: (CerialQueryPromise<any> | ((prevResults: unknown[]) => unknown))[] | ((tx: TransactionClient) => unknown),
-    options?: TransactionOptions,
-  ): Promise<unknown> {
+   async $transaction(
+     arg?: (CerialQueryPromise<any> | ((prev: any[]) => any))[] | ((tx: any) => unknown),
+     options?: TransactionOptions,
+   ): Promise<unknown> {
     if (!this._db) throw new Error('Not connected. Call connect() first.');
 
     // Manual mode: no arguments

@@ -1,5 +1,4 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import type { CerialTransaction } from 'cerial';
 import {
   type CerialClient,
   cleanupTables,
@@ -9,8 +8,6 @@ import {
   truncateTables,
   uniqueEmail,
 } from '../../test-helper';
-
-type ManualTxn = CerialTransaction & Record<string, any>;
 
 describe('E2E Transactions: Manual Mode', () => {
   let client: CerialClient;
@@ -30,7 +27,7 @@ describe('E2E Transactions: Manual Mode', () => {
   });
 
   test('proxy: basic commit flow', async () => {
-    const txn = (await client.$transaction()) as ManualTxn;
+    const txn = await client.$transaction();
     const email = uniqueEmail();
 
     await txn.User.create({ data: { email, name: 'Commit Test', isActive: true } });
@@ -42,7 +39,7 @@ describe('E2E Transactions: Manual Mode', () => {
   });
 
   test('proxy: cancel flow — nothing persisted', async () => {
-    const txn = (await client.$transaction()) as ManualTxn;
+    const txn = await client.$transaction();
     const email = uniqueEmail();
 
     await txn.User.create({ data: { email, name: 'Cancel Test', isActive: true } });
@@ -53,7 +50,7 @@ describe('E2E Transactions: Manual Mode', () => {
   });
 
   test('proxy: dependent operations — user then post', async () => {
-    const txn = (await client.$transaction()) as ManualTxn;
+    const txn = await client.$transaction();
     const email = uniqueEmail();
 
     const user = await txn.User.create({ data: { email, name: 'Author', isActive: true } });
@@ -68,7 +65,7 @@ describe('E2E Transactions: Manual Mode', () => {
   });
 
   test('proxy: all CRUD methods — findMany, findOne, create, updateMany, deleteMany, count, exists', async () => {
-    const txn = (await client.$transaction()) as ManualTxn;
+    const txn = await client.$transaction();
     const email1 = uniqueEmail();
     const email2 = uniqueEmail();
 
@@ -77,7 +74,7 @@ describe('E2E Transactions: Manual Mode', () => {
 
     const found = await txn.User.findOne({ where: { email: email1 } });
     expect(found).toBeDefined();
-    expect(found.email).toBe(email1);
+    expect(found!.email).toBe(email1);
 
     const all = await txn.User.findMany();
     expect(all.length).toBe(2);
@@ -87,7 +84,7 @@ describe('E2E Transactions: Manual Mode', () => {
       data: { name: 'Updated A' },
     });
     expect(updated.length).toBe(1);
-    expect(updated[0].name).toBe('Updated A');
+    expect(updated[0]!.name).toBe('Updated A');
 
     const count = await txn.User.count();
     expect(count).toBe(2);
@@ -106,7 +103,7 @@ describe('E2E Transactions: Manual Mode', () => {
   });
 
   test('txn option: basic commit', async () => {
-    const txn = (await client.$transaction()) as ManualTxn;
+    const txn = await client.$transaction();
     const email = uniqueEmail();
 
     await client.db.User.create({ data: { email, name: 'Txn Option', isActive: true }, txn });
@@ -118,7 +115,7 @@ describe('E2E Transactions: Manual Mode', () => {
   });
 
   test('txn option: all methods — findMany, create, updateMany, deleteMany, count, exists', async () => {
-    const txn = (await client.$transaction()) as ManualTxn;
+    const txn = await client.$transaction();
     const email = uniqueEmail();
 
     await client.db.User.create({ data: { email, name: 'Option User', isActive: true }, txn });
@@ -148,7 +145,7 @@ describe('E2E Transactions: Manual Mode', () => {
   });
 
   test('mixed: both patterns in same txn — all committed', async () => {
-    const txn = (await client.$transaction()) as ManualTxn;
+    const txn = await client.$transaction();
     const email1 = uniqueEmail();
     const email2 = uniqueEmail();
 
@@ -161,7 +158,7 @@ describe('E2E Transactions: Manual Mode', () => {
   });
 
   test('mixed: both patterns cancel — both rolled back', async () => {
-    const txn = (await client.$transaction()) as ManualTxn;
+    const txn = await client.$transaction();
 
     await txn.User.create({ data: { email: uniqueEmail(), name: 'Proxy', isActive: true } });
     await client.db.User.create({ data: { email: uniqueEmail(), name: 'Option', isActive: true }, txn });
@@ -172,7 +169,7 @@ describe('E2E Transactions: Manual Mode', () => {
   });
 
   test('edge: use-after-commit throws (proxy pattern)', async () => {
-    const txn = (await client.$transaction()) as ManualTxn;
+    const txn = await client.$transaction();
     await txn.commit();
 
     expect(() => {
@@ -181,7 +178,7 @@ describe('E2E Transactions: Manual Mode', () => {
   });
 
   test('edge: use-after-cancel throws (proxy pattern)', async () => {
-    const txn = (await client.$transaction()) as ManualTxn;
+    const txn = await client.$transaction();
     await txn.cancel();
 
     expect(() => {
@@ -190,7 +187,7 @@ describe('E2E Transactions: Manual Mode', () => {
   });
 
   test('edge: use-after-commit throws (txn option pattern)', async () => {
-    const txn = (await client.$transaction()) as ManualTxn;
+    const txn = await client.$transaction();
     await txn.commit();
 
     await expect(
@@ -204,7 +201,7 @@ describe('E2E Transactions: Manual Mode', () => {
   });
 
   test('edge: isolation — uncommitted data not visible outside txn', async () => {
-    const txn = (await client.$transaction()) as ManualTxn;
+    const txn = await client.$transaction();
     const email = uniqueEmail();
 
     await txn.User.create({ data: { email, name: 'Isolated', isActive: true } });
@@ -220,7 +217,7 @@ describe('E2E Transactions: Manual Mode', () => {
   });
 
   test('edge: nested create with txn option', async () => {
-    const txn = (await client.$transaction()) as ManualTxn;
+    const txn = await client.$transaction();
     const email = uniqueEmail();
 
     await client.db.User.create({
@@ -243,7 +240,7 @@ describe('E2E Transactions: Manual Mode', () => {
   });
 
   test('edge: select with proxy pattern', async () => {
-    const txn = (await client.$transaction()) as ManualTxn;
+    const txn = await client.$transaction();
     const email = uniqueEmail();
 
     const user = await txn.User.create({
@@ -255,11 +252,12 @@ describe('E2E Transactions: Manual Mode', () => {
 
     expect(user.name).toBe('Select Proxy');
     expect(user.email).toBe(email);
+    // @ts-expect-error — isActive not selected, verifying it's absent at runtime
     expect(user.isActive).toBeUndefined();
   });
 
   test('edge: select with txn option pattern', async () => {
-    const txn = (await client.$transaction()) as ManualTxn;
+    const txn = await client.$transaction();
     const email = uniqueEmail();
 
     const user = await client.db.User.create({
@@ -277,7 +275,7 @@ describe('E2E Transactions: Manual Mode', () => {
   });
 
   test('edge: multiple models in same txn', async () => {
-    const txn = (await client.$transaction()) as ManualTxn;
+    const txn = await client.$transaction();
     const email = uniqueEmail();
 
     const user = await txn.User.create({ data: { email, name: 'Multi', isActive: true } });
@@ -294,7 +292,7 @@ describe('E2E Transactions: Manual Mode', () => {
   });
 
   test('edge: state transitions — active → committed', async () => {
-    const txn = (await client.$transaction()) as ManualTxn;
+    const txn = await client.$transaction();
     expect(txn.state).toBe('active');
 
     await txn.commit();
@@ -302,7 +300,7 @@ describe('E2E Transactions: Manual Mode', () => {
   });
 
   test('edge: state transitions — active → cancelled', async () => {
-    const txn = (await client.$transaction()) as ManualTxn;
+    const txn = await client.$transaction();
     expect(txn.state).toBe('active');
 
     await txn.cancel();

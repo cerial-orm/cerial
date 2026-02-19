@@ -97,6 +97,7 @@ export type {
 export type {
   TransactionCallbackFn,
   TransactionClient,
+  TransactionItemResult,
   TransactionOptions,
 } from './transaction.types';
 // Utility types for inference

@@ -29,7 +29,7 @@ const CERIAL_QUERY_SYMBOL = Symbol.for('cerial.query');
  */
 export type TransactionArrayItem<T> =
   | CerialQueryPromise<T>
-  | ((prevResults: unknown[]) => T | CerialQueryPromise<T> | Promise<T> | Promise<CerialQueryPromise<T>>);
+  | ((prev: any[]) => T | CerialQueryPromise<T> | Promise<T> | Promise<CerialQueryPromise<T>>);
 
 /**
  * A thenable query object that auto-executes when awaited but can be

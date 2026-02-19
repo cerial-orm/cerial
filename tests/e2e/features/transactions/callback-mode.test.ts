@@ -142,7 +142,7 @@ describe('E2E Transactions: Callback Mode', () => {
     expect(result.user1.email).toBe(email1);
     expect(result.user2.email).toBe(email2);
     expect(result.updated.length).toBe(1);
-    expect(result.updated[0].name).toBe('Updated User One');
+    expect(result.updated[0]!.name).toBe('Updated User One');
     expect(result.posts.length).toBe(0);
   });
 
@@ -184,7 +184,9 @@ describe('E2E Transactions: Callback Mode', () => {
     expect(user).toBeDefined();
     expect(user.name).toBe('Select Test');
     expect(user.email).toBe(email);
+    // @ts-expect-error — isActive not selected, verifying it's absent at runtime
     expect(user.isActive).toBeUndefined();
+    // @ts-expect-error — createdAt not selected, verifying it's absent at runtime
     expect(user.createdAt).toBeUndefined();
   });
 
@@ -209,6 +211,7 @@ describe('E2E Transactions: Callback Mode', () => {
   test('nesting prevention — $transaction inside callback throws', async () => {
     await expect(
       client.$transaction(async (tx) => {
+        // @ts-expect-error — $transaction is correctly excluded from TypedDb, testing runtime error
         tx.$transaction;
       }),
     ).rejects.toThrow('Nested transactions are not supported');
