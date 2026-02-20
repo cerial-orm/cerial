@@ -1,5 +1,5 @@
-export type { Command } from './commands';
 export { generateCommand, initCommand } from './commands';
+export { parseArgs, printHelp } from './compat';
 export type {
   CerialConfig,
   ConfigValidationError,
@@ -19,7 +19,6 @@ export {
 } from './config';
 export type { GenerateResult, MultiGenerateResult, MultiSchemaOptions, SingleSchemaOptions } from './generate';
 export { generate, generateMultiSchema, generateSingleSchema } from './generate';
-export { parseArgs, printHelp } from './parser';
 export type { DiscoveredSchema, SchemaResolveOptions, SchemaRoot } from './resolvers';
 export {
   CONVENTION_MARKERS,

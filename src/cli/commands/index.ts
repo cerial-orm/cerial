@@ -11,4 +11,3 @@ export {
   initCommand,
   toRelativePath,
 } from './init';
-export type { Command } from './types';

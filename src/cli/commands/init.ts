@@ -1,9 +1,8 @@
 import { existsSync, lstatSync } from 'node:fs';
 import { basename, relative, resolve } from 'node:path';
 import { createInterface } from 'node:readline';
-import { parseArgs } from '../parser';
+import { defineCommand } from 'citty';
 import { findSchemaRoots, findSchemasInDir } from '../resolvers/schema-resolver';
-import type { Command } from './types';
 
 export type ConfigFormat = 'typescript' | 'json';
 
@@ -201,14 +200,21 @@ export function getConfigFilename(format: ConfigFormat): string {
   return format === 'json' ? 'cerial.config.json' : 'cerial.config.ts';
 }
 
-export const initCommand: Command = {
-  name: 'init',
-  aliases: [],
-  description: 'Initialize a cerial config file',
-  async run(args) {
-    const options = parseArgs(args);
+export const initCommand = defineCommand({
+  meta: {
+    name: 'init',
+    description: 'Initialize a cerial config file',
+  },
+  args: {
+    yes: {
+      type: 'boolean',
+      alias: 'y',
+      description: 'Accept all defaults, skip interactive prompts',
+    },
+  },
+  async run({ args }) {
     const cwd = process.cwd();
-    const autoAccept = options.yes ?? false;
+    const autoAccept = args.yes ?? false;
 
     const existing = findExistingConfig(cwd);
     if (existing) {
@@ -278,4 +284,4 @@ export const initCommand: Command = {
 
     process.exit(0);
   },
-};
+});

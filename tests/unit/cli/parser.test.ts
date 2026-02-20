@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test';
-import { parseArgs } from '../../../src/cli/parser';
+import { parseArgs } from '../../../src/cli/compat';
 
 describe('parseArgs', () => {
   describe('existing flags (regression)', () => {

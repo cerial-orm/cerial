@@ -1,15 +1,15 @@
 import { basename, resolve } from 'node:path';
+import { defineCommand } from 'citty';
 import { detectNestedSchemaRoots, loadConfig, resolveConfig } from '../config';
 import type { FilterConfig } from '../filters';
 import { loadCerialIgnore, resolvePathFilter } from '../filters';
 import { applyFolderOverridesAndDiscover, generate } from '../generate';
-import { parseArgs } from '../parser';
 import { findSchemaRoots } from '../resolvers';
+import type { CLIOptions, LogOutputLevel } from '../validators';
 import type { WatchTarget } from '../watcher';
 import { startWatcher } from '../watcher';
-import type { Command } from './types';
 
-async function buildWatchTargets(options: ReturnType<typeof parseArgs>): Promise<WatchTarget[]> {
+async function buildWatchTargets(options: CLIOptions): Promise<WatchTarget[]> {
   const cwd = process.cwd();
 
   // -s flag path: load root .cerialignore
@@ -128,12 +128,78 @@ async function buildWatchTargets(options: ReturnType<typeof parseArgs>): Promise
   ];
 }
 
-export const generateCommand: Command = {
-  name: 'generate',
-  aliases: ['-g'],
-  description: 'Generate TypeScript client from schema files',
-  async run(args) {
-    const options = parseArgs(args);
+export const generateCommand = defineCommand({
+  meta: {
+    name: 'generate',
+    description: 'Generate TypeScript client from schema files',
+  },
+  args: {
+    schema: {
+      type: 'string',
+      alias: 's',
+      description: 'Path to schema file or directory',
+    },
+    output: {
+      type: 'string',
+      alias: 'o',
+      description: 'Output directory for generated files',
+    },
+    name: {
+      type: 'string',
+      alias: 'n',
+      description: 'Generate only a specific schema by name',
+    },
+    config: {
+      type: 'string',
+      alias: 'C',
+      description: 'Path to config file',
+    },
+    clean: {
+      type: 'boolean',
+      alias: 'c',
+      description: 'Delete entire output directory before generating',
+    },
+    watch: {
+      type: 'boolean',
+      alias: 'w',
+      description: 'Watch for schema changes and regenerate',
+    },
+    verbose: {
+      type: 'boolean',
+      alias: 'v',
+      description: 'Verbose output',
+    },
+    log: {
+      type: 'string',
+      alias: 'l',
+      default: 'minimal',
+      description: 'Log output level: minimal, medium, full',
+    },
+    yes: {
+      type: 'boolean',
+      alias: 'y',
+      description: 'Accept all defaults, skip interactive prompts',
+    },
+  },
+  async run({ args }) {
+    const logLevel = args.log;
+    if (!['minimal', 'medium', 'full'].includes(logLevel)) {
+      console.error(`Invalid log level: ${logLevel}. Use minimal, medium, or full.`);
+      process.exit(1);
+    }
+
+    const options: CLIOptions = {
+      schema: args.schema,
+      output: args.output,
+      name: args.name,
+      config: args.config,
+      clean: args.clean,
+      watch: args.watch,
+      verbose: args.verbose,
+      log: logLevel as LogOutputLevel,
+      yes: args.yes,
+    };
+
     const result = await generate(options);
 
     if (!result.success) {
@@ -146,4 +212,4 @@ export const generateCommand: Command = {
       await startWatcher(targets);
     }
   },
-};
+});

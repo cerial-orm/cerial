@@ -1,10 +1,13 @@
 /**
- * CLI argument parser
+ * Backward-compatible CLI wrappers
+ *
+ * These functions maintain the public API surface from src/main.ts
+ * while the internal CLI has migrated to citty.
  */
 
 import type { CLIOptions, LogOutputLevel } from './validators';
 
-/** Parse CLI arguments */
+/** Parse CLI arguments into CLIOptions (backward-compatible wrapper) */
 export function parseArgs(args: string[]): CLIOptions {
   const options: CLIOptions = {};
 
@@ -57,22 +60,11 @@ export function parseArgs(args: string[]): CLIOptions {
         const level = args[++i] as LogOutputLevel;
         if (level === 'minimal' || level === 'medium' || level === 'full') {
           options.log = level;
-        } else {
-          console.error(`Invalid log level: ${level}. Use minimal, medium, or full.`);
-          process.exit(1);
         }
         break;
       }
 
-      case '-h':
-      case '--help': {
-        printHelp();
-        process.exit(0);
-        break;
-      }
-
       default:
-        // If no flag, treat as schema path
         if (!arg?.startsWith('-') && !options.schema) {
           options.schema = arg;
         }
@@ -82,6 +74,7 @@ export function parseArgs(args: string[]): CLIOptions {
   return options;
 }
 
+/** Print CLI help (backward-compatible wrapper) */
 export function printHelp(): void {
   console.log(`
 cerial - A Prisma-like ORM for SurrealDB
@@ -93,26 +86,6 @@ Commands:
   generate, -g          Generate TypeScript client from schema files
   init                  Initialize a cerial config file
 
-Options:
-  -s, --schema <path>   Path to schema file or directory (default: ./schemas)
-  -o, --output <path>   Output directory for generated files (required)
-  -n, --name <name>     Client class name (default: CerialClient)
-  -C, --config <path>   Path to config file
-  -c, --clean           Delete entire output directory before generating
-  -w, --watch           Watch for schema changes and regenerate
-  -v, --verbose         Verbose output
-  -y, --yes             Accept all defaults, skip interactive prompts
-  -l, --log <level>     Log output level: minimal (default), medium, full
-  -h, --help            Show this help message
-
-By default, stale files from previous generations are automatically removed
-after generating. Use --clean to wipe the entire output directory first.
-
-Examples:
-  cerial generate -o ./db-client
-  cerial generate -s ./schemas -o ./db-client
-  cerial generate -s ./schemas -o ./db-client --clean
-  cerial generate -C ./cerial.config.ts
-  cerial init
+Run 'cerial <command> --help' for command-specific options.
 `);
 }

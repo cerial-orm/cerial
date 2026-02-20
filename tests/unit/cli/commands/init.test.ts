@@ -425,21 +425,21 @@ describe('init command', () => {
 
   describe('parser -y/--yes flag', () => {
     it('should parse -y flag', async () => {
-      const { parseArgs } = await import('../../../../src/cli/parser');
+      const { parseArgs } = await import('../../../../src/cli/compat');
       const result = parseArgs(['-y']);
 
       expect(result.yes).toBe(true);
     });
 
     it('should parse --yes flag', async () => {
-      const { parseArgs } = await import('../../../../src/cli/parser');
+      const { parseArgs } = await import('../../../../src/cli/compat');
       const result = parseArgs(['--yes']);
 
       expect(result.yes).toBe(true);
     });
 
     it('should parse -y with other flags', async () => {
-      const { parseArgs } = await import('../../../../src/cli/parser');
+      const { parseArgs } = await import('../../../../src/cli/compat');
       const result = parseArgs(['-y', '-s', './schemas', '-o', './out']);
 
       expect(result.yes).toBe(true);
@@ -448,7 +448,7 @@ describe('init command', () => {
     });
 
     it('should default to undefined when not provided', async () => {
-      const { parseArgs } = await import('../../../../src/cli/parser');
+      const { parseArgs } = await import('../../../../src/cli/compat');
       const result = parseArgs([]);
 
       expect(result.yes).toBeUndefined();
