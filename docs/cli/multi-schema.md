@@ -255,8 +255,38 @@ The file can contain model definitions or be empty. Its presence marks the direc
 
 ---
 
+## Per-Schema Filtering
+
+Each schema entry supports `ignore`, `exclude`, and `include` patterns for controlling which `.cerial` files are processed. You can also place a `.cerialignore` file inside a schema folder for folder-scoped exclusions.
+
+```typescript
+import { defineConfig } from 'cerial';
+
+export default defineConfig({
+  schemas: {
+    auth: {
+      path: './schemas/auth',
+      exclude: ['**/*.draft.cerial'],
+    },
+    cms: {
+      path: './schemas/cms',
+      exclude: ['deprecated/**'],
+      include: ['deprecated/still-active.cerial'],
+    },
+  },
+  ignore: ['**/internal-only/**'],
+});
+```
+
+Root-level filter fields apply across all schemas. Per-schema fields layer on top. Folder-level configs (placed inside schema directories) also support the same filter fields.
+
+For the full filtering reference, cascade priority, and gotchas, see [Path Filtering](./filtering).
+
+---
+
 ## Next Steps
 
 - [**Configuration**](./configuration) - Full config file reference
+- [**Path Filtering**](./filtering) - Control which `.cerial` files are processed
 - [**init**](./init) - Auto-generate a config with `cerial init`
 - [**generate**](./generate) - CLI flags for generation

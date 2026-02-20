@@ -4,6 +4,7 @@
  */
 
 import { type FSWatcher, watch } from 'node:fs';
+import type { PathFilter } from './filters/types';
 import { generateSingleSchema } from './generate';
 
 /** Watch target for a single schema */
@@ -12,6 +13,7 @@ export interface WatchTarget {
   schemaPath: string;
   outputDir: string;
   clientClassName?: string;
+  filter?: PathFilter;
 }
 
 export const DEBOUNCE_MS = 300;
@@ -20,6 +22,28 @@ export function isCerialFile(filename: string | null): boolean {
   if (!filename) return false;
 
   return filename.endsWith('.cerial');
+}
+
+export function isCerialIgnoreFile(filename: string | null): boolean {
+  if (!filename) return false;
+
+  return filename.endsWith('.cerialignore');
+}
+
+export function shouldTriggerRegeneration(filename: string | null, filter?: PathFilter): boolean {
+  if (!filename) return false;
+
+  // .cerialignore changes always trigger (filter re-resolution needed)
+  if (isCerialIgnoreFile(filename)) return true;
+
+  // Must be a .cerial file
+  if (!isCerialFile(filename)) return false;
+
+  // If no filter, all .cerial files trigger
+  if (!filter) return true;
+
+  // Check filter — normalize Windows backslashes before checking
+  return filter.shouldInclude(filename.replace(/\\/g, '/'));
 }
 
 export function getSchemaLabel(target: WatchTarget): string {
@@ -116,7 +140,7 @@ export async function startWatcher(schemas: WatchTarget[]): Promise<void> {
   for (const target of schemas) {
     try {
       const watcher = watch(target.schemaPath, { recursive: true }, (_event, filename) => {
-        if (!isCerialFile(filename)) return;
+        if (!shouldTriggerRegeneration(filename, target.filter)) return;
 
         debouncer.schedule(target.schemaPath, () => {
           void regenerateSchema(target, filename!);

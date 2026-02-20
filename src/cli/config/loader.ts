@@ -4,6 +4,8 @@
 
 import { dirname, resolve } from 'node:path';
 import { Glob } from 'bun';
+import { toFilterPath } from '../filters/path-utils';
+import type { PathFilter } from '../filters/types';
 import type { CerialConfig, FolderConfig } from './types';
 import { detectNestedConfigs, validateConfig, validateFolderConfig } from './validator';
 
@@ -119,7 +121,10 @@ export async function loadFolderConfig(dir: string): Promise<FolderConfig | null
   return raw as FolderConfig;
 }
 
-export async function findFolderConfigs(cwd: string): Promise<Array<{ dir: string; config: FolderConfig }>> {
+export async function findFolderConfigs(
+  cwd: string,
+  filter?: PathFilter,
+): Promise<Array<{ dir: string; config: FolderConfig }>> {
   const results: Array<{ dir: string; config: FolderConfig }> = [];
   const configDirs: string[] = [];
 
@@ -144,8 +149,19 @@ export async function findFolderConfigs(cwd: string): Promise<Array<{ dir: strin
   const uniqueDirs = [...new Set(configDirs)];
   if (!uniqueDirs.length) return [];
 
+  // Apply path filter to exclude directories
+  // Use synthetic child path so patterns like 'dir/**' match correctly
+  const filteredDirs = filter
+    ? uniqueDirs.filter((dir) => {
+        const relative = toFilterPath(dir, cwd);
+
+        return !relative || filter.shouldInclude(`${relative}/_`);
+      })
+    : uniqueDirs;
+  if (!filteredDirs.length) return [];
+
   // Load configs, filtering out root-style configs (those with schema/schemas keys)
-  for (const dir of uniqueDirs) {
+  for (const dir of filteredDirs) {
     try {
       const config = await loadFolderConfig(dir);
       if (config) results.push({ dir, config });

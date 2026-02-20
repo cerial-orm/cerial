@@ -2,6 +2,7 @@ export type { DiscoveredSchema, SchemaResolveOptions, SchemaRoot } from './schem
 export {
   CONVENTION_MARKERS,
   discoverSchemas,
+  findFilteredSchemasInDir,
   findSchemaRoots,
   findSchemasInDir,
   resolveSchemas,

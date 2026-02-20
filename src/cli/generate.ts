@@ -31,7 +31,7 @@ import type {
   ObjectRegistry,
   TupleRegistry,
 } from '../types';
-import type { ResolvedSchemaEntry } from './config';
+import type { CerialConfig, ResolvedSchemaEntry } from './config';
 import {
   detectConfigsInsideRootPaths,
   detectNestedSchemaRoots,
@@ -42,6 +42,8 @@ import {
   toClientClassName,
   validateCombinedEntries,
 } from './config';
+import type { FilterConfig, PathFilter } from './filters';
+import { loadCerialIgnore, resolvePathFilter } from './filters';
 import { findSchemaRoots, resolveSchemas, resolveSinglePath } from './resolvers';
 import { logger } from './utils';
 import type { CLIOptions, LogOutputLevel } from './validators';
@@ -62,6 +64,7 @@ export interface SingleSchemaOptions {
   verbose?: boolean;
   clean?: boolean;
   clientClassName?: string;
+  filter?: PathFilter;
 }
 
 /** Options for generating multiple schemas */
@@ -227,8 +230,8 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
     logger.progress('Finding schema files...');
 
     const schemaFiles: string[] = options.schemaPath
-      ? await resolveSinglePath(options.schemaPath)
-      : await resolveSchemas();
+      ? await resolveSinglePath(options.schemaPath, process.cwd(), options.filter)
+      : await resolveSchemas({ filter: options.filter });
 
     if (!schemaFiles.length) {
       result.errors.push('No schema files found');
@@ -471,6 +474,7 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
 export async function generateMultiSchema(
   entries: ResolvedSchemaEntry[],
   options: MultiSchemaOptions,
+  filters?: Map<string, PathFilter>,
 ): Promise<MultiGenerateResult> {
   const result: MultiGenerateResult = { success: true, results: {}, errors: [] };
 
@@ -485,6 +489,7 @@ export async function generateMultiSchema(
       logLevel: options.logLevel,
       verbose: options.verbose,
       clean: options.clean,
+      filter: filters?.get(entry.name),
     });
 
     result.results[entry.name] = singleResult;
@@ -501,6 +506,7 @@ export async function generateMultiSchema(
 export async function applyFolderOverridesAndDiscover(
   entries: ResolvedSchemaEntry[],
   cwd: string,
+  filter?: PathFilter,
 ): Promise<ResolvedSchemaEntry[]> {
   const mergedEntries: ResolvedSchemaEntry[] = [];
   for (const entry of entries) {
@@ -521,7 +527,7 @@ export async function applyFolderOverridesAndDiscover(
     cwd,
   );
 
-  const allFolderConfigs = await findFolderConfigs(cwd);
+  const allFolderConfigs = await findFolderConfigs(cwd, filter);
   const rootPaths = mergedEntries.map((e) => resolve(e.path));
   const discovered = allFolderConfigs.filter(({ dir }) => {
     const resolvedDir = resolve(dir);
@@ -548,7 +554,7 @@ export async function applyFolderOverridesAndDiscover(
   }
 
   // Discover convention markers
-  const schemaRoots = await findSchemaRoots(cwd);
+  const schemaRoots = await findSchemaRoots(cwd, filter);
 
   // Filter out markers at/inside root paths (root config covers them)
   const discoveredMarkers = schemaRoots.filter(({ path: markerPath }) => {
@@ -604,6 +610,101 @@ export async function applyFolderOverridesAndDiscover(
   return [...mergedEntries, ...allDiscoveredEntries];
 }
 
+/**
+ * Build a root-only filter from .cerialignore at cwd.
+ * Used by paths that have no config file (folder discovery, convention markers, legacy, -s flag).
+ */
+async function buildRootFilter(cwd: string): Promise<PathFilter | undefined> {
+  const rootCerialIgnore = (await loadCerialIgnore(cwd)) ?? undefined;
+  if (!rootCerialIgnore) return undefined;
+
+  return resolvePathFilter({ rootCerialIgnore, basePath: cwd });
+}
+
+/**
+ * Build a filter from root config + root .cerialignore.
+ * Used by the config path for discovery-level filtering.
+ */
+async function buildConfigRootFilter(
+  config: CerialConfig,
+  cwd: string,
+): Promise<{
+  filter: PathFilter | undefined;
+  rootFilterConfig: FilterConfig;
+  rootCerialIgnore: import('./filters').CerialIgnoreFile | undefined;
+}> {
+  const rootCerialIgnore = (await loadCerialIgnore(cwd)) ?? undefined;
+  const rootFilterConfig: FilterConfig = {
+    ignore: config.ignore,
+    exclude: config.exclude,
+    include: config.include,
+  };
+
+  const hasRootFilter = rootCerialIgnore || config.ignore?.length || config.exclude?.length;
+  if (!hasRootFilter) return { filter: undefined, rootFilterConfig, rootCerialIgnore };
+
+  const filter = resolvePathFilter({
+    rootConfig: rootFilterConfig,
+    rootCerialIgnore,
+    basePath: cwd,
+  });
+
+  return { filter, rootFilterConfig, rootCerialIgnore };
+}
+
+/**
+ * Build per-schema filters for config-based generation.
+ * Each schema entry gets its own cascading filter combining root + schema + folder .cerialignore layers.
+ */
+async function buildSchemaFilters(
+  config: CerialConfig,
+  entries: ResolvedSchemaEntry[],
+  rootFilterConfig: FilterConfig,
+  rootCerialIgnore: import('./filters').CerialIgnoreFile | undefined,
+  cwd: string,
+): Promise<Map<string, PathFilter>> {
+  const filters = new Map<string, PathFilter>();
+
+  if (config.schemas) {
+    for (const entry of entries) {
+      const schemaEntry = config.schemas[entry.name];
+      const schemaFilterConfig: FilterConfig | undefined = schemaEntry
+        ? { ignore: schemaEntry.ignore, exclude: schemaEntry.exclude, include: schemaEntry.include }
+        : undefined;
+
+      const folderCerialIgnore = (await loadCerialIgnore(entry.path)) ?? undefined;
+
+      const filter = resolvePathFilter({
+        rootConfig: rootFilterConfig,
+        schemaConfig: schemaFilterConfig,
+        rootCerialIgnore,
+        folderCerialIgnore,
+        basePath: cwd,
+        schemaPath: entry.path,
+      });
+
+      filters.set(entry.name, filter);
+    }
+  } else {
+    // Single schema config (config.schema) — just root + folder cerialignore
+    for (const entry of entries) {
+      const folderCerialIgnore = (await loadCerialIgnore(entry.path)) ?? undefined;
+
+      const filter = resolvePathFilter({
+        rootConfig: rootFilterConfig,
+        rootCerialIgnore,
+        folderCerialIgnore,
+        basePath: cwd,
+        schemaPath: entry.path,
+      });
+
+      filters.set(entry.name, filter);
+    }
+  }
+
+  return filters;
+}
+
 /** Run the generate command */
 export async function generate(options: CLIOptions): Promise<GenerateResult> {
   const result: GenerateResult = {
@@ -611,6 +712,8 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
     files: [],
     errors: [],
   };
+
+  const cwd = process.cwd();
 
   // -s flag → single schema mode (backward compat, ignore config)
   if (options.schema) {
@@ -621,12 +724,15 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
       return result;
     }
 
+    const rootFilter = await buildRootFilter(cwd);
+
     return generateSingleSchema({
       schemaPath: options.schema,
       outputDir: options.output!,
       logLevel: options.log,
       verbose: options.verbose,
       clean: options.clean,
+      filter: rootFilter,
     });
   }
 
@@ -634,8 +740,10 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
   try {
     const config = await loadConfig(options.config);
     if (config) {
+      const { filter: rootFilter, rootFilterConfig, rootCerialIgnore } = await buildConfigRootFilter(config, cwd);
+
       const entries = resolveConfig(config);
-      const allEntries = await applyFolderOverridesAndDiscover(entries, process.cwd());
+      const allEntries = await applyFolderOverridesAndDiscover(entries, cwd, rootFilter);
 
       let targetEntries = allEntries;
       if (options.name) {
@@ -657,11 +765,17 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
       const logLevel = options.log ?? 'minimal';
       logger.setOutputLevel(logLevel);
 
-      const multiResult = await generateMultiSchema(targetEntries, {
-        logLevel: options.log,
-        verbose: options.verbose,
-        clean: options.clean,
-      });
+      const filters = await buildSchemaFilters(config, targetEntries, rootFilterConfig, rootCerialIgnore, cwd);
+
+      const multiResult = await generateMultiSchema(
+        targetEntries,
+        {
+          logLevel: options.log,
+          verbose: options.verbose,
+          clean: options.clean,
+        },
+        filters,
+      );
 
       const allFiles = Object.values(multiResult.results).flatMap((r) => r.files);
 
@@ -676,15 +790,33 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
 
   // No config, no -s → try folder config discovery, then legacy mode
   try {
-    const folderConfigs = await findFolderConfigs(process.cwd());
+    const rootFilter = await buildRootFilter(cwd);
+    const folderConfigs = await findFolderConfigs(cwd, rootFilter);
 
     if (folderConfigs.length) {
       const logLevel = options.log ?? 'minimal';
       logger.setOutputLevel(logLevel);
 
+      const rootCerialIgnore = (await loadCerialIgnore(cwd)) ?? undefined;
+
       if (folderConfigs.length === 1) {
-        const { dir, config } = folderConfigs[0]!;
-        const outputDir = options.output ?? (config.output ? resolve(dir, config.output) : resolve(dir, 'client'));
+        const { dir, config: folderCfg } = folderConfigs[0]!;
+        const outputDir =
+          options.output ?? (folderCfg.output ? resolve(dir, folderCfg.output) : resolve(dir, 'client'));
+        const folderCerialIgnore = (await loadCerialIgnore(dir)) ?? undefined;
+        const folderFilterConfig: FilterConfig = {
+          ignore: folderCfg.ignore,
+          exclude: folderCfg.exclude,
+          include: folderCfg.include,
+        };
+
+        const filter = resolvePathFilter({
+          rootCerialIgnore,
+          folderConfig: folderFilterConfig,
+          folderCerialIgnore,
+          basePath: cwd,
+          schemaPath: dir,
+        });
 
         return generateSingleSchema({
           schemaPath: dir,
@@ -692,12 +824,13 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
           logLevel: options.log,
           verbose: options.verbose,
           clean: options.clean,
+          filter,
         });
       }
 
-      const entries: ResolvedSchemaEntry[] = folderConfigs.map(({ dir, config }) => {
+      const entries: ResolvedSchemaEntry[] = folderConfigs.map(({ dir, config: folderCfg }) => {
         const name = basename(dir);
-        const output = options.output ?? (config.output ? resolve(dir, config.output) : resolve(dir, 'client'));
+        const output = options.output ?? (folderCfg.output ? resolve(dir, folderCfg.output) : resolve(dir, 'client'));
 
         return {
           name,
@@ -707,11 +840,35 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
         };
       });
 
-      const multiResult = await generateMultiSchema(entries, {
-        logLevel: options.log,
-        verbose: options.verbose,
-        clean: options.clean,
-      });
+      const filters = new Map<string, PathFilter>();
+      for (const { dir, config: folderCfg } of folderConfigs) {
+        const name = basename(dir);
+        const folderCerialIgnore = (await loadCerialIgnore(dir)) ?? undefined;
+        const folderFilterConfig: FilterConfig = {
+          ignore: folderCfg.ignore,
+          exclude: folderCfg.exclude,
+          include: folderCfg.include,
+        };
+
+        const filter = resolvePathFilter({
+          rootCerialIgnore,
+          folderConfig: folderFilterConfig,
+          folderCerialIgnore,
+          basePath: cwd,
+          schemaPath: dir,
+        });
+        filters.set(name, filter);
+      }
+
+      const multiResult = await generateMultiSchema(
+        entries,
+        {
+          logLevel: options.log,
+          verbose: options.verbose,
+          clean: options.clean,
+        },
+        filters,
+      );
 
       const allFiles = Object.values(multiResult.results).flatMap((r) => r.files);
 
@@ -726,11 +883,14 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
 
   // No folder configs → try convention marker discovery
   try {
-    const schemaRoots = await findSchemaRoots(process.cwd());
+    const markerRootFilter = await buildRootFilter(cwd);
+    const schemaRoots = await findSchemaRoots(cwd, markerRootFilter);
 
     if (schemaRoots.length) {
       const logLevel = options.log ?? 'minimal';
       logger.setOutputLevel(logLevel);
+
+      const rootCerialIgnore = (await loadCerialIgnore(cwd)) ?? undefined;
 
       // Check for marker-to-marker nesting
       const typedRoots = schemaRoots.map(({ path: mp }) => ({
@@ -743,6 +903,14 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
       if (validRoots.length === 1) {
         const root = validRoots[0]!;
         const outputDir = options.output ?? resolve(root.path, 'client');
+        const folderCerialIgnore = (await loadCerialIgnore(root.path)) ?? undefined;
+
+        const filter = resolvePathFilter({
+          rootCerialIgnore,
+          folderCerialIgnore,
+          basePath: cwd,
+          schemaPath: root.path,
+        });
 
         return generateSingleSchema({
           schemaPath: root.path,
@@ -750,6 +918,7 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
           logLevel: options.log,
           verbose: options.verbose,
           clean: options.clean,
+          filter,
         });
       }
 
@@ -769,11 +938,29 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
         // Check for duplicate names/outputs among discovered markers
         validateCombinedEntries([], entries);
 
-        const multiResult = await generateMultiSchema(entries, {
-          logLevel: options.log,
-          verbose: options.verbose,
-          clean: options.clean,
-        });
+        const filters = new Map<string, PathFilter>();
+        for (const root of validRoots) {
+          const name = basename(root.path);
+          const folderCerialIgnore = (await loadCerialIgnore(root.path)) ?? undefined;
+
+          const filter = resolvePathFilter({
+            rootCerialIgnore,
+            folderCerialIgnore,
+            basePath: cwd,
+            schemaPath: root.path,
+          });
+          filters.set(name, filter);
+        }
+
+        const multiResult = await generateMultiSchema(
+          entries,
+          {
+            logLevel: options.log,
+            verbose: options.verbose,
+            clean: options.clean,
+          },
+          filters,
+        );
 
         const allFiles = Object.values(multiResult.results).flatMap((r) => r.files);
 
@@ -795,10 +982,13 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
     return result;
   }
 
+  const legacyFilter = await buildRootFilter(cwd);
+
   return generateSingleSchema({
     outputDir: options.output!,
     logLevel: options.log,
     verbose: options.verbose,
     clean: options.clean,
+    filter: legacyFilter,
   });
 }

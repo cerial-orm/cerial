@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test';
-import { resolve } from 'node:path';
+import { basename, resolve } from 'node:path';
 import {
   CONVENTION_MARKERS,
   discoverSchemas,
@@ -54,8 +54,8 @@ describe('findSchemaRoots', () => {
     it('should detect different marker types across roots', async () => {
       const roots = await findSchemaRoots(resolve(FIXTURES, 'multi-marker'));
 
-      const authRoot = roots.find((r: SchemaRoot) => r.path.endsWith('/auth'));
-      const cmsRoot = roots.find((r: SchemaRoot) => r.path.endsWith('/cms'));
+      const authRoot = roots.find((r: SchemaRoot) => basename(r.path) === 'auth');
+      const cmsRoot = roots.find((r: SchemaRoot) => basename(r.path) === 'cms');
 
       expect(authRoot).toBeDefined();
       expect(authRoot!.marker).toBe('schema.cerial');
@@ -67,10 +67,10 @@ describe('findSchemaRoots', () => {
     it('should collect all .cerial files per root', async () => {
       const roots = await findSchemaRoots(resolve(FIXTURES, 'multi-marker'));
 
-      const authRoot = roots.find((r: SchemaRoot) => r.path.endsWith('/auth'));
+      const authRoot = roots.find((r: SchemaRoot) => basename(r.path) === 'auth');
       expect(authRoot!.files).toHaveLength(2);
 
-      const cmsRoot = roots.find((r: SchemaRoot) => r.path.endsWith('/cms'));
+      const cmsRoot = roots.find((r: SchemaRoot) => basename(r.path) === 'cms');
       expect(cmsRoot!.files).toHaveLength(2);
     });
   });

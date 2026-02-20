@@ -32,6 +32,47 @@ function pathsOverlap(path1: string, path2: string): boolean {
   return p1.startsWith(p2) || p2.startsWith(p1);
 }
 
+function validateFilterPatterns(fieldName: string, patterns: unknown): ConfigValidationError[] {
+  const errors: ConfigValidationError[] = [];
+
+  if (!Array.isArray(patterns)) {
+    errors.push({
+      field: fieldName,
+      message: `'${fieldName}' must be an array of strings`,
+    });
+
+    return errors;
+  }
+
+  for (const item of patterns) {
+    if (typeof item !== 'string') {
+      errors.push({
+        field: fieldName,
+        message: `'${fieldName}' items must be strings`,
+      });
+      break;
+    }
+
+    if (item === '') {
+      errors.push({
+        field: fieldName,
+        message: `'${fieldName}' must not contain empty strings`,
+      });
+      break;
+    }
+
+    if (item.startsWith('../') || item.includes('/../')) {
+      errors.push({
+        field: fieldName,
+        message: `'${fieldName}' must not contain path escapes ('../')`,
+      });
+      break;
+    }
+  }
+
+  return errors;
+}
+
 export function validateFolderConfig(config: Record<string, unknown>): ConfigValidationResult {
   const errors: ConfigValidationError[] = [];
 
@@ -82,6 +123,18 @@ export function validateFolderConfig(config: Record<string, unknown>): ConfigVal
     }
   }
 
+  if ('ignore' in config) {
+    errors.push(...validateFilterPatterns('ignore', config.ignore));
+  }
+
+  if ('exclude' in config) {
+    errors.push(...validateFilterPatterns('exclude', config.exclude));
+  }
+
+  if ('include' in config) {
+    errors.push(...validateFilterPatterns('include', config.include));
+  }
+
   return { valid: errors.length === 0, errors };
 }
 
@@ -114,6 +167,19 @@ export function validateConfig(config: CerialConfig): ConfigValidationResult {
     });
 
     return { valid: false, errors };
+  }
+
+  // Validate root-level filter fields
+  if (config.ignore) {
+    errors.push(...validateFilterPatterns('ignore', config.ignore));
+  }
+
+  if (config.exclude) {
+    errors.push(...validateFilterPatterns('exclude', config.exclude));
+  }
+
+  if (config.include) {
+    errors.push(...validateFilterPatterns('include', config.include));
   }
 
   if (config.schemas) {
@@ -166,6 +232,19 @@ export function validateConfig(config: CerialConfig): ConfigValidationResult {
         });
       } else {
         outputPaths.add(outputPath);
+      }
+
+      // Validate per-schema filter fields
+      if (entry.ignore) {
+        errors.push(...validateFilterPatterns(`schemas.${name}.ignore`, entry.ignore));
+      }
+
+      if (entry.exclude) {
+        errors.push(...validateFilterPatterns(`schemas.${name}.exclude`, entry.exclude));
+      }
+
+      if (entry.include) {
+        errors.push(...validateFilterPatterns(`schemas.${name}.include`, entry.include));
       }
     }
 

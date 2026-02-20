@@ -58,11 +58,16 @@ export default defineConfig({
 });
 ```
 
-| Field        | Type     | Description                              |
-| ------------ | -------- | ---------------------------------------- |
-| `schema`     | `string` | Path to schema file or directory         |
-| `output`     | `string` | Output directory for the generated client |
-| `connection`  | `object` | Optional connection config                |
+| Field        | Type       | Description                              |
+| ------------ | ---------- | ---------------------------------------- |
+| `schema`     | `string`   | Path to schema file or directory         |
+| `output`     | `string`   | Output directory for the generated client |
+| `connection`  | `object`   | Optional connection config                |
+| `ignore`     | `string[]` | Absolute exclusion patterns. Nothing can override. |
+| `exclude`    | `string[]` | Exclusion patterns. Can be overridden by `include`. |
+| `include`    | `string[]` | Inclusion patterns. Overrides `exclude` and `.cerialignore` but not `ignore`. |
+
+See [Path Filtering](./filtering) for details.
 
 ### Multi-Schema (Map)
 
@@ -81,19 +86,29 @@ export default defineConfig({
 });
 ```
 
-| Field      | Type     | Description                                                            |
-| ---------- | -------- | ---------------------------------------------------------------------- |
-| `schemas`  | `object` | Map of schema name to schema entry                                     |
-| `output`   | `string` | Root output directory (used when a schema entry doesn't specify its own) |
-| `connection` | `object` | Root connection config (used when a schema entry doesn't specify its own) |
+| Field        | Type       | Description                                                            |
+| ------------ | ---------- | ---------------------------------------------------------------------- |
+| `schemas`    | `object`   | Map of schema name to schema entry                                     |
+| `output`     | `string`   | Root output directory (used when a schema entry doesn't specify its own) |
+| `connection` | `object`   | Root connection config (used when a schema entry doesn't specify its own) |
+| `ignore`     | `string[]` | Absolute exclusion patterns. Nothing can override. |
+| `exclude`    | `string[]` | Exclusion patterns. Can be overridden by `include`. |
+| `include`    | `string[]` | Inclusion patterns. Overrides `exclude` and `.cerialignore` but not `ignore`. |
+
+See [Path Filtering](./filtering) for details.
 
 Each schema entry accepts:
 
-| Field        | Type     | Description                                             | Default               |
-| ------------ | -------- | ------------------------------------------------------- | --------------------- |
-| `path`       | `string` | Path to schema file or directory                        | (required)            |
-| `output`     | `string` | Output directory for this schema's generated client      | `{path}/client`       |
-| `connection`  | `object` | Connection config for this schema                        | Inherits from root     |
+| Field        | Type       | Description                                             | Default               |
+| ------------ | ---------- | ------------------------------------------------------- | --------------------- |
+| `path`       | `string`   | Path to schema file or directory                        | (required)            |
+| `output`     | `string`   | Output directory for this schema's generated client      | `{path}/client`       |
+| `connection`  | `object`   | Connection config for this schema                        | Inherits from root     |
+| `ignore`     | `string[]` | Absolute exclusion patterns. Nothing can override.       |                       |
+| `exclude`    | `string[]` | Exclusion patterns. Can be overridden by `include`.      |                       |
+| `include`    | `string[]` | Inclusion patterns. Overrides `exclude`/`.cerialignore` but not `ignore`. |  |
+
+See [Path Filtering](./filtering) for details.
 
 ### Output Directory Defaults
 
@@ -162,11 +177,16 @@ project/
 
 ### Allowed Keys
 
-| Field        | Type     | Description                                             | Default            |
-| ------------ | -------- | ------------------------------------------------------- | ------------------ |
-| `output`     | `string` | Output directory for generated client (relative to folder) | `./client`         |
-| `name`       | `string` | Custom schema name (overrides directory basename)        | Directory basename |
-| `connection` | `object` | Connection config for this schema                        | None               |
+| Field        | Type       | Description                                             | Default            |
+| ------------ | ---------- | ------------------------------------------------------- | ------------------ |
+| `output`     | `string`   | Output directory for generated client (relative to folder) | `./client`         |
+| `name`       | `string`   | Custom schema name (overrides directory basename)        | Directory basename |
+| `connection` | `object`   | Connection config for this schema                        | None               |
+| `ignore`     | `string[]` | Absolute exclusion patterns. Nothing can override.       |                    |
+| `exclude`    | `string[]` | Exclusion patterns. Can be overridden by `include`.      |                    |
+| `include`    | `string[]` | Inclusion patterns. Overrides `exclude`/`.cerialignore` but not `ignore`. |  |
+
+See [Path Filtering](./filtering) for details.
 
 By default, Cerial derives the schema name from the directory basename (e.g., a folder config in `src/auth/` produces the schema name `auth`). Use `name` when two schema directories share the same basename and you need to disambiguate:
 
@@ -414,5 +434,6 @@ Cerial validates your config and reports clear errors:
 ## Next Steps
 
 - [**Multi-Schema**](./multi-schema) - Set up multiple independent schemas in one project
+- [**Path Filtering**](./filtering) - Control which `.cerial` files are processed
 - [**init**](./init) - Auto-generate a config file with `cerial init`
 - [**generate**](./generate) - Run generation with config-based options

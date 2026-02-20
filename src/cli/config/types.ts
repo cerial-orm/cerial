@@ -14,6 +14,12 @@ export interface SchemaEntry {
   output?: string;
   /** Connection config for this schema (optional, uses root connection if not specified) */
   connection?: ConnectionConfig;
+  /** Absolute exclusion patterns — nothing can override. Glob patterns relative to this config's scope. */
+  ignore?: string[];
+  /** Exclusion patterns — can be overridden by 'include'. Glob patterns relative to this config's scope. */
+  exclude?: string[];
+  /** Inclusion patterns — overrides 'exclude' and '.cerialignore' but NOT 'ignore'. Glob patterns relative to this config's scope. */
+  include?: string[];
 }
 
 /**
@@ -28,6 +34,12 @@ export interface CerialConfig {
   output?: string;
   /** Root connection config (used if SchemaEntry.connection not specified) */
   connection?: ConnectionConfig;
+  /** Absolute exclusion patterns — nothing can override. Glob patterns relative to this config's scope. */
+  ignore?: string[];
+  /** Exclusion patterns — can be overridden by 'include'. Glob patterns relative to this config's scope. */
+  exclude?: string[];
+  /** Inclusion patterns — overrides 'exclude' and '.cerialignore' but NOT 'ignore'. Glob patterns relative to this config's scope. */
+  include?: string[];
 }
 
 /**
@@ -41,6 +53,12 @@ export interface FolderConfig {
   output?: string;
   /** Connection config for this schema */
   connection?: ConnectionConfig;
+  /** Absolute exclusion patterns — nothing can override. Glob patterns relative to this config's scope. */
+  ignore?: string[];
+  /** Exclusion patterns — can be overridden by 'include'. Glob patterns relative to this config's scope. */
+  exclude?: string[];
+  /** Inclusion patterns — overrides 'exclude' and '.cerialignore' but NOT 'ignore'. Glob patterns relative to this config's scope. */
+  include?: string[];
 }
 
 /**

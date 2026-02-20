@@ -507,6 +507,334 @@ describe('validateFolderConfig name validation', () => {
   });
 });
 
+describe('filter field validation', () => {
+  describe('validateConfig root-level filter fields', () => {
+    it('should accept valid exclude array', () => {
+      const config: CerialConfig = {
+        schema: '.',
+        exclude: ['**/*.cerial'],
+      };
+
+      const result = validateConfig(config);
+
+      expect(result.valid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should accept valid include array', () => {
+      const config: CerialConfig = {
+        schema: '.',
+        include: ['keep.cerial'],
+      };
+
+      const result = validateConfig(config);
+
+      expect(result.valid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should accept valid ignore array', () => {
+      const config: CerialConfig = {
+        schema: '.',
+        ignore: ['secrets/**'],
+      };
+
+      const result = validateConfig(config);
+
+      expect(result.valid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should accept all three filter fields as empty arrays', () => {
+      const config: CerialConfig = {
+        schema: '.',
+        ignore: [],
+        exclude: [],
+        include: [],
+      };
+
+      const result = validateConfig(config);
+
+      expect(result.valid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should accept undefined filter fields (not provided)', () => {
+      const config: CerialConfig = {
+        schema: '.',
+      };
+
+      const result = validateConfig(config);
+
+      expect(result.valid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should reject exclude when not an array', () => {
+      const config: CerialConfig = {
+        schema: '.',
+        // @ts-expect-error -- testing non-array type
+        exclude: 'not-array',
+      };
+
+      const result = validateConfig(config);
+
+      expect(result.valid).toBe(false);
+      expect(result.errors.length).toBeGreaterThan(0);
+      expect(result.errors[0]?.message).toContain('must be an array');
+    });
+
+    it('should reject exclude with non-string items', () => {
+      const config: CerialConfig = {
+        schema: '.',
+        // @ts-expect-error -- testing non-string item
+        exclude: [123],
+      };
+
+      const result = validateConfig(config);
+
+      expect(result.valid).toBe(false);
+      expect(result.errors.length).toBeGreaterThan(0);
+      expect(result.errors[0]?.message).toContain('must be strings');
+    });
+
+    it('should reject exclude with empty string', () => {
+      const config: CerialConfig = {
+        schema: '.',
+        exclude: [''],
+      };
+
+      const result = validateConfig(config);
+
+      expect(result.valid).toBe(false);
+      expect(result.errors.length).toBeGreaterThan(0);
+      expect(result.errors[0]?.message).toContain('empty strings');
+    });
+
+    it('should reject exclude with path escape', () => {
+      const config: CerialConfig = {
+        schema: '.',
+        exclude: ['../escape'],
+      };
+
+      const result = validateConfig(config);
+
+      expect(result.valid).toBe(false);
+      expect(result.errors.length).toBeGreaterThan(0);
+      expect(result.errors[0]?.message).toContain('path escapes');
+    });
+
+    it('should reject include with path escape in middle', () => {
+      const config: CerialConfig = {
+        schema: '.',
+        include: ['foo/../escape'],
+      };
+
+      const result = validateConfig(config);
+
+      expect(result.valid).toBe(false);
+      expect(result.errors.length).toBeGreaterThan(0);
+      expect(result.errors[0]?.message).toContain('path escapes');
+    });
+
+    it('should reject ignore when not an array', () => {
+      const config: CerialConfig = {
+        schema: '.',
+        // @ts-expect-error -- testing non-array type
+        ignore: { pattern: 'test' },
+      };
+
+      const result = validateConfig(config);
+
+      expect(result.valid).toBe(false);
+      expect(result.errors.length).toBeGreaterThan(0);
+      expect(result.errors[0]?.message).toContain('must be an array');
+    });
+  });
+
+  describe('validateConfig per-schema filter fields', () => {
+    it('should accept valid exclude in SchemaEntry', () => {
+      const config: CerialConfig = {
+        schemas: {
+          auth: {
+            path: '.',
+            output: './client',
+            exclude: ['drafts/**'],
+          },
+        },
+      };
+
+      const result = validateConfig(config);
+
+      expect(result.valid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should accept valid include in SchemaEntry', () => {
+      const config: CerialConfig = {
+        schemas: {
+          auth: {
+            path: '.',
+            output: './client',
+            include: ['models/**'],
+          },
+        },
+      };
+
+      const result = validateConfig(config);
+
+      expect(result.valid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should accept valid ignore in SchemaEntry', () => {
+      const config: CerialConfig = {
+        schemas: {
+          auth: {
+            path: '.',
+            output: './client',
+            ignore: ['temp/**'],
+          },
+        },
+      };
+
+      const result = validateConfig(config);
+
+      expect(result.valid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should reject SchemaEntry exclude with empty string', () => {
+      const config: CerialConfig = {
+        schemas: {
+          auth: {
+            path: '.',
+            output: './client',
+            exclude: [''],
+          },
+        },
+      };
+
+      const result = validateConfig(config);
+
+      expect(result.valid).toBe(false);
+      expect(result.errors.length).toBeGreaterThan(0);
+      expect(result.errors[0]?.field).toContain('schemas.auth.exclude');
+    });
+
+    it('should reject SchemaEntry include with path escape', () => {
+      const config: CerialConfig = {
+        schemas: {
+          auth: {
+            path: '.',
+            output: './client',
+            include: ['../escape'],
+          },
+        },
+      };
+
+      const result = validateConfig(config);
+
+      expect(result.valid).toBe(false);
+      expect(result.errors.length).toBeGreaterThan(0);
+      expect(result.errors[0]?.field).toContain('schemas.auth.include');
+    });
+
+    it('should reject SchemaEntry ignore when not an array', () => {
+      const config: CerialConfig = {
+        schemas: {
+          auth: {
+            path: '.',
+            output: './client',
+            // @ts-expect-error -- testing non-array type
+            ignore: 'string',
+          },
+        },
+      };
+
+      const result = validateConfig(config);
+
+      expect(result.valid).toBe(false);
+      expect(result.errors.length).toBeGreaterThan(0);
+      expect(result.errors[0]?.field).toContain('schemas.auth.ignore');
+    });
+  });
+
+  describe('validateFolderConfig filter fields', () => {
+    it('should accept valid ignore array', () => {
+      const result = validateFolderConfig({ ignore: ['tmp/**'] });
+
+      expect(result.valid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should accept valid exclude array', () => {
+      const result = validateFolderConfig({ exclude: ['drafts/**'] });
+
+      expect(result.valid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should accept valid include array', () => {
+      const result = validateFolderConfig({ include: ['keep/**'] });
+
+      expect(result.valid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should accept all three filter fields', () => {
+      const result = validateFolderConfig({
+        ignore: ['a/**'],
+        exclude: ['b/**'],
+        include: ['c/**'],
+      });
+
+      expect(result.valid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should reject exclude when not an array', () => {
+      const result = validateFolderConfig({
+        exclude: 'string',
+      });
+
+      expect(result.valid).toBe(false);
+      expect(result.errors.length).toBeGreaterThan(0);
+      expect(result.errors[0]?.message).toContain('must be an array');
+    });
+
+    it('should reject include with empty string', () => {
+      const result = validateFolderConfig({
+        include: [''],
+      });
+
+      expect(result.valid).toBe(false);
+      expect(result.errors.length).toBeGreaterThan(0);
+      expect(result.errors[0]?.message).toContain('empty strings');
+    });
+
+    it('should reject ignore with path escape', () => {
+      const result = validateFolderConfig({
+        ignore: ['../escape'],
+      });
+
+      expect(result.valid).toBe(false);
+      expect(result.errors.length).toBeGreaterThan(0);
+      expect(result.errors[0]?.message).toContain('path escapes');
+    });
+
+    it('should reject ignore with non-string items', () => {
+      const result = validateFolderConfig({
+        ignore: [null],
+      });
+
+      expect(result.valid).toBe(false);
+      expect(result.errors.length).toBeGreaterThan(0);
+      expect(result.errors[0]?.message).toContain('must be strings');
+    });
+  });
+});
+
 describe('detectNestedSchemaRoots', () => {
   it('should throw when folder-config parent contains folder-config child', () => {
     const roots = [

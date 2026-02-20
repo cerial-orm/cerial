@@ -41,3 +41,9 @@ docs/_site/
 
 # Temporary test directories
 tmp-schema-generates/
+
+# Generated clients inside test fixtures
+tests/fixtures/**/client/
+
+nul
+**/nul

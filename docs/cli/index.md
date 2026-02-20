@@ -48,3 +48,4 @@ The generated client gives you full type safety across all database operations, 
 - [**Generated Output**](./generated-output) - Understand the structure of the generated client
 - [**Configuration**](./configuration) - Config file formats, schema discovery, and options
 - [**Multi-Schema**](./multi-schema) - Set up multiple independent schemas in one project
+- [**Path Filtering**](./filtering) - Control which `.cerial` files are processed

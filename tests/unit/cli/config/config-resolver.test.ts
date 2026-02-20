@@ -43,8 +43,8 @@ describe('resolveConfig', () => {
       const cwd = '/home/user/project';
       const resolved = resolveConfig(config, cwd);
 
-      expect(resolved[0]!.path).toBe('/home/user/project/schemas');
-      expect(resolved[0]!.output).toBe('/home/user/project/out');
+      expect(resolved[0]!.path).toBe(resolve(cwd, './schemas'));
+      expect(resolved[0]!.output).toBe(resolve(cwd, './out'));
     });
 
     it('should handle absolute paths', () => {
@@ -136,8 +136,8 @@ describe('resolveConfig', () => {
       const cwd = '/home/user/project';
       const resolved = resolveConfig(config, cwd);
 
-      expect(resolved[0]!.path).toBe('/home/user/project/schemas/auth.cerial');
-      expect(resolved[0]!.output).toBe('/home/user/project/out/auth');
+      expect(resolved[0]!.path).toBe(resolve(cwd, './schemas/auth.cerial'));
+      expect(resolved[0]!.output).toBe(resolve(cwd, './out/auth'));
     });
   });
 
@@ -171,7 +171,8 @@ describe('resolveConfig', () => {
       };
       const resolved = resolveConfig(config);
 
-      expect(resolved[0]!.path).toContain('schemas/main.cerial');
+      expect(resolved[0]!.path).toContain('schemas');
+      expect(resolved[0]!.path).toContain('main.cerial');
       expect(resolved[0]!.output).toContain('generated');
     });
 
@@ -183,8 +184,8 @@ describe('resolveConfig', () => {
       const cwd = '/custom/path';
       const resolved = resolveConfig(config, cwd);
 
-      expect(resolved[0]!.path).toBe('/custom/path/schemas/main.cerial');
-      expect(resolved[0]!.output).toBe('/custom/path/generated');
+      expect(resolved[0]!.path).toBe(resolve(cwd, './schemas/main.cerial'));
+      expect(resolved[0]!.output).toBe(resolve(cwd, './generated'));
     });
   });
 

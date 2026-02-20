@@ -3,6 +3,8 @@ import { basename, dirname, resolve } from 'node:path';
 import { Glob } from 'bun';
 import { findFolderConfigs } from '../config/loader';
 import type { FolderConfig } from '../config/types';
+import { toFilterPath } from '../filters/path-utils';
+import type { PathFilter } from '../filters/types';
 
 const DEFAULT_SEARCH_PATHS = ['schemas', 'schema'];
 
@@ -31,6 +33,8 @@ export interface SchemaResolveOptions {
   patterns?: string[];
   /** Base directory */
   cwd?: string;
+  /** Optional path filter for include/exclude */
+  filter?: PathFilter;
 }
 
 /** Find schema files in a directory */
@@ -49,6 +53,13 @@ export async function findSchemasInDir(dir: string, patterns: string[]): Promise
   }
 
   return files;
+}
+
+/** Find schema files in a directory, then apply a PathFilter */
+export async function findFilteredSchemasInDir(dir: string, patterns: string[], filter: PathFilter): Promise<string[]> {
+  const allFiles = await findSchemasInDir(dir, patterns);
+
+  return allFiles.filter((file) => filter.shouldInclude(toFilterPath(file, dir)));
 }
 
 /** Recursively find directories matching a folder name */
@@ -81,16 +92,21 @@ async function findDirectoriesByName(cwd: string, folderName: string): Promise<s
 
 /** Resolve schema files */
 export async function resolveSchemas(options: SchemaResolveOptions = {}): Promise<string[]> {
-  const { paths = DEFAULT_SEARCH_PATHS, patterns = DEFAULT_PATTERNS, cwd = process.cwd() } = options;
+  const { paths = DEFAULT_SEARCH_PATHS, patterns = DEFAULT_PATTERNS, cwd = process.cwd(), filter } = options;
+
+  const findFiles = filter
+    ? (dir: string) => findFilteredSchemasInDir(dir, patterns, filter)
+    : (dir: string) => findSchemasInDir(dir, patterns);
 
   // If custom paths are provided, use the old behavior
   if (options.paths) {
     const allFiles: string[] = [];
     for (const searchPath of paths) {
       const fullPath = searchPath.startsWith('/') ? searchPath : resolve(cwd, searchPath);
-      const files = await findSchemasInDir(fullPath, patterns);
+      const files = await findFiles(fullPath);
       allFiles.push(...files);
     }
+
     return [...new Set(allFiles)];
   }
 
@@ -100,7 +116,7 @@ export async function resolveSchemas(options: SchemaResolveOptions = {}): Promis
 
     // For each matching directory, look for schema files
     for (const dir of matchingDirs) {
-      const files = await findSchemasInDir(dir, patterns);
+      const files = await findFiles(dir);
 
       // If files are found, return them and stop searching
       if (files.length) return files;
@@ -112,20 +128,30 @@ export async function resolveSchemas(options: SchemaResolveOptions = {}): Promis
 }
 
 /** Resolve a single schema path (file or directory) */
-export async function resolveSinglePath(path: string, cwd: string = process.cwd()): Promise<string[]> {
+export async function resolveSinglePath(
+  path: string,
+  cwd: string = process.cwd(),
+  filter?: PathFilter,
+): Promise<string[]> {
   const fullPath = path.startsWith('/') ? path : resolve(cwd, path);
 
   // Check if it's a file
   const file = Bun.file(fullPath);
   const exists = await file.exists();
 
-  if (exists && fullPath.endsWith('.cerial')) return [fullPath];
+  if (exists && fullPath.endsWith('.cerial')) {
+    if (filter && !filter.shouldInclude(toFilterPath(fullPath, dirname(fullPath)))) return [];
+
+    return [fullPath];
+  }
 
   // Treat as directory
+  if (filter) return findFilteredSchemasInDir(fullPath, DEFAULT_PATTERNS, filter);
+
   return findSchemasInDir(fullPath, DEFAULT_PATTERNS);
 }
 
-export async function findSchemaRoots(cwd: string = process.cwd()): Promise<SchemaRoot[]> {
+export async function findSchemaRoots(cwd: string = process.cwd(), filter?: PathFilter): Promise<SchemaRoot[]> {
   const rootMap = new Map<string, SchemaRoot>();
 
   for (const marker of CONVENTION_MARKERS) {
@@ -138,6 +164,11 @@ export async function findSchemaRoots(cwd: string = process.cwd()): Promise<Sche
         const dir = dirname(fullPath);
 
         if (rootMap.has(dir)) continue;
+
+        // Filter check: if the directory is excluded, skip it
+        // Use synthetic child path so patterns like 'dir/**' match correctly
+        const dirRelative = toFilterPath(dir, cwd);
+        if (filter && dirRelative && !filter.shouldInclude(`${dirRelative}/_`)) continue;
 
         const files = await findSchemasInDir(dir, DEFAULT_PATTERNS);
         rootMap.set(dir, { path: dir, marker: basename(match), files });

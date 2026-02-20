@@ -32,6 +32,7 @@ A Prisma-like ORM for [SurrealDB](https://surrealdb.com/) with schema-driven cod
 - **Typed IDs** - `Record(int) @id`, `Record(uuid) @id`, union types, and automatic FK type inference
 - **Multi-schema** - Multiple independent schema folders with per-schema client generation
 - **Configuration** - `cerial.config.ts` / `cerial.config.json` with `defineConfig()` helper
+- **Path filtering** — `ignore`/`exclude`/`include` config fields with `.cerialignore` file support for controlling which schemas are processed
 - **Watch mode** - Auto-regenerate on schema changes with per-schema isolation
 - **CLI init** - `cerial init` scaffolds config from detected schemas
 
@@ -162,6 +163,7 @@ Full documentation is available at the [Cerial Docs](docs/) site, covering:
 - [Type System](docs/types/) - CerialId, NONE vs null, generated types, dynamic return types
 - [CLI](docs/cli/) - generate, init, config, flags, output structure
 - [Configuration](docs/cli/configuration.md) - Config file formats, schema discovery, defineConfig
+- [Path Filtering](docs/cli/filtering.md) - ignore, exclude, include patterns and .cerialignore
 - [Multi-Schema](docs/cli/multi-schema.md) - Multiple independent schemas in one project
 - [Init Command](docs/cli/init.md) - Auto-generate config with `cerial init`
 - [Connection](docs/connection/) - Client setup, connection config, migrations

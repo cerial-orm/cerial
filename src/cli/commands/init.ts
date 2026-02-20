@@ -16,6 +16,18 @@ const CONFIG_FILENAMES = ['cerial.config.ts', 'cerial.config.json'] as const;
 
 const LEGACY_SCHEMA_DIRS = ['schemas', 'schema'] as const;
 
+const DEFAULT_CERIALIGNORE = `# Cerial ignore file - patterns here exclude .cerial files from generation
+# Syntax follows .gitignore rules
+
+# Common exclusions
+node_modules/
+.git/
+
+# Example: exclude draft schemas
+# drafts/
+# **/experimental/
+`;
+
 function ask(rl: ReturnType<typeof createInterface>, question: string): Promise<string> {
   return new Promise((res) => {
     rl.question(question, (answer) => {
@@ -248,6 +260,22 @@ export const initCommand: Command = {
     await Bun.write(outputPath, content);
 
     console.log(`\n  Created ${filename}\n`);
+
+    if (!autoAccept) {
+      const rl2 = createInterface({ input: process.stdin, output: process.stdout });
+
+      try {
+        const ignoreAnswer = await ask(rl2, '  Create .cerialignore? (Y/n) ');
+        if (ignoreAnswer.toLowerCase() !== 'n') {
+          const ignoreOutputPath = resolve(cwd, '.cerialignore');
+          await Bun.write(ignoreOutputPath, DEFAULT_CERIALIGNORE);
+          console.log('  Created .cerialignore\n');
+        }
+      } finally {
+        rl2.close();
+      }
+    }
+
     process.exit(0);
   },
 };

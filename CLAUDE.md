@@ -398,6 +398,7 @@ Do NOT use SurrealDB reserved keywords as field names, model names, or object na
 - **@set decorator** = `String[] @set` generates `set<T>` instead of `array<T>`. Auto-dedup and sort at DB level. Output type `CerialSet<T>` (branded array). Input accepts regular arrays. Not allowed on Decimal[], Object[], Tuple[], Record[]. Mutually exclusive with @distinct/@sort
 - **findAll()** = Alias for `findMany()` with no options. Returns all records in the table as `T[]`. No `where`, `select`, `include`, `orderBy`, `limit`, or `offset` parameters
 - **Model introspection** = `getMetadata()`, `getName()`, `getTableName()` — available on every model instance for runtime metadata access. `getMetadata()` returns full `ModelMetadata` (name, table, fields, relations). `getName()` returns the model name. `getTableName()` returns the SurrealDB table name
+- **Path filtering** = Three-tier filter system for controlling which `.cerial` files are processed. `ignore` (absolute blacklist), `exclude` (overridable blacklist), `include` (whitelist override). Supports `.cerialignore` files at project root and per-schema-folder. Cascade: `.cerialignore` → root config → folder `.cerialignore` → folder config. Config fields on `CerialConfig`, `SchemaEntry`, `FolderConfig`
 
 ## Gotchas
 
@@ -448,3 +449,7 @@ Do NOT use SurrealDB reserved keywords as field names, model names, or object na
 - **Geometry no spatial operators** — No `nearTo`, `within`, `intersects` filters. Standard equality comparison only. Spatial operators are a separate future feature
 - **Geometry no OrderBy** — Geometry fields excluded from OrderBy types (not orderable)
 - **Number is distinct from Float** — `Number` maps to SurrealDB `number` (auto-detect), not `float`. `Float` maps to `float` (always IEEE 754 double). `Int` maps to `int` (always integer). All three produce `number` in TypeScript
+- `.cerialignore` applies even with `-s` flag — it's project-level filtering
+- `include` without `exclude` is a no-op — `include` only overrides exclusions, not a whitelist-only filter
+- Parent-directory negation in `.cerialignore`: `dir/` then `!dir/keep.cerial` doesn't work (git behavior) — use config `include` instead
+- No `../` pattern escaping in filter config — patterns cannot escape their scope directory

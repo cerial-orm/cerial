@@ -50,22 +50,24 @@ describe('init command', () => {
   });
 
   describe('toRelativePath', () => {
+    const norm = (p: string) => p.replace(/\\/g, '/');
+
     it('should convert absolute to relative with ./ prefix', () => {
-      expect(toRelativePath('/project/schemas', '/project')).toBe('./schemas');
+      expect(norm(toRelativePath('/project/schemas', '/project'))).toBe('./schemas');
     });
 
     it('should handle nested paths', () => {
-      expect(toRelativePath('/project/schemas/auth', '/project')).toBe('./schemas/auth');
+      expect(norm(toRelativePath('/project/schemas/auth', '/project'))).toBe('./schemas/auth');
     });
 
     it('should handle same directory', () => {
-      expect(toRelativePath('/project', '/project')).toBe('./');
+      expect(norm(toRelativePath('/project', '/project'))).toBe('./');
     });
 
     it('should handle parent paths', () => {
       const result = toRelativePath('/other/schemas', '/project');
 
-      expect(result).toBe('../other/schemas');
+      expect(norm(result)).toBe('../other/schemas');
     });
   });
 

@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
 import { mkdir, rm } from 'node:fs/promises';
-import { join, resolve } from 'node:path';
+import { basename, join, resolve } from 'node:path';
 import {
   detectNestedConfigs,
   findFolderConfigs,
@@ -264,8 +264,8 @@ describe('findFolderConfigs', () => {
 
     expect(results.length).toBe(2);
     const dirs = results.map((r) => r.dir);
-    expect(dirs.some((d) => d.endsWith('/auth'))).toBe(true);
-    expect(dirs.some((d) => d.endsWith('/cms'))).toBe(true);
+    expect(dirs.some((d) => basename(d) === 'auth')).toBe(true);
+    expect(dirs.some((d) => basename(d) === 'cms')).toBe(true);
   });
 
   it('should ignore root-level config', async () => {
@@ -301,7 +301,7 @@ describe('findFolderConfigs', () => {
     await Bun.write(resolve(root, 'auth/cerial.config.ts'), 'export default { output: "./auth-out" };\n');
 
     const results = await findFolderConfigs(root);
-    const authConfig = results.find((r) => r.dir.endsWith('/auth'));
+    const authConfig = results.find((r) => basename(r.dir) === 'auth');
 
     expect(authConfig).toBeDefined();
     expect(authConfig!.config.output).toBe('./auth-out');
