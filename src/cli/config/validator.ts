@@ -4,6 +4,7 @@
 
 import { dirname, resolve } from 'node:path';
 import { Glob } from 'bun';
+import * as v from 'valibot';
 import type { CerialConfig, ResolvedSchemaEntry } from './types';
 
 export interface ConfigValidationError {
@@ -20,8 +21,62 @@ export interface ConfigValidationResult {
 const _RESERVED_NAMES_ERROR = new Set(['default', 'index']);
 const _RESERVED_NAMES_WARN = new Set(['test']);
 
-function isValidIdentifier(name: string): boolean {
-  return /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(name);
+// --- Valibot Schemas (internal) ---
+
+const FilterPatternsSchema = v.array(
+  v.pipe(
+    v.string('Items must be strings'),
+    v.minLength(1, 'Must not contain empty strings'),
+    v.check((s) => !s.startsWith('../') && !s.includes('/../'), "Must not contain path escapes ('../')"),
+  ),
+  'Must be an array of strings',
+);
+
+const JsIdentifierSchema = v.pipe(
+  v.string("'name' must be a string"),
+  v.regex(/^[a-zA-Z_$][a-zA-Z0-9_$]*$/, "'name' must be a valid JavaScript identifier"),
+  v.check(
+    (name) => !_RESERVED_NAMES_ERROR.has(name),
+    (issue) => `Schema name '${issue.input}' is reserved and cannot be used`,
+  ),
+);
+
+const SchemaEntrySchema = v.looseObject({
+  path: v.pipe(v.string('Schema path is required'), v.minLength(1, 'Schema path is required')),
+  output: v.optional(v.string()),
+  connection: v.optional(v.looseObject({})),
+  ignore: v.optional(FilterPatternsSchema),
+  exclude: v.optional(FilterPatternsSchema),
+  include: v.optional(FilterPatternsSchema),
+});
+
+const CerialConfigSchema = v.looseObject({
+  schema: v.optional(v.string()),
+  schemas: v.optional(v.record(v.string(), SchemaEntrySchema)),
+  output: v.optional(v.string()),
+  connection: v.optional(v.looseObject({})),
+  ignore: v.optional(FilterPatternsSchema),
+  exclude: v.optional(FilterPatternsSchema),
+  include: v.optional(FilterPatternsSchema),
+});
+
+const FolderConfigSchema = v.looseObject({
+  name: v.optional(JsIdentifierSchema),
+  output: v.optional(v.string("'output' must be a string")),
+  connection: v.optional(v.looseObject({}, "'connection' must be an object")),
+  ignore: v.optional(FilterPatternsSchema),
+  exclude: v.optional(FilterPatternsSchema),
+  include: v.optional(FilterPatternsSchema),
+});
+
+// --- Issue Mapper ---
+
+function mapValibotIssues(issues: v.BaseIssue<unknown>[]): ConfigValidationError[] {
+  return issues.map((issue) => {
+    const field = issue.path?.map((p) => String(p.key)).join('.') || 'config';
+
+    return { field, message: issue.message };
+  });
 }
 
 function pathsOverlap(path1: string, path2: string): boolean {
@@ -32,50 +87,10 @@ function pathsOverlap(path1: string, path2: string): boolean {
   return p1.startsWith(p2) || p2.startsWith(p1);
 }
 
-function validateFilterPatterns(fieldName: string, patterns: unknown): ConfigValidationError[] {
-  const errors: ConfigValidationError[] = [];
-
-  if (!Array.isArray(patterns)) {
-    errors.push({
-      field: fieldName,
-      message: `'${fieldName}' must be an array of strings`,
-    });
-
-    return errors;
-  }
-
-  for (const item of patterns) {
-    if (typeof item !== 'string') {
-      errors.push({
-        field: fieldName,
-        message: `'${fieldName}' items must be strings`,
-      });
-      break;
-    }
-
-    if (item === '') {
-      errors.push({
-        field: fieldName,
-        message: `'${fieldName}' must not contain empty strings`,
-      });
-      break;
-    }
-
-    if (item.startsWith('../') || item.includes('/../')) {
-      errors.push({
-        field: fieldName,
-        message: `'${fieldName}' must not contain path escapes ('../')`,
-      });
-      break;
-    }
-  }
-
-  return errors;
-}
-
 export function validateFolderConfig(config: Record<string, unknown>): ConfigValidationResult {
   const errors: ConfigValidationError[] = [];
 
+  // Check forbidden keys (need specific field names that valibot pipe checks can't target)
   if ('schema' in config) {
     errors.push({
       field: 'schema',
@@ -90,49 +105,10 @@ export function validateFolderConfig(config: Record<string, unknown>): ConfigVal
     });
   }
 
-  if ('output' in config && typeof config.output !== 'string') {
-    errors.push({
-      field: 'output',
-      message: "'output' must be a string",
-    });
-  }
-
-  if ('connection' in config && (typeof config.connection !== 'object' || config.connection === null)) {
-    errors.push({
-      field: 'connection',
-      message: "'connection' must be an object",
-    });
-  }
-
-  if ('name' in config) {
-    if (typeof config.name !== 'string') {
-      errors.push({
-        field: 'name',
-        message: "'name' must be a string",
-      });
-    } else if (!isValidIdentifier(config.name)) {
-      errors.push({
-        field: 'name',
-        message: "'name' must be a valid JavaScript identifier",
-      });
-    } else if (_RESERVED_NAMES_ERROR.has(config.name)) {
-      errors.push({
-        field: 'name',
-        message: `Schema name '${config.name}' is reserved and cannot be used`,
-      });
-    }
-  }
-
-  if ('ignore' in config) {
-    errors.push(...validateFilterPatterns('ignore', config.ignore));
-  }
-
-  if ('exclude' in config) {
-    errors.push(...validateFilterPatterns('exclude', config.exclude));
-  }
-
-  if ('include' in config) {
-    errors.push(...validateFilterPatterns('include', config.include));
+  // Validate structure with valibot
+  const result = v.safeParse(FolderConfigSchema, config);
+  if (!result.success) {
+    errors.push(...mapValibotIssues(result.issues));
   }
 
   return { valid: errors.length === 0, errors };
@@ -169,26 +145,20 @@ export function validateConfig(config: CerialConfig): ConfigValidationResult {
     return { valid: false, errors };
   }
 
-  // Validate root-level filter fields
-  if (config.ignore) {
-    errors.push(...validateFilterPatterns('ignore', config.ignore));
+  // Validate structure with valibot (filter patterns, schema entry types)
+  const result = v.safeParse(CerialConfigSchema, config);
+  if (!result.success) {
+    errors.push(...mapValibotIssues(result.issues));
   }
 
-  if (config.exclude) {
-    errors.push(...validateFilterPatterns('exclude', config.exclude));
-  }
-
-  if (config.include) {
-    errors.push(...validateFilterPatterns('include', config.include));
-  }
-
+  // Post-parse: schema name validation, output uniqueness, path overlap, warnings
   if (config.schemas) {
     const schemaNames = Object.keys(config.schemas);
     const outputPaths = new Set<string>();
     const schemaPaths: string[] = [];
 
     for (const name of schemaNames) {
-      if (!isValidIdentifier(name)) {
+      if (!/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(name)) {
         errors.push({
           field: `schemas.${name}`,
           message: `Schema name "${name}" must be a valid JavaScript identifier (alphanumeric, underscore, dollar sign)`,
@@ -210,12 +180,7 @@ export function validateConfig(config: CerialConfig): ConfigValidationResult {
       const entry = config.schemas![name];
       if (!entry) continue;
 
-      if (!entry.path) {
-        errors.push({
-          field: `schemas.${name}.path`,
-          message: 'Schema path is required',
-        });
-      } else {
+      if (entry.path) {
         schemaPaths.push(entry.path);
       }
 
@@ -232,19 +197,6 @@ export function validateConfig(config: CerialConfig): ConfigValidationResult {
         });
       } else {
         outputPaths.add(outputPath);
-      }
-
-      // Validate per-schema filter fields
-      if (entry.ignore) {
-        errors.push(...validateFilterPatterns(`schemas.${name}.ignore`, entry.ignore));
-      }
-
-      if (entry.exclude) {
-        errors.push(...validateFilterPatterns(`schemas.${name}.exclude`, entry.exclude));
-      }
-
-      if (entry.include) {
-        errors.push(...validateFilterPatterns(`schemas.${name}.include`, entry.include));
       }
     }
 
