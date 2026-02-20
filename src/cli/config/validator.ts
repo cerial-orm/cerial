@@ -5,6 +5,8 @@
 import { dirname, resolve } from 'node:path';
 import { Glob } from 'bun';
 import * as v from 'valibot';
+import type { FormatConfig } from '../../formatter/types';
+import { FORMAT_DEFAULTS } from '../../formatter/types';
 import type { CerialConfig, ResolvedSchemaEntry } from './types';
 
 export interface ConfigValidationError {
@@ -32,6 +34,18 @@ const FilterPatternsSchema = v.array(
   'Must be an array of strings',
 );
 
+const _FormatConfigSchema = v.looseObject({
+  alignmentScope: v.optional(v.unknown()),
+  fieldGroupBlankLines: v.optional(v.unknown()),
+  blockSeparation: v.optional(v.unknown()),
+  indentSize: v.optional(v.unknown()),
+  inlineConstructStyle: v.optional(v.unknown()),
+  decoratorAlignment: v.optional(v.unknown()),
+  trailingComma: v.optional(v.unknown()),
+  commentStyle: v.optional(v.unknown()),
+  blankLineBeforeDirectives: v.optional(v.unknown()),
+});
+
 const JsIdentifierSchema = v.pipe(
   v.string("'name' must be a string"),
   v.regex(/^[a-zA-Z_$][a-zA-Z0-9_$]*$/, "'name' must be a valid JavaScript identifier"),
@@ -45,6 +59,7 @@ const SchemaEntrySchema = v.looseObject({
   path: v.pipe(v.string('Schema path is required'), v.minLength(1, 'Schema path is required')),
   output: v.optional(v.string()),
   connection: v.optional(v.looseObject({})),
+  format: v.optional(_FormatConfigSchema),
   ignore: v.optional(FilterPatternsSchema),
   exclude: v.optional(FilterPatternsSchema),
   include: v.optional(FilterPatternsSchema),
@@ -55,6 +70,7 @@ const CerialConfigSchema = v.looseObject({
   schemas: v.optional(v.record(v.string(), SchemaEntrySchema)),
   output: v.optional(v.string()),
   connection: v.optional(v.looseObject({})),
+  format: v.optional(_FormatConfigSchema),
   ignore: v.optional(FilterPatternsSchema),
   exclude: v.optional(FilterPatternsSchema),
   include: v.optional(FilterPatternsSchema),
@@ -85,6 +101,54 @@ function pathsOverlap(path1: string, path2: string): boolean {
   const p2 = normalize(path2);
 
   return p1.startsWith(p2) || p2.startsWith(p1);
+}
+
+/**
+ * Validate and normalize format config, emitting warnings for invalid values
+ * and falling back to defaults
+ */
+function _validateFormatConfig(
+  format: FormatConfig | undefined,
+  fieldPath: string,
+  warnings: ConfigValidationError[],
+): FormatConfig | undefined {
+  if (!format) return undefined;
+
+  const normalized: Partial<FormatConfig> = {};
+  const validValues: Record<string, Set<unknown>> = {
+    alignmentScope: new Set(['group', 'block']),
+    fieldGroupBlankLines: new Set(['single', 'honor', 'collapse']),
+    blockSeparation: new Set([1, 2, 'honor']),
+    indentSize: new Set([2, 4, 'tab']),
+    inlineConstructStyle: new Set(['single', 'multi', 'honor']),
+    decoratorAlignment: new Set(['aligned', 'compact']),
+    trailingComma: new Set([true, false]),
+    commentStyle: new Set(['honor', 'hash', 'slash']),
+    blankLineBeforeDirectives: new Set(['always', 'honor']),
+  };
+
+  for (const [key, value] of Object.entries(format)) {
+    const validSet = validValues[key];
+
+    if (!validSet) {
+      // Unknown format key — skip it
+      continue;
+    }
+
+    if (validSet.has(value)) {
+      normalized[key as keyof FormatConfig] = value as any;
+    } else {
+      // Invalid value — emit warning and use default
+      const defaultValue = FORMAT_DEFAULTS[key as keyof typeof FORMAT_DEFAULTS];
+      warnings.push({
+        field: `${fieldPath}.${key}`,
+        message: `Invalid value "${String(value)}" for format.${key}. Using default: ${String(defaultValue)}`,
+      });
+      normalized[key as keyof FormatConfig] = defaultValue as any;
+    }
+  }
+
+  return Object.keys(normalized).length > 0 ? (normalized as FormatConfig) : undefined;
 }
 
 export function validateFolderConfig(config: Record<string, unknown>): ConfigValidationResult {
@@ -151,6 +215,11 @@ export function validateConfig(config: CerialConfig): ConfigValidationResult {
     errors.push(...mapValibotIssues(result.issues));
   }
 
+  // Validate root format config
+  if (config.format) {
+    config.format = _validateFormatConfig(config.format, 'format', warnings);
+  }
+
   // Post-parse: schema name validation, output uniqueness, path overlap, warnings
   if (config.schemas) {
     const schemaNames = Object.keys(config.schemas);
@@ -179,6 +248,11 @@ export function validateConfig(config: CerialConfig): ConfigValidationResult {
 
       const entry = config.schemas![name];
       if (!entry) continue;
+
+      // Validate per-schema format config
+      if (entry.format) {
+        entry.format = _validateFormatConfig(entry.format, `schemas.${name}.format`, warnings);
+      }
 
       if (entry.path) {
         schemaPaths.push(entry.path);

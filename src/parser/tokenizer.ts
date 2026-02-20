@@ -9,7 +9,7 @@ import type { SourcePosition, Token, TokenType } from '../types';
 const KEYWORDS = new Set(['model', 'object', 'tuple', 'literal', 'enum']);
 
 /** Punctuation characters */
-const PUNCTUATION = new Set(['{', '}', ':', '?', '(', ')']);
+const PUNCTUATION = new Set(['{', '}', ':', '?', '(', ')', '[', ']', ',']);
 
 /** Valid type names (UpperFirst) */
 const TYPES = new Set(['String', 'Email', 'Int', 'Float', 'Bool', 'Date', 'Record', 'Relation']);
@@ -257,6 +257,10 @@ export function tokenize(source: string): Token[] {
     }
     if (char === '/' && peek(state) === '*') {
       tokens.push(readMultiLineComment(state));
+      continue;
+    }
+    if (char === '#') {
+      tokens.push(readSingleLineComment(state));
       continue;
     }
 

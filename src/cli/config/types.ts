@@ -2,6 +2,7 @@
  * Configuration types for multi-schema support
  */
 
+import type { FormatConfig } from '../../formatter/types';
 import type { ConnectionConfig } from '../../types/metadata.types';
 
 /**
@@ -14,6 +15,8 @@ export interface SchemaEntry {
   output?: string;
   /** Connection config for this schema (optional, uses root connection if not specified) */
   connection?: ConnectionConfig;
+  /** Formatting config for this schema (optional, uses root format if not specified) */
+  format?: FormatConfig;
   /** Absolute exclusion patterns — nothing can override. Glob patterns relative to this config's scope. */
   ignore?: string[];
   /** Exclusion patterns — can be overridden by 'include'. Glob patterns relative to this config's scope. */
@@ -34,6 +37,8 @@ export interface CerialConfig {
   output?: string;
   /** Root connection config (used if SchemaEntry.connection not specified) */
   connection?: ConnectionConfig;
+  /** Root formatting config (used if SchemaEntry.format not specified) */
+  format?: FormatConfig;
   /** Absolute exclusion patterns — nothing can override. Glob patterns relative to this config's scope. */
   ignore?: string[];
   /** Exclusion patterns — can be overridden by 'include'. Glob patterns relative to this config's scope. */
@@ -75,4 +80,6 @@ export interface ResolvedSchemaEntry {
   clientClassName: string;
   /** Connection config for this schema (optional) */
   connection?: ConnectionConfig;
+  /** Formatting config for this schema (merged from root + per-schema overrides) */
+  format?: FormatConfig;
 }

@@ -53,13 +53,35 @@ export function normalizeWhitespace(str: string): string {
   return str.trim().replace(/\s+/g, ' ');
 }
 
-/** Remove comments from a line */
+/** Remove comments from a line (supports // and # comments, respects quoted strings) */
 export function removeComments(line: string): string {
-  // Handle single-line comments
-  const singleLineIndex = line.indexOf('//');
-  if (singleLineIndex !== -1) {
-    return line.slice(0, singleLineIndex);
+  let inSingleQuote = false;
+  let inDoubleQuote = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+
+    if (ch === "'" && !inDoubleQuote) {
+      inSingleQuote = !inSingleQuote;
+      continue;
+    }
+    if (ch === '"' && !inSingleQuote) {
+      inDoubleQuote = !inDoubleQuote;
+      continue;
+    }
+
+    if (inSingleQuote || inDoubleQuote) continue;
+
+    // Check for // comment
+    if (ch === '/' && line[i + 1] === '/') {
+      return line.slice(0, i);
+    }
+    // Check for # comment
+    if (ch === '#') {
+      return line.slice(0, i);
+    }
   }
+
   return line;
 }
 

@@ -29,6 +29,9 @@ function resolveSingleSchema(config: CerialConfig, cwd: string): ResolvedSchemaE
   const absolutePath = toAbsolute(schemaPath, cwd);
   const output = config.output ? toAbsolute(config.output, cwd) : getDefaultOutput(absolutePath);
 
+  // Only include format if it has properties
+  const format = config.format && Object.keys(config.format).length > 0 ? config.format : undefined;
+
   return [
     {
       name: 'default',
@@ -36,6 +39,7 @@ function resolveSingleSchema(config: CerialConfig, cwd: string): ResolvedSchemaE
       output,
       clientClassName: 'CerialClient',
       connection: config.connection,
+      format,
     },
   ];
 }
@@ -52,12 +56,20 @@ function resolveMultiSchema(config: CerialConfig, cwd: string): ResolvedSchemaEn
         ? toAbsolute(rootOutput, cwd)
         : getDefaultOutput(absolutePath);
 
+    // Merge format config: schema.format overrides root.format
+    let format: Record<string, unknown> | undefined;
+    if (entry.format || config.format) {
+      const merged = { ...config.format, ...entry.format };
+      format = Object.keys(merged).length > 0 ? merged : undefined;
+    }
+
     return {
       name,
       path: absolutePath,
       output,
       clientClassName: toClientClassName(name),
       connection: entry.connection ?? config.connection,
+      format: format as any,
     };
   });
 }
