@@ -172,13 +172,15 @@ describe('E2E Any: Decorators', () => {
       data: { uniqueData: 'taken' },
     });
 
-    await expect(
-      (async () => {
-        await client.db.AnyUnique.create({
-          data: { uniqueData: 'taken' },
-        });
-      })(),
-    ).rejects.toThrow();
+    let threw = false;
+    try {
+      await client.db.AnyUnique.create({
+        data: { uniqueData: 'taken' },
+      });
+    } catch {
+      threw = true;
+    }
+    expect(threw).toBe(true);
   });
 
   test('@unique — different values succeed', async () => {

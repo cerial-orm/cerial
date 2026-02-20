@@ -45,16 +45,20 @@ describe('E2E Transactions: Atomicity', () => {
 
     // Transaction: create User A (valid) + create User B (duplicate @unique email)
     // The duplicate should cause the entire transaction to fail
-    await expect(
-      client.$transaction([
+    let threw = false;
+    try {
+      await client.$transaction([
         client.db.User.create({
           data: { email: uniqueEmail('a'), name: 'User A', isActive: true },
         }),
         client.db.User.create({
           data: { email: duplicateEmail, name: 'User B', isActive: false },
         }),
-      ]),
-    ).rejects.toThrow();
+      ]);
+    } catch {
+      threw = true;
+    }
+    expect(threw).toBe(true);
 
     // User A should NOT have been created (rolled back)
     const countAfter = await client.db.User.count();
@@ -73,8 +77,9 @@ describe('E2E Transactions: Atomicity', () => {
     });
 
     // Transaction: update user name + create with duplicate email
-    await expect(
-      client.$transaction([
+    let threw = false;
+    try {
+      await client.$transaction([
         client.db.User.updateMany({
           where: { id: user.id },
           data: { name: 'Updated' },
@@ -82,8 +87,11 @@ describe('E2E Transactions: Atomicity', () => {
         client.db.User.create({
           data: { email: duplicateEmail, name: 'Duplicate', isActive: false },
         }),
-      ]),
-    ).rejects.toThrow();
+      ]);
+    } catch {
+      threw = true;
+    }
+    expect(threw).toBe(true);
 
     // User name should be unchanged (rolled back)
     const unchanged = await client.db.User.findOne({ where: { id: user.id } });

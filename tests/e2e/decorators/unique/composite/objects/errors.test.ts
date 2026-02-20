@@ -46,17 +46,19 @@ describe('Composite Unique Objects: errors', () => {
     });
 
     // Same city + zip = composite unique violation
-    await expect(
-      (async () => {
-        await client.db.Warehouse.create({
-          data: {
-            name: 'Uptown',
-            location: { city: 'NYC', zip: '10001' },
-            capacity: 200,
-          },
-        });
-      })(),
-    ).rejects.toThrow();
+    let threw = false;
+    try {
+      await client.db.Warehouse.create({
+        data: {
+          name: 'Uptown',
+          location: { city: 'NYC', zip: '10001' },
+          capacity: 200,
+        },
+      });
+    } catch {
+      threw = true;
+    }
+    expect(threw).toBe(true);
   });
 
   test('allows same city with different zip (not a violation)', async () => {
@@ -97,17 +99,19 @@ describe('Composite Unique Objects: errors', () => {
     });
 
     // Same name + city = composite unique violation
-    await expect(
-      (async () => {
-        await client.db.Warehouse.create({
-          data: {
-            name: 'Central',
-            location: { city: 'Boston', zip: '02102' },
-            capacity: 600,
-          },
-        });
-      })(),
-    ).rejects.toThrow();
+    let threw = false;
+    try {
+      await client.db.Warehouse.create({
+        data: {
+          name: 'Central',
+          location: { city: 'Boston', zip: '02102' },
+          capacity: 600,
+        },
+      });
+    } catch {
+      threw = true;
+    }
+    expect(threw).toBe(true);
   });
 
   test('allows same name with different city (not a violation)', async () => {

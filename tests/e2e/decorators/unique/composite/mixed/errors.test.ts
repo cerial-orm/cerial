@@ -45,16 +45,18 @@ describe('Composite Unique Mixed: errors', () => {
     });
 
     // Same name + same city but different zip = nameCity composite violation
-    await expect(
-      (async () => {
-        await client.db.Warehouse.create({
-          data: {
-            name: 'Downtown',
-            location: { city: 'NYC', zip: '10002' },
-          },
-        });
-      })(),
-    ).rejects.toThrow();
+    let threw = false;
+    try {
+      await client.db.Warehouse.create({
+        data: {
+          name: 'Downtown',
+          location: { city: 'NYC', zip: '10002' },
+        },
+      });
+    } catch {
+      threw = true;
+    }
+    expect(threw).toBe(true);
   });
 
   test('allows same name with different city', async () => {
@@ -91,28 +93,32 @@ describe('Composite Unique Mixed: errors', () => {
     });
 
     // Different name, same city+zip → violates cityZip but not nameCity
-    await expect(
-      (async () => {
-        await client.db.Warehouse.create({
-          data: {
-            name: 'Beta',
-            location: { city: 'Boston', zip: '02101' },
-          },
-        });
-      })(),
-    ).rejects.toThrow();
+    let threw1 = false;
+    try {
+      await client.db.Warehouse.create({
+        data: {
+          name: 'Beta',
+          location: { city: 'Boston', zip: '02101' },
+        },
+      });
+    } catch {
+      threw1 = true;
+    }
+    expect(threw1).toBe(true);
 
     // Same name, same city, different zip → violates nameCity but not cityZip
-    await expect(
-      (async () => {
-        await client.db.Warehouse.create({
-          data: {
-            name: 'Alpha',
-            location: { city: 'Boston', zip: '02102' },
-          },
-        });
-      })(),
-    ).rejects.toThrow();
+    let threw2 = false;
+    try {
+      await client.db.Warehouse.create({
+        data: {
+          name: 'Alpha',
+          location: { city: 'Boston', zip: '02102' },
+        },
+      });
+    } catch {
+      threw2 = true;
+    }
+    expect(threw2).toBe(true);
 
     // Different name, different city, same zip → violates neither
     const result = await client.db.Warehouse.create({

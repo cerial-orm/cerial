@@ -70,14 +70,16 @@ describe('E2E Transactions: Edge Cases', () => {
   test('duplicate unique field in transaction causes rollback', async () => {
     const email = uniqueEmail();
 
-    await expect(
-      (async () => {
-        await client.$transaction([
-          client.db.User.create({ data: { email, name: 'First', isActive: true } }),
-          client.db.User.create({ data: { email, name: 'Duplicate', isActive: false } }),
-        ]);
-      })(),
-    ).rejects.toThrow();
+    let threw = false;
+    try {
+      await client.$transaction([
+        client.db.User.create({ data: { email, name: 'First', isActive: true } }),
+        client.db.User.create({ data: { email, name: 'Duplicate', isActive: false } }),
+      ]);
+    } catch {
+      threw = true;
+    }
+    expect(threw).toBe(true);
 
     const users = await client.db.User.findMany({ where: { email } });
     expect(users.length).toBe(0);

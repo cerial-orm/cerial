@@ -45,13 +45,15 @@ describe('E2E One-to-Many @onDelete(Restrict)', () => {
       });
 
       // Attempt to delete should fail
-      await expect(
-        (async () => {
-          await client.db.Department.deleteMany({
-            where: { id: dept.id },
-          });
-        })(),
-      ).rejects.toThrow();
+      let threw = false;
+      try {
+        await client.db.Department.deleteMany({
+          where: { id: dept.id },
+        });
+      } catch {
+        threw = true;
+      }
+      expect(threw).toBe(true);
 
       // Department should still exist
       expect(await client.db.Department.findOne({ where: { id: dept.id } })).toBeDefined();
@@ -133,13 +135,15 @@ describe('E2E One-to-Many @onDelete(Restrict)', () => {
       });
 
       // Should fail because Dept B has employees with @onDelete(Restrict)
-      await expect(
-        (async () => {
-          await client.db.Department.deleteMany({
-            where: { name: { contains: 'Dept' } },
-          });
-        })(),
-      ).rejects.toThrow();
+      let threw = false;
+      try {
+        await client.db.Department.deleteMany({
+          where: { name: { contains: 'Dept' } },
+        });
+      } catch {
+        threw = true;
+      }
+      expect(threw).toBe(true);
 
       // Both departments should still exist
       const depts = await client.db.Department.findMany({});

@@ -31,11 +31,11 @@
     "ts-toolbelt": "^9.6.0"
   },
   "scripts": {
-    "generate:test-client": "bun run bin/cerial.ts generate -o tests/e2e/generated",
+    "generate:test-client": "bun run bin/cerial.ts generate -s tests/e2e/schemas -o tests/e2e/generated",
     "typecheck": "tsc --noEmit -p tests/e2e/typechecks/tsconfig.json",
-    "test": "bun test --concurrency 5",
+    "test": "bun test tests/unit/ tests/generators/ tests/parser/ tests/query/ tests/client/ tests/validators/ tests/utils/ tests/integration/",
     "test:e2e": "bun test tests/e2e/ --preload ./tests/e2e/preload.ts --concurrency 5",
-    "test:full": "bun generate:test-client && bun typecheck && bun test",
+    "test:full": "bun generate:test-client && bun typecheck && bun run test && bun run test:e2e",
     "format": "biome check --write ."
   }
 }

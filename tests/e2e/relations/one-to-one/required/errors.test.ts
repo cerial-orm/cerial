@@ -67,30 +67,34 @@ describe('E2E One-to-One Required: Errors', () => {
   describe('non-existent record validation', () => {
     test('should reject profile with reference to non-existent user', async () => {
       // ORM validates that connected records exist
-      await expect(
-        (async () => {
-          await client.db.ProfileRequired.create({
-            data: {
-              bio: 'Test',
-              user: { connect: 'nonexistent123' },
-            },
-          });
-        })(),
-      ).rejects.toThrow();
+      let threw = false;
+      try {
+        await client.db.ProfileRequired.create({
+          data: {
+            bio: 'Test',
+            user: { connect: 'nonexistent123' },
+          },
+        });
+      } catch {
+        threw = true;
+      }
+      expect(threw).toBe(true);
     });
 
     test('should reject any non-existent record ID', async () => {
       // ORM validates record existence regardless of ID format
-      await expect(
-        (async () => {
-          await client.db.ProfileRequired.create({
-            data: {
-              bio: 'Test',
-              user: { connect: 'any-string-is-valid' },
-            },
-          });
-        })(),
-      ).rejects.toThrow();
+      let threw = false;
+      try {
+        await client.db.ProfileRequired.create({
+          data: {
+            bio: 'Test',
+            user: { connect: 'any-string-is-valid' },
+          },
+        });
+      } catch {
+        threw = true;
+      }
+      expect(threw).toBe(true);
     });
   });
 

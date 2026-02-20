@@ -798,17 +798,19 @@ describe('E2E Objects: Decorators', () => {
         },
       });
 
-      await expect(
-        (async () => {
-          await client.db.ObjDecUser.create({
-            data: {
-              name: 'User2',
-              contact: { email: 'user2@example.com' },
-              location: { address: '701 Main', zip: 'U0001', country: 'CA' },
-            },
-          });
-        })(),
-      ).rejects.toThrow();
+      let threw = false;
+      try {
+        await client.db.ObjDecUser.create({
+          data: {
+            name: 'User2',
+            contact: { email: 'user2@example.com' },
+            location: { address: '701 Main', zip: 'U0001', country: 'CA' },
+          },
+        });
+      } catch {
+        threw = true;
+      }
+      expect(threw).toBe(true);
     });
 
     test('should allow same zip in different fields (location vs altLocation)', async () => {
@@ -836,18 +838,20 @@ describe('E2E Objects: Decorators', () => {
         },
       });
 
-      await expect(
-        (async () => {
-          await client.db.ObjDecUser.create({
-            data: {
-              name: 'User5',
-              contact: { email: 'user5@example.com' },
-              location: { address: '706 Main', zip: 'U0005', country: 'US' },
-              altLocation: { address: '707 Oak', zip: 'U0004', country: 'CA' },
-            },
-          });
-        })(),
-      ).rejects.toThrow();
+      let threw = false;
+      try {
+        await client.db.ObjDecUser.create({
+          data: {
+            name: 'User5',
+            contact: { email: 'user5@example.com' },
+            location: { address: '706 Main', zip: 'U0005', country: 'US' },
+            altLocation: { address: '707 Oak', zip: 'U0004', country: 'CA' },
+          },
+        });
+      } catch {
+        threw = true;
+      }
+      expect(threw).toBe(true);
     });
   });
 

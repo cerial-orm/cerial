@@ -46,18 +46,20 @@ describe('Composite Unique Primitives: errors', () => {
     });
 
     // Same firstName + lastName = composite unique violation
-    await expect(
-      (async () => {
-        await client.db.Staff.create({
-          data: {
-            firstName: 'Alice',
-            lastName: 'Smith',
-            department: 'Marketing',
-            email: 'alice.smith.2@test.com',
-          },
-        });
-      })(),
-    ).rejects.toThrow();
+    let threw = false;
+    try {
+      await client.db.Staff.create({
+        data: {
+          firstName: 'Alice',
+          lastName: 'Smith',
+          department: 'Marketing',
+          email: 'alice.smith.2@test.com',
+        },
+      });
+    } catch {
+      threw = true;
+    }
+    expect(threw).toBe(true);
   });
 
   test('allows same firstName with different lastName (not a violation)', async () => {
@@ -100,17 +102,19 @@ describe('Composite Unique Primitives: errors', () => {
     });
 
     // Different composite key but same email = single @unique violation
-    await expect(
-      (async () => {
-        await client.db.Staff.create({
-          data: {
-            firstName: 'Carol',
-            lastName: 'Davis',
-            department: 'HR',
-            email: 'shared@test.com',
-          },
-        });
-      })(),
-    ).rejects.toThrow();
+    let threw = false;
+    try {
+      await client.db.Staff.create({
+        data: {
+          firstName: 'Carol',
+          lastName: 'Davis',
+          department: 'HR',
+          email: 'shared@test.com',
+        },
+      });
+    } catch {
+      threw = true;
+    }
+    expect(threw).toBe(true);
   });
 });

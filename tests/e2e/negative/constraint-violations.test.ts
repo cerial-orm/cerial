@@ -39,18 +39,20 @@ describe('Constraint Violations — negative cases', () => {
       },
     });
 
-    await expect(
-      (async () => {
-        await client.db.Staff.create({
-          data: {
-            firstName: 'Bob',
-            lastName: 'Jones',
-            department: 'HR',
-            email: 'alice@example.com',
-          },
-        });
-      })(),
-    ).rejects.toThrow();
+    let threw = false;
+    try {
+      await client.db.Staff.create({
+        data: {
+          firstName: 'Bob',
+          lastName: 'Jones',
+          department: 'HR',
+          email: 'alice@example.com',
+        },
+      });
+    } catch {
+      threw = true;
+    }
+    expect(threw).toBe(true);
   });
 
   test('DB rejects duplicate composite unique (firstName + lastName)', async () => {
@@ -63,18 +65,20 @@ describe('Constraint Violations — negative cases', () => {
       },
     });
 
-    await expect(
-      (async () => {
-        await client.db.Staff.create({
-          data: {
-            firstName: 'Alice',
-            lastName: 'Smith',
-            department: 'Marketing',
-            email: 'alice2@example.com',
-          },
-        });
-      })(),
-    ).rejects.toThrow();
+    let threw = false;
+    try {
+      await client.db.Staff.create({
+        data: {
+          firstName: 'Alice',
+          lastName: 'Smith',
+          department: 'Marketing',
+          email: 'alice2@example.com',
+        },
+      });
+    } catch {
+      threw = true;
+    }
+    expect(threw).toBe(true);
   });
 
   test('DB rejects duplicate @unique email on updateMany', async () => {
@@ -96,14 +100,16 @@ describe('Constraint Violations — negative cases', () => {
       },
     });
 
-    await expect(
-      (async () => {
-        await client.db.Staff.updateMany({
-          where: { firstName: 'Bob' },
-          data: { email: 'alice@example.com' },
-        });
-      })(),
-    ).rejects.toThrow();
+    let threw = false;
+    try {
+      await client.db.Staff.updateMany({
+        where: { firstName: 'Bob' },
+        data: { email: 'alice@example.com' },
+      });
+    } catch {
+      threw = true;
+    }
+    expect(threw).toBe(true);
   });
 
   test('allows partial composite key match (same firstName, different lastName)', async () => {

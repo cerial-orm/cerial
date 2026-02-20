@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'bun:test';
+import { basename } from 'node:path';
 import { discoverSchemas, findSchemaRoots } from '../../../src/cli/resolvers';
 import { getFixturePath } from '../../fixtures/multi-schema/helpers';
 
@@ -9,8 +10,8 @@ describe('convention marker discovery', () => {
 
       expect(roots.length).toBeGreaterThanOrEqual(2);
 
-      const authRoot = roots.find((r) => r.path.endsWith('/auth'));
-      const cmsRoot = roots.find((r) => r.path.endsWith('/cms'));
+      const authRoot = roots.find((r) => basename(r.path) === 'auth');
+      const cmsRoot = roots.find((r) => basename(r.path) === 'cms');
       expect(authRoot).toBeDefined();
       expect(cmsRoot).toBeDefined();
       expect(authRoot!.marker).toBe('schema.cerial');
@@ -20,7 +21,7 @@ describe('convention marker discovery', () => {
     it('should include all .cerial files in discovered roots', async () => {
       const roots = await findSchemaRoots(getFixturePath('with-markers/schemas'));
 
-      const authRoot = roots.find((r) => r.path.endsWith('/auth'));
+      const authRoot = roots.find((r) => basename(r.path) === 'auth');
       expect(authRoot).toBeDefined();
       expect(authRoot!.files.length).toBeGreaterThanOrEqual(2);
       expect(authRoot!.files.some((f) => f.endsWith('schema.cerial'))).toBe(true);

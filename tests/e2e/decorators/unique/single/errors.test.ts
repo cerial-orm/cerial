@@ -42,18 +42,20 @@ describe('Single @unique — errors', () => {
       },
     });
 
-    await expect(
-      (async () => {
-        await client.db.Staff.create({
-          data: {
-            firstName: 'Iris',
-            lastName: 'Other',
-            department: 'HR',
-            email: 'iris@example.com',
-          },
-        });
-      })(),
-    ).rejects.toThrow();
+    let threw = false;
+    try {
+      await client.db.Staff.create({
+        data: {
+          firstName: 'Iris',
+          lastName: 'Other',
+          department: 'HR',
+          email: 'iris@example.com',
+        },
+      });
+    } catch {
+      threw = true;
+    }
+    expect(threw).toBe(true);
   });
 
   test('findUnique throws when called with only non-unique fields', async () => {

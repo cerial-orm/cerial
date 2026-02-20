@@ -115,16 +115,18 @@ describe('E2E One-to-Many Required: Create from Child', () => {
     });
 
     test('should reject post with non-existent author', async () => {
-      await expect(
-        (async () => {
-          await client.db.PostRequired.create({
-            data: {
-              title: 'Bad Author',
-              author: { connect: 'author:nonexistent' },
-            },
-          });
-        })(),
-      ).rejects.toThrow();
+      let threw = false;
+      try {
+        await client.db.PostRequired.create({
+          data: {
+            title: 'Bad Author',
+            author: { connect: 'author:nonexistent' },
+          },
+        });
+      } catch {
+        threw = true;
+      }
+      expect(threw).toBe(true);
     });
   });
 

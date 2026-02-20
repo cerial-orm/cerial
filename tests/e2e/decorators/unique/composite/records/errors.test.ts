@@ -44,13 +44,15 @@ describe('Composite Unique Records: errors', () => {
     });
 
     // Same attendeeId + workshopId = composite unique violation
-    await expect(
-      (async () => {
-        await client.db.Registration.create({
-          data: { attendeeId: attendee.id, workshopId: workshop.id, role: 'instructor' },
-        });
-      })(),
-    ).rejects.toThrow();
+    let threw = false;
+    try {
+      await client.db.Registration.create({
+        data: { attendeeId: attendee.id, workshopId: workshop.id, role: 'instructor' },
+      });
+    } catch {
+      threw = true;
+    }
+    expect(threw).toBe(true);
   });
 
   test('allows same attendee with different workshop (not a violation)', async () => {

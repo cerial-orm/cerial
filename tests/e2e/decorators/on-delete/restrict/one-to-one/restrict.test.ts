@@ -49,13 +49,15 @@ describe('E2E One-to-One @onDelete(Restrict)', () => {
       });
 
       // Attempting to delete user should fail
-      await expect(
-        (async () => {
-          await client.db.UserRestrict.deleteMany({
-            where: { id: user.id },
-          });
-        })(),
-      ).rejects.toThrow();
+      let threw = false;
+      try {
+        await client.db.UserRestrict.deleteMany({
+          where: { id: user.id },
+        });
+      } catch {
+        threw = true;
+      }
+      expect(threw).toBe(true);
 
       // User should still exist
       const userAfter = await client.db.UserRestrict.findOne({
@@ -156,13 +158,15 @@ describe('E2E One-to-One @onDelete(Restrict)', () => {
       });
 
       // DeleteMany should fail because user1 has profile
-      await expect(
-        (async () => {
-          await client.db.UserRestrict.deleteMany({
-            where: { name: { contains: 'User' } },
-          });
-        })(),
-      ).rejects.toThrow();
+      let threw = false;
+      try {
+        await client.db.UserRestrict.deleteMany({
+          where: { name: { contains: 'User' } },
+        });
+      } catch {
+        threw = true;
+      }
+      expect(threw).toBe(true);
 
       // Both users should still exist
       const users = await client.db.UserRestrict.findMany({});

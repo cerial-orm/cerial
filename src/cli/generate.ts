@@ -3,7 +3,7 @@
  */
 
 import { readdir, rm } from 'node:fs/promises';
-import { basename, resolve } from 'node:path';
+import { basename, dirname, resolve } from 'node:path';
 import { writeClient } from '../generators/client/writer';
 import {
   convertLiterals,
@@ -742,8 +742,12 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
     if (config) {
       const { filter: rootFilter, rootFilterConfig, rootCerialIgnore } = await buildConfigRootFilter(config, cwd);
 
+      // When config is explicitly provided, scope discovery to its directory
+      // to prevent fixture/test folder pollution from auto-discovery at project root
+      const configDir = options.config ? dirname(resolve(options.config)) : cwd;
+
       const entries = resolveConfig(config);
-      const allEntries = await applyFolderOverridesAndDiscover(entries, cwd, rootFilter);
+      const allEntries = await applyFolderOverridesAndDiscover(entries, configDir, rootFilter);
 
       let targetEntries = allEntries;
       if (options.name) {
@@ -765,7 +769,7 @@ export async function generate(options: CLIOptions): Promise<GenerateResult> {
       const logLevel = options.log ?? 'minimal';
       logger.setOutputLevel(logLevel);
 
-      const filters = await buildSchemaFilters(config, targetEntries, rootFilterConfig, rootCerialIgnore, cwd);
+      const filters = await buildSchemaFilters(config, targetEntries, rootFilterConfig, rootCerialIgnore, configDir);
 
       const multiResult = await generateMultiSchema(
         targetEntries,
