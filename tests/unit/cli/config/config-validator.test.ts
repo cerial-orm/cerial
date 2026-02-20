@@ -581,7 +581,7 @@ describe('filter field validation', () => {
 
       expect(result.valid).toBe(false);
       expect(result.errors.length).toBeGreaterThan(0);
-      expect(result.errors[0]?.message).toContain('must be an array');
+      expect(result.errors[0]?.message).toContain('Must be an array');
     });
 
     it('should reject exclude with non-string items', () => {
@@ -648,7 +648,7 @@ describe('filter field validation', () => {
 
       expect(result.valid).toBe(false);
       expect(result.errors.length).toBeGreaterThan(0);
-      expect(result.errors[0]?.message).toContain('must be an array');
+      expect(result.errors[0]?.message).toContain('Must be an array');
     });
   });
 
@@ -800,7 +800,7 @@ describe('filter field validation', () => {
 
       expect(result.valid).toBe(false);
       expect(result.errors.length).toBeGreaterThan(0);
-      expect(result.errors[0]?.message).toContain('must be an array');
+      expect(result.errors[0]?.message).toContain('Must be an array');
     });
 
     it('should reject include with empty string', () => {
