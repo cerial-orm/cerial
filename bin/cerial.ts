@@ -1,6 +1,7 @@
 #!/usr/bin/env bun
 
 import { defineCommand, runMain } from 'citty';
+import { formatCommand } from '../src/cli/commands/format';
 import { generateCommand } from '../src/cli/commands/generate';
 import { initCommand } from '../src/cli/commands/init';
 
@@ -16,6 +17,7 @@ const main = defineCommand({
   },
   subCommands: {
     generate: generateCommand,
+    format: formatCommand,
     init: initCommand,
   },
 });
