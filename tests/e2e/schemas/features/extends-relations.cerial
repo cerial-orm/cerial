@@ -1,0 +1,90 @@
+// Models with relations that extend abstract bases
+// Tests FK + Relation separately, pick of FK without Relation
+
+abstract model ExtRelBase {
+  id Record @id !!private
+  createdAt Date @createdAt !!private
+  updatedAt Date @updatedAt
+}
+
+// Base with relation
+abstract model ExtRelAuthor extends ExtRelBase {
+  name String
+  email Email @unique
+}
+
+// Concrete author
+model ExtRelBlogAuthor extends ExtRelAuthor {
+  bio String?
+  posts Relation[] @model(ExtRelBlogPost)
+}
+
+// Concrete post extending base with FK
+model ExtRelBlogPost extends ExtRelBase {
+  title String
+  content String?
+  authorId Record
+  author Relation @field(authorId) @model(ExtRelBlogAuthor)
+}
+
+// Base with optional relation
+abstract model ExtRelOwner extends ExtRelBase {
+  name String
+}
+
+// Concrete owner with optional relation
+model ExtRelProject extends ExtRelOwner {
+  description String?
+  ownerId Record?
+  owner Relation? @field(ownerId) @model(ExtRelBlogAuthor)
+}
+
+// Base for many-to-many
+abstract model ExtRelTag extends ExtRelBase {
+  name String @unique
+}
+
+// Concrete tag with many-to-many
+model ExtRelBlogTag extends ExtRelTag {
+  posts Relation[] @model(ExtRelBlogPostTag)
+}
+
+// Junction model for many-to-many
+model ExtRelBlogPostTag {
+  id Record @id
+  postId Record
+  post Relation @field(postId) @model(ExtRelBlogPost)
+  tagId Record
+  tag Relation @field(tagId) @model(ExtRelBlogTag)
+}
+
+// Model extending base with pick (exclude relation)
+model ExtRelPostSummary extends ExtRelBlogPost[!author] {
+  summary String?
+  wordCount Int?
+}
+
+// Model extending base with omit (exclude relation)
+model ExtRelPostArchive extends ExtRelBlogPost[!updatedAt] {
+  archivedAt Date @createdAt
+  archiveReason String?
+}
+
+// Model with multiple relations
+model ExtRelComment extends ExtRelBase {
+  content String
+  postId Record
+  post Relation @field(postId) @model(ExtRelBlogPost)
+  authorId Record
+  author Relation @field(authorId) @model(ExtRelBlogAuthor)
+  parentCommentId Record?
+  parentComment Relation? @field(parentCommentId) @model(ExtRelComment)
+  replies Relation[] @model(ExtRelComment)
+}
+
+// Model extending with relation override
+model ExtRelCommentModerated extends ExtRelComment {
+  isApproved Bool @default(false)
+  approvedBy Record?
+  approver Relation? @field(approvedBy) @model(ExtRelBlogAuthor)
+}

@@ -1,0 +1,81 @@
+// 3+ level deep inheritance chains (A extends B extends C)
+// Tests deep inheritance resolution and field accumulation
+
+// Level 1: Abstract base
+abstract model ExtL1Base {
+  id Record @id !!private
+  createdAt Date @createdAt !!private
+}
+
+// Level 2: Extends L1
+abstract model ExtL2Mid extends ExtL1Base {
+  name String
+  description String?
+}
+
+// Level 3: Extends L2
+abstract model ExtL3High extends ExtL2Mid {
+  tags String[]
+  metadata Int?
+}
+
+// Level 4: Concrete model extending L3
+model ExtL4Concrete extends ExtL3High {
+  status String @default('active')
+  priority Int @default(0)
+}
+
+// Alternative Level 3 from L2
+abstract model ExtL3Alt extends ExtL2Mid {
+  owner Record
+  isPublic Bool @default(false)
+}
+
+// Level 4 from L3Alt
+model ExtL4AltConcrete extends ExtL3Alt {
+  viewCount Int @default(0)
+  lastViewed Date?
+}
+
+// Deep chain with pick at level 3
+abstract model ExtL3Pick extends ExtL2Mid[name] {
+  category String
+}
+
+// Level 4 from L3Pick
+model ExtL4PickConcrete extends ExtL3Pick {
+  subcategory String?
+  rank Int?
+}
+
+// Deep chain with omit at level 3
+abstract model ExtL3Omit extends ExtL2Mid[!description] {
+  type String
+}
+
+// Level 4 from L3Omit
+model ExtL4OmitConcrete extends ExtL3Omit {
+  subtype String?
+  version Int @default(1)
+}
+
+// Level 5: Ultra-deep chain
+abstract model ExtL5VeryDeep extends ExtL4Concrete {
+  archived Bool @default(false)
+}
+
+// Level 6: Concrete from L5
+model ExtL6UltraDeep extends ExtL5VeryDeep {
+  archiveReason String?
+  archivedAt Date?
+}
+
+// Model using all deep inheritance levels
+model ExtMultiLevelContainer {
+  id Record @id
+  l4Concrete ExtL4Concrete
+  l4AltConcrete ExtL4AltConcrete
+  l4PickConcrete ExtL4PickConcrete
+  l4OmitConcrete ExtL4OmitConcrete
+  l6UltraDeep ExtL6UltraDeep?
+}

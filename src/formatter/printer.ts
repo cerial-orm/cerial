@@ -4,7 +4,7 @@
  * comment preservation, and canonical decorator ordering.
  */
 
-import type { ASTCompositeDirective, ASTDecorator, ASTField, ASTModel, ASTObject } from '../types';
+import type { ASTCompositeDirective, ASTDecorator, ASTField, ASTModel, ASTObject, ExtendsFilter } from '../types';
 import type { AlignedField } from './aligner';
 import { alignFields } from './aligner';
 import type { CommentMap } from './comment-attacher';
@@ -133,11 +133,24 @@ function computeBlankLineAfter(
   }
 }
 
+/** Build the extends clause string for a block header */
+function buildExtendsClause(extendsTarget?: string, extendsFilter?: ExtendsFilter): string {
+  if (!extendsTarget) return '';
+
+  let clause = ` extends ${extendsTarget}`;
+  if (extendsFilter) {
+    const items = extendsFilter.mode === 'omit' ? extendsFilter.fields.map((f) => `!${f}`) : extendsFilter.fields;
+    clause += `[${items.join(', ')}]`;
+  }
+
+  return clause;
+}
+
 /**
  * Shared block printer for model and object blocks.
  *
  * 1. Leading comments → before opening line
- * 2. Opening line: `keyword Name {` with optional trailing comment
+ * 2. Opening line: `[abstract ]{keyword} {name}[ extends {parent}[{filter}]] {` with optional trailing comment
  * 3. Fields: aligned with aligner, interleaved with blank lines and leading comments
  * 4. blankLineBeforeDirectives handling
  * 5. Composite directives with comments
@@ -151,6 +164,9 @@ function printBlock(
   comments: CommentMap,
   config: Required<FormatConfig>,
   source: string,
+  blockAbstract?: boolean,
+  blockExtends?: string,
+  blockExtendsFilter?: ExtendsFilter,
 ): string {
   const lines: string[] = [];
   const indent = buildIndent(config.indentSize);
@@ -166,7 +182,11 @@ function printBlock(
   }
 
   // 2. Opening line with optional trailing comment
-  let openLine = `${keyword} ${name} {`;
+  let openLine = '';
+  if (blockAbstract) openLine += 'abstract ';
+  openLine += `${keyword} ${name}`;
+  openLine += buildExtendsClause(blockExtends, blockExtendsFilter);
+  openLine += ' {';
   if (blockComments?.trailing.length) {
     openLine += ` ${blockComments.trailing[0]!.value}`;
   }
@@ -191,6 +211,7 @@ function printBlock(
       decoratorString: decoratorStr,
       hasBlankLineAfter,
       trailingComment,
+      privateMarker: field.isPrivate ? '!!private' : undefined,
     });
   }
 
@@ -270,7 +291,18 @@ export function printModel(
   config: Required<FormatConfig>,
   source: string,
 ): string {
-  return printBlock('model', model.name, model.fields, model.directives, comments, config, source);
+  return printBlock(
+    'model',
+    model.name,
+    model.fields,
+    model.directives,
+    comments,
+    config,
+    source,
+    model.abstract,
+    model.extends,
+    model.extendsFilter,
+  );
 }
 
 /**
@@ -282,5 +314,16 @@ export function printObject(
   config: Required<FormatConfig>,
   source: string,
 ): string {
-  return printBlock('object', object.name, object.fields, undefined, comments, config, source);
+  return printBlock(
+    'object',
+    object.name,
+    object.fields,
+    undefined,
+    comments,
+    config,
+    source,
+    undefined,
+    object.extends,
+    object.extendsFilter,
+  );
 }

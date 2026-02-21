@@ -14,6 +14,7 @@ import type {
   ASTObject,
   ASTTuple,
   ASTTupleElement,
+  ExtendsFilter,
   ParseError,
   ParseResult,
   SchemaAST,
@@ -41,6 +42,7 @@ import {
   parseFieldType,
 } from './types';
 import { extractDefaultAlwaysValue } from './types/field-decorators';
+import { parseExtendsBracket } from './types/model/model-declaration-parser';
 
 /** Parser state */
 interface ParserState {
@@ -112,7 +114,8 @@ function addError(state: ParserState, message: string): void {
 /** Check if line is a model declaration */
 function isModelLine(line: string): boolean {
   const trimmed = removeComments(line).trim();
-  return trimmed.startsWith('model ');
+
+  return trimmed.startsWith('model ') || trimmed.startsWith('abstract model ');
 }
 
 /** Check if line is an object declaration */
@@ -132,7 +135,7 @@ function isTupleLine(line: string): boolean {
 /** Extract object name from line */
 function extractObjectNameFromLine(line: string): string | null {
   const trimmed = removeComments(line).trim();
-  const match = trimmed.match(/^object\s+(\w+)/);
+  const match = trimmed.match(/^object\s+(\w+)(?:\s+extends\s+\w+(?:\[[^\]]*\])?)?\s*\{?/);
 
   return match ? match[1]! : null;
 }
@@ -140,7 +143,7 @@ function extractObjectNameFromLine(line: string): string | null {
 /** Extract tuple name from line */
 function extractTupleNameFromLine(line: string): string | null {
   const trimmed = removeComments(line).trim();
-  const match = trimmed.match(/^tuple\s+(\w+)/);
+  const match = trimmed.match(/^tuple\s+(\w+)(?:\s+extends\s+\w+(?:\[[^\]]*\])?)?\s*\{?/);
 
   return match ? match[1]! : null;
 }
@@ -155,7 +158,7 @@ function isLiteralLine(line: string): boolean {
 /** Extract literal name from line */
 function extractLiteralNameFromLine(line: string): string | null {
   const trimmed = removeComments(line).trim();
-  const match = trimmed.match(/^literal\s+(\w+)/);
+  const match = trimmed.match(/^literal\s+(\w+)(?:\s+extends\s+\w+(?:\[[^\]]*\])?)?\s*\{?/);
 
   return match ? match[1]! : null;
 }
@@ -170,7 +173,7 @@ function isEnumLine(line: string): boolean {
 /** Extract enum name from line */
 function extractEnumNameFromLine(line: string): string | null {
   const trimmed = removeComments(line).trim();
-  const match = trimmed.match(/^enum\s+(\w+)/);
+  const match = trimmed.match(/^enum\s+(\w+)(?:\s+extends\s+\w+(?:\[[^\]]*\])?)?\s*\{?/);
 
   return match ? match[1]! : null;
 }
@@ -240,8 +243,25 @@ function parseCompositeDirective(
 /** Extract model name from line */
 function extractModelName(line: string): string | null {
   const trimmed = removeComments(line).trim();
-  const match = trimmed.match(/^model\s+(\w+)/);
+  const match = trimmed.match(/^(?:abstract\s+)?model\s+(\w+)/);
+
   return match ? match[1]! : null;
+}
+
+/** Extract extends info from a declaration line (works for any type kind) */
+function extractExtendsInfo(line: string): { extends_?: string; extendsFilter?: ExtendsFilter } {
+  const trimmed = removeComments(line).trim();
+  const match = trimmed.match(/\bextends\s+(\w+)(?:\[([^\]]*)\])?/);
+  if (!match) return {};
+
+  const result: { extends_?: string; extendsFilter?: ExtendsFilter } = { extends_: match[1]! };
+
+  if (match[2] !== undefined && match[2] !== '') {
+    const filter = parseExtendsBracket(match[2]);
+    if (filter) result.extendsFilter = filter;
+  }
+
+  return result;
 }
 
 /** Parse a model block */
@@ -256,6 +276,11 @@ function parseModel(state: ParserState): ASTModel | null {
     advance(state);
     return null;
   }
+
+  // Extract abstract and extends info
+  const trimmedLine = removeComments(line).trim();
+  const isAbstract = trimmedLine.startsWith('abstract ');
+  const extendsInfo = extractExtendsInfo(line);
 
   const startLine = state.currentLine;
   advance(state);
@@ -330,7 +355,15 @@ function parseModel(state: ParserState): ASTModel | null {
   // Create model
   const range = createRange(createPosition(startLine + 1, 0, 0), createPosition(state.currentLine, 0, 0));
 
-  return createModel(modelName, fields, range, directives);
+  return createModel(
+    modelName,
+    fields,
+    range,
+    directives,
+    isAbstract || undefined,
+    extendsInfo.extends_,
+    extendsInfo.extendsFilter,
+  );
 }
 
 /** Parse an object block */
@@ -345,6 +378,9 @@ function parseObject(state: ParserState): ASTObject | null {
     advance(state);
     return null;
   }
+
+  // Extract extends info
+  const extendsInfo = extractExtendsInfo(line);
 
   const startLine = state.currentLine;
   advance(state);
@@ -405,7 +441,7 @@ function parseObject(state: ParserState): ASTObject | null {
   // Create object
   const range = createRange(createPosition(startLine + 1, 0, 0), createPosition(state.currentLine, 0, 0));
 
-  return createObject(objectName, fields, range);
+  return createObject(objectName, fields, range, extendsInfo.extends_, extendsInfo.extendsFilter);
 }
 
 /**
@@ -431,8 +467,12 @@ function parseTupleElement(
   const trimmed = token.trim();
   if (!trimmed) return null;
 
+  // Detect and strip !!private marker
+  const isPrivate = trimmed.includes('!!private');
+  const withoutPrivate = isPrivate ? trimmed.replace(/\s*!!private\s*/g, '').trim() : trimmed;
+
   // Extract decorators from the element token
-  const decoratorMatches = [...trimmed.matchAll(/@\w+(?:\([^)]*\))?/g)];
+  const decoratorMatches = [...withoutPrivate.matchAll(/@\w+(?:\([^)]*\))?/g)];
   const decorators: ASTDecorator[] = [];
 
   for (const match of decoratorMatches) {
@@ -455,7 +495,7 @@ function parseTupleElement(
   }
 
   // Remove decorators from the token for type parsing
-  const withoutDecorators = trimmed.replace(/@\w+(?:\([^)]*\))?/g, '').trim();
+  const withoutDecorators = withoutPrivate.replace(/@\w+(?:\([^)]*\))?/g, '').trim();
   const parts = withoutDecorators.split(/\s+/);
   if (!parts.length) return null;
 
@@ -494,6 +534,7 @@ function parseTupleElement(
     tupleName,
     decorators.length ? decorators : undefined,
     literalName,
+    isPrivate || undefined,
   );
 }
 
@@ -511,6 +552,9 @@ function parseTuple(state: ParserState): ASTTuple | null {
     return null;
   }
 
+  // Extract extends info
+  const extendsInfo = extractExtendsInfo(line);
+
   const startLine = state.currentLine;
   advance(state);
 
@@ -524,7 +568,7 @@ function parseTuple(state: ParserState): ASTTuple | null {
       const elements = parseTupleElements(content, tupleName, state);
       const range = createRange(createPosition(startLine + 1, 0, 0), createPosition(state.currentLine, 0, 0));
 
-      return createTuple(tupleName, elements, range);
+      return createTuple(tupleName, elements, range, extendsInfo.extends_, extendsInfo.extendsFilter);
     }
   }
 
@@ -595,7 +639,7 @@ function parseTuple(state: ParserState): ASTTuple | null {
   const elements = parseTupleElements(content, tupleName, state);
   const range = createRange(createPosition(startLine + 1, 0, 0), createPosition(state.currentLine, 0, 0));
 
-  return createTuple(tupleName, elements, range);
+  return createTuple(tupleName, elements, range, extendsInfo.extends_, extendsInfo.extendsFilter);
 }
 
 /**
@@ -728,6 +772,9 @@ function parseLiteral(state: ParserState): ASTLiteral | null {
     return null;
   }
 
+  // Extract extends info
+  const extendsInfo = extractExtendsInfo(line);
+
   const startLine = state.currentLine;
   advance(state);
 
@@ -741,7 +788,7 @@ function parseLiteral(state: ParserState): ASTLiteral | null {
       const variants = parseLiteralVariants(content, litName, state);
       const range = createRange(createPosition(startLine + 1, 0, 0), createPosition(state.currentLine, 0, 0));
 
-      return createLiteral(litName, variants, range);
+      return createLiteral(litName, variants, range, extendsInfo.extends_, extendsInfo.extendsFilter);
     }
   }
 
@@ -806,7 +853,7 @@ function parseLiteral(state: ParserState): ASTLiteral | null {
   const variants = parseLiteralVariants(content, litName, state);
   const range = createRange(createPosition(startLine + 1, 0, 0), createPosition(state.currentLine, 0, 0));
 
-  return createLiteral(litName, variants, range);
+  return createLiteral(litName, variants, range, extendsInfo.extends_, extendsInfo.extendsFilter);
 }
 
 /**
@@ -884,6 +931,9 @@ function parseEnum(state: ParserState): ASTEnum | null {
     return null;
   }
 
+  // Extract extends info
+  const extendsInfo = extractExtendsInfo(line);
+
   const startLine = state.currentLine;
   advance(state);
 
@@ -897,7 +947,7 @@ function parseEnum(state: ParserState): ASTEnum | null {
       const values = parseEnumValues(content, enumName, state);
       const range = createRange(createPosition(startLine + 1, 0, 0), createPosition(state.currentLine, 0, 0));
 
-      return createEnum(enumName, values, range);
+      return createEnum(enumName, values, range, extendsInfo.extends_, extendsInfo.extendsFilter);
     }
   }
 
@@ -962,7 +1012,7 @@ function parseEnum(state: ParserState): ASTEnum | null {
   const values = parseEnumValues(content, enumName, state);
   const range = createRange(createPosition(startLine + 1, 0, 0), createPosition(state.currentLine, 0, 0));
 
-  return createEnum(enumName, values, range);
+  return createEnum(enumName, values, range, extendsInfo.extends_, extendsInfo.extendsFilter);
 }
 
 /**
@@ -988,8 +1038,8 @@ function collectNames(source: string): {
     if (trimmed.startsWith('object ')) {
       const match = trimmed.match(/^object\s+(\w+)/);
       if (match) objectNames.add(match[1]!);
-    } else if (trimmed.startsWith('model ')) {
-      const match = trimmed.match(/^model\s+(\w+)/);
+    } else if (trimmed.startsWith('model ') || trimmed.startsWith('abstract model ')) {
+      const match = trimmed.match(/^(?:abstract\s+)?model\s+(\w+)/);
       if (match) modelNames.add(match[1]!);
     } else if (trimmed.startsWith('tuple ')) {
       const match = trimmed.match(/^tuple\s+(\w+)/);

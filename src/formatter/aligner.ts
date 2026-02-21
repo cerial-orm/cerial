@@ -21,6 +21,8 @@ export interface AlignedField {
   hasBlankLineAfter: boolean;
   /** Trailing comment text (e.g., '# important') */
   trailingComment?: string;
+  /** Private marker (e.g., '!!private') — formatted as a 4th alignment column */
+  privateMarker?: string;
 }
 
 /**
@@ -29,6 +31,10 @@ export interface AlignedField {
 interface ColumnWidths {
   nameWidth: number;
   typeWidth: number;
+  /** Max decorator string length in the group (used for !!private 4th column alignment) */
+  decoratorWidth: number;
+  /** Whether any field in the group has a privateMarker */
+  hasPrivate: boolean;
 }
 
 /**
@@ -57,18 +63,22 @@ function splitIntoGroups(fields: AlignedField[]): { field: AlignedField; index: 
 }
 
 /**
- * Calculate the max name and type widths for a set of fields.
+ * Calculate the max name, type, and decorator widths for a set of fields.
  */
 function maxWidths(fields: AlignedField[]): ColumnWidths {
   let nameWidth = 0;
   let typeWidth = 0;
+  let decoratorWidth = 0;
+  let hasPrivate = false;
 
   for (const field of fields) {
     if (field.name.length > nameWidth) nameWidth = field.name.length;
     if (field.typeWithModifiers.length > typeWidth) typeWidth = field.typeWithModifiers.length;
+    if (field.decoratorString.length > decoratorWidth) decoratorWidth = field.decoratorString.length;
+    if (field.privateMarker) hasPrivate = true;
   }
 
-  return { nameWidth, typeWidth };
+  return { nameWidth, typeWidth, decoratorWidth, hasPrivate };
 }
 
 /**
@@ -129,7 +139,7 @@ export function alignFields(fields: AlignedField[], config: Required<FormatConfi
   const widths = calculateColumnWidths(fields, config);
 
   return fields.map((field, i) => {
-    const { nameWidth, typeWidth } = widths[i]!;
+    const { nameWidth, typeWidth, decoratorWidth, hasPrivate } = widths[i]!;
     const paddedName = field.name.padEnd(nameWidth);
 
     let line: string;
@@ -148,6 +158,25 @@ export function alignFields(fields: AlignedField[], config: Required<FormatConfi
       } else {
         line = `${indent}${paddedName}  ${field.typeWithModifiers}`;
       }
+    }
+
+    // 4th column: !!private alignment
+    if (hasPrivate && field.privateMarker) {
+      if (config.decoratorAlignment === 'aligned') {
+        // Pad decorator column to decoratorWidth, then append !!private
+        if (field.decoratorString) {
+          const currentDecLen = field.decoratorString.length;
+          const padding = decoratorWidth - currentDecLen;
+          if (padding > 0) line += ' '.repeat(padding);
+        } else {
+          // No decorator — pad type to typeWidth, then add gap + decorator padding
+          const typePad = typeWidth - field.typeWithModifiers.length;
+          if (typePad > 0) line += ' '.repeat(typePad);
+          line += '  ';
+          if (decoratorWidth > 0) line += ' '.repeat(decoratorWidth);
+        }
+      }
+      line += `  ${field.privateMarker}`;
     }
 
     if (field.trailingComment) {

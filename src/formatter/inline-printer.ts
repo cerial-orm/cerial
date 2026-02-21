@@ -4,7 +4,15 @@
  * with trailing comma support.
  */
 
-import type { ASTDecorator, ASTEnum, ASTLiteral, ASTLiteralVariant, ASTTuple, ASTTupleElement } from '../types';
+import type {
+  ASTDecorator,
+  ASTEnum,
+  ASTLiteral,
+  ASTLiteralVariant,
+  ASTTuple,
+  ASTTupleElement,
+  ExtendsFilter,
+} from '../types';
 import type { CommentMap } from './comment-attacher';
 import type { FormatConfig } from './types';
 
@@ -26,6 +34,19 @@ const TYPE_DISPLAY: Record<string, string> = {
   geometry: 'Geometry',
   any: 'Any',
 };
+
+/** Build extends clause for inline construct headers */
+function buildInlineExtendsClause(extendsTarget?: string, extendsFilter?: ExtendsFilter): string {
+  if (!extendsTarget) return '';
+
+  let clause = ` extends ${extendsTarget}`;
+  if (extendsFilter) {
+    const items = extendsFilter.mode === 'omit' ? extendsFilter.fields.map((f) => `!${f}`) : extendsFilter.fields;
+    clause += `[${items.join(', ')}]`;
+  }
+
+  return clause;
+}
 
 /** Get the indent string for a given config */
 function getIndent(config: Required<FormatConfig>): string {
@@ -156,14 +177,18 @@ function formatTupleElement(element: ASTTupleElement): string {
     }
   }
 
+  if (element.isPrivate) {
+    text += ' !!private';
+  }
+
   return text;
 }
 
-/** Format items as single-line: `keyword Name { item1, item2, item3 }` */
-function formatSingleLine(keyword: string, name: string, items: string[]): string {
-  if (!items.length) return `${keyword} ${name} {}`;
+/** Format items as single-line: `keyword Name [extends ...] { item1, item2, item3 }` */
+function formatSingleLine(keyword: string, name: string, items: string[], extendsClause = ''): string {
+  if (!items.length) return `${keyword} ${name}${extendsClause} {}`;
 
-  return `${keyword} ${name} { ${items.join(', ')} }`;
+  return `${keyword} ${name}${extendsClause} { ${items.join(', ')} }`;
 }
 
 /** Format items as multi-line with indentation and optional trailing comma */
@@ -173,8 +198,9 @@ function formatMultiLine(
   items: string[],
   indent: string,
   trailingComma: boolean,
+  extendsClause = '',
 ): string {
-  const lines = [`${keyword} ${name} {`];
+  const lines = [`${keyword} ${name}${extendsClause} {`];
 
   for (let i = 0; i < items.length; i++) {
     const isLast = i === items.length - 1;
@@ -197,12 +223,13 @@ export function printEnum(node: ASTEnum, comments: CommentMap, config: Required<
   const leading = formatLeadingComments(comments, `enum:${node.name}`);
   const items = node.values;
   const singleLine = shouldBeSingleLine(config, source, node.range.start.line, node.range.end.line);
+  const extendsClause = buildInlineExtendsClause(node.extends, node.extendsFilter);
 
   let body: string;
   if (singleLine) {
-    body = formatSingleLine('enum', node.name, items);
+    body = formatSingleLine('enum', node.name, items, extendsClause);
   } else {
-    body = formatMultiLine('enum', node.name, items, getIndent(config), config.trailingComma);
+    body = formatMultiLine('enum', node.name, items, getIndent(config), config.trailingComma, extendsClause);
   }
 
   return leading + body;
@@ -224,12 +251,13 @@ export function printLiteral(
   const leading = formatLeadingComments(comments, `literal:${node.name}`);
   const items = node.variants.map(formatVariant);
   const singleLine = shouldBeSingleLine(config, source, node.range.start.line, node.range.end.line);
+  const extendsClause = buildInlineExtendsClause(node.extends, node.extendsFilter);
 
   let body: string;
   if (singleLine) {
-    body = formatSingleLine('literal', node.name, items);
+    body = formatSingleLine('literal', node.name, items, extendsClause);
   } else {
-    body = formatMultiLine('literal', node.name, items, getIndent(config), config.trailingComma);
+    body = formatMultiLine('literal', node.name, items, getIndent(config), config.trailingComma, extendsClause);
   }
 
   return leading + body;
@@ -250,12 +278,13 @@ export function printTuple(
   const leading = formatLeadingComments(comments, `tuple:${node.name}`);
   const items = node.elements.map(formatTupleElement);
   const singleLine = shouldBeSingleLine(config, source, node.range.start.line, node.range.end.line);
+  const extendsClause = buildInlineExtendsClause(node.extends, node.extendsFilter);
 
   let body: string;
   if (singleLine) {
-    body = formatSingleLine('tuple', node.name, items);
+    body = formatSingleLine('tuple', node.name, items, extendsClause);
   } else {
-    body = formatMultiLine('tuple', node.name, items, getIndent(config), config.trailingComma);
+    body = formatMultiLine('tuple', node.name, items, getIndent(config), config.trailingComma, extendsClause);
   }
 
   return leading + body;

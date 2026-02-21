@@ -36,7 +36,7 @@ describe('calculateColumnWidths', () => {
     it('should return exact field widths', () => {
       const fields = [field('id', 'Record', '@id')];
       const result = calculateColumnWidths(fields, config());
-      expect(result).toEqual([{ nameWidth: 2, typeWidth: 6 }]);
+      expect(result).toEqual([{ nameWidth: 2, typeWidth: 6, decoratorWidth: 3, hasPrivate: false }]);
     });
   });
 
@@ -50,11 +50,11 @@ describe('calculateColumnWidths', () => {
       const result = calculateColumnWidths(fields, config({ alignmentScope: 'group' }));
 
       // Group 1: [id, email] → nameWidth=5 (email), typeWidth=6 (Record)
-      expect(result[0]).toEqual({ nameWidth: 5, typeWidth: 6 });
-      expect(result[1]).toEqual({ nameWidth: 5, typeWidth: 6 });
+      expect(result[0]).toEqual({ nameWidth: 5, typeWidth: 6, decoratorWidth: 7, hasPrivate: false });
+      expect(result[1]).toEqual({ nameWidth: 5, typeWidth: 6, decoratorWidth: 7, hasPrivate: false });
 
       // Group 2: [createdAt] → nameWidth=9, typeWidth=4
-      expect(result[2]).toEqual({ nameWidth: 9, typeWidth: 4 });
+      expect(result[2]).toEqual({ nameWidth: 9, typeWidth: 4, decoratorWidth: 10, hasPrivate: false });
     });
 
     it('should handle multiple groups with different widths', () => {
@@ -65,9 +65,9 @@ describe('calculateColumnWidths', () => {
       ];
       const result = calculateColumnWidths(fields, config({ alignmentScope: 'group' }));
 
-      expect(result[0]).toEqual({ nameWidth: 1, typeWidth: 3 }); // group 1: a/Int
-      expect(result[1]).toEqual({ nameWidth: 2, typeWidth: 6 }); // group 2: bb/String
-      expect(result[2]).toEqual({ nameWidth: 3, typeWidth: 4 }); // group 3: ccc/Bool
+      expect(result[0]).toEqual({ nameWidth: 1, typeWidth: 3, decoratorWidth: 0, hasPrivate: false }); // group 1: a/Int
+      expect(result[1]).toEqual({ nameWidth: 2, typeWidth: 6, decoratorWidth: 0, hasPrivate: false }); // group 2: bb/String
+      expect(result[2]).toEqual({ nameWidth: 3, typeWidth: 4, decoratorWidth: 0, hasPrivate: false }); // group 3: ccc/Bool
     });
 
     it('should treat all fields as one group when no blank lines', () => {
@@ -79,9 +79,9 @@ describe('calculateColumnWidths', () => {
       const result = calculateColumnWidths(fields, config({ alignmentScope: 'group' }));
 
       // All in one group: nameWidth=9, typeWidth=6
-      expect(result[0]).toEqual({ nameWidth: 9, typeWidth: 6 });
-      expect(result[1]).toEqual({ nameWidth: 9, typeWidth: 6 });
-      expect(result[2]).toEqual({ nameWidth: 9, typeWidth: 6 });
+      expect(result[0]).toEqual({ nameWidth: 9, typeWidth: 6, decoratorWidth: 10, hasPrivate: false });
+      expect(result[1]).toEqual({ nameWidth: 9, typeWidth: 6, decoratorWidth: 10, hasPrivate: false });
+      expect(result[2]).toEqual({ nameWidth: 9, typeWidth: 6, decoratorWidth: 10, hasPrivate: false });
     });
 
     it('should not start new group for blank line on last field', () => {
@@ -92,8 +92,8 @@ describe('calculateColumnWidths', () => {
       const result = calculateColumnWidths(fields, config({ alignmentScope: 'group' }));
 
       // Both in same group
-      expect(result[0]).toEqual({ nameWidth: 5, typeWidth: 6 });
-      expect(result[1]).toEqual({ nameWidth: 5, typeWidth: 6 });
+      expect(result[0]).toEqual({ nameWidth: 5, typeWidth: 6, decoratorWidth: 7, hasPrivate: false });
+      expect(result[1]).toEqual({ nameWidth: 5, typeWidth: 6, decoratorWidth: 7, hasPrivate: false });
     });
   });
 
@@ -107,15 +107,15 @@ describe('calculateColumnWidths', () => {
       const result = calculateColumnWidths(fields, config({ alignmentScope: 'block' }));
 
       // All fields: nameWidth=9 (createdAt), typeWidth=6 (Record)
-      expect(result[0]).toEqual({ nameWidth: 9, typeWidth: 6 });
-      expect(result[1]).toEqual({ nameWidth: 9, typeWidth: 6 });
-      expect(result[2]).toEqual({ nameWidth: 9, typeWidth: 6 });
+      expect(result[0]).toEqual({ nameWidth: 9, typeWidth: 6, decoratorWidth: 10, hasPrivate: false });
+      expect(result[1]).toEqual({ nameWidth: 9, typeWidth: 6, decoratorWidth: 10, hasPrivate: false });
+      expect(result[2]).toEqual({ nameWidth: 9, typeWidth: 6, decoratorWidth: 10, hasPrivate: false });
     });
 
     it('should handle single field in block mode', () => {
       const fields = [field('x', 'Int', '')];
       const result = calculateColumnWidths(fields, config({ alignmentScope: 'block' }));
-      expect(result).toEqual([{ nameWidth: 1, typeWidth: 3 }]);
+      expect(result).toEqual([{ nameWidth: 1, typeWidth: 3, decoratorWidth: 0, hasPrivate: false }]);
     });
   });
 
@@ -124,9 +124,9 @@ describe('calculateColumnWidths', () => {
       const fields = [field('foo', 'Int', '@id'), field('bar', 'Int', '@unique'), field('baz', 'Int', '')];
       const result = calculateColumnWidths(fields, config());
 
-      expect(result[0]).toEqual({ nameWidth: 3, typeWidth: 3 });
-      expect(result[1]).toEqual({ nameWidth: 3, typeWidth: 3 });
-      expect(result[2]).toEqual({ nameWidth: 3, typeWidth: 3 });
+      expect(result[0]).toEqual({ nameWidth: 3, typeWidth: 3, decoratorWidth: 7, hasPrivate: false });
+      expect(result[1]).toEqual({ nameWidth: 3, typeWidth: 3, decoratorWidth: 7, hasPrivate: false });
+      expect(result[2]).toEqual({ nameWidth: 3, typeWidth: 3, decoratorWidth: 7, hasPrivate: false });
     });
   });
 
@@ -136,9 +136,9 @@ describe('calculateColumnWidths', () => {
       const result = calculateColumnWidths(fields, config());
 
       // typeWidth = max('String'.length=6, 'String[]'.length=8, 'Int?'.length=4) = 8
-      expect(result[0]).toEqual({ nameWidth: 4, typeWidth: 8 });
-      expect(result[1]).toEqual({ nameWidth: 4, typeWidth: 8 });
-      expect(result[2]).toEqual({ nameWidth: 4, typeWidth: 8 });
+      expect(result[0]).toEqual({ nameWidth: 4, typeWidth: 8, decoratorWidth: 0, hasPrivate: false });
+      expect(result[1]).toEqual({ nameWidth: 4, typeWidth: 8, decoratorWidth: 0, hasPrivate: false });
+      expect(result[2]).toEqual({ nameWidth: 4, typeWidth: 8, decoratorWidth: 0, hasPrivate: false });
     });
   });
 });

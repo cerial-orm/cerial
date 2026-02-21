@@ -13,6 +13,7 @@ import type {
   ASTObject,
   ASTTuple,
   ASTTupleElement,
+  ExtendsFilter,
   SchemaAST,
   SchemaDecorator,
   SchemaFieldType,
@@ -47,10 +48,12 @@ export function createField(
   tupleName?: string,
   literalName?: string,
   recordIdTypes?: string[],
+  isPrivate?: boolean,
 ): ASTField {
   const field: ASTField = { name, type, isOptional, decorators, range };
   if (decorators.some((d) => d.type === 'nullable')) field.isNullable = true;
   if (isArray) field.isArray = true;
+  if (isPrivate) field.isPrivate = true;
   if (objectName) field.objectName = objectName;
   if (tupleName) field.tupleName = tupleName;
   if (literalName) field.literalName = literalName;
@@ -75,13 +78,31 @@ export function createModel(
   fields: ASTField[],
   range: SourceRange,
   directives: ASTCompositeDirective[] = [],
+  abstract?: boolean,
+  extends_?: string,
+  extendsFilter?: ExtendsFilter,
 ): ASTModel {
-  return { name, fields, directives, range };
+  const model: ASTModel = { name, fields, directives, range };
+  if (abstract) model.abstract = true;
+  if (extends_) model.extends = extends_;
+  if (extendsFilter) model.extendsFilter = extendsFilter;
+
+  return model;
 }
 
 /** Create an AST object node (embedded data structure) */
-export function createObject(name: string, fields: ASTField[], range: SourceRange): ASTObject {
-  return { name, fields, range };
+export function createObject(
+  name: string,
+  fields: ASTField[],
+  range: SourceRange,
+  extends_?: string,
+  extendsFilter?: ExtendsFilter,
+): ASTObject {
+  const object: ASTObject = { name, fields, range };
+  if (extends_) object.extends = extends_;
+  if (extendsFilter) object.extendsFilter = extendsFilter;
+
+  return object;
 }
 
 /** Create a schema AST */
@@ -150,12 +171,14 @@ export function createTupleElement(
   tupleName?: string,
   decorators?: ASTDecorator[],
   literalName?: string,
+  isPrivate?: boolean,
 ): ASTTupleElement {
   const element: ASTTupleElement = { type, isOptional };
   if (name) element.name = name;
   if (objectName) element.objectName = objectName;
   if (tupleName) element.tupleName = tupleName;
   if (literalName) element.literalName = literalName;
+  if (isPrivate) element.isPrivate = true;
   if (decorators?.length) {
     element.decorators = decorators;
     if (decorators.some((d) => d.type === 'nullable')) element.isNullable = true;
@@ -165,8 +188,18 @@ export function createTupleElement(
 }
 
 /** Create an AST tuple node */
-export function createTuple(name: string, elements: ASTTupleElement[], range: SourceRange): ASTTuple {
-  return { name, elements, range };
+export function createTuple(
+  name: string,
+  elements: ASTTupleElement[],
+  range: SourceRange,
+  extends_?: string,
+  extendsFilter?: ExtendsFilter,
+): ASTTuple {
+  const tuple: ASTTuple = { name, elements, range };
+  if (extends_) tuple.extends = extends_;
+  if (extendsFilter) tuple.extendsFilter = extendsFilter;
+
+  return tuple;
 }
 
 /** Check if AST has a tuple with given name */
@@ -185,8 +218,18 @@ export function getTupleNames(ast: SchemaAST): string[] {
 }
 
 /** Create an AST literal node */
-export function createLiteral(name: string, variants: ASTLiteralVariant[], range: SourceRange): ASTLiteral {
-  return { name, variants, range };
+export function createLiteral(
+  name: string,
+  variants: ASTLiteralVariant[],
+  range: SourceRange,
+  extends_?: string,
+  extendsFilter?: ExtendsFilter,
+): ASTLiteral {
+  const literal: ASTLiteral = { name, variants, range };
+  if (extends_) literal.extends = extends_;
+  if (extendsFilter) literal.extendsFilter = extendsFilter;
+
+  return literal;
 }
 
 /** Check if AST has a literal with given name */
@@ -205,8 +248,18 @@ export function getLiteralNames(ast: SchemaAST): string[] {
 }
 
 /** Create an AST enum node */
-export function createEnum(name: string, values: string[], range: SourceRange): ASTEnum {
-  return { name, values, range };
+export function createEnum(
+  name: string,
+  values: string[],
+  range: SourceRange,
+  extends_?: string,
+  extendsFilter?: ExtendsFilter,
+): ASTEnum {
+  const enum_: ASTEnum = { name, values, range };
+  if (extends_) enum_.extends = extends_;
+  if (extendsFilter) enum_.extendsFilter = extendsFilter;
+
+  return enum_;
 }
 
 /** Check if AST has an enum with given name */
@@ -222,4 +275,31 @@ export function getEnum(ast: SchemaAST, name: string): ASTEnum | undefined {
 /** Get all enum names from AST */
 export function getEnumNames(ast: SchemaAST): string[] {
   return ast.enums.map((e) => e.name);
+}
+
+/** Check if a model is abstract */
+export function isAbstract(model: ASTModel): boolean {
+  return model.abstract === true;
+}
+
+/** Get the extends target name from a node (model, object, tuple, literal, or enum) */
+export function getExtendsTarget(node: ASTModel | ASTObject | ASTTuple | ASTLiteral | ASTEnum): string | undefined {
+  return node.extends;
+}
+
+/** Get the extends filter from a node (model, object, tuple, literal, or enum) */
+export function getExtendsFilter(
+  node: ASTModel | ASTObject | ASTTuple | ASTLiteral | ASTEnum,
+): ExtendsFilter | undefined {
+  return node.extendsFilter;
+}
+
+/** Check if a field is private */
+export function isPrivateField(field: ASTField): boolean {
+  return field.isPrivate === true;
+}
+
+/** Check if a tuple element is private */
+export function isPrivateTupleElement(element: ASTTupleElement): boolean {
+  return element.isPrivate === true;
 }

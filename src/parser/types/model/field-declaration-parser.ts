@@ -177,11 +177,15 @@ export function parseFieldDeclaration(
     return { field: null, error: null };
   }
 
+  // Detect and strip !!private marker (must come at the end, before comments)
+  const isPrivate = withoutComments.includes('!!private');
+  const withoutPrivate = isPrivate ? withoutComments.replace(/\s*!!private\s*/g, '').trim() : withoutComments;
+
   // Extract decorators from the line (they come after the type)
-  const decorators = parseDecorators(withoutComments, lineNumber);
+  const decorators = parseDecorators(withoutPrivate, lineNumber);
 
   // Remove decorators from the line for field parsing
-  const withoutDecorators = withoutComments.replace(/@\w+(?:\([^)]*\))?/g, '').trim();
+  const withoutDecorators = withoutPrivate.replace(/@\w+(?:\([^)]*\))?/g, '').trim();
 
   // Parse field name and type
   // Pattern: fieldName Type or fieldName Type? or fieldName Type[]
@@ -246,6 +250,7 @@ export function parseFieldDeclaration(
     tupName,
     litName,
     recordIdTypes,
+    isPrivate || undefined,
   );
 
   return { field, error: null };

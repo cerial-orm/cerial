@@ -1,0 +1,67 @@
+// Abstract base models and concrete models extending them
+// Tests: abstract, extends, multi-level chains, override, !!private fields
+
+abstract model ExtBaseEntity {
+  id Record @id !!private
+  createdAt Date @createdAt !!private
+  updatedAt Date @updatedAt
+}
+
+abstract model ExtBaseUser extends ExtBaseEntity {
+  email Email @unique
+  name String
+  isActive Bool @default(true)
+}
+
+// Concrete model extending abstract base
+model ExtUser extends ExtBaseUser {
+  age Int?
+  role String @default('user')
+}
+
+// Concrete model with pick (select specific fields from base)
+model ExtAdmin extends ExtBaseUser[id, createdAt] {
+  level Int @default(1)
+  permissions String[]
+}
+
+// Concrete model with omit (exclude specific fields from base)
+model ExtModerator extends ExtBaseUser[!updatedAt] {
+  bannedUntil Date?
+  notes String?
+}
+
+// Override field from base
+model ExtSuperAdmin extends ExtBaseUser {
+  role String @default('superadmin')
+  level Int @default(99)
+  canDeleteUsers Bool @default(true)
+}
+
+// Multi-level inheritance: ExtUser -> ExtBaseUser -> ExtBaseEntity
+model ExtPremiumUser extends ExtUser {
+  subscriptionTier String @default('basic')
+  subscriptionEnd Date?
+}
+
+// Another multi-level: ExtAdmin -> ExtBaseUser -> ExtBaseEntity
+model ExtSystemAdmin extends ExtAdmin {
+  systemAccess Bool @default(false)
+  auditLog String[]
+}
+
+// Model with !!private on inherited fields
+model ExtPrivateUser extends ExtBaseEntity {
+  email Email @unique !!private
+  name String !!private
+  publicBio String?
+}
+
+// Model extending with multiple field types
+model ExtProfile extends ExtBaseEntity {
+  userId Record
+  bio String?
+  avatar String?
+  tags String[]
+  metadata Int?
+}

@@ -4,6 +4,14 @@
 
 import type { SchemaDecorator, SchemaFieldType, SourcePosition, SourceRange } from './common.types';
 
+/** Filter for extends (pick or omit specific fields) */
+export interface ExtendsFilter {
+  /** Whether to pick or omit fields */
+  mode: 'pick' | 'omit';
+  /** Field names to pick or omit */
+  fields: string[];
+}
+
 /** Variant kind in a literal definition */
 export type ASTLiteralVariantKind =
   | 'string'
@@ -30,6 +38,10 @@ export type ASTLiteralVariant =
 export interface ASTLiteral {
   name: string;
   variants: ASTLiteralVariant[];
+  /** Name of the literal this extends */
+  extends?: string;
+  /** Filter for extends (pick or omit fields) */
+  extendsFilter?: ExtendsFilter;
   range: SourceRange;
 }
 
@@ -108,6 +120,8 @@ export interface ASTField {
   /** Whether the field has @nullable decorator (can hold null as a value) */
   isNullable?: boolean;
   isArray?: boolean; // true for Record[] or Object[] type
+  /** Whether the field is private (!!private marker) */
+  isPrivate?: boolean;
   decorators: ASTDecorator[];
   range: SourceRange;
   /** For object-typed fields: the name of the referenced object definition */
@@ -126,6 +140,12 @@ export interface ASTModel {
   fields: ASTField[];
   /** Model-level composite directives (@@index, @@unique) */
   directives?: ASTCompositeDirective[];
+  /** Whether the model is abstract (cannot be instantiated) */
+  abstract?: boolean;
+  /** Name of the model this extends */
+  extends?: string;
+  /** Filter for extends (pick or omit fields) */
+  extendsFilter?: ExtendsFilter;
   range: SourceRange;
 }
 
@@ -133,6 +153,10 @@ export interface ASTModel {
 export interface ASTObject {
   name: string;
   fields: ASTField[];
+  /** Name of the object this extends */
+  extends?: string;
+  /** Filter for extends (pick or omit fields) */
+  extendsFilter?: ExtendsFilter;
   range: SourceRange;
 }
 
@@ -146,6 +170,8 @@ export interface ASTTupleElement {
   isOptional: boolean;
   /** Whether the element has @nullable decorator (can hold null as a value) */
   isNullable?: boolean;
+  /** Whether the element is private (!!private marker) */
+  isPrivate?: boolean;
   /** Decorators on the tuple element (e.g., @nullable, @default, @createdAt, @updatedAt) */
   decorators?: ASTDecorator[];
   /** For object-typed elements: the name of the referenced object definition */
@@ -160,6 +186,10 @@ export interface ASTTupleElement {
 export interface ASTTuple {
   name: string;
   elements: ASTTupleElement[];
+  /** Name of the tuple this extends */
+  extends?: string;
+  /** Filter for extends (pick or omit fields) */
+  extendsFilter?: ExtendsFilter;
   range: SourceRange;
 }
 
@@ -167,6 +197,10 @@ export interface ASTTuple {
 export interface ASTEnum {
   name: string;
   values: string[];
+  /** Name of the enum this extends */
+  extends?: string;
+  /** Filter for extends (pick or omit fields) */
+  extendsFilter?: ExtendsFilter;
   range: SourceRange;
 }
 

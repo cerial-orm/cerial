@@ -1,0 +1,62 @@
+// Literal extends with inherit + add, pick
+
+literal ExtBasePriority { 'low', 'medium', 'high' }
+
+// Literal extending base (inherit + add)
+literal ExtExtendedPriority extends ExtBasePriority { 'critical', 'urgent' }
+
+// Literal with pick
+literal ExtHighPriority extends ExtBasePriority['high'] { }
+
+// Literal with omit
+literal ExtLowMediumPriority extends ExtBasePriority[!'high'] { }
+
+// Literal with numeric values
+literal ExtBaseLevel { 1, 2, 3 }
+
+// Literal extending numeric base
+literal ExtExtendedLevel extends ExtBaseLevel { 4, 5 }
+
+// Literal with mixed types
+literal ExtBaseMixed { 'active', 'inactive', true, false }
+
+// Literal extending mixed base
+literal ExtExtendedMixed extends ExtBaseMixed { 'pending', 0 }
+
+// Literal with broad types
+literal ExtBroadType { String, Int }
+
+// Literal extending broad type
+literal ExtExtendedBroad extends ExtBroadType { Bool }
+
+// Literal with pick from mixed
+literal ExtStringOnly extends ExtBaseMixed['active', 'inactive'] { }
+
+// Literal with omit from mixed
+literal ExtNonBoolMixed extends ExtBaseMixed[!true, !false] { }
+
+// Model using extended literals
+model ExtLiteralModel {
+  id Record @id
+  priority ExtExtendedPriority
+  level ExtExtendedLevel
+  status ExtExtendedMixed
+  broadValue ExtExtendedBroad
+  highPriority ExtHighPriority?
+  priorities ExtExtendedPriority[]
+}
+
+// Object with extended literal fields
+object ExtLiteralInfo {
+  priority ExtExtendedPriority
+  level ExtExtendedLevel
+  status ExtExtendedMixed?
+}
+
+// Model with object containing extended literals
+model ExtLiteralContainer {
+  id Record @id
+  name String
+  info ExtLiteralInfo
+  infos ExtLiteralInfo[]
+}

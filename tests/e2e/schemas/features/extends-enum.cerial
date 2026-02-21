@@ -1,0 +1,50 @@
+// Enum extends with inherit + add, omit
+
+enum ExtBaseRole { ADMIN, USER, MODERATOR }
+
+// Enum extending base (inherit + add)
+enum ExtExtendedRole extends ExtBaseRole { SUPERADMIN, GUEST }
+
+// Enum with pick
+enum ExtCoreRole extends ExtBaseRole[ADMIN, USER] { }
+
+// Enum with omit
+enum ExtNonAdminRole extends ExtBaseRole[!ADMIN] { }
+
+// Enum with override (redefine a value)
+enum ExtCustomRole extends ExtBaseRole { ADMIN, USER, MODERATOR, CUSTOM }
+
+// Another base enum
+enum ExtBaseStatus { ACTIVE, INACTIVE, PENDING }
+
+// Enum extending different base
+enum ExtDetailedStatus extends ExtBaseStatus { ARCHIVED, DELETED, SUSPENDED }
+
+// Enum with pick from different base
+enum ExtSimpleStatus extends ExtBaseStatus[ACTIVE, INACTIVE] { }
+
+// Model using extended enums
+model ExtEnumModel {
+  id Record @id
+  role ExtExtendedRole
+  status ExtDetailedStatus
+  coreRole ExtCoreRole?
+  nonAdminRole ExtNonAdminRole?
+  roles ExtExtendedRole[]
+  statuses ExtDetailedStatus[]
+}
+
+// Object with extended enum fields
+object ExtEnumInfo {
+  role ExtExtendedRole
+  status ExtDetailedStatus
+  backupRole ExtCoreRole?
+}
+
+// Model with object containing extended enums
+model ExtEnumContainer {
+  id Record @id
+  name String
+  info ExtEnumInfo
+  infos ExtEnumInfo[]
+}

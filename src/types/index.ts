@@ -48,6 +48,7 @@ export type {
   ASTObject,
   ASTTuple,
   ASTTupleElement,
+  ExtendsFilter,
   Lexeme,
   LexemeType,
   ParseError,

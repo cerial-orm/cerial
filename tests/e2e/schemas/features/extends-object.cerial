@@ -1,0 +1,62 @@
+// Object extends with private fields, pick/omit, override
+
+object ExtBaseAddress {
+  street String
+  city String
+  zip String
+  country String @default('US')
+}
+
+// Object extending base
+object ExtAddress extends ExtBaseAddress {
+  apartment String?
+  coordinates Float[]?
+}
+
+// Object with pick
+object ExtCityAddress extends ExtBaseAddress[city, country] {
+  district String?
+}
+
+// Object with omit
+object ExtSimpleAddress extends ExtBaseAddress[!country] {
+  region String?
+}
+
+// Object with override
+object ExtDetailedAddress extends ExtBaseAddress {
+  country String @default('USA')
+  latitude Float?
+  longitude Float?
+  timezone String?
+}
+
+// Object with !!private fields
+object ExtPrivateAddress extends ExtBaseAddress {
+  street String !!private
+  zip String !!private
+  publicCity String?
+}
+
+// Multi-level object inheritance
+object ExtGeoAddress extends ExtAddress {
+  elevation Float?
+  timezone String @default('UTC')
+}
+
+// Object with various field types
+object ExtMetaAddress extends ExtBaseAddress {
+  verified Bool @default(false)
+  verifiedAt Date?
+  tags String[]
+  rating Int?
+}
+
+// Model using extended objects
+model ExtAddressUser {
+  id Record @id
+  name String
+  homeAddress ExtAddress
+  workAddress ExtDetailedAddress?
+  previousAddresses ExtGeoAddress[]
+}

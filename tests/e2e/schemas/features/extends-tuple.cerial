@@ -1,0 +1,51 @@
+// Tuple extends with append, override, private, index-based pick
+
+tuple ExtBasePair { String, Int }
+
+// Tuple extending base (append new elements)
+tuple ExtTriple extends ExtBasePair { Bool }
+
+// Tuple with named elements
+tuple ExtNamedPair { name String, age Int }
+
+// Tuple extending named base
+tuple ExtNamedTriple extends ExtNamedPair { active Bool }
+
+// Tuple with pick by index
+tuple ExtFirstTwo extends ExtBasePair[0, 1] { }
+
+// Tuple with omit by index
+tuple ExtWithoutSecond extends ExtBasePair[!1] { }
+
+// Tuple with override
+tuple ExtOverridePair { String, Float }
+
+// Tuple with !!private elements
+tuple ExtPrivatePair { String !!private, Int !!private }
+
+// Tuple with optional elements
+tuple ExtOptionalTriple { String?, Int?, Bool? }
+
+// Tuple with @nullable elements
+tuple ExtNullableTriple { String @nullable, Int @nullable, Bool @nullable }
+
+// Tuple with mixed decorators
+tuple ExtDecoratedTriple { String @default('test'), Int @default(0), Bool @default(false) }
+
+// Multi-level tuple inheritance
+tuple ExtQuad extends ExtTriple { Float }
+
+// Tuple with object elements
+object ExtCoord { x Float, y Float }
+tuple ExtCoordPair { ExtCoord, ExtCoord }
+
+// Model using extended tuples
+model ExtTupleModel {
+  id Record @id
+  pair ExtBasePair
+  triple ExtTriple
+  namedTriple ExtNamedTriple
+  quad ExtQuad
+  coordPair ExtCoordPair
+  optionalTriple ExtOptionalTriple?
+}
