@@ -26,9 +26,16 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 import { parse } from '../../../src/parser/parser';
 import { WorkspaceIndexer } from './indexer';
 import { registerCompletionProvider } from './providers/completion';
+import { registerDefinitionProvider } from './providers/definition';
 import { registerDiagnosticsProvider } from './providers/diagnostics';
+import { registerFoldingProvider } from './providers/folding';
 import { registerFormattingProvider } from './providers/formatting';
 import { registerHoverProvider } from './providers/hover';
+import { registerReferencesProvider } from './providers/references';
+import { registerRenameProvider } from './providers/rename';
+import { registerSemanticTokensProvider, TOKEN_MODIFIERS, TOKEN_TYPES } from './providers/semantic-tokens';
+import { registerSymbolsProvider } from './providers/symbols';
+import { registerWorkspaceSymbolsProvider } from './providers/workspace-symbols';
 
 // Create connection with all proposed protocol features.
 // When launched by VS Code's LanguageClient with TransportKind.ipc,
@@ -67,8 +74,23 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
         resolveProvider: false,
       },
       hoverProvider: true,
+      definitionProvider: true,
       documentFormattingProvider: true,
       documentRangeFormattingProvider: true,
+      foldingRangeProvider: true,
+      documentSymbolProvider: true,
+      referencesProvider: true,
+      renameProvider: {
+        prepareProvider: true,
+      },
+      workspaceSymbolProvider: true,
+      semanticTokensProvider: {
+        legend: {
+          tokenTypes: TOKEN_TYPES,
+          tokenModifiers: TOKEN_MODIFIERS,
+        },
+        full: true,
+      },
     },
   };
 });
@@ -207,8 +229,29 @@ registerCompletionProvider(
 // Register hover (rich Markdown tooltips for types, decorators, models, fields).
 registerHoverProvider(connection, documents, indexer);
 
+// Register go-to-definition (Ctrl+Click / F12 — navigate to type/model/field definitions).
+registerDefinitionProvider(connection, documents, indexer);
+
+// Register folding ranges (model/object/tuple/enum/literal blocks, comments).
+registerFoldingProvider(connection, documents, indexer);
+
 // Register formatting (Format Document / Format Selection).
 registerFormattingProvider(connection, documents);
+
+// Register find references (Shift+F12 — Find All References).
+registerReferencesProvider(connection, documents, indexer);
+
+// Register rename symbol (F2 — Rename Symbol across schema group).
+registerRenameProvider(connection, documents, indexer);
+
+// Register document symbols (Outline panel, breadcrumbs).
+registerSymbolsProvider(connection, documents, indexer);
+
+// Register workspace symbols (Ctrl+T — Go to Symbol in Workspace).
+registerWorkspaceSymbolsProvider(connection, indexer);
+
+// Register semantic tokens (AST-aware highlighting — declarations, modifiers, references).
+registerSemanticTokensProvider(connection, documents, indexer);
 
 // ── Start ─────────────────────────────────────────────────────────────────
 
