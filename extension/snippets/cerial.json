@@ -1,0 +1,122 @@
+{
+  "model": {
+    "prefix": "model",
+    "body": ["model ${1:Name} {", "\tid Record @id", "\t$0", "}"],
+    "description": "Create a new model"
+  },
+  "abstract model": {
+    "prefix": "abstract",
+    "body": ["abstract model ${1:Name} {", "\t$0", "}"],
+    "description": "Create an abstract model"
+  },
+  "object": {
+    "prefix": "object",
+    "body": ["object ${1:Name} {", "\t$0", "}"],
+    "description": "Create an embedded object type"
+  },
+  "tuple": {
+    "prefix": "tuple",
+    "body": ["tuple ${1:Name} {", "\t$0", "}"],
+    "description": "Create a tuple type"
+  },
+  "enum": {
+    "prefix": "enum",
+    "body": ["enum ${1:Name} {", "\t${2:Value1}", "\t${3:Value2}", "\t$0", "}"],
+    "description": "Create an enum type"
+  },
+  "literal": {
+    "prefix": "literal",
+    "body": ["literal ${1:Name} {", "\t$0", "}"],
+    "description": "Create a literal union type"
+  },
+  "relation 1:1": {
+    "prefix": "rel11",
+    "body": [
+      "# One-to-one relation",
+      "model ${1:Source} {",
+      "\tid Record @id",
+      "\t${2:targetId} Record",
+      "\t${3:target} Relation @field(${2:targetId}) @model(${4:Target})",
+      "\t$0",
+      "}",
+      "",
+      "model ${4:Target} {",
+      "\tid Record @id",
+      "\t${5:source} Relation @model(${1:Source})",
+      "}"
+    ],
+    "description": "Create a one-to-one relation"
+  },
+  "relation 1:N": {
+    "prefix": "rel1n",
+    "body": [
+      "# One-to-many relation",
+      "model ${1:Parent} {",
+      "\tid Record @id",
+      "\t${2:children} Relation[] @model(${3:Child})",
+      "\t$0",
+      "}",
+      "",
+      "model ${3:Child} {",
+      "\tid Record @id",
+      "\t${4:parentId} Record",
+      "\t${5:parent} Relation @field(${4:parentId}) @model(${1:Parent})",
+      "}"
+    ],
+    "description": "Create a one-to-many relation"
+  },
+  "relation N:N": {
+    "prefix": "relnn",
+    "body": [
+      "# Many-to-many relation",
+      "model ${1:Source} {",
+      "\tid Record @id",
+      "\t${2:targetIds} Record[]",
+      "\t${3:targets} Relation[] @field(${2:targetIds}) @model(${4:Target})",
+      "\t$0",
+      "}",
+      "",
+      "model ${4:Target} {",
+      "\tid Record @id",
+      "\t${5:sourceIds} Record[]",
+      "\t${6:sources} Relation[] @field(${5:sourceIds}) @model(${1:Source})",
+      "}"
+    ],
+    "description": "Create a many-to-many relation"
+  },
+  "field with default": {
+    "prefix": "fdef",
+    "body": ["${1:name} ${2:String} @default(${3:value})"],
+    "description": "Create a field with default value"
+  },
+  "timestamp fields": {
+    "prefix": "timestamps",
+    "body": ["createdAt Date @createdAt", "updatedAt Date @updatedAt"],
+    "description": "Add standard timestamp fields"
+  },
+  "id field": {
+    "prefix": "id",
+    "body": ["id Record @id"],
+    "description": "Create a standard record ID field"
+  },
+  "typed id": {
+    "prefix": "tid",
+    "body": ["id Record(${1|int,string,uuid|}) @id"],
+    "description": "Create a typed record ID field"
+  },
+  "composite unique": {
+    "prefix": "@@unique",
+    "body": ["@@unique(${1:name}, [${2:field1}, ${3:field2}])"],
+    "description": "Create a composite unique constraint"
+  },
+  "composite index": {
+    "prefix": "@@index",
+    "body": ["@@index(${1:name}, [${2:field1}, ${3:field2}])"],
+    "description": "Create a composite index"
+  },
+  "extends": {
+    "prefix": "extends",
+    "body": ["extends ${1:ParentName}"],
+    "description": "Inherit from a parent model, object, tuple, enum, or literal"
+  }
+}

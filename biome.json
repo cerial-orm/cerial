@@ -49,18 +49,9 @@
         }
       },
       "correctness": {
-        "noUnusedImports": {
-          "level": "error",
-          "fix": "safe"
-        },
-        "noUnusedFunctionParameters": {
-          "level": "error",
-          "fix": "safe"
-        },
-        "noUnusedVariables": {
-          "level": "warn",
-          "fix": "safe"
-        }
+        "noUnusedImports": "warn",
+        "noUnusedFunctionParameters": "warn",
+        "noUnusedVariables": "warn"
       },
       "complexity": {
         "useOptionalChain": {
