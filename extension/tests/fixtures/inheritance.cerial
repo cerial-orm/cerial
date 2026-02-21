@@ -1,0 +1,73 @@
+// Inheritance fixture — abstract, extends, pick/omit, !!private
+
+abstract model BaseEntity {
+  id Record @id !!private
+  createdAt Date @createdAt !!private
+  updatedAt Date @updatedAt
+}
+
+abstract model BaseUser extends BaseEntity {
+  email Email @unique
+  name String
+  active Bool @default(true)
+}
+
+// Full inheritance
+model Customer extends BaseUser {
+  plan String @default('free')
+  balance Float @default(0.0)
+}
+
+// Extends with omit
+model ServiceAccount extends BaseUser[!active] {
+  apiKey String @unique
+  rateLimit Int @default(1000)
+}
+
+// Extends with pick
+model AuditEntry extends BaseEntity[id, createdAt] {
+  action String
+  details String?
+}
+
+// Override inherited field
+model Admin extends BaseUser {
+  active Bool @default(true)
+  level Int @default(1)
+}
+
+// Empty body — inherits all
+model BasicRecord extends BaseEntity {
+}
+
+// Object inheritance
+object BaseAddress {
+  street String
+  city String
+}
+
+object FullAddress extends BaseAddress {
+  state String
+  zip String
+  country String @default('US')
+}
+
+// Tuple inheritance
+tuple BasePair {
+  String,
+  Int
+}
+
+tuple ExtendedPair extends BasePair {
+  Bool
+}
+
+// Enum inheritance
+enum BaseRole { VIEWER, EDITOR }
+
+enum ExtendedRole extends BaseRole { ADMIN, SUPERADMIN }
+
+// Literal inheritance
+literal BaseStatus { 'active', 'inactive' }
+
+literal ExtendedStatus extends BaseStatus { 'archived', 'deleted' }

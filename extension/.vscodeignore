@@ -1,0 +1,9 @@
+**/*.ts
+**/node_modules/**
+**/test/**
+client/src/
+server/src/
+.git
+.gitignore
+tsconfig.json
+esbuild.mjs

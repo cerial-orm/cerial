@@ -1,0 +1,54 @@
+// Complex types fixture — object, tuple, enum, literal with cross-references
+
+object Address {
+  street String
+  city String
+  zip String? @nullable
+}
+
+object Coordinate {
+  lat Float
+  lng Float
+  label String?
+}
+
+tuple Point3D {
+  x Float,
+  y Float,
+  z Float
+}
+
+tuple NamedEntry {
+  label String,
+  value Int,
+  active Bool
+}
+
+tuple NestedTuple {
+  tag String,
+  Coordinate
+}
+
+enum Status { ACTIVE, INACTIVE, PENDING, ARCHIVED }
+
+enum Priority { LOW, MEDIUM, HIGH, CRITICAL }
+
+literal Severity { 1, 2, 3, 4, 5 }
+
+literal MixedTag { 'info', 'warn', 'error', 1, 2, true }
+
+/* Literal referencing an enum */
+literal StatusOrCustom { Status, 'custom', 'unknown' }
+
+model Profile {
+  id Record @id
+  name String
+  address Address
+  billing Address?
+  home Coordinate
+  position Point3D
+  entries NamedEntry[]
+  status Status
+  severity Severity
+  tag MixedTag?
+}

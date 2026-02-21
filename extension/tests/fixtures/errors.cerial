@@ -1,0 +1,34 @@
+// Errors fixture — intentional errors for diagnostic testing
+
+// Unknown field type
+model BadTypes {
+  id Record @id
+  name Strig
+  count Integer
+  flag Boolean
+}
+
+// Duplicate field names
+model DuplicateFields {
+  id Record @id
+  name String
+  name String
+  email Email
+}
+
+// Invalid decorator combinations
+model BadDecorators {
+  id Record @id
+  ts1 Date @createdAt @updatedAt
+  ts2 Date @now @default('2024-01-01')
+  val String @default('a') @defaultAlways('b')
+  anyOpt Any?
+  anyNull Any @nullable
+}
+
+// Missing decorator arguments
+model MissingArgs {
+  id Record @id
+  fk Record
+  rel Relation @field(fk)
+}

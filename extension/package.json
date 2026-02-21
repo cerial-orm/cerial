@@ -1,0 +1,73 @@
+{
+  "name": "cerial",
+  "displayName": "Cerial",
+  "description": "Language support for .cerial schema files",
+  "version": "0.0.1",
+  "publisher": "cerial",
+  "license": "MIT",
+  "icon": "icons/cerial-icon.png",
+  "engines": {
+    "vscode": "^1.96.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Formatters"
+  ],
+  "activationEvents": [
+    "onLanguage:cerial"
+  ],
+  "main": "./dist/extension.js",
+  "browser": "./dist/browserExtension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "cerial",
+        "aliases": [
+          "Cerial",
+          "cerial"
+        ],
+        "extensions": [
+          ".cerial"
+        ],
+        "icon": {
+          "light": "./icons/cerial-icon.png",
+          "dark": "./icons/cerial-icon.png"
+        },
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "cerial",
+        "scopeName": "source.cerial",
+        "path": "./syntaxes/cerial.tmLanguage.json"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "bun esbuild.mjs --production",
+    "build:dev": "bun esbuild.mjs",
+    "watch": "bun esbuild.mjs --watch",
+    "test": "bun run test:unit",
+    "test:unit": "bun test tests/unit/",
+    "test:integration": "vscode-test",
+    "package": "vsce package",
+    "publish": "vsce publish",
+    "vscode:prepublish": "bun run build"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^20.10.6",
+    "@types/vscode": "^1.96.0",
+    "@vscode/test-cli": "^0.0.9",
+    "@vscode/test-electron": "^2.3.9",
+    "esbuild": "^0.20.2",
+    "mocha": "^10.2.0",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "vscode-languageclient": "^9.0.1",
+    "vscode-languageserver": "^9.0.1",
+    "vscode-languageserver-textdocument": "^1.0.0"
+  }
+}

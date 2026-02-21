@@ -1,0 +1,39 @@
+// Incomplete fixture — simulates mid-edit state for parser resilience testing
+
+// Unclosed model block
+model PartialUser {
+  id Record @id
+  name String
+  email
+
+// Bare keyword with no block
+model
+
+// Incomplete field type
+model Drafting {
+  id Record @id
+  title Str
+  count
+}
+
+// Incomplete decorator
+model WithDecorator {
+  id Record @id
+  name String @
+  value Int @default(
+}
+
+// Unclosed object
+object Partial {
+  street String
+  city
+
+// Empty blocks
+model EmptyModel {
+}
+
+enum EmptyEnum {
+}
+
+// Mid-typing extends
+model Child extends

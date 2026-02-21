@@ -1,0 +1,58 @@
+# Relations fixture — 1:1, 1:N, @field, @model, @onDelete
+
+model Author {
+  id Record @id
+  name String
+  email Email @unique
+  bio String?
+
+  // 1:1 relation (forward)
+  profileId Record?
+  profile Relation? @field(profileId) @model(AuthorProfile) @onDelete(SetNone)
+
+  // 1:N reverse relation
+  books Relation[] @model(Book)
+}
+
+model AuthorProfile {
+  id Record @id
+  avatarUrl String
+  website String?
+
+  // 1:1 reverse
+  authorId Record? @nullable
+  author Relation? @field(authorId) @model(Author)
+}
+
+model Book {
+  id Record @id
+  title String
+  isbn String @unique
+  pages Int
+  published Bool @default(false)
+
+  // 1:N forward relation
+  authorId Record
+  author Relation @field(authorId) @model(Author)
+
+  // 1:N forward (optional)
+  categoryId Record?
+  category Relation? @field(categoryId) @model(Category) @onDelete(SetNone)
+
+  // N:N
+  tagIds Record[]
+  tags Relation[] @field(tagIds) @model(BookTag)
+}
+
+model Category {
+  id Record @id
+  name String @unique
+  books Relation[] @model(Book)
+}
+
+model BookTag {
+  id Record @id
+  label String @unique
+  bookIds Record[]
+  books Relation[] @field(bookIds) @model(Book)
+}

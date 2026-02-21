@@ -1,0 +1,72 @@
+// Decorators fixture — comprehensive decorator coverage
+
+object FlexMeta {
+  key String
+  value String
+}
+
+model DecoratorShowcase {
+  id Record @id
+
+  // Unique and index
+  email Email @unique
+  slug String @unique
+
+  // Defaults
+  role String @default('user')
+  count Int @default(0)
+  rating Float @default(3.5)
+  active Bool @default(true)
+
+  // DefaultAlways
+  version Int @defaultAlways(1)
+
+  // Nullable variants
+  nickname String? @nullable
+  score Float? @nullable
+
+  // Readonly
+  externalId String @readonly
+
+  // Timestamps
+  createdAt Date @createdAt
+  updatedAt Date @updatedAt
+  snapshot Date @now
+
+  // UUID decorators
+  trackingId Uuid @uuid
+  legacyUuid Uuid @uuid4
+  modernUuid Uuid @uuid7
+
+  // Set decorator
+  tags String[] @set
+
+  // Flexible object
+  metadata FlexMeta @flexible
+
+  // Geometry decorators
+  location Geometry @point
+  boundary Geometry @polygon
+  route Geometry @line
+  spots Geometry @multipoint
+  paths Geometry @multiline
+  regions Geometry @multipolygon
+  shapes Geometry @collection
+  anywhere Geometry @point @polygon
+
+  // Index decorator
+  category String @index
+
+  // Default null
+  deletedAt Date? @nullable @default(null)
+
+  // Composite directives
+  @@unique(emailSlug, [email, slug])
+  @@index(categoryRole, [category, role])
+}
+
+// Model with typed ID
+model TypedIdExample {
+  id Record(int) @id
+  label String
+}
