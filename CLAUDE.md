@@ -320,10 +320,11 @@ has_children: true # only on section index pages
     - Integration with other features (select, include, $transaction, nested relations)
   - **Unit tests must verify generated query structure** — Not just "contains this string" but the full shape: correct keywords, correct variable bindings, correct conditional logic per field
   - When in doubt, write more tests. A test that seems "obvious" today catches a regression tomorrow.
-- **E2E test file organization** — Each E2E feature folder (`tests/e2e/<feature>/`) should contain multiple focused test files, one per sub-topic. Do NOT put all tests in a single large file. Follow the pattern used by `tests/e2e/objects/` and `tests/e2e/tuples/`:
-  - One file per sub-topic (e.g., `primitive.test.ts`, `object.test.ts`, `deep-nested.test.ts`, `upsert.test.ts`, `validation.test.ts`)
-  - Shared helpers (client setup, cleanup) imported from a common helper file
-  - Each file should be independently runnable with `bun test tests/e2e/<feature>/<file> --preload ./tests/e2e/preload.ts`
+- **Test file organization (ALL tests — unit, integration, E2E)** — Split tests into multiple focused files, one per sub-topic or domain. Do NOT put all tests in a single large file. This applies to unit tests (`tests/unit/`), integration tests, and E2E tests equally. Follow the pattern used by `tests/e2e/objects/`, `tests/e2e/tuples/`, and `tests/unit/resolver/`:
+  - One file per sub-topic (e.g., `model-inheritance.test.ts`, `object-inheritance.test.ts`, `validation.test.ts`, `filter.test.ts`)
+  - Shared helpers (factories, constants, setup) extracted into a common `helpers.ts` file and imported — do NOT duplicate helpers across test files
+  - Each file should be independently runnable (e.g., `bun test tests/unit/resolver/model-inheritance.test.ts`)
+  - For E2E tests specifically, use `--preload ./tests/e2e/preload.ts`
 - **E2E test global setup pattern (CRITICAL)** — The E2E preload (`tests/e2e/preload.ts`) runs `globalCleanup()` ONCE before any test file executes. This removes all tables and runs `migrate()` to establish the correct schema. Individual test files must NOT redo this work:
   - `beforeAll`: Call `cleanupTables(client, YOUR_TABLES)` — this only does `DELETE FROM` (data cleanup, no schema changes)
   - `beforeEach`: Call `truncateTables(client, YOUR_TABLES)` — same lightweight `DELETE FROM` per-test
