@@ -1,0 +1,53 @@
+enum BaseRole {
+  Admin,
+  Editor,
+  Viewer
+}
+
+
+enum ExtendedRole extends BaseRole {
+  SuperAdmin,
+  Moderator
+}
+
+
+enum CoreOnly extends BaseRole[Admin, Viewer] {
+  Bot
+}
+
+
+enum NoAdmin extends BaseRole[!Admin] {
+  Guest
+}
+
+
+literal BasePriority {
+  'low',
+  'medium',
+  'high'
+}
+
+
+literal ExtendedPriority extends BasePriority {
+  'critical',
+  'urgent'
+}
+
+
+literal HighOnly extends BasePriority['high'] {
+  'critical'
+}
+
+
+literal NoLow extends BasePriority[!'low'] {
+  'urgent'
+}
+
+
+model WithEnumLiteral {
+  id  Record  @id
+
+  role  ExtendedRole  @default('Viewer')
+
+  priority  ExtendedPriority  @default('low')
+}

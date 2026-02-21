@@ -1,0 +1,85 @@
+enum BaseRole {
+  Admin,
+  Editor,
+  Viewer
+}
+
+
+enum ExtRole extends BaseRole {
+  SuperAdmin
+}
+
+
+literal BasePriority {
+  'low',
+  'medium',
+  'high'
+}
+
+
+literal ExtPriority extends BasePriority {
+  'critical'
+}
+
+
+tuple Pair {
+  x Float,
+  y Float
+}
+
+
+tuple Triple extends Pair {
+  z Float
+}
+
+
+object BaseAddress {
+  line1  String
+
+  city  String
+}
+
+
+object FullAddress extends BaseAddress {
+  state  String
+
+  zip  String
+
+  country  String  @default('US')
+}
+
+
+abstract model Entity {
+  id  Record  @id  !!private
+
+  createdAt  Date  @createdAt  !!private
+
+  updatedAt  Date  @updatedAt
+}
+
+
+model User extends Entity {
+  email  Email  @unique
+
+  name  String
+
+  role  ExtRole  @default('Viewer')
+
+  address  FullAddress?
+
+  location  Triple?
+}
+
+
+model Admin extends Entity[id, createdAt] {
+  level  Int  @default(1)
+
+  priority  ExtPriority
+
+  canDelete  Bool  @default(false)  !!private
+}
+
+
+model Readonly extends Entity[!updatedAt] {
+  label  String  @readonly
+}

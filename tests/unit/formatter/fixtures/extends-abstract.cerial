@@ -1,0 +1,28 @@
+abstract model Base {
+  id  Record  @id
+}
+
+
+abstract model Timestamped extends Base {
+  createdAt  Date  @createdAt
+
+  updatedAt  Date  @updatedAt
+}
+
+
+model Document extends Timestamped {
+  title  String
+
+  content  String?
+}
+
+
+model Article extends Timestamped {
+  headline  String  @unique
+
+  body  String
+
+  authorId  Record
+
+  author  Relation  @field(authorId) @model(Document)
+}

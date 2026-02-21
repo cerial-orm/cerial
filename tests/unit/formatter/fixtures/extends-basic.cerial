@@ -1,0 +1,39 @@
+abstract model Entity {
+  id  Record  @id  !!private
+
+  createdAt  Date  @createdAt  !!private
+
+  updatedAt  Date  @updatedAt
+}
+
+
+model User extends Entity {
+  email  Email  @unique
+
+  name  String
+
+  age  Int?
+}
+
+
+object BaseAddress {
+  line1  String
+
+  line2  String?
+
+  city  String
+}
+
+
+object ShippingAddress extends BaseAddress {
+  zip  String
+
+  country  String  @default('US')
+}
+
+
+model Order extends Entity {
+  total  Float
+
+  address  ShippingAddress
+}

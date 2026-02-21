@@ -1,0 +1,32 @@
+# Base entity for all models
+abstract model Entity { # core type
+  id  Record  @id  !!private
+
+  createdAt  Date  @createdAt
+}
+
+
+# User extends Entity
+model User extends Entity { # user model
+  email  Email  @unique
+
+  name  String
+}
+
+
+# Extended roles
+enum AdminRole extends BaseRole {
+  SuperAdmin
+}
+
+
+# High priority only
+literal HighPriority extends Priority {
+  'critical'
+}
+
+
+# 3D point
+tuple Point3D extends Point2D {
+  z Float
+}

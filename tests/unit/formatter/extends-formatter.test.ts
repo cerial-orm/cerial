@@ -11,6 +11,7 @@
  */
 
 import { describe, expect, it } from 'bun:test';
+import { join } from 'path';
 import type { AlignedField } from '../../../src/formatter/aligner';
 import { alignFields } from '../../../src/formatter/aligner';
 import { attachComments } from '../../../src/formatter/comment-attacher';
@@ -670,5 +671,461 @@ describe('full integration', () => {
     expect(result.error).toBeUndefined();
     expect(result.formatted).toContain('# A child model');
     expect(result.formatted).toContain('model Child extends Parent {');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// 13. Fixture idempotency tests
+// ---------------------------------------------------------------------------
+
+describe('fixture idempotency', () => {
+  const EXTENDS_FIXTURES = [
+    'extends-basic.cerial',
+    'extends-pick-omit.cerial',
+    'extends-private.cerial',
+    'extends-abstract.cerial',
+    'extends-enum-literal.cerial',
+    'extends-tuple.cerial',
+    'extends-comments.cerial',
+    'extends-complex.cerial',
+  ];
+
+  const FIXTURES_DIR = join(import.meta.dir, 'fixtures');
+
+  for (const fixture of EXTENDS_FIXTURES) {
+    it(`format(format(x)) === format(x) for ${fixture}`, async () => {
+      const src = await Bun.file(join(FIXTURES_DIR, fixture)).text();
+      const first = formatCerialSource(src);
+      expect(first.error).toBeUndefined();
+
+      const second = formatCerialSource(first.formatted!);
+      expect(second.error).toBeUndefined();
+      expect(second.changed).toBe(false);
+      expect(second.formatted).toBe(first.formatted);
+    });
+  }
+
+  for (const fixture of EXTENDS_FIXTURES) {
+    it(`fixture ${fixture} is already-formatted`, async () => {
+      const src = await Bun.file(join(FIXTURES_DIR, fixture)).text();
+      const result = formatCerialSource(src);
+      expect(result.error).toBeUndefined();
+      expect(result.changed).toBe(false);
+      expect(result.formatted).toBe(src);
+    });
+  }
+
+  for (const fixture of EXTENDS_FIXTURES) {
+    it(`fixture ${fixture} has no trailing whitespace`, async () => {
+      const src = await Bun.file(join(FIXTURES_DIR, fixture)).text();
+      const result = formatCerialSource(src);
+      expect(result.error).toBeUndefined();
+
+      for (const line of result.formatted!.split('\n')) {
+        if (line.length > 0) {
+          expect(line).toBe(line.trimEnd());
+        }
+      }
+    });
+  }
+
+  for (const fixture of EXTENDS_FIXTURES) {
+    it(`fixture ${fixture} ends with single trailing newline`, async () => {
+      const src = await Bun.file(join(FIXTURES_DIR, fixture)).text();
+      const result = formatCerialSource(src);
+      expect(result.error).toBeUndefined();
+      expect(result.formatted!.endsWith('\n')).toBe(true);
+      expect(result.formatted!.endsWith('\n\n')).toBe(false);
+    });
+  }
+
+  it('idempotency holds across config variants for extends fixtures', async () => {
+    const src = await Bun.file(join(FIXTURES_DIR, 'extends-complex.cerial')).text();
+    const configs: FormatConfig[] = [
+      { indentSize: 4 },
+      { indentSize: 'tab' },
+      { decoratorAlignment: 'compact' },
+      { fieldGroupBlankLines: 'collapse' },
+      { inlineConstructStyle: 'single' },
+      { trailingComma: true },
+      { commentStyle: 'hash' },
+      { alignmentScope: 'block' },
+    ];
+
+    for (const cfg of configs) {
+      const first = formatCerialSource(src, cfg);
+      expect(first.error).toBeUndefined();
+
+      const second = formatCerialSource(first.formatted!, cfg);
+      expect(second.error).toBeUndefined();
+      expect(second.changed).toBe(false);
+      expect(second.formatted).toBe(first.formatted);
+    }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// 14. !!private alignment edge cases
+// ---------------------------------------------------------------------------
+
+describe('!!private alignment edge cases', () => {
+  it('should align !!private with varying name lengths and decorator lengths', () => {
+    const src = [
+      'model EdgeCase {',
+      '  id Record @id !!private',
+      '  verylongfieldname String @unique @readonly !!private',
+      '  x Int',
+      '}',
+    ].join('\n');
+    const result = formatModel(src, { fieldGroupBlankLines: 'collapse' });
+    const lines = result.split('\n');
+
+    const idLine = lines.find((l) => l.includes('id') && l.includes('Record'))!;
+    const longLine = lines.find((l) => l.includes('verylongfieldname'))!;
+    expect(idLine).toContain('!!private');
+    expect(longLine).toContain('!!private');
+
+    // Both !!private tokens aligned at same column
+    expect(idLine.indexOf('!!private')).toBe(longLine.indexOf('!!private'));
+  });
+
+  it('should handle all fields having !!private', () => {
+    const src = [
+      'model AllPrivate {',
+      '  id Record @id !!private',
+      '  name String !!private',
+      '  email Email @unique !!private',
+      '}',
+    ].join('\n');
+    const result = formatModel(src, { fieldGroupBlankLines: 'collapse' });
+    const lines = result
+      .split('\n')
+      .filter((l) => l.trim().startsWith('id') || l.trim().startsWith('name') || l.trim().startsWith('email'));
+
+    // All 3 fields should have !!private at the same column
+    const positions = lines.map((l) => l.indexOf('!!private'));
+    expect(positions.every((p) => p === positions[0])).toBe(true);
+    expect(positions[0]).toBeGreaterThan(0);
+  });
+
+  it('should handle only one field with !!private and many without', () => {
+    const src = [
+      'model SinglePrivate {',
+      '  id Record @id !!private',
+      '  name String',
+      '  email Email @unique',
+      '  age Int?',
+      '  bio String? @nullable',
+      '}',
+    ].join('\n');
+    const result = formatModel(src, { fieldGroupBlankLines: 'collapse' });
+    const lines = result.split('\n');
+
+    const idLine = lines.find((l) => l.trim().startsWith('id'))!;
+    expect(idLine).toContain('!!private');
+    // Other fields should NOT have !!private
+    for (const line of lines.filter(
+      (l) => l.trim() && !l.trim().startsWith('id') && !l.includes('{') && !l.includes('}'),
+    )) {
+      expect(line).not.toContain('!!private');
+    }
+  });
+
+  it('should respect group boundaries for !!private alignment', () => {
+    const src = [
+      'model GroupedPrivate {',
+      '  id Record @id !!private',
+      '  secret String !!private',
+      '',
+      '  name String',
+      '  email Email @unique !!private',
+      '}',
+    ].join('\n');
+    const result = formatModel(src, { fieldGroupBlankLines: 'honor', alignmentScope: 'group' });
+    const lines = result.split('\n');
+
+    // Group 1: id + secret — both have !!private, aligned within group
+    const idLine = lines.find((l) => l.trim().startsWith('id'))!;
+    const secretLine = lines.find((l) => l.trim().startsWith('secret'))!;
+    expect(idLine.indexOf('!!private')).toBe(secretLine.indexOf('!!private'));
+
+    // Group 2: name + email — only email has !!private
+    const emailLine = lines.find((l) => l.trim().startsWith('email'))!;
+    expect(emailLine).toContain('!!private');
+  });
+
+  it('should handle !!private with no decorators alongside fields with many decorators', () => {
+    const src = [
+      'model Mixed {',
+      '  secret String !!private',
+      '  authorId Record',
+      '  author Relation @field(authorId) @model(Mixed) @key(authorKey) !!private',
+      '}',
+    ].join('\n');
+    const result = formatModel(src, { fieldGroupBlankLines: 'collapse' });
+    const lines = result.split('\n');
+
+    const secretLine = lines.find((l) => l.trim().startsWith('secret'))!;
+    const authorLine = lines.find((l) => l.trim().startsWith('author') && l.includes('Relation'))!;
+    expect(secretLine).toContain('!!private');
+    expect(authorLine).toContain('!!private');
+    expect(secretLine.indexOf('!!private')).toBe(authorLine.indexOf('!!private'));
+  });
+
+  it('should handle !!private on extends model fields', () => {
+    const src = [
+      'model Child extends Parent {',
+      '  extra String @unique !!private',
+      '  visible Bool @default(true)',
+      '}',
+    ].join('\n');
+    const result = formatModel(src, { fieldGroupBlankLines: 'collapse' });
+
+    expect(result).toStartWith('model Child extends Parent {');
+    expect(result).toContain('!!private');
+    const lines = result.split('\n');
+    const visibleLine = lines.find((l) => l.includes('visible'))!;
+    expect(visibleLine).not.toContain('!!private');
+  });
+
+  it('should handle !!private on abstract model extends with pick and private', () => {
+    const src = ['abstract model Secured extends Base[id] {', '  token String !!private', '  label String', '}'].join(
+      '\n',
+    );
+    const result = formatModel(src, { fieldGroupBlankLines: 'collapse' });
+
+    expect(result).toStartWith('abstract model Secured extends Base[id] {');
+    expect(result).toContain('!!private');
+    const lines = result.split('\n');
+    const labelLine = lines.find((l) => l.includes('label'))!;
+    expect(labelLine).not.toContain('!!private');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// 15. !!private is NOT reordered with decorators
+// ---------------------------------------------------------------------------
+
+describe('!!private ordering', () => {
+  it('!!private always appears after decorators, never reordered', () => {
+    const src = [
+      'model Order {',
+      '  id Record @id !!private',
+      '  name String @unique @readonly !!private',
+      '  email Email @default("a@b.com") !!private',
+      '}',
+    ].join('\n');
+    const result = formatModel(src, { fieldGroupBlankLines: 'collapse' });
+    const lines = result.split('\n').filter((l) => l.includes('!!private'));
+
+    for (const line of lines) {
+      const privateIdx = line.indexOf('!!private');
+      const lastDecoratorIdx = line.lastIndexOf('@');
+      // !!private must come after all decorators
+      if (lastDecoratorIdx >= 0) {
+        expect(privateIdx).toBeGreaterThan(lastDecoratorIdx);
+      }
+    }
+  });
+
+  it('!!private is not treated as a decorator for reordering', () => {
+    // Decorators get canonical-ordered, but !!private stays at end
+    const src = ['model Reorder {', '  name String @nullable @readonly !!private', '}'].join('\n');
+    const result = formatModel(src, { fieldGroupBlankLines: 'collapse' });
+
+    // Canonical order: @readonly before @nullable
+    const nameLine = result.split('\n').find((l) => l.includes('name'))!;
+    const readonlyIdx = nameLine.indexOf('@readonly');
+    const nullableIdx = nameLine.indexOf('@nullable');
+    const privateIdx = nameLine.indexOf('!!private');
+    expect(readonlyIdx).toBeLessThan(nullableIdx);
+    expect(nullableIdx).toBeLessThan(privateIdx);
+  });
+
+  it('!!private is preserved on fields without decorators', () => {
+    const src = ['model NoDecorators {', '  secret String !!private', '  visible String', '}'].join('\n');
+    const result = formatModel(src, { fieldGroupBlankLines: 'collapse' });
+
+    const secretLine = result.split('\n').find((l) => l.includes('secret'))!;
+    expect(secretLine).toContain('!!private');
+    expect(secretLine).not.toContain('@');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// 16. Comment preservation after extends clause
+// ---------------------------------------------------------------------------
+
+describe('comment preservation with extends', () => {
+  it('preserves trailing comment after model extends clause', () => {
+    const src = 'model X extends Y { # important note\n  a Int\n}\n';
+    const result = formatCerialSource(src);
+    expect(result.error).toBeUndefined();
+    expect(result.formatted).toContain('model X extends Y { # important note');
+  });
+
+  it('preserves trailing comment after model extends with pick', () => {
+    const src = 'model X extends Y[id, name] { # picked fields\n  extra String\n}\n';
+    const result = formatCerialSource(src);
+    expect(result.error).toBeUndefined();
+    expect(result.formatted).toContain('model X extends Y[id, name] { # picked fields');
+  });
+
+  it('preserves trailing comment after model extends with omit', () => {
+    const src = 'model X extends Y[!secret] { # omitted secret\n  extra String\n}\n';
+    const result = formatCerialSource(src);
+    expect(result.error).toBeUndefined();
+    expect(result.formatted).toContain('model X extends Y[!secret] { # omitted secret');
+  });
+
+  it('preserves trailing comment after abstract model extends', () => {
+    const src = 'abstract model Base extends Entity { # base type\n  id Record @id\n}\n';
+    const result = formatCerialSource(src);
+    expect(result.error).toBeUndefined();
+    expect(result.formatted).toContain('abstract model Base extends Entity { # base type');
+  });
+
+  it('preserves trailing comment after object extends', () => {
+    const src = 'object Addr extends BaseAddr { # shipping\n  zip String\n}\n';
+    const result = formatCerialSource(src);
+    expect(result.error).toBeUndefined();
+    expect(result.formatted).toContain('object Addr extends BaseAddr { # shipping');
+  });
+
+  it('preserves leading comment before extends model', () => {
+    const src = '# Extended user\nmodel User extends Entity {\n  email Email\n}\n';
+    const result = formatCerialSource(src);
+    expect(result.error).toBeUndefined();
+    expect(result.formatted).toContain('# Extended user\nmodel User extends Entity {');
+  });
+
+  it('preserves leading comment before extends object', () => {
+    const src = '# Full address\nobject Full extends Base {\n  zip String\n}\n';
+    const result = formatCerialSource(src);
+    expect(result.error).toBeUndefined();
+    expect(result.formatted).toContain('# Full address\nobject Full extends Base {');
+  });
+
+  it('preserves both leading and trailing comments on extends', () => {
+    const src = '# The child\nmodel Child extends Parent { # inherits\n  extra String\n}\n';
+    const result = formatCerialSource(src);
+    expect(result.error).toBeUndefined();
+    expect(result.formatted).toContain('# The child\nmodel Child extends Parent { # inherits');
+  });
+
+  it('preserves slash-style trailing comment after extends', () => {
+    const src = 'model X extends Y { // slash comment\n  a Int\n}\n';
+    const result = formatCerialSource(src);
+    expect(result.error).toBeUndefined();
+    expect(result.formatted).toContain('model X extends Y { // slash comment');
+  });
+
+  it('normalizes trailing comment style with commentStyle config', () => {
+    const src = 'model X extends Y { // slash comment\n  a Int\n}\n';
+    const result = formatCerialSource(src, { commentStyle: 'hash' });
+    expect(result.error).toBeUndefined();
+    expect(result.formatted).toContain('model X extends Y { # slash comment');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// 17. Fixture content preservation
+// ---------------------------------------------------------------------------
+
+describe('fixture content preservation', () => {
+  const FIXTURES_DIR = join(import.meta.dir, 'fixtures');
+
+  it('extends-basic preserves all block headers', async () => {
+    const src = await Bun.file(join(FIXTURES_DIR, 'extends-basic.cerial')).text();
+    const result = formatCerialSource(src);
+    expect(result.error).toBeUndefined();
+    expect(result.formatted).toContain('abstract model Entity {');
+    expect(result.formatted).toContain('model User extends Entity {');
+    expect(result.formatted).toContain('object BaseAddress {');
+    expect(result.formatted).toContain('object ShippingAddress extends BaseAddress {');
+    expect(result.formatted).toContain('model Order extends Entity {');
+  });
+
+  it('extends-pick-omit preserves pick and omit syntax', async () => {
+    const src = await Bun.file(join(FIXTURES_DIR, 'extends-pick-omit.cerial')).text();
+    const result = formatCerialSource(src);
+    expect(result.error).toBeUndefined();
+    expect(result.formatted).toContain('extends Timestamps[id, createdAt]');
+    expect(result.formatted).toContain('extends Timestamps[!updatedAt]');
+    expect(result.formatted).toContain('extends Timestamps[!createdAt, !updatedAt]');
+    expect(result.formatted).toContain('extends FullProfile[bio, avatar]');
+    expect(result.formatted).toContain('extends FullProfile[!website]');
+  });
+
+  it('extends-private preserves !!private markers', async () => {
+    const src = await Bun.file(join(FIXTURES_DIR, 'extends-private.cerial')).text();
+    const result = formatCerialSource(src);
+    expect(result.error).toBeUndefined();
+    const privateCount = (result.formatted!.match(/!!private/g) || []).length;
+    expect(privateCount).toBeGreaterThanOrEqual(7);
+  });
+
+  it('extends-abstract preserves abstract keyword chain', async () => {
+    const src = await Bun.file(join(FIXTURES_DIR, 'extends-abstract.cerial')).text();
+    const result = formatCerialSource(src);
+    expect(result.error).toBeUndefined();
+    expect(result.formatted).toContain('abstract model Base {');
+    expect(result.formatted).toContain('abstract model Timestamped extends Base {');
+    expect(result.formatted).toContain('model Document extends Timestamped {');
+    expect(result.formatted).toContain('model Article extends Timestamped {');
+  });
+
+  it('extends-enum-literal preserves all enum/literal extends variants', async () => {
+    const src = await Bun.file(join(FIXTURES_DIR, 'extends-enum-literal.cerial')).text();
+    const result = formatCerialSource(src);
+    expect(result.error).toBeUndefined();
+    expect(result.formatted).toContain('enum ExtendedRole extends BaseRole');
+    expect(result.formatted).toContain('enum CoreOnly extends BaseRole[Admin, Viewer]');
+    expect(result.formatted).toContain('enum NoAdmin extends BaseRole[!Admin]');
+    expect(result.formatted).toContain('literal ExtendedPriority extends BasePriority');
+    expect(result.formatted).toContain("literal HighOnly extends BasePriority['high']");
+    expect(result.formatted).toContain("literal NoLow extends BasePriority[!'low']");
+  });
+
+  it('extends-tuple preserves tuple extends variants', async () => {
+    const src = await Bun.file(join(FIXTURES_DIR, 'extends-tuple.cerial')).text();
+    const result = formatCerialSource(src);
+    expect(result.error).toBeUndefined();
+    expect(result.formatted).toContain('tuple Triple extends Pair');
+    expect(result.formatted).toContain('tuple Named extends Pair');
+    expect(result.formatted).toContain('tuple WithPick extends Pair[0]');
+    expect(result.formatted).toContain('tuple WithOmit extends Pair[!1]');
+    expect(result.formatted).toContain('!!private');
+  });
+
+  it('extends-comments preserves all comments', async () => {
+    const src = await Bun.file(join(FIXTURES_DIR, 'extends-comments.cerial')).text();
+    const result = formatCerialSource(src);
+    expect(result.error).toBeUndefined();
+    expect(result.formatted).toContain('# Base entity for all models');
+    expect(result.formatted).toContain('# core type');
+    expect(result.formatted).toContain('# User extends Entity');
+    expect(result.formatted).toContain('# user model');
+    expect(result.formatted).toContain('# Extended roles');
+    expect(result.formatted).toContain('# High priority only');
+    expect(result.formatted).toContain('# 3D point');
+  });
+
+  it('extends-complex preserves all construct types', async () => {
+    const src = await Bun.file(join(FIXTURES_DIR, 'extends-complex.cerial')).text();
+    const result = formatCerialSource(src);
+    expect(result.error).toBeUndefined();
+    expect(result.formatted).toContain('enum BaseRole');
+    expect(result.formatted).toContain('enum ExtRole extends BaseRole');
+    expect(result.formatted).toContain('literal BasePriority');
+    expect(result.formatted).toContain('literal ExtPriority extends BasePriority');
+    expect(result.formatted).toContain('tuple Pair');
+    expect(result.formatted).toContain('tuple Triple extends Pair');
+    expect(result.formatted).toContain('object BaseAddress');
+    expect(result.formatted).toContain('object FullAddress extends BaseAddress');
+    expect(result.formatted).toContain('abstract model Entity');
+    expect(result.formatted).toContain('model User extends Entity');
+    expect(result.formatted).toContain('model Admin extends Entity[id, createdAt]');
+    expect(result.formatted).toContain('model Readonly extends Entity[!updatedAt]');
   });
 });

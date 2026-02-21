@@ -3,6 +3,15 @@
  */
 
 export {
+  validateAbstractRules,
+  validateExtends,
+  validateExtendsTargetExists,
+  validateNoCircularExtends,
+  validateNoCrossKindExtends,
+  validatePickOmitFields,
+  validatePrivateOverride,
+} from './extends-validator';
+export {
   validateNullableDecorator,
   validateNullableOnObjectFields,
   validateNullableOnTupleElements,

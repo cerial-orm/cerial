@@ -38,6 +38,14 @@ const FORMATTABLE_FIXTURES = [
   'multi-block.cerial',
   'already-formatted.cerial',
   'unformatted.cerial',
+  'extends-basic.cerial',
+  'extends-pick-omit.cerial',
+  'extends-private.cerial',
+  'extends-abstract.cerial',
+  'extends-enum-literal.cerial',
+  'extends-tuple.cerial',
+  'extends-comments.cerial',
+  'extends-complex.cerial',
 ] as const;
 
 // ---------------------------------------------------------------------------

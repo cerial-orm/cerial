@@ -1,0 +1,41 @@
+tuple Pair {
+  x Float,
+  y Float
+}
+
+
+tuple Triple extends Pair {
+  z Float
+}
+
+
+tuple Named extends Pair {
+  label String
+}
+
+
+tuple PrivTuple {
+  secret Float !!private,
+  value Float
+}
+
+
+tuple WithPick extends Pair[0] {
+  extra Int
+}
+
+
+tuple WithOmit extends Pair[!1] {
+  alt String
+}
+
+
+model TupleUser {
+  id  Record  @id
+
+  point  Triple
+
+  coords  Pair?
+
+  labeled  Named
+}
