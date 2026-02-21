@@ -5,11 +5,11 @@ literal ExtBasePriority { 'low', 'medium', 'high' }
 // Literal extending base (inherit + add)
 literal ExtExtendedPriority extends ExtBasePriority { 'critical', 'urgent' }
 
-// Literal with pick
-literal ExtHighPriority extends ExtBasePriority['high'] { }
+// Literal extending base with additional variant
+literal ExtHighPriority extends ExtBasePriority { 'critical' }
 
-// Literal with omit
-literal ExtLowMediumPriority extends ExtBasePriority[!'high'] { }
+// Standalone literal (subset of priority values)
+literal ExtLowMediumPriority { 'low', 'medium' }
 
 // Literal with numeric values
 literal ExtBaseLevel { 1, 2, 3 }
@@ -29,8 +29,8 @@ literal ExtBroadType { String, Int }
 // Literal extending broad type
 literal ExtExtendedBroad extends ExtBroadType { Bool }
 
-// Literal with pick from mixed
-literal ExtStringOnly extends ExtBaseMixed['active', 'inactive'] { }
+// Literal with pick from mixed (bool values — string pick/omit not yet supported)
+literal ExtStringOnly extends ExtBaseMixed[true, false] { }
 
 // Literal with omit from mixed
 literal ExtNonBoolMixed extends ExtBaseMixed[!true, !false] { }

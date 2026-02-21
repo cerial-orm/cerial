@@ -206,6 +206,49 @@ export const tables = {
   geometry: ['geometry_basic', 'geometry_with_object', 'geometry_with_tuple'],
   any: ['any_basic', 'any_with_object', 'any_decorated', 'any_unique'],
 
+  // ── Extends (Features) ──
+  extendsModel: [
+    'ext_user',
+    'ext_admin',
+    'ext_moderator',
+    'ext_super_admin',
+    'ext_premium_user',
+    'ext_system_admin',
+    'ext_private_user',
+    'ext_profile',
+  ],
+  extendsObject: ['ext_address_user'],
+  extendsTuple: ['ext_tuple_model'],
+  extendsEnum: ['ext_enum_model', 'ext_enum_container'],
+  extendsLiteral: ['ext_literal_model', 'ext_literal_container'],
+  extendsCrossFile: [
+    'ext_cross_user',
+    'ext_cross_admin',
+    'ext_cross_moderator',
+    'ext_cross_premium',
+    'ext_cross_profile',
+    'ext_cross_private',
+  ],
+  extendsMultiLevel: [
+    'ext_l4_concrete',
+    'ext_l4_alt_concrete',
+    'ext_l4_pick_concrete',
+    'ext_l4_omit_concrete',
+    'ext_l5_very_deep',
+    'ext_l6_ultra_deep',
+  ],
+  extendsRelations: [
+    'ext_rel_blog_author',
+    'ext_rel_blog_post',
+    'ext_rel_project',
+    'ext_rel_blog_tag',
+    'ext_rel_blog_post_tag',
+    'ext_rel_post_summary',
+    'ext_rel_post_archive',
+    'ext_rel_comment',
+    'ext_rel_comment_moderated',
+  ],
+
   // ── Features ──
   typedIds: [
     'int_id_model',

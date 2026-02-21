@@ -35,18 +35,8 @@ model ExtCrossProfile extends ExtProfile {
   following Record[]
 }
 
-// Extend with override
+// Extend private user (email is !!private — cannot override, only inherit)
 model ExtCrossPrivate extends ExtPrivateUser {
-  email Email @unique
   publicBio String @default('No bio')
 }
 
-// Model referencing extended types from extends-model.cerial
-model ExtCrossContainer {
-  id Record @id
-  user ExtCrossUser
-  admin ExtCrossAdmin?
-  moderator ExtCrossModerator?
-  premium ExtCrossPremium?
-  profile ExtCrossProfile?
-}

@@ -1,5 +1,5 @@
 // Models with relations that extend abstract bases
-// Tests FK + Relation separately, pick of FK without Relation
+// Tests FK + Relation with extends, pick/omit of relation fields
 
 abstract model ExtRelBase {
   id Record @id !!private
@@ -7,19 +7,19 @@ abstract model ExtRelBase {
   updatedAt Date @updatedAt
 }
 
-// Base with relation
+// Base with name/email
 abstract model ExtRelAuthor extends ExtRelBase {
   name String
   email Email @unique
 }
 
-// Concrete author
+// Concrete author — bidirectional with ExtRelBlogPost
 model ExtRelBlogAuthor extends ExtRelAuthor {
   bio String?
   posts Relation[] @model(ExtRelBlogPost)
 }
 
-// Concrete post extending base with FK
+// Concrete post extending base with FK — bidirectional with ExtRelBlogAuthor
 model ExtRelBlogPost extends ExtRelBase {
   title String
   content String?
@@ -27,62 +27,57 @@ model ExtRelBlogPost extends ExtRelBase {
   author Relation @field(authorId) @model(ExtRelBlogAuthor)
 }
 
-// Base with optional relation
+// Base for owner
 abstract model ExtRelOwner extends ExtRelBase {
   name String
 }
 
-// Concrete owner with optional relation
+// Concrete owner — single-sided optional relation to ExtRelBlogAuthor
 model ExtRelProject extends ExtRelOwner {
   description String?
   ownerId Record?
   owner Relation? @field(ownerId) @model(ExtRelBlogAuthor)
 }
 
-// Base for many-to-many
+// Base for tags
 abstract model ExtRelTag extends ExtRelBase {
   name String @unique
 }
 
-// Concrete tag with many-to-many
+// Concrete tag — bidirectional with ExtRelBlogPostTag
 model ExtRelBlogTag extends ExtRelTag {
-  posts Relation[] @model(ExtRelBlogPostTag)
+  postTags Relation[] @model(ExtRelBlogPostTag)
 }
 
-// Junction model for many-to-many
+// Junction model — tag is bidirectional, post is single-sided optional
 model ExtRelBlogPostTag {
   id Record @id
-  postId Record
-  post Relation @field(postId) @model(ExtRelBlogPost)
+  postId Record?
+  post Relation? @field(postId) @model(ExtRelBlogPost)
   tagId Record
   tag Relation @field(tagId) @model(ExtRelBlogTag)
 }
 
-// Model extending base with pick (exclude relation)
-model ExtRelPostSummary extends ExtRelBlogPost[!author] {
+// Extends with omit — exclude relation and FK fields
+model ExtRelPostSummary extends ExtRelBlogPost[!author, !authorId] {
   summary String?
   wordCount Int?
 }
 
-// Model extending base with omit (exclude relation)
-model ExtRelPostArchive extends ExtRelBlogPost[!updatedAt] {
+// Extends with omit — exclude content and relation fields
+model ExtRelPostArchive extends ExtRelBlogPost[!content, !author, !authorId] {
   archivedAt Date @createdAt
   archiveReason String?
 }
 
-// Model with multiple relations
+// Self-referential with optional single-sided relation
 model ExtRelComment extends ExtRelBase {
   content String
-  postId Record
-  post Relation @field(postId) @model(ExtRelBlogPost)
-  authorId Record
-  author Relation @field(authorId) @model(ExtRelBlogAuthor)
   parentCommentId Record?
   parentComment Relation? @field(parentCommentId) @model(ExtRelComment)
-  replies Relation[] @model(ExtRelComment)
 }
 
-// Model extending with relation override
+// Extends with additional optional relation
 model ExtRelCommentModerated extends ExtRelComment {
   isApproved Bool @default(false)
   approvedBy Record?

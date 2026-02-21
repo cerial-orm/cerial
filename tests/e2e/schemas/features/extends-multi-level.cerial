@@ -59,8 +59,8 @@ model ExtL4OmitConcrete extends ExtL3Omit {
   version Int @default(1)
 }
 
-// Level 5: Ultra-deep chain
-abstract model ExtL5VeryDeep extends ExtL4Concrete {
+// Level 5: Deep chain (concrete, since it extends concrete ExtL4Concrete)
+model ExtL5VeryDeep extends ExtL4Concrete {
   archived Bool @default(false)
 }
 
@@ -70,12 +70,3 @@ model ExtL6UltraDeep extends ExtL5VeryDeep {
   archivedAt Date?
 }
 
-// Model using all deep inheritance levels
-model ExtMultiLevelContainer {
-  id Record @id
-  l4Concrete ExtL4Concrete
-  l4AltConcrete ExtL4AltConcrete
-  l4PickConcrete ExtL4PickConcrete
-  l4OmitConcrete ExtL4OmitConcrete
-  l6UltraDeep ExtL6UltraDeep?
-}

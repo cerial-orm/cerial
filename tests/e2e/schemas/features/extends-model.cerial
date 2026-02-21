@@ -19,14 +19,14 @@ model ExtUser extends ExtBaseUser {
   role String @default('user')
 }
 
-// Concrete model with pick (select specific fields from base)
-model ExtAdmin extends ExtBaseUser[id, createdAt] {
+// Concrete model with omit (exclude specific field from base)
+model ExtAdmin extends ExtBaseUser[!isActive] {
   level Int @default(1)
   permissions String[]
 }
 
-// Concrete model with omit (exclude specific fields from base)
-model ExtModerator extends ExtBaseUser[!updatedAt] {
+// Concrete model with pick (select specific fields from base)
+model ExtModerator extends ExtBaseUser[email, name] {
   bannedUntil Date?
   notes String?
 }

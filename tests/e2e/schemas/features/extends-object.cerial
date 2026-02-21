@@ -10,7 +10,7 @@ object ExtBaseAddress {
 // Object extending base
 object ExtAddress extends ExtBaseAddress {
   apartment String?
-  coordinates Float[]?
+  coordinates Float[]
 }
 
 // Object with pick

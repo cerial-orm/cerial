@@ -23,8 +23,8 @@ tuple ExtOverridePair { String, Float }
 // Tuple with !!private elements
 tuple ExtPrivatePair { String !!private, Int !!private }
 
-// Tuple with optional elements
-tuple ExtOptionalTriple { String?, Int?, Bool? }
+// Tuple with @nullable elements (? not allowed on tuple elements)
+tuple ExtOptionalTriple { String @nullable, Int @nullable, Bool @nullable }
 
 // Tuple with @nullable elements
 tuple ExtNullableTriple { String @nullable, Int @nullable, Bool @nullable }
@@ -36,7 +36,10 @@ tuple ExtDecoratedTriple { String @default('test'), Int @default(0), Bool @defau
 tuple ExtQuad extends ExtTriple { Float }
 
 // Tuple with object elements
-object ExtCoord { x Float, y Float }
+object ExtCoord {
+  x Float
+  y Float
+}
 tuple ExtCoordPair { ExtCoord, ExtCoord }
 
 // Model using extended tuples
