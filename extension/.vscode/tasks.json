@@ -1,0 +1,25 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "watch",
+      "type": "shell",
+      "command": "bun",
+      "args": ["esbuild.mjs", "--watch"],
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "esbuild",
+        "pattern": {
+          "regexp": "^✘ \\[ERROR\\] (.+)$",
+          "message": 1
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^\\[watch\\]",
+          "endsPattern": "^Watching for changes\\.\\.\\."
+        }
+      },
+      "group": "build"
+    }
+  ]
+}
