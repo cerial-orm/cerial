@@ -1,0 +1,64 @@
+# Person with mentor (one-directional 1-1 self-reference)
+# A has mentor B does NOT mean B has mentor A
+model Person {
+  id Record @id
+  name String
+  mentorId Record? @nullable
+  mentor Relation? @field(mentorId) @model(Person)
+}
+
+# Employee with assistant - includes reverse lookup for convenience
+# NO auto-sync - just convenient accessor
+model Assistant {
+  id Record @id
+  name String
+  assistsId Record? @nullable
+  assists Relation? @field(assistsId) @model(Assistant) @key(assist)
+  assistedBy Relation? @model(Assistant) @key(assist)
+}
+
+# Employee with manager (single-sided 1-n self-reference)
+# No reverse lookup defined - query manually via WHERE managerId = $myId
+model EmployeeSingleSided {
+  id Record @id
+  name String
+  managerId Record? @nullable
+  manager Relation? @field(managerId) @model(EmployeeSingleSided)
+}
+
+# Employee with manager - includes reverse lookup for direct reports
+model EmployeeWithReports {
+  id Record @id
+  name String
+  managerId Record? @nullable
+  manager Relation? @field(managerId) @model(EmployeeWithReports) @key(manages)
+  directReports Relation[] @model(EmployeeWithReports) @key(manages)
+}
+
+# Person with friends (symmetric n-n self-reference)
+# Single Record[] + Relation[], user manages both sides manually or via app logic
+model Friend {
+  id Record @id
+  name String
+  friendIds Record[]
+  friends Relation[] @field(friendIds) @model(Friend)
+}
+
+# Person with following (Twitter pattern) - SINGLE-SIDED
+# A follows B does NOT mean B follows A
+# NO reverse defined - users query "who follows me" manually via: WHERE followingIds CONTAINS me
+model SocialUser {
+  id Record @id
+  name String
+  followingIds Record[]
+  following Relation[] @field(followingIds) @model(SocialUser)
+}
+
+# Category with parent/children (tree structure)
+model CategoryTree {
+  id Record @id
+  name String
+  parentId Record? @nullable
+  parent Relation? @field(parentId) @model(CategoryTree) @key(hierarchy)
+  children Relation[] @model(CategoryTree) @key(hierarchy)
+}

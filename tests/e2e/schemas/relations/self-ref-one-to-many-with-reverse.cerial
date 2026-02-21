@@ -1,8 +1,0 @@
-# Employee with manager - includes reverse lookup for direct reports
-model EmployeeWithReports {
-  id Record @id
-  name String
-  managerId Record? @nullable
-  manager Relation? @field(managerId) @model(EmployeeWithReports) @key(manages)
-  directReports Relation[] @model(EmployeeWithReports) @key(manages)
-}

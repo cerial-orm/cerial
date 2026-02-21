@@ -1,0 +1,73 @@
+# Shared abstract bases for @onDelete test models
+
+abstract model OnDeleteParent {
+  id Record @id !!private
+  name String
+}
+
+abstract model OnDeleteProfile {
+  id Record @id !!private
+  bio String?
+  userId Record? @nullable
+}
+
+# 1-1 Optional with @onDelete Cascade
+model UserCascade extends OnDeleteParent {
+  profile Relation? @model(ProfileCascade)
+}
+
+model ProfileCascade extends OnDeleteProfile {
+  user Relation? @field(userId) @model(UserCascade) @onDelete(Cascade)
+}
+
+# 1-1 Optional with @onDelete NoAction
+model UserNoAction extends OnDeleteParent {
+  profile Relation? @model(ProfileNoAction)
+}
+
+model ProfileNoAction extends OnDeleteProfile {
+  user Relation? @field(userId) @model(UserNoAction) @onDelete(NoAction)
+}
+
+# 1-1 Optional with @onDelete Restrict
+model UserRestrict extends OnDeleteParent {
+  profile Relation? @model(ProfileRestrict)
+}
+
+model ProfileRestrict extends OnDeleteProfile {
+  user Relation? @field(userId) @model(UserRestrict) @onDelete(Restrict)
+}
+
+# 1-1 Optional with @onDelete SetNull (explicit)
+model UserSetNull extends OnDeleteParent {
+  email Email @unique
+  profile Relation? @model(ProfileSetNull)
+}
+
+model ProfileSetNull extends OnDeleteProfile {
+  user Relation? @field(userId) @model(UserSetNull) @onDelete(SetNull)
+}
+
+# 1-n Optional with @onDelete Cascade
+model Team extends OnDeleteParent {
+  members Relation[] @model(Member)
+}
+
+model Member {
+  id Record @id
+  name String
+  teamId Record? @nullable
+  team Relation? @field(teamId) @model(Team) @onDelete(Cascade)
+}
+
+# 1-n Optional with @onDelete Restrict
+model Department extends OnDeleteParent {
+  employees Relation[] @model(Employee)
+}
+
+model Employee {
+  id Record @id
+  name String
+  departmentId Record? @nullable
+  department Relation? @field(departmentId) @model(Department) @onDelete(Restrict)
+}

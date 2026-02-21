@@ -1,8 +1,0 @@
-# Employee with manager (single-sided 1-n self-reference)
-# No reverse lookup defined - query manually via WHERE managerId = $myId
-model EmployeeSingleSided {
-  id Record @id
-  name String
-  managerId Record? @nullable
-  manager Relation? @field(managerId) @model(EmployeeSingleSided)
-}

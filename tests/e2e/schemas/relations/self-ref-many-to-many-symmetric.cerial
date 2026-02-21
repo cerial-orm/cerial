@@ -1,8 +1,0 @@
-# Person with friends (symmetric n-n self-reference)
-# Single Record[] + Relation[], user manages both sides manually or via app logic
-model Friend {
-  id Record @id
-  name String
-  friendIds Record[]
-  friends Relation[] @field(friendIds) @model(Friend)
-}

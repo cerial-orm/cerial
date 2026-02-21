@@ -1,0 +1,43 @@
+# FK on Profile side, optional - can use @onDelete
+model UserOptional {
+  id Record @id
+  email Email @unique
+  name String
+  profile Relation? @model(ProfileOptional)
+}
+
+model ProfileOptional {
+  id Record @id
+  bio String?
+  userId Record? @nullable
+  user Relation? @field(userId) @model(UserOptional)
+}
+
+# FK on Profile side, required - User deletion cascades to Profile
+model UserRequired {
+  id Record @id
+  email Email @unique
+  name String
+  profile Relation @model(ProfileRequired)
+}
+
+model ProfileRequired {
+  id Record @id
+  bio String?
+  avatarUrl String?
+  userId Record
+  user Relation @field(userId) @model(UserRequired)
+}
+
+# Only Profile defines the relation, User has no reverse
+model UserSingleSided {
+  id Record @id
+  name String
+}
+
+model ProfileSingleSided {
+  id Record @id
+  bio String?
+  userId Record? @nullable
+  user Relation? @field(userId) @model(UserSingleSided)
+}

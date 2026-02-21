@@ -1,8 +1,0 @@
-# Person with mentor (one-directional 1-1 self-reference)
-# A has mentor B does NOT mean B has mentor A
-model Person {
-  id Record @id
-  name String
-  mentorId Record? @nullable
-  mentor Relation? @field(mentorId) @model(Person)
-}
