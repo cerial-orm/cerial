@@ -21,6 +21,7 @@ import { writeInternalIndex } from '../generators/metadata/internal-writer';
 import { writeModelRegistry } from '../generators/metadata/registry-writer';
 import { writeMigrationFile } from '../generators/migrations/writer';
 import { collectEnumNames, collectLiteralNames, collectObjectNames, collectTupleNames, parse } from '../parser/parser';
+import { resolveInheritance } from '../resolver';
 import type {
   ASTEnum,
   ASTLiteral,
@@ -47,7 +48,7 @@ import { loadCerialIgnore, resolvePathFilter } from './filters';
 import { findSchemaRoots, resolveSchemas, resolveSinglePath } from './resolvers';
 import { logger } from './utils';
 import type { CLIOptions, LogOutputLevel } from './validators';
-import { validateOptions, validateSchema } from './validators';
+import { validateExtends, validateOptions, validateSchema } from './validators';
 
 /** Generation result */
 export interface GenerateResult {
@@ -314,7 +315,7 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
       return result;
     }
 
-    // Validate combined schema (all models, objects, tuples, literals, and enums together)
+    // Build combined AST from all parsed files
     const combinedAST: import('../types').SchemaAST = {
       models: allModels,
       objects: allObjects,
@@ -323,11 +324,38 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
       enums: allEnums,
       source: '',
     };
-    const validation = validateSchema(combinedAST);
+
+    // Validate extends on the RAW AST (catches cycles, missing targets, private violations, abstract rules)
+    const extendsErrors = validateExtends(combinedAST);
+    if (extendsErrors.length) {
+      for (const error of extendsErrors) {
+        const modelFile = schemaContents.find((s) =>
+          allModels.some((m) => m.name === error.model && s.content.includes(`model ${error.model}`)),
+        );
+        const prefix = modelFile ? `${modelFile.path}: ` : '';
+        result.errors.push(`${prefix}${error.message}`);
+      }
+      logger.error('Extends errors found:');
+      result.errors.forEach((e) => logger.error(`  ${e}`));
+
+      return result;
+    }
+
+    // Resolve inheritance — flatten extends chains, apply pick/omit, strip private markers
+    const resolvedAST = resolveInheritance(combinedAST);
+
+    // Filter out abstract models — they exist only for inheritance, not for generated output
+    const concreteModels = resolvedAST.models.filter((m) => !m.abstract);
+
+    // Validate the resolved schema (relation rules, field names, etc. on the flattened types)
+    const validation = validateSchema({
+      ...resolvedAST,
+      models: concreteModels,
+    });
     if (!validation.valid) {
       for (const error of validation.errors) {
         const modelFile = schemaContents.find((s) =>
-          allModels.some((m) => m.name === error.model && s.content.includes(`model ${error.model}`)),
+          concreteModels.some((m) => m.name === error.model && s.content.includes(`model ${error.model}`)),
         );
         const prefix = modelFile ? `${modelFile.path}: ` : '';
         result.errors.push(`${prefix}${error.message}`);
@@ -338,17 +366,19 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
       return result;
     }
 
-    if (!allModels.length) {
+    if (!concreteModels.length) {
       result.errors.push('No models found in schema files');
 
       return result;
     }
 
-    const objectCount = allObjects.length;
-    const tupleCount = allTuples.length;
-    const literalCount = allLiterals.length;
-    const enumCount = allEnums.length;
+    const abstractCount = resolvedAST.models.length - concreteModels.length;
+    const objectCount = resolvedAST.objects.length;
+    const tupleCount = resolvedAST.tuples.length;
+    const literalCount = resolvedAST.literals.length;
+    const enumCount = resolvedAST.enums.length;
     const extraInfo = [
+      abstractCount ? `${abstractCount} abstract` : '',
       objectCount ? `${objectCount} object(s)` : '',
       tupleCount ? `${tupleCount} tuple(s)` : '',
       literalCount ? `${literalCount} literal(s)` : '',
@@ -356,23 +386,23 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
     ]
       .filter(Boolean)
       .join(' and ');
-    logger.info(`Found ${allModels.length} model(s)${extraInfo ? ` and ${extraInfo}` : ''}`);
+    logger.info(`Found ${concreteModels.length} model(s)${extraInfo ? ` and ${extraInfo}` : ''}`);
 
-    // Convert to metadata
-    const models = convertModels(allModels);
-    const objects = convertObjects(allObjects);
-    const tuples = convertTuples(allTuples);
+    // Convert to metadata (using resolved, concrete models and resolved type collections)
+    const models = convertModels(concreteModels);
+    const objects = convertObjects(resolvedAST.objects);
+    const tuples = convertTuples(resolvedAST.tuples);
 
     // Convert enums to synthetic ASTLiteral entries for the literal pipeline
-    const syntheticEnumLiterals: ASTLiteral[] = allEnums.map((e) => ({
+    const syntheticEnumLiterals: ASTLiteral[] = resolvedAST.enums.map((e) => ({
       name: e.name,
       variants: e.values.map((v): import('../types').ASTLiteralVariant => ({ kind: 'string', value: v })),
       range: e.range,
     }));
-    const allLiteralsForConversion = [...allLiterals, ...syntheticEnumLiterals];
+    const allLiteralsForConversion = [...resolvedAST.literals, ...syntheticEnumLiterals];
     const literals = convertLiterals(allLiteralsForConversion);
     for (const lit of literals) {
-      if (allEnums.some((e) => e.name === lit.name)) {
+      if (resolvedAST.enums.some((e) => e.name === lit.name)) {
         lit.isEnum = true;
       }
     }

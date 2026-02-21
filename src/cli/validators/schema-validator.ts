@@ -5,7 +5,6 @@
 import { getDecorator, getTuple, hasDecorator } from '../../parser/types/ast';
 import type { ASTTuple, SchemaAST } from '../../types';
 import { isValidFieldName, isValidModelName, isValidObjectName } from '../../utils/validation-utils';
-import { validateExtends } from './extends-validator';
 import {
   validateNoOptionalAnyFields,
   validateNoOptionalTupleElements,
@@ -1002,7 +1001,6 @@ export function validateSchema(ast: SchemaAST): SchemaValidationResult {
     ...validateUuidFields(ast),
     ...validateSetDecorator(ast),
     ...validateRecordIdTypes(ast),
-    ...validateExtends(ast),
   ];
 
   return {

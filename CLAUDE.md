@@ -208,6 +208,7 @@ Sandbox testing is **allowed in plan mode** — it is investigative research to 
   ```
 
 - **Biome unused prefix** - Biome auto-prefixes unused variables/params with `_` (e.g., `x` → `_x`). When you later use that variable, remove the `_` prefix first (`_x` → `x`), unless `_` has a separate meaning in that context (e.g., lodash import)
+- **Import ordering when editing** - When adding new imports to a file, always add the **usage code first**, then add the `import` statement. Biome removes imports it considers unused, so if you add an import before the code that uses it (e.g., across separate edit operations), `bun run format` will strip it. Write the call/reference first, then add the import — this guarantees Biome sees it as used
 - **Module exports** - Each module has `index.ts` that re-exports its public API
 - **Generated files** - Formatted with Biome
 
