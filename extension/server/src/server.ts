@@ -21,21 +21,77 @@ import {
 } from 'vscode-languageserver/node';
 
 import { TextDocument } from 'vscode-languageserver-textdocument';
+import type { FormatConfig } from '../../../src/formatter/types';
 // IMPORTANT: Import parse from parser.ts directly, NOT the barrel (src/parser/index.ts),
 // because the barrel re-exports file-reader.ts which imports Bun.file() and Bun.Glob.
 import { parse } from '../../../src/parser/parser';
 import { WorkspaceIndexer } from './indexer';
+import { registerCodeActionsProvider } from './providers/code-actions';
+import { registerColorProvider } from './providers/color-decorators';
 import { registerCompletionProvider } from './providers/completion';
 import { registerDefinitionProvider } from './providers/definition';
 import { registerDiagnosticsProvider } from './providers/diagnostics';
 import { registerFoldingProvider } from './providers/folding';
 import { registerFormattingProvider } from './providers/formatting';
 import { registerHoverProvider } from './providers/hover';
+import { registerInlayHintsProvider } from './providers/inlay-hints';
+import { registerLinksProvider } from './providers/links';
 import { registerReferencesProvider } from './providers/references';
 import { registerRenameProvider } from './providers/rename';
 import { registerSemanticTokensProvider, TOKEN_MODIFIERS, TOKEN_TYPES } from './providers/semantic-tokens';
 import { registerSymbolsProvider } from './providers/symbols';
 import { registerWorkspaceSymbolsProvider } from './providers/workspace-symbols';
+
+// ---------------------------------------------------------------------------
+// Settings
+// ---------------------------------------------------------------------------
+
+/** User-facing settings from `contributes.configuration` in package.json. */
+export interface CerialSettings {
+  format: FormatConfig;
+  diagnostics: {
+    enabled: boolean;
+  };
+  inlayHints: {
+    enabled: boolean;
+    inferredTypes: boolean;
+    serverSetFields: boolean;
+    inheritedFields: boolean;
+  };
+  trace: {
+    server: 'off' | 'messages' | 'verbose';
+  };
+}
+
+/** Default settings matching package.json defaults. */
+const defaultSettings: CerialSettings = {
+  format: {
+    alignmentScope: 'group',
+    fieldGroupBlankLines: 'single',
+    blockSeparation: 2,
+    indentSize: 2,
+    inlineConstructStyle: 'multi',
+    decoratorAlignment: 'aligned',
+    trailingComma: false,
+    commentStyle: 'honor',
+    blankLineBeforeDirectives: 'always',
+  },
+  diagnostics: {
+    enabled: true,
+  },
+  inlayHints: {
+    enabled: true,
+    inferredTypes: true,
+    serverSetFields: true,
+    inheritedFields: true,
+  },
+  trace: {
+    server: 'off',
+  },
+};
+
+/** Current resolved settings — updated on init and on configuration change. */
+let settings: CerialSettings = { ...defaultSettings };
 
 // Create connection with all proposed protocol features.
 // When launched by VS Code's LanguageClient with TransportKind.ipc,
@@ -53,6 +109,9 @@ let workspaceFolders: string[] = [];
 
 // Debounce timers for open document reindexing.
 const debounceTimers = new Map<string, ReturnType<typeof setTimeout>>();
+
+// Debounce timer for config/cerialignore changes (500ms — less frequent than edits).
+let configDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 
 connection.onInitialize((params: InitializeParams): InitializeResult => {
   // Store workspace folder paths for scanning
@@ -91,12 +150,65 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
         },
         full: true,
       },
+      codeActionProvider: {
+        codeActionKinds: ['quickfix'],
+      },
+      documentLinkProvider: {
+        resolveProvider: false,
+      },
+      colorProvider: true,
+      inlayHintProvider: true,
     },
   };
 });
 
+/** Fetch settings from the client and update the module-level `settings`. */
+async function fetchSettings(): Promise<void> {
+  try {
+    const raw = await connection.workspace.getConfiguration('cerial');
+    if (raw) {
+      settings = {
+        format: {
+          alignmentScope: raw.format?.alignmentScope ?? defaultSettings.format.alignmentScope,
+          fieldGroupBlankLines: raw.format?.fieldGroupBlankLines ?? defaultSettings.format.fieldGroupBlankLines,
+          blockSeparation: raw.format?.blockSeparation ?? defaultSettings.format.blockSeparation,
+          indentSize: raw.format?.indentSize ?? defaultSettings.format.indentSize,
+          inlineConstructStyle: raw.format?.inlineConstructStyle ?? defaultSettings.format.inlineConstructStyle,
+          decoratorAlignment: raw.format?.decoratorAlignment ?? defaultSettings.format.decoratorAlignment,
+          trailingComma: raw.format?.trailingComma ?? defaultSettings.format.trailingComma,
+          commentStyle: raw.format?.commentStyle ?? defaultSettings.format.commentStyle,
+          blankLineBeforeDirectives:
+            raw.format?.blankLineBeforeDirectives ?? defaultSettings.format.blankLineBeforeDirectives,
+        },
+        diagnostics: {
+          enabled: raw.diagnostics?.enabled ?? defaultSettings.diagnostics.enabled,
+        },
+        inlayHints: {
+          enabled: raw.inlayHints?.enabled ?? defaultSettings.inlayHints.enabled,
+          inferredTypes: raw.inlayHints?.inferredTypes ?? defaultSettings.inlayHints.inferredTypes,
+          serverSetFields: raw.inlayHints?.serverSetFields ?? defaultSettings.inlayHints.serverSetFields,
+          inheritedFields: raw.inlayHints?.inheritedFields ?? defaultSettings.inlayHints.inheritedFields,
+        },
+        trace: {
+          server: raw.trace?.server ?? defaultSettings.trace.server,
+        },
+      };
+    }
+  } catch {
+    // Client may not support workspace/configuration — keep defaults
+  }
+}
+
+/** Accessor for the current settings (used by providers). */
+export function getSettings(): CerialSettings {
+  return settings;
+}
+
 connection.onInitialized(async () => {
   connection.console.log('Cerial language server initialized');
+
+  // Fetch user settings
+  await fetchSettings();
 
   // Scan workspace for .cerial files and perform initial indexing
   if (workspaceFolders.length) {
@@ -111,11 +223,22 @@ connection.onInitialized(async () => {
         { globPattern: '**/*.cerial' },
         { globPattern: '**/cerial.config.json' },
         { globPattern: '**/cerial.config.ts' },
+        { globPattern: '**/.cerialignore' },
       ],
     });
   } catch {
     connection.console.warn('Could not register file watchers — dynamic registration not supported');
   }
+});
+
+// ── Configuration Changes ─────────────────────────────────────────────────
+
+connection.onDidChangeConfiguration(async () => {
+  await fetchSettings();
+  connection.console.log('Cerial settings updated');
+
+  // Refresh diagnostics — enabled flag may have changed
+  connection.languages.diagnostics.refresh();
 });
 
 // ── File Watcher (on-disk changes) ────────────────────────────────────────
@@ -126,8 +249,8 @@ connection.onDidChangeWatchedFiles((params) => {
   for (const change of params.changes) {
     const uri = change.uri;
 
-    // Config file changed — rescan entire workspace
-    if (uri.endsWith('cerial.config.json') || uri.endsWith('cerial.config.ts')) {
+    // Config or .cerialignore changed — schedule debounced workspace re-scan
+    if (uri.endsWith('cerial.config.json') || uri.endsWith('cerial.config.ts') || uri.endsWith('.cerialignore')) {
       configChanged = true;
       continue;
     }
@@ -152,7 +275,30 @@ connection.onDidChangeWatchedFiles((params) => {
   }
 
   if (configChanged && workspaceFolders.length) {
-    indexer.scanWorkspace(workspaceFolders);
+    // Debounce config/cerialignore changes — 500ms (less frequent than edits)
+    if (configDebounceTimer) clearTimeout(configDebounceTimer);
+    configDebounceTimer = setTimeout(async () => {
+      configDebounceTimer = null;
+      await handleConfigReload();
+    }, 500);
+  }
+
+  // Trigger diagnostics refresh for non-config file changes immediately
+  if (!configChanged) {
+    connection.languages.diagnostics.refresh();
+  }
+});
+
+/**
+ * Handle config or .cerialignore reload with graceful error handling.
+ *
+ * Re-scans workspace, re-applies open document content, refreshes
+ * settings (format config from cerial.config.ts may override VS Code settings),
+ * and triggers diagnostics + inlay hints refresh.
+ */
+async function handleConfigReload(): Promise<void> {
+  try {
+    const { added, removed } = indexer.reloadConfig(workspaceFolders);
 
     // Re-apply content from open documents (they may have unsaved changes)
     const groupsToReindex = new Set<string>();
@@ -167,14 +313,31 @@ connection.onDidChangeWatchedFiles((params) => {
       indexer.reindexSchemaGroup(groupName);
     }
 
+    // Log diff
+    if (added.length || removed.length) {
+      connection.console.log(
+        `Config reload: +${added.length} group(s) [${added.join(', ')}], -${removed.length} group(s) [${removed.join(', ')}]`,
+      );
+    }
     connection.console.log(
       `Re-scanned workspace: ${indexer.index.size} file(s) in ${indexer.schemaGroups.size} group(s)`,
     );
-  }
 
-  // Trigger diagnostics refresh for all open documents
-  connection.languages.diagnostics.refresh();
-});
+    // Re-fetch settings — format config from cerial.config.ts may override VS Code settings
+    await fetchSettings();
+
+    // Refresh diagnostics and inlay hints
+    connection.languages.diagnostics.refresh();
+    connection.languages.inlayHint?.refresh();
+  } catch (err) {
+    // Malformed config — previous state was retained by reloadConfig()
+    const message = err instanceof Error ? err.message : String(err);
+    connection.console.warn(`Config reload failed (keeping previous config): ${message}`);
+
+    // Still refresh diagnostics in case .cerial file changes came alongside the config change
+    connection.languages.diagnostics.refresh();
+  }
+}
 
 // ── Open Document Changes (debounced reindexing) ──────────────────────────
 
@@ -202,7 +365,7 @@ documents.onDidChangeContent((change) => {
 // ── Providers ─────────────────────────────────────────────────────────────
 
 // Register pull diagnostics (parse errors + validation errors).
-registerDiagnosticsProvider(connection, documents, indexer);
+registerDiagnosticsProvider(connection, documents, indexer, getSettings);
 
 // Register completion (keywords, field types, extends, Record() ID types, cross-file types).
 // Prefers indexed AST (cross-file names resolved) with on-demand fallback.
@@ -236,7 +399,7 @@ registerDefinitionProvider(connection, documents, indexer);
 registerFoldingProvider(connection, documents, indexer);
 
 // Register formatting (Format Document / Format Selection).
-registerFormattingProvider(connection, documents);
+registerFormattingProvider(connection, documents, getSettings);
 
 // Register find references (Shift+F12 — Find All References).
 registerReferencesProvider(connection, documents, indexer);
@@ -252,6 +415,18 @@ registerWorkspaceSymbolsProvider(connection, indexer);
 
 // Register semantic tokens (AST-aware highlighting — declarations, modifiers, references).
 registerSemanticTokensProvider(connection, documents, indexer);
+
+// Register color provider (stub — .cerial has no color literals).
+registerColorProvider(connection, documents);
+
+// Register document links (cross-file type reference hyperlinks).
+registerLinksProvider(connection, documents, indexer);
+
+// Register code actions (quick fixes for diagnostics).
+registerCodeActionsProvider(connection, documents, indexer);
+
+// Register inlay hints (FK type inference, auto-generated, server-set, computed, inheritance).
+registerInlayHintsProvider(connection, documents, indexer, getSettings);
 
 // ── Start ─────────────────────────────────────────────────────────────────
 

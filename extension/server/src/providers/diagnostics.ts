@@ -37,6 +37,7 @@ import {
 } from '../../../../src/cli/validators';
 import type { ParseError, SchemaAST, SourceRange } from '../../../../src/types';
 import type { WorkspaceIndexer } from '../indexer';
+import type { CerialSettings } from '../server';
 import { findFieldByName } from '../utils/ast-location';
 import { cerialRangeToLsp, cerialToLsp } from '../utils/position';
 
@@ -239,8 +240,17 @@ export function registerDiagnosticsProvider(
   connection: Connection,
   _documents: TextDocuments<TextDocument>,
   indexer: WorkspaceIndexer,
+  getSettings: () => CerialSettings,
 ): void {
   connection.languages.diagnostics.on(async (params): Promise<DocumentDiagnosticReport> => {
+    // When diagnostics are disabled, return an empty report
+    if (!getSettings().diagnostics.enabled) {
+      return {
+        kind: DocumentDiagnosticReportKind.Full,
+        items: [],
+      };
+    }
+
     const uri = params.textDocument.uri;
     const diagnostics: Diagnostic[] = [];
 

@@ -48,7 +48,135 @@
         "language": "cerial",
         "path": "./snippets/cerial.json"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "Cerial",
+      "properties": {
+        "cerial.format.alignmentScope": {
+          "type": "string",
+          "enum": [
+            "group",
+            "block"
+          ],
+          "default": "group",
+          "markdownDescription": "Alignment scope for field decorators.\n- `group`: align within each model/object block\n- `block`: align across the entire file"
+        },
+        "cerial.format.fieldGroupBlankLines": {
+          "type": "string",
+          "enum": [
+            "single",
+            "honor",
+            "collapse"
+          ],
+          "default": "single",
+          "markdownDescription": "Blank line handling between field groups.\n- `single`: one blank line between groups\n- `honor`: preserve existing blank lines\n- `collapse`: remove blank lines between groups"
+        },
+        "cerial.format.blockSeparation": {
+          "type": [
+            "integer",
+            "string"
+          ],
+          "enum": [
+            1,
+            2,
+            "honor"
+          ],
+          "default": 2,
+          "markdownDescription": "Blank lines between top-level blocks (models, objects, etc.).\n- `1`: single blank line\n- `2`: double blank line\n- `honor`: preserve existing separation"
+        },
+        "cerial.format.indentSize": {
+          "type": [
+            "integer",
+            "string"
+          ],
+          "enum": [
+            2,
+            4,
+            "tab"
+          ],
+          "default": 2,
+          "markdownDescription": "Indentation size for formatted output.\n- `2`: two spaces\n- `4`: four spaces\n- `tab`: tab character"
+        },
+        "cerial.format.inlineConstructStyle": {
+          "type": "string",
+          "enum": [
+            "single",
+            "multi",
+            "honor"
+          ],
+          "default": "multi",
+          "markdownDescription": "Style for inline constructs (enums, literals, tuples).\n- `single`: collapse to one line when possible\n- `multi`: always expand to multiple lines\n- `honor`: preserve existing style"
+        },
+        "cerial.format.decoratorAlignment": {
+          "type": "string",
+          "enum": [
+            "aligned",
+            "compact"
+          ],
+          "default": "aligned",
+          "markdownDescription": "Decorator alignment style.\n- `aligned`: column-align decorators across fields\n- `compact`: no extra alignment spacing"
+        },
+        "cerial.format.trailingComma": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "Add trailing commas in multi-line constructs (enums, literals, tuples)."
+        },
+        "cerial.format.commentStyle": {
+          "type": "string",
+          "enum": [
+            "honor",
+            "hash",
+            "slash"
+          ],
+          "default": "honor",
+          "markdownDescription": "Comment style normalization.\n- `honor`: preserve existing comment style\n- `hash`: convert to `#` comments\n- `slash`: convert to `//` comments"
+        },
+        "cerial.format.blankLineBeforeDirectives": {
+          "type": "string",
+          "enum": [
+            "always",
+            "honor"
+          ],
+          "default": "always",
+          "markdownDescription": "Blank line before directives (`@@index`, `@@unique`).\n- `always`: always insert a blank line\n- `honor`: preserve existing formatting"
+        },
+        "cerial.diagnostics.enabled": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Enable or disable all diagnostics (parse errors and schema validation)."
+        },
+        "cerial.inlayHints.enabled": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Enable or disable all inlay hints."
+        },
+        "cerial.inlayHints.inferredTypes": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Show inferred FK type hints on Record fields (e.g., `: CerialId<number>`)."
+        },
+        "cerial.inlayHints.serverSetFields": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Show behavioral hints for server-set fields (`auto-generated`, `server-set`, `computed`, `resets on write`)."
+        },
+        "cerial.inlayHints.inheritedFields": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Show `from ParentName` hints on inherited fields."
+        },
+        "cerial.trace.server": {
+          "type": "string",
+          "enum": [
+            "off",
+            "messages",
+            "verbose"
+          ],
+          "default": "off",
+          "markdownDescription": "Trace the communication between VS Code and the Cerial language server."
+        }
+      }
+    }
   },
   "scripts": {
     "build": "bun esbuild.mjs --production",

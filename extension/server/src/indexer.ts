@@ -158,6 +158,68 @@ export class WorkspaceIndexer {
     }
   }
 
+  // ── Config-Aware Reload ──────────────────────
+
+  /**
+   * Reload config and re-scan workspace, returning a diff of schema groups.
+   *
+   * Saves the current schema group state, re-scans, then compares to identify
+   * added and removed groups. If config loading fails (malformed JSON/TS),
+   * the previous state is retained and the error is re-thrown for the caller
+   * to handle (e.g., log a warning).
+   *
+   * @param folders - Workspace folder paths (or `file://` URIs)
+   * @returns Diff of added/removed schema group names
+   * @throws If scanWorkspace fails — caller should catch and keep previous state
+   */
+  reloadConfig(folders: string[]): { added: string[]; removed: string[] } {
+    const previousGroups = new Set(this.schemaGroups.keys());
+
+    // Snapshot current state so we can restore on failure
+    const prevIndex = new Map(this.index);
+    const prevSchemaGroups = new Map(this.schemaGroups);
+
+    try {
+      this.scanWorkspace(folders);
+    } catch (err) {
+      // Restore previous state on failure
+      this.index.clear();
+      for (const [k, v] of prevIndex) this.index.set(k, v);
+      this.schemaGroups.clear();
+      for (const [k, v] of prevSchemaGroups) this.schemaGroups.set(k, v);
+      throw err;
+    }
+
+    const currentGroups = new Set(this.schemaGroups.keys());
+
+    const added: string[] = [];
+    const removed: string[] = [];
+
+    for (const name of currentGroups) {
+      if (!previousGroups.has(name)) added.push(name);
+    }
+    for (const name of previousGroups) {
+      if (!currentGroups.has(name)) removed.push(name);
+    }
+
+    return { added, removed };
+  }
+
+  /**
+   * Remove a schema group and all its files from the index.
+   *
+   * Does NOT trigger reindexing of remaining groups.
+   */
+  removeSchemaGroup(groupName: string): void {
+    const group = this.schemaGroups.get(groupName);
+    if (!group) return;
+
+    for (const filePath of group.files) {
+      this.index.delete(filePath);
+    }
+    this.schemaGroups.delete(groupName);
+  }
+
   // ── File Indexing ───────────────────────────
 
   /**

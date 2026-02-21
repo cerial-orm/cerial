@@ -10,31 +10,46 @@ import { Range, TextEdit } from 'vscode-languageserver';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import type { FormatConfig } from '../../../../src/formatter';
 import { formatCerialSource } from '../../../../src/formatter';
+import type { CerialSettings } from '../server';
 
 /**
- * Build a cerial `FormatConfig` from VS Code's formatting options.
+ * Build a cerial `FormatConfig` by merging user settings with VS Code
+ * formatting options.
  *
- * - `insertSpaces: true`  → `indentSize: tabSize` (2 or 4, clamped)
- * - `insertSpaces: false` → `indentSize: 'tab'`
+ * User settings take precedence. VS Code's `insertSpaces` / `tabSize`
+ * are used as a fallback only when the user hasn't explicitly set
+ * `cerial.format.indentSize`.
  */
-function buildFormatConfig(options: { tabSize: number; insertSpaces: boolean }): FormatConfig {
-  if (!options.insertSpaces) {
-    return { indentSize: 'tab' };
+function buildFormatConfig(
+  editorOptions: { tabSize: number; insertSpaces: boolean },
+  userConfig: FormatConfig,
+): FormatConfig {
+  // Start from user settings
+  const config: FormatConfig = { ...userConfig };
+
+  // If user hasn't set indentSize, derive from editor options
+  if (config.indentSize === undefined) {
+    if (!editorOptions.insertSpaces) {
+      config.indentSize = 'tab';
+    } else {
+      config.indentSize = editorOptions.tabSize === 4 ? 4 : 2;
+    }
   }
 
-  // FormatConfig.indentSize accepts 2 | 4 | 'tab'
-  const size = options.tabSize === 4 ? 4 : 2;
-
-  return { indentSize: size };
+  return config;
 }
 
 /**
  * Format the full document text and return a single replacing TextEdit,
  * or an empty array when formatting is unnecessary or impossible.
  */
-function formatDocument(document: TextDocument, options: { tabSize: number; insertSpaces: boolean }): TextEdit[] {
+function formatDocument(
+  document: TextDocument,
+  options: { tabSize: number; insertSpaces: boolean },
+  userConfig: FormatConfig,
+): TextEdit[] {
   const source = document.getText();
-  const config = buildFormatConfig(options);
+  const config = buildFormatConfig(options, userConfig);
   const result = formatCerialSource(source, config);
 
   // Parse error — don't touch the file
@@ -58,13 +73,17 @@ function formatDocument(document: TextDocument, options: { tabSize: number; inse
 /**
  * Register document formatting handlers on the LSP connection.
  */
-export function registerFormattingProvider(connection: Connection, documents: TextDocuments<TextDocument>): void {
+export function registerFormattingProvider(
+  connection: Connection,
+  documents: TextDocuments<TextDocument>,
+  getSettings: () => CerialSettings,
+): void {
   // Full document formatting (Format Document command)
   connection.onDocumentFormatting((params) => {
     const document = documents.get(params.textDocument.uri);
     if (!document) return [];
 
-    return formatDocument(document, params.options);
+    return formatDocument(document, params.options, getSettings().format);
   });
 
   // Range formatting — cerial's formatter works on whole files only,
@@ -73,6 +92,6 @@ export function registerFormattingProvider(connection: Connection, documents: Te
     const document = documents.get(params.textDocument.uri);
     if (!document) return [];
 
-    return formatDocument(document, params.options);
+    return formatDocument(document, params.options, getSettings().format);
   });
 }
