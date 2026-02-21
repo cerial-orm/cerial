@@ -216,6 +216,7 @@ export const tables = {
     'ext_system_admin',
     'ext_private_user',
     'ext_profile',
+    'ext_empty_child',
   ],
   extendsObject: ['ext_address_user'],
   extendsTuple: ['ext_tuple_model'],

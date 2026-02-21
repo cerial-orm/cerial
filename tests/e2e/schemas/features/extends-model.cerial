@@ -79,3 +79,7 @@ model ExtProfile extends ExtBaseEntity {
   tags String[]
   metadata Int?
 }
+
+// Concrete model with empty body — inherits all fields from abstract parent
+model ExtEmptyChild extends ExtBaseEntity {
+}

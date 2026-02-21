@@ -170,6 +170,67 @@ describe('E2E Extends: Abstract Model Behavior', () => {
     });
   });
 
+  describe('empty-body model inheriting @id from abstract parent', () => {
+    test('ExtEmptyChild has all inherited fields in metadata', () => {
+      const metadata = client.db.ExtEmptyChild.getMetadata();
+      const fieldNames = metadata.fields.map((f) => f.name);
+      // Inherits ALL from ExtBaseEntity: id, createdAt, updatedAt
+      expect(fieldNames).toContain('id');
+      expect(fieldNames).toContain('createdAt');
+      expect(fieldNames).toContain('updatedAt');
+      expect(fieldNames).toHaveLength(3);
+    });
+
+    test('can create record with no data (all fields auto-generated)', async () => {
+      const result = await client.db.ExtEmptyChild.create({
+        data: {},
+      });
+
+      // Inherited id field works
+      expect(result.id).toBeDefined();
+      expect(result.id).toBeInstanceOf(CerialId);
+
+      // Inherited timestamp decorators work
+      expect(result.createdAt).toBeDefined();
+      expect(result.createdAt).toBeInstanceOf(Date);
+      expect(result.updatedAt).toBeDefined();
+      expect(result.updatedAt).toBeInstanceOf(Date);
+    });
+
+    test('findUnique by inherited id', async () => {
+      const created = await client.db.ExtEmptyChild.create({ data: {} });
+
+      const found = await client.db.ExtEmptyChild.findUnique({
+        where: { id: created.id },
+      });
+
+      expect(found).not.toBeNull();
+      expect(found!.id.equals(created.id)).toBe(true);
+      expect(found!.createdAt).toBeInstanceOf(Date);
+    });
+
+    test('findMany returns all records', async () => {
+      await client.db.ExtEmptyChild.create({ data: {} });
+      await client.db.ExtEmptyChild.create({ data: {} });
+
+      const all = await client.db.ExtEmptyChild.findMany({});
+      expect(all.length).toBeGreaterThanOrEqual(2);
+      // Each has inherited id
+      for (const record of all) {
+        expect(record.id).toBeDefined();
+        expect(record.id).toBeInstanceOf(CerialId);
+      }
+    });
+
+    test('getTableName returns correct table', () => {
+      expect(client.db.ExtEmptyChild.getTableName()).toBe('ext_empty_child');
+    });
+
+    test('getName returns correct model name', () => {
+      expect(client.db.ExtEmptyChild.getName()).toBe('ExtEmptyChild');
+    });
+  });
+
   describe('abstract model metadata not in registry', () => {
     test('getTableName returns correct table for concrete model', () => {
       const tableName = client.db.ExtUser.getTableName();
