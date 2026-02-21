@@ -44,5 +44,5 @@ export {
   validateOptions,
   validateSchema,
 } from './validators';
-export type { WatchTarget } from './watcher';
-export { startWatcher } from './watcher';
+export type { FormatWatchTarget, WatchCallback, WatchTarget, WatchTargetBase } from './watcher';
+export { startFormatterWatcher, startWatcher, startWatcherWithCallback } from './watcher';

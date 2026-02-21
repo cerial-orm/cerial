@@ -9,6 +9,7 @@ export interface CLIOptions {
   schema?: string;
   output?: string;
   watch?: boolean;
+  format?: boolean;
   verbose?: boolean;
   log?: LogOutputLevel;
   clean?: boolean;

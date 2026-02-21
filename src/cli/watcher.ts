@@ -4,17 +4,32 @@
  */
 
 import { type FSWatcher, watch } from 'node:fs';
+import { basename, resolve } from 'node:path';
+import { resolveConfig as resolveFormatConfig } from '../formatter/rules';
+import type { FormatConfig } from '../formatter/types';
 import type { PathFilter } from './filters/types';
+import { formatSingleFile } from './format';
 import { generateSingleSchema } from './generate';
 
-/** Watch target for a single schema */
-export interface WatchTarget {
+/** Base fields needed by any watcher target */
+export interface WatchTargetBase {
   name?: string;
   schemaPath: string;
-  outputDir: string;
-  clientClassName?: string;
   filter?: PathFilter;
 }
+
+/** Watch target for a single schema (generate mode) */
+export interface WatchTarget extends WatchTargetBase {
+  outputDir: string;
+  clientClassName?: string;
+}
+
+/** Watch target for format mode */
+export interface FormatWatchTarget extends WatchTargetBase {
+  formatConfig?: FormatConfig;
+}
+
+export type WatchCallback<T extends WatchTargetBase = WatchTargetBase> = (target: T, filename: string) => Promise<void>;
 
 export const DEBOUNCE_MS = 300;
 
@@ -46,7 +61,7 @@ export function shouldTriggerRegeneration(filename: string | null, filter?: Path
   return filter.shouldInclude(filename.replace(/\\/g, '/'));
 }
 
-export function getSchemaLabel(target: WatchTarget): string {
+export function getSchemaLabel(target: WatchTargetBase): string {
   return target.name ?? target.schemaPath;
 }
 
@@ -92,43 +107,19 @@ export function createDebouncer(delayMs: number): Debouncer {
 }
 
 /**
- * Start watching schema directories for .cerial file changes.
- * On change, regenerates only the affected schema.
- * Returns a Promise that resolves when the watcher is stopped via SIGINT.
+ * Generic file watcher: watches schema directories and calls the provided callback on .cerial file changes.
+ * Reuses debounce and filter logic. Returns a Promise that resolves when stopped via SIGINT.
  */
-export async function startWatcher(schemas: WatchTarget[]): Promise<void> {
-  if (!schemas.length) return;
+export async function startWatcherWithCallback<T extends WatchTargetBase>(
+  targets: T[],
+  onFileChange: WatchCallback<T>,
+  options?: { label?: string },
+): Promise<void> {
+  if (!targets.length) return;
 
+  const label = options?.label ?? 'watch';
   const watchers: FSWatcher[] = [];
   const debouncer = createDebouncer(DEBOUNCE_MS);
-
-  async function regenerateSchema(target: WatchTarget, filename: string): Promise<void> {
-    const label = getSchemaLabel(target);
-    console.log(`[watch] Change detected in '${label}' (${filename}). Regenerating...`);
-
-    const start = performance.now();
-    try {
-      const result = await generateSingleSchema({
-        schemaPath: target.schemaPath,
-        outputDir: target.outputDir,
-        clientClassName: target.clientClassName,
-        logLevel: 'minimal',
-      });
-
-      const elapsed = Math.round(performance.now() - start);
-
-      if (result.success) {
-        console.log(`[watch] '${label}' regenerated in ${elapsed}ms`);
-      } else {
-        for (const error of result.errors) {
-          console.error(`[watch] Error regenerating '${label}': ${error}`);
-        }
-      }
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      console.error(`[watch] Error regenerating '${label}': ${message}`);
-    }
-  }
 
   function cleanup(): void {
     for (const watcher of watchers) {
@@ -137,36 +128,133 @@ export async function startWatcher(schemas: WatchTarget[]): Promise<void> {
     debouncer.cancelAll();
   }
 
-  for (const target of schemas) {
+  for (const target of targets) {
     try {
       const watcher = watch(target.schemaPath, { recursive: true }, (_event, filename) => {
         if (!shouldTriggerRegeneration(filename, target.filter)) return;
 
         debouncer.schedule(target.schemaPath, () => {
-          void regenerateSchema(target, filename!);
+          void onFileChange(target, filename!);
         });
       });
 
       watchers.push(watcher);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      console.error(`[watch] Failed to watch '${getSchemaLabel(target)}': ${message}`);
+      console.error(`[${label}] Failed to watch '${getSchemaLabel(target)}': ${message}`);
     }
   }
 
   if (!watchers.length) {
-    console.error('[watch] No watchers could be started. Exiting.');
+    console.error(`[${label}] No watchers could be started. Exiting.`);
 
     return;
   }
 
-  console.log(`[watch] Watching ${schemas.length} schema(s) for changes...`);
+  console.log(`[${label}] Watching ${targets.length} schema(s) for changes...`);
 
-  return new Promise<void>((resolve) => {
+  return new Promise<void>((resolvePromise) => {
     process.on('SIGINT', () => {
-      console.log('\n[watch] Stopping watchers...');
+      console.log(`\n[${label}] Stopping watchers...`);
       cleanup();
-      resolve();
+      resolvePromise();
     });
   });
+}
+
+export interface WatcherOptions {
+  format?: boolean;
+  formatConfig?: FormatConfig;
+}
+
+/**
+ * Start watching schema directories for .cerial file changes.
+ * On change, regenerates only the affected schema.
+ * If format option is enabled, formats the changed file before generating.
+ * Returns a Promise that resolves when the watcher is stopped via SIGINT.
+ */
+export async function startWatcher(schemas: WatchTarget[], options?: WatcherOptions): Promise<void> {
+  return startWatcherWithCallback(
+    schemas,
+    async (target, filename) => {
+      const schemaLabel = getSchemaLabel(target);
+
+      // Format mode: format the changed file before generating
+      if (options?.format && isCerialFile(filename)) {
+        const filePath = resolve(target.schemaPath, filename);
+        const resolvedFormatConfig = resolveFormatConfig(options.formatConfig);
+        const formatResult = await formatSingleFile(filePath, resolvedFormatConfig);
+
+        if (formatResult.error) {
+          // Silent error handling in watch mode
+          return;
+        }
+      }
+
+      console.log(`[watch] Change detected in '${schemaLabel}' (${filename}). Regenerating...`);
+
+      const start = performance.now();
+      try {
+        const result = await generateSingleSchema({
+          schemaPath: target.schemaPath,
+          outputDir: target.outputDir,
+          clientClassName: target.clientClassName,
+          logLevel: 'minimal',
+        });
+
+        const elapsed = Math.round(performance.now() - start);
+
+        if (result.success) {
+          console.log(`[watch] '${schemaLabel}' regenerated in ${elapsed}ms`);
+        } else {
+          for (const error of result.errors) {
+            console.error(`[watch] Error regenerating '${schemaLabel}': ${error}`);
+          }
+        }
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        console.error(`[watch] Error regenerating '${schemaLabel}': ${message}`);
+      }
+    },
+    { label: 'watch' },
+  );
+}
+
+/**
+ * Start watching schema directories for .cerial file changes (format mode).
+ * On change, formats the changed file with silent error handling.
+ * Parse errors are silently skipped; verbose mode logs them.
+ */
+export async function startFormatterWatcher(
+  targets: FormatWatchTarget[],
+  config: Required<FormatConfig>,
+  options?: { verbose?: boolean },
+): Promise<void> {
+  const verbose = options?.verbose ?? false;
+
+  return startWatcherWithCallback(
+    targets,
+    async (target, filename) => {
+      // Only format .cerial files (skip .cerialignore changes)
+      if (!isCerialFile(filename)) return;
+
+      const filePath = resolve(target.schemaPath, filename);
+      const result = await formatSingleFile(filePath, config);
+
+      if (result.error) {
+        if (verbose) {
+          console.log(`[format-watch] Error in '${basename(filename)}': ${result.error.message}`);
+        }
+
+        return;
+      }
+
+      if (result.changed) {
+        console.log(`[format-watch] Formatted '${basename(filename)}'`);
+      } else if (verbose) {
+        console.log(`[format-watch] '${basename(filename)}' unchanged`);
+      }
+    },
+    { label: 'format-watch' },
+  );
 }

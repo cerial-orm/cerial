@@ -1,8 +1,11 @@
 import { relative } from 'node:path';
 import { defineCommand } from 'citty';
+import { resolveConfig as resolveFormatConfig } from '../../formatter/rules';
 import type { FormatConfig } from '../../formatter/types';
 import { loadConfig, resolveConfig } from '../config';
 import { formatSchema } from '../format';
+import type { FormatWatchTarget } from '../watcher';
+import { startFormatterWatcher } from '../watcher';
 
 export const formatCommand = defineCommand({
   meta: {
@@ -24,6 +27,11 @@ export const formatCommand = defineCommand({
       type: 'string',
       alias: 'n',
       description: 'Format only a specific schema by name',
+    },
+    watch: {
+      type: 'boolean',
+      alias: 'w',
+      description: 'Watch for schema changes and auto-format',
     },
     check: {
       type: 'boolean',
@@ -49,6 +57,22 @@ export const formatCommand = defineCommand({
     if (!targets.length) {
       console.error('No schema paths found. Use -s to specify a schema path, or create a config file.');
       process.exit(1);
+    }
+
+    if (args.watch) {
+      if (args.check) {
+        console.error('--watch and --check cannot be used together.');
+        process.exit(1);
+      }
+
+      const watchTargets: FormatWatchTarget[] = targets.map((t) => ({
+        schemaPath: t.path,
+        formatConfig: t.formatConfig,
+      }));
+      const config = resolveFormatConfig(targets[0]?.formatConfig);
+      await startFormatterWatcher(watchTargets, config, { verbose: args.verbose });
+
+      return;
     }
 
     let totalFormatted = 0;

@@ -1,8 +1,10 @@
 import { basename, resolve } from 'node:path';
 import { defineCommand } from 'citty';
+import { resolveConfig as resolveFormatConfig } from '../../formatter';
 import { detectNestedSchemaRoots, loadConfig, resolveConfig } from '../config';
 import type { FilterConfig } from '../filters';
 import { loadCerialIgnore, resolvePathFilter } from '../filters';
+import { formatSchema } from '../format';
 import { applyFolderOverridesAndDiscover, generate } from '../generate';
 import { findSchemaRoots } from '../resolvers';
 import type { CLIOptions, LogOutputLevel } from '../validators';
@@ -164,6 +166,11 @@ export const generateCommand = defineCommand({
       alias: 'w',
       description: 'Watch for schema changes and regenerate',
     },
+    format: {
+      type: 'boolean',
+      alias: 'f',
+      description: 'Auto-format schema files before generating',
+    },
     verbose: {
       type: 'boolean',
       alias: 'v',
@@ -195,10 +202,31 @@ export const generateCommand = defineCommand({
       config: args.config,
       clean: args.clean,
       watch: args.watch,
+      format: args.format,
       verbose: args.verbose,
       log: logLevel as LogOutputLevel,
       yes: args.yes,
     };
+
+    // One-shot mode: format all schemas before generating
+    if (options.format && !options.watch) {
+      const targets = await buildWatchTargets(options);
+      const formatConfig = resolveFormatConfig();
+
+      for (const target of targets) {
+        const summary = await formatSchema({
+          schemaPath: target.schemaPath,
+          formatConfig,
+          verbose: options.verbose,
+        });
+
+        if (summary.errors.length && options.verbose) {
+          for (const error of summary.errors) {
+            console.error(`Format error in ${error.path}:${error.line}:${error.column}: ${error.message}`);
+          }
+        }
+      }
+    }
 
     const result = await generate(options);
 
@@ -209,7 +237,14 @@ export const generateCommand = defineCommand({
 
     if (options.watch) {
       const targets = await buildWatchTargets(options);
-      await startWatcher(targets);
+
+      // Watch mode with format: create custom callback that formats before generating
+      if (options.format) {
+        const formatConfig = resolveFormatConfig();
+        await startWatcher(targets, { format: true, formatConfig });
+      } else {
+        await startWatcher(targets);
+      }
     }
   },
 });
