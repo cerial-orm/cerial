@@ -1,7 +1,7 @@
 ---
 title: Path Filtering
 parent: CLI
-nav_order: 5
+nav_order: 6
 ---
 
 # Path Filtering

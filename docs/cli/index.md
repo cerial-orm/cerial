@@ -17,6 +17,7 @@ bunx cerial <command> [options]
 | Command                  | Description                                  |
 | ------------------------ | -------------------------------------------- |
 | [`generate`](./generate) | Generate TypeScript client from schema files |
+| [`format`](./formatter)  | Format `.cerial` schema files                |
 | [`init`](./init)         | Create a config file for your project        |
 
 ## How It Works
@@ -44,6 +45,7 @@ The generated client gives you full type safety across all database operations, 
 ## Next Steps
 
 - [**generate**](./generate) - Learn about the generate command and its options
+- [**format**](./formatter) - Format `.cerial` files with configurable style
 - [**init**](./init) - Create a config file with `cerial init`
 - [**Generated Output**](./generated-output) - Understand the structure of the generated client
 - [**Configuration**](./configuration) - Config file formats, schema discovery, and options

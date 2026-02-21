@@ -15,6 +15,10 @@ bunx cerial init                                        # Initialize config file
 bunx cerial init --yes                                  # Non-interactive init
 bunx cerial generate -C ./cerial.config.ts              # Generate with specific config
 bunx cerial generate -n auth                            # Generate specific schema only
+bunx cerial format -s ./schemas                         # Format schema files
+bunx cerial format --check                              # Check mode (CI)
+bunx cerial format --watch -s ./schemas                 # Watch mode
+bunx cerial generate --watch --format                   # Generate with auto-format
 ```
 
 ## Project Structure
@@ -29,6 +33,14 @@ cerial/
 │   │   ├── resolvers/               #   Schema resolution, convention markers
 │   │   ├── validators/              #   CLI option + schema validators
 │   │   └── watcher.ts               #   File watcher with per-schema isolation
+│   ├── formatter/                   # .cerial file formatter
+│   │   ├── aligner.ts               #   Column alignment logic
+│   │   ├── comment-attacher.ts      #   Comment token attachment
+│   │   ├── formatter.ts             #   Core formatCerialSource() function
+│   │   ├── inline-printer.ts        #   Enum/literal/tuple printer
+│   │   ├── printer.ts               #   Model/object block printer
+│   │   ├── rules.ts                 #   Decorator ordering, config resolution
+│   │   └── types.ts                 #   FormatConfig, FormatResult types
 │   ├── client/                      # Runtime client, Model class, Proxy factory
 │   ├── connection/                  # Connection manager, config types
 │   ├── generators/                  # Code generation from AST
@@ -107,6 +119,7 @@ cerial/
 | `src/cli/config/define-config.ts`             | `defineConfig()` identity helper for type-safe config                                         |
 | `src/cli/commands/init.ts`                    | `cerial init` interactive command                                                             |
 | `src/cli/watcher.ts`                          | File watcher with debounce and per-schema isolation                                           |
+| `src/formatter/formatter.ts`                  | Core `formatCerialSource()` function — validates, tokenizes, attaches comments, aligns, prints |
 | `src/client/cerial-transaction.ts`            | `CerialTransaction` class, transaction proxy factory                                          |
 
 ## Architecture
@@ -333,6 +346,7 @@ Do NOT use SurrealDB reserved keywords as field names, model names, or object na
 6. Run full test suite: `bun test`
 7. Run type check: `bunx tsc --noEmit`
 8. Update documentation in `docs/`
+9. Update the formatter to handle the new construct in `src/formatter/printer.ts` (or `inline-printer.ts`), add formatting tests, and verify idempotency
 
 ### When Adding a New Operator
 
