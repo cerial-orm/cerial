@@ -1,0 +1,27 @@
+enum Tier {
+  FREE,
+  BASIC,
+  PREMIUM
+}
+
+
+object Profile {
+  bio  String
+
+  avatar  String?
+}
+
+
+model Account {
+  id  Record  @id
+
+  email  Email  @unique
+
+  name  String
+
+  tier  Tier  @default('FREE')
+
+  profile  Profile?
+
+  createdAt  Date  @createdAt
+}

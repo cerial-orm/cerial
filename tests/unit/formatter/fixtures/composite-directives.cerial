@@ -1,0 +1,22 @@
+model Employee {
+  id Record @id
+  firstName String
+  lastName String
+  department String
+  email Email @unique
+  age Int?
+
+  @@unique(employeeFullName, [firstName, lastName])
+  @@index(employeeDeptName, [department, firstName])
+}
+
+model Product {
+  id Record @id
+  sku String @unique
+  name String
+  category String
+  vendor String
+
+  @@index(productCatVendor, [category, vendor])
+  @@unique(productSkuCat, [sku, category])
+}

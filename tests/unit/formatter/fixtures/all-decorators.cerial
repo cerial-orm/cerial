@@ -1,0 +1,24 @@
+# Decorators deliberately in WRONG order for reorder testing
+object FlexObj {
+  street String
+  city String
+}
+
+model DecoratorReorder {
+  id Record @id
+  email Email @unique
+  name String
+  slug String @index
+  bio String? @nullable @readonly
+  age Int? @default(0) @nullable
+  authorId Record? @nullable
+  author Relation? @onDelete(SetNull) @key(authorKey) @model(DecoratorReorder) @field(authorId)
+  tags String[] @set
+  scores Int[] @sort(asc) @distinct
+  stamp Date @updatedAt
+  born Date @createdAt
+  accessed Date @now
+  meta FlexObj @flexible
+  resetCount Int @defaultAlways(0)
+  token Uuid @uuid7
+}

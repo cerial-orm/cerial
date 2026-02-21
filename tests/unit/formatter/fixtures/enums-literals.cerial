@@ -1,0 +1,27 @@
+enum Role { ADMIN, EDITOR, VIEWER }
+
+enum Severity { LOW, MEDIUM, HIGH, CRITICAL }
+
+literal Status { 'active', 'inactive', 'pending' }
+
+literal Priority { 1, 2, 3 }
+
+literal MixedVal { 'low', 'high', 1, 2, true }
+
+literal ComposedStatus { Status, 'archived', 'deleted' }
+
+literal BroadUnion { String, Int }
+
+model EnumLitModel {
+  id Record @id
+  name String
+  role Role @default('ADMIN')
+  severity Severity
+  optRole Role?
+  nullRole Role? @nullable
+  roles Role[]
+  status Status @default('active')
+  priority Priority
+  mixed MixedVal
+  broad BroadUnion
+}

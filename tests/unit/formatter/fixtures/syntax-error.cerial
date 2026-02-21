@@ -1,0 +1,4 @@
+model Broken {
+  id Record @id
+  name InvalidType
+}

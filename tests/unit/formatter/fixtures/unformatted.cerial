@@ -1,0 +1,24 @@
+   enum  Flavor {VANILLA,CHOCOLATE,STRAWBERRY}
+
+literal  Grade {  'A',   'B', 'C'  }
+
+object  Geo  {
+      lat   Float
+   lng Float
+}
+  model   Messy {
+       id    Record    @id
+  email  Email         @unique
+    name   String
+       bio  String?  @nullable @readonly
+     age    Int?    @default(0)  @nullable
+tags    String[]    @set
+  stamp Date      @updatedAt
+       born  Date     @createdAt
+    meta   Geo       @flexible
+
+
+  location  Geo?
+
+      @@index(messyNameIdx,  [name,   email])
+  }
