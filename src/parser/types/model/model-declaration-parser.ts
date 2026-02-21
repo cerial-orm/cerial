@@ -8,14 +8,12 @@ import { isValidModelName } from '../../../utils/validation-utils';
 
 /** Parse extends bracket syntax: [field1, field2] = pick, [!field1, !field2] = omit */
 export function parseExtendsBracket(bracketContent: string): ExtendsFilter | undefined {
-  if (!bracketContent) return undefined;
-
   const items = bracketContent
     .split(',')
     .map((s) => s.trim())
     .filter((s) => s.length > 0);
 
-  if (!items.length) return undefined;
+  if (!items.length) return { mode: 'pick', fields: [] };
 
   const hasOmit = items.some((s) => s.startsWith('!'));
   const hasPick = items.some((s) => !s.startsWith('!'));
@@ -89,7 +87,7 @@ export function parseModelDeclaration(line: string): {
 
   if (isAbstract) result.abstract = true;
   if (extendsTarget) result.extends_ = extendsTarget;
-  if (bracketContent !== undefined && bracketContent !== '') {
+  if (bracketContent !== undefined) {
     const filter = parseExtendsBracket(bracketContent);
     if (filter) result.extendsFilter = filter;
   }

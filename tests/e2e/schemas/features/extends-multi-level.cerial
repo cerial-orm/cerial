@@ -37,8 +37,8 @@ model ExtL4AltConcrete extends ExtL3Alt {
   lastViewed Date?
 }
 
-// Deep chain with pick at level 3
-abstract model ExtL3Pick extends ExtL2Mid[name] {
+// Deep chain branching at level 3 (no filter — inherits all from ExtL2Mid chain)
+abstract model ExtL3Pick extends ExtL2Mid {
   category String
 }
 

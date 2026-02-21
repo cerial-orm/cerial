@@ -56,6 +56,45 @@ function findCrossKind(ast: SchemaAST, name: string, excludeKind: TypeKind): Typ
   return null;
 }
 
+// ── Validator 0: Empty extends filter ────────────────────────────────────
+
+/**
+ * Validate that extends filter brackets are not empty.
+ * `extends Y[]` is meaningless — use `extends Y` to inherit all,
+ * or specify fields to pick/omit.
+ */
+export function validateEmptyExtendsFilter(ast: SchemaAST): SchemaValidationError[] {
+  const errors: SchemaValidationError[] = [];
+
+  const check = (
+    items: Array<{
+      name: string;
+      extends?: string;
+      extendsFilter?: { mode: 'pick' | 'omit'; fields: string[] };
+      range: { start: { line: number } };
+    }>,
+    kind: TypeKind,
+  ): void => {
+    for (const item of items) {
+      if (!item.extendsFilter) continue;
+      if (!item.extendsFilter.fields.length) {
+        errors.push({
+          message: `${kind} "${item.name}" has empty extends filter brackets. Use "extends ${item.extends}" to inherit all, or specify fields to pick/omit inside the brackets.`,
+          line: item.range.start.line,
+        });
+      }
+    }
+  };
+
+  check(ast.models, 'model');
+  check(ast.objects, 'object');
+  check(ast.tuples, 'tuple');
+  check(ast.enums, 'enum');
+  check(ast.literals, 'literal');
+
+  return errors;
+}
+
 // ── Validator 1: Target exists ───────────────────────────────────────────
 
 /**
@@ -473,6 +512,7 @@ export function validatePickOmitFields(ast: SchemaAST): SchemaValidationError[] 
 /** Validate all extends-related rules */
 export function validateExtends(ast: SchemaAST): SchemaValidationError[] {
   return [
+    ...validateEmptyExtendsFilter(ast),
     ...validateExtendsTargetExists(ast),
     ...validateNoCrossKindExtends(ast),
     ...validateNoCircularExtends(ast),

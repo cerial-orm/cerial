@@ -10,6 +10,7 @@ import { parse } from '../../../src/parser/parser';
 import {
   extractModelName,
   isModelDeclaration,
+  parseExtendsBracket,
   parseModelDeclaration,
 } from '../../../src/parser/types/model/model-declaration-parser';
 
@@ -442,6 +443,26 @@ object Child extends Base {
       expect(ast.objects).toHaveLength(2);
       expect(ast.objects[1]!.name).toBe('Child');
     });
+
+    test('should parse object with extends and empty brackets', () => {
+      const schema = `
+object BaseAddr {
+  street String
+  city String
+}
+
+object EmptyPick extends BaseAddr[] {
+  zip String
+}
+`;
+      const { ast, errors } = parse(schema);
+      expect(errors).toHaveLength(0);
+
+      const ep = ast.objects[1]!;
+      expect(ep.name).toBe('EmptyPick');
+      expect(ep.extends).toBe('BaseAddr');
+      expect(ep.extendsFilter).toEqual({ mode: 'pick', fields: [] });
+    });
   });
 
   // ──────────────────────────────────────────────
@@ -513,6 +534,24 @@ tuple Child extends Base { String }
       expect(errors).toHaveLength(0);
       expect(ast.tuples).toHaveLength(2);
       expect(ast.tuples[1]!.name).toBe('Child');
+    });
+
+    test('should parse tuple with extends and empty brackets', () => {
+      const schema = `
+tuple Pair {
+  Float, Float
+}
+
+tuple EmptyPick extends Pair[] {
+}
+`;
+      const { ast, errors } = parse(schema);
+      expect(errors).toHaveLength(0);
+
+      const ep = ast.tuples[1]!;
+      expect(ep.name).toBe('EmptyPick');
+      expect(ep.extends).toBe('Pair');
+      expect(ep.extendsFilter).toEqual({ mode: 'pick', fields: [] });
     });
   });
 
@@ -594,6 +633,25 @@ enum Child extends Base { C }
       expect(ast.enums).toHaveLength(2);
       expect(ast.enums[1]!.name).toBe('Child');
     });
+
+    test('should parse enum with extends and empty brackets', () => {
+      const schema = `
+enum BaseRole {
+  Admin
+  User
+}
+
+enum EmptyPick extends BaseRole[] {
+}
+`;
+      const { ast, errors } = parse(schema);
+      expect(errors).toHaveLength(0);
+
+      const ep = ast.enums[1]!;
+      expect(ep.name).toBe('EmptyPick');
+      expect(ep.extends).toBe('BaseRole');
+      expect(ep.extendsFilter).toEqual({ mode: 'pick', fields: [] });
+    });
   });
 
   // ──────────────────────────────────────────────
@@ -669,6 +727,53 @@ literal Child extends Base { 'c' }
       expect(ast.literals).toHaveLength(2);
       expect(ast.literals[1]!.name).toBe('Child');
     });
+
+    test('should parse literal with extends and empty brackets', () => {
+      const schema = `
+literal BasePriority {
+  'low', 'medium', 'high'
+}
+
+literal EmptyPick extends BasePriority[] {
+}
+`;
+      const { ast, errors } = parse(schema);
+      expect(errors).toHaveLength(0);
+
+      const ep = ast.literals[1]!;
+      expect(ep.name).toBe('EmptyPick');
+      expect(ep.extends).toBe('BasePriority');
+      expect(ep.extendsFilter).toEqual({ mode: 'pick', fields: [] });
+    });
+  });
+
+  // ──────────────────────────────────────────────
+  // H0. parseExtendsBracket unit tests
+  // ──────────────────────────────────────────────
+  describe('parseExtendsBracket', () => {
+    test('should return empty pick filter for empty string', () => {
+      expect(parseExtendsBracket('')).toEqual({ mode: 'pick', fields: [] });
+    });
+
+    test('should return empty pick filter for whitespace-only string', () => {
+      expect(parseExtendsBracket('  ')).toEqual({ mode: 'pick', fields: [] });
+    });
+
+    test('should return pick filter for single field', () => {
+      expect(parseExtendsBracket('id')).toEqual({ mode: 'pick', fields: ['id'] });
+    });
+
+    test('should return omit filter for single omit field', () => {
+      expect(parseExtendsBracket('!id')).toEqual({ mode: 'omit', fields: ['id'] });
+    });
+
+    test('should return pick filter for multiple fields', () => {
+      expect(parseExtendsBracket('id, name')).toEqual({ mode: 'pick', fields: ['id', 'name'] });
+    });
+
+    test('should return undefined for mixed pick/omit', () => {
+      expect(parseExtendsBracket('id, !name')).toBeUndefined();
+    });
   });
 
   // ──────────────────────────────────────────────
@@ -692,6 +797,20 @@ literal Child extends Base { 'c' }
       expect(result).not.toBeNull();
       expect(result!.extends_).toBe('Base');
       expect(result!.extendsFilter).toBeUndefined();
+    });
+
+    test('should parse empty brackets as empty pick filter', () => {
+      const result = parseModelDeclaration('model X extends Y[] {');
+      expect(result).not.toBeNull();
+      expect(result!.extends_).toBe('Y');
+      expect(result!.extendsFilter).toEqual({ mode: 'pick', fields: [] });
+    });
+
+    test('should parse whitespace-only brackets as empty pick filter', () => {
+      const result = parseModelDeclaration('model X extends Y[  ] {');
+      expect(result).not.toBeNull();
+      expect(result!.extends_).toBe('Y');
+      expect(result!.extendsFilter).toEqual({ mode: 'pick', fields: [] });
     });
 
     test('should handle multi-level chain parsing', () => {

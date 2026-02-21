@@ -256,7 +256,7 @@ function extractExtendsInfo(line: string): { extends_?: string; extendsFilter?: 
 
   const result: { extends_?: string; extendsFilter?: ExtendsFilter } = { extends_: match[1]! };
 
-  if (match[2] !== undefined && match[2] !== '') {
+  if (match[2] !== undefined) {
     const filter = parseExtendsBracket(match[2]);
     if (filter) result.extendsFilter = filter;
   }
