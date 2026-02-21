@@ -7,10 +7,10 @@
  */
 
 import { afterAll, describe, expect, test } from 'bun:test';
-import { execSync } from 'child_process';
-import { mkdirSync, rmSync, writeFileSync } from 'fs';
-import { tmpdir } from 'os';
-import { join } from 'path';
+import { execSync } from 'node:child_process';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
 const TMP_BASE = join(tmpdir(), 'cerial-extends-negative');
 
@@ -221,7 +221,7 @@ model Holder {
 }`,
       );
 
-      const { exitCode, stderr } = runGenerate(schemaDir, outputDir);
+      const { exitCode, stderr: _stderr } = runGenerate(schemaDir, outputDir);
       expect(exitCode).not.toBe(0);
     });
   });
@@ -252,6 +252,72 @@ model Child extends BadAbstract {
       expect(exitCode).not.toBe(0);
       expect(stderr.toLowerCase()).toContain('abstract');
       expect(stderr.toLowerCase()).toContain('concrete');
+    });
+  });
+
+  // ── Concrete extends concrete ─────────────────────────────────────────
+
+  describe('concrete extends concrete', () => {
+    test('concrete model extends concrete model → error', () => {
+      const { schemaDir, outputDir } = setupTmpDir('concrete-concrete');
+      writeSchema(
+        schemaDir,
+        `model ConcreteParent {
+  id Record @id
+  name String
+}
+
+model ConcreteChild extends ConcreteParent {
+  extra String
+}`,
+      );
+
+      const { exitCode, stderr } = runGenerate(schemaDir, outputDir);
+      expect(exitCode).not.toBe(0);
+      expect(stderr.toLowerCase()).toContain('concrete');
+      expect(stderr).toContain('ConcreteChild');
+    });
+
+    test('concrete model can only extend abstract model', () => {
+      const { schemaDir, outputDir } = setupTmpDir('concrete-needs-abstract');
+      writeSchema(
+        schemaDir,
+        `abstract model AbsBase {
+  id Record @id
+  name String
+}
+
+model ConcreteChild extends AbsBase {
+  extra String
+}`,
+      );
+
+      const { exitCode } = runGenerate(schemaDir, outputDir);
+      expect(exitCode).toBe(0);
+    });
+
+    test('multi-level concrete chain A→B→C → errors for B and C', () => {
+      const { schemaDir, outputDir } = setupTmpDir('concrete-chain');
+      writeSchema(
+        schemaDir,
+        `model A {
+  id Record @id
+  name String
+}
+
+model B extends A {
+  extra String
+}
+
+model C extends B {
+  more String
+}`,
+      );
+
+      const { exitCode, stderr } = runGenerate(schemaDir, outputDir);
+      expect(exitCode).not.toBe(0);
+      // Both B extends A and C extends B should be reported
+      expect(stderr).toContain('Models can only extend abstract models');
     });
   });
 
@@ -425,6 +491,140 @@ model Holder {
       expect(exitCode).not.toBe(0);
       expect(stderr.toLowerCase()).toContain('private');
       expect(stderr).toContain('internal');
+    });
+  });
+
+  // ── Empty types (no fields/elements/values) ────────────────────────────
+
+  describe('empty types without extends', () => {
+    test('empty model without extends → error', () => {
+      const { schemaDir, outputDir } = setupTmpDir('empty-model-no-extends');
+      writeSchema(
+        schemaDir,
+        `model EmptyModel {
+}`,
+      );
+
+      const { exitCode, stderr } = runGenerate(schemaDir, outputDir);
+      expect(exitCode).not.toBe(0);
+      expect(stderr).toContain('EmptyModel');
+      expect(stderr.toLowerCase()).toContain('no fields');
+    });
+
+    test('empty object without extends → error', () => {
+      const { schemaDir, outputDir } = setupTmpDir('empty-object-no-extends');
+      writeSchema(
+        schemaDir,
+        `object EmptyObj {
+}
+
+model Holder {
+  id Record @id
+  data EmptyObj
+}`,
+      );
+
+      const { exitCode, stderr } = runGenerate(schemaDir, outputDir);
+      expect(exitCode).not.toBe(0);
+      expect(stderr).toContain('EmptyObj');
+      expect(stderr.toLowerCase()).toContain('no fields');
+    });
+
+    test('empty enum without extends → error', () => {
+      const { schemaDir, outputDir } = setupTmpDir('empty-enum-no-extends');
+      writeSchema(
+        schemaDir,
+        `enum EmptyEnum { }
+
+model Holder {
+  id Record @id
+  val EmptyEnum
+}`,
+      );
+
+      const { exitCode, stderr } = runGenerate(schemaDir, outputDir);
+      expect(exitCode).not.toBe(0);
+      expect(stderr).toContain('EmptyEnum');
+      expect(stderr.toLowerCase()).toContain('no values');
+    });
+  });
+
+  // ── Empty after resolution (extends + omit-all) ───────────────────────
+
+  describe('empty after resolution', () => {
+    test('model extends with omit-all fields → error', () => {
+      const { schemaDir, outputDir } = setupTmpDir('empty-after-omit-model');
+      writeSchema(
+        schemaDir,
+        `abstract model Base {
+  id Record @id
+  name String
+}
+
+model OmitAll extends Base[!id, !name] {
+}`,
+      );
+
+      const { exitCode, stderr } = runGenerate(schemaDir, outputDir);
+      expect(exitCode).not.toBe(0);
+      expect(stderr.toLowerCase()).toContain('no fields');
+    });
+
+    test('enum extends with omit-all values → error', () => {
+      const { schemaDir, outputDir } = setupTmpDir('empty-after-omit-enum');
+      writeSchema(
+        schemaDir,
+        `enum BaseRole { Admin, User }
+
+enum EmptyRole extends BaseRole[!Admin, !User] { }
+
+model Holder {
+  id Record @id
+  role EmptyRole
+}`,
+      );
+
+      const { exitCode, stderr } = runGenerate(schemaDir, outputDir);
+      expect(exitCode).not.toBe(0);
+      expect(stderr.toLowerCase()).toContain('no values');
+    });
+  });
+
+  // ── Concrete model without @id ────────────────────────────────────────
+
+  describe('concrete model without @id', () => {
+    test('concrete model without extends and no @id → error', () => {
+      const { schemaDir, outputDir } = setupTmpDir('no-id-no-extends');
+      writeSchema(
+        schemaDir,
+        `model NoIdModel {
+  name String
+  email Email
+}`,
+      );
+
+      const { exitCode, stderr } = runGenerate(schemaDir, outputDir);
+      expect(exitCode).not.toBe(0);
+      expect(stderr).toContain('@id');
+      expect(stderr).toContain('NoIdModel');
+    });
+
+    test('concrete model with @id from parent → passes', () => {
+      const { schemaDir, outputDir } = setupTmpDir('id-from-parent');
+      writeSchema(
+        schemaDir,
+        `abstract model IdBase {
+  id Record @id
+  name String
+}
+
+model IdChild extends IdBase {
+  extra Int
+}`,
+      );
+
+      const { exitCode } = runGenerate(schemaDir, outputDir);
+      expect(exitCode).toBe(0);
     });
   });
 

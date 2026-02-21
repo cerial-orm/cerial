@@ -4,12 +4,15 @@
 
 export {
   validateAbstractRules,
+  validateEmptyTypes,
   validateExtends,
   validateExtendsTargetExists,
+  validateModelIdField,
   validateNoCircularExtends,
   validateNoCrossKindExtends,
   validatePickOmitFields,
   validatePrivateOverride,
+  validateResolvedTypes,
 } from './extends-validator';
 export {
   validateNullableDecorator,

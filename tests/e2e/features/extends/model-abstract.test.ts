@@ -134,34 +134,35 @@ describe('E2E Extends: Abstract Model Behavior', () => {
       expect(admin.permissions).toEqual([]);
     });
 
-    test('ExtModerator picks only email and name', async () => {
+    test('ExtModerator picks id and createdAt from ExtBaseEntity, adds own email and name', async () => {
       const email = uniqueEmail('mod');
       const mod = await client.db.ExtModerator.create({
         data: { email, name: 'Moderator' },
       });
 
-      // Has picked fields
-      expect(mod.email).toBe(email);
-      expect(mod.name).toBe('Moderator');
+      // Has picked fields from ExtBaseEntity
+      expect(mod.id).toBeDefined();
+      expect(mod.createdAt).toBeDefined();
 
       // Has own fields
+      expect(mod.email).toBe(email);
+      expect(mod.name).toBe('Moderator');
       expect(mod.bannedUntil).toBeUndefined();
       expect(mod.notes).toBeUndefined();
 
-      // Picked only email and name from ExtBaseUser — no isActive, no createdAt, no updatedAt
-      // Note: SurrealDB always assigns an id to records, so id is present at runtime
-      // but the TypeScript interface does NOT include it (no id property on ExtModerator)
+      // Does NOT have isActive or updatedAt (not picked, not own)
       expect('isActive' in mod).toBe(false);
+      expect('updatedAt' in mod).toBe(false);
     });
 
-    test('ExtModerator findUnique uses email (no id field)', async () => {
+    test('ExtModerator findUnique by id (has id field from pick)', async () => {
       const email = uniqueEmail('mod-find');
-      await client.db.ExtModerator.create({
+      const created = await client.db.ExtModerator.create({
         data: { email, name: 'FindMod' },
       });
 
       const found = await client.db.ExtModerator.findUnique({
-        where: { email },
+        where: { id: created.id },
       });
 
       expect(found).not.toBeNull();

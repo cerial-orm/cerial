@@ -1,5 +1,6 @@
 // Models extending types from extends-model.cerial (cross-file references)
 // Tests cross-file inheritance and type resolution
+// All models extend abstract parents (models can only extend abstract models)
 
 // Extend abstract model from extends-model.cerial
 model ExtCrossUser extends ExtBaseEntity {
@@ -9,34 +10,43 @@ model ExtCrossUser extends ExtBaseEntity {
   bio String?
 }
 
-// Extend concrete model from extends-model.cerial
-model ExtCrossAdmin extends ExtAdmin {
+// Extend abstract admin base from extends-model.cerial
+model ExtCrossAdmin extends ExtBaseAdmin {
   department String
   budget Float?
   teamSize Int?
 }
 
-// Extend concrete model with pick
-model ExtCrossModerator extends ExtModerator[!bannedUntil] {
+// Extend abstract base with pick (picks id and createdAt from ExtBaseEntity)
+model ExtCrossModerator extends ExtBaseEntity[id, createdAt] {
+  email Email @unique
+  name String
   warningCount Int @default(0)
   lastWarning Date?
 }
 
-// Extend multi-level model from extends-model.cerial
-model ExtCrossPremium extends ExtPremiumUser {
+// Extend abstract base for user fields (same as ExtPremiumUser's parent)
+model ExtCrossPremium extends ExtBaseUserFull {
   loyaltyPoints Int @default(0)
   referralCode String?
 }
 
-// Extend with additional relations
-model ExtCrossProfile extends ExtProfile {
+// Extend abstract base entity
+model ExtCrossProfile extends ExtBaseEntity {
+  userId Record
+  bio String?
+  avatar String?
+  tags String[]
+  metadata Int?
   owner Record
   followers Record[]
   following Record[]
 }
 
-// Extend private user (email is !!private — cannot override, only inherit)
-model ExtCrossPrivate extends ExtPrivateUser {
+// Extend abstract base entity (same abstract parent as ExtPrivateUser)
+model ExtCrossPrivate extends ExtBaseEntity {
+  email Email @unique
+  name String
   publicBio String @default('No bio')
 }
 

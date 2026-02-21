@@ -19,10 +19,14 @@ abstract model ExtL3High extends ExtL2Mid {
   metadata Int?
 }
 
-// Level 4: Concrete model extending L3
-model ExtL4Concrete extends ExtL3High {
+// Abstract intermediary at Level 4 — enables multi-level inheritance
+abstract model ExtL4Base extends ExtL3High {
   status String @default('active')
   priority Int @default(0)
+}
+
+// Level 4: Concrete model extending abstract L4Base
+model ExtL4Concrete extends ExtL4Base {
 }
 
 // Alternative Level 3 from L2
@@ -59,13 +63,17 @@ model ExtL4OmitConcrete extends ExtL3Omit {
   version Int @default(1)
 }
 
-// Level 5: Deep chain (concrete, since it extends concrete ExtL4Concrete)
-model ExtL5VeryDeep extends ExtL4Concrete {
+// Abstract intermediary at Level 5 — enables multi-level inheritance
+abstract model ExtL5Base extends ExtL4Base {
   archived Bool @default(false)
 }
 
-// Level 6: Concrete from L5
-model ExtL6UltraDeep extends ExtL5VeryDeep {
+// Level 5: Concrete model extending abstract L5Base
+model ExtL5VeryDeep extends ExtL5Base {
+}
+
+// Level 6: Concrete from abstract L5Base
+model ExtL6UltraDeep extends ExtL5Base {
   archiveReason String?
   archivedAt Date?
 }

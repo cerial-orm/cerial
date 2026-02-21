@@ -90,36 +90,42 @@ describe('E2E Extends: Pick/Omit Across Type Kinds', () => {
     });
   });
 
-  describe('model pick: ExtModerator picks email, name from ExtBaseUser', () => {
-    test('only picked fields in metadata', () => {
+  describe('model pick: ExtModerator picks id, createdAt from ExtBaseEntity', () => {
+    test('picked + own fields in metadata', () => {
       const metadata = client.db.ExtModerator.getMetadata();
       const fieldNames = metadata.fields.map((f) => f.name);
-      // Picked: email, name. Own: bannedUntil, notes.
+      // Picked from ExtBaseEntity: id, createdAt. Own: email, name, bannedUntil, notes.
+      expect(fieldNames).toContain('id');
+      expect(fieldNames).toContain('createdAt');
       expect(fieldNames).toContain('email');
       expect(fieldNames).toContain('name');
       expect(fieldNames).toContain('bannedUntil');
       expect(fieldNames).toContain('notes');
-      // Not picked from parent
+      // Not picked from parent, not own
       expect(fieldNames).not.toContain('isActive');
+      expect(fieldNames).not.toContain('updatedAt');
     });
 
-    test('creates record with only picked + own fields', async () => {
+    test('creates record with picked + own fields', async () => {
       const email = uniqueEmail('mod-pick');
       const result = await client.db.ExtModerator.create({
         data: { email, name: 'Moderator' },
       });
 
+      expect(result.id).toBeDefined();
+      expect(result.createdAt).toBeDefined();
       expect(result.email).toBe(email);
       expect(result.name).toBe('Moderator');
-      // isActive was NOT picked — absent
+      // isActive and updatedAt were NOT picked — absent
       expect('isActive' in result).toBe(false);
+      expect('updatedAt' in result).toBe(false);
     });
 
-    test('findUnique by email (inherited @unique)', async () => {
+    test('findUnique by id (picked from ExtBaseEntity)', async () => {
       const email = uniqueEmail('mod-uniq');
-      await client.db.ExtModerator.create({ data: { email, name: 'Unique' } });
+      const created = await client.db.ExtModerator.create({ data: { email, name: 'Unique' } });
 
-      const found = await client.db.ExtModerator.findUnique({ where: { email } });
+      const found = await client.db.ExtModerator.findUnique({ where: { id: created.id } });
       expect(found).not.toBeNull();
       expect(found!.name).toBe('Unique');
     });

@@ -5,7 +5,7 @@
  * 1. Extends target exists in the same kind registry (model→model, object→object, etc.)
  * 2. No cross-kind extends (model can't extend an object name, etc.)
  * 3. No circular extends (DFS cycle detection with full path reporting)
- * 4. Abstract rules: abstract only on models, abstract can't extend concrete,
+ * 4. Abstract rules: abstract only on models, all models can only extend abstract,
  *    no @@index/@@unique on abstract
  * 5. Private override: child body can't redefine parent's !!private field
  * 6. Pick/omit fields: all referenced fields must exist in the parent
@@ -18,6 +18,7 @@ import {
   getModel,
   getObject,
   getTuple,
+  hasDecorator,
   isAbstract,
   isPrivateField,
   isPrivateTupleElement,
@@ -246,7 +247,7 @@ export function validateNoCircularExtends(ast: SchemaAST): SchemaValidationError
 
 /**
  * Validate abstract model rules:
- * - Abstract model cannot extend a concrete model
+ * - All models (abstract or concrete) can only extend abstract models
  * - No @@index/@@unique directives on abstract models
  * (Abstract is only valid on models — the parser only sets it on ASTModel)
  */
@@ -254,23 +255,29 @@ export function validateAbstractRules(ast: SchemaAST): SchemaValidationError[] {
   const errors: SchemaValidationError[] = [];
 
   for (const m of ast.models) {
-    if (!isAbstract(m)) continue;
-
-    // Abstract model cannot extend a concrete model
+    // All models can only extend abstract models
     const target = getExtendsTarget(m);
     if (target) {
       const parent = getModel(ast, target);
       if (parent && !isAbstract(parent)) {
-        errors.push({
-          message: `Abstract model "${m.name}" cannot extend concrete model "${target}". An abstract model can only extend another abstract model.`,
-          model: m.name,
-          line: m.range.start.line,
-        });
+        if (isAbstract(m)) {
+          errors.push({
+            message: `Abstract model "${m.name}" cannot extend concrete model "${target}". An abstract model can only extend another abstract model.`,
+            model: m.name,
+            line: m.range.start.line,
+          });
+        } else {
+          errors.push({
+            message: `Model "${m.name}" extends concrete model "${target}". Models can only extend abstract models.`,
+            model: m.name,
+            line: m.range.start.line,
+          });
+        }
       }
     }
 
     // No @@index/@@unique on abstract models
-    if (m.directives?.length) {
+    if (isAbstract(m) && m.directives?.length) {
       for (const directive of m.directives) {
         errors.push({
           message: `Abstract model "${m.name}" cannot have @@${directive.kind} directive "${directive.name}". Composite directives are only allowed on concrete models.`,
@@ -507,11 +514,163 @@ export function validatePickOmitFields(ast: SchemaAST): SchemaValidationError[] 
   return errors;
 }
 
+// ── Validator 7: Empty types (pre-resolution) ──────────────────────────
+
+/**
+ * Validate that types without extends have at least one field/element/value.
+ * A type with 0 own items and no extends clause is always invalid — it would
+ * produce an empty type after resolution.
+ */
+export function validateEmptyTypes(ast: SchemaAST): SchemaValidationError[] {
+  const errors: SchemaValidationError[] = [];
+
+  for (const m of ast.models) {
+    if (!m.fields.length && !getExtendsTarget(m)) {
+      errors.push({
+        message: `Model "${m.name}" has no fields. A model must have at least one field, or extend a parent type.`,
+        model: m.name,
+        line: m.range.start.line,
+      });
+    }
+  }
+
+  for (const o of ast.objects) {
+    if (!o.fields.length && !getExtendsTarget(o)) {
+      errors.push({
+        message: `Object "${o.name}" has no fields. An object must have at least one field, or extend a parent type.`,
+        line: o.range.start.line,
+      });
+    }
+  }
+
+  for (const t of ast.tuples) {
+    if (!t.elements.length && !getExtendsTarget(t)) {
+      errors.push({
+        message: `Tuple "${t.name}" has no elements. A tuple must have at least one element, or extend a parent type.`,
+        line: t.range.start.line,
+      });
+    }
+  }
+
+  for (const e of ast.enums) {
+    if (!e.values.length && !getExtendsTarget(e)) {
+      errors.push({
+        message: `Enum "${e.name}" has no values. An enum must have at least one value, or extend a parent type.`,
+        line: e.range.start.line,
+      });
+    }
+  }
+
+  for (const l of ast.literals) {
+    if (!l.variants.length && !getExtendsTarget(l)) {
+      errors.push({
+        message: `Literal "${l.name}" has no variants. A literal must have at least one variant, or extend a parent type.`,
+        line: l.range.start.line,
+      });
+    }
+  }
+
+  return errors;
+}
+
+// ── Validator 8: Empty types (post-resolution) ─────────────────────────
+
+/**
+ * Validate that no type is empty after inheritance resolution.
+ * This catches cases where extends + pick/omit removes all items.
+ * Runs on the FULL resolved AST (including abstract models).
+ */
+export function validateResolvedTypes(ast: SchemaAST): SchemaValidationError[] {
+  const errors: SchemaValidationError[] = [];
+
+  for (const m of ast.models) {
+    if (!m.fields.length) {
+      errors.push({
+        message: `Model "${m.name}" has no fields after inheritance resolution. Check that the extends clause and pick/omit filters leave at least one field.`,
+        model: m.name,
+        line: m.range.start.line,
+      });
+    }
+  }
+
+  for (const o of ast.objects) {
+    if (!o.fields.length) {
+      errors.push({
+        message: `Object "${o.name}" has no fields after inheritance resolution. Check that the extends clause and pick/omit filters leave at least one field.`,
+        line: o.range.start.line,
+      });
+    }
+  }
+
+  for (const t of ast.tuples) {
+    if (!t.elements.length) {
+      errors.push({
+        message: `Tuple "${t.name}" has no elements after inheritance resolution. Check that the extends clause and pick/omit filters leave at least one element.`,
+        line: t.range.start.line,
+      });
+    }
+  }
+
+  for (const e of ast.enums) {
+    if (!e.values.length) {
+      errors.push({
+        message: `Enum "${e.name}" has no values after inheritance resolution. Check that the extends clause and pick/omit filters leave at least one value.`,
+        line: e.range.start.line,
+      });
+    }
+  }
+
+  for (const l of ast.literals) {
+    if (!l.variants.length) {
+      errors.push({
+        message: `Literal "${l.name}" has no variants after inheritance resolution. Check that the extends clause and pick/omit filters leave at least one variant.`,
+        line: l.range.start.line,
+      });
+    }
+  }
+
+  return errors;
+}
+
+// ── Validator 9: Concrete model @id check (pre-resolution) ─────────────
+
+/**
+ * Validate that every concrete (non-abstract) model without extends has an @id field.
+ *
+ * Runs on the RAW AST (pre-resolution). Models with extends may legitimately
+ * lose their @id through pick/omit — the pick may intentionally exclude it.
+ * Abstract models don't generate tables and don't need @id.
+ */
+export function validateModelIdField(ast: SchemaAST): SchemaValidationError[] {
+  const errors: SchemaValidationError[] = [];
+
+  for (const m of ast.models) {
+    // Skip abstract models — they don't generate tables
+    if (isAbstract(m)) continue;
+
+    // Skip models that use extends — they may inherit @id from parent,
+    // or intentionally exclude it via pick/omit
+    if (getExtendsTarget(m)) continue;
+
+    const hasId = m.fields.some((f) => hasDecorator(f, 'id'));
+    if (!hasId) {
+      errors.push({
+        message: `Model "${m.name}" does not have an @id field. Every concrete model must have exactly one field with @id.`,
+        model: m.name,
+        line: m.range.start.line,
+      });
+    }
+  }
+
+  return errors;
+}
+
 // ── Orchestrator ─────────────────────────────────────────────────────────
 
 /** Validate all extends-related rules */
 export function validateExtends(ast: SchemaAST): SchemaValidationError[] {
   return [
+    ...validateEmptyTypes(ast),
     ...validateEmptyExtendsFilter(ast),
     ...validateExtendsTargetExists(ast),
     ...validateNoCrossKindExtends(ast),
@@ -519,5 +678,6 @@ export function validateExtends(ast: SchemaAST): SchemaValidationError[] {
     ...validateAbstractRules(ast),
     ...validatePrivateOverride(ast),
     ...validatePickOmitFields(ast),
+    ...validateModelIdField(ast),
   ];
 }

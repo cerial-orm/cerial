@@ -25,8 +25,10 @@ model ExtAdmin extends ExtBaseUser[!isActive] {
   permissions String[]
 }
 
-// Concrete model with pick (select specific fields from base)
-model ExtModerator extends ExtBaseUser[email, name] {
+// Concrete model with pick (select specific fields from abstract base)
+model ExtModerator extends ExtBaseEntity[id, createdAt] {
+  email Email @unique
+  name String
   bannedUntil Date?
   notes String?
 }
@@ -38,14 +40,26 @@ model ExtSuperAdmin extends ExtBaseUser {
   canDeleteUsers Bool @default(true)
 }
 
-// Multi-level inheritance: ExtUser -> ExtBaseUser -> ExtBaseEntity
-model ExtPremiumUser extends ExtUser {
+// Abstract intermediary for ExtUser fields — enables multi-level inheritance
+abstract model ExtBaseUserFull extends ExtBaseUser {
+  age Int?
+  role String @default('user')
+}
+
+// Multi-level inheritance: ExtPremiumUser -> ExtBaseUserFull -> ExtBaseUser -> ExtBaseEntity
+model ExtPremiumUser extends ExtBaseUserFull {
   subscriptionTier String @default('basic')
   subscriptionEnd Date?
 }
 
-// Another multi-level: ExtAdmin -> ExtBaseUser -> ExtBaseEntity
-model ExtSystemAdmin extends ExtAdmin {
+// Abstract intermediary for ExtAdmin fields — enables multi-level inheritance
+abstract model ExtBaseAdmin extends ExtBaseUser[!isActive] {
+  level Int @default(1)
+  permissions String[]
+}
+
+// Another multi-level: ExtSystemAdmin -> ExtBaseAdmin -> ExtBaseUser -> ExtBaseEntity
+model ExtSystemAdmin extends ExtBaseAdmin {
   systemAccess Bool @default(false)
   auditLog String[]
 }

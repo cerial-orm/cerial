@@ -844,7 +844,7 @@ describe('Timestamp Decorator Validators', () => {
         makeModel({
           name: 'User',
           fields: [
-            makeField({ name: 'id', type: 'string' }),
+            makeField({ name: 'id', type: 'record', decorators: [makeDecorator('id')] }),
             makeField({ name: 'name', type: 'string' }),
             makeField({ name: 'createdAt', type: 'date', decorators: [makeDecorator('createdAt')] }),
             makeField({ name: 'updatedAt', type: 'date', decorators: [makeDecorator('updatedAt')] }),

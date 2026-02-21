@@ -19,12 +19,16 @@ model ExtRelBlogAuthor extends ExtRelAuthor {
   posts Relation[] @model(ExtRelBlogPost)
 }
 
-// Concrete post extending base with FK — bidirectional with ExtRelBlogAuthor
-model ExtRelBlogPost extends ExtRelBase {
+// Abstract intermediary for blog post fields — enables multi-level inheritance
+abstract model ExtRelBaseBlogPost extends ExtRelBase {
   title String
   content String?
   authorId Record
   author Relation @field(authorId) @model(ExtRelBlogAuthor)
+}
+
+// Concrete post extending abstract base — bidirectional with ExtRelBlogAuthor
+model ExtRelBlogPost extends ExtRelBaseBlogPost {
 }
 
 // Base for owner
@@ -58,27 +62,31 @@ model ExtRelBlogPostTag {
   tag Relation @field(tagId) @model(ExtRelBlogTag)
 }
 
-// Extends with omit — exclude relation and FK fields
-model ExtRelPostSummary extends ExtRelBlogPost[!author, !authorId] {
+// Extends with omit — exclude relation and FK fields (extends abstract parent)
+model ExtRelPostSummary extends ExtRelBaseBlogPost[!author, !authorId] {
   summary String?
   wordCount Int?
 }
 
-// Extends with omit — exclude content and relation fields
-model ExtRelPostArchive extends ExtRelBlogPost[!content, !author, !authorId] {
+// Extends with omit — exclude content and relation fields (extends abstract parent)
+model ExtRelPostArchive extends ExtRelBaseBlogPost[!content, !author, !authorId] {
   archivedAt Date @createdAt
   archiveReason String?
 }
 
-// Self-referential with optional single-sided relation
-model ExtRelComment extends ExtRelBase {
+// Abstract intermediary for comment fields — enables multi-level inheritance
+abstract model ExtRelBaseComment extends ExtRelBase {
   content String
   parentCommentId Record?
   parentComment Relation? @field(parentCommentId) @model(ExtRelComment)
 }
 
-// Extends with additional optional relation
-model ExtRelCommentModerated extends ExtRelComment {
+// Self-referential with optional single-sided relation
+model ExtRelComment extends ExtRelBaseComment {
+}
+
+// Extends abstract parent with additional optional relation
+model ExtRelCommentModerated extends ExtRelBaseComment {
   isApproved Bool @default(false)
   approvedBy Record?
   approver Relation? @field(approvedBy) @model(ExtRelBlogAuthor)

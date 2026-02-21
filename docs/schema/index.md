@@ -85,7 +85,10 @@ model Post {
 - [Array Types](array-types) — Array field syntax and behavior
 - [Optional Fields](optional-fields) — Optional field semantics and NONE vs null
 - [Decorators](decorators/) — All decorators (`@id`, `@unique`, `@default`, `@field`, `@model`, etc.)
+- [Modifiers](modifiers/) — Field modifiers (`!!private`) that control inheritance behavior
 - [Comments](comments) — Comment syntax
 - [Enums](enums) — Named string constants with const object and union type
 - [Enums vs Literals](enums-vs-literals) — When to use enums vs literals
 - [Cross-File References](cross-file-references) — Splitting schemas across multiple files
+- [Extends (Inheritance)](extends) — Schema-level inheritance for models, objects, tuples, enums, and literals
+- [Abstract Models](abstract) — Reusable field templates that produce no table or types

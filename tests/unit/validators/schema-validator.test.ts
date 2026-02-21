@@ -5,6 +5,7 @@
  */
 
 import { describe, expect, test } from 'bun:test';
+import { validateModelIdField } from '../../../src/cli/validators/extends-validator';
 import {
   validateFieldNames,
   validateModelNames,
@@ -279,6 +280,10 @@ describe('Schema Validator', () => {
 
   describe('validateSchema', () => {
     test('should return valid:true for valid schema', () => {
+      const idRange = {
+        start: { line: 1, column: 1, offset: 0 },
+        end: { line: 1, column: 1, offset: 0 },
+      };
       const ast: SchemaAST = {
         source: '',
         objects: [],
@@ -288,7 +293,10 @@ describe('Schema Validator', () => {
         models: [
           createASTModel({
             name: 'User',
-            fields: [createASTField({ name: 'id', type: 'string' }), createASTField({ name: 'name', type: 'string' })],
+            fields: [
+              createASTField({ name: 'id', type: 'record', decorators: [{ type: 'id', range: idRange }] }),
+              createASTField({ name: 'name', type: 'string' }),
+            ],
           }),
         ],
       };
@@ -592,5 +600,146 @@ describe('Schema Validator', () => {
       const errors = validateTupleObjectCombination(ast);
       expect(errors).toHaveLength(2);
     });
+  });
+});
+
+// ── validateModelIdField (Rule 3) ───────────────────────────────────────
+
+describe('validateModelIdField', () => {
+  const defaultRange = {
+    start: { line: 1, column: 1, offset: 0 },
+    end: { line: 1, column: 1, offset: 0 },
+  };
+
+  test('model without @id field → error', () => {
+    const ast: SchemaAST = {
+      source: '',
+      objects: [],
+      tuples: [],
+      literals: [],
+      enums: [],
+      models: [
+        createASTModel({
+          name: 'NoId',
+          fields: [createASTField({ name: 'name', type: 'string' })],
+        }),
+      ],
+    };
+    const errors = validateModelIdField(ast);
+    expect(errors).toHaveLength(1);
+    expect(errors[0]!.message).toContain('NoId');
+    expect(errors[0]!.message).toContain('@id');
+    expect(errors[0]!.model).toBe('NoId');
+  });
+
+  test('model with @id field → no error', () => {
+    const ast: SchemaAST = {
+      source: '',
+      objects: [],
+      tuples: [],
+      literals: [],
+      enums: [],
+      models: [
+        createASTModel({
+          name: 'Valid',
+          fields: [
+            createASTField({
+              name: 'id',
+              type: 'record',
+              decorators: [{ type: 'id', range: defaultRange }],
+            }),
+            createASTField({ name: 'name', type: 'string' }),
+          ],
+        }),
+      ],
+    };
+    const errors = validateModelIdField(ast);
+    expect(errors).toHaveLength(0);
+  });
+
+  test('multiple models — one without @id → one error', () => {
+    const ast: SchemaAST = {
+      source: '',
+      objects: [],
+      tuples: [],
+      literals: [],
+      enums: [],
+      models: [
+        createASTModel({
+          name: 'WithId',
+          fields: [
+            createASTField({
+              name: 'id',
+              type: 'record',
+              decorators: [{ type: 'id', range: defaultRange }],
+            }),
+          ],
+        }),
+        createASTModel({
+          name: 'WithoutId',
+          fields: [createASTField({ name: 'name', type: 'string' })],
+        }),
+      ],
+    };
+    const errors = validateModelIdField(ast);
+    expect(errors).toHaveLength(1);
+    expect(errors[0]!.model).toBe('WithoutId');
+  });
+
+  test('abstract model without @id → no error (abstract skipped)', () => {
+    const ast: SchemaAST = {
+      source: '',
+      objects: [],
+      tuples: [],
+      literals: [],
+      enums: [],
+      models: [
+        createASTModel({
+          name: 'AbsBase',
+          abstract: true,
+          fields: [createASTField({ name: 'name', type: 'string' })],
+        }),
+      ],
+    };
+    const errors = validateModelIdField(ast);
+    expect(errors).toHaveLength(0);
+  });
+
+  test('model with extends and no @id → no error (extends skipped)', () => {
+    const ast: SchemaAST = {
+      source: '',
+      objects: [],
+      tuples: [],
+      literals: [],
+      enums: [],
+      models: [
+        createASTModel({
+          name: 'Child',
+          extends: 'Base',
+          fields: [createASTField({ name: 'extra', type: 'string' })],
+        }),
+      ],
+    };
+    const errors = validateModelIdField(ast);
+    expect(errors).toHaveLength(0);
+  });
+
+  test('validateModelIdField is a pre-resolution check (uses raw AST)', () => {
+    const ast: SchemaAST = {
+      source: '',
+      objects: [],
+      tuples: [],
+      literals: [],
+      enums: [],
+      models: [
+        createASTModel({
+          name: 'NoIdModel',
+          fields: [createASTField({ name: 'name', type: 'string' })],
+        }),
+      ],
+    };
+    const errors = validateModelIdField(ast);
+    expect(errors).toHaveLength(1);
+    expect(errors[0]!.message).toContain('@id');
   });
 });

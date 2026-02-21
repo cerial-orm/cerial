@@ -48,7 +48,7 @@ import { loadCerialIgnore, resolvePathFilter } from './filters';
 import { findSchemaRoots, resolveSchemas, resolveSinglePath } from './resolvers';
 import { logger } from './utils';
 import type { CLIOptions, LogOutputLevel } from './validators';
-import { validateExtends, validateOptions, validateSchema } from './validators';
+import { validateExtends, validateOptions, validateResolvedTypes, validateSchema } from './validators';
 
 /** Generation result */
 export interface GenerateResult {
@@ -343,6 +343,22 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
 
     // Resolve inheritance — flatten extends chains, apply pick/omit, strip private markers
     const resolvedAST = resolveInheritance(combinedAST);
+
+    // Validate resolved types — no empty types after resolution (includes abstract models)
+    const resolvedErrors = validateResolvedTypes(resolvedAST);
+    if (resolvedErrors.length) {
+      for (const error of resolvedErrors) {
+        const modelFile = schemaContents.find((s) =>
+          allModels.some((m) => m.name === error.model && s.content.includes(`model ${error.model}`)),
+        );
+        const prefix = modelFile ? `${modelFile.path}: ` : '';
+        result.errors.push(`${prefix}${error.message}`);
+      }
+      logger.error('Resolved type errors found:');
+      result.errors.forEach((e) => logger.error(`  ${e}`));
+
+      return result;
+    }
 
     // Filter out abstract models — they exist only for inheritance, not for generated output
     const concreteModels = resolvedAST.models.filter((m) => !m.abstract);

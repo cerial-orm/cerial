@@ -248,7 +248,7 @@ type ExpectedExtAdminKeys = 'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' 
 checks([check<IsEqual<ExtAdminKeys, ExpectedExtAdminKeys>, 1, Test.Pass>()]);
 
 // =============================================================================
-// 4. ExtModerator — Pick inheritance (picks only 'email', 'name')
+// 4. ExtModerator — Pick inheritance (picks 'id', 'createdAt' from ExtBaseEntity, own 'email', 'name')
 // =============================================================================
 
 // 53: ExtModerator should have email and name (picked)
@@ -258,16 +258,16 @@ checks([
   check<ExtModerator['name'], string, Test.Pass>(),
 ]);
 
-// 55: ExtModerator should NOT have id (not picked)
-checks([check<HasKey<ExtModerator, 'id'>, 0, Test.Pass>()]);
+// 55: ExtModerator should have id (picked from ExtBaseEntity)
+checks([check<HasKey<ExtModerator, 'id'>, 1, Test.Pass>()]);
 
-// 56: ExtModerator should NOT have isActive (not picked)
+// 56: ExtModerator should NOT have isActive (not in ExtBaseEntity, not picked)
 checks([check<HasKey<ExtModerator, 'isActive'>, 0, Test.Pass>()]);
 
-// 57: ExtModerator should NOT have createdAt (not picked)
-checks([check<HasKey<ExtModerator, 'createdAt'>, 0, Test.Pass>()]);
+// 57: ExtModerator should have createdAt (picked from ExtBaseEntity)
+checks([check<HasKey<ExtModerator, 'createdAt'>, 1, Test.Pass>()]);
 
-// 58: ExtModerator should NOT have updatedAt (not picked)
+// 58: ExtModerator should NOT have updatedAt (not picked from ExtBaseEntity)
 checks([check<HasKey<ExtModerator, 'updatedAt'>, 0, Test.Pass>()]);
 
 // 59: ExtModerator should have own fields
@@ -284,21 +284,18 @@ checks([
   check<HasKey<ExtModeratorCreate, 'name'>, 1, Test.Pass>(),
 ]);
 
-// 63: ExtModeratorCreate should NOT have id
-checks([check<HasKey<ExtModeratorCreate, 'id'>, 0, Test.Pass>()]);
+// 63: ExtModeratorWhere should have id (inherited via pick)
+checks([check<HasKey<ExtModeratorWhere, 'id'>, 1, Test.Pass>()]);
 
-// 64: ExtModeratorWhere should NOT have id
-checks([check<HasKey<ExtModeratorWhere, 'id'>, 0, Test.Pass>()]);
+// 64: ExtModeratorSelect should have id (inherited via pick)
+checks([check<HasKey<ExtModeratorSelect, 'id'>, 1, Test.Pass>()]);
 
-// 65: ExtModeratorSelect should NOT have id
-checks([check<HasKey<ExtModeratorSelect, 'id'>, 0, Test.Pass>()]);
+// 65: ExtModeratorOrderBy should have createdAt (inherited via pick)
+checks([check<HasKey<ExtModeratorOrderBy, 'createdAt'>, 1, Test.Pass>()]);
 
-// 66: ExtModeratorOrderBy should NOT have id
-checks([check<HasKey<ExtModeratorOrderBy, 'id'>, 0, Test.Pass>()]);
-
-// 67: ExtModerator keys should be exactly right
+// 66: ExtModerator keys should be exactly right
 type ExtModeratorKeys = keyof ExtModerator;
-type ExpectedExtModeratorKeys = 'email' | 'name' | 'bannedUntil' | 'notes';
+type ExpectedExtModeratorKeys = 'id' | 'createdAt' | 'email' | 'name' | 'bannedUntil' | 'notes';
 checks([check<IsEqual<ExtModeratorKeys, ExpectedExtModeratorKeys>, 1, Test.Pass>()]);
 
 // =============================================================================

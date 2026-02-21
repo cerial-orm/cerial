@@ -30,6 +30,7 @@ A Prisma-like ORM for [SurrealDB](https://surrealdb.com/) with schema-driven cod
 - **Any type** - Store any SurrealDB value with type-safe CerialAny union
 - **Set arrays** - `@set` decorator for auto-deduplicated, sorted arrays
 - **Typed IDs** - `Record(int) @id`, `Record(uuid) @id`, union types, and automatic FK type inference
+- **Schema inheritance** - `extends` keyword for models, objects, tuples, enums, and literals with `abstract` models, `!!private` fields, and `[pick/omit]` selective inheritance
 - **Multi-schema** - Multiple independent schema folders with per-schema client generation
 - **Configuration** - `cerial.config.ts` / `cerial.config.json` with `defineConfig()` helper
 - **Path filtering** — `ignore`/`exclude`/`include` config fields with `.cerialignore` file support for controlling which schemas are processed
@@ -151,6 +152,7 @@ Full documentation is available at the [Cerial Docs](docs/) site, covering:
 - [Schema](docs/schema/) - Field types, decorators, arrays, optionals, cross-file references
 - [Field Types](docs/schema/field-types/) - Uuid, Number, Duration, Decimal, Bytes, Geometry, Any, and more
 - [Typed IDs](docs/schema/typed-ids.md) - `Record(int) @id`, union types, FK type inference, create optionality
+- [Extends (Inheritance)](docs/schema/extends.md) - Schema-level inheritance, abstract models, private fields, pick/omit
 - [Embedded Objects](docs/objects/) - Defining objects, sub-field select, filtering, updates
 - [Tuples](docs/tuples/) - Fixed-length typed arrays, named elements, where filtering, array operations
 - [Literals](docs/schema/literals.md) - Union types with specific values, broad types, and structured variants

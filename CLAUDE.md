@@ -51,6 +51,10 @@ cerial/
 │   │       └── enums/              #     Enum type name helpers + generators
 │   ├── parser/                      # Schema lexer, tokenizer, parser → AST
 │   │   └── types/                  #   Field types, decorators, constraints parsers
+│   ├── resolver/                    # Inheritance resolution phase
+│   │   ├── filter.ts                #   Pick/omit field filtering
+│   │   ├── inheritance-resolver.ts  #   Topological sort + field merging
+│   │   └── index.ts                 #   Barrel exports
 │   ├── query/                       # Query building + execution
 │   │   ├── builders/               #   Select, insert, update, delete, nested, relation builders
 │   │   ├── compile/                #   Query fragments, variable allocator
@@ -153,9 +157,11 @@ Schema (.cerial files) → Parser (AST) → Generators → TypeScript Client
 | `tests/e2e/complex-types/` | Object/tuple/literal/enum tests                               | 46 files |
 | `tests/e2e/data-types/`    | Data type tests (uuid, number, duration, decimal, bytes, etc) | 37 files |
 | `tests/e2e/features/`      | Typed-ids, unset, transactions, on-before-query, pagination   | 35 files |
-| `tests/e2e/negative/`      | Cross-cutting error/validation tests                          | 5 files  |
-| `tests/e2e/typechecks/`    | Compile-time type checks                                      | 36 files |
-| `tests/e2e/multi-schema/`  | Multi-schema E2E tests (config, convention, backward compat)   | 4 files  |
+| `tests/e2e/features/extends/`  | Extends E2E tests (model, object, tuple, enum, literal, pick/omit, negative) | 11 files |
+| `tests/e2e/negative/`                | Cross-cutting error/validation tests                          | 5 files  |
+| `tests/e2e/typechecks/`              | Compile-time type checks                                      | 36 files |
+| `tests/e2e/typechecks/features/extends.check.ts` | Compile-time type checks for extends | 1 file |
+| `tests/e2e/multi-schema/`            | Multi-schema E2E tests (config, convention, backward compat)   | 4 files  |
 
 **Sandbox testing** = Running raw SurrealQL against the live SurrealDB instance to verify DB-level behavior before implementing in code. Use this when you need to confirm how SurrealDB handles a specific query pattern (e.g., `$this` reconstruction, dot-notation merge, SELECT expression shapes). When the user says "sandbox test", execute queries via curl:
 
@@ -415,6 +421,9 @@ Do NOT use SurrealDB reserved keywords as field names, model names, or object na
 - **findAll()** = Alias for `findMany()` with no options. Returns all records in the table as `T[]`. No `where`, `select`, `include`, `orderBy`, `limit`, or `offset` parameters
 - **Model introspection** = `getMetadata()`, `getName()`, `getTableName()` — available on every model instance for runtime metadata access. `getMetadata()` returns full `ModelMetadata` (name, table, fields, relations). `getName()` returns the model name. `getTableName()` returns the SurrealDB table name
 - **Path filtering** = Three-tier filter system for controlling which `.cerial` files are processed. `ignore` (absolute blacklist), `exclude` (overridable blacklist), `include` (whitelist override). Supports `.cerialignore` files at project root and per-schema-folder. Cascade: `.cerialignore` → root config → folder `.cerialignore` → folder config. Config fields on `CerialConfig`, `SchemaEntry`, `FolderConfig`
+- **Extends** = Schema-level inheritance for all type kinds (model, object, tuple, enum, literal). `extends ParentName` inherits all fields/values. `extends ParentName[field1, field2]` picks specific fields. `extends ParentName[!field]` omits fields. Resolved at compile time — generators see flattened output. Single parent only, no cross-kind
+- **Abstract** = Model-only keyword. `abstract model Name { ... }` suppresses table generation, TS type generation, client accessor, and registry entry. All models (concrete or abstract) can ONLY extend abstract models. Concrete extends concrete FORBIDDEN, abstract extends concrete FORBIDDEN
+- **!!private** = Field modifier preventing override in child types. Placed at end of field line: `fieldName Type !!private`. Allowed on model fields, object fields, tuple elements. NOT on enum values or literal variants. Does NOT prevent omitting from pick lists — only prevents redefining in child body
 
 ## Gotchas
 
@@ -469,3 +478,9 @@ Do NOT use SurrealDB reserved keywords as field names, model names, or object na
 - `include` without `exclude` is a no-op — `include` only overrides exclusions, not a whitelist-only filter
 - Parent-directory negation in `.cerialignore`: `dir/` then `!dir/keep.cerial` doesn't work (git behavior) — use config `include` instead
 - No `../` pattern escaping in filter config — patterns cannot escape their scope directory
+- Abstract models produce no table, no TS types, no client accessor, no registry entry — they are consumed during inheritance resolution and then discarded
+- `!!private` prevents override only — private fields CAN be freely omitted from pick lists or excluded via omit
+- Pick/omit is mutually exclusive per extends clause — cannot mix `[field1, !field2]`
+- Extends is resolved at compile time only — no runtime inheritance awareness
+- Extends only works within same schema entry (same generation run). Cross-schema extends is impossible
+- Pick/omit validates against parent's own fields only (not inherited from grandparent)
