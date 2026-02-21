@@ -3,3 +3,4 @@
  */
 
 export { applyElementFilter, applyFieldFilter, applyValueFilter, applyVariantFilter } from './filter';
+export { resolveInheritance } from './inheritance-resolver';
