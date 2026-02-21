@@ -11,13 +11,31 @@
   },
   "categories": [
     "Programming Languages",
-    "Formatters"
+    "Formatters",
+    "Linters"
   ],
+  "keywords": [
+    "cerial",
+    "surrealdb",
+    "orm",
+    "schema",
+    "prisma",
+    "database",
+    "surreal"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/user/cerial"
+  },
+  "galleryBanner": {
+    "color": "#1e1e1e",
+    "theme": "dark"
+  },
+  "pricing": "Free",
   "activationEvents": [
     "onLanguage:cerial"
   ],
   "main": "./dist/extension.js",
-  "browser": "./dist/browserExtension.js",
   "contributes": {
     "languages": [
       {
@@ -182,11 +200,12 @@
     "build": "bun esbuild.mjs --production",
     "build:dev": "bun esbuild.mjs",
     "watch": "bun esbuild.mjs --watch",
-    "test": "bun run test:unit",
+    "test": "bun run test:unit && bun run test:grammar",
     "test:unit": "bun test tests/unit/",
+    "test:grammar": "bun test tests/grammar/",
     "test:integration": "vscode-test",
-    "package": "vsce package",
-    "publish": "vsce publish",
+    "package": "vsce package --no-dependencies",
+    "publish:vsce": "vsce publish --no-dependencies",
     "vscode:prepublish": "bun run build"
   },
   "devDependencies": {
@@ -195,9 +214,12 @@
     "@types/vscode": "^1.96.0",
     "@vscode/test-cli": "^0.0.9",
     "@vscode/test-electron": "^2.3.9",
+    "@vscode/vsce": "^3.7.1",
     "esbuild": "^0.20.2",
     "mocha": "^10.2.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vscode-oniguruma": "^2.0.1",
+    "vscode-textmate": "^9.3.2"
   },
   "dependencies": {
     "vscode-languageclient": "^9.0.1",

@@ -28,23 +28,6 @@ const configs = [
     platform: 'node',
     format: 'cjs',
   },
-  // Web client
-  {
-    ...baseConfig,
-    entryPoints: ['client/src/browserExtension.ts'],
-    outfile: 'dist/browserExtension.js',
-    platform: 'browser',
-    format: 'cjs',
-    external: ['vscode'],
-  },
-  // Web server
-  {
-    ...baseConfig,
-    entryPoints: ['server/src/browserServer.ts'],
-    outfile: 'dist/browserServer.js',
-    platform: 'browser',
-    format: 'cjs',
-  },
 ];
 
 async function build() {
