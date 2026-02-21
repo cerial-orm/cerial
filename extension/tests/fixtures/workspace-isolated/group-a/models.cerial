@@ -1,0 +1,14 @@
+# Schema Group A — isolated from group B
+
+object Address {
+  street String
+  city String
+  zip String?
+}
+
+model User {
+  id Record @id
+  name String
+  address Address?
+  createdAt Date @createdAt
+}

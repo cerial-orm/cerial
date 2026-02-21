@@ -1,0 +1,13 @@
+// Intentional errors for diagnostic testing
+
+model BadTypes {
+  id Record @id
+  name Strig
+  count Integer
+}
+
+model DuplicateFields {
+  id Record @id
+  name String
+  name String
+}

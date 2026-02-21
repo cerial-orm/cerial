@@ -1,0 +1,14 @@
+# Schema Group B — overlapping names with group A
+
+object Address {
+  line1 String
+  line2 String?
+  country String
+}
+
+model User {
+  id Record @id
+  email Email @unique
+  address Address?
+  updatedAt Date @updatedAt
+}

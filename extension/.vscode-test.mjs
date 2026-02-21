@@ -2,13 +2,15 @@ import { defineConfig } from '@vscode/test-cli';
 
 export default defineConfig([
   {
-    label: 'unitTests',
-    files: 'out/test/unit/**/*.test.js',
+    label: 'integrationTests',
+    files: 'out/tests/integration/**/*.test.js',
+    workspaceFolder: './tests/fixtures/workspace',
+    mocha: { timeout: 30000 },
   },
   {
-    label: 'integrationTests',
-    files: 'out/test/integration/**/*.test.js',
-    workspaceFolder: './tests/fixtures',
-    mocha: { timeout: 30000 },
+    label: 'e2eTests',
+    files: 'out/tests/e2e/**/*.test.js',
+    workspaceFolder: './tests/fixtures/workspace',
+    mocha: { timeout: 60000 },
   },
 ]);

@@ -1,0 +1,19 @@
+# Multi-file B — references types from multi-file-a.cerial
+
+literal ProjectStatus { 'planning', 'active', 'paused', 'completed' }
+
+tuple Budget {
+  amount Float,
+  currency String
+}
+
+model Project {
+  id Record @id
+  name String
+  status ProjectStatus
+  budget Budget?
+  leadId Record
+  lead Relation @field(leadId) @model(Employee)
+  memberIds Record[]
+  members Relation[] @field(memberIds) @model(Employee)
+}

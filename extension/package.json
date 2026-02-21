@@ -203,7 +203,9 @@
     "test": "bun run test:unit && bun run test:grammar",
     "test:unit": "bun test tests/unit/",
     "test:grammar": "bun test tests/grammar/",
-    "test:integration": "vscode-test",
+    "compile:tests": "tsc -p tsconfig.test.json",
+    "test:integration": "bun run build && bun run compile:tests && vscode-test --label integrationTests",
+    "test:e2e": "bun run build && bun run compile:tests && vscode-test --label e2eTests",
     "package": "vsce package --no-dependencies",
     "publish:vsce": "vsce publish --no-dependencies",
     "vscode:prepublish": "bun run build"

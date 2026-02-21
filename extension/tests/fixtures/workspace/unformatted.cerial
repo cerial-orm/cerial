@@ -1,0 +1,8 @@
+// Needs formatting
+
+model Messy {
+id Record @id
+name String
+count Int @default(0)
+age Float?
+}

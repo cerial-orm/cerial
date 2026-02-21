@@ -1,0 +1,21 @@
+# Simple model for testing
+
+model User {
+  id Record @id
+  email Email @unique
+  name String
+  age Int?
+  isActive Bool @default(true)
+  score Float
+  createdAt Date @createdAt
+  updatedAt Date @updatedAt
+  tags String[]
+}
+
+model Article {
+  id Record @id
+  title String
+  body String?
+  published Bool @default(false)
+  createdAt Date @createdAt
+}
