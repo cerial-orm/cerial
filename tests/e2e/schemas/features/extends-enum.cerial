@@ -45,6 +45,6 @@ object ExtEnumInfo {
 model ExtEnumContainer {
   id Record @id
   name String
-  info ExtEnumInfo
-  infos ExtEnumInfo[]
+  details ExtEnumInfo
+  detailsList ExtEnumInfo[]
 }
