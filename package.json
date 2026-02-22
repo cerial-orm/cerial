@@ -4,6 +4,7 @@
   "type": "module",
   "workspaces": [
     "apps/orm",
+    "apps/vscode-extension",
     "libs/*"
   ],
   "scripts": {
