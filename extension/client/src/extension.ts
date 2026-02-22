@@ -29,9 +29,12 @@ export async function activate(context: ExtensionContext): Promise<void> {
     },
   };
 
-  // Only activate for .cerial files opened from the filesystem.
+  // Activate for .cerial files from disk and untitled (in-memory) documents.
   const clientOptions: LanguageClientOptions = {
-    documentSelector: [{ scheme: 'file', language: 'cerial' }],
+    documentSelector: [
+      { scheme: 'file', language: 'cerial' },
+      { scheme: 'untitled', language: 'cerial' },
+    ],
   };
 
   client = new LanguageClient('cerialLanguageServer', 'Cerial Language Server', serverOptions, clientOptions);
