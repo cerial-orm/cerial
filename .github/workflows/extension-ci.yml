@@ -3,8 +3,24 @@ name: CI
 on:
   push:
     branches: [main, dev]
+    paths:
+      - 'apps/vscode-extension/**'
+      - 'apps/orm/src/parser/**'
+      - 'apps/orm/src/formatter/**'
+      - 'apps/orm/src/resolver/**'
+      - 'apps/orm/src/types/**'
+      - 'apps/orm/src/cli/config/types.ts'
+      - 'apps/orm/src/cli/validators/**'
   pull_request:
     branches: [main]
+    paths:
+      - 'apps/vscode-extension/**'
+      - 'apps/orm/src/parser/**'
+      - 'apps/orm/src/formatter/**'
+      - 'apps/orm/src/resolver/**'
+      - 'apps/orm/src/types/**'
+      - 'apps/orm/src/cli/config/types.ts'
+      - 'apps/orm/src/cli/validators/**'
 
 jobs:
   build-and-test:
@@ -16,10 +32,10 @@ jobs:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
       - run: bun install
-        working-directory: extension
+        working-directory: apps/vscode-extension
       - run: bun run build
-        working-directory: extension
+        working-directory: apps/vscode-extension
       - run: bun test tests/unit/
-        working-directory: extension
+        working-directory: apps/vscode-extension
       - run: bun test tests/grammar/
-        working-directory: extension
+        working-directory: apps/vscode-extension
