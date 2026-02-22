@@ -34,8 +34,8 @@ import {
   validateSchema,
   validateTupleElementDecorators,
   validateUuidFields,
-} from '../../../../src/cli/validators';
-import type { ParseError, SchemaAST, SourceRange } from '../../../../src/types';
+} from '../../../../orm/src/cli/validators';
+import type { ParseError, SchemaAST, SourceRange } from '../../../../orm/src/types';
 import type { WorkspaceIndexer } from '../indexer';
 import type { CerialSettings } from '../server';
 import { findFieldByName } from '../utils/ast-location';

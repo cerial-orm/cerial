@@ -16,7 +16,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import type { Connection, DefinitionLink, TextDocuments } from 'vscode-languageserver';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
-import type { ASTField, ASTModel, ASTObject, SchemaAST } from '../../../../src/types';
+import type { ASTField, ASTModel, ASTObject, SchemaAST } from '../../../../orm/src/types';
 import type { WorkspaceIndexer } from '../indexer';
 import { findNodeAtPosition, findTypeDefinition, getWordRangeAtPosition } from '../utils/ast-location';
 import { cerialRangeToLsp, lspToCerial } from '../utils/position';

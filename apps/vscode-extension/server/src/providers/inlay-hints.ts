@@ -13,7 +13,7 @@
 
 import { type Connection, type InlayHint, InlayHintKind, type TextDocuments } from 'vscode-languageserver';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
-import type { ASTField, ASTModel, ASTObject } from '../../../../src/types';
+import type { ASTField, ASTModel, ASTObject } from '../../../../orm/src/types';
 import type { WorkspaceIndexer } from '../indexer';
 import type { CerialSettings } from '../server';
 import { cerialToLsp } from '../utils/position';

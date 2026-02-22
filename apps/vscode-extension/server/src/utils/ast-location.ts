@@ -16,7 +16,7 @@ import type {
   SchemaAST,
   SourcePosition,
   SourceRange,
-} from '../../../../src/types';
+} from '../../../../orm/src/types';
 
 // ---------------------------------------------------------------------------
 // Exported types

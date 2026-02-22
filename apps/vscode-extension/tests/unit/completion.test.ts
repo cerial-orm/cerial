@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { parse } from '../../../src/parser/parser';
+import { parse } from '../../../orm/src/parser/parser';
 import { getBlockContext, isInsideBlock } from '../../server/src/utils/ast-location';
 import { lspToCerial } from '../../server/src/utils/position';
 import { createIndexerWithContent, loadFixture, parseFixture, testPath } from './helpers';

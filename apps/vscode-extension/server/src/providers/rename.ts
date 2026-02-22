@@ -23,7 +23,7 @@ import type {
   ASTObject,
   ASTTuple,
   SchemaAST,
-} from '../../../../src/types';
+} from '../../../../orm/src/types';
 import type { WorkspaceIndexer } from '../indexer';
 import { findNodeAtPosition, findTypeDefinition, getWordRangeAtPosition } from '../utils/ast-location';
 import { lspToCerial } from '../utils/position';

@@ -8,8 +8,8 @@
 import type { Connection, TextDocuments } from 'vscode-languageserver';
 import { Range, TextEdit } from 'vscode-languageserver';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
-import type { FormatConfig } from '../../../../src/formatter';
-import { formatCerialSource } from '../../../../src/formatter';
+import type { FormatConfig } from '../../../../orm/src/formatter';
+import { formatCerialSource } from '../../../../orm/src/formatter';
 import type { CerialSettings } from '../server';
 
 /**

@@ -27,7 +27,7 @@ import type {
   ASTTuple,
   ASTTupleElement,
   SourceRange,
-} from '../../../../src/types';
+} from '../../../../orm/src/types';
 import type { WorkspaceIndexer } from '../indexer';
 import { cerialRangeToLsp } from '../utils/position';
 

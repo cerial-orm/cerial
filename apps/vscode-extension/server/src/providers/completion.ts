@@ -21,7 +21,7 @@ import {
   type TextDocuments,
 } from 'vscode-languageserver';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
-import type { SchemaAST } from '../../../../src/types';
+import type { SchemaAST } from '../../../../orm/src/types';
 import type { WorkspaceIndexer } from '../indexer';
 import { type BlockContext, findFieldByName, findNodeAtPosition, getBlockContext } from '../utils/ast-location';
 import { lspToCerial } from '../utils/position';

@@ -29,7 +29,7 @@ import type {
   ASTObject,
   ASTTuple,
   SchemaAST,
-} from '../../../../src/types';
+} from '../../../../orm/src/types';
 import type { WorkspaceIndexer } from '../indexer';
 import { cerialToLsp } from '../utils/position';
 

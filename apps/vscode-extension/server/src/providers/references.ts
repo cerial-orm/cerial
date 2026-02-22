@@ -13,7 +13,7 @@ import { pathToFileURL } from 'node:url';
 
 import type { Connection, Location, TextDocuments } from 'vscode-languageserver';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
-import type { ASTField, ASTLiteral, ASTTuple, SchemaAST, SourceRange } from '../../../../src/types';
+import type { ASTField, ASTLiteral, ASTTuple, SchemaAST, SourceRange } from '../../../../orm/src/types';
 import type { WorkspaceIndexer } from '../indexer';
 import { findNodeAtPosition, findTypeDefinition, getWordRangeAtPosition } from '../utils/ast-location';
 import { cerialRangeToLsp, lspToCerial } from '../utils/position';

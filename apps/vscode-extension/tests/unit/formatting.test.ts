@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { formatCerialSource } from '../../../src/formatter';
-import type { FormatConfig } from '../../../src/formatter/types';
+import { formatCerialSource } from '../../../orm/src/formatter';
+import type { FormatConfig } from '../../../orm/src/formatter/types';
 
 /**
  * Replicate the buildFormatConfig logic from the formatting provider.

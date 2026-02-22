@@ -11,8 +11,8 @@ import {
   validateSchema,
   validateTupleElementDecorators,
   validateUuidFields,
-} from '../../../src/cli/validators';
-import { parse } from '../../../src/parser/parser';
+} from '../../../orm/src/cli/validators';
+import { parse } from '../../../orm/src/parser/parser';
 import { loadFixture, parseFixture } from './helpers';
 
 describe('Diagnostics Logic', () => {

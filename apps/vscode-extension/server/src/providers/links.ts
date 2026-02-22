@@ -19,7 +19,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import type { Connection, DocumentLink, TextDocuments } from 'vscode-languageserver';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
-import type { ASTField, ASTLiteral, ASTTuple } from '../../../../src/types';
+import type { ASTField, ASTLiteral, ASTTuple } from '../../../../orm/src/types';
 import type { WorkspaceIndexer } from '../indexer';
 import { findTypeDefinition } from '../utils/ast-location';
 

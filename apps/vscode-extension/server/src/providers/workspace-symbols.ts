@@ -11,7 +11,7 @@
 import { pathToFileURL } from 'node:url';
 
 import { type Connection, SymbolKind, type WorkspaceSymbol } from 'vscode-languageserver';
-import type { SchemaAST } from '../../../../src/types';
+import type { SchemaAST } from '../../../../orm/src/types';
 import type { WorkspaceIndexer } from '../indexer';
 import { cerialRangeToLsp } from '../utils/position';
 

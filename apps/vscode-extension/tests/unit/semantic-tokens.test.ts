@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { SemanticTokenModifiers, SemanticTokenTypes } from 'vscode-languageserver';
-import { parse } from '../../../src/parser/parser';
+import { parse } from '../../../orm/src/parser/parser';
 import { TOKEN_MODIFIERS, TOKEN_TYPES } from '../../server/src/providers/semantic-tokens';
 import { cerialToLsp } from '../../server/src/utils/position';
 

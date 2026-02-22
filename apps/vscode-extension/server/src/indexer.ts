@@ -16,7 +16,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import type { CerialConfig } from '../../../src/cli/config/types';
+import type { CerialConfig } from '../../../orm/src/cli/config/types';
 // SAFE: parser.ts imports lexer, tokenizer, string-utils only — no Bun APIs
 import {
   collectEnumNames,
@@ -24,10 +24,10 @@ import {
   collectObjectNames,
   collectTupleNames,
   parse,
-} from '../../../src/parser/parser';
+} from '../../../orm/src/parser/parser';
 // SAFE: resolver barrel has no Bun dependencies
-import { resolveInheritance } from '../../../src/resolver';
-import type { ParseError, SchemaAST } from '../../../src/types';
+import { resolveInheritance } from '../../../orm/src/resolver';
+import type { ParseError, SchemaAST } from '../../../orm/src/types';
 import { findCerialFiles, loadCerialConfig } from './config-loader';
 
 // ──────────────────────────────────────────────

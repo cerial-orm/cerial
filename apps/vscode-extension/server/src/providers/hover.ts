@@ -10,7 +10,7 @@
 
 import { type Connection, type Hover, MarkupKind, type TextDocuments } from 'vscode-languageserver';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
-import type { ASTDecorator, ASTEnum, ASTField, ASTLiteral, ASTModel, ASTObject, ASTTuple } from '../../../../src/types';
+import type { ASTDecorator, ASTEnum, ASTField, ASTLiteral, ASTModel, ASTObject, ASTTuple } from '../../../../orm/src/types';
 import { DECORATOR_DOCS, FIELD_TYPE_DOCS } from '../data/hover-docs';
 import type { WorkspaceIndexer } from '../indexer';
 import { findNodeAtPosition, getWordRangeAtPosition } from '../utils/ast-location';

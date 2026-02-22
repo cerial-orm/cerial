@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { parse } from '../../../src/parser/parser';
+import { parse } from '../../../orm/src/parser/parser';
 import { findTypeDefinition } from '../../server/src/utils/ast-location';
 import { createIndexerWithContent, testPath } from './helpers';
 

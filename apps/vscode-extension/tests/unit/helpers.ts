@@ -6,8 +6,8 @@
 
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { parse } from '../../../src/parser/parser';
-import type { SchemaAST } from '../../../src/types';
+import { parse } from '../../../orm/src/parser/parser';
+import type { SchemaAST } from '../../../orm/src/types';
 import { WorkspaceIndexer } from '../../server/src/indexer';
 
 /** Absolute path to the fixtures directory */

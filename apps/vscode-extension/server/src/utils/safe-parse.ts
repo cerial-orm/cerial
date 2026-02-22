@@ -6,9 +6,9 @@
  * These wrappers guarantee no exceptions reach the language server.
  */
 
-import { parse } from '../../../../src/parser';
-import { tokenize } from '../../../../src/parser/tokenizer';
-import type { ParseResult, SchemaAST, Token } from '../../../../src/types';
+import { parse } from '../../../../orm/src/parser/parser';
+import { tokenize } from '../../../../orm/src/parser/tokenizer';
+import type { ParseResult, SchemaAST, Token } from '../../../../orm/src/types';
 
 const EMPTY_AST: SchemaAST = {
   models: [],

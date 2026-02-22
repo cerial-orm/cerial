@@ -21,10 +21,10 @@ import {
 } from 'vscode-languageserver/node';
 
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import type { FormatConfig } from '../../../src/formatter/types';
+import type { FormatConfig } from '../../../orm/src/formatter/types';
 // IMPORTANT: Import parse from parser.ts directly, NOT the barrel (src/parser/index.ts),
 // because the barrel re-exports file-reader.ts which imports Bun.file() and Bun.Glob.
-import { parse } from '../../../src/parser/parser';
+import { parse } from '../../../orm/src/parser/parser';
 import { WorkspaceIndexer } from './indexer';
 import { registerCodeActionsProvider } from './providers/code-actions';
 import { registerColorProvider } from './providers/color-decorators';

@@ -7,7 +7,7 @@
 
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import type { CerialConfig } from '../../../src/cli/config/types';
+import type { CerialConfig } from '../../../orm/src/cli/config/types';
 
 /** Config file names in priority order */
 const CONFIG_FILE_NAMES = ['cerial.config.json', 'cerial.config.ts'] as const;
