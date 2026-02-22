@@ -173,10 +173,10 @@
           "default": true,
           "markdownDescription": "Show inferred FK type hints on Record fields (e.g., `: CerialId<number>`)."
         },
-        "cerial.inlayHints.serverSetFields": {
+        "cerial.inlayHints.behaviorHints": {
           "type": "boolean",
           "default": true,
-          "markdownDescription": "Show behavioral hints for server-set fields (`auto-generated`, `server-set`, `computed`, `resets on write`)."
+          "markdownDescription": "Show behavioral hints for fields with automatic behavior (`auto-generated`, `computed`, `sets on create`, `resets on update`)."
         },
         "cerial.inlayHints.inheritedFields": {
           "type": "boolean",

@@ -4,10 +4,11 @@
  * Shows inline hints for non-obvious field behaviors:
  * - FK Record fields: inferred type from target model's @id (e.g., `: CerialId<number>`)
  * - @uuid/@uuid4/@uuid7 fields: "auto-generated"
- * - @createdAt/@updatedAt fields: "server-set"
+ * - @createdAt/@updatedAt fields: "auto-generated"
  * - @now fields: "computed"
  * - Inherited fields (extends overrides): "from ParentName"
- * - @defaultAlways fields: "resets on write"
+ * - @defaultAlways fields: "resets on update"
+ * - @default fields: "sets on create"
  */
 
 import { type Connection, type InlayHint, InlayHintKind, type TextDocuments } from 'vscode-languageserver';
@@ -180,9 +181,10 @@ function generateFkHints(
  * Generate behavioral hints derived from field decorators.
  *
  * - @uuid / @uuid4 / @uuid7 → `auto-generated` (before field name)
- * - @createdAt / @updatedAt → `server-set` (before field name)
+ * - @createdAt / @updatedAt → `auto-generated` (before field name)
  * - @now → `computed` (before field name)
- * - @defaultAlways → `resets on write` (after decorator)
+ * - @defaultAlways → `resets on update` (after decorator)
+ * - @default → `sets on create` (after decorator)
  */
 function generateDecoratorHints(fields: readonly ASTField[]): InlayHint[] {
   const hints: InlayHint[] = [];
@@ -200,11 +202,11 @@ function generateDecoratorHints(fields: readonly ASTField[]): InlayHint[] {
       });
     }
 
-    // @createdAt / @updatedAt → server-set
+    // @createdAt / @updatedAt → auto-generated
     if (hasDecorator(field, 'createdAt') || hasDecorator(field, 'updatedAt')) {
       hints.push({
         position: startPos,
-        label: 'server-set',
+        label: 'auto-generated',
         kind: InlayHintKind.Parameter,
         paddingRight: true,
       });
@@ -220,12 +222,23 @@ function generateDecoratorHints(fields: readonly ASTField[]): InlayHint[] {
       });
     }
 
-    // @defaultAlways → resets on write (after the decorator)
+    // @defaultAlways → resets on update (after the decorator)
     const defaultAlwaysDec = getDecorator(field, 'defaultAlways');
     if (defaultAlwaysDec) {
       hints.push({
         position: cerialToLsp(defaultAlwaysDec.range.end),
-        label: 'resets on write',
+        label: 'resets on update',
+        kind: InlayHintKind.Parameter,
+        paddingLeft: true,
+      });
+    }
+
+    // @default → sets on create (after the decorator)
+    const defaultDec = getDecorator(field, 'default');
+    if (defaultDec) {
+      hints.push({
+        position: cerialToLsp(defaultDec.range.end),
+        label: 'sets on create',
         kind: InlayHintKind.Parameter,
         paddingLeft: true,
       });
@@ -307,7 +320,7 @@ export function registerInlayHintsProvider(
       }
 
       // Decorator behavioral hints
-      if (hintSettings.serverSetFields) {
+      if (hintSettings.behaviorHints) {
         hints.push(...generateDecoratorHints(model.fields));
       }
 
@@ -323,7 +336,7 @@ export function registerInlayHintsProvider(
     // ── Objects ──────────────────────────────────────────────────────────
     for (const obj of ast.objects) {
       // Decorator behavioral hints (objects support @createdAt, @updatedAt, @defaultAlways)
-      if (hintSettings.serverSetFields) {
+      if (hintSettings.behaviorHints) {
         hints.push(...generateDecoratorHints(obj.fields));
       }
 

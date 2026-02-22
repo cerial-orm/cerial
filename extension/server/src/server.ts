@@ -55,7 +55,7 @@ export interface CerialSettings {
   inlayHints: {
     enabled: boolean;
     inferredTypes: boolean;
-    serverSetFields: boolean;
+    behaviorHints: boolean;
     inheritedFields: boolean;
   };
   trace: {
@@ -82,7 +82,7 @@ const defaultSettings: CerialSettings = {
   inlayHints: {
     enabled: true,
     inferredTypes: true,
-    serverSetFields: true,
+    behaviorHints: true,
     inheritedFields: true,
   },
   trace: {
@@ -186,7 +186,7 @@ async function fetchSettings(): Promise<void> {
         inlayHints: {
           enabled: raw.inlayHints?.enabled ?? defaultSettings.inlayHints.enabled,
           inferredTypes: raw.inlayHints?.inferredTypes ?? defaultSettings.inlayHints.inferredTypes,
-          serverSetFields: raw.inlayHints?.serverSetFields ?? defaultSettings.inlayHints.serverSetFields,
+          behaviorHints: raw.inlayHints?.behaviorHints ?? defaultSettings.inlayHints.behaviorHints,
           inheritedFields: raw.inlayHints?.inheritedFields ?? defaultSettings.inlayHints.inheritedFields,
         },
         trace: {
@@ -343,7 +343,7 @@ async function handleConfigReload(): Promise<void> {
 
 documents.onDidChangeContent((change) => {
   const uri = change.document.uri;
-  if (!uri.endsWith('.cerial')) return;
+  if (!uri.endsWith('.cerial') && change.document.languageId !== 'cerial') return;
 
   // Debounce: wait 300ms after last keystroke before reindexing
   const existing = debounceTimers.get(uri);
@@ -425,7 +425,7 @@ registerLinksProvider(connection, documents, indexer);
 // Register code actions (quick fixes for diagnostics).
 registerCodeActionsProvider(connection, documents, indexer);
 
-// Register inlay hints (FK type inference, auto-generated, server-set, computed, inheritance).
+// Register inlay hints (FK type inference, auto-generated, computed, sets on create, resets on update, inheritance).
 registerInlayHintsProvider(connection, documents, indexer, getSettings);
 
 // ── Start ─────────────────────────────────────────────────────────────────

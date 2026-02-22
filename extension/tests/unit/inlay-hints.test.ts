@@ -283,7 +283,7 @@ describe('Inlay Hints Logic', () => {
       expect(hasDecorator(field, 'uuid7')).toBe(true);
     });
 
-    test('@createdAt field detected for server-set hint', () => {
+    test('@createdAt field detected for auto-generated hint', () => {
       const source = 'model User {\n  id Record @id\n  createdAt Date @createdAt\n}';
       const { ast } = parse(source);
 
@@ -292,7 +292,7 @@ describe('Inlay Hints Logic', () => {
       expect(hasDecorator(field, 'createdAt')).toBe(true);
     });
 
-    test('@updatedAt field detected for server-set hint', () => {
+    test('@updatedAt field detected for auto-generated hint', () => {
       const source = 'model User {\n  id Record @id\n  updatedAt Date @updatedAt\n}';
       const { ast } = parse(source);
 
@@ -310,7 +310,7 @@ describe('Inlay Hints Logic', () => {
       expect(hasDecorator(field, 'now')).toBe(true);
     });
 
-    test('@defaultAlways field detected for resets-on-write hint', () => {
+    test('@defaultAlways field detected for resets-on-update hint', () => {
       const source = 'model User {\n  id Record @id\n  version Int @defaultAlways(1)\n}';
       const { ast } = parse(source);
 
@@ -321,6 +321,19 @@ describe('Inlay Hints Logic', () => {
       const daDec = field.decorators.find((d) => d.type === 'defaultAlways')!;
 
       expect(daDec.range).toBeDefined();
+    });
+
+    test('@default field detected for sets-on-create hint', () => {
+      const source = 'model User {\n  id Record @id\n  name String @default("Guest")\n}';
+      const { ast } = parse(source);
+
+      const field = ast.models[0]!.fields.find((f) => f.name === 'name')!;
+
+      expect(hasDecorator(field, 'default')).toBe(true);
+
+      const dec = field.decorators.find((d) => d.type === 'default')!;
+
+      expect(dec.range).toBeDefined();
     });
   });
 
@@ -380,7 +393,7 @@ describe('Inlay Hints Logic', () => {
         inlayHints: {
           enabled: false,
           inferredTypes: true,
-          serverSetFields: true,
+          behaviorHints: true,
           inheritedFields: true,
         },
       };
@@ -397,7 +410,7 @@ describe('Inlay Hints Logic', () => {
         inlayHints: {
           enabled: true,
           inferredTypes: false,
-          serverSetFields: true,
+          behaviorHints: true,
           inheritedFields: true,
         },
       };
@@ -405,17 +418,17 @@ describe('Inlay Hints Logic', () => {
       expect(settings.inlayHints.inferredTypes).toBe(false);
     });
 
-    test('serverSetFields disabled skips decorator hints', () => {
+    test('behaviorHints disabled skips decorator hints', () => {
       const settings = {
         inlayHints: {
           enabled: true,
           inferredTypes: true,
-          serverSetFields: false,
+          behaviorHints: false,
           inheritedFields: true,
         },
       };
 
-      expect(settings.inlayHints.serverSetFields).toBe(false);
+      expect(settings.inlayHints.behaviorHints).toBe(false);
     });
 
     test('inheritedFields disabled skips inheritance hints', () => {
@@ -423,7 +436,7 @@ describe('Inlay Hints Logic', () => {
         inlayHints: {
           enabled: true,
           inferredTypes: true,
-          serverSetFields: true,
+          behaviorHints: true,
           inheritedFields: false,
         },
       };
