@@ -20,7 +20,8 @@
  *   9: model Employee {
  *  10:   id Record @id
  *  ...
- *  17: }
+ *  17:   leadOf Relation[] @model(Project) @key(lead)
+ *  18: }
  *
  * multi-file-b.cerial:
  *   0: # comment
@@ -38,9 +39,9 @@
  *  12:   status ProjectStatus
  *  13:   budget Budget?
  *  14:   leadId Record
- *  15:   lead Relation @field(leadId) @model(Employee)
+ *  15:   lead Relation @field(leadId) @model(Employee) @key(lead)
  *  16:   memberIds Record[]
- *  17:   members Relation[] @field(memberIds) @model(Employee)
+ *  17:   members Relation[] @field(memberIds) @model(Employee) @key(projects)
  *  18: }
  */
 

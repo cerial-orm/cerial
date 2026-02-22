@@ -14,5 +14,6 @@ model Employee {
   contact ContactInfo
   managerId Record?
   manager Relation? @field(managerId) @model(Employee)
-  projects Relation[] @model(Project)
+  projects Relation[] @model(Project) @key(projects)
+  leadOf Relation[] @model(Project) @key(lead)
 }

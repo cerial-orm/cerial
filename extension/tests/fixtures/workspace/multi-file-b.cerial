@@ -13,7 +13,7 @@ model Project {
   status ProjectStatus
   budget Budget?
   leadId Record
-  lead Relation @field(leadId) @model(Employee)
+  lead Relation @field(leadId) @model(Employee) @key(lead)
   memberIds Record[]
-  members Relation[] @field(memberIds) @model(Employee)
+  members Relation[] @field(memberIds) @model(Employee) @key(projects)
 }
