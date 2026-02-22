@@ -90,8 +90,8 @@ suite('Symbols', () => {
     const userSymbol = symbols.find((s) => s.name === 'User');
     assert.ok(userSymbol, 'Should find User model');
 
-    const fieldSymbols = userSymbol.children.filter((c) => c.kind === vscode.SymbolKind.Property);
-    assert.ok(fieldSymbols.length > 0, 'Fields should have Property kind');
+    const fieldSymbols = userSymbol.children.filter((c) => c.kind === vscode.SymbolKind.Field);
+    assert.ok(fieldSymbols.length > 0, 'Fields should have Field kind');
   });
 
   // ── Workspace Symbols ──────────────────────────────────────────────────

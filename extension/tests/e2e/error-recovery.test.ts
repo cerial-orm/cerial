@@ -172,12 +172,11 @@ suite('Error Recovery E2E', () => {
       const errorDiags = await waitForDiagnostics(errorDoc.uri);
       assert.ok(errorDiags.length > 0, 'Error file should have diagnostics');
 
-      // Open valid file
+      // Open valid file — diagnostics refresh may clear and re-pull
       await openDocument('simple-model.cerial');
-      await sleep(1000);
-
-      // Error file should still have diagnostics
-      const persistedDiags = vscode.languages.getDiagnostics(errorDoc.uri);
+      // Re-show error file — pull diagnostics only re-pull for visible documents
+      await vscode.window.showTextDocument(errorDoc);
+      const persistedDiags = await waitForDiagnostics(errorDoc.uri);
       assert.ok(persistedDiags.length > 0, 'Error file diagnostics should persist after opening a valid file');
       assertExtensionActive();
     });
