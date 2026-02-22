@@ -169,6 +169,47 @@ All settings live under the `cerial.*` namespace.
 
 Format on save is enabled by default for `.cerial` files. Tweak formatting preferences through the settings above.
 
+## Development
+
+### Building
+
+```bash
+cd extension
+bun install              # Install dependencies
+bun run build            # Production build (esbuild)
+bun run build:dev        # Development build
+bun run watch            # Watch mode with auto-rebuild
+```
+
+### Testing
+
+The extension has a 4-layer test architecture:
+
+| Layer | Runner | Command | Count |
+|-------|--------|---------|-------|
+| Unit tests | bun test | `bun run test:unit` | 432 tests |
+| Grammar snapshots | bun test | `bun run test:grammar` | 165 tests |
+| Integration tests | Mocha + VS Code | `bun run test:integration` | 7 suites |
+| E2E tests | Mocha + VS Code | `bun run test:e2e` | 4 suites |
+
+```bash
+cd extension
+bun run test              # Unit + grammar tests (no VS Code needed)
+bun run test:unit         # Unit tests only
+bun run test:grammar      # Grammar snapshot tests only
+bun run test:integration  # Integration tests (launches VS Code)
+bun run test:e2e          # E2E tests (launches VS Code)
+```
+
+Integration and E2E tests require a VS Code instance and run via `@vscode/test-electron`. Unit and grammar tests run directly with bun — no VS Code needed.
+
+### Packaging
+
+```bash
+cd extension
+bun run package           # Create .vsix package
+```
+
 ## Known Limitations
 
 - No migration preview or diff view

@@ -355,6 +355,13 @@ Do NOT use SurrealDB reserved keywords as field names, model names, or object na
 7. Run type check: `bunx tsc --noEmit`
 8. Update documentation in `docs/`
 9. Update the formatter to handle the new construct in `src/formatter/printer.ts` (or `inline-printer.ts`), add formatting tests, and verify idempotency
+10. **Update the VS Code extension** if the feature adds or changes schema syntax:
+    - If new keyword/block type: update TextMate grammar (`extension/syntaxes/cerial.tmLanguage.json`)
+    - If new field type: update completion provider (`extension/server/src/providers/completion.ts`), hover docs (`extension/server/src/data/hover-docs.ts`), and semantic tokens
+    - If new decorator: update completion provider (decorator list + context filtering), hover docs, and code actions if applicable
+    - If new validator: update diagnostics provider (`extension/server/src/providers/diagnostics.ts`) to surface the new errors
+    - Run extension tests: `cd extension && bun run test`
+    - Rebuild extension: `cd extension && bun run build`
 
 ### When Adding a New Operator
 
@@ -364,6 +371,8 @@ Do NOT use SurrealDB reserved keywords as field names, model names, or object na
 4. Add unit tests
 5. Add E2E tests
 6. Update `docs/filtering/` page
+7. Update the VS Code extension if the operator introduces new syntax or keywords:
+    - Run `cd extension && bun run test` to verify no regressions
 
 ### When Adding a New Field Type
 
@@ -372,6 +381,12 @@ Do NOT use SurrealDB reserved keywords as field names, model names, or object na
 3. Update type mappings in generators and validators
 4. Add tests
 5. Update `docs/schema/field-types.md`
+6. Update the VS Code extension:
+   - Add the type to completion suggestions in `extension/server/src/providers/completion.ts`
+   - Add hover documentation in `extension/server/src/data/hover-docs.ts`
+   - Verify TextMate grammar highlights the new type (`extension/syntaxes/cerial.tmLanguage.json`)
+   - Add extension unit tests for the new type
+   - Run `cd extension && bun run test`
 
 ### When Adding a New Decorator
 
@@ -380,6 +395,13 @@ Do NOT use SurrealDB reserved keywords as field names, model names, or object na
 3. Update migration generator if it affects DB schema
 4. Add tests
 5. Add page in `docs/schema/decorators/`
+6. Update the VS Code extension:
+   - Add the decorator to completion suggestions in `extension/server/src/providers/completion.ts`
+   - Add hover documentation in `extension/server/src/data/hover-docs.ts`
+   - Verify TextMate grammar highlights the new decorator (`extension/syntaxes/cerial.tmLanguage.json`)
+   - Update code actions if the decorator has common misuse patterns (`extension/server/src/providers/code-actions.ts`)
+   - Add extension unit tests for the new decorator
+   - Run `cd extension && bun run test`
 
 ## Key Concepts (Quick Reference)
 
