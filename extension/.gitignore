@@ -1,3 +1,5 @@
 *.vsix
 node_modules/
 .vscode-test
+
+tests/fixtures/real-test/

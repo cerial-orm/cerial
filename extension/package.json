@@ -207,6 +207,8 @@
     "test:integration": "bun run build && bun run compile:tests && vscode-test --label integrationTests",
     "test:e2e": "bun run build && bun run compile:tests && vscode-test --label e2eTests",
     "package": "vsce package --no-dependencies",
+    "package:latest": "vsce package --no-dependencies --out cerial-latest.vsix",
+    "dev:cursor": "bun run package:latest && cursor --install-extension cerial-latest.vsix && echo 'Installed! Reload Window: Cmd+Shift+P > Reload Window'",
     "publish:vsce": "vsce publish --no-dependencies",
     "vscode:prepublish": "bun run build"
   },
