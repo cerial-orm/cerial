@@ -110,6 +110,25 @@ function computeOffset(source: string, line: number, character: number): number 
 }
 
 /**
+ * Compute the byte offset for a cerial SourcePosition (1-indexed line, 0-indexed column).
+ */
+function cerialPosToOffset(content: string, pos: { line: number; column: number }): number {
+  return computeOffset(content, pos.line - 1, pos.column);
+}
+
+/**
+ * Compute the byte offset for the end of the line containing a cerial SourcePosition.
+ * Since field range end columns use trimmed line length (excluding leading whitespace),
+ * this ensures we search the full line content.
+ */
+function endOfLineOffset(content: string, pos: { line: number; column: number }): number {
+  const lineStart = computeOffset(content, pos.line - 1, 0);
+  const nextNewline = content.indexOf('\n', lineStart);
+
+  return nextNewline === -1 ? content.length : nextNewline;
+}
+
+/**
  * Convert a byte offset to a 0-indexed LSP position.
  */
 function offsetToLspPosition(source: string, offset: number): { line: number; character: number } {
@@ -287,8 +306,8 @@ function addDeclarationEdits(
   const def = findTypeDefinition(ast, oldName);
   if (!def) return;
 
-  const endOff = headerEndOffset(content, def.range.start.offset);
-  const range = findNameRangeInSource(content, oldName, def.range.start.offset, endOff);
+  const endOff = headerEndOffset(content, cerialPosToOffset(content, def.range.start));
+  const range = findNameRangeInSource(content, oldName, cerialPosToOffset(content, def.range.start), endOff);
   if (range) {
     addEdit(edits, uri, range, newName);
   }
@@ -315,8 +334,8 @@ function addFieldTypeEdits(
       // Field type reference (objectName, tupleName, literalName — enums use literalName)
       if (field.objectName === oldName || field.tupleName === oldName || field.literalName === oldName) {
         // Search after the field name to avoid matching the field name itself
-        const searchFrom = field.range.start.offset + field.name.length;
-        const range = findNameRangeInSource(content, oldName, searchFrom, field.range.end.offset);
+        const searchFrom = cerialPosToOffset(content, field.range.start) + field.name.length;
+        const range = findNameRangeInSource(content, oldName, searchFrom, endOfLineOffset(content, field.range.end));
         if (range) {
           addEdit(edits, uri, range, newName);
         }
@@ -328,8 +347,8 @@ function addFieldTypeEdits(
           const range = findNameRangeInSource(
             content,
             oldName,
-            decorator.range.start.offset,
-            decorator.range.end.offset,
+            cerialPosToOffset(content, decorator.range.start),
+            endOfLineOffset(content, decorator.range.end),
           );
           if (range) {
             addEdit(edits, uri, range, newName);
@@ -339,8 +358,8 @@ function addFieldTypeEdits(
 
       // Record(TypeName) in recordIdTypes
       if (field.recordIdTypes?.includes(oldName)) {
-        const searchFrom = field.range.start.offset + field.name.length;
-        const range = findNameRangeInSource(content, oldName, searchFrom, field.range.end.offset);
+        const searchFrom = cerialPosToOffset(content, field.range.start) + field.name.length;
+        const range = findNameRangeInSource(content, oldName, searchFrom, endOfLineOffset(content, field.range.end));
         if (range) {
           addEdit(edits, uri, range, newName);
         }
@@ -366,8 +385,8 @@ function addExtendsEdits(
   for (const block of allBlocks) {
     if (block.extends !== oldName) continue;
 
-    const endOff = headerEndOffset(content, block.range.start.offset);
-    const range = findNameRangeInSource(content, oldName, block.range.start.offset, endOff);
+    const endOff = headerEndOffset(content, cerialPosToOffset(content, block.range.start));
+    const range = findNameRangeInSource(content, oldName, cerialPosToOffset(content, block.range.start), endOff);
     if (range) {
       addEdit(edits, uri, range, newName);
     }
@@ -393,10 +412,10 @@ function addTupleElementEdits(
     if (!hasRef) continue;
 
     // Search within the body (after '{') to avoid matching the tuple's own name
-    const braceOffset = content.indexOf('{', tuple.range.start.offset);
+    const braceOffset = content.indexOf('{', cerialPosToOffset(content, tuple.range.start));
     if (braceOffset === -1) continue;
 
-    const ranges = findAllNameRangesInSource(content, oldName, braceOffset + 1, tuple.range.end.offset);
+    const ranges = findAllNameRangesInSource(content, oldName, braceOffset + 1, cerialPosToOffset(content, tuple.range.end));
     for (const range of ranges) {
       addEdit(edits, uri, range, newName);
     }
@@ -426,10 +445,10 @@ function addLiteralVariantEdits(
     if (!hasRef) continue;
 
     // Search within the body (after '{')
-    const braceOffset = content.indexOf('{', literal.range.start.offset);
+    const braceOffset = content.indexOf('{', cerialPosToOffset(content, literal.range.start));
     if (braceOffset === -1) continue;
 
-    const ranges = findAllNameRangesInSource(content, oldName, braceOffset + 1, literal.range.end.offset);
+    const ranges = findAllNameRangesInSource(content, oldName, braceOffset + 1, cerialPosToOffset(content, literal.range.end));
     for (const range of ranges) {
       addEdit(edits, uri, range, newName);
     }
@@ -514,8 +533,8 @@ function collectFieldRenameEdits(
           const range = findNameRangeInSource(
             content,
             oldName,
-            field.range.start.offset,
-            field.range.start.offset + oldName.length + 1,
+            cerialPosToOffset(content, field.range.start),
+            cerialPosToOffset(content, field.range.start) + oldName.length + 1,
           );
           if (range) {
             addEdit(edits, uri, range, newName);
@@ -528,8 +547,8 @@ function collectFieldRenameEdits(
             const range = findNameRangeInSource(
               content,
               oldName,
-              decorator.range.start.offset,
-              decorator.range.end.offset,
+              cerialPosToOffset(content, decorator.range.start),
+              endOfLineOffset(content, decorator.range.end),
             );
             if (range) {
               addEdit(edits, uri, range, newName);
