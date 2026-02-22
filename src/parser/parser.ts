@@ -566,7 +566,7 @@ function parseTuple(state: ParserState): ASTTuple | null {
     if (afterBrace.endsWith('}')) {
       const content = afterBrace.slice(0, -1).trim();
       const elements = parseTupleElements(content, tupleName, state);
-      const range = createRange(createPosition(startLine + 1, 0, 0), createPosition(state.currentLine, 0, 0));
+      const range = createRange(createPosition(startLine + 1, 0, 0), createPosition(startLine + 1, line.length, 0));
 
       return createTuple(tupleName, elements, range, extendsInfo.extends_, extendsInfo.extendsFilter);
     }
@@ -786,7 +786,7 @@ function parseLiteral(state: ParserState): ASTLiteral | null {
     if (afterBrace.endsWith('}')) {
       const content = afterBrace.slice(0, -1).trim();
       const variants = parseLiteralVariants(content, litName, state);
-      const range = createRange(createPosition(startLine + 1, 0, 0), createPosition(state.currentLine, 0, 0));
+      const range = createRange(createPosition(startLine + 1, 0, 0), createPosition(startLine + 1, line.length, 0));
 
       return createLiteral(litName, variants, range, extendsInfo.extends_, extendsInfo.extendsFilter);
     }
@@ -945,7 +945,7 @@ function parseEnum(state: ParserState): ASTEnum | null {
     if (afterBrace.endsWith('}')) {
       const content = afterBrace.slice(0, -1).trim();
       const values = parseEnumValues(content, enumName, state);
-      const range = createRange(createPosition(startLine + 1, 0, 0), createPosition(state.currentLine, 0, 0));
+      const range = createRange(createPosition(startLine + 1, 0, 0), createPosition(startLine + 1, line.length, 0));
 
       return createEnum(enumName, values, range, extendsInfo.extends_, extendsInfo.extendsFilter);
     }
