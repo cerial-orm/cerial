@@ -4,7 +4,7 @@
   "description": "Language support for .cerial schema files",
   "version": "0.0.1",
   "publisher": "cerial",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "icon": "icons/cerial-icon.png",
   "engines": {
     "vscode": "^1.96.0"

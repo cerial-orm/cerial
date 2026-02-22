@@ -179,4 +179,4 @@ Full documentation is available at the [Cerial Docs](docs/) site, covering:
 
 ## License
 
-MIT
+Apache 2.0 - See [LICENSE](LICENSE) for details.

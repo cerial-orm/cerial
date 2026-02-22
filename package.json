@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "module": "index.ts",
   "type": "module",
+  "license": "Apache-2.0",
   "bin": {
     "cerial": "./bin/cerial.ts"
   },
