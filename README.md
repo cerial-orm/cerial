@@ -172,6 +172,10 @@ Full documentation is available at the [Cerial Docs](docs/) site, covering:
 - [Init Command](docs/cli/init.md) - Auto-generate config with `cerial init`
 - [Connection](docs/connection/) - Client setup, connection config, migrations
 
+## Project Structure
+
+This repository is a Bun workspace monorepo. The ORM package lives in [`apps/orm/`](apps/orm/) and the VS Code extension in [`apps/vscode-extension/`](apps/vscode-extension/).
+
 ## Requirements
 
 - [Bun](https://bun.sh/) runtime

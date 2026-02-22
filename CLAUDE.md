@@ -4,10 +4,13 @@ A Prisma-like ORM for SurrealDB. Runtime: **Bun**. Language: **TypeScript**.
 
 ## Commands
 
+All ORM commands run from `apps/orm/`:
+
 ```bash
+# ORM (run from apps/orm/)
 bun install                                              # Install dependencies
 bun test                                                 # Run all tests
-bun test tests/e2e/ --preload ./tests/e2e/preload.ts     # E2E tests (requires SurrealDB running)
+bun test apps/orm/tests/e2e/ --preload apps/orm/tests/e2e/preload.ts  # E2E tests (from repo root, requires SurrealDB running)
 bun run typecheck                                        # Type check generated types (ts-toolbelt)
 bunx tsc --noEmit                                        # Full TypeScript check
 bun run generate:test-client                            # Generate test client from schema
@@ -19,112 +22,131 @@ bunx cerial format -s ./schemas                         # Format schema files
 bunx cerial format --check                              # Check mode (CI)
 bunx cerial format --watch -s ./schemas                 # Watch mode
 bunx cerial generate --watch --format                   # Generate with auto-format
+
+# VS Code extension (from repo root)
+cd apps/vscode-extension && bun run test                 # Run extension tests
+cd apps/vscode-extension && bun run build                # Build the extension
 ```
 
 ## Project Structure
 
 ```
 cerial/
-├── bin/cerial.ts                    # CLI entry point
-├── src/
-│   ├── cli/                         # CLI commands, validators, schema resolution, config
-│   │   ├── commands/                #   Command registry (generate, init)
-│   │   ├── config/                  #   Config types, loader, resolver, validator, defineConfig
-│   │   ├── resolvers/               #   Schema resolution, convention markers
-│   │   ├── validators/              #   CLI option + schema validators
-│   │   └── watcher.ts               #   File watcher with per-schema isolation
-│   ├── formatter/                   # .cerial file formatter
-│   │   ├── aligner.ts               #   Column alignment logic
-│   │   ├── comment-attacher.ts      #   Comment token attachment
-│   │   ├── formatter.ts             #   Core formatCerialSource() function
-│   │   ├── inline-printer.ts        #   Enum/literal/tuple printer
-│   │   ├── printer.ts               #   Model/object block printer
-│   │   ├── rules.ts                 #   Decorator ordering, config resolution
-│   │   └── types.ts                 #   FormatConfig, FormatResult types
-│   ├── client/                      # Runtime client, Model class, Proxy factory
-│   ├── connection/                  # Connection manager, config types
-│   ├── generators/                  # Code generation from AST
-│   │   ├── client/                  #   Client template + writer
-│   │   ├── metadata/               #   Model registry generator
-│   │   ├── migrations/             #   DEFINE TABLE/FIELD/INDEX generator
-│   │   └── types/                  #   Interface, derived, where, method, enum generators
-│   │       └── enums/              #     Enum type name helpers + generators
-│   ├── parser/                      # Schema lexer, tokenizer, parser → AST
-│   │   └── types/                  #   Field types, decorators, constraints parsers
-│   ├── resolver/                    # Inheritance resolution phase
-│   │   ├── filter.ts                #   Pick/omit field filtering
-│   │   ├── inheritance-resolver.ts  #   Topological sort + field merging
-│   │   └── index.ts                 #   Barrel exports
-│   ├── query/                       # Query building + execution
-│   │   ├── builders/               #   Select, insert, update, delete, nested, relation builders
-│   │   ├── compile/                #   Query fragments, variable allocator
-│   │   ├── filters/                #   Operator handlers (comparison, string, array, logical, special)
-│   │   ├── mappers/                #   Result mapper (RecordId → CerialId)
-│   │   ├── transformers/           #   Data transformer (RecordIdInput → RecordId, defaults)
-│   │   └── validators/             #   Data + where validation
-│   ├── types/                       # Shared TS types (metadata, query, utility, AST)
-│   ├── utils/                       # CerialId, string/array/type/validation utils
-│   └── main.ts                      # Main exports
-├── tests/
-│   ├── unit/                        # Unit tests (no DB)
-│   ├── integration/                 # Integration tests (DB required)
-│   ├── e2e/                         # End-to-end tests
-│   │   ├── schemas/                 #   49 .cerial test schemas (organized by feature)
-│   │   │   ├── core/               #     Core model schemas
-│   │   │   ├── relations/          #     Relation schemas
-│   │   │   ├── decorators/         #     Decorator schemas
-│   │   │   ├── complex-types/      #     Object/tuple/literal/enum schemas
-│   │   │   ├── data-types/         #     UUID/number/duration/etc schemas
-│   │   │   └── features/           #     Typed-ids, unset, etc schemas
-│   │   ├── generated/               #   Generated client (gitignored)
-│   │   ├── core/                    #   Core CRUD, select, include, findAll, introspection tests (8 files)
-│   │   ├── relations/               #   Relation E2E tests (89 files)
-│   │   ├── decorators/              #   Decorator E2E tests (43 files)
-│   │   ├── complex-types/           #   Object/tuple/literal/enum tests (46 files)
-│   │   ├── data-types/              #   UUID/number/duration/decimal/bytes/geometry/any tests (37 files)
-│   │   ├── features/                #   Typed-ids, unset, transactions, on-before-query, pagination tests (35 files)
-│   │   ├── negative/                #   Cross-cutting error/validation tests (5 files)
-│   │   ├── typechecks/              #   36 compile-time type checks (6 subdirectories)
-│   │   ├── multi-schema/            #   Multi-schema E2E tests (4 files)
-│   │   ├── preload.ts               #   Generates client before tests
-│   │   └── test-helper.ts           #   Shared test infrastructure
-│   └── generators/                  # Generator tests
-├── docs/                            # GitHub Pages documentation (Jekyll + just-the-docs)
-├── package.json
-├── tsconfig.json
-└── index.ts                         # Re-exports main.ts
+├── apps/
+│   ├── orm/                         # ORM package (workspace member: cerial)
+│   │   ├── bin/cerial.ts            # CLI entry point
+│   │   ├── src/
+│   │   │   ├── cli/                         # CLI commands, validators, schema resolution, config
+│   │   │   │   ├── commands/                #   Command registry (generate, init)
+│   │   │   │   ├── config/                  #   Config types, loader, resolver, validator, defineConfig
+│   │   │   │   ├── resolvers/               #   Schema resolution, convention markers
+│   │   │   │   ├── validators/              #   CLI option + schema validators
+│   │   │   │   └── watcher.ts               #   File watcher with per-schema isolation
+│   │   │   ├── formatter/                   # .cerial file formatter
+│   │   │   │   ├── aligner.ts               #   Column alignment logic
+│   │   │   │   ├── comment-attacher.ts      #   Comment token attachment
+│   │   │   │   ├── formatter.ts             #   Core formatCerialSource() function
+│   │   │   │   ├── inline-printer.ts        #   Enum/literal/tuple printer
+│   │   │   │   ├── printer.ts               #   Model/object block printer
+│   │   │   │   ├── rules.ts                 #   Decorator ordering, config resolution
+│   │   │   │   └── types.ts                 #   FormatConfig, FormatResult types
+│   │   │   ├── client/                      # Runtime client, Model class, Proxy factory
+│   │   │   ├── connection/                  # Connection manager, config types
+│   │   │   ├── generators/                  # Code generation from AST
+│   │   │   │   ├── client/                  #   Client template + writer
+│   │   │   │   ├── metadata/               #   Model registry generator
+│   │   │   │   ├── migrations/             #   DEFINE TABLE/FIELD/INDEX generator
+│   │   │   │   └── types/                  #   Interface, derived, where, method, enum generators
+│   │   │   │       └── enums/              #     Enum type name helpers + generators
+│   │   │   ├── parser/                      # Schema lexer, tokenizer, parser → AST
+│   │   │   │   └── types/                  #   Field types, decorators, constraints parsers
+│   │   │   ├── resolver/                    # Inheritance resolution phase
+│   │   │   │   ├── filter.ts                #   Pick/omit field filtering
+│   │   │   │   ├── inheritance-resolver.ts  #   Topological sort + field merging
+│   │   │   │   └── index.ts                 #   Barrel exports
+│   │   │   ├── query/                       # Query building + execution
+│   │   │   │   ├── builders/               #   Select, insert, update, delete, nested, relation builders
+│   │   │   │   ├── compile/                #   Query fragments, variable allocator
+│   │   │   │   ├── filters/                #   Operator handlers (comparison, string, array, logical, special)
+│   │   │   │   ├── mappers/                #   Result mapper (RecordId → CerialId)
+│   │   │   │   ├── transformers/           #   Data transformer (RecordIdInput → RecordId, defaults)
+│   │   │   │   └── validators/             #   Data + where validation
+│   │   │   ├── types/                       # Shared TS types (metadata, query, utility, AST)
+│   │   │   ├── utils/                       # CerialId, string/array/type/validation utils
+│   │   │   └── main.ts                      # Main exports
+│   │   ├── tests/
+│   │   │   ├── unit/                        # Unit tests (no DB)
+│   │   │   ├── integration/                 # Integration tests (DB required)
+│   │   │   ├── e2e/                         # End-to-end tests
+│   │   │   │   ├── schemas/                 #   49 .cerial test schemas (organized by feature)
+│   │   │   │   │   ├── core/               #     Core model schemas
+│   │   │   │   │   ├── relations/          #     Relation schemas
+│   │   │   │   │   ├── decorators/         #     Decorator schemas
+│   │   │   │   │   ├── complex-types/      #     Object/tuple/literal/enum schemas
+│   │   │   │   │   ├── data-types/         #     UUID/number/duration/etc schemas
+│   │   │   │   │   └── features/           #     Typed-ids, unset, etc schemas
+│   │   │   │   ├── generated/               #   Generated client (gitignored)
+│   │   │   │   ├── core/                    #   Core CRUD, select, include, findAll, introspection tests (8 files)
+│   │   │   │   ├── relations/               #   Relation E2E tests (89 files)
+│   │   │   │   ├── decorators/              #   Decorator E2E tests (43 files)
+│   │   │   │   ├── complex-types/           #   Object/tuple/literal/enum tests (46 files)
+│   │   │   │   ├── data-types/              #   UUID/number/duration/decimal/bytes/geometry/any tests (37 files)
+│   │   │   │   ├── features/                #   Typed-ids, unset, transactions, on-before-query, pagination tests (35 files)
+│   │   │   │   ├── negative/                #   Cross-cutting error/validation tests (5 files)
+│   │   │   │   ├── typechecks/              #   36 compile-time type checks (6 subdirectories)
+│   │   │   │   ├── multi-schema/            #   Multi-schema E2E tests (4 files)
+│   │   │   │   ├── preload.ts               #   Generates client before tests
+│   │   │   │   └── test-helper.ts           #   Shared test infrastructure
+│   │   │   └── generators/                  # Generator tests
+│   │   ├── index.ts                         # Re-exports main.ts
+│   │   ├── package.json                     # name: "cerial"
+│   │   └── tsconfig.json                    # extends ../../tsconfig.json
+│   └── vscode-extension/                    # VS Code extension (non-workspace member)
+│       ├── client/
+│       ├── server/src/
+│       ├── tests/
+│       ├── syntaxes/
+│       └── package.json                     # name: "cerial" (marketplace identity)
+├── libs/                                    # Shared packages scaffold (future)
+│   └── .gitkeep
+├── docs/                                    # GitHub Pages documentation (Jekyll + just-the-docs)
+├── .github/workflows/                       # CI/CD workflows
+├── package.json                             # Workspace root (@cerial/monorepo, private)
+├── tsconfig.json                            # Shared base TypeScript config
+├── biome.json                               # Shared formatter/linter
+└── LICENSE                                  # Apache 2.0
 ```
 
 ### Key Files
 
-| File                                          | Purpose                                                                                       |
-| --------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| `src/utils/cerial-id.ts`                      | `CerialId` class and `RecordIdInput` union type                                               |
-| `src/query/transformers/data-transformer.ts`  | Input transformation, `@default`/timestamp handling, NONE/null logic                          |
-| `src/query/mappers/result-mapper.ts`          | Output transformation (RecordId → CerialId)                                                   |
-| `src/query/builders/nested-builder.ts`        | Nested create/connect/disconnect in transactions                                              |
-| `src/generators/types/derived-generator.ts`   | Generates Select, OrderBy, GetPayload, Include types                                          |
-| `src/generators/types/interface-generator.ts` | Generates model/object interfaces                                                             |
-| `src/generators/types/where-generator.ts`     | Generates Where types with nested/object filtering                                            |
-| `src/generators/client/writer.ts`             | Writes client files, contains `ResolveFieldSelect` / `ApplyObjectSelect` / `ApplyTupleSelect` |
-| `src/cli/validators/relation-validator.ts`    | Validates relation rules (PK/non-PK, @key, @onDelete)                                         |
-| `src/query/filters/registry.ts`               | Operator handler registry                                                                     |
-| `src/generators/types/enums/name-helpers.ts`  | Enum/literal type name resolution (isEnum dispatch)                                           |
-| `src/generators/client/enum-writer.ts`        | Writes per-enum type files                                                                    |
-| `src/utils/cerial-uuid.ts`                    | `CerialUuid` class and `CerialUuidInput` union type                                           |
-| `src/utils/cerial-duration.ts`                | `CerialDuration` class and `CerialDurationInput` union type                                   |
-| `src/utils/cerial-decimal.ts`                 | `CerialDecimal` class with arithmetic, `CerialDecimalInput` union type                        |
-| `src/utils/cerial-bytes.ts`                   | `CerialBytes` class and `CerialBytesInput` union type                                         |
-| `src/utils/cerial-geometry.ts`                | `CerialGeometry` hierarchy (7 subtypes) and `CerialGeometryInput` union type                  |
-| `src/utils/cerial-any.ts`                     | `CerialAny` recursive union type                                                              |
-| `src/utils/cerial-set.ts`                     | `CerialSet<T>` branded array type                                                             |
-| `src/cli/config/types.ts`                     | `CerialConfig`, `SchemaEntry`, `ResolvedSchemaEntry` types                                    |
-| `src/cli/config/loader.ts`                    | Config file loader (`cerial.config.ts`/`.json`)                                               |
-| `src/cli/config/define-config.ts`             | `defineConfig()` identity helper for type-safe config                                         |
-| `src/cli/commands/init.ts`                    | `cerial init` interactive command                                                             |
-| `src/cli/watcher.ts`                          | File watcher with debounce and per-schema isolation                                           |
-| `src/formatter/formatter.ts`                  | Core `formatCerialSource()` function — validates, tokenizes, attaches comments, aligns, prints |
-| `src/client/cerial-transaction.ts`            | `CerialTransaction` class, transaction proxy factory                                          |
+| File                                                          | Purpose                                                                                       |
+| ------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `apps/orm/src/utils/cerial-id.ts`                            | `CerialId` class and `RecordIdInput` union type                                               |
+| `apps/orm/src/query/transformers/data-transformer.ts`        | Input transformation, `@default`/timestamp handling, NONE/null logic                          |
+| `apps/orm/src/query/mappers/result-mapper.ts`                | Output transformation (RecordId → CerialId)                                                   |
+| `apps/orm/src/query/builders/nested-builder.ts`              | Nested create/connect/disconnect in transactions                                              |
+| `apps/orm/src/generators/types/derived-generator.ts`         | Generates Select, OrderBy, GetPayload, Include types                                          |
+| `apps/orm/src/generators/types/interface-generator.ts`       | Generates model/object interfaces                                                             |
+| `apps/orm/src/generators/types/where-generator.ts`           | Generates Where types with nested/object filtering                                            |
+| `apps/orm/src/generators/client/writer.ts`                   | Writes client files, contains `ResolveFieldSelect` / `ApplyObjectSelect` / `ApplyTupleSelect` |
+| `apps/orm/src/cli/validators/relation-validator.ts`          | Validates relation rules (PK/non-PK, @key, @onDelete)                                         |
+| `apps/orm/src/query/filters/registry.ts`                     | Operator handler registry                                                                     |
+| `apps/orm/src/generators/types/enums/name-helpers.ts`        | Enum/literal type name resolution (isEnum dispatch)                                           |
+| `apps/orm/src/generators/client/enum-writer.ts`              | Writes per-enum type files                                                                    |
+| `apps/orm/src/utils/cerial-uuid.ts`                          | `CerialUuid` class and `CerialUuidInput` union type                                           |
+| `apps/orm/src/utils/cerial-duration.ts`                      | `CerialDuration` class and `CerialDurationInput` union type                                   |
+| `apps/orm/src/utils/cerial-decimal.ts`                       | `CerialDecimal` class with arithmetic, `CerialDecimalInput` union type                        |
+| `apps/orm/src/utils/cerial-bytes.ts`                         | `CerialBytes` class and `CerialBytesInput` union type                                         |
+| `apps/orm/src/utils/cerial-geometry.ts`                      | `CerialGeometry` hierarchy (7 subtypes) and `CerialGeometryInput` union type                  |
+| `apps/orm/src/utils/cerial-any.ts`                           | `CerialAny` recursive union type                                                              |
+| `apps/orm/src/utils/cerial-set.ts`                           | `CerialSet<T>` branded array type                                                             |
+| `apps/orm/src/cli/config/types.ts`                           | `CerialConfig`, `SchemaEntry`, `ResolvedSchemaEntry` types                                    |
+| `apps/orm/src/cli/config/loader.ts`                          | Config file loader (`cerial.config.ts`/`.json`)                                               |
+| `apps/orm/src/cli/config/define-config.ts`                   | `defineConfig()` identity helper for type-safe config                                         |
+| `apps/orm/src/cli/commands/init.ts`                          | `cerial init` interactive command                                                             |
+| `apps/orm/src/cli/watcher.ts`                                | File watcher with debounce and per-schema isolation                                           |
+| `apps/orm/src/formatter/formatter.ts`                        | Core `formatCerialSource()` function — validates, tokenizes, attaches comments, aligns, prints |
+| `apps/orm/src/client/cerial-transaction.ts`                  | `CerialTransaction` class, transaction proxy factory                                          |
 
 ## Architecture
 
@@ -143,25 +165,25 @@ Schema (.cerial files) → Parser (AST) → Generators → TypeScript Client
 
 - URL: `http://127.0.0.1:8000`, Credentials: `root` / `root`, Namespace/Database: `main`
 - Do NOT run `surreal start` commands - the instance must already be running
-- E2E tests MUST use `--preload ./tests/e2e/preload.ts` or generated client won't exist
+- E2E tests MUST use `--preload apps/orm/tests/e2e/preload.ts` (from repo root) or `--preload ./tests/e2e/preload.ts` (from `apps/orm/`) or generated client won't exist
 
 **Test locations:**
 
-| Location                   | Type                                                          | Count    |
-| -------------------------- | ------------------------------------------------------------- | -------- |
-| `tests/unit/`              | Unit tests (no DB)                                            | ~2683    |
-| `tests/integration/`       | Integration (DB required)                                     | ~49      |
-| `tests/e2e/core/`          | Core CRUD, select, include, findAll, introspection            | 8 files  |
-| `tests/e2e/relations/`     | Relation E2E tests                                            | 89 files |
-| `tests/e2e/decorators/`    | Decorator E2E tests                                           | 43 files |
-| `tests/e2e/complex-types/` | Object/tuple/literal/enum tests                               | 46 files |
-| `tests/e2e/data-types/`    | Data type tests (uuid, number, duration, decimal, bytes, etc) | 37 files |
-| `tests/e2e/features/`      | Typed-ids, unset, transactions, on-before-query, pagination   | 35 files |
-| `tests/e2e/features/extends/`  | Extends E2E tests (model, object, tuple, enum, literal, pick/omit, negative) | 11 files |
-| `tests/e2e/negative/`                | Cross-cutting error/validation tests                          | 5 files  |
-| `tests/e2e/typechecks/`              | Compile-time type checks                                      | 36 files |
-| `tests/e2e/typechecks/features/extends.check.ts` | Compile-time type checks for extends | 1 file |
-| `tests/e2e/multi-schema/`            | Multi-schema E2E tests (config, convention, backward compat)   | 4 files  |
+| Location                                                          | Type                                                          | Count    |
+| ----------------------------------------------------------------- | ------------------------------------------------------------- | -------- |
+| `apps/orm/tests/unit/`                                            | Unit tests (no DB)                                            | ~2683    |
+| `apps/orm/tests/integration/`                                     | Integration (DB required)                                     | ~49      |
+| `apps/orm/tests/e2e/core/`                                        | Core CRUD, select, include, findAll, introspection            | 8 files  |
+| `apps/orm/tests/e2e/relations/`                                   | Relation E2E tests                                            | 89 files |
+| `apps/orm/tests/e2e/decorators/`                                  | Decorator E2E tests                                           | 43 files |
+| `apps/orm/tests/e2e/complex-types/`                               | Object/tuple/literal/enum tests                               | 46 files |
+| `apps/orm/tests/e2e/data-types/`                                  | Data type tests (uuid, number, duration, decimal, bytes, etc) | 37 files |
+| `apps/orm/tests/e2e/features/`                                    | Typed-ids, unset, transactions, on-before-query, pagination   | 35 files |
+| `apps/orm/tests/e2e/features/extends/`                            | Extends E2E tests (model, object, tuple, enum, literal, pick/omit, negative) | 11 files |
+| `apps/orm/tests/e2e/negative/`                                    | Cross-cutting error/validation tests                          | 5 files  |
+| `apps/orm/tests/e2e/typechecks/`                                  | Compile-time type checks                                      | 36 files |
+| `apps/orm/tests/e2e/typechecks/features/extends.check.ts`        | Compile-time type checks for extends                          | 1 file   |
+| `apps/orm/tests/e2e/multi-schema/`                                | Multi-schema E2E tests (config, convention, backward compat)  | 4 files  |
 
 **Sandbox testing** = Running raw SurrealQL against the live SurrealDB instance to verify DB-level behavior before implementing in code. Use this when you need to confirm how SurrealDB handles a specific query pattern (e.g., `$this` reconstruction, dot-notation merge, SELECT expression shapes). When the user says "sandbox test", execute queries via curl:
 
@@ -187,13 +209,13 @@ Sandbox testing is **allowed in plan mode** — it is investigative research to 
 
 **When query format changes**, update expectations in:
 
-- `tests/unit/query/nested-builder.test.ts`
-- `tests/unit/query/delete-builder.test.ts`
-- `tests/unit/query/delete-unique-builder.test.ts`
-- `tests/unit/query/update-unique-builder.test.ts`
-- `tests/unit/generators/type-mapper.test.ts`
-- `tests/generators/migrations.test.ts`
-- `tests/integration/migration.test.ts`
+- `apps/orm/tests/unit/query/nested-builder.test.ts`
+- `apps/orm/tests/unit/query/delete-builder.test.ts`
+- `apps/orm/tests/unit/query/delete-unique-builder.test.ts`
+- `apps/orm/tests/unit/query/update-unique-builder.test.ts`
+- `apps/orm/tests/unit/generators/type-mapper.test.ts`
+- `apps/orm/tests/generators/migrations.test.ts`
+- `apps/orm/tests/integration/migration.test.ts`
 
 ## Code Style
 
@@ -378,7 +400,7 @@ The archived file keeps the same format — version headers and categorized entr
 - **Version bumps move `[Unreleased]` to a versioned header** — `## [Unreleased]` becomes `## [x.y.z] - YYYY-MM-DD`, and a fresh empty `## [Unreleased]` is added above
  **Minor version bump triggers archival** — move the previous minor's entries to `changelogs/{major}/{minor}.md`
 - **Both ORM and extension follow this system independently** — they have separate version numbers and separate changelogs
-- **Monorepo migration** — when the repo moves to `apps/orm` + `apps/extension`, changelogs move with their respective packages
+- **Monorepo migration** — when the repo moves to `apps/orm` + `apps/vscode-extension`, changelogs move with their respective packages
 ### Commit Rules
 
 #### Atomic commits
@@ -444,19 +466,19 @@ Each commit adds its own entry to `[Unreleased]` under the correct category (`##
     - Integration with other features (select, include, $transaction, nested relations)
   - **Unit tests must verify generated query structure** — Not just "contains this string" but the full shape: correct keywords, correct variable bindings, correct conditional logic per field
   - When in doubt, write more tests. A test that seems "obvious" today catches a regression tomorrow.
-- **Test file organization (ALL tests — unit, integration, E2E)** — Split tests into multiple focused files, one per sub-topic or domain. Do NOT put all tests in a single large file. This applies to unit tests (`tests/unit/`), integration tests, and E2E tests equally. Follow the pattern used by `tests/e2e/objects/`, `tests/e2e/tuples/`, and `tests/unit/resolver/`:
+- **Test file organization (ALL tests — unit, integration, E2E)** — Split tests into multiple focused files, one per sub-topic or domain. Do NOT put all tests in a single large file. This applies to unit tests (`apps/orm/tests/unit/`), integration tests, and E2E tests equally. Follow the pattern used by `apps/orm/tests/e2e/objects/`, `apps/orm/tests/e2e/tuples/`, and `apps/orm/tests/unit/resolver/`:
   - One file per sub-topic (e.g., `model-inheritance.test.ts`, `object-inheritance.test.ts`, `validation.test.ts`, `filter.test.ts`)
   - Shared helpers (factories, constants, setup) extracted into a common `helpers.ts` file and imported — do NOT duplicate helpers across test files
-  - Each file should be independently runnable (e.g., `bun test tests/unit/resolver/model-inheritance.test.ts`)
-  - For E2E tests specifically, use `--preload ./tests/e2e/preload.ts`
-- **E2E test global setup pattern (CRITICAL)** — The E2E preload (`tests/e2e/preload.ts`) runs `globalCleanup()` ONCE before any test file executes. This removes all tables and runs `migrate()` to establish the correct schema. Individual test files must NOT redo this work:
+  - Each file should be independently runnable (e.g., `bun test apps/orm/tests/unit/resolver/model-inheritance.test.ts`)
+  - For E2E tests specifically, use `--preload apps/orm/tests/e2e/preload.ts`
+- **E2E test global setup pattern (CRITICAL)** — The E2E preload (`apps/orm/tests/e2e/preload.ts`) runs `globalCleanup()` ONCE before any test file executes. This removes all tables and runs `migrate()` to establish the correct schema. Individual test files must NOT redo this work:
   - `beforeAll`: Call `cleanupTables(client, YOUR_TABLES)` — this only does `DELETE FROM` (data cleanup, no schema changes)
   - `beforeEach`: Call `truncateTables(client, YOUR_TABLES)` — same lightweight `DELETE FROM` per-test
   - **Do NOT** call `REMOVE TABLE`, `resetMigrationState()`, or `client.migrate()` inside test files — these run once globally in preload
   - **Do NOT** manually execute `DEFINE TABLE` or schema DDL in test files — `migrate()` handles this
   - **Why**: Multiple test files running `REMOVE TABLE + migrate(134 models)` concurrently causes race conditions (tables removed while other tests query them, 134 competing DEFINE statements)
 - **E2E concurrency** — Always run E2E tests with `--concurrency 5` via `bun run test:e2e`. Running without concurrency limit works but `--concurrency 5` provides more predictable timing. Never rely on test file execution order
-- **New tables in E2E tests** — When adding a new schema file to `tests/e2e/schemas/`, add its table names to the `tables` registry in `tests/e2e/test-helper.ts`. This ensures `globalCleanup()` covers them. Also update the relevant `*_TABLES` constant if the tables belong to root, index, or typed-id groups
+- **New tables in E2E tests** — When adding a new schema file to `apps/orm/tests/e2e/schemas/`, add its table names to the `tables` registry in `apps/orm/tests/e2e/test-helper.ts`. This ensures `globalCleanup()` covers them. Also update the relevant `*_TABLES` constant if the tables belong to root, index, or typed-id groups
 
 ### SurrealDB Reserved Keywords
 
@@ -464,62 +486,62 @@ Do NOT use SurrealDB reserved keywords as field names, model names, or object na
 
 ### When Adding New Features
 
-1. Implement the feature in `src/`
-2. Add/update unit tests in `tests/unit/`
-3. Add E2E test schemas in `tests/e2e/schemas/` if needed
-4. Add E2E tests in `tests/e2e/`
-5. Run `bun run generate:test-client` to regenerate test client
-6. Run full test suite: `bun test`
-7. Run type check: `bunx tsc --noEmit`
+1. Implement the feature in `apps/orm/src/`
+2. Add/update unit tests in `apps/orm/tests/unit/`
+3. Add E2E test schemas in `apps/orm/tests/e2e/schemas/` if needed
+4. Add E2E tests in `apps/orm/tests/e2e/`
+5. Run `bun run generate:test-client` to regenerate test client (from `apps/orm/`)
+6. Run full test suite: `bun test` (from `apps/orm/`)
+7. Run type check: `bunx tsc --noEmit` (from `apps/orm/`)
 8. Update documentation in `docs/`
-9. Update the formatter to handle the new construct in `src/formatter/printer.ts` (or `inline-printer.ts`), add formatting tests, and verify idempotency
+9. Update the formatter to handle the new construct in `apps/orm/src/formatter/printer.ts` (or `inline-printer.ts`), add formatting tests, and verify idempotency
 10. **Update the VS Code extension** if the feature adds or changes schema syntax:
-    - If new keyword/block type: update TextMate grammar (`extension/syntaxes/cerial.tmLanguage.json`)
-    - If new field type: update completion provider (`extension/server/src/providers/completion.ts`), hover docs (`extension/server/src/data/hover-docs.ts`), and semantic tokens
+    - If new keyword/block type: update TextMate grammar (`apps/vscode-extension/syntaxes/cerial.tmLanguage.json`)
+    - If new field type: update completion provider (`apps/vscode-extension/server/src/providers/completion.ts`), hover docs (`apps/vscode-extension/server/src/data/hover-docs.ts`), and semantic tokens
     - If new decorator: update completion provider (decorator list + context filtering), hover docs, and code actions if applicable
-    - If new validator: update diagnostics provider (`extension/server/src/providers/diagnostics.ts`) to surface the new errors
-    - Run extension tests: `cd extension && bun run test`
-    - Rebuild extension: `cd extension && bun run build`
+    - If new validator: update diagnostics provider (`apps/vscode-extension/server/src/providers/diagnostics.ts`) to surface the new errors
+    - Run extension tests: `cd apps/vscode-extension && bun run test`
+    - Rebuild extension: `cd apps/vscode-extension && bun run build`
 
 ### When Adding a New Operator
 
-1. Create handler in `src/query/filters/<category>/<operator>-handler.ts`
-2. Register in `src/query/filters/registry.ts`
-3. Update where types in `src/generators/types/where-generator.ts`
+1. Create handler in `apps/orm/src/query/filters/<category>/<operator>-handler.ts`
+2. Register in `apps/orm/src/query/filters/registry.ts`
+3. Update where types in `apps/orm/src/generators/types/where-generator.ts`
 4. Add unit tests
 5. Add E2E tests
 6. Update `docs/filtering/` page
 7. Update the VS Code extension if the operator introduces new syntax or keywords:
-    - Run `cd extension && bun run test` to verify no regressions
+    - Run `cd apps/vscode-extension && bun run test` to verify no regressions
 
 ### When Adding a New Field Type
 
-1. Create parser in `src/parser/types/field-types/<type>-parser.ts`
-2. Update `SchemaFieldType` in `src/types/common.types.ts`
+1. Create parser in `apps/orm/src/parser/types/field-types/<type>-parser.ts`
+2. Update `SchemaFieldType` in `apps/orm/src/types/common.types.ts`
 3. Update type mappings in generators and validators
 4. Add tests
 5. Update `docs/schema/field-types.md`
 6. Update the VS Code extension:
-   - Add the type to completion suggestions in `extension/server/src/providers/completion.ts`
-   - Add hover documentation in `extension/server/src/data/hover-docs.ts`
-   - Verify TextMate grammar highlights the new type (`extension/syntaxes/cerial.tmLanguage.json`)
+   - Add the type to completion suggestions in `apps/vscode-extension/server/src/providers/completion.ts`
+   - Add hover documentation in `apps/vscode-extension/server/src/data/hover-docs.ts`
+   - Verify TextMate grammar highlights the new type (`apps/vscode-extension/syntaxes/cerial.tmLanguage.json`)
    - Add extension unit tests for the new type
-   - Run `cd extension && bun run test`
+   - Run `cd apps/vscode-extension && bun run test`
 
 ### When Adding a New Decorator
 
-1. Create parser in `src/parser/types/field-decorators/<decorator>-parser.ts`
+1. Create parser in `apps/orm/src/parser/types/field-decorators/<decorator>-parser.ts`
 2. Update generator to handle the decorator
 3. Update migration generator if it affects DB schema
 4. Add tests
 5. Add page in `docs/schema/decorators/`
 6. Update the VS Code extension:
-   - Add the decorator to completion suggestions in `extension/server/src/providers/completion.ts`
-   - Add hover documentation in `extension/server/src/data/hover-docs.ts`
-   - Verify TextMate grammar highlights the new decorator (`extension/syntaxes/cerial.tmLanguage.json`)
-   - Update code actions if the decorator has common misuse patterns (`extension/server/src/providers/code-actions.ts`)
+   - Add the decorator to completion suggestions in `apps/vscode-extension/server/src/providers/completion.ts`
+   - Add hover documentation in `apps/vscode-extension/server/src/data/hover-docs.ts`
+   - Verify TextMate grammar highlights the new decorator (`apps/vscode-extension/syntaxes/cerial.tmLanguage.json`)
+   - Update code actions if the decorator has common misuse patterns (`apps/vscode-extension/server/src/providers/code-actions.ts`)
    - Add extension unit tests for the new decorator
-   - Run `cd extension && bun run test`
+   - Run `cd apps/vscode-extension && bun run test`
 
 ## Key Concepts (Quick Reference)
 
@@ -624,3 +646,6 @@ Do NOT use SurrealDB reserved keywords as field names, model names, or object na
 - Extends is resolved at compile time only — no runtime inheritance awareness
 - Extends only works within same schema entry (same generation run). Cross-schema extends is impossible
 - Pick/omit validates against parent's own fields only (not inherited from grandparent)
+- **Monorepo: ORM is a workspace member** — The ORM lives in `apps/orm/`. Root `package.json` has `workspaces: ["apps/orm", "libs/*"]` (NOT `"apps/*"`). Run ORM commands from `apps/orm/` or use `bun run --filter cerial <script>` from repo root
+- **Monorepo: extension is NOT a workspace member** — Both packages are named `"cerial"` (name collision prevents workspace membership). The VS Code extension in `apps/vscode-extension/` has its own `bun.lock` and manages its own dependencies independently. Run extension commands from `apps/vscode-extension/`
+- **Monorepo: changelog locations** — ORM changelog: `apps/orm/CHANGELOG.md`. VS Code extension changelog: `apps/vscode-extension/CHANGELOG.md`. Each package has its own `changelogs/` archive directory inside its package folder
