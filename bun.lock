@@ -6,6 +6,7 @@
       "name": "@cerial/monorepo",
       "devDependencies": {
         "@biomejs/biome": "^2.4.4",
+        "cerial": "workspace:*",
       },
     },
     "apps/orm": {
