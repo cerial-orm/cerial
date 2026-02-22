@@ -70,7 +70,7 @@ Collapse and expand model, object, tuple, enum, and literal blocks. Comment regi
 
 ### Inlay Hints
 
-See inferred FK types on Record fields, server-set behavior indicators, and inherited field sources inline.
+See inferred FK types on Record fields, automatic behavior indicators (`auto-generated`, `computed`, `sets on create`, `resets on update`), and inherited field sources inline.
 
 <!-- ![Inlay Hints](images/inlay-hints.png) -->
 
@@ -147,7 +147,7 @@ All settings live under the `cerial.*` namespace.
 |---------|------|---------|-------------|
 | `cerial.inlayHints.enabled` | `boolean` | `true` | Enable or disable all inlay hints |
 | `cerial.inlayHints.inferredTypes` | `boolean` | `true` | Show inferred FK types on Record fields |
-| `cerial.inlayHints.serverSetFields` | `boolean` | `true` | Show behavior hints for server-set fields |
+| `cerial.inlayHints.behaviorHints` | `boolean` | `true` | Show behavioral hints for fields with automatic behavior |
 | `cerial.inlayHints.inheritedFields` | `boolean` | `true` | Show source hints on inherited fields |
 
 ### Debugging
