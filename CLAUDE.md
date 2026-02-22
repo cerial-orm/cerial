@@ -306,6 +306,124 @@ has_children: true # only on section index pages
 - The README quick start schema example should showcase the most important field types and decorators — update it when new types/decorators are significant enough to highlight
 - Do **not** duplicate detailed information — README stays concise (~100-130 lines), full details live in `docs/`
 
+
+### Changelog Rules (CRITICAL)
+
+Each package (ORM and extension) maintains its own changelog. Changelogs live **inside** each package directory, not at the repository root.
+
+**Active file:** `CHANGELOG.md` in each package — contains `[Unreleased]` section and all patch releases for the **current minor version**.
+
+**Archive:** When bumping to the next minor version, move the old minor's entries to `changelogs/{major}/{minor}.md`.
+
+#### Format
+
+Follow [Keep a Changelog](https://keepachangelog.com) format. Categories under each version:
+
+- `### Added` — New features
+- `### Changed` — Changes to existing features
+- `### Fixed` — Bug fixes
+- `### Removed` — Removed features
+- `### Deprecated` — Features marked for future removal
+
+#### Active CHANGELOG.md structure
+
+```markdown
+# Changelog
+
+All notable changes will be documented in this file.
+For previous versions, see [changelogs/](changelogs/).
+
+## [Unreleased]
+
+### Added
+
+- New feature description
+
+## [0.1.2] - 2025-03-15
+
+### Fixed
+
+- Bug fix description
+
+## [0.1.1] - 2025-03-10
+
+### Added
+
+- Feature description
+
+## [0.1.0] - 2025-03-01
+
+### Added
+
+- Initial minor release features
+```
+
+#### Archive structure
+
+When releasing `0.2.0`, move all `0.1.x` entries to `changelogs/0/1.md`:
+
+```
+package/
+├── CHANGELOG.md          # [Unreleased] + current minor (0.2.x)
+└── changelogs/
+    └── 0/                # Major version 0
+        ├── 0.md          # All 0.0.x patches in one file
+        └── 1.md          # All 0.1.x patches in one file
+```
+
+The archived file keeps the same format — version headers and categorized entries — just without the `[Unreleased]` section.
+
+#### Rules
+- **Never edit released version entries** — if a released entry has a typo, fix it in the next patch's `### Fixed`
+- **Version bumps move `[Unreleased]` to a versioned header** — `## [Unreleased]` becomes `## [x.y.z] - YYYY-MM-DD`, and a fresh empty `## [Unreleased]` is added above
+ **Minor version bump triggers archival** — move the previous minor's entries to `changelogs/{major}/{minor}.md`
+- **Both ORM and extension follow this system independently** — they have separate version numbers and separate changelogs
+- **Monorepo migration** — when the repo moves to `apps/orm` + `apps/extension`, changelogs move with their respective packages
+### Commit Rules
+
+#### Atomic commits
+
+Each commit should represent **one logical change**. Split work into small, focused commits — one per feature, fix, or concern. This keeps the git history readable and makes each change easy to review, revert, or cherry-pick.
+
+**Split by:**
+- Different features or behaviors → separate commits
+- Different directories or modules → separate commits
+- Implementation vs tests (unless tightly coupled) → separate commits
+- Docs vs code → separate commits
+
+**Combine only when:**
+- Splitting would break compilation (e.g., type change + all call sites)
+- Implementation file + its direct test file for a single feature
+
+#### Multi-commit issue fixes
+
+Large fixes or features that span multiple types of changes should use multiple commits, each with its own changelog entry in the appropriate category. Example:
+
+```
+Issue: "Inlay hints show wrong labels"
+
+Commit 1: fix(extension): update inlay hint labels for @createdAt/@updatedAt
+  → CHANGELOG: ### Changed — Rename 'server-set' hint label to 'auto-generated'
+
+Commit 2: feat(extension): add 'sets on create' inlay hint for @default
+  → CHANGELOG: ### Added — Inlay hint for @default fields showing 'sets on create'
+
+Commit 3: docs(extension): update README and settings for new hint labels
+  → No changelog entry (docs-only, user behavior unchanged)
+```
+
+Each commit adds its own entry to `[Unreleased]` under the correct category (`### Added`, `### Changed`, `### Fixed`, etc.).
+
+#### Amend policy
+
+**Amend the previous commit** when a small follow-up change is the same kind of task as the commit it follows — e.g., fixing a typo in a just-committed file, adjusting wording in a just-added doc section, or tweaking a value in a just-written config.
+
+**Do NOT amend when:**
+- The previous commit has already been pushed to remote
+- The follow-up is a different kind of change (new feature vs fix vs docs)
+- The follow-up affects different files or modules than the original commit
+- Someone else authored the previous commit
+
 ### Testing Rules
 
 - **No `as any` or blanket type casting in tests** - If types don't match runtime behavior, fix the type generators or source types. Use specific type assertions (`as User`, `as { id: string }`) ONLY when narrowing `unknown` (e.g., `prevResults[0] as { id: CerialId }`) — never `as any`. This applies to ALL tests (unit, integration, E2E)
