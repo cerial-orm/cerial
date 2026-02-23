@@ -11,7 +11,7 @@ import type { SchemaAST } from '../../../orm/src/types';
 import { WorkspaceIndexer } from '../../server/src/indexer';
 
 /** Absolute path to the fixtures directory */
-const FIXTURES_DIR = path.resolve(__dirname, '..', 'fixtures');
+const FIXTURES_DIR = path.resolve(__dirname, '..', 'fixtures', 'unit');
 
 /** Root path for fake test files, normalized for the current OS */
 const TEST_ROOT = path.normalize('/test/schemas');

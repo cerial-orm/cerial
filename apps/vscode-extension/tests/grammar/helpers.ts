@@ -5,7 +5,7 @@ import { type IGrammar, INITIAL, type IRawGrammar, type IToken, parseRawGrammar,
 
 const GRAMMAR_PATH = resolve(__dirname, '../../syntaxes/cerial.tmLanguage.json');
 const WASM_PATH = resolve(__dirname, '../../node_modules/vscode-oniguruma/release/onig.wasm');
-const FIXTURES_DIR = resolve(__dirname, '../fixtures');
+const FIXTURES_DIR = resolve(__dirname, '../fixtures/unit');
 
 let grammarInstance: IGrammar | null = null;
 let wasmLoaded = false;
