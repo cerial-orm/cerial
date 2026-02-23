@@ -76,7 +76,7 @@ export async function closeAllEditors(): Promise<void> {
  * Opens a .cerial file to trigger the `onLanguage:cerial` activation event.
  * Uses a polling loop — not a fixed sleep.
  */
-export async function waitForExtensionActivation(timeout = 15000): Promise<vscode.Extension<unknown>> {
+export async function waitForExtensionActivation(timeout = 15000, triggerFile?: string): Promise<vscode.Extension<unknown>> {
   const ext = vscode.extensions.getExtension(CERIAL_EXTENSION_ID);
   if (!ext) {
     throw new Error(`Extension ${CERIAL_EXTENSION_ID} not found. Is the extension installed?`);
@@ -87,7 +87,7 @@ export async function waitForExtensionActivation(timeout = 15000): Promise<vscod
   }
 
   // Opening a .cerial file triggers the onLanguage:cerial activation event
-  const uri = getDocumentUri('simple-model.cerial');
+  const uri = getDocumentUri(triggerFile ?? 'simple-model.cerial');
   await vscode.workspace.openTextDocument(uri);
 
   const start = Date.now();
@@ -117,8 +117,8 @@ export async function waitForExtensionActivation(timeout = 15000): Promise<vscod
  * We detect readiness by requesting completions at a top-level position
  * (empty line) — when the server returns keyword completions, it's ready.
  */
-export async function waitForServerReady(timeout = 20000): Promise<void> {
-  const doc = await openDocument('simple-model.cerial');
+export async function waitForServerReady(timeout = 20000, triggerFile?: string): Promise<void> {
+  const doc = await openDocument(triggerFile ?? 'simple-model.cerial');
 
   const start = Date.now();
   while (Date.now() - start < timeout) {
