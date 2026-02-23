@@ -8,10 +8,25 @@
     "libs/*"
   ],
   "scripts": {
+    "format": "biome check --write .",
+    "orm:generate": "bun run --filter cerial generate:test-client",
+    "orm:typecheck": "bun run --filter cerial typecheck",
     "test:orm": "bun run --filter cerial test",
     "test:orm:e2e": "bun run --filter cerial test:e2e",
     "test:orm:full": "bun run --filter cerial test:full",
-    "format": "biome check --write ."
+    "ext:build": "bun run --filter @cerial/vscode-extension build",
+    "ext:build:dev": "bun run --filter @cerial/vscode-extension build:dev",
+    "ext:watch": "bun run --filter @cerial/vscode-extension watch",
+    "ext:compile:tests": "bun run --filter @cerial/vscode-extension compile:tests",
+    "ext:package": "bun run --filter @cerial/vscode-extension package",
+    "ext:package:latest": "bun run --filter @cerial/vscode-extension package:latest",
+    "ext:dev:cursor": "bun run --filter @cerial/vscode-extension dev:cursor",
+    "ext:publish": "bun run --filter @cerial/vscode-extension publish:vsce",
+    "test:ext": "bun run --filter @cerial/vscode-extension test",
+    "test:ext:unit": "bun run --filter @cerial/vscode-extension test:unit",
+    "test:ext:grammar": "bun run --filter @cerial/vscode-extension test:grammar",
+    "test:ext:integration": "bun run --filter @cerial/vscode-extension test:integration",
+    "test:ext:e2e": "bun run --filter @cerial/vscode-extension test:e2e"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.4",
