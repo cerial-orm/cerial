@@ -21,7 +21,7 @@ import {
 
 /** Verify the Cerial extension is still active (not crashed). */
 function assertExtensionActive(): void {
-  const ext = vscode.extensions.getExtension('cerial.cerial');
+  const ext = vscode.extensions.getExtension('cerial.cerial-vscode');
   assert.ok(ext, 'Extension should still be present');
   assert.strictEqual(ext.isActive, true, 'Extension should still be active after error recovery');
 }

@@ -29,7 +29,7 @@ suite('Multi-Schema: Root Config Workspace', () => {
   });
 
   test('extension activates with root-config workspace', async () => {
-    const ext = vscode.extensions.getExtension('cerial.cerial');
+    const ext = vscode.extensions.getExtension('cerial.cerial-vscode');
     assert.ok(ext, 'Extension should be installed');
     assert.strictEqual(ext.isActive, true, 'Extension should be active');
   });

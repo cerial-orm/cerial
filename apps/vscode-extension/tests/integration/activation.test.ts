@@ -11,7 +11,7 @@ import { openDocument, waitForExtensionActivation } from './helpers';
 
 suite('Extension Activation', () => {
   test('extension is present in the extension list', () => {
-    const ext = vscode.extensions.getExtension('cerial.cerial');
+    const ext = vscode.extensions.getExtension('cerial.cerial-vscode');
     assert.ok(ext, 'Extension cerial.cerial should be installed');
   });
 
@@ -26,7 +26,7 @@ suite('Extension Activation', () => {
   });
 
   test('extension contributes the cerial language', () => {
-    const ext = vscode.extensions.getExtension('cerial.cerial');
+    const ext = vscode.extensions.getExtension('cerial.cerial-vscode');
     assert.ok(ext, 'Extension should exist');
 
     const languages: Array<{ id: string; extensions?: string[] }> | undefined = ext.packageJSON?.contributes?.languages;
@@ -38,7 +38,7 @@ suite('Extension Activation', () => {
   });
 
   test('extension contributes the cerial grammar', () => {
-    const ext = vscode.extensions.getExtension('cerial.cerial');
+    const ext = vscode.extensions.getExtension('cerial.cerial-vscode');
     assert.ok(ext, 'Extension should exist');
 
     const grammars: Array<{ language: string; scopeName: string }> | undefined = ext.packageJSON?.contributes?.grammars;
@@ -50,7 +50,7 @@ suite('Extension Activation', () => {
   });
 
   test('extension contributes configuration settings', () => {
-    const ext = vscode.extensions.getExtension('cerial.cerial');
+    const ext = vscode.extensions.getExtension('cerial.cerial-vscode');
     assert.ok(ext, 'Extension should exist');
 
     const config: { properties?: Record<string, unknown> } | undefined = ext.packageJSON?.contributes?.configuration;

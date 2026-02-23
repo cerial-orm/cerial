@@ -12,7 +12,7 @@ import * as vscode from 'vscode';
 // ---------------------------------------------------------------------------
 
 /** Extension ID: <publisher>.<name> from package.json */
-const CERIAL_EXTENSION_ID = 'cerial.cerial';
+const CERIAL_EXTENSION_ID = 'cerial.cerial-vscode';
 
 // ---------------------------------------------------------------------------
 // Basic helpers

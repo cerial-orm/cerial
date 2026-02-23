@@ -32,7 +32,7 @@ suite('Multi-Schema: Path Filtering Workspace', () => {
   });
 
   test('extension activates with path-filtering workspace', async () => {
-    const ext = vscode.extensions.getExtension('cerial.cerial');
+    const ext = vscode.extensions.getExtension('cerial.cerial-vscode');
     assert.ok(ext, 'Extension should be installed');
     assert.strictEqual(ext.isActive, true, 'Extension should be active');
   });

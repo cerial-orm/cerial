@@ -30,7 +30,7 @@ suite('Multi-Schema: Mixed Discovery Workspace', () => {
   });
 
   test('extension activates with mixed workspace', async () => {
-    const ext = vscode.extensions.getExtension('cerial.cerial');
+    const ext = vscode.extensions.getExtension('cerial.cerial-vscode');
     assert.ok(ext, 'Extension should be installed');
     assert.strictEqual(ext.isActive, true, 'Extension should be active');
   });
