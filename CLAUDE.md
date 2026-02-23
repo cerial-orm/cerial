@@ -478,6 +478,7 @@ Each commit adds its own entry to `[Unreleased]` under the correct category (`##
   - **Do NOT** manually execute `DEFINE TABLE` or schema DDL in test files — `migrate()` handles this
   - **Why**: Multiple test files running `REMOVE TABLE + migrate(134 models)` concurrently causes race conditions (tables removed while other tests query them, 134 competing DEFINE statements)
 - **E2E concurrency** — Always run E2E tests with `--concurrency 5` via `bun run test:e2e`. Running without concurrency limit works but `--concurrency 5` provides more predictable timing. Never rely on test file execution order
+ **VS Code extension test parallelism (CRITICAL)** — VS Code does not reliably support many concurrent instances. When planning or executing extension integration/E2E tests (any task that launches a VS Code instance via `vscode-test`), do NOT run more than **3 VS Code test labels in parallel**. Prefer sequential execution; only parallelize up to 3 when the tasks are fully independent and target different workspace fixtures. This applies to both agent-dispatched task waves and CI. Unit tests (`bun test`) and grammar tests do NOT launch VS Code and have no parallelism limit
 - **New tables in E2E tests** — When adding a new schema file to `apps/orm/tests/e2e/schemas/`, add its table names to the `tables` registry in `apps/orm/tests/e2e/test-helper.ts`. This ensures `globalCleanup()` covers them. Also update the relevant `*_TABLES` constant if the tables belong to root, index, or typed-id groups
 
 ### SurrealDB Reserved Keywords
