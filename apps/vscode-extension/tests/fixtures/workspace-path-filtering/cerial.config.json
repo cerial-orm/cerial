@@ -1,0 +1,10 @@
+{
+  "schemas": {
+    "main": {
+      "path": "./schemas",
+      "ignore": ["*.draft.cerial"],
+      "exclude": ["experimental/*.cerial"],
+      "include": ["experimental/keep.cerial"]
+    }
+  }
+}

@@ -1,0 +1,56 @@
+# Error schemas — type and structural validator errors
+# Each construct triggers specific validator rules
+
+// Error 1: Duplicate model name (within this file)
+model ErrTypeDuplicate {
+  id Record @id
+  name String
+}
+
+model ErrTypeDuplicate {
+  id Record @id
+  label String
+}
+
+// Error 2: Unknown type reference (field references non-existent object)
+model ErrTypeBadObjectRef {
+  id Record @id
+  profile NonExistentObject
+}
+
+// Error 3: Duplicate field name within a model
+model ErrTypeDuplicateField {
+  id Record @id
+  name String
+  name String
+}
+
+// Error 4: @set on non-array field (must be array)
+model ErrTypeSetNonArray {
+  id Record @id
+  tag String @set
+}
+
+// Error 5: @set on Decimal[] (SurrealDB bug)
+model ErrTypeSetDecimal {
+  id Record @id
+  amounts Decimal[] @set
+}
+
+// Error 6: @set combined with @distinct (mutually exclusive)
+model ErrTypeSetDistinct {
+  id Record @id
+  tags String[] @set @distinct
+}
+
+// Error 7: @distinct on non-array field
+model ErrTypeDistinctNonArray {
+  id Record @id
+  name String @distinct
+}
+
+// Error 8: @sort on non-array field
+model ErrTypeSortNonArray {
+  id Record @id
+  name String @sort
+}

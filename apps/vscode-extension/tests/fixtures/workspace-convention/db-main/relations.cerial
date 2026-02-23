@@ -1,0 +1,76 @@
+# Relations: 1:1, 1:N, N:N, self-referential with @field, @model, @onDelete, @key
+
+// --- 1:1 relation (optional, FK on profile side) ---
+model ConvAuthor {
+  id Record @id
+  name String
+  email Email @unique
+  profile Relation? @model(ConvAuthorProfile)
+  books Relation[] @model(ConvBook)
+}
+
+model ConvAuthorProfile {
+  id Record @id
+  bio String?
+  avatarUrl String?
+  authorId Record? @nullable
+  author Relation? @field(authorId) @model(ConvAuthor) @onDelete(SetNull)
+}
+
+// --- 1:N relation (required, author has many books) ---
+model ConvBook {
+  id Record @id
+  title String
+  isbn String @unique
+  authorId Record
+  author Relation @field(authorId) @model(ConvAuthor)
+}
+
+// --- N:N relation (bidirectional: student <-> course) ---
+model ConvStudent {
+  id Record @id
+  name String
+  email Email @unique
+  courseIds Record[]
+  courses Relation[] @field(courseIds) @model(ConvCourse)
+}
+
+model ConvCourse {
+  id Record @id
+  name String
+  code String @unique
+  studentIds Record[]
+  students Relation[] @field(studentIds) @model(ConvStudent)
+}
+
+// --- Self-referential (single-sided: employee has manager) ---
+model ConvEmployee {
+  id Record @id
+  name String
+  department String
+  managerId Record? @nullable
+  manager Relation? @field(managerId) @model(ConvEmployee) @key(manages)
+  directReports Relation[] @model(ConvEmployee) @key(manages)
+}
+
+// --- Self-referential (N:N: person has friends) ---
+model ConvFriend {
+  id Record @id
+  name String
+  friendIds Record[]
+  friends Relation[] @field(friendIds) @model(ConvFriend)
+}
+
+// --- 1:1 with @onDelete(SetNone) ---
+model ConvDocument {
+  id Record @id
+  title String
+  ownerId Record?
+  owner Relation? @field(ownerId) @model(ConvDocumentOwner) @onDelete(SetNone)
+}
+
+model ConvDocumentOwner {
+  id Record @id
+  name String
+  documents Relation[] @model(ConvDocument)
+}

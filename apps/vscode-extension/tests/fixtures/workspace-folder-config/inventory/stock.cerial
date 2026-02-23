@@ -1,0 +1,7 @@
+# Stock model
+
+model Stock {
+  id Record @id
+  quantity Int
+  warehouse String
+}

@@ -1,0 +1,6 @@
+# Account model in auth schema
+
+model Account {
+  id Record @id
+  provider String
+}

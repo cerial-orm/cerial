@@ -1,0 +1,6 @@
+# Session model in auth schema
+
+model Session {
+  id Record @id
+  token String
+}

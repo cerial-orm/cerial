@@ -1,0 +1,6 @@
+# Post model in main schema
+
+model Post {
+  id Record @id
+  title String
+}

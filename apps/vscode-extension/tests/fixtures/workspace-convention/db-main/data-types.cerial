@@ -1,0 +1,61 @@
+# Advanced data types: Uuid, Duration, Decimal, Bytes, Geometry, Number, Any
+
+model ConvUuidRecord {
+  id Record @id
+  trackingId Uuid @uuid
+  legacyId Uuid @uuid4
+  modernId Uuid @uuid7
+  optionalToken Uuid?
+  nullableToken Uuid? @nullable
+  tokenList Uuid[]
+}
+
+model ConvDurationRecord {
+  id Record @id
+  waitLimit Duration @default(30s)
+  interval Duration?
+  maxWait Duration? @nullable
+  durations Duration[]
+}
+
+model ConvDecimalRecord {
+  id Record @id
+  price Decimal
+  discount Decimal?
+  tax Decimal? @nullable
+  amounts Decimal[]
+}
+
+model ConvBytesRecord {
+  id Record @id
+  payload Bytes
+  optPayload Bytes?
+  chunks Bytes[]
+}
+
+model ConvGeoRecord {
+  id Record @id
+  location Geometry @point
+  route Geometry @line
+  area Geometry @polygon
+  stops Geometry @multipoint
+  paths Geometry @multiline
+  zones Geometry @multipolygon
+  features Geometry @geoCollection
+  shape Geometry
+  multiType Geometry @point @polygon
+  optGeo Geometry? @point
+}
+
+model ConvNumberRecord {
+  id Record @id
+  amount Number
+  optAmount Number?
+  amounts Number[]
+}
+
+model ConvAnyRecord {
+  id Record @id
+  metadata Any
+  items Any[]
+}

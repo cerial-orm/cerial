@@ -1,0 +1,7 @@
+# Orders schema convention marker
+
+model Order {
+  id Record @id
+  total Float
+  customerName String
+}

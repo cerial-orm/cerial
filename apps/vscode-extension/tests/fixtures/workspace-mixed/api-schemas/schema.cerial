@@ -1,0 +1,6 @@
+// @cerial-convention-marker
+
+model ApiModel {
+  id Record @id
+  endpoint String
+}

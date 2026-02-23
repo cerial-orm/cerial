@@ -1,0 +1,5 @@
+model ApiRoute {
+  id Record @id
+  routePath String
+  httpMethod String
+}

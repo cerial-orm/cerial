@@ -1,0 +1,6 @@
+// @cerial-convention-marker
+
+model EventRecord {
+  id Record @id
+  eventLabel String
+}

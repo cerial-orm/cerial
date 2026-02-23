@@ -1,0 +1,4 @@
+model FilterModel {
+  id Record @id
+  filterLabel String
+}

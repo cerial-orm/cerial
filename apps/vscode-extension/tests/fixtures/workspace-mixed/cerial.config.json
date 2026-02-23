@@ -1,0 +1,7 @@
+{
+  "schemas": {
+    "api": {
+      "path": "./api-schemas"
+    }
+  }
+}

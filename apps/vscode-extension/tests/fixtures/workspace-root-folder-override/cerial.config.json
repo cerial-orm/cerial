@@ -1,0 +1,8 @@
+{
+  "schemas": {
+    "main": {
+      "path": "./schemas/main",
+      "exclude": ["draft-*.cerial"]
+    }
+  }
+}

@@ -1,0 +1,4 @@
+model OldModel {
+  id Record @id
+  legacyField String
+}

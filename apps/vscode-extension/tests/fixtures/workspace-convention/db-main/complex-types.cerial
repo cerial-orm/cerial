@@ -1,0 +1,109 @@
+# Complex types: object, tuple, enum, literal blocks with nesting
+
+// Object referenced by ConvUser in schema.cerial
+object ConvUserProfile {
+  bio String?
+  avatarUrl String?
+  location ConvCoordinate?
+  website Email?
+}
+
+// Object with sub-fields and decorators
+object ConvAddress {
+  street String
+  city String
+  zip String?
+  country String @default("US")
+  verified Bool @default(false)
+}
+
+// Tuple with named elements
+tuple ConvCoordinate {
+  lat Float,
+  lon Float
+}
+
+// Tuple with mixed named/unnamed elements
+tuple ConvTaggedEntry {
+  label String,
+  Int,
+  Bool
+}
+
+// Tuple with nullable element
+tuple ConvOptionalPair {
+  key String,
+  score Float @nullable
+}
+
+// Nested: tuple containing object
+object ConvPlaceInfo {
+  name String
+  rating Int?
+}
+
+tuple ConvLocatedPlace {
+  tag String,
+  ConvPlaceInfo
+}
+
+// Nested: object containing tuple
+object ConvGeoProfile {
+  label String
+  position ConvCoordinate
+  optPosition ConvCoordinate?
+}
+
+// Enum — string-only named constants
+enum ConvPriority { Low, Medium, High, Critical }
+
+enum ConvColor { Red, Green, Blue, Yellow }
+
+// Literal — mixed variants
+literal ConvStatus { 'active', 'inactive', 'pending' }
+
+literal ConvMixedValue { 'low', 'high', 1, 2, true }
+
+// Literal extending another literal
+literal ConvExtendedStatus { ConvStatus, 'archived', 'deleted' }
+
+// Literal with broad types
+literal ConvBroadValue { String, Int }
+
+// Literal with numeric-only variants
+literal ConvRank { 1, 2, 3, 4, 5 }
+
+// Literal referencing an enum
+literal ConvRoleOrCustom { ConvPriority, 'custom' }
+
+// Simple flat object for literal variant use (no decorators)
+object ConvLabeledPoint {
+  label String
+  count Int
+}
+
+// Simple flat tuple for literal variant use
+tuple ConvSimpleCoord {
+  x Float,
+  y Float
+}
+
+// Literal with object and tuple variants
+literal ConvPayload { 'empty', ConvLabeledPoint, ConvSimpleCoord }
+
+// Model using complex types
+model ConvComplexRecord {
+  id Record @id
+  name String
+  address ConvAddress
+  optAddress ConvAddress?
+  coords ConvCoordinate
+  coordHistory ConvCoordinate[]
+  priority ConvPriority @default(Low)
+  status ConvStatus @default('active')
+  rank ConvRank?
+  mixed ConvMixedValue?
+  geoProfile ConvGeoProfile?
+  payload ConvPayload?
+  taggedEntries ConvTaggedEntry[]
+}

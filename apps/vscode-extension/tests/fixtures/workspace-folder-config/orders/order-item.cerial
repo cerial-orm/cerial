@@ -1,0 +1,7 @@
+# Order item model
+
+model OrderItem {
+  id Record @id
+  productName String
+  quantity Int
+}

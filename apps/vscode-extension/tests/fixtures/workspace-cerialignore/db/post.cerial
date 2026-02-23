@@ -1,0 +1,4 @@
+model IgnPost {
+  id Record @id
+  postTitle String
+}

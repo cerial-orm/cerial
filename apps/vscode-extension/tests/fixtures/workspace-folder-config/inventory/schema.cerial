@@ -1,0 +1,7 @@
+# Inventory schema convention marker
+
+model Product {
+  id Record @id
+  sku String
+  productTitle String
+}

@@ -1,0 +1,4 @@
+model DraftModel {
+  id Record @id
+  draftNote String
+}

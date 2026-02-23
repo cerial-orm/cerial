@@ -1,0 +1,4 @@
+model DraftFeature {
+  id Record @id
+  draftLabel String
+}

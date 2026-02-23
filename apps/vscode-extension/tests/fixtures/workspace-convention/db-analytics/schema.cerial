@@ -1,0 +1,14 @@
+# Convention marker — db-analytics schema group
+# Isolated from db-main — no shared type names
+
+enum AnalyticsCategory { PageView, Click, Scroll, Purchase, SignUp }
+
+model AnalyticsEvent {
+  id Record @id
+  sessionId String
+  category AnalyticsCategory
+  payload String?
+  userAgent String?
+  ipAddress String?
+  occurredAt Date @createdAt
+}

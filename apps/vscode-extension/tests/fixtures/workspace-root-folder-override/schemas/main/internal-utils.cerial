@@ -1,0 +1,4 @@
+model InternalUtil {
+  id Record @id
+  utilLabel String
+}

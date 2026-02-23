@@ -1,0 +1,4 @@
+model EventHandler {
+  id Record @id
+  handlerLabel String
+}

@@ -1,0 +1,29 @@
+# Convention marker — db-main schema group
+# Core models with basic field types: String, Int, Float, Bool, Date, Email, Record, Relation
+
+enum ConvUserRole { Admin, Editor, Viewer }
+
+model ConvUser {
+  id Record @id
+  email Email @unique
+  name String
+  age Int?
+  isActive Bool @default(true)
+  score Float
+  birthDate Date?
+  createdAt Date @createdAt
+  updatedAt Date @updatedAt
+  profile ConvUserProfile?
+  role ConvUserRole @default(Admin)
+  tags String[]
+}
+
+model ConvPost {
+  id Record @id
+  title String
+  body String?
+  published Bool @default(false)
+  viewCount Int @default(0)
+  rating Float?
+  createdAt Date @createdAt
+}

@@ -1,0 +1,56 @@
+# Error schemas — relation validator errors
+# Each model triggers specific validator rules
+
+// Error 1: Relation without @model decorator
+model ErrRelNoModel {
+  id Record @id
+  friendId Record
+  friend Relation @field(friendId)
+}
+
+// Error 2: @model pointing to non-existent model
+model ErrRelBadTarget {
+  id Record @id
+  authorId Record
+  author Relation @field(authorId) @model(NonExistentModel)
+}
+
+// Error 3: @field referencing non-existent Record field
+model ErrRelBadField {
+  id Record @id
+  author Relation @field(missingRecordField) @model(ErrRelBadTarget)
+}
+
+// Error 4: Cardinality mismatch — Relation[] paired with singular Record
+model ErrRelCardinalityMismatch {
+  id Record @id
+  tagId Record
+  tags Relation[] @field(tagId) @model(ErrRelBadTarget)
+}
+
+// Error 5: @onDelete on required relation (not allowed)
+model ErrRelOnDeleteRequired {
+  id Record @id
+  ownerId Record
+  owner Relation @field(ownerId) @model(ErrRelBadTarget) @onDelete(Cascade)
+}
+
+// Error 6: @onDelete on array relation (not allowed)
+model ErrRelOnDeleteArray {
+  id Record @id
+  itemIds Record[]
+  items Relation[] @field(itemIds) @model(ErrRelBadTarget) @onDelete(SetNull)
+}
+
+// Error 7: @onDelete on reverse relation (not allowed — no @field)
+model ErrRelOnDeleteReverse {
+  id Record @id
+  children Relation[] @model(ErrRelBadTarget) @onDelete(Cascade)
+}
+
+// Error 8: Optionality mismatch — Record? with non-optional Relation
+model ErrRelOptionalityMismatch {
+  id Record @id
+  refId Record?
+  ref Relation @field(refId) @model(ErrRelBadTarget)
+}

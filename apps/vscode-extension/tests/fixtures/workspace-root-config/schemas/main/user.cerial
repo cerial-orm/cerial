@@ -1,0 +1,7 @@
+# User model in main schema
+
+model User {
+  id Record @id
+  name String
+  email Email
+}

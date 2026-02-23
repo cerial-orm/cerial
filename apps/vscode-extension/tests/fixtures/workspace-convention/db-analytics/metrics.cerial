@@ -1,0 +1,23 @@
+# Simple metric models for db-analytics group
+
+enum AnalyticsMetricType { Counter, Gauge, Histogram }
+
+literal AnalyticsGranularity { 'minute', 'hour', 'day', 'week', 'month' }
+
+model AnalyticsMetric {
+  id Record @id
+  name String @unique
+  kind AnalyticsMetricType @default(Counter)
+  granularity AnalyticsGranularity @default('hour')
+  currentValue Float @default(0)
+  sampleCount Int @default(0)
+  lastUpdated Date @updatedAt
+}
+
+model AnalyticsDashboard {
+  id Record @id
+  title String
+  description String?
+  isPublic Bool @default(false)
+  createdAt Date @createdAt
+}

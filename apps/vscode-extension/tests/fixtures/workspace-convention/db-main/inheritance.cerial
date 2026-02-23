@@ -1,0 +1,55 @@
+# Inheritance: abstract model, extends, pick/omit, !!private
+
+// Abstract base with !!private fields
+abstract model ConvBaseEntity {
+  id Record @id !!private
+  createdAt Date @createdAt !!private
+  updatedAt Date @updatedAt
+}
+
+// Second-level abstract extending base
+abstract model ConvBaseUser extends ConvBaseEntity {
+  email Email @unique
+  name String
+  isActive Bool @default(true)
+}
+
+// Concrete model extending abstract chain
+model ConvStandardUser extends ConvBaseUser {
+  age Int?
+  role String @default('user')
+}
+
+// Concrete model with omit — exclude specific field from base
+model ConvAdminUser extends ConvBaseUser[!isActive] {
+  level Int @default(1)
+  permissions String[]
+}
+
+// Concrete model with pick — select specific fields from abstract
+model ConvMinimalEntity extends ConvBaseEntity[id, createdAt] {
+  label String
+  notes String?
+}
+
+// Override a field from base
+model ConvSuperUser extends ConvBaseUser {
+  role String @default('superuser')
+  canManage Bool @default(true)
+}
+
+// Concrete model with empty body — inherits all fields
+model ConvEmptyChild extends ConvBaseEntity {
+}
+
+// Abstract with !!private fields for downstream control
+abstract model ConvBaseDocument extends ConvBaseEntity {
+  title String !!private
+  body String?
+}
+
+// Extending with !!private override propagation
+model ConvArticle extends ConvBaseDocument {
+  slug String @unique
+  published Bool @default(false)
+}

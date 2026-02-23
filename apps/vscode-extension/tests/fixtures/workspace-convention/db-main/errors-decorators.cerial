@@ -1,0 +1,50 @@
+# Error schemas — decorator validator errors
+# Each model triggers specific validator rules
+
+// Error 1: @now on non-Date field
+model ErrDecNowOnString {
+  id Record @id
+  label String @now
+}
+
+// Error 2: @createdAt on non-Date field
+model ErrDecCreatedAtOnInt {
+  id Record @id
+  counter Int @createdAt
+}
+
+// Error 3: @readonly combined with @now (incompatible)
+model ErrDecReadonlyNow {
+  id Record @id
+  computed Date @readonly @now
+}
+
+// Error 4: @readonly combined with @defaultAlways (contradictory)
+model ErrDecReadonlyDefaultAlways {
+  id Record @id
+  resetVal String @readonly @defaultAlways("fixed")
+}
+
+// Error 5: @readonly on @id field (redundant, error)
+model ErrDecReadonlyId {
+  id Record @id @readonly
+  name String
+}
+
+// Error 6: @uuid on non-Uuid field
+model ErrDecUuidOnString {
+  id Record @id
+  token String @uuid
+}
+
+// Error 7: @defaultAlways combined with @default (mutually exclusive)
+model ErrDecDefaultConflict {
+  id Record @id
+  score Int @default(0) @defaultAlways(0)
+}
+
+// Error 8: @flexible on non-object field
+model ErrDecFlexibleOnString {
+  id Record @id
+  name String @flexible
+}

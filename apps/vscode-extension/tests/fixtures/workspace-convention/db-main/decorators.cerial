@@ -1,0 +1,85 @@
+# Decorator showcase — covers decorators not fully exercised in other files
+# @default, @defaultAlways, @nullable, @now, @createdAt, @updatedAt,
+# @readonly, @flexible, @set, @distinct, @sort, @unique, @index, @@index, @@unique
+
+object ConvReviewMeta {
+  note String @defaultAlways("pending review")
+  flagged Bool @defaultAlways(false)
+  reviewer String? @readonly
+}
+
+model ConvTimestampShowcase {
+  id Record @id
+  label String
+  computed Date @now
+  created Date @createdAt
+  modified Date @updatedAt
+}
+
+model ConvDefaultShowcase {
+  id Record @id
+  greeting String @default("hello")
+  count Int @default(0)
+  ratio Float @default(1.5)
+  enabled Bool @default(true)
+  resetCount Int @defaultAlways(0)
+  syncStatus String @defaultAlways("dirty")
+  resetRatio Float @defaultAlways(1.0)
+  reviewInfo ConvReviewMeta?
+}
+
+model ConvNullableShowcase {
+  id Record @id
+  name String
+  bio String? @nullable
+  count Int? @nullable
+  rating Float? @nullable
+  flag Bool? @nullable
+  birthDate Date? @nullable
+  contact Email? @nullable
+  nullDefault String? @nullable @default(null)
+}
+
+model ConvReadonlyShowcase {
+  id Record @id
+  name String
+  code String @readonly
+  origin String @readonly @default("system")
+  score Int? @readonly
+}
+
+model ConvFlexibleShowcase {
+  id Record @id
+  name String
+  settings ConvFlexSettings @flexible
+  optSettings ConvFlexSettings? @flexible
+  strictSettings ConvFlexSettings
+}
+
+object ConvFlexSettings {
+  theme String
+  lang String?
+}
+
+model ConvArrayDecoratorShowcase {
+  id Record @id
+  uniqueTags String[] @distinct
+  sortedScores Int[] @sort
+  recentDates Date[] @sort(false)
+  uniqueSorted String[] @distinct @sort
+  normalItems String[]
+  tagSet String[] @set
+  numberSet Int[] @set
+  uuidSet Uuid[] @set
+}
+
+model ConvIndexShowcase {
+  id Record @id
+  email Email @unique
+  slug String @index
+  firstName String
+  lastName String
+  department String
+  @@unique(convFullName, [firstName, lastName])
+  @@index(convDeptName, [department, firstName])
+}

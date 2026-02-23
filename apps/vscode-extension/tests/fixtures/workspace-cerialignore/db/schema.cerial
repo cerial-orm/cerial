@@ -1,0 +1,6 @@
+// @convention(root)
+
+model IgnUser {
+  id Record @id
+  username String
+}

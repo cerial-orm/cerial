@@ -1,0 +1,6 @@
+{
+  "schemas": {
+    "main": { "path": "./schemas/main" },
+    "auth": { "path": "./schemas/auth" }
+  }
+}
