@@ -1,5 +1,5 @@
 {
-  "name": "@cerial/vscode-extension",
+  "name": "cerial-vscode",
   "displayName": "Cerial",
   "description": "Language support for .cerial schema files",
   "version": "0.0.1",

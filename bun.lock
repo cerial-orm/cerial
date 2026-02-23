@@ -33,7 +33,7 @@
       },
     },
     "apps/vscode-extension": {
-      "name": "@cerial/vscode-extension",
+      "name": "cerial-vscode",
       "version": "0.0.1",
       "dependencies": {
         "vscode-languageclient": "^9.0.1",
@@ -109,8 +109,6 @@
     "@biomejs/js-api": ["@biomejs/js-api@4.0.0", "", { "peerDependencies": { "@biomejs/wasm-bundler": "^2.3.0", "@biomejs/wasm-nodejs": "^2.3.0", "@biomejs/wasm-web": "^2.3.0" }, "optionalPeers": ["@biomejs/wasm-bundler", "@biomejs/wasm-nodejs", "@biomejs/wasm-web"] }, "sha512-EOArR/6drRzM1/hwOIz1pZw90FL31Ud4Y7hEHGWVtMNmAwS9SrwZ8hMENGlLVXCeGW/kL46p8kX7eO6x9Nmezg=="],
 
     "@biomejs/wasm-nodejs": ["@biomejs/wasm-nodejs@2.4.4", "", {}, "sha512-BWCBZhNIgPqEIp69n4FzB4u8SitXYUdCay6J/d3EocbR2V+ftI5P/TKCA1kKI8V++D0I+xfxsWCo4+FyuAXY6g=="],
-
-    "@cerial/vscode-extension": ["@cerial/vscode-extension@workspace:apps/vscode-extension"],
 
     "@esbuild/aix-ppc64": ["@esbuild/aix-ppc64@0.27.3", "", { "os": "aix", "cpu": "ppc64" }, "sha512-9fJMTNFTWZMh5qwrBItuziu834eOCUcEqymSH7pY+zoMVEZg3gcPuBNxH1EvfVYe9h0x/Ptw8KBzv7qxb7l8dg=="],
 
@@ -321,6 +319,8 @@
     "camelcase": ["camelcase@6.3.0", "", {}, "sha512-Gmy6FhYlCY7uOElZUSbxo2UCDH8owEk996gkbrpsgGtrJLM3J7jGxl9Ic7Qwwj4ivOE5AWZWRMecDdF7hqGjFA=="],
 
     "cerial": ["cerial@workspace:apps/orm"],
+
+    "cerial-vscode": ["cerial-vscode@workspace:apps/vscode-extension"],
 
     "chalk": ["chalk@4.1.2", "", { "dependencies": { "ansi-styles": "^4.1.0", "supports-color": "^7.1.0" } }, "sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA=="],
 
