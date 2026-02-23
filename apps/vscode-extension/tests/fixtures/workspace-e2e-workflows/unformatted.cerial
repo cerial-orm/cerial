@@ -1,0 +1,8 @@
+model     WfConfig   {
+    id Record     @id
+  name    String
+     enabled Bool       @default(true)
+        
+  count      Int    @default(0)
+          label String?
+}

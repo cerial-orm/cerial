@@ -140,3 +140,98 @@ export async function pollUntil<T>(
 
   return null;
 }
+
+
+// ---------------------------------------------------------------------------
+// Document editing helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Apply a workspace edit containing a single text edit to a document.
+ * Uses vscode.workspace.applyEdit which fires onDidChangeTextDocument.
+ */
+export async function editDocument(doc: vscode.TextDocument, edit: vscode.TextEdit): Promise<boolean> {
+  const wsEdit = new vscode.WorkspaceEdit();
+  wsEdit.set(doc.uri, [edit]);
+
+  return vscode.workspace.applyEdit(wsEdit);
+}
+
+/**
+ * Insert text at a position in an open document.
+ */
+export async function insertText(
+  doc: vscode.TextDocument,
+  position: vscode.Position,
+  text: string,
+): Promise<boolean> {
+  return editDocument(doc, vscode.TextEdit.insert(position, text));
+}
+
+/**
+ * Delete a range of text from an open document.
+ */
+export async function deleteText(doc: vscode.TextDocument, range: vscode.Range): Promise<boolean> {
+  return editDocument(doc, vscode.TextEdit.delete(range));
+}
+
+/**
+ * Replace entire document content.
+ */
+export async function replaceDocument(doc: vscode.TextDocument, newContent: string): Promise<boolean> {
+  const fullRange = new vscode.Range(
+    doc.lineAt(0).range.start,
+    doc.lineAt(doc.lineCount - 1).range.end,
+  );
+
+  return editDocument(doc, vscode.TextEdit.replace(fullRange, newContent));
+}
+
+/**
+ * Wait for diagnostics to change from a known previous state.
+ * Returns when diagnostics differ from prevDiagnostics, or on timeout.
+ */
+export async function waitForDiagnosticsChange(
+  uri: vscode.Uri,
+  prevCount: number,
+  timeout = 10000,
+): Promise<readonly vscode.Diagnostic[]> {
+  const start = Date.now();
+  while (Date.now() - start < timeout) {
+    const current = vscode.languages.getDiagnostics(uri);
+    if (current.length !== prevCount) {
+      return current;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 200));
+  }
+
+  return vscode.languages.getDiagnostics(uri);
+}
+
+/**
+ * Get code actions available for a given range in a document.
+ */
+export async function getCodeActions(
+  doc: vscode.TextDocument,
+  range: vscode.Range,
+): Promise<vscode.CodeAction[]> {
+  const actions = await vscode.commands.executeCommand<vscode.CodeAction[]>(
+    'vscode.executeCodeActionProvider',
+    doc.uri,
+    range,
+  );
+
+  return actions ?? [];
+}
+
+/**
+ * Apply a code action that has a workspace edit.
+ * Returns true if the edit was applied successfully.
+ */
+export async function applyCodeAction(action: vscode.CodeAction): Promise<boolean> {
+  if (action.edit) {
+    return vscode.workspace.applyEdit(action.edit);
+  }
+
+  return false;
+}

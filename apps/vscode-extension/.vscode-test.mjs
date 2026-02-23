@@ -9,7 +9,7 @@ export default defineConfig([
   },
   {
     label: 'e2eTests',
-    files: 'out/tests/e2e/**/*.test.js',
+    files: 'out/tests/e2e/*.test.js',
     workspaceFolder: './tests/fixtures/workspace',
     mocha: { timeout: 60000 },
   },
@@ -54,5 +54,11 @@ export default defineConfig([
     files: 'out/tests/integration/multi-schema/mixed.test.js',
     workspaceFolder: './tests/fixtures/workspace-mixed',
     mocha: { timeout: 30000 },
+  },
+  {
+    label: 'e2eWorkflows',
+    files: 'out/tests/e2e/workflows/*.test.js',
+    workspaceFolder: './tests/fixtures/workspace-e2e-workflows',
+    mocha: { timeout: 60000 },
   },
 ]);

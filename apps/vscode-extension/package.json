@@ -213,6 +213,7 @@
     "test:integration:cerialignore": "bun run build && bun run compile:tests && vscode-test --label integrationCerialignore",
     "test:integration:path-filtering": "bun run build && bun run compile:tests && vscode-test --label integrationPathFiltering",
     "test:integration:mixed": "bun run build && bun run compile:tests && vscode-test --label integrationMixed",
+    "test:e2e:workflows": "bun run build && bun run compile:tests && vscode-test --label e2eWorkflows",
     "package": "vsce package --no-dependencies",
     "package:latest": "vsce package --no-dependencies --out cerial-latest.vsix",
     "dev:cursor": "bun run package:latest && cursor --install-extension cerial-latest.vsix && echo 'Installed! Reload Window: Cmd+Shift+P > Reload Window'",

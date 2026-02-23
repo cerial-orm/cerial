@@ -1,0 +1,23 @@
+// @convention marker
+model WfUser {
+  id Record @id
+  email Email @unique
+  name String
+  age Int?
+  role WfRole @default(Admin)
+  address WfAddress?
+  createdAt Date @createdAt
+}
+
+model WfPost {
+  id Record @id
+  title String
+  body String?
+  published Bool @default(false)
+}
+
+model RenameTarget {
+  id Record @id
+  label String
+  value Int
+}

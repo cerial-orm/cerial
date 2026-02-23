@@ -1,0 +1,11 @@
+object WfAddress {
+  street String
+  city String
+  zip String?
+}
+
+enum WfRole {
+  Admin
+  Editor
+  Viewer
+}

@@ -1,0 +1,10 @@
+model WfComment {
+  id Record @id
+  content String
+  authorId Record @field(authorId)
+  author Relation @model(WfUser)
+  postId Record @field(postId)
+  post Relation @model(WfPost)
+  targetId Record @field(targetId)
+  target Relation @model(RenameTarget)
+}
