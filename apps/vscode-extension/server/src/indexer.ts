@@ -28,7 +28,12 @@ import {
 // SAFE: resolver barrel has no Bun dependencies
 import { resolveInheritance } from '../../../orm/src/resolver';
 import type { ParseError, SchemaAST } from '../../../orm/src/types';
-import { findCerialFiles, loadCerialConfig } from './config-loader';
+import { findCerialFiles, findFolderConfigs, loadCerialConfig, loadFolderConfig } from './config-loader';
+import { resolvePathFilter } from '../../../orm/src/cli/filters/path-filter';
+import type { PathFilter } from '../../../orm/src/cli/filters/types';
+import { NO_FILTER } from '../../../orm/src/cli/filters/types';
+import { toFilterPath } from '../../../orm/src/cli/filters/path-utils';
+import { loadCerialIgnoreSync } from './filters';
 
 // ──────────────────────────────────────────────
 // Types
@@ -132,22 +137,91 @@ export class WorkspaceIndexer {
     for (const folder of folders) {
       const folderPath = toFilePath(folder);
       const config = loadCerialConfig(folderPath);
-
+      // Load root .cerialignore
+      const rootCerialIgnore = loadCerialIgnoreSync(folderPath) ?? undefined;
       if (config?.schemas) {
         // Multi-schema mode: one group per schema entry
         for (const [name, schemaEntry] of Object.entries(config.schemas)) {
           const schemaPath = path.resolve(folderPath, schemaEntry.path);
-          this.addGroup(name, schemaPath, config);
+          const folderCerialIgnore = loadCerialIgnoreSync(schemaPath) ?? undefined;
+          const fc = loadFolderConfig(schemaPath);
+
+          const filter = resolvePathFilter({
+            rootConfig: config,
+            schemaConfig: schemaEntry,
+            folderConfig: fc ?? undefined,
+            rootCerialIgnore,
+            folderCerialIgnore,
+            basePath: schemaPath,
+          });
+
+          this.addGroup(name, schemaPath, config, filter);
         }
       } else if (config?.schema) {
         // Single schema mode
         const schemaPath = path.resolve(folderPath, config.schema);
-        this.addGroup(path.basename(schemaPath), schemaPath, config);
+        const folderCerialIgnore = loadCerialIgnoreSync(schemaPath) ?? undefined;
+        const fc = loadFolderConfig(schemaPath);
+
+        const filter = resolvePathFilter({
+          rootConfig: config,
+          folderConfig: fc ?? undefined,
+          rootCerialIgnore,
+          folderCerialIgnore,
+          basePath: schemaPath,
+        });
+
+        this.addGroup(path.basename(schemaPath), schemaPath, config, filter);
       } else {
-        // No config — all .cerial files in workspace form one group
-        const files = findCerialFiles(folderPath);
-        if (files.length) {
-          this.addGroupWithFiles(path.basename(folderPath), folderPath, files, null);
+        // No root config schemas/schema — check for folder configs
+        const folderConfigs = findFolderConfigs(folderPath);
+        const coveredDirs = new Set<string>();
+
+        if (folderConfigs.length) {
+          for (const { dir, config: fc } of folderConfigs) {
+            const folderCerialIgnore = loadCerialIgnoreSync(dir) ?? undefined;
+
+            const filter = resolvePathFilter({
+              rootConfig: config ?? undefined,
+              folderConfig: fc,
+              rootCerialIgnore,
+              folderCerialIgnore,
+              basePath: dir,
+            });
+
+            const name = fc.name ?? path.basename(dir);
+            this.addGroup(name, dir, config, filter);
+            coveredDirs.add(normalizePath(dir));
+          }
+        }
+
+        // Convention/flat fallback for files NOT covered by folder configs
+        const allFiles = findCerialFiles(folderPath);
+        const uncoveredFiles = allFiles.filter(f => {
+          const normalized = normalizePath(f);
+          for (const covered of coveredDirs) {
+            if (normalized.startsWith(covered + '/')) return false;
+          }
+
+          return true;
+        });
+
+        if (uncoveredFiles.length) {
+          const filter = resolvePathFilter({
+            rootConfig: config ?? undefined,
+            rootCerialIgnore,
+            basePath: folderPath,
+          });
+
+          const filteredFiles = uncoveredFiles.filter(f => {
+            const relativePath = toFilterPath(f, folderPath);
+
+            return filter.shouldInclude(relativePath);
+          });
+
+          if (filteredFiles.length) {
+            this.addGroupWithFiles(path.basename(folderPath), folderPath, filteredFiles, config);
+          }
         }
       }
     }
@@ -438,7 +512,7 @@ export class WorkspaceIndexer {
    * Create a schema group from a directory path.
    * Discovers .cerial files in the directory (or handles a single file path).
    */
-  private addGroup(name: string, schemaPath: string, config: CerialConfig | null): void {
+  private addGroup(name: string, schemaPath: string, config: CerialConfig | null, filter: PathFilter = NO_FILTER): void {
     const resolvedPath = normalizePath(schemaPath);
 
     let files: string[];
@@ -448,7 +522,7 @@ export class WorkspaceIndexer {
         // Single schema file
         files = resolvedPath.endsWith('.cerial') ? [resolvedPath] : [];
       } else {
-        files = findCerialFiles(resolvedPath);
+        files = findCerialFiles(resolvedPath, filter);
       }
     } catch {
       // Path doesn't exist — empty group
