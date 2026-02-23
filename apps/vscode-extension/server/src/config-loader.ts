@@ -7,10 +7,16 @@
 
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import type { CerialConfig } from '../../../orm/src/cli/config/types';
+import type { CerialConfig, FolderConfig } from '../../../orm/src/cli/config/types';
+import type { PathFilter } from '../../../orm/src/cli/filters/types';
+import { NO_FILTER } from '../../../orm/src/cli/filters/types';
+import { toFilterPath } from '../../../orm/src/cli/filters/path-utils';
 
 /** Config file names in priority order */
 const CONFIG_FILE_NAMES = ['cerial.config.json', 'cerial.config.ts'] as const;
+
+/** Directories to skip when scanning for configs or schema files */
+const SKIP_DIRS = new Set(['node_modules', '.git', 'dist']);
 
 /**
  * Attempt to extract a simple CerialConfig from a TypeScript config file.
@@ -91,26 +97,102 @@ export function loadCerialConfig(workspacePath: string): CerialConfig | null {
  * Uses fs.readdirSync for Node.js compatibility (no Bun.Glob).
  *
  * @param dirPath - Absolute path to scan
+ * @param filter - Optional PathFilter to include/exclude files
  * @returns Array of absolute file paths
  */
-export function findCerialFiles(dirPath: string): string[] {
+export function findCerialFiles(dirPath: string, filter: PathFilter = NO_FILTER): string[] {
   const results: string[] = [];
 
+  function scan(currentPath: string): void {
+    try {
+      const entries = fs.readdirSync(currentPath, { withFileTypes: true });
+
+      for (const entry of entries) {
+        const fullPath = path.join(currentPath, entry.name);
+
+        if (entry.isDirectory()) {
+          // Skip common non-schema directories
+          if (SKIP_DIRS.has(entry.name)) {
+            continue;
+          }
+          scan(fullPath);
+        } else if (entry.name.endsWith('.cerial')) {
+          const relativePath = toFilterPath(fullPath, dirPath);
+          if (!filter.shouldInclude(relativePath)) continue;
+          results.push(fullPath);
+        }
+      }
+    } catch {
+      // Permission error or directory doesn't exist — skip
+    }
+  }
+
+  scan(dirPath);
+  return results;
+}
+
+
+/**
+ * Load a folder-level cerial config from a directory.
+ *
+ * Similar to `loadCerialConfig()` but rejects root configs (those with
+ * `schema` or `schemas` keys). Only returns configs that describe a
+ * single schema folder (FolderConfig).
+ *
+ * @param dir - Absolute path to the directory to check
+ * @returns Parsed FolderConfig or null if not found / is a root config
+ */
+export function loadFolderConfig(dir: string): FolderConfig | null {
+  for (const fileName of CONFIG_FILE_NAMES) {
+    const configPath = path.join(dir, fileName);
+
+    try {
+      if (!fs.existsSync(configPath)) continue;
+
+      const content = fs.readFileSync(configPath, 'utf-8');
+      let parsed: Record<string, unknown> | null = null;
+
+      if (fileName.endsWith('.json')) {
+        parsed = JSON.parse(content) as Record<string, unknown>;
+      } else {
+        // TypeScript config — attempt regex extraction
+        parsed = extractConfigFromTs(content) as Record<string, unknown> | null;
+      }
+
+      if (!parsed) continue;
+
+      // Root configs have schema/schemas keys — not a folder config
+      if ('schema' in parsed || 'schemas' in parsed) return null;
+
+      return parsed as FolderConfig;
+    } catch {}
+  }
+
+  return null;
+}
+
+/**
+ * Discover folder-level cerial configs in immediate subdirectories.
+ *
+ * Scans only one level deep (not recursive). Skips common non-schema
+ * directories (node_modules, .git, dist).
+ *
+ * @param workspacePath - Absolute path to the workspace root
+ * @returns Array of { dir, config } for each discovered folder config
+ */
+export function findFolderConfigs(workspacePath: string): Array<{ dir: string; config: FolderConfig }> {
+  const results: Array<{ dir: string; config: FolderConfig }> = [];
+
   try {
-    const entries = fs.readdirSync(dirPath, { withFileTypes: true });
+    const entries = fs.readdirSync(workspacePath, { withFileTypes: true });
 
     for (const entry of entries) {
-      const fullPath = path.join(dirPath, entry.name);
+      if (!entry.isDirectory()) continue;
+      if (SKIP_DIRS.has(entry.name)) continue;
 
-      if (entry.isDirectory()) {
-        // Skip common non-schema directories
-        if (entry.name === 'node_modules' || entry.name === '.git' || entry.name === 'dist') {
-          continue;
-        }
-        results.push(...findCerialFiles(fullPath));
-      } else if (entry.name.endsWith('.cerial')) {
-        results.push(fullPath);
-      }
+      const subdir = path.join(workspacePath, entry.name);
+      const config = loadFolderConfig(subdir);
+      if (config) results.push({ dir: subdir, config });
     }
   } catch {
     // Permission error or directory doesn't exist — skip
