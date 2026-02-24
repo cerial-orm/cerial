@@ -21,7 +21,7 @@ import {
   type TextDocuments,
 } from 'vscode-languageserver';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
-import type { SchemaAST } from '../../../../orm/src/types';
+import type { ASTField, SchemaAST } from '../../../../orm/src/types';
 import type { WorkspaceIndexer } from '../indexer';
 import { type BlockContext, findFieldByName, findNodeAtPosition, getBlockContext } from '../utils/ast-location';
 import { lspToCerial } from '../utils/position';
@@ -313,6 +313,41 @@ const DECORATOR_CONFLICTS: Readonly<Record<string, readonly string[]>> = {
   set: ['distinct', 'sort'],
   distinct: ['set'],
   sort: ['set'],
+};
+
+/**
+ * Decorators restricted to specific field types.
+ * If a decorator type appears here, it is ONLY offered when the field's type matches.
+ * Decorators NOT listed here are offered regardless of field type.
+ */
+const DECORATOR_TYPE_RESTRICTIONS: Readonly<Record<string, ReadonlySet<string>>> = {
+  // Timestamp decorators — Date fields only
+  createdAt: new Set(['date']),
+  updatedAt: new Set(['date']),
+  now: new Set(['date']),
+  // UUID auto-generation — Uuid fields only
+  uuid: new Set(['uuid']),
+  uuid4: new Set(['uuid']),
+  uuid7: new Set(['uuid']),
+  // Geometry subtypes — Geometry fields only
+  point: new Set(['geometry']),
+  line: new Set(['geometry']),
+  polygon: new Set(['geometry']),
+  multipoint: new Set(['geometry']),
+  multiline: new Set(['geometry']),
+  multipolygon: new Set(['geometry']),
+  geoCollection: new Set(['geometry']),
+  // Relation decorators — Relation fields only
+  field: new Set(['relation']),
+  model: new Set(['relation']),
+  onDelete: new Set(['relation']),
+  key: new Set(['relation']),
+  // @flexible — object-typed fields only
+  flexible: new Set(['object']),
+  // Array modifiers — array fields only
+  set: new Set(['array']),
+  distinct: new Set(['array']),
+  sort: new Set(['array']),
 };
 
 // ---------------------------------------------------------------------------
@@ -739,6 +774,152 @@ function isAfterExtends(lineText: string, character: number): boolean {
 }
 
 /**
+ * Check if the cursor is inside `extends Parent[...]` brackets.
+ * Returns the parent name if true, null otherwise.
+ */
+export function getExtendsBracketContext(lineText: string, character: number): string | null {
+  const beforeCursor = lineText.slice(0, character);
+  // Match: extends ParentName[ with optional content inside brackets
+  const match = beforeCursor.match(/extends\s+(\w+)\s*\[([^\]]*)$/);
+  if (!match) return null;
+
+  return match[1];
+}
+
+/**
+ * Get field/value completions for inside extends brackets (pick/omit syntax).
+ * Resolves the parent type and offers its fields/values, excluding already-listed ones.
+ */
+export function getExtendsBracketCompletions(
+  parentName: string,
+  lineText: string,
+  character: number,
+  blockContext: BlockContext,
+  ast: SchemaAST | null,
+  uri: string,
+  indexer: WorkspaceIndexer | null,
+): CompletionItem[] {
+  if (!blockContext.blockType) return [];
+
+  const items: CompletionItem[] = [];
+  const offered = new Set<string>();
+
+  // Extract already-listed fields in the brackets to exclude them
+  const beforeCursor = lineText.slice(0, character);
+  const bracketMatch = beforeCursor.match(/\[([^\]]*)$/);
+  if (bracketMatch) {
+    const insideBracket = bracketMatch[1];
+    // Parse existing field names (with or without ! prefix)
+    const existing = insideBracket.split(',').map((s) => s.trim().replace(/^!/, ''));
+    for (const name of existing) {
+      if (name) offered.add(name);
+    }
+  }
+
+  // Search for the parent type in all ASTs (local + cross-file)
+  const asts: Array<{ filename: string | null; ast: SchemaAST }> = [];
+  if (ast) asts.push({ filename: null, ast });
+  const crossFileASTs = getCrossFileASTs(uri, indexer);
+  for (const entry of crossFileASTs) {
+    asts.push(entry);
+  }
+
+  for (const { ast: searchAST } of asts) {
+    switch (blockContext.blockType) {
+      case 'model':
+        for (const model of searchAST.models) {
+          if (model.name !== parentName) continue;
+          for (const field of model.fields) {
+            if (offered.has(field.name)) continue;
+            offered.add(field.name);
+            items.push({
+              label: field.name,
+              kind: CompletionItemKind.Field,
+              detail: `${field.type}${field.isOptional ? '?' : ''} field`,
+            });
+          }
+        }
+        break;
+      case 'object':
+        for (const obj of searchAST.objects) {
+          if (obj.name !== parentName) continue;
+          for (const field of obj.fields) {
+            if (offered.has(field.name)) continue;
+            offered.add(field.name);
+            items.push({
+              label: field.name,
+              kind: CompletionItemKind.Field,
+              detail: `${field.type}${field.isOptional ? '?' : ''} field`,
+            });
+          }
+        }
+        break;
+      case 'tuple':
+        for (const tup of searchAST.tuples) {
+          if (tup.name !== parentName) continue;
+          for (let i = 0; i < tup.elements.length; i++) {
+            const el = tup.elements[i]!;
+            const name = el.name ?? `element${i}`;
+            if (offered.has(name)) continue;
+            offered.add(name);
+            items.push({
+              label: name,
+              kind: CompletionItemKind.Field,
+              detail: `${el.type} element`,
+            });
+          }
+        }
+        break;
+      case 'enum':
+        for (const en of searchAST.enums) {
+          if (en.name !== parentName) continue;
+          for (const val of en.values) {
+            if (offered.has(val)) continue;
+            offered.add(val);
+            items.push({
+              label: val,
+              kind: CompletionItemKind.EnumMember,
+              detail: 'enum value',
+            });
+          }
+        }
+        break;
+      case 'literal':
+        for (const lit of searchAST.literals) {
+          if (lit.name !== parentName) continue;
+          for (const v of lit.variants) {
+            let label: string;
+            switch (v.kind) {
+              case 'string':
+                label = v.value;
+                break;
+              case 'int':
+              case 'float':
+                label = String(v.value);
+                break;
+              case 'bool':
+                label = String(v.value);
+                break;
+              default:
+                continue;
+            }
+            if (offered.has(label)) continue;
+            offered.add(label);
+            items.push({
+              label,
+              kind: CompletionItemKind.Value,
+              detail: 'literal variant',
+            });
+          }
+        }
+        break;
+    }
+  }
+
+  return items;
+}
+
+/**
  * Check if the cursor is inside `@model(...)` parentheses.
  * Returns true when the line contains `@model(` before the cursor
  * with no closing `)` before the cursor position.
@@ -926,8 +1107,7 @@ function getExistingDecoratorNames(
 function parseLineDecorators(lineText: string): string[] {
   const names: string[] = [];
   const regex = /@([a-zA-Z]\w*)/g;
-  let match: RegExpExecArray | null;
-  while ((match = regex.exec(lineText)) !== null) {
+  for (let match = regex.exec(lineText); match !== null; match = regex.exec(lineText)) {
     names.push(match[1]);
   }
 
@@ -950,14 +1130,130 @@ function getConflictExclusions(existing: readonly string[]): Set<string> {
 }
 
 /**
- * Build decorator CompletionItems for the current block context.
- * Filters by block type, excludes already-applied, excludes conflicts.
+ * Resolve the current field's ASTField from context.
+ * Returns the field if it can be determined from AST, null otherwise.
  */
-function getDecoratorCompletions(
+export function getCurrentField(
+  ast: SchemaAST | null,
+  blockContext: BlockContext,
+  cerialPos: { line: number; column: number; offset: number },
+  lineText: string,
+): ASTField | null {
+  if (!ast || !blockContext.blockName) return null;
+
+  const nodeInfo = findNodeAtPosition(ast, cerialPos);
+  if (!nodeInfo) return null;
+
+  let fieldName: string | null = null;
+  if (nodeInfo.kind === 'field') {
+    fieldName = nodeInfo.name;
+  } else if (nodeInfo.kind === 'decorator' && nodeInfo.parent) {
+    fieldName = nodeInfo.parent.name;
+  }
+
+  if (fieldName) {
+    return findFieldByName(ast, blockContext.blockName, fieldName);
+  }
+
+  // Fallback: extract first word from the line as field name
+  const trimmed = lineText.trimStart();
+  const nameMatch = trimmed.match(/^([a-zA-Z_]\w*)/);
+  if (nameMatch) {
+    return findFieldByName(ast, blockContext.blockName, nameMatch[1]);
+  }
+
+  return null;
+}
+
+/**
+ * Check if a decorator is allowed for the given field type.
+ * Returns true if the decorator has no type restrictions or the field type matches.
+ */
+export function isDecoratorAllowedForFieldType(decoratorType: string, field: ASTField | null): boolean {
+  const restrictions = DECORATOR_TYPE_RESTRICTIONS[decoratorType];
+  if (!restrictions) return true; // No restriction — always allowed
+  if (!field) return true; // Can't determine field type — don't filter
+
+  // Check if the field type matches any allowed type
+  if (restrictions.has(field.type)) return true;
+
+  // Special case: array fields match 'array' restriction
+  if (field.isArray && restrictions.has('array')) return true;
+
+  // Special case: object-typed fields (have objectName set)
+  if (field.objectName && restrictions.has('object')) return true;
+
+  return false;
+}
+
+/**
+ * Look up enum/literal values for a field, searching local and cross-file ASTs.
+ * Returns the values as string[] for enum fields, or formatted variant strings for literal fields.
+ * Returns null if the field is not enum/literal or values can't be resolved.
+ */
+export function resolveEnumLiteralValues(
+  field: ASTField | null,
+  ast: SchemaAST | null,
+  uri: string,
+  indexer: WorkspaceIndexer | null,
+): string[] | null {
+  if (!field || field.type !== 'literal' || !field.literalName) return null;
+
+  const name = field.literalName;
+  const asts: SchemaAST[] = [];
+  if (ast) asts.push(ast);
+
+  // Also search cross-file ASTs
+  const crossFileASTs = getCrossFileASTs(uri, indexer);
+  for (const { ast: otherAST } of crossFileASTs) {
+    asts.push(otherAST);
+  }
+
+  // Check enums first (enum fields use type: 'literal' internally)
+  for (const searchAST of asts) {
+    for (const en of searchAST.enums) {
+      if (en.name === name) return en.values;
+    }
+  }
+
+  // Check literals
+  for (const searchAST of asts) {
+    for (const lit of searchAST.literals) {
+      if (lit.name !== name) continue;
+      const values: string[] = [];
+      for (const v of lit.variants) {
+        switch (v.kind) {
+          case 'string':
+            values.push(v.value);
+            break;
+          case 'int':
+          case 'float':
+            values.push(String(v.value));
+            break;
+          case 'bool':
+            values.push(String(v.value));
+            break;
+        }
+      }
+      if (values.length) return values;
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Build decorator CompletionItems for the current block context.
+ * Filters by block type, field type, excludes already-applied, excludes conflicts.
+ * For enum/literal fields, provides smart @default/@defaultAlways snippets with valid values.
+ */
+export function getDecoratorCompletions(
   ast: SchemaAST | null,
   blockContext: BlockContext,
   lineText: string,
   cerialPos: { line: number; column: number; offset: number },
+  uri: string,
+  indexer: WorkspaceIndexer | null,
 ): CompletionItem[] {
   if (!blockContext.blockType) return [];
 
@@ -967,6 +1263,10 @@ function getDecoratorCompletions(
   const existing = getExistingDecoratorNames(ast, blockContext, lineText, cerialPos);
   const existingSet = new Set(existing);
   const conflictExclusions = getConflictExclusions(existing);
+  const field = getCurrentField(ast, blockContext, cerialPos, lineText);
+
+  // Resolve enum/literal values for smart @default snippets
+  const enumLiteralValues = resolveEnumLiteralValues(field, ast, uri, indexer);
 
   const items: CompletionItem[] = [];
 
@@ -974,6 +1274,22 @@ function getDecoratorCompletions(
     if (!allowed.has(def.type)) continue;
     if (existingSet.has(def.type)) continue;
     if (conflictExclusions.has(def.type)) continue;
+    if (!isDecoratorAllowedForFieldType(def.type, field)) continue;
+
+    // Smart @default/@defaultAlways for enum/literal fields
+    if ((def.type === 'default' || def.type === 'defaultAlways') && enumLiteralValues?.length) {
+      const choiceSnippet = enumLiteralValues.join(',');
+      const label = def.type === 'default' ? '@default()' : '@defaultAlways()';
+      const insertText = `@${def.type}(\${1|${choiceSnippet}|})`;
+      items.push({
+        label,
+        kind: CompletionItemKind.Property,
+        detail: def.detail,
+        insertText,
+        insertTextFormat: InsertTextFormat.Snippet,
+      });
+      continue;
+    }
 
     items.push({
       label: def.label,
@@ -1052,7 +1368,21 @@ export function registerCompletionProvider(
       return getRecordIdCompletions(ast);
     }
 
-    // 4. After extends keyword
+    // 4a. Inside extends Parent[...] brackets — offer parent fields for pick/omit
+    const extendsParent = getExtendsBracketContext(lineText, params.position.character);
+    if (extendsParent) {
+      return getExtendsBracketCompletions(
+        extendsParent,
+        lineText,
+        params.position.character,
+        blockContext,
+        ast,
+        uri,
+        indexer,
+      );
+    }
+
+    // 4b. After extends keyword (no brackets yet)
     if (isAfterExtends(lineText, params.position.character)) {
       return getExtendsCompletions(ast, blockContext, uri, indexer);
     }
@@ -1065,7 +1395,7 @@ export function registerCompletionProvider(
 
     // 6. Decorator position → context-filtered decorator completions
     if (isDecoratorPosition(lineText, params.position.character, blockContext)) {
-      return getDecoratorCompletions(ast, blockContext, lineText, cerialPos);
+      return getDecoratorCompletions(ast, blockContext, lineText, cerialPos, uri, indexer);
     }
 
     // 7. Inside a block on a field type or empty line → field type completions
