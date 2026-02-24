@@ -45,5 +45,8 @@ tmp-schema-generates/
 # Generated clients inside test fixtures
 tests/fixtures/**/client/
 
+# Generated clients inside test e2e
+tests/e2e/generated/
+
 nul
 **/nul

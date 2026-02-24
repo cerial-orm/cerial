@@ -169,7 +169,6 @@ suite('Format Correctness Workflows', () => {
           'Second format should produce identical content to first format (idempotency)',
         );
       }
-
     } finally {
       // Always restore original content
       await replaceDocument(doc, originalContent);

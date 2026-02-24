@@ -85,17 +85,21 @@ suite('File Lifecycle Workflows', () => {
       await vscode.workspace.fs.writeFile(newFileUri, new TextEncoder().encode(newFileContent));
 
       // Step 3: Poll until NewLifecycleModel appears in completions
-      const found = await pollUntil(async () => {
-        const completions = await vscode.commands.executeCommand<vscode.CompletionList>(
-          'vscode.executeCompletionItemProvider',
-          doc.uri,
-          new vscode.Position(4, 7),
-        );
-        const labels = (completions?.items ?? []).map(getCompletionLabel);
-        if (labels.includes('NewLifecycleModel')) return true;
+      const found = await pollUntil(
+        async () => {
+          const completions = await vscode.commands.executeCommand<vscode.CompletionList>(
+            'vscode.executeCompletionItemProvider',
+            doc.uri,
+            new vscode.Position(4, 7),
+          );
+          const labels = (completions?.items ?? []).map(getCompletionLabel);
+          if (labels.includes('NewLifecycleModel')) return true;
 
-        return null;
-      }, 15000, 500);
+          return null;
+        },
+        15000,
+        500,
+      );
 
       // Step 4: Verify the new type appeared
       assert.ok(found, 'NewLifecycleModel should appear in completions after file creation');
@@ -121,34 +125,42 @@ suite('File Lifecycle Workflows', () => {
 
       // Step 2: Wait for DeleteTestModel to appear in completions
       const doc = await openDocument('schema.cerial');
-      const appeared = await pollUntil(async () => {
-        const completions = await vscode.commands.executeCommand<vscode.CompletionList>(
-          'vscode.executeCompletionItemProvider',
-          doc.uri,
-          new vscode.Position(4, 7),
-        );
-        const labels = (completions?.items ?? []).map(getCompletionLabel);
-        if (labels.includes('DeleteTestModel')) return true;
+      const appeared = await pollUntil(
+        async () => {
+          const completions = await vscode.commands.executeCommand<vscode.CompletionList>(
+            'vscode.executeCompletionItemProvider',
+            doc.uri,
+            new vscode.Position(4, 7),
+          );
+          const labels = (completions?.items ?? []).map(getCompletionLabel);
+          if (labels.includes('DeleteTestModel')) return true;
 
-        return null;
-      }, 15000, 500);
+          return null;
+        },
+        15000,
+        500,
+      );
       assert.ok(appeared, 'DeleteTestModel should appear in completions after file creation');
 
       // Step 3: Delete the file from disk
       await vscode.workspace.fs.delete(tempFileUri);
 
       // Step 4: Poll until DeleteTestModel disappears from completions
-      const disappeared = await pollUntil(async () => {
-        const completions = await vscode.commands.executeCommand<vscode.CompletionList>(
-          'vscode.executeCompletionItemProvider',
-          doc.uri,
-          new vscode.Position(4, 7),
-        );
-        const labels = (completions?.items ?? []).map(getCompletionLabel);
-        if (!labels.includes('DeleteTestModel')) return true;
+      const disappeared = await pollUntil(
+        async () => {
+          const completions = await vscode.commands.executeCommand<vscode.CompletionList>(
+            'vscode.executeCompletionItemProvider',
+            doc.uri,
+            new vscode.Position(4, 7),
+          );
+          const labels = (completions?.items ?? []).map(getCompletionLabel);
+          if (!labels.includes('DeleteTestModel')) return true;
 
-        return null;
-      }, 15000, 500);
+          return null;
+        },
+        15000,
+        500,
+      );
 
       // Step 5: Verify the type is gone
       assert.ok(disappeared, 'DeleteTestModel should disappear from completions after file deletion');
@@ -198,10 +210,7 @@ suite('File Lifecycle Workflows', () => {
 
       // Step 5: Wait for diagnostics to appear on schema.cerial (broken reference)
       const diagnostics = await waitForDiagnostics(schemaDoc.uri, 15000);
-      assert.ok(
-        diagnostics.length > 0,
-        'Diagnostics should appear after deleting file with referenced type',
-      );
+      assert.ok(diagnostics.length > 0, 'Diagnostics should appear after deleting file with referenced type');
 
       // Step 6: Verify diagnostic mentions unknown/unresolved type
       const hasUnresolvedDiag = diagnostics.some(

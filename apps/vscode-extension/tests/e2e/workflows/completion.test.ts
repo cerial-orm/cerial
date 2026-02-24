@@ -80,7 +80,6 @@ suite('Completion Workflows', () => {
     const originalContent = doc.getText();
 
     try {
-
       const withNewField = originalContent.replace(
         '  createdAt Date @createdAt\n}',
         '  createdAt Date @createdAt\n  newField \n}',
@@ -148,7 +147,6 @@ suite('Completion Workflows', () => {
     const originalContent = doc.getText();
 
     try {
-
       const withNewField = originalContent.replace(
         '  createdAt Date @createdAt\n}',
         '  createdAt Date @createdAt\n  home \n}',
@@ -215,7 +213,6 @@ suite('Completion Workflows', () => {
     const originalContent = doc.getText();
 
     try {
-
       const withDecoratorTrigger = originalContent.replace(
         '  published Bool @default(false)\n}',
         '  published Bool @default(false)\n  extra String @\n}',

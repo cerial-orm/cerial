@@ -285,7 +285,6 @@ describe('resolvePathFilter', () => {
         }),
       );
 
-
       expect(filter.shouldInclude('')).toBe(true);
     });
 
@@ -306,7 +305,6 @@ describe('resolvePathFilter', () => {
           rootConfig: { include: ['specific.cerial'] },
         }),
       );
-
 
       expect(filter).toBe(NO_FILTER);
     });

@@ -181,7 +181,6 @@ suite('Rename Refactoring Workflows', () => {
     const originalSchemaContent = schemaDoc.getText();
     const originalRelationsContent = relationsDoc.getText();
 
-
     try {
       // Step 2: Execute rename — RenameTarget → RenamedModel
       // Line 18 (0-indexed): "model RenameTarget {" — "RenameTarget" at col 6
