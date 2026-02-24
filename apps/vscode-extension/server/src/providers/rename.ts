@@ -415,7 +415,12 @@ function addTupleElementEdits(
     const braceOffset = content.indexOf('{', cerialPosToOffset(content, tuple.range.start));
     if (braceOffset === -1) continue;
 
-    const ranges = findAllNameRangesInSource(content, oldName, braceOffset + 1, cerialPosToOffset(content, tuple.range.end));
+    const ranges = findAllNameRangesInSource(
+      content,
+      oldName,
+      braceOffset + 1,
+      cerialPosToOffset(content, tuple.range.end),
+    );
     for (const range of ranges) {
       addEdit(edits, uri, range, newName);
     }
@@ -448,7 +453,12 @@ function addLiteralVariantEdits(
     const braceOffset = content.indexOf('{', cerialPosToOffset(content, literal.range.start));
     if (braceOffset === -1) continue;
 
-    const ranges = findAllNameRangesInSource(content, oldName, braceOffset + 1, cerialPosToOffset(content, literal.range.end));
+    const ranges = findAllNameRangesInSource(
+      content,
+      oldName,
+      braceOffset + 1,
+      cerialPosToOffset(content, literal.range.end),
+    );
     for (const range of ranges) {
       addEdit(edits, uri, range, newName);
     }

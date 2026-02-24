@@ -8,9 +8,9 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import type { CerialConfig, FolderConfig } from '../../../orm/src/cli/config/types';
+import { toFilterPath } from '../../../orm/src/cli/filters/path-utils';
 import type { PathFilter } from '../../../orm/src/cli/filters/types';
 import { NO_FILTER } from '../../../orm/src/cli/filters/types';
-import { toFilterPath } from '../../../orm/src/cli/filters/path-utils';
 
 /** Config file names in priority order */
 const CONFIG_FILE_NAMES = ['cerial.config.json', 'cerial.config.ts'] as const;
@@ -130,7 +130,6 @@ export function findCerialFiles(dirPath: string, filter: PathFilter = NO_FILTER)
   scan(dirPath);
   return results;
 }
-
 
 /**
  * Load a folder-level cerial config from a directory.

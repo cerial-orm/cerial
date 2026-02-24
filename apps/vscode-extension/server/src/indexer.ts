@@ -17,6 +17,10 @@ import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import type { CerialConfig } from '../../../orm/src/cli/config/types';
+import { resolvePathFilter } from '../../../orm/src/cli/filters/path-filter';
+import { toFilterPath } from '../../../orm/src/cli/filters/path-utils';
+import type { PathFilter } from '../../../orm/src/cli/filters/types';
+import { NO_FILTER } from '../../../orm/src/cli/filters/types';
 // SAFE: parser.ts imports lexer, tokenizer, string-utils only — no Bun APIs
 import {
   collectEnumNames,
@@ -29,10 +33,6 @@ import {
 import { resolveInheritance } from '../../../orm/src/resolver';
 import type { ParseError, SchemaAST } from '../../../orm/src/types';
 import { findCerialFiles, findFolderConfigs, loadCerialConfig, loadFolderConfig } from './config-loader';
-import { resolvePathFilter } from '../../../orm/src/cli/filters/path-filter';
-import type { PathFilter } from '../../../orm/src/cli/filters/types';
-import { NO_FILTER } from '../../../orm/src/cli/filters/types';
-import { toFilterPath } from '../../../orm/src/cli/filters/path-utils';
 import { loadCerialIgnoreSync } from './filters';
 
 // ──────────────────────────────────────────────
@@ -197,10 +197,10 @@ export class WorkspaceIndexer {
 
         // Convention/flat fallback for files NOT covered by folder configs
         const allFiles = findCerialFiles(folderPath);
-        const uncoveredFiles = allFiles.filter(f => {
+        const uncoveredFiles = allFiles.filter((f) => {
           const normalized = normalizePath(f);
           for (const covered of coveredDirs) {
-            if (normalized.startsWith(covered + '/')) return false;
+            if (normalized.startsWith(`${covered}/`)) return false;
           }
 
           return true;
@@ -213,7 +213,7 @@ export class WorkspaceIndexer {
             basePath: folderPath,
           });
 
-          const filteredFiles = uncoveredFiles.filter(f => {
+          const filteredFiles = uncoveredFiles.filter((f) => {
             const relativePath = toFilterPath(f, folderPath);
 
             return filter.shouldInclude(relativePath);
@@ -512,7 +512,12 @@ export class WorkspaceIndexer {
    * Create a schema group from a directory path.
    * Discovers .cerial files in the directory (or handles a single file path).
    */
-  private addGroup(name: string, schemaPath: string, config: CerialConfig | null, filter: PathFilter = NO_FILTER): void {
+  private addGroup(
+    name: string,
+    schemaPath: string,
+    config: CerialConfig | null,
+    filter: PathFilter = NO_FILTER,
+  ): void {
     const resolvedPath = normalizePath(schemaPath);
 
     let files: string[];
