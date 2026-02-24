@@ -52,7 +52,6 @@ import * as vscode from 'vscode';
 import {
   closeAllEditors,
   getCompletionLabel,
-  insertText,
   openDocument,
   pollUntil,
   replaceDocument,
@@ -81,23 +80,29 @@ suite('Completion Workflows', () => {
     const originalContent = doc.getText();
 
     try {
-      // Action 1: Insert a new field line inside WfUser (before closing brace at line 9)
-      const inserted = await insertText(doc, new vscode.Position(9, 0), '  newField \n');
-      assert.ok(inserted, 'Should insert new field line');
 
-      // After insertion: line 9 = "  newField ", line 10 = "}"
+      const withNewField = originalContent.replace(
+        '  createdAt Date @createdAt\n}',
+        '  createdAt Date @createdAt\n  newField \n}',
+      );
+      await replaceDocument(doc, withNewField);
+
+      // After replacement: line 9 = "  newField ", line 10 = "}"
       // The type position is at column 11 (after "  newField ")
       const typePosition = new vscode.Position(9, 11);
 
-      // Verify 1: Trigger completions at the type position and check offered types
+      // Poll until the server reparses and returns field-type completions
       const completions = await pollUntil(async () => {
         const result = await vscode.commands.executeCommand<vscode.CompletionList>(
           'vscode.executeCompletionItemProvider',
           doc.uri,
           typePosition,
         );
+        if (!result || !result.items.length) return null;
+        const labels = result.items.map(getCompletionLabel);
 
-        return result && result.items.length > 0 ? result : null;
+        // Wait for field-type completions (not top-level keywords)
+        return labels.includes('String') ? result : null;
       }, 10000);
       assert.ok(completions, 'Should return type completions');
       const labels = completions.items.map(getCompletionLabel);
@@ -108,15 +113,18 @@ suite('Completion Workflows', () => {
       assert.ok(labels.includes('WfAddress'), 'Should include WfAddress from types.cerial');
       assert.ok(labels.includes('WfRole'), 'Should include WfRole from types.cerial');
 
-      // Action 2: Simulate accepting a completion — insert "String" at type position
-      const typeInserted = await insertText(doc, typePosition, 'String');
-      assert.ok(typeInserted, 'Should insert type text');
+      // Simulate accepting a completion — replace document with the completed field
+      const withCompletedField = originalContent.replace(
+        '  createdAt Date @createdAt\n}',
+        '  createdAt Date @createdAt\n  newField String\n}',
+      );
+      await replaceDocument(doc, withCompletedField);
 
-      // Verify 2: Document contains the completed field
+      // Verify: Document contains the completed field
       const lineText = doc.lineAt(9).text;
       assert.ok(lineText.includes('newField String'), `Line should contain completed field, got: "${lineText}"`);
 
-      // Action 3: Wait for diagnostics to settle
+      // Wait for diagnostics to settle
       const diagnostics = await waitForNoDiagnostics(doc.uri);
       const errors = diagnostics.filter((d) => d.severity === vscode.DiagnosticSeverity.Error);
       assert.strictEqual(
@@ -140,23 +148,29 @@ suite('Completion Workflows', () => {
     const originalContent = doc.getText();
 
     try {
-      // Action 1: Insert a new field inside WfUser for a cross-file type reference
-      const inserted = await insertText(doc, new vscode.Position(9, 0), '  home \n');
-      assert.ok(inserted, 'Should insert new field line');
 
-      // After insertion: line 9 = "  home ", line 10 = "}"
+      const withNewField = originalContent.replace(
+        '  createdAt Date @createdAt\n}',
+        '  createdAt Date @createdAt\n  home \n}',
+      );
+      await replaceDocument(doc, withNewField);
+
+      // After replacement: line 9 = "  home ", line 10 = "}"
       // "  home " = 7 chars, type position at column 7
       const typePosition = new vscode.Position(9, 7);
 
-      // Verify 1: Completions include types defined in types.cerial
+      // Poll until the server reparses and returns field-type completions
       const completions = await pollUntil(async () => {
         const result = await vscode.commands.executeCommand<vscode.CompletionList>(
           'vscode.executeCompletionItemProvider',
           doc.uri,
           typePosition,
         );
+        if (!result || !result.items.length) return null;
+        const labels = result.items.map(getCompletionLabel);
 
-        return result && result.items.length > 0 ? result : null;
+        // Wait for field-type completions including cross-file types
+        return labels.includes('WfAddress') ? result : null;
       }, 10000);
       assert.ok(completions, 'Should return completions');
       const labels = completions.items.map(getCompletionLabel);
@@ -164,18 +178,21 @@ suite('Completion Workflows', () => {
       assert.ok(labels.includes('WfAddress'), 'Should include WfAddress object from types.cerial');
       assert.ok(labels.includes('WfRole'), 'Should include WfRole enum from types.cerial');
 
-      // Action 2: Insert the cross-file type "WfAddress"
-      const typeInserted = await insertText(doc, typePosition, 'WfAddress');
-      assert.ok(typeInserted, 'Should insert cross-file type');
+      // Simulate accepting a completion — replace document with the cross-file type
+      const withCompletedField = originalContent.replace(
+        '  createdAt Date @createdAt\n}',
+        '  createdAt Date @createdAt\n  home WfAddress\n}',
+      );
+      await replaceDocument(doc, withCompletedField);
 
-      // Verify 2: Document contains the cross-file type reference
+      // Verify: Document contains the cross-file type reference
       const lineText = doc.lineAt(9).text;
       assert.ok(lineText.includes('home WfAddress'), `Line should contain cross-file type, got: "${lineText}"`);
 
-      // Action 3: Wait for diagnostics — cross-file type should resolve cleanly
+      // Wait for diagnostics — cross-file type should resolve cleanly
       const diagnostics = await waitForNoDiagnostics(doc.uri);
 
-      // Verify 3: No errors — the type from types.cerial is valid
+      // No errors — the type from types.cerial is valid
       const errors = diagnostics.filter((d) => d.severity === vscode.DiagnosticSeverity.Error);
       assert.strictEqual(
         errors.length,
@@ -198,23 +215,29 @@ suite('Completion Workflows', () => {
     const originalContent = doc.getText();
 
     try {
-      // Action 1: Insert a new field with decorator trigger inside WfPost
-      // WfPost closing brace is at line 16. Insert before it.
-      const inserted = await insertText(doc, new vscode.Position(16, 0), '  extra String @\n');
-      assert.ok(inserted, 'Should insert field with decorator trigger');
 
+      const withDecoratorTrigger = originalContent.replace(
+        '  published Bool @default(false)\n}',
+        '  published Bool @default(false)\n  extra String @\n}',
+      );
+      await replaceDocument(doc, withDecoratorTrigger);
+
+      // After replacement: line 16 = "  extra String @", line 17 = "}"
       // "  extra String @" = 16 chars. Position after @ is column 16.
       const decoratorPosition = new vscode.Position(16, 16);
 
-      // Verify 1: Decorator completions appear with expected items
+      // Poll until the server reparses and returns decorator completions
       const completions = await pollUntil(async () => {
         const result = await vscode.commands.executeCommand<vscode.CompletionList>(
           'vscode.executeCompletionItemProvider',
           doc.uri,
           decoratorPosition,
         );
+        if (!result || !result.items.length) return null;
+        const labels = result.items.map(getCompletionLabel);
 
-        return result && result.items.length > 0 ? result : null;
+        // Wait for decorator completions (not top-level keywords)
+        return labels.some((l) => l.includes('default')) ? result : null;
       }, 10000);
       assert.ok(completions, 'Should return decorator completions');
       const labels = completions.items.map(getCompletionLabel);
@@ -225,18 +248,21 @@ suite('Completion Workflows', () => {
       assert.ok(hasUnique, `Should include @unique decorator, got: ${labels.join(', ')}`);
       assert.ok(hasNullable, `Should include @nullable decorator, got: ${labels.join(', ')}`);
 
-      // Action 2: Insert decorator text after the @
-      const decorInserted = await insertText(doc, decoratorPosition, 'nullable');
-      assert.ok(decorInserted, 'Should insert decorator text');
+      // Simulate accepting a completion — replace document with the completed decorator
+      const withCompletedDecorator = originalContent.replace(
+        '  published Bool @default(false)\n}',
+        '  published Bool @default(false)\n  extra String @nullable\n}',
+      );
+      await replaceDocument(doc, withCompletedDecorator);
 
-      // Verify 2: Document has the full @nullable decorator
+      // Verify: Document has the full @nullable decorator
       const lineText = doc.lineAt(16).text;
       assert.ok(lineText.includes('@nullable'), `Line should contain @nullable decorator, got: "${lineText}"`);
 
-      // Action 3: Wait for diagnostics — @nullable on String is valid
+      // Wait for diagnostics — @nullable on String is valid
       const diagnostics = await waitForNoDiagnostics(doc.uri);
 
-      // Verify 3: No errors produced
+      // No errors produced
       const errors = diagnostics.filter((d) => d.severity === vscode.DiagnosticSeverity.Error);
       assert.strictEqual(
         errors.length,

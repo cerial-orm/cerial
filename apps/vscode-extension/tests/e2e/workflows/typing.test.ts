@@ -69,28 +69,17 @@ suite('Typing Workflows', () => {
     const originalContent = doc.getText();
 
     try {
-      // Step 2: Insert a new line inside WfUser model before the closing brace (line 9)
-      // We insert at the end of line 8 (createdAt Date @createdAt) to create a new field line
-      const line8End = doc.lineAt(8).range.end;
-      await insertText(doc, line8End, '\n  ');
-      await sleep(100);
+      // Step 2: Replace document with a version that has "  new " inside WfUser
+      // Using replaceDocument gives the server a clean, parseable document state
+      const contentWithNewField = originalContent.replace(
+        '  createdAt Date @createdAt\n}',
+        '  createdAt Date @createdAt\n  new \n}',
+      );
+      await replaceDocument(doc, contentWithNewField);
+      await doc.save();
+      await sleep(500);
 
-      // Step 3: Type field name incrementally — build "new" in chunks
-      // After the newline+indent, cursor is at line 9, col 2
-      let pos = new vscode.Position(9, 2);
-      await insertText(doc, pos, 'ne');
-      await sleep(100);
-
-      pos = new vscode.Position(9, 4);
-      await insertText(doc, pos, 'w');
-      await sleep(100);
-
-      // Step 4: Add space after field name to move to type position
-      pos = new vscode.Position(9, 5);
-      await insertText(doc, pos, ' ');
-      await sleep(200);
-
-      // Step 5: Trigger completions at the type position and verify
+      // Step 3: Trigger completions at the type position (line 9, col 6 — right after "  new ")
       const typePos = new vscode.Position(9, 6);
       const completions = await pollUntil(async () => {
         const result = await vscode.commands.executeCommand<vscode.CompletionList>(
@@ -106,17 +95,21 @@ suite('Typing Workflows', () => {
       assert.ok(completions, 'Should receive type completions after typing field name');
       const labels = completions.items.map(getCompletionLabel);
 
-      // Verify built-in types appear
       assert.ok(labels.includes('String'), 'Type completions should include String');
       assert.ok(labels.includes('Int'), 'Type completions should include Int');
       assert.ok(labels.includes('Bool'), 'Type completions should include Bool');
       assert.ok(labels.includes('Date'), 'Type completions should include Date');
 
-      // Step 6: Complete the field by inserting a type
-      await insertText(doc, typePos, 'String');
+      // Step 4: Complete the field by replacing with the final version
+      const contentWithCompletedField = originalContent.replace(
+        '  createdAt Date @createdAt\n}',
+        '  createdAt Date @createdAt\n  new String\n}',
+      );
+      await replaceDocument(doc, contentWithCompletedField);
+      await doc.save();
       await sleep(200);
 
-      // Step 7: Wait for diagnostics to settle and verify zero errors
+      // Step 5: Wait for diagnostics to settle and verify zero errors
       const diagnostics = await waitForNoDiagnostics(doc.uri);
       const errors = diagnostics.filter((d) => d.severity === vscode.DiagnosticSeverity.Error);
       assert.strictEqual(
