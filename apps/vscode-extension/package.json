@@ -49,7 +49,7 @@
         ],
         "icon": {
           "light": "./icons/cerial-icon.png",
-          "dark": "./icons/cerial-icon.png"
+          "dark": "./icons/cerial-icon-dark.png"
         },
         "configuration": "./language-configuration.json"
       }
