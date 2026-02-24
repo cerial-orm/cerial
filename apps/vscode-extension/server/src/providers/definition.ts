@@ -156,9 +156,21 @@ function findDefinitionInGroup(
   const group = indexer.getSchemaGroup(uri);
   if (!group) return null;
 
+  const currentFilePath = filePathFromUri(uri);
   const allASTs = indexer.getAllASTsInGroup(group.name);
 
+  // Priority 1: Search the current file first
+  const currentAST = allASTs.get(currentFilePath);
+  if (currentAST) {
+    const result = findTypeDefinition(currentAST, typeName);
+    if (result) {
+      return { filePath: currentFilePath, kind: result.kind, range: result.range };
+    }
+  }
+
+  // Priority 2: Search other files in the group
   for (const [filePath, fileAST] of allASTs) {
+    if (filePath === currentFilePath) continue;
     const result = findTypeDefinition(fileAST, typeName);
     if (result) {
       return { filePath, kind: result.kind, range: result.range };
