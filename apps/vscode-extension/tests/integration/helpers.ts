@@ -76,7 +76,10 @@ export async function closeAllEditors(): Promise<void> {
  * Opens a .cerial file to trigger the `onLanguage:cerial` activation event.
  * Uses a polling loop — not a fixed sleep.
  */
-export async function waitForExtensionActivation(timeout = 15000, triggerFile?: string): Promise<vscode.Extension<unknown>> {
+export async function waitForExtensionActivation(
+  timeout = 15000,
+  triggerFile?: string,
+): Promise<vscode.Extension<unknown>> {
   const ext = vscode.extensions.getExtension(CERIAL_EXTENSION_ID);
   if (!ext) {
     throw new Error(`Extension ${CERIAL_EXTENSION_ID} not found. Is the extension installed?`);

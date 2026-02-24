@@ -141,7 +141,6 @@ export async function pollUntil<T>(
   return null;
 }
 
-
 // ---------------------------------------------------------------------------
 // Document editing helpers
 // ---------------------------------------------------------------------------
@@ -160,11 +159,7 @@ export async function editDocument(doc: vscode.TextDocument, edit: vscode.TextEd
 /**
  * Insert text at a position in an open document.
  */
-export async function insertText(
-  doc: vscode.TextDocument,
-  position: vscode.Position,
-  text: string,
-): Promise<boolean> {
+export async function insertText(doc: vscode.TextDocument, position: vscode.Position, text: string): Promise<boolean> {
   return editDocument(doc, vscode.TextEdit.insert(position, text));
 }
 
@@ -179,10 +174,7 @@ export async function deleteText(doc: vscode.TextDocument, range: vscode.Range):
  * Replace entire document content.
  */
 export async function replaceDocument(doc: vscode.TextDocument, newContent: string): Promise<boolean> {
-  const fullRange = new vscode.Range(
-    doc.lineAt(0).range.start,
-    doc.lineAt(doc.lineCount - 1).range.end,
-  );
+  const fullRange = new vscode.Range(doc.lineAt(0).range.start, doc.lineAt(doc.lineCount - 1).range.end);
 
   return editDocument(doc, vscode.TextEdit.replace(fullRange, newContent));
 }
@@ -211,10 +203,7 @@ export async function waitForDiagnosticsChange(
 /**
  * Get code actions available for a given range in a document.
  */
-export async function getCodeActions(
-  doc: vscode.TextDocument,
-  range: vscode.Range,
-): Promise<vscode.CodeAction[]> {
+export async function getCodeActions(doc: vscode.TextDocument, range: vscode.Range): Promise<vscode.CodeAction[]> {
   const actions = await vscode.commands.executeCommand<vscode.CodeAction[]>(
     'vscode.executeCodeActionProvider',
     doc.uri,

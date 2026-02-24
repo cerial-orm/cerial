@@ -1,0 +1,28 @@
+# Provider fixes test fixture
+
+enum Priority {
+  Low
+  Medium
+  High
+  Critical
+}
+
+literal Severity { 'Minor', 'Major', 'Blocker' }
+
+abstract model BaseItem {
+  id Record @id
+  title String
+  priority Priority @default(Medium)
+  createdAt Date @createdAt
+}
+
+model Task {
+  id Record @id
+  title String
+  priority Priority
+  severity Severity
+  dueDate Date?
+  score Int?
+  isActive Bool @default(true)
+  taskUuid Uuid?
+}
