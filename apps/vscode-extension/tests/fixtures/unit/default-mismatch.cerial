@@ -1,0 +1,22 @@
+enum Status { ACTIVE, INACTIVE, PENDING }
+
+literal Severity { 1, 2, 3, 4, 5 }
+
+model DefaultTest {
+  id Record @id
+  goodInt Int @default(0)
+  badInt Int @default(hello)
+  goodFloat Float @default(3.5)
+  badFloat Float @default(test)
+  goodBool Bool @default(true)
+  badBool Bool @default(1)
+  goodString String @default('valid')
+  badString String @default(42)
+  goodEnum Status @default(ACTIVE)
+  badEnum Status @default(INVALID)
+  goodLiteral Severity @default(1)
+  badLiteral Severity @default(99)
+  goodAlways Int @defaultAlways(1)
+  badAlways Int @defaultAlways(hello)
+  nullDefault Date? @nullable @default(null)
+}

@@ -13,7 +13,8 @@ import {
   validateUuidFields,
 } from '../../../orm/src/cli/validators';
 import { parse } from '../../../orm/src/parser/parser';
-import { loadFixture, parseFixture } from './helpers';
+import { getDefaultTypeMismatchDiagnostics, getInvalidTokenDiagnostics } from '../../server/src/providers/diagnostics';
+import { loadFixture, parseFixture, testPath } from './helpers';
 
 describe('Diagnostics Logic', () => {
   describe('parse errors', () => {
@@ -207,6 +208,287 @@ describe('Diagnostics Logic', () => {
         expect(typeof error.position.column).toBe('number');
         expect(error.position.column).toBeGreaterThanOrEqual(0);
       }
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // Invalid tokens after field type
+  // ---------------------------------------------------------------------------
+  describe('getInvalidTokenDiagnostics', () => {
+    test('valid field line produces no diagnostics', () => {
+      const source = "model T {\n  id Record @id\n  name String @default('test')\n}";
+      const { ast } = parse(source);
+      const diags = getInvalidTokenDiagnostics(ast, source.split('\n'));
+
+      expect(diags).toEqual([]);
+    });
+
+    test('valid field with !!private produces no diagnostics', () => {
+      const source = 'model T {\n  id Record @id\n  name String @unique !!private\n}';
+      const { ast } = parse(source);
+      const diags = getInvalidTokenDiagnostics(ast, source.split('\n'));
+
+      expect(diags).toEqual([]);
+    });
+
+    test('valid field with optional + array produces no diagnostics', () => {
+      const source = 'model T {\n  id Record @id\n  tags String[]?\n}';
+      const { ast } = parse(source);
+      const diags = getInvalidTokenDiagnostics(ast, source.split('\n'));
+
+      expect(diags).toEqual([]);
+    });
+
+    test('valid field with Record(int) produces no diagnostics', () => {
+      const source = 'model T {\n  id Record(int) @id\n}';
+      const { ast } = parse(source);
+      const diags = getInvalidTokenDiagnostics(ast, source.split('\n'));
+
+      expect(diags).toEqual([]);
+    });
+
+    test('invalid token after type produces warning', () => {
+      const source = 'model T {\n  id Record @id\n  name String hello\n}';
+      const { ast } = parse(source);
+      const diags = getInvalidTokenDiagnostics(ast, source.split('\n'));
+
+      expect(diags.length).toBe(1);
+      expect(diags[0]!.message).toContain('hello');
+      expect(diags[0]!.severity).toBe(2); // Warning
+    });
+
+    test('numeric invalid token produces warning', () => {
+      const source = 'model T {\n  id Record @id\n  age Int 42\n}';
+      const { ast } = parse(source);
+      const diags = getInvalidTokenDiagnostics(ast, source.split('\n'));
+
+      expect(diags.length).toBe(1);
+      expect(diags[0]!.message).toContain('42');
+    });
+
+    test('multiple invalid tokens produce multiple diagnostics', () => {
+      const source = 'model T {\n  id Record @id\n  name String foo bar\n}';
+      const { ast } = parse(source);
+      const diags = getInvalidTokenDiagnostics(ast, source.split('\n'));
+
+      expect(diags.length).toBe(2);
+      expect(diags[0]!.message).toContain('foo');
+      expect(diags[1]!.message).toContain('bar');
+    });
+
+    test('mixed valid and invalid tokens: one diagnostic for invalid', () => {
+      const source = "model T {\n  id Record @id\n  name String @unique blah @default('x')\n}";
+      const { ast } = parse(source);
+      const diags = getInvalidTokenDiagnostics(ast, source.split('\n'));
+
+      expect(diags.length).toBe(1);
+      expect(diags[0]!.message).toContain('blah');
+    });
+
+    test('unknown decorator produces warning', () => {
+      const source = 'model T {\n  id Record @id\n  name String @invalid\n}';
+      const { ast } = parse(source);
+      const diags = getInvalidTokenDiagnostics(ast, source.split('\n'));
+
+      expect(diags.length).toBe(1);
+      expect(diags[0]!.message).toContain('@invalid');
+      expect(diags[0]!.message).toContain('Unknown decorator');
+    });
+
+    test('comments after field are ignored', () => {
+      const source = 'model T {\n  id Record @id\n  name String // this is fine\n}';
+      const { ast } = parse(source);
+      const diags = getInvalidTokenDiagnostics(ast, source.split('\n'));
+
+      expect(diags).toEqual([]);
+    });
+
+    test('composite directive line produces no diagnostics', () => {
+      const source = 'model T {\n  id Record @id\n  name String\n  @@unique(test, [name])\n}';
+      const { ast } = parse(source);
+      const diags = getInvalidTokenDiagnostics(ast, source.split('\n'));
+
+      expect(diags).toEqual([]);
+    });
+
+    test('valid decorators with parens produce no diagnostics', () => {
+      const source =
+        'model Author {\n  id Record @id\n  name String\n}\n\nmodel Book {\n  id Record @id\n  authorId Record\n  author Relation @field(authorId) @model(Author)\n}';
+      const { ast } = parse(source);
+      const diags = getInvalidTokenDiagnostics(ast, source.split('\n'));
+
+      expect(diags).toEqual([]);
+    });
+
+    test('geometry decorators produce no diagnostics', () => {
+      const source = 'model T {\n  id Record @id\n  loc Geometry @point @polygon\n}';
+      const { ast } = parse(source);
+      const diags = getInvalidTokenDiagnostics(ast, source.split('\n'));
+
+      expect(diags).toEqual([]);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // @default value type mismatch
+  // ---------------------------------------------------------------------------
+  describe('getDefaultTypeMismatchDiagnostics', () => {
+    test('Int field with number default — no diagnostic', () => {
+      const source = 'model T {\n  id Record @id\n  age Int @default(0)\n}';
+      const { ast } = parse(source);
+      const diags = getDefaultTypeMismatchDiagnostics(ast, testPath('test.cerial'), null);
+
+      expect(diags).toEqual([]);
+    });
+
+    test('Int field with string default — warning', () => {
+      const source = 'model T {\n  id Record @id\n  age Int @default(hello)\n}';
+      const { ast } = parse(source);
+      const diags = getDefaultTypeMismatchDiagnostics(ast, testPath('test.cerial'), null);
+
+      expect(diags.length).toBe(1);
+      expect(diags[0]!.message).toContain('hello');
+      expect(diags[0]!.message).toContain('integer');
+    });
+
+    test('Float field with number default — no diagnostic', () => {
+      const source = 'model T {\n  id Record @id\n  score Float @default(3.5)\n}';
+      const { ast } = parse(source);
+      const diags = getDefaultTypeMismatchDiagnostics(ast, testPath('test.cerial'), null);
+
+      expect(diags).toEqual([]);
+    });
+
+    test('Float field with string default — warning', () => {
+      const source = 'model T {\n  id Record @id\n  score Float @default(test)\n}';
+      const { ast } = parse(source);
+      const diags = getDefaultTypeMismatchDiagnostics(ast, testPath('test.cerial'), null);
+
+      expect(diags.length).toBe(1);
+      expect(diags[0]!.message).toContain('test');
+    });
+
+    test('Bool field with boolean default — no diagnostic', () => {
+      const source = 'model T {\n  id Record @id\n  active Bool @default(true)\n}';
+      const { ast } = parse(source);
+      const diags = getDefaultTypeMismatchDiagnostics(ast, testPath('test.cerial'), null);
+
+      expect(diags).toEqual([]);
+    });
+
+    test('Bool field with number default — warning', () => {
+      const source = 'model T {\n  id Record @id\n  active Bool @default(1)\n}';
+      const { ast } = parse(source);
+      const diags = getDefaultTypeMismatchDiagnostics(ast, testPath('test.cerial'), null);
+
+      expect(diags.length).toBe(1);
+      expect(diags[0]!.message).toContain('true or false');
+    });
+
+    test('String field with string default — no diagnostic', () => {
+      const source = "model T {\n  id Record @id\n  name String @default('test')\n}";
+      const { ast } = parse(source);
+      const diags = getDefaultTypeMismatchDiagnostics(ast, testPath('test.cerial'), null);
+
+      expect(diags).toEqual([]);
+    });
+
+    test('String field with number default — warning', () => {
+      const source = 'model T {\n  id Record @id\n  name String @default(42)\n}';
+      const { ast } = parse(source);
+      const diags = getDefaultTypeMismatchDiagnostics(ast, testPath('test.cerial'), null);
+
+      expect(diags.length).toBe(1);
+      expect(diags[0]!.message).toContain('string');
+    });
+
+    test('enum field with valid value — no diagnostic', () => {
+      const source =
+        'enum Status { ACTIVE, INACTIVE }\n\nmodel T {\n  id Record @id\n  role Status @default(ACTIVE)\n}';
+      const { ast } = parse(source);
+      const diags = getDefaultTypeMismatchDiagnostics(ast, testPath('test.cerial'), null);
+
+      expect(diags).toEqual([]);
+    });
+
+    test('enum field with invalid value — warning', () => {
+      const source =
+        'enum Status { ACTIVE, INACTIVE }\n\nmodel T {\n  id Record @id\n  role Status @default(INVALID)\n}';
+      const { ast } = parse(source);
+      const diags = getDefaultTypeMismatchDiagnostics(ast, testPath('test.cerial'), null);
+
+      expect(diags.length).toBe(1);
+      expect(diags[0]!.message).toContain('INVALID');
+      expect(diags[0]!.message).toContain('Status');
+    });
+
+    test('literal field with valid int value — no diagnostic', () => {
+      const source = 'literal Severity { 1, 2, 3 }\n\nmodel T {\n  id Record @id\n  sev Severity @default(1)\n}';
+      const { ast } = parse(source);
+      const diags = getDefaultTypeMismatchDiagnostics(ast, testPath('test.cerial'), null);
+
+      expect(diags).toEqual([]);
+    });
+
+    test('literal field with invalid int value — warning', () => {
+      const source = 'literal Severity { 1, 2, 3 }\n\nmodel T {\n  id Record @id\n  sev Severity @default(99)\n}';
+      const { ast } = parse(source);
+      const diags = getDefaultTypeMismatchDiagnostics(ast, testPath('test.cerial'), null);
+
+      expect(diags.length).toBe(1);
+      expect(diags[0]!.message).toContain('99');
+      expect(diags[0]!.message).toContain('Severity');
+    });
+
+    test('null default on nullable Date — no diagnostic', () => {
+      const source = 'model T {\n  id Record @id\n  deletedAt Date? @nullable @default(null)\n}';
+      const { ast } = parse(source);
+      const diags = getDefaultTypeMismatchDiagnostics(ast, testPath('test.cerial'), null);
+
+      expect(diags).toEqual([]);
+    });
+
+    test('@defaultAlways with valid type — no diagnostic', () => {
+      const source = 'model T {\n  id Record @id\n  cnt Int @defaultAlways(1)\n}';
+      const { ast } = parse(source);
+      const diags = getDefaultTypeMismatchDiagnostics(ast, testPath('test.cerial'), null);
+
+      expect(diags).toEqual([]);
+    });
+
+    test('@defaultAlways with wrong type — warning', () => {
+      const source = 'model T {\n  id Record @id\n  cnt Int @defaultAlways(hello)\n}';
+      const { ast } = parse(source);
+      const diags = getDefaultTypeMismatchDiagnostics(ast, testPath('test.cerial'), null);
+
+      expect(diags.length).toBe(1);
+      expect(diags[0]!.message).toContain('hello');
+    });
+
+    test('field with no @default — no diagnostic', () => {
+      const source = 'model T {\n  id Record @id\n  name String\n}';
+      const { ast } = parse(source);
+      const diags = getDefaultTypeMismatchDiagnostics(ast, testPath('test.cerial'), null);
+
+      expect(diags).toEqual([]);
+    });
+
+    test('object field with no default — no diagnostic (null for object type)', () => {
+      const source = 'object Addr {\n  street String\n}\n\nmodel T {\n  id Record @id\n  addr Addr\n}';
+      const { ast } = parse(source);
+      const diags = getDefaultTypeMismatchDiagnostics(ast, testPath('test.cerial'), null);
+
+      expect(diags).toEqual([]);
+    });
+
+    test('default-mismatch fixture parses without errors', () => {
+      const source = loadFixture('default-mismatch.cerial');
+      const result = parse(source);
+
+      expect(result.errors).toEqual([]);
+      expect(result.ast.models.length).toBe(1);
+      expect(result.ast.enums.length).toBe(1);
+      expect(result.ast.literals.length).toBe(1);
     });
   });
 });
