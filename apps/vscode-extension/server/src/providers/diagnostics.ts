@@ -24,6 +24,7 @@ import type { TextDocument } from 'vscode-languageserver-textdocument';
 import {
   type SchemaValidationError,
   validateExtends,
+  validateResolvedTypes,
   validateSchema,
 } from '../../../../orm/src/cli/validators';
 import type { ASTField, ParseError, SchemaAST, SourceRange } from '../../../../orm/src/types';
@@ -566,6 +567,52 @@ export function getDefaultTypeMismatchDiagnostics(
   return diagnostics;
 }
 
+/**
+ * Detect mixed pick and omit in extends brackets.
+ * For example, `extends Parent[field1, !field2]` mixes pick and omit.
+ *
+ * Returns diagnostics for any extends line with mixed pick/omit.
+ */
+export function getExtendsPickOmitMixingDiagnostics(fileAST: SchemaAST, sourceLines: string[]): Diagnostic[] {
+  const diagnostics: Diagnostic[] = [];
+
+  for (let lineIdx = 0; lineIdx < sourceLines.length; lineIdx++) {
+    const line = sourceLines[lineIdx]!;
+    const trimmed = line.trim();
+
+    // Check if line contains extends with brackets
+    const extendsMatch = trimmed.match(/extends\s+(\w+)\s*\[([^\]]+)\]/);
+    if (!extendsMatch) continue;
+
+    const bracketContent = extendsMatch[2]!;
+    const items = bracketContent.split(',').map((item) => item.trim());
+
+    // Check for mixed pick (no !) and omit (with !)
+    const hasPickItems = items.some((item) => !item.startsWith('!'));
+    const hasOmitItems = items.some((item) => item.startsWith('!'));
+
+    if (hasPickItems && hasOmitItems) {
+      // Find the bracket range in the line
+      const bracketStart = line.indexOf('[');
+      const bracketEnd = line.indexOf(']');
+
+      if (bracketStart >= 0 && bracketEnd > bracketStart) {
+        diagnostics.push({
+          range: {
+            start: { line: lineIdx, character: bracketStart },
+            end: { line: lineIdx, character: bracketEnd + 1 },
+          },
+          message: 'Cannot mix pick and omit in extends bracket',
+          severity: DiagnosticSeverity.Warning,
+          source: 'cerial',
+        });
+      }
+    }
+  }
+
+  return diagnostics;
+}
+
 // ---------------------------------------------------------------------------
 // Provider registration
 // ---------------------------------------------------------------------------
@@ -639,6 +686,7 @@ export function registerDiagnosticsProvider(
     validationErrors.push(...schemaResult.errors);
 
     validationErrors.push(...validateExtends(validationAST));
+    validationErrors.push(...validateResolvedTypes(validationAST));
 
     // Step 5: Filter to current file
     const fileErrors = filterErrorsToFile(validationErrors, fileAST);
@@ -656,6 +704,10 @@ export function registerDiagnosticsProvider(
       diagnostics.push(...getInvalidTokenDiagnostics(fileAST, sourceLines));
     }
     diagnostics.push(...getDefaultTypeMismatchDiagnostics(fileAST, uri, indexer));
+    if (document) {
+      const sourceLines = document.getText().split('\n');
+      diagnostics.push(...getExtendsPickOmitMixingDiagnostics(fileAST, sourceLines));
+    }
     return {
       kind: DocumentDiagnosticReportKind.Full,
       items: diagnostics,
