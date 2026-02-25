@@ -1,0 +1,5 @@
+object LogDetail {
+  severity String
+  source String
+  stackTrace String?
+}

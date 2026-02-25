@@ -1,0 +1,5 @@
+model LogEntry {
+  id Record @id
+  logTimestamp Date
+  message String
+}

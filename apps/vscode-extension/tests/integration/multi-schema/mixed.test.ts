@@ -2,9 +2,9 @@
  * Mixed discovery workspace integration tests.
  *
  * Workspace: workspace-mixed/
- * Discovery: Root config (api-schemas), folder config (events), convention (logs)
+ * Discovery: Root config (api-schemas), folder config (events), convention (log-store)
  * Groups: api-schemas (schema.cerial, routes.cerial), events (schema.cerial, handler.cerial),
- *         logs (schema.cerial, log-entry.cerial)
+ *         log-store (schema.cerial, log-entry.cerial)
  */
 
 import * as assert from 'assert';
@@ -61,16 +61,16 @@ suite('Multi-Schema: Mixed Discovery Workspace', () => {
     );
   });
 
-  test('logs files have no errors', async function () {
+  test('log-store files have no errors', async function () {
     this.timeout(15000);
-    const doc = await openDocument('logs/schema.cerial');
+    const doc = await openDocument('log-store/schema.cerial');
     const diagnostics = await waitForNoDiagnostics(doc.uri);
 
     const errors = diagnostics.filter((d) => d.severity === vscode.DiagnosticSeverity.Error);
     assert.strictEqual(
       errors.length,
       0,
-      `Expected no errors in logs/schema.cerial but got: ${errors.map((d) => d.message).join(', ')}`,
+      `Expected no errors in log-store/schema.cerial but got: ${errors.map((d) => d.message).join(', ')}`,
     );
   });
 
