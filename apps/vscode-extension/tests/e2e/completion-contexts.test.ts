@@ -521,4 +521,222 @@ suite('Completion Contexts E2E', () => {
       }
     });
   });
+
+  // ── Negative completion scenarios ──────────────────────────────────────
+
+  suite('Negative completion scenarios', () => {
+    test('@model() arg does NOT offer object/tuple/enum/literal names', async function () {
+      this.timeout(30000);
+      const doc = await openDocument('completion-contexts.cerial');
+      const originalContent = doc.getText();
+
+      try {
+        // Same setup as Context 1: replace @model(Post) with @model()
+        const modified = originalContent.replace('@model(Post)', '@model()');
+        await replaceDocument(doc, modified);
+
+        // Poll until model names appear (positive signal that handler responded)
+        const completions = await pollUntil(async () => {
+          const result = await vscode.commands.executeCommand<vscode.CompletionList>(
+            'vscode.executeCompletionItemProvider',
+            doc.uri,
+            new vscode.Position(59, 26),
+          );
+          if (!result || !result.items.length) return null;
+          const labels = result.items.map(getCompletionLabel);
+
+          return labels.some((l) => l === 'Author' || l === 'Post') ? result : null;
+        }, 10000);
+
+        assert.ok(completions, 'Should return completions inside @model()');
+        const labels = completions.items.map(getCompletionLabel);
+
+        // Object types should NOT appear
+        assert.ok(
+          !labels.includes('Address'),
+          `Should NOT include object "Address", got: ${labels.join(', ')}`,
+        );
+
+        // Tuple types should NOT appear
+        assert.ok(
+          !labels.includes('Coordinate'),
+          `Should NOT include tuple "Coordinate", got: ${labels.join(', ')}`,
+        );
+
+        // Enum types should NOT appear
+        assert.ok(
+          !labels.includes('StatusEnum'),
+          `Should NOT include enum "StatusEnum", got: ${labels.join(', ')}`,
+        );
+
+        // Literal types should NOT appear
+        assert.ok(
+          !labels.includes('StatusLiteral'),
+          `Should NOT include literal "StatusLiteral", got: ${labels.join(', ')}`,
+        );
+
+        // Field types should NOT appear
+        assert.ok(
+          !labels.includes('String'),
+          `Should NOT include field type "String", got: ${labels.join(', ')}`,
+        );
+        assert.ok(
+          !labels.includes('Int'),
+          `Should NOT include field type "Int", got: ${labels.join(', ')}`,
+        );
+      } finally {
+        await replaceDocument(doc, originalContent);
+        await vscode.window.showTextDocument(doc);
+        await vscode.commands.executeCommand('workbench.action.files.save');
+      }
+    });
+
+    test('@field() arg does NOT offer non-Record field names', async function () {
+      this.timeout(30000);
+      const doc = await openDocument('completion-contexts.cerial');
+      const originalContent = doc.getText();
+
+      try {
+        // Same setup as Context 2: replace @field(authorId) with @field()
+        const modified = originalContent.replace('@field(authorId)', '@field()');
+        await replaceDocument(doc, modified);
+
+        // Poll until Record-type fields appear
+        const completions = await pollUntil(async () => {
+          const result = await vscode.commands.executeCommand<vscode.CompletionList>(
+            'vscode.executeCompletionItemProvider',
+            doc.uri,
+            new vscode.Position(68, 25),
+          );
+          if (!result || !result.items.length) return null;
+          const labels = result.items.map(getCompletionLabel);
+
+          return labels.some((l) => l === 'authorId') ? result : null;
+        }, 10000);
+
+        assert.ok(completions, 'Should return completions inside @field()');
+        const labels = completions.items.map(getCompletionLabel);
+
+        // Non-Record fields should NOT appear
+        assert.ok(
+          !labels.includes('title'),
+          `Should NOT include non-Record field "title", got: ${labels.join(', ')}`,
+        );
+        assert.ok(
+          !labels.includes('content'),
+          `Should NOT include non-Record field "content", got: ${labels.join(', ')}`,
+        );
+      } finally {
+        await replaceDocument(doc, originalContent);
+        await vscode.window.showTextDocument(doc);
+        await vscode.commands.executeCommand('workbench.action.files.save');
+      }
+    });
+
+    test('top-level does NOT offer field types or decorators', async function () {
+      this.timeout(30000);
+      const doc = await openDocument('completion-contexts.cerial');
+
+      try {
+        // Line 5 (0-indexed) is an empty line outside any block — no modification needed
+        const completions = await pollUntil(async () => {
+          const result = await vscode.commands.executeCommand<vscode.CompletionList>(
+            'vscode.executeCompletionItemProvider',
+            doc.uri,
+            new vscode.Position(5, 0),
+          );
+          if (!result || !result.items.length) return null;
+          const labels = result.items.map(getCompletionLabel);
+
+          return labels.some((l) => l === 'model' || l === 'object') ? result : null;
+        }, 10000);
+
+        assert.ok(completions, 'Should return completions at top level');
+        const labels = completions.items.map(getCompletionLabel);
+
+        // Field types should NOT appear at top level
+        assert.ok(
+          !labels.includes('String'),
+          `Should NOT include field type "String", got: ${labels.join(', ')}`,
+        );
+        assert.ok(
+          !labels.includes('Int'),
+          `Should NOT include field type "Int", got: ${labels.join(', ')}`,
+        );
+        assert.ok(
+          !labels.includes('Record'),
+          `Should NOT include field type "Record", got: ${labels.join(', ')}`,
+        );
+        assert.ok(
+          !labels.includes('Relation'),
+          `Should NOT include field type "Relation", got: ${labels.join(', ')}`,
+        );
+
+        // Decorators should NOT appear at top level
+        assert.ok(
+          !labels.some((l) => l.includes('@default')),
+          `Should NOT include decorator "@default", got: ${labels.join(', ')}`,
+        );
+        assert.ok(
+          !labels.some((l) => l.includes('@unique')),
+          `Should NOT include decorator "@unique", got: ${labels.join(', ')}`,
+        );
+      } finally {
+        await closeAllEditors();
+      }
+    });
+
+    test('field type position inside model does NOT offer block keywords', async function () {
+      this.timeout(30000);
+      const doc = await openDocument('completion-contexts.cerial');
+      const originalContent = doc.getText();
+
+      try {
+        // Same setup as Context 7: inject empty line inside EmptyFieldModel
+        const modified = originalContent.replace(
+          'model EmptyFieldModel {\n}',
+          'model EmptyFieldModel {\n  \n}',
+        );
+        await replaceDocument(doc, modified);
+
+        // Poll until field types appear
+        const completions = await pollUntil(async () => {
+          const result = await vscode.commands.executeCommand<vscode.CompletionList>(
+            'vscode.executeCompletionItemProvider',
+            doc.uri,
+            new vscode.Position(86, 2),
+          );
+          if (!result || !result.items.length) return null;
+          const labels = result.items.map(getCompletionLabel);
+
+          return labels.some((l) => l === 'String' || l === 'Int') ? result : null;
+        }, 10000);
+
+        assert.ok(completions, 'Should return completions inside model block');
+        const labels = completions.items.map(getCompletionLabel);
+
+        // Block keywords should NOT appear inside model block
+        assert.ok(
+          !labels.includes('model'),
+          `Should NOT include block keyword "model", got: ${labels.join(', ')}`,
+        );
+        assert.ok(
+          !labels.includes('abstract model'),
+          `Should NOT include block keyword "abstract model", got: ${labels.join(', ')}`,
+        );
+        assert.ok(
+          !labels.includes('object'),
+          `Should NOT include block keyword "object", got: ${labels.join(', ')}`,
+        );
+        assert.ok(
+          !labels.includes('tuple'),
+          `Should NOT include block keyword "tuple", got: ${labels.join(', ')}`,
+        );
+      } finally {
+        await replaceDocument(doc, originalContent);
+        await vscode.window.showTextDocument(doc);
+        await vscode.commands.executeCommand('workbench.action.files.save');
+      }
+    });
+  });
 });
