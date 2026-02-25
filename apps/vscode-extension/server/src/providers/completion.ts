@@ -807,12 +807,20 @@ export function getExtendsBracketCompletions(
   // Extract already-listed fields in the brackets to exclude them
   const beforeCursor = lineText.slice(0, character);
   const bracketMatch = beforeCursor.match(/\[([^\]]*)$/);
+  let mode: 'pick' | 'omit' | 'both' = 'both';
   if (bracketMatch) {
     const insideBracket = bracketMatch[1];
     // Parse existing field names (with or without ! prefix)
     const existing = insideBracket.split(',').map((s) => s.trim().replace(/^!/, ''));
     for (const name of existing) {
       if (name) offered.add(name);
+    }
+    // Detect pick/omit mode from raw existing items
+    const rawItems = insideBracket.split(',').map((s) => s.trim()).filter((s) => s.length > 0);
+    if (rawItems.length > 0) {
+      const hasOmit = rawItems.some((s) => s.startsWith('!'));
+      const hasPick = rawItems.some((s) => !s.startsWith('!'));
+      mode = hasOmit ? 'omit' : hasPick ? 'pick' : 'both';
     }
   }
 
@@ -832,11 +840,23 @@ export function getExtendsBracketCompletions(
           for (const field of model.fields) {
             if (offered.has(field.name)) continue;
             offered.add(field.name);
-            items.push({
-              label: field.name,
-              kind: CompletionItemKind.Field,
-              detail: `${field.type}${field.isOptional ? '?' : ''} field`,
-            });
+            if (mode === 'pick' || mode === 'both') {
+              items.push({
+                label: field.name,
+                kind: CompletionItemKind.Field,
+                detail: `${field.type}${field.isOptional ? '?' : ''} field`,
+                sortText: mode === 'both' ? `0${field.name}` : undefined,
+              });
+            }
+            if (mode === 'omit' || mode === 'both') {
+              items.push({
+                label: `!${field.name}`,
+                kind: CompletionItemKind.Field,
+                detail: `Omit ${field.type}${field.isOptional ? '?' : ''} field`,
+                insertText: `!${field.name}`,
+                sortText: mode === 'both' ? `1!${field.name}` : undefined,
+              });
+            }
           }
         }
         break;
@@ -846,11 +866,23 @@ export function getExtendsBracketCompletions(
           for (const field of obj.fields) {
             if (offered.has(field.name)) continue;
             offered.add(field.name);
-            items.push({
-              label: field.name,
-              kind: CompletionItemKind.Field,
-              detail: `${field.type}${field.isOptional ? '?' : ''} field`,
-            });
+            if (mode === 'pick' || mode === 'both') {
+              items.push({
+                label: field.name,
+                kind: CompletionItemKind.Field,
+                detail: `${field.type}${field.isOptional ? '?' : ''} field`,
+                sortText: mode === 'both' ? `0${field.name}` : undefined,
+              });
+            }
+            if (mode === 'omit' || mode === 'both') {
+              items.push({
+                label: `!${field.name}`,
+                kind: CompletionItemKind.Field,
+                detail: `Omit ${field.type}${field.isOptional ? '?' : ''} field`,
+                insertText: `!${field.name}`,
+                sortText: mode === 'both' ? `1!${field.name}` : undefined,
+              });
+            }
           }
         }
         break;
@@ -862,11 +894,23 @@ export function getExtendsBracketCompletions(
             const name = el.name ?? `element${i}`;
             if (offered.has(name)) continue;
             offered.add(name);
-            items.push({
-              label: name,
-              kind: CompletionItemKind.Field,
-              detail: `${el.type} element`,
-            });
+            if (mode === 'pick' || mode === 'both') {
+              items.push({
+                label: name,
+                kind: CompletionItemKind.Field,
+                detail: `${el.type} element`,
+                sortText: mode === 'both' ? `0${name}` : undefined,
+              });
+            }
+            if (mode === 'omit' || mode === 'both') {
+              items.push({
+                label: `!${name}`,
+                kind: CompletionItemKind.Field,
+                detail: `Omit ${el.type} element`,
+                insertText: `!${name}`,
+                sortText: mode === 'both' ? `1!${name}` : undefined,
+              });
+            }
           }
         }
         break;
@@ -876,11 +920,23 @@ export function getExtendsBracketCompletions(
           for (const val of en.values) {
             if (offered.has(val)) continue;
             offered.add(val);
-            items.push({
-              label: val,
-              kind: CompletionItemKind.EnumMember,
-              detail: 'enum value',
-            });
+            if (mode === 'pick' || mode === 'both') {
+              items.push({
+                label: val,
+                kind: CompletionItemKind.EnumMember,
+                detail: 'enum value',
+                sortText: mode === 'both' ? `0${val}` : undefined,
+              });
+            }
+            if (mode === 'omit' || mode === 'both') {
+              items.push({
+                label: `!${val}`,
+                kind: CompletionItemKind.EnumMember,
+                detail: 'Omit enum value',
+                insertText: `!${val}`,
+                sortText: mode === 'both' ? `1!${val}` : undefined,
+              });
+            }
           }
         }
         break;
@@ -905,11 +961,23 @@ export function getExtendsBracketCompletions(
             }
             if (offered.has(label)) continue;
             offered.add(label);
-            items.push({
-              label,
-              kind: CompletionItemKind.Value,
-              detail: 'literal variant',
-            });
+            if (mode === 'pick' || mode === 'both') {
+              items.push({
+                label,
+                kind: CompletionItemKind.Value,
+                detail: 'literal variant',
+                sortText: mode === 'both' ? `0${label}` : undefined,
+              });
+            }
+            if (mode === 'omit' || mode === 'both') {
+              items.push({
+                label: `!${label}`,
+                kind: CompletionItemKind.Value,
+                detail: 'Omit literal variant',
+                insertText: `!${label}`,
+                sortText: mode === 'both' ? `1!${label}` : undefined,
+              });
+            }
           }
         }
         break;
