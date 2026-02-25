@@ -1017,6 +1017,24 @@ function isInsideFieldParens(lineText: string, character: number): boolean {
   return !afterField.includes(')');
 }
 
+/**
+ * Check if the cursor is inside `@default(...)` or `@defaultAlways(...)` parentheses.
+ * Returns true when the line contains `@default(` or `@defaultAlways(` before the cursor
+ * with no closing `)` before the cursor position.
+ */
+export function isInsideDefaultParens(lineText: string, character: number): boolean {
+  const beforeCursor = lineText.slice(0, character);
+  const defaultIdx = beforeCursor.lastIndexOf('@default(');
+  const defaultAlwaysIdx = beforeCursor.lastIndexOf('@defaultAlways(');
+  const idx = Math.max(defaultIdx, defaultAlwaysIdx);
+  if (idx === -1) return false;
+
+  const parenOffset = defaultAlwaysIdx > defaultIdx ? '@defaultAlways('.length : '@default('.length;
+  const afterParen = beforeCursor.slice(idx + parenOffset);
+
+  return !afterParen.includes(')');
+}
+
 // ---------------------------------------------------------------------------
 // @model() argument completions
 // ---------------------------------------------------------------------------
@@ -1311,6 +1329,69 @@ export function resolveEnumLiteralValues(
 }
 
 /**
+ * Get value completions for inside @default() or @defaultAlways() parentheses.
+ * Returns enum/literal values for enum/literal fields, type-appropriate hints for primitives.
+ */
+export function getDefaultArgCompletions(
+  ast: SchemaAST | null,
+  blockContext: BlockContext,
+  lineText: string,
+  cerialPos: { line: number; column: number; offset: number },
+  uri: string,
+  indexer: WorkspaceIndexer | null,
+): CompletionItem[] {
+  const field = getCurrentField(ast, blockContext, cerialPos, lineText);
+  if (!field) return [];
+
+  const items: CompletionItem[] = [];
+
+  // Check for enum/literal values
+  const enumLiteralValues = resolveEnumLiteralValues(field, ast, uri, indexer);
+  if (enumLiteralValues?.length) {
+    for (const value of enumLiteralValues) {
+      items.push({
+        label: value,
+        kind: CompletionItemKind.EnumMember,
+      });
+    }
+    return items;
+  }
+
+  // Type-appropriate hints for primitives
+  switch (field.type) {
+    case 'bool':
+      items.push(
+        { label: 'true', kind: CompletionItemKind.Value },
+        { label: 'false', kind: CompletionItemKind.Value },
+      );
+      break;
+    case 'string':
+    case 'email':
+      items.push({
+        label: "''",
+        kind: CompletionItemKind.Value,
+      });
+      break;
+    case 'int':
+    case 'float':
+    case 'number':
+      items.push({
+        label: '0',
+        kind: CompletionItemKind.Value,
+      });
+      break;
+    case 'date':
+      items.push({
+        label: 'null',
+        kind: CompletionItemKind.Value,
+      });
+      break;
+  }
+
+  return items;
+}
+
+/**
  * Build decorator CompletionItems for the current block context.
  * Filters by block type, field type, excludes already-applied, excludes conflicts.
  * For enum/literal fields, provides smart @default/@defaultAlways snippets with valid values.
@@ -1434,6 +1515,11 @@ export function registerCompletionProvider(
     // 3. Inside Record() parentheses
     if (isInsideRecordParens(lineText, params.position.character)) {
       return getRecordIdCompletions(ast);
+    }
+
+    // 3.5. Inside @default() or @defaultAlways() parentheses — offer value completions
+    if (isInsideDefaultParens(lineText, params.position.character)) {
+      return getDefaultArgCompletions(ast, blockContext, lineText, cerialPos, uri, indexer);
     }
 
     // 4a. Inside extends Parent[...] brackets — offer parent fields for pick/omit
