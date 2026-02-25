@@ -200,7 +200,7 @@ export class WorkspaceIndexer {
         const uncoveredFiles = allFiles.filter((f) => {
           const normalized = normalizePath(f);
           for (const covered of coveredDirs) {
-            if (normalized.startsWith(`${covered}/`)) return false;
+            if (normalized.startsWith(`${covered}${path.sep}`)) return false;
           }
 
           return true;
