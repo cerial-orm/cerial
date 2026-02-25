@@ -249,16 +249,34 @@ function extractModelName(line: string): string | null {
 }
 
 /** Extract extends info from a declaration line (works for any type kind) */
-function extractExtendsInfo(line: string): { extends_?: string; extendsFilter?: ExtendsFilter } {
+function extractExtendsInfo(line: string): { extends_?: string; extendsFilter?: ExtendsFilter; bracketError?: string } {
   const trimmed = removeComments(line).trim();
   const match = trimmed.match(/\bextends\s+(\w+)(?:\[([^\]]*)\])?/);
   if (!match) return {};
 
-  const result: { extends_?: string; extendsFilter?: ExtendsFilter } = { extends_: match[1]! };
+  const result: { extends_?: string; extendsFilter?: ExtendsFilter; bracketError?: string } = { extends_: match[1]! };
 
   if (match[2] !== undefined) {
     const filter = parseExtendsBracket(match[2]);
     if (filter) result.extendsFilter = filter;
+  }
+
+  // Detect unmatched brackets in the extends clause.
+  // Check the part after "extends" up to the block opening brace (or end of line).
+  const extendsIdx = trimmed.indexOf('extends');
+  if (extendsIdx >= 0) {
+    const afterExtends = trimmed.slice(extendsIdx);
+    const braceIdx = afterExtends.indexOf('{');
+    const relevantPart = braceIdx >= 0 ? afterExtends.slice(0, braceIdx) : afterExtends;
+
+    const hasOpen = relevantPart.includes('[');
+    const hasClose = relevantPart.includes(']');
+
+    if (hasOpen && !hasClose) {
+      result.bracketError = 'Unclosed bracket in extends clause \u2014 missing closing ]';
+    } else if (!hasOpen && hasClose) {
+      result.bracketError = 'Unexpected ] in extends clause \u2014 missing opening [';
+    }
   }
 
   return result;
@@ -281,6 +299,7 @@ function parseModel(state: ParserState): ASTModel | null {
   const trimmedLine = removeComments(line).trim();
   const isAbstract = trimmedLine.startsWith('abstract ');
   const extendsInfo = extractExtendsInfo(line);
+  if (extendsInfo.bracketError) addError(state, extendsInfo.bracketError);
   // Check for mixed pick/omit in extends bracket
   const extendsMatch = trimmedLine.match(/\bextends\s+\w+\[([^\]]*)\]/);
   if (
@@ -395,6 +414,7 @@ function parseObject(state: ParserState): ASTObject | null {
   // Extract extends info
   const trimmedLine = removeComments(line).trim();
   const extendsInfo = extractExtendsInfo(line);
+  if (extendsInfo.bracketError) addError(state, extendsInfo.bracketError);
   // Check for mixed pick/omit in extends bracket
   const extendsMatch = trimmedLine.match(/\bextends\s+\w+\[([^\]]*)\]/);
   if (
@@ -582,6 +602,7 @@ function parseTuple(state: ParserState): ASTTuple | null {
   // Extract extends info
   const trimmedLine = removeComments(line).trim();
   const extendsInfo = extractExtendsInfo(line);
+  if (extendsInfo.bracketError) addError(state, extendsInfo.bracketError);
   // Check for mixed pick/omit in extends bracket
   const extendsMatch = trimmedLine.match(/\bextends\s+\w+\[([^\]]*)\]/);
   if (
@@ -816,6 +837,7 @@ function parseLiteral(state: ParserState): ASTLiteral | null {
   // Extract extends info
   const trimmedLine = removeComments(line).trim();
   const extendsInfo = extractExtendsInfo(line);
+  if (extendsInfo.bracketError) addError(state, extendsInfo.bracketError);
   // Check for mixed pick/omit in extends bracket
   const extendsMatch = trimmedLine.match(/\bextends\s+\w+\[([^\]]*)\]/);
   if (
@@ -989,6 +1011,7 @@ function parseEnum(state: ParserState): ASTEnum | null {
   // Extract extends info
   const trimmedLine = removeComments(line).trim();
   const extendsInfo = extractExtendsInfo(line);
+  if (extendsInfo.bracketError) addError(state, extendsInfo.bracketError);
   // Check for mixed pick/omit in extends bracket
   const extendsMatch = trimmedLine.match(/\bextends\s+\w+\[([^\]]*)\]/);
   if (

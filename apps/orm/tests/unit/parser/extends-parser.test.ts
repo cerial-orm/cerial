@@ -1011,4 +1011,157 @@ model Child extends Parent[] {
       expect(errors).toHaveLength(0);
     });
   });
+
+  // ──────────────────────────────────────────────
+  // K. Unmatched bracket error detection
+  // ──────────────────────────────────────────────
+  describe('unmatched bracket error detection', () => {
+    // --- Model ---
+    test('should emit error for model with unclosed bracket (extends Foo[)', () => {
+      const schema = `
+model Child extends Parent[ {
+  name String
+}
+`;
+      const { errors } = parse(schema);
+      expect(errors.length).toBeGreaterThanOrEqual(1);
+      expect(errors.some((e) => e.message.includes('Unclosed bracket'))).toBe(true);
+    });
+
+    test('should emit error for model with stray closing bracket (extends Foo])', () => {
+      const schema = `
+model Child extends Parent] {
+  name String
+}
+`;
+      const { errors } = parse(schema);
+      expect(errors.length).toBeGreaterThanOrEqual(1);
+      expect(errors.some((e) => e.message.includes('Unexpected ]'))).toBe(true);
+    });
+
+    test('should emit error for model with unclosed bracket containing fields', () => {
+      const schema = `
+model Child extends Parent[field1 {
+  name String
+}
+`;
+      const { errors } = parse(schema);
+      expect(errors.length).toBeGreaterThanOrEqual(1);
+      expect(errors.some((e) => e.message.includes('Unclosed bracket'))).toBe(true);
+    });
+
+    test('should NOT emit bracket error for valid model extends with brackets', () => {
+      const schema = `
+model Child extends Parent[field1, field2] {
+  name String
+}
+`;
+      const { errors } = parse(schema);
+      expect(errors.every((e) => !e.message.includes('Unclosed bracket') && !e.message.includes('Unexpected ]'))).toBe(true);
+    });
+
+    test('should NOT emit bracket error for model extends without brackets', () => {
+      const schema = `
+model Child extends Parent {
+  name String
+}
+`;
+      const { errors } = parse(schema);
+      expect(errors.every((e) => !e.message.includes('Unclosed bracket') && !e.message.includes('Unexpected ]'))).toBe(true);
+    });
+
+    // --- Object ---
+    test('should emit error for object with unclosed bracket', () => {
+      const schema = `
+object Child extends Parent[ {
+  name String
+}
+`;
+      const { errors } = parse(schema);
+      expect(errors.length).toBeGreaterThanOrEqual(1);
+      expect(errors.some((e) => e.message.includes('Unclosed bracket'))).toBe(true);
+    });
+
+    test('should emit error for object with stray closing bracket', () => {
+      const schema = `
+object Child extends Parent] {
+  name String
+}
+`;
+      const { errors } = parse(schema);
+      expect(errors.length).toBeGreaterThanOrEqual(1);
+      expect(errors.some((e) => e.message.includes('Unexpected ]'))).toBe(true);
+    });
+
+    // --- Tuple ---
+    test('should emit error for tuple with unclosed bracket', () => {
+      const schema = `
+tuple Child extends Parent[ {
+  Int, Int
+}
+`;
+      const { errors } = parse(schema);
+      expect(errors.length).toBeGreaterThanOrEqual(1);
+      expect(errors.some((e) => e.message.includes('Unclosed bracket'))).toBe(true);
+    });
+
+    test('should emit error for tuple with stray closing bracket', () => {
+      const schema = `
+tuple Child extends Parent] {
+  Int, Int
+}
+`;
+      const { errors } = parse(schema);
+      expect(errors.length).toBeGreaterThanOrEqual(1);
+      expect(errors.some((e) => e.message.includes('Unexpected ]'))).toBe(true);
+    });
+
+    // --- Literal ---
+    test('should emit error for literal with unclosed bracket', () => {
+      const schema = `
+literal Child extends Parent[ {
+  'a', 'b'
+}
+`;
+      const { errors } = parse(schema);
+      expect(errors.length).toBeGreaterThanOrEqual(1);
+      expect(errors.some((e) => e.message.includes('Unclosed bracket'))).toBe(true);
+    });
+
+    test('should emit error for literal with stray closing bracket', () => {
+      const schema = `
+literal Child extends Parent] {
+  'a', 'b'
+}
+`;
+      const { errors } = parse(schema);
+      expect(errors.length).toBeGreaterThanOrEqual(1);
+      expect(errors.some((e) => e.message.includes('Unexpected ]'))).toBe(true);
+    });
+
+    // --- Enum ---
+    test('should emit error for enum with unclosed bracket', () => {
+      const schema = `
+enum Child extends Parent[ {
+  A
+  B
+}
+`;
+      const { errors } = parse(schema);
+      expect(errors.length).toBeGreaterThanOrEqual(1);
+      expect(errors.some((e) => e.message.includes('Unclosed bracket'))).toBe(true);
+    });
+
+    test('should emit error for enum with stray closing bracket', () => {
+      const schema = `
+enum Child extends Parent] {
+  A
+  B
+}
+`;
+      const { errors } = parse(schema);
+      expect(errors.length).toBeGreaterThanOrEqual(1);
+      expect(errors.some((e) => e.message.includes('Unexpected ]'))).toBe(true);
+    });
+  });
 });
