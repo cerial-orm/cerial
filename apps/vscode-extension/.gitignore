@@ -2,4 +2,7 @@
 node_modules/
 .vscode-test
 
+# Generated client output from integration test runs
+tests/fixtures/**/client/
+
 tests/fixtures/real-test/
