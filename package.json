@@ -25,8 +25,10 @@
     "test:ext": "bun run --filter cerial-vscode test",
     "test:ext:unit": "bun run --filter cerial-vscode test:unit",
     "test:ext:grammar": "bun run --filter cerial-vscode test:grammar",
-    "test:ext:integration": "bun run --filter cerial-vscode test:integration",
-    "test:ext:e2e": "bun run --filter cerial-vscode test:e2e"
+    "test:ext:integration:full": "bun run --filter cerial-vscode test:integration:full",
+    "test:ext:e2e:full": "bun run --filter cerial-vscode test:e2e:full",
+    "test:ext:full": "bun run --filter cerial-vscode test:full",
+    "test:full": "bun run test:orm:full && bun run test:ext:full"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.4",
