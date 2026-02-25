@@ -11,6 +11,7 @@ import {
   extractModelName,
   isModelDeclaration,
   parseExtendsBracket,
+  isMixedPickOmit,
   parseModelDeclaration,
 } from '../../../src/parser/types/model/model-declaration-parser';
 
@@ -774,6 +775,32 @@ literal EmptyPick extends BasePriority[] {
     test('should return undefined for mixed pick/omit', () => {
       expect(parseExtendsBracket('id, !name')).toBeUndefined();
     });
+
+  describe('isMixedPickOmit', () => {
+    test('should return false for empty string', () => {
+      expect(isMixedPickOmit('')).toBe(false);
+    });
+
+    test('should return false for pick-only items', () => {
+      expect(isMixedPickOmit('id, name')).toBe(false);
+    });
+
+    test('should return false for omit-only items', () => {
+      expect(isMixedPickOmit('!id, !name')).toBe(false);
+    });
+
+    test('should return true for mixed pick and omit', () => {
+      expect(isMixedPickOmit('id, !name')).toBe(true);
+    });
+
+    test('should return true for mixed omit and pick', () => {
+      expect(isMixedPickOmit('!id, name')).toBe(true);
+    });
+
+    test('should return true for multiple mixed items', () => {
+      expect(isMixedPickOmit('id, name, !secret, !password')).toBe(true);
+    });
+  });
   });
 
   // ──────────────────────────────────────────────
@@ -895,6 +922,93 @@ model User {
       const user = ast.models[0]!;
       const addrField = user.fields.find((f) => f.name === 'address')!;
       expect(addrField.objectName).toBe('FullAddr');
+    });
+  });
+
+  // ──────────────────────────────────────────────
+  // J. Mixed pick/omit error detection
+  // ──────────────────────────────────────────────
+  describe('mixed pick/omit error detection', () => {
+    test('should emit error for model with mixed pick/omit', () => {
+      const schema = `
+model Child extends Parent[field1, !field2] {
+  name String
+}
+`
+      const { ast, errors } = parse(schema);
+      expect(errors).toHaveLength(1);
+      expect(errors[0]!.message).toContain('Cannot mix pick and omit');
+    });
+
+    test('should emit error for object with mixed pick/omit', () => {
+      const schema = `
+object Child extends Parent[field1, !field2] {
+  name String
+}
+`
+      const { ast, errors } = parse(schema);
+      expect(errors).toHaveLength(1);
+      expect(errors[0]!.message).toContain('Cannot mix pick and omit');
+    });
+
+    test('should emit error for tuple with mixed pick/omit', () => {
+      const schema = `
+tuple Child extends Parent[0, !1] {
+}
+`
+      const { ast, errors } = parse(schema);
+      expect(errors).toHaveLength(1);
+      expect(errors[0]!.message).toContain('Cannot mix pick and omit');
+    });
+
+    test('should emit error for literal with mixed pick/omit', () => {
+      const schema = `
+literal Child extends Parent['a', !'b'] {
+}
+`
+      const { ast, errors } = parse(schema);
+      expect(errors).toHaveLength(1);
+      expect(errors[0]!.message).toContain('Cannot mix pick and omit');
+    });
+
+    test('should emit error for enum with mixed pick/omit', () => {
+      const schema = `
+enum Child extends Parent[A, !B] {
+}
+`
+      const { ast, errors } = parse(schema);
+      expect(errors).toHaveLength(1);
+      expect(errors[0]!.message).toContain('Cannot mix pick and omit');
+    });
+
+    test('should NOT emit error for valid pick-only', () => {
+      const schema = `
+model Child extends Parent[field1, field2] {
+  name String
+}
+`
+      const { ast, errors } = parse(schema);
+      expect(errors).toHaveLength(0);
+    });
+
+    test('should NOT emit error for valid omit-only', () => {
+      const schema = `
+model Child extends Parent[!field1, !field2] {
+  name String
+}
+`
+      const { ast, errors } = parse(schema);
+      expect(errors).toHaveLength(0);
+    });
+
+    test('should NOT emit error for empty brackets', () => {
+      const schema = `
+model Child extends Parent[] {
+  name String
+}
+`
+      const { ast, errors } = parse(schema);
+      expect(errors).toHaveLength(0);
     });
   });
 });

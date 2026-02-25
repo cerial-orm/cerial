@@ -42,7 +42,7 @@ import {
   parseFieldType,
 } from './types';
 import { extractDefaultAlwaysValue } from './types/field-decorators';
-import { parseExtendsBracket } from './types/model/model-declaration-parser';
+import { isMixedPickOmit, parseExtendsBracket } from './types/model/model-declaration-parser';
 
 /** Parser state */
 interface ParserState {
@@ -281,6 +281,11 @@ function parseModel(state: ParserState): ASTModel | null {
   const trimmedLine = removeComments(line).trim();
   const isAbstract = trimmedLine.startsWith('abstract ');
   const extendsInfo = extractExtendsInfo(line);
+  // Check for mixed pick/omit in extends bracket
+  const extendsMatch = trimmedLine.match(/\bextends\s+\w+\[([^\]]*)\]/);
+  if (extendsMatch && extendsMatch[1] !== undefined && extendsInfo.extendsFilter === undefined && isMixedPickOmit(extendsMatch[1])) {
+    addError(state, 'Cannot mix pick and omit in extends bracket — use either [field1, field2] or [!field1, !field2], not both');
+  }
 
   const startLine = state.currentLine;
   advance(state);
@@ -380,7 +385,13 @@ function parseObject(state: ParserState): ASTObject | null {
   }
 
   // Extract extends info
+  const trimmedLine = removeComments(line).trim();
   const extendsInfo = extractExtendsInfo(line);
+  // Check for mixed pick/omit in extends bracket
+  const extendsMatch = trimmedLine.match(/\bextends\s+\w+\[([^\]]*)\]/);
+  if (extendsMatch && extendsMatch[1] !== undefined && extendsInfo.extendsFilter === undefined && isMixedPickOmit(extendsMatch[1])) {
+    addError(state, 'Cannot mix pick and omit in extends bracket — use either [field1, field2] or [!field1, !field2], not both');
+  }
 
   const startLine = state.currentLine;
   advance(state);
@@ -553,7 +564,13 @@ function parseTuple(state: ParserState): ASTTuple | null {
   }
 
   // Extract extends info
+  const trimmedLine = removeComments(line).trim();
   const extendsInfo = extractExtendsInfo(line);
+  // Check for mixed pick/omit in extends bracket
+  const extendsMatch = trimmedLine.match(/\bextends\s+\w+\[([^\]]*)\]/);
+  if (extendsMatch && extendsMatch[1] !== undefined && extendsInfo.extendsFilter === undefined && isMixedPickOmit(extendsMatch[1])) {
+    addError(state, 'Cannot mix pick and omit in extends bracket — use either [field1, field2] or [!field1, !field2], not both');
+  }
 
   const startLine = state.currentLine;
   advance(state);
@@ -773,7 +790,13 @@ function parseLiteral(state: ParserState): ASTLiteral | null {
   }
 
   // Extract extends info
+  const trimmedLine = removeComments(line).trim();
   const extendsInfo = extractExtendsInfo(line);
+  // Check for mixed pick/omit in extends bracket
+  const extendsMatch = trimmedLine.match(/\bextends\s+\w+\[([^\]]*)\]/);
+  if (extendsMatch && extendsMatch[1] !== undefined && extendsInfo.extendsFilter === undefined && isMixedPickOmit(extendsMatch[1])) {
+    addError(state, 'Cannot mix pick and omit in extends bracket — use either [field1, field2] or [!field1, !field2], not both');
+  }
 
   const startLine = state.currentLine;
   advance(state);
@@ -932,7 +955,13 @@ function parseEnum(state: ParserState): ASTEnum | null {
   }
 
   // Extract extends info
+  const trimmedLine = removeComments(line).trim();
   const extendsInfo = extractExtendsInfo(line);
+  // Check for mixed pick/omit in extends bracket
+  const extendsMatch = trimmedLine.match(/\bextends\s+\w+\[([^\]]*)\]/);
+  if (extendsMatch && extendsMatch[1] !== undefined && extendsInfo.extendsFilter === undefined && isMixedPickOmit(extendsMatch[1])) {
+    addError(state, 'Cannot mix pick and omit in extends bracket — use either [field1, field2] or [!field1, !field2], not both');
+  }
 
   const startLine = state.currentLine;
   advance(state);

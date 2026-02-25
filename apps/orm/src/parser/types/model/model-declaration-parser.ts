@@ -28,6 +28,21 @@ export function parseExtendsBracket(bracketContent: string): ExtendsFilter | und
   return { mode: 'pick', fields: items };
 }
 
+/** Check if bracket content has mixed pick and omit items (e.g., [field1, !field2]) */
+export function isMixedPickOmit(bracketContent: string): boolean {
+  const items = bracketContent
+    .split(',')
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
+
+  if (!items.length) return false;
+
+  const hasOmit = items.some((s) => s.startsWith('!'));
+  const hasPick = items.some((s) => !s.startsWith('!'));
+
+  return hasOmit && hasPick;
+}
+
 /** Regex for model declarations: captures abstract, name, extends target, bracket content */
 const MODEL_REGEX = /^(?:(abstract)\s+)?model\s+(\w+)(?:\s+extends\s+(\w+)(?:\[([^\]]*)\])?)?\s*\{?/;
 
