@@ -368,16 +368,16 @@ suite('Provider Fixes E2E', () => {
       const originalContent = doc.getText();
 
       try {
-        // Inject @ after "taskUuid Uuid?" on line 26
+        // Inject @ after "taskUuid Uuid?" on line 28
         const modified = originalContent.replace('  taskUuid Uuid?\n', '  taskUuid Uuid? @\n');
         await replaceDocument(doc, modified);
 
-        // Line 26: "  taskUuid Uuid? @" → cursor at col 18
+        // Line 28: "  taskUuid Uuid? @" → cursor at col 18
         const completions = await pollUntil(async () => {
           const result = await vscode.commands.executeCommand<vscode.CompletionList>(
             'vscode.executeCompletionItemProvider',
             doc.uri,
-            new vscode.Position(26, 18),
+            new vscode.Position(28, 18),
             '@',
           );
           if (!result || !result.items.length) return null;
@@ -932,13 +932,13 @@ suite('Provider Fixes E2E', () => {
 
       try {
         // Position cursor inside empty brackets: "model ChildEmpty extends ParentForOmit[] {"
-        // Line 44 (cat -n) = Line 43 (0-indexed VS Code)
+        // Line 46 (cat -n) = Line 45 (0-indexed VS Code)
         // Cursor at col 39 (between [])
         const completions = await pollUntil(async () => {
           const result = await vscode.commands.executeCommand<vscode.CompletionList>(
             'vscode.executeCompletionItemProvider',
             doc.uri,
-            new vscode.Position(43, 39),
+            new vscode.Position(45, 39),
           );
           if (!result || !result.items.length) return null;
           const fieldItems = result.items.filter((item) => item.kind === vscode.CompletionItemKind.Field);
@@ -972,13 +972,13 @@ suite('Provider Fixes E2E', () => {
 
       try {
         // Position cursor inside omit bracket: "model ChildOmit extends ParentForOmit[!name] {"
-        // Line 41 (cat -n) = Line 40 (0-indexed VS Code)
+        // Line 43 (cat -n) = Line 42 (0-indexed VS Code)
         // Cursor at col 40 (after "!name", before "]")
         const completions = await pollUntil(async () => {
           const result = await vscode.commands.executeCommand<vscode.CompletionList>(
             'vscode.executeCompletionItemProvider',
             doc.uri,
-            new vscode.Position(40, 40),
+            new vscode.Position(42, 40),
           );
           if (!result || !result.items.length) return null;
           const fieldItems = result.items.filter((item) => item.kind === vscode.CompletionItemKind.Field);
@@ -1007,16 +1007,23 @@ suite('Provider Fixes E2E', () => {
     test('already-used fields excluded from bracket completions', async function () {
       this.timeout(30000);
       const doc = await openDocument('provider-fixes.cerial');
+      const originalContent = doc.getText();
 
       try {
-        // Position cursor inside pick bracket: "model ChildPick extends ParentForOmit[name] {"
-        // Line 38 (cat -n) = Line 37 (0-indexed VS Code)
-        // Cursor at col 39 (after "name", before "]")
+        // Modify doc to add comma separator so cursor lands in empty gap after "name"
+        // "model ChildPick extends ParentForOmit[name, ] {" — cursor at col 44 (after ", ", before "]")
+        const modified = originalContent.replace(
+          'model ChildPick extends ParentForOmit[name] {',
+          'model ChildPick extends ParentForOmit[name, ] {',
+        );
+        await replaceDocument(doc, modified);
+
+        // Line 39 (0-indexed): cursor at col 44 (between ", " and "]")
         const completions = await pollUntil(async () => {
           const result = await vscode.commands.executeCommand<vscode.CompletionList>(
             'vscode.executeCompletionItemProvider',
             doc.uri,
-            new vscode.Position(37, 39),
+            new vscode.Position(39, 44),
           );
           if (!result || !result.items.length) return null;
           const fieldItems = result.items.filter((item) => item.kind === vscode.CompletionItemKind.Field);
@@ -1036,6 +1043,7 @@ suite('Provider Fixes E2E', () => {
         assert.ok(labels.includes('email'), `Should include remaining field "email", got: ${labels.join(', ')}`);
         assert.ok(labels.includes('age'), `Should include remaining field "age", got: ${labels.join(', ')}`);
       } finally {
+        await replaceDocument(doc, originalContent);
         await vscode.window.showTextDocument(doc);
         await vscode.commands.executeCommand('workbench.action.files.save');
       }
