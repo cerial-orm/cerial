@@ -270,6 +270,7 @@ Sandbox testing is **allowed in plan mode** — it is investigative research to 
 - **Ask before changing core features** - When a fix requires modifying type generators, query builders, or validators, ask the user first
 - **Validate test expectations before modifying source** - If a test fails, understand why before changing the test vs. the source
 - **Always run `bun run format` before committing** - Run Biome formatter on new/changed files before every git commit. This ensures consistent formatting and catches lint issues early. Never commit unformatted code. After running, check the output for any warnings or errors — if any are reported, fix them before proceeding. Do not ignore Biome diagnostics
+- **Never create files or folders matching `.gitignore` patterns** - Before creating any new file or directory, check if its name matches a pattern in the repository's `.gitignore` (e.g., `logs`, `dist`, `node_modules`, `*.log`). Files matching `.gitignore` patterns are invisible to git and will silently fail to be committed. If a needed name collides with a `.gitignore` pattern, choose a different name
 
 ### Documentation Sync (CRITICAL)
 
