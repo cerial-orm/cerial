@@ -376,6 +376,9 @@ function parseModel(state: ParserState): ASTModel | null {
       state.tupleNames,
       state.literalNames,
     );
+    if (result.decoratorErrors?.length) {
+      for (const err of result.decoratorErrors) addError(state, err);
+    }
     if (result.error) {
       addError(state, result.error);
     } else if (result.field) {
@@ -477,6 +480,9 @@ function parseObject(state: ParserState): ASTObject | null {
       state.tupleNames,
       state.literalNames,
     );
+    if (result.decoratorErrors?.length) {
+      for (const err of result.decoratorErrors) addError(state, err);
+    }
     if (result.error) {
       addError(state, result.error);
     } else if (result.field) {

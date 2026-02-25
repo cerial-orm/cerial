@@ -70,6 +70,8 @@ import {
 export interface FieldParseResult {
   field: ASTField | null;
   error: string | null;
+  /** Errors for bare value-requiring decorators (reported separately from `error`) */
+  decoratorErrors?: string[];
 }
 
 /** Check if a line is a field declaration */
@@ -90,8 +92,26 @@ export function isFieldDeclaration(line: string): boolean {
   );
 }
 
+/** Decorators that REQUIRE a value in parentheses */
+const VALUE_REQUIRED_DECORATORS: Record<string, string> = {
+  '@default': '@default(value)',
+  '@defaultAlways': '@defaultAlways(value)',
+  '@model': '@model(ModelName)',
+  '@field': '@field(fieldName)',
+  '@onDelete': '@onDelete(Action)',
+  '@key': '@key(name)',
+};
+
+/** Check if a token is a value-requiring decorator with empty parentheses, e.g. @default() */
+function isEmptyParenDecorator(token: string): string | undefined {
+  const match = token.match(/^(@\w+)\(\s*\)$/);
+  if (!match) return undefined;
+
+  return match[1]! in VALUE_REQUIRED_DECORATORS ? match[1] : undefined;
+}
+
 /** Parse decorators from a field line (at the end) */
-export function parseDecorators(line: string, lineNumber: number): ASTDecorator[] {
+export function parseDecorators(line: string, lineNumber: number, errors?: string[]): ASTDecorator[] {
   const decorators: ASTDecorator[] = [];
   const decoratorMatches = line.matchAll(/@\w+(?:\([^)]*\))?/g);
 
@@ -113,17 +133,47 @@ export function parseDecorators(line: string, lineNumber: number): ASTDecorator[
     } else if (isUpdatedAtDecorator(token)) {
       decorators.push(parseUpdatedAtDecorator(range));
     } else if (isDefaultAlwaysDecorator(token)) {
-      decorators.push(parseDefaultAlwaysDecorator(token, range));
+      const emptyDec = isEmptyParenDecorator(token);
+      if (emptyDec) {
+        errors?.push(`Decorator '${emptyDec}' requires a value. Use ${VALUE_REQUIRED_DECORATORS[emptyDec]}`);
+      } else {
+        decorators.push(parseDefaultAlwaysDecorator(token, range));
+      }
     } else if (isDefaultDecorator(token)) {
-      decorators.push(parseDefaultDecorator(token, range));
+      const emptyDec = isEmptyParenDecorator(token);
+      if (emptyDec) {
+        errors?.push(`Decorator '${emptyDec}' requires a value. Use ${VALUE_REQUIRED_DECORATORS[emptyDec]}`);
+      } else {
+        decorators.push(parseDefaultDecorator(token, range));
+      }
     } else if (isFieldDecorator(token)) {
-      decorators.push(parseFieldDecorator(token, range));
+      const emptyDec = isEmptyParenDecorator(token);
+      if (emptyDec) {
+        errors?.push(`Decorator '${emptyDec}' requires a value. Use ${VALUE_REQUIRED_DECORATORS[emptyDec]}`);
+      } else {
+        decorators.push(parseFieldDecorator(token, range));
+      }
     } else if (isModelDecorator(token)) {
-      decorators.push(parseModelDecorator(token, range));
+      const emptyDec = isEmptyParenDecorator(token);
+      if (emptyDec) {
+        errors?.push(`Decorator '${emptyDec}' requires a value. Use ${VALUE_REQUIRED_DECORATORS[emptyDec]}`);
+      } else {
+        decorators.push(parseModelDecorator(token, range));
+      }
     } else if (isOnDeleteDecorator(token)) {
-      decorators.push(parseOnDeleteDecorator(token, range));
+      const emptyDec = isEmptyParenDecorator(token);
+      if (emptyDec) {
+        errors?.push(`Decorator '${emptyDec}' requires a value. Use ${VALUE_REQUIRED_DECORATORS[emptyDec]}`);
+      } else {
+        decorators.push(parseOnDeleteDecorator(token, range));
+      }
     } else if (isKeyDecorator(token)) {
-      decorators.push(parseKeyDecorator(token, range));
+      const emptyDec = isEmptyParenDecorator(token);
+      if (emptyDec) {
+        errors?.push(`Decorator '${emptyDec}' requires a value. Use ${VALUE_REQUIRED_DECORATORS[emptyDec]}`);
+      } else {
+        decorators.push(parseKeyDecorator(token, range));
+      }
     } else if (isDistinctDecorator(token)) {
       decorators.push(parseDistinctDecorator(range));
     } else if (isSetDecorator(token)) {
@@ -144,6 +194,8 @@ export function parseDecorators(line: string, lineNumber: number): ASTDecorator[
       decorators.push(parseUuid7Decorator(token, range));
     } else if (isGeometryDecorator(token)) {
       decorators.push(parseGeometryDecorator(token, range));
+    } else if (token in VALUE_REQUIRED_DECORATORS) {
+      errors?.push(`Decorator '${token}' requires a value. Use ${VALUE_REQUIRED_DECORATORS[token]}`);
     }
   }
 
@@ -182,8 +234,8 @@ export function parseFieldDeclaration(
   const withoutPrivate = isPrivate ? withoutComments.replace(/\s*!!private\s*/g, '').trim() : withoutComments;
 
   // Extract decorators from the line (they come after the type)
-  const decorators = parseDecorators(withoutPrivate, lineNumber);
-
+  const decoratorErrors: string[] = [];
+  const decorators = parseDecorators(withoutPrivate, lineNumber, decoratorErrors);
   // Remove decorators from the line for field parsing
   const withoutDecorators = withoutPrivate.replace(/@\w+(?:\([^)]*\))?/g, '').trim();
 
@@ -253,7 +305,7 @@ export function parseFieldDeclaration(
     isPrivate || undefined,
   );
 
-  return { field, error: null };
+  return { field, error: null, decoratorErrors: decoratorErrors.length ? decoratorErrors : undefined };
 }
 
 /** Extract field name from declaration */
