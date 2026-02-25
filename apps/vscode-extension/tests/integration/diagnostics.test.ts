@@ -106,4 +106,17 @@ suite('Diagnostics', () => {
       `Cross-file references should resolve without errors, got: ${errors.map((d) => d.message).join(', ')}`,
     );
   });
+
+  test('extends pick without @id reports diagnostic error', async function () {
+    this.timeout(15000);
+
+    const doc = await openDocument('extends-errors.cerial');
+    const diagnostics = await waitForDiagnostics(doc.uri);
+
+    const errors = diagnostics.filter((d) => d.severity === vscode.DiagnosticSeverity.Error);
+    assert.ok(errors.length > 0, 'Should report error when extends pick drops @id field');
+
+    const idError = errors.find((d) => d.message.includes('@id'));
+    assert.ok(idError, `Should have diagnostic about missing @id, got: ${errors.map((d) => d.message).join('; ')}`);
+  });
 });

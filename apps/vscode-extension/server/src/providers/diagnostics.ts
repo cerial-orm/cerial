@@ -27,6 +27,7 @@ import {
   validateResolvedTypes,
   validateSchema,
 } from '../../../../orm/src/cli/validators';
+import { resolveInheritance } from '../../../../orm/src/resolver';
 import type { ASTField, ParseError, SchemaAST, SourceRange } from '../../../../orm/src/types';
 import type { WorkspaceIndexer } from '../indexer';
 import type { CerialSettings } from '../server';
@@ -670,8 +671,8 @@ export function registerDiagnosticsProvider(
         // File belongs to a schema group — validate against the full resolved AST
         validationAST = indexer.getResolvedAST(group.name);
       } else {
-        // Standalone file — validate against its own AST
-        validationAST = fileAST;
+        // Standalone file — resolve within-file inheritance before validating
+        validationAST = resolveInheritance(fileAST);
       }
     } catch {
       // Inheritance resolution failed (e.g., circular extends) — fall back to file AST

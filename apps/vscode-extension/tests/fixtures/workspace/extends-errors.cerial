@@ -1,0 +1,12 @@
+// Negative test: extends with pick that drops @id
+
+abstract model ExtendsBase {
+  id Record @id !!private
+  createdAt Date @createdAt !!private
+  label String
+}
+
+// ERROR: picks only createdAt and label — no @id after resolution
+model ExtendsPickNoId extends ExtendsBase[createdAt, label] {
+  notes String?
+}
