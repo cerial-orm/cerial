@@ -24,16 +24,7 @@ import type { TextDocument } from 'vscode-languageserver-textdocument';
 import {
   type SchemaValidationError,
   validateExtends,
-  validateFieldNames,
-  validateModelNames,
-  validateNullableDecorator,
-  validateNullableOnObjectFields,
-  validateNullableOnTupleElements,
-  validateRecordIdTypes,
-  validateRelationRules,
   validateSchema,
-  validateTupleElementDecorators,
-  validateUuidFields,
 } from '../../../../orm/src/cli/validators';
 import type { ASTField, ParseError, SchemaAST, SourceRange } from '../../../../orm/src/types';
 import type { WorkspaceIndexer } from '../indexer';
@@ -647,17 +638,7 @@ export function registerDiagnosticsProvider(
     const schemaResult = validateSchema(validationAST);
     validationErrors.push(...schemaResult.errors);
 
-    // All remaining validators return SchemaValidationError[] directly
-    validationErrors.push(...validateFieldNames(validationAST));
-    validationErrors.push(...validateModelNames(validationAST));
-    validationErrors.push(...validateRelationRules(validationAST));
-    validationErrors.push(...validateRecordIdTypes(validationAST));
     validationErrors.push(...validateExtends(validationAST));
-    validationErrors.push(...validateNullableDecorator(validationAST));
-    validationErrors.push(...validateNullableOnObjectFields(validationAST));
-    validationErrors.push(...validateNullableOnTupleElements(validationAST));
-    validationErrors.push(...validateTupleElementDecorators(validationAST));
-    validationErrors.push(...validateUuidFields(validationAST));
 
     // Step 5: Filter to current file
     const fileErrors = filterErrorsToFile(validationErrors, fileAST);
