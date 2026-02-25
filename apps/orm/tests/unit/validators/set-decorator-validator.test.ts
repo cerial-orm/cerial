@@ -154,7 +154,7 @@ describe('Set Decorator Validator', () => {
               name: 'coordinates',
               type: 'tuple',
               isArray: true,
-              tupleRef: 'Coordinate',
+              tupleName: 'Coordinate',
               decorators: [setDecorator()],
             }),
           ],

@@ -6,14 +6,14 @@
 
 import { describe, expect, test } from 'bun:test';
 import { validateLiteralDecorators } from '../../../src/cli/validators/schema-validator';
-import type { ASTDecorator, ASTField, ASTModel, ASTObject, SchemaAST } from '../../../src/types';
+import type { ASTDecorator, ASTField, ASTModel, ASTObject, SchemaAST, SchemaDecorator } from '../../../src/types';
 
 const range = {
   start: { line: 1, column: 1, offset: 0 },
   end: { line: 1, column: 1, offset: 0 },
 };
 
-function createDecorator(type: string): ASTDecorator {
+function createDecorator(type: SchemaDecorator): ASTDecorator {
   return { type, range };
 }
 

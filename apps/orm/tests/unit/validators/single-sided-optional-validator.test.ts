@@ -546,9 +546,9 @@ describe('validateSingleSidedOptional', () => {
 
       expect(errors.length).toBeGreaterThan(0);
       const error = errors[0];
-      expect(error.model).toBe('Comment');
-      expect(error.field).toBe('post');
-      expect(error.line).toBe(42);
+      expect(error?.model).toBe('Comment');
+      expect(error?.field).toBe('post');
+      expect(error?.line).toBe(42);
     });
   });
 

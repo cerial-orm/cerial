@@ -20,11 +20,11 @@ function idDecorator(): ASTDecorator {
 }
 
 function fieldDecorator(fieldName: string): ASTDecorator {
-  return { type: 'field', value: fieldName, args: [fieldName], range };
+  return { type: 'field', value: fieldName, range };
 }
 
 function modelDecorator(modelName: string): ASTDecorator {
-  return { type: 'model', value: modelName, args: [modelName], range };
+  return { type: 'model', value: modelName, range };
 }
 
 function createField(overrides: Partial<ASTField> = {}): ASTField {

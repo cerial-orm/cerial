@@ -156,7 +156,7 @@ describe('validateRecordDecorators', () => {
 
     expect(errors.length).toBeGreaterThan(0);
     expect(errors.some((e) => e.message.includes('@onDelete'))).toBe(true);
-    expect(errors[0].field).toBe('authorId');
+    expect(errors[0]?.field).toBe('authorId');
   });
 
   test('should fail for Record with @key decorator', () => {
@@ -184,7 +184,7 @@ describe('validateRecordDecorators', () => {
 
     expect(errors.length).toBeGreaterThan(0);
     expect(errors.some((e) => e.message.includes('@key'))).toBe(true);
-    expect(errors[0].field).toBe('authorId');
+    expect(errors[0]?.field).toBe('authorId');
   });
 
   test('should fail for Record with multiple relation decorators', () => {
@@ -373,9 +373,9 @@ describe('validateRecordDecorators', () => {
     const errors = validateRecordDecorators(ast);
 
     expect(errors.length).toBe(1);
-    expect(errors[0].model).toBe('Post');
-    expect(errors[0].field).toBe('authorId');
-    expect(errors[0].message.includes('@model')).toBe(true);
+    expect(errors[0]?.model).toBe('Post');
+    expect(errors[0]?.field).toBe('authorId');
+    expect(errors[0]?.message.includes('@model')).toBe(true);
   });
 
   test('should report correct model and field names in error', () => {
@@ -402,7 +402,7 @@ describe('validateRecordDecorators', () => {
     const errors = validateRecordDecorators(ast);
 
     expect(errors.length).toBe(1);
-    expect(errors[0].model).toBe('Comment');
-    expect(errors[0].field).toBe('postId');
+    expect(errors[0]?.model).toBe('Comment');
+    expect(errors[0]?.field).toBe('postId');
   });
 });

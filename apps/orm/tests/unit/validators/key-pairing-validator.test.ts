@@ -350,12 +350,12 @@ describe('validateKeyPairing', () => {
 
       const errors = validateKeyPairing(ast);
       expect(errors).toHaveLength(1);
-      expect(errors[0].message).toContain('@key(authorKey)');
-      expect(errors[0].message).toContain('forward');
-      expect(errors[0].message).toContain('reverse');
-      expect(errors[0].message).toContain('User');
-      expect(errors[0].model).toBe('Post');
-      expect(errors[0].field).toBe('author');
+      expect(errors[0]?.message).toContain('@key(authorKey)');
+      expect(errors[0]?.message).toContain('forward');
+      expect(errors[0]?.message).toContain('reverse');
+      expect(errors[0]?.message).toContain('User');
+      expect(errors[0]?.model).toBe('Post');
+      expect(errors[0]?.field).toBe('author');
     });
 
     test('should fail when forward relation @key does not match reverse @key', () => {
@@ -489,12 +489,12 @@ describe('validateKeyPairing', () => {
 
       const errors = validateKeyPairing(ast);
       expect(errors).toHaveLength(1);
-      expect(errors[0].message).toContain('@key(authorKey)');
-      expect(errors[0].message).toContain('reverse');
-      expect(errors[0].message).toContain('forward');
-      expect(errors[0].message).toContain('Post');
-      expect(errors[0].model).toBe('User');
-      expect(errors[0].field).toBe('posts');
+      expect(errors[0]?.message).toContain('@key(authorKey)');
+      expect(errors[0]?.message).toContain('reverse');
+      expect(errors[0]?.message).toContain('forward');
+      expect(errors[0]?.message).toContain('Post');
+      expect(errors[0]?.model).toBe('User');
+      expect(errors[0]?.field).toBe('posts');
     });
 
     test('should fail when reverse relation @key does not match forward @key', () => {
@@ -791,7 +791,7 @@ describe('validateKeyPairing', () => {
 
       const errors = validateKeyPairing(ast);
       expect(errors).toHaveLength(1);
-      expect(errors[0].line).toBe(42);
+      expect(errors[0]?.line).toBe(42);
     });
   });
 });
