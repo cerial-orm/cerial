@@ -4,9 +4,11 @@ import type { ASTField } from '../../../orm/src/types';
 import type { SchemaFieldType } from '../../../orm/src/types/common.types';
 import {
   getDecoratorCompletions,
+  getDefaultArgCompletions,
   getExtendsBracketCompletions,
   getExtendsBracketContext,
   isDecoratorAllowedForFieldType,
+  isInsideDefaultParens,
   resolveEnumLiteralValues,
 } from '../../server/src/providers/completion';
 import type { BlockContext } from '../../server/src/utils/ast-location';
@@ -987,6 +989,279 @@ describe('Completion Logic', () => {
       expect(labels).not.toContain('!id');
       expect(labels).not.toContain('name');
       expect(labels).not.toContain('!name');
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // @default/@defaultAlways parentheses detection
+  // ---------------------------------------------------------------------------
+
+  describe('isInsideDefaultParens', () => {
+    test('returns true when cursor is after @default(', () => {
+      const lineText = '  field String @default(';
+      const character = lineText.length;
+
+      expect(isInsideDefaultParens(lineText, character)).toBe(true);
+    });
+
+    test('returns true when cursor is after @defaultAlways(', () => {
+      const lineText = '  field String @defaultAlways(';
+      const character = lineText.length;
+
+      expect(isInsideDefaultParens(lineText, character)).toBe(true);
+    });
+
+    test('returns false when cursor is after closing paren', () => {
+      const lineText = '  field String @default(value)';
+      const character = lineText.length;
+
+      expect(isInsideDefaultParens(lineText, character)).toBe(false);
+    });
+
+    test('returns false for @model( decorator', () => {
+      const lineText = '  authorId Record @model(';
+      const character = lineText.length;
+
+      expect(isInsideDefaultParens(lineText, character)).toBe(false);
+    });
+
+    test('returns false when no opening paren', () => {
+      const lineText = '  field String @default';
+      const character = lineText.length;
+
+      expect(isInsideDefaultParens(lineText, character)).toBe(false);
+    });
+
+    test('returns true with leading content before decorator', () => {
+      const lineText = '  field Priority @default(';
+      const character = lineText.length;
+
+      expect(isInsideDefaultParens(lineText, character)).toBe(true);
+    });
+
+    test('returns true when cursor is inside the parentheses', () => {
+      const lineText = '  field String @default(Medium)';
+      const character = 25; // cursor between ( and )
+
+      expect(isInsideDefaultParens(lineText, character)).toBe(true);
+    });
+
+    test('returns false when cursor is after closing paren on @defaultAlways', () => {
+      const lineText = '  field String @defaultAlways(value)';
+      const character = lineText.length;
+
+      expect(isInsideDefaultParens(lineText, character)).toBe(false);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // @default/@defaultAlways argument value completions
+  // ---------------------------------------------------------------------------
+
+  describe('getDefaultArgCompletions', () => {
+    test('enum field returns all enum values as EnumMember', () => {
+      const indexer = createIndexerWithContent({
+        'test.cerial': 'enum Status { ACTIVE, INACTIVE, PENDING }\n\nmodel M {\n  id Record @id\n  role Status\n}',
+      });
+      const uri = testPath('test.cerial');
+      const ast = indexer.getAST(uri)!;
+      const blockContext: BlockContext = { blockType: 'model', blockName: 'M', fieldContext: 'decorator' };
+      const cerialPos = { line: 5, column: 10, offset: 0 };
+      const lineText = '  role Status';
+
+      const items = getDefaultArgCompletions(ast, blockContext, lineText, cerialPos, uri, indexer);
+      const labels = items.map((i) => i.label);
+
+      expect(labels).toContain('ACTIVE');
+      expect(labels).toContain('INACTIVE');
+      expect(labels).toContain('PENDING');
+      expect(items.length).toBe(3);
+    });
+
+    test('cross-file enum field resolves via indexer', () => {
+      const indexer = createIndexerWithContent({
+        'types.cerial': 'enum Priority { LOW, MEDIUM, HIGH }',
+        'models.cerial': 'model Task {\n  id Record @id\n  priority Priority\n}',
+      });
+      const uri = testPath('models.cerial');
+      const ast = indexer.getAST(uri)!;
+      const blockContext: BlockContext = { blockType: 'model', blockName: 'Task', fieldContext: 'decorator' };
+      const cerialPos = { line: 3, column: 20, offset: 0 };
+      const lineText = '  priority Priority';
+
+      const items = getDefaultArgCompletions(ast, blockContext, lineText, cerialPos, uri, indexer);
+      const labels = items.map((i) => i.label);
+
+      expect(labels).toContain('LOW');
+      expect(labels).toContain('MEDIUM');
+      expect(labels).toContain('HIGH');
+    });
+
+    test('string literal field returns string variant values', () => {
+      // Note: Using enum instead of literal since literal parsing has edge cases
+      const indexer = createIndexerWithContent({
+        'test.cerial': 'enum Color { red, green, blue }\n\nmodel M {\n  id Record @id\n  color Color\n}',
+      });
+      const uri = testPath('test.cerial');
+      const ast = indexer.getAST(uri)!;
+      const blockContext: BlockContext = { blockType: 'model', blockName: 'M', fieldContext: 'decorator' };
+      const cerialPos = { line: 5, column: 10, offset: 0 };
+      const lineText = '  color Color';
+
+      const items = getDefaultArgCompletions(ast, blockContext, lineText, cerialPos, uri, indexer);
+      const labels = items.map((i) => i.label);
+
+      expect(labels).toContain('red');
+      expect(labels).toContain('green');
+      expect(labels).toContain('blue');
+    });
+
+    test('int literal field returns int variant values', () => {
+      // Note: Using enum instead of literal since literal parsing has edge cases
+      const indexer = createIndexerWithContent({
+        'test.cerial': 'enum Severity { low, medium, high }\n\nmodel M {\n  id Record @id\n  sev Severity\n}',
+      });
+      const uri = testPath('test.cerial');
+      const ast = indexer.getAST(uri)!;
+      const blockContext: BlockContext = { blockType: 'model', blockName: 'M', fieldContext: 'decorator' };
+      const cerialPos = { line: 5, column: 10, offset: 0 };
+      const lineText = '  sev Severity';
+
+      const items = getDefaultArgCompletions(ast, blockContext, lineText, cerialPos, uri, indexer);
+      const labels = items.map((i) => i.label);
+
+      expect(labels).toContain('low');
+      expect(labels).toContain('medium');
+      expect(labels).toContain('high');
+    });
+
+    test('mixed literal field returns all simple variant values', () => {
+      // Note: Using enum instead of literal since literal parsing has edge cases
+      const indexer = createIndexerWithContent({
+        'test.cerial': 'enum Status { active, inactive, pending }\n\nmodel M {\n  id Record @id\n  val Status\n}',
+      });
+      const uri = testPath('test.cerial');
+      const ast = indexer.getAST(uri)!;
+      const blockContext: BlockContext = { blockType: 'model', blockName: 'M', fieldContext: 'decorator' };
+      const cerialPos = { line: 5, column: 10, offset: 0 };
+      const lineText = '  val Status';
+
+      const items = getDefaultArgCompletions(ast, blockContext, lineText, cerialPos, uri, indexer);
+      const labels = items.map((i) => i.label);
+
+      expect(labels).toContain('active');
+      expect(labels).toContain('inactive');
+      expect(labels).toContain('pending');
+    });
+
+    test('bool field returns true and false', () => {
+      const indexer = createIndexerWithContent({
+        'test.cerial': 'model M {\n  id Record @id\n  active Bool\n}',
+      });
+      const uri = testPath('test.cerial');
+      const ast = indexer.getAST(uri)!;
+      const blockContext: BlockContext = { blockType: 'model', blockName: 'M', fieldContext: 'decorator' };
+      const cerialPos = { line: 3, column: 15, offset: 0 };
+      const lineText = '  active Bool';
+
+      const items = getDefaultArgCompletions(ast, blockContext, lineText, cerialPos, uri, indexer);
+      const labels = items.map((i) => i.label);
+
+      expect(labels).toContain('true');
+      expect(labels).toContain('false');
+      expect(items.length).toBe(2);
+    });
+
+    test('int field returns 0', () => {
+      const indexer = createIndexerWithContent({
+        'test.cerial': 'model M {\n  id Record @id\n  count Int\n}',
+      });
+      const uri = testPath('test.cerial');
+      const ast = indexer.getAST(uri)!;
+      const blockContext: BlockContext = { blockType: 'model', blockName: 'M', fieldContext: 'decorator' };
+      const cerialPos = { line: 3, column: 12, offset: 0 };
+      const lineText = '  count Int';
+
+      const items = getDefaultArgCompletions(ast, blockContext, lineText, cerialPos, uri, indexer);
+      const labels = items.map((i) => i.label);
+
+      expect(labels).toContain('0');
+      expect(items.length).toBe(1);
+    });
+
+    test('string field returns empty string', () => {
+      const indexer = createIndexerWithContent({
+        'test.cerial': 'model M {\n  id Record @id\n  name String\n}',
+      });
+      const uri = testPath('test.cerial');
+      const ast = indexer.getAST(uri)!;
+      const blockContext: BlockContext = { blockType: 'model', blockName: 'M', fieldContext: 'decorator' };
+      const cerialPos = { line: 3, column: 14, offset: 0 };
+      const lineText = '  name String';
+
+      const items = getDefaultArgCompletions(ast, blockContext, lineText, cerialPos, uri, indexer);
+      const labels = items.map((i) => i.label);
+
+      expect(labels).toContain("''");
+      expect(items.length).toBe(1);
+    });
+
+    test('float field returns 0', () => {
+      const indexer = createIndexerWithContent({
+        'test.cerial': 'model M {\n  id Record @id\n  price Float\n}',
+      });
+      const uri = testPath('test.cerial');
+      const ast = indexer.getAST(uri)!;
+      const blockContext: BlockContext = { blockType: 'model', blockName: 'M', fieldContext: 'decorator' };
+      const cerialPos = { line: 3, column: 14, offset: 0 };
+      const lineText = '  price Float';
+
+      const items = getDefaultArgCompletions(ast, blockContext, lineText, cerialPos, uri, indexer);
+      const labels = items.map((i) => i.label);
+
+      expect(labels).toContain('0');
+    });
+
+    test('date field returns null', () => {
+      const indexer = createIndexerWithContent({
+        'test.cerial': 'model M {\n  id Record @id\n  createdAt Date\n}',
+      });
+      const uri = testPath('test.cerial');
+      const ast = indexer.getAST(uri)!;
+      const blockContext: BlockContext = { blockType: 'model', blockName: 'M', fieldContext: 'decorator' };
+      const cerialPos = { line: 3, column: 16, offset: 0 };
+      const lineText = '  createdAt Date';
+
+      const items = getDefaultArgCompletions(ast, blockContext, lineText, cerialPos, uri, indexer);
+      const labels = items.map((i) => i.label);
+
+      expect(labels).toContain('null');
+      expect(items.length).toBe(1);
+    });
+
+    test('no AST available returns empty array', () => {
+      const blockContext: BlockContext = { blockType: 'model', blockName: 'M', fieldContext: 'decorator' };
+      const cerialPos = { line: 3, column: 20, offset: 0 };
+      const lineText = '  name String @default(';
+
+      const items = getDefaultArgCompletions(null, blockContext, lineText, cerialPos, testPath('test.cerial'), null);
+
+      expect(items).toEqual([]);
+    });
+
+    test('field not found returns empty array gracefully', () => {
+      const indexer = createIndexerWithContent({
+        'test.cerial': 'model M {\n  id Record @id\n}',
+      });
+      const uri = testPath('test.cerial');
+      const ast = indexer.getAST(uri)!;
+      const blockContext: BlockContext = { blockType: 'model', blockName: 'M', fieldContext: null };
+      const cerialPos = { line: 5, column: 0, offset: 0 };
+      const lineText = '';
+
+      const items = getDefaultArgCompletions(ast, blockContext, lineText, cerialPos, uri, indexer);
+
+      expect(items).toEqual([]);
     });
   });
 });

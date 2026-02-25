@@ -259,12 +259,12 @@ suite('Provider Fixes E2E', () => {
       const doc = await openDocument('provider-fixes.cerial');
 
       try {
-        // Line 26 (0-indexed): "  status Priority @default()" → cursor at col 28 (inside parens)
+        // Line 26 (0-indexed): "  status Priority @default()" → cursor at col 27 (inside parens)
         const completions = await pollUntil(async () => {
           const result = await vscode.commands.executeCommand<vscode.CompletionList>(
             'vscode.executeCompletionItemProvider',
             doc.uri,
-            new vscode.Position(26, 28),
+            new vscode.Position(26, 27),
           );
           if (!result || !result.items.length) return null;
           const labels = result.items.map(getCompletionLabel);
@@ -289,12 +289,12 @@ suite('Provider Fixes E2E', () => {
       const doc = await openDocument('provider-fixes.cerial');
 
       try {
-        // Line 27 (0-indexed): "  enabled Bool @default()" → cursor at col 26 (inside parens)
+        // Line 27 (0-indexed): "  enabled Bool @default()" → cursor at col 24 (inside parens)
         const completions = await pollUntil(async () => {
           const result = await vscode.commands.executeCommand<vscode.CompletionList>(
             'vscode.executeCompletionItemProvider',
             doc.uri,
-            new vscode.Position(27, 26),
+            new vscode.Position(27, 24),
           );
           if (!result || !result.items.length) return null;
           const labels = result.items.map(getCompletionLabel);
