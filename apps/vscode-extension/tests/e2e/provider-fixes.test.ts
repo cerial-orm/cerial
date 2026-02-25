@@ -860,4 +860,123 @@ suite('Provider Fixes E2E', () => {
       );
     });
   });
+
+  // ── Extends bracket omit completion ─────────────────────────────────
+
+  suite('Extends bracket omit completion', () => {
+    test('empty brackets offer both pick and omit items', async function () {
+      this.timeout(30000);
+      const doc = await openDocument('provider-fixes.cerial');
+
+      try {
+        // Position cursor inside empty brackets: "model ChildEmpty extends ParentForOmit[] {"
+        // Line 44 (0-indexed): "model ChildEmpty extends ParentForOmit[] {"
+        // Cursor at col 39 (between [])
+        const completions = await pollUntil(async () => {
+          const result = await vscode.commands.executeCommand<vscode.CompletionList>(
+            'vscode.executeCompletionItemProvider',
+            doc.uri,
+            new vscode.Position(44, 39),
+          );
+          if (!result || !result.items.length) return null;
+          const fieldItems = result.items.filter((item) => item.kind === vscode.CompletionItemKind.Field);
+          const fieldLabels = fieldItems.map(getCompletionLabel);
+
+          return fieldLabels.some((l) => l === 'id' || l === 'name') ? result : null;
+        }, 10000);
+
+        assert.ok(completions, 'Should return field completions for ParentForOmit');
+        const fieldItems = completions.items.filter((item) => item.kind === vscode.CompletionItemKind.Field);
+        const labels = fieldItems.map(getCompletionLabel);
+
+        // Both pick and omit items should be present
+        assert.ok(labels.includes('id'), `Should include pick item "id", got: ${labels.join(', ')}`);
+        assert.ok(labels.includes('name'), `Should include pick item "name", got: ${labels.join(', ')}`);
+        assert.ok(labels.includes('email'), `Should include pick item "email", got: ${labels.join(', ')}`);
+        assert.ok(labels.includes('age'), `Should include pick item "age", got: ${labels.join(', ')}`);
+        assert.ok(labels.includes('!id'), `Should include omit item "!id", got: ${labels.join(', ')}`);
+        assert.ok(labels.includes('!name'), `Should include omit item "!name", got: ${labels.join(', ')}`);
+        assert.ok(labels.includes('!email'), `Should include omit item "!email", got: ${labels.join(', ')}`);
+        assert.ok(labels.includes('!age'), `Should include omit item "!age", got: ${labels.join(', ')}`);
+      } finally {
+        await vscode.window.showTextDocument(doc);
+        await vscode.commands.executeCommand('workbench.action.files.save');
+      }
+    });
+
+    test('omit-mode bracket offers only omit-style suggestions', async function () {
+      this.timeout(30000);
+      const doc = await openDocument('provider-fixes.cerial');
+
+      try {
+        // Position cursor inside omit bracket: "model ChildOmit extends ParentForOmit[!name, ] {"
+        // Line 41 (0-indexed): "model ChildOmit extends ParentForOmit[!name, ] {"
+        // Cursor at col 41 (after "!name, ", before "]")
+        const completions = await pollUntil(async () => {
+          const result = await vscode.commands.executeCommand<vscode.CompletionList>(
+            'vscode.executeCompletionItemProvider',
+            doc.uri,
+            new vscode.Position(41, 41),
+          );
+          if (!result || !result.items.length) return null;
+          const fieldItems = result.items.filter((item) => item.kind === vscode.CompletionItemKind.Field);
+          const fieldLabels = fieldItems.map(getCompletionLabel);
+
+          return fieldLabels.some((l) => l.startsWith('!')) ? result : null;
+        }, 10000);
+
+        assert.ok(completions, 'Should return omit-style field completions');
+        const fieldItems = completions.items.filter((item) => item.kind === vscode.CompletionItemKind.Field);
+        const labels = fieldItems.map(getCompletionLabel);
+
+        // Only omit items should be present (no pick items)
+        assert.ok(!labels.includes('id'), `Pick item "id" should not appear in omit mode, got: ${labels.join(', ')}`);
+        assert.ok(!labels.includes('email'), `Pick item "email" should not appear in omit mode, got: ${labels.join(', ')}`);
+        assert.ok(!labels.includes('age'), `Pick item "age" should not appear in omit mode, got: ${labels.join(', ')}`);
+        assert.ok(labels.includes('!id'), `Should include omit item "!id", got: ${labels.join(', ')}`);
+        assert.ok(labels.includes('!email'), `Should include omit item "!email", got: ${labels.join(', ')}`);
+        assert.ok(labels.includes('!age'), `Should include omit item "!age", got: ${labels.join(', ')}`);
+      } finally {
+        await vscode.window.showTextDocument(doc);
+        await vscode.commands.executeCommand('workbench.action.files.save');
+      }
+    });
+
+    test('already-used fields excluded from bracket completions', async function () {
+      this.timeout(30000);
+      const doc = await openDocument('provider-fixes.cerial');
+
+      try {
+        // Position cursor inside pick bracket: "model ChildPick extends ParentForOmit[name, ] {"
+        // Line 38 (0-indexed): "model ChildPick extends ParentForOmit[name, ] {"
+        // Cursor at col 40 (after "name, ", before "]")
+        const completions = await pollUntil(async () => {
+          const result = await vscode.commands.executeCommand<vscode.CompletionList>(
+            'vscode.executeCompletionItemProvider',
+            doc.uri,
+            new vscode.Position(38, 40),
+          );
+          if (!result || !result.items.length) return null;
+          const fieldItems = result.items.filter((item) => item.kind === vscode.CompletionItemKind.Field);
+          const fieldLabels = fieldItems.map(getCompletionLabel);
+
+          return fieldLabels.some((l) => l === 'id' || l === 'email') ? result : null;
+        }, 10000);
+
+        assert.ok(completions, 'Should return remaining field completions');
+        const fieldItems = completions.items.filter((item) => item.kind === vscode.CompletionItemKind.Field);
+        const labels = fieldItems.map(getCompletionLabel);
+
+        // "name" should be excluded (already used), but other fields should be present
+        assert.ok(!labels.includes('name'), `Already-used field "name" should be excluded, got: ${labels.join(', ')}`);
+        assert.ok(!labels.includes('!name'), `Already-used field "!name" should be excluded, got: ${labels.join(', ')}`);
+        assert.ok(labels.includes('id'), `Should include remaining field "id", got: ${labels.join(', ')}`);
+        assert.ok(labels.includes('email'), `Should include remaining field "email", got: ${labels.join(', ')}`);
+        assert.ok(labels.includes('age'), `Should include remaining field "age", got: ${labels.join(', ')}`);
+      } finally {
+        await vscode.window.showTextDocument(doc);
+        await vscode.commands.executeCommand('workbench.action.files.save');
+      }
+    });
+  });
 });

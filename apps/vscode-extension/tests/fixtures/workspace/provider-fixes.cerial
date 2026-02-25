@@ -26,3 +26,20 @@ model Task {
   isActive Bool @default(true)
   taskUuid Uuid?
 }
+
+
+abstract model ParentForOmit {
+  id Record @id
+  name String
+  email String
+  age Int
+}
+
+model ChildPick extends ParentForOmit[name, ] {
+}
+
+model ChildOmit extends ParentForOmit[!name, ] {
+}
+
+model ChildEmpty extends ParentForOmit[] {
+}
