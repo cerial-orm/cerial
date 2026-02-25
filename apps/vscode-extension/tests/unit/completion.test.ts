@@ -685,4 +685,308 @@ describe('Completion Logic', () => {
       expect(labels).toContain('name');
     });
   });
+
+  describe('extends bracket omit suggestions', () => {
+    test('empty brackets → both pick and omit suggestions', () => {
+      const indexer = createIndexerWithContent({
+        'test.cerial':
+          'abstract model Base {\n  id Record @id\n  name String\n  email Email\n}\nmodel Child extends Base[\n}',
+      });
+      const uri = testPath('test.cerial');
+      const ast = indexer.getAST(uri)!;
+      const blockContext: BlockContext = { blockType: 'model', blockName: 'Child', fieldContext: null };
+
+      const items = getExtendsBracketCompletions(
+        'Base',
+        'model Child extends Base[',
+        26,
+        blockContext,
+        ast,
+        uri,
+        indexer,
+      );
+      const labels = items.map((i) => i.label);
+
+      // Should have both pick and omit for each field
+      expect(labels).toContain('id');
+      expect(labels).toContain('!id');
+      expect(labels).toContain('name');
+      expect(labels).toContain('!name');
+      expect(labels).toContain('email');
+      expect(labels).toContain('!email');
+      // Total: 3 fields × 2 (pick + omit) = 6 items
+      expect(items.length).toBe(6);
+    });
+
+    test('existing pick items → only pick suggestions', () => {
+      const indexer = createIndexerWithContent({
+        'test.cerial':
+          'abstract model Base {\n  id Record @id\n  name String\n  email Email\n}\nmodel Child extends Base[id, \n}',
+      });
+      const uri = testPath('test.cerial');
+      const ast = indexer.getAST(uri)!;
+      const blockContext: BlockContext = { blockType: 'model', blockName: 'Child', fieldContext: null };
+
+      const items = getExtendsBracketCompletions(
+        'Base',
+        'model Child extends Base[id, ',
+        31,
+        blockContext,
+        ast,
+        uri,
+        indexer,
+      );
+      const labels = items.map((i) => i.label);
+
+      // Should only have pick suggestions (no ! prefix)
+      expect(labels).toContain('name');
+      expect(labels).toContain('email');
+      expect(labels).not.toContain('!name');
+      expect(labels).not.toContain('!email');
+      // id already used, should not appear
+      expect(labels).not.toContain('id');
+      expect(labels).not.toContain('!id');
+      // Total: 2 remaining fields in pick mode = 2 items
+      expect(items.length).toBe(2);
+    });
+
+    test('existing omit items → only omit suggestions', () => {
+      const indexer = createIndexerWithContent({
+        'test.cerial':
+          'abstract model Base {\n  id Record @id\n  name String\n  email Email\n}\nmodel Child extends Base[!id, \n}',
+      });
+      const uri = testPath('test.cerial');
+      const ast = indexer.getAST(uri)!;
+      const blockContext: BlockContext = { blockType: 'model', blockName: 'Child', fieldContext: null };
+
+      const items = getExtendsBracketCompletions(
+        'Base',
+        'model Child extends Base[!id, ',
+        32,
+        blockContext,
+        ast,
+        uri,
+        indexer,
+      );
+      const labels = items.map((i) => i.label);
+
+      // Should only have omit suggestions (with ! prefix)
+      expect(labels).toContain('!name');
+      expect(labels).toContain('!email');
+      expect(labels).not.toContain('name');
+      expect(labels).not.toContain('email');
+      // id already used, should not appear in any form
+      expect(labels).not.toContain('id');
+      expect(labels).not.toContain('!id');
+      // Total: 2 remaining fields in omit mode = 2 items
+      expect(items.length).toBe(2);
+    });
+
+    test('deduplication — all fields used in pick mode', () => {
+      const indexer = createIndexerWithContent({
+        'test.cerial':
+          'abstract model Base {\n  id Record @id\n  name String\n  email Email\n}\nmodel Child extends Base[id, name, email, \n}',
+      });
+      const uri = testPath('test.cerial');
+      const ast = indexer.getAST(uri)!;
+      const blockContext: BlockContext = { blockType: 'model', blockName: 'Child', fieldContext: null };
+
+      const items = getExtendsBracketCompletions(
+        'Base',
+        'model Child extends Base[id, name, email, ',
+        43,
+        blockContext,
+        ast,
+        uri,
+        indexer,
+      );
+
+      // All fields already used, no suggestions
+      expect(items.length).toBe(0);
+    });
+
+    test('edge case — single field parent', () => {
+      const indexer = createIndexerWithContent({
+        'test.cerial': 'abstract model Base {\n  id Record @id\n}\nmodel Child extends Base[\n}',
+      });
+      const uri = testPath('test.cerial');
+      const ast = indexer.getAST(uri)!;
+      const blockContext: BlockContext = { blockType: 'model', blockName: 'Child', fieldContext: null };
+
+      const items = getExtendsBracketCompletions(
+        'Base',
+        'model Child extends Base[',
+        26,
+        blockContext,
+        ast,
+        uri,
+        indexer,
+      );
+      const labels = items.map((i) => i.label);
+
+      // Single field: pick + omit = 2 items
+      expect(labels).toContain('id');
+      expect(labels).toContain('!id');
+      expect(items.length).toBe(2);
+    });
+
+    test('edge case — parent with no fields', () => {
+      const indexer = createIndexerWithContent({
+        'test.cerial': 'abstract model Base {}\nmodel Child extends Base[\n}',
+      });
+      const uri = testPath('test.cerial');
+      const ast = indexer.getAST(uri)!;
+      const blockContext: BlockContext = { blockType: 'model', blockName: 'Child', fieldContext: null };
+
+      const items = getExtendsBracketCompletions(
+        'Base',
+        'model Child extends Base[',
+        26,
+        blockContext,
+        ast,
+        uri,
+        indexer,
+      );
+
+      // No fields in parent, no suggestions
+      expect(items.length).toBe(0);
+    });
+
+    test('object parent — empty brackets → both pick and omit', () => {
+      const indexer = createIndexerWithContent({
+        'test.cerial': 'object BaseAddr {\n  street String\n  city String\n}\nobject Full extends BaseAddr[\n}',
+      });
+      const uri = testPath('test.cerial');
+      const ast = indexer.getAST(uri)!;
+      const blockContext: BlockContext = { blockType: 'object', blockName: 'Full', fieldContext: null };
+
+      const items = getExtendsBracketCompletions(
+        'BaseAddr',
+        'object Full extends BaseAddr[',
+        30,
+        blockContext,
+        ast,
+        uri,
+        indexer,
+      );
+      const labels = items.map((i) => i.label);
+
+      expect(labels).toContain('street');
+      expect(labels).toContain('!street');
+      expect(labels).toContain('city');
+      expect(labels).toContain('!city');
+      expect(items.length).toBe(4);
+    });
+
+    test('tuple parent — empty brackets → both pick and omit', () => {
+      const indexer = createIndexerWithContent({
+        'test.cerial': 'tuple BasePair {\n  x Float,\n  y Float\n}\ntuple Ext extends BasePair[\n}',
+      });
+      const uri = testPath('test.cerial');
+      const ast = indexer.getAST(uri)!;
+      const blockContext: BlockContext = { blockType: 'tuple', blockName: 'Ext', fieldContext: null };
+
+      const items = getExtendsBracketCompletions(
+        'BasePair',
+        'tuple Ext extends BasePair[',
+        27,
+        blockContext,
+        ast,
+        uri,
+        indexer,
+      );
+      const labels = items.map((i) => i.label);
+
+      expect(labels).toContain('x');
+      expect(labels).toContain('!x');
+      expect(labels).toContain('y');
+      expect(labels).toContain('!y');
+      expect(items.length).toBe(4);
+    });
+
+    test('enum parent — empty brackets → both pick and omit', () => {
+      const indexer = createIndexerWithContent({
+        'test.cerial': 'enum BaseRole { VIEWER, EDITOR, ADMIN }\nenum SubRole extends BaseRole[\n}',
+      });
+      const uri = testPath('test.cerial');
+      const ast = indexer.getAST(uri)!;
+      const blockContext: BlockContext = { blockType: 'enum', blockName: 'SubRole', fieldContext: null };
+
+      const items = getExtendsBracketCompletions(
+        'BaseRole',
+        'enum SubRole extends BaseRole[',
+        30,
+        blockContext,
+        ast,
+        uri,
+        indexer,
+      );
+      const labels = items.map((i) => i.label);
+
+      expect(labels).toContain('VIEWER');
+      expect(labels).toContain('!VIEWER');
+      expect(labels).toContain('EDITOR');
+      expect(labels).toContain('!EDITOR');
+      expect(labels).toContain('ADMIN');
+      expect(labels).toContain('!ADMIN');
+      expect(items.length).toBe(6);
+    });
+
+    test('literal parent — empty brackets → both pick and omit', () => {
+      const indexer = createIndexerWithContent({
+        'test.cerial': "literal BaseStatus { 'active', 'inactive' }\nliteral Ext extends BaseStatus[\n}",
+      });
+      const uri = testPath('test.cerial');
+      const ast = indexer.getAST(uri)!;
+      const blockContext: BlockContext = { blockType: 'literal', blockName: 'Ext', fieldContext: null };
+
+      const items = getExtendsBracketCompletions(
+        'BaseStatus',
+        'literal Ext extends BaseStatus[',
+        32,
+        blockContext,
+        ast,
+        uri,
+        indexer,
+      );
+      const labels = items.map((i) => i.label);
+
+      expect(labels).toContain('active');
+      expect(labels).toContain('!active');
+      expect(labels).toContain('inactive');
+      expect(labels).toContain('!inactive');
+      expect(items.length).toBe(4);
+    });
+
+    test('mixed pick and omit → invalid, but function handles gracefully', () => {
+      const indexer = createIndexerWithContent({
+        'test.cerial':
+          'abstract model Base {\n  id Record @id\n  name String\n  email Email\n}\nmodel Child extends Base[id, !name, \n}',
+      });
+      const uri = testPath('test.cerial');
+      const ast = indexer.getAST(uri)!;
+      const blockContext: BlockContext = { blockType: 'model', blockName: 'Child', fieldContext: null };
+
+      const items = getExtendsBracketCompletions(
+        'Base',
+        'model Child extends Base[id, !name, ',
+        38,
+        blockContext,
+        ast,
+        uri,
+        indexer,
+      );
+      const labels = items.map((i) => i.label);
+
+      // When omit is detected (due to !name), mode becomes 'omit'
+      // So only omit suggestions should appear
+      expect(labels).toContain('!email');
+      expect(labels).not.toContain('email');
+      // id and name already used, should not appear
+      expect(labels).not.toContain('id');
+      expect(labels).not.toContain('!id');
+      expect(labels).not.toContain('name');
+      expect(labels).not.toContain('!name');
+    });
+  });
 });
