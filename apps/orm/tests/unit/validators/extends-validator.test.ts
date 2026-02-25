@@ -17,6 +17,7 @@ import {
   validatePrivateOverride,
   validateResolvedTypes,
 } from '../../../src/cli/validators/extends-validator';
+import { resolveInheritance } from '../../../src/resolver/inheritance-resolver';
 import type {
   ASTDecorator,
   ASTEnum,
@@ -2243,7 +2244,7 @@ describe('validateResolvedTypes', () => {
     });
 
     test('model with fields after resolution → no error', () => {
-      const a = ast({ models: [model({ name: 'Valid', fields: [field({ name: 'id' })] })] });
+      const a = ast({ models: [model({ name: 'Valid', fields: [field({ name: 'id', decorators: [_dec('id')] })] })] });
       expect(validateResolvedTypes(a)).toHaveLength(0);
     });
 
@@ -2329,5 +2330,214 @@ describe('validateResolvedTypes', () => {
       const errors = validateResolvedTypes(a);
       expect(errors).toHaveLength(5);
     });
+  });
+
+  describe('full pipeline: resolveInheritance → validateResolvedTypes', () => {
+    test('concrete model with empty body inheriting from abstract parent should NOT error', () => {
+      const rawAst = ast({
+        models: [
+          model({
+            name: 'ConvBaseEntity',
+            abstract: true,
+            fields: [
+              field({ name: 'id', type: 'record', decorators: [_dec('id')], isPrivate: true }),
+              field({ name: 'createdAt', type: 'date', decorators: [_dec('createdAt')], isPrivate: true }),
+              field({ name: 'updatedAt', type: 'date', decorators: [_dec('updatedAt')] }),
+            ],
+          }),
+          model({
+            name: 'ConvEmptyChild',
+            extends: 'ConvBaseEntity',
+            fields: [],
+          }),
+        ],
+      });
+
+      const resolved = resolveInheritance(rawAst);
+
+      // After resolution, the child should have inherited all 3 parent fields
+      const child = resolved.models.find((m) => m.name === 'ConvEmptyChild');
+      expect(child).toBeDefined();
+      expect(child!.fields).toHaveLength(3);
+
+      // validateResolvedTypes should produce no errors
+      const errors = validateResolvedTypes(resolved);
+      expect(errors).toHaveLength(0);
+    });
+
+    test('model with no fields and no extends SHOULD error after resolution', () => {
+      const rawAst = ast({
+        models: [model({ name: 'TrulyEmpty', fields: [] })],
+      });
+
+      const resolved = resolveInheritance(rawAst);
+      const errors = validateResolvedTypes(resolved);
+      expect(errors).toHaveLength(1);
+      expect(errors[0]!.message).toContain('TrulyEmpty');
+    });
+
+    test('child model with own fields + inherited fields passes validation', () => {
+      const rawAst = ast({
+        models: [
+          model({
+            name: 'BaseEntity',
+            abstract: true,
+            fields: [
+              field({ name: 'id', type: 'record', decorators: [_dec('id')] }),
+              field({ name: 'createdAt', type: 'date', decorators: [_dec('createdAt')] }),
+            ],
+          }),
+          model({
+            name: 'User',
+            extends: 'BaseEntity',
+            fields: [field({ name: 'name', type: 'string' })],
+          }),
+        ],
+      });
+
+      const resolved = resolveInheritance(rawAst);
+      const child = resolved.models.find((m) => m.name === 'User');
+      expect(child!.fields).toHaveLength(3);
+      expect(validateResolvedTypes(resolved)).toHaveLength(0);
+    });
+  });
+});
+
+// ── Post-resolution @id check ─────────────────────────────────────────
+
+describe('post-resolution @id check (validateResolvedTypes)', () => {
+  test('concrete model that inherited @id from parent → no error', () => {
+    const rawAst = ast({
+      models: [
+        model({
+          name: 'Base',
+          abstract: true,
+          fields: [
+            field({ name: 'id', type: 'record', decorators: [_dec('id')] }),
+            field({ name: 'name', type: 'string' }),
+          ],
+        }),
+        model({
+          name: 'Child',
+          extends: 'Base',
+          fields: [],
+        }),
+      ],
+    });
+
+    const resolved = resolveInheritance(rawAst);
+    const errors = validateResolvedTypes(resolved);
+    expect(errors).toHaveLength(0);
+  });
+
+  test('concrete model that picked fields excluding @id → SHOULD error', () => {
+    const rawAst = ast({
+      models: [
+        model({
+          name: 'ConvBaseEntity',
+          abstract: true,
+          fields: [
+            field({ name: 'id', type: 'record', decorators: [_dec('id')], isPrivate: true }),
+            field({ name: 'createdAt', type: 'date', decorators: [_dec('createdAt')], isPrivate: true }),
+            field({ name: 'updatedAt', type: 'date', decorators: [_dec('updatedAt')] }),
+          ],
+        }),
+        model({
+          name: 'ConvMinimalEntity',
+          extends: 'ConvBaseEntity',
+          extendsFilter: { mode: 'pick', fields: ['createdAt'] },
+          fields: [
+            field({ name: 'label', type: 'string' }),
+            field({ name: 'notes', type: 'string', isOptional: true }),
+          ],
+        }),
+      ],
+    });
+
+    const resolved = resolveInheritance(rawAst);
+    const errors = validateResolvedTypes(resolved);
+    expect(errors).toHaveLength(1);
+    expect(errors[0]!.message).toContain('ConvMinimalEntity');
+    expect(errors[0]!.message).toContain('@id');
+  });
+
+  test('abstract model without @id after resolution → no error', () => {
+    const rawAst = ast({
+      models: [
+        model({
+          name: 'AbstractBase',
+          abstract: true,
+          fields: [field({ name: 'name', type: 'string' })],
+        }),
+      ],
+    });
+
+    const resolved = resolveInheritance(rawAst);
+    const errors = validateResolvedTypes(resolved);
+    // Abstract models don't generate tables and don't need @id
+    expect(errors).toHaveLength(0);
+  });
+
+  test('concrete model with own @id field (no extends) → no error', () => {
+    const rawAst = ast({
+      models: [
+        model({
+          name: 'User',
+          fields: [
+            field({ name: 'id', type: 'record', decorators: [_dec('id')] }),
+            field({ name: 'name', type: 'string' }),
+          ],
+        }),
+      ],
+    });
+
+    const resolved = resolveInheritance(rawAst);
+    const errors = validateResolvedTypes(resolved);
+    expect(errors).toHaveLength(0);
+  });
+
+  test('concrete model without @id and without extends → SHOULD error', () => {
+    const rawAst = ast({
+      models: [
+        model({
+          name: 'NoId',
+          fields: [field({ name: 'name', type: 'string' })],
+        }),
+      ],
+    });
+
+    const resolved = resolveInheritance(rawAst);
+    const errors = validateResolvedTypes(resolved);
+    expect(errors).toHaveLength(1);
+    expect(errors[0]!.message).toContain('NoId');
+    expect(errors[0]!.message).toContain('@id');
+  });
+
+  test('concrete model with omit excluding @id → SHOULD error', () => {
+    const rawAst = ast({
+      models: [
+        model({
+          name: 'Base',
+          abstract: true,
+          fields: [
+            field({ name: 'id', type: 'record', decorators: [_dec('id')] }),
+            field({ name: 'name', type: 'string' }),
+            field({ name: 'email', type: 'email' }),
+          ],
+        }),
+        model({
+          name: 'NoIdChild',
+          extends: 'Base',
+          extendsFilter: { mode: 'omit', fields: ['id'] },
+          fields: [],
+        }),
+      ],
+    });
+
+    const resolved = resolveInheritance(rawAst);
+    const errors = validateResolvedTypes(resolved);
+    expect(errors).toHaveLength(1);
+    expect(errors[0]!.message).toContain('NoIdChild');
+    expect(errors[0]!.message).toContain('@id');
   });
 });

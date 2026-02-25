@@ -584,6 +584,10 @@ export function validateResolvedTypes(ast: SchemaAST): SchemaValidationError[] {
   const errors: SchemaValidationError[] = [];
 
   for (const m of ast.models) {
+    // Skip models that still have extends — they haven't been resolved yet
+    // (e.g., standalone file validation in the extension uses unresolved fileAST)
+    if (m.extends) continue;
+
     if (!m.fields.length) {
       errors.push({
         message: `Model "${m.name}" has no fields after inheritance resolution. Check that the extends clause and pick/omit filters leave at least one field.`,
@@ -591,9 +595,22 @@ export function validateResolvedTypes(ast: SchemaAST): SchemaValidationError[] {
         line: m.range.start.line,
       });
     }
+
+    // Check concrete models have @id after resolution
+    if (!isAbstract(m) && m.fields.length > 0) {
+      const hasId = m.fields.some((f) => hasDecorator(f, 'id'));
+      if (!hasId) {
+        errors.push({
+          message: `Model "${m.name}" does not have an @id field after inheritance resolution. A concrete model must have an @id field, either defined directly or inherited from a parent.`,
+          model: m.name,
+          line: m.range.start.line,
+        });
+      }
+    }
   }
 
   for (const o of ast.objects) {
+    if (o.extends) continue;
     if (!o.fields.length) {
       errors.push({
         message: `Object "${o.name}" has no fields after inheritance resolution. Check that the extends clause and pick/omit filters leave at least one field.`,
@@ -603,6 +620,7 @@ export function validateResolvedTypes(ast: SchemaAST): SchemaValidationError[] {
   }
 
   for (const t of ast.tuples) {
+    if (t.extends) continue;
     if (!t.elements.length) {
       errors.push({
         message: `Tuple "${t.name}" has no elements after inheritance resolution. Check that the extends clause and pick/omit filters leave at least one element.`,
@@ -612,6 +630,7 @@ export function validateResolvedTypes(ast: SchemaAST): SchemaValidationError[] {
   }
 
   for (const e of ast.enums) {
+    if (e.extends) continue;
     if (!e.values.length) {
       errors.push({
         message: `Enum "${e.name}" has no values after inheritance resolution. Check that the extends clause and pick/omit filters leave at least one value.`,
@@ -621,6 +640,7 @@ export function validateResolvedTypes(ast: SchemaAST): SchemaValidationError[] {
   }
 
   for (const l of ast.literals) {
+    if (l.extends) continue;
     if (!l.variants.length) {
       errors.push({
         message: `Literal "${l.name}" has no variants after inheritance resolution. Check that the extends clause and pick/omit filters leave at least one variant.`,
