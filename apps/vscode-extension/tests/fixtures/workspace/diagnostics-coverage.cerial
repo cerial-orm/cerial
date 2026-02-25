@@ -1,0 +1,156 @@
+# Diagnostics coverage test fixture
+# This file intentionally contains errors for testing diagnostics
+# Each error pattern is marked with # DIAG:xxx for identification
+
+# Valid base types for reference
+object ValidAddress {
+  street String
+  city String
+}
+
+enum Status {
+  Active
+  Inactive
+  Pending
+}
+
+literal Severity {
+  'Low'
+  'Medium'
+  'High'
+}
+
+abstract model AbstractParent {
+  id Record @id
+  name String
+}
+
+# DIAG:duplicate-model
+model DuplicateModel {
+  id Record @id
+  title String
+}
+
+model DuplicateModel {
+  id Record @id
+  description String
+}
+
+# DIAG:duplicate-field
+model DuplicateFieldModel {
+  id Record @id
+  name String
+  email String
+  name String
+}
+
+# DIAG:invalid-relation
+model InvalidRelation {
+  id Record @id
+  authorId Record
+  author Relation @field(authorId)
+}
+
+# DIAG:nullable-object
+model NullableObjectModel {
+  id Record @id
+  address ValidAddress @nullable
+}
+
+# DIAG:readonly-now-conflict
+model ReadonlyNowConflict {
+  id Record @id
+  timestamp Date @readonly @now
+}
+
+# DIAG:timestamp-non-date
+model TimestampNonDate {
+  id Record @id
+  createdLabel String @createdAt
+}
+
+# DIAG:uuid-non-uuid
+model UuidNonUuid {
+  id Record @id
+  name String @uuid
+}
+
+# DIAG:flexible-non-object
+model FlexibleNonObject {
+  id Record @id
+  title String @flexible
+}
+
+# DIAG:set-non-array
+model SetNonArray {
+  id Record @id
+  status String @set
+}
+
+# DIAG:invalid-object-name
+object invalidObjectName {
+  value String
+}
+
+# DIAG:object-name-collision
+object DuplicateModel {
+  field String
+}
+
+# DIAG:readonly-default-conflict
+model ReadonlyDefaultConflict {
+  id Record @id
+  immutable String @readonly @default('fixed')
+}
+
+# DIAG:literal-disallowed-decorator
+model LiteralDecoratorError {
+  id Record @id
+  severity Severity @now
+}
+
+# DIAG:empty-extends-filter
+model EmptyExtendsFilter extends AbstractParent[] {
+}
+
+# DIAG:invalid-token
+model InvalidTokenModel {
+  id Record @id
+  name String @unknown
+}
+
+# DIAG:default-type-mismatch
+model DefaultTypeMismatch {
+  id Record @id
+  age Int @default('not-a-number')
+  active Bool @default('yes')
+}
+
+# DIAG:enum-default-mismatch
+model EnumDefaultMismatch {
+  id Record @id
+  status Status @default('Unknown')
+}
+
+# DIAG:mixed-pick-omit
+model MixedPickOmit extends AbstractParent[name, !id] {
+}
+
+# DIAG:readonly-on-relation
+model ReadonlyRelation {
+  id Record @id
+  userId Record
+  user Relation @field(userId) @readonly
+}
+
+# DIAG:nullable-tuple
+model NullableTuple {
+  id Record @id
+  coords tuple { x Float, y Float } @nullable
+}
+
+# DIAG:default-always-non-date
+model DefaultAlwaysNonDate {
+  id Record @id
+  counter Int @defaultAlways('reset')
+}

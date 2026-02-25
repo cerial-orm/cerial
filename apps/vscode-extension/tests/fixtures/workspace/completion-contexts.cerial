@@ -1,0 +1,90 @@
+# Completion contexts test fixture
+# Covers all 7 completion handler chains for E2E testing
+
+# COMP:top-level
+# Empty line for top-level keyword completions
+
+enum StatusEnum {
+  Active
+  Inactive
+  Pending
+}
+
+literal StatusLiteral {
+  'Open'
+  'Closed'
+  'InProgress'
+}
+
+object Address {
+  street String
+  city String
+  zipCode String?
+}
+
+tuple Coordinate {
+  x Float,
+  y Float
+}
+
+abstract model BaseEntity {
+  id Record @id
+  name String
+  email String
+  age Int
+}
+
+# COMP:top-level-2
+# Another empty line for top-level completions
+
+model Author {
+  id Record @id
+  name String
+  bio String?
+  # COMP:decorator-date
+  createdAt Date
+  # COMP:decorator-uuid
+  profileUuid Uuid?
+  # COMP:decorator-geometry
+  location Geometry?
+  # COMP:decorator-array
+  tags String[]
+  # COMP:default-int
+  score Int @default(10)
+  # COMP:default-enum
+  status StatusEnum @default(Active)
+  authorAddress Address?
+  # COMP:field-arg
+  authorId Record
+  # COMP:model-arg
+  posts Relation[] @model(Post)
+}
+
+model Post {
+  id Record @id
+  title String
+  content String?
+  authorId Record
+  # COMP:field-arg-2
+  author Relation @field(authorId) @model(Author)
+}
+
+# COMP:record-arg
+model TypedIdModel {
+  id Record(int) @id
+}
+
+# COMP:extends-keyword
+model ChildModel extends BaseEntity {
+}
+
+# COMP:extends-bracket
+model PickChild extends BaseEntity[name, email] {
+}
+
+# COMP:field-type
+model EmptyFieldModel {
+}
+
+# COMP:top-level-3
+# Third empty line for top-level completions
