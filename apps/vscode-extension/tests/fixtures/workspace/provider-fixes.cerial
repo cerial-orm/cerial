@@ -24,6 +24,8 @@ model Task {
   dueDate Date?
   score Int?
   isActive Bool @default(true)
+  status Priority @default()
+  enabled Bool @default()
   taskUuid Uuid?
 }
 
@@ -35,10 +37,10 @@ abstract model ParentForOmit {
   age Int
 }
 
-model ChildPick extends ParentForOmit[name, ] {
+model ChildPick extends ParentForOmit[name] {
 }
 
-model ChildOmit extends ParentForOmit[!name, ] {
+model ChildOmit extends ParentForOmit[!name] {
 }
 
 model ChildEmpty extends ParentForOmit[] {

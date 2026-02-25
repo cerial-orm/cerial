@@ -251,6 +251,68 @@ suite('Provider Fixes E2E', () => {
     });
   });
 
+  // ── Inside @default() parens autocomplete ──────────────────────────────
+
+  suite('inside @default() autocomplete', () => {
+    test('enum field inside @default() shows enum values', async function () {
+      this.timeout(30000);
+      const doc = await openDocument('provider-fixes.cerial');
+
+      try {
+        // Line 26 (0-indexed): "  status Priority @default()" → cursor at col 28 (inside parens)
+        const completions = await pollUntil(async () => {
+          const result = await vscode.commands.executeCommand<vscode.CompletionList>(
+            'vscode.executeCompletionItemProvider',
+            doc.uri,
+            new vscode.Position(26, 28),
+          );
+          if (!result || !result.items.length) return null;
+          const labels = result.items.map(getCompletionLabel);
+
+          return labels.some((l) => l === 'Low' || l === 'Medium') ? result : null;
+        }, 10000);
+
+        assert.ok(completions, 'Should return enum value completions inside @default()');
+        const labels = completions.items.map(getCompletionLabel);
+
+        assert.ok(labels.includes('Low'), `Should include enum value "Low", got: ${labels.join(', ')}`);
+        assert.ok(labels.includes('Medium'), `Should include enum value "Medium", got: ${labels.join(', ')}`);
+        assert.ok(labels.includes('High'), `Should include enum value "High", got: ${labels.join(', ')}`);
+        assert.ok(labels.includes('Critical'), `Should include enum value "Critical", got: ${labels.join(', ')}`);
+      } finally {
+        await closeAllEditors();
+      }
+    });
+
+    test('bool field inside @default() shows true and false', async function () {
+      this.timeout(30000);
+      const doc = await openDocument('provider-fixes.cerial');
+
+      try {
+        // Line 27 (0-indexed): "  enabled Bool @default()" → cursor at col 26 (inside parens)
+        const completions = await pollUntil(async () => {
+          const result = await vscode.commands.executeCommand<vscode.CompletionList>(
+            'vscode.executeCompletionItemProvider',
+            doc.uri,
+            new vscode.Position(27, 26),
+          );
+          if (!result || !result.items.length) return null;
+          const labels = result.items.map(getCompletionLabel);
+
+          return labels.some((l) => l === 'true' || l === 'false') ? result : null;
+        }, 10000);
+
+        assert.ok(completions, 'Should return bool value completions inside @default()');
+        const labels = completions.items.map(getCompletionLabel);
+
+        assert.ok(labels.includes('true'), `Should include "true", got: ${labels.join(', ')}`);
+        assert.ok(labels.includes('false'), `Should include "false", got: ${labels.join(', ')}`);
+      } finally {
+        await closeAllEditors();
+      }
+    });
+  });
+
   // ── Field-type-aware decorator filtering ───────────────────────────────
 
   suite('Field-type-aware decorator filtering', () => {
@@ -870,13 +932,13 @@ suite('Provider Fixes E2E', () => {
 
       try {
         // Position cursor inside empty brackets: "model ChildEmpty extends ParentForOmit[] {"
-        // Line 44 (0-indexed): "model ChildEmpty extends ParentForOmit[] {"
+        // Line 44 (cat -n) = Line 43 (0-indexed VS Code)
         // Cursor at col 39 (between [])
         const completions = await pollUntil(async () => {
           const result = await vscode.commands.executeCommand<vscode.CompletionList>(
             'vscode.executeCompletionItemProvider',
             doc.uri,
-            new vscode.Position(44, 39),
+            new vscode.Position(43, 39),
           );
           if (!result || !result.items.length) return null;
           const fieldItems = result.items.filter((item) => item.kind === vscode.CompletionItemKind.Field);
@@ -909,14 +971,14 @@ suite('Provider Fixes E2E', () => {
       const doc = await openDocument('provider-fixes.cerial');
 
       try {
-        // Position cursor inside omit bracket: "model ChildOmit extends ParentForOmit[!name, ] {"
-        // Line 41 (0-indexed): "model ChildOmit extends ParentForOmit[!name, ] {"
-        // Cursor at col 41 (after "!name, ", before "]")
+        // Position cursor inside omit bracket: "model ChildOmit extends ParentForOmit[!name] {"
+        // Line 41 (cat -n) = Line 40 (0-indexed VS Code)
+        // Cursor at col 40 (after "!name", before "]")
         const completions = await pollUntil(async () => {
           const result = await vscode.commands.executeCommand<vscode.CompletionList>(
             'vscode.executeCompletionItemProvider',
             doc.uri,
-            new vscode.Position(41, 41),
+            new vscode.Position(40, 40),
           );
           if (!result || !result.items.length) return null;
           const fieldItems = result.items.filter((item) => item.kind === vscode.CompletionItemKind.Field);
@@ -947,14 +1009,14 @@ suite('Provider Fixes E2E', () => {
       const doc = await openDocument('provider-fixes.cerial');
 
       try {
-        // Position cursor inside pick bracket: "model ChildPick extends ParentForOmit[name, ] {"
-        // Line 38 (0-indexed): "model ChildPick extends ParentForOmit[name, ] {"
-        // Cursor at col 40 (after "name, ", before "]")
+        // Position cursor inside pick bracket: "model ChildPick extends ParentForOmit[name] {"
+        // Line 38 (cat -n) = Line 37 (0-indexed VS Code)
+        // Cursor at col 39 (after "name", before "]")
         const completions = await pollUntil(async () => {
           const result = await vscode.commands.executeCommand<vscode.CompletionList>(
             'vscode.executeCompletionItemProvider',
             doc.uri,
-            new vscode.Position(38, 40),
+            new vscode.Position(37, 39),
           );
           if (!result || !result.items.length) return null;
           const fieldItems = result.items.filter((item) => item.kind === vscode.CompletionItemKind.Field);
