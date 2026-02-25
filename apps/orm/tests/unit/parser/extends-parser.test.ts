@@ -9,9 +9,9 @@ import { describe, expect, test } from 'bun:test';
 import { parse } from '../../../src/parser/parser';
 import {
   extractModelName,
+  isMixedPickOmit,
   isModelDeclaration,
   parseExtendsBracket,
-  isMixedPickOmit,
   parseModelDeclaration,
 } from '../../../src/parser/types/model/model-declaration-parser';
 
@@ -776,31 +776,31 @@ literal EmptyPick extends BasePriority[] {
       expect(parseExtendsBracket('id, !name')).toBeUndefined();
     });
 
-  describe('isMixedPickOmit', () => {
-    test('should return false for empty string', () => {
-      expect(isMixedPickOmit('')).toBe(false);
-    });
+    describe('isMixedPickOmit', () => {
+      test('should return false for empty string', () => {
+        expect(isMixedPickOmit('')).toBe(false);
+      });
 
-    test('should return false for pick-only items', () => {
-      expect(isMixedPickOmit('id, name')).toBe(false);
-    });
+      test('should return false for pick-only items', () => {
+        expect(isMixedPickOmit('id, name')).toBe(false);
+      });
 
-    test('should return false for omit-only items', () => {
-      expect(isMixedPickOmit('!id, !name')).toBe(false);
-    });
+      test('should return false for omit-only items', () => {
+        expect(isMixedPickOmit('!id, !name')).toBe(false);
+      });
 
-    test('should return true for mixed pick and omit', () => {
-      expect(isMixedPickOmit('id, !name')).toBe(true);
-    });
+      test('should return true for mixed pick and omit', () => {
+        expect(isMixedPickOmit('id, !name')).toBe(true);
+      });
 
-    test('should return true for mixed omit and pick', () => {
-      expect(isMixedPickOmit('!id, name')).toBe(true);
-    });
+      test('should return true for mixed omit and pick', () => {
+        expect(isMixedPickOmit('!id, name')).toBe(true);
+      });
 
-    test('should return true for multiple mixed items', () => {
-      expect(isMixedPickOmit('id, name, !secret, !password')).toBe(true);
+      test('should return true for multiple mixed items', () => {
+        expect(isMixedPickOmit('id, name, !secret, !password')).toBe(true);
+      });
     });
-  });
   });
 
   // ──────────────────────────────────────────────
@@ -934,7 +934,7 @@ model User {
 model Child extends Parent[field1, !field2] {
   name String
 }
-`
+`;
       const { ast, errors } = parse(schema);
       expect(errors).toHaveLength(1);
       expect(errors[0]!.message).toContain('Cannot mix pick and omit');
@@ -945,7 +945,7 @@ model Child extends Parent[field1, !field2] {
 object Child extends Parent[field1, !field2] {
   name String
 }
-`
+`;
       const { ast, errors } = parse(schema);
       expect(errors).toHaveLength(1);
       expect(errors[0]!.message).toContain('Cannot mix pick and omit');
@@ -955,7 +955,7 @@ object Child extends Parent[field1, !field2] {
       const schema = `
 tuple Child extends Parent[0, !1] {
 }
-`
+`;
       const { ast, errors } = parse(schema);
       expect(errors).toHaveLength(1);
       expect(errors[0]!.message).toContain('Cannot mix pick and omit');
@@ -965,7 +965,7 @@ tuple Child extends Parent[0, !1] {
       const schema = `
 literal Child extends Parent['a', !'b'] {
 }
-`
+`;
       const { ast, errors } = parse(schema);
       expect(errors).toHaveLength(1);
       expect(errors[0]!.message).toContain('Cannot mix pick and omit');
@@ -975,7 +975,7 @@ literal Child extends Parent['a', !'b'] {
       const schema = `
 enum Child extends Parent[A, !B] {
 }
-`
+`;
       const { ast, errors } = parse(schema);
       expect(errors).toHaveLength(1);
       expect(errors[0]!.message).toContain('Cannot mix pick and omit');
@@ -986,7 +986,7 @@ enum Child extends Parent[A, !B] {
 model Child extends Parent[field1, field2] {
   name String
 }
-`
+`;
       const { ast, errors } = parse(schema);
       expect(errors).toHaveLength(0);
     });
@@ -996,7 +996,7 @@ model Child extends Parent[field1, field2] {
 model Child extends Parent[!field1, !field2] {
   name String
 }
-`
+`;
       const { ast, errors } = parse(schema);
       expect(errors).toHaveLength(0);
     });
@@ -1006,7 +1006,7 @@ model Child extends Parent[!field1, !field2] {
 model Child extends Parent[] {
   name String
 }
-`
+`;
       const { ast, errors } = parse(schema);
       expect(errors).toHaveLength(0);
     });
