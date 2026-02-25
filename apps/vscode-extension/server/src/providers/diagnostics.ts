@@ -674,9 +674,20 @@ export function registerDiagnosticsProvider(
         // Standalone file — resolve within-file inheritance before validating
         validationAST = resolveInheritance(fileAST);
       }
-    } catch {
-      // Inheritance resolution failed (e.g., circular extends) — fall back to file AST
-      validationAST = fileAST;
+    } catch (groupErr) {
+      // Group-level resolution failed — try standalone file resolution as fallback.
+      // This handles cases where the mega-group (convention mode) has cross-file
+      // conflicts but within-file inheritance is still valid.
+      connection.console.error(
+        `Inheritance resolution failed for group "${group?.name ?? 'standalone'}": ${groupErr}`,
+      );
+      try {
+        validationAST = resolveInheritance(fileAST);
+      } catch (fileErr) {
+        // Both paths failed — fall back to raw unresolved AST
+        connection.console.error(`Standalone resolution also failed: ${fileErr}`);
+        validationAST = fileAST;
+      }
     }
 
     // Step 4: Run ALL validators on resolved AST
