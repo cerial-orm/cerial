@@ -250,6 +250,11 @@ const VALID_DECORATOR_NAMES = new Set([
   'geoCollection',
 ]);
 
+/** Decorators that REQUIRE a parenthesized value. */
+const VALUE_REQUIRED_DECORATOR_NAMES = new Set([
+  'default', 'defaultAlways', 'model', 'field', 'onDelete', 'key',
+]);
+
 /**
  * Check if a line represents a composite directive (@@index, @@unique).
  */
@@ -324,7 +329,21 @@ export function getInvalidTokenDiagnostics(fileAST: SchemaAST, sourceLines: stri
       // Valid: decorator (@word with optional parens)
       if (token.startsWith('@')) {
         const decName = token.match(/^@(\w+)/)?.[1];
-        if (decName && VALID_DECORATOR_NAMES.has(decName)) continue;
+        if (decName && VALID_DECORATOR_NAMES.has(decName)) {
+          // Check if this decorator requires a value but doesn't have one (bare or empty parens)
+          if (VALUE_REQUIRED_DECORATOR_NAMES.has(decName) && !/^@\w+\([^)]+\)$/.test(token)) {
+            diagnostics.push({
+              range: {
+                start: { line: lineIdx, character: tokenStart },
+                end: { line: lineIdx, character: tokenStart + token.length },
+              },
+              message: `Decorator '@${decName}' requires a value. Use @${decName}(value).`,
+              severity: DiagnosticSeverity.Error,
+              source: 'cerial',
+            });
+          }
+          continue;
+        }
         // Unknown decorator — flag it
         diagnostics.push({
           range: {

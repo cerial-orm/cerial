@@ -38,8 +38,27 @@
  *  23:   dueDate Date?
  *  24:   score Int?
  *  25:   isActive Bool @default(true)
- *  26:   taskUuid Uuid?
- *  27: }
+ *  26:   status Priority @default(Low)
+ *  27:   enabled Bool @default(false)
+ *  28:   taskUuid Uuid?
+ *  29: }
+ *  30: (empty)
+ *  31: (empty)
+ *  32: abstract model ParentForOmit {
+ *  33:   id Record @id
+ *  34:   name String
+ *  35:   email String
+ *  36:   age Int
+ *  37: }
+ *  38: (empty)
+ *  39: model ChildPick extends ParentForOmit[name] {
+ *  40: }
+ *  41: (empty)
+ *  42: model ChildOmit extends ParentForOmit[!name] {
+ *  43: }
+ *  44: (empty)
+ *  45: model ChildEmpty extends ParentForOmit[] {
+ *  46: }
  */
 
 import * as assert from 'assert';
@@ -257,8 +276,13 @@ suite('Provider Fixes E2E', () => {
     test('enum field inside @default() shows enum values', async function () {
       this.timeout(30000);
       const doc = await openDocument('provider-fixes.cerial');
+      const originalContent = doc.getText();
 
       try {
+        // Replace @default(Low) with @default() to test autocomplete inside empty parens
+        const modified = originalContent.replace('  status Priority @default(Low)\n', '  status Priority @default()\n');
+        await replaceDocument(doc, modified);
+
         // Line 26 (0-indexed): "  status Priority @default()" → cursor at col 27 (inside parens)
         const completions = await pollUntil(async () => {
           const result = await vscode.commands.executeCommand<vscode.CompletionList>(
@@ -280,15 +304,22 @@ suite('Provider Fixes E2E', () => {
         assert.ok(labels.includes('High'), `Should include enum value "High", got: ${labels.join(', ')}`);
         assert.ok(labels.includes('Critical'), `Should include enum value "Critical", got: ${labels.join(', ')}`);
       } finally {
-        await closeAllEditors();
+        await replaceDocument(doc, originalContent);
+        await vscode.window.showTextDocument(doc);
+        await vscode.commands.executeCommand('workbench.action.files.save');
       }
     });
 
     test('bool field inside @default() shows true and false', async function () {
       this.timeout(30000);
       const doc = await openDocument('provider-fixes.cerial');
+      const originalContent = doc.getText();
 
       try {
+        // Replace @default(false) with @default() to test autocomplete inside empty parens
+        const modified = originalContent.replace('  enabled Bool @default(false)\n', '  enabled Bool @default()\n');
+        await replaceDocument(doc, modified);
+
         // Line 27 (0-indexed): "  enabled Bool @default()" → cursor at col 24 (inside parens)
         const completions = await pollUntil(async () => {
           const result = await vscode.commands.executeCommand<vscode.CompletionList>(
@@ -308,7 +339,9 @@ suite('Provider Fixes E2E', () => {
         assert.ok(labels.includes('true'), `Should include "true", got: ${labels.join(', ')}`);
         assert.ok(labels.includes('false'), `Should include "false", got: ${labels.join(', ')}`);
       } finally {
-        await closeAllEditors();
+        await replaceDocument(doc, originalContent);
+        await vscode.window.showTextDocument(doc);
+        await vscode.commands.executeCommand('workbench.action.files.save');
       }
     });
   });

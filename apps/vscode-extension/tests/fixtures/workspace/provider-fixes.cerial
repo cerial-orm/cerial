@@ -24,8 +24,8 @@ model Task {
   dueDate Date?
   score Int?
   isActive Bool @default(true)
-  status Priority @default()
-  enabled Bool @default()
+  status Priority @default(Low)
+  enabled Bool @default(false)
   taskUuid Uuid?
 }
 
