@@ -19,8 +19,27 @@ export default defineConfig({
         { label: 'Getting Started', link: '/getting-started/' },
         {
           label: 'Schema',
+          collapsed: true,
           items: [
             { label: 'Overview', link: '/schema/' },
+            {
+              label: 'Field Types',
+              collapsed: true,
+              items: [
+                { label: 'Overview', link: '/schema/field-types/' },
+                { label: 'UUID', link: '/schema/field-types/uuid/' },
+                { label: 'Number', link: '/schema/field-types/number/' },
+                { label: 'Duration', link: '/schema/field-types/duration/' },
+                { label: 'Decimal', link: '/schema/field-types/decimal/' },
+                { label: 'Bytes', link: '/schema/field-types/bytes/' },
+                { label: 'Geometry', link: '/schema/field-types/geometry/' },
+                { label: 'Any', link: '/schema/field-types/any/' },
+                { label: 'Arrays', link: '/schema/field-types/arrays/' },
+              ],
+            },
+            { label: 'Optional Fields', link: '/schema/optional-fields/' },
+            { label: 'Comments', link: '/schema/comments/' },
+            { label: 'Cross-File References', link: '/schema/cross-file-references/' },
           ],
         },
         {
