@@ -1,0 +1,393 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Cerial",
+  "scopeName": "source.cerial",
+  "fileTypes": ["cerial"],
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#model_block" },
+    { "include": "#object_block" },
+    { "include": "#tuple_block" },
+    { "include": "#enum_block" },
+    { "include": "#literal_block" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.double-slash.cerial",
+          "match": "//.*$"
+        },
+        {
+          "name": "comment.line.number-sign.cerial",
+          "match": "#.*$"
+        },
+        {
+          "name": "comment.block.cerial",
+          "begin": "/\\*",
+          "end": "\\*/",
+          "beginCaptures": {
+            "0": { "name": "punctuation.definition.comment.begin.cerial" }
+          },
+          "endCaptures": {
+            "0": { "name": "punctuation.definition.comment.end.cerial" }
+          }
+        }
+      ]
+    },
+
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.single.cerial",
+          "begin": "'",
+          "end": "'",
+          "beginCaptures": {
+            "0": { "name": "punctuation.definition.string.begin.cerial" }
+          },
+          "endCaptures": {
+            "0": { "name": "punctuation.definition.string.end.cerial" }
+          },
+          "patterns": [
+            {
+              "name": "constant.character.escape.cerial",
+              "match": "\\\\."
+            }
+          ]
+        }
+      ]
+    },
+
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.float.cerial",
+          "match": "-?\\b\\d+\\.\\d+\\b"
+        },
+        {
+          "name": "constant.numeric.integer.cerial",
+          "match": "-?\\b\\d+\\b"
+        }
+      ]
+    },
+
+    "booleans": {
+      "match": "\\b(true|false)\\b",
+      "name": "constant.language.boolean.cerial"
+    },
+
+    "null_literal": {
+      "match": "\\bnull\\b",
+      "name": "constant.language.null.cerial"
+    },
+
+    "built_in_types": {
+      "match": "\\b(String|Email|Int|Float|Bool|Date|Number|Record|Relation|Uuid|Duration|Decimal|Bytes|Geometry|Any)\\b",
+      "name": "support.type.primitive.cerial"
+    },
+
+    "type_reference": {
+      "match": "\\b([A-Z][A-Za-z0-9_]*)\\b",
+      "name": "entity.name.type.cerial"
+    },
+
+    "field_name": {
+      "match": "^\\s+([a-z_]\\w*)(?=\\s)",
+      "captures": {
+        "1": { "name": "variable.other.field.cerial" }
+      }
+    },
+
+    "optional_modifier": {
+      "match": "\\?",
+      "name": "keyword.operator.optional.cerial"
+    },
+
+    "array_modifier": {
+      "match": "\\[\\]",
+      "name": "keyword.operator.array.cerial"
+    },
+
+    "private_modifier": {
+      "match": "!!private",
+      "name": "storage.modifier.private.cerial"
+    },
+
+    "comma": {
+      "match": ",",
+      "name": "punctuation.separator.comma.cerial"
+    },
+
+    "record_parameterized": {
+      "begin": "\\b(Record)(\\()",
+      "beginCaptures": {
+        "1": { "name": "support.type.primitive.cerial" },
+        "2": { "name": "punctuation.section.group.begin.cerial" }
+      },
+      "end": "(\\))",
+      "endCaptures": {
+        "1": { "name": "punctuation.section.group.end.cerial" }
+      },
+      "patterns": [
+        {
+          "match": "\\b(int|float|string|number|uuid)\\b",
+          "name": "support.type.primitive.cerial"
+        },
+        {
+          "match": "\\b([A-Z][A-Za-z0-9_]*)\\b",
+          "name": "entity.name.type.cerial"
+        },
+        { "include": "#comma" }
+      ]
+    },
+
+    "decorator_with_args": {
+      "begin": "(@)(id|unique|index|now|createdAt|updatedAt|default|defaultAlways|field|model|onDelete|key|distinct|sort|set|flexible|readonly|nullable|uuid|uuid4|uuid7|point|line|polygon|multipoint|multiline|multipolygon|geoCollection)(\\()",
+      "beginCaptures": {
+        "1": { "name": "punctuation.definition.decorator.cerial" },
+        "2": { "name": "entity.name.function.decorator.cerial" },
+        "3": { "name": "punctuation.section.group.begin.cerial" }
+      },
+      "end": "(\\))",
+      "endCaptures": {
+        "1": { "name": "punctuation.section.group.end.cerial" }
+      },
+      "patterns": [
+        { "include": "#strings" },
+        { "include": "#numbers" },
+        { "include": "#booleans" },
+        { "include": "#null_literal" },
+        { "include": "#comma" },
+        {
+          "match": "\\b[A-Za-z]\\w*\\b",
+          "name": "variable.parameter.cerial"
+        }
+      ]
+    },
+
+    "decorator_simple": {
+      "match": "(@)(id|unique|index|now|createdAt|updatedAt|default|defaultAlways|field|model|onDelete|key|distinct|sort|set|flexible|readonly|nullable|uuid|uuid4|uuid7|point|line|polygon|multipoint|multiline|multipolygon|geoCollection)\\b",
+      "captures": {
+        "1": { "name": "punctuation.definition.decorator.cerial" },
+        "2": { "name": "entity.name.function.decorator.cerial" }
+      }
+    },
+
+    "decorators": {
+      "patterns": [{ "include": "#decorator_with_args" }, { "include": "#decorator_simple" }]
+    },
+
+    "composite_directives": {
+      "begin": "(@@)(unique|index)(\\()",
+      "beginCaptures": {
+        "1": { "name": "punctuation.definition.decorator.cerial" },
+        "2": { "name": "entity.name.function.directive.cerial" },
+        "3": { "name": "punctuation.section.group.begin.cerial" }
+      },
+      "end": "(\\))",
+      "endCaptures": {
+        "1": { "name": "punctuation.section.group.end.cerial" }
+      },
+      "patterns": [
+        {
+          "begin": "(\\[)",
+          "beginCaptures": {
+            "1": { "name": "punctuation.section.brackets.begin.cerial" }
+          },
+          "end": "(\\])",
+          "endCaptures": {
+            "1": { "name": "punctuation.section.brackets.end.cerial" }
+          },
+          "patterns": [
+            {
+              "match": "\\b\\w+\\b",
+              "name": "variable.other.field.cerial"
+            },
+            { "include": "#comma" }
+          ]
+        },
+        {
+          "match": "\\b\\w+\\b",
+          "name": "variable.parameter.cerial"
+        },
+        { "include": "#comma" }
+      ]
+    },
+
+    "model_block": {
+      "name": "meta.block.model.cerial",
+      "begin": "^\\s*(?:(abstract)\\s+)?(model)\\s+([A-Za-z]\\w*)(?:\\s+(extends)\\s+([A-Za-z]\\w*)(?:\\s*(\\[)([^\\]]*)(\\]))?)?\\s*(\\{)",
+      "beginCaptures": {
+        "1": { "name": "storage.modifier.abstract.cerial" },
+        "2": { "name": "storage.type.model.cerial" },
+        "3": { "name": "entity.name.type.model.cerial" },
+        "4": { "name": "keyword.control.extends.cerial" },
+        "5": { "name": "entity.name.type.model.cerial" },
+        "6": { "name": "punctuation.section.brackets.begin.cerial" },
+        "7": {
+          "patterns": [
+            { "match": "!", "name": "keyword.operator.omit.cerial" },
+            { "match": "\\b\\w+\\b", "name": "variable.other.field.cerial" },
+            { "match": ",", "name": "punctuation.separator.comma.cerial" }
+          ]
+        },
+        "8": { "name": "punctuation.section.brackets.end.cerial" },
+        "9": { "name": "punctuation.section.block.begin.cerial" }
+      },
+      "end": "\\s*(\\})",
+      "endCaptures": {
+        "1": { "name": "punctuation.section.block.end.cerial" }
+      },
+      "patterns": [
+        { "include": "#comments" },
+        { "include": "#composite_directives" },
+        { "include": "#field_name" },
+        { "include": "#record_parameterized" },
+        { "include": "#built_in_types" },
+        { "include": "#type_reference" },
+        { "include": "#array_modifier" },
+        { "include": "#optional_modifier" },
+        { "include": "#decorators" },
+        { "include": "#private_modifier" }
+      ]
+    },
+
+    "object_block": {
+      "name": "meta.block.object.cerial",
+      "begin": "^\\s*(object)\\s+([A-Za-z]\\w*)(?:\\s+(extends)\\s+([A-Za-z]\\w*)(?:\\s*(\\[)([^\\]]*)(\\]))?)?\\s*(\\{)",
+      "beginCaptures": {
+        "1": { "name": "storage.type.object.cerial" },
+        "2": { "name": "entity.name.type.object.cerial" },
+        "3": { "name": "keyword.control.extends.cerial" },
+        "4": { "name": "entity.name.type.object.cerial" },
+        "5": { "name": "punctuation.section.brackets.begin.cerial" },
+        "6": {
+          "patterns": [
+            { "match": "!", "name": "keyword.operator.omit.cerial" },
+            { "match": "\\b\\w+\\b", "name": "variable.other.field.cerial" },
+            { "match": ",", "name": "punctuation.separator.comma.cerial" }
+          ]
+        },
+        "7": { "name": "punctuation.section.brackets.end.cerial" },
+        "8": { "name": "punctuation.section.block.begin.cerial" }
+      },
+      "end": "\\s*(\\})",
+      "endCaptures": {
+        "1": { "name": "punctuation.section.block.end.cerial" }
+      },
+      "patterns": [
+        { "include": "#comments" },
+        { "include": "#field_name" },
+        { "include": "#record_parameterized" },
+        { "include": "#built_in_types" },
+        { "include": "#type_reference" },
+        { "include": "#array_modifier" },
+        { "include": "#optional_modifier" },
+        { "include": "#decorators" },
+        { "include": "#private_modifier" }
+      ]
+    },
+
+    "tuple_block": {
+      "name": "meta.block.tuple.cerial",
+      "begin": "^\\s*(tuple)\\s+([A-Za-z]\\w*)(?:\\s+(extends)\\s+([A-Za-z]\\w*)(?:\\s*(\\[)([^\\]]*)(\\]))?)?\\s*(\\{)",
+      "beginCaptures": {
+        "1": { "name": "storage.type.tuple.cerial" },
+        "2": { "name": "entity.name.type.tuple.cerial" },
+        "3": { "name": "keyword.control.extends.cerial" },
+        "4": { "name": "entity.name.type.tuple.cerial" },
+        "5": { "name": "punctuation.section.brackets.begin.cerial" },
+        "6": {
+          "patterns": [
+            { "match": "!", "name": "keyword.operator.omit.cerial" },
+            { "match": "\\b\\w+\\b", "name": "variable.other.field.cerial" },
+            { "match": ",", "name": "punctuation.separator.comma.cerial" }
+          ]
+        },
+        "7": { "name": "punctuation.section.brackets.end.cerial" },
+        "8": { "name": "punctuation.section.block.begin.cerial" }
+      },
+      "end": "\\s*(\\})",
+      "endCaptures": {
+        "1": { "name": "punctuation.section.block.end.cerial" }
+      },
+      "patterns": [
+        { "include": "#comments" },
+        { "include": "#field_name" },
+        { "include": "#built_in_types" },
+        { "include": "#type_reference" },
+        { "include": "#optional_modifier" },
+        { "include": "#decorators" },
+        { "include": "#comma" }
+      ]
+    },
+
+    "enum_block": {
+      "name": "meta.block.enum.cerial",
+      "begin": "^\\s*(enum)\\s+([A-Za-z]\\w*)(?:\\s+(extends)\\s+([A-Za-z]\\w*)(?:\\s*(\\[)([^\\]]*)(\\]))?)?\\s*(\\{)",
+      "beginCaptures": {
+        "1": { "name": "storage.type.enum.cerial" },
+        "2": { "name": "entity.name.type.enum.cerial" },
+        "3": { "name": "keyword.control.extends.cerial" },
+        "4": { "name": "entity.name.type.enum.cerial" },
+        "5": { "name": "punctuation.section.brackets.begin.cerial" },
+        "6": {
+          "patterns": [
+            { "match": "!", "name": "keyword.operator.omit.cerial" },
+            { "match": "\\b\\w+\\b", "name": "variable.other.field.cerial" },
+            { "match": ",", "name": "punctuation.separator.comma.cerial" }
+          ]
+        },
+        "7": { "name": "punctuation.section.brackets.end.cerial" },
+        "8": { "name": "punctuation.section.block.begin.cerial" }
+      },
+      "end": "\\s*(\\})",
+      "endCaptures": {
+        "1": { "name": "punctuation.section.block.end.cerial" }
+      },
+      "patterns": [
+        { "include": "#comments" },
+        { "include": "#decorators" },
+        {
+          "match": "\\b\\w+\\b",
+          "name": "variable.other.enummember.cerial"
+        },
+        { "include": "#comma" }
+      ]
+    },
+
+    "literal_block": {
+      "name": "meta.block.literal.cerial",
+      "begin": "^\\s*(literal)\\s+([A-Za-z]\\w*)(?:\\s+(extends)\\s+([A-Za-z]\\w*)(?:\\s*(\\[)([^\\]]*)(\\]))?)?\\s*(\\{)",
+      "beginCaptures": {
+        "1": { "name": "storage.type.literal.cerial" },
+        "2": { "name": "entity.name.type.literal.cerial" },
+        "3": { "name": "keyword.control.extends.cerial" },
+        "4": { "name": "entity.name.type.literal.cerial" },
+        "5": { "name": "punctuation.section.brackets.begin.cerial" },
+        "6": {
+          "patterns": [
+            { "match": "!", "name": "keyword.operator.omit.cerial" },
+            { "match": "\\b\\w+\\b", "name": "variable.other.field.cerial" },
+            { "match": ",", "name": "punctuation.separator.comma.cerial" }
+          ]
+        },
+        "7": { "name": "punctuation.section.brackets.end.cerial" },
+        "8": { "name": "punctuation.section.block.begin.cerial" }
+      },
+      "end": "\\s*(\\})",
+      "endCaptures": {
+        "1": { "name": "punctuation.section.block.end.cerial" }
+      },
+      "patterns": [
+        { "include": "#comments" },
+        { "include": "#strings" },
+        { "include": "#numbers" },
+        { "include": "#booleans" },
+        { "include": "#built_in_types" },
+        { "include": "#type_reference" },
+        { "include": "#comma" }
+      ]
+    }
+  }
+}

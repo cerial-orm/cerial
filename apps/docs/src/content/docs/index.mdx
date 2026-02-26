@@ -7,4 +7,14 @@ hero:
   tagline: A Prisma-like ORM for SurrealDB with schema-driven code generation and full TypeScript type safety.
 ---
 
+```cerial
+model User {
+  id Record @id
+  email Email @unique
+  name String
+  age Int?
+  createdAt Date @createdAt
+}
+```
+
 Placeholder — landing page components will be added in later tasks.
