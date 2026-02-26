@@ -5,6 +5,7 @@
   "workspaces": [
     "apps/orm",
     "apps/vscode-extension",
+    "apps/docs",
     "libs/*"
   ],
   "scripts": {
@@ -28,7 +29,10 @@
     "test:ext:integration:full": "bun run --filter cerial-vscode test:integration:full",
     "test:ext:e2e:full": "bun run --filter cerial-vscode test:e2e:full",
     "test:ext:full": "bun run --filter cerial-vscode test:full",
-    "test:full": "bun run test:orm:full && bun run test:ext:full"
+    "test:full": "bun run test:orm:full && bun run test:ext:full",
+    "docs:dev": "bun run --filter cerial-docs dev",
+    "docs:build": "bun run --filter cerial-docs build",
+    "docs:preview": "bun run --filter cerial-docs preview"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.4",

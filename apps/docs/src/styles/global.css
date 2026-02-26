@@ -1,0 +1,37 @@
+@layer base, starlight, theme, components, utilities;
+
+@import '@astrojs/starlight-tailwind';
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities);
+
+@theme {
+  /* shadcn zinc/slate palette — mapped to Starlight's gray and accent scales */
+  --color-accent-50: hsl(240, 5%, 96%);
+  --color-accent-100: hsl(240, 5%, 90%);
+  --color-accent-200: hsl(240, 6%, 84%);
+  --color-accent-300: hsl(240, 5%, 74%);
+  --color-accent-400: hsl(240, 5%, 65%);
+  --color-accent-500: hsl(240, 4%, 46%);
+  --color-accent-600: hsl(240, 5%, 34%);
+  --color-accent-700: hsl(240, 4%, 26%);
+  --color-accent-800: hsl(240, 4%, 16%);
+  --color-accent-900: hsl(240, 6%, 10%);
+  --color-accent-950: hsl(240, 10%, 4%);
+
+  /* Map gray scale to zinc for Starlight Tailwind compatibility */
+  --color-gray-50: var(--color-zinc-50);
+  --color-gray-100: var(--color-zinc-100);
+  --color-gray-200: var(--color-zinc-200);
+  --color-gray-300: var(--color-zinc-300);
+  --color-gray-400: var(--color-zinc-400);
+  --color-gray-500: var(--color-zinc-500);
+  --color-gray-600: var(--color-zinc-600);
+  --color-gray-700: var(--color-zinc-700);
+  --color-gray-800: var(--color-zinc-800);
+  --color-gray-900: var(--color-zinc-900);
+  --color-gray-950: var(--color-zinc-950);
+
+  /* Typography */
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Code', 'JetBrains Mono', Menlo, monospace;
+}

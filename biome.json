@@ -6,7 +6,7 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["**", "!tests/fixtures/config/invalid-json"]
+    "includes": ["**", "!tests/fixtures/config/invalid-json", "!apps/docs"]
   },
   "formatter": {
     "enabled": true,

@@ -36,6 +36,9 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 # Jekyll build output
 docs/_site/
 
+# Astro build cache
+.astro/
+
 # Sisyphus orchestration state
 .sisyphus/
 
