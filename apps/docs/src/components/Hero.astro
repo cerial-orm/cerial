@@ -1,9 +1,11 @@
 ---
 // Hero.astro — Static hero section for the Cerial docs landing page
+import FloatingNodes from './FloatingNodes.astro';
 ---
 
 <section class="relative py-24 md:py-40">
-  <div class="mx-auto max-w-3xl px-6 text-center">
+  <FloatingNodes />
+  <div class="relative z-10 mx-auto max-w-3xl px-6 text-center">
     <h1
       class="text-5xl font-bold tracking-tight text-white sm:text-6xl md:text-7xl"
     >
