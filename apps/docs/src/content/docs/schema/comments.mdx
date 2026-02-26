@@ -1,0 +1,193 @@
+---
+title: Comments
+description: Comment syntax in .cerial schema files — hash, double-slash, and block comments with usage patterns and limitations.
+sidebar:
+  label: Comments
+  order: 10
+---
+
+Comments in `.cerial` files support three styles: hash (`#`), double-slash (`//`), and block (`/* */`). All three are equivalent — use whichever fits your style.
+
+## Syntax
+
+Cerial supports three comment styles:
+
+### Hash comments (`#`)
+
+Single-line comments starting with `#`. Everything from `#` to the end of the line is ignored:
+
+```cerial
+# This is a comment
+model User {
+  id Record @id
+  email Email @unique    # Inline comment after a field
+  name String
+}
+```
+
+### Double-slash comments (`//`)
+
+Single-line comments starting with `//`. Everything from `//` to the end of the line is ignored:
+
+```cerial
+// This is a comment
+model User {
+  id Record @id
+  email Email @unique    // Inline comment after a field
+  name String
+}
+```
+
+### Block comments (`/* */`)
+
+Multi-line comments enclosed in `/* */`. Everything between the delimiters is ignored, including newlines:
+
+```cerial
+/* This is a block comment
+   spanning multiple lines */
+model User {
+  id Record @id
+  email Email @unique    /* Inline block comment */
+  name String
+}
+```
+
+For multi-line comments, you can also use multiple single-line comments in a row:
+
+```cerial
+// This model represents a user account.
+// Users authenticate via email and can
+// have multiple posts.
+model User {
+  id Record @id
+  email Email @unique
+  name String
+}
+```
+
+## Where Comments Can Appear
+
+Comments work **everywhere** in a `.cerial` file — in and around all five building block types. You can mix comment styles freely.
+
+### In models
+
+```cerial
+// User account model
+model User {
+  id Record @id
+  email Email @unique      # Login identifier
+  name String              /* Display name */
+
+  // Relations
+  posts Relation[] @model(Post)
+}
+```
+
+### In objects
+
+```cerial
+/* Mailing address */
+object Address {
+  street String
+  city String
+  # state String           // TODO: add state field
+  zipCode String?
+}
+```
+
+### In enums
+
+```cerial
+// Access control roles
+enum Role {
+  Admin,     /* Full access */
+  Editor,    # Can edit content
+  Viewer     // Read-only access
+}
+```
+
+### In tuples
+
+```cerial
+/* RGB color value */
+tuple Color {
+  r Int,   # 0-255
+  g Int,   // 0-255
+  b Int    /* 0-255 */
+}
+```
+
+### In literals
+
+```cerial
+// Task priority levels
+literal Priority {
+  "low",       # Default for new tasks
+  "medium",    // Standard priority
+  "high",      /* Elevated priority */
+  "critical"   # Triggers notifications
+}
+```
+
+## Usage Patterns
+
+Comments serve several common purposes in schema files:
+
+- **Describe a type** — Place a comment before a `model`, `object`, `enum`, `tuple`, or `literal` block to explain its purpose.
+- **Annotate a field** — Add an inline comment after a field declaration to explain its role or constraints.
+- **Section separators** — Use comment blocks to visually divide larger files into logical sections.
+- **Temporarily disable a field** — Comment out a field line to remove it from generation without deleting it.
+- **TODOs and notes** — Leave reminders for future work.
+
+```cerial
+// ==========================================
+// User domain
+// ==========================================
+
+model User {
+  id Record @id
+  email Email @unique
+  name String
+  # nickname String        // Uncomment when nicknames feature ships
+  createdAt Date @createdAt
+}
+```
+
+## Inline Comments After Decorators
+
+Comments can appear after decorators at the end of a field line:
+
+```cerial
+model Post {
+  id Record @id
+  title String @unique           # Must be unique per post
+  views Int @default(0)          // Starts at zero
+  createdAt Date @createdAt      /* Auto-set on creation */
+}
+```
+
+## Formatting Preservation
+
+When you run `cerial format`, comments are preserved in place. The formatter attaches each comment to its nearest field or block and maintains their position through alignment and reformatting.
+
+## Limitations
+
+:::caution
+Comments **inside decorator arguments** are not supported. Comment characters within parentheses will cause a parse error.
+:::
+
+```cerial
+# ✗ This will NOT work:
+# model User {
+#   name String @default(
+#     # a default value
+#     "unnamed"
+#   )
+# }
+
+# ✓ Put the comment on a separate line instead:
+# Default name for users without a profile
+model User {
+  name String @default("unnamed")
+}
+```

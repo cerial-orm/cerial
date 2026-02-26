@@ -1,0 +1,232 @@
+---
+title: Cross-File References
+description: Split schemas across multiple files — recursive scanning, shared scopes, forward references, and naming rules.
+sidebar:
+  label: Cross-File References
+  order: 11
+---
+
+Cerial schemas can span multiple `.cerial` files. When you point the generator at a directory, **all `.cerial` files in that directory and its subdirectories** are parsed together as a single schema scope.
+
+## How It Works
+
+When you run the generator with a schema directory:
+
+```bash
+bunx cerial generate -s ./schemas
+```
+
+Cerial uses the glob pattern `**/*.cerial` to find every `.cerial` file inside `./schemas` — including files nested in subdirectories at any depth. All discovered files are loaded and parsed as one combined schema, meaning:
+
+- **Any type** defined in one file can be referenced in any other file — models, objects, enums, tuples, and literals all share the same namespace.
+- **Order doesn't matter** — Files are all loaded before type resolution begins, so forward references work. A file can reference a type defined in a completely different file.
+- **No import statements** — There's nothing to import. If two files are in the same schema scope, their types see each other automatically.
+
+:::tip
+Scanning is **recursive by default**. Subdirectories are included — you can organize schemas into folders like `schemas/auth/`, `schemas/blog/`, etc., and they'll all be part of the same scope.
+:::
+
+## Example
+
+Consider a project with schemas organized into subdirectories:
+
+```
+schemas/
+├── shared/
+│   └── types.cerial       # Shared object types
+├── user.cerial             # User model
+└── blog/
+    └── post.cerial         # Post and Tag models
+```
+
+**`schemas/shared/types.cerial`**
+
+```cerial
+object Address {
+  street String
+  city String
+  state String
+  zipCode String?
+}
+
+enum Role { Admin, Editor, Viewer }
+```
+
+**`schemas/user.cerial`**
+
+```cerial
+model User {
+  id Record @id
+  name String
+  email Email @unique
+  role Role                       # References enum from shared/types.cerial
+  address Address?                # References object from shared/types.cerial
+  createdAt Date @createdAt
+  posts Relation[] @model(Post)   # References model from blog/post.cerial
+}
+```
+
+**`schemas/blog/post.cerial`**
+
+```cerial
+model Post {
+  id Record @id
+  title String
+  content String
+  authorId Record
+  author Relation @field(authorId) @model(User)   # References model from user.cerial
+  tags Relation[] @model(Tag)
+}
+
+model Tag {
+  id Record @id
+  name String @unique
+  postIds Record[]
+  posts Relation[] @model(Post)
+}
+```
+
+All three files are parsed together regardless of directory depth. `Post` references `User`, `User` references `Role`, `Address`, and `Post` — all resolved automatically.
+
+## Inheritance Across Files
+
+The `extends` keyword works across files within the same schema scope. A type can extend a parent defined in a different file:
+
+```cerial
+# schemas/shared/base.cerial
+abstract model Timestamped {
+  createdAt Date @createdAt
+  updatedAt Date @updatedAt
+}
+```
+
+```cerial
+# schemas/user.cerial
+model User extends Timestamped {
+  id Record @id
+  name String
+  email Email @unique
+}
+```
+
+This works for all type kinds — models, objects, enums, tuples, and literals can all extend parents from other files.
+
+## Rules
+
+### No duplicate names
+
+Each type name must be unique across **all files** in the scope. Defining `model User` in two different files causes an error. This applies across type kinds too — an enum and a model cannot share the same name.
+
+### All types share one namespace
+
+Models, objects, enums, tuples, and literals all live in the same namespace. You cannot have an `enum Status` and an `object Status` in the same scope, even if they're in different files.
+
+### Forward references work
+
+Files are all loaded before resolution, so order doesn't matter. A file can reference a type that happens to be defined in a file loaded later — there's no need to worry about file ordering or declaration order.
+
+## Excluding Files
+
+Not every `.cerial` file in a directory tree should always be included. Cerial provides several ways to control which files are processed:
+
+### `.cerialignore`
+
+Create a `.cerialignore` file at your project root or inside a schema directory. It follows `.gitignore` syntax:
+
+```
+# .cerialignore
+drafts/
+experimental/*.cerial
+```
+
+### Config-level filtering
+
+The `cerial.config.ts` file supports `ignore`, `exclude`, and `include` fields for fine-grained control:
+
+```typescript
+import { defineConfig } from 'cerial';
+
+export default defineConfig({
+  schema: {
+    path: './schemas',
+    exclude: ['drafts/**'],
+  },
+  output: './db-client',
+});
+```
+
+:::note
+`.cerialignore` applies even when using the `-s` flag — it's project-level filtering that always takes effect.
+:::
+
+## Schema Discovery
+
+When you run the generator, Cerial needs to find your schema files. By default, it looks for **convention marker files** that indicate where your schemas are organized.
+
+### Convention Markers
+
+Place one of these marker files in a directory to tell Cerial "this is a schema root":
+
+- `schema.cerial`
+- `main.cerial`
+- `index.cerial`
+
+The marker file can contain type definitions or be empty — it just signals that the directory is a schema root. All `.cerial` files in that directory and its subdirectories are then included in the same schema scope.
+
+### Example
+
+```
+project/
+├── schemas/
+│   ├── schema.cerial          ← marker file (can be empty or contain types)
+│   ├── user.cerial
+│   ├── blog/
+│   │   ├── post.cerial
+│   │   └── comment.cerial
+│   └── shared/
+│       └── types.cerial
+└── cerial.config.ts
+```
+
+Cerial discovers the `schema.cerial` marker, then recursively includes all `.cerial` files under `schemas/` — including nested subdirectories like `blog/` and `shared/`.
+
+### Multi-Schema Support
+
+If you have multiple marker directories, each becomes an independent schema scope with its own generated client:
+
+```
+project/
+├── schemas/auth/
+│   └── schema.cerial          ← First schema root
+├── schemas/blog/
+│   └── schema.cerial          ← Second schema root
+└── cerial.config.ts
+```
+
+Models in different schema roots can have the same name (they're separate scopes). Each root generates its own client.
+
+:::note
+Full configuration details — including `cerial.config.ts`, path filtering with `ignore`/`exclude`/`include`, and `.cerialignore` files — are covered in the **CLI & Configuration** section (coming soon). This is just a sneak peek at how Cerial discovers your schemas.
+:::
+
+## Best Practices
+
+- **Organize by domain** — Group related models in the same file or subdirectory (e.g., `auth/` for User and Session, `blog/` for Post and Comment).
+- **Shared types in a common location** — Put reusable objects, enums, tuples, and literals in a `shared/` or `common/` folder.
+- **Keep related models together** — Tightly coupled models (e.g., `Order` and `OrderItem`) work well in the same file.
+- **Use subdirectories freely** — Recursive scanning means you can nest as deep as you like without configuration changes.
+- **Use comments as section headers** — Within larger files, comment blocks help separate logical sections.
+
+```
+schemas/
+├── shared/
+│   ├── types.cerial        # Address, GeoPoint, Money
+│   └── enums.cerial        # Role, Status, Priority
+├── auth/
+│   └── user.cerial         # User, Session, Profile
+├── blog/
+│   └── post.cerial         # Post, Comment, Tag
+└── commerce/
+    ├── product.cerial      # Product, Category
+    └── order.cerial        # Order, OrderItem
+```
