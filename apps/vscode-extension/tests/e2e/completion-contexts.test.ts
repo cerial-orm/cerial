@@ -236,7 +236,6 @@ suite('Completion Contexts E2E', () => {
           labels.includes('BaseEntity'),
           `Should include abstract model "BaseEntity", got: ${labels.join(', ')}`,
         );
-
       } finally {
         await replaceDocument(doc, originalContent);
         await vscode.window.showTextDocument(doc);
@@ -271,10 +270,7 @@ suite('Completion Contexts E2E', () => {
 
         // Block keywords should be present
         assert.ok(labels.includes('model'), `Should include "model", got: ${labels.join(', ')}`);
-        assert.ok(
-          labels.includes('abstract model'),
-          `Should include "abstract model", got: ${labels.join(', ')}`,
-        );
+        assert.ok(labels.includes('abstract model'), `Should include "abstract model", got: ${labels.join(', ')}`);
         assert.ok(labels.includes('object'), `Should include "object", got: ${labels.join(', ')}`);
         assert.ok(labels.includes('tuple'), `Should include "tuple", got: ${labels.join(', ')}`);
         assert.ok(labels.includes('enum'), `Should include "enum", got: ${labels.join(', ')}`);
@@ -442,10 +438,7 @@ suite('Completion Contexts E2E', () => {
 
       try {
         // Line 85-86 (0-indexed): "model EmptyFieldModel {\n}" → inject empty line inside
-        const modified = originalContent.replace(
-          'model EmptyFieldModel {\n}',
-          'model EmptyFieldModel {\n  \n}',
-        );
+        const modified = originalContent.replace('model EmptyFieldModel {\n}', 'model EmptyFieldModel {\n  \n}');
         await replaceDocument(doc, modified);
 
         // Line 86 (0-indexed) is the new indented line inside the model block
@@ -483,14 +476,8 @@ suite('Completion Contexts E2E', () => {
 
         // User-defined types from same file should be present
         assert.ok(labels.includes('Address'), `Should include object "Address", got: ${labels.join(', ')}`);
-        assert.ok(
-          labels.includes('Coordinate'),
-          `Should include tuple "Coordinate", got: ${labels.join(', ')}`,
-        );
-        assert.ok(
-          labels.includes('StatusEnum'),
-          `Should include enum "StatusEnum", got: ${labels.join(', ')}`,
-        );
+        assert.ok(labels.includes('Coordinate'), `Should include tuple "Coordinate", got: ${labels.join(', ')}`);
+        assert.ok(labels.includes('StatusEnum'), `Should include enum "StatusEnum", got: ${labels.join(', ')}`);
         assert.ok(
           labels.includes('StatusLiteral'),
           `Should include literal "StatusLiteral", got: ${labels.join(', ')}`,
@@ -498,7 +485,9 @@ suite('Completion Contexts E2E', () => {
 
         // Block keywords should NOT be present inside a model block
         // Filter out VS Code's word-based completions (kind = Text) which inject document words
-        const extensionItems = completions.items.filter(item => item.kind !== vscode.CompletionItemKind.Text && item.kind !== vscode.CompletionItemKind.Snippet);
+        const extensionItems = completions.items.filter(
+          (item) => item.kind !== vscode.CompletionItemKind.Text && item.kind !== vscode.CompletionItemKind.Snippet,
+        );
         const extensionLabels = extensionItems.map(getCompletionLabel);
         assert.ok(
           !extensionLabels.includes('model'),
@@ -550,22 +539,13 @@ suite('Completion Contexts E2E', () => {
         const labels = completions.items.map(getCompletionLabel);
 
         // Object types should NOT appear
-        assert.ok(
-          !labels.includes('Address'),
-          `Should NOT include object "Address", got: ${labels.join(', ')}`,
-        );
+        assert.ok(!labels.includes('Address'), `Should NOT include object "Address", got: ${labels.join(', ')}`);
 
         // Tuple types should NOT appear
-        assert.ok(
-          !labels.includes('Coordinate'),
-          `Should NOT include tuple "Coordinate", got: ${labels.join(', ')}`,
-        );
+        assert.ok(!labels.includes('Coordinate'), `Should NOT include tuple "Coordinate", got: ${labels.join(', ')}`);
 
         // Enum types should NOT appear
-        assert.ok(
-          !labels.includes('StatusEnum'),
-          `Should NOT include enum "StatusEnum", got: ${labels.join(', ')}`,
-        );
+        assert.ok(!labels.includes('StatusEnum'), `Should NOT include enum "StatusEnum", got: ${labels.join(', ')}`);
 
         // Literal types should NOT appear
         assert.ok(
@@ -574,14 +554,8 @@ suite('Completion Contexts E2E', () => {
         );
 
         // Field types should NOT appear
-        assert.ok(
-          !labels.includes('String'),
-          `Should NOT include field type "String", got: ${labels.join(', ')}`,
-        );
-        assert.ok(
-          !labels.includes('Int'),
-          `Should NOT include field type "Int", got: ${labels.join(', ')}`,
-        );
+        assert.ok(!labels.includes('String'), `Should NOT include field type "String", got: ${labels.join(', ')}`);
+        assert.ok(!labels.includes('Int'), `Should NOT include field type "Int", got: ${labels.join(', ')}`);
       } finally {
         await replaceDocument(doc, originalContent);
         await vscode.window.showTextDocument(doc);
@@ -616,10 +590,7 @@ suite('Completion Contexts E2E', () => {
         const labels = completions.items.map(getCompletionLabel);
 
         // Non-Record fields should NOT appear
-        assert.ok(
-          !labels.includes('title'),
-          `Should NOT include non-Record field "title", got: ${labels.join(', ')}`,
-        );
+        assert.ok(!labels.includes('title'), `Should NOT include non-Record field "title", got: ${labels.join(', ')}`);
         assert.ok(
           !labels.includes('content'),
           `Should NOT include non-Record field "content", got: ${labels.join(', ')}`,
@@ -653,22 +624,10 @@ suite('Completion Contexts E2E', () => {
         const labels = completions.items.map(getCompletionLabel);
 
         // Field types should NOT appear at top level
-        assert.ok(
-          !labels.includes('String'),
-          `Should NOT include field type "String", got: ${labels.join(', ')}`,
-        );
-        assert.ok(
-          !labels.includes('Int'),
-          `Should NOT include field type "Int", got: ${labels.join(', ')}`,
-        );
-        assert.ok(
-          !labels.includes('Record'),
-          `Should NOT include field type "Record", got: ${labels.join(', ')}`,
-        );
-        assert.ok(
-          !labels.includes('Relation'),
-          `Should NOT include field type "Relation", got: ${labels.join(', ')}`,
-        );
+        assert.ok(!labels.includes('String'), `Should NOT include field type "String", got: ${labels.join(', ')}`);
+        assert.ok(!labels.includes('Int'), `Should NOT include field type "Int", got: ${labels.join(', ')}`);
+        assert.ok(!labels.includes('Record'), `Should NOT include field type "Record", got: ${labels.join(', ')}`);
+        assert.ok(!labels.includes('Relation'), `Should NOT include field type "Relation", got: ${labels.join(', ')}`);
 
         // Decorators should NOT appear at top level
         assert.ok(
@@ -691,10 +650,7 @@ suite('Completion Contexts E2E', () => {
 
       try {
         // Same setup as Context 7: inject empty line inside EmptyFieldModel
-        const modified = originalContent.replace(
-          'model EmptyFieldModel {\n}',
-          'model EmptyFieldModel {\n  \n}',
-        );
+        const modified = originalContent.replace('model EmptyFieldModel {\n}', 'model EmptyFieldModel {\n  \n}');
         await replaceDocument(doc, modified);
 
         // Poll until field types appear
@@ -715,7 +671,9 @@ suite('Completion Contexts E2E', () => {
 
         // Block keywords should NOT appear inside model block
         // Filter out VS Code's word-based completions (kind = Text) which inject document words
-        const extensionItems = completions.items.filter(item => item.kind !== vscode.CompletionItemKind.Text && item.kind !== vscode.CompletionItemKind.Snippet);
+        const extensionItems = completions.items.filter(
+          (item) => item.kind !== vscode.CompletionItemKind.Text && item.kind !== vscode.CompletionItemKind.Snippet,
+        );
         const extensionLabels = extensionItems.map(getCompletionLabel);
         assert.ok(
           !extensionLabels.includes('model'),

@@ -251,9 +251,7 @@ const VALID_DECORATOR_NAMES = new Set([
 ]);
 
 /** Decorators that REQUIRE a parenthesized value. */
-const VALUE_REQUIRED_DECORATOR_NAMES = new Set([
-  'default', 'defaultAlways', 'model', 'field', 'onDelete', 'key',
-]);
+const VALUE_REQUIRED_DECORATOR_NAMES = new Set(['default', 'defaultAlways', 'model', 'field', 'onDelete', 'key']);
 
 /**
  * Check if a line represents a composite directive (@@index, @@unique).
@@ -697,9 +695,7 @@ export function registerDiagnosticsProvider(
       // Group-level resolution failed — try standalone file resolution as fallback.
       // This handles cases where the mega-group (convention mode) has cross-file
       // conflicts but within-file inheritance is still valid.
-      connection.console.error(
-        `Inheritance resolution failed for group "${group?.name ?? 'standalone'}": ${groupErr}`,
-      );
+      connection.console.error(`Inheritance resolution failed for group "${group?.name ?? 'standalone'}": ${groupErr}`);
       try {
         validationAST = resolveInheritance(fileAST);
       } catch (fileErr) {

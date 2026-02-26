@@ -1057,7 +1057,9 @@ model Child extends Parent[field1, field2] {
 }
 `;
       const { errors } = parse(schema);
-      expect(errors.every((e) => !e.message.includes('Unclosed bracket') && !e.message.includes('Unexpected ]'))).toBe(true);
+      expect(errors.every((e) => !e.message.includes('Unclosed bracket') && !e.message.includes('Unexpected ]'))).toBe(
+        true,
+      );
     });
 
     test('should NOT emit bracket error for model extends without brackets', () => {
@@ -1067,7 +1069,9 @@ model Child extends Parent {
 }
 `;
       const { errors } = parse(schema);
-      expect(errors.every((e) => !e.message.includes('Unclosed bracket') && !e.message.includes('Unexpected ]'))).toBe(true);
+      expect(errors.every((e) => !e.message.includes('Unclosed bracket') && !e.message.includes('Unexpected ]'))).toBe(
+        true,
+      );
     });
 
     // --- Object ---

@@ -493,94 +493,116 @@ describe('Diagnostics Logic', () => {
   });
 });
 
-  // ---------------------------------------------------------------------------
-  // No duplicate diagnostics
-  // ---------------------------------------------------------------------------
-  describe('no duplicate diagnostics', () => {
-    test('duplicate field name produces exactly one error, not two', () => {
-      const source = 'model Dup {\n  id Record @id\n  name String\n  name String\n}';
-      const { ast } = parse(source);
-      const result = validateSchema(ast);
+// ---------------------------------------------------------------------------
+// No duplicate diagnostics
+// ---------------------------------------------------------------------------
+describe('no duplicate diagnostics', () => {
+  test('duplicate field name produces exactly one error, not two', () => {
+    const source = 'model Dup {\n  id Record @id\n  name String\n  name String\n}';
+    const { ast } = parse(source);
+    const result = validateSchema(ast);
 
-      // Count errors that mention the duplicate field name
-      const nameErrors = result.errors.filter((e) => e.message.includes('name'));
+    // Count errors that mention the duplicate field name
+    const nameErrors = result.errors.filter((e) => e.message.includes('name'));
 
-      // Should have exactly 1 error for the duplicate, not 2
-      expect(nameErrors.length).toBe(1);
-      expect(nameErrors[0]!.message).toContain('Duplicate');
-    });
-
-    test('conflicting timestamp decorators produce exactly one error', () => {
-      const source = 'model Bad {\n  id Record @id\n  ts Date @createdAt @updatedAt\n}';
-      const { ast } = parse(source);
-      const result = validateSchema(ast);
-
-      // Count errors that mention timestamp conflict
-      const tsErrors = result.errors.filter((e) => e.message.toLowerCase().includes('timestamp') || e.message.toLowerCase().includes('decorator'));
-
-      // Should have exactly 1 error, not multiple from duplicate validator calls
-      expect(tsErrors.length).toBeGreaterThan(0);
-      expect(tsErrors.length).toBeLessThanOrEqual(1);
-    });
+    // Should have exactly 1 error for the duplicate, not 2
+    expect(nameErrors.length).toBe(1);
+    expect(nameErrors[0]!.message).toContain('Duplicate');
   });
 
-  // ---------------------------------------------------------------------------
-  // Mixed pick/omit diagnostic
-  // ---------------------------------------------------------------------------
-  describe('mixed pick/omit diagnostic', () => {
-    test('mixed pick and omit in extends bracket produces warning', () => {
-      const source = 'abstract model Parent {\n  id Record @id\n  field1 String\n  field2 String\n}\n\nmodel Child extends Parent[field1, !field2] {\n}';
-      const { ast } = parse(source);
+  test('conflicting timestamp decorators produce exactly one error', () => {
+    const source = 'model Bad {\n  id Record @id\n  ts Date @createdAt @updatedAt\n}';
+    const { ast } = parse(source);
+    const result = validateSchema(ast);
 
-      // The parser should emit an error for mixed pick/omit
-      // This error will surface through validateSchema
-      const result = validateSchema(ast);
+    // Count errors that mention timestamp conflict
+    const tsErrors = result.errors.filter(
+      (e) => e.message.toLowerCase().includes('timestamp') || e.message.toLowerCase().includes('decorator'),
+    );
 
-      // Look for an error mentioning mixed pick/omit or similar
-      const mixedErrors = result.errors.filter((e) => e.message.toLowerCase().includes('mix') || e.message.toLowerCase().includes('pick') || e.message.toLowerCase().includes('omit'));
+    // Should have exactly 1 error, not multiple from duplicate validator calls
+    expect(tsErrors.length).toBeGreaterThan(0);
+    expect(tsErrors.length).toBeLessThanOrEqual(1);
+  });
+});
 
-      // Should have at least one error about mixing
-      // Note: Task 2 (ORM parser fix) will emit the error. For now, test that no false positives occur.
-      // Once Task 2 is done, this test will verify the error is emitted.
-      // The mixed pick/omit syntax is currently silently ignored by the parser.
-      expect(result.errors.length).toBeGreaterThanOrEqual(0);
-    });
+// ---------------------------------------------------------------------------
+// Mixed pick/omit diagnostic
+// ---------------------------------------------------------------------------
+describe('mixed pick/omit diagnostic', () => {
+  test('mixed pick and omit in extends bracket produces warning', () => {
+    const source =
+      'abstract model Parent {\n  id Record @id\n  field1 String\n  field2 String\n}\n\nmodel Child extends Parent[field1, !field2] {\n}';
+    const { ast } = parse(source);
+
+    // The parser should emit an error for mixed pick/omit
+    // This error will surface through validateSchema
+    const result = validateSchema(ast);
+
+    // Look for an error mentioning mixed pick/omit or similar
+    const mixedErrors = result.errors.filter(
+      (e) =>
+        e.message.toLowerCase().includes('mix') ||
+        e.message.toLowerCase().includes('pick') ||
+        e.message.toLowerCase().includes('omit'),
+    );
+
+    // Should have at least one error about mixing
+    // Note: Task 2 (ORM parser fix) will emit the error. For now, test that no false positives occur.
+    // Once Task 2 is done, this test will verify the error is emitted.
+    // The mixed pick/omit syntax is currently silently ignored by the parser.
+    expect(result.errors.length).toBeGreaterThanOrEqual(0);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Valid pick/omit no false positives
+// ---------------------------------------------------------------------------
+describe('valid pick/omit no false positives', () => {
+  test('pure pick in extends bracket produces no mixing error', () => {
+    const source =
+      'abstract model Parent {\n  id Record @id\n  field1 String\n  field2 String\n  field3 String\n}\n\nmodel Child extends Parent[field1, field2] {\n}';
+    const { ast } = parse(source);
+    const result = validateSchema(ast);
+
+    // Should not have any mixing errors
+    const mixedErrors = result.errors.filter(
+      (e) =>
+        e.message.toLowerCase().includes('mix') &&
+        (e.message.toLowerCase().includes('pick') || e.message.toLowerCase().includes('omit')),
+    );
+
+    expect(mixedErrors.length).toBe(0);
   });
 
-  // ---------------------------------------------------------------------------
-  // Valid pick/omit no false positives
-  // ---------------------------------------------------------------------------
-  describe('valid pick/omit no false positives', () => {
-    test('pure pick in extends bracket produces no mixing error', () => {
-      const source = 'abstract model Parent {\n  id Record @id\n  field1 String\n  field2 String\n  field3 String\n}\n\nmodel Child extends Parent[field1, field2] {\n}';
-      const { ast } = parse(source);
-      const result = validateSchema(ast);
+  test('pure omit in extends bracket produces no mixing error', () => {
+    const source =
+      'abstract model Parent {\n  id Record @id\n  field1 String\n  field2 String\n}\n\nmodel Child extends Parent[!field1] {\n}';
+    const { ast } = parse(source);
+    const result = validateSchema(ast);
 
-      // Should not have any mixing errors
-      const mixedErrors = result.errors.filter((e) => e.message.toLowerCase().includes('mix') && (e.message.toLowerCase().includes('pick') || e.message.toLowerCase().includes('omit')));
+    // Should not have any mixing errors
+    const mixedErrors = result.errors.filter(
+      (e) =>
+        e.message.toLowerCase().includes('mix') &&
+        (e.message.toLowerCase().includes('pick') || e.message.toLowerCase().includes('omit')),
+    );
 
-      expect(mixedErrors.length).toBe(0);
-    });
-
-    test('pure omit in extends bracket produces no mixing error', () => {
-      const source = 'abstract model Parent {\n  id Record @id\n  field1 String\n  field2 String\n}\n\nmodel Child extends Parent[!field1] {\n}';
-      const { ast } = parse(source);
-      const result = validateSchema(ast);
-
-      // Should not have any mixing errors
-      const mixedErrors = result.errors.filter((e) => e.message.toLowerCase().includes('mix') && (e.message.toLowerCase().includes('pick') || e.message.toLowerCase().includes('omit')));
-
-      expect(mixedErrors.length).toBe(0);
-    });
-
-    test('extends without bracket produces no mixing error', () => {
-      const source = 'abstract model Parent {\n  id Record @id\n  field1 String\n}\n\nmodel Child extends Parent {\n}';
-      const { ast } = parse(source);
-      const result = validateSchema(ast);
-
-      // Should not have any mixing errors
-      const mixedErrors = result.errors.filter((e) => e.message.toLowerCase().includes('mix') && (e.message.toLowerCase().includes('pick') || e.message.toLowerCase().includes('omit')));
-
-      expect(mixedErrors.length).toBe(0);
-    });
+    expect(mixedErrors.length).toBe(0);
   });
+
+  test('extends without bracket produces no mixing error', () => {
+    const source = 'abstract model Parent {\n  id Record @id\n  field1 String\n}\n\nmodel Child extends Parent {\n}';
+    const { ast } = parse(source);
+    const result = validateSchema(ast);
+
+    // Should not have any mixing errors
+    const mixedErrors = result.errors.filter(
+      (e) =>
+        e.message.toLowerCase().includes('mix') &&
+        (e.message.toLowerCase().includes('pick') || e.message.toLowerCase().includes('omit')),
+    );
+
+    expect(mixedErrors.length).toBe(0);
+  });
+});

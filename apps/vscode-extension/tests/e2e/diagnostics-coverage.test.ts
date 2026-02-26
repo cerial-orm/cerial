@@ -186,14 +186,14 @@ suite('Diagnostics Coverage E2E', () => {
     // that picks only non-@id fields — should produce an @id error after resolution
     const doc = await createTempDocument(
       'abstract model PickBase {\n' +
-      '  id Record @id !!private\n' +
-      '  createdAt Date @createdAt !!private\n' +
-      '  label String\n' +
-      '}\n' +
-      '\n' +
-      'model PickNoId extends PickBase[createdAt, label] {\n' +
-      '  notes String?\n' +
-      '}\n',
+        '  id Record @id !!private\n' +
+        '  createdAt Date @createdAt !!private\n' +
+        '  label String\n' +
+        '}\n' +
+        '\n' +
+        'model PickNoId extends PickBase[createdAt, label] {\n' +
+        '  notes String?\n' +
+        '}\n',
     );
 
     const diagnostics = await waitForDiagnostics(doc.uri);
@@ -202,9 +202,6 @@ suite('Diagnostics Coverage E2E', () => {
     assert.ok(errors.length > 0, 'Should report error when extends pick drops @id field');
 
     const idError = errors.find((d) => d.message.includes('@id'));
-    assert.ok(
-      idError,
-      `Should have diagnostic about missing @id, got: ${errors.map((d) => d.message).join('; ')}`,
-    );
+    assert.ok(idError, `Should have diagnostic about missing @id, got: ${errors.map((d) => d.message).join('; ')}`);
   });
 });

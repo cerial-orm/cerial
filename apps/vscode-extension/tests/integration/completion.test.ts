@@ -7,6 +7,7 @@
  */
 
 import * as assert from 'assert';
+import { suite, suiteSetup, teardown, test } from 'mocha';
 import * as vscode from 'vscode';
 import {
   closeAllEditors,
@@ -15,7 +16,6 @@ import {
   waitForExtensionActivation,
   waitForServerReady,
 } from './helpers';
-import { suite, suiteSetup, teardown, test } from 'mocha';
 
 suite('Completions', () => {
   suiteSetup(async function () {

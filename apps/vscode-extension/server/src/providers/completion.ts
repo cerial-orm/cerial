@@ -816,7 +816,10 @@ export function getExtendsBracketCompletions(
       if (name) offered.add(name);
     }
     // Detect pick/omit mode from raw existing items
-    const rawItems = insideBracket.split(',').map((s) => s.trim()).filter((s) => s.length > 0);
+    const rawItems = insideBracket
+      .split(',')
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0);
     if (rawItems.length > 0) {
       const hasOmit = rawItems.some((s) => s.startsWith('!'));
       const hasPick = rawItems.some((s) => !s.startsWith('!'));
@@ -1360,10 +1363,7 @@ export function getDefaultArgCompletions(
   // Type-appropriate hints for primitives
   switch (field.type) {
     case 'bool':
-      items.push(
-        { label: 'true', kind: CompletionItemKind.Value },
-        { label: 'false', kind: CompletionItemKind.Value },
-      );
+      items.push({ label: 'true', kind: CompletionItemKind.Value }, { label: 'false', kind: CompletionItemKind.Value });
       break;
     case 'string':
     case 'email':

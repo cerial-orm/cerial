@@ -898,10 +898,12 @@ suite('Provider Fixes E2E', () => {
           new vscode.Position(18, 31),
         );
 
-        const fieldCompletions = result?.items.filter(
-          (item) => item.kind === vscode.CompletionItemKind.Field,
-        ) ?? [];
-        assert.strictEqual(fieldCompletions.length, 0, `NonExistent parent should yield no field completions, got: ${fieldCompletions.map(getCompletionLabel).join(', ')}`);
+        const fieldCompletions = result?.items.filter((item) => item.kind === vscode.CompletionItemKind.Field) ?? [];
+        assert.strictEqual(
+          fieldCompletions.length,
+          0,
+          `NonExistent parent should yield no field completions, got: ${fieldCompletions.map(getCompletionLabel).join(', ')}`,
+        );
       } finally {
         await replaceDocument(doc, originalContent);
         await vscode.window.showTextDocument(doc);
@@ -1026,7 +1028,10 @@ suite('Provider Fixes E2E', () => {
 
         // Only omit items should be present (no pick items)
         assert.ok(!labels.includes('id'), `Pick item "id" should not appear in omit mode, got: ${labels.join(', ')}`);
-        assert.ok(!labels.includes('email'), `Pick item "email" should not appear in omit mode, got: ${labels.join(', ')}`);
+        assert.ok(
+          !labels.includes('email'),
+          `Pick item "email" should not appear in omit mode, got: ${labels.join(', ')}`,
+        );
         assert.ok(!labels.includes('age'), `Pick item "age" should not appear in omit mode, got: ${labels.join(', ')}`);
         assert.ok(labels.includes('!id'), `Should include omit item "!id", got: ${labels.join(', ')}`);
         assert.ok(labels.includes('!email'), `Should include omit item "!email", got: ${labels.join(', ')}`);
@@ -1071,7 +1076,10 @@ suite('Provider Fixes E2E', () => {
 
         // "name" should be excluded (already used), but other fields should be present
         assert.ok(!labels.includes('name'), `Already-used field "name" should be excluded, got: ${labels.join(', ')}`);
-        assert.ok(!labels.includes('!name'), `Already-used field "!name" should be excluded, got: ${labels.join(', ')}`);
+        assert.ok(
+          !labels.includes('!name'),
+          `Already-used field "!name" should be excluded, got: ${labels.join(', ')}`,
+        );
         assert.ok(labels.includes('id'), `Should include remaining field "id", got: ${labels.join(', ')}`);
         assert.ok(labels.includes('email'), `Should include remaining field "email", got: ${labels.join(', ')}`);
         assert.ok(labels.includes('age'), `Should include remaining field "age", got: ${labels.join(', ')}`);
