@@ -1,0 +1,20 @@
+---
+// QuickStart.astro — Layout wrapper for the quick start section
+// The actual code blocks live in index.mdx and are passed through <slot />.
+// This keeps Starlight's Shiki syntax highlighting working (MDX code fences
+// are processed by Astro's remark pipeline, not by Astro component templates).
+---
+
+<section class="py-16">
+  <div class="mx-auto max-w-6xl px-4">
+    <h2 class="mb-2 text-center text-2xl font-semibold text-white md:text-3xl">
+      See it in action
+    </h2>
+    <p class="mb-8 text-center text-zinc-400">
+      Define your schema, generate the client, start querying
+    </p>
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <slot />
+    </div>
+  </div>
+</section>
