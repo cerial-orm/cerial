@@ -1,0 +1,214 @@
+---
+title: Arrays
+description: Array field types in Cerial — syntax, default behavior, TypeScript type mapping, the @set decorator, and supported element types.
+sidebar:
+  label: Arrays
+  order: 8
+---
+
+Any field type can be declared as an array by appending `[]` to the type name. Array fields store ordered lists of values in a single SurrealDB field.
+
+## Syntax
+
+```cerial
+model Article {
+  id Record @id
+  tags String[]              # string array
+  scores Int[]               # integer array
+  ratings Float[]            # float array
+  flags Bool[]               # boolean array
+  publishDates Date[]        # date array
+  emails Email[]             # email array
+  relatedIds Record[]        # record reference array
+  locations Address[]        # array of embedded objects
+  colors Color[]             # array of tuples
+  priorities Priority[]      # array of literals
+  roles Role[]               # array of enums
+}
+```
+
+The `[]` suffix works with **all** field types:
+
+- **Scalar types** — `String[]`, `Int[]`, `Float[]`, `Number[]`, `Bool[]`, `Date[]`, `Email[]`
+- **Special types** — `Uuid[]`, `Duration[]`, `Decimal[]`, `Bytes[]`, `Geometry[]`
+- **Record references** — `Record[]`
+- **User-defined types** — `ObjectName[]`, `TupleName[]`, `LiteralName[]`, `EnumName[]`
+
+:::note
+`Relation[]` also uses the `[]` syntax, but it represents relation **cardinality** (one-to-many or many-to-many), not a stored array field. See [Field Types](/cerial/schema/field-types/) for details on the `Relation` type.
+:::
+
+## Default Behavior
+
+Array fields default to an empty array (`[]`) on create if no value is provided. You never need to explicitly set an array field to `[]` — omitting it produces the same result.
+
+```cerial
+model Article {
+  id Record @id
+  title String
+  tags String[]
+}
+```
+
+```typescript
+// Both produce the same result: tags = []
+const a = await client.db.Article.create({ data: { title: 'Hello' } });
+const b = await client.db.Article.create({ data: { title: 'World', tags: [] } });
+
+console.log(a.tags); // []
+console.log(b.tags); // []
+```
+
+:::note
+This default applies to all array fields, including optional ones (`String[]?`). Even optional arrays receive `[]` rather than remaining absent.
+:::
+
+## TypeScript Types
+
+Array fields map to TypeScript arrays of the corresponding type. Wrapper-class types use their Cerial wrapper in the array:
+
+| Schema | TypeScript Output | TypeScript Input |
+|---|---|---|
+| `String[]` | `string[]` | `string[]` |
+| `Int[]` | `number[]` | `number[]` |
+| `Float[]` | `number[]` | `number[]` |
+| `Number[]` | `number[]` | `number[]` |
+| `Bool[]` | `boolean[]` | `boolean[]` |
+| `Date[]` | `Date[]` | `Date[]` |
+| `Email[]` | `string[]` | `string[]` |
+| `Uuid[]` | `CerialUuid[]` | `CerialUuidInput[]` |
+| `Duration[]` | `CerialDuration[]` | `CerialDurationInput[]` |
+| `Decimal[]` | `CerialDecimal[]` | `CerialDecimalInput[]` |
+| `Bytes[]` | `CerialBytes[]` | `CerialBytesInput[]` |
+| `Geometry[]` | `CerialGeometry[]` | `CerialGeometryInput[]` |
+| `Record[]` | `CerialId[]` | `RecordIdInput[]` |
+| `ObjectName[]` | `ObjectName[]` | `ObjectNameCreateInput[]` |
+| `TupleName[]` | `TupleName[]` | `TupleNameInput[]` |
+| `EnumName[]` | `EnumNameType[]` | `EnumNameType[]` |
+| `LiteralName[]` | `LiteralNameType[]` | `LiteralNameType[]` |
+
+## Query Operators
+
+Array fields support special filter operators in `where` clauses:
+
+| Operator | Description |
+|---|---|
+| `has` | Array contains the given value |
+| `hasAll` | Array contains **all** of the given values |
+| `hasAny` | Array contains **at least one** of the given values |
+| `isEmpty` | Array is empty (`true`) or not empty (`false`) |
+
+```typescript
+// Find articles that have the "typescript" tag
+await client.db.Article.findMany({
+  where: { tags: { has: 'typescript' } },
+});
+
+// Find articles that have ALL of these tags
+await client.db.Article.findMany({
+  where: { tags: { hasAll: ['typescript', 'tutorial'] } },
+});
+
+// Find articles that have ANY of these tags
+await client.db.Article.findMany({
+  where: { tags: { hasAny: ['typescript', 'javascript'] } },
+});
+
+// Find articles with no tags
+await client.db.Article.findMany({
+  where: { tags: { isEmpty: true } },
+});
+
+// Find articles with at least one tag
+await client.db.Article.findMany({
+  where: { tags: { isEmpty: false } },
+});
+```
+
+## Update Operations
+
+Array fields support `push` for appending values and direct assignment for full replacement:
+
+```typescript
+// Push new tags onto the array
+await client.db.Article.updateMany({
+  where: { id: article.id },
+  data: { tags: { push: ['new-tag', 'another-tag'] } },
+});
+
+// Push a single value
+await client.db.Article.updateMany({
+  where: { id: article.id },
+  data: { tags: { push: ['new-tag'] } },
+});
+
+// Replace the entire array
+await client.db.Article.updateMany({
+  where: { id: article.id },
+  data: { tags: ['completely', 'new', 'tags'] },
+});
+```
+
+## Array Decorators
+
+Three decorators are available for array fields:
+
+- **`@distinct`** — Automatically deduplicates values at the database level
+- **`@sort` / `@sort(false)`** — Maintains ascending or descending order at the database level
+- **`@set`** — Generates a SurrealDB `set` type instead of an `array` (see below)
+
+```cerial
+model Article {
+  id Record @id
+  tags String[] @distinct @sort
+  priorities Int[] @distinct @sort(false)
+  categories String[] @set
+}
+```
+
+`@distinct` and `@sort` add `ASSERT` constraints to the migration. `@set` changes the underlying SurrealDB type entirely.
+
+## The `@set` Decorator
+
+The `@set` decorator converts an array field into a SurrealDB **set** — an automatically deduplicated, sorted collection.
+
+```cerial
+model User {
+  id Record @id
+  tags String[] @set
+  roles String[] @set
+}
+```
+
+### How It Works
+
+- **SurrealDB type** — Generates `set<string>` instead of `array<string>` in the migration
+- **Auto-dedup** — Duplicate values are automatically removed by the database
+- **Auto-sort** — Values are maintained in sorted order by the database
+- **Output type** — `CerialSet<T>` — a branded array type (`T[] & { readonly __cerialSet: true }`)
+- **Input type** — Accepts regular arrays (no special input type needed)
+- **Cast** — Cerial automatically wraps set field values with a `<set>` cast in queries
+
+```typescript
+const user = await client.db.User.create({
+  data: {
+    tags: ['beta', 'alpha', 'beta', 'gamma'],  // regular array input
+  },
+});
+
+console.log(user.tags); // ['alpha', 'beta', 'gamma'] — deduplicated and sorted
+// user.tags is CerialSet<string>
+```
+
+### Restrictions
+
+:::caution
+`@set` is **not allowed** on these array types:
+
+- **`Decimal[]`** — SurrealDB has a bug with `set<decimal>`
+- **`Object[]`** — Objects cannot be deduplicated by the database
+- **`Tuple[]`** — Tuples cannot be deduplicated by the database
+- **`Record[]`** — Record references cannot use set semantics
+
+`@set` is also mutually exclusive with `@distinct` and `@sort` — a set already provides both behaviors.
+:::
