@@ -3,6 +3,7 @@
     "target": "ESNext",
     "module": "commonjs",
     "lib": ["ESNext"],
+    "types": ["node", "jest", "mocha", "@types/bun"],
     "outDir": "./dist",
     "strict": true,
     "esModuleInterop": true,

@@ -15,6 +15,7 @@ import {
   waitForExtensionActivation,
   waitForServerReady,
 } from './helpers';
+import { suite, suiteSetup, teardown, test } from 'mocha';
 
 suite('Completions', () => {
   suiteSetup(async function () {
