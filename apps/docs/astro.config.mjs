@@ -20,7 +20,14 @@ export default defineConfig({
       expressiveCode: {
         shiki: {
           langs: [
-            JSON.parse(fs.readFileSync('./src/grammars/cerial.tmLanguage.json', 'utf-8')),
+            (() => {
+              const grammar = JSON.parse(
+                fs.readFileSync(new URL('./src/grammars/cerial.tmLanguage.json', import.meta.url), 'utf-8')
+              );
+              grammar.id = 'cerial';
+              grammar.aliases = ['cerial'];
+              return grammar;
+            })(),
           ],
         },
       },
