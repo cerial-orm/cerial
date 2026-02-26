@@ -1,0 +1,225 @@
+---
+title: Duration
+description: Duration field type in Cerial — CerialDuration wrapper class with unit accessors, comparison, and time duration parsing.
+sidebar:
+  label: Duration
+  order: 4
+---
+
+A time duration stored as SurrealDB's native `duration` type. Durations represent spans of time like `2h30m`, `1w3d`, or `500ms`. Output is a `CerialDuration` instance with unit accessors; input accepts string notation, `CerialDuration`, or the SDK `Duration` type.
+
+## Schema Syntax
+
+```cerial
+model Task {
+  id Record @id
+  ttl Duration
+  timeout Duration?
+  cooldown Duration @nullable
+  intervals Duration[]
+}
+```
+
+## Types
+
+| Direction | Type |
+| --- | --- |
+| Output | `CerialDuration` |
+| Input | `CerialDurationInput` — `string \| CerialDuration \| Duration` (SDK) |
+| SurrealDB | `duration` |
+
+## Duration String Format
+
+Duration strings use one or more unit segments concatenated together:
+
+| Unit | Suffix | Example |
+| --- | --- | --- |
+| Years | `y` | `1y` |
+| Weeks | `w` | `2w` |
+| Days | `d` | `3d` |
+| Hours | `h` | `12h` |
+| Minutes | `m` | `30m` |
+| Seconds | `s` | `45s` |
+| Milliseconds | `ms` | `500ms` |
+| Microseconds | `us` / `µs` | `100us` |
+| Nanoseconds | `ns` | `250ns` |
+
+Compound durations: `1h30m`, `2d12h`, `1w3d2h30m15s`
+
+:::note
+SurrealDB normalizes durations — for example, `7d` becomes `1w`, and `24h` becomes `1d`.
+:::
+
+## CerialDuration API
+
+```typescript
+import { CerialDuration } from 'cerial';
+
+// Create from string
+const dur = new CerialDuration('2h30m');
+
+// Static constructors
+CerialDuration.from(input);    // from any CerialDurationInput
+CerialDuration.parse(input);   // alias for from()
+
+// Accessors — return TOTAL in each unit
+dur.years;                     // total years
+dur.weeks;                     // total weeks
+dur.days;                      // total days
+dur.hours;                     // total hours (e.g., 2 for '2h30m')
+dur.minutes;                   // total minutes (e.g., 150 for '2h30m')
+dur.seconds;                   // total seconds
+dur.milliseconds;              // total milliseconds
+dur.microseconds;              // total microseconds
+dur.nanoseconds;               // total nanoseconds
+
+// Serialization
+dur.toString();                // '2h30m'
+dur.toJSON();                  // same as toString()
+dur.valueOf();                 // total milliseconds as number
+
+// Comparison
+dur.equals(other);             // compare with any CerialDurationInput
+dur.compareTo(other);          // negative/zero/positive number
+
+// SDK interop
+dur.toNative();                // SDK Duration instance
+dur.clone();                   // new CerialDuration copy
+
+// Type guard
+CerialDuration.is(value);     // value is CerialDuration
+```
+
+:::caution
+Duration accessors return the **total** in that unit, not the component. For `'2h30m'`:
+- `.hours` → `2` (total hours, truncated)
+- `.minutes` → `150` (total minutes, not "the 30 minute part")
+
+There is no built-in way to extract just the minutes component. If you need components, parse `.toString()` yourself.
+:::
+
+## Create & Update
+
+```typescript
+// Create with string
+const task = await client.db.Task.create({
+  data: { ttl: '2h30m', cooldown: null },
+});
+
+// Create with CerialDuration
+const task2 = await client.db.Task.create({
+  data: { ttl: CerialDuration.from('1h15m'), cooldown: '5m' },
+});
+
+// Output is CerialDuration
+task.ttl;               // CerialDuration instance
+task.ttl.toString();    // '2h30m'
+task.ttl.hours;         // 2
+task.ttl.minutes;       // 150
+
+// Update
+await client.db.Task.updateUnique({
+  where: { id: task.id },
+  data: { ttl: '4h' },
+});
+
+// Array push
+await client.db.Task.updateUnique({
+  where: { id: task.id },
+  data: { intervals: { push: '5m' } },
+});
+```
+
+## Filtering
+
+Duration fields support comparison, set, and range operators:
+
+```typescript
+// Direct equality
+const tasks = await client.db.Task.findMany({
+  where: { ttl: '2h' },
+});
+
+// Comparison operators
+const longTasks = await client.db.Task.findMany({
+  where: { ttl: { gt: '1h', lte: '24h' } },
+});
+
+// Set operators
+const specific = await client.db.Task.findMany({
+  where: { ttl: { in: ['30m', '1h', '2h'] } },
+});
+
+// Range
+const midRange = await client.db.Task.findMany({
+  where: { ttl: { between: ['1h', '12h'] } },
+});
+```
+
+### Available Operators
+
+| Operator | Description |
+| --- | --- |
+| `eq` | Equal to |
+| `neq` | Not equal to |
+| `gt` | Greater than |
+| `gte` | Greater than or equal |
+| `lt` | Less than |
+| `lte` | Less than or equal |
+| `between` | Within a range (inclusive) |
+| `in` | In a set of values |
+| `notIn` | Not in a set of values |
+
+### Conditional Operators
+
+| Operator | Available when | Description |
+| --- | --- | --- |
+| `not` | `?` or `@nullable` | Negated comparison |
+| `isNone` | `?` (optional) | `true` = field is absent |
+| `isNull` | `@nullable` | `true` = field is `null` |
+| `isDefined` | Always | `true` = field exists |
+
+## OrderBy
+
+Duration fields **support** `orderBy`. Durations are compared by their total time value.
+
+```typescript
+const sorted = await client.db.Task.findMany({
+  orderBy: { ttl: 'asc' },
+});
+```
+
+## In Objects and Tuples
+
+```cerial
+object RetryConfig {
+  delay Duration
+  maxWait Duration?
+}
+
+tuple TimeWindow {
+  start Duration,
+  end Duration
+}
+
+model Job {
+  id Record @id
+  retry RetryConfig
+  window TimeWindow
+}
+```
+
+## Supported Decorators
+
+| Decorator | Effect |
+| --- | --- |
+| `@default(value)` | Default duration on create (e.g., `@default(1h)`) |
+| `@defaultAlways(value)` | Reset to value on every write |
+| `@nullable` | Allow explicit `null` |
+| `@readonly` | Write-once field |
+| `@index` | Database index |
+| `@unique` | Unique constraint |
+
+:::note
+Duration `@default` values are written unquoted in migrations: `@default(1h30m)` produces `DEFAULT 1h30m` in SurrealQL (not `DEFAULT '1h30m'`).
+:::

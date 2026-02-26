@@ -1,0 +1,205 @@
+---
+title: Bytes
+description: Bytes field type in Cerial — CerialBytes wrapper with base64 encoding, Uint8Array conversion, and Buffer support.
+sidebar:
+  label: Bytes
+  order: 6
+---
+
+Binary data stored as SurrealDB's native `bytes` type. Use `Bytes` for file payloads, checksums, cryptographic data, or any raw binary content. Output is a `CerialBytes` instance; input accepts `Uint8Array`, base64-encoded strings, or `CerialBytes` instances.
+
+## Schema Syntax
+
+```cerial
+model Document {
+  id Record @id
+  payload Bytes
+  thumbnail Bytes?
+  checksum Bytes @nullable
+  chunks Bytes[]
+}
+```
+
+## Types
+
+| Direction | Type |
+| --- | --- |
+| Output | `CerialBytes` |
+| Input | `CerialBytesInput` — `Uint8Array \| string` (base64) `\| CerialBytes` |
+| SurrealDB | `bytes` |
+
+## CerialBytes API
+
+```typescript
+import { CerialBytes } from 'cerial';
+
+// Create from Uint8Array
+const data = new CerialBytes(new Uint8Array([1, 2, 3]));
+
+// Create from base64 string
+const fromBase64 = new CerialBytes('AQID');
+
+// Static constructors
+CerialBytes.from(input);            // from any CerialBytesInput
+CerialBytes.fromBase64(base64);     // from base64 string
+CerialBytes.fromBuffer(buffer);     // from Buffer or Uint8Array
+
+// Properties
+data.length;                        // number of bytes
+data.byteLength;                    // byte length (same as length)
+
+// Conversion
+data.toUint8Array();                // Uint8Array
+data.toBuffer();                    // Node.js Buffer
+data.toBase64();                    // base64-encoded string
+data.toString();                    // same as toBase64()
+data.toJSON();                      // same as toBase64()
+
+// Comparison
+data.equals(other);                 // byte-by-byte equality
+
+// SDK interop
+data.toNative();                    // Uint8Array (SurrealDB SDK uses plain Uint8Array)
+data.clone();                       // new CerialBytes with copied data
+
+// Type guard
+CerialBytes.is(value);             // value is CerialBytes
+```
+
+:::note
+`toString()` and `toBase64()` return the same thing — a base64-encoded representation of the binary data. There is no human-readable "text" form for arbitrary binary data.
+
+`toNative()` returns a plain `Uint8Array` because the SurrealDB SDK represents bytes as `Uint8Array`, not a special wrapper type.
+:::
+
+## Create & Update
+
+```typescript
+// Create with Uint8Array
+const doc = await client.db.Document.create({
+  data: {
+    payload: new Uint8Array([0x48, 0x65, 0x6c, 0x6c, 0x6f]),
+    checksum: null,
+  },
+});
+
+// Create with base64 string
+const doc2 = await client.db.Document.create({
+  data: { payload: 'SGVsbG8=', checksum: null },
+});
+
+// Create with CerialBytes
+const doc3 = await client.db.Document.create({
+  data: {
+    payload: CerialBytes.from(new Uint8Array([1, 2, 3])),
+    checksum: null,
+  },
+});
+
+// Output is CerialBytes
+doc.payload;              // CerialBytes instance
+doc.payload.toBase64();   // 'SGVsbG8='
+doc.payload.length;       // 5
+
+// Update
+await client.db.Document.updateUnique({
+  where: { id: doc.id },
+  data: { payload: new Uint8Array([0x00, 0x01]) },
+});
+
+// Array push
+await client.db.Document.updateUnique({
+  where: { id: doc.id },
+  data: { chunks: { push: new Uint8Array([30]) } },
+});
+```
+
+## Filtering
+
+Bytes fields support **equality and set operators only**. Comparison operators (`gt`, `lt`, `gte`, `lte`, `between`) are not available.
+
+```typescript
+// Direct equality
+const docs = await client.db.Document.findMany({
+  where: { payload: new Uint8Array([1, 2, 3]) },
+});
+
+// Equality operators
+const match = await client.db.Document.findMany({
+  where: { payload: { eq: new Uint8Array([1, 2, 3]) } },
+});
+
+// Set operators
+const specific = await client.db.Document.findMany({
+  where: {
+    payload: { in: [new Uint8Array([1]), new Uint8Array([2])] },
+  },
+});
+```
+
+### Available Operators
+
+| Operator | Description |
+| --- | --- |
+| `eq` | Equal to |
+| `neq` | Not equal to |
+| `in` | In a set of values |
+| `notIn` | Not in a set of values |
+
+:::caution
+Bytes fields do **not** support comparison operators (`gt`, `gte`, `lt`, `lte`, `between`). Only equality and set-based filtering is available.
+:::
+
+### Conditional Operators
+
+| Operator | Available when | Description |
+| --- | --- | --- |
+| `not` | `?` or `@nullable` | Negated comparison |
+| `isNone` | `?` (optional) | `true` = field is absent |
+| `isNull` | `@nullable` | `true` = field is `null` |
+| `isDefined` | Always | `true` = field exists |
+
+## OrderBy
+
+Bytes fields **support** `orderBy`. Ordering is lexicographic (byte-by-byte comparison).
+
+```typescript
+const sorted = await client.db.Document.findMany({
+  orderBy: { payload: 'asc' },
+});
+```
+
+## In Objects and Tuples
+
+```cerial
+object Attachment {
+  data Bytes
+  mimeType String
+}
+
+tuple HashPair {
+  original Bytes,
+  computed Bytes
+}
+
+model File {
+  id Record @id
+  attachment Attachment
+  hashes HashPair?
+}
+```
+
+## Gotchas
+
+:::caution[No `@default` support]
+Bytes fields do not support the `@default` decorator. SurrealDB's bytes literal syntax (`<bytes>"..."`) cannot be expressed in `@default` values. Use application-level defaults instead.
+:::
+
+## Supported Decorators
+
+| Decorator | Effect |
+| --- | --- |
+| `@nullable` | Allow explicit `null` |
+| `@readonly` | Write-once field |
+| `@index` | Database index |
+| `@unique` | Unique constraint |

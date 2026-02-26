@@ -1,0 +1,196 @@
+---
+title: Field Types
+description: All built-in field types in Cerial — from primitives to special types like Uuid, Duration, Decimal, Bytes, Geometry, and Any.
+sidebar:
+  label: Overview
+  order: 1
+---
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+Cerial supports 15 built-in field types plus user-defined enums, tuples, objects, and literals. Each type maps to a specific SurrealDB type and TypeScript type.
+
+## Type Reference
+
+| Type | TypeScript | SurrealDB | Notes |
+| --- | --- | --- | --- |
+| `String` | `string` | `string` | Plain text |
+| `Email` | `string` | `string` (validated) | SurrealDB enforces email format via assertion |
+| `Int` | `number` | `int` | Whole numbers |
+| `Float` | `number` | `float` | IEEE 754 double-precision |
+| `Number` | `number` | `number` | Auto-detect int or float |
+| `Bool` | `boolean` | `bool` | `true` or `false` |
+| `Date` | `Date` | `datetime` | JavaScript `Date` object |
+| `Uuid` | `CerialUuid` / `CerialUuidInput` | `uuid` | Wrapper class with comparison and formatting |
+| `Duration` | `CerialDuration` / `CerialDurationInput` | `duration` | Wrapper class with unit accessors |
+| `Decimal` | `CerialDecimal` / `CerialDecimalInput` | `decimal` | Arbitrary-precision arithmetic |
+| `Bytes` | `CerialBytes` / `CerialBytesInput` | `bytes` | Binary data with base64 conversion |
+| `Geometry` | `CerialGeometry` / `CerialGeometryInput` | `geometry<subtype>` | GeoJSON-compatible with 7 subtypes |
+| `Any` | `CerialAny` | `any` | Recursive union of all value types |
+| `Record` | `CerialId<T>` / `RecordIdInput<T>` | `record<table>` | Foreign key reference |
+| `Relation` | N/A (virtual) | Virtual | Not stored — describes traversals |
+
+## Basic Types
+
+### String
+
+Plain text. The most common field type.
+
+```cerial
+model User {
+  id Record @id
+  name String
+  bio String?
+}
+```
+
+### Email
+
+An email address stored as a `string` with database-level validation. SurrealDB enforces the format via a `string::is::email` assertion.
+
+```cerial
+model User {
+  id Record @id
+  email Email @unique
+}
+```
+
+### Int
+
+Integer number — whole numbers only. SurrealDB truncates any decimal portion.
+
+```cerial
+model Product {
+  id Record @id
+  stock Int
+  rating Int?
+}
+```
+
+### Float
+
+IEEE 754 double-precision floating-point number. Use when you need explicit decimal representation.
+
+```cerial
+model Measurement {
+  id Record @id
+  temperature Float
+  pressure Float?
+}
+```
+
+### Bool
+
+Boolean value — `true` or `false`.
+
+```cerial
+model User {
+  id Record @id
+  isActive Bool @default(true)
+  isVerified Bool @default(false)
+}
+```
+
+### Date
+
+Date/DateTime value. Stored as `datetime` in SurrealDB, represented as a JavaScript `Date` in TypeScript. Commonly used with timestamp decorators.
+
+```cerial
+model Event {
+  id Record @id
+  startDate Date
+  endDate Date?
+  createdAt Date @createdAt
+  updatedAt Date @updatedAt
+}
+```
+
+## Record & Relation
+
+**Record** fields store foreign keys in SurrealDB's `table:id` format. They produce `CerialId<T>` on output and accept `RecordIdInput<T>` on input.
+
+**Relation** fields are virtual — they don't store data but describe how to traverse between models. Forward relations use `@field()` and `@model()`, reverse relations use only `@model()`.
+
+```cerial
+model User {
+  id Record @id
+  posts Relation[] @model(Post)
+}
+
+model Post {
+  id Record @id
+  authorId Record
+  author Relation @field(authorId) @model(User)
+}
+```
+
+Record fields support typed IDs (`Record(int) @id`, `Record(uuid) @id`) for narrower type safety. See the Relations and Typed IDs documentation for full details.
+
+## Special Types
+
+These types have dedicated wrapper classes with rich APIs for construction, comparison, conversion, and SDK interop:
+
+<CardGrid>
+  <LinkCard title="Uuid" description="UUID identifiers with v4/v7 generation, comparison, and auto-generation decorators." href="/cerial/schema/field-types/uuid/" />
+  <LinkCard title="Number" description="Auto-detect numeric type — accepts both integers and decimals." href="/cerial/schema/field-types/number/" />
+  <LinkCard title="Duration" description="Time durations with unit accessors, comparison, and string parsing." href="/cerial/schema/field-types/duration/" />
+  <LinkCard title="Decimal" description="Arbitrary-precision decimals with immutable arithmetic for financial calculations." href="/cerial/schema/field-types/decimal/" />
+  <LinkCard title="Bytes" description="Binary data with base64 encoding, Uint8Array conversion, and Buffer support." href="/cerial/schema/field-types/bytes/" />
+  <LinkCard title="Geometry" description="GeoJSON-compatible geospatial data with 7 subtypes and point shorthand." href="/cerial/schema/field-types/geometry/" />
+  <LinkCard title="Any" description="Pass-through type accepting any SurrealDB value — a typed recursive union, not bare TS any." href="/cerial/schema/field-types/any/" />
+</CardGrid>
+
+## Arrays
+
+Any field type can be made into an array by appending `[]`:
+
+```cerial
+model User {
+  id Record @id
+  tags String[]
+  scores Int[]
+  tokens Uuid[]
+  history Duration[]
+}
+```
+
+Array fields default to `[]` on create if not provided. Use the `@set` decorator for auto-deduplicated, sorted arrays:
+
+```cerial
+model User {
+  id Record @id
+  tags String[] @set
+}
+```
+
+`@set` generates `set<T>` in SurrealDB instead of `array<T>`, and the output type becomes `CerialSet<T>` (a branded array). Not all types support `@set` — see the array documentation for restrictions.
+
+## User-Defined Types
+
+Beyond the 15 built-in types, fields can use user-defined types:
+
+- **Object** — Embedded inline types with sub-fields (no `id`, no relations)
+- **Tuple** — Fixed-length typed arrays with named or positional elements
+- **Enum** — Named sets of string constants
+- **Literal** — Union types combining specific values, broad types, and structured variants
+
+```cerial
+enum Role { Admin, Editor, Viewer }
+
+object Address {
+  street String
+  city String
+}
+
+tuple Color { r Int, g Int, b Int }
+
+literal Priority { "low", "medium", "high" }
+
+model User {
+  id Record @id
+  role Role
+  address Address?
+  favoriteColor Color?
+  priority Priority @default("medium")
+}
+```

@@ -1,0 +1,186 @@
+---
+title: Any
+description: Any field type in Cerial — CerialAny recursive union type for storing any SurrealDB value with type safety.
+sidebar:
+  label: Any
+  order: 8
+---
+
+A pass-through type that stores any SurrealDB value. Unlike bare TypeScript `any`, the `Any` field type uses `CerialAny` — a recursive union that preserves type safety by enumerating all possible value types.
+
+## Schema Syntax
+
+```cerial
+model Flexible {
+  id Record @id
+  data Any
+  items Any[]
+}
+```
+
+## Types
+
+| Direction | Type |
+| --- | --- |
+| Output | `CerialAny` |
+| Input | `CerialAny` |
+| SurrealDB | `any` |
+
+`CerialAny` is a recursive union covering all SurrealDB value types:
+
+```typescript
+type CerialAny =
+  | string
+  | number
+  | boolean
+  | Date
+  | CerialId
+  | CerialUuid
+  | CerialDuration
+  | CerialDecimal
+  | CerialBytes
+  | CerialGeometry
+  | null
+  | CerialAny[]
+  | { [key: string]: CerialAny };
+```
+
+:::caution[Not bare TypeScript `any`]
+`CerialAny` is a **typed recursive union**, not TypeScript's `any`. You get full IntelliSense and type checking — the compiler knows exactly which types are possible. If you pass a value that isn't in the union (e.g., a class instance), TypeScript will flag it.
+:::
+
+## Modifiers
+
+| Modifier | Allowed |
+| --- | --- |
+| `[]` | Yes — array of any values |
+| `?` | **No** |
+| `@nullable` | **No** |
+
+SurrealDB's `TYPE any` natively accepts both NONE (absent) and null values, so `CerialAny` already includes `null` in its union. Adding `?` or `@nullable` would be redundant and is not allowed.
+
+## Create & Update
+
+```typescript
+const flex = await client.db.Flexible.create({
+  data: {
+    data: { key: 'value', nested: [1, 2, 3] },
+    items: ['hello', 42, true, null],
+  },
+});
+
+// Any field accepts any CerialAny-compatible value
+await client.db.Flexible.updateUnique({
+  where: { id: flex.id },
+  data: {
+    data: 'now a string',
+  },
+});
+
+// Array operations
+await client.db.Flexible.updateUnique({
+  where: { id: flex.id },
+  data: {
+    items: { push: { nested: 'object' } },
+  },
+});
+```
+
+:::note
+The data transformer and result mapper pass `Any` values through without conversion. What you put in is what you get out — no wrapping or unwrapping.
+:::
+
+## Filtering
+
+Any fields support the full operator set. SurrealDB handles type mismatches gracefully at query time — for example, a `gt` filter on a string value simply returns no matches.
+
+```typescript
+// Equality
+await client.db.Flexible.findMany({
+  where: { data: { eq: 'hello' } },
+});
+
+// Numeric comparison
+await client.db.Flexible.findMany({
+  where: { data: { gt: 10, lte: 100 } },
+});
+
+// String operators
+await client.db.Flexible.findMany({
+  where: { data: { contains: 'sub' } },
+});
+
+// Set operators
+await client.db.Flexible.findMany({
+  where: { data: { in: [1, 2, 3] } },
+});
+
+// Range
+await client.db.Flexible.findMany({
+  where: { data: { between: [0, 100] } },
+});
+```
+
+### Available Operators
+
+| Operator | Description |
+| --- | --- |
+| `eq` | Equal to |
+| `neq` | Not equal to |
+| `gt` | Greater than |
+| `gte` | Greater than or equal |
+| `lt` | Less than |
+| `lte` | Less than or equal |
+| `between` | Within a range (inclusive) |
+| `contains` | String contains substring |
+| `startsWith` | String starts with prefix |
+| `endsWith` | String ends with suffix |
+| `in` | In a set of values |
+| `notIn` | Not in a set of values |
+
+:::note
+Since `Any` fields can't be optional or nullable, the conditional operators (`not`, `isNone`, `isNull`) are not generated. The `isDefined` operator is still available.
+:::
+
+## OrderBy
+
+Any fields are **excluded** from `orderBy` — mixed value types make ordering ambiguous.
+
+## In Objects
+
+Any works inside embedded object types:
+
+```cerial
+object FlexInfo {
+  data Any
+  label String
+}
+
+model Config {
+  id Record @id
+  info FlexInfo
+}
+```
+
+## Limitations
+
+:::caution[Not allowed in tuples]
+`Any` is not supported as a tuple element type. SurrealDB cannot express `any` within typed tuple element definitions.
+:::
+
+- **No `?` or `@nullable`** — `CerialAny` already includes `null`, and SurrealDB `TYPE any` natively accepts NONE.
+- **No orderBy** — Mixed types make ordering ambiguous.
+- **Not in tuples** — SurrealDB can't express `any` in typed tuple literals.
+- **Pass-through transform** — Values go in and come out without conversion.
+
+## Supported Decorators
+
+| Decorator | Effect |
+| --- | --- |
+| `@default(value)` | Default value on create |
+| `@defaultAlways(value)` | Reset to value on every write |
+| `@readonly` | Write-once field |
+| `@index` | Database index |
+| `@unique` | Unique constraint |
+| `@sort` | Array only — auto-sort elements |
+| `@distinct` | Array only — remove duplicates |
