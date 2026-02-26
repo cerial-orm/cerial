@@ -35,3 +35,27 @@
   --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: ui-monospace, 'Cascadia Code', 'JetBrains Mono', Menlo, monospace;
 }
+
+
+/* ── Landing page layout overrides ────────────────────────────────────────
+ * Unlayered + !important to override Starlight's higher-specificity selectors.
+ * Scoped to the landing page via :has(.landing-page) so other docs pages
+ * are unaffected.
+ * ────────────────────────────────────────────────────────────────────── */
+
+/* Collapse the first content-panel (contains auto-generated h1 title) */
+main:has(.landing-page) > .content-panel:first-child {
+  display: none !important;
+}
+
+/* Zero all spacing on the content-panel that holds the landing page */
+.content-panel:has(.landing-page) {
+  padding: 0 !important;
+  border: none !important;
+}
+
+/* ── Header: match page background with subtle border ──────────────── */
+header.header {
+  background-color: var(--sl-color-bg) !important;
+  border-bottom: 1px solid var(--sl-color-gray-6) !important;
+}
