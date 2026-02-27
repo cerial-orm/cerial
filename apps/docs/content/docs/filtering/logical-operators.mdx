@@ -1,0 +1,240 @@
+---
+title: Logical Operators
+description: Combine filter conditions with AND, OR, and NOT for complex where clauses.
+---
+
+Logical operators let you build complex filter conditions by combining multiple conditions with boolean logic. Cerial supports three logical operators: `AND`, `OR`, and `NOT`.
+
+## Implicit AND
+
+Multiple conditions at the top level of a `where` clause are automatically ANDed together:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: {
+    age: { gte: 18 },
+    isActive: true,
+    email: { endsWith: '@example.com' },
+  },
+});
+// age >= 18 AND isActive = true AND email ends with '@example.com'
+```
+
+For most queries, implicit AND is all you need. The explicit operators below are for cases where implicit AND isn't sufficient.
+
+## AND
+
+The explicit `AND` operator requires **all** conditions in the array to match:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: {
+    AND: [
+      { age: { gte: 18 } },
+      { isActive: true },
+      { email: { endsWith: '@example.com' } },
+    ],
+  },
+});
+```
+
+### When to Use Explicit AND
+
+Explicit `AND` is primarily useful when you need to apply multiple separate condition objects to the **same field**. Since JavaScript object keys must be unique, you can't have two `name` keys at the same level:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: {
+    AND: [
+      { name: { startsWith: 'J' } },
+      { name: { endsWith: 'n' } },
+    ],
+  },
+});
+// Matches: "John", "Jason", "Jordan"
+```
+
+:::tip
+If your operators fit in a single object, you don't need explicit `AND` — multiple operators on the same field within one object are already ANDed:
+```typescript
+// This works without AND
+const users = await client.db.User.findMany({
+  where: {
+    name: { startsWith: 'J', endsWith: 'n' },
+  },
+});
+```
+:::
+
+## OR
+
+The `OR` operator requires **at least one** condition in the array to match:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: {
+    OR: [
+      { role: 'admin' },
+      { role: 'moderator' },
+    ],
+  },
+});
+// Matches admins OR moderators
+```
+
+```typescript
+// Find users with either a company email or an admin role
+const users = await client.db.User.findMany({
+  where: {
+    OR: [
+      { email: { endsWith: '@company.com' } },
+      { role: 'admin' },
+    ],
+  },
+});
+```
+
+`OR` is essential when you need to match records that satisfy any one of several distinct conditions:
+
+```typescript
+// Users who signed up recently OR are VIP members
+const users = await client.db.User.findMany({
+  where: {
+    OR: [
+      { createdAt: { gte: new Date('2024-06-01') } },
+      { membershipTier: 'vip' },
+    ],
+  },
+});
+```
+
+## NOT
+
+The `NOT` operator negates a condition. It takes a **single condition object** (not an array):
+
+```typescript
+const users = await client.db.User.findMany({
+  where: {
+    NOT: { status: 'deleted' },
+  },
+});
+```
+
+```typescript
+// Combine NOT with other top-level conditions (implicit AND)
+const users = await client.db.User.findMany({
+  where: {
+    NOT: { role: 'bot' },
+    isActive: true,
+  },
+});
+// isActive = true AND role != 'bot'
+```
+
+`NOT` can negate complex multi-field conditions:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: {
+    NOT: {
+      email: { endsWith: '@test.com' },
+      role: 'bot',
+    },
+  },
+});
+// Excludes users where email ends with '@test.com' AND role is 'bot'
+```
+
+## Combining Logical Operators
+
+Logical operators can be nested and combined for sophisticated queries:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: {
+    isActive: true,
+    OR: [
+      { role: 'admin' },
+      {
+        AND: [
+          { age: { gte: 18 } },
+          { email: { endsWith: '@company.com' } },
+        ],
+      },
+    ],
+    NOT: { status: 'banned' },
+  },
+});
+```
+
+This query finds users who:
+- Are active, **AND**
+- Are either an admin OR (at least 18 years old AND have a company email), **AND**
+- Are NOT banned
+
+### Nested OR within AND
+
+```typescript
+const users = await client.db.User.findMany({
+  where: {
+    AND: [
+      {
+        OR: [{ role: 'admin' }, { role: 'moderator' }],
+      },
+      {
+        OR: [
+          { email: { endsWith: '@company.com' } },
+          { email: { endsWith: '@company.org' } },
+        ],
+      },
+    ],
+  },
+});
+// (admin OR moderator) AND (company.com OR company.org)
+```
+
+### NOT with OR
+
+```typescript
+const users = await client.db.User.findMany({
+  where: {
+    NOT: {
+      OR: [{ status: 'deleted' }, { status: 'banned' }],
+    },
+  },
+});
+// Excludes users who are deleted OR banned
+```
+
+## Works Across All Query Methods
+
+Logical operators work in `where` clauses across all query methods that support filtering:
+
+```typescript
+// Count users matching complex criteria
+const count = await client.db.User.count({
+  OR: [{ role: 'admin' }, { isActive: true }],
+});
+
+// Check if any matching user exists
+const hasAdmin = await client.db.User.exists({ role: 'admin' });
+
+// Update matching users
+await client.db.User.updateMany({
+  where: {
+    NOT: { role: 'admin' },
+    isActive: false,
+  },
+  data: { status: 'inactive' },
+});
+
+// Delete matching users
+await client.db.User.deleteMany({
+  where: {
+    AND: [
+      { status: 'deleted' },
+      { deletedAt: { lt: new Date('2023-01-01') } },
+    ],
+  },
+});
+```

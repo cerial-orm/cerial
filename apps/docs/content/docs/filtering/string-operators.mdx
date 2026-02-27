@@ -1,0 +1,165 @@
+---
+title: String Operators
+description: Filter text fields with contains, startsWith, and endsWith for substring, prefix, and suffix matching.
+---
+
+String operators let you filter records based on substring matching within text fields. They work on `String` and `Email` field types.
+
+## contains
+
+Matches records where the field value contains the given substring:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: { name: { contains: 'john' } },
+});
+```
+
+```typescript
+// Find posts mentioning TypeScript anywhere in the body
+const posts = await client.db.Post.findMany({
+  where: { content: { contains: 'TypeScript' } },
+});
+```
+
+## startsWith
+
+Matches records where the field value starts with the given prefix:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: { name: { startsWith: 'J' } },
+});
+```
+
+```typescript
+// Find users with admin email addresses
+const admins = await client.db.User.findMany({
+  where: { email: { startsWith: 'admin@' } },
+});
+```
+
+## endsWith
+
+Matches records where the field value ends with the given suffix:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: { email: { endsWith: '@example.com' } },
+});
+```
+
+```typescript
+// Find files by extension
+const pdfs = await client.db.File.findMany({
+  where: { filename: { endsWith: '.pdf' } },
+});
+```
+
+## Combining String Operators
+
+### On the Same Field
+
+You can apply multiple string operators to a single field — they are ANDed together:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: {
+    name: { startsWith: 'J', contains: 'oh' },
+  },
+});
+// Matches: "John", "Johnny", "Johanna"
+// (starts with J AND contains oh)
+```
+
+### Across Multiple Fields
+
+String operators on different fields are also implicitly ANDed:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: {
+    email: { endsWith: '@example.com' },
+    name: { startsWith: 'A' },
+  },
+});
+// name starts with 'A' AND email ends with '@example.com'
+```
+
+## Mixing with Comparison Operators
+
+String operators can be combined with [comparison operators](/filtering/comparison) on the same field:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: {
+    name: {
+      startsWith: 'A',
+      neq: 'Anonymous',
+    },
+  },
+});
+// Names starting with 'A' but not 'Anonymous'
+```
+
+Or across different fields:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: {
+    name: { contains: 'john' },
+    age: { gte: 18 },
+    isActive: true,
+  },
+});
+```
+
+## Using with Logical Operators
+
+String operators work with [`AND`, `OR`, and `NOT`](/filtering/logical-operators) for complex queries:
+
+```typescript
+// Match either email domain
+const users = await client.db.User.findMany({
+  where: {
+    OR: [
+      { email: { endsWith: '@company.com' } },
+      { email: { endsWith: '@company.org' } },
+    ],
+  },
+});
+```
+
+```typescript
+// Exclude test users
+const users = await client.db.User.findMany({
+  where: {
+    NOT: { name: { contains: 'test' } },
+  },
+});
+```
+
+```typescript
+// Combine: admin emails from specific domains
+const admins = await client.db.User.findMany({
+  where: {
+    email: { startsWith: 'admin' },
+    OR: [
+      { email: { endsWith: '@company.com' } },
+      { email: { endsWith: '@company.org' } },
+    ],
+  },
+});
+```
+
+## Supported Types
+
+| Operator | String | Email |
+| --- | --- | --- |
+| `contains` | ✓ | ✓ |
+| `startsWith` | ✓ | ✓ |
+| `endsWith` | ✓ | ✓ |
+
+:::tip
+String operators are not available on other field types. To check if a number or date falls within a range, use [comparison operators](/filtering/comparison) like `gte` and `lt`, or the [`between`](/filtering#between) operator.
+:::

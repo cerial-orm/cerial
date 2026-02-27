@@ -1,0 +1,183 @@
+---
+title: Comparison Operators
+description: Filter records with eq, neq, not, gt, gte, lt, lte — equality, inequality, and ordering comparisons.
+---
+
+Comparison operators let you match records based on equality, inequality, and ordering. They are the most commonly used filter operators and work across most field types.
+
+## Equals (Shorthand)
+
+The simplest way to filter by equality is to pass a value directly — no operator needed:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: { name: 'Alice' },
+});
+```
+
+This is equivalent to using the explicit `eq` operator.
+
+## eq
+
+Explicit equality check. Use this when you want to be verbose or when building filters dynamically:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: { name: { eq: 'Alice' } },
+});
+```
+
+## neq
+
+Not equal — matches records where the field value differs from the given value:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: { status: { neq: 'deleted' } },
+});
+```
+
+## not
+
+An alias for `neq`. Behaves identically:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: { status: { not: 'deleted' } },
+});
+```
+
+## gt
+
+Greater than — strict comparison:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: { age: { gt: 18 } },
+});
+```
+
+## gte
+
+Greater than or equal:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: { age: { gte: 18 } },
+});
+```
+
+## lt
+
+Less than — strict comparison:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: { age: { lt: 65 } },
+});
+```
+
+## lte
+
+Less than or equal:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: { age: { lte: 65 } },
+});
+```
+
+## Range Queries
+
+Combine multiple comparison operators on the same field to create range filters:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: {
+    age: { gte: 18, lt: 65 },
+  },
+});
+// Matches users where 18 <= age < 65
+```
+
+:::tip
+For inclusive range checks, you can also use the [`between`](/filtering#between) operator: `{ age: { between: [18, 65] } }`.
+:::
+
+## Date Comparisons
+
+Date fields accept JavaScript `Date` objects as comparison values:
+
+```typescript
+// Records created after January 1st, 2024
+const recentUsers = await client.db.User.findMany({
+  where: {
+    createdAt: { gte: new Date('2024-01-01') },
+  },
+});
+```
+
+Combining operators for date ranges:
+
+```typescript
+// Records created in 2024
+const users = await client.db.User.findMany({
+  where: {
+    createdAt: {
+      gte: new Date('2024-01-01'),
+      lt: new Date('2025-01-01'),
+    },
+  },
+});
+```
+
+## Boolean Comparisons
+
+Boolean fields typically use shorthand equality, but explicit operators work too:
+
+```typescript
+// Shorthand (most common)
+const activeUsers = await client.db.User.findMany({
+  where: { isActive: true },
+});
+
+// Explicit operator
+const inactiveUsers = await client.db.User.findMany({
+  where: { isActive: { eq: false } },
+});
+
+// Not equals
+const nonActive = await client.db.User.findMany({
+  where: { isActive: { neq: true } },
+});
+```
+
+## Combining Across Fields
+
+Comparison operators can be mixed freely across multiple fields. All top-level conditions are implicitly ANDed:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: {
+    age: { gte: 18, lt: 65 },
+    isActive: true,
+    name: { neq: 'Anonymous' },
+  },
+});
+```
+
+## Supported Types
+
+| Operator | String | Int | Float | Number | Date | Bool | Email | Uuid | Duration | Decimal | Bytes | Any |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `eq` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `neq` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `not` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `gt` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — | ✓ |
+| `gte` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — | ✓ |
+| `lt` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — | ✓ |
+| `lte` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — | ✓ |
+
+:::caution
+Bytes fields only support equality operators (`eq`, `neq`, `not`). Ordering operators (`gt`, `gte`, `lt`, `lte`) are not available on Bytes.
+:::

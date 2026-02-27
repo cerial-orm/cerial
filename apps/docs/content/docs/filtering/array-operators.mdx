@@ -1,0 +1,169 @@
+---
+title: Array Operators
+description: Filter with has, hasAll, hasAny, isEmpty for array fields and in, notIn for scalar membership testing.
+---
+
+Array-related operators fall into two distinct categories: **array field operators** that check the contents of array fields, and **scalar membership operators** that check if a scalar field's value appears in a provided list.
+
+## Array Field Operators
+
+These operators work on fields defined as arrays in your schema (e.g., `nicknames String[]`, `tags String[]`).
+
+### has
+
+Checks if the array contains a specific element:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: { nicknames: { has: 'Johnny' } },
+});
+```
+
+```typescript
+// Find posts with a specific tag
+const posts = await client.db.Post.findMany({
+  where: { tags: { has: 'typescript' } },
+});
+```
+
+### hasAll
+
+Checks if the array contains **all** of the specified elements:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: { nicknames: { hasAll: ['John', 'Johnny'] } },
+});
+// Only matches if BOTH 'John' AND 'Johnny' are in the array
+```
+
+```typescript
+// Find posts tagged with both 'typescript' and 'tutorial'
+const posts = await client.db.Post.findMany({
+  where: { tags: { hasAll: ['typescript', 'tutorial'] } },
+});
+```
+
+### hasAny
+
+Checks if the array contains **any** of the specified elements:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: { nicknames: { hasAny: ['John', 'Jane'] } },
+});
+// Matches if 'John' OR 'Jane' (or both) are in the array
+```
+
+```typescript
+// Find posts tagged with any frontend framework
+const posts = await client.db.Post.findMany({
+  where: { tags: { hasAny: ['react', 'vue', 'angular'] } },
+});
+```
+
+### isEmpty
+
+Checks if the array is empty or not:
+
+```typescript
+// Find users with no nicknames
+const users = await client.db.User.findMany({
+  where: { nicknames: { isEmpty: true } },
+});
+
+// Find users with at least one nickname
+const usersWithNicknames = await client.db.User.findMany({
+  where: { nicknames: { isEmpty: false } },
+});
+```
+
+## Scalar Membership Operators
+
+These operators work on scalar (non-array) fields. They check whether the field's value is present in a provided list of values.
+
+### in
+
+Checks if the field value is one of the values in the provided list:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: { status: { in: ['active', 'pending'] } },
+});
+```
+
+```typescript
+// Find specific users by role
+const admins = await client.db.User.findMany({
+  where: { role: { in: ['admin', 'editor'] } },
+});
+```
+
+### notIn
+
+Checks if the field value is **not** one of the values in the provided list:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: { status: { notIn: ['deleted', 'banned'] } },
+});
+```
+
+```typescript
+// Exclude certain roles
+const regularUsers = await client.db.User.findMany({
+  where: { role: { notIn: ['bot', 'system'] } },
+});
+```
+
+## Array vs Scalar: Key Distinction
+
+It's important to understand the difference — array field operators check what's **inside** an array, while scalar membership operators check if a single value is **in a list you provide**:
+
+| Operator | Works on | What it checks |
+| --- | --- | --- |
+| `has` | Array fields | Does the array contain this element? |
+| `hasAll` | Array fields | Does the array contain ALL of these elements? |
+| `hasAny` | Array fields | Does the array contain ANY of these elements? |
+| `isEmpty` | Array fields | Is the array empty? |
+| `in` | Scalar fields | Is the field value in this list? |
+| `notIn` | Scalar fields | Is the field value NOT in this list? |
+
+```typescript
+// ARRAY operator: does the tags array contain 'typescript'?
+{ tags: { has: 'typescript' } }
+
+// SCALAR operator: is the status value in the list ['active', 'pending']?
+{ status: { in: ['active', 'pending'] } }
+```
+
+:::caution
+Don't confuse `has` with `in`. Use `has` when the **field** is an array and you want to check if it contains a value. Use `in` when the **field** is a scalar and you want to check if its value matches one of several options.
+:::
+
+## Combining with Other Operators
+
+Array operators work alongside all other filter operators:
+
+```typescript
+const posts = await client.db.Post.findMany({
+  where: {
+    tags: { hasAny: ['typescript', 'javascript'] },
+    status: { in: ['published', 'featured'] },
+    createdAt: { gte: new Date('2024-01-01') },
+  },
+});
+```
+
+With [logical operators](/filtering/logical-operators):
+
+```typescript
+const users = await client.db.User.findMany({
+  where: {
+    OR: [
+      { nicknames: { has: 'Admin' } },
+      { role: { in: ['admin', 'superadmin'] } },
+    ],
+  },
+});
+```

@@ -1,4 +1,13 @@
 {
   "title": "Filtering",
-  "pages": ["...filtering"]
+  "pages": [
+    "...filtering",
+    "comparison",
+    "string-operators",
+    "array-operators",
+    "logical-operators",
+    "special-operators",
+    "nested-relation-filtering",
+    "object-filtering"
+  ]
 }

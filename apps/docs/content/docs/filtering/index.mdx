@@ -1,8 +1,215 @@
 ---
 title: Filtering
-description: Comparison, string, array, logical, and nested filter operators.
+description: Filter records with type-safe where clauses using comparison, string, array, logical, and special operators.
 ---
 
-:::note
-This section is under construction. Check back soon!
-:::
+Cerial provides a rich set of type-safe filter operators for querying your data. Filters are used in `where` clauses across all query methods that support filtering:
+
+- [`findOne`](/queries/find-one)
+- [`findMany`](/queries/find-many)
+- [`findUnique`](/queries/find-unique)
+- [`updateMany`](/queries/update-many)
+- [`updateUnique`](/queries/update-unique)
+- [`deleteMany`](/queries/delete-many)
+- [`deleteUnique`](/queries/delete-unique)
+- [`count`](/queries/count)
+- [`exists`](/queries/exists)
+
+## Basic Syntax
+
+Filters follow a consistent pattern. The simplest form is a shorthand equals check, and more complex conditions use operator objects.
+
+### Shorthand Equals
+
+Pass a value directly to match equality:
+
+```typescript
+const user = await client.db.User.findOne({
+  where: { name: 'Alice' },
+});
+```
+
+This is equivalent to `{ name: { eq: 'Alice' } }`.
+
+### Operator Syntax
+
+Use an operator object for more advanced comparisons:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: { age: { gt: 18 } },
+});
+```
+
+### Implicit AND
+
+When you specify multiple fields at the top level, they are combined with an implicit AND:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: {
+    name: 'Alice',
+    age: { gte: 18 },
+    isActive: true,
+  },
+});
+// Matches users where name = 'Alice' AND age >= 18 AND isActive = true
+```
+
+### Combining Operators on a Single Field
+
+You can apply multiple operators to the same field within one object:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: {
+    age: { gte: 18, lt: 65 },
+  },
+});
+// Matches users where age >= 18 AND age < 65
+```
+
+## Operator Quick Reference
+
+| Category | Operators | Applicable Types |
+| --- | --- | --- |
+| [Comparison](/filtering/comparison) | `eq`, `neq`, `not`, `gt`, `gte`, `lt`, `lte` | String, Int, Float, Number, Date, Bool, Email, Uuid, Duration, Decimal, Bytes, Any |
+| [String](/filtering/string-operators) | `contains`, `startsWith`, `endsWith` | String, Email |
+| [Array Field](/filtering/array-operators) | `has`, `hasAll`, `hasAny`, `isEmpty` | Array fields (`String[]`, `Int[]`, etc.) |
+| [Scalar Membership](/filtering/array-operators#scalar-membership-operators) | `in`, `notIn` | All scalar fields |
+| [Logical](/filtering/logical-operators) | `AND`, `OR`, `NOT` | Structural combinators |
+| Special | `between` | Numeric, Date, String (lexicographic) |
+| Existence | `isNull`, `isDefined`, `isNone` | `@nullable` fields, `?` (optional) fields |
+
+## Special Operators
+
+### between
+
+Performs an inclusive range check using a two-element tuple `[min, max]`:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: { age: { between: [18, 65] } },
+});
+// Equivalent to: age >= 18 AND age <= 65
+```
+
+Works with numbers, dates, and strings (lexicographic ordering):
+
+```typescript
+// Date range
+const recentPosts = await client.db.Post.findMany({
+  where: {
+    createdAt: {
+      between: [new Date('2024-01-01'), new Date('2024-12-31')],
+    },
+  },
+});
+
+// String range (lexicographic)
+const users = await client.db.User.findMany({
+  where: { name: { between: ['A', 'M'] } },
+});
+```
+
+### isNull
+
+Checks whether a `@nullable` field has a `null` value. Only available on fields decorated with `@nullable`.
+
+```typescript
+// Schema: deletedAt Date? @nullable
+
+// Find records where deletedAt IS null
+const softDeleted = await client.db.User.findMany({
+  where: { deletedAt: { isNull: true } },
+});
+
+// Find records where deletedAt is NOT null
+const active = await client.db.User.findMany({
+  where: { deletedAt: { isNull: false } },
+});
+```
+
+You can also use `eq: null` and `neq: null` directly on `@nullable` fields:
+
+```typescript
+// Equivalent to isNull: true
+await client.db.User.findMany({
+  where: { deletedAt: { eq: null } },
+});
+```
+
+### isNone
+
+Checks whether an optional (`?`) field is absent from the record (NONE). Only available on fields marked with `?`.
+
+```typescript
+// Schema: bio String?
+
+// Find records where bio is absent (NONE)
+const noBio = await client.db.User.findMany({
+  where: { bio: { isNone: true } },
+});
+
+// Find records where bio exists (has any value)
+const hasBio = await client.db.User.findMany({
+  where: { bio: { isNone: false } },
+});
+```
+
+### isDefined
+
+An alias for `isNone` with inverted semantics. Only available on optional (`?`) fields.
+
+```typescript
+// Equivalent to isNone: false
+await client.db.User.findMany({
+  where: { bio: { isDefined: true } },
+});
+
+// Equivalent to isNone: true
+await client.db.User.findMany({
+  where: { bio: { isDefined: false } },
+});
+```
+
+### NONE vs null vs Value
+
+Fields with both `?` and `@nullable` have three distinct states:
+
+| State | Field exists? | Has value? | Matched by |
+| --- | --- | --- | --- |
+| NONE | No | No | `isNone: true`, `isDefined: false` |
+| `null` | Yes | No (null) | `isNull: true` |
+| `'hello'` | Yes | Yes | `isNone: false`, `isNull: false`, `isDefined: true` |
+
+```typescript
+// Schema: bio String? @nullable
+
+// Only users with no bio field at all
+await client.db.User.findMany({ where: { bio: { isNone: true } } });
+
+// Only users with bio explicitly set to null
+await client.db.User.findMany({ where: { bio: { isNull: true } } });
+
+// Users who have a bio field (regardless of whether it's null or a string)
+await client.db.User.findMany({ where: { bio: { isNone: false } } });
+```
+
+## Type Safety
+
+All filter operators are fully typed based on your schema. The `where` clause only accepts fields defined on the model, and operator values must match the field's type.
+
+```typescript
+// ✅ Correct: comparison operators for numbers
+await client.db.User.findMany({
+  where: { age: { gte: 18 } },
+});
+
+// ❌ Type error: 'contains' does not exist on number fields
+await client.db.User.findMany({
+  where: { age: { contains: '18' } },
+});
+```
+
+String operators like `contains`, `startsWith`, and `endsWith` only appear on `String` and `Email` fields. Array operators like `has` and `hasAll` only appear on array fields. The TypeScript compiler prevents you from using operators on incompatible field types.
