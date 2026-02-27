@@ -1,0 +1,93 @@
+---
+title: Roadmap
+description: Planned features for Cerial, expanding what you can do with SurrealDB through a type-safe ORM.
+---
+
+Cerial already covers a solid foundation of SurrealDB's capabilities, but there's much more ground to cover. The features below represent where Cerial is headed, each one unlocking a different part of SurrealDB's feature set through the same schema-driven, type-safe approach you're already using.
+
+:::note
+These features are planned and not yet implemented. Syntax examples are speculative and may change.
+:::
+
+## Schema Enhancements
+
+### Computed Fields
+
+Define derived values using SurrealDB expressions, calculated on-the-fly without storage. A computed field runs its expression every time a record is queried, so the result is always up-to-date without you needing to maintain it.
+
+This leverages SurrealDB's `DEFINE FIELD ... VALUE` expressions.
+
+```cerial
+model Product {
+  id Record @id
+  price Float
+  tax Float
+  total Float @computed(price + tax)
+}
+```
+
+Computed fields would be excluded from create and update inputs (like `@now` today) since their values are derived entirely from the expression.
+
+### Field Value Expressions
+
+Reference a field's incoming value in schema-level create/update expressions. You could define validation, transformation, or clamping logic directly in the schema rather than writing it in application code.
+
+This leverages SurrealDB's `$value` and `$input` variables, which give field-level expressions access to the value being written.
+
+### Previous Value Access
+
+Access old field values during updates without a separate read query. Useful for audit trails, computing deltas, or enforcing constraints like "this number can only go up."
+
+This leverages SurrealDB's `$before` variable in field expressions, which holds the record's state prior to the current operation.
+
+## Query Capabilities
+
+### Full-Text Search
+
+Search text fields with analyzers, tokenizers, and relevance scoring. Instead of basic `contains` string matching, full-text search lets you find records by natural language queries with ranked results.
+
+This leverages SurrealDB's `DEFINE ANALYZER` and `search::*` functions.
+
+### Vector Search
+
+Store and query vector embeddings for AI/ML similarity search. You'd be able to define vector fields in your schema and run nearest-neighbor queries to find semantically similar records, powering recommendation engines, RAG pipelines, or content matching.
+
+This leverages SurrealDB's `DEFINE INDEX ... MTREE` and `vector::*` functions.
+
+### Geospatial Queries
+
+Distance calculations, containment checks, and intersection operators on Geometry fields. Cerial already supports Geometry field types for storage and basic equality filtering. Geospatial queries would add spatial operators like finding records within a radius, checking polygon containment, or detecting shape intersections.
+
+This leverages SurrealDB's `geo::*` functions (nearTo, within, intersects).
+
+### Graph Relations
+
+Traverse relationships using SurrealDB's graph syntax for multi-hop queries. While Cerial's current relations handle direct one-hop lookups, graph relations would let you walk chains like "friends of friends" or "all posts by users in this organization" without manual joins.
+
+This leverages SurrealDB's `->edge->` graph traversal operators.
+
+## Real-Time
+
+### Live Queries
+
+Real-time subscriptions that push record changes as they happen. Rather than polling for updates, you'd subscribe to a query and receive notifications whenever matching records are created, updated, or deleted.
+
+This leverages SurrealDB's `LIVE SELECT` capability.
+
+### Events
+
+Define triggers that fire on record create, update, or delete. Events let you express side effects declaratively in your schema, things like sending notifications, updating counters, or syncing denormalized data, all running server-side without application code.
+
+This leverages SurrealDB's `DEFINE EVENT` capability.
+
+## Extensibility
+
+### Custom Functions
+
+Register reusable SurrealDB functions callable from queries. If you find yourself repeating the same logic across multiple queries or computed fields, custom functions let you define it once and reference it by name.
+
+This leverages SurrealDB's `DEFINE FUNCTION` capability.
+
+---
+
+Want to contribute or request a feature? Visit our [GitHub repository](https://github.com/cerial-orm/cerial).
