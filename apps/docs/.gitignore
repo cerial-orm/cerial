@@ -1,0 +1,5 @@
+# Next.js build output
+.next/
+
+# Fumadocs MDX generated source
+.source/
