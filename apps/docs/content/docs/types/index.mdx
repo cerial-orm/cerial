@@ -1,8 +1,81 @@
 ---
 title: Type System
-description: CerialId, NONE vs null, wrapper classes, and generated types.
+description: CerialId, NONE vs null, wrapper classes, generated types, and dynamic return types.
 ---
 
-:::note
-This section is under construction. Check back soon!
-:::
+Cerial generates fully type-safe TypeScript code from your `.cerial` schema files. Every model, object, tuple, literal, and enum in your schema produces a rich set of TypeScript types that give you compile-time safety, IntelliSense autocompletion, and runtime correctness guarantees.
+
+## Key Aspects
+
+### Typed Interfaces for Every Model
+
+Every model in your schema generates typed interfaces, input types, where types, select types, and payload types. Your queries are validated at compile time. Misspell a field name, reference a wrong type, or forget a required field, and TypeScript catches it before your code ever runs.
+
+```typescript
+// All fully typed and validated at compile time
+const user = await db.User.create({
+  data: { email: 'alice@example.com', name: 'Alice' },
+});
+
+const users = await db.User.findMany({
+  where: { email: { contains: 'example' } },
+  select: { id: true, name: true },
+  orderBy: { name: 'asc' },
+});
+```
+
+### CerialId, Not Raw Strings
+
+SurrealDB record IDs use a `table:id` format. Rather than exposing raw strings, Cerial wraps all record IDs in [`CerialId`](/types/cerial-id) objects that provide type-safe access to the table name, raw ID value, and comparison methods. Input types accept a flexible `RecordIdInput` union so you can pass plain values, `CerialId` instances, or native SurrealDB `RecordId` objects.
+
+### NONE vs null
+
+SurrealDB distinguishes between a field that doesn't exist (`NONE`) and a field that exists with a null value (`null`). Cerial's type system [fully represents this distinction](/types/none-vs-null) in TypeScript, giving you precise control over field presence and nullability through two independent modifiers: `?` for optional and `@nullable` for null.
+
+### Dynamic Return Types
+
+Return types change based on your `select` and `include` options. Select only `id` and `name`, and the return type contains only those fields. Include a relation, and the return type adds that relation's data. This is powered by TypeScript conditional types and the [`GetModelPayload`](/types/dynamic-return-types) generic type.
+
+## Wrapper Classes
+
+Beyond `CerialId`, Cerial provides wrapper classes for SurrealDB's specialized data types. Each class gives you a type-safe API with meaningful methods instead of raw SDK objects.
+
+| Class | Wraps | Key API |
+|---|---|---|
+| [`CerialUuid`](/schema/field-types/uuid) | SurrealDB `Uuid` | `.toString()`, `.equals()`, `.toNative()`, `.v4()`, `.v7()` |
+| [`CerialDuration`](/schema/field-types/duration) | SurrealDB `Duration` | `.hours`, `.minutes`, `.seconds`, `.toString()`, `.compareTo()` |
+| [`CerialDecimal`](/schema/field-types/decimal) | SurrealDB `Decimal` | `.add()`, `.sub()`, `.mul()`, `.div()`, `.toString()`, `.toNumber()` |
+| [`CerialBytes`](/schema/field-types/bytes) | SurrealDB `Bytes` | `.toUint8Array()`, `.toBuffer()`, `.toBase64()`, `.toString()` |
+| [`CerialGeometry`](/schema/field-types/geometry) | SurrealDB geometry types | 7 subtypes: `Point`, `LineString`, `Polygon`, `MultiPoint`, `MultiLineString`, `MultiPolygon`, `GeometryCollection` |
+
+Each wrapper class has a corresponding input union type (e.g., `CerialUuidInput`, `CerialDurationInput`) that accepts multiple formats for flexibility. See the individual field type pages for full API details.
+
+## CerialQueryPromise
+
+All model methods return `CerialQueryPromise<T>` instead of `Promise<T>`. It's a lazy thenable: the query doesn't execute until you `await` it. You can still call `.then()`, `.catch()`, and `.finally()` as usual.
+
+The lazy design enables transaction batching. Pass multiple query promises to [`$transaction`](/transactions) and they execute atomically in a single database round-trip.
+
+```typescript
+// Works like a normal Promise
+const user = await client.db.User.findOne({ where: { id: '123' } });
+
+// Or collect for atomic execution
+const [user, posts] = await client.$transaction([
+  client.db.User.findOne({ where: { id: '123' } }),
+  client.db.Post.findMany({ where: { published: true } }),
+]);
+```
+
+`CerialQueryPromise` is re-exported from the generated client for type annotations:
+
+```typescript
+import { CerialQueryPromise } from './db-client';
+```
+
+## Sections
+
+- [CerialId](/types/cerial-id) — The `CerialId` class, `RecordIdInput` union, and record ID transformation flow
+- [NONE vs null](/types/none-vs-null) — How SurrealDB's NONE/null distinction maps to TypeScript types and query operators
+- [Generated Types](/types/generated-types) — Complete reference of all types generated per model, object, tuple, literal, and enum
+- [Dynamic Return Types](/types/dynamic-return-types) — How `GetModelPayload`, `ResolveFieldSelect`, and `ApplyObjectSelect` compute return types

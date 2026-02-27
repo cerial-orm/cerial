@@ -1,4 +1,4 @@
 {
   "title": "Type System",
-  "pages": ["...types"]
+  "pages": ["index", "cerial-id", "none-vs-null", "generated-types", "dynamic-return-types"]
 }
