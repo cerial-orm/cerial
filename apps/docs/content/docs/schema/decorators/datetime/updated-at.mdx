@@ -138,10 +138,10 @@ console.log(updated.updatedAt); // new timestamp
 
 | Decorator | Stored | Set on create | Updated on write | Can override | Field types |
 | --- | --- | --- | --- | --- | --- |
-| [`@createdAt`](/cerial/schema/decorators/datetime/created-at/) | Yes | Yes | No | Yes | `Date` only |
+| [`@createdAt`](/schema/decorators/datetime/created-at/) | Yes | Yes | No | Yes | `Date` only |
 | `@updatedAt` | Yes | Yes | Yes | Yes | `Date` only |
-| [`@now`](/cerial/schema/decorators/datetime/now/) | No | N/A (computed) | N/A (computed) | No | `Date` only |
-| [`@defaultAlways(value)`](/cerial/schema/decorators/defaults/default-always/) | Yes | Yes | Yes | Yes | Any |
+| [`@now`](/schema/decorators/datetime/now/) | No | N/A (computed) | N/A (computed) | No | `Date` only |
+| [`@defaultAlways(value)`](/schema/decorators/defaults/default-always/) | Yes | Yes | Yes | Yes | Any |
 
 `@defaultAlways(value)` is the general-purpose version of the same `DEFAULT ALWAYS` mechanism. It works on any field type (not just `Date`) and lets you specify a custom value instead of `time::now()`.
 

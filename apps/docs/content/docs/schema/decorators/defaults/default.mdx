@@ -88,7 +88,7 @@ await client.db.User.create({ data: {} });
 // bio is stored as null, queryable with { bio: { isNull: true } }
 ```
 
-This distinction matters because SurrealDB treats NONE (field absent) and null (field present with null value) differently. See [Optional Fields](/cerial/schema/optional-fields/) for details on NONE vs null semantics.
+This distinction matters because SurrealDB treats NONE (field absent) and null (field present with null value) differently. See [Optional Fields](/schema/optional-fields/) for details on NONE vs null semantics.
 
 ## Object Fields
 

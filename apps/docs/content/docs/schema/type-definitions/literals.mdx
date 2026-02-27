@@ -85,7 +85,7 @@ Literals can include variants from other literals or enums. The referenced type'
 When a literal references an enum, the enum's string values are inlined into the literal's union. This lets you build on existing enums when you need a broader set of values.
 
 :::tip
-Literals also support `extends` for inheritance (distinct from inline composition). The child literal inherits all variants from the parent and can add new ones. See the [Extends](/cerial/schema/extends/) page for details.
+Literals also support `extends` for inheritance (distinct from inline composition). The child literal inherits all variants from the parent and can add new ones. See the [Extends](/schema/extends/) page for details.
 :::
 
 ## Object Variants
@@ -352,7 +352,7 @@ Even when a literal contains object or tuple variants, you cannot select individ
 
 Non-enum literal fields are **excluded** from `orderBy` types. Because literals can contain mixed types (strings, numbers, booleans, objects), ordering is ambiguous and not supported.
 
-If you need ordering on a union of string values, use an [Enum](/cerial/schema/type-definitions/enums/) instead — enums are string-only and support `orderBy` with alphabetical sorting.
+If you need ordering on a union of string values, use an [Enum](/schema/type-definitions/enums/) instead — enums are string-only and support `orderBy` with alphabetical sorting.
 
 ## Atomic Values
 

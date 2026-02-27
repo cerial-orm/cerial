@@ -131,7 +131,7 @@ const updated = await client.db.Store.updateUnique({
 
 `@unique` **cannot** be applied to array fields (`String[]`, `Int[]`, etc.). SurrealDB indexes array elements individually, so a unique constraint on an array means "no two records can share any single element" — which is almost never the intended behavior.
 
-Use [`@index`](/cerial/schema/decorators/indexes/index-decorator/) on array fields instead if you need per-element lookups.
+Use [`@index`](/schema/decorators/indexes/index-decorator/) on array fields instead if you need per-element lookups.
 
 ## Allowed On
 

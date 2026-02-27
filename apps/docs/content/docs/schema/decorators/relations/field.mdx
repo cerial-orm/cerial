@@ -15,7 +15,7 @@ The `fieldName` must reference a `Record`, `Record?`, or `Record[]` field in the
 
 ## When to Use
 
-Every forward relation (PK side) requires `@field()` alongside [`@model()`](/cerial/schema/decorators/relations/model/). It connects the virtual `Relation` field to the actual `Record` field that stores the FK value in the database.
+Every forward relation (PK side) requires `@field()` alongside [`@model()`](/schema/decorators/relations/model/). It connects the virtual `Relation` field to the actual `Record` field that stores the FK value in the database.
 
 ```cerial
 model Post {
@@ -123,13 +123,13 @@ N:N relations require **both sides** to define `Record[]` + `Relation[]` with `@
 ## Rules
 
 - Every `@field()` must reference a `Record`, `Record?`, or `Record[]` field in the same model.
-- Every `Relation` with `@field()` must also have [`@model()`](/cerial/schema/decorators/relations/model/).
+- Every `Relation` with `@field()` must also have [`@model()`](/schema/decorators/relations/model/).
 - Reverse relations (`Relation[]` or `Relation?` without `@field`) only need `@model()`.
-- If multiple relations exist between the same two models, use [`@key`](/cerial/schema/decorators/relations/key/) to disambiguate.
+- If multiple relations exist between the same two models, use [`@key`](/schema/decorators/relations/key/) to disambiguate.
 - `@nullable` on the backing `Record` field affects relation behavior — disconnect sets `NULL` instead of `NONE`, and the default `@onDelete` action changes to `SetNull` instead of `SetNone`.
 
 ## See Also
 
-- [`@model`](/cerial/schema/decorators/relations/model/) — declares the target model of the relation
-- [`@key`](/cerial/schema/decorators/relations/key/) — disambiguates multiple relations between the same models
-- [`@onDelete`](/cerial/schema/decorators/relations/on-delete/) — controls cascade behavior when related records are deleted
+- [`@model`](/schema/decorators/relations/model/) — declares the target model of the relation
+- [`@key`](/schema/decorators/relations/key/) — disambiguates multiple relations between the same models
+- [`@onDelete`](/schema/decorators/relations/on-delete/) — controls cascade behavior when related records are deleted

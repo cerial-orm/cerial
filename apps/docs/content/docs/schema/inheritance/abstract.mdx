@@ -3,7 +3,7 @@ title: Abstract Models
 description: Template models that exist only for inheritance — no table, no types, no client access.
 ---
 
-Abstract models define reusable field sets that other models can [extend](/cerial/schema/inheritance/extends/). They exist only during schema resolution. No table, no TypeScript types, no client accessor, and no registry entry are generated for them — they're consumed during inheritance resolution and then discarded.
+Abstract models define reusable field sets that other models can [extend](/schema/inheritance/extends/). They exist only during schema resolution. No table, no TypeScript types, no client accessor, and no registry entry are generated for them — they're consumed during inheritance resolution and then discarded.
 
 ## Syntax
 
@@ -185,7 +185,7 @@ model Comment extends BaseEntity {
 }
 ```
 
-Using [`!!private`](/cerial/schema/inheritance/private/) on `id` and `createdAt` prevents children from accidentally redefining those structural fields.
+Using [`!!private`](/schema/inheritance/private/) on `id` and `createdAt` prevents children from accidentally redefining those structural fields.
 
 ### Role Hierarchy
 

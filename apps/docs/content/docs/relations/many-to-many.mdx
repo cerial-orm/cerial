@@ -219,7 +219,7 @@ await client.db.Student.deleteMany({ where: { id: studentId } });
 // will have the student's ID removed automatically
 ```
 
-This cleanup is handled atomically in the delete transaction. See [Delete Behavior](/cerial/relations/on-delete/) for details.
+This cleanup is handled atomically in the delete transaction. See [Delete Behavior](/relations/on-delete/) for details.
 
 :::note
 `@onDelete` is not allowed on array relations (`Relation[]`). The automatic ID removal is always applied.

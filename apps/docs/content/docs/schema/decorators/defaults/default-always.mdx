@@ -158,8 +158,8 @@ Tuple elements with `@defaultAlways` are optional in create input and reset on e
 
 | Decorator | Stored | Set on create | Reset on update | Can override | Field types |
 | --- | --- | --- | --- | --- | --- |
-| [`@default(value)`](/cerial/schema/decorators/defaults/default/) | Yes | Yes (when absent) | No | Yes | Any |
+| [`@default(value)`](/schema/decorators/defaults/default/) | Yes | Yes (when absent) | No | Yes | Any |
 | `@defaultAlways(value)` | Yes | Yes (when absent) | Yes (when absent) | Yes | Any |
-| [`@updatedAt`](/cerial/schema/decorators/datetime/updated-at/) | Yes | Yes (`time::now()`) | Yes (`time::now()`) | Yes | `Date` only |
-| [`@createdAt`](/cerial/schema/decorators/datetime/created-at/) | Yes | Yes (`time::now()`) | No | Yes | `Date` only |
-| [`@now`](/cerial/schema/decorators/datetime/now/) | No | N/A (computed) | N/A (computed) | No | `Date` only |
+| [`@updatedAt`](/schema/decorators/datetime/updated-at/) | Yes | Yes (`time::now()`) | Yes (`time::now()`) | Yes | `Date` only |
+| [`@createdAt`](/schema/decorators/datetime/created-at/) | Yes | Yes (`time::now()`) | No | Yes | `Date` only |
+| [`@now`](/schema/decorators/datetime/now/) | No | N/A (computed) | N/A (computed) | No | `Date` only |

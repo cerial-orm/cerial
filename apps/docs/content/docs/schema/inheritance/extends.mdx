@@ -49,7 +49,7 @@ Empty filter brackets (`extends Parent[]`) are an error. Use `extends Parent` to
 
 ## Model Inheritance
 
-Models can extend [abstract models](/cerial/schema/inheritance/abstract/) to inherit fields. The child gets its own table, its own generated types, and its own client accessor. Both concrete and abstract models can **only** extend abstract models — extending a concrete model is not allowed.
+Models can extend [abstract models](/schema/inheritance/abstract/) to inherit fields. The child gets its own table, its own generated types, and its own client accessor. Both concrete and abstract models can **only** extend abstract models — extending a concrete model is not allowed.
 
 ```cerial
 abstract model BaseEntity {
@@ -261,7 +261,7 @@ model Admin extends BaseUser {
 }
 ```
 
-If the parent marks a field as [`!!private`](/cerial/schema/inheritance/private/), it cannot be overridden — the child can still inherit it, and can omit it with pick/omit syntax, but redefining it in the child body is an error.
+If the parent marks a field as [`!!private`](/schema/inheritance/private/), it cannot be overridden — the child can still inherit it, and can omit it with pick/omit syntax, but redefining it in the child body is an error.
 
 ## Multi-Level Chains
 

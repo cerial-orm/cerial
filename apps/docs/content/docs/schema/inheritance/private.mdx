@@ -3,7 +3,7 @@ title: Private Fields
 description: The !!private modifier for preventing field override in child types.
 ---
 
-The `!!private` modifier prevents a field from being overridden in child types that use [extends](/cerial/schema/inheritance/extends/). It protects fields that should stay exactly as the parent defined them — the most common use case is locking down `id` and timestamp fields in abstract base models.
+The `!!private` modifier prevents a field from being overridden in child types that use [extends](/schema/inheritance/extends/). It protects fields that should stay exactly as the parent defined them — the most common use case is locking down `id` and timestamp fields in abstract base models.
 
 ## Syntax
 
@@ -167,5 +167,5 @@ model Receipt extends Auditable {
 Every child gets consistent audit fields that can't be accidentally changed. Domain-specific fields are added freely in each child.
 
 :::tip
-`!!private` is most meaningful on [abstract models](/cerial/schema/inheritance/abstract/) since those are the types designed to be extended. While you can use `!!private` on any model or object, it only has an effect when the type is actually extended by another type.
+`!!private` is most meaningful on [abstract models](/schema/inheritance/abstract/) since those are the types designed to be extended. While you can use `!!private` on any model or object, it only has an effect when the type is actually extended by another type.
 :::

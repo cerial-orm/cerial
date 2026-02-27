@@ -84,7 +84,7 @@ const user = await client.db.User.create({
 });
 ```
 
-See [Nested Create](/cerial/relations/nested-create/) for full details.
+See [Nested Create](/relations/nested-create/) for full details.
 
 ### Connect and Disconnect
 
@@ -104,7 +104,7 @@ await client.db.User.updateMany({
 });
 ```
 
-See [Connect & Disconnect](/cerial/relations/connect-disconnect/) for full details.
+See [Connect & Disconnect](/relations/connect-disconnect/) for full details.
 
 ### Set (Array Relations)
 
@@ -142,7 +142,7 @@ model User {
 }
 ```
 
-The `@key` value must match between the forward and reverse sides of each pair. See [Multiple Relations](/cerial/relations/multi-relation/) and [Self-Referential](/cerial/relations/self-referential/) for detailed usage.
+The `@key` value must match between the forward and reverse sides of each pair. See [Multiple Relations](/relations/multi-relation/) and [Self-Referential](/relations/self-referential/) for detailed usage.
 
 ## The `@readonly` Interaction
 
@@ -181,16 +181,16 @@ How related records are handled when a parent is deleted depends on whether the 
 | Optional + `@nullable`     | SetNull — sets FK to null | Yes, via `@onDelete` |
 | Array (`Record[]`)         | Auto-cleanup — removes ID | No (automatic)       |
 
-See [Delete Behavior](/cerial/relations/on-delete/) for all `@onDelete` options including `Cascade`, `SetNull`, `SetNone`, `Restrict`, and `NoAction`.
+See [Delete Behavior](/relations/on-delete/) for all `@onDelete` options including `Cascade`, `SetNull`, `SetNone`, `Restrict`, and `NoAction`.
 
 ## Sections
 
-- [One-to-One](/cerial/relations/one-to-one/) — Single record on each side
-- [One-to-Many](/cerial/relations/one-to-many/) — One parent, many children
-- [Many-to-Many](/cerial/relations/many-to-many/) — Bidirectional arrays with atomic sync
-- [Self-Referential](/cerial/relations/self-referential/) — Models that reference themselves
-- [Single-Sided Relations](/cerial/relations/single-sided/) — Forward-only relations with no reverse
-- [Multiple Relations](/cerial/relations/multi-relation/) — Multiple relations between the same models using `@key`
-- [Nested Create](/cerial/relations/nested-create/) — Creating related records inline
-- [Connect & Disconnect](/cerial/relations/connect-disconnect/) — Linking and unlinking existing records
-- [Delete Behavior](/cerial/relations/on-delete/) — Cascade, SetNull, SetNone, Restrict, and NoAction
+- [One-to-One](/relations/one-to-one/) — Single record on each side
+- [One-to-Many](/relations/one-to-many/) — One parent, many children
+- [Many-to-Many](/relations/many-to-many/) — Bidirectional arrays with atomic sync
+- [Self-Referential](/relations/self-referential/) — Models that reference themselves
+- [Single-Sided Relations](/relations/single-sided/) — Forward-only relations with no reverse
+- [Multiple Relations](/relations/multi-relation/) — Multiple relations between the same models using `@key`
+- [Nested Create](/relations/nested-create/) — Creating related records inline
+- [Connect & Disconnect](/relations/connect-disconnect/) — Linking and unlinking existing records
+- [Delete Behavior](/relations/on-delete/) — Cascade, SetNull, SetNone, Restrict, and NoAction

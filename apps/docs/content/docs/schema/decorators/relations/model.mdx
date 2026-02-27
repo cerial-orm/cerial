@@ -15,7 +15,7 @@ The `ModelName` must be a valid model defined in the schema (same file or cross-
 
 ## PK Side (Forward Relations)
 
-On the PK side, `@model()` is paired with [`@field()`](/cerial/schema/decorators/relations/field/) to form a complete forward relation:
+On the PK side, `@model()` is paired with [`@field()`](/schema/decorators/relations/field/) to form a complete forward relation:
 
 ```cerial
 model Post {
@@ -149,12 +149,12 @@ const student = await client.db.Student.findOne({
 
 ## Rules
 
-- Every `Relation` with [`@field()`](/cerial/schema/decorators/relations/field/) must also have `@model()`.
+- Every `Relation` with [`@field()`](/schema/decorators/relations/field/) must also have `@model()`.
 - Reverse relations (`Relation[]` or `Relation?` without `@field`) only need `@model()`.
-- If multiple relations exist between the same two models, use [`@key`](/cerial/schema/decorators/relations/key/) to disambiguate.
+- If multiple relations exist between the same two models, use [`@key`](/schema/decorators/relations/key/) to disambiguate.
 
 ## See Also
 
-- [`@field`](/cerial/schema/decorators/relations/field/) — specifies which Record field stores the FK
-- [`@key`](/cerial/schema/decorators/relations/key/) — disambiguates multiple relations between the same models
-- [`@onDelete`](/cerial/schema/decorators/relations/on-delete/) — controls cascade behavior when related records are deleted
+- [`@field`](/schema/decorators/relations/field/) — specifies which Record field stores the FK
+- [`@key`](/schema/decorators/relations/key/) — disambiguates multiple relations between the same models
+- [`@onDelete`](/schema/decorators/relations/on-delete/) — controls cascade behavior when related records are deleted

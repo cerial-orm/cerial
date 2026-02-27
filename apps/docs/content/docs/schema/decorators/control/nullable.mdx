@@ -27,7 +27,7 @@ Cerial cleanly separates SurrealDB's three field states:
 - **`@nullable`** = the field can hold an explicit `null` value. In TypeScript, this maps to `| null`.
 - **Both** = the field can be a value, `null`, or absent.
 
-See [Optional Fields](/cerial/schema/optional-fields/) for full details on NONE vs null semantics.
+See [Optional Fields](/schema/optional-fields/) for full details on NONE vs null semantics.
 
 ## Basic Usage
 
@@ -105,7 +105,7 @@ The `@nullable` decorator affects how `disconnect` works on relations:
 | `Record?` (no `@nullable`) | `SetNone` | FK removed (field absent) |
 | `Record? @nullable` | `SetNull` | FK set to null |
 
-You can always override with an explicit [`@onDelete(Action)`](/cerial/schema/decorators/relations/on-delete/).
+You can always override with an explicit [`@onDelete(Action)`](/schema/decorators/relations/on-delete/).
 
 ## Where Operators
 

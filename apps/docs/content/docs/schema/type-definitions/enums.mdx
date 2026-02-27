@@ -35,7 +35,7 @@ Pick one style per block — comma-separated on a single line, or newline-separa
 - Values are **bare identifiers** — no quotes around them
 - No casing enforcement — use whatever convention fits your project (`UPPER_CASE`, `PascalCase`, `camelCase`)
 - Each value must be a valid identifier (letters, digits, underscores; cannot start with a digit)
-- All values are **strings only** — if you need numbers, booleans, or mixed types, use a [Literal](/cerial/schema/type-definitions/literals/) instead
+- All values are **strings only** — if you need numbers, booleans, or mixed types, use a [Literal](/schema/type-definitions/literals/) instead
 
 :::caution[Name collisions]
 Enum names must be unique across your entire schema — they cannot collide with literal, model, object, or tuple names. Cerial will error at generation time if it detects a name conflict.
@@ -300,7 +300,7 @@ const records = await client.db.EnumWithObject.findMany({
 ```
 
 :::note
-Non-enum [Literals](/cerial/schema/type-definitions/literals/) are excluded from `orderBy` because they can contain mixed types where ordering is ambiguous. Enums, being string-only, always have well-defined ordering.
+Non-enum [Literals](/schema/type-definitions/literals/) are excluded from `orderBy` because they can contain mixed types where ordering is ambiguous. Enums, being string-only, always have well-defined ordering.
 :::
 
 ## Inheritance with Extends
@@ -317,10 +317,10 @@ enum AdminRole extends BaseRole {
 # AdminRole = VIEWER, EDITOR, ADMIN, SUPER_ADMIN
 ```
 
-Duplicate values are automatically deduplicated. You can also use pick and omit syntax to selectively inherit values. See the [Extends](/cerial/schema/extends/) page for full details.
+Duplicate values are automatically deduplicated. You can also use pick and omit syntax to selectively inherit values. See the [Extends](/schema/extends/) page for full details.
 
 ## Enums vs Literals
 
 If you only need a fixed set of string values with a runtime const object, enums are the right choice. If you need mixed types (numbers, booleans, objects, tuples) or composition via inline references, use a literal instead.
 
-See [Enums vs Literals](/cerial/schema/type-definitions/enums-vs-literals/) for a detailed comparison.
+See [Enums vs Literals](/schema/type-definitions/enums-vs-literals/) for a detailed comparison.
