@@ -1,0 +1,82 @@
+---
+title: exists
+description: Check whether any records match a filter with an efficient aggregate query.
+---
+
+Checks whether any records match the where clause. Returns a `boolean`.
+
+```typescript
+const hasAdmin = await client.db.User.exists({ role: 'admin' });
+// hasAdmin: boolean
+```
+
+:::tip
+Prefer `exists` over `count` when you only need a yes/no answer — it makes intent clearer. Both use the same efficient aggregate query under the hood.
+:::
+
+## Options
+
+| Option | Type | Required | Description |
+| --- | --- | --- | --- |
+| `where` | `UserWhereInput` | No | Filter conditions |
+
+The `where` argument is passed directly — not wrapped in an options object.
+
+## Check If Any Record Matches
+
+```typescript
+const hasAdmin = await client.db.User.exists({ role: 'admin' });
+// hasAdmin: boolean
+```
+
+## Check Uniqueness Before Create
+
+A common pattern is to check if a record already exists before creating a new one:
+
+```typescript
+const emailTaken = await client.db.User.exists({ email: 'john@example.com' });
+
+if (emailTaken) {
+  throw new Error('Email already in use');
+}
+
+await client.db.User.create({
+  data: {
+    email: 'john@example.com',
+    name: 'John',
+    isActive: true,
+  },
+});
+```
+
+## Check with Complex Filter
+
+```typescript
+const hasRecentPosts = await client.db.Post.exists({
+  createdAt: { gte: new Date('2024-01-01') },
+});
+```
+
+## exists vs count
+
+| | `exists` | `count` |
+| --- | --- | --- |
+| **Returns** | `boolean` | `number` |
+| **Use when** | You need a yes/no answer | You need the exact count |
+| **Query** | Same efficient aggregate | Same efficient aggregate |
+
+```typescript
+// Prefer exists for boolean checks
+if (await client.db.User.exists({ role: 'admin' })) {
+  // at least one admin exists
+}
+
+// Use count when you need the actual number
+const adminCount = await client.db.User.count({ role: 'admin' });
+console.log(`There are ${adminCount} admins`);
+```
+
+## Return Value
+
+- Returns `true` if at least one record matches the `where` clause.
+- Returns `false` if no records match.

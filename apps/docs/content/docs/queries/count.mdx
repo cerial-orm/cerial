@@ -1,0 +1,89 @@
+---
+title: count
+description: Count records matching a filter with an efficient aggregate query.
+---
+
+Counts the number of records matching the where clause. Returns a `number`.
+
+```typescript
+const total = await client.db.User.count();
+// total: number
+```
+
+:::tip
+`count` uses an efficient `SELECT count() FROM ... GROUP ALL` query — only the count is returned from the database, not the actual records. This makes it suitable for large tables where you need the total without fetching data.
+:::
+
+## Options
+
+| Option | Type | Required | Description |
+| --- | --- | --- | --- |
+| `where` | `UserWhereInput` | No | Filter conditions (omit to count all records) |
+
+The `where` argument is passed directly — not wrapped in an options object.
+
+## Count All Records
+
+```typescript
+const total = await client.db.User.count();
+// total: number (e.g., 42)
+```
+
+## Count with Filter
+
+```typescript
+const activeUsers = await client.db.User.count({ isActive: true });
+// activeUsers: number
+```
+
+```typescript
+const recentPosts = await client.db.Post.count({
+  createdAt: { gte: new Date('2024-01-01') },
+});
+// recentPosts: number
+```
+
+## Combining with Pagination
+
+Use `count` alongside [`findMany`](/queries/find-many) to build paginated responses:
+
+```typescript
+const pageSize = 10;
+const page = 1;
+const where = { isActive: true };
+
+const [users, total] = await Promise.all([
+  client.db.User.findMany({
+    where,
+    limit: pageSize,
+    offset: (page - 1) * pageSize,
+    orderBy: { createdAt: 'desc' },
+  }),
+  client.db.User.count(where),
+]);
+
+const totalPages = Math.ceil(total / pageSize);
+// users: User[], total: number, totalPages: number
+```
+
+## count vs exists
+
+When you only need to know whether *any* records match, prefer [`exists`](/queries/exists) — it makes the intent clearer:
+
+```typescript
+// Use count when you need the actual number
+const adminCount = await client.db.User.count({ role: 'admin' });
+console.log(`There are ${adminCount} admins`);
+
+// Use exists when you only need a boolean
+if (await client.db.User.exists({ role: 'admin' })) {
+  // at least one admin exists
+}
+```
+
+Both use the same efficient aggregate query under the hood.
+
+## Return Value
+
+- Returns a `number` representing the count of matching records.
+- Returns `0` if no records match.
