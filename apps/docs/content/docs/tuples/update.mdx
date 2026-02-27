@@ -1,0 +1,270 @@
+---
+title: Updating Tuples
+description: Updating tuple fields — full replacement, per-element updates with array/object disambiguation, and array tuple operations.
+---
+
+Cerial supports multiple modes for updating tuple fields: **full replacement** (array form), **per-element update** (object form), and **array operations** (push/set) for array tuple fields.
+
+All examples use this schema:
+
+```cerial
+tuple Coordinate {
+  lat Float,
+  lng Float
+}
+
+object Address {
+  street String
+  city String
+}
+
+tuple Located {
+  tag String,
+  location Address
+}
+
+tuple Inner {
+  x Int,
+  y Int
+}
+
+tuple Outer {
+  label String,
+  inner Inner
+}
+
+model User {
+  id Record @id
+  location Coordinate
+  backup Coordinate?
+  history Coordinate[]
+  place Located
+}
+```
+
+## Full Replacement
+
+Pass an array to replace the entire tuple. All elements are overwritten:
+
+```typescript
+await client.db.User.updateUnique({
+  where: { id: user.id },
+  data: { location: [51.5074, -0.1278] },
+});
+// location is now [51.5074, -0.1278]
+```
+
+The array form always replaces the full tuple — every element must be provided.
+
+## Per-Element Update
+
+Pass an object to update individual elements without replacing the entire tuple. Use element names or numeric index keys:
+
+```typescript
+// Update only lat, keep lng unchanged
+await client.db.User.updateUnique({
+  where: { id: user.id },
+  data: { location: { lat: 48.8566 } },
+});
+// location[0] (lat) is now 48.8566
+// location[1] (lng) is unchanged
+```
+
+```typescript
+// Same thing using index keys
+await client.db.User.updateUnique({
+  where: { id: user.id },
+  data: { location: { 0: 48.8566 } },
+});
+```
+
+:::tip
+**Array vs object disambiguation:** Cerial uses the input shape to determine the update mode. Pass an **array** to replace the entire tuple. Pass an **object** to update individual elements. This rule applies at every nesting level.
+:::
+
+## Object Elements in Per-Element Update
+
+When a tuple contains object elements, per-element update uses **merge semantics** by default — the same as [regular object updates](/objects/update). Only the specified fields change; unmentioned fields are preserved:
+
+```typescript
+// Update only the city in the location Address, keep tag and street unchanged
+await client.db.User.updateUnique({
+  where: { id: user.id },
+  data: {
+    place: { location: { city: 'Boston' } },
+  },
+});
+// place[0] (tag) — unchanged
+// place[1].street — unchanged
+// place[1].city — 'Boston'
+```
+
+### Full Replacement with `set`
+
+To replace an object element entirely, use the `{ set: ... }` wrapper:
+
+```typescript
+await client.db.User.updateUnique({
+  where: { id: user.id },
+  data: {
+    place: {
+      location: { set: { street: '1 Main St', city: 'NYC' } },
+    },
+  },
+});
+// place[0] (tag) — unchanged
+// place[1] — entirely replaced with { street: '1 Main St', city: 'NYC' }
+```
+
+## Nested Tuple Elements
+
+For tuples containing other tuples, the array/object disambiguation applies recursively at every level:
+
+```cerial
+// Schema context:
+// tuple Inner { x Int, y Int }
+// tuple Outer { label String, inner Inner }
+// model Widget { id Record @id, data Outer }
+```
+
+```typescript
+// Per-element update at both levels
+await client.db.Widget.updateUnique({
+  where: { id: widget.id },
+  data: {
+    data: { inner: { x: 99 } },
+  },
+});
+// data[0] (label) — unchanged
+// data[1][0] (x) — 99
+// data[1][1] (y) — unchanged
+```
+
+```typescript
+// Full replace of the inner tuple (array form)
+await client.db.Widget.updateUnique({
+  where: { id: widget.id },
+  data: {
+    data: { inner: [99, 100] },
+  },
+});
+// data[0] (label) — unchanged
+// data[1] — entirely replaced with [99, 100]
+```
+
+## Clearing Optional Elements
+
+### With `unset`
+
+Use the `unset` parameter to clear individual tuple elements. For `@nullable` elements, this sets them to `null`. For optional elements, this sets them to NONE (absent):
+
+```typescript
+await client.db.User.updateUnique({
+  where: { id: user.id },
+  data: {},
+  unset: { location: { lat: true } },
+});
+```
+
+### Clearing Optional Tuple Fields
+
+For optional tuple fields, set the value to `undefined` to remove the tuple entirely:
+
+```typescript
+await client.db.User.updateUnique({
+  where: { id: user.id },
+  data: { backup: undefined },
+});
+// user.backup is now undefined (field absent)
+```
+
+:::tip
+You can also use the `unset` parameter to clear an optional tuple field: `unset: { backup: true }`. See [Queries](/queries) for details on the `unset` option.
+:::
+
+## Combining Data and Unset
+
+You can update some elements while clearing others in the same operation:
+
+```typescript
+await client.db.User.updateUnique({
+  where: { id: user.id },
+  data: { location: { lat: 40.0 } },
+  unset: { location: { lng: true } },
+});
+// location[0] (lat) — 40.0
+// location[1] (lng) — cleared
+```
+
+## Array Tuple Operations
+
+Array tuple fields (`Coordinate[]`) support push, set, and direct assignment.
+
+### Push
+
+Add tuples to the end of the array:
+
+```typescript
+await client.db.User.updateUnique({
+  where: { id: user.id },
+  data: {
+    history: { push: [[51.5074, -0.1278]] },
+  },
+});
+```
+
+:::caution
+When pushing a single tuple, wrap it in an extra array: `push: [[51.5, -0.1]]`. Without the double-wrapping, `[51.5, -0.1]` would be interpreted as two separate elements to push rather than one tuple. The outer array is the list of items to push; each inner array is one tuple.
+:::
+
+Push multiple tuples at once:
+
+```typescript
+await client.db.User.updateUnique({
+  where: { id: user.id },
+  data: {
+    history: {
+      push: [
+        [48.8566, 2.3522],
+        [35.6762, 139.6503],
+      ],
+    },
+  },
+});
+```
+
+### Set — Replace the Entire Array
+
+Use `set` to replace the entire array with a new list of tuples:
+
+```typescript
+await client.db.User.updateUnique({
+  where: { id: user.id },
+  data: {
+    history: { set: [[40.7128, -74.006]] },
+  },
+});
+// history is now [[40.7128, -74.006]]
+```
+
+### Direct Assignment
+
+Assigning an array directly also replaces the entire array:
+
+```typescript
+await client.db.User.updateUnique({
+  where: { id: user.id },
+  data: {
+    history: [
+      [40.7128, -74.006],
+      [34.0522, -118.2437],
+    ],
+  },
+});
+```
+
+:::caution
+Array tuple fields do **not** support per-element update (object form). You cannot update individual tuples within the array by index. Use `push` to append, `set` or direct assignment to replace the entire array.
+:::
+
+For general update details, see [Queries](/queries).

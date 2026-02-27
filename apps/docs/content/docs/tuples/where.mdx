@@ -1,0 +1,168 @@
+---
+title: Where Filtering
+description: Filtering query results by tuple element values — named and index keys, operators, and array quantifiers.
+---
+
+You can filter query results by the values of individual tuple elements. Conditions use element names (when available) or numeric index keys to target specific positions.
+
+All examples use this schema:
+
+```cerial
+tuple Coordinate {
+  lat Float,
+  lng Float
+}
+
+model User {
+  id Record @id
+  name String
+  location Coordinate
+  history Coordinate[]
+}
+```
+
+## Named Key Filtering
+
+When tuple elements are named, use the element name as the filter key:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: { location: { lat: { gt: 40 } } },
+});
+```
+
+This returns all users whose `location` tuple has a `lat` element greater than 40.
+
+## Index Key Filtering
+
+You can also filter using the numeric index (as a string key):
+
+```typescript
+const users = await client.db.User.findMany({
+  where: { location: { 0: { gt: 40 } } },
+});
+```
+
+This is equivalent to filtering by `lat` — index `0` refers to the first element. Both named and index keys translate to the same condition.
+
+## Comparison Operators on Elements
+
+Every standard filter operator works on tuple elements — comparison, string, existence, and more:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: {
+    location: {
+      lat: { gte: 40, lte: 45 },
+      lng: { between: [-80, -70] },
+    },
+  },
+});
+```
+
+For the full list of available operators, see the [Filtering](/filtering) section.
+
+## Multiple Element Conditions
+
+You can filter on multiple elements at once. All conditions are ANDed together:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: {
+    location: {
+      lat: { gt: 40 },
+      lng: { lt: -70 },
+    },
+  },
+});
+```
+
+This returns users whose location has both a latitude greater than 40 **and** a longitude less than -70.
+
+## Logical Operators
+
+Use `AND`, `OR`, and `NOT` to compose more complex conditions:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: {
+    OR: [
+      { location: { lat: { gt: 50 } } },
+      { location: { lng: { lt: -100 } } },
+    ],
+  },
+});
+```
+
+You can also combine tuple element filters with top-level field conditions:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: {
+    name: { startsWith: 'J' },
+    location: { lat: { gt: 40 } },
+  },
+});
+```
+
+## Array Tuple Quantifiers
+
+When filtering on array tuple fields, use quantifier operators to express how many elements must match: `some`, `every`, or `none`.
+
+### `some` — At Least One Element Matches
+
+```typescript
+const users = await client.db.User.findMany({
+  where: {
+    history: { some: { lat: { gt: 40 } } },
+  },
+});
+```
+
+Returns users where **at least one** history entry has a latitude greater than 40.
+
+### `every` — All Elements Match
+
+```typescript
+const users = await client.db.User.findMany({
+  where: {
+    history: { every: { lat: { gte: 0 } } },
+  },
+});
+```
+
+Returns users where **every** history entry has a non-negative latitude.
+
+### `none` — No Elements Match
+
+```typescript
+const users = await client.db.User.findMany({
+  where: {
+    history: { none: { lat: { lt: -90 } } },
+  },
+});
+```
+
+Returns users where **no** history entry has a latitude less than -90.
+
+:::caution
+The `none` quantifier is implemented internally as `!(arr.any(...))` syntax rather than `NOT arr.any(...)`. This is for SurrealDB 3.x compatibility. The behavior is identical — records where zero elements match the condition.
+:::
+
+## Generated Where Type
+
+Cerial generates a `TupleNameWhere` type for each tuple with both named keys and index keys:
+
+```typescript
+// Generated for Coordinate tuple:
+// type CoordinateWhere = {
+//   lat?: FloatWhere;   // named key
+//   lng?: FloatWhere;   // named key
+//   0?: FloatWhere;     // index key
+//   1?: FloatWhere;     // index key
+// }
+```
+
+Both forms are interchangeable — use whichever is more readable for your use case. Named keys are typically preferred when available.
+
+For the full operator reference, see [Filtering](/filtering).

@@ -1,0 +1,133 @@
+---
+title: Select
+description: Sub-field selection on tuples with object elements — narrow return types by selecting specific fields within object elements.
+---
+
+Tuples with object elements support sub-field selection in `select` options. You can retrieve only the specific nested fields you need from object elements, and the return type narrows accordingly. Primitive elements are always included in full — only object (and tuple-with-objects) elements are narrowable.
+
+All examples use this schema:
+
+```cerial
+object Address {
+  street String
+  city String
+}
+
+tuple Located {
+  tag String,
+  location Address
+}
+
+model Place {
+  id Record @id
+  place Located
+  optionalPlace Located?
+}
+```
+
+## Boolean Selection
+
+Passing `true` for a tuple field returns the full tuple with all elements and all sub-fields:
+
+```typescript
+const place = await client.db.Place.findOne({
+  select: { place: true },
+});
+// place.place: [string, Address]
+// place.place[0] — tag (full string)
+// place.place[1] — location (full Address object)
+```
+
+This is identical to not specifying a select for that field — `true` means "include everything."
+
+## Object Sub-Field Selection
+
+Pass an object keyed by element name or index to narrow object elements within the tuple. Only object elements can be narrowed — primitive elements are always returned in full.
+
+### Using Named Keys
+
+When tuple elements are named, use the element name as the key:
+
+```typescript
+const place = await client.db.Place.findOne({
+  select: {
+    place: { location: { city: true } },
+  },
+});
+// place.place: [string, { city: string }]
+// place.place[0] — tag (always included in full)
+// place.place[1] — { city: string } (only selected sub-fields)
+```
+
+### Using Index Keys
+
+You can also use the numeric index (as a string) to identify which element to narrow:
+
+```typescript
+const place = await client.db.Place.findOne({
+  select: {
+    place: { 1: { city: true } },
+  },
+});
+// place.place: [string, { city: string }]
+// Same result as using the named key `location`
+```
+
+Both named keys and index keys produce the same result. Named keys are more readable when available.
+
+## Nested Tuples with Objects
+
+Sub-field selection works at arbitrary nesting depth. If a tuple contains another tuple that contains an object, you can narrow the inner object's fields:
+
+```cerial
+// Schema context:
+// object Address {
+//   street String
+//   city String
+// }
+//
+// tuple Inner {
+//   label String,
+//   addr Address
+// }
+//
+// tuple Outer {
+//   tag String,
+//   inner Inner
+// }
+//
+// model Widget {
+//   id Record @id
+//   data Outer
+// }
+```
+
+```typescript
+const widget = await client.db.Widget.findOne({
+  select: {
+    data: {
+      inner: { addr: { city: true } },
+    },
+  },
+});
+// widget.data: [string, [string, { city: string }]]
+```
+
+## Optional Tuple Fields
+
+When an optional tuple field is selected with sub-field narrowing, the `| undefined` is preserved in the return type:
+
+```typescript
+const place = await client.db.Place.findOne({
+  select: { optionalPlace: { location: { city: true } } },
+});
+// place.optionalPlace: [string, { city: string }] | undefined
+```
+
+If the record has no `optionalPlace` value (NONE), the field is `undefined`. If it does have a value, only the selected sub-fields within object elements are present in the type.
+
+:::tip
+`TupleSelect` is only generated for tuples that contain object elements at any nesting depth. Tuples with only primitive elements (like `tuple Coordinate { lat Float, lng Float }`) use simple boolean selection — you can include or exclude the whole tuple, but there are no sub-fields to narrow.
+:::
+
+For more details on object sub-field selection, see [Object Select](/objects/select).
