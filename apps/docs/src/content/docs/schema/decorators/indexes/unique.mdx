@@ -1,0 +1,153 @@
+---
+title: "@unique"
+description: The @unique decorator creates a unique index on a field, enabling findUnique/updateUnique/deleteUnique operations.
+sidebar:
+  label: "@unique"
+  order: 3
+---
+
+Creates a unique index on the field in SurrealDB. No two records in the same table can have the same value for a unique field.
+
+## Syntax
+
+```cerial
+model User {
+  id Record @id
+  email Email @unique
+  username String @unique
+  name String
+}
+```
+
+## Behavior
+
+
+- Multiple fields in the same model can each have `@unique` — each gets its own independent constraint.
+- Attempting to create or update a record with a duplicate value results in a database error.
+
+## Unique Lookups
+
+Fields marked with `@unique` unlock the `findUnique`, `updateUnique`, and `deleteUnique` client methods. These accept the unique field in their `where` clause and return a single record (or `null`):
+
+```typescript
+// Find by unique field
+const user = await client.db.User.findUnique({
+  where: { email: 'alice@example.com' },
+});
+
+// Update by unique field
+const updated = await client.db.User.updateUnique({
+  where: { username: 'alice' },
+  data: { name: 'Alice Smith' },
+});
+
+// Delete by unique field
+const deleted = await client.db.User.deleteUnique({
+  where: { email: 'alice@example.com' },
+});
+```
+
+## Example
+
+```cerial
+model Product {
+  id Record @id
+  sku String @unique
+  name String
+  price Float
+}
+```
+
+```typescript
+// Create a product with unique SKU
+await client.db.Product.create({
+  data: { sku: 'WIDGET-001', name: 'Widget', price: 9.99 },
+});
+
+// This would fail — duplicate SKU
+await client.db.Product.create({
+  data: { sku: 'WIDGET-001', name: 'Another Widget', price: 19.99 },
+});
+// Error: unique constraint violated
+```
+
+## Null Behavior on Optional Fields
+
+When `@unique` is applied to an optional field, SurrealDB allows **multiple records** with `null` or absent (`NONE`) values. The unique constraint only applies to concrete values:
+
+```cerial
+model Profile {
+  id Record @id
+  nickname String? @unique
+}
+```
+
+```typescript
+// Both allowed — NONE and null are not treated as unique values
+await client.db.Profile.create({ data: {} });             // nickname absent (NONE)
+await client.db.Profile.create({ data: {} });             // another NONE — OK
+
+// Concrete values are still enforced
+await client.db.Profile.create({ data: { nickname: 'ace' } });
+await client.db.Profile.create({ data: { nickname: 'ace' } }); // Error: duplicate
+```
+
+For composite uniqueness constraints with optional fields, see `@@unique`.
+
+## Object Fields
+
+`@unique` can be applied to fields within object definitions. Each embedding of the object in a model generates its own independent unique index using dot-notation paths:
+
+```cerial
+object LocationInfo {
+  address String
+  zip String @unique
+}
+
+model Store {
+  id Record @id
+  name String
+  location LocationInfo
+  warehouse LocationInfo?
+}
+```
+
+This generates two separate unique indexes:
+
+- `store_location_zip_unique` on `location.zip`
+- `store_warehouse_zip_unique` on `warehouse.zip`
+
+Object `@unique` fields work with unique lookup methods using nested syntax:
+
+```typescript
+const store = await client.db.Store.findUnique({
+  where: { location: { zip: '10001' } },
+});
+
+const updated = await client.db.Store.updateUnique({
+  where: { warehouse: { zip: '90210' } },
+  data: { name: 'Updated Warehouse' },
+});
+```
+
+## Array Fields
+
+`@unique` **cannot** be applied to array fields (`String[]`, `Int[]`, etc.). SurrealDB indexes array elements individually, so a unique constraint on an array means "no two records can share any single element" — which is almost never the intended behavior.
+
+Use [`@index`](/cerial/schema/decorators/indexes/index-decorator/) on array fields instead if you need per-element lookups.
+
+## Allowed On
+
+| Construct | Allowed |
+| --- | --- |
+| Model fields | ✅ (any storable non-array type) |
+| Object sub-fields | ✅ |
+| Tuple elements | — |
+| Relation fields | — |
+| Array fields | — |
+
+## Restrictions
+
+- **Mutually exclusive with `@index`** — A field can have `@unique` or `@index`, but not both. `@unique` already creates an index (a unique one), so adding `@index` would be redundant.
+- **Not on array fields** — Array unique semantics are per-element, which is rarely desired.
+- **Not on Relation fields** — Relation fields are virtual (not stored), so they cannot be indexed.
