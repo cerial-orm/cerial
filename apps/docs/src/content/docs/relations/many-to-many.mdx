@@ -1,6 +1,260 @@
 ---
 title: Many-to-Many
-description: Bidirectional N:N relationships with automatic sync
+description: Bidirectional N:N relationships with automatic sync and array operations.
 ---
 
-Content coming soon.
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+A many-to-many relation allows multiple records in one model to be linked to multiple records in another. In Cerial, true N:N relations require **both sides** to define `Record[]` + `Relation[]` fields — both sides are PK sides.
+
+## Schema Definition
+
+```cerial
+model Student {
+  id Record @id
+  name String
+  courseIds Record[]
+  courses Relation[] @field(courseIds) @model(Course)
+}
+
+model Course {
+  id Record @id
+  name String
+  code String @unique
+  studentIds Record[]
+  students Relation[] @field(studentIds) @model(Student)
+}
+```
+
+Key characteristics:
+
+- **Both sides store foreign keys.** `Student.courseIds` stores an array of Course record IDs. `Course.studentIds` stores an array of Student record IDs.
+- **Both sides are PK sides.** Each side has a `Record[]` paired with a `Relation[] @field`.
+- **Bidirectional sync is automatic.** When you connect a Student to a Course, both `Student.courseIds` and `Course.studentIds` are updated atomically in a single transaction.
+
+:::caution[Both sides must define Record[] + Relation[]]
+Forgetting to add `Record[]` + `Relation[] @field` on **one** side means Cerial treats it as a one-directional array relation — no automatic sync, and the missing side won't have access to the relationship.
+:::
+
+## Bidirectional Sync
+
+Cerial manages both sides of the N:N relationship automatically. You only need to operate on one side — the other side is kept in sync within the same transaction.
+
+### Connecting records
+
+```typescript
+const student = await client.db.Student.create({
+  data: {
+    name: 'John',
+    courses: { connect: [mathId, physicsId] },
+  },
+});
+```
+
+After this operation, both sides are updated atomically:
+
+1. `Student.courseIds` is set to `[mathId, physicsId]`
+2. `Course:math.studentIds` has John's ID appended
+3. `Course:physics.studentIds` has John's ID appended
+
+### Disconnecting records
+
+```typescript
+await client.db.Student.updateMany({
+  where: { id: studentId },
+  data: {
+    courses: { disconnect: [mathId] },
+  },
+});
+```
+
+After this operation:
+
+1. `Student.courseIds` has `mathId` removed
+2. `Course:math.studentIds` has the student's ID removed
+
+### Connect and disconnect in one update
+
+```typescript
+await client.db.Student.updateMany({
+  where: { id: studentId },
+  data: {
+    courses: {
+      connect: [chemistryId, biologyId],
+      disconnect: [mathId],
+    },
+  },
+});
+```
+
+All operations are executed atomically within a single transaction.
+
+## Creating with Nested Create
+
+Create related records inline:
+
+```typescript
+const student = await client.db.Student.create({
+  data: {
+    name: 'Alice',
+    courses: {
+      create: [{ name: 'Python 101', code: 'PY101' }, { name: 'Rust 101', code: 'RS101' }],
+    },
+  },
+});
+// New Course records are created, and both sides are linked
+```
+
+You can mix `create` and `connect`:
+
+```typescript
+const student = await client.db.Student.create({
+  data: {
+    name: 'Bob',
+    courses: {
+      create: [{ name: 'New Course', code: 'NEW101' }],
+      connect: [existingCourseId],
+    },
+  },
+});
+```
+
+## Set (Replace All)
+
+The `set` operation replaces the entire FK array contents. All existing connections are removed, and only the specified IDs remain:
+
+```typescript
+await client.db.Student.updateMany({
+  where: { id: studentId },
+  data: {
+    courses: { set: [courseId1, courseId2] },
+  },
+});
+```
+
+This atomically:
+
+1. Removes the student's ID from all previously connected courses' `studentIds`
+2. Sets `Student.courseIds` to `[courseId1, courseId2]`
+3. Adds the student's ID to `courseId1.studentIds` and `courseId2.studentIds`
+
+:::caution
+`set` is a full replacement. Any courses not in the `set` array are disconnected. Use `connect` and `disconnect` for incremental changes.
+:::
+
+## Querying
+
+### Include related records
+
+```typescript
+const student = await client.db.Student.findOne({
+  where: { id: studentId },
+  include: { courses: true },
+});
+// student: { id: CerialId, name: string, courseIds: CerialId[], courses: Course[] }
+
+const course = await client.db.Course.findOne({
+  where: { code: 'PY101' },
+  include: { students: true },
+});
+// course: { id: CerialId, name: string, studentIds: CerialId[], students: Student[] }
+```
+
+### Include with options
+
+```typescript
+const student = await client.db.Student.findOne({
+  where: { id: studentId },
+  include: {
+    courses: {
+      orderBy: { name: 'asc' },
+      limit: 20,
+    },
+  },
+});
+```
+
+### Filter by related records
+
+Array relations support three where operators:
+
+#### `some` — at least one match
+
+```typescript
+// Find students enrolled in at least one course named 'Python 101'
+const students = await client.db.Student.findMany({
+  where: {
+    courses: { some: { name: 'Python 101' } },
+  },
+});
+```
+
+#### `every` — all must match
+
+```typescript
+// Find students where all their courses have code starting with 'PY'
+const students = await client.db.Student.findMany({
+  where: {
+    courses: { every: { code: { startsWith: 'PY' } } },
+  },
+});
+```
+
+#### `none` — no matches
+
+```typescript
+// Find students not enrolled in any course with code 'MATH101'
+const students = await client.db.Student.findMany({
+  where: {
+    courses: { none: { code: 'MATH101' } },
+  },
+});
+```
+
+## Deleting Records in N:N
+
+When a record participating in an N:N relation is deleted, its ID is **automatically removed** from all `Record[]` arrays on the other side:
+
+```typescript
+await client.db.Student.deleteMany({ where: { id: studentId } });
+// All Courses that had this student in their studentIds array
+// will have the student's ID removed automatically
+```
+
+This cleanup is handled atomically in the delete transaction. See [Delete Behavior](/cerial/relations/on-delete/) for details.
+
+:::note
+`@onDelete` is not allowed on array relations (`Relation[]`). The automatic ID removal is always applied.
+:::
+
+## One-Directional Array Relations
+
+If only **one** side defines `Record[]` + `Relation[] @field` and the other side has no reverse relation, the relation works without bidirectional sync:
+
+```cerial
+model Blogger {
+  id Record @id
+  name String
+  labelIds Record[]
+  labels Relation[] @field(labelIds) @model(Label)
+}
+
+model Label {
+  id Record @id
+  name String @unique
+}
+```
+
+This is a valid pattern — `Blogger` can manage its labels, but `Label` has no way to query which bloggers use it. No bidirectional sync occurs since there's nothing to sync with.
+
+:::tip
+Use one-directional array relations when the target model doesn't need to know about the relationship. For full two-way access, add `Record[]` + `Relation[] @field` to both sides.
+:::
+
+## Transaction Guarantees
+
+All N:N operations — connect, disconnect, set, create, and delete cleanup — are wrapped in transactions. This ensures:
+
+- Both sides are always consistent
+- No partial updates if an operation fails
+- Validation errors (e.g., connecting to a non-existent record) roll back the entire operation
