@@ -3,7 +3,7 @@ title: Schema
 description: Define your data models, embedded types, enums, tuples, and literals using Cerial's schema definition language.
 ---
 
-import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
 
 Cerial schemas are defined in `.cerial` files using a concise, Prisma-inspired syntax. Each schema file describes your database structure — models, embedded types, enums, and more — and Cerial uses them to generate a fully type-safe TypeScript client.
 
@@ -253,13 +253,11 @@ model Post extends Timestamped {
 
 ## What's in This Section
 
-<CardGrid>
-  <LinkCard title="Field Types" description="All built-in types — String, Int, Float, Bool, Date, Record, Uuid, Duration, Decimal, and more." href="/cerial/schema/field-types/" />
-  <LinkCard title="Arrays" description="Array syntax, default behavior, the @set decorator, and supported element types." href="/cerial/schema/field-types/arrays/" />
-  <LinkCard title="Optional Fields" description="Optional fields, nullable fields, and the NONE vs null distinction." href="/cerial/schema/optional-fields/" />
-  <LinkCard title="Comments" description="Three comment styles — hash, double-slash, and block comments." href="/cerial/schema/comments/" />
-  <LinkCard title="Cross-File References" description="Split schemas across files — recursive scanning, forward references, and shared scopes." href="/cerial/schema/cross-file-references/" />
-</CardGrid>
+- [Field Types](/schema/field-types) — All built-in types — String, Int, Float, Bool, Date, Record, Uuid, Duration, Decimal, and more.
+- [Arrays](/schema/field-types/arrays) — Array syntax, default behavior, the @set decorator, and supported element types.
+- [Optional Fields](/schema/optional-fields) — Optional fields, nullable fields, and the NONE vs null distinction.
+- [Comments](/schema/comments) — Three comment styles — hash, double-slash, and block comments.
+- [Cross-File References](/schema/cross-file-references) — Split schemas across files — recursive scanning, forward references, and shared scopes.
 
 :::note[Coming soon]
 Additional schema pages — Decorators, Typed IDs, Inheritance, Enums, Literals, and more — are being added to the documentation.

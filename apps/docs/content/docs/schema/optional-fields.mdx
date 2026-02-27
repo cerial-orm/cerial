@@ -1,9 +1,6 @@
 ---
 title: Optional Fields
 description: Optional fields, nullable fields, NONE vs null distinction, CerialNone, and how these modifiers affect TypeScript types and queries.
-sidebar:
-  label: Optional Fields
-  order: 5
 ---
 
 SurrealDB distinguishes between two kinds of "empty": a field that **doesn't exist** on the record (NONE) and a field that **exists with an explicit null value**. Cerial exposes this distinction through two independent modifiers — `?` for optionality and `@nullable` for null — giving you precise control over each field's behavior.

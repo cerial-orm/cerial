@@ -3,7 +3,7 @@ title: Getting Started
 description: Install Cerial, define your first schema, generate a type-safe client, and run your first queries against SurrealDB.
 ---
 
-import { Steps, Tabs, TabItem, LinkCard, CardGrid } from '@astrojs/starlight/components';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 
 In this guide, you'll define a schema with two related models, generate a fully typed TypeScript client, and use it to create, query, update, and delete records in SurrealDB — all with complete type safety and zero hand-written SQL.
 
@@ -20,7 +20,7 @@ Cerial requires **two things** installed on your machine before you begin:
 
 ## Your First Cerial Project
 
-<Steps>
+
 
 1. **Install Cerial**
 
@@ -75,15 +75,15 @@ Cerial requires **two things** installed on your machine before you begin:
 
    Run the `generate` command to produce your type-safe client. You can either pass paths directly as CLI flags, or use a config file:
 
-   <Tabs>
-     <TabItem label="CLI Flags">
+   <Tabs items={['CLI Flags', 'Config File']}>
+     <Tab value="CLI Flags">
        ```bash
        bunx cerial generate -s ./schemas -o ./db-client
        ```
 
        `-s` sets the schema directory, `-o` sets the output directory.
-     </TabItem>
-     <TabItem label="Config File">
+     </Tab>
+     <Tab value="Config File">
        Create a `cerial.config.ts` at your project root:
 
        ```typescript
@@ -102,7 +102,7 @@ Cerial requires **two things** installed on your machine before you begin:
        ```
 
        The config file approach is recommended for projects — it keeps your options in one place and supports advanced features like multi-schema setups and formatting preferences.
-     </TabItem>
+     </Tab>
    </Tabs>
 
    The generated output looks like this:
@@ -240,17 +240,15 @@ Cerial requires **two things** installed on your machine before you begin:
    await client.disconnect();
    ```
 
-</Steps>
+
 
 ## What's Next?
 
 You've covered the basics — schema definition, client generation, and CRUD operations. Cerial has much more to offer:
 
-<CardGrid>
-  <LinkCard title="Schema" description="Full schema syntax — field types, decorators, arrays, optionals, and more." href="/cerial/schema/" />
-  <LinkCard title="Relations" description="1:1, 1:N, and N:N relations with nested creates, connects, and cascade deletes." href="/cerial/relations/" />
-  <LinkCard title="Queries" description="All query methods — findOne, findMany, upsert, count, exists, and transactions." href="/cerial/queries/" />
-  <LinkCard title="Filtering" description="Comparison, string, array, logical, and nested filter operators." href="/cerial/filtering/" />
-  <LinkCard title="Objects & Tuples" description="Embedded object types and fixed-length tuple types with sub-field select." href="/cerial/objects/" />
-  <LinkCard title="Type System" description="CerialId, NONE vs null, generated types, and dynamic return types." href="/cerial/types/" />
-</CardGrid>
+- [Schema](/schema) — Full schema syntax — field types, decorators, arrays, optionals, and more.
+- [Relations](/relations) — 1:1, 1:N, and N:N relations with nested creates, connects, and cascade deletes.
+- [Queries](/queries) — All query methods — findOne, findMany, upsert, count, exists, and transactions.
+- [Filtering](/filtering) — Comparison, string, array, logical, and nested filter operators.
+- [Objects & Tuples](/objects) — Embedded object types and fixed-length tuple types with sub-field select.
+- [Type System](/types) — CerialId, NONE vs null, generated types, and dynamic return types.

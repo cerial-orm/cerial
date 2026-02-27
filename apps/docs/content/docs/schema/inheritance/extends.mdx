@@ -3,7 +3,7 @@ title: Extends
 description: Schema-level inheritance for models, objects, tuples, enums, and literals.
 ---
 
-import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 
 Cerial supports schema-level inheritance across all five type kinds — models, objects, tuples, enums, and literals. A child type inherits the fields (or elements, values, variants) from a parent type and can add its own. Inheritance is resolved at compile time: generators see a fully flattened result with no `extends` references remaining.
 
@@ -321,23 +321,23 @@ Both `RegularUser` and `Admin` inherit the shared fields. `Admin` omits `isActiv
 
 Types can extend parents defined in other `.cerial` files — no import syntax is needed. Cerial resolves all types across files within a schema entry before applying inheritance:
 
-<Tabs>
-  <TabItem label="base.cerial">
+<Tabs items={['base.cerial', 'users.cerial']}>
+  <Tab value="base.cerial">
     ```cerial
     abstract model BaseEntity {
       id Record @id
       createdAt Date @createdAt
     }
     ```
-  </TabItem>
-  <TabItem label="users.cerial">
+  </Tab>
+  <Tab value="users.cerial">
     ```cerial
     model User extends BaseEntity {
       email Email @unique
       name String
     }
     ```
-  </TabItem>
+  </Tab>
 </Tabs>
 
 Both files must be in the same schema folder (or same schema entry in a multi-schema config). Cross-schema extends — between different schema entries — is not supported.

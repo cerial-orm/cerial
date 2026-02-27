@@ -3,7 +3,7 @@ title: Literals
 description: Union types with specific values, broad types, and structured variants
 ---
 
-import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 
 Literals define union types for fields — a single field that can hold one of several specific values or structured types. They're more flexible than enums: where enums are limited to named string constants, literals can mix strings, numbers, booleans, broad types, objects, tuples, and references to other literals or enums.
 
@@ -65,21 +65,21 @@ The five broad types are `String`, `Int`, `Float`, `Bool`, and `Date`.
 
 Literals can include variants from other literals or enums. The referenced type's values are expanded and deduplicated into the parent literal:
 
-<Tabs>
-  <TabItem label="Literal ref">
+<Tabs items={['Literal ref', 'Enum ref']}>
+  <Tab value="Literal ref">
     ```cerial
     literal Status { 'active', 'inactive', 'pending' }
     literal ExtendedStatus { Status, 'archived', 'deleted' }
     # ExtendedStatus = 'active' | 'inactive' | 'pending' | 'archived' | 'deleted'
     ```
-  </TabItem>
-  <TabItem label="Enum ref">
+  </Tab>
+  <Tab value="Enum ref">
     ```cerial
     enum Role { ADMIN, EDITOR, VIEWER }
     literal RoleOrCustom { Role, 'custom' }
     # RoleOrCustom = 'ADMIN' | 'EDITOR' | 'VIEWER' | 'custom'
     ```
-  </TabItem>
+  </Tab>
 </Tabs>
 
 When a literal references an enum, the enum's string values are inlined into the literal's union. This lets you build on existing enums when you need a broader set of values.

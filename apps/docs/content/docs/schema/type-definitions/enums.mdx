@@ -3,7 +3,7 @@ title: Enums
 description: String-only named constants with generated TypeScript types
 ---
 
-import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 
 Enums define a fixed set of named string constants for a field. They work like enums in Prisma — you declare the allowed values, and Cerial generates a TypeScript const object for runtime access, a union type for annotations, and a where type for filtering.
 
@@ -11,13 +11,13 @@ Enums define a fixed set of named string constants for a field. They work like e
 
 Declare an enum with the `enum` keyword followed by a name and a list of values:
 
-<Tabs>
-  <TabItem label="Single line">
+<Tabs items={['Single line', 'Multi-line']}>
+  <Tab value="Single line">
     ```cerial
     enum Status { ACTIVE, INACTIVE, PENDING }
     ```
-  </TabItem>
-  <TabItem label="Multi-line">
+  </Tab>
+  <Tab value="Multi-line">
     ```cerial
     enum Role {
       ADMIN
@@ -25,7 +25,7 @@ Declare an enum with the `enum` keyword followed by a name and a list of values:
       VIEWER
     }
     ```
-  </TabItem>
+  </Tab>
 </Tabs>
 
 Pick one style per block — comma-separated on a single line, or newline-separated with one value per line. Don't mix both in the same enum.
