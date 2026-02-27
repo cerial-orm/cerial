@@ -1,8 +1,6 @@
 ---
 title: '@uuid'
 description: Auto-generate a UUID value on record creation using the server default (currently v7).
-sidebar:
-  label: '@uuid'
 ---
 
 Auto-generates a UUID value when a record is created and the field is not provided. Uses SurrealDB's `rand::uuid()` function, which currently produces v7 (time-ordered) UUIDs.
