@@ -1,6 +1,7 @@
 {
   "title": "Docs",
   "pages": [
+    "introduction",
     "getting-started",
     "---Schema---",
     "schema",

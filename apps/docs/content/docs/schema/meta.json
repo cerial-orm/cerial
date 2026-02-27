@@ -3,6 +3,7 @@
   "pages": [
     "...schema",
     "field-types",
+    "arrays",
     "optional-fields",
     "comments",
     "cross-file-references",

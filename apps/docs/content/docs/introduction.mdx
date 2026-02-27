@@ -1,0 +1,25 @@
+---
+title: Introduction
+description: What is Cerial and why use it.
+---
+
+# Introduction
+
+Cerial is a schema-first ORM for [SurrealDB](https://surrealdb.com/) that generates a fully typed TypeScript client from `.cerial` schema files. If you've used Prisma, the workflow will feel familiar — define your data models in a dedicated schema language, run a generator, and get a type-safe client with IntelliSense for every query.
+
+## Why Cerial?
+
+SurrealDB is a multi-model database that supports documents, graph relations, and real-time queries out of the box. Cerial bridges the gap between SurrealDB's flexible query language (SurrealQL) and TypeScript's type system so you can:
+
+- **Define schemas declaratively** — Models, relations, embedded objects, tuples, enums, and literal types in a clean syntax.
+- **Generate types automatically** — Every model, field, and relation produces precise TypeScript types. Select and include options narrow return types dynamically.
+- **Query with confidence** — Parameterized queries, lazy execution via `CerialQueryPromise`, transactions, and full CRUD with nested relation operations.
+- **Stay in sync** — Schema changes regenerate types and auto-generate SurrealQL migration statements (`DEFINE TABLE`, `DEFINE FIELD`, `DEFINE INDEX`).
+
+## Who is it for?
+
+Cerial is built for TypeScript developers using [Bun](https://bun.sh/) who want a structured, type-safe layer on top of SurrealDB. Whether you're building a REST API, a real-time app, or a CLI tool backed by SurrealDB, Cerial keeps your data layer predictable and your types honest.
+
+## Next Steps
+
+Head to [Getting Started](/getting-started) to install Cerial, define your first schema, and run your first query.
