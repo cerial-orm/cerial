@@ -1,4 +1,10 @@
 {
   "title": "Select & Include",
-  "pages": ["...select-and-include"]
+  "pages": [
+    "select",
+    "object-sub-select",
+    "include",
+    "nested-includes",
+    "select-plus-include"
+  ]
 }

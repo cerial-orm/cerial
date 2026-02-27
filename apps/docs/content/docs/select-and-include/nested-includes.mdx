@@ -1,0 +1,185 @@
+---
+title: Nested Includes
+description: Include relations of relations to arbitrary depth — load related records through multiple levels of your data graph.
+---
+
+Cerial supports nested includes — loading relations of relations to any depth. Each level of nesting supports the full set of include options, so you can filter, sort, and paginate at every level.
+
+All examples use this schema:
+
+```cerial
+object Address {
+  street String
+  city String
+  state String
+}
+
+model User {
+  id Record @id
+  name String
+  email Email
+  age Int?
+  address Address
+  shipping Address?
+  profileId Record?
+  profile Relation? @field(profileId) @model(Profile)
+  posts Relation[] @model(Post)
+}
+
+model Profile {
+  id Record @id
+  bio String
+  avatarUrl String?
+}
+
+model Post {
+  id Record @id
+  title String
+  content String?
+  published Bool @default(false)
+  createdAt Date @createdAt
+  authorId Record
+  author Relation @field(authorId) @model(User)
+  comments Relation[] @model(Comment)
+}
+
+model Comment {
+  id Record @id
+  body String
+  createdAt Date @createdAt
+  authorId Record
+  author Relation @field(authorId) @model(User)
+  postId Record
+  post Relation @field(postId) @model(Post)
+}
+```
+
+## Basic Nested Include
+
+Pass `include` inside an include option to load the next level of relations:
+
+```typescript
+const user = await client.db.User.findOne({
+  where: { name: 'Jane' },
+  include: {
+    posts: {
+      include: { author: true },
+    },
+  },
+});
+// user: (User & { posts: (Post & { author: User })[] }) | null
+// user.posts[0].author.name ✓
+```
+
+Each post now has its `author` relation loaded as a full `User` object.
+
+## Nested Include with Select
+
+You can use `select` at any include level to narrow the TypeScript type:
+
+```typescript
+const user = await client.db.User.findOne({
+  where: { name: 'Jane' },
+  include: {
+    posts: {
+      include: {
+        author: {
+          select: { name: true, email: true },
+        },
+      },
+    },
+  },
+});
+// TypeScript type: user.posts[0].author is { name: string; email: string }
+```
+
+:::caution
+As with top-level includes, `select` inside nested includes is **type-level only** — the runtime returns full related objects regardless of the select. This applies at every nesting level.
+:::
+
+## Multi-Level Nesting
+
+Nesting can go to arbitrary depth. Each level supports the full set of include options:
+
+```typescript
+const user = await client.db.User.findOne({
+  where: { name: 'Jane' },
+  include: {
+    posts: {
+      include: {
+        comments: {
+          include: { author: true },
+        },
+      },
+    },
+  },
+});
+// user.posts[0].comments[0].author.name ✓
+// Three levels deep: User → Post → Comment → User
+```
+
+## Options at Every Level
+
+Each nested include supports `where`, `orderBy`, `limit`, `offset`, `select`, and `include` independently:
+
+```typescript
+const user = await client.db.User.findOne({
+  where: { name: 'Jane' },
+  include: {
+    posts: {
+      where: { published: true },
+      orderBy: { createdAt: 'desc' },
+      limit: 5,
+      include: {
+        comments: {
+          orderBy: { createdAt: 'asc' },
+          limit: 10,
+          include: { author: true },
+        },
+      },
+    },
+  },
+});
+// 5 most recent published posts
+// Each with up to 10 comments (oldest first)
+// Each comment with its author loaded
+```
+
+| Option | Available at Every Level |
+|---|---|
+| `where` | ✅ Filter which related records to include |
+| `orderBy` | ✅ Sort included records |
+| `limit` | ✅ Cap the number of included records |
+| `offset` | ✅ Skip records for pagination |
+| `select` | ✅ Narrow TypeScript type (type-level only) |
+| `include` | ✅ Load the next level of relations |
+
+## Practical Example: Blog Post with Full Context
+
+A common pattern is loading a blog post with its author, comments, and each comment's author:
+
+```typescript
+const post = await client.db.Post.findOne({
+  where: { title: 'Getting Started with Cerial' },
+  include: {
+    author: true,
+    comments: {
+      orderBy: { createdAt: 'asc' },
+      include: { author: true },
+    },
+  },
+});
+// post: (Post & {
+//   author: User;
+//   comments: (Comment & { author: User })[];
+// }) | null
+
+if (post) {
+  console.log(`By ${post.author.name}`);
+  for (const comment of post.comments) {
+    console.log(`${comment.author.name}: ${comment.body}`);
+  }
+}
+```
+
+This loads everything needed to render a full blog post page in a single query — the post itself, its author, all comments sorted chronologically, and each comment's author.

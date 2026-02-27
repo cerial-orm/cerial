@@ -1,0 +1,162 @@
+---
+title: Select + Include
+description: Combine field selection with relation loading — narrow your model fields while also fetching related records.
+---
+
+You can use `select` and `include` together in the same query. The return type is the intersection of selected fields and included relations — you get only the scalar fields you asked for, plus the loaded relations.
+
+All examples use this schema:
+
+```cerial
+object Address {
+  street String
+  city String
+  state String
+}
+
+model User {
+  id Record @id
+  name String
+  email Email
+  age Int?
+  address Address
+  shipping Address?
+  profileId Record?
+  profile Relation? @field(profileId) @model(Profile)
+  posts Relation[] @model(Post)
+}
+
+model Profile {
+  id Record @id
+  bio String
+  avatarUrl String?
+}
+
+model Post {
+  id Record @id
+  title String
+  content String?
+  published Bool @default(false)
+  createdAt Date @createdAt
+  authorId Record
+  author Relation @field(authorId) @model(User)
+  comments Relation[] @model(Comment)
+}
+
+model Comment {
+  id Record @id
+  body String
+  createdAt Date @createdAt
+  authorId Record
+  author Relation @field(authorId) @model(User)
+  postId Record
+  post Relation @field(postId) @model(Post)
+}
+```
+
+## How It Works
+
+When both `select` and `include` are provided, the result type is the intersection of:
+- The narrowed type from `select` (only selected scalar/object fields)
+- The included relations from `include`
+
+```typescript
+const user = await client.db.User.findOne({
+  where: { name: 'Jane' },
+  select: { id: true, name: true, email: true },
+  include: { posts: true },
+});
+// user: { id: CerialId; name: string; email: string } & { posts: Post[] } | null
+```
+
+The result has only `id`, `name`, and `email` from the model, plus the full `posts` array.
+
+## Object Sub-Select with Include
+
+You can use object sub-field selection in `select` while also including relations:
+
+```typescript
+const user = await client.db.User.findOne({
+  where: { name: 'Jane' },
+  select: {
+    name: true,
+    address: { city: true, state: true },
+  },
+  include: { profile: true },
+});
+// user: {
+//   name: string;
+//   address: { city: string; state: string };
+// } & { profile: Profile | null } | null
+```
+
+## Include with Select on Relations
+
+Combine top-level `select` with `select` inside `include` to narrow both sides:
+
+```typescript
+const user = await client.db.User.findOne({
+  where: { name: 'Jane' },
+  select: { name: true },
+  include: {
+    posts: {
+      where: { published: true },
+      select: { title: true, createdAt: true },
+    },
+  },
+});
+// TypeScript type:
+// { name: string } & { posts: { title: string; createdAt: Date }[] } | null
+```
+
+:::caution
+Remember that `select` inside `include` is **type-level only** — full related objects are returned at runtime. Only top-level `select` affects actual data transfer.
+:::
+
+## Include with Nested Includes
+
+Top-level `select` combines with nested includes at any depth:
+
+```typescript
+const post = await client.db.Post.findOne({
+  where: { title: 'Hello' },
+  select: { id: true, title: true },
+  include: {
+    author: true,
+    comments: {
+      include: { author: true },
+    },
+  },
+});
+// post: {
+//   id: CerialId;
+//   title: string;
+// } & {
+//   author: User;
+//   comments: (Comment & { author: User })[];
+// } | null
+```
+
+## When to Use Both
+
+Combining `select` and `include` is useful when you need:
+
+- **API responses** — Return only the fields your API consumer needs, plus related data
+- **Performance** — Reduce the data transferred for the primary model while still loading necessary relations
+- **Type safety** — Get a precise return type that matches exactly what your code uses
+
+```typescript
+// API endpoint: return user summary with recent posts
+const user = await client.db.User.findOne({
+  where: { id: userId },
+  select: { id: true, name: true, email: true },
+  include: {
+    posts: {
+      where: { published: true },
+      orderBy: { createdAt: 'desc' },
+      limit: 5,
+    },
+  },
+});
+// Clean, typed response with only the data you need
+```
