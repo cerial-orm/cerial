@@ -1,0 +1,215 @@
+---
+title: Abstract Models
+description: Template models that exist only for inheritance — no table, no types, no client access.
+---
+
+Abstract models define reusable field sets that other models can [extend](/cerial/schema/inheritance/extends/). They exist only during schema resolution. No table, no TypeScript types, no client accessor, and no registry entry are generated for them — they're consumed during inheritance resolution and then discarded.
+
+## Syntax
+
+The `abstract` keyword goes before `model`. Everything inside the body follows normal field syntax — decorators, optionals, arrays, and relations all work:
+
+```cerial
+abstract model BaseEntity {
+  id Record @id
+  createdAt Date @createdAt
+  updatedAt Date @updatedAt
+}
+```
+
+## What Abstract Suppresses
+
+An abstract model produces **nothing** in the generated output:
+
+| Generated artifact             | Abstract | Concrete |
+| ------------------------------- | -------- | -------- |
+| SurrealDB table                 | No       | Yes      |
+| TypeScript interface            | No       | Yes      |
+| Client accessor (`db.Model`)    | No       | Yes      |
+| Model registry entry            | No       | Yes      |
+
+Concrete children that extend an abstract model get their own tables and types with the inherited fields flattened in. There is no `client.db.BaseEntity` — the abstract model doesn't exist at runtime.
+
+## Basic Usage
+
+Define common fields once and share them across any number of concrete models:
+
+```cerial
+abstract model Timestamped {
+  id Record @id
+  createdAt Date @createdAt
+  updatedAt Date @updatedAt
+}
+
+model User extends Timestamped {
+  email Email @unique
+  name String
+}
+
+model Post extends Timestamped {
+  title String
+  content String?
+}
+```
+
+Both `User` and `Post` get `id`, `createdAt`, and `updatedAt` from `Timestamped`. Each model has its own independent table and generated types:
+
+```typescript
+// User has all five fields
+const user = await client.db.User.create({
+  data: { email: 'alice@test.com', name: 'Alice' },
+});
+user.id;        // CerialId<string>
+user.createdAt; // Date
+user.updatedAt; // Date
+
+// Post has its own four fields
+const post = await client.db.Post.create({
+  data: { title: 'Hello World' },
+});
+```
+
+## Layered Abstracts
+
+Abstract models can extend other abstract models, building up shared field sets incrementally:
+
+```cerial
+abstract model L1Base {
+  id Record @id
+  createdAt Date @createdAt
+}
+
+abstract model L2Named extends L1Base {
+  name String
+  description String?
+}
+
+abstract model L3Tagged extends L2Named {
+  tags String[]
+  metadata Int?
+}
+
+model Article extends L3Tagged {
+  status String @default('draft')
+}
+```
+
+`Article` gets the full chain: `id`, `createdAt`, `name`, `description`, `tags`, `metadata`, and `status`. Each abstract layer adds its own fields without repeating what came before.
+
+## Inheritance Rules
+
+### What Can Extend What
+
+| Parent     | Child      | Allowed? |
+| ---------- | ---------- | -------- |
+| abstract   | abstract   | Yes      |
+| abstract   | concrete   | Yes      |
+| concrete   | concrete   | **No**   |
+| concrete   | abstract   | **No**   |
+
+All models — both concrete and abstract — can **only** extend abstract models. A model cannot extend a concrete model. This keeps a clean separation: abstract models serve as reusable templates, and concrete models are always leaf types with their own tables.
+
+To share fields between concrete models, extract the common fields into an abstract intermediary:
+
+```cerial
+abstract model BaseEntity {
+  id Record @id
+  createdAt Date @createdAt
+  updatedAt Date @updatedAt
+}
+
+abstract model BaseUser extends BaseEntity {
+  email Email @unique
+  name String
+  isActive Bool @default(true)
+}
+
+model RegularUser extends BaseUser {
+  preferences String?
+}
+
+model Admin extends BaseUser[!isActive] {
+  level Int @default(1)
+  permissions String[]
+}
+```
+
+### Only Models Can Be Abstract
+
+The `abstract` keyword applies to models only. Objects, tuples, enums, and literals cannot be declared abstract — they don't generate tables, so there's no table to suppress. Any type kind can be used as a parent in `extends` without needing `abstract`.
+
+### No Directives on Abstract Models
+
+Composite directives (`@@index`, `@@unique`) are **not allowed** on abstract models. Since abstract models don't generate tables, there's nothing to index. If a concrete child needs an index, it must declare its own:
+
+```cerial
+abstract model BaseEntity {
+  id Record @id
+  name String
+  email Email
+  // @@unique([name, email])  — not allowed here
+}
+
+model User extends BaseEntity {
+  age Int?
+  @@unique([name, email])  // declare on the concrete model
+}
+```
+
+:::caution
+Placing `@@index` or `@@unique` on an abstract model is a schema validation error, not a silent no-op.
+:::
+
+## Common Patterns
+
+### Shared Timestamps
+
+The most common use case — define `id` and timestamp fields once:
+
+```cerial
+abstract model BaseEntity {
+  id Record @id !!private
+  createdAt Date @createdAt !!private
+  updatedAt Date @updatedAt
+}
+
+model User extends BaseEntity {
+  email Email @unique
+  name String
+}
+
+model Comment extends BaseEntity {
+  content String
+  authorId Record
+  author Relation @field(authorId) @model(User)
+}
+```
+
+Using [`!!private`](/cerial/schema/inheritance/private/) on `id` and `createdAt` prevents children from accidentally redefining those structural fields.
+
+### Role Hierarchy
+
+Build specialized models from a common user shape:
+
+```cerial
+abstract model BaseUser extends BaseEntity {
+  email Email @unique
+  name String
+  isActive Bool @default(true)
+}
+
+model RegularUser extends BaseUser {
+  preferences String?
+}
+
+model Admin extends BaseUser[!isActive] {
+  level Int @default(1)
+  permissions String[]
+}
+```
+
+`Admin` omits `isActive` since admins are always active by definition. `RegularUser` inherits the full set.
+
+:::note
+Abstract models are consumed during inheritance resolution and then discarded. They leave no trace in the generated output — only their fields live on inside the concrete children that extend them.
+:::
