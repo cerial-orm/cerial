@@ -1,0 +1,58 @@
+---
+title: Installation
+description: Install the Cerial VS Code extension from the Marketplace, command line, or VSIX file.
+---
+
+## VS Code Marketplace
+
+The quickest way to install. Open the Extensions panel in VS Code (Ctrl+Shift+X), search for **Cerial**, and click **Install**.
+
+The extension is published under the name **Cerial** by the `cerial` publisher. Look for the one with the description "Language support for .cerial schema files".
+
+## Command Line
+
+If you prefer the terminal, install directly with:
+
+```bash
+code --install-extension cerial.cerial
+```
+
+This works with both VS Code and VS Code Insiders (`code-insiders --install-extension cerial.cerial`).
+
+## Manual VSIX Install
+
+For offline installs or pre-release builds, you can install from a `.vsix` file:
+
+1. Download the `.vsix` file from the [GitHub releases page](https://github.com/cerial-orm/cerial/releases)
+2. Open VS Code
+3. Go to Extensions (Ctrl+Shift+X)
+4. Click the `...` menu at the top of the Extensions panel
+5. Select **Install from VSIX...**
+6. Choose the downloaded `.vsix` file
+
+## Compatible Editors
+
+The extension works with any editor built on VS Code's extension API:
+
+- **VS Code** (1.96.0+)
+- **VS Code Insiders**
+- **Cursor**
+- Other VS Code-compatible editors that support the Language Server Protocol
+
+## Activation
+
+The extension activates automatically when you open a `.cerial` file. There's nothing to configure or enable manually. The activation event is `onLanguage:cerial`, so the extension stays dormant until you actually work with a Cerial schema.
+
+## Verify the Installation
+
+After installing, open any `.cerial` file in your project. You should see:
+
+- **Syntax highlighting** on all keywords, types, and decorators
+- **Cerial** shown as the language in the bottom status bar
+- **Completions** appearing as you type inside a model or object block
+
+If highlighting doesn't appear, check that the file extension is `.cerial` and that no other extension is claiming the file type. You can verify the active language mode by clicking the language indicator in the status bar and confirming it says "Cerial".
+
+:::tip
+Format on save is enabled by default for `.cerial` files. If you want to adjust formatting behavior, see the [Settings](/extension/settings) page for all available options.
+:::

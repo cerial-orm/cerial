@@ -1,8 +1,123 @@
 ---
 title: VS Code Extension
-description: Syntax highlighting, completions, diagnostics, and formatting.
+description: Full language support for .cerial schema files with syntax highlighting, IntelliSense, diagnostics, formatting, navigation, and more.
 ---
 
-:::note
-This section is under construction. Check back soon!
-:::
+The Cerial VS Code extension gives you full language support for `.cerial` schema files. If you're building with the Cerial ORM, the extension turns VS Code into a proper schema editor with real-time feedback, smart completions, and one-click navigation across your entire schema.
+
+## Feature Highlights
+
+### Syntax Highlighting
+
+Rich TextMate grammar with semantic tokens for all constructs: models, objects, tuples, enums, literals, decorators, field types, comments, and modifiers. Works with every VS Code color theme.
+
+### IntelliSense
+
+Context-aware completions that know where you are in the schema. The extension suggests:
+
+- **Keywords** (`model`, `object`, `tuple`, `enum`, `literal`, `abstract`, `extends`)
+- **15 field types** (String, Int, Float, Bool, Date, Email, Record, Relation, Uuid, Duration, Decimal, Bytes, Geometry, Number, Any)
+- **25+ decorators** (`@default`, `@unique`, `@createdAt`, `@readonly`, `@nullable`, `@set`, `@uuid`, geometry subtypes, and more)
+- **Cross-file type references** for models, objects, tuples, enums, and literals
+- **`@model()` and `@field()` arguments** from available models and Record fields
+- **`extends` targets** filtered to valid parent types
+
+Suggestions adapt to context. Inside an enum block, you only see enum-relevant options. Inside a model, you get the full set of field types and decorators.
+
+### Diagnostics
+
+Real-time parse errors and 11 schema validators running as you type. Errors show precise line and column locations with actionable messages. Validators cover relation rules, decorator conflicts, type consistency, and more.
+
+### Formatting
+
+Format on save with 9 configurable style options. The extension shares its formatting engine with the [CLI formatter](/cli/formatter), so files formatted in the editor match CLI output exactly.
+
+Options include column-aligned decorators, configurable indentation, blank line handling between blocks, comment style normalization, and trailing comma control.
+
+### Navigation
+
+- **Go to Definition** (Ctrl+Click or F12) jumps to the definition of any type reference across files
+- **Find All References** (Shift+F12) shows every usage of a type across the workspace
+- **Rename Symbol** (F2) renames a type and updates all references across files automatically
+
+### Hover Documentation
+
+Hover over any keyword, type, or decorator to see rich Markdown tooltips with type information, SurrealDB type mappings, and decorator behavior documentation.
+
+### Code Actions
+
+12 quick fix types for common schema issues. When the extension detects a problem, it offers targeted fixes:
+
+- Add missing `@id` field
+- Add missing `Relation` for a Record field
+- Fix decorator conflicts (e.g., `@createdAt` with `@default`)
+- Correct unknown type references
+- And more
+
+### Inlay Hints
+
+Inline annotations that surface inferred information without cluttering your schema:
+
+- **Inferred FK types** on Record fields (e.g., `: CerialId<number>` when the target model uses `Record(int) @id`)
+- **Behavior indicators** showing what the database does automatically (`auto-generated`, `computed`, `sets on create`, `resets on update`)
+- **Inherited field sources** showing which parent a field came from in `extends` types
+
+### Document Outline
+
+Models, objects, tuples, enums, and literals appear in the VS Code Outline panel and breadcrumbs, giving you a structured overview of every schema file.
+
+### Workspace Symbols
+
+Press Ctrl+T to jump to any type definition across all `.cerial` files in your workspace. Useful for large projects with dozens of schema files.
+
+### Document Links
+
+Type references inside decorators (like `@model(User)`) become clickable links that navigate directly to the target definition.
+
+### Folding
+
+Collapse and expand model, object, tuple, enum, and literal blocks. Comment region folding is also supported.
+
+### Snippets
+
+16 code snippets for rapid scaffolding:
+
+| Prefix | What it creates |
+|--------|-----------------|
+| `model` | New model with id field |
+| `abstract` | New abstract model |
+| `object` | New embedded object type |
+| `tuple` | New tuple type |
+| `enum` | New enum type |
+| `literal` | New literal union type |
+| `rel11` | One-to-one relation pair |
+| `rel1n` | One-to-many relation pair |
+| `relnn` | Many-to-many relation pair |
+| `fdef` | Field with `@default` |
+| `timestamps` | `createdAt` + `updatedAt` fields |
+| `id` | Standard record ID field |
+| `tid` | Typed record ID field |
+| `@@unique` | Composite unique constraint |
+| `@@index` | Composite index |
+| `extends` | Inherit from parent type |
+
+## Compatibility
+
+The extension works with:
+
+- **VS Code** 1.96.0 and later
+- **Cursor** and other VS Code-compatible editors
+- **VS Code Insiders**
+
+## Known Limitations
+
+- No migration preview or diff view
+- No embedded SurrealQL highlighting inside schema files
+- No navigation from generated TypeScript code back to schema definitions
+
+## What's in This Section
+
+- [**Installation**](/extension/installation) - Install from the Marketplace, command line, or VSIX
+- [**Features**](/extension/features) - Detailed walkthrough of every feature
+- [**Settings**](/extension/settings) - All configurable options for formatting, diagnostics, and inlay hints
+- [**Snippets**](/extension/snippets) - Full snippet reference with examples
