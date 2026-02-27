@@ -40,6 +40,84 @@ export default defineConfig({
             { label: 'Optional Fields', link: '/schema/optional-fields/' },
             { label: 'Comments', link: '/schema/comments/' },
             { label: 'Cross-File References', link: '/schema/cross-file-references/' },
+            {
+              label: 'Decorators',
+              collapsed: true,
+              items: [
+                { label: 'Overview', link: '/schema/decorators/' },
+                { label: '@id', link: '/schema/decorators/id/' },
+                {
+                  label: 'Datetime',
+                  collapsed: true,
+                  items: [
+                    { label: '@createdAt', link: '/schema/decorators/datetime/created-at/' },
+                    { label: '@updatedAt', link: '/schema/decorators/datetime/updated-at/' },
+                    { label: '@now', link: '/schema/decorators/datetime/now/' },
+                  ],
+                },
+                {
+                  label: 'Defaults',
+                  collapsed: true,
+                  items: [
+                    { label: '@default', link: '/schema/decorators/defaults/default/' },
+                    { label: '@defaultAlways', link: '/schema/decorators/defaults/default-always/' },
+                  ],
+                },
+                {
+                  label: 'Relations',
+                  collapsed: true,
+                  items: [
+                    { label: '@field', link: '/schema/decorators/relations/field/' },
+                    { label: '@model', link: '/schema/decorators/relations/model/' },
+                    { label: '@key', link: '/schema/decorators/relations/key/' },
+                    { label: '@onDelete', link: '/schema/decorators/relations/on-delete/' },
+                  ],
+                },
+                {
+                  label: 'Indexes',
+                  collapsed: true,
+                  items: [
+                    { label: '@unique', link: '/schema/decorators/indexes/unique/' },
+                    { label: '@index', link: '/schema/decorators/indexes/index-decorator/' },
+                  ],
+                },
+                {
+                  label: 'Control',
+                  collapsed: true,
+                  items: [
+                    { label: '@nullable', link: '/schema/decorators/control/nullable/' },
+                    { label: '@readonly', link: '/schema/decorators/control/readonly/' },
+                    { label: '@flexible', link: '/schema/decorators/control/flexible/' },
+                  ],
+                },
+                {
+                  label: 'Arrays',
+                  collapsed: true,
+                  items: [
+                    { label: '@set', link: '/schema/decorators/arrays/set/' },
+                    { label: '@distinct', link: '/schema/decorators/arrays/distinct/' },
+                    { label: '@sort', link: '/schema/decorators/arrays/sort/' },
+                  ],
+                },
+                {
+                  label: 'Composites',
+                  collapsed: true,
+                  items: [
+                    { label: '@@index', link: '/schema/decorators/composites/composite-index/' },
+                    { label: '@@unique', link: '/schema/decorators/composites/composite-unique/' },
+                  ],
+                },
+                {
+                  label: 'UUID',
+                  collapsed: true,
+                  items: [
+                    { label: '@uuid', link: '/schema/decorators/uuid/uuid/' },
+                    { label: '@uuid4', link: '/schema/decorators/uuid/uuid4/' },
+                    { label: '@uuid7', link: '/schema/decorators/uuid/uuid7/' },
+                  ],
+                },
+              ],
+            },
           ],
         },
         {
