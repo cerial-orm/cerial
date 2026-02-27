@@ -1,0 +1,163 @@
+---
+title: Select
+description: Narrow return types by choosing specific fields — only get back the data you need with full type safety.
+---
+
+The `select` option lets you choose exactly which fields to return from a query. The TypeScript return type automatically narrows to only the selected fields, giving you both less data and tighter types.
+
+All examples use this schema:
+
+```cerial
+object Address {
+  street String
+  city String
+  state String
+}
+
+model User {
+  id Record @id
+  name String
+  email Email
+  age Int?
+  address Address
+  shipping Address?
+  profileId Record?
+  profile Relation? @field(profileId) @model(Profile)
+  posts Relation[] @model(Post)
+}
+
+model Profile {
+  id Record @id
+  bio String
+  avatarUrl String?
+}
+
+model Post {
+  id Record @id
+  title String
+  content String?
+  published Bool @default(false)
+  createdAt Date @createdAt
+  authorId Record
+  author Relation @field(authorId) @model(User)
+  comments Relation[] @model(Comment)
+}
+
+model Comment {
+  id Record @id
+  body String
+  createdAt Date @createdAt
+  authorId Record
+  author Relation @field(authorId) @model(User)
+  postId Record
+  post Relation @field(postId) @model(Post)
+}
+```
+
+## Basic Usage
+
+Pass an object with fields set to `true` to include them in the result:
+
+```typescript
+const user = await client.db.User.findOne({
+  where: { name: 'Jane' },
+  select: { name: true, email: true },
+});
+// user: { name: string; email: string } | null
+```
+
+Only `name` and `email` are returned. Accessing any other field (like `id` or `age`) produces a TypeScript compile-time error.
+
+```typescript
+const users = await client.db.User.findMany({
+  select: { id: true, name: true, age: true },
+});
+// users: { id: CerialId; name: string; age: number | undefined }[]
+```
+
+## Supported Query Methods
+
+`select` is available on all query methods that return data:
+
+| Method | Return Type with Select |
+|---|---|
+| `findOne` | `Selected \| null` |
+| `findMany` | `Selected[]` |
+| `findUnique` | `Selected \| null` |
+| `findAll` | `Selected[]` |
+| `create` | `Selected` |
+| `updateMany` | `Selected[]` |
+| `updateUnique` | `Selected \| null` |
+
+```typescript
+const created = await client.db.User.create({
+  data: { name: 'Jane', email: 'jane@example.com', address: { street: '1 Main', city: 'NYC', state: 'NY' } },
+  select: { id: true, name: true },
+});
+// created: { id: CerialId; name: string }
+```
+
+## Optional Fields
+
+When you select an optional field, the `| undefined` is preserved in the return type:
+
+```typescript
+const user = await client.db.User.findOne({
+  where: { name: 'Jane' },
+  select: { name: true, age: true },
+});
+// user: { name: string; age: number | undefined } | null
+```
+
+If the record has no `age` value (NONE), the field is `undefined`.
+
+## Record Fields
+
+Selecting a `Record` field returns a `CerialId`:
+
+```typescript
+const user = await client.db.User.findOne({
+  where: { name: 'Jane' },
+  select: { id: true, profileId: true },
+});
+// user: { id: CerialId; profileId: CerialId | undefined } | null
+```
+
+## Array Fields
+
+Selecting an array field returns the full array. Arrays are never `undefined` — they default to `[]`:
+
+```typescript
+const post = await client.db.Post.findOne({
+  where: { title: 'Hello' },
+  select: { title: true },
+});
+// post: { title: string } | null
+```
+
+## Embedded Objects
+
+Object fields support two modes in select:
+
+- **Boolean `true`** — returns the full object with all fields
+- **Object** — returns only the specified sub-fields (narrowed)
+
+```typescript
+// Full object
+const user = await client.db.User.findOne({
+  select: { name: true, address: true },
+});
+// user.address: Address (all fields)
+
+// Narrowed sub-fields
+const user2 = await client.db.User.findOne({
+  select: { name: true, address: { city: true, state: true } },
+});
+// user2.address: { city: string; state: string }
+```
+
+For detailed coverage of object sub-field selection including arrays, optional objects, and nested objects, see [Object Sub-Select](/select-and-include/object-sub-select).
+
+:::tip
+Selecting fewer fields means less data transferred from the database. Use `select` when you only need a subset of fields — especially useful for list views, API responses, and performance-sensitive queries.
+:::

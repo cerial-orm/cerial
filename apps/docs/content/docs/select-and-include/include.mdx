@@ -1,0 +1,181 @@
+---
+title: Include
+description: Load related records alongside your query results — fetch relations on demand with filtering, ordering, and pagination options.
+---
+
+Relations are **not** loaded by default in Cerial. The `include` option lets you explicitly load related records alongside your query results. The return type extends with the included relations.
+
+All examples use this schema:
+
+```cerial
+object Address {
+  street String
+  city String
+  state String
+}
+
+model User {
+  id Record @id
+  name String
+  email Email
+  age Int?
+  address Address
+  shipping Address?
+  profileId Record?
+  profile Relation? @field(profileId) @model(Profile)
+  posts Relation[] @model(Post)
+}
+
+model Profile {
+  id Record @id
+  bio String
+  avatarUrl String?
+}
+
+model Post {
+  id Record @id
+  title String
+  content String?
+  published Bool @default(false)
+  createdAt Date @createdAt
+  authorId Record
+  author Relation @field(authorId) @model(User)
+  comments Relation[] @model(Comment)
+}
+
+model Comment {
+  id Record @id
+  body String
+  createdAt Date @createdAt
+  authorId Record
+  author Relation @field(authorId) @model(User)
+  postId Record
+  post Relation @field(postId) @model(Post)
+}
+```
+
+## Boolean Include
+
+Pass `true` to load a relation with all its fields:
+
+```typescript
+const user = await client.db.User.findOne({
+  where: { name: 'Jane' },
+  include: { posts: true },
+});
+// user: (User & { posts: Post[] }) | null
+```
+
+The result is the full `User` type intersected with the included `posts` array.
+
+## Array vs Single Relations
+
+Array relations (`Relation[]`) produce arrays in the result. Single relations (`Relation` or `Relation?`) produce a single object or null:
+
+```typescript
+// Array relation
+const user = await client.db.User.findOne({
+  where: { name: 'Jane' },
+  include: { posts: true },
+});
+// user.posts: Post[]
+
+// Optional single relation
+const user2 = await client.db.User.findOne({
+  where: { name: 'Jane' },
+  include: { profile: true },
+});
+// user2.profile: Profile | null
+```
+
+Optional relations (`Relation?`) produce `Related | null` — the relation may not exist.
+
+## Include with Options
+
+Instead of `true`, pass an options object to control how related records are loaded:
+
+```typescript
+const user = await client.db.User.findOne({
+  where: { name: 'Jane' },
+  include: {
+    posts: {
+      where: { published: true },
+      orderBy: { createdAt: 'desc' },
+      limit: 5,
+    },
+  },
+});
+// user.posts: Post[] (at most 5, published only, newest first)
+```
+
+### Available Options
+
+| Option | Type | Description |
+|---|---|---|
+| `where` | `PostWhere` | Filter which related records to include |
+| `orderBy` | `PostOrderBy` | Sort included records |
+| `limit` | `number` | Maximum number of included records |
+| `offset` | `number` | Skip this many included records |
+| `select` | `PostSelect` | Narrow the return type (type-level only) |
+| `include` | `PostInclude` | Include nested relations (see [Nested Includes](/select-and-include/nested-includes)) |
+
+## Include with Select
+
+You can pass `select` inside an include to narrow the TypeScript type of the included relation:
+
+```typescript
+const user = await client.db.User.findOne({
+  where: { name: 'Jane' },
+  include: {
+    posts: {
+      select: { title: true, createdAt: true },
+    },
+  },
+});
+// TypeScript type: user.posts is { title: string; createdAt: Date }[]
+```
+
+:::caution
+`select` inside `include` is **type-level only** — it narrows the TypeScript return type but does **not** affect what data is fetched at runtime. Full related objects are always returned from the database. If you need to limit data transfer for the primary model, use top-level `select` instead.
+:::
+
+## Multiple Includes
+
+Include multiple relations in a single query:
+
+```typescript
+const user = await client.db.User.findOne({
+  where: { name: 'Jane' },
+  include: {
+    profile: true,
+    posts: { where: { published: true }, limit: 10 },
+  },
+});
+// user: (User & { profile: Profile | null; posts: Post[] }) | null
+```
+
+Each included relation can have its own independent options.
+
+## Supported Query Methods
+
+`include` is available on all query methods that return data:
+
+| Method | Return Type with Include |
+|---|---|
+| `findOne` | `(Model & Included) \| null` |
+| `findMany` | `(Model & Included)[]` |
+| `findUnique` | `(Model & Included) \| null` |
+| `findAll` | `(Model & Included)[]` |
+| `create` | `Model & Included` |
+| `updateMany` | `(Model & Included)[]` |
+| `updateUnique` | `(Model & Included) \| null` |
+
+```typescript
+const post = await client.db.Post.create({
+  data: { title: 'Hello', authorId: userId },
+  include: { author: true },
+});
+// post: Post & { author: User }
+```
+
+For loading relations of relations, see [Nested Includes](/select-and-include/nested-includes).

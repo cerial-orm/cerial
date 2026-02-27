@@ -1,0 +1,138 @@
+---
+title: Object Sub-Select
+description: Narrow embedded object fields in select — choose specific sub-fields from objects, arrays of objects, and nested objects.
+---
+
+When selecting embedded object fields, you can narrow the return type to only the sub-fields you need. This works on required objects, optional objects, arrays of objects, and nested objects at any depth.
+
+All examples use this schema:
+
+```cerial
+object Address {
+  street String
+  city String
+  state String
+}
+
+object GeoPoint {
+  lat Float
+  lng Float
+  label String?
+}
+
+object Company {
+  name String
+  address Address
+  hq GeoPoint?
+}
+
+model User {
+  id Record @id
+  name String
+  address Address
+  shipping Address?
+  locations GeoPoint[]
+  employer Company?
+}
+```
+
+## Boolean vs Object Selection
+
+Object fields support two modes in `select`:
+
+- **`true`** — returns the full object with all its fields
+- **Object with sub-fields** — returns only the specified fields
+
+```typescript
+// Boolean: full object
+const user = await client.db.User.findOne({
+  select: { address: true },
+});
+// user.address: Address (street, city, state all present)
+
+// Object: narrowed
+const user2 = await client.db.User.findOne({
+  select: { address: { city: true, state: true } },
+});
+// user2.address: { city: string; state: string }
+// user2.address.street — type error, not selected
+```
+
+## Array of Objects
+
+Sub-field selection works on array object fields. The narrowing applies to each element in the array:
+
+```typescript
+const user = await client.db.User.findOne({
+  select: { locations: { lat: true } },
+});
+// user.locations: { lat: number }[]
+// Each element only has the `lat` field
+```
+
+## Optional Object Fields
+
+When an optional object field is selected with sub-field narrowing, the `| undefined` is preserved:
+
+```typescript
+const user = await client.db.User.findOne({
+  select: { shipping: { city: true } },
+});
+// user.shipping: { city: string } | undefined
+```
+
+If the record has no `shipping` value (NONE), the field is `undefined`. If it does have a value, only the selected sub-fields are present in the type.
+
+## Nested Objects
+
+Object sub-selection works at arbitrary nesting depth. When an object contains another object, you can narrow both levels:
+
+```typescript
+const user = await client.db.User.findOne({
+  select: {
+    employer: {
+      name: true,
+      address: { city: true },
+    },
+  },
+});
+// user.employer: { name: string; address: { city: string } } | undefined
+```
+
+You can also pass `true` for a nested object to include all its fields while still narrowing the parent:
+
+```typescript
+const user = await client.db.User.findOne({
+  select: {
+    employer: {
+      name: true,
+      address: true,       // full Address
+      hq: { lat: true },   // narrowed GeoPoint
+    },
+  },
+});
+// user.employer: { name: string; address: Address; hq: { lat: number } | undefined } | undefined
+```
+
+## Mixing with Scalar Fields
+
+Object sub-selection combines naturally with scalar field selection:
+
+```typescript
+const user = await client.db.User.findOne({
+  select: {
+    id: true,
+    name: true,
+    address: { city: true, state: true },
+    locations: { lat: true, lng: true },
+  },
+});
+// user: {
+//   id: CerialId;
+//   name: string;
+//   address: { city: string; state: string };
+//   locations: { lat: number; lng: number }[];
+// } | null
+```
+
+For object sub-field selection within model fields specifically, see [Object Select](/objects/select). For tuple fields with object elements, see [Tuple Select](/tuples/select).
