@@ -1,0 +1,204 @@
+---
+title: Tuple Fields on Models
+description: Using tuple types as required, optional, and array fields on models — create behavior, TypeScript types, input forms, and field-level decorators.
+---
+
+Once you have defined a tuple type, you can use it as a field on any model. There are three patterns: required, optional, and array.
+
+## Required Tuple Field
+
+```cerial
+tuple Coordinate {
+  lat Float,
+  lng Float
+}
+
+model User {
+  id Record @id
+  name String
+  location Coordinate
+}
+```
+
+**TypeScript type:** `location: [number, number]`
+
+A required tuple field must be provided whenever a record is created:
+
+```typescript
+const user = await client.db.User.create({
+  data: {
+    name: 'Jane Doe',
+    location: [40.7128, -74.006],
+  },
+});
+
+console.log(user.location); // [40.7128, -74.006]
+```
+
+## Optional Tuple Field
+
+```cerial
+model User {
+  id Record @id
+  name String
+  location Coordinate
+  backup Coordinate?
+}
+```
+
+**TypeScript type:** `backup?: [number, number]`
+
+An optional tuple field can be omitted entirely on create. When omitted, it is stored as `NONE` (field absent) in SurrealDB and returned as `undefined` in TypeScript.
+
+```typescript
+const user = await client.db.User.create({
+  data: {
+    name: 'Jane Doe',
+    location: [40.7128, -74.006],
+    // backup omitted — stored as NONE
+  },
+});
+
+console.log(user.backup); // undefined
+```
+
+:::tip
+Optional tuple fields produce `field?: TupleName` — there is no `| null` in the type. Tuples are either present or absent (NONE), same as [optional object fields](/objects/object-fields-on-models).
+:::
+
+## Array of Tuples
+
+```cerial
+model User {
+  id Record @id
+  name String
+  history Coordinate[]
+}
+```
+
+**TypeScript type:** `history: [number, number][]`
+
+Array tuple fields hold zero or more tuples. If omitted on create, the field defaults to an empty array `[]`.
+
+```typescript
+const user = await client.db.User.create({
+  data: {
+    name: 'Jane Doe',
+    history: [
+      [40.7128, -74.006],
+      [34.0522, -118.2437],
+    ],
+  },
+});
+
+console.log(user.history); // [[40.7128, -74.006], [34.0522, -118.2437]]
+```
+
+```typescript
+// Omitting the array field — defaults to []
+const user = await client.db.User.create({
+  data: { name: 'Jane Doe' },
+});
+
+console.log(user.history); // []
+```
+
+### Push and Set Operations
+
+You can add tuples to an array field using push, or replace the entire array using set:
+
+```typescript
+// Push a single tuple
+await client.db.User.updateUnique({
+  where: { id: user.id },
+  data: {
+    history: { push: [[51.5074, -0.1278]] },
+  },
+});
+
+// Replace the entire array
+await client.db.User.updateUnique({
+  where: { id: user.id },
+  data: {
+    history: { set: [[48.8566, 2.3522]] },
+  },
+});
+```
+
+:::caution
+When pushing a single tuple, wrap it in an extra array: `push: [[3, 4]]`. SurrealDB's `+=` operator treats `[3, 4]` as two separate elements to push. The double-wrapping `[[3, 4]]` ensures a single tuple `[3, 4]` is added as one element.
+:::
+
+## Input Forms
+
+When tuple elements are named, you can provide input in multiple forms. All produce the same stored result:
+
+```cerial
+tuple Coordinate {
+  lat Float,
+  lng Float
+}
+```
+
+```typescript
+// Array form — positional
+await client.db.User.create({
+  data: { name: 'Alice', location: [40.7, -74.0] },
+});
+
+// Object form — named keys
+await client.db.User.create({
+  data: { name: 'Bob', location: { lat: 40.7, lng: -74.0 } },
+});
+
+// Index form — numeric keys
+await client.db.User.create({
+  data: { name: 'Carol', location: { 0: 40.7, 1: -74.0 } },
+});
+```
+
+Regardless of input form, output is **always** an array:
+
+```typescript
+const user = await client.db.User.findOne({
+  where: { name: 'Bob' },
+});
+
+console.log(user?.location); // [40.7, -74.0] — always array form
+```
+
+## Field-Level Decorators
+
+Decorators on the model field (not on individual tuple elements) work as expected:
+
+### `@readonly` on Tuple Fields
+
+`@readonly` makes the entire tuple field write-once — it can be set on create but is excluded from update types:
+
+```cerial
+model Shipment {
+  id Record @id
+  origin Coordinate @readonly
+  destination Coordinate
+}
+```
+
+The `origin` field can be provided when the record is first created but cannot be changed afterward. The `destination` field can be updated normally.
+
+```typescript
+const shipment = await client.db.Shipment.create({
+  data: {
+    origin: [40.7128, -74.006],
+    destination: [34.0522, -118.2437],
+  },
+});
+
+// Only destination can be updated
+await client.db.Shipment.updateUnique({
+  where: { id: shipment.id },
+  data: {
+    destination: [51.5074, -0.1278], // ✅ allowed
+    // origin: [0, 0],               // ❌ TypeScript error — readonly
+  },
+});
+```

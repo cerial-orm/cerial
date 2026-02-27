@@ -1,0 +1,10 @@
+{
+  "title": "Tuples",
+  "pages": [
+    "defining-tuples",
+    "tuple-fields-on-models",
+    "select",
+    "where",
+    "update"
+  ]
+}

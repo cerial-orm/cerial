@@ -1,0 +1,239 @@
+---
+title: Defining Tuples
+description: Schema syntax for declaring tuple types in Cerial — named and unnamed elements, nullable elements, decorators, nesting, and reuse across models.
+---
+
+Tuple types are defined in `.cerial` schema files using the `tuple {}` keyword. They describe fixed-length typed arrays that are embedded directly within models — no separate table is created.
+
+## Basic Syntax
+
+```cerial
+tuple Coordinate {
+  lat Float,
+  lng Float
+}
+```
+
+Elements are comma-separated within the block. Each element follows `name Type` syntax. The tuple above produces a TypeScript type `[number, number]` and accepts input as `[40.7, -74.0]` or `{ lat: 40.7, lng: -74.0 }`.
+
+## Named vs Unnamed Elements
+
+Element names are optional. You can define a tuple with unnamed positional elements:
+
+```cerial
+tuple Color {
+  Int,
+  Int,
+  Int
+}
+```
+
+This accepts input only as an array: `[255, 128, 0]`.
+
+Named elements add object-form input as a convenience:
+
+```cerial
+tuple Color {
+  r Int,
+  g Int,
+  b Int
+}
+```
+
+Now both forms are accepted as input:
+
+```typescript
+// Array form
+const color1: ColorInput = [255, 128, 0];
+
+// Object form (named keys)
+const color2: ColorInput = { r: 255, g: 128, b: 0 };
+
+// Index form
+const color3: ColorInput = { 0: 255, 1: 128, 2: 0 };
+```
+
+:::tip
+Regardless of input form, output is **always** an array. A `Color` field always returns `[255, 128, 0]`, never `{ r: 255, g: 128, b: 0 }`.
+:::
+
+## Nullable Elements
+
+Use `@nullable` to allow `null` values on individual elements:
+
+```cerial
+tuple Measurement {
+  value Float,
+  unit String,
+  margin Float @nullable
+}
+```
+
+```typescript
+// margin can be null
+const m: MeasurementInput = [3.14, 'cm', null];
+```
+
+:::caution
+`?` is **not allowed** on tuple elements. SurrealDB returns `null` (not `undefined`) for absent tuple positions, so the optional (`?`) modifier — which maps to `undefined` — does not apply. Use `@nullable` instead.
+:::
+
+## Decorators on Tuple Elements
+
+Tuple elements support a subset of decorators:
+
+| Decorator | Allowed | Notes |
+|---|---|---|
+| `@nullable` | ✅ | Makes element accept `null` |
+| `@default` | ✅ | Default value on create |
+| `@defaultAlways` | ✅ | Reset-on-write default |
+| `@createdAt` | ✅ | Auto-set on create (Date elements only) |
+| `@updatedAt` | ✅ | Auto-set on update (Date elements only) |
+| `@uuid` / `@uuid4` / `@uuid7` | ❌ | SurrealDB doesn't support DEFAULT on tuple elements |
+| `@readonly` | ❌ | Not supported on tuple elements |
+| `@now` | ❌ | COMPUTED must be top-level (model-only) |
+| `@flexible` | ❌ | Not applicable to tuple elements |
+
+### `@default` on Elements
+
+Use `@default` to provide a value when an element is omitted on create:
+
+```cerial
+tuple Config {
+  label String @default("untitled"),
+  priority Int @default(0)
+}
+```
+
+### `@createdAt` and `@updatedAt` on Elements
+
+Timestamp decorators work on Date tuple elements the same way they do on model and object fields:
+
+```cerial
+tuple AuditEntry {
+  action String,
+  performedAt Date @createdAt
+}
+```
+
+`@createdAt` sets the element to the current timestamp when the parent record is created. `@updatedAt` sets it on every create and update.
+
+## Nested Tuples
+
+Tuples can contain other tuple types:
+
+```cerial
+tuple Point {
+  x Float,
+  y Float
+}
+
+tuple BoundingBox {
+  topLeft Point,
+  bottomRight Point
+}
+```
+
+```typescript
+const box: BoundingBoxInput = [
+  [0.0, 10.0],   // topLeft
+  [10.0, 0.0],   // bottomRight
+];
+
+// Or using object form
+const box2: BoundingBoxInput = {
+  topLeft: [0.0, 10.0],
+  bottomRight: [10.0, 0.0],
+};
+```
+
+## Objects in Tuples
+
+Tuple elements can reference object types:
+
+```cerial
+object Address {
+  street String
+  city String
+}
+
+tuple Located {
+  tag String,
+  location Address
+}
+```
+
+```typescript
+const entry: LocatedInput = ['headquarters', { street: '123 Main St', city: 'NYC' }];
+```
+
+When a tuple contains object elements at any depth, Cerial generates a `TupleNameSelect` type for sub-field selection on those object elements.
+
+## Tuples in Objects
+
+Objects can contain tuple-typed fields:
+
+```cerial
+tuple Coordinate {
+  lat Float,
+  lng Float
+}
+
+object Venue {
+  name String
+  position Coordinate
+}
+```
+
+```typescript
+const venue: Venue = {
+  name: 'Central Park',
+  position: [40.7829, -73.9654],
+};
+```
+
+## Self-Referencing Tuples
+
+Tuples can reference themselves for recursive structures. Self-referencing elements **must** use `@nullable` to avoid infinite recursion:
+
+```cerial
+tuple TreeNode {
+  value Int,
+  left TreeNode @nullable,
+  right TreeNode @nullable
+}
+```
+
+```typescript
+const tree: TreeNodeInput = [
+  1,
+  [2, null, null],  // left child
+  [3, null, null],  // right child
+];
+```
+
+## Reusing Tuples Across Models
+
+A tuple type can be used on any number of models and objects. The definition is shared — only the embedding differs:
+
+```cerial
+tuple Coordinate {
+  lat Float,
+  lng Float
+}
+
+model User {
+  id Record @id
+  name String
+  homeLocation Coordinate
+}
+
+model Store {
+  id Record @id
+  name String
+  location Coordinate
+  serviceArea Coordinate[]
+}
+```
+
+Both `User.homeLocation` and `Store.location` share the same `Coordinate` type and produce the same TypeScript tuple type `[number, number]`.

@@ -1,0 +1,73 @@
+---
+title: Tuples
+description: Fixed-length typed arrays in Cerial schemas — inline data structures with positional elements, named input convenience, and per-element updates.
+---
+
+Tuples are fixed-length typed arrays defined with the `tuple {}` keyword in Cerial schemas. Unlike models, tuples have no `id` field and cannot participate in relations. Unlike objects, tuples produce array output — element order and count are fixed at schema time.
+
+A `User` with a `location Coordinate` field stores the coordinate data as a typed array `[40.7, -74.0]` within the user record, not in a separate table.
+
+```cerial
+tuple Coordinate {
+  lat Float,
+  lng Float
+}
+
+model User {
+  id Record @id
+  name String
+  location Coordinate
+}
+```
+
+```typescript
+const user = await client.db.User.create({
+  data: {
+    name: 'Jane Doe',
+    location: [40.7128, -74.006],
+  },
+});
+
+console.log(user.location);    // [40.7128, -74.006]
+console.log(user.location[0]); // 40.7128 (lat)
+console.log(user.location[1]); // -74.006 (lng)
+```
+
+## Key Rules
+
+1. **No `id` field** — Tuples have no identity. They exist only as part of their parent model.
+2. **Elements are comma-separated** — Each element is separated by a comma within the `tuple {}` block.
+3. **Elements can be named or unnamed** — Names are for input convenience only. Output is always a positional array.
+4. **Output is ALWAYS an array** — `[40.7, -74.0]`, never `{ lat: 40.7, lng: -74.0 }`.
+5. **Input accepts both array and object form** — When elements are named, you can use `{ lat: 40.7, lng: -74.0 }` or `[40.7, -74.0]` as input.
+6. **Support a subset of decorators on elements** — `@nullable`, `@default`, `@defaultAlways`, `@createdAt`, and `@updatedAt` are allowed. See [Defining Tuples](/tuples/defining-tuples) for the full list.
+7. **No OrderBy on tuple fields** — Mixed element types make ordering ambiguous, so tuples are excluded from OrderBy types.
+8. **Per-element update via object form** — Update individual elements without replacing the entire tuple.
+9. **Sub-field select only for tuples with object elements** — `TupleSelect` is generated only when the tuple contains object elements at any depth.
+
+## Generated Types
+
+Each tuple definition generates a set of TypeScript types:
+
+| Generated Type | Purpose |
+|---|---|
+| `TupleName` | Output type — TypeScript tuple `[type1, type2]` |
+| `TupleNameInput` | Input type — accepts array or object form |
+| `TupleNameWhere` | Where clause type for element filtering |
+| `TupleNameUpdate` | Per-element update type |
+| `TupleNameSelect` | Sub-field select — only when tuple has object elements at any depth |
+| `TupleNameUnset` | Per-element unset — only when tuple has nullable/optional elements |
+
+:::tip
+`TupleNameSelect` is only generated when a tuple contains object elements at any nesting depth. Tuples with only primitive elements use simple boolean select.
+:::
+
+Tuples do **not** generate `OrderBy`, `Create`, `Include`, or `GetPayload` types — those are exclusive to models.
+
+## Sections
+
+- [Defining Tuples](/tuples/defining-tuples) — Schema syntax for declaring tuple types
+- [Tuple Fields on Models](/tuples/tuple-fields-on-models) — Using tuples as required, optional, or array fields
+- [Select](/tuples/select) — Sub-field selection on tuple elements
+- [Where Filtering](/tuples/where) — Filtering by tuple element values
+- [Updating Tuples](/tuples/update) — Per-element updates and array operations
