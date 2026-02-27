@@ -8,7 +8,6 @@
     "decimal",
     "bytes",
     "geometry",
-    "any",
-    "arrays"
+    "any"
   ]
 }

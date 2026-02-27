@@ -1,12 +1,9 @@
 ---
 title: Field Types
 description: All built-in field types in Cerial — from primitives to special types like Uuid, Duration, Decimal, Bytes, Geometry, and Any.
-sidebar:
-  label: Overview
-  order: 1
 ---
 
-import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
 
 Cerial supports 15 built-in field types plus user-defined enums, tuples, objects, and literals. Each type maps to a specific SurrealDB type and TypeScript type.
 
@@ -130,15 +127,13 @@ Record fields support typed IDs (`Record(int) @id`, `Record(uuid) @id`) for narr
 
 These types have dedicated wrapper classes with rich APIs for construction, comparison, conversion, and SDK interop:
 
-<CardGrid>
-  <LinkCard title="Uuid" description="UUID identifiers with v4/v7 generation, comparison, and auto-generation decorators." href="/cerial/schema/field-types/uuid/" />
-  <LinkCard title="Number" description="Auto-detect numeric type — accepts both integers and decimals." href="/cerial/schema/field-types/number/" />
-  <LinkCard title="Duration" description="Time durations with unit accessors, comparison, and string parsing." href="/cerial/schema/field-types/duration/" />
-  <LinkCard title="Decimal" description="Arbitrary-precision decimals with immutable arithmetic for financial calculations." href="/cerial/schema/field-types/decimal/" />
-  <LinkCard title="Bytes" description="Binary data with base64 encoding, Uint8Array conversion, and Buffer support." href="/cerial/schema/field-types/bytes/" />
-  <LinkCard title="Geometry" description="GeoJSON-compatible geospatial data with 7 subtypes and point shorthand." href="/cerial/schema/field-types/geometry/" />
-  <LinkCard title="Any" description="Pass-through type accepting any SurrealDB value — a typed recursive union, not bare TS any." href="/cerial/schema/field-types/any/" />
-</CardGrid>
+- [Uuid](/schema/field-types/uuid) — UUID identifiers with v4/v7 generation, comparison, and auto-generation decorators.
+- [Number](/schema/field-types/number) — Auto-detect numeric type — accepts both integers and decimals.
+- [Duration](/schema/field-types/duration) — Time durations with unit accessors, comparison, and string parsing.
+- [Decimal](/schema/field-types/decimal) — Arbitrary-precision decimals with immutable arithmetic for financial calculations.
+- [Bytes](/schema/field-types/bytes) — Binary data with base64 encoding, Uint8Array conversion, and Buffer support.
+- [Geometry](/schema/field-types/geometry) — GeoJSON-compatible geospatial data with 7 subtypes and point shorthand.
+- [Any](/schema/field-types/any) — Pass-through type accepting any SurrealDB value — a typed recursive union, not bare TS any.
 
 ## Arrays
 
