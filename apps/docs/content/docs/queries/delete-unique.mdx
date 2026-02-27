@@ -1,0 +1,114 @@
+---
+title: deleteUnique
+description: Delete a single record by unique field — with return options for existence checks and audit logs.
+---
+
+Deletes a single record identified by a unique field. Provides flexible return options to indicate whether the record existed and optionally retrieve its data before deletion.
+
+```typescript
+const result = await client.db.User.deleteUnique({
+  where: { id: '123' },
+});
+// result: boolean (always true — operation completed)
+```
+
+## Options
+
+| Option | Type | Required | Description |
+| --- | --- | --- | --- |
+| `where` | `UserUniqueWhereInput` | Yes | Must contain a unique field (`id` or `@unique` field) |
+| `return` | `undefined \| null \| true \| 'before'` | No | Controls the return value |
+
+## Return Options
+
+| `return` Value | Return Type | Description |
+| --- | --- | --- |
+| `undefined` (default) | `boolean` | Always `true` (operation completed) |
+| `null` | `boolean` | Always `true` (operation completed) |
+| `true` | `boolean` | `true` if the record existed and was deleted, `false` if not found |
+| `'before'` | `User \| null` | The deleted record's data, or `null` if not found |
+
+## Basic Usage
+
+```typescript
+await client.db.User.deleteUnique({
+  where: { id: '123' },
+});
+```
+
+## Check If Record Existed
+
+Use `return: true` to find out whether a record was actually deleted:
+
+```typescript
+const existed = await client.db.User.deleteUnique({
+  where: { id: '123' },
+  return: true,
+});
+// existed: boolean (true if record existed and was deleted)
+
+if (!existed) {
+  console.log('User was already deleted or never existed');
+}
+```
+
+:::tip
+The default return (`boolean`, always `true`) is useful for fire-and-forget deletions. Use `return: true` when you need to confirm the record actually existed before deletion.
+:::
+
+## Get Deleted Record Data
+
+Use `return: 'before'` to retrieve the full record data as it was before deletion. This is useful for audit logs, undo operations, or confirmation messages:
+
+```typescript
+const deletedUser = await client.db.User.deleteUnique({
+  where: { id: '123' },
+  return: 'before',
+});
+// deletedUser: User | null
+
+if (deletedUser) {
+  console.log(`Deleted user: ${deletedUser.name}`);
+  await auditLog.record('user_deleted', deletedUser);
+}
+```
+
+## Delete by Unique Field
+
+Any field decorated with `@unique` in your schema can be used in the `where` clause:
+
+```typescript
+await client.db.User.deleteUnique({
+  where: { email: 'john@example.com' },
+});
+```
+
+```typescript
+const deleted = await client.db.User.deleteUnique({
+  where: { email: 'john@example.com' },
+  return: 'before',
+});
+// deleted: User | null
+```
+
+## Cascade Behavior
+
+The same cascade rules as [`deleteMany`](/queries/delete-many#cascade-behavior) apply:
+
+- **Required foreign keys** pointing to the deleted record trigger auto-cascade deletion.
+- **Optional foreign keys** follow their `@onDelete` strategy.
+- **Array foreign keys** have the deleted record's ID automatically removed.
+
+:::caution
+Deleting a single record can still cascade to many related records. If a `User` has 100 `Post` records with required `authorId`, deleting that user will cascade-delete all 100 posts.
+:::
+
+## Return Value
+
+Depends on the `return` option — see the [return options table](#return-options) above.
+
+| `return` | Result |
+| --- | --- |
+| Default / `null` | `boolean` (always `true`) |
+| `true` | `boolean` (`true` if existed, `false` if not) |
+| `'before'` | `User \| null` (deleted record data) |

@@ -1,0 +1,213 @@
+---
+title: updateMany
+description: Update all records matching a filter — with array operations, object merging, unset, and nested relations.
+---
+
+Updates all records matching the where clause. Returns the updated records as an array.
+
+```typescript
+const updated = await client.db.User.updateMany({
+  where: { isActive: false },
+  data: { isActive: true },
+});
+// updated: User[]
+```
+
+## Options
+
+| Option | Type | Required | Description |
+| --- | --- | --- | --- |
+| `where` | `UserWhereInput` | Yes | Filter conditions to match records |
+| `data` | `UserUpdateInput` | Yes | The fields and values to update |
+| `unset` | `UserUnsetInput` | No | Fields to remove (set to NONE) in bulk |
+| `select` | `UserSelect` | No | Narrow which fields are returned |
+
+## Basic Usage
+
+```typescript
+const updated = await client.db.User.updateMany({
+  where: { isActive: false },
+  data: { isActive: true },
+});
+// updated: User[]
+```
+
+## With Select
+
+```typescript
+const updated = await client.db.User.updateMany({
+  where: { isActive: false },
+  data: { isActive: true },
+  select: { id: true, isActive: true },
+});
+// updated: { id: CerialId; isActive: boolean }[]
+```
+
+## Scalar Field Updates
+
+Update any scalar field by providing its new value:
+
+```typescript
+await client.db.User.updateMany({
+  where: { role: 'guest' },
+  data: {
+    role: 'member',
+    isActive: true,
+  },
+});
+```
+
+## Array Field Operations
+
+Array fields support special operations for adding and removing elements:
+
+```typescript
+await client.db.User.updateMany({
+  where: { id: userId },
+  data: {
+    nicknames: { push: 'NewNick' },  // Append an element
+    scores: { unset: 100 },          // Remove an element by value
+  },
+});
+```
+
+:::tip
+See [Array Operations](/array-operations) for the full set of array update operations including `push`, `unset`, and replacement.
+:::
+
+## Object Field Updates
+
+Embedded object fields support **partial merging** by default. Only the provided sub-fields are updated; other sub-fields remain unchanged:
+
+```typescript
+// Partial merge — only city is updated, street and state are preserved
+await client.db.User.updateMany({
+  where: { id: userId },
+  data: { address: { city: 'New City' } },
+});
+```
+
+For **full replacement** of an object field, use the `set` wrapper. All sub-fields must be provided:
+
+```typescript
+// Full replacement — all sub-fields must be provided
+await client.db.User.updateMany({
+  where: { id: userId },
+  data: {
+    address: {
+      set: { street: '456 Oak Ave', city: 'Boston', state: 'MA' },
+    },
+  },
+});
+```
+
+## Nested Relation Operations
+
+Update relation fields using `connect`, `disconnect`, and `create`:
+
+```typescript
+await client.db.User.updateMany({
+  where: { id: userId },
+  data: {
+    tags: {
+      connect: ['tag:new1', 'tag:new2'],
+      disconnect: ['tag:old'],
+    },
+  },
+});
+```
+
+```typescript
+await client.db.Post.updateMany({
+  where: { authorId: oldAuthorId },
+  data: {
+    author: { connect: newAuthorId },
+  },
+});
+```
+
+## Unsetting Fields
+
+The `unset` parameter removes optional fields in bulk by setting them to NONE (absent). This is a declarative alternative to importing and passing `NONE` in `data`.
+
+```typescript
+await client.db.User.updateMany({
+  where: { isActive: false },
+  unset: { bio: true, age: true },
+});
+// Removes bio and age from all matching records
+```
+
+### Nested Object Fields
+
+Unset specific sub-fields within objects using nested syntax:
+
+```typescript
+await client.db.User.updateMany({
+  where: { id: userId },
+  unset: { address: { zip: true } },
+});
+// Removes only address.zip, preserving other address sub-fields
+```
+
+Optional objects can also be unset entirely:
+
+```typescript
+await client.db.User.updateMany({
+  where: { id: userId },
+  unset: { shipping: true },
+});
+// Removes the entire shipping object
+```
+
+### Combining data and unset
+
+You can use `data` and `unset` together, as long as they don't conflict at the leaf level:
+
+```typescript
+await client.db.User.updateMany({
+  where: { id: userId },
+  data: { name: 'Updated' },
+  unset: { bio: true, address: { zip: true } },
+});
+// Updates name, removes bio and address.zip
+```
+
+:::caution
+TypeScript's `SafeUnset` utility type prevents leaf-level conflicts at compile time — if a field appears in `data`, it is excluded from the `unset` type. For objects, only conflicting sub-fields are excluded; non-overlapping sub-fields remain available.
+:::
+
+## Setting Fields to null or NONE
+
+```typescript
+// Set to null — requires @nullable on the field
+await client.db.User.updateMany({
+  where: { id: userId },
+  data: { bio: null },
+});
+
+// Remove a field entirely (NONE) — requires ? on the field
+import { NONE } from 'cerial';
+
+await client.db.User.updateMany({
+  where: { id: userId },
+  data: { bio: NONE },
+});
+```
+
+Both `unset` and `NONE` in `data` achieve the same result. Use `unset` for bulk removal of multiple fields; use `NONE` in `data` when removing a single field inline.
+
+:::tip
+Fields not included in `data` or `unset` are left unchanged. Only the fields you explicitly provide are modified.
+:::
+
+## Return Value
+
+- Returns an array of updated records, typed according to `select` if provided.
+- Returns an empty array `[]` if no records match the `where` clause.
+
+| Scenario | Return |
+| --- | --- |
+| Records matched, no select | `User[]` |
+| Records matched, with select | `{ ...selected fields }[]` |
+| No match | `[]` (empty array) |
