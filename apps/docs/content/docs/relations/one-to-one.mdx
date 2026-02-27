@@ -3,7 +3,7 @@ title: One-to-One
 description: Single record on each side — required and optional variants with CRUD operations.
 ---
 
-import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 
 A one-to-one relation links a single record in one model to a single record in another. The PK side stores the foreign key, and the non-PK side defines an optional reverse lookup.
 
@@ -11,8 +11,8 @@ A one-to-one relation links a single record in one model to a single record in a
 
 A required 1:1 means the FK field is non-optional — the child record **must** reference a parent.
 
-<Tabs>
-  <TabItem label="Schema">
+<Tabs items={['Schema', 'How it works']}>
+  <Tab value="Schema">
     ```cerial
     model User {
       id Record @id
@@ -27,21 +27,21 @@ A required 1:1 means the FK field is non-optional — the child record **must** 
       user Relation @field(userId) @model(User)
     }
     ```
-  </TabItem>
-  <TabItem label="How it works">
+  </Tab>
+  <Tab value="How it works">
     - `Profile.userId` is a required `Record` field — every Profile must belong to a User.
     - `Profile.user` is the forward relation that resolves `userId` into a full `User` object.
     - `User.profile` is the reverse relation that queries the `profile` table for a record where `userId` matches.
     - Deleting a User **automatically cascades** to delete any Profile with `userId` pointing to that User.
-  </TabItem>
+  </Tab>
 </Tabs>
 
 ## Optional One-to-One
 
 An optional 1:1 allows the child record to exist without referencing a parent.
 
-<Tabs>
-  <TabItem label="Schema">
+<Tabs items={['Schema', 'How it works']}>
+  <Tab value="Schema">
     ```cerial
     model User {
       id Record @id
@@ -56,12 +56,12 @@ An optional 1:1 allows the child record to exist without referencing a parent.
       user Relation? @field(userId) @model(User)
     }
     ```
-  </TabItem>
-  <TabItem label="How it works">
+  </Tab>
+  <Tab value="How it works">
     - `Profile.userId` is `Record?` — a Profile can exist without a User.
     - `Profile.user` and `User.profile` are `Relation?` — they may resolve to `null` when included.
     - Deleting a User clears `userId` on the Profile rather than deleting it.
-  </TabItem>
+  </Tab>
 </Tabs>
 
 :::tip

@@ -3,7 +3,7 @@ title: Nested Create
 description: Creating related records inline within a single operation
 ---
 
-import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 
 Nested create lets you create related records inline — instead of creating records separately and then connecting them, you define the related data directly in the `data` object. All nested create operations are executed within a **transaction** to ensure atomicity: either all records are created, or none are.
 
@@ -120,8 +120,8 @@ Mixing `create` and `connect` is only available for array relations. Singular re
 
 Nested create is also available in update operations, from both the PK side and the reverse side:
 
-<Tabs>
-  <TabItem label="From reverse side">
+<Tabs items={['From reverse side', 'From PK side']}>
+  <Tab value="From reverse side">
     ```typescript
     // Add new posts to an existing user
     await client.db.User.updateUnique({
@@ -134,8 +134,8 @@ Nested create is also available in update operations, from both the PK side and 
     });
     // Creates a new Post with authorId set to userId
     ```
-  </TabItem>
-  <TabItem label="From PK side">
+  </Tab>
+  <Tab value="From PK side">
     ```typescript
     // Create a new author for a post that doesn't have one
     await client.db.Post.updateUnique({
@@ -152,7 +152,7 @@ Nested create is also available in update operations, from both the PK side and 
     });
     // Creates a new User, then sets Post.authorId to the new user's ID
     ```
-  </TabItem>
+  </Tab>
 </Tabs>
 
 You can also combine `create` with `connect` and `disconnect` in array relation updates:

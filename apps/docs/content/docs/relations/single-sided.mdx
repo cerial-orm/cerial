@@ -3,7 +3,7 @@ title: Single-Sided Relations
 description: Forward-only relations where only the PK side is defined
 ---
 
-import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 
 A single-sided relation is one where only the PK side (forward relation) is defined. The target model has **no reverse relation** — it doesn't know about the referencing model. All CRUD operations work normally from the PK side, and you can still query the reverse direction manually using `where` clauses on the FK field.
 
@@ -11,8 +11,8 @@ A single-sided relation is one where only the PK side (forward relation) is defi
 
 The most common pattern — one model references another, but the target has no awareness of the relationship:
 
-<Tabs>
-  <TabItem label="Schema">
+<Tabs items={['Schema', 'Generated types']}>
+  <Tab value="Schema">
     ```cerial
     model Article {
       id Record @id
@@ -27,8 +27,8 @@ The most common pattern — one model references another, but the target has no 
       # No articles Relation[] — intentionally single-sided
     }
     ```
-  </TabItem>
-  <TabItem label="Generated types">
+  </Tab>
+  <Tab value="Generated types">
     ```typescript
     interface Article {
       id: CerialId<string>;
@@ -41,7 +41,7 @@ The most common pattern — one model references another, but the target has no 
       name: string;
     }
     ```
-  </TabItem>
+  </Tab>
 </Tabs>
 
 `Article` has a forward relation to `Writer`, but `Writer` does not define a reverse `articles` relation. This is valid and intentional.
@@ -50,8 +50,8 @@ The most common pattern — one model references another, but the target has no 
 
 A model can also have a one-directional **array** relation — referencing multiple records in the target model without the target having any reverse:
 
-<Tabs>
-  <TabItem label="Schema">
+<Tabs items={['Schema', 'Generated types']}>
+  <Tab value="Schema">
     ```cerial
     model Blogger {
       id Record @id
@@ -66,8 +66,8 @@ A model can also have a one-directional **array** relation — referencing multi
       # No bloggers Relation[] — Label doesn't know who uses it
     }
     ```
-  </TabItem>
-  <TabItem label="Generated types">
+  </Tab>
+  <Tab value="Generated types">
     ```typescript
     interface Blogger {
       id: CerialId<string>;
@@ -80,7 +80,7 @@ A model can also have a one-directional **array** relation — referencing multi
       name: string;
     }
     ```
-  </TabItem>
+  </Tab>
 </Tabs>
 
 This is useful for tagging, categorization, or any scenario where one model references a set of records from another model that doesn't need to know about the relationship.

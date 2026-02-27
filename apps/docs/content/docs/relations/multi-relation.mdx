@@ -3,7 +3,7 @@ title: Multiple Relations
 description: Using @key to disambiguate multiple relations between the same models
 ---
 
-import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 
 When two models need more than one relation between them, Cerial needs a way to tell which forward relation corresponds to which reverse relation. The `@key` decorator solves this — it pairs each forward relation with its matching reverse.
 
@@ -156,8 +156,8 @@ const reviewed = await client.db.Document.findMany({
 
 You can define any number of relations between the same models. Each one needs a unique `@key` value:
 
-<Tabs>
-  <TabItem label="Schema">
+<Tabs items={['Schema', 'Usage']}>
+  <Tab value="Schema">
     ```cerial
     model Task {
       id Record @id
@@ -178,8 +178,8 @@ You can define any number of relations between the same models. Each one needs a
       reviewingTasks Relation[] @model(Task) @key(reviewers)
     }
     ```
-  </TabItem>
-  <TabItem label="Usage">
+  </Tab>
+  <Tab value="Usage">
     ```typescript
     // Create a task with all three roles
     const task = await client.db.Task.create({
@@ -201,7 +201,7 @@ You can define any number of relations between the same models. Each one needs a
       },
     });
     ```
-  </TabItem>
+  </Tab>
 </Tabs>
 
 This mixes relation cardinalities — `creator` is required 1:N, `assignee` is optional 1:N, and `reviewers` is a non-bidirectional array (one-directional many). Each relation is independently managed with its own `@key`.

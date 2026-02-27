@@ -3,7 +3,7 @@ title: One-to-Many
 description: One parent, many children — required and optional variants with array operations.
 ---
 
-import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 
 A one-to-many relation links a single record in one model (the "one" side) to multiple records in another model (the "many" side). The "many" side stores the foreign key, while the "one" side uses an array relation for reverse lookups.
 
@@ -11,8 +11,8 @@ A one-to-many relation links a single record in one model (the "one" side) to mu
 
 A required 1:N means every child record **must** reference a parent.
 
-<Tabs>
-  <TabItem label="Schema">
+<Tabs items={['Schema', 'How it works']}>
+  <Tab value="Schema">
     ```cerial
     model User {
       id Record @id
@@ -27,21 +27,21 @@ A required 1:N means every child record **must** reference a parent.
       author Relation @field(authorId) @model(User)
     }
     ```
-  </TabItem>
-  <TabItem label="How it works">
+  </Tab>
+  <Tab value="How it works">
     - `Post.authorId` stores the foreign key — every Post must belong to a User.
     - `Post.author` is the forward relation resolving `authorId` to a `User`.
     - `User.posts` is the reverse relation querying all Posts where `authorId` matches.
     - Deleting a User **cascades** to delete all Posts with `authorId` pointing to that User.
-  </TabItem>
+  </Tab>
 </Tabs>
 
 ## Optional One-to-Many
 
 An optional 1:N allows child records to exist without a parent.
 
-<Tabs>
-  <TabItem label="Schema">
+<Tabs items={['Schema', 'How it works']}>
+  <Tab value="Schema">
     ```cerial
     model User {
       id Record @id
@@ -56,12 +56,12 @@ An optional 1:N allows child records to exist without a parent.
       author Relation? @field(authorId) @model(User)
     }
     ```
-  </TabItem>
-  <TabItem label="How it works">
+  </Tab>
+  <Tab value="How it works">
     - `Post.authorId` is `Record?` — a Post can exist without an author.
     - Deleting a User clears `authorId` on all associated Posts (default `SetNone`).
     - Add `@nullable` to `authorId` for `SetNull` behavior instead.
-  </TabItem>
+  </Tab>
 </Tabs>
 
 ## Creating Records

@@ -3,7 +3,7 @@ title: Delete Behavior (@onDelete)
 description: Controlling what happens to related records when a referenced record is deleted
 ---
 
-import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
 
 When you delete a record that other records reference via foreign keys, Cerial needs to decide what to do with those dependent records. Should they be deleted too? Should their FK be cleared? Should the deletion be blocked entirely?
 
@@ -100,18 +100,18 @@ await client.db.User.deleteMany({ where: { id: userId } });
 
 Since `SetNull` is the default for `@nullable` FK fields, these two declarations are equivalent:
 
-<Tabs>
-  <TabItem label="Explicit">
+<Tabs items={['Explicit', 'Implicit (same behavior)']}>
+  <Tab value="Explicit">
     ```cerial
     author Relation? @field(authorId) @model(User) @onDelete(SetNull)
     ```
-  </TabItem>
-  <TabItem label="Implicit (same behavior)">
+  </Tab>
+  <Tab value="Implicit (same behavior)">
     ```cerial
     # When authorId has @nullable, SetNull is the default
     author Relation? @field(authorId) @model(User)
     ```
-  </TabItem>
+  </Tab>
 </Tabs>
 
 :::note
