@@ -1,4 +1,18 @@
 {
   "title": "Queries",
-  "pages": ["...queries"]
+  "pages": [
+    "...queries",
+    "find-one",
+    "find-many",
+    "find-all",
+    "find-unique",
+    "create",
+    "upsert",
+    "update-many",
+    "update-unique",
+    "delete-many",
+    "delete-unique",
+    "count",
+    "exists"
+ ]
 }

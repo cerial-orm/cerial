@@ -1,0 +1,164 @@
+---
+title: findMany
+description: Find all records matching a filter — with pagination, ordering, select, and include support.
+---
+
+Finds all records matching the where clause. Returns an array of records, or an empty array if nothing matches.
+
+```typescript
+const users = await client.db.User.findMany({
+  where: { isActive: true },
+});
+// users: User[]
+```
+
+## Options
+
+| Option | Type | Required | Description |
+| --- | --- | --- | --- |
+| `where` | `UserWhereInput` | No | Filter conditions (omit to fetch all records) |
+| `select` | `UserSelect` | No | Narrow which fields are returned |
+| `include` | `UserInclude` | No | Include related records |
+| `orderBy` | `UserOrderBy` | No | Sort order for results |
+| `limit` | `number` | No | Maximum number of records to return |
+| `offset` | `number` | No | Number of records to skip |
+
+## Basic Usage
+
+```typescript
+// Fetch active users
+const users = await client.db.User.findMany({
+  where: { isActive: true },
+});
+// users: User[]
+```
+
+## Fetch All Records
+
+Omit the `where` clause to retrieve every record in the table:
+
+```typescript
+const allUsers = await client.db.User.findMany();
+// allUsers: User[]
+```
+
+:::tip
+For the common case of fetching all records with no options, use [`findAll()`](/queries/find-all) as a more readable alias.
+:::
+
+## With All Options
+
+```typescript
+const users = await client.db.User.findMany({
+  where: {
+    isActive: true,
+    age: { gte: 18, lt: 65 },
+  },
+  select: { id: true, name: true },
+  orderBy: { createdAt: 'desc' },
+  limit: 20,
+  offset: 0,
+  include: {
+    profile: { select: { bio: true } },
+  },
+});
+```
+
+## Pagination
+
+Use `limit` and `offset` together for cursor-free pagination:
+
+```typescript
+const page = 2;
+const pageSize = 10;
+
+const users = await client.db.User.findMany({
+  where: { isActive: true },
+  orderBy: { createdAt: 'desc' },
+  limit: pageSize,
+  offset: (page - 1) * pageSize,
+});
+```
+
+Combine with `count()` to calculate total pages:
+
+```typescript
+const total = await client.db.User.count({ isActive: true });
+const totalPages = Math.ceil(total / pageSize);
+
+console.log(`Page ${page} of ${totalPages}`);
+```
+
+:::tip
+Always include `orderBy` when using pagination. Without a consistent sort order, records may shift between pages as the database returns results in non-deterministic order.
+:::
+
+## Ordering
+
+Sort results by one or more fields using `'asc'` or `'desc'`:
+
+```typescript
+const users = await client.db.User.findMany({
+  orderBy: { name: 'asc' },
+});
+```
+
+You can order by nested object fields:
+
+```typescript
+const users = await client.db.User.findMany({
+  orderBy: { address: { city: 'asc' } },
+});
+```
+
+:::caution
+Ordering by relation fields (e.g., `orderBy: { author: { name: 'asc' } }`) is **not supported**. SurrealDB 3.x does not resolve record-link dot notation in `ORDER BY` clauses — the query runs without error but returns results in insertion order instead of the expected sort. Relation fields are excluded from the `OrderBy` type to prevent this.
+
+Ordering *within* included relations (e.g., `include: { posts: { orderBy: { createdAt: 'desc' } } }`) works correctly since it uses a subquery.
+:::
+
+## With Select
+
+```typescript
+const users = await client.db.User.findMany({
+  where: { isActive: true },
+  select: { id: true, name: true, email: true },
+});
+// users: { id: CerialId; name: string; email: string }[]
+```
+
+## With Include
+
+```typescript
+const users = await client.db.User.findMany({
+  where: { isActive: true },
+  include: {
+    posts: { limit: 3, orderBy: { createdAt: 'desc' } },
+    profile: true,
+  },
+});
+// users: (User & { posts: Post[]; profile: Profile })[]
+```
+
+## With Select and Include
+
+```typescript
+const users = await client.db.User.findMany({
+  where: { isActive: true },
+  select: { id: true, name: true },
+  include: { profile: true },
+});
+// users: ({ id: CerialId; name: string } & { profile: Profile })[]
+```
+
+## Return Value
+
+- Returns an array of matching records with types narrowed by `select` and `include`.
+- Returns an empty array `[]` if no records match.
+
+| Scenario | Return |
+| --- | --- |
+| Records match, no select/include | `User[]` |
+| Records match, with select | `{ ...selected fields }[]` |
+| Records match, with include | `(User & { ...relations })[]` |
+| No matches | `[]` (empty array) |

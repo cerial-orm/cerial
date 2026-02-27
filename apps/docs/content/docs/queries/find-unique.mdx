@@ -1,0 +1,155 @@
+---
+title: findUnique
+description: Find a record by a unique field — id or any @unique-decorated field — with select and include support.
+---
+
+Finds a record by a unique field — either the `id` or any field decorated with `@unique` in your schema. Returns the record or `null` if no match exists.
+
+The `where` clause must contain exactly one unique field.
+
+```typescript
+const user = await client.db.User.findUnique({
+  where: { id: '123' },
+});
+// user: User | null
+```
+
+## Options
+
+| Option | Type | Required | Description |
+| --- | --- | --- | --- |
+| `where` | `UserUniqueWhereInput` | **Yes** | Must contain exactly one unique field |
+| `select` | `UserSelect` | No | Narrow which fields are returned |
+| `include` | `UserInclude` | No | Include related records |
+
+## Find by ID
+
+Every model has an `id` field that is inherently unique:
+
+```typescript
+const user = await client.db.User.findUnique({
+  where: { id: '123' },
+});
+// user: User | null
+```
+
+## Find by @unique Field
+
+Any field decorated with `@unique` in your schema can be used:
+
+```cerial
+model User {
+  id Record @id
+  email Email @unique
+  name String
+}
+```
+
+```typescript
+const user = await client.db.User.findUnique({
+  where: { email: 'john@example.com' },
+});
+// user: User | null
+```
+
+## Find by Object @unique Field
+
+When an embedded object type has a field marked with `@unique`, you can use nested syntax to look it up:
+
+```cerial
+object LocationInfo {
+  address String
+  zip String @unique
+}
+
+model Store {
+  id Record @id
+  name String
+  location LocationInfo
+  warehouse LocationInfo?
+}
+```
+
+```typescript
+// Find by object @unique field (nested syntax)
+const store = await client.db.Store.findUnique({
+  where: { location: { zip: '10001' } },
+});
+
+// Each embedding is independent
+const byWarehouse = await client.db.Store.findUnique({
+  where: { warehouse: { zip: '90210' } },
+});
+```
+
+## With Select
+
+```typescript
+const user = await client.db.User.findUnique({
+  where: { id: '123' },
+  select: { id: true, name: true },
+});
+// user: { id: CerialId; name: string } | null
+```
+
+## With Include
+
+```typescript
+const user = await client.db.User.findUnique({
+  where: { email: 'john@example.com' },
+  include: { profile: true },
+});
+// user: (User & { profile: Profile }) | null
+```
+
+## With Select and Include
+
+```typescript
+const user = await client.db.User.findUnique({
+  where: { id: '123' },
+  select: { id: true, email: true },
+  include: { posts: true },
+});
+// user: ({ id: CerialId; email: string } & { posts: Post[] }) | null
+```
+
+## findUnique vs findOne
+
+Both methods return a single record or `null`, but they serve different purposes:
+
+| | `findUnique` | `findOne` |
+| --- | --- | --- |
+| **Where clause** | Must target a unique field (`id` or `@unique`) | Any filter conditions |
+| **Use case** | Look up a specific record by identifier | Find first match from potentially many |
+| **OrderBy** | Not available (result is deterministic) | Supported — controls which record is returned |
+| **Type safety** | `where` only accepts unique fields | `where` accepts any filterable fields |
+| **Required where** | Yes — `where` is mandatory | No — `where` is optional |
+
+```typescript
+// findUnique — when you know the exact identifier
+const user = await client.db.User.findUnique({
+  where: { email: 'john@example.com' },
+});
+
+// findOne — when you want the first match
+const latestAdmin = await client.db.User.findOne({
+  where: { role: 'admin' },
+  orderBy: { createdAt: 'desc' },
+});
+```
+
+:::tip
+Prefer `findUnique` when looking up records by `id` or `@unique` fields. The type system enforces that only unique fields are accepted, making your intent clear and preventing accidental non-unique lookups.
+:::
+
+## Return Value
+
+- Returns the matching record with the appropriate type based on `select` and `include` options.
+- Returns `null` if no record with the given unique field value exists.
+
+| Scenario | Return |
+| --- | --- |
+| Match found, no select/include | `User \| null` |
+| Match found, with select | `{ ...selected fields } \| null` |
+| Match found, with include | `(User & { ...relations }) \| null` |
+| No match | `null` |

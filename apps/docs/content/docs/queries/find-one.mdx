@@ -1,0 +1,135 @@
+---
+title: findOne
+description: Find the first record matching a filter — with select, include, and orderBy support.
+---
+
+Finds the first record matching the where clause. Returns the record or `null` if no match is found.
+
+If multiple records match, the one returned depends on the `orderBy` option. Without explicit ordering, SurrealDB's default ordering applies.
+
+```typescript
+const user = await client.db.User.findOne({
+  where: { email: 'john@example.com' },
+});
+// user: User | null
+```
+
+## Options
+
+| Option | Type | Required | Description |
+| --- | --- | --- | --- |
+| `where` | `UserWhereInput` | No | Filter conditions to match against |
+| `select` | `UserSelect` | No | Narrow which fields are returned |
+| `include` | `UserInclude` | No | Include related records |
+| `orderBy` | `UserOrderBy` | No | Ordering (determines which record is "first") |
+
+## Basic Usage
+
+```typescript
+const user = await client.db.User.findOne({
+  where: { email: 'john@example.com' },
+});
+// user: User | null
+
+if (user) {
+  console.log(user.name); // safe to access — null already checked
+}
+```
+
+## With Select
+
+Use `select` to return only specific fields. The return type narrows to include only the selected fields:
+
+```typescript
+const user = await client.db.User.findOne({
+  where: { email: 'john@example.com' },
+  select: { id: true, name: true, email: true },
+});
+// user: { id: CerialId; name: string; email: string } | null
+```
+
+Fields not included in `select` are excluded from both the query result and the TypeScript type — accessing `user.age` would be a compile-time error.
+
+## With Include
+
+Use `include` to fetch related records alongside the main record. Included relations support their own filtering, ordering, and limiting:
+
+```typescript
+const user = await client.db.User.findOne({
+  where: { id: userId },
+  include: {
+    profile: true,
+    posts: { limit: 5, orderBy: { createdAt: 'desc' } },
+  },
+});
+// user: (User & { profile: Profile; posts: Post[] }) | null
+```
+
+## With Select and Include
+
+When both are provided, `select` narrows the base fields while `include` adds relations via intersection:
+
+```typescript
+const user = await client.db.User.findOne({
+  where: { id: userId },
+  select: { id: true, email: true },
+  include: { profile: true },
+});
+// user: ({ id: CerialId; email: string } & { profile: Profile }) | null
+```
+
+## Object Sub-Field Select
+
+For embedded object fields, you can select specific sub-fields instead of the entire object:
+
+```typescript
+const user = await client.db.User.findOne({
+  where: { id: userId },
+  select: { name: true, address: { city: true, state: true } },
+});
+// user: { name: string; address: { city: string; state: string } } | null
+```
+
+Passing `true` for an object field returns the full object type:
+
+```typescript
+const user = await client.db.User.findOne({
+  where: { id: userId },
+  select: { name: true, address: true },
+});
+// user: { name: string; address: Address } | null
+```
+
+## With OrderBy
+
+The `orderBy` option determines which record is "first" when multiple records match:
+
+```typescript
+// Get the most recently created active user
+const latest = await client.db.User.findOne({
+  where: { isActive: true },
+  orderBy: { createdAt: 'desc' },
+});
+
+// Get the youngest user
+const youngest = await client.db.User.findOne({
+  where: { isActive: true },
+  orderBy: { age: 'asc' },
+});
+```
+
+:::tip
+Always use `orderBy` when you care about *which* record is returned from multiple matches. Without it, the result depends on SurrealDB's internal ordering, which may not be deterministic.
+:::
+
+## Return Value
+
+- Returns the matching record with the appropriate type based on `select` and `include` options.
+- Returns `null` if no record matches the `where` clause.
+
+| Scenario | Return |
+| --- | --- |
+| Match found, no select/include | `User \| null` |
+| Match found, with select | `{ ...selected fields } \| null` |
+| Match found, with include | `(User & { ...relations }) \| null` |
+| No match | `null` |
