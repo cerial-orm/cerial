@@ -3,4 +3,276 @@ title: Connect & Disconnect
 description: Linking and unlinking existing records in relations
 ---
 
-Content coming soon.
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+Connect links a record to an existing related record by setting the FK. Disconnect removes the link by clearing the FK. These operations work on both singular and array relations, and from both the PK side (forward) and non-PK side (reverse).
+
+## Connect
+
+### Connect on Create (Singular)
+
+```typescript
+// Connect a post to an existing user
+const post = await client.db.Post.create({
+  data: {
+    title: 'My Post',
+    author: { connect: userId },
+  },
+});
+// Sets Post.authorId to the user's record ID
+```
+
+The `connect` value accepts any `RecordIdInput` — a `CerialId` from a previous query, a plain string, a `RecordId`, or a `StringRecordId`:
+
+```typescript
+// All valid connect values
+author: { connect: user.id }             // CerialId from a query result
+author: { connect: 'abc123' }            // string ID
+author: { connect: new RecordId('user', 'abc123') }  // SurrealDB RecordId
+```
+
+### Connect on Create (Array / N:N)
+
+```typescript
+// Connect multiple tags to a new user
+const user = await client.db.User.create({
+  data: {
+    name: 'John',
+    tags: { connect: [tag1Id, tag2Id] },
+  },
+});
+```
+
+For N:N relations, bidirectional sync happens automatically — each connected `Tag` also gets the new user's ID added to its `userIds` array.
+
+### Connect on Update (Singular — Replace)
+
+For singular relations, connecting on update **replaces** the existing FK value:
+
+```typescript
+// Change a post's author
+await client.db.Post.updateUnique({
+  where: { id: postId },
+  data: { author: { connect: newUserId } },
+});
+// Replaces Post.authorId with the new user ID
+```
+
+### Connect on Update (Array — Append)
+
+For array relations, connecting on update **appends** to the existing FK array:
+
+```typescript
+// Add more tags to a user
+await client.db.User.updateMany({
+  where: { id: userId },
+  data: { tags: { connect: [newTagId] } },
+});
+// Appends newTagId to User.tagIds
+// For N:N: also adds userId to the new Tag's userIds
+```
+
+### Connect from the Reverse Side
+
+The reverse (non-PK) side also supports connect. This updates the target records' FK fields to point to the parent:
+
+```typescript
+// Connect existing posts to a user (from the User side)
+await client.db.User.updateUnique({
+  where: { id: userId },
+  data: {
+    posts: { connect: [postId1, postId2] },
+  },
+});
+// Sets Post.authorId = userId on each connected post
+```
+
+## Disconnect
+
+### Disconnect a Singular Relation
+
+Disconnecting a singular relation clears the FK. The clear behavior depends on whether the FK field has `@nullable`:
+
+| FK Schema | Disconnect sets FK to | Description |
+| --- | --- | --- |
+| `Record?` (no `@nullable`) | NONE (field removed) | Field is absent — `undefined` in TypeScript |
+| `Record? @nullable` | NULL (field set to null) | Field is present but `null` |
+
+```typescript
+// Remove the author from a post
+await client.db.Post.updateUnique({
+  where: { id: postId },
+  data: { author: { disconnect: true } },
+});
+```
+
+For singular relations, `disconnect` takes a boolean `true` — there is only one value to disconnect.
+
+:::caution
+Required relations (`Record` without `?`) **cannot be disconnected**. Attempting to disconnect a required relation will result in a TypeScript type error — the `disconnect` option simply isn't available in the type.
+:::
+
+### Disconnect from an Array Relation
+
+Disconnecting from an array relation removes specific IDs from the FK array:
+
+```typescript
+// Remove specific tags from a user
+await client.db.User.updateMany({
+  where: { id: userId },
+  data: { tags: { disconnect: [tagId1, tagId2] } },
+});
+// Removes tagId1 and tagId2 from User.tagIds
+// For N:N: also removes userId from each Tag's userIds
+```
+
+For array relations, `disconnect` takes an array of IDs to remove.
+
+### Disconnect from the Reverse Side
+
+The reverse side also supports disconnect — clearing the FK on target records that currently reference the parent:
+
+```typescript
+// Disconnect all posts from a user (from the User side)
+await client.db.User.updateUnique({
+  where: { id: userId },
+  data: {
+    posts: { disconnect: true },
+  },
+});
+// Sets Post.authorId = NONE (or NULL if @nullable) on posts that reference this user
+```
+
+## Set (Replace All)
+
+The `set` operation **replaces the entire contents** of an FK array. Unlike `connect` (which appends) or `disconnect` (which removes specific IDs), `set` overwrites the array with exactly the IDs you provide.
+
+```typescript
+// Replace all of a user's tags with a new set
+await client.db.User.updateUnique({
+  where: { id: userId },
+  data: {
+    tags: { set: [tagId1, tagId2, tagId3] },
+  },
+});
+// User.tagIds is now exactly [tagId1, tagId2, tagId3]
+// Old tags that were removed lose userId from their userIds
+// New tags that were added gain userId in their userIds
+```
+
+For N:N relations, `set` handles bidirectional sync — old items not in the new set are cleaned up, and new items not in the old set are synced.
+
+### Empty Set
+
+Pass an empty array to clear all items:
+
+```typescript
+await client.db.User.updateUnique({
+  where: { id: userId },
+  data: {
+    tags: { set: [] },
+  },
+});
+// User.tagIds is now []
+// All previously-linked Tags have userId removed from their userIds
+```
+
+:::note
+`set` is only available on **array** relations. For singular relations, use `connect` to replace or `disconnect` to clear.
+:::
+
+## Combining Operations
+
+### Connect and Disconnect
+
+For array relations, you can connect and disconnect in the same update:
+
+```typescript
+await client.db.User.updateMany({
+  where: { id: userId },
+  data: {
+    tags: {
+      connect: [goTagId, rustTagId],
+      disconnect: [jsTagId, pythonTagId],
+    },
+  },
+});
+// Adds go and rust, removes js and python — all atomically
+// All reverse sides (Tag.userIds) are updated accordingly
+```
+
+### Connect and Create
+
+You can mix `connect` with `create` for array relations:
+
+```typescript
+await client.db.User.updateMany({
+  where: { id: userId },
+  data: {
+    tags: {
+      create: [{ name: 'brand-new-tag' }],
+      connect: [existingTagId],
+    },
+  },
+});
+// Creates a new Tag and connects to an existing Tag in one transaction
+```
+
+See [Nested Create](/cerial/relations/nested-create/) for more on combining `create` with other operations.
+
+## Validation
+
+Connect validates that the target record exists before linking. If the target doesn't exist, the operation throws an error and the entire transaction is rolled back:
+
+```typescript
+// This will throw if the user doesn't exist
+const post = await client.db.Post.create({
+  data: {
+    title: 'My Post',
+    author: { connect: 'nonexistent-id' },
+  },
+});
+// Error: Cannot connect to non-existent User record
+```
+
+This validation runs inside the transaction, so a failed connect never leaves your data in an inconsistent state.
+
+## Transactions
+
+All connect, disconnect, and set operations work inside [`$transaction`](/cerial/queries/transaction/). When used within a transaction, the operations are covered by the same atomic boundary:
+
+```typescript
+await client.$transaction(async (tx) => {
+  await tx.Post.create({
+    data: {
+      title: 'Post A',
+      author: { connect: userId },
+    },
+  });
+
+  await tx.User.updateUnique({
+    where: { id: userId },
+    data: {
+      tags: { set: [tag1, tag2] },
+    },
+  });
+});
+```
+
+## Summary
+
+| Operation | Singular Relation | Array Relation |
+| --- | --- | --- |
+| `connect` on create | Sets FK to record ID | Sets FK array to record IDs |
+| `connect` on update | Replaces FK value | Appends to FK array |
+| `disconnect: true` | Clears FK (NONE or NULL) | N/A |
+| `disconnect: [ids]` | N/A | Removes IDs from FK array |
+| `set: [ids]` | N/A | Replaces entire FK array |
+| `set: []` | N/A | Clears the FK array |
+| Bidirectional sync | N/A | Automatic for N:N |
+| Reverse side ops | ✅ connect, disconnect | ✅ connect, disconnect, create |
+| Validation | Target must exist | All targets must exist |
+
+:::tip
+Use `connect` when adding to what's already there, `set` when you want to replace everything, and `disconnect` when removing specific items. For singular relations, `connect` always replaces the current value.
+:::
