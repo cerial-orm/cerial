@@ -1,0 +1,160 @@
+---
+title: Where Filtering
+description: Filtering query results by embedded object sub-fields — nested conditions, operators, and array quantifiers.
+---
+
+You can filter query results by the values of nested object fields. Cerial translates these into dot-notation conditions automatically.
+
+All examples use this schema:
+
+```cerial
+object Address {
+  street String
+  city String
+  state String
+  zipCode String?
+}
+
+object GeoPoint {
+  lat Float
+  lng Float
+  label String?
+}
+
+model User {
+  id Record @id
+  name String
+  address Address
+  shipping Address?
+  locations GeoPoint[]
+}
+```
+
+## Basic Nested Field Filtering
+
+Pass an object with the desired field conditions to filter by nested values:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: { address: { city: 'NYC' } },
+});
+```
+
+This returns all users whose `address.city` equals `'NYC'`.
+
+## Multiple Nested Conditions
+
+You can specify multiple conditions on the same object. All conditions are ANDed together:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: {
+    address: {
+      state: 'NY',
+      city: { startsWith: 'New' },
+    },
+  },
+});
+```
+
+You can also filter across different object fields on the same model:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: {
+    address: { state: { in: ['NY', 'CA'] } },
+    shipping: { zipCode: { startsWith: '100' } },
+  },
+});
+```
+
+## All Operators Work on Nested Fields
+
+Every standard filter operator works on nested object fields — comparison, string, array, existence, and more:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: {
+    address: {
+      city: { contains: 'York' },
+      state: { neq: 'TX' },
+      zipCode: { isDefined: true },
+    },
+  },
+});
+```
+
+For the full list of available operators, see the [Filtering](/filtering) section — specifically [Comparison](/filtering/comparison), [String](/filtering/string-operators), and [Special](/filtering/special-operators) operators.
+
+## Array Object Quantifiers
+
+When filtering on array object fields, use quantifier operators to express how many elements must match: `some`, `every`, or `none`.
+
+### `some` — At Least One Element Matches
+
+```typescript
+const users = await client.db.User.findMany({
+  where: {
+    locations: { some: { lat: { gt: 40 } } },
+  },
+});
+```
+
+Returns users where **at least one** location has a latitude greater than 40.
+
+### `every` — All Elements Match
+
+```typescript
+const users = await client.db.User.findMany({
+  where: {
+    locations: { every: { lat: { gte: 0 } } },
+  },
+});
+```
+
+Returns users where **every** location has a non-negative latitude.
+
+### `none` — No Elements Match
+
+```typescript
+const users = await client.db.User.findMany({
+  where: {
+    locations: { none: { lat: { lt: -90 } } },
+  },
+});
+```
+
+Returns users where **no** location has a latitude less than -90.
+
+:::caution
+The `none` quantifier is implemented internally as `!(arr.any(...))` syntax rather than `NOT arr.any(...)`. This is for SurrealDB 3.x compatibility. The behavior is identical — records where zero elements match the condition.
+:::
+
+## Combining Object Filters with Other Conditions
+
+Object where conditions combine naturally with top-level field conditions and logical operators:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: {
+    name: { startsWith: 'J' },
+    address: { state: 'NY' },
+    locations: { some: { lat: { gt: 40 } } },
+  },
+});
+```
+
+You can also use `AND`, `OR`, and `NOT` with nested object filters:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: {
+    OR: [
+      { address: { state: 'NY' } },
+      { address: { state: 'CA' } },
+    ],
+  },
+});
+```
+
+For the full object filtering reference including deeply nested objects, see [Object Filtering](/filtering/object-filtering).

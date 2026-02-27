@@ -1,4 +1,12 @@
 {
-  "title": "Objects & Tuples",
-  "pages": ["...objects"]
+  "title": "Embedded Objects",
+  "pages": [
+    "defining-objects",
+    "object-fields-on-models",
+    "primitive-arrays-in-objects",
+    "select",
+    "where",
+    "update",
+    "orderby"
+  ]
 }

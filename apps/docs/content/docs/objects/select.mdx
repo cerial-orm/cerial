@@ -1,0 +1,120 @@
+---
+title: Select
+description: Sub-field selection on embedded objects — narrow return types by selecting specific object fields.
+---
+
+Object fields support sub-field selection in `select` options. You can retrieve only the specific nested fields you need, and the return type narrows accordingly.
+
+All examples use this schema:
+
+```cerial
+object Address {
+  street String
+  city String
+  state String
+  zipCode String?
+}
+
+object GeoPoint {
+  lat Float
+  lng Float
+  label String?
+}
+
+model User {
+  id Record @id
+  name String
+  address Address
+  shipping Address?
+  locations GeoPoint[]
+}
+```
+
+## Boolean Selection
+
+Passing `true` for an object field returns the full object with all its fields:
+
+```typescript
+const user = await client.db.User.findOne({
+  select: { name: true, address: true },
+});
+// user.address: Address (full object)
+// user.address.street  ✓
+// user.address.city    ✓
+// user.address.state   ✓
+// user.address.zipCode ✓
+```
+
+This is identical to not specifying a select for that field — `true` means "include everything."
+
+## Object Sub-Field Selection
+
+Pass an object with specific fields set to `true` to narrow the return type to only those fields:
+
+```typescript
+const user = await client.db.User.findOne({
+  select: { name: true, address: { city: true, state: true } },
+});
+// user.address: { city: string; state: string }
+// user.address.city   ✓
+// user.address.state  ✓
+// user.address.street — type error, not selected
+```
+
+Only the fields you specify are included in the return type. Accessing unselected fields produces a TypeScript compile-time error.
+
+## Array of Objects
+
+Sub-field selection works on array object fields. The narrowing applies to each element:
+
+```typescript
+const user = await client.db.User.findOne({
+  select: { locations: { lat: true } },
+});
+// user.locations: { lat: number }[]
+// Each element only has the `lat` field
+```
+
+## Optional Object Fields
+
+When an optional object field is selected with sub-field narrowing, the `| undefined` is preserved:
+
+```typescript
+const user = await client.db.User.findOne({
+  select: { shipping: { city: true } },
+});
+// user.shipping: { city: string } | undefined
+```
+
+If the record has no `shipping` value (NONE), the field is `undefined`. If it does have a value, only the selected sub-fields are present in the type.
+
+## Select Within Include
+
+When using `select` inside an `include` clause for related models, the select is **type-level only** — the runtime returns full related objects. This is a deliberate design choice since related records are fetched as complete entities.
+
+```typescript
+// Schema context:
+// model Post {
+//   id Record @id
+//   title String
+//   content String?
+//   authorId Record
+//   author Relation @field(authorId) @model(User)
+// }
+
+const posts = await client.db.Post.findMany({
+  include: {
+    author: {
+      select: { name: true, address: { city: true } },
+    },
+  },
+});
+// TypeScript type: posts[n].author has { name: string; address: { city: string } }
+// Runtime: full User objects are returned
+```
+
+:::caution
+`select` inside `include` only narrows the TypeScript type — it does not affect what data is fetched at runtime. If you need to limit data transfer, use top-level `select` on the model you are querying directly.
+:::
+
+For more details on select and include behavior, see [Select & Include](/select-and-include).

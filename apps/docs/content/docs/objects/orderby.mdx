@@ -1,0 +1,98 @@
+---
+title: Ordering
+description: Ordering query results by embedded object sub-fields — nested field sorting and generated OrderBy types.
+---
+
+You can sort query results by fields within embedded objects. Cerial translates nested ordering into dot-notation `ORDER BY` clauses automatically.
+
+All examples use this schema:
+
+```cerial
+object Address {
+  street String
+  city String
+  state String
+  zipCode String?
+}
+
+object GeoPoint {
+  lat Float
+  lng Float
+  label String?
+}
+
+model User {
+  id Record @id
+  name String
+  address Address
+  shipping Address?
+  locations GeoPoint[]
+}
+```
+
+## Basic Ordering
+
+Pass an object with the nested field and direction (`'asc'` or `'desc'`):
+
+```typescript
+const users = await client.db.User.findMany({
+  orderBy: { address: { city: 'asc' } },
+});
+```
+
+```typescript
+const users = await client.db.User.findMany({
+  orderBy: { address: { state: 'desc' } },
+});
+```
+
+## Generated OrderBy Types
+
+For each object type, Cerial generates a corresponding `ObjectNameOrderBy` type. This type mirrors the object's field structure, with each leaf field accepting `'asc' | 'desc'`:
+
+```typescript
+// Generated from the Address object:
+type AddressOrderBy = {
+  street?: 'asc' | 'desc';
+  city?: 'asc' | 'desc';
+  state?: 'asc' | 'desc';
+  zipCode?: 'asc' | 'desc';
+};
+```
+
+On the model side, the `UserOrderBy` type includes the nested object ordering:
+
+```typescript
+type UserOrderBy = {
+  name?: 'asc' | 'desc';
+  address?: AddressOrderBy;
+  shipping?: AddressOrderBy;
+  // ...
+};
+```
+
+This gives you full type safety — you can only order by fields that exist in the object definition.
+
+## Combining Top-Level and Nested Field Ordering
+
+You can combine top-level and nested field ordering in a single query:
+
+```typescript
+const users = await client.db.User.findMany({
+  orderBy: {
+    address: { state: 'asc' },
+  },
+});
+```
+
+```typescript
+// Multiple ordering criteria
+const users = await client.db.User.findMany({
+  orderBy: [
+    { address: { state: 'asc' } },
+    { name: 'desc' },
+  ],
+});
+```
+
+For general `orderBy` usage including `limit` and `offset` for pagination, see [Queries](/queries).
