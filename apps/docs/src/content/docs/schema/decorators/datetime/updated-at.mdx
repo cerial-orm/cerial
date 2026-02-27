@@ -1,0 +1,150 @@
+---
+title: '@updatedAt'
+description: Automatically set a Date field to the current timestamp on every create and update.
+sidebar:
+  label: '@updatedAt'
+  order: 10
+---
+
+Automatically sets a `Date` field to the current timestamp on every create and update. The value is stored in the database and re-set each time the record is written.
+
+## Syntax
+
+```cerial
+model Post {
+  id Record @id
+  title String
+  updatedAt Date @updatedAt
+}
+```
+
+## Behavior
+
+- **Date fields only** — `@updatedAt` can only be applied to fields of type `Date`.
+- **Set on creation and every update** — Defaults to `time::now()` on create and resets to `time::now()` on every subsequent update when the field is absent.
+- **Always reflects last write** — The value always represents the last time the record was written to.
+- **Can be overridden** — If you explicitly provide a value, your value is used instead of the automatic timestamp.
+- **Optional in CreateInput and UpdateInput** — The generated types make this field optional since the database provides a default.
+- **Automatic NONE injection** — On updates, Cerial automatically sets omitted `@updatedAt` fields to `NONE`, which triggers SurrealDB's `DEFAULT ALWAYS` to re-apply `time::now()`.
+
+## Usage
+
+```typescript
+// updatedAt is auto-set on creation
+const post = await client.db.Post.create({
+  data: { title: 'Hello World' },
+});
+console.log(post.updatedAt); // Date — creation time
+
+// updatedAt is auto-updated on every write
+const updated = await client.db.Post.updateUnique({
+  where: { id: post.id },
+  data: { title: 'Updated Title' },
+});
+console.log(updated.updatedAt); // Date — update time (later than creation)
+```
+
+Filter by last modification time:
+
+```typescript
+const recentlyModified = await client.db.Post.findMany({
+  where: { updatedAt: { gte: new Date('2025-01-01') } },
+});
+```
+
+## Object Fields
+
+`@updatedAt` can be applied to `Date` fields within object definitions:
+
+```cerial
+object Metadata {
+  source String
+  updatedAt Date @updatedAt
+}
+
+model Document {
+  id Record @id
+  title String
+  meta Metadata
+}
+```
+
+When an object has `@updatedAt` fields, Cerial generates a `MetadataCreateInput` type where those fields are optional. On merge-style updates, omitted `@updatedAt` sub-fields are reset via dot-notation NONE injection.
+
+## Tuple Elements
+
+`@updatedAt` can also be applied to `Date`-type tuple elements:
+
+```cerial
+tuple TrackInfo {
+  updatedAt Date @updatedAt,
+  version Int
+}
+
+model Config {
+  id Record @id
+  tracking TrackInfo
+}
+```
+
+The `updatedAt` element becomes optional in both create and update inputs, resetting to `time::now()` on every write when absent.
+
+## Allowed On
+
+| Construct | Allowed |
+| --- | --- |
+| Model fields (Date) | ✅ |
+| Object fields (Date) | ✅ |
+| Tuple elements (Date) | ✅ |
+| Enum values | ❌ |
+| Literal fields | ❌ |
+
+## Mutual Exclusions
+
+`@updatedAt` cannot be combined with any of these decorators on the same field:
+
+- `@createdAt`, `@now` — other timestamp decorators
+- `@default`, `@defaultAlways` — custom default strategies
+- `@uuid`, `@uuid4`, `@uuid7` — UUID auto-generation decorators
+
+## Example: Full Timestamps
+
+Combine `@createdAt` and `@updatedAt` for a complete timestamp pattern:
+
+```cerial
+model Article {
+  id Record @id
+  title String
+  content String
+  createdAt Date @createdAt
+  updatedAt Date @updatedAt
+}
+```
+
+```typescript
+const article = await client.db.Article.create({
+  data: { title: 'My Article', content: 'Hello' },
+});
+console.log(article.createdAt); // creation time
+console.log(article.updatedAt); // same as createdAt initially
+
+// After an update, only updatedAt changes
+const updated = await client.db.Article.updateUnique({
+  where: { id: article.id },
+  data: { content: 'Updated content' },
+});
+console.log(updated.createdAt); // unchanged
+console.log(updated.updatedAt); // new timestamp
+```
+
+## Comparison
+
+| Decorator | Stored | Set on create | Updated on write | Can override | Field types |
+| --- | --- | --- | --- | --- | --- |
+| [`@createdAt`](/cerial/schema/decorators/datetime/created-at/) | Yes | Yes | No | Yes | `Date` only |
+| `@updatedAt` | Yes | Yes | Yes | Yes | `Date` only |
+| [`@now`](/cerial/schema/decorators/datetime/now/) | No | N/A (computed) | N/A (computed) | No | `Date` only |
+| [`@defaultAlways(value)`](/cerial/schema/decorators/defaults/default-always/) | Yes | Yes | Yes | Yes | Any |
+
+`@defaultAlways(value)` is the general-purpose version of the same `DEFAULT ALWAYS` mechanism. It works on any field type (not just `Date`) and lets you specify a custom value instead of `time::now()`.
+
