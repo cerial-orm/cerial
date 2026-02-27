@@ -1,0 +1,312 @@
+---
+title: Features
+description: Detailed walkthrough of every feature in the Cerial VS Code extension, from syntax highlighting and IntelliSense to diagnostics, formatting, and navigation.
+---
+
+The Cerial extension packs 15 language server features into your editor. This page walks through each one with concrete details about what it does, when it activates, and how to get the most out of it.
+
+## Syntax Highlighting
+
+Two layers work together to color your `.cerial` files accurately.
+
+**TextMate grammar** provides the base layer. It highlights all `.cerial` constructs without waiting for the language server to start:
+
+- Block keywords: `model`, `object`, `tuple`, `enum`, `literal`, `abstract model`
+- 15 field types: `String`, `Int`, `Float`, `Bool`, `Date`, `Email`, `Record`, `Relation`, `Uuid`, `Duration`, `Decimal`, `Bytes`, `Geometry`, `Number`, `Any`
+- 25+ decorators: `@default`, `@unique`, `@createdAt`, `@updatedAt`, `@now`, `@readonly`, `@nullable`, `@flexible`, `@set`, `@uuid`, `@uuid4`, `@uuid7`, `@index`, `@model`, `@field`, `@onDelete`, `@point`, `@line`, `@polygon`, and more
+- Modifiers: `?` (optional), `[]` (array), `!!private`
+- Composite directives: `@@index`, `@@unique`
+- All three comment styles: `#`, `//`, `/* */`
+- `extends` clauses with pick/omit syntax
+
+**Semantic tokens** add an AST-aware layer on top once the language server is running. Where the TextMate grammar uses pattern matching, semantic tokens classify each token based on what it actually means in context. The language server assigns token types (keyword, type, decorator, variable, function, comment, string, number, operator) and modifiers (declaration, definition, readonly, abstract) for precise highlighting that adapts to your schema's structure.
+
+The result: accurate highlighting that works with every VS Code color theme, from the moment you open a file through full language server analysis.
+
+## IntelliSense
+
+Completions activate on four trigger characters: `@`, space, `(`, and `,`. What the extension suggests depends entirely on where your cursor sits.
+
+### Top-level completions
+
+At the root of a `.cerial` file, the extension offers block keywords:
+
+- `model`, `object`, `tuple`, `enum`, `literal`
+- `abstract model` (for inheritance-only models)
+
+### Field type position
+
+Inside any block body, typing a field name followed by a space triggers type completions:
+
+- All 15 primitive types (`String`, `Int`, `Float`, `Bool`, `Date`, `Email`, `Record`, `Relation`, `Uuid`, `Duration`, `Decimal`, `Bytes`, `Geometry`, `Number`, `Any`)
+- Array variants (`String[]`, `Int[]`, etc.)
+- User-defined types from the current file and other `.cerial` files in the same schema group (models, objects, tuples, enums, literals)
+
+### Inside Record()
+
+When your cursor is between `Record(` and `)`, completions narrow to valid ID types:
+
+- Primitives: `int`, `float`, `number`, `string`, `uuid`
+- Object and tuple references from your schema (for structured IDs)
+
+### After extends
+
+Typing `extends` triggers completions filtered to valid parent types. Only same-kind types appear: a model sees other models (abstract only), an object sees other objects, and so on. Types from other files in the schema group are included.
+
+### Decorator arguments
+
+- `@model(` shows model names from the same schema group
+- `@field(` shows Record-type field names from the current model
+
+### Decorator position
+
+Type `@` after a field definition to see decorator completions. The extension filters suggestions based on context:
+
+- Decorators already present on the field are excluded
+- Conflicting decorators are hidden (e.g., `@createdAt` won't appear if `@updatedAt` is already there, and `@uuid` won't show alongside `@default`)
+- Parameterized decorators like `@default()`, `@model()`, and `@field()` include snippet placeholders so you can tab into the argument
+
+:::tip
+Inside an enum block, the completion list only shows enum-relevant options. The extension won't suggest field types or decorators that don't apply to the current block kind.
+:::
+
+## Diagnostics
+
+The extension runs pull-based diagnostics, computing errors on demand rather than firing continuously in the background. Two sources feed the error list:
+
+### Parse errors
+
+Syntax issues caught during tokenization and parsing. These cover malformed blocks, missing braces, invalid field syntax, and unrecognized tokens. Each error includes the exact line and column where the problem starts.
+
+### Schema validation
+
+After parsing succeeds, 11 validators run against the resolved AST:
+
+- **Core structure** validates the overall schema shape and required elements
+- **Cross-file type resolution** checks that every type reference (in field positions, decorators, extends clauses) points to a real model, object, tuple, enum, or literal, including types defined in other files within the same schema group
+- **Inheritance validation** verifies extends chains: parent exists, parent is the same kind, no circular inheritance, pick/omit targets exist on the parent
+- **Relation validation** checks FK/Relation pairing rules, `@field()` and `@model()` correctness, `@onDelete` restrictions
+- **Decorator validation** catches conflicting decorators (e.g., `@createdAt` with `@now`), type incompatibilities (e.g., `@uuid` on a non-Uuid field), and invalid decorator arguments
+- Additional validators cover tuple/object combination rules, typed ID constraints, abstract model rules, `!!private` usage, and more
+
+Errors are filtered to only report issues for types defined in the current file. If `User` is defined in `auth.cerial` and referenced in `posts.cerial`, a resolution error for `User` only shows up in `auth.cerial`, preventing duplicate diagnostics across files.
+
+:::note
+Diagnostics can be toggled off entirely with the `cerial.diagnostics.enabled` setting. See the [Settings](/extension/settings) page for details.
+:::
+
+## Formatting
+
+The extension provides both document formatting (format the whole file) and range formatting (format a selection). It shares the exact same formatting engine as the [CLI formatter](/cli/formatter), so files formatted in the editor produce identical output to `bunx cerial format`.
+
+### How it works
+
+When you trigger formatting (Shift+Alt+F, or right-click > Format Document), the extension runs the full Cerial formatting pipeline: parsing, comment attachment, alignment, and printing. Range formatting applies the same logic to just the selected region.
+
+### Configuration
+
+All 9 formatting options from the CLI are available as VS Code settings under the `cerial.format.*` namespace:
+
+- Indentation style (tabs or spaces) and width
+- Decorator column alignment
+- Blank line handling between blocks
+- Trailing comma rules
+- Comment style normalization
+
+Format on save works through VS Code's built-in `editor.formatOnSave` setting. When enabled, your `.cerial` files are formatted automatically every time you save.
+
+For the full list of formatting options with examples, see the [Settings](/extension/settings) page. For CLI usage details, see the [Formatter](/cli/formatter) page.
+
+## Go to Definition
+
+Press **Ctrl+Click** or **F12** on any type reference to jump straight to its definition, even across files.
+
+Go to Definition works in these positions:
+
+- **Field type positions**: click a type name like `Address` or `Role` to jump to where that object, tuple, enum, or literal is defined
+- **Decorator arguments**: click `User` in `@model(User)` or `authorId` in `@field(authorId)` to navigate to the target
+- **Extends clauses**: click the parent name in `extends BaseUser` to go to the parent definition
+- **Record() ID types**: click an object or tuple reference inside `Record(Coordinate)` to find its definition
+
+Navigation works across all `.cerial` files in the schema group. If the target type lives in a different file, the editor opens that file and positions your cursor at the definition.
+
+:::note
+On macOS, use **Cmd+Click** instead of Ctrl+Click. The F12 shortcut works on both platforms.
+:::
+
+## Find All References
+
+Press **Shift+F12** to see every usage of a type across all schema files in the workspace.
+
+Place your cursor on any type name and trigger Find All References. The extension scans all `.cerial` files and returns every location where that type is mentioned:
+
+- Field type positions where the type is used (`address Address`)
+- Decorator arguments referencing it (`@model(User)`)
+- Extends clauses inheriting from it (`extends BaseModel`)
+- Record() ID types containing it (`Record(MyTuple)`)
+
+Results appear in VS Code's References panel, grouped by file, with inline previews of each usage. You can peek references inline or open any result in its own editor tab.
+
+## Rename Symbol
+
+Press **F2** on a type name to rename it across all files in the schema group.
+
+Before executing the rename, a prepare step validates the operation. The extension blocks renames that would:
+
+- Use a SurrealDB reserved keyword as the new name
+- Create a duplicate name that conflicts with an existing type in the schema group
+
+When the rename passes validation, every reference across all schema files updates simultaneously: field type annotations, decorator arguments, extends clauses, and Record() ID types. The rename preview shows all affected files before you confirm, so you can review changes before they apply.
+
+## Hover Documentation
+
+Hover over any element in a `.cerial` file to see a rich Markdown tooltip. The content changes based on what you're hovering over.
+
+**Type names** (model, object, tuple, enum, literal names):
+- The kind (model, object, tuple, enum, or literal)
+- SurrealDB type mapping
+- Field count and structure summary
+
+**Field definitions** (field name or type):
+- The field's resolved type and its SurrealDB equivalent
+- Applied decorators and their effects on the field's behavior
+- Constraints and validation rules
+
+**Decorators** (`@default`, `@createdAt`, `@readonly`, etc.):
+- What the decorator does
+- How it maps to SurrealDB behavior (e.g., `@createdAt` → `DEFAULT time::now()`)
+- Compatibility notes and restrictions (which field types it works with, what it conflicts with)
+
+**Keywords** (`model`, `extends`, `abstract`, etc.):
+- Syntax documentation
+- Usage examples
+
+Tooltips render with full Markdown formatting, including code blocks, inline code, and bullet lists, so they're easy to scan directly in the editor.
+
+## Code Actions
+
+The extension offers 12 quick fix types, each triggered by a specific diagnostic. When the editor underlines a problem, press **Ctrl+.** (or click the lightbulb icon) to see available fixes.
+
+| Quick Fix | When It Appears |
+|-----------|----------------|
+| Add missing `@id` field | Model has no `id Record @id` field |
+| Add missing `Relation` field | Record field exists without a paired Relation |
+| Fix type reference typos | Type name is close to an existing type but doesn't match exactly |
+| Add missing decorators | Required decorator is absent (e.g., `@model` on a Relation) |
+| Remove conflicting decorators | Two mutually exclusive decorators are present on the same field |
+| Fix decorator argument syntax | Decorator argument is malformed or references a non-existent target |
+| Add `@field()` on forward relation | Relation field is missing its `@field()` to identify the FK |
+| Add `@model()` on Relation field | Relation field is missing the `@model()` specifying the target model |
+| Fix Record type syntax | Record field has invalid type syntax (e.g., `Record(Type)` on a FK field) |
+| Add missing extends parent | Extends clause references a type that doesn't exist, with a suggestion |
+| Fix field type syntax | Field type has a syntax error with a corrective suggestion |
+| Add missing array brackets | Field should be an array type but is missing `[]` |
+
+Each fix applies a targeted edit to the specific line with the problem. The extension won't restructure your file or touch anything outside the immediate issue.
+
+:::tip
+Quick fixes are most useful right after writing new schemas. Define your models, watch for red underlines, then Ctrl+. your way through any issues the validators catch.
+:::
+
+## Inlay Hints
+
+Inlay hints are subtle inline annotations that surface information you'd otherwise need to look up. They appear directly in the editor, grayed out, without modifying your actual schema text.
+
+### Inferred FK types
+
+When a Record field points to a model with a typed ID (like `Record(int) @id`), the extension shows the inferred type inline:
+
+```
+authorId Record @model(User)  // hint: `: CerialId<number>`
+```
+
+This works with all typed ID forms, including union IDs (`Record(string, int)`) and structured IDs (object or tuple references).
+
+### Auto-generated fields
+
+Fields with `@uuid`, `@uuid4`, `@uuid7`, `@createdAt`, or `@updatedAt` show an "auto-generated" hint, telling you the database populates this field automatically.
+
+### Computed fields
+
+Fields with `@now` show a "computed" hint, indicating the value is calculated at query time and never stored.
+
+### Default behavior
+
+- `@default(...)` shows "sets on create", meaning the default applies only when the field is absent during record creation
+- `@defaultAlways(...)` shows "resets on update", meaning the value resets on every write when the field isn't explicitly provided
+
+### Inherited fields
+
+When a type uses `extends`, fields inherited from the parent show a "from ParentName" hint, so you can tell at a glance which fields are local and which came from inheritance.
+
+:::tip
+Inlay hints have 4 granular settings: a master toggle, inferred types, behavior hints, and inherited fields. You can enable exactly the categories you find useful. See the [Settings](/extension/settings) page for configuration details.
+:::
+
+## Document Outline
+
+Open the Outline panel (View > Open View > Outline) to see a structured tree of every type in the current file.
+
+- **Models** appear as Class symbols
+- **Objects and tuples** appear as Struct symbols
+- **Enums and literals** appear as Enum symbols
+- **Fields** appear as nested Field symbols within each block
+
+The outline integrates with VS Code's breadcrumbs navigation. As you move your cursor through a file, the breadcrumb trail at the top of the editor updates to show which block and field you're currently inside.
+
+Click any symbol in the Outline panel to jump directly to it.
+
+## Workspace Symbols
+
+Press **Ctrl+T** (Go to Symbol in Workspace) and start typing to search across all type definitions in every `.cerial` file in your workspace.
+
+This is the fastest way to navigate large projects with many schema files. Type a partial name and the list filters in real time:
+
+- Models, objects, tuples, enums, and literals are all searchable
+- Results show the file path alongside each match for disambiguation
+- Select a result to open the file and jump to that type's definition
+
+Unlike Document Outline (which shows the current file only), Workspace Symbols searches across all schema files in the project. For a workspace with 30+ `.cerial` files, this is significantly faster than browsing the file tree.
+
+## Document Links
+
+Type references inside decorator arguments become clickable links.
+
+When you see `@model(User)` or `@field(authorId)` in your schema, the type name renders as a hyperlink. Ctrl+Click (or Cmd+Click on macOS) opens the target definition directly, just like Go to Definition, but with the visual affordance of an underlined link on hover.
+
+Links work in:
+
+- `@model()` arguments
+- `@field()` arguments
+- `extends` clauses
+- `Record()` ID type references
+
+## Folding
+
+Collapse and expand blocks to manage visual complexity in large schema files.
+
+Foldable regions include:
+
+- `model { }` blocks
+- `object { }` blocks
+- `tuple { }` blocks
+- `enum { }` blocks
+- `literal { }` blocks
+- Multi-line comment regions (`/* */`)
+
+Use the fold/unfold controls in the gutter, or these keyboard shortcuts:
+
+| Shortcut | Action |
+|----------|--------|
+| **Ctrl+Shift+[** | Fold the block at cursor |
+| **Ctrl+Shift+]** | Unfold the block at cursor |
+| **Ctrl+K Ctrl+0** | Fold all blocks in the file |
+| **Ctrl+K Ctrl+J** | Unfold all blocks in the file |
+
+Folding is especially useful in schema files that define many types. Collapse everything, then expand only the block you're working on.
+
+## What's Next
+
+- [Settings](/extension/settings) for all configurable options (formatting, diagnostics, inlay hints)
+- [Snippets](/extension/snippets) for the full snippet reference with prefix table and examples
+- [Formatter](/cli/formatter) for CLI formatting details and the shared formatting engine

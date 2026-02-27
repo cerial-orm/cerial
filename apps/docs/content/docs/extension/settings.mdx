@@ -1,0 +1,84 @@
+---
+title: Settings
+description: All configurable options for the Cerial VS Code extension, covering formatting, diagnostics, inlay hints, and debugging.
+---
+
+All extension settings live under the `cerial.*` namespace in VS Code's `settings.json`. You can change them through the Settings UI (Ctrl+,) or by editing `settings.json` directly.
+
+## Formatting
+
+These 9 settings control how the extension formats your `.cerial` files. They mirror the [CLI formatter](/cli/formatter) options exactly, so files formatted in the editor match CLI output.
+
+| Setting | Type | Default | Description |
+|---------|------|---------|-------------|
+| `cerial.format.alignmentScope` | `"group"` \| `"block"` | `"group"` | Column widths reset at each blank line (`group`) or span the whole block (`block`) |
+| `cerial.format.fieldGroupBlankLines` | `"single"` \| `"honor"` \| `"collapse"` | `"single"` | One blank line between field groups / preserve original / strip all blank lines |
+| `cerial.format.blockSeparation` | `1` \| `2` \| `"honor"` | `2` | Blank lines between top-level blocks. `"honor"` preserves original, capped at 2 |
+| `cerial.format.indentSize` | `2` \| `4` \| `"tab"` | `2` | Spaces per indent level, or tabs |
+| `cerial.format.inlineConstructStyle` | `"single"` \| `"multi"` \| `"honor"` | `"multi"` | Enum/literal/tuple blocks: one-liner, expanded, or preserve original |
+| `cerial.format.decoratorAlignment` | `"aligned"` \| `"compact"` | `"aligned"` | Three-column tabular layout vs decorators tight after the type |
+| `cerial.format.trailingComma` | boolean | `false` | Trailing comma on the last element in tuple, enum, and literal blocks |
+| `cerial.format.commentStyle` | `"honor"` \| `"hash"` \| `"slash"` | `"honor"` | Preserve comment syntax / normalize to `#` / normalize to `//` |
+| `cerial.format.blankLineBeforeDirectives` | `"always"` \| `"honor"` | `"always"` | Enforce blank line before `@@index`/`@@unique` directives |
+
+## Diagnostics
+
+| Setting | Type | Default | Description |
+|---------|------|---------|-------------|
+| `cerial.diagnostics.enabled` | boolean | `true` | Enable or disable all diagnostics (parse errors and schema validation) |
+
+When disabled, the extension stops running parsers and validators against your schema files. Syntax highlighting, completions, and formatting still work normally. This can be useful if you're working on a partial schema and don't want error noise while things are incomplete.
+
+## Inlay Hints
+
+| Setting | Type | Default | Description |
+|---------|------|---------|-------------|
+| `cerial.inlayHints.enabled` | boolean | `true` | Master toggle for all inlay hints |
+| `cerial.inlayHints.inferredTypes` | boolean | `true` | Show inferred FK type hints on Record fields (e.g., `: CerialId<number>`) |
+| `cerial.inlayHints.behaviorHints` | boolean | `true` | Show behavior indicators for auto-generated, computed, default, and reset fields |
+| `cerial.inlayHints.inheritedFields` | boolean | `true` | Show `from ParentName` hints on inherited fields |
+
+The master toggle (`cerial.inlayHints.enabled`) turns off all categories at once. The three sub-settings let you pick which categories to show when the master toggle is on. For a detailed explanation of each hint category, see the [Features](/extension/features#inlay-hints) page.
+
+## Debug
+
+| Setting | Type | Default | Description |
+|---------|------|---------|-------------|
+| `cerial.trace.server` | `"off"` \| `"messages"` \| `"verbose"` | `"off"` | Trace communication between VS Code and the language server |
+
+Set this to `"messages"` or `"verbose"` when troubleshooting extension issues. Trace output appears in the **Cerial Language Server** output channel (View > Output, then select "Cerial Language Server" from the dropdown). Keep it `"off"` during normal use.
+
+## Example Configuration
+
+Here's a `settings.json` snippet with commonly customized options:
+
+```json
+{
+  // Formatting
+  "cerial.format.indentSize": 4,
+  "cerial.format.decoratorAlignment": "compact",
+  "cerial.format.trailingComma": true,
+  "cerial.format.blockSeparation": 1,
+  "cerial.format.commentStyle": "slash",
+
+  // Inlay hints: show only FK types, hide behavior hints
+  "cerial.inlayHints.behaviorHints": false,
+
+  // Diagnostics
+  "cerial.diagnostics.enabled": true
+}
+```
+
+:::tip
+To format `.cerial` files automatically on save, enable VS Code's built-in setting:
+
+```json
+{
+  "[cerial]": {
+    "editor.formatOnSave": true
+  }
+}
+```
+
+This is enabled by default for `.cerial` files. If you've disabled `editor.formatOnSave` globally, the language-specific override above re-enables it just for Cerial schemas.
+:::

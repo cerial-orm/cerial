@@ -1,0 +1,105 @@
+---
+title: Snippets
+description: Complete reference for the 16 code snippets included with the Cerial VS Code extension.
+---
+
+The Cerial extension ships with 16 code snippets for common schema patterns. Type a prefix and press **Tab** to expand the snippet. Tab stops let you jump between placeholders to fill in names and values.
+
+## Block Types
+
+| Prefix | Description | Expansion |
+|--------|-------------|-----------|
+| `model` | New model | `model Name { id Record @id ... }` |
+| `abstract` | New abstract model | `abstract model Name { ... }` |
+| `object` | New object type | `object Name { ... }` |
+| `tuple` | New tuple type | `tuple Name { ... }` |
+| `enum` | New enum type | `enum Name { Value1, Value2 ... }` |
+| `literal` | New literal type | `literal Name { ... }` |
+
+Each block snippet places your cursor inside the body so you can start adding fields immediately. The `model` snippet includes an `id Record @id` line by default. The `enum` snippet includes two placeholder values.
+
+## Relations
+
+| Prefix | Description | Expansion |
+|--------|-------------|-----------|
+| `rel11` | One-to-one relation | Two models with FK + Relation fields |
+| `rel1n` | One-to-many relation | Parent with `Relation[]` and Child with FK |
+| `relnn` | Many-to-many relation | Both models with `Record[]` + `Relation[]` |
+
+These snippets generate a complete pair of models with correctly wired relation fields. Tab through the placeholders to name each model and its fields.
+
+### One-to-one (`rel11`)
+
+```cerial
+# One-to-one relation
+model Source {
+  id Record @id
+  targetId Record
+  target Relation @field(targetId) @model(Target)
+}
+
+model Target {
+  id Record @id
+  source Relation @model(Source)
+}
+```
+
+The Source model holds the FK (`targetId Record`) and the forward Relation pointing to Target. The Target model has a reverse Relation back to Source.
+
+### One-to-many (`rel1n`)
+
+```cerial
+# One-to-many relation
+model Parent {
+  id Record @id
+  children Relation[] @model(Child)
+}
+
+model Child {
+  id Record @id
+  parentId Record
+  parent Relation @field(parentId) @model(Parent)
+}
+```
+
+The Parent has a `Relation[]` (array) to represent "many children". The Child holds the FK and a single Relation back to its Parent.
+
+### Many-to-many (`relnn`)
+
+```cerial
+# Many-to-many relation
+model Source {
+  id Record @id
+  targetIds Record[]
+  targets Relation[] @field(targetIds) @model(Target)
+}
+
+model Target {
+  id Record @id
+  sourceIds Record[]
+  sources Relation[] @field(sourceIds) @model(Source)
+}
+```
+
+Both sides store an array of FK references (`Record[]`) and a matching `Relation[]`. Cerial keeps both sides in sync automatically during connect and disconnect operations.
+
+## Fields and Decorators
+
+| Prefix | Description | Expansion |
+|--------|-------------|-----------|
+| `id` | Standard record ID | `id Record @id` |
+| `tid` | Typed record ID | `id Record(int\|string\|uuid) @id` |
+| `fdef` | Field with `@default` | `name String @default(value)` |
+| `timestamps` | Timestamp fields | `createdAt Date @createdAt` + `updatedAt Date @updatedAt` |
+| `extends` | Inherit from parent | `extends ParentName` |
+
+The `tid` snippet presents a choice between `int`, `string`, and `uuid` for the typed ID. The `timestamps` snippet expands to two lines at once, giving you both standard timestamp fields in a single Tab press.
+
+## Directives
+
+| Prefix | Description | Expansion |
+|--------|-------------|-----------|
+| `@@unique` | Composite unique constraint | `@@unique(name, [field1, field2])` |
+| `@@index` | Composite index | `@@index(name, [field1, field2])` |
+
+Place these at the bottom of a model block, after the field definitions. Tab through to name the constraint and specify which fields it covers.

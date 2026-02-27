@@ -1,4 +1,4 @@
 {
-  "title": "VS Code Extension",
-  "pages": ["...extension"]
+  "title": "Extension",
+  "pages": ["index", "installation", "features", "settings", "snippets"]
 }
