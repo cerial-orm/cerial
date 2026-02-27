@@ -1,0 +1,117 @@
+---
+title: Replace Array
+description: Replace entire array contents in a single update, clearing or overwriting all existing elements.
+---
+
+Instead of modifying individual elements with [push or unset](/array-operations/push-unset), you can replace the entire contents of an array field by passing a plain array value.
+
+## Full Replacement
+
+Pass an array directly (no operator wrapper) to replace the entire array:
+
+```typescript
+await client.db.User.updateMany({
+  where: { id: userId },
+  data: { nicknames: ['New', 'Array', 'Values'] },
+});
+```
+
+The previous contents of `nicknames` are completely discarded and replaced with the new array.
+
+## Clear an Array
+
+Replace with an empty array to remove all elements:
+
+```typescript
+await client.db.User.updateMany({
+  where: { id: userId },
+  data: { nicknames: [] },
+});
+```
+
+## Replace Number Arrays
+
+```typescript
+await client.db.User.updateMany({
+  where: { id: userId },
+  data: { scores: [100, 95, 88] },
+});
+```
+
+## Replace Date Arrays
+
+```typescript
+await client.db.User.updateMany({
+  where: { id: userId },
+  data: {
+    loginDates: [new Date('2025-01-01'), new Date('2025-06-15')],
+  },
+});
+```
+
+## Replace with updateUnique
+
+Full replacement works the same way with [updateUnique](/queries/update-unique):
+
+```typescript
+await client.db.User.updateUnique({
+  where: { id: userId },
+  data: { scores: [100, 98, 97] },
+});
+```
+
+## Replacement vs Operators
+
+Understanding when to use full replacement versus `push`/`unset`:
+
+| Syntax | Behavior |
+|---|---|
+| `{ push: 'value' }` | Appends `'value'` to the existing array |
+| `{ unset: 'value' }` | Removes `'value'` from the existing array |
+| `['a', 'b']` | Replaces the entire array with `['a', 'b']` |
+
+### Example Comparison
+
+Given a user with `nicknames: ['Alice', 'Bob']`:
+
+```typescript
+// Push: nicknames becomes ['Alice', 'Bob', 'Charlie']
+await client.db.User.updateMany({
+  where: { id: userId },
+  data: { nicknames: { push: 'Charlie' } },
+});
+
+// Unset: nicknames becomes ['Alice']
+await client.db.User.updateMany({
+  where: { id: userId },
+  data: { nicknames: { unset: 'Bob' } },
+});
+
+// Replace: nicknames becomes ['Dave', 'Eve']
+await client.db.User.updateMany({
+  where: { id: userId },
+  data: { nicknames: ['Dave', 'Eve'] },
+});
+```
+
+## Combining with Other Fields
+
+You can mix full replacement on one field with operators on another:
+
+```typescript
+await client.db.User.updateMany({
+  where: { id: userId },
+  data: {
+    nicknames: ['CompletelyNew'],     // Full replacement
+    scores: { push: 100 },           // Push to existing
+    ratings: { unset: 1.0 },         // Remove from existing
+  },
+});
+```
+
+## Notes
+
+- Full replacement is useful when you know the complete desired state of the array.
+- Use `push`/`unset` when you want to modify the array relative to its current contents.
+- Passing `[]` is the idiomatic way to clear an array field.
+- Type safety is enforced: the array elements must match the declared field type.

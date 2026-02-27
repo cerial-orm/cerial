@@ -1,0 +1,145 @@
+---
+title: Push & Unset
+description: Append elements to and remove elements from array fields using push and unset operators.
+---
+
+The `push` and `unset` operators modify array fields without replacing the entire array. Both work with [updateMany](/queries/update-many) and [updateUnique](/queries/update-unique).
+
+## Push
+
+The `push` operator appends one or more elements to an existing array.
+
+### Push a Single Element
+
+Pass a single value to append it:
+
+```typescript
+await client.db.User.updateMany({
+  where: { id: userId },
+  data: { nicknames: { push: 'NewNick' } },
+});
+```
+
+### Push Multiple Elements
+
+Pass an array to append several values at once:
+
+```typescript
+await client.db.User.updateMany({
+  where: { id: userId },
+  data: { nicknames: { push: ['Nick1', 'Nick2'] } },
+});
+```
+
+### Push to Number Arrays
+
+Works the same way with `Int[]` and `Float[]` fields:
+
+```typescript
+// Push to Int array
+await client.db.User.updateMany({
+  where: { id: userId },
+  data: { scores: { push: 100 } },
+});
+
+// Push multiple floats
+await client.db.User.updateMany({
+  where: { id: userId },
+  data: { ratings: { push: [4.5, 3.8] } },
+});
+```
+
+### Push to Date Arrays
+
+```typescript
+await client.db.User.updateMany({
+  where: { id: userId },
+  data: { loginDates: { push: new Date() } },
+});
+
+// Push multiple dates
+await client.db.User.updateMany({
+  where: { id: userId },
+  data: {
+    loginDates: { push: [new Date('2025-01-01'), new Date('2025-06-15')] },
+  },
+});
+```
+
+## Unset
+
+The `unset` operator removes elements from an existing array. All occurrences of the specified value(s) are removed.
+
+### Remove a Single Element
+
+```typescript
+await client.db.User.updateMany({
+  where: { id: userId },
+  data: { scores: { unset: 100 } },
+});
+```
+
+### Remove Multiple Elements
+
+Pass an array to remove multiple values in one operation:
+
+```typescript
+await client.db.User.updateMany({
+  where: { id: userId },
+  data: { scores: { unset: [100, 95] } },
+});
+```
+
+### Remove from String Arrays
+
+```typescript
+await client.db.User.updateMany({
+  where: { id: userId },
+  data: { nicknames: { unset: 'OldNick' } },
+});
+
+// Remove multiple strings
+await client.db.User.updateMany({
+  where: { id: userId },
+  data: { nicknames: { unset: ['OldNick', 'TempName'] } },
+});
+```
+
+## Combining Push and Unset
+
+You can use `push` and `unset` on different array fields in the same update call:
+
+```typescript
+await client.db.User.updateMany({
+  where: { id: userId },
+  data: {
+    nicknames: { push: 'NewName' },
+    scores: { unset: 50 },
+  },
+});
+```
+
+This atomically adds `'NewName'` to `nicknames` and removes `50` from `scores` in a single operation.
+
+## Using with updateUnique
+
+Both operators work identically with [updateUnique](/queries/update-unique):
+
+```typescript
+await client.db.User.updateUnique({
+  where: { id: userId },
+  data: { nicknames: { push: 'AnotherNick' } },
+});
+
+await client.db.User.updateUnique({
+  where: { id: userId },
+  data: { scores: { unset: 42 } },
+});
+```
+
+## Notes
+
+- `push` appends elements to the end of the array. If the field has a [`@sort`](/array-operations/decorators) decorator, SurrealDB inserts elements in sorted position instead.
+- `unset` removes **all** occurrences of the specified value(s) from the array.
+- If the value passed to `unset` doesn't exist in the array, the operation is a no-op for that value.
+- TypeScript enforces that pushed/unset values match the array's element type. Passing a `string` to an `Int[]` field won't compile.

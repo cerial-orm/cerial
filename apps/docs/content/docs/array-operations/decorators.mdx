@@ -1,0 +1,230 @@
+---
+title: Array Decorators
+description: Schema decorators for array fields — @distinct for uniqueness, @sort for ordering, and @set for SurrealDB set semantics.
+---
+
+Cerial provides three schema decorators for array fields that enforce constraints at the database level: `@distinct`, `@sort`, and `@set`. SurrealDB applies these constraints automatically whenever the array is modified, regardless of whether changes come through Cerial or directly.
+
+## @distinct
+
+The `@distinct` decorator enforces unique elements. Duplicate values are automatically removed by SurrealDB.
+
+### Schema Definition
+
+```cerial
+model Article {
+  id Record @id
+  title String
+  tags String[] @distinct
+}
+```
+
+### Behavior
+
+Creating or updating with duplicate values triggers automatic deduplication:
+
+```typescript
+const article = await client.db.Article.create({
+  data: { title: 'Hello', tags: ['js', 'ts', 'js'] },
+});
+// article.tags => ['js', 'ts'] — duplicate 'js' removed
+```
+
+Pushing a value that already exists is a no-op:
+
+```typescript
+await client.db.Article.updateMany({
+  where: { id: articleId },
+  data: { tags: { push: 'js' } },
+});
+// 'js' already exists, array unchanged
+```
+
+Pushing a new value still works as expected:
+
+```typescript
+await client.db.Article.updateMany({
+  where: { id: articleId },
+  data: { tags: { push: 'rust' } },
+});
+// tags => ['js', 'ts', 'rust']
+```
+
+## @sort
+
+The `@sort` decorator maintains elements in sorted order. SurrealDB automatically sorts the array whenever it's modified.
+
+### Schema Definition
+
+```cerial
+model Student {
+  id Record @id
+  sortedScores Int[] @sort
+  recentDates Date[] @sort(false)
+}
+```
+
+### Sort Direction
+
+| Syntax | Direction |
+|---|---|
+| `@sort` | Ascending (default) |
+| `@sort(true)` | Ascending (explicit) |
+| `@sort(false)` | Descending |
+
+### Behavior
+
+Elements are sorted automatically on create:
+
+```typescript
+const student = await client.db.Student.create({
+  data: {
+    sortedScores: [88, 100, 72],
+    recentDates: [
+      new Date('2025-01-01'),
+      new Date('2025-12-31'),
+      new Date('2025-06-15'),
+    ],
+  },
+});
+// student.sortedScores => [72, 88, 100] — ascending
+// student.recentDates => [2025-12-31, 2025-06-15, 2025-01-01] — descending
+```
+
+Pushed elements are inserted in sorted position:
+
+```typescript
+await client.db.Student.updateMany({
+  where: { id: studentId },
+  data: { sortedScores: { push: 95 } },
+});
+// sortedScores => [72, 88, 95, 100] — still sorted ascending
+```
+
+Full replacement is also sorted:
+
+```typescript
+await client.db.Student.updateMany({
+  where: { id: studentId },
+  data: { sortedScores: [50, 30, 40] },
+});
+// sortedScores => [30, 40, 50] — sorted ascending
+```
+
+## Combining @distinct and @sort
+
+Both decorators can be applied to the same field. The array is both deduplicated and sorted:
+
+### Schema Definition
+
+```cerial
+model Article {
+  id Record @id
+  categories String[] @distinct @sort
+  priorities Int[] @distinct @sort(false)
+}
+```
+
+### Behavior
+
+```typescript
+const article = await client.db.Article.create({
+  data: {
+    categories: ['tech', 'news', 'tech', 'sports'],
+    priorities: [3, 1, 2, 1],
+  },
+});
+// categories => ['news', 'sports', 'tech'] — unique + ascending
+// priorities => [3, 2, 1] — unique + descending
+```
+
+Both constraints continue to be enforced on updates:
+
+```typescript
+await client.db.Article.updateMany({
+  where: { id: articleId },
+  data: { categories: { push: 'news' } },
+});
+// 'news' already exists, no duplicate added
+
+await client.db.Article.updateMany({
+  where: { id: articleId },
+  data: { categories: { push: 'art' } },
+});
+// categories => ['art', 'news', 'sports', 'tech'] — inserted in sorted order
+```
+
+## @set
+
+The `@set` decorator generates a SurrealDB `set<T>` type instead of `array<T>`. Sets automatically deduplicate and sort elements at the database level, similar to combining `@distinct` and `@sort`, but using SurrealDB's native set type.
+
+### Schema Definition
+
+```cerial
+model Post {
+  id Record @id
+  tags String[] @set
+  scores Int[] @set
+}
+```
+
+### Output Type
+
+Set fields produce a `CerialSet<T>` output type. This is a branded array, so it behaves like a regular array at runtime while carrying type-level information that it's a set.
+
+```typescript
+const post = await client.db.Post.create({
+  data: { tags: ['beta', 'alpha', 'beta'] },
+});
+// post.tags => ['alpha', 'beta'] — deduplicated and sorted
+// Type: CerialSet<string>
+
+// CerialSet is still an array — iteration, indexing, .map(), etc. all work
+post.tags.forEach((tag) => console.log(tag));
+```
+
+### Input
+
+Input accepts regular arrays. Cerial automatically wraps set field values with a `<set>` cast when building the query, since SurrealDB 3.x doesn't auto-coerce arrays to sets.
+
+```typescript
+await client.db.Post.updateMany({
+  where: { id: postId },
+  data: { tags: { push: 'gamma' } },
+});
+```
+
+### Restrictions
+
+`@set` is **not** allowed on these array types:
+
+| Excluded Type | Reason |
+|---|---|
+| `Decimal[]` | SurrealDB `set<decimal>` has a known bug |
+| `Object[]` | Complex types not supported in sets |
+| `Tuple[]` | Complex types not supported in sets |
+| `Record[]` | Record references not supported in sets |
+
+:::warning
+`@set` is mutually exclusive with `@distinct` and `@sort`. Since sets natively provide both deduplication and sorting, combining them would be redundant. Using `@set` with either decorator produces a schema error.
+:::
+
+## Migration Output
+
+These decorators generate appropriate SurrealQL `DEFINE FIELD` statements in the migration. For example:
+
+```cerial
+tags String[] @distinct @sort
+```
+
+This produces migration statements that enforce uniqueness and sort order at the SurrealDB schema level. The constraints apply regardless of how the data is modified.
+
+Similarly, `@set` changes the migration from `TYPE array<string>` to `TYPE set<string>`.
+
+## Notes
+
+- `@distinct` and `@sort` are only valid on array fields. Using them on non-array fields produces a parser error.
+- These constraints are enforced by SurrealDB at the database level, not at the application level. They apply even if data is modified outside of Cerial.
+- The `@sort` decorator affects storage order. Queries reading the array always receive elements in the declared sort order.
+- Decorator order doesn't matter: `@distinct @sort` and `@sort @distinct` produce the same result.
+- `@set` is mutually exclusive with both `@distinct` and `@sort`.
