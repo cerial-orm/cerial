@@ -1,8 +1,70 @@
 ---
 title: CLI
-description: Generate, format, init, watch, multi-schema, and path filtering.
+description: Generate type-safe TypeScript clients from .cerial schema files.
 ---
 
-:::note
-This section is under construction. Check back soon!
-:::
+The Cerial CLI reads your `.cerial` schema files, parses them into an AST, and generates a fully typed TypeScript client. It's the primary tool for turning schema definitions into usable code.
+
+```bash
+bunx cerial <command> [options]
+```
+
+## Available Commands
+
+| Command | Description |
+|---|---|
+| [`generate`](/cli/generate) | Generate TypeScript client from schema files |
+| [`format`](/cli/formatter) | Format `.cerial` schema files |
+| [`init`](/cli/init) | Create a config file for your project |
+
+## What Gets Generated
+
+Running `bunx cerial generate` produces a complete client directory containing:
+
+- **Types and interfaces** for every model, object, tuple, literal, and enum in your schema
+- **Query builder types** (Create, Update, Where, Select, Include, OrderBy)
+- **Model registry** with runtime metadata for the query engine
+- **Migration statements** (DEFINE TABLE, DEFINE FIELD, DEFINE INDEX)
+- **Client class** with a typed proxy for model access
+
+```bash
+# Generate with a config file (auto-discovered)
+bunx cerial generate
+
+# Or specify paths directly
+bunx cerial generate -s ./schemas -o ./db-client
+```
+
+## How It Works
+
+The generation process follows a pipeline:
+
+1. **Schema discovery** resolves which `.cerial` files to process
+2. **Parsing** converts each file into an AST
+3. **Validation** checks for correctness (relation targets, decorator rules, type consistency)
+4. **Type generation** produces TypeScript interfaces and derived types
+5. **Model registry** encodes runtime metadata for the query builder
+6. **Migration generation** creates SurrealQL DEFINE statements
+7. **Client generation** writes the `CerialClient` class with its typed proxy
+8. **Formatting** runs Biome on all output files
+9. **Stale file cleanup** removes leftover files from previous generations
+
+## Configuration
+
+Cerial supports three ways to tell the CLI where your schemas live and where to put the generated output:
+
+- **Config file** (`cerial.config.ts` or `cerial.config.json`) defines schema paths, output directories, and connection settings in one place. Best for projects that need repeatable builds.
+- **CLI flags** (`-s` and `-o`) let you pass paths directly on the command line. Quick and good for one-off generation.
+- **Convention markers** (`schema.cerial`, `main.cerial`, or `index.cerial`) tell Cerial "this directory is a schema root" without any config at all.
+
+These approaches can coexist. The [configuration page](/cli/configuration) covers the full priority chain and all available options.
+
+## Sections
+
+- [**Generate**](/cli/generate) - The `generate` command and all its flags
+- [**Init**](/cli/init) - Create a config file with `cerial init`
+- [**Configuration**](/cli/configuration) - Config file formats, schema discovery, defineConfig
+- [**Generated Output**](/cli/generated-output) - Structure and contents of the generated client
+- [**Formatter**](/cli/formatter) - Format `.cerial` files with configurable style and column alignment
+- [**Multi-Schema**](/cli/multi-schema) - Set up multiple independent schemas in one project
+- [**Path Filtering**](/cli/filtering) - Control which `.cerial` files are processed
