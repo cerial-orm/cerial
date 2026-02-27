@@ -3,6 +3,7 @@
   "pages": [
     "introduction",
     "getting-started",
+    "connection",
     "---Schema---",
     "schema",
     "---Relations---",
@@ -14,6 +15,7 @@
     "select-and-include",
     "objects",
     "tuples",
+    "array-operations",
     "---More---",
     "types",
     "cli",
