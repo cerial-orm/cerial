@@ -1,0 +1,75 @@
+---
+title: Callback Mode
+description: Managed transactions with automatic commit on return and rollback on throw.
+---
+
+Pass a function to get a transaction client. Cerial commits automatically when the callback returns, or rolls back if it throws.
+
+```typescript
+const user = await client.$transaction(async (tx) => {
+  const user = await tx.User.create({
+    data: { name: 'Alice', email: 'alice@example.com' },
+  });
+
+  await tx.Post.create({
+    data: { title: 'First Post', authorId: user.id },
+  });
+
+  return user;
+});
+// user: User (transaction committed)
+```
+
+The callback receives `tx`, which mirrors `client.db` but scopes all queries to the transaction. Access models directly on `tx`:
+
+```typescript
+await tx.User.findMany({ where: { isActive: true } });
+await tx.Post.updateUnique({ where: { id: postId }, data: { title: 'Updated' } });
+await tx.Tag.deleteMany({ where: { name: 'old-tag' } });
+```
+
+## Return Values
+
+Whatever the callback returns becomes the return value of `$transaction`:
+
+```typescript
+const count = await client.$transaction(async (tx) => {
+  await tx.User.create({ data: { name: 'Bob', email: 'bob@example.com' } });
+
+  return tx.User.count();
+});
+// count: number
+```
+
+## Throw to Rollback
+
+Throwing inside the callback cancels the transaction. There's no `tx.rollback()` method — just throw:
+
+```typescript
+try {
+  await client.$transaction(async (tx) => {
+    await tx.User.create({ data: { name: 'Alice', email: 'alice@example.com' } });
+
+    const exists = await tx.User.exists({ email: 'alice@example.com' });
+    if (exists) {
+      throw new Error('Duplicate detected');
+    }
+  });
+} catch (error) {
+  // Transaction rolled back, no user was created
+}
+```
+
+## Timeout
+
+Set a timeout (in milliseconds) to prevent long-running transactions from blocking:
+
+```typescript
+await client.$transaction(
+  async (tx) => {
+    await tx.User.updateMany({ where: { isActive: false }, data: { archived: true } });
+  },
+  { timeout: 5000 },
+);
+// Throws 'Transaction timeout' if the callback takes longer than 5 seconds
+```

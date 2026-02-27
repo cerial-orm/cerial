@@ -1,0 +1,107 @@
+---
+title: Manual Mode
+description: Explicit transaction lifecycle control with commit, cancel, and automatic cleanup via await using.
+---
+
+Call `$transaction()` with no arguments to get a transaction object with explicit lifecycle control.
+
+```typescript
+const txn = await client.$transaction();
+
+try {
+  await txn.User.create({ data: { name: 'Alice', email: 'alice@example.com' } });
+  await txn.Post.create({ data: { title: 'Hello', authorId: aliceId } });
+
+  await txn.commit();
+} catch (error) {
+  await txn.cancel();
+  throw error;
+}
+```
+
+## Two Access Patterns
+
+Manual mode gives you two ways to run queries inside the transaction:
+
+**Model proxy** — access models directly on `txn`:
+
+```typescript
+const txn = await client.$transaction();
+await txn.User.create({ data: { name: 'Alice', email: 'alice@example.com' } });
+await txn.commit();
+```
+
+**Option pattern** — pass `txn` to regular model methods:
+
+```typescript
+const txn = await client.$transaction();
+await client.db.User.create({
+  data: { name: 'Alice', email: 'alice@example.com' },
+  txn,
+});
+await txn.commit();
+```
+
+The option pattern is useful when you have helper functions that accept `txn` as a parameter:
+
+```typescript
+async function createUserWithProfile(
+  client: CerialClient,
+  txn: CerialTransaction,
+  name: string,
+  email: string,
+) {
+  const user = await client.db.User.create({
+    data: { name, email },
+    txn,
+  });
+  await client.db.Profile.create({
+    data: { userId: user.id, bio: '' },
+    txn,
+  });
+
+  return user;
+}
+
+// Usage
+const txn = await client.$transaction();
+try {
+  const alice = await createUserWithProfile(client, txn, 'Alice', 'alice@example.com');
+  const bob = await createUserWithProfile(client, txn, 'Bob', 'bob@example.com');
+  await txn.commit();
+} catch (error) {
+  await txn.cancel();
+  throw error;
+}
+```
+
+## Transaction State
+
+Check the current state of a manual transaction:
+
+```typescript
+const txn = await client.$transaction();
+console.log(txn.state); // 'active'
+
+await txn.commit();
+console.log(txn.state); // 'committed'
+```
+
+Possible states: `'active'`, `'committed'`, `'cancelled'`. Calling `commit()` or `cancel()` on an already-ended transaction throws an error.
+
+## Automatic Cleanup with `await using`
+
+If your environment supports `Symbol.asyncDispose` (TypeScript 5.2+), you can use `await using` to ensure the transaction is always cleaned up:
+
+```typescript
+{
+  await using txn = await client.$transaction();
+
+  await txn.User.create({ data: { name: 'Alice', email: 'alice@example.com' } });
+  await txn.commit();
+}
+// If commit() wasn't called (e.g., an exception was thrown),
+// the transaction is automatically cancelled when txn goes out of scope
+```
+
+This replaces try/catch/cancel boilerplate. If `commit()` was never called by the time `txn` is disposed, the transaction cancels itself.

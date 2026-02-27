@@ -1,0 +1,9 @@
+{
+  "title": "Transactions",
+  "pages": [
+    "...transactions",
+    "array-mode",
+    "callback-mode",
+    "manual-mode"
+  ]
+}

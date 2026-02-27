@@ -227,7 +227,7 @@ Nested create operations are wrapped in a transaction:
 - The parent record is not created if a child record fails to create.
 - For N:N relations, bidirectional sync is included in the same transaction.
 
-Nested creates also work inside [`$transaction`](/cerial/queries/transaction/) — all operations are covered by a single atomic transaction:
+Nested creates also work inside [`$transaction`](/transactions) — all operations are covered by a single atomic transaction:
 
 ```typescript
 await client.$transaction(async (tx) => {

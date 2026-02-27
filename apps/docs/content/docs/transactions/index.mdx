@@ -1,0 +1,143 @@
+---
+title: Transactions
+description: Execute queries atomically with array, callback, or manual mode — with retry, timeout, and automatic cleanup.
+---
+
+Execute queries atomically with three modes: **array**, **callback**, and **manual**. All queries either succeed together or roll back entirely.
+
+```typescript
+// Array: batch independent queries
+const [user, posts] = await client.$transaction([...]);
+
+// Callback: complex logic with automatic commit/rollback
+const result = await client.$transaction(async (tx) => { ... });
+
+// Manual: explicit commit/cancel control
+const txn = await client.$transaction();
+```
+
+## Choosing a Mode
+
+| Feature | Array | Callback | Manual |
+| --- | --- | --- | --- |
+| Best for | Independent queries | Complex logic, branching | Helper functions, long-lived transactions |
+| Rollback | Automatic on error | Throw to rollback | Explicit `cancel()` |
+| Model access | `client.db.Model` | `tx.Model` | `txn.Model` or `client.db.Model({ txn })` |
+| Return type | Typed tuple | Callback return value | void (`commit()` / `cancel()`) |
+| Timeout | No | Yes (`{ timeout: ms }`) | No (manage yourself) |
+| Auto cleanup | N/A | Automatic | `await using` or manual try/catch |
+
+**Use array mode** when you have a batch of independent queries that don't depend on each other's results (or only use simple function items for result passing).
+
+**Use callback mode** when your transaction has conditional logic, loops, or branching. It handles commit and rollback for you.
+
+**Use manual mode** when you need to pass the transaction to helper functions, or when the transaction spans across multiple function calls.
+
+## Conflict Retry
+
+By default, Cerial does **not** retry transaction conflicts. You can opt in by passing `retries` and an optional `backoff` function:
+
+```typescript
+// Array mode with retry
+const [user] = await client.$transaction(
+  [client.db.User.create({ data: { email: 'a@b.c', name: 'A', isActive: true } })],
+  { retries: 3, backoff: (attempt) => 2 ** attempt * 100 },
+);
+
+// Callback mode with retry
+const result = await client.$transaction(
+  async (tx) => {
+    return tx.User.create({ data: { email: 'a@b.c', name: 'A', isActive: true } });
+  },
+  { retries: 3 },
+);
+```
+
+### Retry Options
+
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `retries` | `number` | `0` | Number of retry attempts on transaction conflict |
+| `backoff` | `(attempt: number) => number` | Exponential with jitter | Returns delay in ms for each attempt (0-based) |
+| `timeout` | `number` | `undefined` | Timeout in ms (callback mode only) |
+
+The default backoff uses exponential with jitter: `(attempt) => 2 ** attempt * 10 + Math.random() * 10`. Each retry begins a **fresh transaction**.
+
+:::caution
+Manual mode (`const txn = await client.$transaction()`) does not support retry options — you control the lifecycle yourself.
+:::
+
+## Error Handling & Rollback
+
+Every mode guarantees atomicity: either all changes persist, or none do.
+
+**Array mode** rolls back automatically if any query fails:
+
+```typescript
+try {
+  await client.$transaction([
+    client.db.User.create({ data: { name: 'Alice', email: 'alice@example.com' } }),
+    client.db.User.create({ data: { name: 'Bob', email: 'alice@example.com' } }), // duplicate
+  ]);
+} catch (error) {
+  // Neither user was created
+}
+```
+
+**Callback mode** rolls back when the callback throws. If it returns normally, the transaction commits:
+
+```typescript
+try {
+  await client.$transaction(async (tx) => {
+    await tx.User.create({ data: { name: 'Alice', email: 'alice@example.com' } });
+    throw new Error('Changed my mind');
+  });
+} catch (error) {
+  // Alice was not created
+}
+```
+
+**Manual mode** requires you to handle the lifecycle yourself. Always pair `commit()` with a `cancel()` fallback:
+
+```typescript
+const txn = await client.$transaction();
+try {
+  await txn.User.create({ data: { name: 'Alice', email: 'alice@example.com' } });
+  await txn.commit();
+} catch (error) {
+  await txn.cancel();
+  throw error;
+}
+```
+
+Or use `await using` to guarantee cleanup without the try/catch:
+
+```typescript
+{
+  await using txn = await client.$transaction();
+  await txn.User.create({ data: { name: 'Alice', email: 'alice@example.com' } });
+  await txn.commit();
+}
+```
+
+## WebSocket Requirement
+
+Transactions require a WebSocket connection to SurrealDB. If you connect via HTTP, Cerial automatically creates a secondary WebSocket connection for transaction support. No extra configuration needed.
+
+## Limitations
+
+:::caution
+**No nesting.** SurrealDB doesn't support savepoints. Calling `$transaction` inside a transaction (on `tx` or `txn`) throws immediately.
+:::
+
+:::caution
+**Array mode function items don't get `tx`.** Function items in array mode receive `prevResults` only — they don't get a transaction client object. Cerial routes them through the transaction internally.
+:::
+
+:::caution
+**Validation is eager.** Input validation happens when the model method is called, not when the transaction executes. Invalid inputs throw before the transaction starts.
+:::
+
+:::caution
+**`$transaction` is blocked on `tx`/`txn`.** You can't call `$transaction` on a transaction client. Attempting it throws an error.
+:::

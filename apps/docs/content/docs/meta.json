@@ -9,6 +9,7 @@
     "relations",
     "---Queries---",
     "queries",
+    "transactions",
     "filtering",
     "select-and-include",
     "objects",

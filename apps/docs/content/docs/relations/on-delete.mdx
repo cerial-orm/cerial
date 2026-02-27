@@ -298,7 +298,7 @@ All delete operations — including cascades, SetNull/SetNone updates, Restrict 
 - Array cleanup is atomic with the delete
 - No partial state if any operation fails
 
-Delete operations with cascade behavior also work inside [`$transaction`](/cerial/queries/transactions/), covered by a single atomic transaction.
+Delete operations with cascade behavior also work inside [`$transaction`](/transactions), covered by a single atomic transaction.
 
 ## Summary
 

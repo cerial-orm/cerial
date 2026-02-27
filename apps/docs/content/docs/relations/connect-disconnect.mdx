@@ -237,7 +237,7 @@ This validation runs inside the transaction, so a failed connect never leaves yo
 
 ## Transactions
 
-All connect, disconnect, and set operations work inside [`$transaction`](/cerial/queries/transaction/). When used within a transaction, the operations are covered by the same atomic boundary:
+All connect, disconnect, and set operations work inside [`$transaction`](/transactions). When used within a transaction, the operations are covered by the same atomic boundary:
 
 ```typescript
 await client.$transaction(async (tx) => {
