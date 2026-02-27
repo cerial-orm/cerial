@@ -118,6 +118,25 @@ export default defineConfig({
                 },
               ],
             },
+            {
+              label: 'Type Definitions',
+              collapsed: true,
+              items: [
+                { label: 'Enums', link: '/schema/type-definitions/enums/' },
+                { label: 'Literals', link: '/schema/type-definitions/literals/' },
+                { label: 'Enums vs Literals', link: '/schema/type-definitions/enums-vs-literals/' },
+              ],
+            },
+            {
+              label: 'Inheritance',
+              collapsed: true,
+              items: [
+                { label: 'Extends', link: '/schema/inheritance/extends/' },
+                { label: 'Abstract Models', link: '/schema/inheritance/abstract/' },
+                { label: 'Private Fields', link: '/schema/inheritance/private/' },
+                { label: 'Typed IDs', link: '/schema/inheritance/typed-ids/' },
+              ],
+            },
           ],
         },
         {
