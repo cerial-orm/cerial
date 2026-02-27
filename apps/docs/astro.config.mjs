@@ -141,8 +141,18 @@ export default defineConfig({
         },
         {
           label: 'Relations',
+          collapsed: true,
           items: [
             { label: 'Overview', link: '/relations/' },
+            { label: 'One-to-One', link: '/relations/one-to-one/' },
+            { label: 'One-to-Many', link: '/relations/one-to-many/' },
+            { label: 'Many-to-Many', link: '/relations/many-to-many/' },
+            { label: 'Self-Referential', link: '/relations/self-referential/' },
+            { label: 'Single-Sided', link: '/relations/single-sided/' },
+            { label: 'Multiple Relations', link: '/relations/multi-relation/' },
+            { label: 'Nested Create', link: '/relations/nested-create/' },
+            { label: 'Connect & Disconnect', link: '/relations/connect-disconnect/' },
+            { label: 'Delete Behavior', link: '/relations/on-delete/' },
           ],
         },
         {
