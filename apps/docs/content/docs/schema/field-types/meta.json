@@ -1,0 +1,14 @@
+{
+  "title": "Field Types",
+  "pages": [
+    "...field-types",
+    "uuid",
+    "number",
+    "duration",
+    "decimal",
+    "bytes",
+    "geometry",
+    "any",
+    "arrays"
+  ]
+}

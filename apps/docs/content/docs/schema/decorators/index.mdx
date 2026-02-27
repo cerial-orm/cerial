@@ -1,0 +1,166 @@
+---
+title: Decorators
+description: Complete reference for all Cerial schema decorators — field-level @decorators and model-level @@directives.
+sidebar:
+  label: Decorators
+  order: 1
+---
+
+Decorators modify field and model behavior in Cerial schemas. Field-level decorators use `@` and are placed after the field type. Model-level composite directives use `@@` and appear at the end of the model block.
+
+```cerial
+model User {
+  id Record @id
+  email Email @unique
+  firstName String
+  lastName String
+  role Role @default(Viewer)
+  createdAt Date @createdAt
+  tags String[] @distinct @sort
+
+  @@unique(fullName, [firstName, lastName])
+}
+```
+
+The order of decorators on a field does not matter — `@field(authorId) @model(User)` is the same as `@model(User) @field(authorId)`.
+
+## Field Decorators
+
+### Identity
+
+| Decorator | Purpose | Model | Object | Tuple Element |
+| --- | --- | :---: | :---: | :---: |
+| [`@id`](../decorators/id/) | Record identifier | ✅ | — | — |
+
+### Relations
+
+| Decorator | Purpose | Model | Object | Tuple Element |
+| --- | --- | :---: | :---: | :---: |
+| [`@field(name)`](../decorators/relations/field/) | FK storage field | ✅ (Relation) | — | — |
+| [`@model(Name)`](../decorators/relations/model/) | Relation target model | ✅ (Relation) | — | — |
+| [`@key(name)`](../decorators/relations/key/) | Relation disambiguation | ✅ (Relation) | — | — |
+| `@onDelete(action)` | Delete behavior | ✅ (Relation?) | — | — |
+
+### Defaults & Timestamps
+
+| Decorator | Purpose | Model | Object | Tuple Element |
+| --- | --- | :---: | :---: | :---: |
+| `@default(value)` | Default value on create | ✅ | ✅ | ✅ |
+| `@defaultAlways(value)` | Reset-on-write default | ✅ | ✅ | ✅ |
+| `@createdAt` | Creation timestamp | ✅ | ✅ | ✅ |
+| `@updatedAt` | Last-modified timestamp | ✅ | ✅ | ✅ |
+| `@now` | Computed `time::now()` | ✅ | — | — |
+
+:::caution
+`@now` is **not** allowed on object fields or tuple elements. SurrealDB requires `COMPUTED` fields to be top-level model fields. Use `@createdAt` or `@updatedAt` on object sub-fields instead.
+:::
+
+### Constraints
+
+| Decorator | Purpose | Model | Object | Tuple Element |
+| --- | --- | :---: | :---: | :---: |
+| [`@unique`](../decorators/indexes/unique/) | Unique constraint | ✅ | ✅ | — |
+| [`@index`](../decorators/indexes/index-decorator/) | Non-unique index | ✅ | ✅ | — |
+| `@nullable` | Allow null values | ✅ | ✅¹ | ✅² |
+| `@readonly` | Write-once field | ✅ | ✅ | — |
+| `@flexible` | Allow extra fields | ✅³ | ✅³ | — |
+
+<small>
+¹ `@nullable` is allowed on object **sub-fields** but not on object-typed fields themselves.<br/>
+² `@nullable` is allowed on tuple elements except object-type elements. Note: `?` (optional) is **not** allowed on tuple elements — use `@nullable` instead.<br/>
+³ `@flexible` only applies to fields whose type is an object.
+</small>
+
+### Arrays
+
+| Decorator | Purpose | Model | Object | Tuple Element |
+| --- | --- | :---: | :---: | :---: |
+| `@set` | Auto-deduplicated sorted set | ✅ | ✅ | — |
+| `@distinct` | Array deduplication | ✅ | ✅ | — |
+| `@sort` / `@sort(false)` | Array ordering | ✅ | ✅ | — |
+
+### UUID
+
+| Decorator | Purpose | Model | Object | Tuple Element |
+| --- | --- | :---: | :---: | :---: |
+| `@uuid` / `@uuid4` / `@uuid7` | Auto-generate UUID | ✅ | ✅ | — |
+
+## Composite Directives
+
+Composite directives apply at the model level and create multi-field constraints:
+
+| Directive | Purpose |
+| --- | --- |
+| `@@unique(name, [fields])` | Composite unique constraint |
+| `@@index(name, [fields])` | Composite non-unique index |
+
+```cerial
+model User {
+  id Record @id
+  firstName String
+  lastName String
+
+  @@unique(fullName, [firstName, lastName])
+  @@index(nameSearch, [firstName, lastName])
+}
+```
+
+## Decorators on Object Fields
+
+A subset of field decorators can be applied to fields within `object {}` definitions. Relation and identity decorators (`@id`, `@field`, `@model`, `@onDelete`, `@key`) are **not** allowed on object fields.
+
+Allowed decorators: `@default`, `@defaultAlways`, `@createdAt`, `@updatedAt`, `@index`, `@unique`, `@distinct`, `@sort`, `@set`, `@flexible`, `@readonly`, `@nullable`, `@uuid`/`@uuid4`/`@uuid7`, and geometry subtype decorators.
+
+```cerial
+object ContactInfo {
+  email Email
+  city String @default("Unknown")
+  createdAt Date @createdAt
+  tags String[] @distinct
+  zip String @unique
+}
+```
+
+## Decorators on Tuple Elements
+
+Tuple elements accept a limited set of decorators: `@nullable`, `@default`, `@defaultAlways`, `@createdAt`, `@updatedAt`.
+
+:::note
+The `?` (optional) modifier is **not** allowed on tuple elements because SurrealDB returns `null` (not `NONE`/`undefined`) for absent tuple positions. Use `@nullable` to allow null values on tuple elements instead.
+:::
+
+```cerial
+tuple Measurement {
+  value Float,
+  unit String @default("cm"),
+  recordedAt Date @createdAt,
+  notes String @nullable
+}
+```
+
+## Combining Decorators
+
+Multiple decorators can be applied to a single field, separated by spaces:
+
+```cerial
+model Article {
+  id Record @id
+  tags String[] @distinct @sort
+  author Relation @field(authorId) @model(User)
+  reviewer Relation? @field(reviewerId) @model(User) @key(reviewer) @onDelete(SetNull)
+}
+```
+
+Some decorators are mutually exclusive — see individual decorator pages for restrictions.
+
+## Mutual Exclusivity Groups
+
+Certain decorators conflict with each other. A field can have at most **one** from each of these groups:
+
+**Default strategy** — `@default`, `@defaultAlways`, `@now`, `@createdAt`, `@updatedAt`, `@uuid`/`@uuid4`/`@uuid7`
+
+**Timestamp** — `@now`, `@createdAt`, `@updatedAt`
+
+**UUID variant** — `@uuid`, `@uuid4`, `@uuid7`
+
+**Array** — `@set` conflicts with `@distinct` and `@sort`. `@distinct` and `@sort` can be combined.

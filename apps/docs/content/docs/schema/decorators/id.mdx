@@ -1,0 +1,152 @@
+---
+title: "@id"
+description: The @id decorator marks a field as the model's primary record identifier with support for typed IDs.
+sidebar:
+  label: "@id"
+  order: 2
+---
+
+Marks a field as the model's primary record identifier. Every model must have exactly one `@id` field, and it must be a `Record` type.
+
+## Syntax
+
+```cerial
+model User {
+  id Record @id
+  name String
+}
+```
+
+SurrealDB record IDs use the `table:id` format. The `@id` decorator tells Cerial which field represents this identifier.
+
+## Typed IDs
+
+By default, `Record @id` accepts and produces string-based IDs — SurrealDB auto-generates a ULID-style string value. You can constrain the ID type for stronger typing:
+
+```cerial
+// Integer IDs
+model Counter {
+  id Record(int) @id
+  value Int
+}
+
+// UUID IDs
+model Session {
+  id Record(uuid) @id
+  token String
+}
+
+// String IDs (explicit — same as plain Record @id but typed)
+model Slug {
+  id Record(string) @id
+  content String
+}
+
+// Union IDs — accept multiple types
+model FlexRecord {
+  id Record(string, int) @id
+  data String
+}
+```
+
+### Typed ID behavior
+
+| ID Type | `CerialId<T>` | `RecordIdInput<T>` | Create optionality |
+| --- | --- | --- | --- |
+| `Record @id` | `CerialId<string>` | `string \| CerialId \| RecordId` | Optional |
+| `Record(int) @id` | `CerialId<number>` | `number \| CerialId<number> \| RecordId` | **Required** |
+| `Record(uuid) @id` | `CerialId<string>` | `string \| CerialId \| RecordId` | Optional (auto-generated) |
+| `Record(string, int) @id` | `CerialId<string \| number>` | `string \| number \| CerialId \| RecordId` | Optional (string in union) |
+
+:::tip
+When `string` or `uuid` is part of the ID type (including plain `Record @id`), the ID field is **optional on create** — SurrealDB auto-generates a value if you don't provide one. For `Record(int) @id`, the ID is **required** since SurrealDB can't auto-generate integers.
+:::
+
+### FK type inference
+
+When a model uses a typed ID, any foreign key `Record` field pointing to it via `@model()` automatically inherits the same type:
+
+```cerial
+model Author {
+  id Record(int) @id
+  name String
+  books Relation[] @model(Book)
+}
+
+model Book {
+  id Record @id
+  title String
+  authorId Record               // Automatically typed as CerialId<number>
+  author Relation @field(authorId) @model(Author)
+}
+```
+
+```typescript
+const book = await client.db.Book.create({
+  data: {
+    title: 'My Book',
+    authorId: 42,           // accepts number (inferred from Author's Record(int) @id)
+  },
+});
+
+book.authorId;               // CerialId<number>
+book.authorId.id;            // 42 (number)
+```
+
+:::caution
+Do **not** add `Record(int)` on foreign key fields — the type is inferred from the target model's `@id` type. Adding an explicit type on an FK field is a validation error.
+:::
+
+## TypeScript Types
+
+The `@id` field produces `CerialId<T>` on output and accepts `RecordIdInput<T>` on input:
+
+```typescript
+const user = await client.db.User.create({ data: { name: 'Alice' } });
+
+// Output is CerialId
+user.id;              // CerialId<string>
+user.id.id;           // 'ulid-or-generated-id' (the raw value)
+user.id.table;        // 'user'
+user.id.toString();   // 'user:ulid-or-generated-id'
+user.id.equals(other); // deep comparison with any input type
+
+// Input accepts multiple forms
+await client.db.User.findOne({ where: { id: 'some-id' } });
+await client.db.User.findOne({ where: { id: user.id } });
+```
+
+For typed IDs, the generic narrows:
+
+```typescript
+// Record(int) @id
+const counter = await client.db.Counter.create({ data: { id: 1, value: 100 } });
+counter.id;           // CerialId<number>
+counter.id.id;        // 1 (number, not string)
+```
+
+## Special Handling
+
+The `@id` field receives special treatment throughout Cerial:
+
+- **No Record-Relation validation** — Normally, a `Record` field must be paired with a `Relation` field. The `@id` field is exempt.
+- **Always present** — The `id` field is always returned in query results, even if not explicitly selected.
+- **No null defaulting** — The `@id` field is never treated as optional-nullable.
+
+## Allowed On
+
+| Construct | Allowed |
+| --- | --- |
+| Model fields | ✅ (exactly one per model) |
+| Object fields | — |
+| Tuple elements | — |
+| Enum values | — |
+| Literal variants | — |
+
+## Restrictions
+
+- **One per model** — Each model must have exactly one `@id` field.
+- **Must be `Record` type** — Only `Record` (optionally with type parameters) is valid.
+- **Cannot combine with `@readonly`** — The ID field is already immutable in SurrealDB; `@readonly` is redundant and rejected.
+- **Cannot combine with `@nullable`** — Record IDs are always present and cannot be null.
+- **Cannot combine with** `@default`, `@defaultAlways`, `@createdAt`, `@updatedAt`, `@now` — The ID has its own generation mechanism.

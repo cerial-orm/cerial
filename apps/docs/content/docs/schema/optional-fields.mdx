@@ -1,0 +1,414 @@
+---
+title: Optional Fields
+description: Optional fields, nullable fields, NONE vs null distinction, CerialNone, and how these modifiers affect TypeScript types and queries.
+sidebar:
+  label: Optional Fields
+  order: 5
+---
+
+SurrealDB distinguishes between two kinds of "empty": a field that **doesn't exist** on the record (NONE) and a field that **exists with an explicit null value**. Cerial exposes this distinction through two independent modifiers — `?` for optionality and `@nullable` for null — giving you precise control over each field's behavior.
+
+## At a Glance
+
+| Modifier | SurrealDB | TypeScript | Create | Query |
+|---|---|---|---|---|
+| _(none)_ | Required | `T` | Required | Always present |
+| `?` | NONE (absent) | `T \| undefined` | Optional | May be `undefined` |
+| `@nullable` | null | `T \| null` | Required (can pass `null`) | May be `null` |
+| `? @nullable` | Both | `T \| null \| undefined` | Optional (can pass `null`) | May be `null` or `undefined` |
+
+These modifiers are **independent** — `?` controls whether the field can be omitted (NONE), and `@nullable` controls whether it can hold `null`. You can use either, both, or neither.
+
+## NONE vs null
+
+This is one of the most important concepts in Cerial.
+
+- **NONE** — The field does not exist on the record. It's absent from the stored data entirely. In TypeScript, this maps to `undefined`.
+- **null** — The field exists and its value is explicitly `null`. In TypeScript, this maps to `null`. Requires `@nullable`.
+
+```cerial
+model User {
+  id Record @id
+  name String             # required — always present, never null
+  bio String?             # optional — present with a value, or absent (NONE)
+  nickname String @nullable        # nullable — present with a value, or null
+  middleName String? @nullable     # both — present, null, or absent
+}
+```
+
+These are **different states in the database**:
+
+```typescript
+// bio is NONE — the field doesn't exist on this record
+await client.db.User.create({
+  data: { name: 'Alice', nickname: 'Ali' },
+});
+
+// bio has a value
+await client.db.User.create({
+  data: { name: 'Bob', bio: 'Hello!', nickname: 'Bobby' },
+});
+
+// nickname is null — the field exists but has no value
+await client.db.User.create({
+  data: { name: 'Carol', nickname: null },
+});
+
+// middleName is NONE (omitted) — distinct from null
+await client.db.User.create({
+  data: { name: 'Dave', nickname: 'D' },
+  // middleName: absent (NONE)
+});
+
+// middleName is null (explicitly set)
+await client.db.User.create({
+  data: { name: 'Eve', nickname: 'E', middleName: null },
+  // middleName: null
+});
+```
+
+## Optional Fields (`?`)
+
+Appending `?` to a field type makes it optional. Optional fields can be omitted on create and cleared on update. When absent, the field's value is `undefined` in TypeScript.
+
+```cerial
+model User {
+  id Record @id
+  name String           # required — must be provided
+  bio String?           # optional — can be omitted
+  age Int?              # optional
+}
+```
+
+```typescript
+// This works — bio and age are omitted (NONE)
+const user = await client.db.User.create({
+  data: { name: 'Alice' },
+});
+
+console.log(user.bio); // undefined
+console.log(user.age); // undefined
+```
+
+### Type Effects
+
+In the generated TypeScript types, `?` has these effects:
+
+- **Output type** — `T | undefined` (e.g., `string | undefined`)
+- **Create input** — Field becomes optional (`field?: T`)
+- **Update input** — Field includes `| CerialNone` for clearing (see [Clearing Fields](#clearing-optional-fields) below)
+
+## Nullable Fields (`@nullable`)
+
+The `@nullable` decorator allows a field to hold an explicit `null` value. Without `@nullable`, passing `null` to a field is a validation error.
+
+```cerial
+model User {
+  id Record @id
+  name String
+  nickname String @nullable     # can be a string or null, but must be provided
+}
+```
+
+```typescript
+// nickname must be provided — it's not optional
+const user = await client.db.User.create({
+  data: { name: 'Alice', nickname: null },
+});
+
+console.log(user.nickname); // null
+```
+
+### Type Effects
+
+- **Output type** — `T | null` (e.g., `string | null`)
+- **Create input** — Field is **required** but accepts `null` (`field: T | null`)
+- **Update input** — Accepts `T | null`
+
+## Combined: `? @nullable`
+
+When both modifiers are present, the field has three possible states: a value, `null`, or absent (NONE).
+
+```cerial
+model User {
+  id Record @id
+  name String
+  middleName String? @nullable
+}
+```
+
+```typescript
+// All three are valid:
+await client.db.User.create({ data: { name: 'Alice' } });
+// middleName: undefined (NONE — absent)
+
+await client.db.User.create({ data: { name: 'Bob', middleName: null } });
+// middleName: null (exists, explicitly null)
+
+await client.db.User.create({ data: { name: 'Carol', middleName: 'Jane' } });
+// middleName: 'Jane' (exists with value)
+```
+
+### Type Effects
+
+- **Output type** — `T | null | undefined`
+- **Create input** — Field is optional and accepts `null` (`field?: T | null`)
+
+## The `@default(null)` Pattern
+
+If you want an optional field to default to `null` instead of NONE when omitted, use `@default(null)` with `@nullable`:
+
+```cerial
+model User {
+  id Record @id
+  bio String?                               # omit → NONE
+  nickname String? @nullable @default(null)  # omit → null
+}
+```
+
+```typescript
+const user = await client.db.User.create({ data: {} });
+// user.bio: undefined (NONE — field absent)
+// user.nickname: null (default applied)
+```
+
+:::caution
+`@default(null)` **requires** `@nullable` on the field. A null default on a non-nullable field is invalid and will produce a validation error.
+:::
+
+## Restrictions
+
+:::caution[Objects and Tuples]
+`@nullable` is **not allowed** on object or tuple fields. SurrealDB cannot define sub-fields on nullable parents — the sub-field definitions require the parent to exist.
+
+```cerial
+object Address {
+  street String
+  city String
+}
+
+model User {
+  id Record @id
+  address Address?              # ✓ optional object — OK
+  # address Address @nullable   # ✗ NOT allowed
+}
+```
+
+Optional object and tuple fields use `?` only. Their output type is `Address | undefined` (not `Address | null`).
+:::
+
+:::note[Nullable Tuple Elements]
+While `@nullable` is not allowed on tuple **fields**, it IS allowed on individual tuple **elements**. In fact, `@nullable` is the only way to make a tuple element nullable — `?` is not allowed on tuple elements because SurrealDB returns `null` (not NONE) for absent tuple positions.
+
+```cerial
+tuple Coordinate {
+  x Float,
+  y Float,
+  z Float @nullable    # element can be null
+}
+```
+:::
+
+## Filtering
+
+The `?` and `@nullable` modifiers determine which filter operators are available:
+
+### `isNone` — Check for Absent Fields
+
+Available only on optional (`?`) fields. Tests whether the field exists on the record.
+
+```typescript
+// Find users where bio is absent (NONE)
+await client.db.User.findMany({
+  where: { bio: { isNone: true } },
+});
+
+// Find users where bio is present (could be any value)
+await client.db.User.findMany({
+  where: { bio: { isNone: false } },
+});
+```
+
+### `isDefined` — Check for Present Fields
+
+Available on optional (`?`) fields. The inverse of `isNone` — checks if the field exists on the record.
+
+```typescript
+// Find users where bio is defined (present on the record)
+await client.db.User.findMany({
+  where: { bio: { isDefined: true } },
+});
+
+// Find users where bio is not defined (absent)
+await client.db.User.findMany({
+  where: { bio: { isDefined: false } },
+});
+```
+
+:::note
+`isDefined: true` means the field **exists** — it could be a value or `null` (if the field is also `@nullable`). It does NOT mean "has a non-null value". To find records where an optional nullable field has an actual value, combine conditions:
+
+```typescript
+await client.db.User.findMany({
+  where: {
+    middleName: { isDefined: true, isNull: false },
+  },
+});
+```
+:::
+
+### `isNull` — Check for Null
+
+Available only on `@nullable` fields. Tests whether the field's value is explicitly `null`.
+
+```typescript
+// Find users where nickname is null
+await client.db.User.findMany({
+  where: { nickname: { isNull: true } },
+});
+
+// Find users where nickname is not null (has a value)
+await client.db.User.findMany({
+  where: { nickname: { isNull: false } },
+});
+```
+
+### `not` — Negation
+
+Available on optional and nullable fields. Checks that the field's value is not equal to the given value.
+
+```typescript
+// Find users where bio is not "Hello"
+await client.db.User.findMany({
+  where: { bio: { not: 'Hello' } },
+});
+```
+
+### Operator Availability Summary
+
+| Operator | Requires `?` | Requires `@nullable` | Description |
+|---|---|---|---|
+| `isNone` | Yes | — | Field is absent (NONE) |
+| `isDefined` | Yes | — | Field is present (any value or null) |
+| `isNull` | — | Yes | Field value is `null` |
+| `not` | Either | Either | Field value is not equal to given value |
+
+## Clearing Optional Fields
+
+In update operations, optional fields can be cleared (set back to NONE) using the `unset` parameter:
+
+```typescript
+// Clear the bio field — sets it to NONE (absent)
+await client.db.User.updateUnique({
+  where: { id: user.id },
+  unset: { bio: true },
+});
+```
+
+The `unset` parameter accepts an object where keys are field names and values are `true`. This injects `NONE` into the update, removing the field from the record entirely.
+
+For nullable fields, there's an important distinction between **clearing** (NONE) and **nulling**:
+
+```typescript
+// Set to null — field EXISTS with null value
+await client.db.User.updateUnique({
+  where: { id: user.id },
+  data: { middleName: null },
+});
+
+// Unset — field is REMOVED entirely (NONE)
+await client.db.User.updateUnique({
+  where: { id: user.id },
+  unset: { middleName: true },
+});
+```
+
+## Optional Object and Tuple Fields
+
+Optional object and tuple fields behave slightly differently from scalar fields:
+
+```cerial
+object Address {
+  street String
+  city String
+}
+
+tuple Coordinate {
+  x Float,
+  y Float
+}
+
+model User {
+  id Record @id
+  address Address?
+  position Coordinate?
+}
+```
+
+| Schema | Output Type | Notes |
+|---|---|---|
+| `Address?` | `Address \| undefined` | No `\| null` — objects don't support `@nullable` |
+| `Coordinate?` | `Coordinate \| undefined` | Same as objects |
+| `Record?` | `CerialId \| undefined` | Standard optional behavior |
+| `Record? @nullable` | `CerialId \| null \| undefined` | Both modifiers on records |
+
+Optional objects and tuples produce `field?: Type` in the output — they can be present or absent, but never `null`.
+
+## Practical Example
+
+Here's a complete example showing all modifier combinations in action:
+
+```cerial
+model UserProfile {
+  id Record @id
+  username String                           # required
+  displayName String?                       # optional
+  bio String @nullable                      # nullable (required but can be null)
+  tagline String? @nullable                 # optional and nullable
+  email Email @unique                       # required
+  avatarUrl String? @nullable @default(null) # defaults to null when omitted
+}
+```
+
+```typescript
+// Create with various field states
+const profile = await client.db.UserProfile.create({
+  data: {
+    username: 'alice',
+    email: 'alice@example.com',
+    bio: null,               // required but explicitly null
+    // displayName: omitted → NONE (absent)
+    // tagline: omitted → NONE (absent)
+    // avatarUrl: omitted → null (via @default(null))
+  },
+});
+
+// Query by field state
+const withBio = await client.db.UserProfile.findMany({
+  where: { bio: { isNull: false } },           // bio has a value (not null)
+});
+
+const noBio = await client.db.UserProfile.findMany({
+  where: { bio: { isNull: true } },            // bio is null
+});
+
+const hasDisplayName = await client.db.UserProfile.findMany({
+  where: { displayName: { isDefined: true } }, // displayName exists
+});
+
+const noDisplayName = await client.db.UserProfile.findMany({
+  where: { displayName: { isNone: true } },    // displayName is absent
+});
+
+// Update — clear an optional field
+await client.db.UserProfile.updateUnique({
+  where: { id: profile.id },
+  unset: { displayName: true },                // remove displayName (NONE)
+});
+
+// Update — set a nullable field to null
+await client.db.UserProfile.updateUnique({
+  where: { id: profile.id },
+  data: { bio: null },                         // set bio to null
+});
+```

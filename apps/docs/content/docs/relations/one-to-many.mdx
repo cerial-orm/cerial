@@ -1,0 +1,277 @@
+---
+title: One-to-Many
+description: One parent, many children — required and optional variants with array operations.
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+A one-to-many relation links a single record in one model (the "one" side) to multiple records in another model (the "many" side). The "many" side stores the foreign key, while the "one" side uses an array relation for reverse lookups.
+
+## Required One-to-Many
+
+A required 1:N means every child record **must** reference a parent.
+
+<Tabs>
+  <TabItem label="Schema">
+    ```cerial
+    model User {
+      id Record @id
+      name String
+      posts Relation[] @model(Post)
+    }
+
+    model Post {
+      id Record @id
+      title String
+      authorId Record
+      author Relation @field(authorId) @model(User)
+    }
+    ```
+  </TabItem>
+  <TabItem label="How it works">
+    - `Post.authorId` stores the foreign key — every Post must belong to a User.
+    - `Post.author` is the forward relation resolving `authorId` to a `User`.
+    - `User.posts` is the reverse relation querying all Posts where `authorId` matches.
+    - Deleting a User **cascades** to delete all Posts with `authorId` pointing to that User.
+  </TabItem>
+</Tabs>
+
+## Optional One-to-Many
+
+An optional 1:N allows child records to exist without a parent.
+
+<Tabs>
+  <TabItem label="Schema">
+    ```cerial
+    model User {
+      id Record @id
+      name String
+      posts Relation[] @model(Post)
+    }
+
+    model Post {
+      id Record @id
+      title String
+      authorId Record?
+      author Relation? @field(authorId) @model(User)
+    }
+    ```
+  </TabItem>
+  <TabItem label="How it works">
+    - `Post.authorId` is `Record?` — a Post can exist without an author.
+    - Deleting a User clears `authorId` on all associated Posts (default `SetNone`).
+    - Add `@nullable` to `authorId` for `SetNull` behavior instead.
+  </TabItem>
+</Tabs>
+
+## Creating Records
+
+### Create from the "many" side (forward)
+
+Create a Post linked to an existing User:
+
+```typescript
+const post = await client.db.Post.create({
+  data: {
+    title: 'Getting Started with Cerial',
+    author: { connect: userId },
+  },
+});
+```
+
+### Create from the "one" side (reverse) with nested create
+
+Create a User with multiple Posts in one operation:
+
+```typescript
+const user = await client.db.User.create({
+  data: {
+    name: 'John',
+    posts: {
+      create: [{ title: 'First Post' }, { title: 'Second Post' }],
+    },
+  },
+});
+// Both posts are created with authorId set to the new user's id
+```
+
+### Create from the "one" side with connect
+
+Create a User and link existing Posts:
+
+```typescript
+const user = await client.db.User.create({
+  data: {
+    name: 'Jane',
+    posts: {
+      connect: [postId1, postId2],
+    },
+  },
+});
+// postId1.authorId and postId2.authorId are updated to point to the new user
+```
+
+### Mix create and connect
+
+```typescript
+const user = await client.db.User.create({
+  data: {
+    name: 'Alice',
+    posts: {
+      create: [{ title: 'Brand New Post' }],
+      connect: [existingPostId],
+    },
+  },
+});
+```
+
+## Querying
+
+### Include the reverse relation
+
+```typescript
+const user = await client.db.User.findOne({
+  where: { id: userId },
+  include: { posts: true },
+});
+// user: { id: CerialId, name: string, posts: Post[] }
+```
+
+### Include with ordering and limit
+
+```typescript
+const user = await client.db.User.findOne({
+  where: { id: userId },
+  include: {
+    posts: {
+      orderBy: { title: 'asc' },
+      limit: 10,
+    },
+  },
+});
+// user.posts is sorted by title, limited to 10 results
+```
+
+### Include the forward relation
+
+```typescript
+const post = await client.db.Post.findOne({
+  where: { id: postId },
+  include: { author: true },
+});
+// post: { id: CerialId, title: string, authorId: CerialId, author: User }
+```
+
+### Filter by related records
+
+Array relations support three where operators for filtering through related records:
+
+#### `some` — at least one match
+
+```typescript
+// Find users who have at least one post containing 'Cerial'
+const users = await client.db.User.findMany({
+  where: {
+    posts: { some: { title: { contains: 'Cerial' } } },
+  },
+});
+```
+
+#### `every` — all must match
+
+```typescript
+// Find users where all their posts are published
+const users = await client.db.User.findMany({
+  where: {
+    posts: { every: { status: 'PUBLISHED' } },
+  },
+});
+```
+
+#### `none` — no matches
+
+```typescript
+// Find users who have no draft posts
+const users = await client.db.User.findMany({
+  where: {
+    posts: { none: { status: 'DRAFT' } },
+  },
+});
+```
+
+You can also filter directly on the FK field:
+
+```typescript
+// Find all posts by a specific user
+const posts = await client.db.Post.findMany({
+  where: { authorId: userId },
+});
+```
+
+## Updating Relations
+
+### Reassign a post to a different user
+
+```typescript
+await client.db.Post.updateMany({
+  where: { id: postId },
+  data: { author: { connect: newUserId } },
+});
+```
+
+### Disconnect an optional relation
+
+```typescript
+// Only works when authorId is Record? (optional)
+await client.db.Post.updateMany({
+  where: { id: postId },
+  data: { author: { disconnect: true } },
+});
+```
+
+### Add posts from the reverse side
+
+```typescript
+await client.db.User.updateMany({
+  where: { id: userId },
+  data: {
+    posts: {
+      create: [{ title: 'New Post' }],
+      connect: [existingPostId],
+    },
+  },
+});
+```
+
+### Set (replace all)
+
+The `set` operation replaces the entire contents of the relation. All existing child records have their FK cleared, and only the specified records are linked:
+
+```typescript
+await client.db.User.updateMany({
+  where: { id: userId },
+  data: {
+    posts: { set: [postId1, postId2] },
+  },
+});
+// Only postId1 and postId2 are now linked to this user
+// All previously linked posts have their authorId cleared
+```
+
+:::caution
+The `set` operation is a full replacement. Any existing posts not in the `set` array will be unlinked from the user. Use `connect` and `disconnect` for incremental changes.
+:::
+
+## Delete Behavior
+
+| FK Type                                       | Default Behavior                                | Configurable         |
+| --------------------------------------------- | ----------------------------------------------- | -------------------- |
+| Required (`Record`)                            | **Cascade** — deletes all related Posts          | No (always cascade)  |
+| Optional (`Record?`)                           | **SetNone** — removes `authorId` (undefined)     | Yes, via `@onDelete` |
+| Optional + `@nullable` (`Record? @nullable`)   | **SetNull** — sets `authorId` to null            | Yes, via `@onDelete` |
+
+:::note
+`@onDelete` is only allowed on singular forward relations (`Relation? @field`), not on array relations (`Relation[]`). Array relation cleanup is always automatic.
+:::
+
+See [Delete Behavior](/cerial/relations/on-delete/) for all `@onDelete` options.

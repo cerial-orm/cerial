@@ -1,0 +1,48 @@
+---
+title: '@uuid4'
+description: Auto-generate a random v4 UUID value on record creation.
+sidebar:
+  label: '@uuid4'
+---
+
+Auto-generates a random v4 UUID when a record is created and the field is not provided. Uses SurrealDB's `rand::uuid::v4()` function.
+
+## Syntax
+
+```cerial
+model Token {
+  id Record @id
+  sessionId Uuid @uuid4
+}
+```
+
+## Behavior
+
+Same behavior as [`@uuid`](/cerial/schema/decorators/uuid/uuid/), but explicitly generates a **v4 (random)** UUID:
+
+- **Uuid fields only** — can only be applied to `Uuid` type fields.
+- **Set on creation** — generated when the field is absent. Your value is used if provided.
+- **Optional in CreateInput** — the field becomes optional in create types.
+- **Random ordering** — v4 UUIDs are fully random with no time component, so they don't sort chronologically.
+
+## Usage
+
+```typescript
+const token = await db.Token.create({
+  data: {
+    /* sessionId is optional — auto-generated as v4 */
+  },
+});
+console.log(token.sessionId); // CerialUuid — random v4
+```
+
+## Allowed On
+
+- Model fields (`Uuid` type)
+- Object sub-fields (`Uuid` type)
+
+:::caution
+- **Not allowed on tuple elements** — SurrealDB doesn't support `DEFAULT` on tuple elements
+- **Mutually exclusive** — Cannot combine with `@default`, `@defaultAlways`, `@createdAt`, `@updatedAt`, `@now`, `@uuid`, or `@uuid7`
+:::
+

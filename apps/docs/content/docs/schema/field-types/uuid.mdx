@@ -1,0 +1,225 @@
+---
+title: Uuid
+description: UUID field type in Cerial — CerialUuid wrapper class, auto-generation with @uuid decorators, filtering, and ordering.
+sidebar:
+  label: Uuid
+  order: 2
+---
+
+A universally unique identifier stored as SurrealDB's native `uuid` type. UUIDs are commonly used for tokens, session IDs, and external identifiers where you want globally unique values independent of the database.
+
+## Schema Syntax
+
+```cerial
+model Session {
+  id Record @id
+  token Uuid
+  optionalToken Uuid?
+  nullableToken Uuid? @nullable
+  tokens Uuid[]
+  autoId Uuid @uuid          # auto-generated on create
+}
+```
+
+## Types
+
+| Direction | Type |
+| --- | --- |
+| Output | `CerialUuid` |
+| Input | `CerialUuidInput` — `string \| CerialUuid \| Uuid` (SDK) |
+| SurrealDB | `uuid` |
+
+## CerialUuid API
+
+```typescript
+import { CerialUuid } from 'cerial';
+
+// Create from string
+const uuid = new CerialUuid('550e8400-e29b-41d4-a716-446655440000');
+
+// Static constructors
+CerialUuid.from(input);        // from any CerialUuidInput
+CerialUuid.fromString(str);    // from string
+CerialUuid.fromNative(uuid);   // from SDK Uuid
+CerialUuid.parse(input);       // alias for from()
+
+// Generate new UUIDs
+CerialUuid.v4();               // random v4 UUID
+CerialUuid.v7();               // time-ordered v7 UUID
+
+// Instance properties
+uuid.value;                    // readonly string — the raw UUID value
+
+// Instance methods
+uuid.toString();               // '550e8400-e29b-41d4-a716-446655440000'
+uuid.toJSON();                 // same as toString()
+uuid.valueOf();                // same as toString()
+uuid.toNative();               // SDK Uuid instance
+uuid.equals(other);            // compare with any CerialUuidInput
+uuid.clone();                  // new CerialUuid copy
+
+// Type guard
+CerialUuid.is(value);          // value is CerialUuid
+```
+
+## Create & Update
+
+```typescript
+// Create with string UUID
+const session = await client.db.Session.create({
+  data: { token: '550e8400-e29b-41d4-a716-446655440000' },
+});
+
+// Create with CerialUuid instance
+const session2 = await client.db.Session.create({
+  data: { token: CerialUuid.v4() },
+});
+
+// Output is CerialUuid
+session.token;               // CerialUuid instance
+session.token.toString();    // '550e8400-e29b-41d4-a716-446655440000'
+session.token.value;         // '550e8400-e29b-41d4-a716-446655440000'
+
+// Update
+await client.db.Session.updateUnique({
+  where: { id: session.id },
+  data: { token: CerialUuid.v7() },
+});
+
+// Array push
+await client.db.Session.updateUnique({
+  where: { id: session.id },
+  data: { tokens: { push: CerialUuid.v4() } },
+});
+```
+
+## Filtering
+
+UUID fields support comparison, equality, and set operators:
+
+```typescript
+// Direct equality
+const sessions = await client.db.Session.findMany({
+  where: { token: '550e8400-e29b-41d4-a716-446655440000' },
+});
+
+// Comparison operators
+const sessions2 = await client.db.Session.findMany({
+  where: {
+    token: {
+      gt: '00000000-0000-0000-0000-000000000000',
+      lt: 'ffffffff-ffff-ffff-ffff-ffffffffffff',
+    },
+  },
+});
+
+// Set operators
+const sessions3 = await client.db.Session.findMany({
+  where: { token: { in: [uuid1, uuid2] } },
+});
+```
+
+### Available Operators
+
+| Operator | Description |
+| --- | --- |
+| `eq` | Equal to |
+| `neq` | Not equal to |
+| `gt` | Greater than |
+| `gte` | Greater than or equal |
+| `lt` | Less than |
+| `lte` | Less than or equal |
+| `in` | In a set of values |
+| `notIn` | Not in a set of values |
+
+### Conditional Operators
+
+These operators are only available when the field has the corresponding modifier:
+
+| Operator | Available when | Description |
+| --- | --- | --- |
+| `not` | `?` or `@nullable` | Negated comparison — matches records where the field is NOT the given value |
+| `isNone` | `?` (optional) | `true` = field is absent, `false` = field is present |
+| `isNull` | `@nullable` | `true` = field is `null`, `false` = field is not `null` |
+| `isDefined` | Always | `true` = field exists (not NONE), `false` = field is absent |
+
+```typescript
+// Optional UUID field
+const missing = await client.db.Session.findMany({
+  where: { optionalToken: { isNone: true } },
+});
+
+// Nullable UUID field
+const nulled = await client.db.Session.findMany({
+  where: { nullableToken: { isNull: true } },
+});
+```
+
+## OrderBy
+
+UUID fields **support** `orderBy`. UUIDs are compared lexicographically (string ordering).
+
+```typescript
+const sessions = await client.db.Session.findMany({
+  orderBy: { token: 'asc' },
+});
+```
+
+:::tip
+UUIDv7 values are time-ordered — their lexicographic order matches creation order. This makes `orderBy` on v7 UUIDs a natural chronological sort. UUIDv4 values have random ordering and won't sort meaningfully.
+:::
+
+## Auto-Generation
+
+Use `@uuid`, `@uuid4`, or `@uuid7` decorators for database-side auto-generation:
+
+```cerial
+model Session {
+  id Record @id
+  token Uuid @uuid         # v7 by default (time-ordered)
+  legacyToken Uuid @uuid4  # random v4
+  sortableId Uuid @uuid7   # explicitly v7
+}
+```
+
+When a UUID field has an auto-generation decorator, it becomes **optional in `CreateInput`** — SurrealDB generates the value if you don't provide one.
+
+:::caution
+`@uuid`, `@uuid4`, and `@uuid7` are **not allowed on tuple elements** — SurrealDB doesn't support `DEFAULT` on tuple element positions. They work on model fields and object fields only.
+
+These decorators are mutually exclusive with `@default`, `@defaultAlways`, `@createdAt`, `@updatedAt`, `@now`, and each other.
+:::
+
+## In Objects and Tuples
+
+UUID works in embedded objects and tuples:
+
+```cerial
+object ApiKey {
+  key Uuid
+  createdAt Date @createdAt
+}
+
+tuple TokenPair {
+  primary Uuid,
+  secondary Uuid
+}
+
+model Service {
+  id Record @id
+  apiKey ApiKey
+  tokens TokenPair
+}
+```
+
+## Supported Decorators
+
+| Decorator | Effect |
+| --- | --- |
+| `@default(value)` | Default UUID value on create |
+| `@defaultAlways(value)` | Reset to value on every write |
+| `@uuid` / `@uuid4` / `@uuid7` | Auto-generate UUID on create |
+| `@nullable` | Allow explicit `null` |
+| `@readonly` | Write-once field |
+| `@index` | Database index |
+| `@unique` | Unique constraint |

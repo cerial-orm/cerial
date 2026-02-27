@@ -1,0 +1,229 @@
+---
+title: Decimal
+description: Decimal field type in Cerial — CerialDecimal wrapper with arbitrary-precision arithmetic for financial calculations.
+sidebar:
+  label: Decimal
+  order: 5
+---
+
+An arbitrary-precision decimal number stored as SurrealDB's native `decimal` type. Use `Decimal` for financial calculations, precise measurements, or any value where floating-point rounding errors are unacceptable.
+
+## Schema Syntax
+
+```cerial
+model Product {
+  id Record @id
+  price Decimal
+  discount Decimal?
+  tax Decimal @nullable
+  amounts Decimal[]
+}
+```
+
+## Types
+
+| Direction | Type |
+| --- | --- |
+| Output | `CerialDecimal` |
+| Input | `CerialDecimalInput` — `number \| string \| CerialDecimal \| Decimal` (SDK) |
+| SurrealDB | `decimal` |
+
+## CerialDecimal API
+
+```typescript
+import { CerialDecimal } from 'cerial';
+
+// Create from number or string
+const price = new CerialDecimal(99.99);
+const precise = new CerialDecimal('123456789.123456789');
+
+// Static constructors
+CerialDecimal.from(input);     // from any CerialDecimalInput
+CerialDecimal.parse(input);    // alias for from()
+
+// Arithmetic (immutable — returns new CerialDecimal)
+price.add(other);              // addition
+price.sub(other);              // subtraction
+price.mul(other);              // multiplication
+price.div(other);              // division
+
+// Comparison
+price.equals(other);           // true if equal
+price.compareTo(other);        // negative/zero/positive
+price.isZero();                // true if zero
+price.isNegative();            // true if negative
+
+// Conversion
+price.toString();              // string representation (lossless)
+price.toJSON();                // same as toString()
+price.toNumber();              // JavaScript number (LOSSY!)
+price.valueOf();               // JavaScript number (LOSSY!)
+
+// SDK interop
+price.toNative();              // SDK Decimal instance
+price.clone();                 // new CerialDecimal copy
+
+// Type guard
+CerialDecimal.is(value);      // value is CerialDecimal
+```
+
+Arithmetic methods accept the full `CerialDecimalInput` union — you can pass numbers, strings, or other `CerialDecimal` instances:
+
+```typescript
+const total = price.add(10);           // number input
+const discounted = price.sub('5.50');  // string input
+const doubled = price.mul(other);      // CerialDecimal input
+```
+
+:::caution[`toNumber()` and `valueOf()` are lossy]
+Both `toNumber()` and `valueOf()` truncate to IEEE 754 double precision. For large or high-precision values, this **silently loses data**:
+
+```typescript
+const big = new CerialDecimal('99999999999999999.123456789');
+big.toString();   // '99999999999999999.123456789' ✓ lossless
+big.toNumber();   // 100000000000000000 ✗ precision lost
+```
+
+Always use `.toString()` for lossless serialization. Use `.toNumber()` only when you need a JavaScript number and accept the precision loss — for example, passing to a charting library.
+
+Numeric coercion (`+decimal`, `decimal * 2`) also uses `valueOf()` and is equally lossy.
+:::
+
+## Create & Update
+
+```typescript
+// Create with number
+const product = await client.db.Product.create({
+  data: { price: 29.99, tax: null },
+});
+
+// Create with string (preserves precision)
+const product2 = await client.db.Product.create({
+  data: { price: '99999999.99', tax: '7.5' },
+});
+
+// Create with CerialDecimal
+const product3 = await client.db.Product.create({
+  data: { price: CerialDecimal.from('49.99'), tax: null },
+});
+
+// Output is CerialDecimal
+product.price;               // CerialDecimal instance
+product.price.toString();    // '29.99'
+
+// Update
+await client.db.Product.updateUnique({
+  where: { id: product.id },
+  data: { price: '34.99' },
+});
+
+// Array operations
+await client.db.Product.updateUnique({
+  where: { id: product.id },
+  data: { amounts: { push: 4.5 } },
+});
+```
+
+## Filtering
+
+Decimal fields support comparison, set, and range operators:
+
+```typescript
+// Direct equality
+const products = await client.db.Product.findMany({
+  where: { price: 29.99 },
+});
+
+// Comparison operators
+const expensive = await client.db.Product.findMany({
+  where: { price: { gt: 100, lte: 500 } },
+});
+
+// Range
+const midRange = await client.db.Product.findMany({
+  where: { price: { between: [10, 100] } },
+});
+
+// Set operators
+const specific = await client.db.Product.findMany({
+  where: { price: { in: [9.99, 19.99, 29.99] } },
+});
+```
+
+### Available Operators
+
+| Operator | Description |
+| --- | --- |
+| `eq` | Equal to |
+| `neq` | Not equal to |
+| `gt` | Greater than |
+| `gte` | Greater than or equal |
+| `lt` | Less than |
+| `lte` | Less than or equal |
+| `between` | Within a range (inclusive) |
+| `in` | In a set of values |
+| `notIn` | Not in a set of values |
+
+### Conditional Operators
+
+| Operator | Available when | Description |
+| --- | --- | --- |
+| `not` | `?` or `@nullable` | Negated comparison |
+| `isNone` | `?` (optional) | `true` = field is absent |
+| `isNull` | `@nullable` | `true` = field is `null` |
+| `isDefined` | Always | `true` = field exists |
+
+## OrderBy
+
+Decimal fields **support** `orderBy`:
+
+```typescript
+const sorted = await client.db.Product.findMany({
+  orderBy: { price: 'desc' },
+});
+```
+
+## In Objects and Tuples
+
+```cerial
+object LineItem {
+  quantity Int
+  unitPrice Decimal
+  total Decimal
+}
+
+tuple PriceRange {
+  min Decimal,
+  max Decimal
+}
+
+model Invoice {
+  id Record @id
+  items LineItem[]
+  range PriceRange?
+}
+```
+
+## Arrays
+
+```cerial
+model Ledger {
+  id Record @id
+  entries Decimal[]
+}
+```
+
+:::caution[`Decimal[] @set` is not supported]
+SurrealDB has a bug with `set<decimal>` that causes errors. Do not use `@set` on `Decimal[]` arrays. Use `@distinct` and `@sort` separately if you need deduplication or sorting.
+:::
+
+## Supported Decorators
+
+| Decorator | Effect |
+| --- | --- |
+| `@default(value)` | Default decimal on create |
+| `@defaultAlways(value)` | Reset to value on every write |
+| `@nullable` | Allow explicit `null` |
+| `@readonly` | Write-once field |
+| `@index` | Database index |
+| `@unique` | Unique constraint |

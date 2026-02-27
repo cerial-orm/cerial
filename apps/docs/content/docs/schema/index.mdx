@@ -1,0 +1,266 @@
+---
+title: Schema
+description: Define your data models, embedded types, enums, tuples, and literals using Cerial's schema definition language.
+---
+
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+Cerial schemas are defined in `.cerial` files using a concise, Prisma-inspired syntax. Each schema file describes your database structure — models, embedded types, enums, and more — and Cerial uses them to generate a fully type-safe TypeScript client.
+
+## Building Blocks
+
+Every `.cerial` file is made up of five building blocks:
+
+### Model
+
+Models map to SurrealDB tables. They have an `id` field, typed fields with decorators, and can define relations to other models.
+
+```cerial
+model User {
+  id Record @id
+  email Email @unique
+  name String
+  age Int?
+  createdAt Date @createdAt
+  posts Relation[] @model(Post)
+}
+```
+
+Models support the full range of features: decorators (`@default`, `@unique`, `@createdAt`, `@readonly`, etc.), relations (`Relation` fields with `@field` and `@model`), arrays, and optional fields. You can also mark a model as **abstract** — abstract models serve as reusable field templates and don't produce a database table, TypeScript types, or a client accessor.
+
+```cerial
+abstract model Timestamped {
+  createdAt Date @createdAt
+  updatedAt Date @updatedAt
+}
+
+model Post extends Timestamped {
+  id Record @id
+  title String
+  content String?
+}
+```
+
+### Object
+
+Objects are embedded types stored inline within model fields. They have typed fields with decorators but no `id` and no relations.
+
+```cerial
+object Address {
+  street String
+  city String
+  state String
+  zipCode String? @default("00000")
+}
+
+model User {
+  id Record @id
+  name String
+  address Address?
+}
+```
+
+Objects support field-level decorators including `@default`, `@defaultAlways`, `@createdAt`, `@updatedAt`, `@flexible`, and `@readonly`. They can be nested, used in arrays (`Address[]`), and referenced across files.
+
+### Enum
+
+Enums define named sets of string constants. They generate a `const` object and a TypeScript union type.
+
+```cerial
+enum Role { Admin, Editor, Viewer }
+
+model User {
+  id Record @id
+  role Role @default(Viewer)
+}
+```
+
+Enum values are always strings — for mixed types (numbers, booleans, structured variants), use a literal instead.
+
+### Tuple
+
+Tuples are fixed-length typed arrays with named or positional elements. Three variant styles are supported:
+
+**Named** — All elements have names:
+
+```cerial
+tuple Coordinate {
+  lat Float,
+  lng Float,
+  z Float?
+}
+```
+
+**Index (unnamed)** — Positional types only, no names:
+
+```cerial
+tuple Pair {
+  Int,
+  Bool
+}
+```
+
+**Mixed** — Named and positional elements together:
+
+```cerial
+tuple Entry {
+  name String,
+  Int,
+  Bool
+}
+```
+
+Tuple elements can be named (for clarity) or anonymous. Input accepts both array and object form; output is always an array. Elements support `@nullable`, `@default`, `@defaultAlways`, `@createdAt`, and `@updatedAt` decorators.
+
+### Literal
+
+Literals define union types that can combine specific values, broad types, and structured variants.
+
+```cerial
+literal Status {
+  "active",
+  "inactive",
+  "pending"
+}
+
+literal MixedId {
+  String,
+  Int
+}
+```
+
+Literals can include string, int, float, and boolean values, broad types (`String`, `Int`, `Float`, `Bool`, `Date`), and references to objects, tuples, enums, or other literals.
+
+## Syntax Rules
+
+- **Field name** comes first, in `camelCase` — e.g., `firstName`, `createdAt`
+- **Type** follows the field name, in `UpperFirst` — e.g., `String`, `Int`, `Record`, `Address`
+- **Optional** fields use `?` after the type — e.g., `String?`
+- **Array** fields use `[]` after the type — e.g., `String[]`, `Tag[]`
+- **Decorators** follow the type, prefixed with `@` — e.g., `@unique`, `@default("pending")`
+- **Comments** use `#`, `//`, or `/* */` — see [Comments](/cerial/schema/comments/) for all three styles
+- **Private fields** in abstract models use `!!private` at the end of a field line to prevent override in child types
+
+```cerial
+abstract model Timestamped {
+  createdAt Date @createdAt
+  updatedAt Date @updatedAt
+}
+
+abstract model BaseModel {
+  id Record @id
+  secret String !!private       # cannot be overridden by child
+}
+
+model User extends BaseModel {
+  id Record @id
+  email Email @unique
+  name String
+}
+```
+
+## Inheritance
+
+All five building blocks support `extends` for schema-level inheritance. A child type inherits all fields (or values) from its parent:
+
+```cerial
+object BaseAddress {
+  street String
+  city String
+  country String @default("US")
+}
+
+# Inherit all fields, then add more
+object FullAddress extends BaseAddress {
+  state String
+  zipCode String
+}
+```
+
+You can selectively pick or omit fields:
+
+```cerial
+# Pick only specific fields
+object ShortAddress extends BaseAddress[street, city] {
+  label String
+}
+
+# Omit specific fields
+object InternationalAddress extends BaseAddress[!country] {
+  region String
+}
+```
+
+:::note
+Models can only extend **abstract** models. Concrete-extends-concrete and abstract-extends-concrete are not allowed. Objects, enums, tuples, and literals can extend any type of the same kind.
+:::
+
+## Example Schema
+
+Here's a more comprehensive schema showing multiple building blocks working together:
+
+```cerial
+# Shared types
+enum Role { Admin, Editor, Viewer }
+
+object Address {
+  street String
+  city String
+  state String
+  zipCode String?
+}
+
+tuple Color {
+  r Int,
+  g Int,
+  b Int
+}
+
+literal Priority {
+  "low",
+  "medium",
+  "high"
+}
+
+# Abstract base for timestamps
+abstract model Timestamped {
+  createdAt Date @createdAt
+  updatedAt Date @updatedAt
+}
+
+# User model — extends Timestamped for auto-timestamps
+model User extends Timestamped {
+  id Record @id
+  email Email @unique
+  name String
+  role Role @default(Viewer)
+  bio String? @nullable          # can be absent OR null
+  address Address?
+  favoriteColor Color?
+  tags String[] @set             # auto-deduplicated set
+}
+
+# Post model with relation to User
+model Post extends Timestamped {
+  id Record @id
+  title String
+  content String
+  priority Priority @default("medium")
+  authorId Record
+  author Relation @field(authorId) @model(User)
+}
+```
+
+## What's in This Section
+
+<CardGrid>
+  <LinkCard title="Field Types" description="All built-in types — String, Int, Float, Bool, Date, Record, Uuid, Duration, Decimal, and more." href="/cerial/schema/field-types/" />
+  <LinkCard title="Arrays" description="Array syntax, default behavior, the @set decorator, and supported element types." href="/cerial/schema/field-types/arrays/" />
+  <LinkCard title="Optional Fields" description="Optional fields, nullable fields, and the NONE vs null distinction." href="/cerial/schema/optional-fields/" />
+  <LinkCard title="Comments" description="Three comment styles — hash, double-slash, and block comments." href="/cerial/schema/comments/" />
+  <LinkCard title="Cross-File References" description="Split schemas across files — recursive scanning, forward references, and shared scopes." href="/cerial/schema/cross-file-references/" />
+</CardGrid>
+
+:::note[Coming soon]
+Additional schema pages — Decorators, Typed IDs, Inheritance, Enums, Literals, and more — are being added to the documentation.
+:::

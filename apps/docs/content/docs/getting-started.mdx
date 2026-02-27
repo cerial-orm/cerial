@@ -1,0 +1,256 @@
+---
+title: Getting Started
+description: Install Cerial, define your first schema, generate a type-safe client, and run your first queries against SurrealDB.
+---
+
+import { Steps, Tabs, TabItem, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+In this guide, you'll define a schema with two related models, generate a fully typed TypeScript client, and use it to create, query, update, and delete records in SurrealDB — all with complete type safety and zero hand-written SQL.
+
+By the end, you'll have a working `User` and `Post` setup with relations, auto-timestamps, and type-safe queries.
+
+## Prerequisites
+
+:::note
+Cerial requires **two things** installed on your machine before you begin:
+
+- **[Bun](https://bun.sh/)** — Cerial uses Bun as its runtime. Install it with `curl -fsSL https://bun.sh/install | bash` or see the [Bun docs](https://bun.sh/docs/installation).
+- **[SurrealDB](https://surrealdb.com/)** — The database Cerial is built for. Install it from [surrealdb.com/install](https://surrealdb.com/install) and start it with `surreal start`.
+:::
+
+## Your First Cerial Project
+
+<Steps>
+
+1. **Install Cerial**
+
+   Add Cerial to your project:
+
+   ```bash
+   bun add cerial
+   ```
+
+   This gives you both the ORM runtime and the `cerial` CLI for code generation.
+
+2. **Define Your Schema**
+
+   Create a `schemas/` directory and add a `.cerial` file. This is where you describe your data models — Cerial reads these files and generates TypeScript types and a client from them.
+
+   Create `schemas/schema.cerial`:
+
+   ```cerial
+   model User {
+     id Record @id
+     email Email @unique
+     name String
+     age Int?
+     isActive Bool @default(true)
+     createdAt Date @createdAt
+     updatedAt Date @updatedAt
+     posts Relation[] @model(Post)
+   }
+
+   model Post {
+     id Record @id
+     title String
+     content String?
+     authorId Record
+     author Relation @field(authorId) @model(User)
+     createdAt Date @createdAt
+   }
+   ```
+
+   Here's what each part means:
+
+   - **`id Record @id`** — Every model needs a primary key. `Record @id` tells Cerial this is a SurrealDB record ID.
+   - **`Email`** — A built-in type that validates email format at the database level.
+   - **`Int?`** — The `?` makes a field optional. Optional fields can be omitted on create and show as `undefined` when absent.
+   - **`@default(true)`** — Sets a default value. If you don't pass `isActive` when creating a user, it defaults to `true`.
+   - **`@createdAt` / `@updatedAt`** — Auto-managed timestamps. `@createdAt` sets the time on record creation, `@updatedAt` updates it on every write.
+   - **`@unique`** — Creates a unique index on the field — no two users can share the same email.
+   - **`Relation[] @model(Post)`** — A virtual field representing the reverse side of a one-to-many relation. It doesn't store anything in the `User` table — Cerial queries `Post` records that point back to this user.
+   - **`authorId Record` + `author Relation @field(authorId) @model(User)`** — The forward side of the relation. `authorId` stores the actual foreign key, and `author` is the virtual relation field linked via `@field(authorId)`.
+
+3. **Generate the Client**
+
+   Run the `generate` command to produce your type-safe client. You can either pass paths directly as CLI flags, or use a config file:
+
+   <Tabs>
+     <TabItem label="CLI Flags">
+       ```bash
+       bunx cerial generate -s ./schemas -o ./db-client
+       ```
+
+       `-s` sets the schema directory, `-o` sets the output directory.
+     </TabItem>
+     <TabItem label="Config File">
+       Create a `cerial.config.ts` at your project root:
+
+       ```typescript
+       import { defineConfig } from 'cerial';
+
+       export default defineConfig({
+         schema: './schemas',
+         output: './db-client',
+       });
+       ```
+
+       Then generate with no flags needed:
+
+       ```bash
+       bunx cerial generate
+       ```
+
+       The config file approach is recommended for projects — it keeps your options in one place and supports advanced features like multi-schema setups and formatting preferences.
+     </TabItem>
+   </Tabs>
+
+   The generated output looks like this:
+
+   ```
+   db-client/
+   ├── client.ts             # CerialClient class
+   ├── models/               # One file per model with full types
+   │   ├── user.ts
+   │   ├── post.ts
+   │   └── index.ts
+   ├── internal/
+   │   ├── model-registry.ts # Runtime model metadata
+   │   ├── migrations.ts     # DEFINE TABLE/FIELD statements
+   │   └── index.ts
+   └── index.ts              # Main exports
+   ```
+
+   :::tip
+   Run `bunx cerial generate --watch` during development to automatically regenerate the client whenever you change a `.cerial` file.
+   :::
+
+4. **Connect to SurrealDB**
+
+   Import the generated client and connect to your running SurrealDB instance:
+
+   ```typescript
+   import { CerialClient } from './db-client';
+   
+   const client = new CerialClient();
+   
+   await client.connect({
+     url: 'http://localhost:8000',
+     namespace: 'main',
+     database: 'main',
+     auth: { username: 'root', password: 'root' },
+   });
+   
+   // Eagerly run all migrations upfront
+   await client.migrate();
+   ```
+   
+   :::tip
+   `client.migrate()` creates all tables, fields, and indexes in SurrealDB based on your schema. You can call it right after connecting to set everything up at once. If you skip it, Cerial still handles migrations lazily — each model's schema is applied automatically before its first query.
+   :::
+
+5. **Create Records**
+
+   Use `client.db.User.create()` to insert a new record. Every model is accessible through `client.db`:
+
+   ```typescript
+   const user = await client.db.User.create({
+     data: {
+       email: 'alice@example.com',
+       name: 'Alice',
+       age: 28,
+     },
+   });
+
+   console.log(user.id);        // CerialId — not a plain string
+   console.log(user.createdAt);  // Date — auto-set by @createdAt
+   console.log(user.isActive);   // true — default from @default(true)
+   ```
+
+   :::tip
+   `user.id` is a `CerialId` object, not a plain string. It has `.id` (the raw value), `.table` (the table name), `.toString()` for display, and `.equals()` for comparison. You'll pass it to `where` clauses to look up this record later.
+   :::
+
+   Now create a post linked to this user:
+
+   ```typescript
+   const post = await client.db.Post.create({
+     data: {
+       title: 'Hello, SurrealDB!',
+       content: 'My first post using Cerial.',
+       authorId: user.id,
+     },
+   });
+   ```
+
+6. **Query Records**
+
+   Cerial provides several query methods. The return types narrow automatically based on what you select:
+
+   ```typescript
+   // Find many with filtering, selection, and pagination
+   const activeUsers = await client.db.User.findMany({
+     where: { isActive: true },
+     select: { id: true, name: true, email: true },
+     limit: 10,
+   });
+   // activeUsers: { id: CerialId; name: string; email: string }[]
+   ```
+
+   Use `include` to load related records alongside the main query:
+
+   ```typescript
+   // Find one user with their posts
+   const userWithPosts = await client.db.User.findOne({
+     where: { id: user.id },
+     include: {
+       posts: { limit: 5, orderBy: { createdAt: 'desc' } },
+     },
+   });
+   // userWithPosts: (User & { posts: Post[] }) | null
+   ```
+
+   :::note
+   `findOne` returns `T | null` — always check for null. `findMany` returns `T[]` (an empty array if nothing matches). Use `findAll()` as a shorthand for `findMany()` with no options when you want every record.
+   :::
+
+7. **Update & Delete**
+
+   Update a specific record by its ID:
+
+   ```typescript
+   const updated = await client.db.User.updateUnique({
+     where: { id: user.id },
+     data: { name: 'Alice Smith' },
+   });
+   // updated.updatedAt is automatically refreshed by @updatedAt
+   ```
+
+   Delete a record:
+
+   ```typescript
+   const deleted = await client.db.User.deleteUnique({
+     where: { id: user.id },
+   });
+   ```
+
+   When you're done, disconnect from the database:
+
+   ```typescript
+   await client.disconnect();
+   ```
+
+</Steps>
+
+## What's Next?
+
+You've covered the basics — schema definition, client generation, and CRUD operations. Cerial has much more to offer:
+
+<CardGrid>
+  <LinkCard title="Schema" description="Full schema syntax — field types, decorators, arrays, optionals, and more." href="/cerial/schema/" />
+  <LinkCard title="Relations" description="1:1, 1:N, and N:N relations with nested creates, connects, and cascade deletes." href="/cerial/relations/" />
+  <LinkCard title="Queries" description="All query methods — findOne, findMany, upsert, count, exists, and transactions." href="/cerial/queries/" />
+  <LinkCard title="Filtering" description="Comparison, string, array, logical, and nested filter operators." href="/cerial/filtering/" />
+  <LinkCard title="Objects & Tuples" description="Embedded object types and fixed-length tuple types with sub-field select." href="/cerial/objects/" />
+  <LinkCard title="Type System" description="CerialId, NONE vs null, generated types, and dynamic return types." href="/cerial/types/" />
+</CardGrid>

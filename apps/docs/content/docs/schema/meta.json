@@ -1,0 +1,13 @@
+{
+  "title": "Schema",
+  "pages": [
+    "...schema",
+    "field-types",
+    "optional-fields",
+    "comments",
+    "cross-file-references",
+    "decorators",
+    "type-definitions",
+    "inheritance"
+  ]
+}

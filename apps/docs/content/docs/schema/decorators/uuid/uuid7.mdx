@@ -1,0 +1,48 @@
+---
+title: '@uuid7'
+description: Auto-generate a time-ordered v7 UUID value on record creation.
+sidebar:
+  label: '@uuid7'
+---
+
+Auto-generates a time-ordered v7 UUID when a record is created and the field is not provided. Uses SurrealDB's `rand::uuid::v7()` function.
+
+## Syntax
+
+```cerial
+model Event {
+  id Record @id
+  sortableId Uuid @uuid7
+}
+```
+
+## Behavior
+
+Same behavior as [`@uuid`](/cerial/schema/decorators/uuid/uuid/), but explicitly generates a **v7 (time-ordered)** UUID:
+
+- **Uuid fields only** — can only be applied to `Uuid` type fields.
+- **Set on creation** — generated when the field is absent. Your value is used if provided.
+- **Optional in CreateInput** — the field becomes optional in create types.
+- **Time-ordered** — v7 UUIDs embed a timestamp, making them naturally sortable by creation time. Ideal for IDs that need chronological ordering.
+
+## Usage
+
+```typescript
+const event = await db.Event.create({
+  data: {
+    /* sortableId is optional — auto-generated as v7 */
+  },
+});
+console.log(event.sortableId); // CerialUuid — time-ordered v7
+```
+
+## Allowed On
+
+- Model fields (`Uuid` type)
+- Object sub-fields (`Uuid` type)
+
+:::caution
+- **Not allowed on tuple elements** — SurrealDB doesn't support `DEFAULT` on tuple elements
+- **Mutually exclusive** — Cannot combine with `@default`, `@defaultAlways`, `@createdAt`, `@updatedAt`, `@now`, `@uuid`, or `@uuid4`
+:::
+

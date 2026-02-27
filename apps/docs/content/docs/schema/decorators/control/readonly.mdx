@@ -1,0 +1,225 @@
+---
+title: '@readonly'
+description: Mark a field as write-once — settable on create but excluded from updates.
+sidebar:
+  label: '@readonly'
+  order: 13
+---
+
+Marks a field as write-once. The field can be set during creation but cannot be updated after the record exists. SurrealDB enforces this at the database level with the `READONLY` keyword.
+
+## Syntax
+
+```cerial
+model Article {
+  id Record @id
+  slug String @readonly
+  title String
+}
+```
+
+`@readonly` takes no arguments and can be applied to any storable field type: primitives, records, arrays, and object-typed fields.
+
+## When to Use
+
+Use `@readonly` when a field should be immutable after creation:
+
+- **Slugs / permalinks** that must never change
+- **Foreign keys** that lock a record to its parent permanently
+- **Audit fields** like `createdBy` that record who created a resource
+- **Immutable identifiers** like external system IDs or invite codes
+- **Snapshot fields** that capture a value at creation time
+
+## Basic Usage
+
+```cerial
+model Invite {
+  id Record @id
+  code String @readonly
+  email Email @readonly
+  usedBy String?
+}
+```
+
+```typescript
+// Create — readonly fields are writable
+const invite = await client.db.Invite.create({
+  data: { code: 'ABC123', email: 'alice@example.com' },
+});
+
+invite.code; // 'ABC123'
+
+// Update — only non-readonly fields are available
+await client.db.Invite.updateUnique({
+  where: { id: invite.id },
+  data: { usedBy: 'Alice' }, // OK
+  // data: { code: 'NEW' },  // Type error — 'code' not in Update type
+});
+```
+
+## Type Behavior
+
+`@readonly` fields are present in all types except the Update type:
+
+| Type | @readonly field behavior |
+| --- | --- |
+| Output | Present (readable) |
+| Create | Present (writable) |
+| Update | **Excluded** |
+| Where | Present (filterable) |
+| Select | Present (selectable) |
+| OrderBy | Present (sortable) |
+
+If a `@readonly` field is passed to an update operation at runtime (bypassing types), Cerial throws:
+
+```
+Error: Cannot update readonly field 'code'
+```
+
+## Combining with Other Decorators
+
+### @readonly + @default
+
+A common pattern for system-managed immutable fields:
+
+```cerial
+model Document {
+  id Record @id
+  createdBy String @readonly @default("system")
+  title String
+}
+```
+
+The field defaults to `"system"` on creation (if not provided) and can never be changed.
+
+### @readonly + @createdAt
+
+Lock a creation timestamp permanently:
+
+```cerial
+model AuditLog {
+  id Record @id
+  event String
+  timestamp Date @readonly @createdAt
+}
+```
+
+### @readonly + @unique
+
+Immutable unique identifiers:
+
+```cerial
+model ApiKey {
+  id Record @id
+  key String @readonly @unique
+  label String
+}
+```
+
+## On Record Fields (Foreign Keys)
+
+When `@readonly` is applied to a `Record` field that backs a `Relation`, the relation becomes immutable after creation. Nested update operations (`connect`, `disconnect`) are **excluded** from the `UpdateInput` type for that relation:
+
+```cerial
+model Comment {
+  id Record @id
+  postId Record @readonly
+  post Relation @field(postId) @model(Post)
+  text String
+}
+```
+
+```typescript
+// Create — can connect the relation
+const comment = await client.db.Comment.create({
+  data: { text: 'Great post!', post: { connect: postId } },
+});
+
+// Update — can only change non-readonly fields
+await client.db.Comment.updateUnique({
+  where: { id: comment.id },
+  data: { text: 'Updated text' },
+  // post: { connect: otherPostId }  // Type error — not available
+});
+```
+
+The relation is still readable and includable in queries. Only mutation operations are blocked.
+
+## On Object Fields
+
+### Whole Object
+
+Apply `@readonly` to the model field to lock the entire embedded object:
+
+```cerial
+object Config {
+  key String
+  value Int
+}
+
+model Service {
+  id Record @id
+  config Config @readonly
+  name String
+}
+```
+
+Neither the object nor any of its sub-fields can be updated after creation.
+
+### Individual Sub-Fields
+
+Apply `@readonly` inside the object definition to lock specific sub-fields while allowing others to be updated:
+
+```cerial
+object Address {
+  street String
+  city String @readonly
+  zip String?
+}
+
+model User {
+  id Record @id
+  address Address
+}
+```
+
+```typescript
+// Update — can change street and zip, but not city
+await client.db.User.updateUnique({
+  where: { id: user.id },
+  data: { address: { street: '456 New St' } },
+  // address: { city: 'NYC' }  // Type error — 'city' excluded
+});
+```
+
+## On Array Fields
+
+Array fields marked `@readonly` are locked after creation — no push, unset, or replacement:
+
+```cerial
+model Survey {
+  id Record @id
+  questions String[] @readonly
+  responses Int
+}
+```
+
+## Allowed On
+
+| Construct | Allowed |
+| --- | --- |
+| Model fields | ✅ |
+| Object fields | ✅ |
+| Tuple elements | ❌ |
+| Enum values | ❌ |
+| Literal fields | ✅ |
+
+## Disallowed Combinations
+
+| Combination | Allowed? | Reason |
+| --- | --- | --- |
+| `@readonly` + `@now` | No | SurrealDB does not support `READONLY` on `COMPUTED` fields |
+| `@readonly` + `@defaultAlways` | No | `@defaultAlways` resets the value on every write, which contradicts `@readonly` |
+| `@readonly` + `@id` | No | The `@id` field is already immutable in SurrealDB — `@readonly` is redundant |
+| `@readonly` on `Relation` | No | Relation fields are virtual (not stored). Use `@readonly` on the backing `Record` field instead |
+

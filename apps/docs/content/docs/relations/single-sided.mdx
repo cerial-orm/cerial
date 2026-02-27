@@ -1,0 +1,232 @@
+---
+title: Single-Sided Relations
+description: Forward-only relations where only the PK side is defined
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+A single-sided relation is one where only the PK side (forward relation) is defined. The target model has **no reverse relation** — it doesn't know about the referencing model. All CRUD operations work normally from the PK side, and you can still query the reverse direction manually using `where` clauses on the FK field.
+
+## Singular Single-Sided
+
+The most common pattern — one model references another, but the target has no awareness of the relationship:
+
+<Tabs>
+  <TabItem label="Schema">
+    ```cerial
+    model Article {
+      id Record @id
+      title String
+      authorId Record?
+      author Relation? @field(authorId) @model(Writer)
+    }
+
+    model Writer {
+      id Record @id
+      name String
+      # No articles Relation[] — intentionally single-sided
+    }
+    ```
+  </TabItem>
+  <TabItem label="Generated types">
+    ```typescript
+    interface Article {
+      id: CerialId<string>;
+      title: string;
+      authorId: CerialId<string> | undefined;
+    }
+
+    interface Writer {
+      id: CerialId<string>;
+      name: string;
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+`Article` has a forward relation to `Writer`, but `Writer` does not define a reverse `articles` relation. This is valid and intentional.
+
+## Array Single-Sided
+
+A model can also have a one-directional **array** relation — referencing multiple records in the target model without the target having any reverse:
+
+<Tabs>
+  <TabItem label="Schema">
+    ```cerial
+    model Blogger {
+      id Record @id
+      name String
+      labelIds Record[]
+      labels Relation[] @field(labelIds) @model(Label)
+    }
+
+    model Label {
+      id Record @id
+      name String @unique
+      # No bloggers Relation[] — Label doesn't know who uses it
+    }
+    ```
+  </TabItem>
+  <TabItem label="Generated types">
+    ```typescript
+    interface Blogger {
+      id: CerialId<string>;
+      name: string;
+      labelIds: CerialId<string>[];
+    }
+
+    interface Label {
+      id: CerialId<string>;
+      name: string;
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+This is useful for tagging, categorization, or any scenario where one model references a set of records from another model that doesn't need to know about the relationship.
+
+## Rules
+
+- For **singular** single-sided relations, the FK field must be optional (`Record?`) and the Relation must be optional (`Relation?`).
+- **Array** single-sided relations (`Record[]` + `Relation[]`) do **not** require optionality — arrays default to `[]` and cleanup is automatic when referenced records are deleted.
+- **Self-referential** single-sided relations also do not require optionality, since the user is expected to query the reverse direction manually.
+- The target model has no knowledge of the referencing model.
+- All CRUD operations work normally from the PK side.
+- You can query the reverse direction manually using `where` clauses on the FK field.
+
+:::note
+Array single-sided relations skip the optionality check because arrays naturally default to empty (`[]`), and deletions are handled by removing the ID from the array — no field clearing needed.
+:::
+
+## Usage
+
+### Creating
+
+```typescript
+// Create an article with an author
+const article = await client.db.Article.create({
+  data: {
+    title: 'Understanding Single-Sided Relations',
+    author: { connect: writerId },
+  },
+});
+
+// Create an article without an author (FK is optional)
+const draft = await client.db.Article.create({
+  data: { title: 'Draft Article' },
+});
+
+// Create a blogger with labels (array single-sided)
+const blogger = await client.db.Blogger.create({
+  data: {
+    name: 'Jane',
+    labels: { connect: [labelId1, labelId2] },
+  },
+});
+```
+
+### Querying from the PK Side
+
+```typescript
+// Include the forward relation
+const article = await client.db.Article.findOne({
+  where: { id: articleId },
+  include: { author: true },
+});
+// article: { ..., author: Writer | null }
+
+// Include array relation
+const blogger = await client.db.Blogger.findOne({
+  where: { id: bloggerId },
+  include: { labels: true },
+});
+// blogger: { ..., labels: Label[] }
+```
+
+### Querying the Reverse Direction Manually
+
+Since `Writer` has no `articles` relation, you query the `Article` table directly using the FK field:
+
+```typescript
+// Find all articles by a specific writer
+const articles = await client.db.Article.findMany({
+  where: { authorId: writerId },
+});
+
+// Find all bloggers using a specific label
+const bloggers = await client.db.Blogger.findMany({
+  where: { labelIds: { has: labelId } },
+});
+```
+
+### Updating
+
+```typescript
+// Change the author
+await client.db.Article.updateUnique({
+  where: { id: articleId },
+  data: { author: { connect: newWriterId } },
+});
+
+// Remove the author (sets authorId to NONE)
+await client.db.Article.updateUnique({
+  where: { id: articleId },
+  data: { author: { disconnect: true } },
+});
+
+// Add more labels to a blogger
+await client.db.Blogger.updateUnique({
+  where: { id: bloggerId },
+  data: { labels: { connect: [newLabelId] } },
+});
+
+// Replace all labels
+await client.db.Blogger.updateUnique({
+  where: { id: bloggerId },
+  data: { labels: { set: [labelId1, labelId2] } },
+});
+```
+
+## Delete Behavior
+
+Since a singular single-sided relation is optional (`Record?`), the default delete behavior is **SetNone** — when the referenced `Writer` is deleted, `Article.authorId` is cleared. Add `@nullable` to the FK field for **SetNull** behavior instead.
+
+For array single-sided relations (`Record[]`), the deleted record's ID is automatically removed from the array.
+
+You can override the default with `@onDelete`:
+
+```cerial
+model Article {
+  id Record @id
+  title String
+  authorId Record?
+  author Relation? @field(authorId) @model(Writer) @onDelete(Cascade)
+}
+```
+
+See [Delete Behavior](/cerial/relations/on-delete/) for all options.
+
+## When to Use Single-Sided Relations
+
+| Scenario | Why Single-Sided |
+| --- | --- |
+| Audit logs referencing a user | Users don't need a `logs` relation cluttering their model |
+| Articles referencing a category | Categories may be shared across many models, no need for reverse |
+| Bookmarks referencing a target | The target doesn't need to know about bookmarks |
+| Tagging with labels | Labels are reusable and don't need to track who uses them |
+| Temporary assignments | A task references an assignee, but the assignee model is shared across services |
+
+## Single-Sided vs Bidirectional
+
+| Aspect | Single-Sided | Bidirectional |
+| --- | --- | --- |
+| Schema fields | FK + forward relation on one model | FK + forward on one, reverse on the other |
+| Include from PK side | ✅ Supported | ✅ Supported |
+| Include from target | ❌ Not available | ✅ Supported via reverse relation |
+| Manual reverse query | `where: { fkField: id }` | Not needed — use `include` |
+| Model coupling | Low — target is independent | Higher — both models reference each other |
+| N:N bidirectional sync | N/A (no reverse to sync) | Automatic |
+
+:::tip
+Start with single-sided relations when prototyping. You can always add the reverse relation later when you need bidirectional navigation — adding a reverse `Relation` field to the target model doesn't change any existing data or queries.
+:::

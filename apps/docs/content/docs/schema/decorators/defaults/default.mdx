@@ -1,0 +1,170 @@
+---
+title: '@default'
+description: Set a default value for a field when no value is provided on create.
+sidebar:
+  label: '@default'
+  order: 7
+---
+
+Sets a default value for a field when no value is provided on create. The value is stored in the database and persists across updates — it only applies when the field is absent during record creation.
+
+## Syntax
+
+```cerial
+@default(value)
+```
+
+### Supported Value Types
+
+| Value | Example | Description |
+| --- | --- | --- |
+| String literal | `@default("pending")` | Default string value |
+| Integer literal | `@default(0)` | Default integer value |
+| Float literal | `@default(1.5)` | Default float value |
+| `true` / `false` | `@default(true)` | Default boolean value |
+| Enum value | `@default(Active)` | Default to an enum variant |
+| Duration literal | `@default(1h30m)` | Default duration value |
+| `null` | `@default(null)` | Default to null (requires `@nullable`) |
+
+## Basic Usage
+
+```cerial
+model Task {
+  id Record @id
+  status String @default("pending")
+  retryCount Int @default(0)
+  priority Float @default(1.5)
+  isActive Bool @default(true)
+  timeout Duration @default(30m)
+}
+```
+
+```typescript
+const task = await client.db.Task.create({
+  data: {},
+  // status: "pending", retryCount: 0, priority: 1.5,
+  // isActive: true, timeout: CerialDuration('30m')
+});
+
+// Override defaults by providing explicit values
+const urgent = await client.db.Task.create({
+  data: { status: 'urgent', priority: 10 },
+});
+```
+
+Fields with `@default` become **optional in `CreateInput`** — the database fills in the value when you omit them. They remain present in `UpdateInput`, `WhereInput`, and output types.
+
+## The `@default(null)` Pattern
+
+`@default(null)` changes how omitted values are handled for nullable fields. Instead of the field being absent (NONE), it defaults to `null`:
+
+:::caution
+`@default(null)` **requires** `@nullable` on the field. Without `@nullable`, the field cannot hold `null`, so a null default is invalid.
+:::
+
+**Without `@default(null)`:**
+
+```cerial
+model User {
+  id Record @id
+  bio String? @nullable       // optional and nullable, no default
+}
+```
+
+```typescript
+// Omitting bio → NONE (field absent, not stored)
+await client.db.User.create({ data: {} });
+```
+
+**With `@default(null)`:**
+
+```cerial
+model User {
+  id Record @id
+  bio String? @nullable @default(null)
+}
+```
+
+```typescript
+// Omitting bio → null (field stored as null)
+await client.db.User.create({ data: {} });
+// bio is stored as null, queryable with { bio: { isNull: true } }
+```
+
+This distinction matters because SurrealDB treats NONE (field absent) and null (field present with null value) differently. See [Optional Fields](/cerial/schema/optional-fields/) for details on NONE vs null semantics.
+
+## Object Fields
+
+`@default` can be applied to fields within object definitions. The default value is applied at the database level via `DEFINE FIELD ... DEFAULT`.
+
+```cerial
+object ContactInfo {
+  email Email
+  city String @default("Unknown")
+}
+
+model User {
+  id Record @id
+  contact ContactInfo
+}
+```
+
+When an object has `@default` fields, Cerial generates a `ContactInfoCreateInput` type where those fields are optional:
+
+```typescript
+// city defaults to "Unknown" when omitted
+const user = await client.db.User.create({
+  data: {
+    contact: { email: 'alice@example.com' },
+    // city will be "Unknown"
+  },
+});
+```
+
+## Tuple Elements
+
+`@default` can also be applied to individual tuple elements:
+
+```cerial
+tuple Config {
+  retries Int @default(3),
+  timeout Float @default(30.0)
+}
+
+model Service {
+  id Record @id
+  config Config
+}
+```
+
+When tuple elements have `@default`, they become optional in the create input — the database fills them in when absent.
+
+## Allowed On
+
+| Construct | Allowed |
+| --- | --- |
+| Model fields | ✅ |
+| Object fields | ✅ |
+| Tuple elements | ✅ |
+| Enum values | ❌ |
+| Literal fields | ❌ |
+
+## Mutual Exclusions
+
+`@default` cannot be combined with any of these decorators on the same field — each field gets one default/auto-generation strategy:
+
+- `@defaultAlways` — use one or the other
+- `@createdAt`, `@updatedAt`, `@now` — timestamp decorators each set their own default
+- `@uuid`, `@uuid4`, `@uuid7` — UUID auto-generation decorators set their own default
+
+## Summary
+
+| Schema | Omitted on create | Explicit value |
+| --- | --- | --- |
+| `status String @default("pending")` | `"pending"` | Uses provided value |
+| `count Int @default(0)` | `0` | Uses provided value |
+| `rate Float @default(1.5)` | `1.5` | Uses provided value |
+| `active Bool @default(true)` | `true` | Uses provided value |
+| `bio String?` | NONE (absent) | Uses provided value |
+| `bio String? @nullable @default(null)` | `null` | Uses provided value |
+

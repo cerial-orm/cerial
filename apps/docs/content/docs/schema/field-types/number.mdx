@@ -1,0 +1,186 @@
+---
+title: Number
+description: Number field type in Cerial — auto-detect numeric type that accepts both integers and decimals, with comparison to Int and Float.
+sidebar:
+  label: Number
+  order: 3
+---
+
+The `Number` field type represents a numeric value that can be either an integer or a decimal. SurrealDB's `number` type auto-detects the internal representation based on the value provided — `42` stays as an integer, `42.5` becomes a float.
+
+## Schema Syntax
+
+```cerial
+model Product {
+  id Record @id
+  price Number
+  rating Number?
+  score Number @default(0)
+}
+```
+
+## Types
+
+| Direction | Type |
+| --- | --- |
+| Output | `number` |
+| Input | `number` |
+| SurrealDB | `number` |
+
+All three numeric types — `Int`, `Float`, and `Number` — map to TypeScript `number`. The difference is at the SurrealDB storage level.
+
+## Int vs Float vs Number
+
+| Type | SurrealDB | Decimals | Use case |
+| --- | --- | --- | --- |
+| `Int` | `int` | No (truncates) | Whole numbers — counts, ages, quantities |
+| `Float` | `float` | Yes (always IEEE 754) | Explicit decimal precision — measurements, coordinates |
+| `Number` | `number` | Yes (auto-detect) | Flexible input — accept both integers and decimals |
+
+:::caution
+`Number` is **not** an alias for `Float`. They are distinct SurrealDB types:
+- `Float` → `float` (always IEEE 754 double-precision)
+- `Number` → `number` (auto-detect — stores `42` as int, `42.5` as float)
+
+Both map to TypeScript `number`, but SurrealDB treats them differently at the storage and type-checking level.
+:::
+
+### When to Use Each
+
+- **Number** — Flexible input where both `42` and `42.5` should be accepted. Good for user-provided values and fields with mixed numeric data.
+- **Int** — Whole numbers only. Counts, IDs, quantities. SurrealDB truncates decimal portions.
+- **Float** — Explicit decimal precision. Scientific data, coordinates, measurements where you want consistent IEEE 754 storage.
+
+For **financial calculations**, use `Decimal` instead — it provides arbitrary precision without floating-point rounding errors.
+
+## Create & Update
+
+```typescript
+const product = await client.db.Product.create({
+  data: {
+    name: 'Widget',
+    price: 19.99,        // stored as float internally
+    rating: 4,           // stored as int internally
+  },
+});
+
+console.log(product.price);  // 19.99
+console.log(product.rating); // 4
+
+// Update
+await client.db.Product.updateUnique({
+  where: { id: product.id },
+  data: { price: 24.99 },
+});
+```
+
+## Filtering
+
+Number fields support all numeric comparison operators:
+
+```typescript
+// Comparison
+const expensive = await client.db.Product.findMany({
+  where: { price: { gte: 50 } },
+});
+
+// Range
+const midRange = await client.db.Product.findMany({
+  where: { price: { between: [10, 100] } },
+});
+
+// Set
+const specific = await client.db.Product.findMany({
+  where: { price: { in: [9.99, 19.99, 29.99] } },
+});
+```
+
+### Available Operators
+
+| Operator | Description |
+| --- | --- |
+| `eq` | Equal to |
+| `neq` | Not equal to |
+| `gt` | Greater than |
+| `gte` | Greater than or equal |
+| `lt` | Less than |
+| `lte` | Less than or equal |
+| `between` | Within a range (inclusive) |
+| `in` | In a set of values |
+| `notIn` | Not in a set of values |
+
+### Conditional Operators
+
+| Operator | Available when | Description |
+| --- | --- | --- |
+| `not` | `?` or `@nullable` | Negated comparison |
+| `isNone` | `?` (optional) | `true` = field is absent |
+| `isNull` | `@nullable` | `true` = field is `null` |
+| `isDefined` | Always | `true` = field exists |
+
+## OrderBy
+
+Number fields **support** `orderBy`:
+
+```typescript
+const sorted = await client.db.Product.findMany({
+  orderBy: { price: 'desc' },
+});
+```
+
+## In Objects and Tuples
+
+```cerial
+object Stats {
+  min Number
+  max Number
+  average Number
+}
+
+tuple Coordinate {
+  x Number,
+  y Number,
+  z Number?
+}
+
+model Measurement {
+  id Record @id
+  stats Stats
+  position Coordinate
+}
+```
+
+```typescript
+const m = await client.db.Measurement.create({
+  data: {
+    stats: { min: 10.5, max: 99.9, average: 55.2 },
+    position: [1.5, 2.5, 3.5],
+  },
+});
+
+m.stats.average;     // 55.2
+m.position[0];       // 1.5
+```
+
+## Arrays
+
+```cerial
+model Scores {
+  id Record @id
+  values Number[]
+  uniqueValues Number[] @set
+}
+```
+
+Number arrays support `@set` for auto-deduplicated, sorted arrays. They also support `@distinct` and `@sort` decorators.
+
+## Supported Decorators
+
+| Decorator | Effect |
+| --- | --- |
+| `@default(value)` | Default value on create |
+| `@defaultAlways(value)` | Reset to value on every write |
+| `@nullable` | Allow explicit `null` |
+| `@readonly` | Write-once field |
+| `@index` | Database index |
+| `@unique` | Unique constraint |

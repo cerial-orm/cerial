@@ -1,0 +1,15 @@
+{
+  "title": "Decorators",
+  "pages": [
+    "...decorators",
+    "id",
+    "datetime",
+    "defaults",
+    "relations",
+    "indexes",
+    "control",
+    "arrays",
+    "composites",
+    "uuid"
+  ]
+}

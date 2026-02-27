@@ -1,0 +1,19 @@
+{
+  "title": "Docs",
+  "pages": [
+    "getting-started",
+    "---Schema---",
+    "schema",
+    "---Relations---",
+    "relations",
+    "---Queries---",
+    "queries",
+    "filtering",
+    "select-and-include",
+    "objects",
+    "---More---",
+    "types",
+    "cli",
+    "extension"
+  ]
+}

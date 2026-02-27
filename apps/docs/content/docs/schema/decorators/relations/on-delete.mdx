@@ -1,0 +1,202 @@
+---
+title: '@onDelete'
+description: Control what happens to a record when the related record it points to is deleted.
+sidebar:
+  label: '@onDelete'
+  order: 15
+---
+
+Controls what happens to a record when the related record it points to is deleted. Only allowed on **optional forward relations** (`Relation?` with `@field`).
+
+## Syntax
+
+```cerial
+@onDelete(Action)
+```
+
+## Actions
+
+| Action | Behavior |
+| --- | --- |
+| `Cascade` | Delete this record when the related record is deleted |
+| `SetNull` | Set the FK to null when the related record is deleted |
+| `SetNone` | Remove the FK field entirely (NONE) when the related record is deleted |
+| `Restrict` | Prevent deletion of the related record if this record still references it |
+| `NoAction` | Do nothing (leaves a dangling reference) |
+
+## Forward Relations Only
+
+:::caution
+`@onDelete` is only allowed on **forward** relations — relations that have a `@field()` decorator pointing to a backing `Record` field. Reverse relations (those with only `@model()` and no `@field()`) cannot use `@onDelete` because they don't own the foreign key.
+:::
+
+```cerial
+model Comment {
+  id Record @id
+  postId Record?
+  post Relation? @field(postId) @model(Post) @onDelete(Cascade)  // ✅ Forward
+}
+
+model Post {
+  id Record @id
+  comments Relation[] @model(Comment)  // ❌ Cannot use @onDelete — reverse
+}
+```
+
+## Relation Type Rules
+
+The allowed delete behavior depends on the relation type:
+
+| Relation type | Default behavior | `@onDelete` allowed? |
+| --- | --- | --- |
+| `Relation` (required) | Auto-cascade | No |
+| `Relation?` (optional, FK without `@nullable`) | SetNone | Yes |
+| `Relation?` (optional, FK with `@nullable`) | SetNull | Yes |
+| `Relation[]` (array) | Auto-cleanup (removes ID from array) | No |
+
+**Required relations** always cascade — if a user is deleted, all posts with a required `author Relation` pointing to that user are also deleted. This cannot be changed because the FK field is required and can't be null or absent.
+
+**Optional relations** default to `SetNone` (removes the FK field) unless the FK Record field has `@nullable`, in which case the default is `SetNull` (sets FK to null). You can override this with any `@onDelete` action.
+
+**Array relations** automatically remove the deleted record's ID from the array. No configuration is needed.
+
+### Default Depends on @nullable
+
+The default `@onDelete` strategy is determined by whether the backing `Record` field has `@nullable`:
+
+| FK field | Default @onDelete | What happens |
+| --- | --- | --- |
+| `Record?` (no `@nullable`) | `SetNone` | FK removed — field becomes absent |
+| `Record? @nullable` | `SetNull` | FK set to `null` — field stays present |
+
+### SetNull vs SetNone
+
+`SetNull` requires the FK Record field to have `@nullable` — it sets the FK to `null` (the field still exists). `SetNone` removes the FK field entirely (the field is absent/NONE).
+
+If you specify `@onDelete(SetNull)` on a non-`@nullable` field, Cerial reports a validation error.
+
+## Examples
+
+### Cascade
+
+Delete the profile when the user is deleted:
+
+```cerial
+model Profile {
+  id Record @id
+  bio String
+  userId Record?
+  user Relation? @field(userId) @model(User) @onDelete(Cascade)
+}
+```
+
+```typescript
+// Deleting the user also deletes the profile
+await client.db.User.deleteUnique({ where: { id: userId } });
+// Profile with userId pointing to this user is automatically deleted
+```
+
+### SetNull
+
+Set the FK to null when the related record is deleted:
+
+```cerial
+model Comment {
+  id Record @id
+  content String
+  postId Record? @nullable
+  post Relation? @field(postId) @model(Post) @onDelete(SetNull)
+}
+```
+
+```typescript
+// Deleting the post sets comment.postId to null
+await client.db.Post.deleteUnique({ where: { id: postId } });
+// Comments that referenced this post now have postId = null
+```
+
+:::note
+`SetNull` requires `@nullable` on the FK `Record` field. Without it, the field cannot hold `null` and the validator will report an error.
+:::
+
+### SetNone
+
+Remove the FK field entirely when the related record is deleted:
+
+```cerial
+model Comment {
+  id Record @id
+  content String
+  postId Record?
+  post Relation? @field(postId) @model(Post) @onDelete(SetNone)
+}
+```
+
+```typescript
+// Deleting the post removes postId from comment records
+await client.db.Post.deleteUnique({ where: { id: postId } });
+// Comments that referenced this post now have postId = undefined (NONE)
+```
+
+### Restrict
+
+Prevent deletion if any records still reference it:
+
+```cerial
+model Order {
+  id Record @id
+  total Float
+  customerId Record?
+  customer Relation? @field(customerId) @model(Customer) @onDelete(Restrict)
+}
+```
+
+```typescript
+// This will throw an error if any orders reference this customer
+await client.db.Customer.deleteUnique({ where: { id: customerId } });
+// Error: cannot delete — referenced by Order records
+```
+
+### NoAction
+
+Do nothing — the FK is left as-is, potentially creating a dangling reference:
+
+```cerial
+model Log {
+  id Record @id
+  message String
+  userId Record?
+  user Relation? @field(userId) @model(User) @onDelete(NoAction)
+}
+```
+
+```typescript
+// Deleting the user leaves log.userId pointing to a non-existent record
+await client.db.User.deleteUnique({ where: { id: userId } });
+// Log records still have userId set to the deleted user's ID
+```
+
+:::caution
+`NoAction` can leave dangling references. Use it only when you intentionally want to preserve historical FK values for audit trails or similar purposes.
+:::
+
+## Allowed On
+
+| Construct | Allowed |
+| --- | --- |
+| Forward `Relation?` fields (with `@field`) | ✅ |
+| Required `Relation` fields | ❌ (auto-cascade) |
+| `Relation[]` fields | ❌ (auto-cleanup) |
+| Reverse `Relation` fields (without `@field`) | ❌ |
+| Object fields | ❌ |
+| Record fields | ❌ |
+
+## Behavior Summary
+
+| Action | FK becomes | Record survives? | Requirements |
+| --- | --- | --- | --- |
+| `Cascade` | N/A (record deleted) | No | None |
+| `SetNull` | `null` | Yes | `@nullable` on FK Record |
+| `SetNone` | Absent (NONE) | Yes | `?` on FK Record |
+| `Restrict` | Unchanged | Blocks delete | None |
+| `NoAction` | Unchanged (dangling) | Yes | None |

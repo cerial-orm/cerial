@@ -1,0 +1,15 @@
+{
+  "title": "Relations",
+  "pages": [
+    "...relations",
+    "one-to-one",
+    "one-to-many",
+    "many-to-many",
+    "self-referential",
+    "single-sided",
+    "multi-relation",
+    "nested-create",
+    "connect-disconnect",
+    "on-delete"
+  ]
+}
