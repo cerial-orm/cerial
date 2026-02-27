@@ -1,0 +1,278 @@
+---
+title: Object Filtering
+description: Filter on embedded object sub-fields and use quantifier operators (some, every, none) for object array filtering.
+---
+
+Cerial supports filtering by embedded object fields. Unlike relations, objects are stored inline within a model record. You can filter on their sub-fields directly and, for array object fields, use quantifier operators to match based on element conditions.
+
+## Basic Object Field Filtering
+
+Filter on an embedded object's fields by nesting conditions under the object field name:
+
+```typescript
+// Schema:
+// object Address {
+//   street String
+//   city String
+//   state String
+//   zipCode String?
+// }
+//
+// model User {
+//   id Record @id
+//   name String
+//   address Address
+//   shipping Address?
+// }
+
+// Find users in New York City
+const users = await client.db.User.findMany({
+  where: { address: { city: 'NYC' } },
+});
+```
+
+## Multiple Nested Conditions
+
+You can apply multiple conditions on an embedded object's fields. All conditions within a nested object filter are ANDed together:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: {
+    address: {
+      city: { contains: 'York' },
+      state: { neq: 'TX' },
+    },
+  },
+});
+```
+
+## Filtering Across Multiple Object Fields
+
+You can filter on multiple object fields in the same query:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: {
+    address: { state: { in: ['NY', 'CA'] } },
+    shipping: { zipCode: { startsWith: '100' } },
+  },
+});
+```
+
+## All Operators Work on Object Fields
+
+Every filter operator available on top-level fields works on nested object fields — [comparison](/filtering/comparison), [string](/filtering/string-operators), [array](/filtering/array-operators), [logical](/filtering/logical-operators), and [special](/filtering/special-operators) operators:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: {
+    address: {
+      // String operator
+      city: { contains: 'York' },
+      // Comparison operator
+      state: { neq: 'TX' },
+      // Special operator
+      zipCode: { isNone: false },
+    },
+  },
+});
+```
+
+```typescript
+// Logical operators inside object filters
+const users = await client.db.User.findMany({
+  where: {
+    address: {
+      OR: [{ state: 'NY' }, { state: 'CA' }],
+    },
+  },
+});
+```
+
+## Array of Objects — Quantifier Filtering
+
+For array object fields (e.g., `locations GeoPoint[]`), you use quantifier operators to specify how many elements must match the condition. Three quantifiers are available: `some`, `every`, and `none`.
+
+```typescript
+// Schema:
+// object GeoPoint {
+//   lat Float
+//   lng Float
+//   label String?
+// }
+//
+// model User {
+//   id Record @id
+//   name String
+//   locations GeoPoint[]
+// }
+```
+
+### some
+
+Matches records where **at least one** element in the array matches all specified conditions:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: {
+    locations: { some: { lat: { gt: 40 } } },
+  },
+});
+```
+
+```typescript
+// At least one location in the northern hemisphere with a label
+const users = await client.db.User.findMany({
+  where: {
+    locations: {
+      some: {
+        lat: { gt: 0 },
+        label: { isNone: false },
+      },
+    },
+  },
+});
+```
+
+### every
+
+Matches records where **all** elements in the array match all specified conditions:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: {
+    locations: { every: { lat: { gte: 0 } } },
+  },
+});
+// All locations must be in the northern hemisphere
+```
+
+```typescript
+// All locations must be within a bounding box
+const users = await client.db.User.findMany({
+  where: {
+    locations: {
+      every: {
+        lat: { between: [40, 50] },
+        lng: { between: [-80, -70] },
+      },
+    },
+  },
+});
+```
+
+### none
+
+Matches records where **no** elements in the array match the specified conditions:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: {
+    locations: { none: { lat: { lt: -90 } } },
+  },
+});
+// No locations have an invalid latitude
+```
+
+```typescript
+// No locations are in the southern hemisphere
+const users = await client.db.User.findMany({
+  where: {
+    locations: { none: { lat: { lt: 0 } } },
+  },
+});
+```
+
+:::caution
+The `none` quantifier uses `!(arr.any(...))` syntax internally for SurrealDB 3.x compatibility. This is handled automatically — you just use `none` in your filter object.
+:::
+
+## Complex Quantifier Conditions
+
+Quantifiers can use any combination of filter operators on the object's fields:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: {
+    locations: {
+      some: {
+        lat: { between: [40, 50] },
+        lng: { lt: -70 },
+        label: { contains: 'office' },
+      },
+    },
+  },
+});
+```
+
+## Combining Object Filters with Other Filters
+
+Object filters combine seamlessly with top-level field filters, relation filters, and logical operators:
+
+```typescript
+const users = await client.db.User.findMany({
+  where: {
+    // Direct field filter
+    isActive: true,
+    // Object field filter
+    address: { state: 'NY' },
+    // Array object quantifier
+    locations: { some: { lat: { gt: 40 } } },
+    // Logical operator
+    OR: [
+      { name: { startsWith: 'A' } },
+      { name: { startsWith: 'B' } },
+    ],
+  },
+});
+```
+
+```typescript
+// Combine object filtering with nested relation filtering
+const users = await client.db.User.findMany({
+  where: {
+    address: { city: 'NYC' },
+    posts: { status: 'published' },
+  },
+});
+```
+
+## Optional Object Fields
+
+Optional embedded objects (`Address?`) can be filtered the same way. If the object field is absent (NONE) on a record, it will not match any sub-field conditions:
+
+```typescript
+// Only matches users who have a shipping address with state 'CA'
+// Users without a shipping address are excluded
+const users = await client.db.User.findMany({
+  where: {
+    shipping: { state: 'CA' },
+  },
+});
+```
+
+## Flexible Objects
+
+Objects decorated with `@flexible` accept arbitrary additional fields beyond those defined in the schema. The Where type for flexible object fields includes `& { [key: string]: any }`, allowing you to filter on extra keys:
+
+```typescript
+// Schema:
+// model Config {
+//   id Record @id
+//   metadata Metadata @flexible
+// }
+
+// Filter on a known field
+const configs = await client.db.Config.findMany({
+  where: {
+    metadata: { version: '2.0' },
+  },
+});
+
+// Filter on an extra field not defined in the schema
+const configs = await client.db.Config.findMany({
+  where: {
+    metadata: { customFlag: true },
+  },
+});
+```
