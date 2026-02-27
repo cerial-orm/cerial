@@ -1,0 +1,217 @@
+---
+title: Record
+description: Record field type in Cerial — foreign key references with CerialId wrapper, typed IDs, and automatic FK type inference.
+---
+
+A record reference stored as SurrealDB's native `record<tablename>` type, representing a link from one model to another in `table:id` format. Records are the foundation of relationships between models: every model has at least one (`id Record @id`), and foreign key fields use plain `Record` to point at related records.
+
+## Schema Syntax
+
+```cerial
+model User {
+  id Record @id                    # primary key (every model needs this)
+  profilePic Record(int)           # standalone typed record (no relation)
+}
+
+model Post {
+  id Record(int) @id               # typed ID — accepts/returns number
+  authorId Record                  # foreign key (paired with Relation)
+  author Relation @field(authorId) @model(User)
+  tagIds Record[]                  # array of record references
+}
+
+model Session {
+  id Record(string, int) @id       # union typed ID
+}
+
+model Token {
+  id Record(uuid) @id              # UUID typed ID — optional on create
+}
+```
+
+## Types
+
+| Direction | Type |
+| --- | --- |
+| Output | `CerialId<T>` where T reflects the typed ID (`string` by default, `number` for int/float/number, `CerialUuid` for uuid) |
+| Input | `RecordIdInput<T>` — `T \| CerialId<T> \| RecordId \| StringRecordId` |
+| SurrealDB | `record<tablename>` |
+
+## CerialId API
+
+```typescript
+import { CerialId } from 'cerial';
+
+// Properties
+id.id;           // T — the raw ID value (number for int, string for string, etc.)
+id.table;        // string — the table name
+
+// Methods
+id.toString();   // 'table:id' — properly escaped
+id.toJSON();     // same as toString()
+id.equals(other); // deep comparison, accepts unknown
+
+// Static
+CerialId.fromRecordId(recordId); // from SDK RecordId, preserves typed values
+```
+
+The generic parameter `T` matches whatever your model's `@id` type resolves to. A model with `Record(int) @id` produces `CerialId<number>`, while plain `Record @id` produces `CerialId<string>`.
+
+## FK Type Inference
+
+When a model declares a typed ID, Cerial automatically infers the corresponding type on any foreign key Record field that points to it. You don't need to (and shouldn't) repeat the type on the FK side.
+
+```cerial
+model User {
+  id Record(int) @id         # typed as number
+  posts Relation[] @model(Post)
+}
+
+model Post {
+  id Record @id
+  authorId Record            # plain Record — type inferred from User
+  author Relation @field(authorId) @model(User)
+}
+```
+
+In the generated client, `Post.authorId` is typed as `CerialId<number>` in output and `RecordIdInput<number>` in input, matching User's `Record(int) @id`.
+
+:::caution
+Never add `Record(Type)` on a foreign key field. The type is always inferred from the target model's `@id` declaration. Writing `authorId Record(int)` on a FK field is an error.
+:::
+
+## Standalone Record Typing
+
+Sometimes you need a record reference that isn't paired with a Relation, but you still want explicit type control. Use `Record(Type)` without a Relation field:
+
+```cerial
+model Attachment {
+  id Record @id
+  legacyRef Record(int)      # non-FK record, explicitly typed
+}
+```
+
+This produces `CerialId<number>` for output and `number | RecordIdInput<number>` for input.
+
+## Create & Update
+
+```typescript
+// Create a post with a Record FK
+const post = await client.db.Post.create({
+  data: {
+    authorId: userId,        // CerialId, raw value, RecordId, or StringRecordId
+  },
+});
+
+// The output is always CerialId
+post.authorId;               // CerialId<number>
+post.authorId.id;            // number — the raw value
+post.authorId.table;         // 'user'
+post.authorId.toString();    // 'user:42'
+
+// Comparing IDs
+post.authorId.equals(userId); // true — deep comparison
+
+// Update
+await client.db.Post.updateUnique({
+  where: { id: post.id },
+  data: { authorId: otherUserId },
+});
+
+// Array of records — push
+await client.db.Post.updateUnique({
+  where: { id: post.id },
+  data: { tagIds: { push: newTagId } },
+});
+```
+
+## Typed ID Create Optionality
+
+Whether `id` is required or optional in `CreateInput` depends on the typed ID:
+
+| ID Type | Required on Create? | Reason |
+| --- | --- | --- |
+| `Record @id` (plain) | Optional | SurrealDB auto-generates a string ID |
+| `Record(string) @id` | Optional | SurrealDB auto-generates |
+| `Record(uuid) @id` | Optional | SurrealDB auto-generates |
+| `Record(int) @id` | **Required** | No auto-generation for integers |
+| `Record(float) @id` | **Required** | No auto-generation for floats |
+| `Record(number) @id` | **Required** | No auto-generation for numbers |
+| `Record(string, int) @id` | Optional | Union contains `string` |
+| `Record(int, float) @id` | **Required** | No auto-generatable type in union |
+
+:::tip
+The rule: if `string` or `uuid` appears anywhere in the union, the ID is optional. Otherwise it's required.
+:::
+
+## Filtering
+
+Record fields support equality, set, and conditional operators:
+
+```typescript
+// Direct equality
+const posts = await client.db.Post.findMany({
+  where: { authorId: userId },
+});
+
+// Set operators
+const posts2 = await client.db.Post.findMany({
+  where: { authorId: { in: [userId1, userId2] } },
+});
+
+// Not equal
+const posts3 = await client.db.Post.findMany({
+  where: { authorId: { neq: excludedId } },
+});
+```
+
+### Available Operators
+
+| Operator | Description |
+| --- | --- |
+| `eq` | Equal to |
+| `neq` | Not equal to |
+| `in` | In a set of values |
+| `notIn` | Not in a set of values |
+
+### Conditional Operators
+
+These operators are only available when the field has the corresponding modifier:
+
+| Operator | Available when | Description |
+| --- | --- | --- |
+| `not` | `?` or `@nullable` | Negated comparison — matches records where the field is NOT the given value |
+| `isNone` | `?` (optional) | `true` = field is absent, `false` = field is present |
+| `isNull` | `@nullable` | `true` = field is `null`, `false` = field is not `null` |
+| `isDefined` | Always | `true` = field exists (not NONE), `false` = field is absent |
+
+```typescript
+// Optional Record field
+const unlinked = await client.db.Post.findMany({
+  where: { authorId: { isNone: true } },
+});
+```
+
+## OrderBy
+
+Record fields are **not supported** in `orderBy`. They're excluded from the generated `OrderBy` types.
+
+## Gotchas
+
+:::caution
+`id Record @id` fields skip the "Record needs a paired Relation" validation. Every other Record field either needs a Relation partner or is explicitly typed with `Record(Type)`.
+:::
+
+:::caution
+Record fields don't support comparison operators like `gt` or `lt`. Only equality and set operators work.
+:::
+
+## Supported Decorators
+
+| Decorator | Effect |
+| --- | --- |
+| `@id` | Marks as primary key |
+| `@nullable` | Allow explicit `null` |
+| `@readonly` | Write-once field |
+| `@unique` | Unique constraint |
+| `@index` | Database index |

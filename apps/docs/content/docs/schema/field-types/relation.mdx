@@ -1,0 +1,194 @@
+---
+title: Relation
+description: Relation field type in Cerial — virtual traversal fields linking models with forward and reverse patterns.
+---
+
+A virtual field that describes how to traverse between models. Relations are never stored in the database. They exist purely in your schema to tell the code generator how models connect, and they only materialize at query time when you use `include`.
+
+## Schema Syntax
+
+```cerial
+model User {
+  id Record @id
+  posts Relation[] @model(Post)                       # reverse (non-PK side)
+  profile Relation @model(Profile)                     # reverse 1:1
+}
+
+model Post {
+  id Record @id
+  authorId Record                                      # the actual FK (stored)
+  author Relation @field(authorId) @model(User)        # forward (PK side)
+}
+
+model Profile {
+  id Record @id
+  userId Record @unique
+  user Relation @field(userId) @model(User)            # forward 1:1
+}
+```
+
+## Types
+
+| Direction | Type |
+| --- | --- |
+| Output | N/A — virtual, not in the base model type |
+| Input | N/A — not in `CreateInput` or `UpdateInput` |
+| SurrealDB | Virtual (no storage) |
+
+Relation fields don't appear on model types at all. They only show up in query results when you explicitly `include` them.
+
+## Forward vs Reverse
+
+Every relationship has two sides. Understanding which is which determines your schema structure.
+
+### Forward (PK Side)
+
+The forward side *owns* the foreign key. It always has both `@field()` (pointing to the Record FK field) and `@model()` (naming the target model). Forward relations are always singular `Relation`, never arrays.
+
+```cerial
+model Post {
+  id Record @id
+  authorId Record                                  # FK stored here
+  author Relation @field(authorId) @model(User)    # forward — owns the FK
+}
+```
+
+### Reverse (Non-PK Side)
+
+The reverse side queries the related table. It has only `@model()`, no `@field()`. Reverse relations can be singular (`Relation`) for 1:1 or array (`Relation[]`) for 1:N.
+
+```cerial
+model User {
+  id Record @id
+  posts Relation[] @model(Post)     # reverse — Post stores the FK
+  profile Relation @model(Profile)  # reverse 1:1
+}
+```
+
+:::tip
+Quick rule of thumb: if it has `@field()`, it's the forward side. If it only has `@model()`, it's the reverse side.
+:::
+
+## Include
+
+Relations only appear in query results through `include`:
+
+```typescript
+// Without include — no relation fields on the result
+const user = await client.db.User.findOne({
+  where: { id: userId },
+});
+// user: { id: CerialId; ... } — no posts property
+
+// With include — relation fields are added
+const userWithPosts = await client.db.User.findOne({
+  where: { id: userId },
+  include: { posts: true },
+});
+// userWithPosts: { id: CerialId; ...; posts: Post[] }
+```
+
+You can nest options inside `include` to control the related records:
+
+```typescript
+const userWithRecentPosts = await client.db.User.findOne({
+  where: { id: userId },
+  include: {
+    posts: {
+      where: { published: true },
+      orderBy: { createdAt: 'desc' },
+      limit: 5,
+    },
+  },
+});
+```
+
+## Nested Operations
+
+Forward relations support nested `create`, `connect`, and `disconnect` inside create and update calls:
+
+```typescript
+// Nested create — creates a User and a Post in one transaction
+const user = await client.db.User.create({
+  data: {
+    name: 'Alice',
+    posts: {
+      create: [{ title: 'First Post' }],
+    },
+  },
+});
+
+// Connect — link an existing record
+await client.db.Post.updateUnique({
+  where: { id: postId },
+  data: {
+    author: { connect: userId },
+  },
+});
+
+// Disconnect — unlink (requires optional Relation?)
+await client.db.Post.updateUnique({
+  where: { id: postId },
+  data: {
+    author: { disconnect: true },
+  },
+});
+```
+
+For full details on nested operations, relation patterns, and cascade behavior, see [Relations](/relations).
+
+## Relation Patterns
+
+Cerial supports 1:1, 1:N, and N:N relationship patterns. The schema syntax section above shows the basic 1:1 and 1:N shapes. For N:N, both sides need `Record[]` + `Relation[]`:
+
+```cerial
+model Student {
+  id Record @id
+  courseIds Record[]
+  courses Relation[] @field(courseIds) @model(Course)
+}
+
+model Course {
+  id Record @id
+  studentIds Record[]
+  students Relation[] @field(studentIds) @model(Student)
+}
+```
+
+:::caution
+N:N relations require BOTH sides to define `Record[]` + `Relation[]` for bidirectional sync to work.
+:::
+
+## Filtering & OrderBy
+
+Relation fields are **excluded** from `Where` types and `OrderBy` types. You can't filter or sort by a relation field directly. SurrealDB 3.x doesn't resolve record-link dot notation in `ORDER BY`.
+
+To filter by related data, use nested where inside `include` or restructure your query to filter on the FK Record field instead.
+
+## Key Rules
+
+:::caution
+A forward Relation **must** have both `@field()` and `@model()`. A reverse Relation **must** have only `@model()`. Mixing these up causes generation errors.
+:::
+
+:::caution
+`@onDelete` is only valid on optional `Relation?` fields. Required relations cascade automatically when the parent record is deleted.
+:::
+
+:::caution
+Relation is virtual. It generates no `DEFINE FIELD` in migrations and takes up no storage. The actual data lives in the paired Record field.
+:::
+
+## Supported Decorators
+
+| Decorator | Effect |
+| --- | --- |
+| `@field(fieldName)` | Names the Record FK field (forward side only) |
+| `@model(ModelName)` | Names the target model (both sides) |
+| `@key(fieldName)` | Custom join key on the target model |
+| `@onDelete(action)` | Cascade behavior on delete (optional relations only) |
+| `@nullable` | Allow explicit `null` (for optional disconnect semantics) |
+
+## Further Reading
+
+For complete relation patterns, nested create/connect/disconnect operations, N:N bidirectional sync, self-referential relations, and `@onDelete` cascade behavior, see the [Relations](/relations) section.

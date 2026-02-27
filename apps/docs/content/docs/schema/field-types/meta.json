@@ -2,6 +2,8 @@
   "title": "Field Types",
   "pages": [
     "...field-types",
+    "record",
+    "relation",
     "uuid",
     "number",
     "duration",
