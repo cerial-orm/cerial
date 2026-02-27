@@ -1,3 +1,9 @@
 @import 'tailwindcss';
 @import 'fumadocs-ui/css/neutral.css';
 @import 'fumadocs-ui/css/preset.css';
+
+
+/* Fix callout icon vertical alignment */
+.callout > svg {
+  align-self: center;
+}
