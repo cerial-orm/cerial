@@ -1,0 +1,230 @@
+---
+title: Defining Objects
+description: Schema syntax for defining embedded object types in Cerial — basic fields, nesting, self-references, and supported decorators.
+---
+
+Object types are defined in `.cerial` schema files using the `object {}` keyword. They describe inline data structures that are embedded directly within models — no separate table is created.
+
+## Basic Syntax
+
+```cerial
+object Address {
+  street String
+  city String
+  state String
+  zipCode String?
+}
+```
+
+Each field follows the same `name Type` syntax as model fields. Fields can be:
+
+- **Required primitives** — `street String`
+- **Optional primitives** — `zipCode String?` (the `?` suffix makes the field optional)
+- **Arrays** — `tags String[]` (array of primitives or objects)
+- **Other object types** — `location GeoPoint` (references another object)
+
+## Nested Objects
+
+Objects can reference other object types, allowing arbitrarily deep nesting:
+
+```cerial
+object Address {
+  street String
+  city String
+  state String
+  zipCode String?
+}
+
+object GeoPoint {
+  lat Float
+  lng Float
+  label Address?
+}
+```
+
+Here `GeoPoint` has an optional `label` field that holds a full `Address` object. When a `GeoPoint` is stored, the `label` is embedded inline within it.
+
+## Self-Referencing Objects
+
+Objects can reference themselves, enabling recursive or tree structures:
+
+```cerial
+object TreeNode {
+  value Int
+  children TreeNode[]
+}
+```
+
+This defines a tree node where each node holds an array of child nodes of the same type.
+
+```typescript
+const user = await client.db.User.create({
+  data: {
+    tree: {
+      value: 1,
+      children: [
+        { value: 2, children: [] },
+        { value: 3, children: [
+          { value: 4, children: [] },
+        ]},
+      ],
+    },
+  },
+});
+```
+
+## Decorators on Object Fields
+
+Object fields support a subset of decorators. Relation and identity decorators (`@id`, `@field`, `@model`, `@onDelete`, `@key`) are not allowed.
+
+### `@default` on Sub-Fields
+
+Use `@default` to provide a value when a field is omitted on create:
+
+```cerial
+object ContactInfo {
+  email Email
+  phone String?
+  city String @default("Unknown")
+}
+```
+
+When creating a record, omitting `city` will store `"Unknown"` in the database.
+
+### `@createdAt` and `@updatedAt` on Sub-Fields
+
+Timestamp decorators work on object fields the same way they do on models:
+
+```cerial
+object AuditInfo {
+  createdAt Date @createdAt
+  updatedAt Date @updatedAt
+}
+```
+
+`@createdAt` sets the field to the current timestamp when the parent record is created. `@updatedAt` sets it on every create and update.
+
+:::tip
+When an object has `@default`, `@defaultAlways`, `@createdAt`, or `@updatedAt` fields, Cerial generates an `ObjectNameCreateInput` type where those fields become optional — the database fills them automatically if omitted.
+:::
+
+### `@readonly` on Sub-Fields
+
+`@readonly` makes a sub-field write-once — it can be set on create but is excluded from update types:
+
+```cerial
+object License {
+  key String @readonly
+  issuedAt Date @createdAt
+  lastChecked Date @updatedAt
+}
+```
+
+The `key` field can be provided when the object is first created but cannot be changed afterward.
+
+### `@flexible` on Object Fields
+
+The `@flexible` decorator on a model field that holds an object allows storing extra fields beyond those defined in the schema:
+
+```cerial
+object Settings {
+  theme String @default("light")
+  language String @default("en")
+}
+
+model User {
+  id Record @id
+  prefs Settings @flexible
+}
+```
+
+This adds `& Record<string, any>` to the TypeScript output type and `& { [key: string]: any }` to the where type, so you can store and filter on arbitrary extra keys:
+
+```typescript
+const user = await client.db.User.create({
+  data: {
+    prefs: {
+      theme: 'dark',
+      language: 'en',
+      customOption: 42, // extra field — allowed by @flexible
+    },
+  },
+});
+```
+
+:::tip
+The same object can be `@flexible` on one model field and strict on another. `@flexible` applies to the **usage site**, not the object definition.
+:::
+
+### `@unique` and `@index` on Sub-Fields
+
+```cerial
+object LocationInfo {
+  address String
+  zip String @unique
+  country String @index
+}
+
+model User {
+  id Record @id
+  location LocationInfo
+  altLocation LocationInfo?
+}
+```
+
+When an object with `@unique` or `@index` is embedded in multiple model fields, each embedding generates its own independent constraint. In this example, `location.zip` and `altLocation.zip` have separate unique indexes — a value that's unique in one does not conflict with the other.
+
+:::caution
+`@now` is **not allowed** on object fields. SurrealDB requires COMPUTED fields to be defined at the top level (model-only). Use `@createdAt` or `@updatedAt` instead for timestamp tracking within objects.
+:::
+
+:::caution
+`@nullable` is **not allowed** on object-type fields. SurrealDB cannot define sub-fields on a nullable parent. Object fields are either present or absent (NONE) — use `?` to make them optional.
+:::
+
+## Combined Example
+
+The following schema demonstrates nesting, self-references, and decorators together:
+
+```cerial
+object Address {
+  street String
+  city String
+  state String
+  zipCode String?
+}
+
+object GeoPoint {
+  lat Float
+  lng Float
+  label Address?
+}
+
+object AuditInfo {
+  createdAt Date @createdAt
+  updatedAt Date @updatedAt
+  createdBy String @readonly
+}
+
+object TreeNode {
+  value Int
+  children TreeNode[]
+}
+
+model Store {
+  id Record @id
+  name String
+  location GeoPoint
+  audit AuditInfo
+  orgChart TreeNode?
+  metadata Settings @flexible
+}
+```
+
+This defines:
+
+- `Address` — a flat object with an optional field
+- `GeoPoint` — nests an optional `Address` object
+- `AuditInfo` — uses `@createdAt`, `@updatedAt`, and `@readonly` decorators
+- `TreeNode` — a self-referencing recursive structure
+- `Store` — a model that uses all four object types, with `@flexible` on `metadata`

@@ -1,0 +1,146 @@
+---
+title: Object Fields on Models
+description: Using embedded object types as required, optional, and array fields on models — create behavior, TypeScript types, and nesting patterns.
+---
+
+Once you have defined an object type, you can use it as a field on any model. There are three patterns: required, optional, and array.
+
+## Required Object Field
+
+```cerial
+object Address {
+  street String
+  city String
+  state String
+  zipCode String?
+}
+
+model User {
+  id Record @id
+  address Address
+}
+```
+
+**TypeScript type:** `address: Address`
+
+A required object field must be provided whenever a record is created. All required sub-fields within the object must also be supplied:
+
+```typescript
+const user = await client.db.User.create({
+  data: {
+    address: { street: '123 Main St', city: 'NYC', state: 'NY' },
+  },
+});
+
+console.log(user.address); // { street: '123 Main St', city: 'NYC', state: 'NY' }
+```
+
+## Optional Object Field
+
+```cerial
+model User {
+  id Record @id
+  address Address
+  shipping Address?
+}
+```
+
+**TypeScript type:** `shipping?: Address`
+
+An optional object field can be omitted entirely on create. When omitted, it is stored as `NONE` (field absent) in SurrealDB and returned as `undefined` in TypeScript.
+
+```typescript
+const user = await client.db.User.create({
+  data: {
+    address: { street: '123 Main St', city: 'NYC', state: 'NY' },
+    // shipping omitted — stored as NONE
+  },
+});
+
+console.log(user.shipping); // undefined
+```
+
+:::caution
+Optional object fields produce `field?: ObjectType` — there is **no** `| null` in the type. Embedded objects are either present or absent (NONE), not null. The `@nullable` decorator is not supported on object-type fields because SurrealDB cannot define sub-fields on a nullable parent.
+:::
+
+## Array of Objects
+
+```cerial
+object GeoPoint {
+  lat Float
+  lng Float
+}
+
+model User {
+  id Record @id
+  locations GeoPoint[]
+}
+```
+
+**TypeScript type:** `locations: GeoPoint[]`
+
+Array object fields hold zero or more embedded objects. If omitted on create, the field defaults to an empty array `[]`.
+
+```typescript
+const user = await client.db.User.create({
+  data: {
+    locations: [
+      { lat: 40.7, lng: -74.0 },
+      { lat: 34.0, lng: -118.2 },
+    ],
+  },
+});
+
+console.log(user.locations); // [{ lat: 40.7, lng: -74.0 }, { lat: 34.0, lng: -118.2 }]
+```
+
+```typescript
+// Omitting the array field — defaults to []
+const user = await client.db.User.create({
+  data: {},
+});
+
+console.log(user.locations); // []
+```
+
+## Nesting: Objects Within Objects
+
+Models can hold objects that themselves contain other objects, to any depth:
+
+```cerial
+object Address {
+  street String
+  city String
+  state String
+}
+
+object GeoPoint {
+  lat Float
+  lng Float
+  label Address?
+}
+
+model Store {
+  id Record @id
+  name String
+  location GeoPoint
+}
+```
+
+```typescript
+const store = await client.db.Store.create({
+  data: {
+    name: 'Downtown Shop',
+    location: {
+      lat: 40.7128,
+      lng: -74.006,
+      label: { street: '456 Broadway', city: 'NYC', state: 'NY' },
+    },
+  },
+});
+
+console.log(store.location.label?.city); // 'NYC'
+```
+
+The nested `Address` inside `GeoPoint` is stored inline within the `location` field of the `Store` record — no separate tables or joins involved.

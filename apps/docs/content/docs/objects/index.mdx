@@ -1,8 +1,94 @@
 ---
-title: Objects & Tuples
-description: Embedded object types and fixed-length tuple types.
+title: Embedded Objects
+description: Embedded object types in Cerial schemas — inline data structures stored directly within models, with no separate table or identity.
 ---
 
-:::note
-This section is under construction. Check back soon!
+Objects are inline data structures defined with the `object {}` keyword in Cerial schemas. Unlike models, objects are stored directly within the parent model — they do not create separate database tables, have no `id` field, and cannot participate in relations.
+
+Think of objects as structured sub-documents embedded inside a model record. A `User` with an `address Address` field stores the address data inline within the user record itself, not in a separate `Address` table.
+
+```cerial
+object Address {
+  street String
+  city String
+  state String
+  zipCode String?
+}
+
+model User {
+  id Record @id
+  name String
+  address Address
+  shipping Address?
+}
+```
+
+```typescript
+const user = await client.db.User.create({
+  data: {
+    name: 'Jane Doe',
+    address: { street: '123 Main St', city: 'NYC', state: 'NY' },
+    // shipping omitted — stored as NONE (absent)
+  },
+});
+
+console.log(user.address.city); // 'NYC'
+console.log(user.shipping);     // undefined
+```
+
+## Key Rules
+
+1. **No `id` field** — Objects have no identity. They exist only as part of their parent model.
+2. **No relations** — `Record` and `Relation` fields are not allowed inside objects.
+3. **Can reference other objects** — Objects can nest other objects to any depth.
+4. **Support optional and array fields** — Use `?` for optional fields and `[]` for arrays, just like models.
+5. **Optional object fields produce `field?: ObjectType`** — There is no `| null` in the type. Objects are either present or absent (NONE), never null.
+6. **Array object fields default to `[]` on create** — Omitting an array object field produces an empty array, same as primitive arrays.
+7. **Support a subset of decorators** — Only certain decorators are allowed on object fields (see below).
+8. **Indexes are independent per embedding path** — If an object with `@unique` is used on multiple model fields, each field gets its own independent constraint.
+
+## Supported Decorators
+
+Object fields support a subset of decorators. Relation and identity decorators are not applicable since objects have no identity or relations.
+
+| Decorator | Allowed | Notes |
+|---|---|---|
+| `@default` | ✅ | Default value for sub-fields |
+| `@defaultAlways` | ✅ | Reset-on-write default |
+| `@createdAt` | ✅ | Auto-set on creation |
+| `@updatedAt` | ✅ | Auto-set on update |
+| `@flexible` | ✅ | Allows extra fields beyond schema |
+| `@readonly` | ✅ | Write-once sub-fields |
+| `@unique` | ✅ | Independent per embedding path |
+| `@index` | ✅ | Independent per embedding path |
+| `@nullable` | ❌ | SurrealDB can't define sub-fields on nullable parents |
+| `@now` | ❌ | COMPUTED must be top-level (model-only) |
+| `@id`, `@field`, `@model`, `@onDelete`, `@key` | ❌ | Relation/ID decorators not applicable |
+
+## Generated Types
+
+Each object definition generates a set of TypeScript types:
+
+| Generated Type | Purpose |
+|---|---|
+| `ObjectName` | Base interface with all fields (output type) |
+| `ObjectNameCreateInput` | Input for creating object data — only generated when the object has `@default`, `@defaultAlways`, `@createdAt`, or `@updatedAt` fields (those fields become optional) |
+| `ObjectNameWhere` | Where clause type for filtering by object fields |
+| `ObjectNameSelect` | Sub-field selection type for narrowing returned fields |
+| `ObjectNameOrderBy` | Ordering type for sorting by object fields |
+
+:::tip
+`ObjectNameCreateInput` is only generated when needed. If none of the object's fields have auto-set decorators, the base `ObjectName` type is used directly for input.
 :::
+
+Objects do **not** generate `GetPayload`, `Include`, `Create`, `Update`, or `Model` types — those are exclusive to models.
+
+## Sections
+
+- [Defining Objects](/objects/defining-objects) — Schema syntax for declaring object types
+- [Object Fields on Models](/objects/object-fields-on-models) — Using objects as required, optional, or array fields
+- [Primitive Arrays in Objects](/objects/primitive-arrays-in-objects) — Using primitive array fields inside objects
+- [Select](/objects/select) — Sub-field selection on embedded objects
+- [Where Filtering](/objects/where) — Filtering by object sub-fields
+- [Updating Objects](/objects/update) — Partial merge and full replacement
+- [Ordering](/objects/orderby) — Sorting by embedded object fields

@@ -1,0 +1,82 @@
+---
+title: Primitive Arrays in Objects
+description: Using primitive array fields inside embedded object definitions — syntax, default behavior, and supported types.
+---
+
+Object types can contain primitive array fields. These are standard array types (`String[]`, `Int[]`, `Float[]`, etc.) defined inside an object definition.
+
+## Schema Definition
+
+```cerial
+object OrderItem {
+  productId String
+  quantity Int
+  tags String[]
+  scores Int[]
+}
+
+model Order {
+  id Record @id
+  items OrderItem[]
+}
+```
+
+The `OrderItem` object contains two primitive array fields: `tags` (an array of strings) and `scores` (an array of integers). The `Order` model then holds an array of `OrderItem` objects.
+
+## Creating Records
+
+When creating records with primitive arrays inside objects, provide the arrays as standard TypeScript arrays:
+
+```typescript
+const order = await client.db.Order.create({
+  data: {
+    items: [
+      {
+        productId: 'prod-1',
+        quantity: 2,
+        tags: ['electronics', 'sale'],
+        scores: [95, 88],
+      },
+      {
+        productId: 'prod-2',
+        quantity: 1,
+        tags: ['books'],
+        scores: [],
+      },
+    ],
+  },
+});
+```
+
+## Default Behavior
+
+Array fields inside objects follow the same rules as array fields on models — they default to `[]` if not provided during creation:
+
+```typescript
+const order = await client.db.Order.create({
+  data: {
+    items: [
+      {
+        productId: 'prod-1',
+        quantity: 2,
+        // tags and scores omitted — default to []
+      },
+    ],
+  },
+});
+
+console.log(order.items[0].tags);   // []
+console.log(order.items[0].scores); // []
+```
+
+## Supported Primitive Array Types
+
+Any primitive type can be used as an array inside an object:
+
+| Field Definition | TypeScript Type |
+|---|---|
+| `tags String[]` | `tags: string[]` |
+| `counts Int[]` | `counts: number[]` |
+| `values Float[]` | `values: number[]` |
+| `flags Bool[]` | `flags: boolean[]` |
+| `timestamps Date[]` | `timestamps: Date[]` |
