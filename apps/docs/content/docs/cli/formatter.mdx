@@ -1,0 +1,257 @@
+---
+title: Formatter
+description: Auto-format .cerial schema files with column alignment, canonical decorator ordering, normalized blank lines, and comment preservation.
+---
+
+Cerial includes a built-in formatter for `.cerial` schema files. It enforces consistent style across your project: column-aligned fields, canonical decorator ordering, normalized blank lines, and preserved comments.
+
+```bash
+bunx cerial format -s ./schemas
+```
+
+## CLI Usage
+
+```bash
+bunx cerial format [options]
+```
+
+| Flag | Description |
+| --- | --- |
+| `-s <path>` | Path to schema file or directory |
+| `-C <path>` | Path to config file |
+| `-n <name>` | Format a specific named schema only |
+| `--check` | Check mode (exit 1 if files need formatting) |
+| `--watch` | Watch mode (re-format on file change) |
+| `-v` | Verbose output |
+
+Without `-s`, the formatter uses the same schema discovery as [`cerial generate`](/cli/generate), checking your config file, convention markers, and fallback directories.
+
+## Check Mode
+
+Run `cerial format --check` in CI to verify all schemas are formatted. No files are modified.
+
+```bash
+bunx cerial format --check
+```
+
+Exit codes:
+
+- `0` ... all files are already formatted
+- `1` ... one or more files need formatting
+
+Pair this with your CI pipeline to catch unformatted schemas before they land in main.
+
+## Watch Mode
+
+Auto-format schemas whenever they change:
+
+```bash
+bunx cerial format --watch -s ./schemas
+```
+
+Parse errors are silently ignored in watch mode. The file stays untouched until the syntax is valid, then gets formatted on the next save.
+
+## Generate Integration
+
+The [`generate`](/cli/generate) command can format schemas before generating the client:
+
+```bash
+bunx cerial generate --format
+```
+
+Combined with watch mode, this formats and regenerates on every save:
+
+```bash
+bunx cerial generate --watch --format
+```
+
+## Configuration
+
+All formatting options go under the `format` key in your [config file](/cli/configuration). Every option has a sensible default, so you can skip this section entirely if the defaults work for you.
+
+| Key | Options | Default | Description |
+| --- | --- | --- | --- |
+| `alignmentScope` | `'group'` \| `'block'` | `'group'` | Column widths reset at each blank line (`group`) or span the whole block (`block`) |
+| `fieldGroupBlankLines` | `'single'` \| `'honor'` \| `'collapse'` | `'single'` | One blank line between field groups / preserve original / strip all blank lines |
+| `blockSeparation` | `1` \| `2` \| `'honor'` | `2` | Blank lines between top-level blocks (models, objects, enums). `'honor'` preserves original, capped at 2 |
+| `indentSize` | `2` \| `4` \| `'tab'` | `2` | Spaces per indent level, or tabs |
+| `inlineConstructStyle` | `'single'` \| `'multi'` \| `'honor'` | `'multi'` | Enum, literal, and tuple blocks: one-liner, expanded, or preserve original |
+| `decoratorAlignment` | `'aligned'` \| `'compact'` | `'aligned'` | Three-column tabular layout vs decorators tight after the type |
+| `trailingComma` | `true` \| `false` | `false` | Trailing comma on the last element in tuple, enum, and literal blocks |
+| `commentStyle` | `'honor'` \| `'hash'` \| `'slash'` | `'honor'` | Preserve comment syntax as-is, normalize to `#`, or normalize to `//` |
+| `blankLineBeforeDirectives` | `'always'` \| `'honor'` | `'always'` | Enforce a blank line before `@@index` / `@@unique` directives |
+
+### alignmentScope
+
+Controls how the formatter calculates column widths for the three-column layout (name, type, decorators).
+
+- **`'group'`** (default) ... a blank line resets column widths. Fields in each group align independently.
+- **`'block'`** ... the entire model or object shares one set of column widths.
+
+### decoratorAlignment
+
+- **`'aligned'`** (default) ... fields are laid out in a three-column table. Names, types, and decorators each get their own column with consistent spacing.
+- **`'compact'`** ... decorators follow immediately after the type with a single space. No column alignment.
+
+### fieldGroupBlankLines
+
+- **`'single'`** (default) ... exactly one blank line between field groups. Consecutive blank lines collapse to one.
+- **`'honor'`** ... blank lines are kept as you wrote them.
+- **`'collapse'`** ... all blank lines between fields are removed.
+
+### inlineConstructStyle
+
+Applies to `enum {}`, `literal {}`, and `tuple {}` blocks.
+
+- **`'multi'`** (default) ... always expanded with one element per line.
+- **`'single'`** ... collapsed to a single line when all elements fit.
+- **`'honor'`** ... keeps the original formatting.
+
+### blockSeparation
+
+- **`1`** ... one blank line between top-level blocks.
+- **`2`** (default) ... two blank lines between blocks.
+- **`'honor'`** ... preserves the original spacing, capped at 2 blank lines.
+
+### indentSize
+
+- **`2`** (default) ... two spaces per indent level.
+- **`4`** ... four spaces per indent level.
+- **`'tab'`** ... one tab character per indent level.
+
+### trailingComma
+
+When `true`, the last element in tuple, enum, and literal blocks gets a trailing comma. When `false` (default), no trailing comma is added.
+
+### commentStyle
+
+- **`'honor'`** (default) ... preserves comment syntax as-is. `#` stays `#`, `//` stays `//`.
+- **`'hash'`** ... normalizes all comments to `#` style.
+- **`'slash'`** ... normalizes all comments to `//` style.
+
+Block comments (`/* ... */`) are always preserved regardless of this setting.
+
+### blankLineBeforeDirectives
+
+- **`'always'`** (default) ... ensures a blank line before `@@index` and `@@unique` directives.
+- **`'honor'`** ... preserves original spacing before directives.
+
+## Config File Examples
+
+Format options can live at the root level (applies to all schemas) or per-schema:
+
+```typescript
+import { defineConfig } from 'cerial';
+
+export default defineConfig({
+  schema: './schemas',
+  output: './db-client',
+  format: {
+    indentSize: 4,
+    decoratorAlignment: 'compact',
+    blockSeparation: 1,
+  },
+});
+```
+
+Per-schema overrides in a [multi-schema](/cli/multi-schema) setup:
+
+```typescript
+import { defineConfig } from 'cerial';
+
+export default defineConfig({
+  schemas: {
+    auth: {
+      path: './schemas/auth',
+      format: {
+        indentSize: 2,
+        trailingComma: true,
+      },
+    },
+    cms: {
+      path: './schemas/cms',
+    },
+  },
+  format: {
+    indentSize: 4,
+  },
+});
+```
+
+The `auth` schema uses 2-space indent with trailing commas. The `cms` schema inherits the root's 4-space indent. Any option not specified falls back to the built-in default.
+
+## Library API
+
+For programmatic use (editor extensions, custom tooling), import the formatter directly:
+
+```typescript
+import { formatCerialSource } from 'cerial';
+
+const result = formatCerialSource(source, {
+  indentSize: 4,
+  decoratorAlignment: 'compact',
+});
+
+if (result.error) {
+  console.error(`Parse error at line ${result.error.line}: ${result.error.message}`);
+} else {
+  console.log(result.formatted);
+  console.log('Changed:', result.changed);
+}
+```
+
+**Parameters:**
+
+- `source` (`string`) ... raw `.cerial` file content
+- `options` (`Partial<FormatConfig>`, optional) ... any subset of config options. Unspecified keys use defaults.
+
+**Returns** a `FormatResult`:
+
+- On success: `{ formatted: string; changed: boolean }`
+- On error: `{ error: { message: string; line: number; column: number } }`
+
+The `changed` flag tells you whether the output differs from the input, so you can skip unnecessary file writes.
+
+## Error Behavior
+
+When the formatter encounters a parse error, it reports the first error and leaves the file untouched. No partial formatting happens.
+
+```
+Error in schemas/user.cerial:
+  Line 12, Column 5: Expected field type, got '}'
+```
+
+In watch mode, parse errors are silent. The file stays as-is until the next save produces valid syntax.
+
+## Comment Preservation
+
+All three comment styles are preserved through formatting:
+
+```cerial
+# Hash comment
+// Slash comment
+/* Block comment */
+```
+
+Comments attached to fields, blocks, or directives stay in place. Standalone comments between blocks are kept in their relative position.
+
+The `commentStyle` option can normalize all comments to a single style if your team prefers consistency:
+
+```typescript
+format: {
+  commentStyle: 'hash', // normalize everything to # comments
+}
+```
+
+## What the Formatter Does
+
+A quick summary of the formatting rules:
+
+- **Decorator ordering** ... decorators are reordered into a canonical sequence (`@id`, `@unique`, `@field()`, `@model()`, `@default()`, `@nullable`, `@readonly`, etc.)
+- **Column alignment** ... field names, types, and decorators align into a readable three-column layout
+- **Blank line normalization** ... blank lines between fields and blocks follow the configured style
+- **Indentation** ... consistent indent depth across all blocks
+- **Trailing whitespace** ... stripped from every line
+- **Final newline** ... every file ends with exactly one newline
+
+The formatter is idempotent. Running it twice produces the same output as running it once.

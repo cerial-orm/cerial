@@ -1,4 +1,4 @@
 {
   "title": "CLI",
-  "pages": ["...cli"]
+  "pages": ["index", "generate", "init", "configuration", "generated-output", "formatter", "multi-schema", "filtering"]
 }
