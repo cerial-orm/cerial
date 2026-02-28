@@ -45,9 +45,7 @@ literal NoLow extends BasePriority[!'low'] {
 
 
 model WithEnumLiteral {
-  id  Record  @id
-
-  role  ExtendedRole  @default('Viewer')
-
-  priority  ExtendedPriority  @default('low')
+  id       Record           @id
+  role     ExtendedRole     @default('Viewer')
+  priority ExtendedPriority @default('low')
 }

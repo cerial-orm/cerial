@@ -1,15 +1,13 @@
 # Base entity for all models
 abstract model Entity { # core type
-  id  Record  @id  !!private
-
-  createdAt  Date  @createdAt
+  id        Record @id        !!private
+  createdAt Date   @createdAt
 }
 
 
 # User extends Entity
 model User extends Entity { # user model
-  email  Email  @unique
-
+  email Email  @unique
   name  String
 }
 

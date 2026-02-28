@@ -1,42 +1,46 @@
 model Blogger {
-  id Record @id
-  email Email @unique
-  name String
-  profileId Record? @nullable
-  profile Relation? @field(profileId) @model(BlogProfile)
-  articles Relation[] @model(Article)
-  labelIds Record[]
-  labels Relation[] @field(labelIds) @model(Label)
+  id        Record     @id
+  email     Email      @unique
+  name      String
+  profileId Record?    @nullable
+  profile   Relation?  @field(profileId) @model(BlogProfile)
+  articles  Relation[] @model(Article)
+  labelIds  Record[]
+  labels    Relation[] @field(labelIds) @model(Label)
 }
+
 
 model BlogProfile {
-  id Record @id
-  bio String? @nullable
+  id        Record   @id
+  bio       String?  @nullable
   avatarUrl String?
   bloggerId Record
-  blogger Relation @field(bloggerId) @model(Blogger)
+  blogger   Relation @field(bloggerId) @model(Blogger)
 }
+
 
 model Article {
-  id Record @id
-  title String
-  content String?
-  authorId Record
-  author Relation @field(authorId) @model(Blogger)
-  categoryId Record? @nullable
-  category Relation? @field(categoryId) @model(Category) @key(categoryKey) @onDelete(SetNull)
-  createdAt Date @createdAt
+  id         Record    @id
+  title      String
+  content    String?
+  authorId   Record
+  author     Relation  @field(authorId) @model(Blogger)
+  categoryId Record?   @nullable
+  category   Relation? @field(categoryId) @model(Category) @key(categoryKey) @onDelete(SetNull)
+  createdAt  Date      @createdAt
 }
 
+
 model Category {
-  id Record @id
-  name String @unique
+  id       Record     @id
+  name     String     @unique
   articles Relation[] @model(Article)
 }
 
+
 model Label {
-  id Record @id
-  name String @unique
+  id         Record     @id
+  name       String     @unique
   bloggerIds Record[]
-  bloggers Relation[] @field(bloggerIds) @model(Blogger)
+  bloggers   Relation[] @field(bloggerIds) @model(Blogger)
 }

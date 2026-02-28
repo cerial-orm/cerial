@@ -1,41 +1,37 @@
 abstract model Timestamps {
-  id  Record  @id
-
-  createdAt  Date  @createdAt
-
-  updatedAt  Date  @updatedAt
+  id        Record @id
+  createdAt Date   @createdAt
+  updatedAt Date   @updatedAt
 }
 
 
 model Immutable extends Timestamps[id, createdAt] {
-  label  String  @readonly
+  label String @readonly
 }
 
 
 model Slim extends Timestamps[!updatedAt] {
-  name  String
+  name String
 }
 
 
 model MultiOmit extends Timestamps[!createdAt, !updatedAt] {
-  code  String  @unique
+  code String @unique
 }
 
 
 object FullProfile {
-  bio  String
-
+  bio     String
   avatar  String?
-
-  website  String?
+  website String?
 }
 
 
 object PublicProfile extends FullProfile[bio, avatar] {
-  badge  String
+  badge String
 }
 
 
 object MinimalProfile extends FullProfile[!website] {
-  rank  Int
+  rank Int
 }

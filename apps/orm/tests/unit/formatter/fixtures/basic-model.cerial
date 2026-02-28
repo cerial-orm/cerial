@@ -1,14 +1,14 @@
 model Customer {
-  id Record @id
-  email Email @unique
-  name String
-  bio String?
-  age Int? @nullable
-  isActive Bool @default(true)
-  rating Float
-  createdAt Date @createdAt
-  updatedAt Date @updatedAt
-  tags String[]
-  scores Int[]
+  id         Record   @id
+  email      Email    @unique
+  name       String
+  bio        String?
+  age        Int?     @nullable
+  isActive   Bool     @default(true)
+  rating     Float
+  createdAt  Date     @createdAt
+  updatedAt  Date     @updatedAt
+  tags       String[]
+  scores     Int[]
   loginDates Date[]
 }

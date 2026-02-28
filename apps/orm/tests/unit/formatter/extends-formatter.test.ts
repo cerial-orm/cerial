@@ -553,27 +553,27 @@ describe('idempotency', () => {
   const idempotentCases = [
     {
       name: 'abstract model',
-      src: 'abstract model Base {\n  id  Record  @id\n}\n',
+      src: 'abstract model Base {\n  id Record @id\n}\n',
     },
     {
       name: 'model extends',
-      src: 'model User extends Base {\n  email  Email  @unique\n}\n',
+      src: 'model User extends Base {\n  email Email @unique\n}\n',
     },
     {
       name: 'model extends with pick',
-      src: 'model User extends Base[id, name] {\n  email  Email  @unique\n}\n',
+      src: 'model User extends Base[id, name] {\n  email Email @unique\n}\n',
     },
     {
       name: 'model extends with omit',
-      src: 'model User extends Base[!updatedAt] {\n  email  Email  @unique\n}\n',
+      src: 'model User extends Base[!updatedAt] {\n  email Email @unique\n}\n',
     },
     {
       name: 'abstract model extends with pick',
-      src: 'abstract model Admin extends User[id, email] {\n  role  String\n}\n',
+      src: 'abstract model Admin extends User[id, email] {\n  role String\n}\n',
     },
     {
       name: 'object extends',
-      src: 'object Address extends BaseAddress {\n  zip  String\n}\n',
+      src: 'object Address extends BaseAddress {\n  zip String\n}\n',
     },
     {
       name: 'enum extends single-line',
@@ -593,7 +593,7 @@ describe('idempotency', () => {
     },
     {
       name: '!!private on model fields',
-      src: ['model Priv {', '  id    Record  @id      !!private', '  name  String', '}', ''].join('\n'),
+      src: ['model Priv {', '  id   Record @id     !!private', '  name String', '}', ''].join('\n'),
     },
     {
       name: '!!private on tuple element single-line',

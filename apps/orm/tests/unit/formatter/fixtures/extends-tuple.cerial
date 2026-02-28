@@ -31,11 +31,8 @@ tuple WithOmit extends Pair[!1] {
 
 
 model TupleUser {
-  id  Record  @id
-
-  point  Triple
-
+  id      Record @id
+  point   Triple
   coords  Pair?
-
-  labeled  Named
+  labeled Named
 }

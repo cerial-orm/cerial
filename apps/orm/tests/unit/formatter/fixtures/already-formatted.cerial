@@ -6,22 +6,16 @@ enum Tier {
 
 
 object Profile {
-  bio  String
-
-  avatar  String?
+  bio    String
+  avatar String?
 }
 
 
 model Account {
-  id  Record  @id
-
-  email  Email  @unique
-
-  name  String
-
-  tier  Tier  @default('FREE')
-
-  profile  Profile?
-
-  createdAt  Date  @createdAt
+  id        Record   @id
+  email     Email    @unique
+  name      String
+  tier      Tier     @default('FREE')
+  profile   Profile?
+  createdAt Date     @createdAt
 }

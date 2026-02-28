@@ -27,7 +27,7 @@ describe('formatCerialSource', () => {
     });
 
     it('should return changed: false when source is already formatted', () => {
-      const source = 'model User {\n  id  Record  @id\n}\n';
+      const source = 'model User {\n  id Record @id\n}\n';
       const result = formatCerialSource(source);
       expect(result.error).toBeUndefined();
       // Format once to get canonical form

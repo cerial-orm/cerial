@@ -151,8 +151,8 @@ describe('alignFields', () => {
       const fields = [field('id', 'Record', '@id'), field('email', 'Email', '@unique')];
       const result = alignFields(fields, config(), indent2);
 
-      expect(result[0]).toBe('  id     Record  @id');
-      expect(result[1]).toBe('  email  Email   @unique');
+      expect(result[0]).toBe('  id    Record @id');
+      expect(result[1]).toBe('  email Email  @unique');
     });
 
     it('should handle group alignment example from spec', () => {
@@ -164,11 +164,11 @@ describe('alignFields', () => {
       const result = alignFields(fields, config({ alignmentScope: 'group' }), indent2);
 
       // Group 1: nameWidth=5, typeWidth=6
-      expect(result[0]).toBe('  id     Record  @id');
-      expect(result[1]).toBe('  email  Email   @unique');
+      expect(result[0]).toBe('  id    Record @id');
+      expect(result[1]).toBe('  email Email  @unique');
 
       // Group 2: nameWidth=9, typeWidth=4
-      expect(result[2]).toBe('  createdAt  Date  @createdAt');
+      expect(result[2]).toBe('  createdAt Date @createdAt');
     });
 
     it('should handle block alignment example from spec', () => {
@@ -180,9 +180,9 @@ describe('alignFields', () => {
       const result = alignFields(fields, config({ alignmentScope: 'block' }), indent2);
 
       // Block: nameWidth=9, typeWidth=6
-      expect(result[0]).toBe('  id         Record  @id');
-      expect(result[1]).toBe('  email      Email   @unique');
-      expect(result[2]).toBe('  createdAt  Date    @createdAt');
+      expect(result[0]).toBe('  id        Record @id');
+      expect(result[1]).toBe('  email     Email  @unique');
+      expect(result[2]).toBe('  createdAt Date   @createdAt');
     });
   });
 
@@ -191,16 +191,16 @@ describe('alignFields', () => {
       const fields = [field('id', 'Record', '@id'), field('email', 'Email', '@unique')];
       const result = alignFields(fields, config({ decoratorAlignment: 'compact' }), indent2);
 
-      expect(result[0]).toBe('  id     Record @id');
-      expect(result[1]).toBe('  email  Email @unique');
+      expect(result[0]).toBe('  id    Record @id');
+      expect(result[1]).toBe('  email Email @unique');
     });
 
     it('should still align name column in compact mode', () => {
       const fields = [field('x', 'Int', '@id'), field('longName', 'String', '@unique')];
       const result = alignFields(fields, config({ decoratorAlignment: 'compact' }), indent2);
 
-      expect(result[0]).toBe('  x         Int @id');
-      expect(result[1]).toBe('  longName  String @unique');
+      expect(result[0]).toBe('  x        Int @id');
+      expect(result[1]).toBe('  longName String @unique');
     });
   });
 
@@ -209,25 +209,25 @@ describe('alignFields', () => {
       const fields = [field('id', 'Record', '@id'), field('name', 'String', ''), field('email', 'Email', '@unique')];
       const result = alignFields(fields, config(), indent2);
 
-      expect(result[0]).toBe('  id     Record  @id');
-      expect(result[1]).toBe('  name   String');
-      expect(result[2]).toBe('  email  Email   @unique');
+      expect(result[0]).toBe('  id    Record @id');
+      expect(result[1]).toBe('  name  String');
+      expect(result[2]).toBe('  email Email  @unique');
     });
 
     it('should not leave trailing spaces in compact mode', () => {
       const fields = [field('id', 'Record', '@id'), field('name', 'String', '')];
       const result = alignFields(fields, config({ decoratorAlignment: 'compact' }), indent2);
 
-      expect(result[0]).toBe('  id    Record @id');
-      expect(result[1]).toBe('  name  String');
+      expect(result[0]).toBe('  id   Record @id');
+      expect(result[1]).toBe('  name String');
     });
 
     it('should handle all fields with empty decorators', () => {
       const fields = [field('name', 'String', ''), field('age', 'Int', '')];
       const result = alignFields(fields, config(), indent2);
 
-      expect(result[0]).toBe('  name  String');
-      expect(result[1]).toBe('  age   Int');
+      expect(result[0]).toBe('  name String');
+      expect(result[1]).toBe('  age  Int');
     });
   });
 
@@ -236,23 +236,23 @@ describe('alignFields', () => {
       const fields = [field('id', 'Record', '@id', false, '# primary key'), field('email', 'Email', '@unique')];
       const result = alignFields(fields, config(), indent2);
 
-      expect(result[0]).toBe('  id     Record  @id # primary key');
-      expect(result[1]).toBe('  email  Email   @unique');
+      expect(result[0]).toBe('  id    Record @id # primary key');
+      expect(result[1]).toBe('  email Email  @unique');
     });
 
     it('should append trailing comment after type when no decorators', () => {
       const fields = [field('name', 'String', '', false, '# important')];
       const result = alignFields(fields, config(), indent2);
 
-      expect(result[0]).toBe('  name  String # important');
+      expect(result[0]).toBe('  name String # important');
     });
 
     it('should append trailing comment in compact mode', () => {
       const fields = [field('id', 'Record', '@id', false, '# key'), field('name', 'String', '')];
       const result = alignFields(fields, config({ decoratorAlignment: 'compact' }), indent2);
 
-      expect(result[0]).toBe('  id    Record @id # key');
-      expect(result[1]).toBe('  name  String');
+      expect(result[0]).toBe('  id   Record @id # key');
+      expect(result[1]).toBe('  name String');
     });
   });
 
@@ -260,19 +260,19 @@ describe('alignFields', () => {
     it('should use 2-space indent', () => {
       const fields = [field('id', 'Record', '@id')];
       const result = alignFields(fields, config(), '  ');
-      expect(result[0]).toBe('  id  Record  @id');
+      expect(result[0]).toBe('  id Record @id');
     });
 
     it('should use 4-space indent', () => {
       const fields = [field('id', 'Record', '@id')];
       const result = alignFields(fields, config(), '    ');
-      expect(result[0]).toBe('    id  Record  @id');
+      expect(result[0]).toBe('    id Record @id');
     });
 
     it('should use tab indent', () => {
       const fields = [field('id', 'Record', '@id')];
       const result = alignFields(fields, config(), '\t');
-      expect(result[0]).toBe('\tid  Record  @id');
+      expect(result[0]).toBe('\tid Record @id');
     });
   });
 
@@ -287,13 +287,13 @@ describe('alignFields', () => {
     it('should format single field without extra padding', () => {
       const fields = [field('id', 'Record', '@id')];
       const result = alignFields(fields, config(), indent2);
-      expect(result[0]).toBe('  id  Record  @id');
+      expect(result[0]).toBe('  id Record @id');
     });
 
     it('should format single field with no decorators', () => {
       const fields = [field('name', 'String', '')];
       const result = alignFields(fields, config(), indent2);
-      expect(result[0]).toBe('  name  String');
+      expect(result[0]).toBe('  name String');
     });
   });
 
@@ -315,16 +315,16 @@ describe('alignFields', () => {
       const result = alignFields(fields, config({ alignmentScope: 'group' }), indent2);
 
       // Group 1: nameWidth=5 (email), typeWidth=6 (Record/String)
-      expect(result[0]).toBe('  id     Record  @id');
-      expect(result[1]).toBe('  email  Email   @unique');
-      expect(result[2]).toBe('  name   String');
+      expect(result[0]).toBe('  id    Record @id');
+      expect(result[1]).toBe('  email Email  @unique');
+      expect(result[2]).toBe('  name  String');
 
       // Group 2: nameWidth=9 (createdAt), typeWidth=4 (Date)
-      expect(result[3]).toBe('  createdAt  Date  @createdAt');
+      expect(result[3]).toBe('  createdAt Date @createdAt');
 
       // Group 3: nameWidth=8 (comments), typeWidth=10 (Relation[])
-      expect(result[4]).toBe('  posts     Relation[]');
-      expect(result[5]).toBe('  comments  Relation[]  @model(Comment)');
+      expect(result[4]).toBe('  posts    Relation[]');
+      expect(result[5]).toBe('  comments Relation[] @model(Comment)');
     });
   });
 
@@ -344,16 +344,16 @@ describe('alignFields', () => {
       const result = alignFields(fields, config({ alignmentScope: 'group' }), indent2);
 
       // Group 1: nameWidth=8 (isActive), typeWidth=6 (Record/String)
-      expect(result[0]).toBe('  id        Record  @id');
-      expect(result[1]).toBe('  email     Email   @unique');
-      expect(result[2]).toBe('  name      String');
-      expect(result[3]).toBe('  age       Int?');
-      expect(result[4]).toBe('  role      Role    @default(Viewer)');
-      expect(result[5]).toBe('  isActive  Bool    @default(true)');
+      expect(result[0]).toBe('  id       Record @id');
+      expect(result[1]).toBe('  email    Email  @unique');
+      expect(result[2]).toBe('  name     String');
+      expect(result[3]).toBe('  age      Int?');
+      expect(result[4]).toBe('  role     Role   @default(Viewer)');
+      expect(result[5]).toBe('  isActive Bool   @default(true)');
 
       // Group 2: nameWidth=9 (updatedAt), typeWidth=4 (Date)
-      expect(result[6]).toBe('  createdAt  Date  @createdAt');
-      expect(result[7]).toBe('  updatedAt  Date  @updatedAt');
+      expect(result[6]).toBe('  createdAt Date @createdAt');
+      expect(result[7]).toBe('  updatedAt Date @updatedAt');
     });
 
     it('should format the same model in compact mode', () => {
@@ -365,10 +365,10 @@ describe('alignFields', () => {
       ];
       const result = alignFields(fields, config({ decoratorAlignment: 'compact' }), indent2);
 
-      expect(result[0]).toBe('  id        Record @id');
-      expect(result[1]).toBe('  email     Email @unique');
-      expect(result[2]).toBe('  name      String');
-      expect(result[3]).toBe('  isActive  Bool @default(true)');
+      expect(result[0]).toBe('  id       Record @id');
+      expect(result[1]).toBe('  email    Email @unique');
+      expect(result[2]).toBe('  name     String');
+      expect(result[3]).toBe('  isActive Bool @default(true)');
     });
   });
 
@@ -380,8 +380,8 @@ describe('alignFields', () => {
       ];
       const result = alignFields(fields, config(), indent2);
 
-      expect(result[0]).toBe('  authorId  Record');
-      expect(result[1]).toBe('  author    Relation  @field(authorId) @model(User)');
+      expect(result[0]).toBe('  authorId Record');
+      expect(result[1]).toBe('  author   Relation @field(authorId) @model(User)');
     });
   });
 });

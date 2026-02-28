@@ -3,38 +3,44 @@ tuple Coordinate {
   lng Float
 }
 
+
 tuple Triple {
   name String,
   Int,
   Bool
 }
 
+
 tuple InnerPair {
   x Int,
   y Int
 }
+
 
 tuple OuterPair {
   label String,
   InnerPair
 }
 
+
 tuple WithNullable {
   text String,
   count Int @nullable
 }
 
+
 tuple WithDefaults {
-  label String @default("untitled"),
+  label String @default('untitled'),
   stamp Date @createdAt
 }
 
+
 model TupleHolder {
-  id Record @id
-  name String
+  id       Record       @id
+  name     String
   location Coordinate
-  spare Coordinate?
-  history Coordinate[]
-  entry Triple?
-  wrapped OuterPair
+  spare    Coordinate?
+  history  Coordinate[]
+  entry    Triple?
+  wrapped  OuterPair
 }

@@ -48,14 +48,14 @@ describe('printModel', () => {
 
       const result = formatModel(src, { fieldGroupBlankLines: 'collapse' });
       expect(result).toBe(
-        ['model User {', '  id     Record  @id', '  email  Email   @unique', '  name   String', '}'].join('\n'),
+        ['model User {', '  id    Record @id', '  email Email  @unique', '  name  String', '}'].join('\n'),
       );
     });
 
     it('should handle single field model', () => {
       const src = 'model Simple {\n  id Record @id\n}';
       const result = formatModel(src, { fieldGroupBlankLines: 'collapse' });
-      expect(result).toBe(['model Simple {', '  id  Record  @id', '}'].join('\n'));
+      expect(result).toBe(['model Simple {', '  id Record @id', '}'].join('\n'));
     });
 
     it('should handle empty model', () => {
@@ -66,22 +66,19 @@ describe('printModel', () => {
   });
 
   describe('fieldGroupBlankLines: single', () => {
-    it('should insert blank line between every field', () => {
-      const src = ['model User {', '  id Record @id', '  email Email @unique', '  name String', '}'].join('\n');
+    it('should preserve blank lines where they exist in source', () => {
+      const src = ['model User {', '  id Record @id', '', '  email Email @unique', '  name String', '}'].join('\n');
 
       const result = formatModel(src, { fieldGroupBlankLines: 'single', alignmentScope: 'block' });
       expect(result).toBe(
-        ['model User {', '  id     Record  @id', '', '  email  Email   @unique', '', '  name   String', '}'].join('\n'),
+        ['model User {', '  id    Record @id', '', '  email Email  @unique', '  name  String', '}'].join('\n'),
       );
     });
-
-    it('should not add blank line after last field', () => {
+    it('should not add blank line where source has none', () => {
       const src = 'model M {\n  a Int\n  b String\n}';
       const result = formatModel(src, { fieldGroupBlankLines: 'single', alignmentScope: 'block' });
-      const lines = result.split('\n');
-      // Last field line should be right before closing brace
-      expect(lines[lines.length - 2]).not.toBe('');
-      expect(lines[lines.length - 1]).toBe('}');
+      // single mode only preserves existing blank lines — source has none
+      expect(result).not.toContain('\n\n');
     });
   });
 
@@ -91,7 +88,7 @@ describe('printModel', () => {
 
       const result = formatModel(src, { fieldGroupBlankLines: 'collapse', alignmentScope: 'block' });
       expect(result).toBe(
-        ['model User {', '  id     Record  @id', '  email  Email   @unique', '  name   String', '}'].join('\n'),
+        ['model User {', '  id    Record @id', '  email Email  @unique', '  name  String', '}'].join('\n'),
       );
     });
   });
@@ -102,7 +99,7 @@ describe('printModel', () => {
 
       const result = formatModel(src, { fieldGroupBlankLines: 'honor', alignmentScope: 'block' });
       expect(result).toBe(
-        ['model User {', '  id     Record  @id', '', '  email  Email   @unique', '  name   String', '}'].join('\n'),
+        ['model User {', '  id    Record @id', '', '  email Email  @unique', '  name  String', '}'].join('\n'),
       );
     });
 
@@ -128,11 +125,11 @@ describe('printModel', () => {
       expect(result).toBe(
         [
           'model User {',
-          '  id         Record  @id',
-          '  email      Email   @unique',
+          '  id        Record @id',
+          '  email     Email  @unique',
           '',
-          '  createdAt  Date    @createdAt',
-          '  updatedAt  Date    @updatedAt',
+          '  createdAt Date   @createdAt',
+          '  updatedAt Date   @updatedAt',
           '}',
         ].join('\n'),
       );
@@ -156,8 +153,8 @@ describe('printModel', () => {
       expect(result).toBe(
         [
           'model Staff {',
-          '  firstName  String',
-          '  lastName   String',
+          '  firstName String',
+          '  lastName  String',
           '',
           '  @@unique(staffName, [firstName, lastName])',
           '}',
@@ -502,7 +499,7 @@ describe('printModel', () => {
       expect(result).toContain('Record(int)');
       expect(result).toContain('String?');
       expect(result).toContain('String[]');
-      expect(result).toContain('Relation  ');
+      expect(result).toContain('Relation ');
       expect(result).toContain('Relation[]');
     });
   });
@@ -587,9 +584,7 @@ describe('printObject', () => {
     const src = ['object Address {', '  street String', '  city String', '  zip String', '}'].join('\n');
 
     const result = formatObject(src, { fieldGroupBlankLines: 'collapse' });
-    expect(result).toBe(
-      ['object Address {', '  street  String', '  city    String', '  zip     String', '}'].join('\n'),
-    );
+    expect(result).toBe(['object Address {', '  street String', '  city   String', '  zip    String', '}'].join('\n'));
   });
 
   it('should format object with decorators', () => {
@@ -618,7 +613,7 @@ describe('printObject', () => {
   it('should respect indent config for objects', () => {
     const src = 'object Coord {\n  x Float\n  y Float\n}';
     const result = formatObject(src, { fieldGroupBlankLines: 'collapse', indentSize: 'tab' });
-    expect(result).toContain('\tx  Float');
+    expect(result).toContain('\tx Float');
   });
 });
 
@@ -723,7 +718,7 @@ describe('compact decorator alignment', () => {
     });
     // In compact mode, type is NOT padded before decorators
     expect(result).toBe(
-      ['model User {', '  id     Record @id', '  email  Email @unique', '  name   String', '}'].join('\n'),
+      ['model User {', '  id    Record @id', '  email Email @unique', '  name  String', '}'].join('\n'),
     );
   });
 });

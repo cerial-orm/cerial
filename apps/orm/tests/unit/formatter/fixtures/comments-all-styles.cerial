@@ -2,21 +2,22 @@
 // File-level slash comment
 /* Block comment at file level */
 
+
 # A model for testing comments
 model Commented {
   # Hash comment on field
-  id Record @id
+  id    Record  @id
   // Slash comment on field
-  email Email @unique
-  name String
-  bio String? # trailing hash comment
-  age Int? // trailing slash comment
+  email Email   @unique
+  name  String
+  bio   String? # trailing hash comment
+  age   Int? // trailing slash comment
 }
 
-// Between-block comment
 
+// Between-block comment
 model AnotherCommented {
-  id Record @id
+  id    Record @id
   label String
 }
 

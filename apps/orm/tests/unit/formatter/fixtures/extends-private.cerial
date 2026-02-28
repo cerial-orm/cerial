@@ -1,40 +1,29 @@
 abstract model Secured {
-  id  Record  @id  !!private
-
-  secret  String    !!private
-
-  createdAt  Date  @createdAt  !!private
-
-  updatedAt  Date  @updatedAt
-
-  name  String
+  id        Record @id        !!private
+  secret    String            !!private
+  createdAt Date   @createdAt !!private
+  updatedAt Date   @updatedAt
+  name      String
 }
 
 
 model Account extends Secured {
-  email  Email  @unique  !!private
-
-  password  String    !!private
-
-  nickname  String
+  email    Email  @unique !!private
+  password String         !!private
+  nickname String
 }
 
 
 model PublicProfile {
-  id  Record  @id  !!private
-
-  name  String
-
+  id   Record  @id !!private
+  name String
   bio  String?
 }
 
 
 object Credentials {
-  token  String    !!private
-
-  apiKey  String    !!private
-
-  label  String
-
-  expires  Date?
+  token   String  !!private
+  apiKey  String  !!private
+  label   String
+  expires Date?
 }

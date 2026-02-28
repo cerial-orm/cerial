@@ -121,9 +121,9 @@ export function calculateColumnWidths(fields: AlignedField[], config: Required<F
  * Format fields into aligned lines.
  *
  * - `decoratorAlignment === 'aligned'`: 3 columns —
- *   `{indent}{name.padEnd(nameWidth)}  {type.padEnd(typeWidth)}  {decorators}`
+ *   `{indent}{name.padEnd(nameWidth)} {type.padEnd(typeWidth)} {decorators}`
  * - `decoratorAlignment === 'compact'`: 2 columns —
- *   `{indent}{name.padEnd(nameWidth)}  {type} {decorators}`
+ *   `{indent}{name.padEnd(nameWidth)} {type} {decorators}`
  *
  * Trailing whitespace is trimmed when decoratorString is empty.
  * Trailing comments are appended after decorators with 1 space.
@@ -145,18 +145,18 @@ export function alignFields(fields: AlignedField[], config: Required<FormatConfi
     let line: string;
 
     if (config.decoratorAlignment === 'aligned') {
-      // 3 columns: name  type  decorators
+      // 3 columns: name type decorators
       if (field.decoratorString) {
-        line = `${indent}${paddedName}  ${field.typeWithModifiers.padEnd(typeWidth)}  ${field.decoratorString}`;
+        line = `${indent}${paddedName} ${field.typeWithModifiers.padEnd(typeWidth)} ${field.decoratorString}`;
       } else {
-        line = `${indent}${paddedName}  ${field.typeWithModifiers}`;
+        line = `${indent}${paddedName} ${field.typeWithModifiers}`;
       }
     } else {
-      // compact: name  type decorators (type not padded)
+      // compact: name type decorators (type not padded)
       if (field.decoratorString) {
-        line = `${indent}${paddedName}  ${field.typeWithModifiers} ${field.decoratorString}`;
+        line = `${indent}${paddedName} ${field.typeWithModifiers} ${field.decoratorString}`;
       } else {
-        line = `${indent}${paddedName}  ${field.typeWithModifiers}`;
+        line = `${indent}${paddedName} ${field.typeWithModifiers}`;
       }
     }
 
@@ -172,11 +172,11 @@ export function alignFields(fields: AlignedField[], config: Required<FormatConfi
           // No decorator — pad type to typeWidth, then add gap + decorator padding
           const typePad = typeWidth - field.typeWithModifiers.length;
           if (typePad > 0) line += ' '.repeat(typePad);
-          line += '  ';
+          line += ' ';
           if (decoratorWidth > 0) line += ' '.repeat(decoratorWidth);
         }
       }
-      line += `  ${field.privateMarker}`;
+      line += ` ${field.privateMarker}`;
     }
 
     if (field.trailingComment) {

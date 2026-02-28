@@ -120,8 +120,12 @@ function computeBlankLineAfter(
   if (fieldIdx >= fields.length - 1) return false;
 
   switch (mode) {
-    case 'single':
-      return true;
+    case 'single': {
+      const currentField = fields[fieldIdx]!;
+      const nextField = fields[fieldIdx + 1]!;
+
+      return hasBlankLineBetween(sourceLines, currentField.range.start.line, nextField.range.start.line);
+    }
     case 'collapse':
       return false;
     case 'honor': {

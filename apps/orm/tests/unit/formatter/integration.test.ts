@@ -273,16 +273,14 @@ describe('config matrix', () => {
 
       expect(result.error).toBeUndefined();
       const modelBody = result.formatted!.split('model Customer')[1]!.split('}')[0]!;
+      // Source has no blank lines between fields, so single mode should not add any
       const bodyLines = modelBody.split('\n').slice(1); // skip the opening brace line
-      // Every field line should be followed by a blank line (except the last)
       const fieldLines = bodyLines.filter((l) => l.trim() !== '' && !l.includes('{'));
-      for (let i = 0; i < fieldLines.length - 1; i++) {
-        const fieldIdx = bodyLines.indexOf(fieldLines[i]!);
-        // The next line after a field should be blank
-        if (fieldIdx < bodyLines.length - 1) {
-          expect(bodyLines[fieldIdx + 1]!.trim()).toBe('');
-        }
-      }
+      // All fields present
+      expect(fieldLines.length).toBeGreaterThanOrEqual(10);
+      // No blank lines should be added (source had none)
+      const hasBlankLine = bodyLines.some((l, i) => l.trim() === '' && i < bodyLines.length - 1);
+      expect(hasBlankLine).toBe(false);
     });
 
     it('honor preserves original blank line pattern', async () => {
@@ -330,8 +328,8 @@ describe('config matrix', () => {
       const result = formatCerialSource(source, { blockSeparation: 'honor' });
 
       expect(result.error).toBeUndefined();
-      // Original has 1 blank line between blocks
-      expect(result.formatted).toMatch(/\}\n\n[a-z]/);
+      // Original has 2 blank lines between blocks (reformatted with default blockSeparation: 2)
+      expect(result.formatted).toMatch(/\}\n\n\n[a-z]/);
     });
   });
 

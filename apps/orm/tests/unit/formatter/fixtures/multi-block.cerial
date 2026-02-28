@@ -1,29 +1,45 @@
-enum Permission { READ, WRITE, EXECUTE }
+enum Permission {
+  READ,
+  WRITE,
+  EXECUTE
+}
 
-literal Theme { 'light', 'dark', 'system' }
 
-tuple Dimensions { width Float, height Float }
+literal Theme {
+  'light',
+  'dark',
+  'system'
+}
+
+
+tuple Dimensions {
+  width Float,
+  height Float
+}
+
 
 object ContactInfo {
   phone String
-  fax String?
+  fax   String?
 }
+
 
 model Organization {
-  id Record @id
-  name String @unique
-  theme Theme @default('light')
+  id         Record      @id
+  name       String      @unique
+  theme      Theme       @default('light')
   permission Permission
-  size Dimensions?
-  contact ContactInfo
-  members Relation[] @model(Member)
+  size       Dimensions?
+  contact    ContactInfo
+  members    Relation[]  @model(Member)
 }
 
+
 model Member {
-  id Record @id
-  name String
-  orgId Record
-  org Relation @field(orgId) @model(Organization)
+  id         Record     @id
+  name       String
+  orgId      Record
+  org        Relation   @field(orgId) @model(Organization)
   permission Permission @default('READ')
-  createdAt Date @createdAt
+  createdAt  Date       @createdAt
 }

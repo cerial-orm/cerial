@@ -45,7 +45,7 @@ export type FormatResult =
  */
 export const FORMAT_DEFAULTS: Required<FormatConfig> = {
   alignmentScope: 'group',
-  fieldGroupBlankLines: 'single',
+  fieldGroupBlankLines: 'collapse',
   blockSeparation: 2,
   indentSize: 2,
   inlineConstructStyle: 'multi',

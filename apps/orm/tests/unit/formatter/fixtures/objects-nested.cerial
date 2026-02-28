@@ -3,31 +3,35 @@ object Street {
   line2 String?
 }
 
+
 object Location {
-  street Street
-  city String
-  region String
+  street  Street
+  city    String
+  region  String
   zipCode String? @nullable
 }
 
+
 object TreeItem {
-  label String
+  label    String
   children TreeItem[]
 }
 
+
 object MetaInfo {
-  note String @default("pending review")
-  flagged Bool @defaultAlways(false)
-  createdAt Date @createdAt
-  updatedAt Date @updatedAt
+  note      String @default("pending review")
+  flagged   Bool   @defaultAlways(false)
+  createdAt Date   @createdAt
+  updatedAt Date   @updatedAt
 }
 
+
 model Warehouse {
-  id Record @id
-  name String
-  location Location
-  backup Location?
+  id        Record     @id
+  name      String
+  location  Location
+  backup    Location?
   locations Location[]
-  tree TreeItem?
-  meta MetaInfo?
+  tree      TreeItem?
+  meta      MetaInfo?
 }
