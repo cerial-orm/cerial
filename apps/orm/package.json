@@ -1,6 +1,27 @@
 {
   "name": "cerial",
   "version": "0.1.0",
+  "description": "A Prisma-like ORM for SurrealDB with schema-driven code generation and full TypeScript type safety",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cerial-orm/cerial.git",
+    "directory": "apps/orm"
+  },
+  "homepage": "https://cerial-orm.github.io",
+  "bugs": {
+    "url": "https://github.com/cerial-orm/cerial/issues"
+  },
+  "author": "younusdev",
+  "keywords": [
+    "surrealdb",
+    "orm",
+    "prisma",
+    "typescript",
+    "codegen",
+    "schema",
+    "query-builder",
+    "database"
+  ],
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
