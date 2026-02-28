@@ -634,11 +634,6 @@ export function generateExistsMethod(model: ModelMetadata): string {
   return `exists(where?: ${model.name}Where, txn?: CerialTransaction): CerialQueryPromise<boolean>;`;
 }
 
-/** Generate findAll method signature (alias for findMany with no options) */
-export function generateFindAllMethod(model: ModelMetadata): string {
-  return `findAll(): CerialQueryPromise<${model.name}[]>;`;
-}
-
 /** Generate introspection method signatures (getMetadata, getName, getTableName) */
 export function generateIntrospectionMethods(): string {
   return ['getMetadata(): ModelMetadata;', 'getName(): string;', 'getTableName(): string;'].join('\n\n  ');
@@ -649,7 +644,6 @@ export function generateMethodSignatures(model: ModelMetadata): string[] {
   return [
     generateFindOneMethod(model),
     generateFindManyMethod(model),
-    generateFindAllMethod(model),
     generateFindUniqueMethod(model),
     generateCreateMethod(model),
     generateUpdateMethod(model),

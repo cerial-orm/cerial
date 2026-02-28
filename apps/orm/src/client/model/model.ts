@@ -165,11 +165,6 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
     );
   }
 
-  /** Find all records (alias for findMany with no options) */
-  findAll(): CerialQueryPromise<T[]> {
-    return this.findMany();
-  }
-
   /** Create a new record */
   create(options: CreateOptions<Partial<T>> & { txn?: CerialTransaction }): CerialQueryPromise<T | null> {
     const { txn, ...queryOptions } = options;
