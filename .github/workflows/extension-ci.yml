@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, dev]
+    branches: [dev]
     paths:
       - 'apps/vscode-extension/**'
       - 'apps/orm/src/parser/**'
@@ -12,7 +12,7 @@ on:
       - 'apps/orm/src/cli/config/types.ts'
       - 'apps/orm/src/cli/validators/**'
   pull_request:
-    branches: [main]
+    branches: [dev]
     paths:
       - 'apps/vscode-extension/**'
       - 'apps/orm/src/parser/**'
