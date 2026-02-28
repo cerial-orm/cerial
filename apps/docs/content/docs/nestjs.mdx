@@ -1,0 +1,264 @@
+---
+title: NestJS Integration
+description: How to use Cerial with NestJS — modules, services, dependency injection, and multi-schema setups.
+---
+
+Cerial works with NestJS out of the box since the generated client is plain TypeScript. This guide shows how to wrap it in NestJS modules and services for proper dependency injection.
+
+## Installation
+
+Install Cerial in your NestJS project:
+
+```bash
+npm install cerial
+```
+
+Generate your client (adjust paths to match your project structure):
+
+```bash
+npx cerial generate -s ./schemas -o ./src/db-client
+```
+
+## Basic Setup
+
+Create a global `CerialModule` with a `CerialService` that manages the connection lifecycle:
+
+```typescript
+// src/cerial/cerial.module.ts
+import { Module, Global } from '@nestjs/common';
+import { CerialService } from './cerial.service';
+
+@Global()
+@Module({
+  providers: [CerialService],
+  exports: [CerialService],
+})
+export class CerialModule {}
+```
+
+```typescript
+// src/cerial/cerial.service.ts
+import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import { CerialClient } from '../db-client';
+
+@Injectable()
+export class CerialService implements OnModuleInit, OnModuleDestroy {
+  public readonly client = new CerialClient();
+
+  get db() {
+    return this.client.db;
+  }
+
+  async onModuleInit() {
+    await this.client.connect({
+      url: process.env.SURREAL_URL ?? 'http://localhost:8000',
+      namespace: process.env.SURREAL_NS ?? 'main',
+      database: process.env.SURREAL_DB ?? 'main',
+      auth: {
+        username: process.env.SURREAL_USER ?? 'root',
+        password: process.env.SURREAL_PASS ?? 'root',
+      },
+    });
+    await this.client.migrate();
+  }
+
+  async onModuleDestroy() {
+    await this.client.disconnect();
+  }
+}
+```
+
+Register the module in your `AppModule`:
+
+```typescript
+// src/app.module.ts
+import { Module } from '@nestjs/common';
+import { CerialModule } from './cerial/cerial.module';
+import { UsersModule } from './users/users.module';
+
+@Module({
+  imports: [CerialModule, UsersModule],
+})
+export class AppModule {}
+```
+
+Since `CerialModule` is `@Global()`, `CerialService` is available for injection in any module without re-importing.
+
+## Using in Feature Modules
+
+Inject `CerialService` into your feature services to access the typed client:
+
+```typescript
+// src/users/users.service.ts
+import { Injectable } from '@nestjs/common';
+import { CerialService } from '../cerial/cerial.service';
+
+@Injectable()
+export class UsersService {
+  constructor(private readonly cerial: CerialService) {}
+
+  async findAll() {
+    return this.cerial.db.User.findMany();
+  }
+
+  async findOne(id: string) {
+    return this.cerial.db.User.findUnique({ where: { id } });
+  }
+
+  async create(data: { email: string; name: string }) {
+    return this.cerial.db.User.create({ data });
+  }
+}
+```
+
+## Multi-Schema Setup
+
+When your project has multiple independent schemas (e.g., `auth` and `cms`), create a separate module and service for each. See [Multi-Schema](/cli/multi-schema) for how to configure schema generation.
+
+### Directory Structure
+
+```
+schemas/
+├── auth/
+│   ├── schema.cerial
+│   └── client/          # Generated: AuthCerialClient
+└── cms/
+    ├── schema.cerial
+    └── client/          # Generated: CmsCerialClient
+```
+
+### Config
+
+```json
+{
+  "schemas": {
+    "auth": { "path": "./schemas/auth" },
+    "cms": { "path": "./schemas/cms" }
+  }
+}
+```
+
+### Separate Modules per Schema
+
+```typescript
+// src/auth-cerial/auth-cerial.module.ts
+import { Module, Global } from '@nestjs/common';
+import { AuthCerialService } from './auth-cerial.service';
+
+@Global()
+@Module({
+  providers: [AuthCerialService],
+  exports: [AuthCerialService],
+})
+export class AuthCerialModule {}
+```
+
+```typescript
+// src/auth-cerial/auth-cerial.service.ts
+import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import { CerialClient as AuthCerialClient } from '../../schemas/auth/client';
+
+@Injectable()
+export class AuthCerialService implements OnModuleInit, OnModuleDestroy {
+  public readonly client = new AuthCerialClient();
+
+  get db() {
+    return this.client.db;
+  }
+
+  async onModuleInit() {
+    await this.client.connect({
+      url: process.env.SURREAL_URL ?? 'http://localhost:8000',
+      namespace: process.env.SURREAL_NS ?? 'main',
+      database: process.env.SURREAL_DB ?? 'auth',
+      auth: {
+        username: process.env.SURREAL_USER ?? 'root',
+        password: process.env.SURREAL_PASS ?? 'root',
+      },
+    });
+    await this.client.migrate();
+  }
+
+  async onModuleDestroy() {
+    await this.client.disconnect();
+  }
+}
+```
+
+Create the same pattern for `CmsCerialModule` and `CmsCerialService`, importing from `../../schemas/cms/client` instead.
+
+### Register Both Modules
+
+```typescript
+// src/app.module.ts
+import { Module } from '@nestjs/common';
+import { AuthCerialModule } from './auth-cerial/auth-cerial.module';
+import { CmsCerialModule } from './cms-cerial/cms-cerial.module';
+import { UsersModule } from './users/users.module';
+import { PostsModule } from './posts/posts.module';
+
+@Module({
+  imports: [AuthCerialModule, CmsCerialModule, UsersModule, PostsModule],
+})
+export class AppModule {}
+```
+
+### Using a Specific Schema
+
+Inject the schema-specific service in your feature services:
+
+```typescript
+// src/posts/posts.service.ts
+import { Injectable } from '@nestjs/common';
+import { CmsCerialService } from '../cms-cerial/cms-cerial.service';
+
+@Injectable()
+export class PostsService {
+  constructor(private readonly cms: CmsCerialService) {}
+
+  async findAll() {
+    return this.cms.db.Post.findMany();
+  }
+}
+```
+
+## Config File Note
+
+NestJS runs on Node.js, which doesn't natively execute TypeScript files. For your Cerial config:
+
+- Use **`cerial.config.json`** (recommended for NestJS projects)
+- Or use **`cerial.config.ts`** if you run the CLI with Bun (`bunx cerial generate`) or Deno
+
+See [Runtime Compatibility](/compatibility) for more details on config file format support.
+
+## Transactions
+
+Use Cerial's `$transaction` inside NestJS service methods:
+
+```typescript
+import { Injectable } from '@nestjs/common';
+import { CerialService } from '../cerial/cerial.service';
+
+@Injectable()
+export class OrdersService {
+  constructor(private readonly cerial: CerialService) {}
+
+  async createOrder(userId: string, items: { productId: string; quantity: number }[]) {
+    return this.cerial.client.$transaction(async (tx) => {
+      const order = await tx.Order.create({
+        data: { userId, status: 'pending' },
+      });
+
+      for (const item of items) {
+        await tx.OrderItem.create({
+          data: { orderId: order.id, ...item },
+        });
+      }
+
+      return order;
+    });
+  }
+}
+```
+
+See [Transactions](/transactions) for the full transaction API including array mode, manual mode, and retry configuration.

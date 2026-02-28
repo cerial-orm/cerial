@@ -67,7 +67,7 @@ A Prisma-like ORM for [SurrealDB](https://surrealdb.com/) with schema-driven cod
 
 ### CLI & Tooling
 
-- **Code generation** — `bunx cerial generate` produces typed client from schema
+- **Code generation** — `npx cerial generate` produces typed client from schema (`bunx` also works)
 - **Auto migrations** — Schema changes generate SurrealQL `DEFINE TABLE/FIELD/INDEX` statements
 - **Formatter** — Auto-format `.cerial` files with configurable style, column alignment, and comment preservation
 - **Watch mode** — Auto-regenerate on schema changes with per-schema isolation
@@ -80,6 +80,16 @@ A Prisma-like ORM for [SurrealDB](https://surrealdb.com/) with schema-driven cod
 ### ORM
 
 ```bash
+# npm
+npm install cerial
+
+# pnpm
+pnpm add cerial
+
+# yarn
+yarn add cerial
+
+# bun
 bun add cerial
 ```
 
@@ -128,7 +138,7 @@ model Post {
 ### 2. Generate the client
 
 ```bash
-bunx cerial generate -s ./schemas -o ./db-client
+npx cerial generate -s ./schemas -o ./db-client
 ```
 
 Or use a config file:
@@ -143,7 +153,7 @@ export default defineConfig({
 ```
 
 ```bash
-bunx cerial generate
+npx cerial generate
 ```
 
 ### 3. Use it
@@ -250,16 +260,18 @@ Full documentation is available at the [Cerial Docs](apps/docs/) site, covering:
 - [Init Command](apps/docs/content/docs/cli/init.mdx) - Auto-generate config with `cerial init`
 - [Connection](apps/docs/content/docs/connection/) - Client setup, connection config, migrations
 - [VS Code Extension](apps/docs/content/docs/extension/) - Extension features, settings, snippets
+- [NestJS Integration](apps/docs/content/docs/nestjs.mdx) - Module setup, service injection, multi-schema
+- [Runtime Compatibility](apps/docs/content/docs/compatibility.mdx) - Node.js, Bun, Deno support and module formats
 - [Roadmap](apps/docs/content/docs/roadmap.mdx) - Planned features
 
 ## Project Structure
 
-This repository is a Bun workspace monorepo. The ORM package lives in [`apps/orm/`](apps/orm/) and the VS Code extension in [`apps/vscode-extension/`](apps/vscode-extension/).
+This repository is a monorepo. The ORM package lives in [`apps/orm/`](apps/orm/) and the VS Code extension in [`apps/vscode-extension/`](apps/vscode-extension/).
 
 ## Requirements
 
-- [Bun](https://bun.sh/) runtime
-- [SurrealDB](https://surrealdb.com/) database
+- **[Node.js](https://nodejs.org/)** 20+ or **[Bun](https://bun.sh/)** 1+ (runtime)
+- **[SurrealDB](https://surrealdb.com/)** database
 
 ## License
 
