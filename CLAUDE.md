@@ -109,7 +109,7 @@ cerial/
 │       └── package.json                     # name: "cerial" (marketplace identity)
 ├── libs/                                    # Shared packages scaffold (future)
 │   └── .gitkeep
-├── docs/                                    # GitHub Pages documentation (Jekyll + just-the-docs)
+├── docs/                                    # GitHub Pages documentation (Next.js + Fumadocs)
 ├── .github/workflows/                       # CI/CD workflows
 ├── package.json                             # Workspace root (@cerial/monorepo, private)
 ├── tsconfig.json                            # Shared base TypeScript config
@@ -274,11 +274,11 @@ Sandbox testing is **allowed in plan mode** — it is investigative research to 
 
 ### Documentation Sync (CRITICAL)
 
-Documentation lives in `docs/` (GitHub Pages with Jekyll + just-the-docs theme).
+Documentation lives in `docs/` (GitHub Pages with Next.js + Fumadocs).
 
 **Always keep docs in sync with code changes:**
 
-- **New feature** → Add or update the relevant `docs/` page(s). If it's a new concept, create a new page with proper Jekyll front matter (title, parent, nav_order)
+- **New feature** → Add or update the relevant `docs/` page(s). If it's a new concept, create a new page with proper frontmatter (title, description)
 - **Changed feature** → Update all affected doc pages to reflect the new behavior, examples, and types
 - **Removed feature** → Remove or update doc pages. Remove dead links from parent/index pages
 - **New decorator** → Add a page in `docs/schema/decorators/` with grand_parent: Schema, parent: Decorators
@@ -286,17 +286,7 @@ Documentation lives in `docs/` (GitHub Pages with Jekyll + just-the-docs theme).
 - **New filter operator** → Update the relevant page in `docs/filtering/`
 - **Changed types** → Update `docs/types/generated-types.md` and `docs/types/dynamic-return-types.md`
 
-Doc pages use Jekyll front matter:
-
-```yaml
----
-title: Page Title
-parent: Parent Section # e.g., Schema, Queries, Relations
-grand_parent: Grand Parent # only for 3rd-level pages (e.g., decorator sub-pages)
-nav_order: 1 # controls sidebar ordering
-has_children: true # only on section index pages
----
-```
+Doc pages use MDX with Fumadocs conventions. Page metadata is defined via the file system structure and `meta.json` files in each directory.
 
 **Documentation is for library consumers, not contributors:**
 
@@ -447,6 +437,51 @@ Each commit adds its own entry to `[Unreleased]` under the correct category (`##
 - The follow-up affects different files or modules than the original commit
 - Someone else authored the previous commit
 
+### Release & Branching
+
+**Branching Strategy:**
+- `main` — Release branch. Only receives merges from `dev`. Never commit directly
+- `dev` — Integration branch. Feature branches merge here. CI runs on push + PRs to dev
+- Feature branches — Created from `dev`, merged back to `dev` via PR
+- Flow: `feature-branch` → PR to `dev` → test on dev → merge `dev` to `main` → push → tag for release
+
+**Tagging Convention:**
+- ORM releases: `orm-v{major}.{minor}.{patch}` (e.g., `orm-v0.1.0`)
+- Extension releases: `ext-v{major}.{minor}.{patch}` (e.g., `ext-v0.1.0`)
+- Each package has independent versioning and release cycles
+- Tags trigger release workflows automatically (orm-v* triggers npm publish, ext-v* triggers VSCE publish)
+- NEVER push tags from CI — tagging is always a manual release action
+- Tag version MUST match package.json version (release workflows verify this)
+
+**Release Process:**
+1. Ensure all changes are on `dev` and tests pass
+2. Move `[Unreleased]` changelog entries to versioned header: `## [x.y.z]`
+3. Bump version in `package.json`
+4. Commit: `chore(orm): release v0.1.0` or `chore(extension): release v0.1.0`
+5. Merge `dev` to `main` and push
+6. Create and push tag: `git tag orm-v0.1.0 && git push origin orm-v0.1.0`
+7. GitHub Actions automatically: runs tests, publishes to npm/marketplace, creates GitHub Release with changelog
+
+**GitHub Actions Workflows:**
+| Workflow | Trigger | What it does |
+|---|---|---|
+| `orm-ci.yml` | Push to dev + PRs to dev | Unit tests, E2E (SurrealDB), typecheck, format |
+| `extension-ci.yml` | Push to dev + PRs to dev | Build, unit tests, grammar tests (matrix: ubuntu/windows/macos) |
+| `orm-release.yml` | `orm-v*` tag push | Build, test, npm publish, GitHub Release with ORM changelog |
+| `extension-release.yml` | `ext-v*` tag push | Build, test, package VSIX, VSCE publish, GitHub Release with extension changelog |
+| `docs-deploy.yml` | Push to main (docs/ changes) | Build Next.js, deploy to GitHub Pages |
+
+**Required GitHub Secrets:**
+| Secret | Purpose | Where to create |
+|---|---|---|
+| `NPM_TOKEN` | npm publish authentication | npmjs.com → Settings → Access Tokens → Granular (read+write) |
+| `VSCE_PAT` | VS Code Marketplace publish | dev.azure.com → Personal Access Tokens (Marketplace scope) |
+
+**GitHub Repository Settings (manual UI configuration):**
+- Settings → Pages → Source: set to "GitHub Actions" (not "Deploy from branch")
+- Settings → Branches → Add rule for `main`: require PR reviews, require status checks, restrict push access to maintainers only
+- Settings → Tags → Add protection for `orm-v*` and `ext-v*`: restrict creation to maintainers only
+- Settings → Rules → Rulesets (alternative to above): create ruleset targeting `main` branch + release tag patterns with role-based restrictions
 ### Testing Rules
 
 - **No `as any` or blanket type casting in tests** - If types don't match runtime behavior, fix the type generators or source types. Use specific type assertions (`as User`, `as { id: string }`) ONLY when narrowing `unknown` (e.g., `prevResults[0] as { id: CerialId }`) — never `as any`. This applies to ALL tests (unit, integration, E2E)
@@ -648,5 +683,5 @@ Do NOT use SurrealDB reserved keywords as field names, model names, or object na
 - Extends only works within same schema entry (same generation run). Cross-schema extends is impossible
 - Pick/omit validates against parent's own fields only (not inherited from grandparent)
 - **Monorepo: ORM is a workspace member** — The ORM lives in `apps/orm/`. Root `package.json` has `workspaces: ["apps/orm", "libs/*"]` (NOT `"apps/*"`). Run ORM commands from `apps/orm/` or use `bun run --filter cerial <script>` from repo root
-- **Monorepo: extension is NOT a workspace member** — Both packages are named `"cerial"` (name collision prevents workspace membership). The VS Code extension in `apps/vscode-extension/` has its own `bun.lock` and manages its own dependencies independently. Run extension commands from `apps/vscode-extension/`
+- **Monorepo: extension IS a workspace member** — The extension is registered as `cerial-vscode` in the workspace (no name collision with ORM's `cerial`). However, it has its own `bun.lock` and manages its own dependencies independently. Run extension commands from `apps/vscode-extension/`
 - **Monorepo: changelog locations** — ORM changelog: `apps/orm/CHANGELOG.md`. VS Code extension changelog: `apps/vscode-extension/CHANGELOG.md`. Each package has its own `changelogs/` archive directory inside its package folder
