@@ -171,7 +171,7 @@ await client.connect({
 });
 
 // Create
-const user = await client.db.User.create({
+const user = await client.User.create({
   data: {
     email: 'john@example.com',
     name: 'John Doe',
@@ -181,7 +181,7 @@ const user = await client.db.User.create({
 });
 
 // Query with type-safe select
-const users = await client.db.User.findMany({
+const users = await client.User.findMany({
   where: { isActive: true, age: { gte: 18 } },
   select: { id: true, name: true, email: true },
   orderBy: { createdAt: 'desc' },
@@ -190,7 +190,7 @@ const users = await client.db.User.findMany({
 // users: { id: CerialId; name: string; email: string }[]
 
 // Include relations
-const userWithPosts = await client.db.User.findOne({
+const userWithPosts = await client.User.findOne({
   where: { id: user.id },
   include: {
     posts: { limit: 5, orderBy: { createdAt: 'desc' } },

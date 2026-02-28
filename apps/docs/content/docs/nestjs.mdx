@@ -42,15 +42,9 @@ import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { CerialClient } from '../db-client';
 
 @Injectable()
-export class CerialService implements OnModuleInit, OnModuleDestroy {
-  public readonly client = new CerialClient();
-
-  get db() {
-    return this.client.db;
-  }
-
+export class CerialService extends CerialClient implements OnModuleInit, OnModuleDestroy {
   async onModuleInit() {
-    await this.client.connect({
+    await this.connect({
       url: process.env.SURREAL_URL ?? 'http://localhost:8000',
       namespace: process.env.SURREAL_NS ?? 'main',
       database: process.env.SURREAL_DB ?? 'main',
@@ -59,11 +53,11 @@ export class CerialService implements OnModuleInit, OnModuleDestroy {
         password: process.env.SURREAL_PASS ?? 'root',
       },
     });
-    await this.client.migrate();
+    await this.migrate();
   }
 
   async onModuleDestroy() {
-    await this.client.disconnect();
+    await this.disconnect();
   }
 }
 ```
@@ -86,7 +80,7 @@ Since `CerialModule` is `@Global()`, `CerialService` is available for injection 
 
 ## Using in Feature Modules
 
-Inject `CerialService` into your feature services to access the typed client:
+Inject `CerialService` into your feature services. Since it extends `CerialClient`, you access models directly:
 
 ```typescript
 // src/users/users.service.ts
@@ -98,15 +92,15 @@ export class UsersService {
   constructor(private readonly cerial: CerialService) {}
 
   async findAll() {
-    return this.cerial.db.User.findMany();
+    return this.cerial.User.findMany();
   }
 
   async findOne(id: string) {
-    return this.cerial.db.User.findUnique({ where: { id } });
+    return this.cerial.User.findUnique({ where: { id } });
   }
 
   async create(data: { email: string; name: string }) {
-    return this.cerial.db.User.create({ data });
+    return this.cerial.User.create({ data });
   }
 }
 ```
@@ -159,15 +153,9 @@ import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { CerialClient as AuthCerialClient } from '../../schemas/auth/client';
 
 @Injectable()
-export class AuthCerialService implements OnModuleInit, OnModuleDestroy {
-  public readonly client = new AuthCerialClient();
-
-  get db() {
-    return this.client.db;
-  }
-
+export class AuthCerialService extends AuthCerialClient implements OnModuleInit, OnModuleDestroy {
   async onModuleInit() {
-    await this.client.connect({
+    await this.connect({
       url: process.env.SURREAL_URL ?? 'http://localhost:8000',
       namespace: process.env.SURREAL_NS ?? 'main',
       database: process.env.SURREAL_DB ?? 'auth',
@@ -176,11 +164,11 @@ export class AuthCerialService implements OnModuleInit, OnModuleDestroy {
         password: process.env.SURREAL_PASS ?? 'root',
       },
     });
-    await this.client.migrate();
+    await this.migrate();
   }
 
   async onModuleDestroy() {
-    await this.client.disconnect();
+    await this.disconnect();
   }
 }
 ```
@@ -217,7 +205,7 @@ export class PostsService {
   constructor(private readonly cms: CmsCerialService) {}
 
   async findAll() {
-    return this.cms.db.Post.findMany();
+    return this.cms.Post.findMany();
   }
 }
 ```
@@ -244,7 +232,7 @@ export class OrdersService {
   constructor(private readonly cerial: CerialService) {}
 
   async createOrder(userId: string, items: { productId: string; quantity: number }[]) {
-    return this.cerial.client.$transaction(async (tx) => {
+    return this.cerial.$transaction(async (tx) => {
       const order = await tx.Order.create({
         data: { userId, status: 'pending' },
       });
