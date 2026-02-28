@@ -1,0 +1,25 @@
+---
+title: SurrealDB Compatibility
+description: Which Cerial ORM versions are compatible with which SurrealDB versions.
+---
+
+Cerial targets specific SurrealDB versions. Using an untested combination may result in query failures, migration issues, or unexpected behavior.
+
+## Compatibility Matrix
+
+| Cerial | SurrealDB | SDK (`surrealdb`) | Status |
+|--------|-----------|-------------------|--------|
+| 0.1.x | 3.0.1 | 2.x | Current |
+
+**Status key:**
+
+- **Current** — Actively developed and tested against this combination
+- **Supported** — Receives bug fixes, passes CI
+- **Deprecated** — May work but no longer tested; upgrade recommended
+
+## Version Policy
+
+- Each Cerial minor release (0.x.0) targets a specific SurrealDB version range and is tested in CI against it.
+- Patch releases (0.x.y) stay within the same SurrealDB compatibility range.
+- When SurrealDB ships a breaking change, Cerial bumps its minor version to match.
+
