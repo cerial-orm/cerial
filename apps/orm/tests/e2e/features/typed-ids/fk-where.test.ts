@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
+import { CerialId } from 'cerial';
 import { RecordId } from 'surrealdb';
-import { CerialId } from '../../../../src/utils/cerial-id';
 import {
   type CerialClient,
   cleanupTables,

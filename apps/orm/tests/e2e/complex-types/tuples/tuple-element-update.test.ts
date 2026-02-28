@@ -9,7 +9,7 @@
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import { NONE } from '../../../../src/utils/none';
+import { NONE } from 'cerial';
 import type { DeepOuterTupleInput } from '../../generated';
 import {
   type CerialClient,

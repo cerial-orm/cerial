@@ -6,7 +6,7 @@
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import { NONE } from '../../../../src/utils/none';
+import { NONE } from 'cerial';
 import {
   type CerialClient,
   cleanupTables,

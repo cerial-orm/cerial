@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import { CerialId } from '../../../../src/utils/cerial-id';
+import { CerialId } from 'cerial';
 import {
   type CerialClient,
   cleanupTables,
