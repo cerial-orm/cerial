@@ -1,0 +1,62 @@
+name: ORM CI
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - 'apps/orm/**'
+      - 'package.json'
+      - 'tsconfig.json'
+      - 'biome.json'
+  pull_request:
+    branches: [dev]
+    paths:
+      - 'apps/orm/**'
+      - 'package.json'
+      - 'tsconfig.json'
+      - 'biome.json'
+
+concurrency:
+  group: orm-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+        working-directory: apps/orm
+      - run: bun run format
+        working-directory: apps/orm
+      - run: bun run test
+        working-directory: apps/orm
+      - run: bunx tsc --noEmit
+        working-directory: apps/orm
+
+  e2e-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - name: Start SurrealDB
+        run: |
+          curl -sSf https://install.surrealdb.com | sh
+          surreal start --user root --pass root --bind 0.0.0.0:8000 memory &
+          for i in $(seq 1 30); do
+            if curl -sf http://127.0.0.1:8000/health > /dev/null 2>&1; then
+              echo "SurrealDB is ready"
+              break
+            fi
+            echo "Waiting for SurrealDB... ($i/30)"
+            sleep 2
+          done
+      - run: bun install --frozen-lockfile
+        working-directory: apps/orm
+      - run: bun run generate:test-client
+        working-directory: apps/orm
+      - run: bun run typecheck
+        working-directory: apps/orm
+      - run: bun run test:e2e
+        working-directory: apps/orm
