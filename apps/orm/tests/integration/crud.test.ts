@@ -187,7 +187,7 @@ describe('CRUD Operations', () => {
     });
 
     test('should find all records', async () => {
-      const results = await userModel.findAll();
+      const results = await userModel.findMany();
       expect(results.length).toBe(3);
     });
 
@@ -410,7 +410,7 @@ describe('CRUD Operations', () => {
 
       expect(count).toBe(2);
 
-      const remaining = await userModel.findAll();
+      const remaining = await userModel.findMany();
       expect(remaining.length).toBe(1);
       expect(remaining[0]!.email).toBe('keep@example.com');
     });
