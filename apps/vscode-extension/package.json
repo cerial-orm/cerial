@@ -77,7 +77,7 @@
             "block"
           ],
           "default": "group",
-          "markdownDescription": "Alignment scope for field decorators.\n- `group`: align within each model/object block\n- `block`: align across the entire file"
+          "markdownDescription": "Alignment scope for field decorators.\n\n- **`group`** — Align within each model/object block independently:\n  ```\n  model User {\n    id    Record @id\n    email Email  @unique\n  }\n  model Post {\n    id        Record @id\n    createdAt Date   @createdAt\n  }\n  ```\n- **`block`** — Align across all blocks in the file:\n  ```\n  model User {\n    id        Record @id\n    email     Email  @unique\n  }\n  model Post {\n    id        Record @id\n    createdAt Date   @createdAt\n  }\n  ```"
         },
         "cerial.format.fieldGroupBlankLines": {
           "type": "string",
@@ -86,8 +86,8 @@
             "honor",
             "collapse"
           ],
-          "default": "single",
-          "markdownDescription": "Blank line handling between field groups.\n- `single`: one blank line between groups\n- `honor`: preserve existing blank lines\n- `collapse`: remove blank lines between groups"
+          "default": "collapse",
+          "markdownDescription": "Blank line handling between fields inside blocks.\n\n- **`collapse`** — Remove all blank lines between fields:\n  ```\n  id    Record @id\n  email Email  @unique\n  name  String\n  ```\n- **`single`** — Preserve existing blank line groups from source:\n  ```\n  id    Record @id\n  \n  email Email  @unique\n  name  String\n  ```\n- **`honor`** — Same as `single`, preserve original blank lines as-is"
         },
         "cerial.format.blockSeparation": {
           "type": [
@@ -100,7 +100,7 @@
             "honor"
           ],
           "default": 2,
-          "markdownDescription": "Blank lines between top-level blocks (models, objects, etc.).\n- `1`: single blank line\n- `2`: double blank line\n- `honor`: preserve existing separation"
+          "markdownDescription": "Blank lines between top-level blocks (models, objects, enums).\n\n- **`2`** — Two blank lines between blocks:\n  ```\n  model User {\n    id Record @id\n  }\n  \n  \n  model Post {\n    id Record @id\n  }\n  ```\n- **`1`** — One blank line between blocks:\n  ```\n  model User {\n    id Record @id\n  }\n  \n  model Post {\n    id Record @id\n  }\n  ```\n- **`honor`** — Preserve existing separation from source"
         },
         "cerial.format.indentSize": {
           "type": [
@@ -113,7 +113,7 @@
             "tab"
           ],
           "default": 2,
-          "markdownDescription": "Indentation size for formatted output.\n- `2`: two spaces\n- `4`: four spaces\n- `tab`: tab character"
+          "markdownDescription": "Indentation size for formatted output.\n\n- **`2`** — Two spaces:\n  ```\n  model User {\n    id Record @id\n  }\n  ```\n- **`4`** — Four spaces:\n  ```\n  model User {\n      id Record @id\n  }\n  ```\n- **`tab`** — Tab character:\n  ```\n  model User {\n  \tid Record @id\n  }\n  ```"
         },
         "cerial.format.inlineConstructStyle": {
           "type": "string",
@@ -123,7 +123,7 @@
             "honor"
           ],
           "default": "multi",
-          "markdownDescription": "Style for inline constructs (enums, literals, tuples).\n- `single`: collapse to one line when possible\n- `multi`: always expand to multiple lines\n- `honor`: preserve existing style"
+          "markdownDescription": "Style for inline constructs (enums, literals, tuples).\n\n- **`multi`** — Always expand to multiple lines:\n  ```\n  enum Role {\n    Admin,\n    Editor,\n    Viewer\n  }\n  ```\n- **`single`** — Collapse to one line when possible:\n  ```\n  enum Role { Admin, Editor, Viewer }\n  ```\n- **`honor`** — Preserve existing style from source"
         },
         "cerial.format.decoratorAlignment": {
           "type": "string",
@@ -132,12 +132,12 @@
             "compact"
           ],
           "default": "aligned",
-          "markdownDescription": "Decorator alignment style.\n- `aligned`: column-align decorators across fields\n- `compact`: no extra alignment spacing"
+          "markdownDescription": "Decorator alignment style.\n\n- **`aligned`** — Column-align decorators across fields:\n  ```\n  id        Record @id\n  email     Email  @unique\n  createdAt Date   @createdAt\n  ```\n- **`compact`** — No extra alignment spacing:\n  ```\n  id Record @id\n  email Email @unique\n  createdAt Date @createdAt\n  ```"
         },
         "cerial.format.trailingComma": {
           "type": "boolean",
           "default": false,
-          "markdownDescription": "Add trailing commas in multi-line constructs (enums, literals, tuples)."
+          "markdownDescription": "Add trailing commas in multi-line constructs.\n\n- **`true`**:\n  ```\n  enum Role {\n    Admin,\n    Editor,\n    Viewer,\n  }\n  ```\n- **`false`**:\n  ```\n  enum Role {\n    Admin,\n    Editor,\n    Viewer\n  }\n  ```"
         },
         "cerial.format.commentStyle": {
           "type": "string",
@@ -147,7 +147,7 @@
             "slash"
           ],
           "default": "honor",
-          "markdownDescription": "Comment style normalization.\n- `honor`: preserve existing comment style\n- `hash`: convert to `#` comments\n- `slash`: convert to `//` comments"
+          "markdownDescription": "Comment style normalization.\n\n- **`honor`** — Preserve existing comment style as-is\n- **`hash`** — Convert all comments to `#` style:\n  ```\n  # this is a comment\n  model User {\n    id Record @id # inline comment\n  }\n  ```\n- **`slash`** — Convert all comments to `//` style:\n  ```\n  // this is a comment\n  model User {\n    id Record @id // inline comment\n  }\n  ```"
         },
         "cerial.format.blankLineBeforeDirectives": {
           "type": "string",
@@ -156,7 +156,7 @@
             "honor"
           ],
           "default": "always",
-          "markdownDescription": "Blank line before directives (`@@index`, `@@unique`).\n- `always`: always insert a blank line\n- `honor`: preserve existing formatting"
+          "markdownDescription": "Blank line before composite directives (`@@index`, `@@unique`).\n\n- **`always`** — Always insert a blank line before directives:\n  ```\n  model User {\n    id   Record @id\n    name String\n  \n    @@unique(nameIdx, [name])\n  }\n  ```\n- **`honor`** — Preserve existing formatting from source"
         },
         "cerial.diagnostics.enabled": {
           "type": "boolean",
