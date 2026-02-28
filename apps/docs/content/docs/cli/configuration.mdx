@@ -14,6 +14,10 @@ Cerial accepts two config formats:
 
 If both exist, the TypeScript config takes priority.
 
+:::warning
+`cerial.config.ts` requires a runtime with native TypeScript support — **Bun**, **Deno**, or **Node.js** with `--experimental-strip-types`. For Node.js projects without a TypeScript loader, use `cerial.config.json` instead.
+:::
+
 ### TypeScript Config
 
 ```typescript
@@ -120,7 +124,7 @@ If no `-s` flag is given, Cerial searches for `cerial.config.ts` or `cerial.conf
 You can also point to a specific config with `-C`:
 
 ```bash
-bunx cerial generate -C ./config/cerial.config.ts
+npx cerial generate -C ./config/cerial.config.ts
 ```
 
 ### 3. Folder-Level Config

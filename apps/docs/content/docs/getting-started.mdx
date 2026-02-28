@@ -12,10 +12,13 @@ By the end, you'll have a working `User` and `Post` setup with relations, auto-t
 ## Prerequisites
 
 :::note
-Cerial requires **two things** installed on your machine before you begin:
+Cerial works with **Node.js 20+**, **Bun 1+**, and **Deno**. You need one of these runtimes installed, plus a running **[SurrealDB](https://surrealdb.com/)** instance.
 
-- **[Bun](https://bun.sh/)** — Cerial uses Bun as its runtime. Install it with `curl -fsSL https://bun.sh/install | bash` or see the [Bun docs](https://bun.sh/docs/installation).
-- **[SurrealDB](https://surrealdb.com/)** — The database Cerial is built for. Install it from [surrealdb.com/install](https://surrealdb.com/install) and start it with `surreal start`.
+- **[Node.js](https://nodejs.org/)** 20 or later — install from [nodejs.org](https://nodejs.org/)
+- **[Bun](https://bun.sh/)** 1.0 or later — install with `curl -fsSL https://bun.sh/install | bash`
+- **[Deno](https://deno.com/)** — install from [deno.com](https://deno.com/)
+
+Install SurrealDB from [surrealdb.com/install](https://surrealdb.com/install) and start it with `surreal start`.
 :::
 
 ## Your First Cerial Project
@@ -26,9 +29,28 @@ Cerial requires **two things** installed on your machine before you begin:
 
    Add Cerial to your project:
 
-   ```bash
-   bun add cerial
-   ```
+   <Tabs items={['npm', 'pnpm', 'yarn', 'bun']}>
+     <Tab value="npm">
+       ```bash
+       npm install cerial
+       ```
+     </Tab>
+     <Tab value="pnpm">
+       ```bash
+       pnpm add cerial
+       ```
+     </Tab>
+     <Tab value="yarn">
+       ```bash
+       yarn add cerial
+       ```
+     </Tab>
+     <Tab value="bun">
+       ```bash
+       bun add cerial
+       ```
+     </Tab>
+   </Tabs>
 
    This gives you both the ORM runtime and the `cerial` CLI for code generation.
 
@@ -78,7 +100,7 @@ Cerial requires **two things** installed on your machine before you begin:
    <Tabs items={['CLI Flags', 'Config File']}>
      <Tab value="CLI Flags">
        ```bash
-       bunx cerial generate -s ./schemas -o ./db-client
+       npx cerial generate -s ./schemas -o ./db-client
        ```
 
        `-s` sets the schema directory, `-o` sets the output directory.
@@ -98,7 +120,7 @@ Cerial requires **two things** installed on your machine before you begin:
        Then generate with no flags needed:
 
        ```bash
-       bunx cerial generate
+       npx cerial generate
        ```
 
        The config file approach is recommended for projects — it keeps your options in one place and supports advanced features like multi-schema setups and formatting preferences.
@@ -122,7 +144,7 @@ Cerial requires **two things** installed on your machine before you begin:
    ```
 
    :::tip
-   Run `bunx cerial generate --watch` during development to automatically regenerate the client whenever you change a `.cerial` file.
+   Run `npx cerial generate --watch` during development to automatically regenerate the client whenever you change a `.cerial` file.
    :::
 
 4. **Connect to SurrealDB**

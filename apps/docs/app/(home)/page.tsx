@@ -212,7 +212,7 @@ export default function HomePage() {
         <div className="rounded-lg border border-fd-border bg-fd-card px-6 py-3">
           <code className="text-sm text-fd-muted-foreground">
             <span className="select-none text-fd-muted-foreground/60">$ </span>
-            <span className="text-fd-foreground">bun add cerial</span>
+            <span className="text-fd-foreground">npm install cerial</span>
           </code>
         </div>
       </section>

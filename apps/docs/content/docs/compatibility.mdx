@@ -1,0 +1,91 @@
+---
+title: Runtime Compatibility
+description: Supported runtimes, module formats, CLI compatibility, and package exports for Cerial.
+---
+
+Cerial is published as compiled JavaScript with dual ESM and CJS output, making it compatible with Node.js, Bun, and Deno. The runtime client works identically across all three — your application code doesn't change.
+
+## Supported Runtimes
+
+| Runtime | Version | Support Level |
+|---------|---------|---------------|
+| Node.js | 20+ | Full support (ESM and CJS) |
+| Bun | 1.0+ | Full support (ESM) |
+| Deno | Latest | Via `npm:` specifier |
+
+## Module Formats
+
+Cerial ships both ESM (`.mjs`) and CJS (`.cjs`) builds with TypeScript declarations:
+
+| Format | Extension | Runtimes |
+|--------|-----------|----------|
+| ESM | `.mjs` | Node.js, Bun, Deno |
+| CJS | `.cjs` | Node.js |
+| Types (ESM) | `.d.mts` | All |
+| Types (CJS) | `.d.cts` | Node.js |
+
+Node.js automatically selects the right format based on your project's `type` field in `package.json` and the import style (`import` vs `require`).
+
+## CLI Compatibility
+
+The `cerial` CLI binary uses a `#!/usr/bin/env node` shebang, so it works with any Node.js-compatible runtime:
+
+```bash
+# All of these work:
+npx cerial generate
+bunx cerial generate
+pnpm exec cerial generate
+yarn cerial generate
+```
+
+The CLI is ESM-only internally, but this doesn't affect how you run it — the shebang handles execution.
+
+## Config File Format
+
+Cerial supports two config formats:
+
+- **`cerial.config.json`** — Works with all runtimes. Recommended for Node.js projects.
+- **`cerial.config.ts`** — Requires a runtime with native TypeScript support (Bun, Deno, or Node.js with `--experimental-strip-types`).
+
+If your project runs on Node.js without a TypeScript loader, use the JSON config format. See [Configuration](/cli/configuration) for details.
+
+## Deno Usage
+
+Cerial works in Deno via the `npm:` specifier:
+
+```typescript
+import { CerialClient } from 'npm:cerial';
+
+const client = new CerialClient();
+await client.connect({
+  url: 'http://localhost:8000',
+  namespace: 'main',
+  database: 'main',
+  auth: { username: 'root', password: 'root' },
+});
+```
+
+Run with network permissions:
+
+```bash
+deno run --allow-net app.ts
+```
+
+For CLI usage in Deno projects, use `npx cerial generate` (requires Node.js installed) or `bunx cerial generate` (requires Bun installed).
+
+## Package Exports
+
+Cerial exposes these subpath exports, each available in both ESM and CJS (except `./cli`):
+
+| Subpath | ESM | CJS | Description |
+|---------|-----|-----|-------------|
+| `cerial` | ✅ | ✅ | Main entry — client, types, utilities |
+| `cerial/parser` | ✅ | ✅ | Schema parser (AST generation) |
+| `cerial/generators` | ✅ | ✅ | Code generators |
+| `cerial/query` | ✅ | ✅ | Query builders |
+| `cerial/client` | ✅ | ✅ | Runtime client internals |
+| `cerial/utils` | ✅ | ✅ | Utility classes (CerialId, CerialUuid, etc.) |
+| `cerial/types` | ✅ | ✅ | Shared TypeScript types |
+| `cerial/cli` | ✅ | ❌ | CLI internals (ESM-only) |
+
+The `./cli` subpath is ESM-only because it depends on `citty`, which is an ESM-only package. This doesn't affect CLI usage — the binary works fine via `npx`/`bunx`.
