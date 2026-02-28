@@ -172,6 +172,10 @@ export default function HomePage() {
           Schema-first ORM for SurrealDB
         </div>
 
+        <div className="mb-6 max-w-2xl rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-700 dark:text-amber-300">
+          <strong>Warning:</strong> Cerial is under active development and not yet ready for production use. APIs may change between releases.
+        </div>
+
         <h1 className="mb-6 text-5xl font-bold tracking-tight sm:text-6xl lg:text-7xl">
           <span className="bg-gradient-to-r from-fd-primary to-fd-primary/60 bg-clip-text text-transparent">
             Cerial

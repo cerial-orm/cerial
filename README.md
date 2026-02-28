@@ -2,6 +2,8 @@
 
 A Prisma-like ORM for [SurrealDB](https://surrealdb.com/) with schema-driven code generation and full TypeScript type safety.
 
+> **Warning**: Cerial is under active development and not yet ready for production use. APIs may change between releases. Use it for experimentation and side projects — production stability is coming soon.
+
 ## Features
 
 ### Schema
