@@ -57,7 +57,6 @@ All model methods work inside array-mode transactions:
 | --- | --- | --- |
 | `findOne` | `T \| null` | `db.User.findOne({ where: { id } })` |
 | `findMany` | `T[]` | `db.User.findMany({ where: { isActive: true } })` |
-| `findAll` | `T[]` | `db.User.findAll()` |
 | `findUnique` | `T \| null` | `db.User.findUnique({ where: { email } })` |
 | `create` | `T` | `db.User.create({ data: { ... } })` |
 | `updateMany` | `T[]` | `db.User.updateMany({ where: { ... }, data: { ... } })` |
