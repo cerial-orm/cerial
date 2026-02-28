@@ -1,21 +1,62 @@
 {
   "name": "cerial",
   "version": "0.1.0",
-  "module": "index.ts",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "type": "module",
   "license": "Apache-2.0",
   "bin": {
-    "cerial": "./bin/cerial.ts"
+    "cerial": "./dist/bin/cerial.mjs"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
   },
   "exports": {
-    ".": "./index.ts",
-    "./parser": "./src/parser/index.ts",
-    "./generators": "./src/generators/index.ts",
-    "./query": "./src/query/index.ts",
-    "./client": "./src/client/index.ts",
-    "./cli": "./src/cli/index.ts",
-    "./utils": "./src/utils/index.ts",
-    "./types": "./src/types/index.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    },
+    "./parser": {
+      "types": "./dist/parser.d.ts",
+      "import": "./dist/parser.mjs",
+      "require": "./dist/parser.cjs"
+    },
+    "./generators": {
+      "types": "./dist/generators.d.ts",
+      "import": "./dist/generators.mjs",
+      "require": "./dist/generators.cjs"
+    },
+    "./query": {
+      "types": "./dist/query.d.ts",
+      "import": "./dist/query.mjs",
+      "require": "./dist/query.cjs"
+    },
+    "./client": {
+      "types": "./dist/client.d.ts",
+      "import": "./dist/client.mjs",
+      "require": "./dist/client.cjs"
+    },
+    "./cli": {
+      "types": "./dist/cli.d.ts",
+      "import": "./dist/cli.mjs"
+    },
+    "./utils": {
+      "types": "./dist/utils.d.ts",
+      "import": "./dist/utils.mjs",
+      "require": "./dist/utils.cjs"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "import": "./dist/types.mjs",
+      "require": "./dist/types.cjs"
+    }
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.4",
@@ -36,6 +77,9 @@
     "fast-glob": "^3.3.3"
   },
   "scripts": {
+    "build": "tsdown",
+    "build:watch": "tsdown --watch",
+    "prepublishOnly": "bun run build",
     "generate:test-client": "bun run bin/cerial.ts generate -s tests/e2e/schemas -o tests/e2e/generated",
     "typecheck": "tsc --noEmit -p tests/e2e/typechecks/tsconfig.json",
     "test": "bun test tests/unit/ tests/generators/ tests/parser/ tests/query/ tests/client/ tests/validators/ tests/utils/ tests/integration/",
