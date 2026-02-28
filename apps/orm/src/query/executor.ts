@@ -150,7 +150,10 @@ export async function executeQuerySingle<T = unknown>(
 export async function executeTransaction<T = unknown>(db: Surreal, queries: CompiledQuery[]): Promise<T[][]> {
   // Combine queries with BEGIN/COMMIT
   const combined = queries.map((q) => q.text).join('; ');
-  const vars = queries.reduce((acc, q) => ({ ...acc, ...q.vars }), {});
+  const vars: Record<string, unknown> = {};
+  for (const q of queries) {
+    Object.assign(vars, q.vars);
+  }
 
   const transactionQuery = `BEGIN TRANSACTION; ${combined}; COMMIT TRANSACTION;`;
   const boundQuery = new BoundQuery(transactionQuery, vars);

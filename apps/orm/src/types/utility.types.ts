@@ -80,7 +80,8 @@ export type GetRelationPayload<RelationType, RelationInclude, IncludeValue> = In
  * Maps each included relation key to its resolved type
  */
 export type GetIncludePayload<_Model, ModelRelations, Include> = Include extends undefined
-  ? {}
+  ? // biome-ignore lint/complexity/noBannedTypes: {} is intentional — represents empty object intersection in type-level conditional
+    {}
   : Include extends Record<string, unknown>
     ? {
         [K in keyof Include as Include[K] extends false | undefined
@@ -95,7 +96,8 @@ export type GetIncludePayload<_Model, ModelRelations, Include> = Include extends
             : never
           : never;
       }
-    : {};
+    : // biome-ignore lint/complexity/noBannedTypes: {} is intentional — represents empty object intersection in type-level conditional
+      {};
 
 /**
  * Main result type resolver

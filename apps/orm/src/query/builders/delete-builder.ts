@@ -315,7 +315,7 @@ export function buildDeleteUniqueWithCascade(
   returnBefore: boolean,
   transactionMode?: boolean,
 ): CompiledQuery {
-  const { hasId, id, idFieldName, expandedWhere } = getRecordIdFromWhere(where, model);
+  const { hasId, id, idFieldName: _idFieldName, expandedWhere } = getRecordIdFromWhere(where, model);
 
   // Find dependent relations
   const dependents = findDependentRelations(model.name, registry);
