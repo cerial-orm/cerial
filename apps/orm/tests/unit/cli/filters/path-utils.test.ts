@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'bun:test';
 import { isSubPath, normalizePath, toFilterPath } from '../../../../src/cli/filters/path-utils';
 
+const isWindows = process.platform === 'win32';
+
 describe('path-utils', () => {
   describe('normalizePath', () => {
     it('should convert backslashes to forward slashes', () => {
@@ -41,7 +43,7 @@ describe('path-utils', () => {
   });
 
   describe('toFilterPath', () => {
-    it('should convert absolute path to relative with forward slashes', () => {
+    it.skipIf(!isWindows)('should convert absolute path to relative with forward slashes', () => {
       const result = toFilterPath('D:\\projects\\schemas\\user.cerial', 'D:\\projects\\schemas');
 
       expect(result).toBe('user.cerial');
@@ -59,7 +61,7 @@ describe('path-utils', () => {
       expect(result).toBe('');
     });
 
-    it('should normalize backslashes in result', () => {
+    it.skipIf(!isWindows)('should normalize backslashes in result', () => {
       const result = toFilterPath('D:\\root\\schemas\\auth\\model.cerial', 'D:\\root\\schemas');
 
       expect(result).toBe('auth/model.cerial');

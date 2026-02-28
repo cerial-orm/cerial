@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
 import { mkdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { resolve } from 'node:path';
+import { isAbsolute, resolve } from 'node:path';
 import { findCerialIgnoreFiles, loadCerialIgnore } from '../../../../src/cli/filters/cerialignore';
 
 const TEST_ROOT = resolve(tmpdir(), 'cerial-cerialignore-test');
@@ -78,7 +78,7 @@ describe('loadCerialIgnore', () => {
     const result = await loadCerialIgnore(dir('with-ignore'));
 
     expect(result).not.toBeNull();
-    expect(result!.path).toMatch(/^[A-Z]:\\/); // Windows absolute path
+    expect(isAbsolute(result!.path)).toBe(true);
   });
 
   it('should set dir to the directory containing the file', async () => {
