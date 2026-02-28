@@ -72,7 +72,7 @@ All formatting options go under the `format` key in your [config file](/cli/conf
 | Key | Options | Default | Description |
 | --- | --- | --- | --- |
 | `alignmentScope` | `'group'` \| `'block'` | `'group'` | Column widths reset at each blank line (`group`) or span the whole block (`block`) |
-| `fieldGroupBlankLines` | `'single'` \| `'honor'` \| `'collapse'` | `'single'` | One blank line between field groups / preserve original / strip all blank lines |
+| `fieldGroupBlankLines` | `'collapse'` \| `'single'` \| `'honor'` | `'collapse'` | Strip blank lines between fields / one blank line between groups / preserve original |
 | `blockSeparation` | `1` \| `2` \| `'honor'` | `2` | Blank lines between top-level blocks (models, objects, enums). `'honor'` preserves original, capped at 2 |
 | `indentSize` | `2` \| `4` \| `'tab'` | `2` | Spaces per indent level, or tabs |
 | `inlineConstructStyle` | `'single'` \| `'multi'` \| `'honor'` | `'multi'` | Enum, literal, and tuple blocks: one-liner, expanded, or preserve original |
@@ -88,16 +88,81 @@ Controls how the formatter calculates column widths for the three-column layout 
 - **`'group'`** (default) ... a blank line resets column widths. Fields in each group align independently.
 - **`'block'`** ... the entire model or object shares one set of column widths.
 
+`'group'` resets column widths at each blank line, so groups align independently:
+
+```cerial
+model User {
+  id    Record @id
+  email Email  @unique
+
+  createdAt Date @createdAt
+}
+```
+
+`'block'` shares one set of widths across the entire block:
+
+```cerial
+model User {
+  id        Record @id
+  email     Email  @unique
+
+  createdAt Date   @createdAt
+}
+```
+
+Notice how `createdAt` gets extra padding in `'block'` mode to match the widest name across all groups.
+
 ### decoratorAlignment
 
 - **`'aligned'`** (default) ... fields are laid out in a three-column table. Names, types, and decorators each get their own column with consistent spacing.
 - **`'compact'`** ... decorators follow immediately after the type with a single space. No column alignment.
 
+With `'aligned'`, fields form a clean three-column table:
+
+```cerial
+model User {
+  id        Record @id
+  email     Email  @unique
+  createdAt Date   @createdAt
+}
+```
+
+With `'compact'`, decorators sit tight after the type:
+
+```cerial
+model User {
+  id Record @id
+  email Email @unique
+  createdAt Date @createdAt
+}
+```
+
 ### fieldGroupBlankLines
 
-- **`'single'`** (default) ... exactly one blank line between field groups. Consecutive blank lines collapse to one.
+- **`'collapse'`** (default) ... all blank lines between fields are removed.
+- **`'single'`** ... exactly one blank line between field groups. Consecutive blank lines collapse to one.
 - **`'honor'`** ... blank lines are kept as you wrote them.
-- **`'collapse'`** ... all blank lines between fields are removed.
+
+With `'collapse'`, everything is packed together:
+
+```cerial
+model User {
+  id    Record @id
+  email Email  @unique
+  name  String
+}
+```
+
+With `'single'`, blank lines from your source mark group boundaries:
+
+```cerial
+model User {
+  id    Record @id
+
+  email Email  @unique
+  name  String
+}
+```
 
 ### inlineConstructStyle
 
@@ -107,11 +172,52 @@ Applies to `enum {}`, `literal {}`, and `tuple {}` blocks.
 - **`'single'`** ... collapsed to a single line when all elements fit.
 - **`'honor'`** ... keeps the original formatting.
 
+With `'multi'`, enum/literal/tuple bodies always expand:
+
+```cerial
+enum Role {
+  Admin,
+  Editor,
+  Viewer
+}
+```
+
+With `'single'`, short bodies collapse to one line:
+
+```cerial
+enum Role { Admin, Editor, Viewer }
+```
+
 ### blockSeparation
 
 - **`1`** ... one blank line between top-level blocks.
 - **`2`** (default) ... two blank lines between blocks.
 - **`'honor'`** ... preserves the original spacing, capped at 2 blank lines.
+
+With `2`, blocks are separated by two blank lines:
+
+```cerial
+model User {
+  id Record @id
+}
+
+
+model Post {
+  id Record @id
+}
+```
+
+With `1`, one blank line between blocks:
+
+```cerial
+model User {
+  id Record @id
+}
+
+model Post {
+  id Record @id
+}
+```
 
 ### indentSize
 
@@ -119,9 +225,44 @@ Applies to `enum {}`, `literal {}`, and `tuple {}` blocks.
 - **`4`** ... four spaces per indent level.
 - **`'tab'`** ... one tab character per indent level.
 
+Two spaces (default):
+
+```cerial
+model User {
+  id Record @id
+}
+```
+
+Four spaces:
+
+```cerial
+model User {
+    id Record @id
+}
+```
+
+Tab-indented schemas display one tab character per level. Your editor's tab width setting controls how wide they appear.
+
 ### trailingComma
 
-When `true`, the last element in tuple, enum, and literal blocks gets a trailing comma. When `false` (default), no trailing comma is added.
+- **`true`** ... trailing comma on the last element in tuple, enum, and literal blocks.
+- **`false`** (default) ... no trailing comma.
+
+```cerial
+# trailingComma: true
+enum Role {
+  Admin,
+  Editor,
+  Viewer,
+}
+
+# trailingComma: false (default)
+enum Role {
+  Admin,
+  Editor,
+  Viewer
+}
+```
 
 ### commentStyle
 
@@ -129,12 +270,41 @@ When `true`, the last element in tuple, enum, and literal blocks gets a trailing
 - **`'hash'`** ... normalizes all comments to `#` style.
 - **`'slash'`** ... normalizes all comments to `//` style.
 
+```cerial
+# 'hash' normalizes all comments to hash style
+# This is a field comment
+
+// 'slash' normalizes all comments to slash style
+// This is a field comment
+```
+
 Block comments (`/* ... */`) are always preserved regardless of this setting.
 
 ### blankLineBeforeDirectives
 
 - **`'always'`** (default) ... ensures a blank line before `@@index` and `@@unique` directives.
 - **`'honor'`** ... preserves original spacing before directives.
+
+With `'always'`, a blank line appears before directives:
+
+```cerial
+model User {
+  id   Record @id
+  name String
+
+  @@unique(nameIdx, [name])
+}
+```
+
+With `'honor'`, the formatter preserves whatever spacing you had:
+
+```cerial
+model User {
+  id   Record @id
+  name String
+  @@unique(nameIdx, [name])
+}
+```
 
 ## Config File Examples
 
