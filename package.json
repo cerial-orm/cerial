@@ -15,6 +15,7 @@
     "test:orm": "bun run --filter cerial test",
     "test:orm:e2e": "bun run --filter cerial test:e2e",
     "test:orm:full": "bun run --filter cerial test:full",
+    "orm:publish": "bun run --filter cerial publish:npm",
     "ext:build": "bun run --filter cerial-vscode build",
     "ext:build:dev": "bun run --filter cerial-vscode build:dev",
     "ext:watch": "bun run --filter cerial-vscode watch",

@@ -17,6 +17,10 @@
   "engines": {
     "node": ">=20.0.0"
   },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "exports": {
     ".": {
       "import": {
@@ -122,6 +126,7 @@
     "test": "bun test tests/unit/ tests/generators/ tests/parser/ tests/query/ tests/client/ tests/validators/ tests/utils/ tests/integration/",
     "test:e2e": "bun test tests/e2e/ --preload ./tests/e2e/preload.ts --concurrency 5",
     "test:full": "bun generate:test-client && bun typecheck && bun run test && bun run test:e2e",
-    "format": "biome check --write ."
+    "format": "biome check --write .",
+    "publish:npm": "npm publish --access public"
   }
 }
