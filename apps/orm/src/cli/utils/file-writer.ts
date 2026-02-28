@@ -2,6 +2,7 @@
  * File writer - writes files using Bun
  */
 
+import { writeFile as fsWriteFile } from 'node:fs/promises';
 import { ensureParentDir } from './file-creator';
 
 /** Write options */
@@ -18,7 +19,7 @@ export async function writeFile(path: string, content: string, options: WriteOpt
     await ensureParentDir(path);
   }
 
-  await Bun.write(path, content);
+  await fsWriteFile(path, content, 'utf-8');
 }
 
 /** Write multiple files */

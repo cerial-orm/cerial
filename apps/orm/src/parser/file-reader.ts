@@ -1,9 +1,11 @@
 /**
  * File reader for schema files
- * Uses Bun's file system APIs
+ * Uses Node.js-compatible file system APIs
  */
 
-import { Glob } from 'bun';
+import { existsSync } from 'node:fs';
+import { readFile } from 'node:fs/promises';
+import fg from 'fast-glob';
 import type { SchemaFile } from '../types';
 
 /** Default schema file glob patterns */
@@ -26,10 +28,8 @@ export async function findSchemaFiles(options: FindSchemasOptions = {}): Promise
   const files: string[] = [];
 
   for (const pattern of patterns) {
-    const glob = new Glob(pattern);
-    for await (const file of glob.scan({ cwd, dot: includeHidden })) {
-      files.push(file);
-    }
+    const matches = await fg(pattern, { cwd, onlyFiles: true, dot: includeHidden });
+    files.push(...matches);
   }
 
   // Remove duplicates
@@ -38,8 +38,7 @@ export async function findSchemaFiles(options: FindSchemasOptions = {}): Promise
 
 /** Read a single schema file */
 export async function readSchemaFile(path: string): Promise<SchemaFile> {
-  const file = Bun.file(path);
-  const content = await file.text();
+  const content = await readFile(path, 'utf-8');
   return { path, content };
 }
 
@@ -65,23 +64,17 @@ export async function loadSchemas(options: FindSchemasOptions = {}): Promise<Sch
 
 /** Check if a file exists */
 export async function fileExists(path: string): Promise<boolean> {
-  const file = Bun.file(path);
-  return file.exists();
+  return Promise.resolve(existsSync(path));
 }
 
 /** Resolve schema file paths from various inputs */
 export async function resolveSchemaPath(input: string): Promise<string[]> {
   // Check if it's a directory
-  const stats = await Bun.file(input).exists();
+  const stats = existsSync(input);
 
   if (!stats) {
     // Try as a glob pattern
-    const glob = new Glob(input);
-    const files: string[] = [];
-    for await (const file of glob.scan()) {
-      files.push(file);
-    }
-    return files;
+    return fg(input, { onlyFiles: true });
   }
 
   // Single file

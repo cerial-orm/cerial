@@ -3,7 +3,7 @@
  */
 
 import { dirname, resolve } from 'node:path';
-import { Glob } from 'bun';
+import fg from 'fast-glob';
 import * as v from 'valibot';
 import type { FormatConfig } from '../../formatter/types';
 import { FORMAT_DEFAULTS } from '../../formatter/types';
@@ -308,9 +308,9 @@ export async function detectConfigsInsideRootPaths(rootPaths: string[], _cwd: st
       '**/main.cerial',
       '**/index.cerial',
     ]) {
-      const glob = new Glob(pattern);
       try {
-        for await (const match of glob.scan({ cwd: rootPath })) {
+        const matches = await fg(pattern, { cwd: rootPath, onlyFiles: true });
+        for (const match of matches) {
           if (match.includes('node_modules/')) continue;
 
           const fullPath = resolve(rootPath, match);

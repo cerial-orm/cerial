@@ -2,6 +2,7 @@
  * Registry writer - writes the model/object/tuple/literal registry file
  */
 
+import { writeFile } from 'node:fs/promises';
 import type { LiteralMetadata, ModelMetadata, ObjectMetadata, TupleMetadata } from '../../types';
 import { ensureDir, formatCode } from '../shared';
 import { generateCombinedRegistryCode, generateFullRegistryCode, generateRegistryCode } from './registry-generator';
@@ -28,7 +29,7 @@ export async function writeModelRegistry(
   }
   const formatted = await formatCode(content, outputDir);
 
-  await Bun.write(filePath, formatted);
+  await writeFile(filePath, formatted, 'utf-8');
 
   return filePath;
 }

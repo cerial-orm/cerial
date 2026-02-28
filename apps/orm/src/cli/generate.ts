@@ -2,7 +2,7 @@
  * Generate command - orchestrates the generation process
  */
 
-import { readdir, rm } from 'node:fs/promises';
+import { readdir, readFile, rm } from 'node:fs/promises';
 import { basename, dirname, resolve } from 'node:path';
 import { writeClient } from '../generators/client/writer';
 import {
@@ -250,8 +250,7 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
 
     const schemaContents = await Promise.all(
       schemaFiles.map(async (path) => {
-        const file = Bun.file(path);
-        const content = await file.text();
+        const content = await readFile(path, 'utf-8');
 
         return { path, content };
       }),

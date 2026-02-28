@@ -2,8 +2,10 @@
  * Config file loader for cerial.config.ts and cerial.config.json
  */
 
+import { existsSync } from 'node:fs';
+import { readFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
-import { Glob } from 'bun';
+import fg from 'fast-glob';
 import { toFilterPath } from '../filters/path-utils';
 import type { PathFilter } from '../filters/types';
 import type { CerialConfig, FolderConfig } from './types';
@@ -69,8 +71,8 @@ async function loadTypeScriptConfig(filePath: string): Promise<CerialConfig | nu
 
 async function loadJsonConfig(filePath: string): Promise<CerialConfig | null> {
   try {
-    const file = Bun.file(filePath);
-    const config = await file.json();
+    const content = await readFile(filePath, 'utf-8');
+    const config = JSON.parse(content);
 
     return config as CerialConfig;
   } catch (error) {
@@ -82,11 +84,8 @@ async function searchForConfig(cwd: string): Promise<CerialConfig | null> {
   const tsConfigPath = resolve(cwd, 'cerial.config.ts');
   const jsonConfigPath = resolve(cwd, 'cerial.config.json');
 
-  const tsFile = Bun.file(tsConfigPath);
-  const jsonFile = Bun.file(jsonConfigPath);
-
-  const tsExists = await tsFile.exists();
-  const jsonExists = await jsonFile.exists();
+  const tsExists = existsSync(tsConfigPath);
+  const jsonExists = existsSync(jsonConfigPath);
 
   if (tsExists) {
     return loadTypeScriptConfig(tsConfigPath);
@@ -103,8 +102,8 @@ export async function loadFolderConfig(dir: string): Promise<FolderConfig | null
   const tsPath = resolve(dir, 'cerial.config.ts');
   const jsonPath = resolve(dir, 'cerial.config.json');
 
-  const tsExists = await Bun.file(tsPath).exists();
-  const jsonExists = await Bun.file(jsonPath).exists();
+  const tsExists = existsSync(tsPath);
+  const jsonExists = existsSync(jsonPath);
 
   if (!tsExists && !jsonExists) return null;
 
@@ -129,9 +128,9 @@ export async function findFolderConfigs(
   const configDirs: string[] = [];
 
   for (const pattern of ['**/cerial.config.ts', '**/cerial.config.json']) {
-    const glob = new Glob(pattern);
     try {
-      for await (const match of glob.scan({ cwd })) {
+      const matches = await fg(pattern, { cwd, onlyFiles: true });
+      for (const match of matches) {
         if (match.includes('node_modules/')) continue;
 
         const fullPath = resolve(cwd, match);

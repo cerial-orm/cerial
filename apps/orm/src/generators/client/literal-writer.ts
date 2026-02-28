@@ -2,6 +2,7 @@
  * Literal writer - writes per-literal type files to the literals/ directory
  */
 
+import { writeFile } from 'node:fs/promises';
 import type { LiteralMetadata, ObjectRegistry, TupleRegistry } from '../../types';
 import { ensureDir, formatCode } from '../shared';
 import { generateLiteralTypes, generateLiteralWhereInterface } from '../types/literals';
@@ -47,7 +48,7 @@ ${whereCode}
 `;
 
   const formatted = await formatCode(content, outputDir);
-  await Bun.write(filePath, formatted);
+  await writeFile(filePath, formatted, 'utf-8');
 
   return filePath;
 }

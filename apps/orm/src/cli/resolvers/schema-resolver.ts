@@ -1,6 +1,6 @@
-import { lstatSync } from 'node:fs';
+import { existsSync, lstatSync } from 'node:fs';
 import { basename, dirname, resolve } from 'node:path';
-import { Glob } from 'bun';
+import fg from 'fast-glob';
 import { findFolderConfigs } from '../config/loader';
 import type { FolderConfig } from '../config/types';
 import { toFilterPath } from '../filters/path-utils';
@@ -42,9 +42,9 @@ export async function findSchemasInDir(dir: string, patterns: string[]): Promise
   const files: string[] = [];
 
   for (const pattern of patterns) {
-    const glob = new Glob(pattern);
     try {
-      for await (const file of glob.scan({ cwd: dir })) {
+      const matches = await fg(pattern, { cwd: dir, onlyFiles: true, dot: false });
+      for (const file of matches) {
         files.push(resolve(dir, file));
       }
     } catch {
@@ -68,8 +68,7 @@ async function findDirectoriesByName(cwd: string, folderName: string): Promise<s
 
   try {
     // Use glob pattern to find all paths ending with folderName
-    const glob = new Glob(`**/${folderName}`);
-    const matches = await Array.fromAsync(glob.scan({ cwd, onlyFiles: false }));
+    const matches = await fg(`**/${folderName}`, { cwd, onlyDirectories: true, dot: false });
 
     for (const match of matches) {
       // Use resolve for cross-platform path handling
@@ -136,8 +135,7 @@ export async function resolveSinglePath(
   const fullPath = path.startsWith('/') ? path : resolve(cwd, path);
 
   // Check if it's a file
-  const file = Bun.file(fullPath);
-  const exists = await file.exists();
+  const exists = existsSync(fullPath);
 
   if (exists && fullPath.endsWith('.cerial')) {
     if (filter && !filter.shouldInclude(toFilterPath(fullPath, dirname(fullPath)))) return [];
@@ -155,9 +153,9 @@ export async function findSchemaRoots(cwd: string = process.cwd(), filter?: Path
   const rootMap = new Map<string, SchemaRoot>();
 
   for (const marker of CONVENTION_MARKERS) {
-    const glob = new Glob(`**/${marker}`);
     try {
-      for await (const match of glob.scan({ cwd })) {
+      const matches = await fg(`**/${marker}`, { cwd, dot: false });
+      for (const match of matches) {
         if (match.includes('node_modules/')) continue;
 
         const fullPath = resolve(cwd, match);

@@ -2,6 +2,7 @@
  * Client index writer - writes the top-level generated index.ts with all type re-exports
  */
 
+import { writeFile } from 'node:fs/promises';
 import type { LiteralMetadata, ModelMetadata, ObjectMetadata, ObjectRegistry, TupleMetadata } from '../../types';
 import { ensureDir, formatCode } from '../shared';
 import { objectHasDefaultOrTimestamp, tupleHasObjectElementsDeep, tupleHasUnsetableElements } from '../types';
@@ -337,7 +338,7 @@ ${RETURN_UTILITY_TYPES}
 `;
 
   const formatted = await formatCode(content, outputDir);
-  await Bun.write(filePath, formatted);
+  await writeFile(filePath, formatted, 'utf-8');
 
   return filePath;
 }

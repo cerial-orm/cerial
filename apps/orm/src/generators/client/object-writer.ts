@@ -2,6 +2,7 @@
  * Object writer - writes per-object type files to the objects/ directory
  */
 
+import { writeFile } from 'node:fs/promises';
 import type { LiteralRegistry, ObjectMetadata, ObjectRegistry, TupleRegistry } from '../../types';
 import { ensureDir, formatCode } from '../shared';
 import { generateObjectDerivedTypes, generateObjectInterfaces, generateObjectWhereInterface } from '../types';
@@ -91,7 +92,7 @@ ${derivedCode}
 `;
 
   const formatted = await formatCode(content, outputDir);
-  await Bun.write(filePath, formatted);
+  await writeFile(filePath, formatted, 'utf-8');
 
   return filePath;
 }

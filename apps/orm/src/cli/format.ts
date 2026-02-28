@@ -2,6 +2,7 @@
  * Format orchestration - discovers and formats .cerial schema files
  */
 
+import { readFile, writeFile } from 'node:fs/promises';
 import { relative } from 'node:path';
 import { formatCerialSource } from '../formatter/formatter';
 import { resolveConfig as resolveFormatConfig } from '../formatter/rules';
@@ -45,7 +46,7 @@ export async function formatSingleFile(
   check?: boolean,
 ): Promise<FormatFileResult> {
   try {
-    const content = await Bun.file(filePath).text();
+    const content = await readFile(filePath, 'utf-8');
     const result = formatCerialSource(content, config);
 
     if (result.error) {
@@ -57,7 +58,7 @@ export async function formatSingleFile(
     }
 
     if (result.changed && !check) {
-      await Bun.write(filePath, result.formatted);
+      await writeFile(filePath, result.formatted, 'utf-8');
     }
 
     return {

@@ -1,7 +1,9 @@
 import { existsSync, lstatSync } from 'node:fs';
+import { writeFile } from 'node:fs/promises';
 import { basename, relative, resolve } from 'node:path';
 import { createInterface } from 'node:readline';
 import { defineCommand } from 'citty';
+import fg from 'fast-glob';
 import { findSchemaRoots, findSchemasInDir } from '../resolvers/schema-resolver';
 
 export type ConfigFormat = 'typescript' | 'json';
@@ -85,8 +87,7 @@ async function detectSubSchemas(parentDir: string, cwd: string): Promise<Detecte
   const subSchemas: DetectedSchema[] = [];
 
   try {
-    const { Glob } = await import('bun');
-    const entries = await Array.fromAsync(new Glob('*/').scan({ cwd: parentDir, onlyFiles: false }));
+    const entries = await fg('*/', { cwd: parentDir, onlyFiles: false });
 
     for (const entry of entries) {
       const subDir = resolve(parentDir, entry);
@@ -263,7 +264,7 @@ export const initCommand = defineCommand({
     const content = generateConfigContent(schemas, format);
     const outputPath = resolve(cwd, filename);
 
-    await Bun.write(outputPath, content);
+    await writeFile(outputPath, content, 'utf-8');
 
     console.log(`\n  Created ${filename}\n`);
 
@@ -274,7 +275,7 @@ export const initCommand = defineCommand({
         const ignoreAnswer = await ask(rl2, '  Create .cerialignore? (Y/n) ');
         if (ignoreAnswer.toLowerCase() !== 'n') {
           const ignoreOutputPath = resolve(cwd, '.cerialignore');
-          await Bun.write(ignoreOutputPath, DEFAULT_CERIALIGNORE);
+          await writeFile(ignoreOutputPath, DEFAULT_CERIALIGNORE, 'utf-8');
           console.log('  Created .cerialignore\n');
         }
       } finally {

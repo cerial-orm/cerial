@@ -2,6 +2,7 @@
  * Barrel writer - writes index.ts barrel files for models/, objects/, and tuples/ directories
  */
 
+import { writeFile } from 'node:fs/promises';
 import type { LiteralMetadata, ModelMetadata, ObjectMetadata, TupleMetadata } from '../../types';
 import { ensureDir, formatCode } from '../shared';
 
@@ -22,7 +23,7 @@ ${exports}
 `;
 
   const formatted = await formatCode(content, outputDir);
-  await Bun.write(filePath, formatted);
+  await writeFile(filePath, formatted, 'utf-8');
 
   return filePath;
 }
@@ -46,7 +47,7 @@ ${exports}
 `;
 
   const formatted = await formatCode(content, outputDir);
-  await Bun.write(filePath, formatted);
+  await writeFile(filePath, formatted, 'utf-8');
 
   return filePath;
 }
@@ -70,7 +71,7 @@ ${exports}
 `;
 
   const formatted = await formatCode(content, outputDir);
-  await Bun.write(filePath, formatted);
+  await writeFile(filePath, formatted, 'utf-8');
 
   return filePath;
 }
@@ -94,7 +95,7 @@ ${exports}
 `;
 
   const formatted = await formatCode(content, outputDir);
-  await Bun.write(filePath, formatted);
+  await writeFile(filePath, formatted, 'utf-8');
 
   return filePath;
 }
@@ -118,7 +119,7 @@ ${exports}
 `;
 
   const formatted = await formatCode(content, outputDir);
-  await Bun.write(filePath, formatted);
+  await writeFile(filePath, formatted, 'utf-8');
 
   return filePath;
 }

@@ -1,3 +1,5 @@
+import { existsSync } from 'node:fs';
+import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import type { CerialIgnoreFile } from './types';
 
@@ -5,11 +7,10 @@ const CERIALIGNORE_FILENAME = '.cerialignore';
 
 export async function loadCerialIgnore(dir: string): Promise<CerialIgnoreFile | null> {
   const filePath = resolve(dir, CERIALIGNORE_FILENAME);
-  const file = Bun.file(filePath);
 
-  if (!(await file.exists())) return null;
+  if (!existsSync(filePath)) return null;
 
-  const content = await file.text();
+  const content = await readFile(filePath, 'utf-8');
 
   return { path: filePath, dir, content };
 }

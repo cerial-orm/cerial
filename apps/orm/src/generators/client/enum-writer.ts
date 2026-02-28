@@ -7,6 +7,7 @@
  * - Where interface (StatusEnumWhere)
  */
 
+import { writeFile } from 'node:fs/promises';
 import type { LiteralMetadata } from '../../types';
 import { ensureDir, formatCode } from '../shared';
 import { generateEnumTypes, generateEnumWhereInterface } from '../types/enums';
@@ -33,7 +34,7 @@ ${whereCode}
 `;
 
   const formatted = await formatCode(content, outputDir);
-  await Bun.write(filePath, formatted);
+  await writeFile(filePath, formatted, 'utf-8');
 
   return filePath;
 }

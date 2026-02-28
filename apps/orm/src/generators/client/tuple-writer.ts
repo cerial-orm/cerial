@@ -2,6 +2,7 @@
  * Tuple writer - writes per-tuple type files to the tuples/ directory
  */
 
+import { writeFile } from 'node:fs/promises';
 import type { LiteralRegistry, ObjectRegistry, TupleMetadata, TupleRegistry } from '../../types';
 import { ensureDir, formatCode } from '../shared';
 import {
@@ -116,7 +117,7 @@ ${selectCode ? `\n${selectCode}\n` : ''}${unsetCode ? `\n${unsetCode}\n` : ''}
 `;
 
   const formatted = await formatCode(content, outputDir);
-  await Bun.write(filePath, formatted);
+  await writeFile(filePath, formatted, 'utf-8');
 
   return filePath;
 }

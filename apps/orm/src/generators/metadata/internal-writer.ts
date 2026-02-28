@@ -2,6 +2,7 @@
  * Internal writer - writes the internal barrel index file
  */
 
+import { writeFile } from 'node:fs/promises';
 import { ensureDir, formatCode } from '../shared';
 
 /** Write internal index file */
@@ -40,7 +41,7 @@ export type { ModelName } from './migrations';
 `;
 
   const formatted = await formatCode(content, outputDir);
-  await Bun.write(filePath, formatted);
+  await writeFile(filePath, formatted, 'utf-8');
 
   return filePath;
 }

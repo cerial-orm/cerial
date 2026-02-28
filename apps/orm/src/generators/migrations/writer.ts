@@ -2,6 +2,7 @@
  * Migration writer - writes migration-related generated files
  */
 
+import { writeFile } from 'node:fs/promises';
 import type { LiteralRegistry, ModelMetadata, ObjectRegistry, TupleRegistry } from '../../types';
 import { ensureDir, formatCode } from '../shared';
 import { generatePerModelMigrationCode } from './define-generator';
@@ -27,7 +28,7 @@ ${generatePerModelMigrationCode(models, objectRegistry, tupleRegistry, literalRe
 `;
 
   const formatted = await formatCode(content, outputDir);
-  await Bun.write(filePath, formatted);
+  await writeFile(filePath, formatted, 'utf-8');
 
   return filePath;
 }

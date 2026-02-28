@@ -2,6 +2,7 @@
  * Model writer - writes per-model type files to the models/ directory
  */
 
+import { writeFile } from 'node:fs/promises';
 import type { LiteralRegistry, ModelMetadata, ObjectRegistry, TupleRegistry } from '../../types';
 import { ensureDir, formatCode } from '../shared';
 import { generateAllDerivedTypes, generateInterfaces, generateModelTypes, generateWhereTypes } from '../types';
@@ -146,7 +147,7 @@ ${modelCode}
 `;
 
   const formatted = await formatCode(content, outputDir);
-  await Bun.write(filePath, formatted);
+  await writeFile(filePath, formatted, 'utf-8');
 
   return filePath;
 }

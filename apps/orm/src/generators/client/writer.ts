@@ -2,6 +2,8 @@
  * Client writer - orchestrates writing all generated client files
  */
 
+import { writeFile } from 'node:fs/promises';
+
 import type {
   LiteralMetadata,
   LiteralRegistry,
@@ -48,7 +50,7 @@ ${generateConnectionExports()}
 `;
 
   const formatted = await formatCode(content, outputDir);
-  await Bun.write(filePath, formatted);
+  await writeFile(filePath, formatted, 'utf-8');
 
   return filePath;
 }
