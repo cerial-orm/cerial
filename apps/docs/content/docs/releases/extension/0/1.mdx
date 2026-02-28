@@ -1,0 +1,97 @@
+---
+title: Extension v0.1.x
+description: Release notes for Cerial VS Code extension v0.1.x — the initial release.
+---
+
+## 0.1.0
+
+The first public release of the Cerial VS Code extension, providing full language support for `.cerial` schema files.
+
+### Added
+
+#### Language Support
+
+- `.cerial` file association with language ID, file icon (light and dark variants), and TextMate grammar registration
+- Language configuration for comments (`//`, `/* */`), bracket matching, auto-closing pairs, word patterns, and indentation rules
+- IPC-based language server with two-pass workspace indexing, file watcher integration, and incremental text synchronization
+
+#### Syntax Highlighting
+
+- TextMate grammar for all `.cerial` constructs: block keywords, field names, types, decorators, string/number literals, comments, and modifiers
+- AST-aware semantic tokens layered on top of TextMate for precise coloring of type names, field properties, decorator arguments, enum values, and inherited fields
+- Compatible with all VS Code color themes
+
+#### IntelliSense
+
+- Context-aware completions for block keywords (`model`, `abstract model`, `object`, `tuple`, `enum`, `literal`)
+- 15 primitive type completions plus array variants
+- Cross-file user-defined type completions for object, tuple, enum, and literal references
+- Decorator completions with conflict exclusion and snippet arguments
+- `extends` target completions filtered to compatible parent types
+- `@model()`, `@field()`, and `Record()` argument completions from workspace context
+
+#### Diagnostics
+
+- Real-time parse error reporting with precise line and column positions
+- 11+ schema validators covering ID fields, relation pairing, decorator conflicts, type references, extends validation, optionality, and nullable constraints
+- Pull-based diagnostic delivery for responsive editing
+- Per-file and cross-file validation using resolved AST
+
+#### Code Actions
+
+- 12+ quick fix types for common schema issues
+- Add missing `@id`, remove invalid decorators, fix unknown type references and typos
+- All quick fixes apply as preferred code actions for one-click resolution
+
+#### Hover Documentation
+
+- Type documentation with SurrealDB type mappings for all 15 field types
+- Decorator documentation explaining behavior, constraints, and valid contexts
+- Field signature info and block-level hover for all definition types
+
+#### Inlay Hints
+
+- FK type inference hints showing `CerialId<T>` on Record fields linked via `@model()`
+- Behavior indicator hints: `auto-generated`, `computed`, `sets on create`, `resets on update`
+- Inheritance source hints showing `from ParentName` on fields inherited via `extends`
+- Master toggle plus individual per-feature toggles
+
+#### Navigation
+
+- Go to Definition for types, models, fields, and `extends` targets across files
+- Find All References across all `.cerial` files in the schema group
+- Rename Symbol with automatic cross-file updates
+- Workspace Symbols for jumping to any type definition
+- Document Outline showing all definitions in a structured tree
+
+#### Document Links
+
+- Clickable cross-file type references for object, tuple, literal, and enum fields
+- Clickable `extends`, `@model()`, and `Record()` argument references
+
+#### Formatting
+
+- Format document and format selection via the ORM's formatter engine
+- 9 configurable formatting options including alignment, indentation, decorator style, and comment normalization
+- Idempotent output
+
+#### Code Folding
+
+- Block-level folding for all definition types
+- Comment region folding via regex markers
+
+#### Snippets
+
+- 16 code snippets: `model`, `abstract`, `object`, `tuple`, `enum`, `literal`, `rel11`, `rel1n`, `relnn`, `fdef`, `timestamps`, `id`, `tid`, `@@unique`, `@@index`, `extends`
+- Relation snippets generate both sides of the relation
+
+#### Configuration
+
+- 9 formatting settings under `cerial.format.*`
+- Diagnostics toggle, 4 inlay hint settings, language server trace setting
+
+#### Multi-Schema Support
+
+- Workspace-aware schema grouping via `cerial.config.ts` detection
+- Isolated type resolution per schema group
+- File watcher integration for schema file changes
