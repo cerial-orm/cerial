@@ -1,16 +1,17 @@
-name: Extension Release
+name: ORM Release
 
 on:
   push:
-    tags: ['ext-v*']
+    tags: ['orm-v*']
   workflow_dispatch:
 
 concurrency:
-  group: ext-release
+  group: orm-release
   cancel-in-progress: false
 
 permissions:
   contents: write
+  id-token: write
 
 jobs:
   publish:
@@ -20,55 +21,58 @@ jobs:
 
       - uses: oven-sh/setup-bun@v2
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          registry-url: 'https://registry.npmjs.org'
+
       - name: Install dependencies
         run: bun install --frozen-lockfile
-        working-directory: apps/vscode-extension
+        working-directory: apps/orm
 
       - name: Verify version
         if: startsWith(github.ref, 'refs/tags/')
         run: |
-          TAG_VERSION="${GITHUB_REF#refs/tags/ext-v}"
+          TAG_VERSION="${GITHUB_REF#refs/tags/orm-v}"
           PKG_VERSION=$(node -p "require('./package.json').version")
           if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
             echo "::error::Tag version ($TAG_VERSION) does not match package.json version ($PKG_VERSION)"
             exit 1
           fi
           echo "Version verified: $TAG_VERSION"
-        working-directory: apps/vscode-extension
-
-      - name: Build
-        run: bun run build
-        working-directory: apps/vscode-extension
+        working-directory: apps/orm
 
       - name: Run tests
         run: bun run test
-        working-directory: apps/vscode-extension
+        working-directory: apps/orm
 
-      - name: Package VSIX
-        run: npx @vscode/vsce package --no-dependencies
-        working-directory: apps/vscode-extension
+      - name: Build
+        run: bun run build
+        working-directory: apps/orm
 
       - name: Extract changelog
         if: startsWith(github.ref, 'refs/tags/')
+        id: changelog
         run: |
-          VERSION="${GITHUB_REF#refs/tags/ext-v}"
+          VERSION="${GITHUB_REF#refs/tags/orm-v}"
           awk "/^## \\[$VERSION\\]/{found=1; next} found && /^## \\[/{exit} found{print}" CHANGELOG.md > /tmp/release-notes.md
           echo "Release notes for $VERSION:"
           cat /tmp/release-notes.md
-        working-directory: apps/vscode-extension
+        working-directory: apps/orm
 
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          VERSION="${GITHUB_REF#refs/tags/ext-v}"
+          VERSION="${GITHUB_REF#refs/tags/orm-v}"
           gh release create "$GITHUB_REF_NAME" \
-            --title "Cerial VS Code Extension v$VERSION" \
-            --notes-file /tmp/release-notes.md \
-            apps/vscode-extension/*.vsix
+            --title "Cerial ORM v$VERSION" \
+            --notes-file /tmp/release-notes.md
 
-      - name: Publish to VS Code Marketplace
+      - name: Publish to npm
         if: startsWith(github.ref, 'refs/tags/')
-        run: npx @vscode/vsce publish --no-dependencies --pat ${{ secrets.VSCE_PAT }}
-        working-directory: apps/vscode-extension
+        run: npm publish --access public --provenance
+        working-directory: apps/orm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
