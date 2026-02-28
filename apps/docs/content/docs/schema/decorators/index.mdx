@@ -36,17 +36,17 @@ The order of decorators on a field does not matter — `@field(authorId) @model(
 | [`@field(name)`](../decorators/relations/field/) | FK storage field | ✅ (Relation) | — | — |
 | [`@model(Name)`](../decorators/relations/model/) | Relation target model | ✅ (Relation) | — | — |
 | [`@key(name)`](../decorators/relations/key/) | Relation disambiguation | ✅ (Relation) | — | — |
-| `@onDelete(action)` | Delete behavior | ✅ (Relation?) | — | — |
+| [`@onDelete(action)`](../decorators/relations/on-delete/) | Delete behavior | ✅ (Relation?) | — | — |
 
 ### Defaults & Timestamps
 
 | Decorator | Purpose | Model | Object | Tuple Element |
 | --- | --- | :---: | :---: | :---: |
-| `@default(value)` | Default value on create | ✅ | ✅ | ✅ |
-| `@defaultAlways(value)` | Reset-on-write default | ✅ | ✅ | ✅ |
-| `@createdAt` | Creation timestamp | ✅ | ✅ | ✅ |
-| `@updatedAt` | Last-modified timestamp | ✅ | ✅ | ✅ |
-| `@now` | Computed `time::now()` | ✅ | — | — |
+| [`@default(value)`](../decorators/defaults/default/) | Default value on create | ✅ | ✅ | ✅ |
+| [`@defaultAlways(value)`](../decorators/defaults/default-always/) | Reset-on-write default | ✅ | ✅ | ✅ |
+| [`@createdAt`](../decorators/datetime/created-at/) | Creation timestamp | ✅ | ✅ | ✅ |
+| [`@updatedAt`](../decorators/datetime/updated-at/) | Last-modified timestamp | ✅ | ✅ | ✅ |
+| [`@now`](../decorators/datetime/now/) | Computed `time::now()` | ✅ | — | — |
 
 :::caution
 `@now` is **not** allowed on object fields or tuple elements. SurrealDB requires `COMPUTED` fields to be top-level model fields. Use `@createdAt` or `@updatedAt` on object sub-fields instead.
@@ -58,9 +58,9 @@ The order of decorators on a field does not matter — `@field(authorId) @model(
 | --- | --- | :---: | :---: | :---: |
 | [`@unique`](../decorators/indexes/unique/) | Unique constraint | ✅ | ✅ | — |
 | [`@index`](../decorators/indexes/index-decorator/) | Non-unique index | ✅ | ✅ | — |
-| `@nullable` | Allow null values | ✅ | ✅¹ | ✅² |
-| `@readonly` | Write-once field | ✅ | ✅ | — |
-| `@flexible` | Allow extra fields | ✅³ | ✅³ | — |
+| [`@nullable`](../decorators/control/nullable/) | Allow null values | ✅ | ✅¹ | ✅² |
+| [`@readonly`](../decorators/control/readonly/) | Write-once field | ✅ | ✅ | — |
+| [`@flexible`](../decorators/control/flexible/) | Allow extra fields | ✅³ | ✅³ | — |
 
 <small>
 ¹ `@nullable` is allowed on object **sub-fields** but not on object-typed fields themselves.<br/>
@@ -72,15 +72,29 @@ The order of decorators on a field does not matter — `@field(authorId) @model(
 
 | Decorator | Purpose | Model | Object | Tuple Element |
 | --- | --- | :---: | :---: | :---: |
-| `@set` | Auto-deduplicated sorted set | ✅ | ✅ | — |
-| `@distinct` | Array deduplication | ✅ | ✅ | — |
-| `@sort` / `@sort(false)` | Array ordering | ✅ | ✅ | — |
+| [`@set`](../decorators/arrays/set/) | Auto-deduplicated sorted set | ✅ | ✅ | — |
+| [`@distinct`](../decorators/arrays/distinct/) | Array deduplication | ✅ | ✅ | — |
+| [`@sort` / `@sort(false)`](../decorators/arrays/sort/) | Array ordering | ✅ | ✅ | — |
 
 ### UUID
 
 | Decorator | Purpose | Model | Object | Tuple Element |
 | --- | --- | :---: | :---: | :---: |
-| `@uuid` / `@uuid4` / `@uuid7` | Auto-generate UUID | ✅ | ✅ | — |
+| [`@uuid` / `@uuid4` / `@uuid7`](../decorators/uuid/uuid/) | Auto-generate UUID | ✅ | ✅ | — |
+
+### Geometry Subtypes
+
+| Decorator | Purpose | Model | Object | Tuple Element |
+| --- | --- | :---: | :---: | :---: |
+| `@point` | Point geometry | ✅ | ✅ | — |
+| `@line` | LineString geometry | ✅ | ✅ | — |
+| `@polygon` | Polygon geometry | ✅ | ✅ | — |
+| `@multipoint` | MultiPoint geometry | ✅ | ✅ | — |
+| `@multiline` | MultiLineString geometry | ✅ | ✅ | — |
+| `@multipolygon` | MultiPolygon geometry | ✅ | ✅ | — |
+| `@geoCollection` | GeometryCollection | ✅ | ✅ | — |
+
+These decorators constrain which geometry subtypes a `Geometry` field accepts. Multiple decorators create a union type. See the [Geometry field type page](/schema/field-types/geometry) for full details and usage examples.
 
 ## Composite Directives
 
