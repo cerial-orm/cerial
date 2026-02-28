@@ -327,7 +327,7 @@ describe('nested-builder', () => {
         expect(query.text).toContain('CREATE ONLY profile');
         expect(query.text).toContain('CREATE ONLY user');
         expect(query.text).toContain('LET $resultId = $result.id;');
-        expect(query.text).toContain('RETURN SELECT * FROM ONLY $resultId;');
+        expect(query.text).toContain('RETURN $result;');
         expect(query.vars).toHaveProperty('profile_content');
       });
 
@@ -343,7 +343,7 @@ describe('nested-builder', () => {
         expect(query.text).toContain('LET $exists_0_1');
         expect(query.text).toContain('UPDATE $sync_0_0 SET userIds += $resultId');
         expect(query.text).toContain('UPDATE $sync_0_1 SET userIds += $resultId');
-        expect(query.text).toContain('RETURN SELECT * FROM ONLY $resultId;');
+        expect(query.text).toContain('RETURN $result;');
       });
     });
 
