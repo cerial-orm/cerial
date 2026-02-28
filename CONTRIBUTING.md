@@ -2,22 +2,22 @@
 
 Thanks for your interest in contributing to Cerial! This guide covers the conventions you need to follow.
 
-## Changelog
+## Release Notes
 
-Every commit that changes user-facing behavior **must** add an entry to the `[Unreleased]` section of the relevant package's `CHANGELOG.md`. This includes new features, bug fixes, breaking changes, and deprecations. Internal refactors and test-only changes do not require an entry.
+Every commit that changes user-facing behavior **must** add an entry to the relevant release notes page. This includes new features, bug fixes, breaking changes, and deprecations. Internal refactors and test-only changes do not require an entry.
 
-### Which changelog?
+### Where do release notes live?
 
-Each package maintains its own changelog:
+Release notes are maintained in the **docs site** as the single source of truth. There are no `CHANGELOG.md` files.
 
-- **ORM** — `CHANGELOG.md` (root, later `apps/orm/CHANGELOG.md`)
-- **Extension** — `extension/CHANGELOG.md` (later `apps/extension/CHANGELOG.md`)
+- **ORM** — `apps/docs/content/docs/releases/orm/{major}/{minor}.mdx`
+- **Extension** — `apps/docs/content/docs/releases/extension/{major}/{minor}.mdx`
 
 If your change affects both packages, add entries to both.
 
 ### Format
 
-We follow [Keep a Changelog](https://keepachangelog.com). Use these categories under each version:
+We follow [Keep a Changelog](https://keepachangelog.com) categories:
 
 - `### Added` — New features
 - `### Changed` — Changes to existing features
@@ -27,45 +27,22 @@ We follow [Keep a Changelog](https://keepachangelog.com). Use these categories u
 
 ### How to add an entry
 
-Add your entry under `## [Unreleased]` in the appropriate category:
+Add your entry under the current version's heading in the appropriate category:
 
-```markdown
-## [Unreleased]
+```mdx
+## 0.1.1
 
 ### Fixed
 
 - Fix nullable field validation on tuple elements
 ```
 
-If the category doesn't exist yet under `[Unreleased]`, create it.
-
-### Version lifecycle
-
-The active `CHANGELOG.md` contains:
-- The `[Unreleased]` section (work in progress)
-- All patch releases for the **current minor version**
-
-When a new **minor version** is released (e.g., moving from `0.1.x` to `0.2.0`):
-1. `[Unreleased]` becomes `## [0.2.0] - YYYY-MM-DD`
-2. A fresh empty `## [Unreleased]` is added above
-3. All `0.1.x` entries are archived to `changelogs/0/1.md`
-
-### Archive structure
-
-```
-package/
-├── CHANGELOG.md          # [Unreleased] + current minor
-└── changelogs/
-    └── 0/                # Major version 0
-        ├── 0.md          # All 0.0.x patches in one file
-        └── 1.md          # All 0.1.x patches in one file
-```
+If the category doesn't exist yet under the version heading, create it. Newest version goes at the top of the page.
 
 ### Rules
 
 - **Never edit released version entries** — if a released entry has a typo, fix it in the next patch's `### Fixed`
-- **Don't skip the changelog** — PRs that change user-facing behavior without a changelog entry will be requested to add one
-
+- **Don't skip release notes** — PRs that change user-facing behavior without a release notes entry will be requested to add one
 
 ## Commits
 
@@ -85,17 +62,17 @@ Each commit should represent **one logical change**. Split work into small, focu
 
 ### Multi-commit issue fixes
 
-Large fixes or features that span multiple types of changes should use multiple commits. Each commit gets its own changelog entry under the correct category:
+Large fixes or features that span multiple types of changes should use multiple commits. Each user-facing commit should have a corresponding entry in the release notes docs page:
 
 ```
 Commit 1: fix(extension): update inlay hint labels
-  → CHANGELOG: ### Changed — Rename 'server-set' hint label to 'auto-generated'
+  → Release notes: ### Changed — Rename 'server-set' hint label to 'auto-generated'
 
 Commit 2: feat(extension): add 'sets on create' inlay hint
-  → CHANGELOG: ### Added — Inlay hint for @default fields
+  → Release notes: ### Added — Inlay hint for @default fields
 
 Commit 3: docs(extension): update README
-  → No changelog entry (docs-only)
+  → No release notes entry (docs-only)
 ```
 
 ### Amend policy
