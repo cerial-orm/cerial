@@ -30,7 +30,7 @@ A Prisma-like ORM for [SurrealDB](https://surrealdb.com/) with schema-driven cod
 
 ### Queries
 
-- **Full CRUD** — `findOne`, `findMany`, `findAll`, `findUnique`, `create`, `updateMany`, `updateUnique`, `deleteMany`, `deleteUnique`
+- **Full CRUD** — `findOne`, `findMany`, `findUnique`, `create`, `updateMany`, `updateUnique`, `deleteMany`, `deleteUnique`
 - **Upsert** — Create-or-update with `upsert` and conditional field logic
 - **Aggregates** — `count()` and `exists()` for efficient record checks
 - **Select & Include** — Dynamic return types that narrow based on selected fields and included relations
@@ -237,7 +237,7 @@ Full documentation is available at the [Cerial Docs](apps/docs/) site, covering:
 - [Enums](apps/docs/content/docs/schema/enums.mdx) - String-only named constants with generated types and filtering
 - [Enums vs Literals](apps/docs/content/docs/schema/enums-vs-literals.mdx) - When to use enums vs literal types
 - [Relations](apps/docs/content/docs/relations/) - 1:1, 1:N, N:N, self-referential, nested operations, delete behavior
-- [Queries](apps/docs/content/docs/queries/) - findOne, findMany, findAll, findUnique, create, upsert, update, delete, count, exists, $transaction
+- [Queries](apps/docs/content/docs/queries/) - findOne, findMany, findUnique, create, upsert, update, delete, count, exists, $transaction
 - [Filtering](apps/docs/content/docs/filtering/) - Comparison, string, array, logical, special, nested, object operators
 - [Select & Include](apps/docs/content/docs/select-and-include/) - Dynamic return types, sub-field selection, nested includes
 - [Array Operations](apps/docs/content/docs/array-operations/) - push, unset, replace, @distinct, @sort decorators

@@ -86,7 +86,7 @@ cerial/
 │   │   │   │   │   ├── data-types/         #     UUID/number/duration/etc schemas
 │   │   │   │   │   └── features/           #     Typed-ids, unset, etc schemas
 │   │   │   │   ├── generated/               #   Generated client (gitignored)
-│   │   │   │   ├── core/                    #   Core CRUD, select, include, findAll, introspection tests (8 files)
+│   │   │   │   ├── core/                    #   Core CRUD, select, include, introspection tests (7 files)
 │   │   │   │   ├── relations/               #   Relation E2E tests (89 files)
 │   │   │   │   ├── decorators/              #   Decorator E2E tests (43 files)
 │   │   │   │   ├── complex-types/           #   Object/tuple/literal/enum tests (46 files)
@@ -173,7 +173,7 @@ Schema (.cerial files) → Parser (AST) → Generators → TypeScript Client
 | ----------------------------------------------------------------- | ------------------------------------------------------------- | -------- |
 | `apps/orm/tests/unit/`                                            | Unit tests (no DB)                                            | ~2683    |
 | `apps/orm/tests/integration/`                                     | Integration (DB required)                                     | ~49      |
-| `apps/orm/tests/e2e/core/`                                        | Core CRUD, select, include, findAll, introspection            | 8 files  |
+| `apps/orm/tests/e2e/core/`                                        | Core CRUD, select, include, introspection                     | 7 files  |
 | `apps/orm/tests/e2e/relations/`                                   | Relation E2E tests                                            | 89 files |
 | `apps/orm/tests/e2e/decorators/`                                  | Decorator E2E tests                                           | 43 files |
 | `apps/orm/tests/e2e/complex-types/`                               | Object/tuple/literal/enum tests                               | 46 files |
@@ -582,7 +582,6 @@ Do NOT use SurrealDB reserved keywords as field names, model names, or object na
 - **Geometry** = Geospatial data with 7 subtypes via decorators (`@point`, `@line`, `@polygon`, `@multipoint`, `@multiline`, `@multipolygon`, `@collection`). Bare `Geometry` = all subtypes. Multi-type: `Geometry @point @polygon`. CerialGeometry class hierarchy. Point input shorthand: `[lon, lat]`. Equality-only WHERE. No OrderBy. No spatial operators (future feature)
 - **Any type** = `Any` field stores any SurrealDB value. `CerialAny` recursive union (NOT bare TS `any`). No `?`, no `@nullable` (TYPE any already accepts NONE/null). Full WHERE operator set. Excluded from OrderBy. Not allowed in tuple elements
 - **@set decorator** = `String[] @set` generates `set<T>` instead of `array<T>`. Auto-dedup and sort at DB level. Output type `CerialSet<T>` (branded array). Input accepts regular arrays. Not allowed on Decimal[], Object[], Tuple[], Record[]. Mutually exclusive with @distinct/@sort
-- **findAll()** = Alias for `findMany()` with no options. Returns all records in the table as `T[]`. No `where`, `select`, `include`, `orderBy`, `limit`, or `offset` parameters
 - **Model introspection** = `getMetadata()`, `getName()`, `getTableName()` — available on every model instance for runtime metadata access. `getMetadata()` returns full `ModelMetadata` (name, table, fields, relations). `getName()` returns the model name. `getTableName()` returns the SurrealDB table name
 - **Path filtering** = Three-tier filter system for controlling which `.cerial` files are processed. `ignore` (absolute blacklist), `exclude` (overridable blacklist), `include` (whitelist override). Supports `.cerialignore` files at project root and per-schema-folder. Cascade: `.cerialignore` → root config → folder `.cerialignore` → folder config. Config fields on `CerialConfig`, `SchemaEntry`, `FolderConfig`
 - **Extends** = Schema-level inheritance for all type kinds (model, object, tuple, enum, literal). `extends ParentName` inherits all fields/values. `extends ParentName[field1, field2]` picks specific fields. `extends ParentName[!field]` omits fields. Resolved at compile time — generators see flattened output. Single parent only, no cross-kind
