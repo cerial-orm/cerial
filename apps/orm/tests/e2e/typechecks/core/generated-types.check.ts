@@ -69,6 +69,7 @@ Test.checks([Test.check<Extends<WithOptional, UserCreate>, 1, Test.Pass>()]);
 // =============================================================================
 
 // Empty object should be valid for update (all fields optional)
+// biome-ignore lint/complexity/noBannedTypes: {} intentionally tests empty object assignability
 Test.checks([Test.check<Extends<{}, UserUpdate>, 1, Test.Pass>()]);
 
 // Partial updates should work

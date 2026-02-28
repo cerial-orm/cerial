@@ -135,9 +135,9 @@ Test.checks([
 ]);
 
 // AddressWhere.zipCode accepts null (optional field)
-type ZipCodeWhere = Exclude<AddressWhere['zipCode'], string | undefined>;
+type _ZipCodeWhere = Exclude<AddressWhere['zipCode'], string | undefined>;
 // Verify null is part of the union by checking that assigning null to the field is valid
-type ZipCodeAcceptsNull = null extends NonNullable<AddressWhere['zipCode']> ? 0 : 1;
+type _ZipCodeAcceptsNull = null extends NonNullable<AddressWhere['zipCode']> ? 0 : 1;
 // Instead, verify null is included in the field type
 Test.checks([Test.check<Extends<{ zipCode: null }, AddressWhere>, 1, Test.Pass>()]);
 

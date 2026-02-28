@@ -95,6 +95,7 @@ Test.checks([
 
 Test.checks([
   Test.check<Extends<{ timeout: number }, TransactionOptions>, 1, Test.Pass>(),
+  // biome-ignore lint/complexity/noBannedTypes: {} intentionally tests empty object assignability
   Test.check<Extends<{}, TransactionOptions>, 1, Test.Pass>(),
   Test.check<Extends<{ retries: number }, TransactionOptions>, 1, Test.Pass>(),
   Test.check<Extends<{ backoff: (attempt: number) => number }, TransactionOptions>, 1, Test.Pass>(),
@@ -134,7 +135,7 @@ Test.checks([Test.check<Extends<CreateWithTxn, { txn?: CerialTransaction }>, 1, 
 // =============================================================================
 
 type ValidCallback = (tx: TransactionClient) => Promise<User>;
-type CallbackOverload = <R>(fn: (tx: TransactionClient) => Promise<R> | R, options?: TransactionOptions) => Promise<R>;
+type _CallbackOverload = <R>(fn: (tx: TransactionClient) => Promise<R> | R, options?: TransactionOptions) => Promise<R>;
 Test.checks([Test.check<Extends<ValidCallback, (tx: TransactionClient) => Promise<User> | User>, 1, Test.Pass>()]);
 
 // =============================================================================

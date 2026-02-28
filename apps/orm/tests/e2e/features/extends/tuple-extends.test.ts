@@ -135,6 +135,7 @@ describe('E2E Extends: Tuple Inheritance', () => {
           pair: ['p', 1],
           triple: ['t', 2, true],
           namedTriple: ['n', 3, false],
+          // biome-ignore lint/suspicious/noApproximativeNumericConstant: 2.718 is a deliberate test value, not Math.E
           quad: ['multi', 10, true, 2.718],
           coordPair: [
             { x: 0, y: 0 },
@@ -144,10 +145,12 @@ describe('E2E Extends: Tuple Inheritance', () => {
       });
 
       // ExtQuad = ExtTriple(ExtBasePair(String, Int) + Bool) + Float
+      // biome-ignore lint/suspicious/noApproximativeNumericConstant: 2.718 is a deliberate test value, not Math.E
       expect(result.quad).toEqual(['multi', 10, true, 2.718]);
       expect(result.quad[0]).toBe('multi'); // from ExtBasePair
       expect(result.quad[1]).toBe(10); // from ExtBasePair
       expect(result.quad[2]).toBe(true); // from ExtTriple
+      // biome-ignore lint/suspicious/noApproximativeNumericConstant: 2.718 is a deliberate test value, not Math.E
       expect(result.quad[3]).toBe(2.718); // own element
     });
 

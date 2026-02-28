@@ -106,4 +106,5 @@ checks([check<HasKey<ReviewMetaCreateInput, 'note'>, 1, Test.Pass>()]);
 checks([check<HasKey<ReviewMetaCreateInput, 'flagged'>, 1, Test.Pass>()]);
 
 // Can create ReviewMetaCreateInput with empty object (all fields have defaults)
+// biome-ignore lint/complexity/noBannedTypes: {} intentionally tests empty object assignability
 checks([check<Extends<{}, ReviewMetaCreateInput>, 1, Test.Pass>()]);

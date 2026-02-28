@@ -109,4 +109,5 @@ Test.checks([Test.check<Extends<{ history: { push: [number, number] } }, TupleBa
 Test.checks([Test.check<Extends<{ history: { set: [number, number][] } }, TupleBasicUpdate>, 1, Test.Pass>()]);
 
 // Update: all fields are optional
+// biome-ignore lint/complexity/noBannedTypes: {} intentionally tests empty object assignability
 Test.checks([Test.check<Extends<{}, TupleBasicUpdate>, 1, Test.Pass>()]);

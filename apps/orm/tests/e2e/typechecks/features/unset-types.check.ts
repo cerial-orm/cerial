@@ -26,7 +26,7 @@ const { checks, check } = Test;
 type HasKey<T, K extends string | number> = K extends keyof T ? 1 : 0;
 
 // Helper: check if types are equal
-type IsEqual<A, B> = [A] extends [B] ? ([B] extends [A] ? 1 : 0) : 0;
+type _IsEqual<A, B> = [A] extends [B] ? ([B] extends [A] ? 1 : 0) : 0;
 
 // =============================================================================
 // UnsetTestUnset Type Shape
@@ -109,6 +109,7 @@ type Kept1 = SafeUnset<UnsetTestUnset, DataWithAddress>;
 checks([check<HasKey<Kept1, 'address'>, 1, Test.Pass>()]);
 
 // When data has no overlapping fields, all unset fields available
+// biome-ignore lint/complexity/noBannedTypes: {} intentionally tests empty object assignability
 type DataEmpty = {};
 type AllAvailable = SafeUnset<UnsetTestUnset, DataEmpty>;
 checks([check<HasKey<AllAvailable, 'bio'>, 1, Test.Pass>()]);
