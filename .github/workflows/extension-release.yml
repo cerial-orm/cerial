@@ -48,24 +48,16 @@ jobs:
         run: npx @vscode/vsce package --no-dependencies
         working-directory: apps/vscode-extension
 
-      - name: Extract changelog
-        if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          VERSION="${GITHUB_REF#refs/tags/ext-v}"
-          awk "/^## \\[$VERSION\\]/{found=1; next} found && /^## \\[/{exit} found{print}" CHANGELOG.md > /tmp/release-notes.md
-          echo "Release notes for $VERSION:"
-          cat /tmp/release-notes.md
-        working-directory: apps/vscode-extension
-
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           VERSION="${GITHUB_REF#refs/tags/ext-v}"
+          MINOR=$(echo "$VERSION" | cut -d. -f1-2 | tr '.' '/')
           gh release create "$GITHUB_REF_NAME" \
             --title "Cerial VS Code Extension v$VERSION" \
-            --notes-file /tmp/release-notes.md \
+            --notes "Full release notes: https://cerial-orm.github.io/releases/extension/${MINOR}#$(echo $VERSION | tr '.' '')" \
             apps/vscode-extension/*.vsix
 
       - name: Publish to VS Code Marketplace
