@@ -1,0 +1,156 @@
+---
+title: Email
+description: Email field type in Cerial — stored as a string with SurrealDB-enforced email format validation.
+---
+
+The `Email` field type stores an email address as a `string`, but with a key difference: SurrealDB enforces valid email format through a `string::is::email` assertion on the field. Attempting to insert or update a record with an invalid email will cause a validation error at the database level.
+
+## Schema Syntax
+
+```cerial
+model User {
+  id Record @id
+  email Email @unique
+  backupEmail Email?
+  defaultContact Email @default("admin@example.com")
+}
+```
+
+## Types
+
+| Direction | Type |
+| --- | --- |
+| Output | `string` |
+| Input | `string` |
+| SurrealDB | `string` (with `string::is::email` assertion) |
+
+At the TypeScript level, `Email` behaves identically to `String`. The validation happens in SurrealDB, not at compile time.
+
+## Create & Update
+
+```typescript
+const user = await client.db.User.create({
+  data: {
+    email: 'alice@example.com',
+    backupEmail: 'alice.backup@example.com',
+  },
+});
+
+console.log(user.email);  // 'alice@example.com'
+
+// Update
+await client.db.User.updateUnique({
+  where: { id: user.id },
+  data: { email: 'alice.new@example.com' },
+});
+
+// This would fail at the database level — invalid email format:
+// data: { email: 'not-an-email' }
+```
+
+## Filtering
+
+Email fields support the same operators as strings:
+
+```typescript
+// Exact match
+const alice = await client.db.User.findMany({
+  where: { email: { eq: 'alice@example.com' } },
+});
+
+// Domain search
+const gmailUsers = await client.db.User.findMany({
+  where: { email: { endsWith: '@gmail.com' } },
+});
+
+// Set
+const specific = await client.db.User.findMany({
+  where: { email: { in: ['alice@example.com', 'bob@example.com'] } },
+});
+```
+
+### Available Operators
+
+| Operator | Description |
+| --- | --- |
+| `eq` | Equal to |
+| `neq` | Not equal to |
+| `in` | In a set of values |
+| `notIn` | Not in a set of values |
+| `contains` | Contains substring |
+| `startsWith` | Starts with prefix |
+| `endsWith` | Ends with suffix |
+
+### Conditional Operators
+
+| Operator | Available when | Description |
+| --- | --- | --- |
+| `not` | `?` or `@nullable` | Negated comparison |
+| `isNone` | `?` (optional) | `true` = field is absent |
+| `isNull` | `@nullable` | `true` = field is `null` |
+| `isDefined` | Always | `true` = field exists |
+
+## OrderBy
+
+Email fields **support** `orderBy`:
+
+```typescript
+const sorted = await client.db.User.findMany({
+  orderBy: { email: 'asc' },
+});
+```
+
+## In Objects and Tuples
+
+```cerial
+object ContactInfo {
+  primary Email
+  secondary Email?
+}
+
+tuple EmailPair {
+  work Email,
+  personal Email
+}
+
+model Employee {
+  id Record @id
+  contact ContactInfo
+  emails EmailPair
+}
+```
+
+```typescript
+const emp = await client.db.Employee.create({
+  data: {
+    contact: { primary: 'work@company.com' },
+    emails: ['work@company.com', 'me@home.com'],
+  },
+});
+
+emp.contact.primary;  // 'work@company.com'
+emp.emails[1];        // 'me@home.com'
+```
+
+## Arrays
+
+```cerial
+model Newsletter {
+  id Record @id
+  recipients Email[]
+  uniqueRecipients Email[] @set
+}
+```
+
+Email arrays support `@set` for auto-deduplicated, sorted arrays. They also support `@distinct` and `@sort` decorators.
+
+## Supported Decorators
+
+| Decorator | Effect |
+| --- | --- |
+| `@default(value)` | Default value on create |
+| `@defaultAlways(value)` | Reset to value on every write |
+| `@nullable` | Allow explicit `null` |
+| `@readonly` | Write-once field |
+| `@index` | Database index |
+| `@unique` | Unique constraint |

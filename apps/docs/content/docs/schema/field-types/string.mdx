@@ -1,0 +1,160 @@
+---
+title: String
+description: String field type in Cerial — plain text values for names, descriptions, and any textual content.
+---
+
+The `String` field type represents plain text. It's the most common field type in Cerial, used for names, descriptions, labels, and any free-form textual content.
+
+## Schema Syntax
+
+```cerial
+model User {
+  id Record @id
+  name String
+  bio String?
+  title String @default("Untitled")
+  tags String[]
+}
+```
+
+## Types
+
+| Direction | Type |
+| --- | --- |
+| Output | `string` |
+| Input | `string` |
+| SurrealDB | `string` |
+
+## Create & Update
+
+```typescript
+const user = await client.db.User.create({
+  data: {
+    name: 'Alice',
+    bio: 'Software engineer',
+    tags: ['typescript', 'surrealdb'],
+  },
+});
+
+console.log(user.name);   // 'Alice'
+console.log(user.title);  // 'Untitled' (from @default)
+
+// Update
+await client.db.User.updateUnique({
+  where: { id: user.id },
+  data: { bio: 'Senior software engineer' },
+});
+```
+
+## Filtering
+
+String fields support equality checks, set membership, and substring matching:
+
+```typescript
+// Exact match
+const alice = await client.db.User.findMany({
+  where: { name: { eq: 'Alice' } },
+});
+
+// Substring
+const engineers = await client.db.User.findMany({
+  where: { bio: { contains: 'engineer' } },
+});
+
+// Prefix
+const aNames = await client.db.User.findMany({
+  where: { name: { startsWith: 'A' } },
+});
+
+// Set
+const specific = await client.db.User.findMany({
+  where: { name: { in: ['Alice', 'Bob', 'Carol'] } },
+});
+```
+
+### Available Operators
+
+| Operator | Description |
+| --- | --- |
+| `eq` | Equal to |
+| `neq` | Not equal to |
+| `in` | In a set of values |
+| `notIn` | Not in a set of values |
+| `contains` | Contains substring |
+| `startsWith` | Starts with prefix |
+| `endsWith` | Ends with suffix |
+
+### Conditional Operators
+
+| Operator | Available when | Description |
+| --- | --- | --- |
+| `not` | `?` or `@nullable` | Negated comparison |
+| `isNone` | `?` (optional) | `true` = field is absent |
+| `isNull` | `@nullable` | `true` = field is `null` |
+| `isDefined` | Always | `true` = field exists |
+
+## OrderBy
+
+String fields **support** `orderBy`:
+
+```typescript
+const sorted = await client.db.User.findMany({
+  orderBy: { name: 'asc' },
+});
+```
+
+## In Objects and Tuples
+
+```cerial
+object Address {
+  street String
+  city String
+  zip String
+}
+
+tuple FullName {
+  first String,
+  last String
+}
+
+model Contact {
+  id Record @id
+  address Address
+  fullName FullName
+}
+```
+
+```typescript
+const contact = await client.db.Contact.create({
+  data: {
+    address: { street: '123 Main St', city: 'Springfield', zip: '62704' },
+    fullName: ['Jane', 'Doe'],
+  },
+});
+
+contact.address.city;   // 'Springfield'
+contact.fullName[0];    // 'Jane'
+```
+
+## Arrays
+
+```cerial
+model Article {
+  id Record @id
+  keywords String[]
+  uniqueTags String[] @set
+}
+```
+
+String arrays support `@set` for auto-deduplicated, sorted arrays. They also support `@distinct` and `@sort` decorators.
+
+## Supported Decorators
+
+| Decorator | Effect |
+| --- | --- |
+| `@default(value)` | Default value on create |
+| `@defaultAlways(value)` | Reset to value on every write |
+| `@nullable` | Allow explicit `null` |
+| `@readonly` | Write-once field |
+| `@index` | Database index |
+| `@unique` | Unique constraint |

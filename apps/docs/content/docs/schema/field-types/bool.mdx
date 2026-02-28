@@ -1,0 +1,141 @@
+---
+title: Bool
+description: Boolean field type in Cerial — true or false values for flags, toggles, and binary states.
+---
+
+The `Bool` field type represents a boolean value, either `true` or `false`. Used for flags, toggles, and binary states.
+
+## Schema Syntax
+
+```cerial
+model User {
+  id Record @id
+  isActive Bool @default(true)
+  isVerified Bool @default(false)
+  optionalFlag Bool?
+  nullableFlag Bool? @nullable
+  flags Bool[]
+}
+```
+
+## Types
+
+| Direction | Type |
+| --- | --- |
+| Output | `boolean` |
+| Input | `boolean` |
+| SurrealDB | `bool` |
+
+## Create & Update
+
+```typescript
+const user = await client.db.User.create({
+  data: {
+    isActive: true,
+    isVerified: false,
+  },
+});
+
+console.log(user.isActive);   // true
+console.log(user.isVerified); // false
+
+// Update
+await client.db.User.updateUnique({
+  where: { id: user.id },
+  data: { isVerified: true },
+});
+```
+
+## Filtering
+
+Bool fields support only equality operators. You can also pass a bare `true` or `false` as shorthand for `eq`:
+
+```typescript
+// Direct equality
+const active = await client.db.User.findMany({
+  where: { isActive: true },
+});
+
+// Using eq operator
+const verified = await client.db.User.findMany({
+  where: { isVerified: { eq: true } },
+});
+
+// Negation
+const unverified = await client.db.User.findMany({
+  where: { isVerified: { neq: true } },
+});
+```
+
+### Available Operators
+
+| Operator | Description |
+| --- | --- |
+| `eq` | Equal to |
+| `neq` | Not equal to |
+
+### Conditional Operators
+
+| Operator | Available when | Description |
+| --- | --- | --- |
+| `not` | `?` or `@nullable` | Negated comparison |
+| `isNone` | `?` (optional) | `true` = field is absent |
+| `isNull` | `@nullable` | `true` = field is `null` |
+| `isDefined` | Always | `true` = field exists |
+
+## OrderBy
+
+Bool fields **support** `orderBy`. `false` sorts before `true`:
+
+```typescript
+const sorted = await client.db.User.findMany({
+  orderBy: { isActive: 'desc' },
+});
+```
+
+## In Objects and Tuples
+
+```cerial
+object Preferences {
+  darkMode Bool
+  notifications Bool @default(true)
+}
+
+tuple Toggle {
+  enabled Bool,
+  visible Bool
+}
+
+model Settings {
+  id Record @id
+  prefs Preferences
+  toggle Toggle
+}
+```
+
+```typescript
+const s = await client.db.Settings.create({
+  data: {
+    prefs: { darkMode: true, notifications: false },
+    toggle: [true, false],
+  },
+});
+
+s.prefs.darkMode;  // true
+s.toggle[0];       // true
+```
+
+## Arrays
+
+`Bool[]` arrays are valid. Bool arrays support `@set` for auto-deduplicated, sorted arrays.
+
+## Supported Decorators
+
+| Decorator | Effect |
+| --- | --- |
+| `@default(value)` | Default value on create (`true` or `false`) |
+| `@defaultAlways(value)` | Reset to value on every write |
+| `@nullable` | Allow explicit `null` |
+| `@readonly` | Write-once field |
+| `@index` | Database index |
+| `@unique` | Unique constraint |

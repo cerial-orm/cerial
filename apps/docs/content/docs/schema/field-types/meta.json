@@ -2,6 +2,12 @@
   "title": "Field Types",
   "pages": [
     "...field-types",
+    "string",
+    "email",
+    "int",
+    "float",
+    "bool",
+    "date",
     "record",
     "relation",
     "uuid",

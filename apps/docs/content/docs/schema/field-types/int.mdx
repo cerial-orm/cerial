@@ -1,0 +1,158 @@
+---
+title: Int
+description: Int field type in Cerial — whole numbers only, with SurrealDB decimal truncation behavior.
+---
+
+The `Int` field type represents whole numbers. SurrealDB's `int` type truncates any decimal portion on storage, so `3.7` becomes `3`. Use Int for counts, ages, quantities, and other integer data where fractional values don't make sense.
+
+## Schema Syntax
+
+```cerial
+model Inventory {
+  id Record @id
+  stock Int
+  rating Int?
+  quantity Int @default(0)
+}
+```
+
+## Types
+
+| Direction | Type |
+| --- | --- |
+| Output | `number` |
+| Input | `number` |
+| SurrealDB | `int` |
+
+Both `Int` and `Float` map to TypeScript `number`. The difference is at the SurrealDB storage level. See the [Number](/schema/field-types/number) page for a comparison of all three numeric types.
+
+## Create & Update
+
+```typescript
+const item = await client.db.Inventory.create({
+  data: {
+    stock: 150,
+    rating: 5,
+    quantity: 25,
+  },
+});
+
+console.log(item.stock);    // 150
+console.log(item.quantity);  // 25
+
+// Update
+await client.db.Inventory.updateUnique({
+  where: { id: item.id },
+  data: { stock: 200 },
+});
+```
+
+## Filtering
+
+Int fields support all numeric comparison operators:
+
+```typescript
+// Comparison
+const lowStock = await client.db.Inventory.findMany({
+  where: { stock: { lt: 10 } },
+});
+
+// Range
+const midStock = await client.db.Inventory.findMany({
+  where: { stock: { between: [50, 200] } },
+});
+
+// Set
+const specific = await client.db.Inventory.findMany({
+  where: { quantity: { in: [0, 10, 50, 100] } },
+});
+```
+
+### Available Operators
+
+| Operator | Description |
+| --- | --- |
+| `eq` | Equal to |
+| `neq` | Not equal to |
+| `gt` | Greater than |
+| `gte` | Greater than or equal |
+| `lt` | Less than |
+| `lte` | Less than or equal |
+| `between` | Within a range (inclusive) |
+| `in` | In a set of values |
+| `notIn` | Not in a set of values |
+
+### Conditional Operators
+
+| Operator | Available when | Description |
+| --- | --- | --- |
+| `not` | `?` or `@nullable` | Negated comparison |
+| `isNone` | `?` (optional) | `true` = field is absent |
+| `isNull` | `@nullable` | `true` = field is `null` |
+| `isDefined` | Always | `true` = field exists |
+
+## OrderBy
+
+Int fields **support** `orderBy`:
+
+```typescript
+const sorted = await client.db.Inventory.findMany({
+  orderBy: { stock: 'desc' },
+});
+```
+
+## In Objects and Tuples
+
+```cerial
+object Dimensions {
+  width Int
+  height Int
+  depth Int
+}
+
+tuple Range {
+  min Int,
+  max Int
+}
+
+model Package {
+  id Record @id
+  dimensions Dimensions
+  weightRange Range
+}
+```
+
+```typescript
+const pkg = await client.db.Package.create({
+  data: {
+    dimensions: { width: 30, height: 20, depth: 15 },
+    weightRange: [1, 50],
+  },
+});
+
+pkg.dimensions.width;   // 30
+pkg.weightRange[0];     // 1
+```
+
+## Arrays
+
+```cerial
+model Scores {
+  id Record @id
+  values Int[]
+  uniqueValues Int[] @set
+}
+```
+
+Int arrays support `@set` for auto-deduplicated, sorted arrays. They also support `@distinct` and `@sort` decorators.
+
+## Supported Decorators
+
+| Decorator | Effect |
+| --- | --- |
+| `@default(value)` | Default value on create |
+| `@defaultAlways(value)` | Reset to value on every write |
+| `@nullable` | Allow explicit `null` |
+| `@readonly` | Write-once field |
+| `@index` | Database index |
+| `@unique` | Unique constraint |

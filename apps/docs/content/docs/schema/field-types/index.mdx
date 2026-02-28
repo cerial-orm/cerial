@@ -29,7 +29,7 @@ Cerial supports 15 built-in field types plus user-defined enums, tuples, objects
 
 ## Basic Types
 
-### String
+### [String](/schema/field-types/string)
 
 Plain text. The most common field type.
 
@@ -41,7 +41,7 @@ model User {
 }
 ```
 
-### Email
+### [Email](/schema/field-types/email)
 
 An email address stored as a `string` with database-level validation. SurrealDB enforces the format via a `string::is::email` assertion.
 
@@ -52,7 +52,7 @@ model User {
 }
 ```
 
-### Int
+### [Int](/schema/field-types/int)
 
 Integer number — whole numbers only. SurrealDB truncates any decimal portion.
 
@@ -64,7 +64,7 @@ model Product {
 }
 ```
 
-### Float
+### [Float](/schema/field-types/float)
 
 IEEE 754 double-precision floating-point number. Use when you need explicit decimal representation.
 
@@ -76,7 +76,7 @@ model Measurement {
 }
 ```
 
-### Bool
+### [Bool](/schema/field-types/bool)
 
 Boolean value — `true` or `false`.
 
@@ -88,7 +88,7 @@ model User {
 }
 ```
 
-### Date
+### [Date](/schema/field-types/date)
 
 Date/DateTime value. Stored as `datetime` in SurrealDB, represented as a JavaScript `Date` in TypeScript. Commonly used with timestamp decorators.
 

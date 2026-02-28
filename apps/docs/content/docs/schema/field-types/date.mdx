@@ -1,0 +1,168 @@
+---
+title: Date
+description: Date field type in Cerial — datetime values stored as SurrealDB datetime, represented as JavaScript Date objects. Supports timestamp decorators for automatic creation and modification tracking.
+---
+
+The `Date` field type represents a date/datetime value. Stored as `datetime` in SurrealDB, represented as a JavaScript `Date` in TypeScript. Date fields store both date and time information.
+
+## Schema Syntax
+
+```cerial
+model Event {
+  id Record @id
+  startDate Date
+  endDate Date?
+  scheduledAt Date @default("2025-01-01T00:00:00Z")
+  createdAt Date @createdAt
+  updatedAt Date @updatedAt
+  timestamps Date[]
+}
+```
+
+## Types
+
+| Direction | Type |
+| --- | --- |
+| Output | `Date` |
+| Input | `Date` |
+| SurrealDB | `datetime` |
+
+Output is a JavaScript `Date` object. Input accepts JavaScript `Date` instances.
+
+## Create & Update
+
+```typescript
+const event = await client.db.Event.create({
+  data: {
+    startDate: new Date('2025-06-15'),
+    endDate: new Date('2025-06-20'),
+  },
+});
+
+console.log(event.startDate);  // Date object
+console.log(event.createdAt);  // Date object (auto-set by @createdAt)
+
+// Update
+await client.db.Event.updateUnique({
+  where: { id: event.id },
+  data: { endDate: new Date('2025-06-25') },
+});
+```
+
+## Filtering
+
+Date fields support all numeric comparison operators:
+
+```typescript
+// After a date
+const recent = await client.db.Event.findMany({
+  where: { startDate: { gt: new Date('2025-01-01') } },
+});
+
+// Date range
+const thisMonth = await client.db.Event.findMany({
+  where: {
+    startDate: {
+      between: [new Date('2025-06-01'), new Date('2025-06-30')],
+    },
+  },
+});
+```
+
+### Available Operators
+
+| Operator | Description |
+| --- | --- |
+| `eq` | Equal to |
+| `neq` | Not equal to |
+| `gt` | Greater than (after) |
+| `gte` | Greater than or equal |
+| `lt` | Less than (before) |
+| `lte` | Less than or equal |
+| `between` | Within a date range (inclusive) |
+| `in` | In a set of values |
+| `notIn` | Not in a set of values |
+
+### Conditional Operators
+
+| Operator | Available when | Description |
+| --- | --- | --- |
+| `not` | `?` or `@nullable` | Negated comparison |
+| `isNone` | `?` (optional) | `true` = field is absent |
+| `isNull` | `@nullable` | `true` = field is `null` |
+| `isDefined` | Always | `true` = field exists |
+
+## OrderBy
+
+Date fields **support** `orderBy` for chronological sorting:
+
+```typescript
+const sorted = await client.db.Event.findMany({
+  orderBy: { startDate: 'asc' },
+});
+```
+
+## Timestamp Decorators
+
+Date is the only basic type compatible with timestamp decorators. These automate date management so you don't have to set creation and modification times manually.
+
+```cerial
+model Post {
+  id Record @id
+  title String
+  publishedAt Date @now        // computed time::now() — output only
+  createdAt Date @createdAt    // set on creation when absent
+  updatedAt Date @updatedAt    // set on every create/update
+}
+```
+
+| Decorator | Behavior | Optional in Create | Optional in Update | In Where |
+| --- | --- | :---: | :---: | :---: |
+| `@now` | Computed `time::now()` — not stored | Excluded | Excluded | Excluded |
+| `@createdAt` | `DEFAULT time::now()` — set on creation | ✅ | ✅ | ✅ |
+| `@updatedAt` | `DEFAULT ALWAYS time::now()` — set on every write | ✅ | ✅ | ✅ |
+
+:::caution
+`@now`, `@createdAt`, and `@updatedAt` are **mutually exclusive** with each other and with `@default`/`@defaultAlways`. A field can have at most one of these.
+
+`@now` is **model-only** — not allowed on object fields or tuple elements. `@createdAt` and `@updatedAt` work on model fields, object sub-fields, and tuple elements.
+:::
+
+## In Objects and Tuples
+
+Date works in embedded objects and tuples. The `@createdAt` and `@updatedAt` decorators are also available on object sub-fields and tuple elements:
+
+```cerial
+object AuditInfo {
+  createdAt Date @createdAt
+  updatedAt Date @updatedAt
+}
+
+tuple TimestampPair {
+  start Date,
+  end Date
+}
+```
+
+## Arrays
+
+```cerial
+model Schedule {
+  id Record @id
+  milestones Date[]
+}
+```
+
+## Supported Decorators
+
+| Decorator | Effect |
+| --- | --- |
+| `@default(value)` | Default date value on create |
+| `@defaultAlways(value)` | Reset to value on every write |
+| `@now` | Computed `time::now()` — output only |
+| `@createdAt` | Auto-set creation timestamp |
+| `@updatedAt` | Auto-set modification timestamp |
+| `@nullable` | Allow explicit `null` |
+| `@readonly` | Write-once field |
+| `@index` | Database index |
+| `@unique` | Unique constraint |

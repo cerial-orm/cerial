@@ -1,0 +1,160 @@
+---
+title: Float
+description: Float field type in Cerial — IEEE 754 double-precision floating-point numbers for explicit decimal representation.
+---
+
+The `Float` field type is an IEEE 754 double-precision floating-point number. Unlike `Number` (which auto-detects between integer and float storage), `Float` always stores values in 64-bit floating-point format. Use Float when you need explicit decimal representation for measurements, coordinates, or scientific data.
+
+## Schema Syntax
+
+```cerial
+model Reading {
+  id Record @id
+  temperature Float
+  latitude Float
+  weight Float?
+  threshold Float @default(0.5)
+}
+```
+
+## Types
+
+| Direction | Type |
+| --- | --- |
+| Output | `number` |
+| Input | `number` |
+| SurrealDB | `float` |
+
+Both `Int` and `Float` map to TypeScript `number`. The difference is at the SurrealDB storage level. See the [Number](/schema/field-types/number) page for a comparison of all three numeric types.
+
+## Create & Update
+
+```typescript
+const reading = await client.db.Reading.create({
+  data: {
+    temperature: 36.6,
+    latitude: 51.5074,
+    weight: 72.3,
+  },
+});
+
+console.log(reading.temperature);  // 36.6
+console.log(reading.latitude);     // 51.5074
+
+// Update
+await client.db.Reading.updateUnique({
+  where: { id: reading.id },
+  data: { temperature: 37.1 },
+});
+```
+
+## Filtering
+
+Float fields support all numeric comparison operators:
+
+```typescript
+// Comparison
+const hot = await client.db.Reading.findMany({
+  where: { temperature: { gte: 38.0 } },
+});
+
+// Range
+const normal = await client.db.Reading.findMany({
+  where: { temperature: { between: [36.1, 37.2] } },
+});
+
+// Set
+const checkpoints = await client.db.Reading.findMany({
+  where: { latitude: { in: [51.5074, 48.8566, 40.7128] } },
+});
+```
+
+### Available Operators
+
+| Operator | Description |
+| --- | --- |
+| `eq` | Equal to |
+| `neq` | Not equal to |
+| `gt` | Greater than |
+| `gte` | Greater than or equal |
+| `lt` | Less than |
+| `lte` | Less than or equal |
+| `between` | Within a range (inclusive) |
+| `in` | In a set of values |
+| `notIn` | Not in a set of values |
+
+### Conditional Operators
+
+| Operator | Available when | Description |
+| --- | --- | --- |
+| `not` | `?` or `@nullable` | Negated comparison |
+| `isNone` | `?` (optional) | `true` = field is absent |
+| `isNull` | `@nullable` | `true` = field is `null` |
+| `isDefined` | Always | `true` = field exists |
+
+## OrderBy
+
+Float fields **support** `orderBy`:
+
+```typescript
+const sorted = await client.db.Reading.findMany({
+  orderBy: { temperature: 'asc' },
+});
+```
+
+## In Objects and Tuples
+
+```cerial
+object Coordinate {
+  lat Float
+  lng Float
+  altitude Float?
+}
+
+tuple Vector3 {
+  x Float,
+  y Float,
+  z Float
+}
+
+model Location {
+  id Record @id
+  position Coordinate
+  direction Vector3
+}
+```
+
+```typescript
+const loc = await client.db.Location.create({
+  data: {
+    position: { lat: 51.5074, lng: -0.1278 },
+    direction: [0.5, 0.7, 0.3],
+  },
+});
+
+loc.position.lat;    // 51.5074
+loc.direction[1];    // 0.7
+```
+
+## Arrays
+
+```cerial
+model Samples {
+  id Record @id
+  values Float[]
+  uniqueValues Float[] @set
+}
+```
+
+Float arrays support `@set` for auto-deduplicated, sorted arrays. They also support `@distinct` and `@sort` decorators.
+
+## Supported Decorators
+
+| Decorator | Effect |
+| --- | --- |
+| `@default(value)` | Default value on create |
+| `@defaultAlways(value)` | Reset to value on every write |
+| `@nullable` | Allow explicit `null` |
+| `@readonly` | Write-once field |
+| `@index` | Database index |
+| `@unique` | Unique constraint |
