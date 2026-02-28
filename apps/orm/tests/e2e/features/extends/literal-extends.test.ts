@@ -532,7 +532,7 @@ describe('E2E Extends: Literal Inheritance', () => {
     });
   });
 
-  describe('findAll', () => {
+  describe('findMany (no args)', () => {
     test('returns all with extended literal values', async () => {
       await client.db.ExtLiteralModel.create({
         data: { priority: 'low', level: 1, status: 'active', broadValue: 'a' },
@@ -541,7 +541,7 @@ describe('E2E Extends: Literal Inheritance', () => {
         data: { priority: 'urgent', level: 5, status: 0, broadValue: true },
       });
 
-      const all = await client.db.ExtLiteralModel.findAll();
+      const all = await client.db.ExtLiteralModel.findMany();
 
       expect(all).toHaveLength(2);
       for (const item of all) {

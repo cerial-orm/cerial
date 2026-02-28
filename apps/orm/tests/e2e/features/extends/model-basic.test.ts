@@ -390,7 +390,7 @@ describe('E2E Extends: Basic Model Inheritance', () => {
     });
   });
 
-  describe('findAll', () => {
+  describe('findMany (no args)', () => {
     test('returns all records with inherited fields', async () => {
       await client.db.ExtUser.create({
         data: { email: uniqueEmail('all1'), name: 'A' },
@@ -399,7 +399,7 @@ describe('E2E Extends: Basic Model Inheritance', () => {
         data: { email: uniqueEmail('all2'), name: 'B' },
       });
 
-      const all = await client.db.ExtUser.findAll();
+      const all = await client.db.ExtUser.findMany();
 
       expect(all).toHaveLength(2);
       for (const user of all) {

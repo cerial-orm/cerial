@@ -599,7 +599,7 @@ describe('E2E Extends: Tuple Inheritance', () => {
     });
   });
 
-  describe('findAll with tuples', () => {
+  describe('findMany with tuples (no args)', () => {
     test('returns all records with correct tuple shapes', async () => {
       await client.db.ExtTupleModel.create({
         data: {
@@ -614,7 +614,7 @@ describe('E2E Extends: Tuple Inheritance', () => {
         },
       });
 
-      const all = await client.db.ExtTupleModel.findAll();
+      const all = await client.db.ExtTupleModel.findMany();
 
       expect(all).toHaveLength(1);
       const item = all[0]!;

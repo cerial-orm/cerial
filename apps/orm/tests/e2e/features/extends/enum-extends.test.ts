@@ -478,12 +478,12 @@ describe('E2E Extends: Enum Inheritance', () => {
     });
   });
 
-  describe('findAll', () => {
+  describe('findMany (no args)', () => {
     test('returns all with extended enum values', async () => {
       await client.db.ExtEnumModel.create({ data: { role: 'ADMIN', status: 'ACTIVE' } });
       await client.db.ExtEnumModel.create({ data: { role: 'SUPERADMIN', status: 'ARCHIVED' } });
 
-      const all = await client.db.ExtEnumModel.findAll();
+      const all = await client.db.ExtEnumModel.findMany();
 
       expect(all).toHaveLength(2);
       for (const item of all) {

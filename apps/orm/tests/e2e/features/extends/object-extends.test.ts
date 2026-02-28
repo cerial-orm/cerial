@@ -532,7 +532,7 @@ describe('E2E Extends: Object Inheritance', () => {
     });
   });
 
-  describe('findAll with extended objects', () => {
+  describe('findMany with extended objects (no args)', () => {
     test('returns all records with correct object shapes', async () => {
       await client.db.ExtAddressUser.create({
         data: { name: 'All1', homeAddress: ha({ street: 'S1', city: 'C1', zip: '00001' }) },
@@ -544,7 +544,7 @@ describe('E2E Extends: Object Inheritance', () => {
         },
       });
 
-      const all = await client.db.ExtAddressUser.findAll();
+      const all = await client.db.ExtAddressUser.findMany();
 
       expect(all).toHaveLength(2);
       for (const item of all) {
