@@ -80,6 +80,7 @@ const FolderConfigSchema = v.looseObject({
   name: v.optional(JsIdentifierSchema),
   output: v.optional(v.string("'output' must be a string")),
   connection: v.optional(v.looseObject({}, "'connection' must be an object")),
+  format: v.optional(_FormatConfigSchema),
   ignore: v.optional(FilterPatternsSchema),
   exclude: v.optional(FilterPatternsSchema),
   include: v.optional(FilterPatternsSchema),

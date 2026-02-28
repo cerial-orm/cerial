@@ -58,6 +58,8 @@ export interface FolderConfig {
   output?: string;
   /** Connection config for this schema */
   connection?: ConnectionConfig;
+  /** Formatting config for this schema */
+  format?: FormatConfig;
   /** Absolute exclusion patterns — nothing can override. Glob patterns relative to this config's scope. */
   ignore?: string[];
   /** Exclusion patterns — can be overridden by 'include'. Glob patterns relative to this config's scope. */
