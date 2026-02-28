@@ -239,6 +239,9 @@ Sandbox testing is **allowed in plan mode** — it is investigative research to 
 - **Import ordering when editing** - When adding new imports to a file, always add the **usage code first**, then add the `import` statement. Biome removes imports it considers unused, so if you add an import before the code that uses it (e.g., across separate edit operations), `bun run format` will strip it. Write the call/reference first, then add the import — this guarantees Biome sees it as used
 - **Module exports** - Each module has `index.ts` that re-exports its public API
 - **Generated files** - Formatted with Biome
+- **Biome-ignore for intentional patterns** - Use `// biome-ignore <rule>: <explanation>` when code intentionally triggers a biome warning. Common cases: `{}` type in type-level tests (noBannedTypes), test values like `2.718` that aren't Math.E (noApproximativeNumericConstant), intentionally unused type aliases in typechecks. Always include a clear explanation after the colon
+- **Biome must pass in CI** - `bun run format` must exit with zero errors before committing. Fix warnings proactively — don't let them accumulate. The ORM CI workflow runs `bun run format` and fails on any diagnostic
+- **Intentionally invalid test fixtures** - Files like `tests/fixtures/config/invalid-json/cerial.config.json` are excluded from biome via `biome.json`. When adding new intentionally malformed fixtures, add them to the biome excludes
 
 ### File & Folder Organization
 
