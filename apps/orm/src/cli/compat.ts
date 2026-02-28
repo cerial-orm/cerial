@@ -1,7 +1,7 @@
 /**
  * Backward-compatible CLI wrappers
  *
- * These functions maintain the public API surface from src/main.ts
+ * These functions maintain the public API surface from src/index.ts
  * while the internal CLI has migrated to citty.
  */
 
