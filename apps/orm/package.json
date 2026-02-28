@@ -144,9 +144,10 @@
     "prepublishOnly": "bun run build",
     "generate:test-client": "bun run bin/cerial.ts generate -s tests/e2e/schemas -o tests/e2e/generated",
     "typecheck": "tsc --noEmit -p tests/e2e/typechecks/tsconfig.json",
-    "test": "bun test tests/unit/ tests/generators/ tests/parser/ tests/query/ tests/client/ tests/validators/ tests/utils/ tests/integration/",
+    "test": "bun test tests/unit/ tests/generators/ tests/parser/ tests/query/ tests/client/ tests/validators/ tests/utils/",
+    "test:integration": "bun test tests/integration/",
     "test:e2e": "bun test tests/e2e/ --preload ./tests/e2e/preload.ts --concurrency 5",
-    "test:full": "bun generate:test-client && bun typecheck && bun run test && bun run test:e2e",
+    "test:full": "bun run generate:test-client && bun run typecheck && bun run test && bun run test:integration && bun run test:e2e",
     "format": "biome check --write .",
     "publish:npm": "npm publish --access public"
   }
