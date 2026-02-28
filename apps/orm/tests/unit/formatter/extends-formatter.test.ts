@@ -11,7 +11,7 @@
  */
 
 import { describe, expect, it } from 'bun:test';
-import { join } from 'path';
+import { join } from 'node:path';
 import type { AlignedField } from '../../../src/formatter/aligner';
 import { alignFields } from '../../../src/formatter/aligner';
 import { attachComments } from '../../../src/formatter/comment-attacher';

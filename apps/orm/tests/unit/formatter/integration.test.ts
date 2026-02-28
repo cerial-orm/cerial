@@ -11,7 +11,7 @@
  */
 
 import { describe, expect, it } from 'bun:test';
-import { join } from 'path';
+import { join } from 'node:path';
 import { formatCerialSource } from '../../../src/formatter/formatter';
 import type { FormatConfig } from '../../../src/formatter/types';
 

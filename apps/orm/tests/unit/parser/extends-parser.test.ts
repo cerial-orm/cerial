@@ -935,7 +935,7 @@ model Child extends Parent[field1, !field2] {
   name String
 }
 `;
-      const { ast, errors } = parse(schema);
+      const { errors } = parse(schema);
       expect(errors).toHaveLength(1);
       expect(errors[0]!.message).toContain('Cannot mix pick and omit');
     });
@@ -946,7 +946,7 @@ object Child extends Parent[field1, !field2] {
   name String
 }
 `;
-      const { ast, errors } = parse(schema);
+      const { errors } = parse(schema);
       expect(errors).toHaveLength(1);
       expect(errors[0]!.message).toContain('Cannot mix pick and omit');
     });
@@ -956,7 +956,7 @@ object Child extends Parent[field1, !field2] {
 tuple Child extends Parent[0, !1] {
 }
 `;
-      const { ast, errors } = parse(schema);
+      const { errors } = parse(schema);
       expect(errors).toHaveLength(1);
       expect(errors[0]!.message).toContain('Cannot mix pick and omit');
     });
@@ -966,7 +966,7 @@ tuple Child extends Parent[0, !1] {
 literal Child extends Parent['a', !'b'] {
 }
 `;
-      const { ast, errors } = parse(schema);
+      const { errors } = parse(schema);
       expect(errors).toHaveLength(1);
       expect(errors[0]!.message).toContain('Cannot mix pick and omit');
     });
@@ -976,7 +976,7 @@ literal Child extends Parent['a', !'b'] {
 enum Child extends Parent[A, !B] {
 }
 `;
-      const { ast, errors } = parse(schema);
+      const { errors } = parse(schema);
       expect(errors).toHaveLength(1);
       expect(errors[0]!.message).toContain('Cannot mix pick and omit');
     });
@@ -987,7 +987,7 @@ model Child extends Parent[field1, field2] {
   name String
 }
 `;
-      const { ast, errors } = parse(schema);
+      const { errors } = parse(schema);
       expect(errors).toHaveLength(0);
     });
 
@@ -997,7 +997,7 @@ model Child extends Parent[!field1, !field2] {
   name String
 }
 `;
-      const { ast, errors } = parse(schema);
+      const { errors } = parse(schema);
       expect(errors).toHaveLength(0);
     });
 
@@ -1007,7 +1007,7 @@ model Child extends Parent[] {
   name String
 }
 `;
-      const { ast, errors } = parse(schema);
+      const { errors } = parse(schema);
       expect(errors).toHaveLength(0);
     });
   });
