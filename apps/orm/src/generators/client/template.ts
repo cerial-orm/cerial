@@ -60,8 +60,16 @@ function _generateTransactionOverloads(): string {
 }
 
 /** Generate the CerialClient class */
-export function generateClientClass(clientClassName: string = 'CerialClient'): string {
+export function generateClientClass(models: ModelMetadata[], clientClassName: string = 'CerialClient'): string {
   const connectConfigName = `${clientClassName}ConnectConfig`;
+
+  const modelAccessors = models
+    .map(
+      (m) => `  get ${m.name}(): ${m.name}Model {
+    return this._ensureDb().${m.name};
+  }`,
+    )
+    .join('\n\n');
 
   return `/**
   * Migration event types
@@ -131,14 +139,22 @@ export class ${clientClassName} {
     });
   }
 
-  /**
-   * Get the database proxy for model access
-   * @throws Error if not connected
-   */
-  get db(): TypedDb {
+  /** @internal */
+  private _ensureDb(): TypedDb {
     if (!this._db) throw new Error('Not connected. Call connect() first.');
     return this._db as unknown as TypedDb;
   }
+
+  /**
+   * Get the database proxy for model access
+   * @deprecated Access models directly on the client instead (e.g., \`client.User\` instead of \`client.db.User\`)
+   * @throws Error if not connected
+   */
+  get db(): TypedDb {
+    return this._ensureDb();
+  }
+
+${modelAccessors}
 
   /**
    * Check if connected to the database
@@ -535,6 +551,6 @@ export function generateClientTemplate(models: ModelMetadata[], clientClassName:
 
 ${generateTypedDbInterface(models)}
 
-${generateClientClass(clientClassName)}
+${generateClientClass(models, clientClassName)}
 `;
 }
