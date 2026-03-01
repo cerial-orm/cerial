@@ -395,6 +395,13 @@ apps/docs/content/docs/releases/
  - **New version goes at the top** — newest patch at top of the page, oldest at bottom
 - **GitHub Releases link to docs** — release workflows create a GitHub Release with a link to the docs page (e.g., `/releases/orm/0/1#010`), not duplicated content
 - **Both ORM and extension follow this system independently** — they have separate version numbers and separate release notes pages
+- **Extension release notes must include a download table** — Every extension version entry must have a `### Download` section with a table linking to the GitHub Release VSIX asset. Format:
+  ```
+  ### Download
+  | Version | Download |
+  |---------|----------|
+  | v0.1.0 | [cerial-0.1.0.vsix](https://github.com/cerial-orm/cerial/releases/download/ext-v0.1.0/cerial-0.1.0.vsix) |
+  ```
 ### Commit Rules
 
 #### Atomic commits
@@ -478,7 +485,6 @@ Each user-facing commit gets its own entry in the release notes page under the c
 | Secret | Purpose | Where to create |
 |---|---|---|
 | `NPM_TOKEN` | npm publish authentication | npmjs.com → Settings → Access Tokens → Granular (read+write) |
-| `VSCE_PAT` | VS Code Marketplace publish | dev.azure.com → Personal Access Tokens (Marketplace scope) |
 
 **GitHub Repository Settings (manual UI configuration):**
 - Settings → Pages → Source: set to "GitHub Actions" (not "Deploy from branch")
