@@ -96,6 +96,27 @@ export class Logger {
   progress(message: string): void {
     console.log(`${this.color('→', 'cyan')} ${message}`);
   }
+
+  done(durationMs: number): void {
+    console.log(`\n${this.color(`Done in ${formatDuration(durationMs)}`, 'dim')}`);
+  }
+}
+
+export function formatDuration(ms: number): string {
+  if (ms < 1) return '<1ms';
+  if (ms < 1000) return `${Math.round(ms)}ms`;
+  if (ms < 60_000) return `${(ms / 1000).toFixed(3)}s`;
+  if (ms < 3_600_000) {
+    const minutes = Math.floor(ms / 60_000);
+    const seconds = Math.round((ms % 60_000) / 1000);
+
+    return `${minutes}m ${seconds}s`;
+  }
+  const hours = Math.floor(ms / 3_600_000);
+  const minutes = Math.floor((ms % 3_600_000) / 60_000);
+  const seconds = Math.round((ms % 60_000) / 1000);
+
+  return `${hours}h ${minutes}m ${seconds}s`;
 }
 
 /** Default logger instance */
