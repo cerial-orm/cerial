@@ -6,7 +6,7 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["**", "!**/invalid-json/**", "!apps/docs"]
+    "includes": ["**", "!**/invalid-json", "!apps/docs"]
   },
   "formatter": {
     "enabled": true,

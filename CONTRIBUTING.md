@@ -97,9 +97,8 @@ Run `bun run format` before committing to ensure Biome formatting is applied.
 
 ## Testing
 
-- Run `bun test` for unit tests
-- Run `bun run test:e2e` for end-to-end tests (requires SurrealDB running)
 - Run `bunx tsc --noEmit` after type changes
+- Run `bun run test:full` for full test suite
 - Bug fixes must include a test that fails without the fix
 
 ## License
