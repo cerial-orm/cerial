@@ -107,7 +107,7 @@ code --install-extension path/to/cerial-0.1.0.vsix
 
 Or install through VS Code: Extensions panel (Ctrl+Shift+X) → `...` menu → **Install from VSIX...**
 
-See the [installation guide](https://cerial-orm.github.io/extension/installation) for more options.
+See the [installation guide](https://cerial-orm.github.io/cerial/extension/installation) for more options.
 
 ## Quick Start
 
@@ -223,7 +223,7 @@ Full language support for `.cerial` schema files in VS Code and compatible edito
 - **Inlay hints** — Inferred FK types, behavior indicators, and inheritance sources
 - **Snippets** — 16 code snippets for models, relations, decorators, and more
 
-See the full extension documentation at [cerial-orm.github.io/extension](https://cerial-orm.github.io/extension).
+See the full extension documentation at [cerial-orm.github.io/cerial/extension](https://cerial-orm.github.io/cerial/extension).
 
 ## Upcoming
 
@@ -242,18 +242,18 @@ Planned features leveraging SurrealDB capabilities:
 
 ## Documentation
 
-Full documentation is available at [**cerial-orm.github.io**](https://cerial-orm.github.io):
+Full documentation is available at [**cerial-orm.github.io/cerial**](https://cerial-orm.github.io/cerial):
 
-- [Getting Started](https://cerial-orm.github.io/getting-started) — Installation, setup, first queries
-- [Schema](https://cerial-orm.github.io/schema) — Field types, decorators, arrays, optionals, cross-file references
-- [Relations](https://cerial-orm.github.io/relations) — 1:1, 1:N, N:N, self-referential, nested operations, delete behavior
-- [Queries](https://cerial-orm.github.io/queries) — findOne, findMany, findUnique, create, upsert, update, delete, count, exists, $transaction
-- [Filtering](https://cerial-orm.github.io/filtering) — Comparison, string, array, logical, special, nested, object operators
-- [Select & Include](https://cerial-orm.github.io/select-and-include) — Dynamic return types, sub-field selection, nested includes
-- [Type System](https://cerial-orm.github.io/types) — CerialId, NONE vs null, generated types, dynamic return types
-- [CLI & Tooling](https://cerial-orm.github.io/cli) — generate, init, config, formatter, watch mode, path filtering
-- [VS Code Extension](https://cerial-orm.github.io/extension) — Features, settings, installation, snippets
-- [Release Notes](https://cerial-orm.github.io/releases) — ORM and extension changelogs
+- [Getting Started](https://cerial-orm.github.io/cerial/getting-started) — Installation, setup, first queries
+- [Schema](https://cerial-orm.github.io/cerial/schema) — Field types, decorators, arrays, optionals, cross-file references
+- [Relations](https://cerial-orm.github.io/cerial/relations) — 1:1, 1:N, N:N, self-referential, nested operations, delete behavior
+- [Queries](https://cerial-orm.github.io/cerial/queries) — findOne, findMany, findUnique, create, upsert, update, delete, count, exists, $transaction
+- [Filtering](https://cerial-orm.github.io/cerial/filtering) — Comparison, string, array, logical, special, nested, object operators
+- [Select & Include](https://cerial-orm.github.io/cerial/select-and-include) — Dynamic return types, sub-field selection, nested includes
+- [Type System](https://cerial-orm.github.io/cerial/types) — CerialId, NONE vs null, generated types, dynamic return types
+- [CLI & Tooling](https://cerial-orm.github.io/cerial/cli) — generate, init, config, formatter, watch mode, path filtering
+- [VS Code Extension](https://cerial-orm.github.io/cerial/extension) — Features, settings, installation, snippets
+- [Release Notes](https://cerial-orm.github.io/cerial/releases) — ORM and extension changelogs
 
 ## Project Structure
 

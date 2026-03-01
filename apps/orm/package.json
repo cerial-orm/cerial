@@ -7,7 +7,7 @@
     "url": "git+https://github.com/cerial-orm/cerial.git",
     "directory": "apps/orm"
   },
-  "homepage": "https://cerial-orm.github.io",
+  "homepage": "https://cerial-orm.github.io/cerial",
   "bugs": {
     "url": "https://github.com/cerial-orm/cerial/issues"
   },

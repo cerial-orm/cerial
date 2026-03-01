@@ -59,7 +59,7 @@ const users = await client.User.findMany({
 
 ## Links
 
-- [Documentation](https://cerial-orm.github.io)
+- [Documentation](https://cerial-orm.github.io/cerial)
 - [GitHub](https://github.com/cerial-orm/cerial)
 - [VS Code Extension](https://marketplace.visualstudio.com/items?itemName=cerial.cerial)
 

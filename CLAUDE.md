@@ -347,7 +347,7 @@ Release notes live in the **docs site** as the single source of truth. There are
 - ORM: `apps/docs/content/docs/releases/orm/0/1.mdx` (all 0.1.x patches)
 - Extension: `apps/docs/content/docs/releases/extension/0/1.mdx` (all 0.1.x patches)
 
-**URL pattern:** `https://cerial-orm.github.io/releases/{orm,extension}/{major}/{minor}#{major}{minor}{patch}`
+**URL pattern:** `https://cerial-orm.github.io/cerial/releases/{orm,extension}/{major}/{minor}#{major}{minor}{patch}`
 - Example: ORM v0.1.0 → `/releases/orm/0/1#010`
 - Example: Extension v0.1.2 → `/releases/extension/0/1#012`
 
