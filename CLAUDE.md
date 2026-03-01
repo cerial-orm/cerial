@@ -298,6 +298,21 @@ Doc pages use MDX with Fumadocs conventions. Page metadata is defined via the fi
 - Show practical examples with TypeScript code the user would actually write
 - Mention constraints and gotchas that affect the user's API usage, not internal architecture decisions
 
+**Unreleased feature documentation:**
+
+Docs deploy from `dev`, so pages for features not yet in a published release may be live. To avoid confusing users, mark unreleased content with a Fumadocs callout:
+
+```mdx
+:::caution
+This feature is not yet available in the current release. It will ship in an upcoming version.
+:::
+```
+
+- Add the callout at the **top** of any page (or section) documenting an unreleased feature
+- Remove the callout once the feature is included in a tagged release
+- If an entire page is unreleased, add the callout immediately after the frontmatter
+- If only a section within a page is unreleased, add the callout at the start of that section
+
 ### CLAUDE.md ↔ README.md Sync
 
 `CLAUDE.md` is the agent-facing guide (structure, conventions, rules). `README.md` is the user-facing landing page (features, quick start, doc links). They share overlapping information that **must stay in sync**:
@@ -323,17 +338,22 @@ Doc pages use MDX with Fumadocs conventions. Page metadata is defined via the fi
 - Do **not** duplicate detailed information — README stays concise (~100-130 lines), full details live in `docs/`
 
 
-### Changelog Rules (CRITICAL)
+### Release Notes Rules (CRITICAL)
 
-Each package (ORM and extension) maintains its own changelog. Changelogs live **inside** each package directory, not at the repository root.
+Release notes live in the **docs site** as the single source of truth. There are no `CHANGELOG.md` files — GitHub Releases link to the docs pages.
 
-**Active file:** `CHANGELOG.md` in each package — contains `[Unreleased]` section and all patch releases for the **current minor version**.
+**Location:** `apps/docs/content/docs/releases/{orm,extension}/{major}/{minor}.mdx`
 
-**Archive:** When bumping to the next minor version, move the old minor's entries to `changelogs/{major}/{minor}.md`.
+- ORM: `apps/docs/content/docs/releases/orm/0/1.mdx` (all 0.1.x patches)
+- Extension: `apps/docs/content/docs/releases/extension/0/1.mdx` (all 0.1.x patches)
+
+**URL pattern:** `https://cerial-orm.github.io/cerial/releases/{orm,extension}/{major}/{minor}#{major}{minor}{patch}`
+- Example: ORM v0.1.0 → `/releases/orm/0/1#010`
+- Example: Extension v0.1.2 → `/releases/extension/0/1#012`
 
 #### Format
 
-Follow [Keep a Changelog](https://keepachangelog.com) format. Categories under each version:
+Follow [Keep a Changelog](https://keepachangelog.com) categories. Each version is a heading that becomes an anchor:
 
 - `### Added` — New features
 - `### Changed` — Changes to existing features
@@ -341,60 +361,62 @@ Follow [Keep a Changelog](https://keepachangelog.com) format. Categories under e
 - `### Removed` — Removed features
 - `### Deprecated` — Features marked for future removal
 
-#### Active CHANGELOG.md structure
+#### Page structure
 
-```markdown
-# Changelog
+Each minor version gets its own `.mdx` page. Patch releases are sections within that page:
 
-All notable changes will be documented in this file.
-For previous versions, see [changelogs/](changelogs/).
+```mdx
+---
+title: 0.1.x
+description: ORM release notes for v0.1.x
+---
 
-## [Unreleased]
-
-### Added
-
-- New feature description
-
-## [0.1.2] - 2025-03-15
+## 0.1.2
 
 ### Fixed
 
 - Bug fix description
 
-## [0.1.1] - 2025-03-10
+## 0.1.1
 
 ### Added
 
 - Feature description
 
-## [0.1.0] - 2025-03-01
+## 0.1.0
 
 ### Added
 
 - Initial minor release features
 ```
 
-#### Archive structure
+#### File hierarchy
 
-When releasing `0.2.0`, move all `0.1.x` entries to `changelogs/0/1.md`:
+When a new minor version is released, create a new `.mdx` file:
 
 ```
-package/
-├── CHANGELOG.md          # [Unreleased] + current minor (0.2.x)
-└── changelogs/
+apps/docs/content/docs/releases/
+├── orm/
+    │   └── 0/                # Major version 0
+        │       ├── 1.mdx         # All 0.1.x patches
+        │       └── 2.mdx         # All 0.2.x patches
+└── extension/
     └── 0/                # Major version 0
-        ├── 0.md          # All 0.0.x patches in one file
-        └── 1.md          # All 0.1.x patches in one file
+        └── 1.mdx         # All 0.1.x patches
 ```
-
-The archived file keeps the same format — version headers and categorized entries — just without the `[Unreleased]` section.
 
 #### Rules
 - **Never edit released version entries** — if a released entry has a typo, fix it in the next patch's `### Fixed`
-- **Version bumps move `[Unreleased]` to a versioned header** — `## [Unreleased]` becomes `## [x.y.z] - YYYY-MM-DD`, and a fresh empty `## [Unreleased]` is added above
- **Minor version bump triggers archival** — move the previous minor's entries to `changelogs/{major}/{minor}.md`
-- **Both ORM and extension follow this system independently** — they have separate version numbers and separate changelogs
-- **Monorepo migration** — when the repo moves to `apps/orm` + `apps/vscode-extension`, changelogs move with their respective packages
+ - **New version goes at the top** — newest patch at top of the page, oldest at bottom
+- **GitHub Releases link to docs** — release workflows create a GitHub Release with a link to the docs page (e.g., `/releases/orm/0/1#010`), not duplicated content
+- **Both ORM and extension follow this system independently** — they have separate version numbers and separate release notes pages
+- **Extension release notes must include a download table** — Every extension version entry must have a `### Download` section with a table linking to the GitHub Release VSIX asset. Format:
+  ```
+  ### Download
+  | Version | Download |
+  |---------|----------|
+  | v0.1.0 | [cerial-0.1.0.vsix](https://github.com/cerial-orm/cerial/releases/download/ext-v0.1.0/cerial-0.1.0.vsix) |
+  ```
 ### Commit Rules
 
 #### Atomic commits
@@ -413,22 +435,22 @@ Each commit should represent **one logical change**. Split work into small, focu
 
 #### Multi-commit issue fixes
 
-Large fixes or features that span multiple types of changes should use multiple commits, each with its own changelog entry in the appropriate category. Example:
+Large fixes or features that span multiple types of changes should use multiple commits. Each user-facing commit should have a corresponding entry in the release notes docs page. Example:
 
 ```
 Issue: "Inlay hints show wrong labels"
 
 Commit 1: fix(extension): update inlay hint labels for @createdAt/@updatedAt
-  → CHANGELOG: ### Changed — Rename 'server-set' hint label to 'auto-generated'
+  → Release notes: ### Changed — Rename 'server-set' hint label to 'auto-generated'
 
 Commit 2: feat(extension): add 'sets on create' inlay hint for @default
-  → CHANGELOG: ### Added — Inlay hint for @default fields showing 'sets on create'
+  → Release notes: ### Added — Inlay hint for @default fields showing 'sets on create'
 
 Commit 3: docs(extension): update README and settings for new hint labels
-  → No changelog entry (docs-only, user behavior unchanged)
+  → No release notes entry (docs-only, user behavior unchanged)
 ```
 
-Each commit adds its own entry to `[Unreleased]` under the correct category (`### Added`, `### Changed`, `### Fixed`, etc.).
+Each user-facing commit gets its own entry in the release notes page under the correct category (`### Added`, `### Changed`, `### Fixed`, etc.).
 
 #### Amend policy
 
@@ -458,27 +480,26 @@ Each commit adds its own entry to `[Unreleased]` under the correct category (`##
 
 **Release Process:**
 1. Ensure all changes are on `dev` and tests pass
-2. Move `[Unreleased]` changelog entries to versioned header: `## [x.y.z]`
+2. Add the version section to the release notes docs page (`apps/docs/content/docs/releases/{orm,extension}/{major}/{minor}.mdx`)
 3. Bump version in `package.json`
 4. Commit: `chore(orm): release v0.1.0` or `chore(extension): release v0.1.0`
 5. Merge `dev` to `main` and push
 6. Create and push tag: `git tag orm-v0.1.0 && git push origin orm-v0.1.0`
-7. GitHub Actions automatically: runs tests, publishes to npm/marketplace, creates GitHub Release with changelog
+7. GitHub Actions automatically: runs tests, publishes to npm/marketplace, creates GitHub Release linking to docs page
 
 **GitHub Actions Workflows:**
 | Workflow | Trigger | What it does |
 |---|---|---|
 | `orm-ci.yml` | Push to dev + PRs to dev | Unit tests, E2E (SurrealDB), typecheck, format |
 | `extension-ci.yml` | Push to dev + PRs to dev | Build, unit tests, grammar tests (matrix: ubuntu/windows/macos) |
-| `orm-release.yml` | `orm-v*` tag push | Build, test, npm publish, GitHub Release with ORM changelog |
-| `extension-release.yml` | `ext-v*` tag push | Build, test, package VSIX, VSCE publish, GitHub Release with extension changelog |
-| `docs-deploy.yml` | Push to main (docs/ changes) | Build Next.js, deploy to GitHub Pages |
+| `orm-release.yml` | `orm-v*` tag push | Build, test, npm publish, GitHub Release linking to docs |
+| `extension-release.yml` | `ext-v*` tag push | Build, test, package VSIX, GitHub Release linking to docs |
+| `docs-deploy.yml` | Push to dev (docs/ changes) | Build Next.js, deploy to GitHub Pages |
 
 **Required GitHub Secrets:**
 | Secret | Purpose | Where to create |
 |---|---|---|
 | `NPM_TOKEN` | npm publish authentication | npmjs.com → Settings → Access Tokens → Granular (read+write) |
-| `VSCE_PAT` | VS Code Marketplace publish | dev.azure.com → Personal Access Tokens (Marketplace scope) |
 
 **GitHub Repository Settings (manual UI configuration):**
 - Settings → Pages → Source: set to "GitHub Actions" (not "Deploy from branch")
@@ -687,4 +708,4 @@ Do NOT use SurrealDB reserved keywords as field names, model names, or object na
 - Pick/omit validates against parent's own fields only (not inherited from grandparent)
 - **Monorepo: ORM is a workspace member** — The ORM lives in `apps/orm/`. Root `package.json` has `workspaces: ["apps/orm", "libs/*"]` (NOT `"apps/*"`). Run ORM commands from `apps/orm/` or use `bun run --filter cerial <script>` from repo root
 - **Monorepo: extension IS a workspace member** — The extension is registered as `cerial-vscode` in the workspace (no name collision with ORM's `cerial`). However, it has its own `bun.lock` and manages its own dependencies independently. Run extension commands from `apps/vscode-extension/`
-- **Monorepo: changelog locations** — ORM changelog: `apps/orm/CHANGELOG.md`. VS Code extension changelog: `apps/vscode-extension/CHANGELOG.md`. Each package has its own `changelogs/` archive directory inside its package folder
+- **Monorepo: release notes locations** — ORM release notes: `apps/docs/content/docs/releases/orm/`. VS Code extension release notes: `apps/docs/content/docs/releases/extension/`. Each package has its own subdirectory with major/minor file hierarchy. GitHub Releases link to these docs pages

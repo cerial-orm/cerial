@@ -1,0 +1,112 @@
+---
+title: ORM v0.1.x
+description: Release notes for Cerial ORM v0.1.x — the initial release.
+---
+
+## 0.1.0
+
+The first public release of Cerial, covering the full schema language, query builder, type system, CLI tooling, and SurrealDB integration.
+
+**SurrealDB compatibility:** 3.0.1 | **SDK:** surrealdb 2.x
+
+### Added
+
+#### Schema Language
+
+- `.cerial` schema files with a clean, declarative syntax for defining models, objects, tuples, enums, and literals
+- 15 field types: `String`, `Int`, `Float`, `Bool`, `Date`, `Email`, `Record`, `Relation`, `Uuid`, `Duration`, `Decimal`, `Bytes`, `Geometry`, `Number`, `Any`
+- Embedded object types (`object {}`) with sub-field select, filtering, and partial updates
+- Tuple types (`tuple {}`) for fixed-length typed arrays with named elements and flexible input forms
+- Literal types (`literal {}`) for union types combining specific values, broad types, and structured variants
+- Enum types (`enum {}`) for string-only named constants, generating `as const` objects and union types
+- Array fields with `Type[]` syntax and full query/update operators
+- Set arrays via `@set` decorator for auto-deduplicated, sorted arrays
+- Optional fields (`?`) and nullable fields (`@nullable`) with clean NONE vs null separation
+- Typed IDs with `Record(int) @id`, `Record(uuid) @id`, union syntax, and automatic FK type inference
+- Schema-level inheritance with `extends`, `abstract` models, pick/omit, and `!!private` fields
+- Multi-schema support with per-schema client generation
+
+#### Decorators
+
+- Identity: `@id`, `@key`
+- Relations: `@field`, `@model`, `@onDelete`
+- Defaults: `@default`, `@defaultAlways`
+- Timestamps: `@createdAt`, `@updatedAt`, `@now`
+- UUID generation: `@uuid`, `@uuid4`, `@uuid7`
+- Geometry subtypes: `@point`, `@line`, `@polygon`, `@multipoint`, `@multiline`, `@multipolygon`, `@collection`
+- Constraints: `@unique`, `@index`, `@nullable`
+- Arrays: `@set`, `@distinct`, `@sort`
+- Field behavior: `@readonly`, `@flexible`
+- Composite: `@@index`, `@@unique`
+
+#### Query Methods
+
+- `findOne`, `findMany`, `findUnique` for reading records
+- `create`, `createMany` for inserting records with nested relation support
+- `updateMany`, `updateUnique` for updating records
+- `deleteMany`, `deleteUnique` for removing records
+- `upsert` for create-or-update with separate create/update data
+- `count` and `exists` for efficient checks
+
+#### Query Options
+
+- `select` with compile-time narrowed return types
+- `include` for loading related records with nested filtering, sorting, limit, and offset
+- `where` with full operator set (comparison, string, array, logical, existence)
+- `orderBy`, `limit`, `offset` for pagination
+- `unset` for clearing optional fields in updates
+- `return` modes on unique operations: `'before'`, `true`, or default
+
+#### Filtering
+
+- Comparison: `eq`, `neq`, `not`, `gt`, `gte`, `lt`, `lte`, `between`
+- String: `contains`, `startsWith`, `endsWith`
+- Array: `in`, `notIn`, `has`, `hasAll`, `hasAny`, `isEmpty`
+- Existence: `isNull`, `isDefined`, `isNone`
+- Logical: `AND`, `OR`, `NOT`
+- Nested filtering through object sub-fields and relation traversal
+
+#### Relations
+
+- 1:1, 1:N, N:N with forward and reverse sides
+- Self-referential relations
+- Bidirectional N:N sync
+- Nested `create`, `connect`, `disconnect`
+- `@onDelete` cascade strategies: `Cascade`, `SetNull`, `SetNone`, `Restrict`
+
+#### Transactions
+
+- Array mode with function items receiving previous results
+- Callback mode with full model access and throw-to-rollback
+- Manual mode with `commit()` / `cancel()` and `await using` cleanup
+- Configurable retry with optional backoff for conflict resolution
+- Automatic WebSocket connection when connected via HTTP
+
+#### Type System
+
+- `CerialId<T>` generic record ID wrapper
+- `CerialUuid`, `CerialDuration`, `CerialDecimal`, `CerialBytes` wrapper classes
+- `CerialGeometry` hierarchy with 7 subtypes
+- `CerialAny` recursive union, `CerialSet<T>` branded array, `CerialNone` symbol
+- `RecordIdInput<T>` and per-class input union types
+- Generated interfaces, Select, OrderBy, Where, Include, GetPayload types per model
+- Dynamic return types narrowing based on `select` and `include`
+
+#### CLI
+
+- `cerial generate` with `--watch`, `--format`, `-s`, `-o`, `-C`, `-n` flags
+- `cerial init` with `--yes` for non-interactive scaffolding
+- `cerial format` with `--check` and `--watch` modes
+- Config via `cerial.config.ts` / `cerial.config.json` with `defineConfig()`
+
+#### Formatter
+
+- Auto-formatting with column alignment, decorator ordering, and comment preservation
+- 9 configurable format options
+- Watch mode, check mode (CI), idempotent output
+
+#### Migration Generation
+
+- `DEFINE TABLE`, `DEFINE FIELD`, `DEFINE INDEX` from schema
+- `READONLY`, `FLEXIBLE`, `DEFAULT`, `DEFAULT ALWAYS` constraints
+- `DEFINE FIELD OVERWRITE` for typed `@id` fields

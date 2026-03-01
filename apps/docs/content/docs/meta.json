@@ -4,6 +4,7 @@
     "introduction",
     "getting-started",
     "compatibility",
+    "surrealdb-compatibility",
     "connection",
     "---Schema---",
     "schema",
@@ -22,6 +23,7 @@
     "cli",
     "nestjs",
     "extension",
-    "roadmap"
+    "roadmap",
+    "releases"
   ]
 }

@@ -97,11 +97,17 @@ bun add cerial
 
 ### VS Code Extension
 
-Search for **Cerial** in the VS Code Extensions panel, or:
+> **Note**: Marketplace publishing is not yet available. Install manually from a `.vsix` file.
 
+Download the latest `.vsix` from the [GitHub Releases page](https://github.com/cerial-orm/cerial/releases?q=ext-v), then install via terminal:
+
+```bash
+code --install-extension path/to/cerial-0.1.0.vsix
 ```
-ext install cerial.cerial
-```
+
+Or install through VS Code: Extensions panel (Ctrl+Shift+X) → `...` menu → **Install from VSIX...**
+
+See the [installation guide](https://cerial-orm.github.io/cerial/extension/installation) for more options.
 
 ## Quick Start
 
@@ -217,7 +223,7 @@ Full language support for `.cerial` schema files in VS Code and compatible edito
 - **Inlay hints** — Inferred FK types, behavior indicators, and inheritance sources
 - **Snippets** — 16 code snippets for models, relations, decorators, and more
 
-See the full extension documentation in [`apps/vscode-extension/`](apps/vscode-extension/) and the [VS Code Extension docs](apps/docs/content/docs/extension/).
+See the full extension documentation at [cerial-orm.github.io/cerial/extension](https://cerial-orm.github.io/cerial/extension).
 
 ## Upcoming
 
@@ -236,39 +242,35 @@ Planned features leveraging SurrealDB capabilities:
 
 ## Documentation
 
-Full documentation is available at the [Cerial Docs](apps/docs/) site, covering:
+Full documentation is available at [**cerial-orm.github.io/cerial**](https://cerial-orm.github.io/cerial):
 
-- [Getting Started](apps/docs/content/docs/getting-started.mdx) - Installation, setup, first queries
-- [Schema](apps/docs/content/docs/schema/) - Field types, decorators, arrays, optionals, cross-file references
-- [Field Types](apps/docs/content/docs/schema/field-types/) - Uuid, Number, Duration, Decimal, Bytes, Geometry, Any, and more
-- [Typed IDs](apps/docs/content/docs/schema/typed-ids.mdx) - `Record(int) @id`, union types, FK type inference, create optionality
-- [Extends (Inheritance)](apps/docs/content/docs/schema/extends.mdx) - Schema-level inheritance, abstract models, private fields, pick/omit
-- [Embedded Objects](apps/docs/content/docs/objects/) - Defining objects, sub-field select, filtering, updates
-- [Tuples](apps/docs/content/docs/tuples/) - Fixed-length typed arrays, named elements, where filtering, array operations
-- [Literals](apps/docs/content/docs/schema/literals.mdx) - Union types with specific values, broad types, and structured variants
-- [Enums](apps/docs/content/docs/schema/enums.mdx) - String-only named constants with generated types and filtering
-- [Enums vs Literals](apps/docs/content/docs/schema/enums-vs-literals.mdx) - When to use enums vs literal types
-- [Relations](apps/docs/content/docs/relations/) - 1:1, 1:N, N:N, self-referential, nested operations, delete behavior
-- [Queries](apps/docs/content/docs/queries/) - findOne, findMany, findUnique, create, upsert, update, delete, count, exists, $transaction
-- [Filtering](apps/docs/content/docs/filtering/) - Comparison, string, array, logical, special, nested, object operators
-- [Select & Include](apps/docs/content/docs/select-and-include/) - Dynamic return types, sub-field selection, nested includes
-- [Array Operations](apps/docs/content/docs/array-operations/) - push, unset, replace, @distinct, @sort decorators
-- [Type System](apps/docs/content/docs/types/) - CerialId, NONE vs null, generated types, dynamic return types
-- [CLI](apps/docs/content/docs/cli/) - generate, init, config, flags, output structure
-- [Configuration](apps/docs/content/docs/cli/configuration.mdx) - Config file formats, schema discovery, defineConfig
-- [Path Filtering](apps/docs/content/docs/cli/filtering.mdx) - ignore, exclude, include patterns and .cerialignore
-- [Multi-Schema](apps/docs/content/docs/cli/multi-schema.mdx) - Multiple independent schemas in one project
-- [Formatter](apps/docs/content/docs/cli/formatter.mdx) - Format `.cerial` files with configurable style and column alignment
-- [Init Command](apps/docs/content/docs/cli/init.mdx) - Auto-generate config with `cerial init`
-- [Connection](apps/docs/content/docs/connection/) - Client setup, connection config, migrations
-- [VS Code Extension](apps/docs/content/docs/extension/) - Extension features, settings, snippets
-- [NestJS Integration](apps/docs/content/docs/nestjs.mdx) - Module setup, service injection, multi-schema
-- [Runtime Compatibility](apps/docs/content/docs/compatibility.mdx) - Node.js, Bun, Deno support and module formats
-- [Roadmap](apps/docs/content/docs/roadmap.mdx) - Planned features
+- [Getting Started](https://cerial-orm.github.io/cerial/getting-started) — Installation, setup, first queries
+- [Schema](https://cerial-orm.github.io/cerial/schema) — Field types, decorators, arrays, optionals, cross-file references
+- [Relations](https://cerial-orm.github.io/cerial/relations) — 1:1, 1:N, N:N, self-referential, nested operations, delete behavior
+- [Queries](https://cerial-orm.github.io/cerial/queries) — findOne, findMany, findUnique, create, upsert, update, delete, count, exists, $transaction
+- [Filtering](https://cerial-orm.github.io/cerial/filtering) — Comparison, string, array, logical, special, nested, object operators
+- [Select & Include](https://cerial-orm.github.io/cerial/select-and-include) — Dynamic return types, sub-field selection, nested includes
+- [Type System](https://cerial-orm.github.io/cerial/types) — CerialId, NONE vs null, generated types, dynamic return types
+- [CLI & Tooling](https://cerial-orm.github.io/cerial/cli) — generate, init, config, formatter, watch mode, path filtering
+- [VS Code Extension](https://cerial-orm.github.io/cerial/extension) — Features, settings, installation, snippets
+- [Release Notes](https://cerial-orm.github.io/cerial/releases) — ORM and extension changelogs
 
 ## Project Structure
 
 This repository is a monorepo. The ORM package lives in [`apps/orm/`](apps/orm/) and the VS Code extension in [`apps/vscode-extension/`](apps/vscode-extension/).
+
+## Building from Source
+
+This is a monorepo where packages share code across boundaries. After making changes, always verify both the ORM and extension build cleanly to catch breakage early:
+
+```bash
+# ORM
+bun run orm:build
+
+# Extension
+bun run ext:build
+bun run ext:dev:cursor # after that reload cursor window
+```
 
 ## Requirements
 

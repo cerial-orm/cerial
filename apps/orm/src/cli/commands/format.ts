@@ -3,9 +3,10 @@ import { defineCommand } from 'citty';
 import { resolveConfig as resolveFormatConfig } from '../../formatter/rules';
 import type { FormatConfig } from '../../formatter/types';
 import { findFolderConfigs, loadConfig, resolveConfig } from '../config';
+import { applyFolderOverridesAndDiscover } from '../discovery';
 import { formatSchema } from '../format';
-import { applyFolderOverridesAndDiscover } from '../generate';
 import { findSchemaRoots, resolveSchemas } from '../resolvers';
+import { formatDuration } from '../utils';
 import type { FormatWatchTarget } from '../watcher';
 import { startFormatterWatcher } from '../watcher';
 
@@ -46,6 +47,7 @@ export const formatCommand = defineCommand({
     },
   },
   async run({ args }) {
+    const startTime = performance.now();
     const cwd = process.cwd();
 
     // Resolve schema paths and format config from config file or flags
@@ -107,6 +109,8 @@ export const formatCommand = defineCommand({
       }
     }
 
+    const elapsed = formatDuration(performance.now() - startTime);
+
     if (args.check) {
       if (totalFormatted > 0 || totalErrors > 0) {
         const parts: string[] = [];
@@ -115,11 +119,11 @@ export const formatCommand = defineCommand({
             `${totalFormatted} file${totalFormatted === 1 ? '' : 's'} need${totalFormatted === 1 ? 's' : ''} formatting`,
           );
         if (totalErrors > 0) parts.push(`${totalErrors} error${totalErrors === 1 ? '' : 's'}`);
-        console.log(`✗ ${parts.join(', ')}`);
+        console.log(`✗ ${parts.join(', ')} in ${elapsed}`);
         process.exit(1);
       }
 
-      console.log('✓ All files are formatted');
+      console.log(`✓ All files are formatted in ${elapsed}`);
       process.exit(0);
     }
 
@@ -130,11 +134,11 @@ export const formatCommand = defineCommand({
     if (totalErrors > 0) parts.push(`${totalErrors} error${totalErrors === 1 ? '' : 's'}`);
 
     if (totalErrors > 0) {
-      console.log(`✗ ${parts.join(', ')}`);
+      console.log(`✗ ${parts.join(', ')} in ${elapsed}`);
       process.exit(1);
     }
 
-    console.log(`✓ ${parts.join(', ')}`);
+    console.log(`✓ ${parts.join(', ')} in ${elapsed}`);
   },
 });
 

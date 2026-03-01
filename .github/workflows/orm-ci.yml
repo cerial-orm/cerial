@@ -2,12 +2,13 @@ name: ORM CI
 
 on:
   push:
-    branches: [dev]
+    branches: [dev, main]
     paths:
       - 'apps/orm/**'
       - 'package.json'
       - 'tsconfig.json'
       - 'biome.json'
+      - '.github/workflows/orm-ci.yml'
   pull_request:
     branches: [dev]
     paths:
@@ -15,6 +16,7 @@ on:
       - 'package.json'
       - 'tsconfig.json'
       - 'biome.json'
+      - '.github/workflows/orm-ci.yml'
 
 concurrency:
   group: orm-ci-${{ github.ref }}
@@ -37,9 +39,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
+      - name: Install SurrealDB
+        run: curl -sSf https://install.surrealdb.com | sh -s -- --version v3.0.1
       - name: Start SurrealDB
         run: |
-          curl -sSf https://install.surrealdb.com | sh
           surreal start --user root --pass root --bind 0.0.0.0:8000 memory &
           for i in $(seq 1 30); do
             if curl -sf http://127.0.0.1:8000/health > /dev/null 2>&1; then
@@ -51,6 +54,8 @@ jobs:
           done
       - run: bun install --frozen-lockfile
       - run: bun run generate:test-client
+        working-directory: apps/orm
+      - run: bun run build
         working-directory: apps/orm
       - run: bun run typecheck
         working-directory: apps/orm

@@ -7,6 +7,7 @@ import { loadCerialIgnore, resolvePathFilter } from '../filters';
 import { formatSchema } from '../format';
 import { applyFolderOverridesAndDiscover, generate } from '../generate';
 import { findSchemaRoots } from '../resolvers';
+import { logger } from '../utils';
 import type { CLIOptions, LogOutputLevel } from '../validators';
 import type { WatchTarget } from '../watcher';
 import { startWatcher } from '../watcher';
@@ -189,6 +190,8 @@ export const generateCommand = defineCommand({
     },
   },
   async run({ args }) {
+    const startTime = performance.now();
+
     const logLevel = args.log;
     if (!['minimal', 'medium', 'full'].includes(logLevel)) {
       console.error(`Invalid log level: ${logLevel}. Use minimal, medium, or full.`);
@@ -232,7 +235,12 @@ export const generateCommand = defineCommand({
 
     if (!result.success) {
       console.error('Error generating files:', result.errors);
+      logger.done(performance.now() - startTime);
       process.exit(1);
+    }
+
+    if (!options.watch) {
+      logger.done(performance.now() - startTime);
     }
 
     if (options.watch) {

@@ -50,25 +50,16 @@ jobs:
         run: bun run build
         working-directory: apps/orm
 
-      - name: Extract changelog
-        if: startsWith(github.ref, 'refs/tags/')
-        id: changelog
-        run: |
-          VERSION="${GITHUB_REF#refs/tags/orm-v}"
-          awk "/^## \\[$VERSION\\]/{found=1; next} found && /^## \\[/{exit} found{print}" CHANGELOG.md > /tmp/release-notes.md
-          echo "Release notes for $VERSION:"
-          cat /tmp/release-notes.md
-        working-directory: apps/orm
-
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           VERSION="${GITHUB_REF#refs/tags/orm-v}"
+          MINOR=$(echo "$VERSION" | cut -d. -f1-2 | tr '.' '/')
           gh release create "$GITHUB_REF_NAME" \
             --title "Cerial ORM v$VERSION" \
-            --notes-file /tmp/release-notes.md
+            --notes "Full release notes: https://cerial-orm.github.io/cerial/releases/orm/${MINOR}#$(echo $VERSION | tr '.' '')"
 
       - name: Publish to npm
         if: startsWith(github.ref, 'refs/tags/')

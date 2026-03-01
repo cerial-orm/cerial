@@ -82,7 +82,7 @@ describe('Transaction Assembly', () => {
     // into $tx0_resultId becoming $tx0_tx0_resultId.
     test('sorts variable names longest-first to avoid partial replacement', () => {
       const query: CompiledQuery = {
-        text: 'LET $result = (CREATE user SET name = $name_eq_0);\nLET $resultId = $result.id;\nRETURN SELECT * FROM ONLY $resultId;',
+        text: 'LET $result = (CREATE user SET name = $name_eq_0);\nLET $resultId = $result.id;\nRETURN $result;',
         vars: { name_eq_0: 'Alice' },
       };
 

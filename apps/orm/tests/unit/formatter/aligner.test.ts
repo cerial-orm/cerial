@@ -18,10 +18,10 @@ function field(
   name: string,
   typeWithModifiers: string,
   decoratorString = '',
-  hasBlankLineAfter = false,
+  blankLinesAfter = 0,
   trailingComment?: string,
 ): AlignedField {
-  return { name, typeWithModifiers, decoratorString, hasBlankLineAfter, trailingComment };
+  return { name, typeWithModifiers, decoratorString, blankLinesAfter, trailingComment };
 }
 
 describe('calculateColumnWidths', () => {
@@ -43,9 +43,9 @@ describe('calculateColumnWidths', () => {
   describe('group alignment (default)', () => {
     it('should calculate widths per group split by blank lines', () => {
       const fields = [
-        field('id', 'Record', '@id', false),
-        field('email', 'Email', '@unique', true), // blank line after → group boundary
-        field('createdAt', 'Date', '@createdAt', false),
+        field('id', 'Record', '@id', 0),
+        field('email', 'Email', '@unique', 1), // blank line after → group boundary
+        field('createdAt', 'Date', '@createdAt', 0),
       ];
       const result = calculateColumnWidths(fields, config({ alignmentScope: 'group' }));
 
@@ -59,9 +59,9 @@ describe('calculateColumnWidths', () => {
 
     it('should handle multiple groups with different widths', () => {
       const fields = [
-        field('a', 'Int', '', true), // group 1
-        field('bb', 'String', '', true), // group 2
-        field('ccc', 'Bool', '', false), // group 3
+        field('a', 'Int', '', 1), // group 1
+        field('bb', 'String', '', 1), // group 2
+        field('ccc', 'Bool', '', 0), // group 3
       ];
       const result = calculateColumnWidths(fields, config({ alignmentScope: 'group' }));
 
@@ -72,9 +72,9 @@ describe('calculateColumnWidths', () => {
 
     it('should treat all fields as one group when no blank lines', () => {
       const fields = [
-        field('id', 'Record', '@id', false),
-        field('email', 'Email', '@unique', false),
-        field('createdAt', 'Date', '@createdAt', false),
+        field('id', 'Record', '@id', 0),
+        field('email', 'Email', '@unique', 0),
+        field('createdAt', 'Date', '@createdAt', 0),
       ];
       const result = calculateColumnWidths(fields, config({ alignmentScope: 'group' }));
 
@@ -86,8 +86,8 @@ describe('calculateColumnWidths', () => {
 
     it('should not start new group for blank line on last field', () => {
       const fields = [
-        field('id', 'Record', '@id', false),
-        field('email', 'Email', '@unique', true), // last field, blank line = no effect
+        field('id', 'Record', '@id', 0),
+        field('email', 'Email', '@unique', 1), // last field, blank line = no effect
       ];
       const result = calculateColumnWidths(fields, config({ alignmentScope: 'group' }));
 
@@ -100,9 +100,9 @@ describe('calculateColumnWidths', () => {
   describe('block alignment', () => {
     it('should calculate widths across all fields ignoring blank lines', () => {
       const fields = [
-        field('id', 'Record', '@id', false),
-        field('email', 'Email', '@unique', true), // blank line ignored
-        field('createdAt', 'Date', '@createdAt', false),
+        field('id', 'Record', '@id', 0),
+        field('email', 'Email', '@unique', 1), // blank line ignored
+        field('createdAt', 'Date', '@createdAt', 0),
       ];
       const result = calculateColumnWidths(fields, config({ alignmentScope: 'block' }));
 
@@ -157,9 +157,9 @@ describe('alignFields', () => {
 
     it('should handle group alignment example from spec', () => {
       const fields = [
-        field('id', 'Record', '@id', false),
-        field('email', 'Email', '@unique', true),
-        field('createdAt', 'Date', '@createdAt', false),
+        field('id', 'Record', '@id', 0),
+        field('email', 'Email', '@unique', 1),
+        field('createdAt', 'Date', '@createdAt', 0),
       ];
       const result = alignFields(fields, config({ alignmentScope: 'group' }), indent2);
 
@@ -173,9 +173,9 @@ describe('alignFields', () => {
 
     it('should handle block alignment example from spec', () => {
       const fields = [
-        field('id', 'Record', '@id', false),
-        field('email', 'Email', '@unique', true),
-        field('createdAt', 'Date', '@createdAt', false),
+        field('id', 'Record', '@id', 0),
+        field('email', 'Email', '@unique', 1),
+        field('createdAt', 'Date', '@createdAt', 0),
       ];
       const result = alignFields(fields, config({ alignmentScope: 'block' }), indent2);
 
@@ -233,7 +233,7 @@ describe('alignFields', () => {
 
   describe('trailing comments', () => {
     it('should append trailing comment after decorators', () => {
-      const fields = [field('id', 'Record', '@id', false, '# primary key'), field('email', 'Email', '@unique')];
+      const fields = [field('id', 'Record', '@id', 0, '# primary key'), field('email', 'Email', '@unique')];
       const result = alignFields(fields, config(), indent2);
 
       expect(result[0]).toBe('  id    Record @id # primary key');
@@ -241,14 +241,14 @@ describe('alignFields', () => {
     });
 
     it('should append trailing comment after type when no decorators', () => {
-      const fields = [field('name', 'String', '', false, '# important')];
+      const fields = [field('name', 'String', '', 0, '# important')];
       const result = alignFields(fields, config(), indent2);
 
       expect(result[0]).toBe('  name String # important');
     });
 
     it('should append trailing comment in compact mode', () => {
-      const fields = [field('id', 'Record', '@id', false, '# key'), field('name', 'String', '')];
+      const fields = [field('id', 'Record', '@id', 0, '# key'), field('name', 'String', '')];
       const result = alignFields(fields, config({ decoratorAlignment: 'compact' }), indent2);
 
       expect(result[0]).toBe('  id   Record @id # key');
@@ -301,16 +301,16 @@ describe('alignFields', () => {
     it('should align each group independently', () => {
       const fields = [
         // Group 1: 3 fields
-        field('id', 'Record', '@id', false),
-        field('email', 'Email', '@unique', false),
-        field('name', 'String', '', true), // group boundary
+        field('id', 'Record', '@id', 0),
+        field('email', 'Email', '@unique', 0),
+        field('name', 'String', '', 1), // group boundary
 
         // Group 2: 1 field
-        field('createdAt', 'Date', '@createdAt', true), // group boundary
+        field('createdAt', 'Date', '@createdAt', 1), // group boundary
 
         // Group 3: 2 fields
-        field('posts', 'Relation[]', '', false),
-        field('comments', 'Relation[]', '@model(Comment)', false),
+        field('posts', 'Relation[]', '', 0),
+        field('comments', 'Relation[]', '@model(Comment)', 0),
       ];
       const result = alignFields(fields, config({ alignmentScope: 'group' }), indent2);
 
@@ -331,15 +331,15 @@ describe('alignFields', () => {
   describe('realistic model fields', () => {
     it('should format a typical model correctly in aligned mode', () => {
       const fields = [
-        field('id', 'Record', '@id', false),
-        field('email', 'Email', '@unique', false),
-        field('name', 'String', '', false),
-        field('age', 'Int?', '', false),
-        field('role', 'Role', '@default(Viewer)', false),
-        field('isActive', 'Bool', '@default(true)', true),
+        field('id', 'Record', '@id', 0),
+        field('email', 'Email', '@unique', 0),
+        field('name', 'String', '', 0),
+        field('age', 'Int?', '', 0),
+        field('role', 'Role', '@default(Viewer)', 0),
+        field('isActive', 'Bool', '@default(true)', 1),
 
-        field('createdAt', 'Date', '@createdAt', false),
-        field('updatedAt', 'Date', '@updatedAt', false),
+        field('createdAt', 'Date', '@createdAt', 0),
+        field('updatedAt', 'Date', '@updatedAt', 0),
       ];
       const result = alignFields(fields, config({ alignmentScope: 'group' }), indent2);
 
@@ -358,10 +358,10 @@ describe('alignFields', () => {
 
     it('should format the same model in compact mode', () => {
       const fields = [
-        field('id', 'Record', '@id', false),
-        field('email', 'Email', '@unique', false),
-        field('name', 'String', '', false),
-        field('isActive', 'Bool', '@default(true)', false),
+        field('id', 'Record', '@id', 0),
+        field('email', 'Email', '@unique', 0),
+        field('name', 'String', '', 0),
+        field('isActive', 'Bool', '@default(true)', 0),
       ];
       const result = alignFields(fields, config({ decoratorAlignment: 'compact' }), indent2);
 
@@ -375,8 +375,8 @@ describe('alignFields', () => {
   describe('complex decorator strings', () => {
     it('should handle multi-decorator strings', () => {
       const fields = [
-        field('authorId', 'Record', '', false),
-        field('author', 'Relation', '@field(authorId) @model(User)', false),
+        field('authorId', 'Record', '', 0),
+        field('author', 'Relation', '@field(authorId) @model(User)', 0),
       ];
       const result = alignFields(fields, config(), indent2);
 

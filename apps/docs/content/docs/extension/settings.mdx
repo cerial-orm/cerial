@@ -12,7 +12,7 @@ These 9 settings control how the extension formats your `.cerial` files. They mi
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
 | `cerial.format.alignmentScope` | `"group"` \| `"block"` | `"group"` | Column widths reset at each blank line (`group`) or span the whole block (`block`) |
-| `cerial.format.fieldGroupBlankLines` | `"collapse"` \| `"single"` \| `"honor"` | `"collapse"` | Strip blank lines between fields / one blank line between groups / preserve original |
+| `cerial.format.fieldGroupBlankLines` | `"single"` \| `"collapse"` \| `"honor"` | `"single"` | Preserve one blank line where present / strip all blank lines / preserve exact count |
 | `cerial.format.blockSeparation` | `1` \| `2` \| `"honor"` | `2` | Blank lines between top-level blocks. `"honor"` preserves original, capped at 2 |
 | `cerial.format.indentSize` | `2` \| `4` \| `"tab"` | `2` | Spaces per indent level, or tabs |
 | `cerial.format.inlineConstructStyle` | `"single"` \| `"multi"` \| `"honor"` | `"multi"` | Enum/literal/tuple blocks: one-liner, expanded, or preserve original |

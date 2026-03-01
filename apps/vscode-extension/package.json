@@ -86,8 +86,8 @@
             "honor",
             "collapse"
           ],
-          "default": "collapse",
-          "markdownDescription": "Blank line handling between fields inside blocks.\n\n- **`collapse`** — Remove all blank lines between fields:\n  ```\n  id    Record @id\n  email Email  @unique\n  name  String\n  ```\n- **`single`** — Preserve existing blank line groups from source:\n  ```\n  id    Record @id\n  \n  email Email  @unique\n  name  String\n  ```\n- **`honor`** — Same as `single`, preserve original blank lines as-is"
+          "default": "single",
+          "markdownDescription": "Blank line handling between fields inside blocks.\n\n- **`single`** (default) — Preserve one blank line where the source had any:\n  ```\n  id    Record @id\n  \n  email Email  @unique\n  name  String\n  ```\n- **`collapse`** — Remove all blank lines between fields:\n  ```\n  id    Record @id\n  email Email  @unique\n  name  String\n  ```\n- **`honor`** — Preserve the exact number of blank lines from the source (2, 3, etc.)"
         },
         "cerial.format.blockSeparation": {
           "type": [

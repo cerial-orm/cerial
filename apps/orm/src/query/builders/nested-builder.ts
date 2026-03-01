@@ -615,7 +615,7 @@ export function buildCreateWithNestedTransaction(
 
   if (!transactionMode) statements.push('COMMIT TRANSACTION;');
   // Return the final record - SELECT from the stored id to get updated fields
-  statements.push('RETURN SELECT * FROM ONLY $resultId;');
+  statements.push('RETURN $result;');
 
   return {
     text: statements.join('\n'),

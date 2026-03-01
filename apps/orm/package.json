@@ -7,7 +7,7 @@
     "url": "git+https://github.com/cerial-orm/cerial.git",
     "directory": "apps/orm"
   },
-  "homepage": "https://cerial-orm.github.io",
+  "homepage": "https://cerial-orm.github.io/cerial",
   "bugs": {
     "url": "https://github.com/cerial-orm/cerial/issues"
   },
@@ -133,7 +133,7 @@
     "@biomejs/wasm-nodejs": "^2.4.4",
     "citty": "^0.2.1",
     "ignore": "^7.0.5",
-    "surrealdb": "^2.0.0",
+    "surrealdb": "2.0.0",
     "ts-toolbelt": "^9.6.0",
     "valibot": "^1.2.0",
     "fast-glob": "^3.3.3"

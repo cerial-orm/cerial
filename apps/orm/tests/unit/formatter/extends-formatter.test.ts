@@ -77,11 +77,11 @@ function field(
   name: string,
   typeWithModifiers: string,
   decoratorString = '',
-  hasBlankLineAfter = false,
+  blankLinesAfter = 0,
   trailingComment?: string,
   privateMarker?: string,
 ): AlignedField {
-  return { name, typeWithModifiers, decoratorString, hasBlankLineAfter, trailingComment, privateMarker };
+  return { name, typeWithModifiers, decoratorString, blankLinesAfter, trailingComment, privateMarker };
 }
 
 // ---------------------------------------------------------------------------
@@ -439,9 +439,9 @@ describe('!!private on tuple elements', () => {
 describe('aligner !!private support', () => {
   it('should pad decorator column when any field has !!private', () => {
     const fields = [
-      field('id', 'Record', '@id', false, undefined, '!!private'),
-      field('name', 'String', '', false),
-      field('email', 'Email', '@unique', false),
+      field('id', 'Record', '@id', 0, undefined, '!!private'),
+      field('name', 'String', '', 0),
+      field('email', 'Email', '@unique', 0),
     ];
     const result = alignFields(fields, config({ decoratorAlignment: 'aligned' }), '  ');
 
@@ -455,9 +455,9 @@ describe('aligner !!private support', () => {
 
   it('should align !!private at same column across fields', () => {
     const fields = [
-      field('id', 'Record', '@id', false, undefined, '!!private'),
-      field('createdAt', 'Date', '@createdAt', false, undefined, '!!private'),
-      field('updatedAt', 'Date', '@updatedAt', false),
+      field('id', 'Record', '@id', 0, undefined, '!!private'),
+      field('createdAt', 'Date', '@createdAt', 0, undefined, '!!private'),
+      field('updatedAt', 'Date', '@updatedAt', 0),
     ];
     const result = alignFields(fields, config({ decoratorAlignment: 'aligned' }), '  ');
 
@@ -468,7 +468,7 @@ describe('aligner !!private support', () => {
   });
 
   it('should not add extra padding when no field has !!private', () => {
-    const fields = [field('id', 'Record', '@id', false), field('name', 'String', '', false)];
+    const fields = [field('id', 'Record', '@id', 0), field('name', 'String', '', 0)];
     const result = alignFields(fields, config({ decoratorAlignment: 'aligned' }), '  ');
 
     // No trailing whitespace or !!private
@@ -479,7 +479,7 @@ describe('aligner !!private support', () => {
   });
 
   it('should handle !!private with compact decorator alignment', () => {
-    const fields = [field('id', 'Record', '@id', false, undefined, '!!private'), field('name', 'String', '', false)];
+    const fields = [field('id', 'Record', '@id', 0, undefined, '!!private'), field('name', 'String', '', 0)];
     const result = alignFields(fields, config({ decoratorAlignment: 'compact' }), '  ');
 
     expect(result[0]).toContain('!!private');
@@ -488,8 +488,8 @@ describe('aligner !!private support', () => {
 
   it('should handle !!private on field without decorators', () => {
     const fields = [
-      field('id', 'Record', '@id', false, undefined, '!!private'),
-      field('secret', 'String', '', false, undefined, '!!private'),
+      field('id', 'Record', '@id', 0, undefined, '!!private'),
+      field('secret', 'String', '', 0, undefined, '!!private'),
     ];
     const result = alignFields(fields, config({ decoratorAlignment: 'aligned' }), '  ');
 
@@ -501,9 +501,9 @@ describe('aligner !!private support', () => {
 
   it('should respect group scope for !!private alignment', () => {
     const fields = [
-      field('id', 'Record', '@id', false, undefined, '!!private'),
-      field('name', 'String', '', true), // blank line after → group boundary
-      field('secret', 'String', '', false, undefined, '!!private'),
+      field('id', 'Record', '@id', 0, undefined, '!!private'),
+      field('name', 'String', '', 1), // blank line after → group boundary
+      field('secret', 'String', '', 0, undefined, '!!private'),
     ];
     const result = alignFields(fields, config({ decoratorAlignment: 'aligned', alignmentScope: 'group' }), '  ');
 

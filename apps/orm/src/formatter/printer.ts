@@ -104,36 +104,47 @@ function hasBlankLineBetween(sourceLines: string[], afterLine: number, beforeLin
 }
 
 /**
- * Compute whether a field should have a blank line after it.
- *
- * - `'single'`: always (except last field)
- * - `'collapse'`: never
- * - `'honor'`: true if the original source had a blank line between this and next field
+ * Count blank lines between two 1-based line numbers in source.
+ * Returns the number of consecutive blank lines found.
  */
-function computeBlankLineAfter(
+function countBlankLinesBetween(sourceLines: string[], afterLine: number, beforeLine: number): number {
+  let count = 0;
+  for (let lineNum = afterLine + 1; lineNum < beforeLine; lineNum++) {
+    if (sourceLines[lineNum - 1]?.trim() === '') count++;
+  }
+
+  return count;
+}
+
+/**
+ * Compute how many blank lines to emit after a field.
+ *
+ * - `'single'`: at most 1 blank line — preserves group boundaries from source but collapses multiples to 1
+ * - `'collapse'`: 0 — removes all blank lines between fields
+ * - `'honor'`: preserves the exact number of blank lines from the original source
+ */
+function computeBlankLinesAfter(
   mode: 'single' | 'honor' | 'collapse',
   fieldIdx: number,
   fields: ASTField[],
   sourceLines: string[],
-): boolean {
-  // Last field never has blank line after
-  if (fieldIdx >= fields.length - 1) return false;
+): number {
+  // Last field never has blank lines after
+  if (fieldIdx >= fields.length - 1) return 0;
+
+  const currentField = fields[fieldIdx]!;
+  const nextField = fields[fieldIdx + 1]!;
 
   switch (mode) {
     case 'single': {
-      const currentField = fields[fieldIdx]!;
-      const nextField = fields[fieldIdx + 1]!;
+      const count = countBlankLinesBetween(sourceLines, currentField.range.start.line, nextField.range.start.line);
 
-      return hasBlankLineBetween(sourceLines, currentField.range.start.line, nextField.range.start.line);
+      return count > 0 ? 1 : 0;
     }
     case 'collapse':
-      return false;
-    case 'honor': {
-      const currentField = fields[fieldIdx]!;
-      const nextField = fields[fieldIdx + 1]!;
-
-      return hasBlankLineBetween(sourceLines, currentField.range.start.line, nextField.range.start.line);
-    }
+      return 0;
+    case 'honor':
+      return countBlankLinesBetween(sourceLines, currentField.range.start.line, nextField.range.start.line);
   }
 }
 
@@ -204,7 +215,7 @@ function printBlock(
     const sorted = sortDecorators(field.decorators);
     const decoratorStr = sorted.map((d) => extractDecoratorText(d, sourceLines)).join(' ');
 
-    const hasBlankLineAfter = computeBlankLineAfter(config.fieldGroupBlankLines, i, fields, sourceLines);
+    const blankLinesAfter = computeBlankLinesAfter(config.fieldGroupBlankLines, i, fields, sourceLines);
 
     const fieldKey = `field:${name}.${field.name}`;
     const trailingComment = comments.get(fieldKey)?.trailing[0]?.value;
@@ -213,7 +224,7 @@ function printBlock(
       name: field.name,
       typeWithModifiers: typeStr,
       decoratorString: decoratorStr,
-      hasBlankLineAfter,
+      blankLinesAfter,
       trailingComment,
       privateMarker: field.isPrivate ? '!!private' : undefined,
     });
@@ -238,9 +249,11 @@ function printBlock(
     // The aligned field line
     lines.push(fieldLines[i]!);
 
-    // Blank line after if needed (not after last field)
-    if (alignedFields[i]!.hasBlankLineAfter && i < fields.length - 1) {
-      lines.push('');
+    // Blank lines after if needed (not after last field)
+    if (alignedFields[i]!.blankLinesAfter > 0 && i < fields.length - 1) {
+      for (let b = 0; b < alignedFields[i]!.blankLinesAfter; b++) {
+        lines.push('');
+      }
     }
   }
 

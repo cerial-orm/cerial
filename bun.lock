@@ -36,7 +36,7 @@
       "name": "cerial",
       "version": "0.1.0",
       "bin": {
-        "cerial": "./bin/cerial.ts",
+        "cerial": "./dist/bin/cerial.mjs",
       },
       "dependencies": {
         "@biomejs/js-api": "^4.0.0",
@@ -44,7 +44,7 @@
         "citty": "^0.2.1",
         "fast-glob": "^3.3.3",
         "ignore": "^7.0.5",
-        "surrealdb": "^2.0.0",
+        "surrealdb": "2.0.0",
         "ts-toolbelt": "^9.6.0",
         "valibot": "^1.2.0",
       },
@@ -59,7 +59,7 @@
     },
     "apps/vscode-extension": {
       "name": "cerial-vscode",
-      "version": "0.0.1",
+      "version": "0.1.0",
       "dependencies": {
         "ignore": "^7.0.5",
         "vscode-languageclient": "^9.0.1",

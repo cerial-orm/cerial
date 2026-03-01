@@ -72,7 +72,7 @@ All formatting options go under the `format` key in your [config file](/cli/conf
 | Key | Options | Default | Description |
 | --- | --- | --- | --- |
 | `alignmentScope` | `'group'` \| `'block'` | `'group'` | Column widths reset at each blank line (`group`) or span the whole block (`block`) |
-| `fieldGroupBlankLines` | `'collapse'` \| `'single'` \| `'honor'` | `'collapse'` | Strip blank lines between fields / one blank line between groups / preserve original |
+| `fieldGroupBlankLines` | `'single'` \| `'collapse'` \| `'honor'` | `'single'` | Preserve one blank line where present / strip all blank lines / preserve exact count |
 | `blockSeparation` | `1` \| `2` \| `'honor'` | `2` | Blank lines between top-level blocks (models, objects, enums). `'honor'` preserves original, capped at 2 |
 | `indentSize` | `2` \| `4` \| `'tab'` | `2` | Spaces per indent level, or tabs |
 | `inlineConstructStyle` | `'single'` \| `'multi'` \| `'honor'` | `'multi'` | Enum, literal, and tuple blocks: one-liner, expanded, or preserve original |
@@ -139,9 +139,20 @@ model User {
 
 ### fieldGroupBlankLines
 
-- **`'collapse'`** (default) ... all blank lines between fields are removed.
-- **`'single'`** ... exactly one blank line between field groups. Consecutive blank lines collapse to one.
-- **`'honor'`** ... blank lines are kept as you wrote them.
+- **`'single'`** (default) ... if the source has any blank lines between two fields, exactly one blank line is kept. Multiple consecutive blank lines collapse to one.
+- **`'collapse'`** ... all blank lines between fields are removed.
+- **`'honor'`** ... blank lines are preserved exactly as you wrote them. If you have 2 or 3 blank lines, they stay.
+
+With `'single'`, blank lines from your source mark group boundaries (collapsed to one):
+
+```cerial
+model User {
+  id    Record @id
+
+  email Email  @unique
+  name  String
+}
+```
 
 With `'collapse'`, everything is packed together:
 
@@ -153,11 +164,12 @@ model User {
 }
 ```
 
-With `'single'`, blank lines from your source mark group boundaries:
+With `'honor'`, your exact spacing is preserved:
 
 ```cerial
 model User {
   id    Record @id
+
 
   email Email  @unique
   name  String

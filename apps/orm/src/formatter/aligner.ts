@@ -17,8 +17,8 @@ export interface AlignedField {
   typeWithModifiers: string;
   /** Pre-formatted decorators as a single string (e.g., '@unique @default("x")') */
   decoratorString: string;
-  /** Indicates group boundary for alignment scope */
-  hasBlankLineAfter: boolean;
+  /** Number of blank lines after this field (0 = no gap, 1+ = group boundary) */
+  blankLinesAfter: number;
   /** Trailing comment text (e.g., '# important') */
   trailingComment?: string;
   /** Private marker (e.g., '!!private') — formatted as a 4th alignment column */
@@ -49,7 +49,7 @@ function splitIntoGroups(fields: AlignedField[]): { field: AlignedField; index: 
     const field = fields[i]!;
     current.push({ field, index: i });
 
-    if (field.hasBlankLineAfter && i < fields.length - 1) {
+    if (field.blankLinesAfter > 0 && i < fields.length - 1) {
       groups.push(current);
       current = [];
     }
