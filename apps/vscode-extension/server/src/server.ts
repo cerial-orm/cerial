@@ -67,7 +67,7 @@ export interface CerialSettings {
 const defaultSettings: CerialSettings = {
   format: {
     alignmentScope: 'group',
-    fieldGroupBlankLines: 'collapse',
+    fieldGroupBlankLines: 'single',
     blockSeparation: 2,
     indentSize: 2,
     inlineConstructStyle: 'multi',

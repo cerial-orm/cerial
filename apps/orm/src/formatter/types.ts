@@ -8,7 +8,7 @@
 export interface FormatConfig {
   /** Alignment scope for field decorators: group (within model/object), block (entire file), or undefined (no alignment) */
   alignmentScope?: 'group' | 'block';
-  /** Blank line handling between field groups: single (one blank line), honor (preserve), collapse (remove) */
+  /** Blank line handling between fields: single (preserve one if present, default), honor (preserve all), collapse (remove all) */
   fieldGroupBlankLines?: 'single' | 'honor' | 'collapse';
   /** Blank lines between top-level blocks (models, objects, etc.): 1, 2, or honor (preserve) */
   blockSeparation?: 1 | 2 | 'honor';
@@ -45,7 +45,7 @@ export type FormatResult =
  */
 export const FORMAT_DEFAULTS: Required<FormatConfig> = {
   alignmentScope: 'group',
-  fieldGroupBlankLines: 'collapse',
+  fieldGroupBlankLines: 'single',
   blockSeparation: 2,
   indentSize: 2,
   inlineConstructStyle: 'multi',
