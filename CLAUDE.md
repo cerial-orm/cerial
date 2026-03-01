@@ -298,6 +298,21 @@ Doc pages use MDX with Fumadocs conventions. Page metadata is defined via the fi
 - Show practical examples with TypeScript code the user would actually write
 - Mention constraints and gotchas that affect the user's API usage, not internal architecture decisions
 
+**Unreleased feature documentation:**
+
+Docs deploy from `dev`, so pages for features not yet in a published release may be live. To avoid confusing users, mark unreleased content with a Fumadocs callout:
+
+```mdx
+:::caution
+This feature is not yet available in the current release. It will ship in an upcoming version.
+:::
+```
+
+- Add the callout at the **top** of any page (or section) documenting an unreleased feature
+- Remove the callout once the feature is included in a tagged release
+- If an entire page is unreleased, add the callout immediately after the frontmatter
+- If only a section within a page is unreleased, add the callout at the start of that section
+
 ### CLAUDE.md ↔ README.md Sync
 
 `CLAUDE.md` is the agent-facing guide (structure, conventions, rules). `README.md` is the user-facing landing page (features, quick start, doc links). They share overlapping information that **must stay in sync**:
@@ -478,8 +493,8 @@ Each user-facing commit gets its own entry in the release notes page under the c
 | `orm-ci.yml` | Push to dev + PRs to dev | Unit tests, E2E (SurrealDB), typecheck, format |
 | `extension-ci.yml` | Push to dev + PRs to dev | Build, unit tests, grammar tests (matrix: ubuntu/windows/macos) |
 | `orm-release.yml` | `orm-v*` tag push | Build, test, npm publish, GitHub Release linking to docs |
-| `extension-release.yml` | `ext-v*` tag push | Build, test, package VSIX, VSCE publish, GitHub Release linking to docs |
-| `docs-deploy.yml` | Push to main (docs/ changes) | Build Next.js, deploy to GitHub Pages |
+| `extension-release.yml` | `ext-v*` tag push | Build, test, package VSIX, GitHub Release linking to docs |
+| `docs-deploy.yml` | Push to dev (docs/ changes) | Build Next.js, deploy to GitHub Pages |
 
 **Required GitHub Secrets:**
 | Secret | Purpose | Where to create |
