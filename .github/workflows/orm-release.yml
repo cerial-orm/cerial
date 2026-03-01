@@ -59,7 +59,7 @@ jobs:
           MINOR=$(echo "$VERSION" | cut -d. -f1-2 | tr '.' '/')
           gh release create "$GITHUB_REF_NAME" \
             --title "Cerial ORM v$VERSION" \
-            --notes "Full release notes: https://cerial-orm.github.io/cerial/releases/orm/${MINOR}#$(echo $VERSION | tr '.' '')"
+            --notes "Full release notes: https://cerial-orm.github.io/cerial/releases/orm/${MINOR}#$(echo $VERSION | tr -d '.')"
 
       - name: Publish to npm
         if: startsWith(github.ref, 'refs/tags/')

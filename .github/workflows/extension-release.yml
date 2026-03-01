@@ -57,6 +57,6 @@ jobs:
           MINOR=$(echo "$VERSION" | cut -d. -f1-2 | tr '.' '/')
           gh release create "$GITHUB_REF_NAME" \
             --title "Cerial VS Code Extension v$VERSION" \
-            --notes "Full release notes: https://cerial-orm.github.io/cerial/releases/extension/${MINOR}#$(echo $VERSION | tr '.' '')" \
+            --notes "Full release notes: https://cerial-orm.github.io/cerial/releases/extension/${MINOR}#$(echo $VERSION | tr -d '.')" \
             apps/vscode-extension/*.vsix
 
