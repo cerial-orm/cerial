@@ -91,31 +91,37 @@ export async function formatSchema(options: FormatSchemaOptions): Promise<Format
     errors: [],
   };
 
-  for (const filePath of files) {
-    const result = await formatSingleFile(filePath, config, options.check);
+  const BATCH_SIZE = 16;
+  for (let i = 0; i < files.length; i += BATCH_SIZE) {
+    const batch = files.slice(i, i + BATCH_SIZE);
+    const results = await Promise.all(batch.map((f) => formatSingleFile(f, config, options.check)));
 
-    if (options.verbose) {
-      const rel = relative(process.cwd(), filePath);
-      if (result.error) {
-        console.log(`  ✗ ${rel}:${result.error.line}:${result.error.column}: ${result.error.message}`);
-      } else if (result.changed) {
-        console.log(`  ✓ ${rel}`);
-      } else {
-        console.log(`  - ${rel} (unchanged)`);
+    for (let j = 0; j < results.length; j++) {
+      const result = results[j]!;
+
+      if (options.verbose) {
+        const rel = relative(process.cwd(), batch[j]!);
+        if (result.error) {
+          console.log(`  ✗ ${rel}:${result.error.line}:${result.error.column}: ${result.error.message}`);
+        } else if (result.changed) {
+          console.log(`  ✓ ${rel}`);
+        } else {
+          console.log(`  - ${rel} (unchanged)`);
+        }
       }
-    }
 
-    if (result.error) {
-      summary.errors.push({
-        path: filePath,
-        message: result.error.message,
-        line: result.error.line,
-        column: result.error.column,
-      });
-    } else if (result.changed) {
-      summary.formatted++;
-    } else {
-      summary.unchanged++;
+      if (result.error) {
+        summary.errors.push({
+          path: result.path,
+          message: result.error.message,
+          line: result.error.line,
+          column: result.error.column,
+        });
+      } else if (result.changed) {
+        summary.formatted++;
+      } else {
+        summary.unchanged++;
+      }
     }
   }
 
