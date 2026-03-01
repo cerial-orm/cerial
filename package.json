@@ -10,6 +10,7 @@
   ],
   "scripts": {
     "format": "biome check --write .",
+    "orm:build": "bun run --filter cerial build",
     "orm:generate": "bun run --filter cerial generate:test-client",
     "orm:typecheck": "bun run --filter cerial typecheck",
     "test:orm": "bun run --filter cerial test",

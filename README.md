@@ -259,6 +259,19 @@ Full documentation is available at [**cerial-orm.github.io**](https://cerial-orm
 
 This repository is a monorepo. The ORM package lives in [`apps/orm/`](apps/orm/) and the VS Code extension in [`apps/vscode-extension/`](apps/vscode-extension/).
 
+## Building from Source
+
+This is a monorepo where packages share code across boundaries. After making changes, always verify both the ORM and extension build cleanly to catch breakage early:
+
+```bash
+# ORM
+bun run orm:build
+
+# Extension
+bun run ext:build
+bun run ext:dev:cursor # after that reload cursor window
+```
+
 ## Requirements
 
 - **[Node.js](https://nodejs.org/)** 20+ or **[Bun](https://bun.sh/)** 1+ (runtime)
