@@ -1,12 +1,4 @@
 {
   "title": "Objects",
-  "pages": [
-    "defining-objects",
-    "object-fields-on-models",
-    "primitive-arrays-in-objects",
-    "select",
-    "where",
-    "update",
-    "orderby"
-  ]
+  "pages": ["select", "where", "update", "orderby"]
 }

@@ -10,6 +10,7 @@
     "multi-relation",
     "nested-create",
     "connect-disconnect",
-    "on-delete"
+    "on-delete",
+    "record-type-inference"
   ]
 }

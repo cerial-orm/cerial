@@ -2,12 +2,20 @@
   "title": "Schema",
   "pages": [
     "...schema",
+    "model",
+    "object",
+    "tuple",
+    "literals",
+    "enums",
     "field-types",
     "decorators",
+    "composite-decorators",
     "---",
     "arrays",
     "optional-fields",
+    "complex-record",
     "inheritance",
+    "enums-vs-literals",
     "cross-file-references",
     "comments"
   ]
