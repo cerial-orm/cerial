@@ -40,7 +40,7 @@ console.log(user.location[1]); // -74.006 (lng)
 3. **Elements can be named or unnamed** — Names are for input convenience only. Output is always a positional array.
 4. **Output is ALWAYS an array** — `[40.7, -74.0]`, never `{ lat: 40.7, lng: -74.0 }`.
 5. **Input accepts both array and object form** — When elements are named, you can use `{ lat: 40.7, lng: -74.0 }` or `[40.7, -74.0]` as input.
-6. **Support a subset of decorators on elements** — `@nullable`, `@default`, `@defaultAlways`, `@createdAt`, and `@updatedAt` are allowed. See [Defining Tuples](/tuples/defining-tuples) for the full list.
+6. **Support a subset of decorators on elements** — `@nullable`, `@default`, `@defaultAlways`, `@createdAt`, and `@updatedAt` are allowed. See [Defining Tuples](/schema/tuple) for the full list.
 7. **No OrderBy on tuple fields** — Mixed element types make ordering ambiguous, so tuples are excluded from OrderBy types.
 8. **Per-element update via object form** — Update individual elements without replacing the entire tuple.
 9. **Sub-field select only for tuples with object elements** — `TupleSelect` is generated only when the tuple contains object elements at any depth.
@@ -66,8 +66,8 @@ Tuples do **not** generate `OrderBy`, `Create`, `Include`, or `GetPayload` types
 
 ## Sections
 
-- [Defining Tuples](/tuples/defining-tuples) — Schema syntax for declaring tuple types
-- [Tuple Fields on Models](/tuples/tuple-fields-on-models) — Using tuples as required, optional, or array fields
+- [Defining Tuples](/schema/tuple) — Schema syntax for declaring tuple types
+- [Tuple Fields on Models](/schema/tuple) — Using tuples as required, optional, or array fields
 - [Select](/tuples/select) — Sub-field selection on tuple elements
 - [Where Filtering](/tuples/where) — Filtering by tuple element values
 - [Updating Tuples](/tuples/update) — Per-element updates and array operations

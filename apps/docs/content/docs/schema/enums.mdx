@@ -35,7 +35,7 @@ Pick one style per block — comma-separated on a single line, or newline-separa
 - Values are **bare identifiers** — no quotes around them
 - No casing enforcement — use whatever convention fits your project (`UPPER_CASE`, `PascalCase`, `camelCase`)
 - Each value must be a valid identifier (letters, digits, underscores; cannot start with a digit)
-- All values are **strings only** — if you need numbers, booleans, or mixed types, use a [Literal](/schema/type-definitions/literals/) instead
+- All values are **strings only** — if you need numbers, booleans, or mixed types, use a [Literal](/schema/literals) instead
 
 :::caution[Name collisions]
 Enum names must be unique across your entire schema — they cannot collide with literal, model, object, or tuple names. Cerial will error at generation time if it detects a name conflict.
@@ -225,4 +225,4 @@ Duplicate values are automatically deduplicated. You can also use pick and omit 
 
 If you only need a fixed set of string values with a runtime const object, enums are the right choice. If you need mixed types (numbers, booleans, objects, tuples) or composition via inline references, use a literal instead.
 
-See [Enums vs Literals](/schema/type-definitions/enums-vs-literals/) for a detailed comparison.
+See [Enums vs Literals](/schema/enums-vs-literals) for a detailed comparison.

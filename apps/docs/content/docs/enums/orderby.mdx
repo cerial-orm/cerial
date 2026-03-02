@@ -24,5 +24,5 @@ const records = await client.db.EnumWithObject.findMany({
 ```
 
 :::note
-Non-enum [Literals](/schema/type-definitions/literals/) are excluded from `orderBy` because they can contain mixed types where ordering is ambiguous. Enums, being string-only, always have well-defined ordering.
+Non-enum [Literals](/schema/literals) are excluded from `orderBy` because they can contain mixed types where ordering is ambiguous. Enums, being string-only, always have well-defined ordering.
 :::

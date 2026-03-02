@@ -67,7 +67,7 @@ await client.db.Task.findMany({
 
 Non-enum literal fields are **excluded** from `orderBy` types. Because literals can contain mixed types (strings, numbers, booleans, objects), ordering is ambiguous and not supported.
 
-If you need ordering on a union of string values, use an [Enum](/schema/type-definitions/enums/) instead — enums are string-only and support `orderBy` with alphabetical sorting.
+If you need ordering on a union of string values, use an [Enum](/schema/enums) instead — enums are string-only and support `orderBy` with alphabetical sorting.
 
 ---
 
