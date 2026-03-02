@@ -1,0 +1,500 @@
+---
+title: "Tuple"
+description: "Define fixed-length typed arrays with tuple blocks"
+---
+
+Tuples are fixed-length typed arrays defined with the `tuple {}` keyword in Cerial schemas. Unlike models, tuples have no `id` field and cannot participate in relations. Unlike objects, tuples produce array output — element order and count are fixed at schema time.
+
+A `User` with a `location Coordinate` field stores the coordinate data as a typed array `[40.7, -74.0]` within the user record, not in a separate table.
+
+```cerial
+tuple Coordinate {
+  lat Float,
+  lng Float
+}
+
+model User {
+  id Record @id
+  name String
+  location Coordinate
+}
+```
+
+```typescript
+const user = await client.db.User.create({
+  data: {
+    name: 'Jane Doe',
+    location: [40.7128, -74.006],
+  },
+});
+
+console.log(user.location);    // [40.7128, -74.006]
+console.log(user.location[0]); // 40.7128 (lat)
+console.log(user.location[1]); // -74.006 (lng)
+```
+
+## Key Rules
+
+1. **No `id` field** — Tuples have no identity. They exist only as part of their parent model.
+2. **Elements are comma-separated** — Each element is separated by a comma within the `tuple {}` block.
+3. **Elements can be named or unnamed** — Names are for input convenience only. Output is always a positional array.
+4. **Output is ALWAYS an array** — `[40.7, -74.0]`, never `{ lat: 40.7, lng: -74.0 }`.
+5. **Input accepts both array and object form** — When elements are named, you can use `{ lat: 40.7, lng: -74.0 }` or `[40.7, -74.0]` as input.
+6. **Support a subset of decorators on elements** — `@nullable`, `@default`, `@defaultAlways`, `@createdAt`, and `@updatedAt` are allowed. See [Decorators on Tuple Elements](#decorators-on-tuple-elements) for the full list.
+7. **No OrderBy on tuple fields** — Mixed element types make ordering ambiguous, so tuples are excluded from OrderBy types.
+8. **Per-element update via object form** — Update individual elements without replacing the entire tuple.
+9. **Sub-field select only for tuples with object elements** — `TupleSelect` is generated only when the tuple contains object elements at any depth.
+
+## Generated Types
+
+Each tuple definition generates a set of TypeScript types:
+
+| Generated Type | Purpose |
+|---|---|
+| `TupleName` | Output type — TypeScript tuple `[type1, type2]` |
+| `TupleNameInput` | Input type — accepts array or object form |
+| `TupleNameWhere` | Where clause type for element filtering |
+| `TupleNameUpdate` | Per-element update type |
+| `TupleNameSelect` | Sub-field select — only when tuple has object elements at any depth |
+| `TupleNameUnset` | Per-element unset — only when tuple has nullable/optional elements |
+
+:::tip
+`TupleNameSelect` is only generated when a tuple contains object elements at any nesting depth. Tuples with only primitive elements use simple boolean select.
+:::
+
+Tuples do **not** generate `OrderBy`, `Create`, `Include`, or `GetPayload` types — those are exclusive to models.
+
+## Basic Syntax
+
+```cerial
+tuple Coordinate {
+  lat Float,
+  lng Float
+}
+```
+
+Elements are comma-separated within the block. Each element follows `name Type` syntax. The tuple above produces a TypeScript type `[number, number]` and accepts input as `[40.7, -74.0]` or `{ lat: 40.7, lng: -74.0 }`.
+
+## Named vs Unnamed Elements
+
+Element names are optional. You can define a tuple with unnamed positional elements:
+
+```cerial
+tuple Color {
+  Int,
+  Int,
+  Int
+}
+```
+
+This accepts input only as an array: `[255, 128, 0]`.
+
+Named elements add object-form input as a convenience:
+
+```cerial
+tuple Color {
+  r Int,
+  g Int,
+  b Int
+}
+```
+
+Now both forms are accepted as input:
+
+```typescript
+// Array form
+const color1: ColorInput = [255, 128, 0];
+
+// Object form (named keys)
+const color2: ColorInput = { r: 255, g: 128, b: 0 };
+
+// Index form
+const color3: ColorInput = { 0: 255, 1: 128, 2: 0 };
+```
+
+:::tip
+Regardless of input form, output is **always** an array. A `Color` field always returns `[255, 128, 0]`, never `{ r: 255, g: 128, b: 0 }`.
+:::
+
+## Nullable Elements
+
+Use `@nullable` to allow `null` values on individual elements:
+
+```cerial
+tuple Measurement {
+  value Float,
+  unit String,
+  margin Float @nullable
+}
+```
+
+```typescript
+// margin can be null
+const m: MeasurementInput = [3.14, 'cm', null];
+```
+
+:::caution
+`?` is **not allowed** on tuple elements. SurrealDB returns `null` (not `undefined`) for absent tuple positions, so the optional (`?`) modifier — which maps to `undefined` — does not apply. Use `@nullable` instead.
+:::
+
+## Decorators on Tuple Elements
+
+Tuple elements support a subset of decorators:
+
+| Decorator | Allowed | Notes |
+|---|---|---|
+| `@nullable` | ✅ | Makes element accept `null` |
+| `@default` | ✅ | Default value on create |
+| `@defaultAlways` | ✅ | Reset-on-write default |
+| `@createdAt` | ✅ | Auto-set on create (Date elements only) |
+| `@updatedAt` | ✅ | Auto-set on update (Date elements only) |
+| `@uuid` / `@uuid4` / `@uuid7` | ❌ | SurrealDB doesn't support DEFAULT on tuple elements |
+| `@readonly` | ❌ | Not supported on tuple elements |
+| `@now` | ❌ | COMPUTED must be top-level (model-only) |
+| `@flexible` | ❌ | Not applicable to tuple elements |
+
+### `@default` on Elements
+
+Use `@default` to provide a value when an element is omitted on create:
+
+```cerial
+tuple Config {
+  label String @default("untitled"),
+  priority Int @default(0)
+}
+```
+
+### `@createdAt` and `@updatedAt` on Elements
+
+Timestamp decorators work on Date tuple elements the same way they do on model and object fields:
+
+```cerial
+tuple AuditEntry {
+  action String,
+  performedAt Date @createdAt
+}
+```
+
+`@createdAt` sets the element to the current timestamp when the parent record is created. `@updatedAt` sets it on every create and update.
+
+## Nested Tuples
+
+Tuples can contain other tuple types:
+
+```cerial
+tuple Point {
+  x Float,
+  y Float
+}
+
+tuple BoundingBox {
+  topLeft Point,
+  bottomRight Point
+}
+```
+
+```typescript
+const box: BoundingBoxInput = [
+  [0.0, 10.0],   // topLeft
+  [10.0, 0.0],   // bottomRight
+];
+
+// Or using object form
+const box2: BoundingBoxInput = {
+  topLeft: [0.0, 10.0],
+  bottomRight: [10.0, 0.0],
+};
+```
+
+## Objects in Tuples
+
+Tuple elements can reference object types:
+
+```cerial
+object Address {
+  street String
+  city String
+}
+
+tuple Located {
+  tag String,
+  location Address
+}
+```
+
+```typescript
+const entry: LocatedInput = ['headquarters', { street: '123 Main St', city: 'NYC' }];
+```
+
+When a tuple contains object elements at any depth, Cerial generates a `TupleNameSelect` type for sub-field selection on those object elements.
+
+## Tuples in Objects
+
+Objects can contain tuple-typed fields:
+
+```cerial
+tuple Coordinate {
+  lat Float,
+  lng Float
+}
+
+object Venue {
+  name String
+  position Coordinate
+}
+```
+
+```typescript
+const venue: Venue = {
+  name: 'Central Park',
+  position: [40.7829, -73.9654],
+};
+```
+
+## Self-Referencing Tuples
+
+Tuples can reference themselves for recursive structures. Self-referencing elements **must** use `@nullable` to avoid infinite recursion:
+
+```cerial
+tuple TreeNode {
+  value Int,
+  left TreeNode @nullable,
+  right TreeNode @nullable
+}
+```
+
+```typescript
+const tree: TreeNodeInput = [
+  1,
+  [2, null, null],  // left child
+  [3, null, null],  // right child
+];
+```
+
+## Reusing Tuples Across Models
+
+A tuple type can be used on any number of models and objects. The definition is shared — only the embedding differs:
+
+```cerial
+tuple Coordinate {
+  lat Float,
+  lng Float
+}
+
+model User {
+  id Record @id
+  name String
+  homeLocation Coordinate
+}
+
+model Store {
+  id Record @id
+  name String
+  location Coordinate
+  serviceArea Coordinate[]
+}
+```
+
+Both `User.homeLocation` and `Store.location` share the same `Coordinate` type and produce the same TypeScript tuple type `[number, number]`.
+
+## Required Tuple Field
+
+```cerial
+tuple Coordinate {
+  lat Float,
+  lng Float
+}
+
+model User {
+  id Record @id
+  name String
+  location Coordinate
+}
+```
+
+**TypeScript type:** `location: [number, number]`
+
+A required tuple field must be provided whenever a record is created:
+
+```typescript
+const user = await client.db.User.create({
+  data: {
+    name: 'Jane Doe',
+    location: [40.7128, -74.006],
+  },
+});
+
+console.log(user.location); // [40.7128, -74.006]
+```
+
+## Optional Tuple Field
+
+```cerial
+model User {
+  id Record @id
+  name String
+  location Coordinate
+  backup Coordinate?
+}
+```
+
+**TypeScript type:** `backup?: [number, number]`
+
+An optional tuple field can be omitted entirely on create. When omitted, it is stored as `NONE` (field absent) in SurrealDB and returned as `undefined` in TypeScript.
+
+```typescript
+const user = await client.db.User.create({
+  data: {
+    name: 'Jane Doe',
+    location: [40.7128, -74.006],
+    // backup omitted — stored as NONE
+  },
+});
+
+console.log(user.backup); // undefined
+```
+
+:::tip
+Optional tuple fields produce `field?: TupleName` — there is no `| null` in the type. Tuples are either present or absent (NONE), same as [optional object fields](/objects/object-fields-on-models).
+:::
+
+## Array of Tuples
+
+```cerial
+model User {
+  id Record @id
+  name String
+  history Coordinate[]
+}
+```
+
+**TypeScript type:** `history: [number, number][]`
+
+Array tuple fields hold zero or more tuples. If omitted on create, the field defaults to an empty array `[]`.
+
+```typescript
+const user = await client.db.User.create({
+  data: {
+    name: 'Jane Doe',
+    history: [
+      [40.7128, -74.006],
+      [34.0522, -118.2437],
+    ],
+  },
+});
+
+console.log(user.history); // [[40.7128, -74.006], [34.0522, -118.2437]]
+```
+
+```typescript
+// Omitting the array field — defaults to []
+const user = await client.db.User.create({
+  data: { name: 'Jane Doe' },
+});
+
+console.log(user.history); // []
+```
+
+### Push and Set Operations
+
+You can add tuples to an array field using push, or replace the entire array using set:
+
+```typescript
+// Push a single tuple
+await client.db.User.updateUnique({
+  where: { id: user.id },
+  data: {
+    history: { push: [[51.5074, -0.1278]] },
+  },
+});
+
+// Replace the entire array
+await client.db.User.updateUnique({
+  where: { id: user.id },
+  data: {
+    history: { set: [[48.8566, 2.3522]] },
+  },
+});
+```
+
+:::caution
+When pushing a single tuple, wrap it in an extra array: `push: [[3, 4]]`. SurrealDB's `+=` operator treats `[3, 4]` as two separate elements to push. The double-wrapping `[[3, 4]]` ensures a single tuple `[3, 4]` is added as one element.
+:::
+
+## Input Forms
+
+When tuple elements are named, you can provide input in multiple forms. All produce the same stored result:
+
+```cerial
+tuple Coordinate {
+  lat Float,
+  lng Float
+}
+```
+
+```typescript
+// Array form — positional
+await client.db.User.create({
+  data: { name: 'Alice', location: [40.7, -74.0] },
+});
+
+// Object form — named keys
+await client.db.User.create({
+  data: { name: 'Bob', location: { lat: 40.7, lng: -74.0 } },
+});
+
+// Index form — numeric keys
+await client.db.User.create({
+  data: { name: 'Carol', location: { 0: 40.7, 1: -74.0 } },
+});
+```
+
+Regardless of input form, output is **always** an array:
+
+```typescript
+const user = await client.db.User.findOne({
+  where: { name: 'Bob' },
+});
+
+console.log(user?.location); // [40.7, -74.0] — always array form
+```
+
+## Field-Level Decorators
+
+Decorators on the model field (not on individual tuple elements) work as expected:
+
+### `@readonly` on Tuple Fields
+
+`@readonly` makes the entire tuple field write-once — it can be set on create but is excluded from update types:
+
+```cerial
+model Shipment {
+  id Record @id
+  origin Coordinate @readonly
+  destination Coordinate
+}
+```
+
+The `origin` field can be provided when the record is first created but cannot be changed afterward. The `destination` field can be updated normally.
+
+```typescript
+const shipment = await client.db.Shipment.create({
+  data: {
+    origin: [40.7128, -74.006],
+    destination: [34.0522, -118.2437],
+  },
+});
+
+// Only destination can be updated
+await client.db.Shipment.updateUnique({
+  where: { id: shipment.id },
+  data: {
+    destination: [51.5074, -0.1278], // ✅ allowed
+    // origin: [0, 0],               // ❌ TypeScript error — readonly
+  },
+});
+```
+
+---
+
+For querying tuple fields, see [Select](/tuples/select), [Where](/tuples/where), and [Update](/tuples/update).

@@ -2,8 +2,8 @@
 title: Select + Include
 description: Combine field selection with relation loading — narrow your model fields while also fetching related records.
 ---
+Cerial uses **dynamic return types** — the TypeScript return type of a query changes based on the `select` and `include` options you pass. This gives you precise control over what data you get back and what types you work with.
 
-You can use `select` and `include` together in the same query. The return type is the intersection of selected fields and included relations — you get only the scalar fields you asked for, plus the loaded relations.
 
 All examples use this schema:
 
@@ -54,7 +54,52 @@ model Comment {
 }
 ```
 
-## How It Works
+## Three Modes
+
+### No Select or Include — Full Model
+
+When you pass no `select` or `include`, you get the full model type back:
+
+```typescript
+const user = await client.db.User.findOne({
+  where: { name: 'Jane' },
+});
+// user: User | null
+// All scalar and object fields included
+// Relations NOT included
+```
+
+### With Select — Narrowed Fields
+
+Pass `select` to choose exactly which fields to return. The return type narrows to only the selected fields:
+
+```typescript
+const user = await client.db.User.findOne({
+  where: { name: 'Jane' },
+  select: { name: true, email: true },
+});
+// user: { name: string; email: string } | null
+// Only name and email — no id, age, address, etc.
+```
+
+### With Include — Model + Relations
+
+Pass `include` to load related records alongside the model. The return type extends with the included relations:
+
+```typescript
+const user = await client.db.User.findOne({
+  where: { name: 'Jane' },
+  include: { posts: true },
+});
+// user: (User & { posts: Post[] }) | null
+// Full User type plus loaded posts
+```
+
+:::tip
+Relations are **never** loaded by default. You must explicitly use `include` to fetch related records. This keeps queries fast and predictable — you always know exactly what data is being fetched.
+:::
+
+## Combining Select and Include
 
 When both `select` and `include` are provided, the result type is the intersection of:
 - The narrowed type from `select` (only selected scalar/object fields)

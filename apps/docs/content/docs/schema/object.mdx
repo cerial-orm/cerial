@@ -1,0 +1,540 @@
+---
+title: "Object"
+description: "Define embedded object types for structured sub-fields"
+---
+
+Objects are inline data structures defined with the `object {}` keyword in Cerial schemas. Unlike models, objects are stored directly within the parent model — they do not create separate database tables, have no `id` field, and cannot participate in relations.
+
+Think of objects as structured sub-documents embedded inside a model record. A `User` with an `address Address` field stores the address data inline within the user record itself, not in a separate `Address` table.
+
+```cerial
+object Address {
+  street String
+  city String
+  state String
+  zipCode String?
+}
+
+model User {
+  id Record @id
+  name String
+  address Address
+  shipping Address?
+}
+```
+
+```typescript
+const user = await client.db.User.create({
+  data: {
+    name: 'Jane Doe',
+    address: { street: '123 Main St', city: 'NYC', state: 'NY' },
+    // shipping omitted — stored as NONE (absent)
+  },
+});
+
+console.log(user.address.city); // 'NYC'
+console.log(user.shipping);     // undefined
+```
+
+## Key Rules
+
+1. **No `id` field** — Objects have no identity. They exist only as part of their parent model.
+2. **No relations** — `Record` and `Relation` fields are not allowed inside objects.
+3. **Can reference other objects** — Objects can nest other objects to any depth.
+4. **Support optional and array fields** — Use `?` for optional fields and `[]` for arrays, just like models.
+5. **Optional object fields produce `field?: ObjectType`** — There is no `| null` in the type. Objects are either present or absent (NONE), never null.
+6. **Array object fields default to `[]` on create** — Omitting an array object field produces an empty array, same as primitive arrays.
+7. **Support a subset of decorators** — Only certain decorators are allowed on object fields (see below).
+8. **Indexes are independent per embedding path** — If an object with `@unique` is used on multiple model fields, each field gets its own independent constraint.
+
+## Supported Decorators
+
+Object fields support a subset of decorators. Relation and identity decorators are not applicable since objects have no identity or relations.
+
+| Decorator | Allowed | Notes |
+|---|---|---|
+| `@default` | ✅ | Default value for sub-fields |
+| `@defaultAlways` | ✅ | Reset-on-write default |
+| `@createdAt` | ✅ | Auto-set on creation |
+| `@updatedAt` | ✅ | Auto-set on update |
+| `@flexible` | ✅ | Allows extra fields beyond schema |
+| `@readonly` | ✅ | Write-once sub-fields |
+| `@unique` | ✅ | Independent per embedding path |
+| `@index` | ✅ | Independent per embedding path |
+| `@nullable` | ❌ | SurrealDB can't define sub-fields on nullable parents |
+| `@now` | ❌ | COMPUTED must be top-level (model-only) |
+| `@id`, `@field`, `@model`, `@onDelete`, `@key` | ❌ | Relation/ID decorators not applicable |
+
+## Generated Types
+
+Each object definition generates a set of TypeScript types:
+
+| Generated Type | Purpose |
+|---|---|
+| `ObjectName` | Base interface with all fields (output type) |
+| `ObjectNameCreateInput` | Input for creating object data — only generated when the object has `@default`, `@defaultAlways`, `@createdAt`, or `@updatedAt` fields (those fields become optional) |
+| `ObjectNameWhere` | Where clause type for filtering by object fields |
+| `ObjectNameSelect` | Sub-field selection type for narrowing returned fields |
+| `ObjectNameOrderBy` | Ordering type for sorting by object fields |
+
+:::tip
+`ObjectNameCreateInput` is only generated when needed. If none of the object's fields have auto-set decorators, the base `ObjectName` type is used directly for input.
+:::
+
+Objects do **not** generate `GetPayload`, `Include`, `Create`, `Update`, or `Model` types — those are exclusive to models.
+
+## Defining Objects
+
+Object types are defined in `.cerial` schema files using the `object {}` keyword. They describe inline data structures that are embedded directly within models — no separate table is created.
+
+### Basic Syntax
+
+```cerial
+object Address {
+  street String
+  city String
+  state String
+  zipCode String?
+}
+```
+
+Each field follows the same `name Type` syntax as model fields. Fields can be:
+
+- **Required primitives** — `street String`
+- **Optional primitives** — `zipCode String?` (the `?` suffix makes the field optional)
+- **Arrays** — `tags String[]` (array of primitives or objects)
+- **Other object types** — `location GeoPoint` (references another object)
+
+### Nested Objects
+
+Objects can reference other object types, allowing arbitrarily deep nesting:
+
+```cerial
+object Address {
+  street String
+  city String
+  state String
+  zipCode String?
+}
+
+object GeoPoint {
+  lat Float
+  lng Float
+  label Address?
+}
+```
+
+Here `GeoPoint` has an optional `label` field that holds a full `Address` object. When a `GeoPoint` is stored, the `label` is embedded inline within it.
+
+### Self-Referencing Objects
+
+Objects can reference themselves, enabling recursive or tree structures:
+
+```cerial
+object TreeNode {
+  value Int
+  children TreeNode[]
+}
+```
+
+This defines a tree node where each node holds an array of child nodes of the same type.
+
+```typescript
+const user = await client.db.User.create({
+  data: {
+    tree: {
+      value: 1,
+      children: [
+        { value: 2, children: [] },
+        { value: 3, children: [
+          { value: 4, children: [] },
+        ]},
+      ],
+    },
+  },
+});
+```
+
+### Decorators on Object Fields
+
+Object fields support a subset of decorators. Relation and identity decorators (`@id`, `@field`, `@model`, `@onDelete`, `@key`) are not allowed.
+
+#### `@default` on Sub-Fields
+
+Use `@default` to provide a value when a field is omitted on create:
+
+```cerial
+object ContactInfo {
+  email Email
+  phone String?
+  city String @default("Unknown")
+}
+```
+
+When creating a record, omitting `city` will store `"Unknown"` in the database.
+
+#### `@createdAt` and `@updatedAt` on Sub-Fields
+
+Timestamp decorators work on object fields the same way they do on models:
+
+```cerial
+object AuditInfo {
+  createdAt Date @createdAt
+  updatedAt Date @updatedAt
+}
+```
+
+`@createdAt` sets the field to the current timestamp when the parent record is created. `@updatedAt` sets it on every create and update.
+
+:::tip
+When an object has `@default`, `@defaultAlways`, `@createdAt`, or `@updatedAt` fields, Cerial generates an `ObjectNameCreateInput` type where those fields become optional — the database fills them automatically if omitted.
+:::
+
+#### `@readonly` on Sub-Fields
+
+`@readonly` makes a sub-field write-once — it can be set on create but is excluded from update types:
+
+```cerial
+object License {
+  key String @readonly
+  issuedAt Date @createdAt
+  lastChecked Date @updatedAt
+}
+```
+
+The `key` field can be provided when the object is first created but cannot be changed afterward.
+
+#### `@flexible` on Object Fields
+
+The `@flexible` decorator on a model field that holds an object allows storing extra fields beyond those defined in the schema:
+
+```cerial
+object Settings {
+  theme String @default("light")
+  language String @default("en")
+}
+
+model User {
+  id Record @id
+  prefs Settings @flexible
+}
+```
+
+This adds `& Record<string, any>` to the TypeScript output type and `& { [key: string]: any }` to the where type, so you can store and filter on arbitrary extra keys:
+
+```typescript
+const user = await client.db.User.create({
+  data: {
+    prefs: {
+      theme: 'dark',
+      language: 'en',
+      customOption: 42, // extra field — allowed by @flexible
+    },
+  },
+});
+```
+
+:::tip
+The same object can be `@flexible` on one model field and strict on another. `@flexible` applies to the **usage site**, not the object definition.
+:::
+
+#### `@unique` and `@index` on Sub-Fields
+
+```cerial
+object LocationInfo {
+  address String
+  zip String @unique
+  country String @index
+}
+
+model User {
+  id Record @id
+  location LocationInfo
+  altLocation LocationInfo?
+}
+```
+
+When an object with `@unique` or `@index` is embedded in multiple model fields, each embedding generates its own independent constraint. In this example, `location.zip` and `altLocation.zip` have separate unique indexes — a value that's unique in one does not conflict with the other.
+
+:::caution
+`@now` is **not allowed** on object fields. SurrealDB requires COMPUTED fields to be defined at the top level (model-only). Use `@createdAt` or `@updatedAt` instead for timestamp tracking within objects.
+:::
+
+:::caution
+`@nullable` is **not allowed** on object-type fields. SurrealDB cannot define sub-fields on a nullable parent. Object fields are either present or absent (NONE) — use `?` to make them optional.
+:::
+
+### Combined Example
+
+The following schema demonstrates nesting, self-references, and decorators together:
+
+```cerial
+object Address {
+  street String
+  city String
+  state String
+  zipCode String?
+}
+
+object GeoPoint {
+  lat Float
+  lng Float
+  label Address?
+}
+
+object AuditInfo {
+  createdAt Date @createdAt
+  updatedAt Date @updatedAt
+  createdBy String @readonly
+}
+
+object TreeNode {
+  value Int
+  children TreeNode[]
+}
+
+model Store {
+  id Record @id
+  name String
+  location GeoPoint
+  audit AuditInfo
+  orgChart TreeNode?
+  metadata Settings @flexible
+}
+```
+
+This defines:
+
+- `Address` — a flat object with an optional field
+- `GeoPoint` — nests an optional `Address` object
+- `AuditInfo` — uses `@createdAt`, `@updatedAt`, and `@readonly` decorators
+- `TreeNode` — a self-referencing recursive structure
+- `Store` — a model that uses all four object types, with `@flexible` on `metadata`
+
+## Object Fields on Models
+
+Once you have defined an object type, you can use it as a field on any model. There are three patterns: required, optional, and array.
+
+### Required Object Field
+
+```cerial
+object Address {
+  street String
+  city String
+  state String
+  zipCode String?
+}
+
+model User {
+  id Record @id
+  address Address
+}
+```
+
+**TypeScript type:** `address: Address`
+
+A required object field must be provided whenever a record is created. All required sub-fields within the object must also be supplied:
+
+```typescript
+const user = await client.db.User.create({
+  data: {
+    address: { street: '123 Main St', city: 'NYC', state: 'NY' },
+  },
+});
+
+console.log(user.address); // { street: '123 Main St', city: 'NYC', state: 'NY' }
+```
+
+### Optional Object Field
+
+```cerial
+model User {
+  id Record @id
+  address Address
+  shipping Address?
+}
+```
+
+**TypeScript type:** `shipping?: Address`
+
+An optional object field can be omitted entirely on create. When omitted, it is stored as `NONE` (field absent) in SurrealDB and returned as `undefined` in TypeScript.
+
+```typescript
+const user = await client.db.User.create({
+  data: {
+    address: { street: '123 Main St', city: 'NYC', state: 'NY' },
+    // shipping omitted — stored as NONE
+  },
+});
+
+console.log(user.shipping); // undefined
+```
+
+:::caution
+Optional object fields produce `field?: ObjectType` — there is **no** `| null` in the type. Embedded objects are either present or absent (NONE), not null. The `@nullable` decorator is not supported on object-type fields because SurrealDB cannot define sub-fields on a nullable parent.
+:::
+
+### Array of Objects
+
+```cerial
+object GeoPoint {
+  lat Float
+  lng Float
+}
+
+model User {
+  id Record @id
+  locations GeoPoint[]
+}
+```
+
+**TypeScript type:** `locations: GeoPoint[]`
+
+Array object fields hold zero or more embedded objects. If omitted on create, the field defaults to an empty array `[]`.
+
+```typescript
+const user = await client.db.User.create({
+  data: {
+    locations: [
+      { lat: 40.7, lng: -74.0 },
+      { lat: 34.0, lng: -118.2 },
+    ],
+  },
+});
+
+console.log(user.locations); // [{ lat: 40.7, lng: -74.0 }, { lat: 34.0, lng: -118.2 }]
+```
+
+```typescript
+// Omitting the array field — defaults to []
+const user = await client.db.User.create({
+  data: {},
+});
+
+console.log(user.locations); // []
+```
+
+### Nesting: Objects Within Objects
+
+Models can hold objects that themselves contain other objects, to any depth:
+
+```cerial
+object Address {
+  street String
+  city String
+  state String
+}
+
+object GeoPoint {
+  lat Float
+  lng Float
+  label Address?
+}
+
+model Store {
+  id Record @id
+  name String
+  location GeoPoint
+}
+```
+
+```typescript
+const store = await client.db.Store.create({
+  data: {
+    name: 'Downtown Shop',
+    location: {
+      lat: 40.7128,
+      lng: -74.006,
+      label: { street: '456 Broadway', city: 'NYC', state: 'NY' },
+    },
+  },
+});
+
+console.log(store.location.label?.city); // 'NYC'
+```
+
+The nested `Address` inside `GeoPoint` is stored inline within the `location` field of the `Store` record — no separate tables or joins involved.
+
+## Primitive Arrays in Objects
+
+Object types can contain primitive array fields. These are standard array types (`String[]`, `Int[]`, `Float[]`, etc.) defined inside an object definition.
+
+### Schema Definition
+
+```cerial
+object OrderItem {
+  productId String
+  quantity Int
+  tags String[]
+  scores Int[]
+}
+
+model Order {
+  id Record @id
+  items OrderItem[]
+}
+```
+
+The `OrderItem` object contains two primitive array fields: `tags` (an array of strings) and `scores` (an array of integers). The `Order` model then holds an array of `OrderItem` objects.
+
+### Creating Records
+
+When creating records with primitive arrays inside objects, provide the arrays as standard TypeScript arrays:
+
+```typescript
+const order = await client.db.Order.create({
+  data: {
+    items: [
+      {
+        productId: 'prod-1',
+        quantity: 2,
+        tags: ['electronics', 'sale'],
+        scores: [95, 88],
+      },
+      {
+        productId: 'prod-2',
+        quantity: 1,
+        tags: ['books'],
+        scores: [],
+      },
+    ],
+  },
+});
+```
+
+### Default Behavior
+
+Array fields inside objects follow the same rules as array fields on models — they default to `[]` if not provided during creation:
+
+```typescript
+const order = await client.db.Order.create({
+  data: {
+    items: [
+      {
+        productId: 'prod-1',
+        quantity: 2,
+        // tags and scores omitted — default to []
+      },
+    ],
+  },
+});
+
+console.log(order.items[0].tags);   // []
+console.log(order.items[0].scores); // []
+```
+
+### Supported Primitive Array Types
+
+Any primitive type can be used as an array inside an object:
+
+| Field Definition | TypeScript Type |
+|---|---|
+| `tags String[]` | `tags: string[]` |
+| `counts Int[]` | `counts: number[]` |
+| `values Float[]` | `values: number[]` |
+| `flags Bool[]` | `flags: boolean[]` |
+| `timestamps Date[]` | `timestamps: Date[]` |
+
+---
+
+For querying object fields, see [Select](/objects/select), [Where](/objects/where), [Update](/objects/update), and [OrderBy](/objects/orderby).
