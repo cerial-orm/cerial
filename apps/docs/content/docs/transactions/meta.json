@@ -1,7 +1,7 @@
 {
   "title": "Transactions",
   "pages": [
-    "...transactions",
+    "overview",
     "array-mode",
     "callback-mode",
     "manual-mode"

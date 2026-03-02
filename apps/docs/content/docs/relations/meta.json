@@ -1,7 +1,7 @@
 {
   "title": "Relations",
   "pages": [
-    "...relations",
+    "overview",
     "one-to-one",
     "one-to-many",
     "many-to-many",

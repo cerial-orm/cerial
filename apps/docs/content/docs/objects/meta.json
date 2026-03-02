@@ -1,4 +1,4 @@
 {
   "title": "Objects",
-  "pages": ["select", "where", "update", "orderby"]
+  "pages": ["overview", "select", "where", "update", "orderby"]
 }

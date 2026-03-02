@@ -1,0 +1,12 @@
+---
+title: Overview
+description: Date and time decorators for automatic timestamp management.
+---
+
+Decorators that automatically set date fields on record creation and updates.
+
+| Decorator | Purpose |
+|-----------|---------|
+| [`@createdAt`](/schema/decorators/datetime/created-at) | Set on creation, never changes |
+| [`@updatedAt`](/schema/decorators/datetime/updated-at) | Set on every create and update |
+| [`@now`](/schema/decorators/datetime/now) | Computed `time::now()` at query time |

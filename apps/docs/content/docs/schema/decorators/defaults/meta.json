@@ -1,4 +1,4 @@
 {
   "title": "@default",
-  "pages": ["default", "default-always"]
+  "pages": ["overview", "default", "default-always"]
 }
