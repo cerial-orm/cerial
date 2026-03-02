@@ -3,11 +3,14 @@
   "pages": [
     "overview",
     "id",
+    "nullable",
+    "readonly",
+    "flexible",
+    "unique",
+    "index-decorator",
     "datetime",
     "defaults",
     "relations",
-    "indexes",
-    "control",
     "arrays",
     "uuid"
   ]

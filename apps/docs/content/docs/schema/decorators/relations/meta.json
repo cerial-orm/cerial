@@ -1,4 +1,4 @@
 {
-  "title": "@field",
+  "title": "Relation",
   "pages": ["overview", "field", "model", "key", "on-delete"]
 }
