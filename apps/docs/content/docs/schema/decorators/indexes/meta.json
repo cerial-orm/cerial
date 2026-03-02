@@ -1,4 +1,4 @@
 {
-  "title": "Indexes",
+  "title": "@unique",
   "pages": ["unique", "index-decorator"]
 }

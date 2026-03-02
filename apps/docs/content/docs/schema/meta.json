@@ -3,12 +3,12 @@
   "pages": [
     "...schema",
     "field-types",
+    "decorators",
+    "---",
     "arrays",
     "optional-fields",
-    "comments",
+    "inheritance",
     "cross-file-references",
-    "decorators",
-    "type-definitions",
-    "inheritance"
+    "comments"
   ]
 }

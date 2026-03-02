@@ -1,4 +1,4 @@
 {
-  "title": "Datetime",
+  "title": "@datetime",
   "pages": ["created-at", "updated-at", "now"]
 }
