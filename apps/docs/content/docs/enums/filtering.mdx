@@ -3,4 +3,80 @@ title: Filtering
 description: Filter records by enum field values
 ---
 
-{/* Content will be added in Task 15 */}
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+Enum fields support all string-based where operators. You can use shorthand equality or the full where object syntax.
+
+See [Enum Definition](/schema/enums) for defining enums.
+
+### Shorthand Equality
+
+```typescript
+await client.db.User.findMany({
+  where: { status: 'ACTIVE' },
+});
+```
+
+### eq / neq
+
+```typescript
+await client.db.User.findMany({
+  where: { status: { eq: 'ACTIVE' } },
+});
+
+await client.db.User.findMany({
+  where: { status: { neq: 'PENDING' } },
+});
+```
+
+### in / notIn
+
+```typescript
+await client.db.User.findMany({
+  where: { status: { in: ['ACTIVE', 'PENDING'] } },
+});
+
+await client.db.User.findMany({
+  where: { status: { notIn: ['INACTIVE'] } },
+});
+```
+
+### contains / startsWith / endsWith
+
+Since enum values are strings, string matching operators are available:
+
+```typescript
+await client.db.User.findMany({
+  where: { status: { startsWith: 'ACT' } },
+});
+
+await client.db.User.findMany({
+  where: { status: { contains: 'CTIV' } },
+});
+```
+
+### Array Enum Fields
+
+Array enum fields use array operators — `has`, `hasAll`, `hasAny`, and `isEmpty`:
+
+```typescript
+// Has a specific value
+await client.db.User.findMany({
+  where: { tags: { has: 'ADMIN' } },
+});
+
+// Has all specified values
+await client.db.User.findMany({
+  where: { tags: { hasAll: ['ADMIN', 'EDITOR'] } },
+});
+
+// Has any of the specified values
+await client.db.User.findMany({
+  where: { tags: { hasAny: ['ADMIN', 'VIEWER'] } },
+});
+
+// Check if array is empty
+await client.db.User.findMany({
+  where: { tags: { isEmpty: true } },
+});
+```

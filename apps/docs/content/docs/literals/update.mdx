@@ -3,4 +3,24 @@ title: Update
 description: Atomic value replacement for literal type fields
 ---
 
-{/* Content will be added in Task 16 */}
+Literal values are **atomic** — they are always fully replaced, never partially merged. When you update a literal field, you provide the complete new value:
+
+```typescript
+// Switch from string to object — provide the full object
+await client.db.Model.updateMany({
+  where: { id: record.id },
+  data: { shape: { x: 1.0, y: 2.0 } },
+});
+
+// Switch from object back to string
+await client.db.Model.updateMany({
+  where: { id: record.id },
+  data: { shape: 'none' },
+});
+```
+
+There is no partial update for literal fields — if you pass an object variant, all required fields must be present.
+
+---
+
+For literal type definitions and variant kinds, see [Literals](/schema/literals).

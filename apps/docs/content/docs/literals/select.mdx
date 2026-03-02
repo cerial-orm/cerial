@@ -3,4 +3,16 @@ title: Select
 description: Select behavior for literal type fields
 ---
 
-{/* Content will be added in Task 16 */}
+Literal fields use **boolean-only select** — you can include or exclude the field, but there's no sub-field selection through the union:
+
+```typescript
+const tasks = await client.db.Task.findMany({
+  select: { id: true, status: true },
+});
+```
+
+Even when a literal contains object or tuple variants, you cannot select individual sub-fields of those variants through the literal field.
+
+---
+
+For literal type definitions and variant kinds, see [Literals](/schema/literals).

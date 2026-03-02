@@ -3,4 +3,26 @@ title: OrderBy
 description: Sort records by enum field values
 ---
 
-{/* Content will be added in Task 15 */}
+Enum fields support `orderBy` since they are string values — SurrealDB orders them alphabetically:
+
+See [Enum Definition](/schema/enums) for defining enums.
+
+```typescript
+const users = await client.db.User.findMany({
+  orderBy: { status: 'asc' },
+});
+
+// Multiple enum fields
+const items = await client.db.EnumMultiple.findMany({
+  orderBy: { role: 'asc', color: 'desc' },
+});
+
+// Enum field inside an embedded object
+const records = await client.db.EnumWithObject.findMany({
+  orderBy: { address: { severity: 'asc' } },
+});
+```
+
+:::note
+Non-enum [Literals](/schema/type-definitions/literals/) are excluded from `orderBy` because they can contain mixed types where ordering is ambiguous. Enums, being string-only, always have well-defined ordering.
+:::

@@ -3,4 +3,72 @@ title: Filtering
 description: Filter records by literal field values
 ---
 
-{/* Content will be added in Task 16 */}
+All literal fields support `eq`, `neq`, `in`, and `notIn`. Additional operators are available depending on the variant composition:
+
+| Variant composition | Available operators |
+| --- | --- |
+| Any literal | `eq`, `neq`, `in`, `notIn` |
+| All numeric (int/float/broadInt/broadFloat/broadDate) | + `gt`, `gte`, `lt`, `lte`, `between` |
+| Includes broad `String` | + `contains`, `startsWith`, `endsWith` |
+| Mixed types (string + number, etc.) | Only `eq`, `neq`, `in`, `notIn` |
+
+```typescript
+// Shorthand equality
+await client.db.Task.findMany({
+  where: { status: 'active' },
+});
+
+// Full where object
+await client.db.Task.findMany({
+  where: { status: { neq: 'pending' } },
+});
+
+// in/notIn
+await client.db.Task.findMany({
+  where: { status: { in: ['active', 'inactive'] } },
+});
+```
+
+For a numeric-only literal like `literal Priority { 1, 2, 3 }`, comparison operators are available:
+
+```typescript
+await client.db.Task.findMany({
+  where: { priority: { gte: 2 } },
+});
+
+await client.db.Task.findMany({
+  where: { priority: { between: [1, 3] } },
+});
+```
+
+### Array Literal Fields
+
+Array literal fields support `has`, `hasAll`, `hasAny`, and `isEmpty`:
+
+```typescript
+await client.db.Task.findMany({
+  where: { tags: { has: 'active' } },
+});
+
+await client.db.Task.findMany({
+  where: { tags: { hasAll: ['active', 'pending'] } },
+});
+
+await client.db.Task.findMany({
+  where: { tags: { hasAny: ['active', 'inactive'] } },
+});
+
+await client.db.Task.findMany({
+  where: { tags: { isEmpty: true } },
+});
+```
+
+## OrderBy
+
+Non-enum literal fields are **excluded** from `orderBy` types. Because literals can contain mixed types (strings, numbers, booleans, objects), ordering is ambiguous and not supported.
+
+If you need ordering on a union of string values, use an [Enum](/schema/type-definitions/enums/) instead — enums are string-only and support `orderBy` with alphabetical sorting.
+
+---
+
+For literal type definitions and variant kinds, see [Literals](/schema/literals).

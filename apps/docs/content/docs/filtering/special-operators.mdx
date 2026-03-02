@@ -1,136 +1,21 @@
 ---
 title: Special Operators
-description: Filter with isNull, isNone, isDefined, and between — null checks, absence checks, and inclusive range queries.
+description: Range queries with between and combining multiple filter operators.
 ---
 
-Special operators handle null checks, absence checks, and range queries. The available operators depend on the field's schema modifiers (`?` and `@nullable`).
+Special operators handle range queries and combine with other filter operators.
+
+:::note
+For null and absence checks (`isNull`, `isNone`, `isDefined`), see [Null & None](/filtering/null-and-none).
+:::
 
 ## Operator Availability
 
 | Operator | Available on | Checks for |
 | --- | --- | --- |
-| `isNull` | `@nullable` fields | Whether field is `null` |
-| `isNone` | `?` (optional) fields | Whether field is absent (NONE/undefined) |
-| `isDefined` | `?` (optional) fields | Inverse of `isNone` — field is present |
 | `between` | Numeric, Date, String fields | Inclusive range `[min, max]` |
 
-The type system enforces these rules — `isNull` only appears in the Where type for `@nullable` fields, and `isNone`/`isDefined` only appear for optional (`?`) fields.
-
-## isNull
-
-Checks whether a `@nullable` field has a `null` value. Only available on fields decorated with `@nullable`.
-
-```typescript
-// Schema: deletedAt Date @nullable
-
-// Find records where deletedAt is null
-const softDeleted = await client.db.User.findMany({
-  where: { deletedAt: { isNull: true } },
-});
-
-// Find records where deletedAt is NOT null
-const deleted = await client.db.User.findMany({
-  where: { deletedAt: { isNull: false } },
-});
-```
-
-### eq: null and neq: null
-
-You can also use `eq` and `neq` with `null` directly on `@nullable` fields:
-
-```typescript
-// Equivalent to isNull: true
-await client.db.User.findMany({
-  where: { deletedAt: { eq: null } },
-});
-
-// Equivalent to isNull: false
-await client.db.User.findMany({
-  where: { deletedAt: { neq: null } },
-});
-```
-
-## isNone
-
-Checks whether an optional (`?`) field is absent (NONE) on the record. Only available on fields marked with `?`.
-
-```typescript
-// Schema: bio String?
-
-// Find records where bio is absent
-const noBio = await client.db.User.findMany({
-  where: { bio: { isNone: true } },
-});
-
-// Find records where bio exists (has any value, including null if @nullable)
-const hasBio = await client.db.User.findMany({
-  where: { bio: { isNone: false } },
-});
-```
-
-## isDefined
-
-A semantic alias for `isNone` with inverted logic. Only available on optional (`?`) fields.
-
-```typescript
-// Equivalent to isNone: false — field is present
-await client.db.User.findMany({
-  where: { bio: { isDefined: true } },
-});
-
-// Equivalent to isNone: true — field is absent
-await client.db.User.findMany({
-  where: { bio: { isDefined: false } },
-});
-```
-
-Use whichever reads more naturally for your intent — `isDefined: true` is often clearer than `isNone: false`.
-
-## NONE vs null vs Value
-
-:::caution
-SurrealDB distinguishes between three field states: absent (NONE), null, and having a value. This is different from most databases where absent and null are the same thing.
-:::
-
-For fields with **both** `?` and `@nullable` (e.g., `bio String? @nullable`), there are three distinct states:
-
-| State | Field exists? | Has value? | `isNone: true` | `isNull: true` | `isDefined: true` |
-| --- | --- | --- | --- | --- | --- |
-| NONE | No | No | ✅ | ❌ | ❌ |
-| `null` | Yes | No (null) | ❌ | ✅ | ✅ |
-| `'hello'` | Yes | Yes | ❌ | ❌ | ✅ |
-
-Fields with only `?` have two states (value or NONE). Fields with only `@nullable` have two states (value or null).
-
-```typescript
-// Schema: bio String? @nullable
-
-// Create records in each state
-await client.db.User.create({ data: { name: 'Alice' } });
-// Stored: { name: 'Alice' } — bio is NONE (absent)
-
-await client.db.User.create({ data: { name: 'Bob', bio: null } });
-// Stored: { name: 'Bob', bio: null }
-
-await client.db.User.create({ data: { name: 'Carol', bio: 'Hello!' } });
-// Stored: { name: 'Carol', bio: 'Hello!' }
-```
-
-Querying the differences:
-
-```typescript
-// Only Alice — bio field is absent
-await client.db.User.findMany({ where: { bio: { isNone: true } } });
-
-// Only Bob — bio is null
-await client.db.User.findMany({ where: { bio: { isNull: true } } });
-
-// Bob and Carol — bio field exists (regardless of value)
-await client.db.User.findMany({ where: { bio: { isNone: false } } });
-
-// Alice and Carol — bio is not null (NONE is also not null)
-await client.db.User.findMany({ where: { bio: { isNull: false } } });
-```
+See [Null & None](/filtering/null-and-none) for `isNull`, `isNone`, and `isDefined` operator availability.
 
 ## between
 
