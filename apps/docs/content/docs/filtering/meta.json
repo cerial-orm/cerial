@@ -7,6 +7,8 @@
     "array-operators",
     "logical-operators",
     "special-operators",
-    "null-and-none"
+    "null-and-none",
+    "object-filtering",
+    "nested-relation-filtering"
   ]
 }

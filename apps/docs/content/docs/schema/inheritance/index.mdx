@@ -1,0 +1,36 @@
+---
+title: Inheritance
+description: Schema-level inheritance with extends, abstract models, and private fields.
+---
+
+Cerial supports schema-level inheritance across all type kinds — models, objects, tuples, enums, and literals. Inheritance is resolved at compile time, so generators see fully flattened types with no `extends` references remaining.
+
+## Features
+
+| Feature | Description |
+|---------|-------------|
+| [`extends`](/schema/inheritance/extends) | Inherit fields from a parent type, with optional pick/omit |
+| [`abstract`](/schema/inheritance/abstract) | Template models that exist only for inheritance — no table, no types |
+| [`!!private`](/schema/inheritance/private) | Prevent fields from being overridden in child types |
+
+## Quick Example
+
+```cerial
+abstract model BaseModel {
+  id Record @id !!private
+  createdAt Date @createdAt !!private
+  updatedAt Date @updatedAt !!private
+}
+
+model User extends BaseModel {
+  email Email @unique
+  name String
+}
+
+model Post extends BaseModel {
+  title String
+  content String?
+}
+```
+
+Both `User` and `Post` inherit `id`, `createdAt`, and `updatedAt` from `BaseModel`. The `!!private` modifier ensures child types cannot redefine those fields.

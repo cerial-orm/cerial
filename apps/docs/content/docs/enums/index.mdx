@@ -1,0 +1,36 @@
+---
+title: Enums
+description: String-only named constants with filtering and ordering support.
+---
+
+Enums define a fixed set of string values. They generate an `as const` object, a union type, and a where type for filtering.
+
+## Definition
+
+```cerial
+enum Role {
+  Admin
+  Editor
+  Viewer
+}
+
+model User {
+  id Record @id
+  role Role @default(Viewer)
+}
+```
+
+## Generated Types
+
+For an enum named `Role`, Cerial generates:
+
+- `RoleEnum` — `as const` object: `{ Admin: 'Admin', Editor: 'Editor', Viewer: 'Viewer' }`
+- `RoleEnumType` — Union type: `'Admin' | 'Editor' | 'Viewer'`
+- `RoleEnumWhere` — Where type for filtering
+
+## Operations
+
+| Operation | Description |
+|-----------|-------------|
+| [Filtering](/enums/filtering) | Filter by enum values using comparison operators |
+| [OrderBy](/enums/orderby) | Sort by enum fields (string ordering) |

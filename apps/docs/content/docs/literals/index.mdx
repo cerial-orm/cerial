@@ -1,0 +1,39 @@
+---
+title: Literals
+description: Union types with specific values, broad types, or structured variants.
+---
+
+Literals define union types for fields. Variants can be specific values (strings, numbers, booleans), broad types (`String`, `Int`, `Float`, `Bool`, `Date`), or references to objects, tuples, enums, and other literals.
+
+## Definition
+
+```cerial
+literal Status {
+  "active"
+  "inactive"
+  "pending"
+}
+
+literal MixedId {
+  String
+  Int
+}
+
+model Task {
+  id Record @id
+  status Status
+  ref MixedId
+}
+```
+
+## Operations
+
+| Operation | Description |
+|-----------|-------------|
+| [Filtering](/literals/filtering) | Filter by literal values using constituent operators |
+| [Select](/literals/select) | Boolean-only select for literal fields |
+| [Update](/literals/update) | Atomic full replacement — no partial merge |
+
+## Key Differences from Enums
+
+Enums are string-only named constants. Literals support mixed types (strings, numbers, booleans, objects, tuples). See [Enums vs Literals](/schema/enums-vs-literals) for a detailed comparison.

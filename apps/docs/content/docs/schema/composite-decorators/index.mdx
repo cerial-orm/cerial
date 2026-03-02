@@ -1,0 +1,31 @@
+---
+title: Composite Decorators
+description: Model-level directives that create multi-field indexes and unique constraints.
+---
+
+Composite decorators are model-level directives (prefixed with `@@`) that operate on multiple fields at once. Unlike field-level `@` decorators, they appear at the end of the model block and reference fields by name.
+
+## Available Composite Decorators
+
+| Directive | Purpose | Example |
+|-----------|---------|---------|
+| [`@@index`](/schema/composite-decorators/composite-index) | Non-unique composite index for query performance | `@@index([email, name])` |
+| [`@@unique`](/schema/composite-decorators/composite-unique) | Unique constraint across multiple fields | `@@unique([email, tenantId])` |
+
+## Syntax
+
+Composite decorators go at the end of the model body, after all field definitions:
+
+```cerial
+model User {
+  id Record @id
+  email Email
+  name String
+  tenantId String
+
+  @@unique([email, tenantId])
+  @@index([name, tenantId])
+}
+```
+
+Both directives accept an array of field names. The order of fields in the array determines the index column order.

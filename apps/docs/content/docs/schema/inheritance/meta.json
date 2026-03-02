@@ -1,6 +1,7 @@
 {
   "title": "Inheritance",
   "pages": [
+    "...inheritance",
     "extends",
     "abstract",
     "private"
