@@ -447,7 +447,14 @@ await client.db.User.create({
 await client.db.User.create({
   data: { name: 'Carol', location: { 0: 40.7, 1: -74.0 } },
 });
+
+// Mixed form — combine named and index keys
+await client.db.User.create({
+  data: { name: 'Dave', location: { lat: 40.7, 1: -74.0 } },
+});
 ```
+
+Each element is resolved independently — named key first, then index key as fallback. This means you can freely mix both styles in a single object.
 
 Regardless of input form, output is **always** an array:
 
