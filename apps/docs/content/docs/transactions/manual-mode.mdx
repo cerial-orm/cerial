@@ -3,14 +3,22 @@ title: Manual Mode
 description: Explicit transaction lifecycle control with commit, cancel, and automatic cleanup via await using.
 ---
 
-Call `$transaction()` with no arguments to get a transaction object with explicit lifecycle control.
+Call `$transaction()` with no arguments to get a transaction object (`txn`) with explicit lifecycle control. You decide when to `commit()` or `cancel()`, making this the right choice when a transaction spans multiple function calls or when you need fine-grained control over its lifecycle.
+
+## Basic Usage
+
+The standard pattern wraps your operations in try/catch, committing on success and cancelling on failure:
 
 ```typescript
 const txn = await client.$transaction();
 
 try {
-  await txn.User.create({ data: { name: 'Alice', email: 'alice@example.com' } });
-  await txn.Post.create({ data: { title: 'Hello', authorId: aliceId } });
+  await txn.User.create({
+    data: { name: 'Alice', email: 'alice@example.com', isActive: true },
+  });
+  await txn.Post.create({
+    data: { title: 'Hello', authorId: aliceId },
+  });
 
   await txn.commit();
 } catch (error) {
@@ -21,28 +29,69 @@ try {
 
 ## Two Access Patterns
 
-Manual mode gives you two ways to run queries inside the transaction:
+Manual mode gives you two ways to run queries inside the transaction.
 
-**Model proxy** — access models directly on `txn`:
+### Model Proxy
+
+Access models directly on `txn`, just like you would on `client.db`:
 
 ```typescript
 const txn = await client.$transaction();
-await txn.User.create({ data: { name: 'Alice', email: 'alice@example.com' } });
+
+const user = await txn.User.create({
+  data: { name: 'Alice', email: 'alice@example.com', isActive: true },
+});
+await txn.Post.create({
+  data: { title: 'My Post', authorId: user.id },
+});
+
 await txn.commit();
 ```
 
-**Option pattern** — pass `txn` to regular model methods:
+### Option Pattern
+
+Pass `txn` to regular `client.db` methods via the `txn` option:
 
 ```typescript
 const txn = await client.$transaction();
-await client.db.User.create({
-  data: { name: 'Alice', email: 'alice@example.com' },
+
+const user = await client.db.User.create({
+  data: { name: 'Alice', email: 'alice@example.com', isActive: true },
   txn,
 });
+await client.db.Post.create({
+  data: { title: 'My Post', authorId: user.id },
+  txn,
+});
+
 await txn.commit();
 ```
 
-The option pattern is useful when you have helper functions that accept `txn` as a parameter:
+### Mixing Both Patterns
+
+You can freely mix both in the same transaction. All operations share the same atomic boundary regardless of which access pattern you use:
+
+```typescript
+const txn = await client.$transaction();
+
+// Model proxy
+await txn.User.create({
+  data: { email: 'alice@example.com', name: 'Proxy User', isActive: true },
+});
+
+// Option pattern
+await client.db.User.create({
+  data: { email: 'bob@example.com', name: 'Option User', isActive: true },
+  txn,
+});
+
+await txn.commit();
+// Both users created atomically
+```
+
+### Passing to Helper Functions
+
+The option pattern is especially useful for helper functions that accept `txn` as a parameter. This keeps your transaction logic composable without coupling helpers to the transaction's origin:
 
 ```typescript
 async function createUserWithProfile(
@@ -52,7 +101,7 @@ async function createUserWithProfile(
   email: string,
 ) {
   const user = await client.db.User.create({
-    data: { name, email },
+    data: { name, email, isActive: true },
     txn,
   });
   await client.db.Profile.create({
@@ -75,9 +124,145 @@ try {
 }
 ```
 
+## All Model Operations
+
+Every method available on `client.db` works with both access patterns. Here's a full walkthrough using the model proxy:
+
+```typescript
+const txn = await client.$transaction();
+
+// Create
+const user1 = await txn.User.create({
+  data: { email: 'alice@example.com', name: 'Alice', isActive: true },
+});
+const user2 = await txn.User.create({
+  data: { email: 'bob@example.com', name: 'Bob', isActive: false },
+});
+
+// Read
+const found = await txn.User.findOne({ where: { email: 'alice@example.com' } });
+const all = await txn.User.findMany();
+
+// Update
+const updated = await txn.User.updateMany({
+  where: { email: 'alice@example.com' },
+  data: { name: 'Alice Updated' },
+});
+
+// Aggregates
+const count = await txn.User.count();
+const exists = await txn.User.exists({ email: 'bob@example.com' });
+
+// Delete
+const deleted = await txn.User.deleteMany({ where: { isActive: false } });
+
+await txn.commit();
+```
+
+The same operations with the option pattern:
+
+```typescript
+const txn = await client.$transaction();
+
+await client.db.User.create({
+  data: { email: 'alice@example.com', name: 'Alice', isActive: true },
+  txn,
+});
+const all = await client.db.User.findMany({ txn });
+await client.db.User.updateMany({
+  where: { email: 'alice@example.com' },
+  data: { name: 'Updated' },
+  txn,
+});
+const count = await client.db.User.count(undefined, txn);
+const exists = await client.db.User.exists({ email: 'alice@example.com' }, txn);
+const deleted = await client.db.User.deleteMany({
+  where: { isActive: false },
+  txn,
+});
+
+await txn.commit();
+```
+
+## Multiple Models
+
+Transactions can span any number of models. All operations share the same atomic guarantee:
+
+```typescript
+const txn = await client.$transaction();
+
+const user = await txn.User.create({
+  data: { email: 'alice@example.com', name: 'Alice', isActive: true },
+});
+await txn.Post.create({ data: { title: 'Post A', authorId: user.id } });
+await txn.Tag.create({ data: { name: 'welcome' } });
+
+await txn.commit();
+```
+
+## Nested Operations
+
+Nested create and connect work with both access patterns. The parent and all nested children are part of the same transaction.
+
+```typescript
+// Proxy pattern
+const txn = await client.$transaction();
+await txn.User.create({
+  data: {
+    email: 'charlie@example.com',
+    name: 'Charlie',
+    isActive: true,
+    posts: {
+      create: [{ title: 'Nested Post 1' }, { title: 'Nested Post 2' }],
+    },
+  },
+});
+await txn.commit();
+
+// Option pattern
+const txn2 = await client.$transaction();
+await client.db.User.create({
+  data: {
+    email: 'dave@example.com',
+    name: 'Dave',
+    isActive: true,
+    posts: {
+      create: [{ title: 'Post A' }, { title: 'Post B' }],
+    },
+  },
+  txn: txn2,
+});
+await txn2.commit();
+```
+
+## Select
+
+Use `select` to narrow returned fields. The return type adjusts automatically, just like outside transactions:
+
+```typescript
+// Proxy pattern
+const txn = await client.$transaction();
+const user = await txn.User.create({
+  data: { email: 'alice@example.com', name: 'Alice', isActive: true },
+  select: { name: true, email: true },
+});
+await txn.commit();
+// user: { name: string; email: string }
+
+// Option pattern
+const txn2 = await client.$transaction();
+const user2 = await client.db.User.create({
+  data: { email: 'bob@example.com', name: 'Bob', isActive: true },
+  select: { name: true, email: true },
+  txn: txn2,
+});
+await txn2.commit();
+// user2: { name: string; email: string }
+```
+
 ## Transaction State
 
-Check the current state of a manual transaction:
+Every manual transaction tracks its current state. Check it with `txn.state`:
 
 ```typescript
 const txn = await client.$transaction();
@@ -87,21 +272,89 @@ await txn.commit();
 console.log(txn.state); // 'committed'
 ```
 
-Possible states: `'active'`, `'committed'`, `'cancelled'`. Calling `commit()` or `cancel()` on an already-ended transaction throws an error.
+Or after cancelling:
+
+```typescript
+const txn = await client.$transaction();
+console.log(txn.state); // 'active'
+
+await txn.cancel();
+console.log(txn.state); // 'cancelled'
+```
+
+Possible states: `'active'`, `'committed'`, `'cancelled'`.
 
 ## Automatic Cleanup with `await using`
 
-If your environment supports `Symbol.asyncDispose` (TypeScript 5.2+), you can use `await using` to ensure the transaction is always cleaned up:
+Use `await using` (TypeScript 5.2+) to guarantee cleanup without try/catch. When the `txn` variable goes out of scope, the transaction automatically cancels itself if `commit()` was never called:
 
 ```typescript
 {
   await using txn = await client.$transaction();
 
-  await txn.User.create({ data: { name: 'Alice', email: 'alice@example.com' } });
+  await txn.User.create({
+    data: { name: 'Alice', email: 'alice@example.com', isActive: true },
+  });
   await txn.commit();
 }
 // If commit() wasn't called (e.g., an exception was thrown),
 // the transaction is automatically cancelled when txn goes out of scope
 ```
 
-This replaces try/catch/cancel boilerplate. If `commit()` was never called by the time `txn` is disposed, the transaction cancels itself.
+This replaces try/catch/cancel boilerplate entirely.
+
+## Isolation
+
+Uncommitted changes are not visible outside the transaction. Other queries against `client.db` won't see in-progress writes until `commit()` succeeds:
+
+```typescript
+const txn = await client.$transaction();
+
+await txn.User.create({
+  data: { email: 'alice@example.com', name: 'Alice', isActive: true },
+});
+
+// Outside the transaction, Alice is not visible yet
+const outsideView = await client.db.User.findMany({
+  where: { email: 'alice@example.com' },
+});
+console.log(outsideView.length); // 0
+
+await txn.commit();
+
+// After commit, Alice is now visible
+const afterCommit = await client.db.User.findMany({
+  where: { email: 'alice@example.com' },
+});
+console.log(afterCommit.length); // 1
+```
+
+## Error Handling
+
+Using a committed transaction throws immediately when you try to access a model:
+
+```typescript
+const txn = await client.$transaction();
+await txn.commit();
+
+// Throws: 'Transaction already ended'
+txn.User.create({ data: { email: 'a@b.c', name: 'Stale', isActive: true } });
+```
+
+Same for a cancelled transaction:
+
+```typescript
+const txn = await client.$transaction();
+await txn.cancel();
+
+// Throws: 'Transaction already ended'
+txn.User.create({ data: { email: 'a@b.c', name: 'Stale', isActive: true } });
+```
+
+:::caution
+Always pair `commit()` with a `cancel()` fallback, or use `await using`. Forgetting to call either causes "transaction dropped" warnings from SurrealDB.
+:::
+
+:::caution
+**No nesting.** Accessing `$transaction` on a `txn` client throws immediately. SurrealDB doesn't support savepoints.
+:::
