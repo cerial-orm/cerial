@@ -1,9 +1,9 @@
 {
   "title": "Inheritance",
   "pages": [
+    "overview",
     "extends",
     "abstract",
-    "private",
-    "typed-ids"
+    "private"
   ]
 }

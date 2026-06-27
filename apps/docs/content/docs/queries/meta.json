@@ -1,7 +1,7 @@
 {
   "title": "Queries",
   "pages": [
-    "...queries",
+    "overview",
     "find-one",
     "find-many",
     "find-all",

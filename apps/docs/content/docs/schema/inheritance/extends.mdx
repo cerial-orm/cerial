@@ -106,24 +106,6 @@ model PostSummary extends BlogPost[!author, !authorId] {
 
 `PostSummary` inherits `id`, `createdAt`, and `title` but not the relation or FK.
 
-### Directives Are Not Inherited
-
-Composite directives (`@@index`, `@@unique`) belong to the model that declares them — they are **not** passed down to children. If a child needs the same index, it must declare its own:
-
-```cerial
-abstract model BaseEntity {
-  id Record @id
-  name String
-  email Email
-  @@unique([name, email])  # this directive stays on BaseEntity only
-}
-
-model User extends BaseEntity {
-  age Int?
-  @@unique([name, email])  # must be redeclared if User needs it too
-}
-```
-
 ## Object Inheritance
 
 Objects can extend other objects to inherit sub-fields:

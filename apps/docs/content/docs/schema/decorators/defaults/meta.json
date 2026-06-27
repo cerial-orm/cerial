@@ -1,4 +1,4 @@
 {
-  "title": "Defaults",
-  "pages": ["default", "default-always"]
+  "title": "Default",
+  "pages": ["overview", "default", "default-always"]
 }

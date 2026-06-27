@@ -1,4 +1,4 @@
 {
   "title": "Array Operations",
-  "pages": ["index", "push-unset", "replace", "decorators"]
+  "pages": ["overview", "push-unset", "replace", "decorators"]
 }

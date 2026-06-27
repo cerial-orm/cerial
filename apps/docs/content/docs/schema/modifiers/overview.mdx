@@ -1,0 +1,10 @@
+---
+title: Overview
+description: Field modifiers that control inheritance behavior in Cerial schemas.
+---
+
+Modifiers are keywords placed at the end of a field line that affect how the field behaves during schema inheritance. Unlike decorators (which use the `@` prefix), modifiers use a different syntax and are processed at compile time.
+
+| Modifier | Purpose |
+|----------|---------|
+| [`!!private`](/schema/modifiers/private) | Prevent a field from being overridden in child types |

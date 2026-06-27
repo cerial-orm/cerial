@@ -3,51 +3,154 @@ title: Array Mode
 description: Batch multiple queries into a single atomic transaction with typed tuple results.
 ---
 
-Pass an array of query promises. All run inside a single transaction, and results come back as a typed tuple.
+Pass an array of query promises to `$transaction`. Every query runs inside a single transaction, and the results come back as a typed tuple matching each position.
+
+## Basic Usage
+
+Wrap any number of model method calls in an array. They execute atomically: all succeed, or all roll back.
 
 ```typescript
 const [user, post] = await client.$transaction([
-  client.db.User.create({ data: { name: 'Alice', email: 'alice@example.com' } }),
+  client.db.User.create({ data: { name: 'Alice', email: 'alice@example.com', isActive: true } }),
   client.db.Post.create({ data: { title: 'Hello World', authorId: existingUserId } }),
 ]);
-// user: User, post: Post
+// user: User, post: Post — both created atomically
 ```
 
 ## Typed Tuple Results
 
-Each position in the result array matches the type of its corresponding query:
+Each position in the result array matches the return type of its corresponding query. You get full type safety through destructuring:
 
 ```typescript
-const [users, postCount, tagExists] = await client.$transaction([
-  client.db.User.findMany({ where: { isActive: true } }),
+const [created, users, count, exists] = await client.$transaction([
+  client.db.User.create({ data: { email: 'new@example.com', name: 'New', isActive: true } }),
+  client.db.User.findMany(),
   client.db.Post.count(),
   client.db.Tag.exists({ name: 'typescript' }),
 ]);
+// created: User
 // users: User[]
-// postCount: number
-// tagExists: boolean
+// count: number
+// exists: boolean
 ```
 
 Up to 6 items produce precise arity-typed tuples. With 7 or more items, the result type widens to `any[]`.
 
 ## Function Items
 
-Array items can be functions that receive previous results. This lets later queries depend on earlier ones:
+Array items can also be functions. They receive all previous results, letting later operations depend on earlier ones.
+
+### Accessing Previous Results
+
+Functions receive a `prevResults` array containing the results of every item before them. Previous results are Cerial-mapped, meaning `CerialId` fields, `Date` objects, and other wrapper types are fully hydrated.
 
 ```typescript
-const [user, profile] = await client.$transaction([
-  client.db.User.create({ data: { name: 'Alice', email: 'alice@example.com' } }),
+const [user, post] = await client.$transaction([
+  client.db.User.create({ data: { name: 'Alice', email: 'alice@example.com', isActive: true } }),
   (prevResults) => {
     const createdUser = prevResults[0] as User;
 
-    return client.db.Profile.create({
-      data: { bio: 'Hello!', userId: createdUser.id },
+    return client.db.Post.create({
+      data: { title: 'First Post', authorId: createdUser.id },
     });
   },
 ]);
 ```
 
-You can mix regular query promises and functions in the same array.
+### Return Types
+
+Functions can return several types of values:
+
+- A `CerialQueryPromise` (any model method call), which gets executed inside the transaction
+- A plain value (string, number, object), passed through as-is into the results
+- `void` / `undefined`, for side-effect-only functions
+- An async value (async functions are fully supported)
+
+```typescript
+const results = await client.$transaction([
+  client.db.User.create({ data: { email: 'a@b.c', name: 'Alice', isActive: true } }),
+
+  // Return a query — executed in the transaction
+  (prev) => client.db.Post.create({ data: { title: 'Post', authorId: prev[0].id } }),
+
+  // Return a plain value
+  (prev) => prev[0].name,
+
+  // Side effect only (void)
+  () => { console.log('Transaction in progress'); },
+
+  // Async function
+  async (prev) => {
+    await someExternalCheck();
+
+    return client.db.Tag.create({ data: { name: 'verified' } });
+  },
+]);
+```
+
+### Result Accumulation
+
+Each function receives ALL previous results, including values returned by earlier functions:
+
+```typescript
+const results = await client.$transaction([
+  client.db.User.create({ data: { email: 'a@b.c', name: 'Alice', isActive: true } }),
+  (_prev) => 42,
+  (prev) => {
+    // prev[0] = User, prev[1] = 42
+    const num = prev[1] as number;
+
+    return num * 2;
+  },
+]);
+// results[0]: User
+// results[1]: 42
+// results[2]: 84
+```
+
+### Function at Position 0
+
+A function as the first item receives an empty array:
+
+```typescript
+const [user] = await client.$transaction([
+  (prev) => {
+    // prev is []
+
+    return client.db.User.create({ data: { email: 'a@b.c', name: 'First', isActive: true } });
+  },
+]);
+```
+
+### Mixing Queries and Functions
+
+You can freely interleave `CerialQueryPromise` items and function items in any order:
+
+```typescript
+const [user, post, otherUser, totalItems] = await client.$transaction([
+  client.db.User.create({ data: { email: 'a@b.c', name: 'Alice', isActive: true } }),
+  (prev) => client.db.Post.create({ data: { title: 'Post', authorId: prev[0].id } }),
+  client.db.User.create({ data: { email: 'b@c.d', name: 'Bob', isActive: false } }),
+  (prev) => prev.length, // 3
+]);
+```
+
+### Error Handling in Functions
+
+Throwing inside a function rolls back the entire transaction. Nothing before the throw persists:
+
+```typescript
+try {
+  await client.$transaction([
+    client.db.User.create({ data: { email: 'a@b.c', name: 'Alice', isActive: true } }),
+    () => {
+      throw new Error('Validation failed');
+    },
+  ]);
+} catch (error) {
+  // Alice was NOT created — entire transaction rolled back
+}
+```
 
 ## Supported Operations
 
@@ -67,9 +170,38 @@ All model methods work inside array-mode transactions:
 | `count` | `number` | `db.User.count({ isActive: true })` |
 | `exists` | `boolean` | `db.User.exists({ role: 'admin' })` |
 
+## Cross-Model Transactions
+
+Transactions can span any number of different models. Each query targets its own table, but they all share the same atomic guarantee.
+
+```typescript
+// Create across three models atomically
+const [user, profile, tag] = await client.$transaction([
+  client.db.User.create({ data: { email: 'a@b.c', name: 'Alice', isActive: true } }),
+  client.db.Profile.create({ data: { bio: 'Hello world' } }),
+  client.db.Tag.create({ data: { name: 'welcome' } }),
+]);
+```
+
+Mix different operation types across models in the same transaction:
+
+```typescript
+const [updatedUser, deleteResult] = await client.$transaction([
+  client.db.User.updateUnique({
+    where: { id: userId },
+    data: { name: 'Updated Name' },
+  }),
+  client.db.Post.deleteUnique({ where: { id: postId } }),
+]);
+// updatedUser: User | null
+// deleteResult: boolean
+```
+
 ## Nested Operations
 
-Nested create, connect/disconnect, and cascade delete all work inside transactions. Everything falls under the same atomic guarantee:
+Nested create, connect, and disconnect all work inside transactions. The parent operation and all its nested children share the same atomic boundary.
+
+### Nested Create
 
 ```typescript
 const [user] = await client.$transaction([
@@ -77,24 +209,147 @@ const [user] = await client.$transaction([
     data: {
       name: 'Charlie',
       email: 'charlie@example.com',
+      isActive: true,
       posts: { create: [{ title: 'Post 1' }, { title: 'Post 2' }] },
     },
   }),
 ]);
-// The user and both posts are created atomically
+// User and both posts created atomically
+```
+
+### Connect
+
+```typescript
+const [student] = await client.$transaction([
+  client.db.Student.create({
+    data: {
+      name: 'Alice',
+      email: 'alice@school.edu',
+      courses: { connect: [mathCourseId, scienceCourseId] },
+    },
+  }),
+]);
+// Student created with courses connected — bidirectional sync included
+```
+
+### Disconnect
+
+```typescript
+const [updated] = await client.$transaction([
+  client.db.Student.updateMany({
+    where: { id: studentId },
+    data: {
+      courses: { disconnect: [oldCourseId] },
+    },
+  }),
+]);
 ```
 
 ## Select and Include
 
-`select` and `include` work normally inside transactions:
+`select` and `include` work normally inside transactions. Return types narrow accordingly.
 
 ```typescript
+// Select specific fields
 const [user] = await client.$transaction([
+  client.db.User.create({
+    data: { email: 'a@b.c', name: 'Alice', isActive: true },
+    select: { id: true, name: true },
+  }),
+]);
+// user: { id: CerialId; name: string } — only selected fields returned
+```
+
+```typescript
+// Include relations
+const [userWithPosts] = await client.$transaction([
   client.db.User.findOne({
     where: { id: userId },
     select: { id: true, name: true },
     include: { posts: true },
   }),
 ]);
-// user: ({ id: CerialId; name: string } & { posts: Post[] }) | null
+// userWithPosts: ({ id: CerialId; name: string } & { posts: Post[] }) | null
 ```
+
+## Cascade Delete
+
+Cascade delete behavior is preserved inside transactions. If a model has `@onDelete(Cascade)` on a relation, deleting the parent also removes the related record, all within the same atomic boundary.
+
+```typescript
+// If ProfileCascade has @onDelete(Cascade) on its user relation,
+// deleting the user also deletes the profile — atomically
+const [deleted] = await client.$transaction([
+  client.db.UserCascade.deleteUnique({ where: { id: userId } }),
+]);
+// Both user AND their cascade-linked profile are removed
+```
+
+You can combine cascade deletes with other operations in the same transaction:
+
+```typescript
+const [deleteResult, newUser] = await client.$transaction([
+  client.db.UserCascade.deleteUnique({ where: { id: oldUserId } }),
+  client.db.UserCascade.create({ data: { name: 'Replacement' } }),
+]);
+// Old user + their cascaded profile gone, new user created — all atomic
+```
+
+## Atomicity
+
+Every array-mode transaction is all-or-nothing. If any query fails, every change rolls back.
+
+### Rollback on Duplicate
+
+```typescript
+try {
+  await client.$transaction([
+    client.db.User.create({ data: { name: 'Alice', email: 'alice@example.com', isActive: true } }),
+    client.db.User.create({ data: { name: 'Bob', email: 'alice@example.com', isActive: true } }), // duplicate email
+  ]);
+} catch (error) {
+  // Neither user was created — full rollback
+}
+```
+
+### Rollback Affects All Operations
+
+A failure anywhere undoes preceding operations too, including updates:
+
+```typescript
+const user = await client.db.User.create({
+  data: { email: 'orig@example.com', name: 'Original', isActive: true },
+});
+
+try {
+  await client.$transaction([
+    client.db.User.updateMany({
+      where: { id: user.id },
+      data: { name: 'Updated' },
+    }),
+    client.db.User.create({
+      data: { email: 'orig@example.com', name: 'Duplicate', isActive: false }, // fails
+    }),
+  ]);
+} catch {
+  // The update was ALSO rolled back — user.name is still 'Original'
+}
+```
+
+## Edge Cases
+
+:::caution
+**Empty transactions** return an empty array: `await client.$transaction([])` produces `[]`.
+:::
+
+:::caution
+**Result types are preserved across all positions.** `CerialId` fields, `Date` objects, `null` for missing records, `number` for `count`/`deleteMany`, and `boolean` for `exists`/`deleteUnique` all come back correctly mapped.
+:::
+
+:::caution
+**Large transactions work fine.** 10+ operations in a single array are supported with no special handling required.
+:::
+
+:::caution
+**Concurrent transactions succeed independently.** Multiple `$transaction` calls via `Promise.all` each run as separate transactions. They don't interfere with each other.
+:::

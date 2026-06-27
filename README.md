@@ -249,7 +249,7 @@ Full documentation is available at [**cerial-orm.github.io/cerial**](https://cer
 - [Relations](https://cerial-orm.github.io/cerial/relations) — 1:1, 1:N, N:N, self-referential, nested operations, delete behavior
 - [Queries](https://cerial-orm.github.io/cerial/queries) — findOne, findMany, findUnique, create, upsert, update, delete, count, exists, $transaction
 - [Filtering](https://cerial-orm.github.io/cerial/filtering) — Comparison, string, array, logical, special, nested, object operators
-- [Select & Include](https://cerial-orm.github.io/cerial/select-and-include) — Dynamic return types, sub-field selection, nested includes
+- [Select & Include](https://cerial-orm.github.io/cerial/select-plus-include) — Dynamic return types, sub-field selection, nested includes
 - [Type System](https://cerial-orm.github.io/cerial/types) — CerialId, NONE vs null, generated types, dynamic return types
 - [CLI & Tooling](https://cerial-orm.github.io/cerial/cli) — generate, init, config, formatter, watch mode, path filtering
 - [VS Code Extension](https://cerial-orm.github.io/cerial/extension) — Features, settings, installation, snippets

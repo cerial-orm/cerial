@@ -1,0 +1,146 @@
+---
+title: Model
+description: Define database tables with the model keyword
+---
+
+Models are the primary building block of a Cerial schema. Each model maps directly to a SurrealDB table and defines the fields, types, decorators, and relations for that table. Every model becomes a fully typed accessor on the generated client.
+
+## Syntax
+
+Declare a model with the `model` keyword followed by a name and a block of field declarations:
+
+```cerial
+model User {
+  id Record @id
+  email Email @unique
+  name String
+  age Int?
+  isActive Bool @default(true)
+  createdAt Date @createdAt
+}
+```
+
+Model names use `PascalCase` — e.g., `User`, `BlogPost`, `OrderItem`. The name determines both the generated TypeScript type and the SurrealDB table name.
+
+## The id Field
+
+Every model **must** have an `id Record @id` field — the primary key mapping to SurrealDB's built-in record ID. By default, it produces string-based IDs. Narrow the type for stricter safety:
+
+```cerial
+model Product {
+  id Record(int) @id      # CerialId<number>
+}
+
+model Session {
+  id Record(uuid) @id     # CerialId<CerialUuid>
+}
+```
+
+See [Record](/schema/field-types/record) for typed IDs and how they affect foreign keys.
+
+## Field Declarations
+
+Each line inside a model block declares a field with the format `fieldName Type [decorators...]`:
+
+```cerial
+model BlogPost {
+  id Record @id
+  title String
+  content String?
+  viewCount Int @default(0)
+  tags String[]
+  createdAt Date @createdAt
+  updatedAt Date @updatedAt
+}
+```
+
+Cerial supports 15 built-in types plus user-defined types. See [Field Types](/schema/field-types) for the complete reference.
+
+### Optional and Nullable
+
+Append `?` to make a field optional (maps to `undefined`). Add `@nullable` to allow explicit `null`. These are independent:
+
+```cerial
+model User {
+  id Record @id
+  name String                  # required — always present
+  bio String?                  # optional — can be absent (NONE)
+  nickname String @nullable    # nullable — can be null
+}
+```
+
+See [Optional Fields](/schema/optional-fields) for the full NONE vs null distinction.
+
+### Arrays
+
+Append `[]` to any type for an array field. See [Arrays](/schema/field-types/arrays) for `@set` and push/remove operations.
+
+## Decorators
+
+Fields can have one or more decorators for defaults, constraints, timestamps, and more:
+
+```cerial
+model User {
+  id Record @id
+  email Email @unique
+  role String @default("viewer")
+  createdAt Date @createdAt
+  updatedAt Date @updatedAt
+}
+```
+
+See [Decorators](/schema/decorators) for the full list of available decorators.
+
+## Relations
+
+Models relate to other models using `Record` (foreign key) and `Relation` (virtual traversal) fields:
+
+```cerial
+model User {
+  id Record @id
+  name String
+  posts Relation[] @model(Post)
+}
+
+model Post {
+  id Record @id
+  title String
+  authorId Record
+  author Relation @field(authorId) @model(User)
+}
+```
+
+The `authorId` field stores the foreign key. The `author Relation` field is virtual — it describes traversal without storing data. See [Relations](/relations) for 1:1, 1:N, N:N patterns and nested operations.
+
+## Abstract Models
+
+Mark a model as `abstract` to use it as a reusable field template. Abstract models produce no database table, TypeScript types, or client accessor:
+
+```cerial
+abstract model Timestamped {
+  createdAt Date @createdAt
+  updatedAt Date @updatedAt
+}
+
+model Order extends Timestamped {
+  id Record @id
+  total Float
+  status String @default("pending")
+}
+```
+
+Concrete models can only extend abstract models. See [Inheritance](/schema/inheritance) for `extends`, pick/omit syntax, and `!!private` fields.
+
+## SurrealDB Mapping
+
+Each model maps to a SurrealDB table. Cerial generates migration statements:
+
+| Cerial | SurrealDB |
+|---|---|
+| `model User { ... }` | `DEFINE TABLE User SCHEMAFULL` |
+| `name String` | `DEFINE FIELD name ON User TYPE string` |
+| `age Int?` | `DEFINE FIELD age ON User TYPE option<int>` |
+| `tags String[]` | `DEFINE FIELD tags ON User TYPE array<string>` |
+| `email Email @unique` | `DEFINE INDEX user_email_unique ON User FIELDS email UNIQUE` |
+
+The model name is used as-is for the table name. Field names map directly. Relation fields are virtual and produce no `DEFINE FIELD` statement.

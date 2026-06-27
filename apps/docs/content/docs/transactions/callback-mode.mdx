@@ -3,12 +3,14 @@ title: Callback Mode
 description: Managed transactions with automatic commit on return and rollback on throw.
 ---
 
-Pass a function to get a transaction client. Cerial commits automatically when the callback returns, or rolls back if it throws.
+Pass an async function to `$transaction` to get a transaction client (`tx`). Cerial commits automatically when the callback returns, or rolls back if it throws. No manual lifecycle management needed.
+
+## Basic Usage
 
 ```typescript
 const user = await client.$transaction(async (tx) => {
   const user = await tx.User.create({
-    data: { name: 'Alice', email: 'alice@example.com' },
+    data: { name: 'Alice', email: 'alice@example.com', isActive: true },
   });
 
   await tx.Post.create({
@@ -17,59 +19,241 @@ const user = await client.$transaction(async (tx) => {
 
   return user;
 });
-// user: User (transaction committed)
+// user: User — transaction committed, both records persisted
 ```
 
-The callback receives `tx`, which mirrors `client.db` but scopes all queries to the transaction. Access models directly on `tx`:
+`tx` mirrors `client.db` but scopes all queries to the transaction. Access models directly: `tx.User`, `tx.Post`, etc. Every operation within the callback runs on the same transaction connection, so they're all committed or rolled back together.
+
+## Dependent Queries
+
+Callback mode shines when later queries depend on earlier results. You can `await` each operation and pass values forward with normal variables:
 
 ```typescript
-await tx.User.findMany({ where: { isActive: true } });
-await tx.Post.updateUnique({ where: { id: postId }, data: { title: 'Updated' } });
-await tx.Tag.deleteMany({ where: { name: 'old-tag' } });
+const result = await client.$transaction(async (tx) => {
+  const user = await tx.User.create({
+    data: { email: 'bob@example.com', name: 'Bob', isActive: true },
+  });
+
+  const post = await tx.Post.create({
+    data: { title: 'Hello World', authorId: user.id },
+  });
+
+  return { user, post };
+});
+// result.user: User
+// result.post: Post
 ```
+
+Unlike array mode where you need function items and `prevResults` for dependent queries, callback mode lets you use standard `await` and variable references. The control flow reads like regular async code.
 
 ## Return Values
 
-Whatever the callback returns becomes the return value of `$transaction`:
+Whatever the callback returns becomes the `$transaction` result. The return type is fully inferred.
 
 ```typescript
+// Return a model instance
+const user = await client.$transaction(async (tx) => {
+  return await tx.User.create({
+    data: { email: 'a@b.c', name: 'Alice', isActive: true },
+  });
+});
+// user: User
+
+// Return a number
 const count = await client.$transaction(async (tx) => {
-  await tx.User.create({ data: { name: 'Bob', email: 'bob@example.com' } });
+  await tx.User.create({ data: { email: 'a@b.c', name: 'Alice', isActive: true } });
 
   return tx.User.count();
 });
 // count: number
+
+// Return a complex object
+const result = await client.$transaction(async (tx) => {
+  const user = await tx.User.create({
+    data: { email: 'a@b.c', name: 'Alice', isActive: true },
+  });
+
+  return { userId: user.id, timestamp: Date.now(), tags: ['new', 'verified'] };
+});
+// result: { userId: CerialId; timestamp: number; tags: string[] }
+
+// Return null explicitly
+const nothing = await client.$transaction(async (tx) => {
+  await tx.User.create({ data: { email: 'a@b.c', name: 'Alice', isActive: true } });
+
+  return null;
+});
+// nothing: null
+
+// Return nothing (void)
+const result = await client.$transaction(async () => {});
+// result: undefined
+```
+
+## All Model Operations
+
+Every model method available on `client.db` is also available on `tx`:
+
+```typescript
+await client.$transaction(async (tx) => {
+  // Create
+  const user = await tx.User.create({
+    data: { email: 'alice@example.com', name: 'Alice', isActive: true },
+  });
+
+  // Find
+  const found = await tx.User.findOne({ where: { email: 'alice@example.com' } });
+  const all = await tx.User.findMany();
+
+  // Update
+  const updated = await tx.User.updateMany({
+    where: { email: 'alice@example.com' },
+    data: { name: 'Alice Updated' },
+  });
+
+  // Count and exists
+  const count = await tx.User.count();
+  const exists = await tx.User.exists({ email: 'alice@example.com' });
+
+  // Delete
+  const deleted = await tx.User.deleteMany({ where: { isActive: false } });
+
+  return { found, all, updated, count, exists, deleted };
+});
+```
+
+## Mixed Model Operations
+
+Access multiple models within the same callback. All operations share the transaction scope regardless of which model they target:
+
+```typescript
+const result = await client.$transaction(async (tx) => {
+  const user1 = await tx.User.create({
+    data: { email: 'user1@example.com', name: 'User One', isActive: true },
+  });
+  const user2 = await tx.User.create({
+    data: { email: 'user2@example.com', name: 'User Two', isActive: false },
+  });
+  const posts = await tx.Post.findMany();
+  const updated = await tx.User.updateMany({
+    where: { email: 'user1@example.com' },
+    data: { name: 'Updated User One' },
+  });
+
+  return { user1, user2, posts, updated };
+});
+```
+
+## Nested Create
+
+Nested relation operations work inside callbacks. The parent record and all nested children are created within the same transaction:
+
+```typescript
+const user = await client.$transaction(async (tx) => {
+  return await tx.User.create({
+    data: {
+      email: 'charlie@example.com',
+      name: 'Charlie',
+      isActive: true,
+      posts: {
+        create: [{ title: 'Post 1' }, { title: 'Post 2' }],
+      },
+    },
+  });
+});
+// User and both posts created atomically
+```
+
+## Select
+
+Use `select` to narrow which fields come back. The return type adjusts automatically:
+
+```typescript
+const user = await client.$transaction(async (tx) => {
+  return await tx.User.create({
+    data: { email: 'alice@example.com', name: 'Alice', isActive: true },
+    select: { name: true, email: true },
+  });
+});
+// user: { name: string; email: string } — only selected fields, fully typed
+```
+
+## Count and Exists
+
+Aggregate operations work inside callbacks just like they do on `client.db`:
+
+```typescript
+const stats = await client.$transaction(async (tx) => {
+  const count = await tx.User.count();
+  const hasAdmins = await tx.User.exists({ role: 'admin' });
+  const noGhosts = await tx.User.exists({ email: 'nonexistent@example.com' });
+
+  return { count, hasAdmins, noGhosts };
+});
+// stats: { count: number; hasAdmins: boolean; noGhosts: boolean }
 ```
 
 ## Throw to Rollback
 
-Throwing inside the callback cancels the transaction. There's no `tx.rollback()` method — just throw:
+Throwing inside the callback cancels the entire transaction. There's no `tx.rollback()` method. Just throw:
 
 ```typescript
 try {
   await client.$transaction(async (tx) => {
-    await tx.User.create({ data: { name: 'Alice', email: 'alice@example.com' } });
+    await tx.User.create({ data: { email: 'alice@example.com', name: 'Alice', isActive: true } });
+    await tx.User.create({ data: { email: 'bob@example.com', name: 'Bob', isActive: true } });
 
-    const exists = await tx.User.exists({ email: 'alice@example.com' });
-    if (exists) {
-      throw new Error('Duplicate detected');
-    }
+    // Something goes wrong — both creates are rolled back
+    throw new Error('Changed my mind');
   });
 } catch (error) {
-  // Transaction rolled back, no user was created
+  // Neither Alice nor Bob was created
+}
+```
+
+Even if multiple operations succeeded before the throw, ALL are rolled back:
+
+```typescript
+try {
+  await client.$transaction(async (tx) => {
+    await tx.User.create({ data: { email: 'a@b.c', name: 'Created', isActive: true } });
+    await tx.User.create({ data: { email: 'b@c.d', name: 'Also Created', isActive: false } });
+
+    throw new Error('rollback after creates');
+  });
+} catch {
+  // Both users were rolled back — table is unchanged
 }
 ```
 
 ## Timeout
 
-Set a timeout (in milliseconds) to prevent long-running transactions from blocking:
+Set a timeout to prevent long-running transactions from blocking:
 
 ```typescript
 await client.$transaction(
   async (tx) => {
-    await tx.User.updateMany({ where: { isActive: false }, data: { archived: true } });
+    await tx.User.updateMany({
+      where: { isActive: false },
+      data: { archived: true },
+    });
   },
   { timeout: 5000 },
 );
 // Throws 'Transaction timeout' if the callback takes longer than 5 seconds
 ```
+
+On timeout, the transaction is cancelled and all changes are rolled back.
+
+## Nesting Prevention
+
+:::caution
+SurrealDB doesn't support nested transactions. Attempting to access `$transaction` inside a callback throws immediately:
+
+```typescript
+await client.$transaction(async (tx) => {
+  // @ts-expect-error — $transaction is not available on tx
+  tx.$transaction; // Throws: 'Nested transactions are not supported'
+});
+```
+:::

@@ -1,14 +1,23 @@
 {
   "title": "Schema",
   "pages": [
-    "...schema",
+    "overview",
+    "model",
+    "object",
+    "tuple",
+    "literals",
+    "enums",
     "field-types",
+    "decorators",
+    "composite-decorators",
+    "modifiers",
+    "---",
     "arrays",
     "optional-fields",
-    "comments",
+    "complex-record",
+    "inheritance",
+    "enums-vs-literals",
     "cross-file-references",
-    "decorators",
-    "type-definitions",
-    "inheritance"
+    "comments"
   ]
 }

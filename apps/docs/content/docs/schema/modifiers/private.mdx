@@ -1,0 +1,78 @@
+---
+title: '!!private'
+description: Prevent a field from being overridden in child types that use extends.
+---
+
+The `!!private` modifier prevents a field from being redefined in child types that use [extends](/schema/inheritance/extends/). It protects fields that should stay exactly as the parent defined them.
+
+## Syntax
+
+Place `!!private` at the end of a field line, after all decorators:
+
+```cerial
+abstract model BaseEntity {
+  id Record @id !!private
+  createdAt Date @createdAt !!private
+  updatedAt Date @updatedAt !!private
+}
+
+model User extends BaseEntity {
+  email Email @unique
+  name String
+}
+```
+
+`User` inherits `id`, `createdAt`, and `updatedAt` from `BaseEntity` but cannot redefine them — any attempt raises a validation error.
+
+## Override Prevention
+
+Private prevents **one thing**: redefining the field in a child's body.
+
+```cerial
+abstract model Base {
+  id Record @id !!private
+  name String !!private
+}
+
+// ERROR: Cannot override private field 'name'
+model Child extends Base {
+  name String @default('override')  // not allowed
+}
+```
+
+Private fields can still be:
+
+- **Inherited** normally — the field appears in the child's generated types
+- **Omitted** from pick lists (`extends Base[!name]`)
+- **Excluded** via pick (`extends Base[id]` only keeps listed fields)
+
+`!!private` controls **override**, not **visibility**.
+
+## Where Allowed
+
+| Location | Allowed |
+|----------|---------|
+| Model fields | Yes |
+| Object fields | Yes |
+| Tuple elements | Yes |
+| Enum values | No |
+| Literal variants | No |
+
+## Combining with Decorators
+
+`!!private` goes after all decorators and works alongside any field-level decorator:
+
+```cerial
+abstract model Base {
+  id Record @id !!private
+  email Email @unique !!private
+  createdAt Date @createdAt !!private
+  role String @default('user') !!private
+}
+```
+
+The decorators apply as normal. `!!private` only adds override-protection on top.
+
+:::tip
+For advanced usage — object fields, tuple elements, practical patterns, and edge cases — see the full [Private Fields](/schema/inheritance/private) reference in the Inheritance section.
+:::

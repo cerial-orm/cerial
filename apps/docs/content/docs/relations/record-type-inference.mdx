@@ -1,0 +1,62 @@
+---
+title: Record Type Inference
+description: Automatic foreign key type inference from target model ID types
+---
+
+## FK Type Inference
+
+When a model declares a typed ID, any FK `Record` field that references it via `@model()` automatically inherits the ID type. You don't repeat the type on FK fields — Cerial infers it.
+
+```cerial
+model Author {
+  id Record(int) @id
+  name String
+  books Relation[] @model(Book)
+}
+
+model Book {
+  id Record @id
+  title String
+  authorId Record                                  // Just Record — not Record(int)
+  author Relation @field(authorId) @model(Author)
+}
+```
+
+Cerial sees that `authorId` points to `Author` (which has `Record(int) @id`) and generates the correct types:
+
+```typescript
+// Output type
+interface Book {
+  id: CerialId<string>;
+  authorId: CerialId<number>; // inferred from Author's int ID
+}
+
+// Input — connect accepts number
+const book = await client.db.Book.create({
+  data: {
+    title: 'My Book',
+    author: { connect: 1 },
+  },
+});
+
+book.authorId;    // CerialId<number>
+book.authorId.id; // 1
+
+// CerialId from a previous query works too
+const author = await client.db.Author.create({ data: { id: 1, name: 'Alice' } });
+const book2 = await client.db.Book.create({
+  data: {
+    title: 'Another Book',
+    author: { connect: author.id },
+  },
+});
+```
+
+:::caution
+FK fields must **not** use `Record(Type)`. The type is always inferred from the target model's `@id` declaration. Adding `Record(int)` to a FK field is a validation error — Cerial rejects it to prevent type mismatches.
+:::
+
+---
+
+**See also:**
+- [Complex Record](/schema/complex-record) — Full `Record(Type)` syntax reference, supported types, and standalone record typing

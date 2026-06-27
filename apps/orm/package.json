@@ -1,6 +1,6 @@
 {
   "name": "cerial",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A Prisma-like ORM for SurrealDB with schema-driven code generation and full TypeScript type safety",
   "repository": {
     "type": "git",
@@ -133,7 +133,7 @@
     "@biomejs/wasm-nodejs": "^2.4.4",
     "citty": "^0.2.1",
     "ignore": "^7.0.5",
-    "surrealdb": "2.0.0",
+    "surrealdb": "2.0.4",
     "ts-toolbelt": "^9.6.0",
     "valibot": "^1.2.0",
     "fast-glob": "^3.3.3"
