@@ -78,7 +78,7 @@ cerial/
 │   │   │   ├── unit/                        # Unit tests (no DB)
 │   │   │   ├── integration/                 # Integration tests (DB required)
 │   │   │   ├── e2e/                         # End-to-end tests
-│   │   │   │   ├── schemas/                 #   49 .cerial test schemas (organized by feature)
+│   │   │   │   ├── schemas/                 #   43 .cerial test schemas (organized by feature)
 │   │   │   │   │   ├── core/               #     Core model schemas
 │   │   │   │   │   ├── relations/          #     Relation schemas
 │   │   │   │   │   ├── decorators/         #     Decorator schemas
@@ -91,10 +91,10 @@ cerial/
 │   │   │   │   ├── decorators/              #   Decorator E2E tests (43 files)
 │   │   │   │   ├── complex-types/           #   Object/tuple/literal/enum tests (46 files)
 │   │   │   │   ├── data-types/              #   UUID/number/duration/decimal/bytes/geometry/any tests (37 files)
-│   │   │   │   ├── features/                #   Typed-ids, unset, transactions, on-before-query, pagination tests (35 files)
+│   │   │   │   ├── features/                #   Typed-ids, unset, transactions, on-before-query, pagination tests (50 files)
 │   │   │   │   ├── negative/                #   Cross-cutting error/validation tests (5 files)
-│   │   │   │   ├── typechecks/              #   36 compile-time type checks (6 subdirectories)
-│   │   │   │   ├── multi-schema/            #   Multi-schema E2E tests (4 files)
+│   │   │   │   ├── typechecks/              #   37 compile-time type checks (6 subdirectories)
+│   │   │   │   ├── multi-schema/            #   Multi-schema E2E tests (5 files)
 │   │   │   │   ├── preload.ts               #   Generates client before tests
 │   │   │   │   └── test-helper.ts           #   Shared test infrastructure
 │   │   │   └── generators/                  # Generator tests
@@ -172,18 +172,18 @@ Schema (.cerial files) → Parser (AST) → Generators → TypeScript Client
 | Location                                                          | Type                                                          | Count    |
 | ----------------------------------------------------------------- | ------------------------------------------------------------- | -------- |
 | `apps/orm/tests/unit/`                                            | Unit tests (no DB)                                            | ~2683    |
-| `apps/orm/tests/integration/`                                     | Integration (DB required)                                     | ~49      |
+| `apps/orm/tests/integration/`                                     | Integration (DB required)                                     | 4 files  |
 | `apps/orm/tests/e2e/core/`                                        | Core CRUD, select, include, introspection                     | 7 files  |
 | `apps/orm/tests/e2e/relations/`                                   | Relation E2E tests                                            | 89 files |
 | `apps/orm/tests/e2e/decorators/`                                  | Decorator E2E tests                                           | 43 files |
 | `apps/orm/tests/e2e/complex-types/`                               | Object/tuple/literal/enum tests                               | 46 files |
 | `apps/orm/tests/e2e/data-types/`                                  | Data type tests (uuid, number, duration, decimal, bytes, etc) | 37 files |
-| `apps/orm/tests/e2e/features/`                                    | Typed-ids, unset, transactions, on-before-query, pagination   | 35 files |
+| `apps/orm/tests/e2e/features/`                                    | Typed-ids, unset, transactions, on-before-query, pagination   | 50 files |
 | `apps/orm/tests/e2e/features/extends/`                            | Extends E2E tests (model, object, tuple, enum, literal, pick/omit, negative) | 11 files |
 | `apps/orm/tests/e2e/negative/`                                    | Cross-cutting error/validation tests                          | 5 files  |
-| `apps/orm/tests/e2e/typechecks/`                                  | Compile-time type checks                                      | 36 files |
+| `apps/orm/tests/e2e/typechecks/`                                  | Compile-time type checks                                      | 37 files |
 | `apps/orm/tests/e2e/typechecks/features/extends.check.ts`        | Compile-time type checks for extends                          | 1 file   |
-| `apps/orm/tests/e2e/multi-schema/`                                | Multi-schema E2E tests (config, convention, backward compat)  | 4 files  |
+| `apps/orm/tests/e2e/multi-schema/`                                | Multi-schema E2E tests (config, convention, backward compat)  | 5 files  |
 
 **Sandbox testing** = Running raw SurrealQL against the live SurrealDB instance to verify DB-level behavior before implementing in code. Use this when you need to confirm how SurrealDB handles a specific query pattern (e.g., `$this` reconstruction, dot-notation merge, SELECT expression shapes). When the user says "sandbox test", execute queries via curl:
 
@@ -277,17 +277,17 @@ Sandbox testing is **allowed in plan mode** — it is investigative research to 
 
 ### Documentation Sync (CRITICAL)
 
-Documentation lives in `docs/` (GitHub Pages with Next.js + Fumadocs).
+Documentation lives in `apps/docs/content/docs/` (GitHub Pages with Next.js + Fumadocs).
 
 **Always keep docs in sync with code changes:**
 
-- **New feature** → Add or update the relevant `docs/` page(s). If it's a new concept, create a new page with proper frontmatter (title, description)
+- **New feature** → Add or update the relevant docs page(s). If it's a new concept, create a new page with proper frontmatter (title, description)
 - **Changed feature** → Update all affected doc pages to reflect the new behavior, examples, and types
 - **Removed feature** → Remove or update doc pages. Remove dead links from parent/index pages
-- **New decorator** → Add a page in `docs/schema/decorators/` with grand_parent: Schema, parent: Decorators
-- **New query method** → Add a page in `docs/queries/` with parent: Queries
-- **New filter operator** → Update the relevant page in `docs/filtering/`
-- **Changed types** → Update `docs/types/generated-types.md` and `docs/types/dynamic-return-types.md`
+- **New decorator** → Add a page in `apps/docs/content/docs/schema/decorators/` with grand_parent: Schema, parent: Decorators
+- **New query method** → Add a page in `apps/docs/content/docs/queries/` with parent: Queries
+- **New filter operator** → Update the relevant page in `apps/docs/content/docs/filtering/`
+- **Changed types** → Update `apps/docs/content/docs/types/generated-types.mdx` and `apps/docs/content/docs/types/dynamic-return-types.mdx`
 
 Doc pages use MDX with Fumadocs conventions. Page metadata is defined via the file system structure and `meta.json` files in each directory.
 
@@ -331,11 +331,11 @@ This feature is not yet available in the current release. It will ship in an upc
 **Rules:**
 
 - When adding a **new feature** visible to end users, add it to the README features list and ensure the quick start example still represents the best overview of Cerial's capabilities
-- When adding a **new doc section** in `docs/`, add a corresponding link in README's Documentation section
+- When adding a **new doc section** in `apps/docs/content/docs/`, add a corresponding link in README's Documentation section
 - When **renaming or removing** a doc section, update README links to avoid dead references
 - When changing **CLI defaults** (schema path, output path, command name), update both CLAUDE.md Commands section and README's quick start
 - The README quick start schema example should showcase the most important field types and decorators — update it when new types/decorators are significant enough to highlight
-- Do **not** duplicate detailed information — README stays concise (~100-130 lines), full details live in `docs/`
+- Do **not** duplicate detailed information — README stays concise (~100-130 lines), full details live in `apps/docs/content/docs/`
 
 
 ### Release Notes Rules (CRITICAL)
@@ -474,7 +474,7 @@ Each user-facing commit gets its own entry in the release notes page under the c
 - ORM releases: `orm-v{major}.{minor}.{patch}` (e.g., `orm-v0.1.0`)
 - Extension releases: `ext-v{major}.{minor}.{patch}` (e.g., `ext-v0.1.0`)
 - Each package has independent versioning and release cycles
-- Tags trigger release workflows automatically (orm-v* triggers npm publish, ext-v* triggers VSCE publish)
+- Tags trigger release workflows automatically (orm-v* publishes to npm; ext-v* only packages a VSIX and attaches it to a GitHub Release)
 - NEVER push tags from CI — tagging is always a manual release action
 - Tag version MUST match package.json version (release workflows verify this)
 
@@ -493,7 +493,7 @@ Each user-facing commit gets its own entry in the release notes page under the c
 | `orm-ci.yml` | Push to dev + PRs to dev | Unit tests, E2E (SurrealDB), typecheck, format |
 | `extension-ci.yml` | Push to dev + PRs to dev | Build, unit tests, grammar tests (matrix: ubuntu/windows/macos) |
 | `orm-release.yml` | `orm-v*` tag push | Build, test, npm publish, GitHub Release linking to docs |
-| `extension-release.yml` | `ext-v*` tag push | Build, test, package VSIX, GitHub Release linking to docs |
+| `extension-release.yml` | `ext-v*` tag push | Build, test, package VSIX, GitHub Release linking to docs. Does NOT publish to the marketplace |
 | `docs-deploy.yml` | Push to dev (docs/ changes) | Build Next.js, deploy to GitHub Pages |
 
 **Required GitHub Secrets:**
@@ -554,7 +554,7 @@ Do NOT use SurrealDB reserved keywords as field names, model names, or object na
 5. Run `bun run generate:test-client` to regenerate test client (from `apps/orm/`)
 6. Run full test suite: `bun test` (from `apps/orm/`)
 7. Run type check: `bunx tsc --noEmit` (from `apps/orm/`)
-8. Update documentation in `docs/`
+8. Update documentation in `apps/docs/content/docs/`
 9. Update the formatter to handle the new construct in `apps/orm/src/formatter/printer.ts` (or `inline-printer.ts`), add formatting tests, and verify idempotency
 10. **Update the VS Code extension** if the feature adds or changes schema syntax:
     - If new keyword/block type: update TextMate grammar (`apps/vscode-extension/syntaxes/cerial.tmLanguage.json`)
@@ -571,7 +571,7 @@ Do NOT use SurrealDB reserved keywords as field names, model names, or object na
 3. Update where types in `apps/orm/src/generators/types/where-generator.ts`
 4. Add unit tests
 5. Add E2E tests
-6. Update `docs/filtering/` page
+6. Update `apps/docs/content/docs/filtering/` page
 7. Update the VS Code extension if the operator introduces new syntax or keywords:
     - Run `cd apps/vscode-extension && bun run test` to verify no regressions
 
@@ -581,7 +581,7 @@ Do NOT use SurrealDB reserved keywords as field names, model names, or object na
 2. Update `SchemaFieldType` in `apps/orm/src/types/common.types.ts`
 3. Update type mappings in generators and validators
 4. Add tests
-5. Update `docs/schema/field-types.md`
+5. Add a page in `apps/docs/content/docs/schema/field-types/` (one file per type)
 6. Update the VS Code extension:
    - Add the type to completion suggestions in `apps/vscode-extension/server/src/providers/completion.ts`
    - Add hover documentation in `apps/vscode-extension/server/src/data/hover-docs.ts`
@@ -595,7 +595,7 @@ Do NOT use SurrealDB reserved keywords as field names, model names, or object na
 2. Update generator to handle the decorator
 3. Update migration generator if it affects DB schema
 4. Add tests
-5. Add page in `docs/schema/decorators/`
+5. Add page in `apps/docs/content/docs/schema/decorators/`
 6. Update the VS Code extension:
    - Add the decorator to completion suggestions in `apps/vscode-extension/server/src/providers/completion.ts`
    - Add hover documentation in `apps/vscode-extension/server/src/data/hover-docs.ts`
@@ -638,7 +638,7 @@ Do NOT use SurrealDB reserved keywords as field names, model names, or object na
 - **Duration** = Time duration. `CerialDuration` wrapper with accessors (`.hours`, `.minutes`, `.seconds`, etc.), `.toString()`, `.compareTo()`, `.toNative()`. Input: `CerialDurationInput = string | CerialDuration | Duration (SDK)`. String format: `'2h30m15s'`. Supports comparison operators and OrderBy
 - **Decimal** = Arbitrary-precision decimal number. `CerialDecimal` wrapper with arithmetic (`.add()`, `.sub()`, `.mul()`, `.div()`), `.toString()`, `.toNumber()` (lossy!), `.toNative()`. Input: `CerialDecimalInput = number | string | CerialDecimal | Decimal (SDK)`. Supports comparison operators and OrderBy
 - **Bytes** = Binary data. `CerialBytes` wrapper with `.toUint8Array()`, `.toBuffer()`, `.toBase64()`, `.toString()`. Input: `CerialBytesInput = Uint8Array | string (base64) | CerialBytes`. Equality-only WHERE operators (no gt/lt). OrderBy supported (lexicographic). No `@default` support
-- **Geometry** = Geospatial data with 7 subtypes via decorators (`@point`, `@line`, `@polygon`, `@multipoint`, `@multiline`, `@multipolygon`, `@collection`). Bare `Geometry` = all subtypes. Multi-type: `Geometry @point @polygon`. CerialGeometry class hierarchy. Point input shorthand: `[lon, lat]`. Equality-only WHERE. No OrderBy. No spatial operators (future feature)
+- **Geometry** = Geospatial data with 7 subtypes via decorators (`@point`, `@line`, `@polygon`, `@multipoint`, `@multiline`, `@multipolygon`, `@geoCollection`). Bare `Geometry` = all subtypes. Multi-type: `Geometry @point @polygon`. CerialGeometry class hierarchy. Point input shorthand: `[lon, lat]`. Equality-only WHERE. No OrderBy. No spatial operators (future feature)
 - **Any type** = `Any` field stores any SurrealDB value. `CerialAny` recursive union (NOT bare TS `any`). No `?`, no `@nullable` (TYPE any already accepts NONE/null). Full WHERE operator set. Excluded from OrderBy. Not allowed in tuple elements
 - **@set decorator** = `String[] @set` generates `set<T>` instead of `array<T>`. Auto-dedup and sort at DB level. Output type `CerialSet<T>` (branded array). Input accepts regular arrays. Not allowed on Decimal[], Object[], Tuple[], Record[]. Mutually exclusive with @distinct/@sort
 - **Model introspection** = `getMetadata()`, `getName()`, `getTableName()` — available on every model instance for runtime metadata access. `getMetadata()` returns full `ModelMetadata` (name, table, fields, relations). `getName()` returns the model name. `getTableName()` returns the SurrealDB table name
@@ -707,5 +707,5 @@ Do NOT use SurrealDB reserved keywords as field names, model names, or object na
 - Extends only works within same schema entry (same generation run). Cross-schema extends is impossible
 - Pick/omit validates against parent's own fields only (not inherited from grandparent)
 - **Monorepo: ORM is a workspace member** — The ORM lives in `apps/orm/`. Root `package.json` has `workspaces: ["apps/orm", "libs/*"]` (NOT `"apps/*"`). Run ORM commands from `apps/orm/` or use `bun run --filter cerial <script>` from repo root
-- **Monorepo: extension IS a workspace member** — The extension is registered as `cerial-vscode` in the workspace (no name collision with ORM's `cerial`). However, it has its own `bun.lock` and manages its own dependencies independently. Run extension commands from `apps/vscode-extension/`
+- **Monorepo: extension IS a workspace member** — The extension is registered as `cerial-vscode` in the workspace (no name collision with ORM's `cerial`). It has no lockfile of its own and resolves through the root `bun.lock` by workspace walk-up. Run extension commands from `apps/vscode-extension/`
 - **Monorepo: release notes locations** — ORM release notes: `apps/docs/content/docs/releases/orm/`. VS Code extension release notes: `apps/docs/content/docs/releases/extension/`. Each package has its own subdirectory with major/minor file hierarchy. GitHub Releases link to these docs pages
