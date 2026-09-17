@@ -18,6 +18,9 @@ on:
       - 'biome.json'
       - '.github/workflows/orm-ci.yml'
 
+permissions:
+  contents: read
+
 concurrency:
   group: orm-ci-${{ github.ref }}
   cancel-in-progress: true

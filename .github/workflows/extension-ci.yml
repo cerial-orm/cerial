@@ -22,6 +22,9 @@ on:
       - 'apps/orm/src/cli/config/types.ts'
       - 'apps/orm/src/cli/validators/**'
 
+permissions:
+  contents: read
+
 jobs:
   build-and-test:
     runs-on: ${{ matrix.os }}
@@ -31,7 +34,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
-      - run: bun install
+      - run: bun install --frozen-lockfile
         working-directory: apps/vscode-extension
       - run: bun run build
         working-directory: apps/vscode-extension
