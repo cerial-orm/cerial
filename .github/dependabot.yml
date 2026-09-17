@@ -1,0 +1,50 @@
+version: 2
+
+updates:
+  # Actions are pinned by commit SHA, so this is the only thing that moves them.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: ci
+
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: chore
+
+  - package-ecosystem: npm
+    directory: /apps/orm
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: chore(orm)
+    ignore:
+      # The SDK major intentionally lags the server major: no 3.x line is
+      # published, and 2.x is the line that supports SurrealDB 3.x servers.
+      # Patch and minor updates are wanted; a major needs a deliberate review
+      # of the compatibility matrix.
+      - dependency-name: surrealdb
+        update-types: [version-update:semver-major]
+
+  - package-ecosystem: npm
+    directory: /apps/vscode-extension
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: chore(extension)
+
+  - package-ecosystem: npm
+    directory: /apps/docs
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: chore(docs)
