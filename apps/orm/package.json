@@ -149,6 +149,7 @@
     "test:e2e": "bun test tests/e2e/ --preload ./tests/e2e/preload.ts",
     "test:full": "bun run generate:test-client && bun run typecheck && bun run test && bun run test:integration && bun run test:e2e",
     "format": "biome check --write .",
+    "format:check": "biome ci .",
     "publish:npm": "npm publish --access public"
   }
 }

@@ -32,7 +32,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
-      - run: bun run format
+      - run: bun run format:check
         working-directory: apps/orm
       - run: bunx tsc --noEmit
         working-directory: apps/orm
