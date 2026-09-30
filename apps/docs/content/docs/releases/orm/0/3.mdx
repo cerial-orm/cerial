@@ -10,7 +10,7 @@ development branch and is not available on npm.
 
 ## 0.3.0
 
-**SurrealDB compatibility:** 3.1.5 | **SDK:** surrealdb 2.0.9
+**SurrealDB compatibility:** 3.3.0 | **SDK:** surrealdb 2.0.9
 
 ### Fixed
 
@@ -49,6 +49,19 @@ development branch and is not available on npm.
 ### Changed
 
 - Upgraded the bundled SurrealDB JavaScript SDK (`surrealdb`) from 2.0.4 to 2.0.9.
+- The supported SurrealDB version moves to 3.3.0. The full suite is tested against
+  it; see the SurrealDB Compatibility page. 0.2.x remains on 3.1.5.
+- **Breaking.** A typed `@id` that SurrealDB cannot generate is now required in
+  `create`. This affects `Record(int)`, `Record(number)`, and tuple and object
+  ids, which were previously optional in the generated `Create` type even though
+  the database rejects a create without them. `Record(uuid)`, `Record(string)`
+  and plain `Record @id` are unchanged and still optional.
+- **Breaking.** Union IDs now require an explicit id in `create`, including unions
+  that contain `string` or `uuid` such as `Record(string, int)` or
+  `Record(uuid, int)`. SurrealDB 3.3.0 refuses to generate a record id when the
+  `id` field is a union type, so omitting the id is now a compile error and would
+  fail at runtime. Plain `Record @id`, `Record(string)` and `Record(uuid)` are
+  unchanged and still generate their id.
 - **Breaking.** Passing a field name that is not on the model to `create`,
   `update`, `updateMany`, `updateUnique` or `upsert` now throws. Code that
   relied on stray keys being ignored must drop them.

@@ -53,7 +53,7 @@ model FlexRecord {
 | `Record @id` | `CerialId<string>` | `string \| CerialId \| RecordId` | Optional |
 | `Record(int) @id` | `CerialId<number>` | `number \| CerialId<number> \| RecordId` | **Required** |
 | `Record(uuid) @id` | `CerialId<string>` | `string \| CerialId \| RecordId` | Optional (auto-generated) |
-| `Record(string, int) @id` | `CerialId<string \| number>` | `string \| number \| CerialId \| RecordId` | Optional (string in union) |
+| `Record(string, int) @id` | `CerialId<string \| number>` | `string \| number \| CerialId \| RecordId` | **Required** (union) |
 
 :::tip
 When `string` or `uuid` is part of the ID type (including plain `Record @id`), the ID field is **optional on create** — SurrealDB auto-generates a value if you don't provide one. For `Record(int) @id`, the ID is **required** since SurrealDB can't auto-generate integers.

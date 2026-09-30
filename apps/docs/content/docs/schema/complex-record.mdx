@@ -48,16 +48,16 @@ Whether the `id` field is required or optional in the create input depends on th
 | ------------------------ | ----------------------- | -------------------------------------- |
 | `Record @id`             | `id?: string`           | SurrealDB auto-generates string IDs    |
 | `Record(string) @id`     | `id?: string`           | SurrealDB auto-generates string IDs    |
-| `Record(uuid) @id`       | `id?: string`           | Cerial injects `rand::uuid::v7()`      |
+| `Record(uuid) @id`       | `id?: string`           | SurrealDB auto-generates uuid          |
 | `Record(int) @id`        | `id: number`            | No auto-generation for integers        |
 | `Record(number) @id`     | `id: number`            | No auto-generation for numbers         |
 | `Record(TupleName) @id`  | `id: TupleNameInput`    | No auto-generation for tuple IDs       |
 | `Record(ObjName) @id`    | `id: ObjNameInput`      | No auto-generation for object IDs      |
 
-The rule is: if `string` is in the type, or it's `uuid` as the **sole** type, or it's a plain `Record @id`, the ID is optional because SurrealDB (or Cerial) can generate one. For everything else, you must provide the ID yourself.
+The rule is: the ID is optional only for a plain `Record @id`, `Record(string)` or `Record(uuid)`, because SurrealDB can generate one. For everything else, you must provide the ID yourself.
 
 :::note
-`uuid` only makes the ID optional when it's the **sole** type in the declaration. In a union like `Record(uuid, int)`, the ID is **required** — the `uuid` optionality rule doesn't apply when combined with other types.
+Union IDs always require an explicit ID, even when the union contains `string` or `uuid`. In a union like `Record(string, int)` or `Record(uuid, int)`, SurrealDB 3.3.0 refuses to generate one.
 :::
 
 ## Practical Examples

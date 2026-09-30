@@ -655,7 +655,7 @@ Do NOT use SurrealDB reserved keywords as field names, model names, or object na
 - `@default(null)` requires `@nullable` — null default on a non-nullable field is invalid
 - `id Record @id` fields skip the "Record needs paired Relation" validation
 - FK fields must NOT use `Record(Type)` — types are inferred from the target model's `@id` type. Explicit `Record(int)` on a FK field is an error
-- Union ID optionality: if `string` or `uuid` is in the union, the ID is optional in create (SurrealDB auto-generates). Otherwise required
+- Union ID optionality: a union `@id` (`Record(string, int)`, `Record(uuid, int)`) is always required in create — SurrealDB 3.3.0 refuses to auto-generate an id when the id type is a union. Only plain `Record @id`, `Record(string)` and `Record(uuid)` are optional
 - `DEFINE FIELD OVERWRITE` is used for typed `@id` fields to allow re-running migrations safely
 - Optional object fields (`Address?`) produce `field?: Address` (NOT `| null` like primitives)
 - `select` within `include` is type-level only - runtime returns full related objects

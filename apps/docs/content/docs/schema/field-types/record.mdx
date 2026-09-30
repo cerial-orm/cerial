@@ -137,11 +137,12 @@ Whether `id` is required or optional in `CreateInput` depends on the typed ID:
 | `Record(int) @id` | **Required** | No auto-generation for integers |
 | `Record(float) @id` | **Required** | No auto-generation for floats |
 | `Record(number) @id` | **Required** | No auto-generation for numbers |
-| `Record(string, int) @id` | Optional | Union contains `string` |
+| `Record(string, int) @id` | **Required** | SurrealDB cannot generate a union ID |
+| `Record(uuid, int) @id` | **Required** | SurrealDB cannot generate a union ID |
 | `Record(int, float) @id` | **Required** | No auto-generatable type in union |
 
 :::tip
-The rule: if `string` or `uuid` appears anywhere in the union, the ID is optional. Otherwise it's required.
+The rule: a union ID is always required, even if it contains `string` or `uuid`. Only a sole `string` or `uuid` (or a plain `Record @id`) is optional.
 :::
 
 ## Filtering
