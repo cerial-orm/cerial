@@ -36,8 +36,21 @@ development branch and is not available on npm.
   query's own model. Callback and manual transaction modes were never affected,
   because both already migrate every model.
 
+- Unknown field names in `data` are now rejected on create and update instead of
+  being silently dropped. A typo such as `{ emial: 'a@b.c' }` used to succeed
+  while writing nothing for that field and reporting no error. It now throws,
+  naming the key and the model.
+
+  A key is unknown only when the model has no such field. Fields that exist but
+  are excluded from an input type for another reason, such as a `@now` field
+  being computed, are still accepted and ignored as before. Sub-keys of
+  `@flexible` object fields are unaffected.
+
 ### Changed
 
+- **Breaking.** Passing a field name that is not on the model to `create`,
+  `update`, `updateMany`, `updateUnique` or `upsert` now throws. Code that
+  relied on stray keys being ignored must drop them.
 - **Breaking.** `BeforeQueryCallback` now receives every model name an operation
   touches instead of a single name, so its signature changes from
   `(modelName: string) => Promise<void>` to `(modelNames: string[]) => Promise<void>`.
