@@ -10,7 +10,7 @@ development branch and is not available on npm.
 
 ## 0.3.0
 
-**SurrealDB compatibility:** 3.1.5 | **SDK:** surrealdb 2.0.4
+**SurrealDB compatibility:** 3.1.5 | **SDK:** surrealdb 2.0.9
 
 ### Fixed
 
@@ -48,6 +48,7 @@ development branch and is not available on npm.
 
 ### Changed
 
+- Upgraded the bundled SurrealDB JavaScript SDK (`surrealdb`) from 2.0.4 to 2.0.9.
 - **Breaking.** Passing a field name that is not on the model to `create`,
   `update`, `updateMany`, `updateUnique` or `upsert` now throws. Code that
   relied on stray keys being ignored must drop them.
