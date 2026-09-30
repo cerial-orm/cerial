@@ -104,13 +104,24 @@ export function validateFieldValue(
   return null;
 }
 
+/** Reject keys that are not fields of the model. Known-but-excluded fields (computed, readonly) are not unknown. */
+function validateKnownKeys(data: Record<string, unknown>, model: ModelMetadata): DataValidationError[] {
+  const known = new Set(model.fields.map((f) => f.name));
+  return Object.keys(data)
+    .filter((key) => !known.has(key))
+    .map((key) => ({
+      field: key,
+      message: `Unknown field '${key}' on model ${model.name} — check the field name against the schema`,
+    }));
+}
+
 /** Validate data for create operation */
 export function validateCreateData(
   data: Record<string, unknown>,
   model: ModelMetadata,
   nestedOps?: Map<string, unknown>,
 ): DataValidationResult {
-  const errors: DataValidationError[] = [];
+  const errors: DataValidationError[] = validateKnownKeys(data, model);
 
   // Build set of Record fields that will be satisfied by nested operations
   const fieldsFromNestedOps = new Set<string>();
@@ -346,16 +357,13 @@ function validateDataUnsetOverlapDeep(
 
 /** Validate data for update operation */
 export function validateUpdateData(data: Record<string, unknown>, model: ModelMetadata): DataValidationResult {
-  const errors: DataValidationError[] = [];
+  const errors: DataValidationError[] = validateKnownKeys(data, model);
 
   for (const [fieldName, value] of Object.entries(data)) {
     if (value === undefined) continue;
 
     const field = model.fields.find((f) => f.name === fieldName);
-    if (!field) {
-      // Unknown field - could be an error or just ignored
-      continue;
-    }
+    if (!field) continue;
 
     // @readonly fields cannot be updated — reject immediately
     if (field.isReadonly) {
