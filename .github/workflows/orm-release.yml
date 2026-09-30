@@ -12,12 +12,35 @@ concurrency:
 permissions:
   contents: write
   id-token: write
+  actions: read
 
 jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.0.0
+
+      # The release job's own `bun run test` covers the unit suites only. The
+      # typecheck, integration and e2e suites that cover query building run in
+      # ORM CI, so the release requires that CI passed on this exact commit
+      # rather than re-running a subset here.
+      - name: Require a passing CI run for this commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          RUN=$(gh api \
+            "repos/${GITHUB_REPOSITORY}/actions/workflows/orm-ci.yml/runs?head_sha=${GITHUB_SHA}&per_page=1" \
+            --jq '.workflow_runs[0] // empty | "\(.status) \(.conclusion) \(.html_url)"')
+          if [ -z "$RUN" ]; then
+            echo "::error::ORM CI has not run for ${GITHUB_SHA}. Run it on that commit before tagging."
+            exit 1
+          fi
+          read -r STATUS CONCLUSION URL <<< "$RUN"
+          if [ "$STATUS" != "completed" ] || [ "$CONCLUSION" != "success" ]; then
+            echo "::error::ORM CI for ${GITHUB_SHA} is $STATUS/$CONCLUSION, not completed/success. $URL"
+            exit 1
+          fi
+          echo "ORM CI passed for ${GITHUB_SHA}: $URL"
 
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.0.2
 
