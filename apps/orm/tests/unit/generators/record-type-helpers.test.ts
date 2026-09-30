@@ -395,16 +395,20 @@ describe('record-type-helpers', () => {
       expect(isIdOptionalInCreate([])).toBe(true);
     });
 
-    it('should return true when string is in the union', () => {
+    it('should return true for string alone', () => {
       expect(isIdOptionalInCreate(['string'])).toBe(true);
     });
 
-    it('should return true when string is in a multi-type union', () => {
-      expect(isIdOptionalInCreate(['string', 'int'])).toBe(true);
+    it('should return false when string is in a multi-type union', () => {
+      expect(isIdOptionalInCreate(['string', 'int'])).toBe(false);
     });
 
-    it('should return true when string is not first in union', () => {
-      expect(isIdOptionalInCreate(['int', 'string'])).toBe(true);
+    it('should return false when string is not first in union', () => {
+      expect(isIdOptionalInCreate(['int', 'string'])).toBe(false);
+    });
+
+    it('should return false for string + uuid union', () => {
+      expect(isIdOptionalInCreate(['string', 'uuid'])).toBe(false);
     });
 
     it('should return true for uuid alone', () => {
@@ -435,7 +439,7 @@ describe('record-type-helpers', () => {
       expect(isIdOptionalInCreate(['int', 'float'])).toBe(false);
     });
 
-    it('should return false for uuid + int (uuid not alone)', () => {
+    it('should return false for uuid + int (SurrealDB cannot generate a union id)', () => {
       expect(isIdOptionalInCreate(['uuid', 'int'])).toBe(false);
     });
 

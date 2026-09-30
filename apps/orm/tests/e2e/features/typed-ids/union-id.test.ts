@@ -46,13 +46,21 @@ describe('E2E Typed IDs: Union ID', () => {
     expect(typeof result.id.id).toBe('number');
   });
 
-  test('UnionIdModel create without id (optional — string in union)', async () => {
+  test('UnionIdModel create without id throws (SurrealDB cannot generate a union id)', async () => {
+    await expect(
+      (async () => {
+        // @ts-expect-error - id is required for union ids
+        await client.db.UnionIdModel.create({ data: { label: 'no-id' } });
+      })(),
+    ).rejects.toThrow();
+  });
+
+  test('UnionIdModel create with explicit id succeeds', async () => {
     const result = await client.db.UnionIdModel.create({
-      data: { label: 'auto-id' },
+      data: { id: 'explicit', label: 'explicit-id' },
     });
 
-    expect(result.id).toBeInstanceOf(CerialId);
-    expect(result.id.id).toBeDefined();
+    expect(result.id.id).toBe('explicit');
   });
 
   test('UnionIdModel findOne by string id', async () => {
