@@ -1,0 +1,52 @@
+---
+title: ORM v0.3.x
+description: Release notes for Cerial ORM v0.3.x.
+---
+
+:::caution
+This version has not been released yet. Everything on this page is on the
+development branch and is not available on npm.
+:::
+
+## 0.3.0
+
+**SurrealDB compatibility:** 3.1.5 | **SDK:** surrealdb 2.0.4
+
+### Fixed
+
+- Nested writes and `include` now migrate the models they reach. Previously only
+  the model you queried was migrated, so the first nested create, nested connect
+  or `include` touching a related model reached a table SurrealDB had never been
+  told about. SurrealDB created that table implicitly and without a schema, and
+  the migration that arrived later applied a schema over rows already written
+  without one.
+
+  Two failures followed, both of which needed manual repair in the database:
+
+  - A field with a server-side default (`@createdAt`, `@updatedAt`, `@uuid`) was
+    missing from rows written before the table was defined, because nothing had
+    yet declared the default. Once the field was defined, every later write to
+    those rows failed with a coercion error reporting that a `datetime` was
+    expected but `NONE` was found.
+  - A `@@unique` index could not be built over rows that already violated it, so
+    the index was never created and duplicate values kept being accepted with
+    nothing reporting a problem.
+
+  Array-mode `$transaction` had the same gap and migrated only each queued
+  query's own model. Callback and manual transaction modes were never affected,
+  because both already migrate every model.
+
+### Changed
+
+- **Breaking.** `BeforeQueryCallback` now receives every model name an operation
+  touches instead of a single name, so its signature changes from
+  `(modelName: string) => Promise<void>` to `(modelNames: string[]) => Promise<void>`.
+  This affects you only if you pass `onBeforeQuery` when constructing the client.
+
+  ```ts
+  // before
+  onBeforeQuery: async (modelName) => log(modelName)
+
+  // after
+  onBeforeQuery: async (modelNames) => modelNames.forEach(log)
+  ```
