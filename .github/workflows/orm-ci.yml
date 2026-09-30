@@ -45,7 +45,19 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.3.0
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.0.2
       - name: Install SurrealDB
-        run: curl -sSf https://install.surrealdb.com | sh -s -- --version v3.0.1
+        env:
+          # Keep in step with docs/surrealdb-compatibility.mdx.
+          # Checksum is of surreal-$SURREAL_VERSION.linux-amd64.tgz from the
+          # GitHub release; re-compute it when bumping the version.
+          SURREAL_VERSION: v3.1.5
+          SURREAL_SHA256: f7d515203ba0010bde3fc6a5706ce7327d356aca293fbba8424d442f5dcb5002
+        run: |
+          curl -sSfL -o surreal.tgz \
+            "https://github.com/surrealdb/surrealdb/releases/download/${SURREAL_VERSION}/surreal-${SURREAL_VERSION}.linux-amd64.tgz"
+          echo "${SURREAL_SHA256}  surreal.tgz" | sha256sum -c -
+          tar -xzf surreal.tgz
+          sudo install -m 755 surreal /usr/local/bin/surreal
+          surreal version
       - name: Start SurrealDB
         run: |
           surreal start --user root --pass root --bind 0.0.0.0:8000 memory &
