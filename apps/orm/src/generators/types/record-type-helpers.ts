@@ -150,12 +150,12 @@ export function getIdCreateInputType(
 
 /**
  * Whether an @id field with given recordIdTypes should be optional in create input.
- * Rules: string in union → optional, uuid alone → optional, otherwise required.
+ * Rules: plain Record, or a sole string or uuid → optional, otherwise required.
+ * SurrealDB 3.3.0 refuses to auto-generate an id when the id type is a union, even one containing string or uuid.
  */
 export function isIdOptionalInCreate(recordIdTypes?: string[]): boolean {
-  if (!recordIdTypes?.length) return true; // plain Record @id → optional (auto-gen string)
-  if (recordIdTypes.includes('string')) return true; // string in union → optional
-  if (recordIdTypes.length === 1 && recordIdTypes[0] === 'uuid') return true; // uuid alone → optional (Cerial injects rand::uuid::v7())
+  if (!recordIdTypes?.length) return true;
+  if (recordIdTypes.length > 1) return false;
 
-  return false; // int, number, tuple, object → required
+  return recordIdTypes[0] === 'string' || recordIdTypes[0] === 'uuid';
 }

@@ -112,8 +112,9 @@ function getOptionalForCreate(model: ModelMetadata): string[] {
     if (field.defaultValue !== undefined) {
       optional.add(field.name);
     }
-    if (field.isId && isIdOptionalInCreate(field.recordIdTypes)) {
-      optional.add(field.name);
+    if (field.isId) {
+      if (isIdOptionalInCreate(field.recordIdTypes)) optional.add(field.name);
+      continue;
     }
     // @createdAt and @updatedAt fields are optional (db can auto-generate)
     if (field.timestampDecorator === 'createdAt' || field.timestampDecorator === 'updatedAt') {
