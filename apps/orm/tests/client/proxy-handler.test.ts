@@ -82,8 +82,8 @@ describe('Proxy Handler', () => {
       clearModelCache(mockSurreal as any);
 
       const calledModels: string[] = [];
-      const globalCallback: BeforeQueryCallback = async (modelName) => {
-        calledModels.push(modelName);
+      const globalCallback: BeforeQueryCallback = async (modelNames) => {
+        calledModels.push(...modelNames);
       };
 
       const options: ProxyOptions = {
@@ -106,12 +106,12 @@ describe('Proxy Handler', () => {
 
       const callOrder: string[] = [];
 
-      const callback1: BeforeQueryCallback = async (modelName) => {
-        callOrder.push(`cb1:${modelName}`);
+      const callback1: BeforeQueryCallback = async (modelNames) => {
+        callOrder.push(`cb1:${modelNames.join(',')}`);
       };
 
-      const callback2: BeforeQueryCallback = async (modelName) => {
-        callOrder.push(`cb2:${modelName}`);
+      const callback2: BeforeQueryCallback = async (modelNames) => {
+        callOrder.push(`cb2:${modelNames.join(',')}`);
       };
 
       const options: ProxyOptions = {
@@ -135,8 +135,8 @@ describe('Proxy Handler', () => {
       const calledModels: string[] = [];
 
       const perModelCallbacks: PerModelCallbacks = {
-        User: async (modelName) => {
-          calledModels.push(`userCallback:${modelName}`);
+        User: async (modelNames) => {
+          calledModels.push(`userCallback:${modelNames.join(',')}`);
         },
       };
 
@@ -190,13 +190,13 @@ describe('Proxy Handler', () => {
 
       const callOrder: string[] = [];
 
-      const globalCallback: BeforeQueryCallback = async (modelName) => {
-        callOrder.push(`global:${modelName}`);
+      const globalCallback: BeforeQueryCallback = async (modelNames) => {
+        callOrder.push(`global:${modelNames.join(',')}`);
       };
 
       const perModelCallbacks: PerModelCallbacks = {
-        User: async (modelName) => {
-          callOrder.push(`perModel:${modelName}`);
+        User: async (modelNames) => {
+          callOrder.push(`perModel:${modelNames.join(',')}`);
         },
       };
 
@@ -220,8 +220,8 @@ describe('Proxy Handler', () => {
 
       const callOrder: string[] = [];
 
-      const globalCallback: BeforeQueryCallback = async (modelName) => {
-        callOrder.push(`global:${modelName}`);
+      const globalCallback: BeforeQueryCallback = async (modelNames) => {
+        callOrder.push(`global:${modelNames.join(',')}`);
       };
 
       const perModelCallbacks: PerModelCallbacks = {

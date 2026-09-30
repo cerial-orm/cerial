@@ -47,6 +47,7 @@ export class CerialQueryPromise<T> implements PromiseLike<T> {
     private readonly _metadata: ModelMetadata,
     private readonly _resultType: QueryResultType,
     private readonly _registry?: ModelRegistry,
+    private readonly _modelNames: string[] = [_metadata.name],
   ) {}
 
   /**
@@ -104,6 +105,11 @@ export class CerialQueryPromise<T> implements PromiseLike<T> {
   /** Get the model registry (used by $transaction for result mapping) */
   get registry(): ModelRegistry | undefined {
     return this._registry;
+  }
+
+  /** Every model the query touches, including relation targets (used by $transaction to migrate them) */
+  get modelNames(): string[] {
+    return this._modelNames;
   }
 
   /**

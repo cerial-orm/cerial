@@ -15,8 +15,8 @@ describe('onBeforeQuery — Single Callback', () => {
 
     beforeAll(async () => {
       client = new CerialClient({
-        onBeforeQuery: async (modelName: string) => {
-          calls.push(modelName);
+        onBeforeQuery: async (modelNames: string[]) => {
+          calls.push(...modelNames);
         },
       });
       await client.connect(testConfig);
@@ -116,8 +116,8 @@ describe('onBeforeQuery — Single Callback', () => {
       await client.connect({
         ...testConfig,
         perModelCallbacks: {
-          User: async (modelName: string) => {
-            userCalls.push(modelName);
+          User: async (modelNames: string[]) => {
+            userCalls.push(...modelNames);
           },
         },
       });

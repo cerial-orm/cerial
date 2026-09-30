@@ -17,7 +17,7 @@ describe('onBeforeQuery — Error Propagation', () => {
 
     beforeAll(async () => {
       client = new CerialClient({
-        onBeforeQuery: async (_modelName: string) => {
+        onBeforeQuery: async (_modelNames: string[]) => {
           throw new Error('Before query failed');
         },
       });
@@ -86,14 +86,14 @@ describe('onBeforeQuery — Error Propagation', () => {
     beforeAll(async () => {
       client = new CerialClient({
         onBeforeQuery: [
-          async (_modelName: string) => {
+          async (_modelNames: string[]) => {
             calls.push('first');
           },
-          async (_modelName: string) => {
+          async (_modelNames: string[]) => {
             calls.push('second-throws');
             throw new Error('Second callback failed');
           },
-          async (_modelName: string) => {
+          async (_modelNames: string[]) => {
             calls.push('third-should-not-run');
           },
         ],
@@ -128,7 +128,7 @@ describe('onBeforeQuery — Error Propagation', () => {
 
     beforeAll(async () => {
       client = new CerialClient({
-        onBeforeQuery: async (_modelName: string) => {
+        onBeforeQuery: async (_modelNames: string[]) => {
           calls.push('global-throws');
           throw new Error('Global callback failed');
         },
@@ -136,7 +136,7 @@ describe('onBeforeQuery — Error Propagation', () => {
       await client.connect({
         ...testConfig,
         perModelCallbacks: {
-          User: async (_modelName: string) => {
+          User: async (_modelNames: string[]) => {
             calls.push('per-model-should-not-run');
           },
         },
@@ -172,7 +172,7 @@ describe('onBeforeQuery — Error Propagation', () => {
       await client.connect({
         ...testConfig,
         perModelCallbacks: {
-          User: async (_modelName: string) => {
+          User: async (_modelNames: string[]) => {
             throw new Error('Per-model User failed');
           },
         },

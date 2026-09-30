@@ -35,6 +35,7 @@ export {
   type NestedOperation,
 } from './nested-builder';
 
+export { collectRelatedModelNames } from './related-models';
 export {
   buildForwardRelationSelect,
   buildRelationSelectFields,

@@ -16,13 +16,13 @@ describe('onBeforeQuery — Multiple Callbacks', () => {
     beforeAll(async () => {
       client = new CerialClient({
         onBeforeQuery: [
-          async (_modelName: string) => {
+          async (_modelNames: string[]) => {
             order.push('first');
           },
-          async (_modelName: string) => {
+          async (_modelNames: string[]) => {
             order.push('second');
           },
-          async (_modelName: string) => {
+          async (_modelNames: string[]) => {
             order.push('third');
           },
         ],
@@ -58,11 +58,11 @@ describe('onBeforeQuery — Multiple Callbacks', () => {
       const receivedNames: string[] = [];
       const trackingClient = new CerialClient({
         onBeforeQuery: [
-          async (modelName: string) => {
-            receivedNames.push(`cb1:${modelName}`);
+          async (modelNames: string[]) => {
+            receivedNames.push(`cb1:${modelNames.join(',')}`);
           },
-          async (modelName: string) => {
-            receivedNames.push(`cb2:${modelName}`);
+          async (modelNames: string[]) => {
+            receivedNames.push(`cb2:${modelNames.join(',')}`);
           },
         ],
       });
@@ -84,14 +84,14 @@ describe('onBeforeQuery — Multiple Callbacks', () => {
 
     beforeAll(async () => {
       client = new CerialClient({
-        onBeforeQuery: async (_modelName: string) => {
+        onBeforeQuery: async (_modelNames: string[]) => {
           order.push('global');
         },
       });
       await client.connect({
         ...testConfig,
         perModelCallbacks: {
-          User: async (_modelName: string) => {
+          User: async (_modelNames: string[]) => {
             order.push('per-model-user');
           },
         },
@@ -136,10 +136,10 @@ describe('onBeforeQuery — Multiple Callbacks', () => {
 
       const client = new CerialClient({
         onBeforeQuery: [
-          async (_modelName: string) => {
+          async (_modelNames: string[]) => {
             order.push('global-1');
           },
-          async (_modelName: string) => {
+          async (_modelNames: string[]) => {
             order.push('global-2');
           },
         ],
@@ -148,10 +148,10 @@ describe('onBeforeQuery — Multiple Callbacks', () => {
         ...testConfig,
         perModelCallbacks: {
           User: [
-            async (_modelName: string) => {
+            async (_modelNames: string[]) => {
               order.push('per-user-1');
             },
-            async (_modelName: string) => {
+            async (_modelNames: string[]) => {
               order.push('per-user-2');
             },
           ],

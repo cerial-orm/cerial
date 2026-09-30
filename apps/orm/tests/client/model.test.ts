@@ -31,10 +31,10 @@ describe('Model Class', () => {
   describe('BeforeQueryCallback', () => {
     test('callback receives model name as parameter', async () => {
       const mockSurreal = createMockSurreal();
-      let receivedModelName: string | undefined;
+      let receivedModelName: string[] | undefined;
 
-      const callback: BeforeQueryCallback = async (modelName) => {
-        receivedModelName = modelName;
+      const callback: BeforeQueryCallback = async (modelNames) => {
+        receivedModelName = modelNames;
       };
 
       const model = new Model(mockSurreal as any, userMetadata, undefined, {
@@ -43,7 +43,7 @@ describe('Model Class', () => {
 
       await model.findMany();
 
-      expect(receivedModelName).toBe('User');
+      expect(receivedModelName).toEqual(['User']);
     });
 
     test('supports single callback function', async () => {
@@ -69,16 +69,16 @@ describe('Model Class', () => {
       const mockSurreal = createMockSurreal();
       const callOrder: string[] = [];
 
-      const callback1: BeforeQueryCallback = async (modelName) => {
-        callOrder.push(`callback1:${modelName}`);
+      const callback1: BeforeQueryCallback = async (modelNames) => {
+        callOrder.push(`callback1:${modelNames.join(',')}`);
       };
 
-      const callback2: BeforeQueryCallback = async (modelName) => {
-        callOrder.push(`callback2:${modelName}`);
+      const callback2: BeforeQueryCallback = async (modelNames) => {
+        callOrder.push(`callback2:${modelNames.join(',')}`);
       };
 
-      const callback3: BeforeQueryCallback = async (modelName) => {
-        callOrder.push(`callback3:${modelName}`);
+      const callback3: BeforeQueryCallback = async (modelNames) => {
+        callOrder.push(`callback3:${modelNames.join(',')}`);
       };
 
       const model = new Model(mockSurreal as any, userMetadata, undefined, {

@@ -128,7 +128,9 @@ export class ${clientClassName} {
 
     // Combine migration callback with user callbacks
     const allCallbacks: BeforeQueryCallback[] = [
-      async (modelName: string) => await this.ensureModelMigrated(modelName as ModelName),
+      async (modelNames: string[]) => {
+        await Promise.all(modelNames.map(name => this.ensureModelMigrated(name as ModelName)));
+      },
       ...this._userCallbacks,
     ];
 
@@ -205,7 +207,9 @@ ${modelAccessors}
     // Update proxy options with per-model callbacks
     if (this._perModelCallbacks) {
       const allCallbacks: BeforeQueryCallback[] = [
-        async (modelName: string) => await this.ensureModelMigrated(modelName as ModelName),
+        async (modelNames: string[]) => {
+          await Promise.all(modelNames.map(name => this.ensureModelMigrated(name as ModelName)));
+        },
         ...this._userCallbacks,
       ];
 
@@ -521,7 +525,7 @@ ${_generateTransactionOverloads()}
       // Functions could access any model — migrate all
       await this.ensureMigrated();
     } else {
-      const modelNames = new Set(queryItems.map(q => q.metadata.name));
+      const modelNames = new Set(queryItems.flatMap(q => q.modelNames));
       await Promise.all([...modelNames].map(name => this.ensureModelMigrated(name as ModelName)));
     }
 
