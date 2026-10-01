@@ -1,0 +1,18 @@
+#!/usr/bin/env bun
+// Refuses a commit message that says something other than what the change does
+// to the code and why. Git passes the path of the prepared message.
+
+import { checkMessage } from './message.ts';
+import { printRefusals } from './report.ts';
+
+const path = process.argv[2];
+if (path === undefined) {
+  process.stderr.write('\nNo commit message file was given.\n\n');
+  process.exit(1);
+}
+
+const refusals = checkMessage(await Bun.file(path).text());
+if (refusals.length > 0) {
+  printRefusals('This commit message is refused.', refusals);
+  process.exit(1);
+}

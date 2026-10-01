@@ -1,0 +1,10 @@
+{
+  "as-any": {
+    "apps/orm/tests/client": 56,
+    "apps/orm/tests/unit": 31,
+    "apps/orm/tests/e2e": 9,
+    "apps/orm/tests/integration": 3,
+    "apps/orm/src": 9,
+    "apps/vscode-extension": 1
+  }
+}

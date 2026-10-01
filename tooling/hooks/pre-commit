@@ -1,0 +1,21 @@
+#!/usr/bin/env bun
+// Refuses a commit that carries an unfinished marker, a planning identifier, or
+// a workspace that does not verify. Installed by pointing git at this directory.
+
+import { printRefusals } from './report.ts';
+import { scanStagedState } from './repo-scans.ts';
+import { readStaged, scanFiles } from './scan.ts';
+import { runVerify } from './verify.ts';
+
+const staged = readStaged();
+const refusals = [...staged.refusals, ...scanFiles(staged.files), ...scanStagedState(staged.files)];
+if (refusals.length > 0) {
+  printRefusals('This commit is refused by the staged-tree scans.', refusals);
+  process.exit(1);
+}
+
+const verify = runVerify();
+if (!verify.ok) {
+  process.stderr.write(`\nThis commit is refused by the verify.\n\n  ${verify.detail}\n\n`);
+  process.exit(1);
+}

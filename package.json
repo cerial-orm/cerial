@@ -9,6 +9,7 @@
     "libs/*"
   ],
   "scripts": {
+    "setup": "bun run tooling/hooks/install.ts",
     "format": "biome check --write .",
     "orm:build": "bun run --filter cerial build",
     "orm:generate": "bun run --filter cerial generate:test-client",
