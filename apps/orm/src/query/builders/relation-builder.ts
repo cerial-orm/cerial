@@ -192,7 +192,18 @@ function buildRelationSelectFieldsInternal(
     // Find the relation field
     const relationField = model.fields.find((f) => f.name === relationName && f.type === 'relation' && f.relationInfo);
 
-    if (!relationField) continue;
+    if (!relationField) {
+      const known = model.fields.find((f) => f.name === relationName);
+      if (!known) {
+        throw new Error(
+          `Invalid include: Unknown field '${relationName}' on model ${model.name} — check the field name against the schema`,
+        );
+      }
+
+      throw new Error(
+        `Invalid include: '${relationName}' on model ${model.name} is a ${known.type} field, not a relation — only relation fields can be included`,
+      );
+    }
 
     const options = typeof includeValue === 'object' ? includeValue : undefined;
 
@@ -251,6 +262,10 @@ export function combineSelectWithIncludes(
   registry?: ModelRegistry,
 ): string {
   if (!registry) {
+    if (include && Object.values(include).some(Boolean)) {
+      throw new Error('Invalid include: a model registry is required to resolve includes');
+    }
+
     return baseSelect;
   }
 
