@@ -54,6 +54,12 @@ development branch and is not available on npm.
 
 ### Changed
 
+- **Breaking.** An `include` key that does not name a relation on the model now
+  throws instead of being quietly dropped. A typo used to return a result with
+  the relation simply missing, which was indistinguishable from a record that had
+  no related rows. A key naming a real field of the wrong kind, such as a scalar,
+  gets its own message saying what the field actually is. Setting a relation to
+  `false` or `undefined` is still an opt-out, not an error.
 - Upgraded the bundled SurrealDB JavaScript SDK (`surrealdb`) from 2.0.4 to 2.0.9.
 - The supported SurrealDB version moves to 3.3.0. The full suite is tested against
   it; see the SurrealDB Compatibility page. 0.2.x remains on 3.1.5.
