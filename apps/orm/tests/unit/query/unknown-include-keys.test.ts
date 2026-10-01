@@ -72,8 +72,13 @@ describe('unknown include keys', () => {
     );
   });
 
-  test('a bad key with a falsy value is still an opt-out', () => {
-    expect(() => compileFindMany(author, { include: bad({ psots: false }) }, registry)).not.toThrow();
+  test('a bad key throws even with a falsy value', () => {
+    expect(() => compileFindMany(author, { include: bad({ psots: false }) }, registry)).toThrow(
+      /Unknown field 'psots'/,
+    );
+    expect(() => compileFindMany(author, { include: bad({ psots: undefined }) }, registry)).toThrow(
+      /Unknown field 'psots'/,
+    );
   });
 
   test('false and undefined values opt out silently', () => {

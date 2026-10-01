@@ -187,8 +187,6 @@ function buildRelationSelectFieldsInternal(
   const fields: string[] = [];
 
   for (const [relationName, includeValue] of Object.entries(include)) {
-    if (!includeValue) continue;
-
     // Find the relation field
     const relationField = model.fields.find((f) => f.name === relationName && f.type === 'relation' && f.relationInfo);
 
@@ -204,6 +202,8 @@ function buildRelationSelectFieldsInternal(
         `Invalid include: '${relationName}' on model ${model.name} is a ${known.type} field, not a relation — only relation fields can be included`,
       );
     }
+
+    if (!includeValue) continue;
 
     const options = typeof includeValue === 'object' ? includeValue : undefined;
 
