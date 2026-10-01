@@ -14,6 +14,12 @@ development branch and is not available on npm.
 
 ### Fixed
 
+- Deleting a record now prepares its dependent models first. A `deleteMany` or
+  `deleteUnique` that cascades to a model nothing had touched yet failed with an
+  error saying the dependent table did not exist, instead of deleting. It
+  affected every `@onDelete` strategy that reaches the dependent table, including
+  `Restrict`, and was most likely to appear as the first delete a process ran.
+
 - Nested writes and `include` now migrate the models they reach. Previously only
   the model you queried was migrated, so the first nested create, nested connect
   or `include` touching a related model reached a table SurrealDB had never been
