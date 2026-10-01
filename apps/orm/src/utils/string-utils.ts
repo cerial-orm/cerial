@@ -33,9 +33,11 @@ export function escapeString(str: string): string {
   return str.replace(/'/g, "\\'").replace(/"/g, '\\"');
 }
 
-/** Check if string is a valid identifier */
-export function isValidIdentifier(str: string): boolean {
-  return /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(str);
+/** Backtick-quote a dynamic object key for SurrealQL unless it is a plain identifier */
+export function quoteSubKey(key: string): string {
+  if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(key)) return key;
+
+  return `\`${key.replace(/[\\`]/g, '\\$&')}\``;
 }
 
 /** Capitalize first letter */

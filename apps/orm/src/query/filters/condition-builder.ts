@@ -17,6 +17,7 @@ import { CerialDuration } from '../../utils/cerial-duration';
 import { CerialGeometry } from '../../utils/cerial-geometry';
 import { CerialId, isRecordIdInput } from '../../utils/cerial-id';
 import { CerialUuid } from '../../utils/cerial-uuid';
+import { quoteSubKey } from '../../utils/string-utils';
 import { isObject } from '../../utils/type-utils';
 import { joinFragments } from '../compile/fragment';
 import type { QueryFragment } from '../compile/types';
@@ -267,7 +268,7 @@ export function buildObjectCondition(
     // Find sub-field metadata
     const subField = objectInfo.fields.find((f) => f.name === key);
 
-    const subPath = `${fieldPath}.${key}`;
+    const subPath = `${fieldPath}.${subField ? key : quoteSubKey(key)}`;
 
     // Unknown field (not in metadata) — pass through for @flexible objects
     if (!subField) {
@@ -392,7 +393,7 @@ function buildObjectConditionForClosure(
 
     const subField = objectInfo.fields.find((f) => f.name === key);
 
-    const subPath = `${closureVar}.${key}`;
+    const subPath = `${closureVar}.${subField ? key : quoteSubKey(key)}`;
 
     // Unknown field (not in metadata) — pass through for @flexible objects
     if (!subField) {

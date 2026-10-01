@@ -7,7 +7,6 @@ import {
   capitalize,
   escapeRegex,
   escapeString,
-  isValidIdentifier,
   toCamelCase,
   toPascalCase,
   toSnakeCase,
@@ -49,16 +48,6 @@ describe('string-utils', () => {
     test('escapes quotes', () => {
       expect(escapeString("it's")).toBe("it\\'s");
       expect(escapeString('say "hello"')).toBe('say \\"hello\\"');
-    });
-  });
-
-  describe('isValidIdentifier', () => {
-    test('validates identifiers', () => {
-      expect(isValidIdentifier('user')).toBe(true);
-      expect(isValidIdentifier('user_name')).toBe(true);
-      expect(isValidIdentifier('_private')).toBe(true);
-      expect(isValidIdentifier('123invalid')).toBe(false);
-      expect(isValidIdentifier('has-dash')).toBe(false);
     });
   });
 

@@ -14,6 +14,7 @@ import type {
   WhereClause,
 } from '../../types';
 import { isNone, NONE } from '../../utils/none';
+import { quoteSubKey } from '../../utils/string-utils';
 import type { CompiledQuery } from '../compile/types';
 import { createCompileContext, type FilterCompileContext } from '../compile/var-allocator';
 import { transformWhereClause } from '../filters/transformer';
@@ -434,9 +435,12 @@ function buildObjectMergeClauses(
   for (const [subKey, subValue] of Object.entries(data)) {
     if (subValue === undefined) continue;
 
+    const declared = objectInfo.fields.some((f) => f.name === subKey);
+    const keyText = declared ? subKey : quoteSubKey(subKey);
+
     // NONE sentinel in sub-field (from unset merge) → emit dot-notation NONE
     if (isNone(subValue)) {
-      setParts.push(`${fieldPath}.${subKey} = NONE`);
+      setParts.push(`${fieldPath}.${keyText} = NONE`);
       continue;
     }
 
@@ -449,7 +453,7 @@ function buildObjectMergeClauses(
         setParts.push(`${subPath} = ${varBinding.placeholder}`);
         Object.assign(setVars, varBinding.vars);
       } else {
-        setParts.push(`${fieldPath}.${subKey} = NONE`);
+        setParts.push(`${fieldPath}.${keyText} = NONE`);
       }
       continue;
     }
@@ -460,7 +464,7 @@ function buildObjectMergeClauses(
     if (!subField) {
       if (!isFlexible) continue;
 
-      const subPath = `${fieldPath}.${subKey}`;
+      const subPath = `${fieldPath}.${keyText}`;
       const varBinding = ctx.bind(subPath.replace(/\./g, '_'), 'set', subValue, 'string');
       setParts.push(`${subPath} = ${varBinding.placeholder}`);
       Object.assign(setVars, varBinding.vars);

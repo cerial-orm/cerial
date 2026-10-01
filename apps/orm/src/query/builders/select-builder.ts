@@ -16,6 +16,7 @@ import type {
   TupleFieldMetadata,
   WhereClause,
 } from '../../types';
+import { quoteSubKey } from '../../utils/string-utils';
 import type { CompiledQuery } from '../compile/types';
 import { transformWhereClause } from '../filters/transformer';
 import { transformOrValidateRecordId } from '../transformers';
@@ -43,10 +44,10 @@ function buildObjectSelect(fieldPath: string, selectValue: Record<string, unknow
     if (!val) continue;
 
     if (val === true) {
-      subFields.push(key);
+      subFields.push(quoteSubKey(key));
     } else if (typeof val === 'object' && val !== null) {
       // Nested object sub-select
-      const inner = buildObjectSelectInner(key, val as Record<string, unknown>);
+      const inner = buildObjectSelectInner(quoteSubKey(key), val as Record<string, unknown>);
       if (inner) subFields.push(inner);
     }
   }
@@ -64,9 +65,9 @@ function buildObjectSelectInner(fieldName: string, selectValue: Record<string, u
     if (!val) continue;
 
     if (val === true) {
-      subFields.push(key);
+      subFields.push(quoteSubKey(key));
     } else if (typeof val === 'object' && val !== null) {
-      const inner = buildObjectSelectInner(key, val as Record<string, unknown>);
+      const inner = buildObjectSelectInner(quoteSubKey(key), val as Record<string, unknown>);
       if (inner) subFields.push(inner);
     }
   }
@@ -241,7 +242,7 @@ export function buildSelectFields(
 /** Recursively build order by parts with dot notation */
 function buildOrderByParts(prefix: string, orderBy: Record<string, unknown>, parts: string[]): void {
   for (const [field, directionOrNested] of Object.entries(orderBy)) {
-    const path = prefix ? `${prefix}.${field}` : field;
+    const path = prefix ? `${prefix}.${quoteSubKey(field)}` : quoteSubKey(field);
 
     if (typeof directionOrNested === 'string') {
       parts.push(`${path} ${directionOrNested.toUpperCase()}`);
