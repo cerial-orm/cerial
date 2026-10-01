@@ -54,6 +54,24 @@ development branch and is not available on npm.
 
 ### Changed
 
+- **Breaking.** `select`, `orderBy`, `limit` and `offset` are now validated before
+  a query is built. A field name the model does not have is rejected in `select`
+  and `orderBy`, including sub-keys of object and tuple selects. A typo used to
+  return rows with the field quietly missing, or in `orderBy` to return rows in
+  insertion order.
+
+  Also rejected now: ordering by a relation field, which SurrealDB silently
+  ignores because it does not resolve record links in `ORDER BY`; a sort
+  direction other than `asc` or `desc`; a nested path under a field that has no
+  sub-fields; and a `limit` or `offset` that is not a non-negative integer.
+
+  Unaffected: `@flexible` object fields still accept undeclared sub-keys,
+  ordering by a sub-field of a declared object still works, and `0` remains a
+  valid `limit` and `offset`.
+- **Breaking.** A key that does not exist is now rejected in `select`, `orderBy`
+  and `include` whatever its value, so `{ psots: false }` is an error rather than
+  being read as opting out of a relation that was never there. Setting a key that
+  *does* exist to a falsy value still opts out silently.
 - **Breaking.** An `include` key that does not name a relation on the model now
   throws instead of being quietly dropped. A typo used to return a result with
   the relation simply missing, which was indistinguishable from a record that had
