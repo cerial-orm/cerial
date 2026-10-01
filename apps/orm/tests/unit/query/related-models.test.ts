@@ -100,6 +100,102 @@ describe('collectRelatedModelNames', () => {
   });
 });
 
+const onDeleteRegistry = parseModelRegistry(`
+model Parent {
+  id Record @id
+  cascades Relation[] @model(CascadeChild)
+  setNulls Relation[] @model(SetNullChild)
+  setNones Relation[] @model(SetNoneChild)
+  restricts Relation[] @model(RestrictChild)
+  noActions Relation[] @model(NoActionChild)
+}
+
+model CascadeChild {
+  id Record @id
+  parentId Record
+  parent Relation @field(parentId) @model(Parent)
+  grandchildren Relation[] @model(Grandchild)
+}
+
+model Grandchild {
+  id Record @id
+  cascadeChildId Record
+  cascadeChild Relation @field(cascadeChildId) @model(CascadeChild)
+}
+
+model SetNullChild {
+  id Record @id
+  parentId Record? @nullable
+  parent Relation? @field(parentId) @model(Parent) @onDelete(SetNull)
+}
+
+model SetNoneChild {
+  id Record @id
+  parentId Record?
+  parent Relation? @field(parentId) @model(Parent) @onDelete(SetNone)
+}
+
+model RestrictChild {
+  id Record @id
+  parentId Record?
+  parent Relation? @field(parentId) @model(Parent) @onDelete(Restrict)
+}
+
+model NoActionChild {
+  id Record @id
+  parentId Record?
+  parent Relation? @field(parentId) @model(Parent) @onDelete(NoAction)
+}
+`);
+
+describe('collectRelatedModelNames for deletes', () => {
+  test('adds Cascade, SetNull, SetNone and Restrict dependents but not NoAction', () => {
+    const names = collectRelatedModelNames(onDeleteRegistry.Parent!, onDeleteRegistry, { isDelete: true });
+
+    expect(new Set(names)).toEqual(
+      new Set(['Parent', 'CascadeChild', 'SetNullChild', 'SetNoneChild', 'RestrictChild']),
+    );
+  });
+
+  test('is not transitive: the builder does not emit statements for grandchildren', () => {
+    const names = collectRelatedModelNames(onDeleteRegistry.Parent!, onDeleteRegistry, { isDelete: true });
+
+    expect(names).not.toContain('Grandchild');
+  });
+
+  test('adds the dependents of the queried model only', () => {
+    expect(collectRelatedModelNames(onDeleteRegistry.CascadeChild!, onDeleteRegistry, { isDelete: true })).toEqual([
+      'CascadeChild',
+      'Grandchild',
+    ]);
+  });
+
+  test('adds nothing for a model without dependents', () => {
+    expect(collectRelatedModelNames(onDeleteRegistry.Grandchild!, onDeleteRegistry, { isDelete: true })).toEqual([
+      'Grandchild',
+    ]);
+  });
+
+  test('does not add dependents when the operation is not a delete', () => {
+    expect(collectRelatedModelNames(onDeleteRegistry.Parent!, onDeleteRegistry, {})).toEqual(['Parent']);
+  });
+
+  test('returns only the queried model when there is no registry', () => {
+    expect(collectRelatedModelNames(post, undefined, { isDelete: true })).toEqual(['Post']);
+  });
+
+  test('deleteMany and deleteUnique hand dependents to the before-query hook', async () => {
+    for (const run of [
+      (m: Model) => m.deleteMany({ where: { name: 'a' } }),
+      (m: Model) => m.deleteUnique({ where: { id: 'author:1' } }),
+    ]) {
+      const names = await hookedNames(run, registry.Author!);
+
+      expect(new Set(names)).toEqual(new Set(['Author', 'Post']));
+    }
+  });
+});
+
 describe('Model passes every touched model to the before-query hook', () => {
   test('plain create', async () => {
     expect(await hookedNames((m) => m.create({ data: { title: 't', authorId: 'author:1' } }))).toEqual(['Post']);
