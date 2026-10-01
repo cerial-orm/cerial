@@ -55,10 +55,29 @@ import { applyFieldDefaults, transformData, transformOrValidateRecordId } from '
 import {
   validateCreateData,
   validateDataUnsetOverlap,
+  validateOrderBy,
+  validatePagination,
+  validateSelect,
   validateUnset,
   validateUpdateData,
   validateWhere,
 } from './validators';
+
+/** Throw on select/orderBy/limit/offset values the model cannot honour, so a typo is not silently dropped. */
+function assertValidReadOptions(
+  model: ModelMetadata,
+  options: { select?: object; orderBy?: object; limit?: number; offset?: number },
+): void {
+  const checks = [
+    ['select', validateSelect(options.select, model)],
+    ['orderBy', validateOrderBy(options.orderBy, model)],
+    ['limit/offset', validatePagination(options.limit, options.offset)],
+  ] as const;
+
+  for (const [context, errors] of checks) {
+    if (errors.length) throw new Error(`Invalid ${context}: ${errors.map((e) => e.message).join(', ')}`);
+  }
+}
 
 /** Extended find options with include support */
 export interface FindOneOptionsWithInclude extends FindOneOptions {
@@ -90,6 +109,8 @@ export class QueryBuilder<T extends Record<string, unknown>> {
 
   /** Find a single record */
   async findOne(options: FindOneOptionsWithInclude = {}): Promise<T | null> {
+    assertValidReadOptions(this.model, options);
+
     // Validate where clause
     const validation = validateWhere(options.where, this.model);
     if (!validation.valid)
@@ -105,6 +126,8 @@ export class QueryBuilder<T extends Record<string, unknown>> {
   async findUnique(options: FindUniqueOptionsWithInclude): Promise<T | null> {
     const { where } = options;
 
+    assertValidReadOptions(this.model, options);
+
     // Validate the entire where clause (including unique fields)
     // The unique field validation is handled in buildFindUniqueQuery
     const validation = validateWhere(where, this.model);
@@ -119,6 +142,8 @@ export class QueryBuilder<T extends Record<string, unknown>> {
 
   /** Find multiple records */
   async findMany(options: FindManyOptionsWithInclude = {}): Promise<T[]> {
+    assertValidReadOptions(this.model, options);
+
     // Validate where clause
     const validation = validateWhere(options.where, this.model);
     if (!validation.valid)
@@ -133,6 +158,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
   /** Create a new record */
   async create(options: CreateOptions<Partial<T>>): Promise<T | null> {
     const { data, select } = options;
+    assertValidReadOptions(this.model, { select });
 
     // Extract nested operations from the data
     const { cleanData, nestedOps } = extractNestedOperations(data as Record<string, unknown>, this.model);
@@ -164,6 +190,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
   /** Update records matching where clause */
   async updateMany(options: UpdateOptions<Partial<T>>): Promise<T[]> {
     const { where, data, select, unset } = options;
+    assertValidReadOptions(this.model, { select });
 
     // Validate where clause
     const whereValidation = validateWhere(where, this.model);
@@ -223,6 +250,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     return?: R;
   }): Promise<UpdateUniqueResult<T, R>> {
     const { where, data, select, include, return: returnOption, unset } = options;
+    assertValidReadOptions(this.model, { select });
 
     // Validate where clause
     const whereValidation = validateWhere(where, this.model);
@@ -461,6 +489,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     return?: R;
   }): Promise<unknown> {
     const { where, create: createData, update: updateData, unset, select, include, return: returnOption } = options;
+    assertValidReadOptions(this.model, { select });
 
     // Validate where clause
     const whereValidation = validateWhere(where, this.model);
@@ -661,6 +690,7 @@ export function compileFindOne(
   options: FindOneOptionsWithInclude = {},
   registry?: ModelRegistry,
 ): CompiledQueryDescriptor {
+  assertValidReadOptions(model, options);
   const validation = validateWhere(options.where, model);
   if (!validation.valid) throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
 
@@ -676,6 +706,7 @@ export function compileFindUnique(
   options: FindUniqueOptionsWithInclude,
   registry?: ModelRegistry,
 ): CompiledQueryDescriptor {
+  assertValidReadOptions(model, options);
   const validation = validateWhere(options.where, model);
   if (!validation.valid) throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
 
@@ -691,6 +722,7 @@ export function compileFindMany(
   options: FindManyOptionsWithInclude = {},
   registry?: ModelRegistry,
 ): CompiledQueryDescriptor {
+  assertValidReadOptions(model, options);
   const validation = validateWhere(options.where, model);
   if (!validation.valid) throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
 
@@ -707,6 +739,7 @@ export function compileCreate(
   registry?: ModelRegistry,
 ): CompiledQueryDescriptor {
   const { data, select } = options;
+  assertValidReadOptions(model, { select });
 
   const { cleanData, nestedOps } = extractNestedOperations(data, model);
   const dataWithDefaults = applyFieldDefaults(cleanData, model);
@@ -735,6 +768,7 @@ export function compileUpdateMany(
   registry?: ModelRegistry,
 ): CompiledQueryDescriptor {
   const { where, data, select, unset } = options;
+  assertValidReadOptions(model, { select });
 
   const whereValidation = validateWhere(where, model);
   if (!whereValidation.valid)
@@ -784,6 +818,7 @@ export function compileUpdateUnique(
   registry?: ModelRegistry,
 ): CompiledQueryDescriptor {
   const { where, data, select, include, return: returnOption, unset } = options;
+  assertValidReadOptions(model, { select });
 
   const whereValidation = validateWhere(where, model);
   if (!whereValidation.valid)
@@ -955,6 +990,7 @@ export function compileUpsert(
   registry?: ModelRegistry,
 ): CompiledQueryDescriptor {
   const { where, create: createData, update: updateData, unset, select, include, return: returnOption } = options;
+  assertValidReadOptions(model, { select });
 
   const whereValidation = validateWhere(where, model);
   if (!whereValidation.valid)

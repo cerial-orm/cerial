@@ -10,5 +10,7 @@ export {
   validateUnset,
   validateUpdateData,
 } from './data-validator';
+export type { SelectValidationError } from './select-validator';
+export { validateOrderBy, validatePagination, validateSelect } from './select-validator';
 export type { ValidationError, WhereValidationResult } from './where-validator';
 export { validateFieldFilter, validateWhere, validateWhereClause } from './where-validator';

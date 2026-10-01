@@ -80,7 +80,10 @@ function buildObjectSelectInner(fieldName: string, selectValue: Record<string, u
  * Resolve a tuple element by its select key (index or name).
  * The select type allows both numeric index keys and named keys.
  */
-function resolveElementBySelectKey(key: string, elements: TupleElementMetadata[]): TupleElementMetadata | undefined {
+export function resolveElementBySelectKey(
+  key: string,
+  elements: TupleElementMetadata[],
+): TupleElementMetadata | undefined {
   // Try numeric index first
   const numKey = Number(key);
   if (!Number.isNaN(numKey)) return elements.find((e) => e.index === numKey);
@@ -249,7 +252,7 @@ function buildOrderByParts(prefix: string, orderBy: Record<string, unknown>, par
   }
 }
 
-/** Build ORDER BY clause - supports nested relation/object ordering like { author: { name: 'asc' } } */
+/** Build ORDER BY clause - supports nested object ordering like { address: { city: 'asc' } } */
 export function buildOrderBy(orderBy: OrderByClause | undefined): string {
   if (!orderBy) return '';
 
