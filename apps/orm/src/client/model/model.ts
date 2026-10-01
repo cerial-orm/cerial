@@ -280,7 +280,7 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
   /** Delete records matching where clause */
   deleteMany(options: DeleteManyOptions & { txn?: CerialTransaction }): CerialQueryPromise<number> {
     const { txn, ...queryOptions } = options;
-    const modelNames = collectRelatedModelNames(this.metadata, this.registry, {});
+    const modelNames = collectRelatedModelNames(this.metadata, this.registry, { isDelete: true });
     const compiled = compileDeleteMany(this.metadata, queryOptions, this.registry);
 
     return new CerialQueryPromise<number>(
@@ -312,7 +312,7 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
     txn?: CerialTransaction;
   }): CerialQueryPromise<DeleteUniqueResult<T, R>> {
     const { txn, ...queryOptions } = options;
-    const modelNames = collectRelatedModelNames(this.metadata, this.registry, {});
+    const modelNames = collectRelatedModelNames(this.metadata, this.registry, { isDelete: true });
     const compiled = compileDeleteUnique(this.metadata, queryOptions, this.registry);
 
     return new CerialQueryPromise<DeleteUniqueResult<T, R>>(

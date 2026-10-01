@@ -47,7 +47,7 @@ export function buildDeleteQueryWithReturn(model: ModelMetadata, where: WhereCla
  * Find all models that have relations pointing to the given model
  * Returns info about how to handle deletion for each relation
  */
-function findDependentRelations(
+export function findDependentRelations(
   targetModelName: string,
   registry: ModelRegistry,
 ): Array<{

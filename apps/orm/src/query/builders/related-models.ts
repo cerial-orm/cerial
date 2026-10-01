@@ -4,6 +4,7 @@
  */
 
 import type { ModelMetadata, ModelRegistry } from '../../types';
+import { findDependentRelations } from './delete-builder';
 import { extractNestedOperations, isNestedCreate } from './nested-builder';
 import type { IncludeClause } from './relation-builder';
 
@@ -45,17 +46,30 @@ function collectFromInclude(
   }
 }
 
-/** Names of the queried model plus every relation target reachable via nested writes and includes */
+/** Models a delete statement names directly; NoAction and FK-less dependents emit no statement */
+function collectFromDependents(model: ModelMetadata, registry: ModelRegistry, names: Set<string>): void {
+  for (const dep of findDependentRelations(model.name, registry)) {
+    if (dep.recordField && dep.onDelete !== 'NoAction') names.add(dep.model.name);
+  }
+}
+
+/** Names of the queried model plus every relation target reachable via nested writes, includes and cascading deletes */
 export function collectRelatedModelNames(
   model: ModelMetadata,
   registry: ModelRegistry | undefined,
-  operation: { data?: Array<Record<string, unknown> | undefined>; include?: IncludeClause },
+  operation: {
+    data?: Array<Record<string, unknown> | undefined>;
+    include?: IncludeClause;
+    isDelete?: boolean;
+  },
 ): string[] {
   const names = new Set([model.name]);
   if (!registry) return [...names];
 
   for (const data of operation.data ?? []) if (data) collectFromData(model, data, registry, names);
   if (operation.include) collectFromInclude(model, operation.include, registry, names);
+
+  if (operation.isDelete) collectFromDependents(model, registry, names);
 
   return [...names];
 }
