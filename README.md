@@ -277,6 +277,17 @@ bun run ext:dev:cursor # after that reload cursor window
 - **[Node.js](https://nodejs.org/)** 20+ or **[Bun](https://bun.sh/)** 1+ (runtime)
 - **[SurrealDB](https://surrealdb.com/)** database
 
+## Contributing
+
+```bash
+bun install
+docker compose up -d surrealdb
+cd apps/orm && bun run test:full
+```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the full setup, commit conventions and
+release process.
+
 ## License
 
 Apache 2.0 - See [LICENSE](LICENSE) for details.

@@ -2,151 +2,53 @@
 
 A Prisma-like ORM for SurrealDB. Runtime: **Bun**. Language: **TypeScript**.
 
+Release, branching and commit process: `CONTRIBUTING.md`.
+User-facing feature documentation: `apps/docs/content/docs/` — 160+ pages covering
+every field type, decorator, query method and filter operator. Do not restate it here.
+
 ## Commands
 
-All ORM commands run from `apps/orm/`:
+Run from `apps/orm/` unless noted.
 
 ```bash
-# ORM (run from apps/orm/)
-bun install                                              # Install dependencies
-bun test                                                 # Run all tests
-bun test apps/orm/tests/e2e/ --preload apps/orm/tests/e2e/preload.ts  # E2E tests (from repo root, requires SurrealDB running)
-bun run typecheck                                        # Type check generated types (ts-toolbelt)
-bunx tsc --noEmit                                        # Full TypeScript check
-bun run generate:test-client                            # Generate test client from schema
-bunx cerial init                                        # Initialize config file
-bunx cerial init --yes                                  # Non-interactive init
-bunx cerial generate -C ./cerial.config.ts              # Generate with specific config
-bunx cerial generate -n auth                            # Generate specific schema only
-bunx cerial format -s ./schemas                         # Format schema files
-bunx cerial format --check                              # Check mode (CI)
-bunx cerial format --watch -s ./schemas                 # Watch mode
-bunx cerial generate --watch --format                   # Generate with auto-format
+bun test tests/unit tests/generators   # no database needed
+bun run test:integration               # database needed
+bun run test:e2e                       # database needed; preloads the generated client
+bun run test:full                      # regenerate client, typecheck, then every suite
+bun run generate:test-client           # regenerate the e2e client from tests/e2e/schemas
+bun run typecheck                      # tsc over tests/e2e/typechecks/*.check.ts
+bunx tsc --noEmit                      # whole project
+bun run build                          # required before test:e2e after changing src/
+bun run format                         # biome check --write
+bun run format:check                   # biome ci, what CI runs
 
-# VS Code extension (from repo root)
-cd apps/vscode-extension && bun run test                 # Run extension tests
-cd apps/vscode-extension && bun run build                # Build the extension
+bunx cerial init | generate | format    # the CLI; --help for flags
 ```
 
-## Project Structure
+Bare `bun test` sweeps the e2e suites too and fails without a database. Prefer an
+explicit path.
 
-```
-cerial/
-├── apps/
-│   ├── orm/                         # ORM package (workspace member: cerial)
-│   │   ├── bin/cerial.ts            # CLI entry point
-│   │   ├── src/
-│   │   │   ├── cli/                         # CLI commands, validators, schema resolution, config
-│   │   │   │   ├── commands/                #   Command registry (generate, init)
-│   │   │   │   ├── config/                  #   Config types, loader, resolver, validator, defineConfig
-│   │   │   │   ├── resolvers/               #   Schema resolution, convention markers
-│   │   │   │   ├── validators/              #   CLI option + schema validators
-│   │   │   │   └── watcher.ts               #   File watcher with per-schema isolation
-│   │   │   ├── formatter/                   # .cerial file formatter
-│   │   │   │   ├── aligner.ts               #   Column alignment logic
-│   │   │   │   ├── comment-attacher.ts      #   Comment token attachment
-│   │   │   │   ├── formatter.ts             #   Core formatCerialSource() function
-│   │   │   │   ├── inline-printer.ts        #   Enum/literal/tuple printer
-│   │   │   │   ├── printer.ts               #   Model/object block printer
-│   │   │   │   ├── rules.ts                 #   Decorator ordering, config resolution
-│   │   │   │   └── types.ts                 #   FormatConfig, FormatResult types
-│   │   │   ├── client/                      # Runtime client, Model class, Proxy factory
-│   │   │   ├── connection/                  # Connection manager, config types
-│   │   │   ├── generators/                  # Code generation from AST
-│   │   │   │   ├── client/                  #   Client template + writer
-│   │   │   │   ├── metadata/               #   Model registry generator
-│   │   │   │   ├── migrations/             #   DEFINE TABLE/FIELD/INDEX generator
-│   │   │   │   └── types/                  #   Interface, derived, where, method, enum generators
-│   │   │   │       └── enums/              #     Enum type name helpers + generators
-│   │   │   ├── parser/                      # Schema lexer, tokenizer, parser → AST
-│   │   │   │   └── types/                  #   Field types, decorators, constraints parsers
-│   │   │   ├── resolver/                    # Inheritance resolution phase
-│   │   │   │   ├── filter.ts                #   Pick/omit field filtering
-│   │   │   │   ├── inheritance-resolver.ts  #   Topological sort + field merging
-│   │   │   │   └── index.ts                 #   Barrel exports
-│   │   │   ├── query/                       # Query building + execution
-│   │   │   │   ├── builders/               #   Select, insert, update, delete, nested, relation builders
-│   │   │   │   ├── compile/                #   Query fragments, variable allocator
-│   │   │   │   ├── filters/                #   Operator handlers (comparison, string, array, logical, special)
-│   │   │   │   ├── mappers/                #   Result mapper (RecordId → CerialId)
-│   │   │   │   ├── transformers/           #   Data transformer (RecordIdInput → RecordId, defaults)
-│   │   │   │   └── validators/             #   Data + where validation
-│   │   │   ├── types/                       # Shared TS types (metadata, query, utility, AST)
-│   │   │   ├── utils/                       # CerialId, string/array/type/validation utils
-│   │   │   └── main.ts                      # Main exports
-│   │   ├── tests/
-│   │   │   ├── unit/                        # Unit tests (no DB)
-│   │   │   ├── integration/                 # Integration tests (DB required)
-│   │   │   ├── e2e/                         # End-to-end tests
-│   │   │   │   ├── schemas/                 #   43 .cerial test schemas (organized by feature)
-│   │   │   │   │   ├── core/               #     Core model schemas
-│   │   │   │   │   ├── relations/          #     Relation schemas
-│   │   │   │   │   ├── decorators/         #     Decorator schemas
-│   │   │   │   │   ├── complex-types/      #     Object/tuple/literal/enum schemas
-│   │   │   │   │   ├── data-types/         #     UUID/number/duration/etc schemas
-│   │   │   │   │   └── features/           #     Typed-ids, unset, etc schemas
-│   │   │   │   ├── generated/               #   Generated client (gitignored)
-│   │   │   │   ├── core/                    #   Core CRUD, select, include, introspection tests (7 files)
-│   │   │   │   ├── relations/               #   Relation E2E tests (89 files)
-│   │   │   │   ├── decorators/              #   Decorator E2E tests (43 files)
-│   │   │   │   ├── complex-types/           #   Object/tuple/literal/enum tests (46 files)
-│   │   │   │   ├── data-types/              #   UUID/number/duration/decimal/bytes/geometry/any tests (37 files)
-│   │   │   │   ├── features/                #   Typed-ids, unset, transactions, on-before-query, pagination tests (50 files)
-│   │   │   │   ├── negative/                #   Cross-cutting error/validation tests (5 files)
-│   │   │   │   ├── typechecks/              #   37 compile-time type checks (6 subdirectories)
-│   │   │   │   ├── multi-schema/            #   Multi-schema E2E tests (5 files)
-│   │   │   │   ├── preload.ts               #   Generates client before tests
-│   │   │   │   └── test-helper.ts           #   Shared test infrastructure
-│   │   │   └── generators/                  # Generator tests
-│   │   ├── index.ts                         # Re-exports main.ts
-│   │   ├── package.json                     # name: "cerial"
-│   │   └── tsconfig.json                    # extends ../../tsconfig.json
-│   └── vscode-extension/                    # VS Code extension (non-workspace member)
-│       ├── client/
-│       ├── server/src/
-│       ├── tests/
-│       ├── syntaxes/
-│       └── package.json                     # name: "cerial" (marketplace identity)
-├── libs/                                    # Shared packages scaffold (future)
-│   └── .gitkeep
-├── docs/                                    # GitHub Pages documentation (Next.js + Fumadocs)
-├── .github/workflows/                       # CI/CD workflows
-├── package.json                             # Workspace root (@cerial/monorepo, private)
-├── tsconfig.json                            # Shared base TypeScript config
-├── biome.json                               # Shared formatter/linter
-└── LICENSE                                  # Apache 2.0
-```
+From the repo root, `bun run orm:*` and `ext:*` proxy into each workspace. The
+workspace members are `apps/orm` (`cerial`), `apps/vscode-extension`
+(`cerial-vscode`), `apps/docs` and `libs/*`; they share the root `bun.lock`.
 
-### Key Files
+## Layout
 
-| File                                                          | Purpose                                                                                       |
-| ------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| `apps/orm/src/utils/cerial-id.ts`                            | `CerialId` class and `RecordIdInput` union type                                               |
-| `apps/orm/src/query/transformers/data-transformer.ts`        | Input transformation, `@default`/timestamp handling, NONE/null logic                          |
-| `apps/orm/src/query/mappers/result-mapper.ts`                | Output transformation (RecordId → CerialId)                                                   |
-| `apps/orm/src/query/builders/nested-builder.ts`              | Nested create/connect/disconnect in transactions                                              |
-| `apps/orm/src/generators/types/derived-generator.ts`         | Generates Select, OrderBy, GetPayload, Include types                                          |
-| `apps/orm/src/generators/types/interface-generator.ts`       | Generates model/object interfaces                                                             |
-| `apps/orm/src/generators/types/where-generator.ts`           | Generates Where types with nested/object filtering                                            |
-| `apps/orm/src/generators/client/writer.ts`                   | Writes client files, contains `ResolveFieldSelect` / `ApplyObjectSelect` / `ApplyTupleSelect` |
-| `apps/orm/src/cli/validators/relation-validator.ts`          | Validates relation rules (PK/non-PK, @key, @onDelete)                                         |
-| `apps/orm/src/query/filters/registry.ts`                     | Operator handler registry                                                                     |
-| `apps/orm/src/generators/types/enums/name-helpers.ts`        | Enum/literal type name resolution (isEnum dispatch)                                           |
-| `apps/orm/src/generators/client/enum-writer.ts`              | Writes per-enum type files                                                                    |
-| `apps/orm/src/utils/cerial-uuid.ts`                          | `CerialUuid` class and `CerialUuidInput` union type                                           |
-| `apps/orm/src/utils/cerial-duration.ts`                      | `CerialDuration` class and `CerialDurationInput` union type                                   |
-| `apps/orm/src/utils/cerial-decimal.ts`                       | `CerialDecimal` class with arithmetic, `CerialDecimalInput` union type                        |
-| `apps/orm/src/utils/cerial-bytes.ts`                         | `CerialBytes` class and `CerialBytesInput` union type                                         |
-| `apps/orm/src/utils/cerial-geometry.ts`                      | `CerialGeometry` hierarchy (7 subtypes) and `CerialGeometryInput` union type                  |
-| `apps/orm/src/utils/cerial-any.ts`                           | `CerialAny` recursive union type                                                              |
-| `apps/orm/src/utils/cerial-set.ts`                           | `CerialSet<T>` branded array type                                                             |
-| `apps/orm/src/cli/config/types.ts`                           | `CerialConfig`, `SchemaEntry`, `ResolvedSchemaEntry` types                                    |
-| `apps/orm/src/cli/config/loader.ts`                          | Config file loader (`cerial.config.ts`/`.json`)                                               |
-| `apps/orm/src/cli/config/define-config.ts`                   | `defineConfig()` identity helper for type-safe config                                         |
-| `apps/orm/src/cli/commands/init.ts`                          | `cerial init` interactive command                                                             |
-| `apps/orm/src/cli/watcher.ts`                                | File watcher with debounce and per-schema isolation                                           |
-| `apps/orm/src/formatter/formatter.ts`                        | Core `formatCerialSource()` function — validates, tokenizes, attaches comments, aligns, prints |
-| `apps/orm/src/client/cerial-transaction.ts`                  | `CerialTransaction` class, transaction proxy factory                                          |
+`apps/orm/src/` is organised by pipeline stage, and each folder has an `index.ts`
+barrel that consumers import from:
+
+| Folder | Owns |
+|---|---|
+| `parser/` | `.cerial` text to `SchemaAST` |
+| `resolver/` | `extends` inheritance resolution |
+| `generators/` | AST to TypeScript types, client, model registry, migrations |
+| `query/` | builders, filters, validators, transformers, result mappers |
+| `client/` | runtime client, `Model`, proxies, transactions |
+| `cli/` | commands, config, schema resolution, watcher |
+| `formatter/` | the `.cerial` formatter |
+| `utils/` | `CerialId`, `CerialUuid`, `CerialDecimal` and the other wrappers |
+
+Use Glob or `ls` for anything more specific; a file tree here goes stale.
 
 ## Architecture
 
@@ -161,61 +63,69 @@ Schema (.cerial files) → Parser (AST) → Generators → TypeScript Client
 
 ## Testing
 
-**E2E tests require SurrealDB already running:**
-
-- URL: `http://127.0.0.1:8000`, Credentials: `root` / `root`, Namespace/Database: `main`
-- Do NOT run `surreal start` commands - the instance must already be running
-- E2E tests MUST use `--preload apps/orm/tests/e2e/preload.ts` (from repo root) or `--preload ./tests/e2e/preload.ts` (from `apps/orm/`) or generated client won't exist
-
-**Test locations:**
-
-| Location                                                          | Type                                                          | Count    |
-| ----------------------------------------------------------------- | ------------------------------------------------------------- | -------- |
-| `apps/orm/tests/unit/`                                            | Unit tests (no DB)                                            | ~2683    |
-| `apps/orm/tests/integration/`                                     | Integration (DB required)                                     | 4 files  |
-| `apps/orm/tests/e2e/core/`                                        | Core CRUD, select, include, introspection                     | 7 files  |
-| `apps/orm/tests/e2e/relations/`                                   | Relation E2E tests                                            | 89 files |
-| `apps/orm/tests/e2e/decorators/`                                  | Decorator E2E tests                                           | 43 files |
-| `apps/orm/tests/e2e/complex-types/`                               | Object/tuple/literal/enum tests                               | 46 files |
-| `apps/orm/tests/e2e/data-types/`                                  | Data type tests (uuid, number, duration, decimal, bytes, etc) | 37 files |
-| `apps/orm/tests/e2e/features/`                                    | Typed-ids, unset, transactions, on-before-query, pagination   | 50 files |
-| `apps/orm/tests/e2e/features/extends/`                            | Extends E2E tests (model, object, tuple, enum, literal, pick/omit, negative) | 11 files |
-| `apps/orm/tests/e2e/negative/`                                    | Cross-cutting error/validation tests                          | 5 files  |
-| `apps/orm/tests/e2e/typechecks/`                                  | Compile-time type checks                                      | 37 files |
-| `apps/orm/tests/e2e/typechecks/features/extends.check.ts`        | Compile-time type checks for extends                          | 1 file   |
-| `apps/orm/tests/e2e/multi-schema/`                                | Multi-schema E2E tests (config, convention, backward compat)  | 5 files  |
-
-**Sandbox testing** = Running raw SurrealQL against the live SurrealDB instance to verify DB-level behavior before implementing in code. Use this when you need to confirm how SurrealDB handles a specific query pattern (e.g., `$this` reconstruction, dot-notation merge, SELECT expression shapes). When the user says "sandbox test", execute queries via curl:
+**The integration and e2e suites need SurrealDB on `http://127.0.0.1:8000`**, with
+`root`/`root` and namespace and database both `main`. That URL is hardcoded in
+`tests/e2e/test-helper.ts`.
 
 ```bash
-# Query
-curl -s -X POST http://127.0.0.1:8000/sql \
-  -H "Accept: application/json" \
-  -H "surreal-ns: main" -H "surreal-db: main" \
-  -u "root:root" \
-  -d "YOUR SURREALQL HERE"
-
-# Multiple statements in one request (semicolon-separated)
-curl -s -X POST http://127.0.0.1:8000/sql \
-  -H "Accept: application/json" \
-  -H "surreal-ns: main" -H "surreal-db: main" \
-  -u "root:root" \
-  -d "DEFINE TABLE test SCHEMALESS; CREATE test SET foo = [1,2,3]; SELECT foo[0] FROM test;"
+docker compose up -d surrealdb     # from the repo root
+docker compose down                # when finished
 ```
 
-**Important:** Use `surreal-ns` and `surreal-db` headers (NOT `NS`/`DB`). The short-form headers are rejected by SurrealDB.
+The committed `docker-compose.yml` pins `surrealdb/surrealdb:v3.3.0` with the
+`memory` backend, matching what CI tests against. Any SurrealDB answering on 8000
+works just as well, so an instance you already run is fine.
 
-Sandbox testing is **allowed in plan mode** — it is investigative research to verify DB-level behavior, not a codebase modification. Always clean up test tables afterward with `REMOVE TABLE tablename`.
+Use the `memory` backend. Against a disk backend the e2e run roughly doubles and a
+concurrent many-to-many transaction test fails on lock contention that memory does
+not hit.
 
-**When query format changes**, update expectations in:
+Never start a second instance to work around a refused connection: that means the
+wrong port or an unhealthy container, and a duplicate hides it while giving you a
+second copy of the data.
 
-- `apps/orm/tests/unit/query/nested-builder.test.ts`
-- `apps/orm/tests/unit/query/delete-builder.test.ts`
-- `apps/orm/tests/unit/query/delete-unique-builder.test.ts`
-- `apps/orm/tests/unit/query/update-unique-builder.test.ts`
-- `apps/orm/tests/unit/generators/type-mapper.test.ts`
-- `apps/orm/tests/generators/migrations.test.ts`
-- `apps/orm/tests/integration/migration.test.ts`
+E2E tests must run via `bun run test:e2e`, which supplies
+`--preload ./tests/e2e/preload.ts`. Without it the generated client does not exist.
+
+**E2E global setup (CRITICAL).** The preload runs `globalCleanup()` once, before any
+test file, removing all tables and running `migrate()`. Test files must not redo it:
+
+- `beforeAll`: `cleanupTables(client, YOUR_TABLES)` — `DELETE FROM` only
+- `beforeEach`: `truncateTables(client, YOUR_TABLES)` — same
+- Never `REMOVE TABLE`, `resetMigrationState()` or `client.migrate()` in a test file
+- Never hand-write `DEFINE TABLE` or other DDL; `migrate()` owns the schema
+
+Concurrent `REMOVE TABLE` plus a full `migrate()` across files causes races: tables
+vanish while another file queries them.
+
+**No parallelism.** Many e2e files share tables through the `tables` registry in
+`tests/e2e/test-helper.ts`, so `--parallel` is unsafe. Never rely on file order.
+When adding a schema under `tests/e2e/schemas/`, register its tables in that
+registry, and in the matching `*_TABLES` constant if it belongs to a group.
+
+**VS Code extension tests (CRITICAL).** Only one `vscode-test` process may run on
+the machine at a time. `bun run test:integration` and `test:e2e` in
+`apps/vscode-extension` launch VS Code; a second instance makes the first fail with
+cryptic errors. Never give two parallel agents a task that runs them. Safe to
+parallelise: `bun test`, `test:unit`, `test:grammar`.
+
+**Sandbox testing** means running raw SurrealQL against the live instance to confirm
+DB behaviour before writing code. It is investigative, allowed in plan mode, and the
+fastest way to settle a question about SurrealDB. Clean up with `REMOVE TABLE`.
+
+```bash
+curl -s -X POST http://127.0.0.1:8000/sql \
+  -H "Accept: application/json" \
+  -H "surreal-ns: main" -H "surreal-db: main" \
+  -u "root:root" \
+  -d "DEFINE TABLE t SCHEMALESS; CREATE t SET foo = [1,2,3]; SELECT foo[0] FROM t;"
+```
+
+Use the `surreal-ns` and `surreal-db` headers. The short `NS`/`DB` forms are rejected.
+
+**When the generated query format changes**, update the expectations in
+`tests/unit/query/*-builder.test.ts`, `tests/unit/generators/type-mapper.test.ts`,
+`tests/generators/migrations.test.ts` and `tests/integration/migration.test.ts`.
 
 ## Code Style
 
@@ -266,8 +176,6 @@ Sandbox testing is **allowed in plan mode** — it is investigative research to 
 
 ## Agent Rules
 
-### Core Behavior
-
 - **Never stop early** - Complete tasks fully regardless of token budget or context window
 - **Be persistent** - Context window compacts automatically, continue from where you left off
 - **Ask before changing core features** - When a fix requires modifying type generators, query builders, or validators, ask the user first
@@ -275,32 +183,25 @@ Sandbox testing is **allowed in plan mode** — it is investigative research to 
 - **Always run `bun run format` before committing** - Run Biome formatter on new/changed files before every git commit. This ensures consistent formatting and catches lint issues early. Never commit unformatted code. After running, check the output for any warnings or errors — if any are reported, fix them before proceeding. Do not ignore Biome diagnostics
 - **Never create files or folders matching `.gitignore` patterns** - Before creating any new file or directory, check if its name matches a pattern in the repository's `.gitignore` (e.g., `logs`, `dist`, `node_modules`, `*.log`). Files matching `.gitignore` patterns are invisible to git and will silently fail to be committed. If a needed name collides with a `.gitignore` pattern, choose a different name
 
-### Documentation Sync (CRITICAL)
+### Documentation Sync
 
-Documentation lives in `apps/docs/content/docs/` (GitHub Pages with Next.js + Fumadocs).
+Docs live in `apps/docs/content/docs/` (Next.js + Fumadocs, MDX, `meta.json` per
+folder). Keep them in step with behaviour, in the same change:
 
-**Always keep docs in sync with code changes:**
+- New or changed feature → add or update its page. New concept → new page with
+  frontmatter (`title`, `description`).
+- New decorator → `schema/decorators/`. New field type → `schema/field-types/`.
+  New query method → `queries/`. New filter operator → the relevant `filtering/` page.
+- Changed generated types → `types/generated-types.mdx` and
+  `types/dynamic-return-types.mdx`.
+- Removed feature → delete the page and any links into it.
 
-- **New feature** → Add or update the relevant docs page(s). If it's a new concept, create a new page with proper frontmatter (title, description)
-- **Changed feature** → Update all affected doc pages to reflect the new behavior, examples, and types
-- **Removed feature** → Remove or update doc pages. Remove dead links from parent/index pages
-- **New decorator** → Add a page in `apps/docs/content/docs/schema/decorators/` with grand_parent: Schema, parent: Decorators
-- **New query method** → Add a page in `apps/docs/content/docs/queries/` with parent: Queries
-- **New filter operator** → Update the relevant page in `apps/docs/content/docs/filtering/`
-- **Changed types** → Update `apps/docs/content/docs/types/generated-types.mdx` and `apps/docs/content/docs/types/dynamic-return-types.mdx`
+Docs are for library consumers. Describe what a feature does and how to call it,
+with TypeScript the reader would actually write. Do not expose SurrealQL output,
+internal variable naming or executor internals unless the user's own API depends on
+it. Mention constraints that affect their calls, not internal design decisions.
 
-Doc pages use MDX with Fumadocs conventions. Page metadata is defined via the file system structure and `meta.json` files in each directory.
-
-**Documentation is for library consumers, not contributors:**
-
-- Focus on **what** the feature does and **how to use it** — not how it works internally
-- Do NOT expose implementation details (SurrealQL output, internal variable naming, assembly steps, executor internals) unless directly relevant to the user
-- Show practical examples with TypeScript code the user would actually write
-- Mention constraints and gotchas that affect the user's API usage, not internal architecture decisions
-
-**Unreleased feature documentation:**
-
-Docs deploy from `dev`, so pages for features not yet in a published release may be live. To avoid confusing users, mark unreleased content with a Fumadocs callout:
+Docs deploy from `dev`, so unreleased pages go live. Mark them:
 
 ```mdx
 :::caution
@@ -308,204 +209,36 @@ This feature is not yet available in the current release. It will ship in an upc
 :::
 ```
 
-- Add the callout at the **top** of any page (or section) documenting an unreleased feature
-- Remove the callout once the feature is included in a tagged release
-- If an entire page is unreleased, add the callout immediately after the frontmatter
-- If only a section within a page is unreleased, add the callout at the start of that section
+Remove the callout once the feature ships in a tagged release.
 
-### CLAUDE.md ↔ README.md Sync
+`README.md` is the user-facing landing page and stays concise. Update it when a
+feature list entry, a doc section link, a CLI default or the quick-start schema
+example would otherwise be wrong. Details belong in the docs, not duplicated there.
 
-`CLAUDE.md` is the agent-facing guide (structure, conventions, rules). `README.md` is the user-facing landing page (features, quick start, doc links). They share overlapping information that **must stay in sync**:
+### When Adding a Feature, Operator, Field Type or Decorator
 
-| What                    | CLAUDE.md location          | README.md location               | When to sync                                      |
-| ----------------------- | --------------------------- | -------------------------------- | ------------------------------------------------- |
-| **Project description** | Top line                    | Top heading + intro              | If the project's scope or tagline changes         |
-| **Feature list**        | Key Concepts section        | Features bullet list             | New feature, removed feature, renamed concept     |
-| **Query methods**       | Key Concepts (implicit)     | Docs section links + quick start | New query method added or removed                 |
-| **Field types**         | Gotchas, Key Concepts       | Quick start schema example       | New field type added or removed                   |
-| **Decorators**          | Key Concepts, Gotchas       | Quick start schema example       | New decorator that belongs in the quick example   |
-| **Requirements**        | Commands section (implicit) | Requirements section             | Runtime or DB dependency changes                  |
-| **Doc section links**   | N/A                         | Documentation section            | New doc section added, section renamed or removed |
-| **CLI commands**        | Commands section            | Quick start generate command     | CLI flags or defaults change                      |
+The pipeline shape is the same each time:
 
-**Rules:**
+1. Implement in `apps/orm/src/` — new field type needs a parser under
+   `parser/types/field-types/` plus `SchemaFieldType` in `types/common.types.ts`;
+   new decorator needs one under `parser/types/field-decorators/`; new operator
+   needs a handler under `query/filters/<category>/` registered in
+   `query/filters/registry.ts` and a Where-type update in
+   `generators/types/where-generator.ts`.
+2. Unit tests, then an e2e schema under `tests/e2e/schemas/` if the syntax changed,
+   then e2e tests. Register new tables in `test-helper.ts`.
+3. `bun run generate:test-client`, `bun run typecheck`, `bunx tsc --noEmit`, then the
+   suites.
+4. Teach the formatter the new construct (`formatter/printer.ts` or
+   `inline-printer.ts`) and prove it is idempotent.
+5. Document it (see above).
+6. Update the VS Code extension when schema syntax changed: TextMate grammar
+   (`syntaxes/cerial.tmLanguage.json`), completions
+   (`server/src/providers/completion.ts`), hover docs
+   (`server/src/data/hover-docs.ts`), diagnostics for a new validator, code actions
+   for a decorator with common misuse. Then `bun run test` and `bun run build` in
+   `apps/vscode-extension/`.
 
-- When adding a **new feature** visible to end users, add it to the README features list and ensure the quick start example still represents the best overview of Cerial's capabilities
-- When adding a **new doc section** in `apps/docs/content/docs/`, add a corresponding link in README's Documentation section
-- When **renaming or removing** a doc section, update README links to avoid dead references
-- When changing **CLI defaults** (schema path, output path, command name), update both CLAUDE.md Commands section and README's quick start
-- The README quick start schema example should showcase the most important field types and decorators — update it when new types/decorators are significant enough to highlight
-- Do **not** duplicate detailed information — README stays concise (~100-130 lines), full details live in `apps/docs/content/docs/`
-
-
-### Release Notes Rules (CRITICAL)
-
-Release notes live in the **docs site** as the single source of truth. There are no `CHANGELOG.md` files — GitHub Releases link to the docs pages.
-
-**Location:** `apps/docs/content/docs/releases/{orm,extension}/{major}/{minor}.mdx`
-
-- ORM: `apps/docs/content/docs/releases/orm/0/1.mdx` (all 0.1.x patches)
-- Extension: `apps/docs/content/docs/releases/extension/0/1.mdx` (all 0.1.x patches)
-
-**URL pattern:** `https://cerial-orm.github.io/cerial/releases/{orm,extension}/{major}/{minor}#{major}{minor}{patch}`
-- Example: ORM v0.1.0 → `/releases/orm/0/1#010`
-- Example: Extension v0.1.2 → `/releases/extension/0/1#012`
-
-#### Format
-
-Follow [Keep a Changelog](https://keepachangelog.com) categories. Each version is a heading that becomes an anchor:
-
-- `### Added` — New features
-- `### Changed` — Changes to existing features
-- `### Fixed` — Bug fixes
-- `### Removed` — Removed features
-- `### Deprecated` — Features marked for future removal
-
-#### Page structure
-
-Each minor version gets its own `.mdx` page. Patch releases are sections within that page:
-
-```mdx
----
-title: 0.1.x
-description: ORM release notes for v0.1.x
----
-
-## 0.1.2
-
-### Fixed
-
-- Bug fix description
-
-## 0.1.1
-
-### Added
-
-- Feature description
-
-## 0.1.0
-
-### Added
-
-- Initial minor release features
-```
-
-#### File hierarchy
-
-When a new minor version is released, create a new `.mdx` file:
-
-```
-apps/docs/content/docs/releases/
-├── orm/
-    │   └── 0/                # Major version 0
-        │       ├── 1.mdx         # All 0.1.x patches
-        │       └── 2.mdx         # All 0.2.x patches
-└── extension/
-    └── 0/                # Major version 0
-        └── 1.mdx         # All 0.1.x patches
-```
-
-#### Rules
-- **Never edit released version entries** — if a released entry has a typo, fix it in the next patch's `### Fixed`
- - **New version goes at the top** — newest patch at top of the page, oldest at bottom
-- **GitHub Releases link to docs** — release workflows create a GitHub Release with a link to the docs page (e.g., `/releases/orm/0/1#010`), not duplicated content
-- **Both ORM and extension follow this system independently** — they have separate version numbers and separate release notes pages
-- **Extension release notes must include a download table** — Every extension version entry must have a `### Download` section with a table linking to the GitHub Release VSIX asset. Format:
-  ```
-  ### Download
-  | Version | Download |
-  |---------|----------|
-  | v0.1.0 | [cerial-0.1.0.vsix](https://github.com/cerial-orm/cerial/releases/download/ext-v0.1.0/cerial-0.1.0.vsix) |
-  ```
-### Commit Rules
-
-#### Atomic commits
-
-Each commit should represent **one logical change**. Split work into small, focused commits — one per feature, fix, or concern. This keeps the git history readable and makes each change easy to review, revert, or cherry-pick.
-
-**Split by:**
-- Different features or behaviors → separate commits
-- Different directories or modules → separate commits
-- Implementation vs tests (unless tightly coupled) → separate commits
-- Docs vs code → separate commits
-
-**Combine only when:**
-- Splitting would break compilation (e.g., type change + all call sites)
-- Implementation file + its direct test file for a single feature
-
-#### Multi-commit issue fixes
-
-Large fixes or features that span multiple types of changes should use multiple commits. Each user-facing commit should have a corresponding entry in the release notes docs page. Example:
-
-```
-Issue: "Inlay hints show wrong labels"
-
-Commit 1: fix(extension): update inlay hint labels for @createdAt/@updatedAt
-  → Release notes: ### Changed — Rename 'server-set' hint label to 'auto-generated'
-
-Commit 2: feat(extension): add 'sets on create' inlay hint for @default
-  → Release notes: ### Added — Inlay hint for @default fields showing 'sets on create'
-
-Commit 3: docs(extension): update README and settings for new hint labels
-  → No release notes entry (docs-only, user behavior unchanged)
-```
-
-Each user-facing commit gets its own entry in the release notes page under the correct category (`### Added`, `### Changed`, `### Fixed`, etc.).
-
-#### Amend policy
-
-**Amend the previous commit** when a small follow-up change is the same kind of task as the commit it follows — e.g., fixing a typo in a just-committed file, adjusting wording in a just-added doc section, or tweaking a value in a just-written config.
-
-**Do NOT amend when:**
-- The previous commit has already been pushed to remote
-- The follow-up is a different kind of change (new feature vs fix vs docs)
-- The follow-up affects different files or modules than the original commit
-- Someone else authored the previous commit
-
-### Release & Branching
-
-**Branching Strategy:**
-- `main` — Release branch. Only receives merges from `dev`. Never commit directly
-- `dev` — Integration branch. Feature branches merge here. CI runs on push + PRs to dev
-- Feature branches — Created from `dev`, merged back to `dev` via PR
-- Flow: `feature-branch` → PR to `dev` → test on dev → merge `dev` to `main` → push → tag for release
-
-**Tagging Convention:**
-- ORM releases: `orm-v{major}.{minor}.{patch}` (e.g., `orm-v0.1.0`)
-- Extension releases: `ext-v{major}.{minor}.{patch}` (e.g., `ext-v0.1.0`)
-- Each package has independent versioning and release cycles
-- Tags trigger release workflows automatically (orm-v* publishes to npm; ext-v* only packages a VSIX and attaches it to a GitHub Release)
-- NEVER push tags from CI — tagging is always a manual release action
-- Tag version MUST match package.json version (release workflows verify this)
-
-**Release Process:**
-1. Ensure all changes are on `dev` and tests pass
-2. Add the version section to the release notes docs page (`apps/docs/content/docs/releases/{orm,extension}/{major}/{minor}.mdx`)
-3. Bump version in `package.json`
-4. Commit: `chore(orm): release v0.1.0` or `chore(extension): release v0.1.0`
-5. Merge `dev` to `main` and push
-6. Create and push tag: `git tag orm-v0.1.0 && git push origin orm-v0.1.0`
-7. GitHub Actions automatically: runs tests, publishes to npm/marketplace, creates GitHub Release linking to docs page
-
-**GitHub Actions Workflows:**
-| Workflow | Trigger | What it does |
-|---|---|---|
-| `orm-ci.yml` | Push to dev + PRs to dev | Unit tests, E2E (SurrealDB), typecheck, format |
-| `extension-ci.yml` | Push to dev + PRs to dev | Build, unit tests, grammar tests (matrix: ubuntu/windows/macos) |
-| `orm-release.yml` | `orm-v*` tag push | Build, test, npm publish, GitHub Release linking to docs |
-| `extension-release.yml` | `ext-v*` tag push | Build, test, package VSIX, GitHub Release linking to docs. Does NOT publish to the marketplace |
-| `docs-deploy.yml` | Push to dev (docs/ changes) | Build Next.js, deploy to GitHub Pages |
-
-**Required GitHub Secrets:**
-| Secret | Purpose | Where to create |
-|---|---|---|
-| `NPM_TOKEN` | npm publish authentication | npmjs.com → Settings → Access Tokens → Granular (read+write) |
-
-**GitHub Repository Settings (manual UI configuration):**
-- Settings → Pages → Source: set to "GitHub Actions" (not "Deploy from branch")
-- Settings → Branches → Add rule for `main`: require PR reviews, require status checks, restrict push access to maintainers only
-- Settings → Tags → Add protection for `orm-v*` and `ext-v*`: restrict creation to maintainers only
-- Settings → Rules → Rulesets (alternative to above): create ruleset targeting `main` branch + release tag patterns with role-based restrictions
 ### Testing Rules
 
 - **No `as any` or blanket type casting in tests** - If types don't match runtime behavior, fix the type generators or source types. Use specific type assertions (`as User`, `as { id: string }`) ONLY when narrowing `unknown` (e.g., `prevResults[0] as { id: CerialId }`) — never `as any`. This applies to ALL tests (unit, integration, E2E)
@@ -545,109 +278,24 @@ Each user-facing commit gets its own entry in the release notes page under the c
 
 Do NOT use SurrealDB reserved keywords as field names, model names, or object names in `.cerial` schema files. SurrealDB's parser will misinterpret them, causing migration failures. Known reserved keywords that cause issues: `info`, `select`, `create`, `update`, `delete`, `from`, `where`, `table`, `field`, `type`, `value`, `index`, `for`, `on`, `set`, `define`, `remove`, `begin`, `commit`, `cancel`, `return`, `limit`, `start`, `order`, `group`, `fetch`, `timeout`, `parallel`, `content`, `merge`, `patch`, `let`, `if`, `else`, `then`, `end`, `throw`, `break`, `continue`, `none`, `null`, `true`, `false`, `and`, `or`, `not`, `is`, `in`, `contains`, `inside`, `outside`, `intersects`, `only`, `full`, `as`. When in doubt, avoid common SQL/SurrealQL keywords as identifiers.
 
-### When Adding New Features
-
-1. Implement the feature in `apps/orm/src/`
-2. Add/update unit tests in `apps/orm/tests/unit/`
-3. Add E2E test schemas in `apps/orm/tests/e2e/schemas/` if needed
-4. Add E2E tests in `apps/orm/tests/e2e/`
-5. Run `bun run generate:test-client` to regenerate test client (from `apps/orm/`)
-6. Run full test suite: `bun test` (from `apps/orm/`)
-7. Run type check: `bunx tsc --noEmit` (from `apps/orm/`)
-8. Update documentation in `apps/docs/content/docs/`
-9. Update the formatter to handle the new construct in `apps/orm/src/formatter/printer.ts` (or `inline-printer.ts`), add formatting tests, and verify idempotency
-10. **Update the VS Code extension** if the feature adds or changes schema syntax:
-    - If new keyword/block type: update TextMate grammar (`apps/vscode-extension/syntaxes/cerial.tmLanguage.json`)
-    - If new field type: update completion provider (`apps/vscode-extension/server/src/providers/completion.ts`), hover docs (`apps/vscode-extension/server/src/data/hover-docs.ts`), and semantic tokens
-    - If new decorator: update completion provider (decorator list + context filtering), hover docs, and code actions if applicable
-    - If new validator: update diagnostics provider (`apps/vscode-extension/server/src/providers/diagnostics.ts`) to surface the new errors
-    - Run extension tests: `cd apps/vscode-extension && bun run test`
-    - Rebuild extension: `cd apps/vscode-extension && bun run build`
-
-### When Adding a New Operator
-
-1. Create handler in `apps/orm/src/query/filters/<category>/<operator>-handler.ts`
-2. Register in `apps/orm/src/query/filters/registry.ts`
-3. Update where types in `apps/orm/src/generators/types/where-generator.ts`
-4. Add unit tests
-5. Add E2E tests
-6. Update `apps/docs/content/docs/filtering/` page
-7. Update the VS Code extension if the operator introduces new syntax or keywords:
-    - Run `cd apps/vscode-extension && bun run test` to verify no regressions
-
-### When Adding a New Field Type
-
-1. Create parser in `apps/orm/src/parser/types/field-types/<type>-parser.ts`
-2. Update `SchemaFieldType` in `apps/orm/src/types/common.types.ts`
-3. Update type mappings in generators and validators
-4. Add tests
-5. Add a page in `apps/docs/content/docs/schema/field-types/` (one file per type)
-6. Update the VS Code extension:
-   - Add the type to completion suggestions in `apps/vscode-extension/server/src/providers/completion.ts`
-   - Add hover documentation in `apps/vscode-extension/server/src/data/hover-docs.ts`
-   - Verify TextMate grammar highlights the new type (`apps/vscode-extension/syntaxes/cerial.tmLanguage.json`)
-   - Add extension unit tests for the new type
-   - Run `cd apps/vscode-extension && bun run test`
-
-### When Adding a New Decorator
-
-1. Create parser in `apps/orm/src/parser/types/field-decorators/<decorator>-parser.ts`
-2. Update generator to handle the decorator
-3. Update migration generator if it affects DB schema
-4. Add tests
-5. Add page in `apps/docs/content/docs/schema/decorators/`
-6. Update the VS Code extension:
-   - Add the decorator to completion suggestions in `apps/vscode-extension/server/src/providers/completion.ts`
-   - Add hover documentation in `apps/vscode-extension/server/src/data/hover-docs.ts`
-   - Verify TextMate grammar highlights the new decorator (`apps/vscode-extension/syntaxes/cerial.tmLanguage.json`)
-   - Update code actions if the decorator has common misuse patterns (`apps/vscode-extension/server/src/providers/code-actions.ts`)
-   - Add extension unit tests for the new decorator
-   - Run `cd apps/vscode-extension && bun run test`
-
-## Key Concepts (Quick Reference)
-
-- **Record** = SurrealDB record reference (`table:id` format), stored as `record<tablename>`
-- **Relation** = Virtual field, not stored in DB. Forward has `@field()`, reverse doesn't
-- **CerialId\<T\>** = Generic wrapper for record IDs. `.id` returns `T` (e.g., `number` for `Record(int) @id`). `.table` returns `string`. `.equals()` takes `unknown` and does deep comparison. `.toString()` returns properly escaped `table:id`. `CerialId.fromRecordId()` preserves typed ID values
-- **RecordIdInput\<T\>** = `T | CerialId<T> | RecordId | StringRecordId` (accepted as input). Generic narrows accepted values based on target model's ID type
-- **Record(Type) @id** = Typed ID syntax. Supported: `int`, `float`, `number`, `string`, `uuid`, tuple refs, object refs, unions (`Record(string, int)`). Plain `Record @id` = backward-compatible string IDs
-- **FK type inference** = When a model has `Record(int) @id`, any FK Record field pointing to it via `@model()` automatically gets typed as `CerialId<number>` output / `RecordIdInput<number>` input. Users must NOT add `Record(Type)` on FK fields
-- **Standalone Record typing** = `Record(int)` without Relation for explicit typing of non-FK record fields. Produces `CerialId<number>` output, `number | RecordIdInput<number>` input
-- **NONE vs null** = SurrealDB distinguishes absent fields (NONE) from null-valued fields (null). `?` enables NONE (maps to `undefined`), `@nullable` enables null (maps to `| null`). They are independent modifiers
-- **@nullable** = Field-level decorator enabling explicit null values. `@nullable` on its own = required nullable (`T | null`). With `?` = optional nullable (`T | null | undefined`). Not allowed on object/tuple fields (SurrealDB can't define sub-fields on nullable parents). Allowed on tuple elements. `@default(null)` requires `@nullable`. Affects disconnect (NULL vs NONE) and default `@onDelete` (SetNull vs SetNone)
-- **PK side** = Forward relation with `Record` + `Relation @field` (stores FK)
-- **Non-PK side** = Reverse relation with `Relation @model` only (queries related table)
-- **@now** = COMPUTED `time::now()` — not stored, computed at query time. Output-only (excluded from Create/Update/Where)
-- **@createdAt** = `DEFAULT time::now()` — set on creation when field is absent. Optional in Create/Update, present in Where
-- **@updatedAt** = `DEFAULT ALWAYS time::now()` — set on every create/update when field is absent. Optional in Create/Update, present in Where
-- **@defaultAlways(value)** = `DEFAULT ALWAYS value` — general-purpose reset-on-write default. Any field type. Resets to value on every create/update when absent. NONE injection on update. Mutually exclusive with `@default`, `@now`, `@createdAt`, `@updatedAt`
-- **Timestamp decorators** = `@now`, `@createdAt`, `@updatedAt` are mutually exclusive with each other and with `@default`/`@defaultAlways`. Date fields only. `@now` is model-only (COMPUTED must be top-level). `@createdAt`/`@updatedAt` allowed on model + object fields
-- **@flexible** = Field-level decorator for object-type fields. Adds `FLEXIBLE` to migration, generates `& Record<string, any>` intersection in types. Same object can be flexible on one field, strict on another. Where types get `& { [key: string]: any }` for filtering extra keys
-- **@readonly** = Write-once field decorator. Adds `READONLY` to migration. Field settable on CREATE, excluded from Update types. Runtime error if passed to update. Incompatible with `@now` (COMPUTED), `@defaultAlways`, and `@id`. Allowed on model fields and object sub-fields. When on a PK Record field, the relation's nested update ops (connect/disconnect) are excluded from UpdateInput
-- **Object types** = Embedded inline, no id, no relations. Allowed decorators: `@default`, `@defaultAlways`, `@createdAt`, `@updatedAt`, `@flexible`, `@readonly`
-- **Tuple types** = Fixed-length typed arrays defined with `tuple {}`. Elements are comma-separated, optionally named. Input accepts array or object form; output is always array. `?` is NOT allowed on tuple elements (SurrealDB returns null for absent positions, not undefined) — use `@nullable` instead. Allowed element decorators: `@nullable`, `@default`, `@defaultAlways`, `@createdAt`, `@updatedAt`. Per-element update via array/object disambiguation at all levels: array = full replace, object = per-element update. Sub-field select on tuples with object elements (at any nesting depth) via `TupleSelect`. No orderBy. Supports nested tuples, objects in tuples, tuples in objects. Self-referencing requires `@nullable` element.
-- **Literal types** = Union type for fields, defined with `literal {}`. Variants: string/int/float/bool values, broad types (`String`/`Int`/`Float`/`Bool`/`Date`), object refs, tuple refs, literal refs (composed unions), enum refs. Nesting restriction: objects/tuples inside literals can only contain primitives and simple literals (no deep objectRef/tupleRef/literalRef). Only `?` and `@nullable` honored on object/tuple sub-fields inside literals; other decorators emit a warning. Migration uses inline object syntax `{ field: type }` (not bare `object`). Non-enum literal fields excluded from OrderBy (mixed types make ordering ambiguous). Boolean-only select. Values are atomic — full replacement on update, no partial merge. Filtering uses the union's constituent operators (comparison for numbers, string ops only when all variants are string-compatible)
-- **Enum types** = String-only named constants defined with `enum {}`. Values are bare identifiers. Generates `as const` object (`XEnum`), union type (`XEnumType`), and where type (`XEnumWhere`). Resolves to SurrealDB literal type. Literals can reference enums via literalRef. Enum fields support OrderBy (string ordering) — unlike non-enum literals which are excluded
-- **Parameterized queries** = Values bound via `$varName`, never inlined
-- **CerialQueryPromise** = Lazy thenable returned by model methods. Auto-executes on `await`, collectible by `$transaction`. Inside transaction proxies, converted to eager Promises that execute immediately on the transaction connection
-- **$transaction** = Three modes: (1) Array: `client.$transaction([q1, q2, fn])` — items can be CerialQueryPromise OR sync/async functions receiving `prevResults`. Any throw = full rollback. (2) Callback: `client.$transaction(async (tx) => { ... })` — `tx` has model access (`tx.User.create()`). Throw-to-rollback. Supports `{ timeout }` option. (3) Manual: `const txn = await client.$transaction()` — dual access: `txn.User.create()` (model proxy) OR `client.db.User.create({ txn })` (pass as option). `txn.commit()` / `txn.cancel()` for lifecycle. `await using` for automatic cleanup via `Symbol.asyncDispose`
-- **CerialTransaction** = Transaction handle for manual mode. State machine: `active` → `committed` | `cancelled`. Has `commit()`, `cancel()`, `state`, `Symbol.asyncDispose` (auto-cancel on scope exit). Proxy provides model access (`txn.User.create()`). Nesting blocked (`txn.$transaction` throws)
-- **Uuid** = UUID identifier field type. `CerialUuid` wrapper with `.toString()`, `.equals()`, `.toNative()`. Input: `CerialUuidInput = string | CerialUuid | Uuid (SDK)`. Supports comparison operators and OrderBy. Works in objects, tuples, literals
-- **UUID decorators** = `@uuid` (v7 default), `@uuid4`, `@uuid7` for server-side auto-generation (`DEFAULT rand::uuid()`). Field becomes optional in CreateInput. Model + object fields only (NOT tuples). Mutually exclusive with `@default`, `@defaultAlways`, `@createdAt`, `@updatedAt`, `@now`, and each other
-- **Number** = Auto-detect numeric type (`int` or `float`). SurrealDB decides representation based on value. Maps to `number` in TypeScript (same as Int/Float). Distinct SurrealQL type `number` (not aliased to `float`). Supports all numeric comparison operators and OrderBy
-- **Duration** = Time duration. `CerialDuration` wrapper with accessors (`.hours`, `.minutes`, `.seconds`, etc.), `.toString()`, `.compareTo()`, `.toNative()`. Input: `CerialDurationInput = string | CerialDuration | Duration (SDK)`. String format: `'2h30m15s'`. Supports comparison operators and OrderBy
-- **Decimal** = Arbitrary-precision decimal number. `CerialDecimal` wrapper with arithmetic (`.add()`, `.sub()`, `.mul()`, `.div()`), `.toString()`, `.toNumber()` (lossy!), `.toNative()`. Input: `CerialDecimalInput = number | string | CerialDecimal | Decimal (SDK)`. Supports comparison operators and OrderBy
-- **Bytes** = Binary data. `CerialBytes` wrapper with `.toUint8Array()`, `.toBuffer()`, `.toBase64()`, `.toString()`. Input: `CerialBytesInput = Uint8Array | string (base64) | CerialBytes`. Equality-only WHERE operators (no gt/lt). OrderBy supported (lexicographic). No `@default` support
-- **Geometry** = Geospatial data with 7 subtypes via decorators (`@point`, `@line`, `@polygon`, `@multipoint`, `@multiline`, `@multipolygon`, `@geoCollection`). Bare `Geometry` = all subtypes. Multi-type: `Geometry @point @polygon`. CerialGeometry class hierarchy. Point input shorthand: `[lon, lat]`. Equality-only WHERE. No OrderBy. No spatial operators (future feature)
-- **Any type** = `Any` field stores any SurrealDB value. `CerialAny` recursive union (NOT bare TS `any`). No `?`, no `@nullable` (TYPE any already accepts NONE/null). Full WHERE operator set. Excluded from OrderBy. Not allowed in tuple elements
-- **@set decorator** = `String[] @set` generates `set<T>` instead of `array<T>`. Auto-dedup and sort at DB level. Output type `CerialSet<T>` (branded array). Input accepts regular arrays. Not allowed on Decimal[], Object[], Tuple[], Record[]. Mutually exclusive with @distinct/@sort
-- **Model introspection** = `getMetadata()`, `getName()`, `getTableName()` — available on every model instance for runtime metadata access. `getMetadata()` returns full `ModelMetadata` (name, table, fields, relations). `getName()` returns the model name. `getTableName()` returns the SurrealDB table name
-- **Path filtering** = Three-tier filter system for controlling which `.cerial` files are processed. `ignore` (absolute blacklist), `exclude` (overridable blacklist), `include` (whitelist override). Supports `.cerialignore` files at project root and per-schema-folder. Cascade: `.cerialignore` → root config → folder `.cerialignore` → folder config. Config fields on `CerialConfig`, `SchemaEntry`, `FolderConfig`
-- **Extends** = Schema-level inheritance for all type kinds (model, object, tuple, enum, literal). `extends ParentName` inherits all fields/values. `extends ParentName[field1, field2]` picks specific fields. `extends ParentName[!field]` omits fields. Resolved at compile time — generators see flattened output. Single parent only, no cross-kind
-- **Abstract** = Model-only keyword. `abstract model Name { ... }` suppresses table generation, TS type generation, client accessor, and registry entry. All models (concrete or abstract) can ONLY extend abstract models. Concrete extends concrete FORBIDDEN, abstract extends concrete FORBIDDEN
-- **!!private** = Field modifier preventing override in child types. Placed at end of field line: `fieldName Type !!private`. Allowed on model fields, object fields, tuple elements. NOT on enum values or literal variants. Does NOT prevent omitting from pick lists — only prevents redefining in child body
-
 ## Gotchas
+
+These are implementation facts the user-facing docs do not frame this way, and each
+one has caused a wrong fix before:
+
+- `@flexible` is **per field, not per object type**. The same object can be flexible
+  on one field and strict on another, so flexibility is read from
+  `FieldMetadata.isFlexible`, never from `ObjectFieldMetadata`. Flexible fields accept
+  undeclared sub-keys in data, select and where; strict ones must reject them.
+- Enum fields carry `type: 'literal'` internally, so query builders, filters and
+  validators handle them through the existing literal paths with no enum-specific code.
+- `CerialSet<T>` is a branded array, not a real Set. `CerialAny` is a recursive union,
+  never bare `any`.
+- Every model instance exposes `getMetadata()`, `getName()` and `getTableName()` for
+  runtime metadata.
+- Relations are virtual and never stored. The forward side carries `@field()` and the
+  FK; the reverse side has only `Relation @model` and is queried through the target
+  table. `relationInfo.isReverse` distinguishes them.
 
 - E2E tests MUST use `--preload` flag or generated client won't exist
 - Array fields default to `[]` on create if not provided
@@ -661,7 +309,6 @@ Do NOT use SurrealDB reserved keywords as field names, model names, or object na
 - `select` within `include` is type-level only - runtime returns full related objects
 - `none` quantifier for array object where uses `!(arr.any(...))` syntax for SurrealDB 3.x compatibility
 - `@onDelete` is only allowed on optional `Relation?` fields - required relations auto-cascade
-- N:N relations require BOTH sides to define `Record[]` + `Relation[]` for bidirectional sync
 - N:N relations require BOTH sides to define `Record[]` + `Relation[]` for bidirectional sync
 - `CerialQueryPromise` is a thenable (not `instanceof Promise`) — bun's `expect().rejects` requires wrapping: `await expect((async () => { await query; })()).rejects.toThrow()`
 - `$transaction` array mode items are independent, but function items receive `prevResults` from preceding items. Callback and manual modes share a single transaction connection
@@ -706,6 +353,3 @@ Do NOT use SurrealDB reserved keywords as field names, model names, or object na
 - Extends is resolved at compile time only — no runtime inheritance awareness
 - Extends only works within same schema entry (same generation run). Cross-schema extends is impossible
 - Pick/omit validates against parent's own fields only (not inherited from grandparent)
-- **Monorepo: ORM is a workspace member** — The ORM lives in `apps/orm/`. Root `package.json` has `workspaces: ["apps/orm", "libs/*"]` (NOT `"apps/*"`). Run ORM commands from `apps/orm/` or use `bun run --filter cerial <script>` from repo root
-- **Monorepo: extension IS a workspace member** — The extension is registered as `cerial-vscode` in the workspace (no name collision with ORM's `cerial`). It has no lockfile of its own and resolves through the root `bun.lock` by workspace walk-up. Run extension commands from `apps/vscode-extension/`
-- **Monorepo: release notes locations** — ORM release notes: `apps/docs/content/docs/releases/orm/`. VS Code extension release notes: `apps/docs/content/docs/releases/extension/`. Each package has its own subdirectory with major/minor file hierarchy. GitHub Releases link to these docs pages
