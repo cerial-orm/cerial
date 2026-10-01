@@ -289,6 +289,10 @@ one has caused a wrong fix before:
   undeclared sub-keys in data, select and where; strict ones must reject them.
 - Enum fields carry `type: 'literal'` internally, so query builders, filters and
   validators handle them through the existing literal paths with no enum-specific code.
+- Tuple **input** accepts array or object form, so `validateFieldType(x, 'tuple')` is
+  true for both `[1, 2]` and `{ 0: 1, 1: 2 }`. Output is always the array form.
+  `validateFieldType(x, 'object')` rejects arrays. Treating a tuple as array-only, or an
+  object as "any non-null object", breaks one of those two.
 - `CerialSet<T>` is a branded array, not a real Set. `CerialAny` is a recursive union,
   never bare `any`.
 - Every model instance exposes `getMetadata()`, `getName()` and `getTableName()` for
