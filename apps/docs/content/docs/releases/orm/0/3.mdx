@@ -54,6 +54,20 @@ development branch and is not available on npm.
 
 ### Changed
 
+- **Breaking.** Sub-field names inside a `where` filter are now validated. Object
+  and tuple filters were handed to the query builder unchecked, and the builder
+  passed anything it did not recognise straight through as if the object were
+  `@flexible` without ever checking that it was. A typo such as
+  `where: { address: { cty: 'NYC' } }` on a strict object produced a condition
+  that matched nothing, so you got an empty result rather than an error.
+
+  Validated now at any depth: object sub-keys, `AND`/`OR`/`NOT` inside an object
+  filter, the `some`/`every`/`none` quantifiers on array-object fields, and tuple
+  elements by name or index. `@flexible` object fields still accept undeclared
+  sub-keys, and flexibility is read per field, so the same object type can be
+  flexible on one field and strict on another.
+
+  Filtering through a relation is unchanged and still unvalidated.
 - **Breaking.** `select`, `orderBy`, `limit` and `offset` are now validated before
   a query is built. A field name the model does not have is rejected in `select`
   and `orderBy`, including sub-keys of object and tuple selects. A typo used to
