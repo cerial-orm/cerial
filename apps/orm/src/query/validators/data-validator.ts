@@ -2,7 +2,7 @@
  * Data validator - validates data for create/update operations
  */
 
-import type { ModelMetadata, SchemaFieldType } from '../../types';
+import type { LiteralFieldMetadata, ModelMetadata, ResolvedLiteralVariant, SchemaFieldType } from '../../types';
 import { isRecordIdInput } from '../../utils/cerial-id';
 import { isNone } from '../../utils/none';
 import { isValidEmail, validateFieldType, validateTypedRecordId } from '../../utils/validation-utils';
@@ -19,6 +19,52 @@ export interface DataValidationResult {
   errors: DataValidationError[];
 }
 
+const BROAD_TYPE_FIELD_TYPES: Record<string, SchemaFieldType> = {
+  String: 'string',
+  Int: 'int',
+  Float: 'float',
+  Bool: 'bool',
+  Date: 'date',
+};
+
+function matchesVariant(value: unknown, variant: ResolvedLiteralVariant): boolean {
+  switch (variant.kind) {
+    case 'broadType':
+      return validateFieldType(value, BROAD_TYPE_FIELD_TYPES[variant.typeName] ?? 'any');
+    // Shapes are not deep-checked here — the database enforces the inline type
+    // Tuples accept array or object form on input
+    case 'tupleRef':
+      return validateFieldType(value, 'tuple');
+    case 'objectRef':
+      return validateFieldType(value, 'object');
+    default:
+      return value === variant.value;
+  }
+}
+
+function describeVariant(variant: ResolvedLiteralVariant): string {
+  switch (variant.kind) {
+    case 'broadType':
+      return variant.typeName;
+    case 'tupleRef':
+      return variant.tupleName;
+    case 'objectRef':
+      return variant.objectName;
+    case 'string':
+      return `'${variant.value}'`;
+    default:
+      return String(variant.value);
+  }
+}
+
+function literalError(label: string, value: unknown, literalInfo: LiteralFieldMetadata): string | null {
+  if (literalInfo.variants.some((v) => matchesVariant(value, v))) return null;
+
+  const received = typeof value === 'string' ? `'${value}'` : String(value);
+
+  return `${label} must be one of: ${literalInfo.variants.map(describeVariant).join(', ')} (received ${received})`;
+}
+
 /** Validate a single field value */
 export function validateFieldValue(
   fieldName: string,
@@ -28,6 +74,7 @@ export function validateFieldValue(
   isArray?: boolean,
   isNullable?: boolean,
   recordIdTypes?: string[],
+  literalInfo?: LiteralFieldMetadata,
 ): DataValidationError | null {
   // NONE sentinel is always valid for optional fields (clear the field)
   if (isNone(value)) {
@@ -75,6 +122,8 @@ export function validateFieldValue(
       if (!validateFieldType(element, fieldType)) {
         return { field: fieldName, message: `${fieldName}[${i}] must be of type ${fieldType}` };
       }
+      const literalMessage = literalInfo && literalError(`${fieldName}[${i}]`, element, literalInfo);
+      if (literalMessage) return { field: fieldName, message: literalMessage };
     }
     return null;
   }
@@ -83,6 +132,9 @@ export function validateFieldValue(
   if (!validateFieldType(value, fieldType)) {
     return { field: fieldName, message: `${fieldName} must be of type ${fieldType}` };
   }
+
+  const literalMessage = literalInfo && literalError(fieldName, value, literalInfo);
+  if (literalMessage) return { field: fieldName, message: literalMessage };
 
   // For record fields with recordIdTypes, validate against expected ID types
   if (fieldType === 'record' && recordIdTypes?.length) {
@@ -187,6 +239,7 @@ export function validateCreateData(
       field.isArray,
       field.isNullable,
       field.recordIdTypes,
+      field.literalInfo,
     );
     if (error) {
       errors.push(error);
@@ -403,6 +456,7 @@ export function validateUpdateData(data: Record<string, unknown>, model: ModelMe
       field.isArray,
       field.isNullable,
       field.recordIdTypes,
+      field.literalInfo,
     );
     if (error) {
       errors.push(error);
