@@ -58,7 +58,8 @@ export function isRecordIdInput(value: unknown): value is RecordIdInput {
  * - '`table`:id' (backtick escaped - user input)
  * - 'id' (no table, just id)
  *
- * TODO: Replace with RecordId.parse() when available in surrealdb SDK
+ * TOMBSTONE: the SDK exposes no RecordId.parse, so the backtick and quoting rules are
+ * reimplemented here. Replace this once it does.
  */
 function parseRecordString(str: string): { table: string | undefined; id: string } {
   // Handle backtick escaping: `table`:id (user might type this)

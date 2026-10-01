@@ -282,7 +282,8 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     }
 
     // If there are nested operations, use the transaction builder
-    // TODO: Add support for nested operations with updateUnique
+    // TOMBSTONE: updateUnique has no nested-operation path of its own, so it falls back
+    // to updateMany on the same where clause and takes the first result.
     if (nestedOps.size > 0 && this.registry) {
       // For now, use updateMany with the same where clause and return first result
       const query = buildUpdateWithNestedTransaction(
