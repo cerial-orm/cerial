@@ -1,0 +1,22 @@
+services:
+  surrealdb:
+    image: surrealdb/surrealdb:v3.3.0
+    container_name: cerial-surrealdb
+    user: root
+    ports:
+      - '8000:8000'
+    command:
+      - start
+      - --user
+      - root
+      - --pass
+      - root
+      - --bind
+      - 0.0.0.0:8000
+      - memory
+    healthcheck:
+      test: ['CMD', '/surreal', 'is-ready', '--endpoint', 'http://127.0.0.1:8000']
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 5s
