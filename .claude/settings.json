@@ -1,8 +1,9 @@
 {
   "permissions": {
-    "allow": ["Bash(bun:*)", "Bash(bunx:*)", "Bash(git:*)"]
-  },
-  "hooks": {
-    "PostToolUse": []
+    "allow": [
+      "Bash(bun:*)",
+      "Bash(bunx:*)",
+      "Bash(git:*)"
+    ]
   }
 }
