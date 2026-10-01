@@ -1,8 +1,7 @@
 # Contributing to Cerial
 
-Process for people (and agents) making changes. The agent-facing conventions —
-code style, test rules, gotchas — live in `CLAUDE.md`. User-facing documentation
-lives in `apps/docs/content/docs/`.
+How changes get made and released. Code style, test rules and the SurrealDB gotchas
+live in `CLAUDE.md`. User-facing documentation lives in `apps/docs/content/docs/`.
 
 ## Getting set up
 
@@ -29,8 +28,7 @@ doubles and a concurrent many-to-many transaction test fails on lock contention.
 `docker compose down` when you are finished. Nothing persists, which is what the
 suites want: the e2e preload drops and recreates every table on each run.
 
-Agent-facing conventions — code style, test rules, the SurrealDB gotchas — are in
-`CLAUDE.md`.
+Code style, test rules and the SurrealDB gotchas are in `CLAUDE.md`.
 
 ## Release Notes Rules (CRITICAL)
 
@@ -156,6 +154,89 @@ Each user-facing commit gets its own entry in the release notes page under the c
 - The follow-up affects different files or modules than the original commit
 - Someone else authored the previous commit
 
+## Security review before every release
+
+**No version is published to npm without a security review of everything that changed
+since the last release.** This is a release gate, not a per-commit one. Individual
+commits and pull requests do not need it; demanding it on every change is how it ends
+up skipped on the one that mattered.
+
+Do it after the release notes are written and the version is bumped, but before the tag
+is created, so a finding can still change what ships.
+
+Start by reading the actual range, not just the last few commits:
+
+```bash
+git log --oneline orm-v0.2.0..HEAD -- apps/orm/src
+git diff orm-v0.2.0..HEAD -- apps/orm/src
+```
+
+### What to look at, in order of how often it has gone wrong here
+
+1. **Any caller-supplied key or identifier that reaches query text.** This is the
+   standing exposure in this codebase and the one that has actually bitten. Values are
+   bound as parameters and are safe. Identifiers cannot be bound in SurrealQL, so every
+   place a field name, sub-key, table name or sort direction is interpolated is a
+   candidate. Search the diff for template literals that build query text:
+
+   ```bash
+   git diff orm-v0.2.0..HEAD -- apps/orm/src | grep -nE '^\+.*`.*\$\{' 
+   ```
+
+   For each hit, ask where that value comes from. If any path lets a caller control it,
+   it must be validated against the schema or quoted as an identifier.
+
+2. **Validation that can be bypassed.** An early return, a `continue`, or a branch that
+   trusts metadata it did not check. A validator that runs on one entry point but not
+   its sibling. Check that every public method reaches the same checks.
+
+3. **Anything that writes or removes data on a path the caller influences.** Cascading
+   deletes, migrations, generated DDL.
+
+4. **Dependencies and the publish pipeline.** New or bumped dependencies, changes to the
+   release workflow, anything touching the npm token. Actions must stay pinned by commit
+   SHA.
+
+5. **Secrets and output.** No credentials in code, fixtures or committed config. Error
+   messages must not echo back more of the query or the data than the caller already had.
+
+### Proving it rather than reasoning about it
+
+A theoretical exposure and a working exploit are different findings, and the difference
+decides whether a release waits. The injection fixed in `784dd7d` sat in two audits as a
+theoretical note because nobody tried it. When something looks reachable, write the
+payload and run it against a local instance with a throwaway table, and see whether it
+executes.
+
+The hostile-identifier tests under `apps/orm/tests/e2e/negative/` exist for this. Run
+them, and when you touch a new path that builds query text from a key, add a case there.
+
+A finding blocks the release until it is fixed, or consciously accepted and written down
+in the release notes. Accepted means recorded, not remembered.
+
+## Releasing a security fix
+
+When a release fixes a vulnerability, two things happen alongside the normal process.
+Neither is automated and both are easy to forget.
+
+1. **Give it its own `### Security` heading** in the release notes, not a bullet under
+   `### Fixed`. A release carrying breaking changes gives people reasons to delay
+   upgrading, and the one reason they should not delay must not be skimmable.
+2. **File a GitHub Security Advisory** once the fixed version is published, never
+   before — an advisory on an unpatched hole just points at it. Draft it at
+   Security → Advisories → New draft advisory, state the affected range and the
+   patched version, and publish when the release is live. It gets a GHSA id, so
+   anyone adopting later finds it through `npm audit` and Dependabot rather than by
+   reading release notes.
+3. **Deprecate the affected versions** after the fix is out:
+
+   ```bash
+   npm deprecate 'cerial@<0.3.0' 'Contains a known vulnerability; upgrade to 0.3.0 or later.'
+   ```
+
+   One command, publishes nothing, and shows a warning at install time for anyone
+   still pulling an affected version.
+
 ## Release & Branching
 
 **Branching Strategy:**
@@ -174,12 +255,14 @@ Each user-facing commit gets its own entry in the release notes page under the c
 
 **Release Process:**
 1. Ensure all changes are on `dev` and tests pass
-2. Add the version section to the release notes docs page (`apps/docs/content/docs/releases/{orm,extension}/{major}/{minor}.mdx`)
-3. Bump version in `package.json`
-4. Commit: `chore(orm): release v0.1.0` or `chore(extension): release v0.1.0`
-5. Merge `dev` to `main` and push
-6. Create and push tag: `git tag orm-v0.1.0 && git push origin orm-v0.1.0`
-7. GitHub Actions automatically: runs tests, publishes to npm/marketplace, creates GitHub Release linking to docs page
+2. **Security review of the full range since the last tag** — see "Security review
+   before every release" above. Do not skip it and do not leave it until after tagging
+3. Add the version section to the release notes docs page (`apps/docs/content/docs/releases/{orm,extension}/{major}/{minor}.mdx`)
+4. Bump version in `package.json`
+5. Commit: `chore(orm): release v0.1.0` or `chore(extension): release v0.1.0`
+6. Merge `dev` to `main` and push
+7. Create and push tag: `git tag orm-v0.1.0 && git push origin orm-v0.1.0`
+8. GitHub Actions automatically: runs tests, publishes to npm/marketplace, creates GitHub Release linking to docs page
 
 **GitHub Actions Workflows:**
 | Workflow | Trigger | What it does |

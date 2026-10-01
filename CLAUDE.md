@@ -179,6 +179,17 @@ Use the `surreal-ns` and `surreal-db` headers. The short `NS`/`DB` forms are rej
 - **Never stop early** - Complete tasks fully regardless of token budget or context window
 - **Be persistent** - Context window compacts automatically, continue from where you left off
 - **Ask before changing core features** - When a fix requires modifying type generators, query builders, or validators, ask the user first
+- **Never prepare or propose a release without the security review** - A version going
+  to npm requires a security review of the whole range since the last tag, described in
+  `CONTRIBUTING.md`. It is a release gate, not a per-commit one, so do not ask for it on
+  ordinary changes. Releases are cut by the maintainer, so your part is to refuse to
+  treat a release as ready until that review has happened, and to say so plainly if
+  asked to tag or publish without it.
+- **A theoretical exposure is not a finding; a working exploit is** - When a path looks
+  injectable or lossy, write the payload and run it against the local instance with a
+  throwaway table before reporting it either way. Two audits recorded the flexible
+  sub-key sites as a theoretical identifier exposure; nobody ran it, so a live
+  injection sat unfixed in two published versions.
 - **Validate test expectations before modifying source** - If a test fails, understand why before changing the test vs. the source
 - **Always run `bun run format` before committing** - Run Biome formatter on new/changed files before every git commit. This ensures consistent formatting and catches lint issues early. Never commit unformatted code. After running, check the output for any warnings or errors — if any are reported, fix them before proceeding. Do not ignore Biome diagnostics
 - **Never create files or folders matching `.gitignore` patterns** - Before creating any new file or directory, check if its name matches a pattern in the repository's `.gitignore` (e.g., `logs`, `dist`, `node_modules`, `*.log`). Files matching `.gitignore` patterns are invisible to git and will silently fail to be committed. If a needed name collides with a `.gitignore` pattern, choose a different name
