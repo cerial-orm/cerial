@@ -5,7 +5,6 @@
 export {
   applyFieldDefaults,
   applyNowDefaults,
-  filterModelFields,
   transformData,
   transformOrValidateRecordId,
   transformRecordId,

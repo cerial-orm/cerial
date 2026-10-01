@@ -845,17 +845,3 @@ export function applyFieldDefaults(data: Record<string, unknown>, model: ModelMe
  * @deprecated Use applyFieldDefaults instead. This alias exists for backwards compatibility.
  */
 export const applyNowDefaults = applyFieldDefaults;
-
-/** Filter data to only include model fields */
-export function filterModelFields(data: Record<string, unknown>, model: ModelMetadata): Record<string, unknown> {
-  const result: Record<string, unknown> = {};
-  const fieldNames = new Set(model.fields.map((f) => f.name));
-
-  for (const [key, value] of Object.entries(data)) {
-    if (fieldNames.has(key)) {
-      result[key] = value;
-    }
-  }
-
-  return result;
-}

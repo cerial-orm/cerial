@@ -253,7 +253,6 @@ export {
   executeQuerySingle,
   executeRaw,
   executeTransaction,
-  filterModelFields,
   formatArray,
   formatObject,
   formatValue,

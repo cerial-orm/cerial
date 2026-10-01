@@ -102,7 +102,6 @@ export { mapFieldValue, mapRecord, mapResult, mapSingleResult } from './mappers'
 export {
   applyFieldDefaults,
   applyNowDefaults,
-  filterModelFields,
   formatArray,
   formatObject,
   formatValue,
