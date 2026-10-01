@@ -3,7 +3,7 @@
  */
 
 import { RecordId, StringRecordId } from 'surrealdb';
-import type { ModelMetadata, WhereClause } from '../../types';
+import type { FieldMetadata, ModelMetadata, TupleFieldMetadata, WhereClause } from '../../types';
 import { CerialBytes } from '../../utils/cerial-bytes';
 import { CerialDecimal } from '../../utils/cerial-decimal';
 import { CerialDuration } from '../../utils/cerial-duration';
@@ -12,7 +12,7 @@ import { CerialId } from '../../utils/cerial-id';
 import { CerialUuid } from '../../utils/cerial-uuid';
 import { isObject } from '../../utils/type-utils';
 import { validateTypedRecordId } from '../../utils/validation-utils';
-import { isOperatorObject } from '../filters/condition-builder';
+import { isOperatorObject, resolveTupleElementKey } from '../filters/condition-builder';
 import { isRegisteredOperator } from '../filters/registry';
 
 function isDirectValue(value: unknown): boolean {
@@ -44,6 +44,121 @@ export interface WhereValidationResult {
 /** Check if a key is a composite unique directive name */
 function isCompositeKeyName(key: string, model: ModelMetadata): boolean {
   return model.compositeDirectives?.some((d) => d.kind === 'unique' && d.name === key) ?? false;
+}
+
+const QUANTIFIERS = ['some', 'every', 'none'];
+const LOGICAL_KEYS = ['AND', 'OR', 'NOT'];
+
+function unknownSubField(path: string, fieldPath: string, model: ModelMetadata): ValidationError {
+  return {
+    path,
+    message: `Unknown field '${fieldPath}' on model ${model.name} — check the field name against the schema`,
+  };
+}
+
+/** Validate the keys of an object field's filter. @flexible objects accept any undeclared sub-key. */
+function validateObjectFilter(
+  filter: Record<string, unknown>,
+  fields: FieldMetadata[],
+  isFlexible: boolean | undefined,
+  isArray: boolean | undefined,
+  model: ModelMetadata,
+  path: string,
+  fieldPath: string,
+): ValidationError[] {
+  const errors: ValidationError[] = [];
+
+  for (const [key, value] of Object.entries(filter)) {
+    if (value === undefined) continue;
+
+    if (isArray) {
+      if (QUANTIFIERS.includes(key)) {
+        if (isObject(value))
+          errors.push(...validateObjectFilter(value, fields, isFlexible, false, model, `${path}.${key}`, fieldPath));
+      } else {
+        errors.push(unknownSubField(`${path}.${key}`, `${fieldPath}.${key}`, model));
+      }
+      continue;
+    }
+
+    if (LOGICAL_KEYS.includes(key)) {
+      for (const item of key === 'NOT' ? [value] : Array.isArray(value) ? value : []) {
+        if (isObject(item))
+          errors.push(...validateObjectFilter(item, fields, isFlexible, false, model, `${path}.${key}`, fieldPath));
+      }
+      continue;
+    }
+
+    const subField = fields.find((f) => f.name === key);
+    const subPath = `${path}.${key}`;
+    const subFieldPath = `${fieldPath}.${key}`;
+
+    if (!subField) {
+      if (!isFlexible) errors.push(unknownSubField(subPath, subFieldPath, model));
+      continue;
+    }
+    if (!isObject(value) || isDirectValue(value) || isOperatorObject(value)) continue;
+
+    if (subField.type === 'object' && subField.objectInfo)
+      errors.push(
+        ...validateObjectFilter(
+          value,
+          subField.objectInfo.fields,
+          subField.isFlexible,
+          subField.isArray,
+          model,
+          subPath,
+          subFieldPath,
+        ),
+      );
+  }
+
+  return errors;
+}
+
+/** Validate the element keys (by name or index) of a tuple field's filter. */
+function validateTupleFilter(
+  filter: Record<string, unknown>,
+  tupleInfo: TupleFieldMetadata,
+  isArray: boolean | undefined,
+  model: ModelMetadata,
+  path: string,
+  fieldPath: string,
+): ValidationError[] {
+  const errors: ValidationError[] = [];
+
+  for (const [key, value] of Object.entries(filter)) {
+    if (value === undefined) continue;
+
+    if (isArray) {
+      if (QUANTIFIERS.includes(key)) {
+        if (isObject(value))
+          errors.push(...validateTupleFilter(value, tupleInfo, false, model, `${path}.${key}`, fieldPath));
+      } else {
+        errors.push(unknownSubField(`${path}.${key}`, `${fieldPath}.${key}`, model));
+      }
+      continue;
+    }
+
+    const subPath = `${path}.${key}`;
+    const subFieldPath = `${fieldPath}.${key}`;
+    const element = resolveTupleElementKey(key, tupleInfo)?.syntheticField;
+
+    if (!element) {
+      errors.push(unknownSubField(subPath, subFieldPath, model));
+      continue;
+    }
+    if (!isObject(value) || isDirectValue(value) || isOperatorObject(value)) continue;
+
+    if (element.type === 'object' && element.objectInfo)
+      errors.push(
+        ...validateObjectFilter(value, element.objectInfo.fields, false, false, model, subPath, subFieldPath),
+      );
+    else if (element.type === 'tuple' && element.tupleInfo)
+      errors.push(...validateTupleFilter(value, element.tupleInfo, false, model, subPath, subFieldPath));
+  }
+
+  return errors;
 }
 
 /** Validate a single field filter */
@@ -101,16 +216,22 @@ export function validateFieldFilter(
     // For object fields, the filter object contains sub-field conditions, not operators
     // e.g., address: { city: 'NYC' } - city is a sub-field, not an operator
     // For array object fields: locations: { some: { lat: { gt: 0 } } }
-    if (field.type === 'object') {
-      // Skip detailed validation — the condition-builder handles object field queries
-      return errors;
+    if (field.type === 'object' && field.objectInfo) {
+      return validateObjectFilter(
+        filter,
+        field.objectInfo.fields,
+        field.isFlexible,
+        field.isArray,
+        model,
+        path,
+        fieldName,
+      );
     }
 
     // For tuple fields, the filter object contains element conditions by name/index
     // e.g., location: { lat: { gt: 1.0 } } or location: { 0: { gt: 1.0 } }
-    if (field.type === 'tuple') {
-      // Skip detailed validation — the condition-builder handles tuple field queries
-      return errors;
+    if (field.type === 'tuple' && field.tupleInfo) {
+      return validateTupleFilter(filter, field.tupleInfo, field.isArray, model, path, fieldName);
     }
 
     for (const [op, _value] of Object.entries(filter)) {

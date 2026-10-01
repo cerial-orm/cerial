@@ -446,7 +446,7 @@ function buildObjectConditionForClosure(
  * Resolve a tuple element key (named or index-based) to element index and a synthetic FieldMetadata.
  * Handles both "lat" (named) and "0" (index) keys.
  */
-function resolveTupleElementKey(
+export function resolveTupleElementKey(
   key: string,
   tupleInfo: TupleFieldMetadata,
 ): { index: number; syntheticField: FieldMetadata } | undefined {
