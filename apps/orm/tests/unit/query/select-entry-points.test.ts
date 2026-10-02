@@ -91,10 +91,17 @@ describe('orderBy rejected', () => {
     expect(() => compileFindOne(post, { orderBy: { titel: 'asc' } as never }, registry)).toThrow('Invalid orderBy');
   });
 
-  test('relation field', () => {
-    expect(() => compileFindMany(post, { orderBy: { author: { name: 'asc' } } as never }, registry)).toThrow(
-      "Invalid orderBy: Cannot order by relation field 'author'",
+  test('unknown field under a relation', () => {
+    expect(() => compileFindMany(post, { orderBy: { author: { nmae: 'asc' } } as never }, registry)).toThrow(
+      "Invalid orderBy: Unknown field 'author.nmae' on model Author",
     );
+  });
+
+  test('relation field is accepted by compileFindMany and compileFindOne', () => {
+    const orderBy = { author: { name: 'asc' } } as never;
+
+    expect(compileFindMany(post, { orderBy }, registry).query.text).toContain('AS __cerial_ord_0');
+    expect(compileFindOne(post, { orderBy }, registry).query.text).toContain('FROM ONLY (SELECT');
   });
 
   test('invalid direction', () => {

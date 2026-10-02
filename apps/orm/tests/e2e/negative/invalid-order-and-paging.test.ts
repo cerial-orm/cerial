@@ -1,7 +1,7 @@
 /**
  * E2E Tests: invalid orderBy, limit and offset — negative cases
  *
- * Unknown or relation orderBy paths, bad directions and non-integer paging
+ * Unknown orderBy paths, bad directions and non-integer paging
  * values must throw instead of being ignored or interpolated.
  *
  * Schema: core (User/Post) and flexible (FlexUser)
@@ -37,15 +37,6 @@ describe('Invalid orderBy, limit and offset — negative cases', () => {
   test('findOne throws on an unknown orderBy key', () => {
     // @ts-expect-error — 'nmae' is not a field, testing runtime guard
     expect(() => client.db.User.findOne({ orderBy: { nmae: 'asc' } })).toThrow('Invalid orderBy');
-  });
-
-  test('findMany throws when ordering by a relation', () => {
-    expect(() =>
-      client.db.Post.findMany({
-        // @ts-expect-error — relation fields are not in the OrderBy type, testing runtime guard
-        orderBy: { author: { name: 'asc' } },
-      }),
-    ).toThrow("Invalid orderBy: Cannot order by relation field 'author' on model Post");
   });
 
   test('findMany throws on an invalid direction', () => {

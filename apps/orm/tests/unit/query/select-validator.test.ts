@@ -4,7 +4,7 @@
 
 import { describe, expect, test } from 'bun:test';
 import { validateOrderBy, validatePagination, validateSelect } from '../../../src/query/validators';
-import { post } from './select-validation-helpers';
+import { post, registry } from './select-validation-helpers';
 
 describe('validateSelect', () => {
   test('accepts undefined and known keys', () => {
@@ -83,12 +83,9 @@ describe('validateOrderBy', () => {
     expect(errors[0]!.message).toBe("Unknown field 'titel' on model Post — check the field name against the schema");
   });
 
-  test('rejects a relation field, as a direction and as a nested path', () => {
-    const direct = validateOrderBy({ author: 'asc' }, post);
-    expect(direct[0]!.message).toBe(
-      "Cannot order by relation field 'author' on model Post — relations are not orderable",
-    );
-    expect(validateOrderBy({ author: { name: 'asc' } }, post)[0]!.message).toContain('relation field');
+  test('a relation is orderable through its target fields, see relation-order-by.test.ts', () => {
+    expect(validateOrderBy({ author: { name: 'asc' } }, post, registry)).toEqual([]);
+    expect(validateOrderBy({ author: 'asc' } as never, post, registry)).toHaveLength(1);
   });
 
   test('rejects invalid directions', () => {

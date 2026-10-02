@@ -236,27 +236,45 @@ describe('Model OrderBy Type with Objects', () => {
   });
 });
 
-describe('Model OrderBy Type excludes relation fields', () => {
-  test('should exclude single relation from orderBy', () => {
+describe('Model OrderBy Type and relation fields', () => {
+  test('should include a forward to-one relation, typed as the target OrderBy', () => {
     const m = model('Post', 'post', [
       field({ name: 'id', type: 'record', isId: true, isRequired: true }),
       field({ name: 'title', type: 'string', isRequired: true }),
+      field({ name: 'authorId', type: 'record', isRequired: true }),
       field({
         name: 'author',
         type: 'relation',
-        isRequired: false,
-        relationInfo: { targetModel: 'Author', targetTable: 'author', isReverse: false },
+        isRequired: true,
+        relationInfo: { targetModel: 'Author', targetTable: 'author', fieldRef: 'authorId', isReverse: false },
       }),
     ]);
 
     const result = generateOrderByType(m);
 
     expect(result).toContain('title?:');
-    expect(result).not.toContain('author');
+    expect(result).toContain('author?: AuthorOrderBy;');
+  });
+
+  test('should exclude a forward relation over an array of ids (to-many)', () => {
+    const m = model('Post', 'post', [
+      field({ name: 'id', type: 'record', isId: true, isRequired: true }),
+      field({ name: 'editorIds', type: 'record', isArray: true, isRequired: true }),
+      field({
+        name: 'editors',
+        type: 'relation',
+        isRequired: true,
+        relationInfo: { targetModel: 'Author', targetTable: 'author', fieldRef: 'editorIds', isReverse: false },
+      }),
+    ]);
+
+    const result = generateOrderByType(m);
+
+    expect(result).not.toContain('editors');
     expect(result).not.toContain('AuthorOrderBy');
   });
 
-  test('should exclude array relation from orderBy', () => {
+  test('should exclude reverse array relation from orderBy', () => {
     const m = model('Author', 'author', [
       field({ name: 'id', type: 'record', isId: true, isRequired: true }),
       field({ name: 'name', type: 'string', isRequired: true }),
