@@ -2,9 +2,18 @@
  * Data validator - validates data for create/update operations
  */
 
-import type { LiteralFieldMetadata, ModelMetadata, ResolvedLiteralVariant, SchemaFieldType } from '../../types';
+import type {
+  FieldMetadata,
+  LiteralFieldMetadata,
+  ModelMetadata,
+  ObjectFieldMetadata,
+  ResolvedLiteralVariant,
+  SchemaFieldType,
+  TupleFieldMetadata,
+} from '../../types';
 import { isRecordIdInput } from '../../utils/cerial-id';
 import { isNone } from '../../utils/none';
+import { isObject } from '../../utils/type-utils';
 import { isValidEmail, validateFieldType, validateTypedRecordId } from '../../utils/validation-utils';
 
 /** Validation error */
@@ -408,6 +417,96 @@ function validateDataUnsetOverlapDeep(
   return errors;
 }
 
+function unknownSubKey(path: string, model: ModelMetadata): DataValidationError {
+  return {
+    field: path,
+    message: `Unknown field '${path}' on model ${model.name} — check the field name against the schema`,
+  };
+}
+
+/** Mirrors the builder's `{ set: ... }` full-replace wrapper, whose contents are bound whole. */
+function isSetWrapper(value: Record<string, unknown>): boolean {
+  return 'set' in value && Object.keys(value).length === 1;
+}
+
+/** Validate a sub-value that the builder merges key by key: a single object, or a tuple in object form. */
+function validateSubValue(
+  value: unknown,
+  field: { type: SchemaFieldType; isArray?: boolean; isFlexible?: boolean },
+  objectInfo: ObjectFieldMetadata | undefined,
+  tupleInfo: TupleFieldMetadata | undefined,
+  model: ModelMetadata,
+  path: string,
+): DataValidationError[] {
+  if (isNone(value) || !isObject(value) || isSetWrapper(value) || field.isArray) return [];
+
+  if (field.type === 'object' && objectInfo)
+    return validateObjectData(value, objectInfo.fields, field.isFlexible, model, path);
+  if (field.type === 'tuple' && tupleInfo) return validateTupleData(value, tupleInfo, model, path);
+
+  return [];
+}
+
+/**
+ * Validate the sub-keys of an object merge. The builder skips an undeclared sub-key on a strict
+ * object, so without this check the write is dropped and reported as a success.
+ * @flexible objects accept any undeclared sub-key; that is read per field, never per object type.
+ */
+function validateObjectData(
+  data: Record<string, unknown>,
+  fields: FieldMetadata[],
+  isFlexible: boolean | undefined,
+  model: ModelMetadata,
+  path: string,
+): DataValidationError[] {
+  const errors: DataValidationError[] = [];
+
+  for (const [key, value] of Object.entries(data)) {
+    if (value === undefined) continue;
+
+    const subField = fields.find((f) => f.name === key);
+    const subPath = `${path}.${key}`;
+
+    if (!subField) {
+      if (!isFlexible) errors.push(unknownSubKey(subPath, model));
+      continue;
+    }
+
+    errors.push(...validateSubValue(value, subField, subField.objectInfo, subField.tupleInfo, model, subPath));
+  }
+
+  return errors;
+}
+
+/** Validate the element keys (by name or index) of a per-element tuple update. */
+function validateTupleData(
+  data: Record<string, unknown>,
+  tupleInfo: TupleFieldMetadata,
+  model: ModelMetadata,
+  path: string,
+): DataValidationError[] {
+  const errors: DataValidationError[] = [];
+
+  for (const [key, value] of Object.entries(data)) {
+    if (value === undefined) continue;
+
+    const element = tupleInfo.elements.find((e) => e.name === key || String(e.index) === key);
+    const subPath = `${path}.${key}`;
+
+    if (!element) {
+      errors.push(unknownSubKey(subPath, model));
+      continue;
+    }
+
+    // Tuple elements are never flexible
+    errors.push(
+      ...validateSubValue(value, { type: element.type }, element.objectInfo, element.tupleInfo, model, subPath),
+    );
+  }
+
+  return errors;
+}
+
 /** Validate data for update operation */
 export function validateUpdateData(data: Record<string, unknown>, model: ModelMetadata): DataValidationResult {
   const errors: DataValidationError[] = validateKnownKeys(data, model);
@@ -433,7 +532,7 @@ export function validateUpdateData(data: Record<string, unknown>, model: ModelMe
       continue;
     }
 
-    // Skip tuple per-element update (non-array object on single tuple) — validated by types + builder
+    // Tuple per-element update (non-array object on single tuple): element keys are checked here
     if (
       field.type === 'tuple' &&
       !field.isArray &&
@@ -441,11 +540,16 @@ export function validateUpdateData(data: Record<string, unknown>, model: ModelMe
       value !== null &&
       !Array.isArray(value)
     ) {
+      errors.push(...validateSubValue(value, field, undefined, field.tupleInfo, model, fieldName));
       continue;
     }
 
     // NONE sentinel is always valid in updates (clears the field)
     if (isNone(value)) continue;
+
+    // Partial object merge: sub-keys are checked here
+    if (field.type === 'object')
+      errors.push(...validateSubValue(value, field, field.objectInfo, undefined, model, fieldName));
 
     // For updates, don't require fields - just validate types
     const error = validateFieldValue(
