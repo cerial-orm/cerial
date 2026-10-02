@@ -23,6 +23,7 @@ import { joinFragments } from '../compile/fragment';
 import type { QueryFragment } from '../compile/types';
 import type { FilterCompileContext } from '../compile/var-allocator';
 import { transformOrValidateRecordId } from '../transformers';
+import { expandCompositeKeys } from './composite-key';
 import { handleAnd, handleNot, handleOr } from './logical-operators';
 import { buildNestedCondition, isNestedRelationCondition } from './nested-condition-builder';
 import { getOperatorHandler, isRegisteredOperator } from './registry';
@@ -615,7 +616,9 @@ export function buildConditions(
 ): QueryFragment {
   const conditions: QueryFragment[] = [];
 
-  for (const [key, value] of Object.entries(where)) {
+  // A composite key names no column of its own; expanded here it filters in every position (top level,
+  // AND/OR/NOT, relation targets) instead of compiling to nothing.
+  for (const [key, value] of Object.entries(expandCompositeKeys(where, model))) {
     if (value === undefined) continue;
 
     // Handle logical operators
