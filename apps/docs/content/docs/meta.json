@@ -25,6 +25,7 @@
     "...transactions",
     "---More---",
     "...types",
+    "errors",
     "cli",
     "nestjs",
     "extension",

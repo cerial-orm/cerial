@@ -1,0 +1,66 @@
+---
+title: Errors
+description: The error classes Cerial throws, the stable code each carries, and how to catch them by class instead of by message.
+---
+
+:::caution
+This feature is not yet available in the current release. It will ship in an upcoming version.
+:::
+
+Every error Cerial raises extends `CerialError`. Catch a class with `instanceof`, or switch on `code` when only the kind matters. Do not match on `message`: its wording can change between releases, the class and the code cannot.
+
+```typescript
+import { CerialError, CerialUniqueConstraintError } from 'cerial';
+
+try {
+  await client.db.User.create({ data: { email: 'ada@example.com' } });
+} catch (e) {
+  if (e instanceof CerialUniqueConstraintError) {
+    // the email is taken
+  } else if (e instanceof CerialError) {
+    console.error(e.code, e.model, e.operation, e.message);
+  } else {
+    throw e;
+  }
+}
+```
+
+## What an error carries
+
+| Property | Type | Meaning |
+| --- | --- | --- |
+| `code` | `string` | Stable code for the kind of error, such as `C3000` |
+| `message` | `string` | Human-readable text. Free to improve; never branch on it |
+| `model` | `string \| undefined` | The model the failing call was made on |
+| `operation` | `string \| undefined` | The Cerial call that failed, such as `findMany` |
+| `field` | `string \| undefined` | The field the failure is about |
+| `cause` | `unknown` | The underlying error, when one caused this one. For a database failure this is the raw database error |
+
+`model`, `operation` and `field` are set when they apply and are `undefined` otherwise.
+
+## Classes and codes
+
+| Class | Code | Thrown when |
+| --- | --- | --- |
+| `CerialNotConnectedError` | `C1000` | A query is issued before `connect()`, after `disconnect()`, or on a named connection that is not connected |
+| `CerialConnectionError` | `C1001` | A connection cannot be found, configured, opened or kept |
+| `CerialUnknownModelError` | `C2000` | A model name is not in the schema, such as `client.db.Uesr` |
+| `CerialUnknownFieldError` | `C2001` | A field name is not on the model, in `where`, `select`, `orderBy`, `include` or `data` |
+| `CerialMigrationError` | `C2002` | A model's lazy migration fails. `model` names it and `cause` holds the database error |
+| `CerialValidationError` | `C3000` | Input is rejected before a query is sent: wrong type, missing value, bad shape, or a rule the schema forbids |
+| `CerialTransactionError` | `C5000` | A transaction is used after it ended, nested, or times out |
+| `CerialUniqueConstraintError` | `C6000` | A write violates a unique constraint |
+| `CerialDatabaseError` | `C6001` | The database fails in a way Cerial does not classify further. `cause` holds the raw error |
+| `CerialGenerationError` | `C7000` | The schema or project configuration is rejected while generating the client |
+
+Codes never change and are never reused. A new kind of error gets a new code.
+
+## Catching across module formats
+
+`instanceof` compares class identity. The ESM and CommonJS builds of Cerial are separate modules, so an application that loads Cerial through both `import` and `require` holds two copies of each class, and an error from one is not an `instanceof` the other. When that applies, compare `code` instead.
+
+```typescript
+if (e instanceof CerialError && e.code === 'C6000') {
+  // unique constraint
+}
+```

@@ -129,6 +129,14 @@ development branch and is not available on npm.
   A nested value for a field that has no sub-fields used to fail with a raw
   `TypeError`. It now throws a message naming the field and the model.
 
+- Cerial now raises typed errors. `CerialError` is the base class and carries a
+  stable `code`, the `model`, `operation` and `field` where they apply, and the
+  underlying error as `cause`. Ten subclasses cover connection, unknown model
+  and field, migration, validation, transaction, unique-constraint, database
+  and generation failures, all exported from `cerial`, so a duplicate key can
+  be caught with `instanceof CerialUniqueConstraintError` without matching on
+  prose. See the Errors page for the full list and the code each carries.
+
 ### Fixed
 
 - Deleting a record now prepares its dependent models first. A `deleteMany` or
@@ -199,6 +207,11 @@ development branch and is not available on npm.
 
 ### Changed
 
+- Transaction conflict retries (`TransactionOptions.retries`) now recognise a
+  conflict from the structured error the server sends, not from the wording of
+  its message. SurrealDB sends that detail from 3.1.0 and this release targets
+  3.3.0. A server older than 3.1.0 reports conflicts without it, so those
+  conflicts are no longer retried.
 - **Breaking.** Enum and literal field values are now checked against the variants the
   schema permits. `status: 'actve'` on an enum allowing only `active` and `archived`
   used to pass Cerial untouched and be left for SurrealDB to reject. The error names
