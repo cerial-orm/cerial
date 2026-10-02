@@ -157,6 +157,8 @@ export {
 } from './cli';
 // Export client
 export * from './client';
+// Export errors
+export * from './errors';
 // Export generators
 export * from './generators';
 export type { FindSchemasOptions, LexerResult } from './parser';
