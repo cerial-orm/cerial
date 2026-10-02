@@ -272,10 +272,15 @@ export function isE2eSpecPath(path: string): boolean {
  * which is what this rule exists to stop, so add to this list only with a reason
  * of that kind.
  */
+// A hostile-input suite carries DDL inside payload strings on purpose, so the scan cannot tell it
+// from the real thing: the dangerous shape, a statement passed to the executor, is also a string
+// literal. Each exemption is therefore a deliberate entry rather than a directory rule.
 const E2E_SETUP_EXEMPT_PATHS: readonly string[] = [
   'apps/orm/tests/e2e/preload.ts',
   'apps/orm/tests/e2e/test-helper.ts',
   'apps/orm/tests/e2e/complex-types/objects/flexible-key-injection.test.ts',
+  'apps/orm/tests/e2e/negative/hostile-keys.test.ts',
+  'apps/orm/tests/e2e/negative/identifier-sites.test.ts',
 ];
 
 /** Schema setup in an end-to-end file, for the lines the caller names (every line when none). */
