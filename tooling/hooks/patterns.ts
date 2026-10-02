@@ -223,7 +223,8 @@ export const SANCTIONED_TYPE_ERROR = /@ts-expect-error\b[:\s-]*\S.{9,}/;
 export const SUPPRESSION: Pattern = {
   rule: 'suppression.bare',
   gate: 'unexplained suppression',
-  regex: /biome-ign[o]re(?:-\w+)?\b(?!\s+\S+\s*:\s*\S.{3,})/,
+  // `(?!-\w)` stops the optional suffix being skipped by backtracking, which would test the reason against `-all ...`.
+  regex: /biome-ign[o]re(?:-\w+)?(?!-\w)\b(?!\s+\S+\s*:\s*\S.{3,})/,
   hint: 'Write the rule, a colon and the reason the code is shaped this way.',
 };
 

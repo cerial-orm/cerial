@@ -36,8 +36,9 @@ export const COMMIT_SCOPES: readonly string[] = ['orm', 'extension', 'docs', 're
 export const BODY_REQUIRED_TYPES: ReadonlySet<string> = new Set(['feat', 'fix', 'refactor', 'perf']);
 
 const CONVENTIONAL = /^([a-z]+)(?:\(([^()\s]+)\))?(!)?: (.*)$/;
-const RELEASE_DESCRIPTION = /^release v/;
-const RELEASE_FORM = /^release v(\d+\.\d+\.\d+)$/;
+// Case-insensitive because the imperative check lowers its input, so `Release v9.9.9` is a release subject too.
+const RELEASE_DESCRIPTION = /^release v/i;
+const RELEASE_FORM = /^release v(\d+\.\d+\.\d+)$/i;
 
 /** A result rather than a change: what the checks said, not what the code does. */
 const STATUS_CLAIMS: readonly Pattern[] = [
@@ -57,7 +58,9 @@ const STATUS_CLAIMS: readonly Pattern[] = [
   {
     rule: 'message.status-ratio',
     gate: 'status claim',
-    regex: /\b\d+\s*\/\s*\d+\b/,
+    // A progress ratio names what was counted. A bare N/M is a date, a rate or a fraction in prose.
+    regex:
+      /(?<![\d/.])\d+\s*\/\s*\d+(?![\d/.])\s+(?:tasks?|tests?|checks?|suites?|specs?|cases?|items?|files?|steps?|assertions?|passing|passed|pass|failing|failed|green|done|complete|completed)\b/i,
     hint: 'A ratio is a result of running the checks rather than a description of the change.',
   },
   {
@@ -204,7 +207,8 @@ const AI_ATTRIBUTION: readonly Pattern[] = [
   {
     rule: 'message.attribution-vendor',
     gate: 'attribution',
-    regex: /\b(?:claude|anthropic|chatgpt|openai|copilot|gemini|codeium)\b/i,
+    // The lookahead leaves a filename such as CLAUDE.md alone: naming a file is not an attribution.
+    regex: /\b(?:claude|anthropic|chatgpt|openai|copilot|gemini|codeium)\b(?!\.md\b)/i,
     hint: 'A commit message records what changed and why, and no more.',
   },
   {
@@ -292,10 +296,27 @@ const ED_IMPERATIVES = new Set([
   'plead',
   'heed',
   'weed',
-  'hold',
 ]);
 
-const ING_IMPERATIVES = new Set(['bring', 'cling', 'ring', 'sing', 'spring', 'string', 'swing']);
+// The imperatives are listed rather than inferred from word length: a gerund and a verb such as
+// `ping` or `sling` differ only by spelling, and the list is auditable where a length rule is not.
+const ING_IMPERATIVES = new Set([
+  'bring',
+  'cling',
+  'fling',
+  'ping',
+  'ring',
+  'sing',
+  'sling',
+  'spring',
+  'sting',
+  'string',
+  'swing',
+  'wing',
+]);
+
+/** Imperatives that end in `s` without being a third-person verb: `ss`, `us` and `is` endings are already allowed. */
+const S_IMPERATIVES = new Set(['alias', 'atlas', 'bias', 'canvas']);
 
 const SCISSORS = /^#\s*-+\s*>8\s*-+/;
 const TRAILER = /^[A-Za-z][A-Za-z0-9-]*:\s/;
@@ -363,7 +384,7 @@ export function looksImperative(subject: string): boolean {
   if (word.length === 0) return false;
   if (word.endsWith('ing')) return ING_IMPERATIVES.has(word);
   if (word.endsWith('ed')) return ED_IMPERATIVES.has(word);
-  if (word.endsWith('s')) return /(?:ss|us|is)$/.test(word);
+  if (word.endsWith('s')) return S_IMPERATIVES.has(word) || /(?:ss|us|is)$/.test(word);
   return true;
 }
 
