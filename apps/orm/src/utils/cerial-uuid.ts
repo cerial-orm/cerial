@@ -1,4 +1,5 @@
 import { Uuid } from 'surrealdb';
+import { CerialValidationError } from '../errors';
 
 export type CerialUuidInput = CerialUuid | Uuid | string;
 
@@ -18,11 +19,11 @@ export class CerialUuid {
       this.value = input.toString();
     } else if (typeof input === 'string') {
       if (!UUID_REGEX.test(input)) {
-        throw new Error(`Invalid UUID string: ${input}`);
+        throw new CerialValidationError(`Invalid UUID string: ${input}`);
       }
       this.value = input.toLowerCase();
     } else {
-      throw new Error(`Invalid input type for CerialUuid: ${typeof input}`);
+      throw new CerialValidationError(`Invalid input type for CerialUuid: ${typeof input}`);
     }
   }
 

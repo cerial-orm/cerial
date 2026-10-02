@@ -21,6 +21,7 @@ import { isSingleTupleInput } from '../transformers/data-transformer';
 export interface DataValidationError {
   field: string;
   message: string;
+  kind?: 'unknownField';
 }
 
 /** Validation result */
@@ -176,10 +177,7 @@ function validateKnownKeys(data: Record<string, unknown>, model: ModelMetadata):
   const known = new Set(model.fields.map((f) => f.name));
   return Object.keys(data)
     .filter((key) => !known.has(key))
-    .map((key) => ({
-      field: key,
-      message: `Unknown field '${key}' on model ${model.name} — check the field name against the schema`,
-    }));
+    .map((key) => unknownSubKey(key, model));
 }
 
 /** Validate data for create operation */
@@ -275,7 +273,7 @@ export function validateUnset(unset: Record<string, unknown>, model: ModelMetada
 
     const field = model.fields.find((f) => f.name === fieldName);
     if (!field) {
-      errors.push({ field: fieldName, message: `Unknown field '${fieldName}' in unset` });
+      errors.push(unknownSubKey(fieldName, model));
       continue;
     }
 
@@ -432,6 +430,7 @@ function validateDataUnsetOverlapDeep(
 function unknownSubKey(path: string, model: ModelMetadata): DataValidationError {
   return {
     field: path,
+    kind: 'unknownField',
     message: `Unknown field '${path}' on model ${model.name} — check the field name against the schema`,
   };
 }

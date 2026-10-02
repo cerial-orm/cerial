@@ -1,4 +1,5 @@
 import type { Surreal, SurrealTransaction } from 'surrealdb';
+import { CerialTransactionError, CerialUnknownModelError } from '../errors';
 import type { ModelRegistry } from '../types';
 import { Model } from './model/model';
 
@@ -77,7 +78,7 @@ export class CerialTransaction {
   /** @internal */
   _ensureActive(): void {
     if (this._state !== 'active') {
-      throw new Error('Transaction already ended');
+      throw new CerialTransactionError('Transaction already ended');
     }
   }
 
@@ -88,7 +89,7 @@ export class CerialTransaction {
 
     const metadata = this._registry[name];
     if (!metadata) {
-      throw new Error(`Model "${name}" not found in registry`);
+      throw new CerialUnknownModelError(`Model "${name}" not found in registry`, { model: name });
     }
 
     // SurrealTransaction extends SurrealQueryable which has query() —
@@ -133,7 +134,7 @@ export function createCerialTransactionProxy(txn: SurrealTransaction, registry: 
       if (typeof prop === 'symbol') return Reflect.get(target, prop);
 
       if (prop === '$transaction') {
-        throw new Error('Nested transactions are not supported');
+        throw new CerialTransactionError('Nested transactions are not supported', { operation: '$transaction' });
       }
 
       if (KNOWN_PROPERTIES.has(prop)) {

@@ -2,6 +2,7 @@
  * SELECT query builder
  */
 
+import { CerialValidationError } from '../../errors';
 import { getUniqueFields } from '../../parser/model-metadata';
 import type {
   FieldMetadata,
@@ -282,7 +283,9 @@ function buildOrderByParts(
       const target = ctx.registry?.[targetModel];
 
       if (isReverse || !fieldRef || !target)
-        throw new Error(`Cannot order by relation '${key}': no foreign key or target model available`);
+        throw new CerialValidationError(`Cannot order by relation '${key}': no foreign key or target model available`, {
+          field: key,
+        });
       if (typeof directionOrNested !== 'object' || directionOrNested === null) continue;
 
       const path = prefix ? `${prefix}.${quoteSubKey(fieldRef)}` : quoteSubKey(fieldRef);
@@ -506,9 +509,10 @@ export function expandObjectUniqueKey(where: WhereClause, model: ModelMetadata):
 function assertPlainUniqueValue(methodName: string, model: ModelMetadata, path: string, value: unknown): void {
   if (!isOperatorObject(value)) return;
 
-  throw new Error(
+  throw new CerialValidationError(
     `${methodName} on ${model.name}: unique key '${path}' must be a plain value, not a filter object ` +
       `(${Object.keys(value).join(', ')}). A unique filter takes plain values only; filter with operators through findMany, updateMany or deleteMany.`,
+    { model: model.name, operation: methodName, field: path },
   );
 }
 
@@ -528,7 +532,12 @@ export function validateUniqueField(where: WhereClause, model: ModelMetadata, me
   const objectKey = findObjectUniqueKey(where, model);
   if (objectKey) {
     for (const [path, value] of Object.entries(objectKey.dotPaths)) {
-      if (value === undefined) throw new Error(`${methodName} on ${model.name}: unique key '${path}' has no value`);
+      if (value === undefined)
+        throw new CerialValidationError(`${methodName} on ${model.name}: unique key '${path}' has no value`, {
+          model: model.name,
+          operation: methodName,
+          field: path,
+        });
       assertPlainUniqueValue(methodName, model, path, value);
     }
 
@@ -551,9 +560,10 @@ export function validateUniqueField(where: WhereClause, model: ModelMetadata, me
     const compositeHint = compositeNames.length
       ? ` Available composite unique keys: ${compositeNames.join(', ')}.`
       : '';
-    throw new Error(
+    throw new CerialValidationError(
       `At least one unique field must be provided in where clause for ${methodName}. ` +
         `Available unique fields: ${fieldNames}.${compositeHint}`,
+      { model: model.name, operation: methodName },
     );
   }
 }

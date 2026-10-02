@@ -3,7 +3,9 @@
  * Supports nested includes for recursive relation fetching
  */
 
+import { CerialUnknownFieldError, CerialValidationError } from '../../errors';
 import type { FieldMetadata, ModelMetadata, ModelRegistry, OrderByClause } from '../../types';
+import { validationFailure } from '../validators/failure';
 import { validateOrderBy, validatePagination } from '../validators/select-validator';
 import { buildOrderByPlan } from './select-builder';
 
@@ -101,7 +103,7 @@ function buildIncludeSubquery(
 
   for (const [context, errors] of checks) {
     if (errors.length)
-      throw new Error(`Invalid ${context} in include '${relationName}': ${errors.map((e) => e.message).join(', ')}`);
+      throw validationFailure(`${context} in include '${relationName}'`, errors, targetModel, 'include');
   }
 
   const plan = buildOrderByPlan(options?.orderBy as OrderByClause | undefined, targetModel, registry);
@@ -247,13 +249,15 @@ function buildRelationSelectFieldsInternal(
     if (!relationField) {
       const known = model.fields.find((f) => f.name === relationName);
       if (!known) {
-        throw new Error(
+        throw new CerialUnknownFieldError(
           `Invalid include: Unknown field '${relationName}' on model ${model.name} — check the field name against the schema`,
+          { model: model.name, field: relationName, operation: 'include' },
         );
       }
 
-      throw new Error(
+      throw new CerialValidationError(
         `Invalid include: '${relationName}' on model ${model.name} is a ${known.type} field, not a relation — only relation fields can be included`,
+        { model: model.name, field: relationName, operation: 'include' },
       );
     }
 
@@ -317,7 +321,10 @@ export function combineSelectWithIncludes(
 ): string {
   if (!registry) {
     if (include && Object.values(include).some(Boolean)) {
-      throw new Error('Invalid include: a model registry is required to resolve includes');
+      throw new CerialValidationError('Invalid include: a model registry is required to resolve includes', {
+        model: model.name,
+        operation: 'include',
+      });
     }
 
     return baseSelect;

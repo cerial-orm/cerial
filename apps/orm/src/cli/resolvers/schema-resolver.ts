@@ -1,6 +1,7 @@
 import { existsSync, lstatSync } from 'node:fs';
 import { basename, dirname, resolve } from 'node:path';
 import fg from 'fast-glob';
+import { CerialGenerationError } from '../../errors';
 import { findFolderConfigs } from '../config/loader';
 import type { FolderConfig } from '../config/types';
 import { toFilterPath } from '../filters/path-utils';
@@ -215,7 +216,7 @@ export async function discoverSchemas(cwd: string = process.cwd()): Promise<Disc
   }
 
   const paths = roots.map((r) => r.path).join(', ');
-  throw new Error(
+  throw new CerialGenerationError(
     `Found ${roots.length} schema roots (${paths}). Create a cerial.config.ts to configure them. Run 'cerial init' to get started.`,
   );
 }

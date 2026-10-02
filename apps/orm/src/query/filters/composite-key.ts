@@ -5,6 +5,7 @@
  * appears, including inside AND/OR/NOT, so no builder can compile one into zero conditions.
  */
 
+import { CerialValidationError } from '../../errors';
 import type { ModelMetadata, WhereClause } from '../../types';
 
 /**
@@ -38,7 +39,10 @@ export function findCompositeUniqueKey(
  * stays because this is the last place the part is still known by name.
  */
 function assertCompositePart(directiveName: string, fieldRef: string, value: unknown): void {
-  if (value === undefined) throw new Error(`Composite key '${directiveName}' is missing a value for '${fieldRef}'`);
+  if (value === undefined)
+    throw new CerialValidationError(`Composite key '${directiveName}' is missing a value for '${fieldRef}'`, {
+      field: fieldRef,
+    });
 }
 
 /**

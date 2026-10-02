@@ -3,6 +3,7 @@
  */
 
 import type { Surreal } from 'surrealdb';
+import { CerialUnknownModelError } from '../../errors';
 import type { ModelRegistry } from '../../types';
 import { type BeforeQueryCallback, Model, type ModelOptions } from '../model/model';
 
@@ -38,7 +39,7 @@ function getOrCreateModel(db: Surreal, modelName: string, registry: ModelRegistr
   // Get metadata from registry
   const metadata = registry[modelName];
   if (!metadata) {
-    throw new Error(`Model "${modelName}" not found in registry`);
+    throw new CerialUnknownModelError(`Model "${modelName}" not found in registry`, { model: modelName });
   }
 
   // Create and cache model (pass registry for relation queries)

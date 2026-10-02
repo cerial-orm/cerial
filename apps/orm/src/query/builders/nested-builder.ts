@@ -9,6 +9,7 @@
  * For n-n (bidirectional): Updates both sides atomically in a transaction
  */
 
+import { CerialValidationError } from '../../errors';
 import type { ModelMetadata, ModelRegistry } from '../../types';
 import { CerialId, type RecordIdInput } from '../../utils/cerial-id';
 import type { CompiledQuery } from '../compile/types';
@@ -156,31 +157,35 @@ function validateNestedOperation(
   // For array relations, allow create+connect (add both new and existing items)
   // For single relations, disallow create+connect (can only have one target)
   if (hasCreate && hasConnect && !field.isArray) {
-    throw new Error(
+    throw new CerialValidationError(
       `Field "${fieldName}" on model "${model.name}": Cannot specify both "create" and "connect" for single relations (use one or the other)`,
+      { model: model.name, field: fieldName },
     );
   }
 
   // create+disconnect doesn't make sense in any context
   if (hasCreate && hasDisconnect) {
-    throw new Error(
+    throw new CerialValidationError(
       `Field "${fieldName}" on model "${model.name}": Cannot specify both "create" and "disconnect" in the same nested operation`,
+      { model: model.name, field: fieldName },
     );
   }
 
   // For single relations, connect+disconnect doesn't make sense (just use connect)
   if (hasConnect && hasDisconnect && !field.isArray) {
-    throw new Error(
+    throw new CerialValidationError(
       `Field "${fieldName}" on model "${model.name}": Cannot specify both "connect" and "disconnect" for single relations (use connect alone)`,
+      { model: model.name, field: fieldName },
     );
   }
 
   // Check for disconnect on required non-array relation
   // For array relations (Relation[]), disconnect removes items from the array, which is always allowed
   if (hasDisconnect && field.isRequired && !field.isArray) {
-    throw new Error(
+    throw new CerialValidationError(
       `Field "${fieldName}" on model "${model.name}": Cannot disconnect a required relation. ` +
         `Use "connect" to switch to a different record instead.`,
+      { model: model.name, field: fieldName },
     );
   }
 }
@@ -641,7 +646,7 @@ export function buildUpdateWithNestedTransaction(
   // Build where clause for the update
   const whereKeys = Object.keys(where);
   if (whereKeys.length === 0) {
-    throw new Error('Update requires a where clause');
+    throw new CerialValidationError('Update requires a where clause', { operation: 'update' });
   }
   const whereField = whereKeys[0] as string;
   let whereValue = where[whereField];

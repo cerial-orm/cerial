@@ -6,6 +6,7 @@
  * Throws descriptive errors when filter references nonexistent items.
  */
 
+import { CerialGenerationError } from '../errors';
 import type { ASTField, ASTLiteralVariant, ASTTupleElement, ExtendsFilter } from '../types';
 
 /**
@@ -65,7 +66,7 @@ function validateReferences(
 ): void {
   for (const ref of filterFields) {
     if (!availableSet.has(ref)) {
-      throw new Error(
+      throw new CerialGenerationError(
         `${itemKind} filter references nonexistent ${itemKind.toLowerCase()} '${ref}' in parent '${parentName}'`,
       );
     }
@@ -109,7 +110,9 @@ export function applyElementFilter(
   for (const ref of filter.fields) {
     const idx = resolveElementIndex(elements, ref);
     if (idx === -1) {
-      throw new Error(`Element filter references nonexistent element '${ref}' in parent '${parentName}'`);
+      throw new CerialGenerationError(
+        `Element filter references nonexistent element '${ref}' in parent '${parentName}'`,
+      );
     }
     resolvedIndices.add(idx);
   }
@@ -174,7 +177,9 @@ export function applyVariantFilter(
   // Validate all references exist
   for (const ref of filter.fields) {
     if (!identityMap.has(ref)) {
-      throw new Error(`Variant filter references nonexistent variant '${ref}' in parent '${parentName}'`);
+      throw new CerialGenerationError(
+        `Variant filter references nonexistent variant '${ref}' in parent '${parentName}'`,
+      );
     }
   }
 

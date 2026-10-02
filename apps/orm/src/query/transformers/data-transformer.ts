@@ -3,6 +3,7 @@
  */
 
 import { Decimal, Duration, Geometry, RecordId, StringRecordId, Uuid } from 'surrealdb';
+import { CerialValidationError } from '../../errors';
 import type {
   LiteralFieldMetadata,
   ModelMetadata,
@@ -131,7 +132,7 @@ export function transformOrValidateRecordId(tableName: string, value: RecordIdIn
   // Handle CerialId - use its built-in validation
   if (CerialId.is(value)) {
     if (value.hasTable && value.table !== tableName) {
-      throw new Error(`CerialId table "${value.table}" does not match expected table "${tableName}"`);
+      throw new CerialValidationError(`CerialId table "${value.table}" does not match expected table "${tableName}"`);
     }
     // If no table, set it
     if (!value.hasTable) {
@@ -144,7 +145,9 @@ export function transformOrValidateRecordId(tableName: string, value: RecordIdIn
   // Handle RecordId - validate table name matches
   if (value instanceof RecordId) {
     if (value.table.name !== tableName) {
-      throw new Error(`RecordId table "${value.table.name}" does not match expected table "${tableName}"`);
+      throw new CerialValidationError(
+        `RecordId table "${value.table.name}" does not match expected table "${tableName}"`,
+      );
     }
 
     return value;
@@ -168,7 +171,7 @@ export function transformOrValidateRecordId(tableName: string, value: RecordIdIn
   if (Array.isArray(value)) return new RecordId(tableName, value);
   if (typeof value === 'object' && value !== null) return new RecordId(tableName, value);
 
-  throw new Error(`Invalid RecordIdInput type: ${typeof value}`);
+  throw new CerialValidationError(`Invalid RecordIdInput type: ${typeof value}`);
 }
 
 /** Find target table for a Record field by looking at paired Relation field */
@@ -203,7 +206,7 @@ export function parseRecordIdInput(value: RecordIdInput): RecordId {
   if (value instanceof StringRecordId) return CerialId.parse(value).toRecordId();
   if (typeof value === 'string') return CerialId.parse(value).toRecordId();
 
-  throw new Error(
+  throw new CerialValidationError(
     `Cannot parse ${typeof value} as RecordId without table context. ` +
       `Wrap in CerialId or RecordId with a table name.`,
   );

@@ -1,4 +1,5 @@
 import { Duration } from 'surrealdb';
+import { CerialValidationError } from '../errors';
 
 export type CerialDurationInput = CerialDuration | Duration | string;
 
@@ -18,11 +19,11 @@ export class CerialDuration {
       this._native = input;
     } else if (typeof input === 'string') {
       if (!input || !DURATION_REGEX.test(input)) {
-        throw new Error(`Invalid duration string: ${input}`);
+        throw new CerialValidationError(`Invalid duration string: ${input}`);
       }
       this._native = new Duration(input);
     } else {
-      throw new Error(`Invalid input type for CerialDuration: ${typeof input}`);
+      throw new CerialValidationError(`Invalid input type for CerialDuration: ${typeof input}`);
     }
   }
 

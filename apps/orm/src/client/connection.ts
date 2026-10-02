@@ -7,6 +7,7 @@
  */
 
 import { Surreal } from 'surrealdb';
+import { CerialConnectionError, CerialNotConnectedError } from '../errors';
 import type { ConnectionConfig, ModelRegistry } from '../types';
 import { clearModelCache, createModelProxy, type DatabaseProxy, type ProxyOptions } from './proxy';
 
@@ -223,7 +224,7 @@ export class ConnectionManager<R extends ModelRegistry = ModelRegistry> {
   async connect(config?: ConnectionConfig, name: string = DEFAULT_CONNECTION_NAME): Promise<DatabaseProxy<R>> {
     const finalConfig = config ?? this.defaultConfig;
     if (!finalConfig) {
-      throw new Error('No connection config provided');
+      throw new CerialConnectionError('No connection config provided');
     }
 
     const existing = this.connections.get(name);
@@ -342,10 +343,10 @@ export class ConnectionManager<R extends ModelRegistry = ModelRegistry> {
   useConnection(name: string): DatabaseProxy<R> {
     const connection = this.connections.get(name);
     if (!connection) {
-      throw new Error(`Connection "${name}" not found`);
+      throw new CerialConnectionError(`Connection "${name}" not found`);
     }
     if (!connection.isConnected) {
-      throw new Error(`Connection "${name}" is not connected`);
+      throw new CerialNotConnectedError(`Connection "${name}" is not connected`);
     }
 
     return connection.proxy;
@@ -378,8 +379,9 @@ export class ConnectionManager<R extends ModelRegistry = ModelRegistry> {
    */
   async migrate(migrationStatements: string[], name: string = DEFAULT_CONNECTION_NAME): Promise<void> {
     const connection = this.connections.get(name);
-    if (!connection) throw new Error(`Connection "${name}" not found`);
-    if (!connection.isConnected) throw new Error(`Connection "${name}" is not connected`);
+    if (!connection) throw new CerialConnectionError(`Connection "${name}" not found`, { operation: 'migrate' });
+    if (!connection.isConnected)
+      throw new CerialNotConnectedError(`Connection "${name}" is not connected`, { operation: 'migrate' });
     if (connection.isMigrated) return;
 
     // Execute all migration statements

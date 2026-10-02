@@ -6,6 +6,7 @@ import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import fg from 'fast-glob';
+import { CerialGenerationError } from '../../errors';
 import { toFilterPath } from '../filters/path-utils';
 import type { PathFilter } from '../filters/types';
 import type { CerialConfig, FolderConfig } from './types';
@@ -34,7 +35,7 @@ export async function loadConfig(configPath?: string, cwd: string = process.cwd(
   const validation = validateConfig(config);
   if (!validation.valid) {
     const errors = validation.errors.map((e) => `${e.field}: ${e.message}`).join('\n');
-    throw new Error(`Invalid cerial config:\n${errors}`);
+    throw new CerialGenerationError(`Invalid cerial config:\n${errors}`);
   }
 
   return config;
@@ -51,7 +52,7 @@ async function loadConfigFile(filePath: string): Promise<CerialConfig | null> {
     return loadJsonConfig(absolutePath);
   }
 
-  throw new Error(`Unsupported config file format: ${absolutePath}`);
+  throw new CerialGenerationError(`Unsupported config file format: ${absolutePath}`);
 }
 
 async function loadTypeScriptConfig(filePath: string): Promise<CerialConfig | null> {
@@ -60,12 +61,15 @@ async function loadTypeScriptConfig(filePath: string): Promise<CerialConfig | nu
     const config = module.default;
 
     if (!config) {
-      throw new Error('Config file must have a default export');
+      throw new CerialGenerationError('Config file must have a default export');
     }
 
     return config as CerialConfig;
   } catch (error) {
-    throw new Error(`Failed to load cerial.config.ts: ${error instanceof Error ? error.message : String(error)}`);
+    throw new CerialGenerationError(
+      `Failed to load cerial.config.ts: ${error instanceof Error ? error.message : String(error)}`,
+      { cause: error },
+    );
   }
 }
 
@@ -76,7 +80,10 @@ async function loadJsonConfig(filePath: string): Promise<CerialConfig | null> {
 
     return config as CerialConfig;
   } catch (error) {
-    throw new Error(`Failed to load cerial.config.json: ${error instanceof Error ? error.message : String(error)}`);
+    throw new CerialGenerationError(
+      `Failed to load cerial.config.json: ${error instanceof Error ? error.message : String(error)}`,
+      { cause: error },
+    );
   }
 }
 
@@ -114,7 +121,7 @@ export async function loadFolderConfig(dir: string): Promise<FolderConfig | null
   const validation = validateFolderConfig(raw);
   if (!validation.valid) {
     const errors = validation.errors.map((e) => `${e.field}: ${e.message}`).join('\n');
-    throw new Error(`Invalid folder config in ${dir}:\n${errors}`);
+    throw new CerialGenerationError(`Invalid folder config in ${dir}:\n${errors}`);
   }
 
   return raw as FolderConfig;

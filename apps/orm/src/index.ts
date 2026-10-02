@@ -5,6 +5,7 @@
 import { Surreal } from 'surrealdb';
 import { DEFAULT_CONNECTION_NAME } from './connection/connection.const';
 import type { IConnectionAuthUserPassOption, IRPCConnectionOption } from './connection/connection.type';
+import { CerialConnectionError } from './errors';
 
 /**
  * Cerial - Main connection class
@@ -41,7 +42,7 @@ export class Cerial {
     if (Cerial.instances[name]) {
       if (onDuplicateConnection === 'use_existing') Cerial.instances[name]!;
       if (onDuplicateConnection === 'overwrite') delete Cerial.instances[name];
-      if (onDuplicateConnection === 'throw') throw new Error(`Connection ${name} already exists`);
+      if (onDuplicateConnection === 'throw') throw new CerialConnectionError(`Connection ${name} already exists`);
     }
 
     Cerial.instances[options.name] = this;
@@ -49,7 +50,7 @@ export class Cerial {
 
   static getInstance(name: string) {
     const connection = Cerial.instances[name];
-    if (!connection) throw new Error(`Connection ${name} not found`);
+    if (!connection) throw new CerialConnectionError(`Connection ${name} not found`);
 
     return connection;
   }

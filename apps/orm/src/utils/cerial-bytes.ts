@@ -1,3 +1,5 @@
+import { CerialValidationError } from '../errors';
+
 export type CerialBytesInput = CerialBytes | Uint8Array | string;
 
 // Helper: base64 encode/decode
@@ -20,7 +22,7 @@ export class CerialBytes {
     } else if (typeof input === 'string') {
       this._data = base64ToUint8Array(input);
     } else {
-      throw new Error(`Invalid input type for CerialBytes: ${typeof input}`);
+      throw new CerialValidationError(`Invalid input type for CerialBytes: ${typeof input}`);
     }
   }
 

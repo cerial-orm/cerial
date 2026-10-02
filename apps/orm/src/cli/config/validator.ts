@@ -190,7 +190,7 @@ export function detectNestedConfigs(configPaths: string[]): void {
 
       if (p1.startsWith(`${p2}/`) || p2.startsWith(`${p1}/`)) {
         const [parent, child] = p1.startsWith(`${p2}/`) ? [p2, p1] : [p1, p2];
-        throw new Error(
+        throw new CerialGenerationError(
           `Nested configs detected: "${parent}" contains "${child}". Only one config per schema hierarchy is allowed.`,
         );
       }
@@ -345,13 +345,13 @@ export function validateCombinedEntries(
   for (const discovered of discoveredEntries) {
     for (const root of rootEntries) {
       if (discovered.name === root.name) {
-        throw new Error(
+        throw new CerialGenerationError(
           `Auto-discovered schema name '${discovered.name}' collides with root-defined schema. Rename the folder or add it to root config explicitly.`,
         );
       }
 
       if (pathsOverlap(discovered.output, root.output)) {
-        throw new Error(
+        throw new CerialGenerationError(
           `Auto-discovered schema '${discovered.name}' output '${discovered.output}' collides with root-defined schema '${root.name}'.`,
         );
       }
@@ -365,13 +365,13 @@ export function validateCombinedEntries(
       const entry2 = discoveredEntries[j]!;
 
       if (entry1.name === entry2.name) {
-        throw new Error(
+        throw new CerialGenerationError(
           `Duplicate schema name '${entry1.name}' discovered at '${entry1.path}' and '${entry2.path}'. Add a 'name' field to the folder config in one of them to disambiguate.`,
         );
       }
 
       if (pathsOverlap(entry1.output, entry2.output)) {
-        throw new Error(
+        throw new CerialGenerationError(
           `Discovered schema '${entry1.name}' output '${entry1.output}' collides with discovered schema '${entry2.name}'.`,
         );
       }
@@ -402,7 +402,7 @@ export function detectNestedSchemaRoots(roots: Array<{ path: string; type: 'fold
           ignored.add(parent.path);
         } else {
           // Rules 1, 2, 3: all other combinations throw error
-          throw new Error(
+          throw new CerialGenerationError(
             `Nested schema roots detected: '${parent.path}' contains '${child.path}'. Only one config per schema hierarchy is allowed.`,
           );
         }

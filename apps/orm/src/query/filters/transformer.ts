@@ -2,6 +2,7 @@
  * Filter transformer - transforms where clauses to SQL conditions
  */
 
+import { CerialValidationError } from '../../errors';
 import type { ModelMetadata, ModelRegistry, WhereClause } from '../../types';
 import { fragmentToQuery } from '../compile/fragment';
 import type { CompiledQuery } from '../compile/types';
@@ -60,8 +61,9 @@ export function transformDestructiveWhere(
   const clause = transformWhereClause(where, model, registry);
   if (suppliedNoFilter || clause.text) return clause;
 
-  throw new Error(
+  throw new CerialValidationError(
     `${operation} on ${model.name}: the where filter resolved to no conditions, so the statement would affect every row. ` +
       'Omit where entirely to affect every row.',
+    { model: model.name, operation },
   );
 }

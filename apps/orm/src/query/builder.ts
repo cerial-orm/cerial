@@ -61,11 +61,13 @@ import {
   validateUnset,
   validateUpdateData,
   validateWhere,
+  validationFailure,
 } from './validators';
 
 /** Throw on select/orderBy/limit/offset values the model cannot honour, so a typo is not silently dropped. */
 function assertValidReadOptions(
   model: ModelMetadata,
+  operation: string,
   options: { select?: object; orderBy?: object; limit?: number; offset?: number },
   registry?: ModelRegistry,
 ): void {
@@ -76,7 +78,7 @@ function assertValidReadOptions(
   ] as const;
 
   for (const [context, errors] of checks) {
-    if (errors.length) throw new Error(`Invalid ${context}: ${errors.map((e) => e.message).join(', ')}`);
+    if (errors.length) throw validationFailure(context, errors, model, operation);
   }
 }
 
@@ -110,12 +112,11 @@ export class QueryBuilder<T extends Record<string, unknown>> {
 
   /** Find a single record */
   async findOne(options: FindOneOptionsWithInclude = {}): Promise<T | null> {
-    assertValidReadOptions(this.model, options, this.registry);
+    assertValidReadOptions(this.model, 'findOne', options, this.registry);
 
     // Validate where clause
     const validation = validateWhere(options.where, this.model, this.registry);
-    if (!validation.valid)
-      throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
+    if (!validation.valid) throw validationFailure('where clause', validation.errors, this.model, 'findOne');
 
     const query = buildFindOneQuery(this.model, options as FindOptionsWithInclude, this.registry);
     const result = await executeQuerySingle(this.db, query);
@@ -127,13 +128,12 @@ export class QueryBuilder<T extends Record<string, unknown>> {
   async findUnique(options: FindUniqueOptionsWithInclude): Promise<T | null> {
     const { where } = options;
 
-    assertValidReadOptions(this.model, options, this.registry);
+    assertValidReadOptions(this.model, 'findUnique', options, this.registry);
 
     // Validate the entire where clause (including unique fields)
     // The unique field validation is handled in buildFindUniqueQuery
     const validation = validateWhere(where, this.model, this.registry);
-    if (!validation.valid)
-      throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
+    if (!validation.valid) throw validationFailure('where clause', validation.errors, this.model, 'findUnique');
 
     const query = buildFindUniqueQuery(this.model, options as FindUniqueOptionsWithInclude, this.registry);
     const result = await executeQuerySingle(this.db, query);
@@ -143,12 +143,11 @@ export class QueryBuilder<T extends Record<string, unknown>> {
 
   /** Find multiple records */
   async findMany(options: FindManyOptionsWithInclude = {}): Promise<T[]> {
-    assertValidReadOptions(this.model, options, this.registry);
+    assertValidReadOptions(this.model, 'findMany', options, this.registry);
 
     // Validate where clause
     const validation = validateWhere(options.where, this.model, this.registry);
-    if (!validation.valid)
-      throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
+    if (!validation.valid) throw validationFailure('where clause', validation.errors, this.model, 'findMany');
 
     const query = buildFindManyQuery(this.model, options as FindOptionsWithInclude, this.registry);
     const result = await executeQuery(this.db, query);
@@ -159,7 +158,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
   /** Create a new record */
   async create(options: CreateOptions<Partial<T>>): Promise<T | null> {
     const { data, select } = options;
-    assertValidReadOptions(this.model, { select });
+    assertValidReadOptions(this.model, 'create', { select });
 
     // Extract nested operations from the data
     const { cleanData, nestedOps } = extractNestedOperations(data as Record<string, unknown>, this.model);
@@ -168,7 +167,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     // Pass nestedOps so validation knows which Record fields will be satisfied by nested operations
     const dataWithDefaults = applyFieldDefaults(cleanData, this.model);
     const validation = validateCreateData(dataWithDefaults, this.model, nestedOps);
-    if (!validation.valid) throw new Error(`Invalid data: ${validation.errors.map((e) => e.message).join(', ')}`);
+    if (!validation.valid) throw validationFailure('data', validation.errors, this.model, 'create');
 
     // Transform data after validation (converts dates to Date objects, ids to RecordId, etc.)
     const transformedData = transformData(dataWithDefaults, this.model);
@@ -191,12 +190,12 @@ export class QueryBuilder<T extends Record<string, unknown>> {
   /** Update records matching where clause */
   async updateMany(options: UpdateOptions<Partial<T>>): Promise<T[]> {
     const { where, data, select, unset } = options;
-    assertValidReadOptions(this.model, { select });
+    assertValidReadOptions(this.model, 'updateMany', { select });
 
     // Validate where clause
     const whereValidation = validateWhere(where, this.model, this.registry);
     if (!whereValidation.valid)
-      throw new Error(`Invalid where clause: ${whereValidation.errors.map((e) => e.message).join(', ')}`);
+      throw validationFailure('where clause', whereValidation.errors, this.model, 'updateMany');
 
     // Extract nested operations from the data
     const { cleanData, nestedOps } = extractNestedOperations(data as Record<string, unknown>, this.model);
@@ -205,18 +204,16 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     const transformedData = transformData(cleanData, this.model, 'update');
 
     const dataValidation = validateUpdateData(transformedData, this.model);
-    if (!dataValidation.valid)
-      throw new Error(`Invalid data: ${dataValidation.errors.map((e) => e.message).join(', ')}`);
+    if (!dataValidation.valid) throw validationFailure('data', dataValidation.errors, this.model, 'updateMany');
 
     // Validate unset fields
     if (unset) {
       const unsetValidation = validateUnset(unset, this.model);
-      if (!unsetValidation.valid)
-        throw new Error(`Invalid unset: ${unsetValidation.errors.map((e) => e.message).join(', ')}`);
+      if (!unsetValidation.valid) throw validationFailure('unset', unsetValidation.errors, this.model, 'updateMany');
 
       const overlapValidation = validateDataUnsetOverlap(transformedData, unset, this.model);
       if (!overlapValidation.valid)
-        throw new Error(`Invalid unset: ${overlapValidation.errors.map((e) => e.message).join(', ')}`);
+        throw validationFailure('unset', overlapValidation.errors, this.model, 'updateMany');
     }
 
     // If there are nested operations, use the transaction builder
@@ -251,12 +248,12 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     return?: R;
   }): Promise<UpdateUniqueResult<T, R>> {
     const { where, data, select, include, return: returnOption, unset } = options;
-    assertValidReadOptions(this.model, { select });
+    assertValidReadOptions(this.model, 'updateUnique', { select });
 
     // Validate where clause
     const whereValidation = validateWhere(where, this.model, this.registry);
     if (!whereValidation.valid)
-      throw new Error(`Invalid where clause: ${whereValidation.errors.map((e) => e.message).join(', ')}`);
+      throw validationFailure('where clause', whereValidation.errors, this.model, 'updateUnique');
 
     // Validate unique field requirement and expand composite keys
     const { hasId, expandedWhere } = getRecordIdFromWhere(where, this.model, 'updateUnique');
@@ -268,18 +265,16 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     const transformedData = transformData(cleanData, this.model, 'update');
 
     const dataValidation = validateUpdateData(transformedData, this.model);
-    if (!dataValidation.valid)
-      throw new Error(`Invalid data: ${dataValidation.errors.map((e) => e.message).join(', ')}`);
+    if (!dataValidation.valid) throw validationFailure('data', dataValidation.errors, this.model, 'updateUnique');
 
     // Validate unset fields
     if (unset) {
       const unsetValidation = validateUnset(unset, this.model);
-      if (!unsetValidation.valid)
-        throw new Error(`Invalid unset: ${unsetValidation.errors.map((e) => e.message).join(', ')}`);
+      if (!unsetValidation.valid) throw validationFailure('unset', unsetValidation.errors, this.model, 'updateUnique');
 
       const overlapValidation = validateDataUnsetOverlap(transformedData, unset, this.model);
       if (!overlapValidation.valid)
-        throw new Error(`Invalid unset: ${overlapValidation.errors.map((e) => e.message).join(', ')}`);
+        throw validationFailure('unset', overlapValidation.errors, this.model, 'updateUnique');
     }
 
     // If there are nested operations, use the transaction builder
@@ -351,8 +346,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
 
     // Validate where clause
     const validation = validateWhere(where, this.model, this.registry);
-    if (!validation.valid)
-      throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
+    if (!validation.valid) throw validationFailure('where clause', validation.errors, this.model, 'deleteMany');
 
     // Use cascade delete if registry is available (handles @onDelete behavior)
     if (this.registry) {
@@ -385,8 +379,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
 
     // Validate where clause
     const validation = validateWhere(where, this.model, this.registry);
-    if (!validation.valid)
-      throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
+    if (!validation.valid) throw validationFailure('where clause', validation.errors, this.model, 'deleteUnique');
 
     // Get record ID info (also validates unique field requirement) and expand composite keys
     const { hasId, id, expandedWhere } = getRecordIdFromWhere(where, this.model, 'deleteUnique');
@@ -443,8 +436,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     // Validate where clause
     if (where) {
       const validation = validateWhere(where, this.model, this.registry);
-      if (!validation.valid)
-        throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
+      if (!validation.valid) throw validationFailure('where clause', validation.errors, this.model, 'count');
     }
 
     const query = buildCountQuery(this.model, where, this.registry);
@@ -480,12 +472,11 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     return?: R;
   }): Promise<unknown> {
     const { where, create: createData, update: updateData, unset, select, include, return: returnOption } = options;
-    assertValidReadOptions(this.model, { select });
+    assertValidReadOptions(this.model, 'upsert', { select });
 
     // Validate where clause
     const whereValidation = validateWhere(where, this.model, this.registry);
-    if (!whereValidation.valid)
-      throw new Error(`Invalid where clause: ${whereValidation.errors.map((e) => e.message).join(', ')}`);
+    if (!whereValidation.valid) throw validationFailure('where clause', whereValidation.errors, this.model, 'upsert');
 
     // Extract nested operations from create and update data
     const { cleanData: cleanCreateData, nestedOps: createNestedOps } = extractNestedOperations(createData, this.model);
@@ -496,8 +487,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     // Apply defaults and transform create data
     const createWithDefaults = applyFieldDefaults(cleanCreateData, this.model);
     const createValidation = validateCreateData(createWithDefaults, this.model, createNestedOps);
-    if (!createValidation.valid)
-      throw new Error(`Invalid create data: ${createValidation.errors.map((e) => e.message).join(', ')}`);
+    if (!createValidation.valid) throw validationFailure('data', createValidation.errors, this.model, 'upsert');
     const transformedCreateData = transformData(createWithDefaults, this.model);
 
     // Transform and validate update data (only if update provided)
@@ -505,20 +495,17 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     if (updateData) {
       transformedUpdateData = transformData(cleanUpdateData, this.model, 'update');
       const updateValidation = validateUpdateData(transformedUpdateData, this.model);
-      if (!updateValidation.valid)
-        throw new Error(`Invalid update data: ${updateValidation.errors.map((e) => e.message).join(', ')}`);
+      if (!updateValidation.valid) throw validationFailure('data', updateValidation.errors, this.model, 'upsert');
     }
 
     // Validate unset fields (applies to update portion of upsert)
     if (unset) {
       const unsetValidation = validateUnset(unset, this.model);
-      if (!unsetValidation.valid)
-        throw new Error(`Invalid unset: ${unsetValidation.errors.map((e) => e.message).join(', ')}`);
+      if (!unsetValidation.valid) throw validationFailure('unset', unsetValidation.errors, this.model, 'upsert');
 
       if (updateData) {
         const overlapValidation = validateDataUnsetOverlap(transformedUpdateData, unset, this.model);
-        if (!overlapValidation.valid)
-          throw new Error(`Invalid unset: ${overlapValidation.errors.map((e) => e.message).join(', ')}`);
+        if (!overlapValidation.valid) throw validationFailure('unset', overlapValidation.errors, this.model, 'upsert');
       }
     }
 
@@ -671,9 +658,9 @@ export function compileFindOne(
   options: FindOneOptionsWithInclude = {},
   registry?: ModelRegistry,
 ): CompiledQueryDescriptor {
-  assertValidReadOptions(model, options, registry);
+  assertValidReadOptions(model, 'findOne', options, registry);
   const validation = validateWhere(options.where, model, registry);
-  if (!validation.valid) throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
+  if (!validation.valid) throw validationFailure('where clause', validation.errors, model, 'findOne');
 
   return {
     query: buildFindOneQuery(model, options as FindOptionsWithInclude, registry),
@@ -687,9 +674,9 @@ export function compileFindUnique(
   options: FindUniqueOptionsWithInclude,
   registry?: ModelRegistry,
 ): CompiledQueryDescriptor {
-  assertValidReadOptions(model, options, registry);
+  assertValidReadOptions(model, 'findUnique', options, registry);
   const validation = validateWhere(options.where, model, registry);
-  if (!validation.valid) throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
+  if (!validation.valid) throw validationFailure('where clause', validation.errors, model, 'findUnique');
 
   return {
     query: buildFindUniqueQuery(model, options as FindUniqueOptionsWithInclude, registry),
@@ -703,9 +690,9 @@ export function compileFindMany(
   options: FindManyOptionsWithInclude = {},
   registry?: ModelRegistry,
 ): CompiledQueryDescriptor {
-  assertValidReadOptions(model, options, registry);
+  assertValidReadOptions(model, 'findMany', options, registry);
   const validation = validateWhere(options.where, model, registry);
-  if (!validation.valid) throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
+  if (!validation.valid) throw validationFailure('where clause', validation.errors, model, 'findMany');
 
   return {
     query: buildFindManyQuery(model, options as FindOptionsWithInclude, registry),
@@ -720,12 +707,12 @@ export function compileCreate(
   registry?: ModelRegistry,
 ): CompiledQueryDescriptor {
   const { data, select } = options;
-  assertValidReadOptions(model, { select });
+  assertValidReadOptions(model, 'create', { select });
 
   const { cleanData, nestedOps } = extractNestedOperations(data, model);
   const dataWithDefaults = applyFieldDefaults(cleanData, model);
   const validation = validateCreateData(dataWithDefaults, model, nestedOps);
-  if (!validation.valid) throw new Error(`Invalid data: ${validation.errors.map((e) => e.message).join(', ')}`);
+  if (!validation.valid) throw validationFailure('data', validation.errors, model, 'create');
 
   const transformedData = transformData(dataWithDefaults, model);
 
@@ -749,27 +736,24 @@ export function compileUpdateMany(
   registry?: ModelRegistry,
 ): CompiledQueryDescriptor {
   const { where, data, select, unset } = options;
-  assertValidReadOptions(model, { select });
+  assertValidReadOptions(model, 'updateMany', { select });
 
   const whereValidation = validateWhere(where, model, registry);
-  if (!whereValidation.valid)
-    throw new Error(`Invalid where clause: ${whereValidation.errors.map((e) => e.message).join(', ')}`);
+  if (!whereValidation.valid) throw validationFailure('where clause', whereValidation.errors, model, 'updateMany');
 
   const { cleanData, nestedOps } = extractNestedOperations(data, model);
   const transformedData = transformData(cleanData, model, 'update');
 
   const dataValidation = validateUpdateData(transformedData, model);
-  if (!dataValidation.valid) throw new Error(`Invalid data: ${dataValidation.errors.map((e) => e.message).join(', ')}`);
+  if (!dataValidation.valid) throw validationFailure('data', dataValidation.errors, model, 'updateMany');
 
   // Validate unset fields
   if (unset) {
     const unsetValidation = validateUnset(unset, model);
-    if (!unsetValidation.valid)
-      throw new Error(`Invalid unset: ${unsetValidation.errors.map((e) => e.message).join(', ')}`);
+    if (!unsetValidation.valid) throw validationFailure('unset', unsetValidation.errors, model, 'updateMany');
 
     const overlapValidation = validateDataUnsetOverlap(transformedData, unset, model);
-    if (!overlapValidation.valid)
-      throw new Error(`Invalid unset: ${overlapValidation.errors.map((e) => e.message).join(', ')}`);
+    if (!overlapValidation.valid) throw validationFailure('unset', overlapValidation.errors, model, 'updateMany');
   }
 
   if (nestedOps.size > 0 && registry) {
@@ -799,11 +783,10 @@ export function compileUpdateUnique(
   registry?: ModelRegistry,
 ): CompiledQueryDescriptor {
   const { where, data, select, include, return: returnOption, unset } = options;
-  assertValidReadOptions(model, { select });
+  assertValidReadOptions(model, 'updateUnique', { select });
 
   const whereValidation = validateWhere(where, model, registry);
-  if (!whereValidation.valid)
-    throw new Error(`Invalid where clause: ${whereValidation.errors.map((e) => e.message).join(', ')}`);
+  if (!whereValidation.valid) throw validationFailure('where clause', whereValidation.errors, model, 'updateUnique');
 
   const { hasId, expandedWhere } = getRecordIdFromWhere(where, model, 'updateUnique');
 
@@ -811,17 +794,15 @@ export function compileUpdateUnique(
   const transformedData = transformData(cleanData, model, 'update');
 
   const dataValidation = validateUpdateData(transformedData, model);
-  if (!dataValidation.valid) throw new Error(`Invalid data: ${dataValidation.errors.map((e) => e.message).join(', ')}`);
+  if (!dataValidation.valid) throw validationFailure('data', dataValidation.errors, model, 'updateUnique');
 
   // Validate unset fields
   if (unset) {
     const unsetValidation = validateUnset(unset, model);
-    if (!unsetValidation.valid)
-      throw new Error(`Invalid unset: ${unsetValidation.errors.map((e) => e.message).join(', ')}`);
+    if (!unsetValidation.valid) throw validationFailure('unset', unsetValidation.errors, model, 'updateUnique');
 
     const overlapValidation = validateDataUnsetOverlap(transformedData, unset, model);
-    if (!overlapValidation.valid)
-      throw new Error(`Invalid unset: ${overlapValidation.errors.map((e) => e.message).join(', ')}`);
+    if (!overlapValidation.valid) throw validationFailure('unset', overlapValidation.errors, model, 'updateUnique');
   }
 
   if (nestedOps.size > 0 && registry) {
@@ -860,7 +841,7 @@ export function compileDeleteMany(
   const { where } = options;
 
   const validation = validateWhere(where, model, registry);
-  if (!validation.valid) throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
+  if (!validation.valid) throw validationFailure('where clause', validation.errors, model, 'deleteMany');
 
   if (registry) {
     return {
@@ -884,7 +865,7 @@ export function compileDeleteUnique(
   const { where, return: returnOption } = options;
 
   const validation = validateWhere(where, model, registry);
-  if (!validation.valid) throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
+  if (!validation.valid) throw validationFailure('where clause', validation.errors, model, 'deleteUnique');
 
   const { hasId, id, expandedWhere } = getRecordIdFromWhere(where, model, 'deleteUnique');
   const needsReturnBefore = returnOption === true || returnOption === 'before';
@@ -928,8 +909,7 @@ export function compileCount(
 ): CompiledQueryDescriptor {
   if (where) {
     const validation = validateWhere(where, model, registry);
-    if (!validation.valid)
-      throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
+    if (!validation.valid) throw validationFailure('where clause', validation.errors, model, 'count');
   }
 
   return {
@@ -946,8 +926,7 @@ export function compileExists(
 ): CompiledQueryDescriptor {
   if (where) {
     const validation = validateWhere(where, model, registry);
-    if (!validation.valid)
-      throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
+    if (!validation.valid) throw validationFailure('where clause', validation.errors, model, 'exists');
   }
 
   return {
@@ -971,18 +950,16 @@ export function compileUpsert(
   registry?: ModelRegistry,
 ): CompiledQueryDescriptor {
   const { where, create: createData, update: updateData, unset, select, include, return: returnOption } = options;
-  assertValidReadOptions(model, { select });
+  assertValidReadOptions(model, 'upsert', { select });
 
   const whereValidation = validateWhere(where, model, registry);
-  if (!whereValidation.valid)
-    throw new Error(`Invalid where clause: ${whereValidation.errors.map((e) => e.message).join(', ')}`);
+  if (!whereValidation.valid) throw validationFailure('where clause', whereValidation.errors, model, 'upsert');
 
   // Extract nested ops and transform data
   const { cleanData: cleanCreateData, nestedOps: createNestedOps } = extractNestedOperations(createData, model);
   const createWithDefaults = applyFieldDefaults(cleanCreateData, model);
   const createValidation = validateCreateData(createWithDefaults, model, createNestedOps);
-  if (!createValidation.valid)
-    throw new Error(`Invalid create data: ${createValidation.errors.map((e) => e.message).join(', ')}`);
+  if (!createValidation.valid) throw validationFailure('data', createValidation.errors, model, 'upsert');
   const transformedCreateData = transformData(createWithDefaults, model);
 
   let transformedUpdateData: Record<string, unknown> = {};
@@ -990,20 +967,17 @@ export function compileUpsert(
     const { cleanData: cleanUpdateData } = extractNestedOperations(updateData, model);
     transformedUpdateData = transformData(cleanUpdateData, model, 'update');
     const updateValidation = validateUpdateData(transformedUpdateData, model);
-    if (!updateValidation.valid)
-      throw new Error(`Invalid update data: ${updateValidation.errors.map((e) => e.message).join(', ')}`);
+    if (!updateValidation.valid) throw validationFailure('data', updateValidation.errors, model, 'upsert');
   }
 
   // Validate unset fields (applies to update portion of upsert)
   if (unset) {
     const unsetValidation = validateUnset(unset, model);
-    if (!unsetValidation.valid)
-      throw new Error(`Invalid unset: ${unsetValidation.errors.map((e) => e.message).join(', ')}`);
+    if (!unsetValidation.valid) throw validationFailure('unset', unsetValidation.errors, model, 'upsert');
 
     if (updateData) {
       const overlapValidation = validateDataUnsetOverlap(transformedUpdateData, unset, model);
-      if (!overlapValidation.valid)
-        throw new Error(`Invalid unset: ${overlapValidation.errors.map((e) => e.message).join(', ')}`);
+      if (!overlapValidation.valid) throw validationFailure('unset', overlapValidation.errors, model, 'upsert');
     }
   }
 

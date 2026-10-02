@@ -40,6 +40,7 @@ function isDirectValue(value: unknown): boolean {
 export interface ValidationError {
   path: string;
   message: string;
+  kind?: 'unknownField';
 }
 
 /** Validation result */
@@ -112,6 +113,7 @@ const LOGICAL_KEYS = ['AND', 'OR', 'NOT'];
 function unknownSubField(path: string, fieldPath: string, model: ModelMetadata): ValidationError {
   return {
     path,
+    kind: 'unknownField',
     message: `Unknown field '${fieldPath}' on model ${model.name} — check the field name against the schema`,
   };
 }
@@ -302,7 +304,7 @@ export function validateFieldFilter(
   // Check if field exists in model
   const field = model.fields.find((f) => f.name === fieldName);
   if (!field) {
-    errors.push({ path, message: `Unknown field: ${fieldName}` });
+    errors.push(unknownSubField(path, fieldName, model));
     return errors;
   }
 

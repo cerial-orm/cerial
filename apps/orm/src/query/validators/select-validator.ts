@@ -10,11 +10,13 @@ import { resolveElementBySelectKey } from '../builders/select-builder';
 export interface SelectValidationError {
   path: string;
   message: string;
+  kind?: 'unknownField';
 }
 
 function unknownField(path: string, model: ModelMetadata): SelectValidationError {
   return {
     path,
+    kind: 'unknownField',
     message: `Unknown field '${path}' on model ${model.name} — check the field name against the schema`,
   };
 }

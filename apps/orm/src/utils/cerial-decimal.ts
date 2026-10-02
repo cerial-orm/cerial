@@ -1,4 +1,5 @@
 import { Decimal } from 'surrealdb';
+import { CerialValidationError } from '../errors';
 
 export type CerialDecimalInput = CerialDecimal | Decimal | number | string;
 
@@ -18,11 +19,11 @@ export class CerialDecimal {
       this._native = new Decimal(input);
     } else if (typeof input === 'string') {
       if (!input) {
-        throw new Error('Invalid decimal string: empty string');
+        throw new CerialValidationError('Invalid decimal string: empty string');
       }
       this._native = new Decimal(input);
     } else {
-      throw new Error(`Invalid input type for CerialDecimal: ${typeof input}`);
+      throw new CerialValidationError(`Invalid input type for CerialDecimal: ${typeof input}`);
     }
   }
 

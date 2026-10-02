@@ -15,6 +15,7 @@ import {
   GeometryPoint,
   GeometryPolygon,
 } from 'surrealdb';
+import { CerialValidationError } from '../errors';
 
 // ─── Geometry Subtype Discriminant ────────────────────────────────────────────
 
@@ -107,7 +108,7 @@ function toGeometryPoints(coords: [number, number][]): GeometryPoint[] {
 function toGeometryLines(coords: [number, number][][]): GeometryLine[] {
   return coords.map((ring) => {
     const pts = toGeometryPoints(ring);
-    if (pts.length < 2) throw new Error('A line requires at least 2 points');
+    if (pts.length < 2) throw new CerialValidationError('A line requires at least 2 points');
 
     return new GeometryLine(pts as [GeometryPoint, GeometryPoint, ...GeometryPoint[]]);
   });
@@ -116,7 +117,7 @@ function toGeometryLines(coords: [number, number][][]): GeometryLine[] {
 function toGeometryPolygons(coords: [number, number][][][]): GeometryPolygon[] {
   return coords.map((rings) => {
     const lines = toGeometryLines(rings);
-    if (!lines.length) throw new Error('A polygon requires at least 1 ring');
+    if (!lines.length) throw new CerialValidationError('A polygon requires at least 1 ring');
 
     return new GeometryPolygon(lines as [GeometryLine, ...GeometryLine[]]);
   });
@@ -146,7 +147,7 @@ export abstract class CerialGeometry {
     if (native instanceof GeometryMultiLine) return new CerialMultiLineString(native);
     if (native instanceof GeometryMultiPolygon) return new CerialMultiPolygon(native);
     if (native instanceof GeometryCollection) return new CerialGeometryCollection(native);
-    throw new Error(`Unknown SDK Geometry type: ${native.constructor.name}`);
+    throw new CerialValidationError(`Unknown SDK Geometry type: ${native.constructor.name}`);
   }
 
   /** Factory: convert any CerialGeometryInput → CerialGeometry */
@@ -175,11 +176,11 @@ export abstract class CerialGeometry {
         case 'GeometryCollection':
           return new CerialGeometryCollection(input as GeoJsonCollection);
         default:
-          throw new Error(`Unknown GeoJSON type: ${(input as { type: string }).type}`);
+          throw new CerialValidationError(`Unknown GeoJSON type: ${(input as { type: string }).type}`);
       }
     }
 
-    throw new Error(`Invalid CerialGeometry input: ${typeof input}`);
+    throw new CerialValidationError(`Invalid CerialGeometry input: ${typeof input}`);
   }
 
   abstract toJSON(): GeoJsonGeometry;
@@ -215,7 +216,7 @@ export class CerialPoint extends CerialGeometry {
     } else if (typeof input === 'object' && input !== null && input.type === 'Point') {
       this._native = new GeometryPoint(input.coordinates);
     } else {
-      throw new Error(`Invalid CerialPoint input`);
+      throw new CerialValidationError(`Invalid CerialPoint input`);
     }
   }
 
@@ -250,10 +251,10 @@ export class CerialLineString extends CerialGeometry {
       this._native = input;
     } else if (typeof input === 'object' && input !== null && input.type === 'LineString') {
       const pts = toGeometryPoints(input.coordinates);
-      if (pts.length < 2) throw new Error('A LineString requires at least 2 points');
+      if (pts.length < 2) throw new CerialValidationError('A LineString requires at least 2 points');
       this._native = new GeometryLine(pts as [GeometryPoint, GeometryPoint, ...GeometryPoint[]]);
     } else {
-      throw new Error(`Invalid CerialLineString input`);
+      throw new CerialValidationError(`Invalid CerialLineString input`);
     }
   }
 
@@ -288,10 +289,10 @@ export class CerialPolygon extends CerialGeometry {
       this._native = input;
     } else if (typeof input === 'object' && input !== null && input.type === 'Polygon') {
       const lines = toGeometryLines(input.coordinates);
-      if (!lines.length) throw new Error('A Polygon requires at least 1 ring');
+      if (!lines.length) throw new CerialValidationError('A Polygon requires at least 1 ring');
       this._native = new GeometryPolygon(lines as [GeometryLine, ...GeometryLine[]]);
     } else {
-      throw new Error(`Invalid CerialPolygon input`);
+      throw new CerialValidationError(`Invalid CerialPolygon input`);
     }
   }
 
@@ -326,10 +327,10 @@ export class CerialMultiPoint extends CerialGeometry {
       this._native = input;
     } else if (typeof input === 'object' && input !== null && input.type === 'MultiPoint') {
       const pts = toGeometryPoints(input.coordinates);
-      if (!pts.length) throw new Error('A MultiPoint requires at least 1 point');
+      if (!pts.length) throw new CerialValidationError('A MultiPoint requires at least 1 point');
       this._native = new GeometryMultiPoint(pts as [GeometryPoint, ...GeometryPoint[]]);
     } else {
-      throw new Error(`Invalid CerialMultiPoint input`);
+      throw new CerialValidationError(`Invalid CerialMultiPoint input`);
     }
   }
 
@@ -364,10 +365,10 @@ export class CerialMultiLineString extends CerialGeometry {
       this._native = input;
     } else if (typeof input === 'object' && input !== null && input.type === 'MultiLineString') {
       const lines = toGeometryLines(input.coordinates);
-      if (!lines.length) throw new Error('A MultiLineString requires at least 1 line');
+      if (!lines.length) throw new CerialValidationError('A MultiLineString requires at least 1 line');
       this._native = new GeometryMultiLine(lines as [GeometryLine, ...GeometryLine[]]);
     } else {
-      throw new Error(`Invalid CerialMultiLineString input`);
+      throw new CerialValidationError(`Invalid CerialMultiLineString input`);
     }
   }
 
@@ -402,10 +403,10 @@ export class CerialMultiPolygon extends CerialGeometry {
       this._native = input;
     } else if (typeof input === 'object' && input !== null && input.type === 'MultiPolygon') {
       const polys = toGeometryPolygons(input.coordinates);
-      if (!polys.length) throw new Error('A MultiPolygon requires at least 1 polygon');
+      if (!polys.length) throw new CerialValidationError('A MultiPolygon requires at least 1 polygon');
       this._native = new GeometryMultiPolygon(polys as [GeometryPolygon, ...GeometryPolygon[]]);
     } else {
-      throw new Error(`Invalid CerialMultiPolygon input`);
+      throw new CerialValidationError(`Invalid CerialMultiPolygon input`);
     }
   }
 
@@ -440,7 +441,7 @@ export class CerialGeometryCollection extends CerialGeometry {
     if (input instanceof CerialGeometryCollection) {
       this._geometries = input._geometries.map((g) => g.clone());
       const natives = this._geometries.map((g) => g.toNative());
-      if (!natives.length) throw new Error('A GeometryCollection requires at least 1 geometry');
+      if (!natives.length) throw new CerialValidationError('A GeometryCollection requires at least 1 geometry');
       this._native = new GeometryCollection(natives as [Geometry, ...Geometry[]]);
     } else if (input instanceof GeometryCollection) {
       this._native = input;
@@ -448,10 +449,10 @@ export class CerialGeometryCollection extends CerialGeometry {
     } else if (typeof input === 'object' && input !== null && input.type === 'GeometryCollection') {
       this._geometries = input.geometries.map((g) => CerialGeometry.from(g));
       const natives = this._geometries.map((g) => g.toNative());
-      if (!natives.length) throw new Error('A GeometryCollection requires at least 1 geometry');
+      if (!natives.length) throw new CerialValidationError('A GeometryCollection requires at least 1 geometry');
       this._native = new GeometryCollection(natives as [Geometry, ...Geometry[]]);
     } else {
-      throw new Error(`Invalid CerialGeometryCollection input`);
+      throw new CerialValidationError(`Invalid CerialGeometryCollection input`);
     }
   }
 

@@ -9,7 +9,7 @@ export function generateImports(models: ModelMetadata[]): string {
   const modelImports = models.map((m) => m.name).join(', ');
   const modelTypeImports = models.map((m) => `${m.name}Model`).join(', ');
 
-  return `import { ConnectionManager, CerialQueryPromise, executeClientTransaction, createCerialTransactionProxy, isTransactionConflict, type CerialTransaction, type DatabaseProxy, type ModelRegistry, type BeforeQueryCallback, type PerModelCallbacks, type TransactionItem, type TransactionExecutionItem, type TransactionItemResult, type TransactionOptions, type TransactionClient } from 'cerial';
+  return `import { CerialNotConnectedError, CerialTransactionError, CerialValidationError, ConnectionManager, CerialQueryPromise, executeClientTransaction, createCerialTransactionProxy, isTransactionConflict, type CerialTransaction, type DatabaseProxy, type ModelRegistry, type BeforeQueryCallback, type PerModelCallbacks, type TransactionItem, type TransactionExecutionItem, type TransactionItemResult, type TransactionOptions, type TransactionClient } from 'cerial';
 import type { ConnectionConfig } from 'cerial';
 import { modelRegistry } from './internal/model-registry';
 import { migrationsByModel, getModelMigrationQuery, getMigrationModelNames, type ModelName } from './internal/migrations';
@@ -143,7 +143,7 @@ export class ${clientClassName} {
 
   /** @internal */
   private _ensureDb(): TypedDb {
-    if (!this._db) throw new Error('Not connected. Call connect() first.');
+    if (!this._db) throw new CerialNotConnectedError('Not connected. Call connect() first.');
     return this._db as unknown as TypedDb;
   }
 
@@ -276,13 +276,13 @@ ${modelAccessors}
    * @internal
    */
   private async _doMigrateModel(modelName: ModelName): Promise<void> {
-    if (!this._db) throw new Error('Not connected. Call connect() first.');
+    if (!this._db) throw new CerialNotConnectedError('Not connected. Call connect() first.', { model: modelName, operation: 'migrate' });
 
     this._onMigrationEvent?.({ type: 'start', modelName });
 
     try {
       const surreal = this.connectionManager.getSurreal();
-      if (!surreal) throw new Error('No active connection.');
+      if (!surreal) throw new CerialNotConnectedError('No active connection.', { model: modelName, operation: 'migrate' });
 
       // Get migration statements for this specific model
       const query = getModelMigrationQuery(modelName);
@@ -364,7 +364,7 @@ ${modelAccessors}
   async query<T = unknown>(query: string, vars?: Record<string, unknown>): Promise<T[]> {
     await this.ensureMigrated();
     const surreal = this.getSurreal();
-    if (!surreal) throw new Error('Not connected.');
+    if (!surreal) throw new CerialNotConnectedError('Not connected.', { operation: 'query' });
     const result = await surreal.query<T[]>(query, vars);
     return result.flat() as T[];
   }
@@ -430,12 +430,12 @@ ${_generateTransactionOverloads()}
      arg?: (CerialQueryPromise<any> | ((prev: any[]) => any))[] | ((tx: any) => unknown),
      options?: TransactionOptions,
    ): Promise<unknown> {
-    if (!this._db) throw new Error('Not connected. Call connect() first.');
+    if (!this._db) throw new CerialNotConnectedError('Not connected. Call connect() first.', { operation: '$transaction' });
 
     // Manual mode: no arguments
     if (arg === undefined) {
       const surreal = this.getTransactionSurreal();
-      if (!surreal) throw new Error('No active connection.');
+      if (!surreal) throw new CerialNotConnectedError('No active connection.', { operation: '$transaction' });
       await this.ensureMigrated();
       const sdkTxn = await surreal.beginTransaction();
 
@@ -445,7 +445,7 @@ ${_generateTransactionOverloads()}
     // Callback mode: function argument
     if (typeof arg === 'function') {
       const surreal = this.getTransactionSurreal();
-      if (!surreal) throw new Error('No active connection.');
+      if (!surreal) throw new CerialNotConnectedError('No active connection.', { operation: '$transaction' });
       await this.ensureMigrated();
 
       const maxRetries = options?.retries ?? 0;
@@ -466,7 +466,7 @@ ${_generateTransactionOverloads()}
                 Promise.resolve(arg(tx)),
                 new Promise<never>((_, reject) => {
                   timeoutId = setTimeout(
-                    () => reject(new Error('Transaction timeout')),
+                    () => reject(new CerialTransactionError('Transaction timeout', { operation: '$transaction' })),
                     timeoutMs,
                   );
                 }),
@@ -505,12 +505,12 @@ ${_generateTransactionOverloads()}
     if (!arg.length) return [] as any;
 
     const surreal = this.getTransactionSurreal();
-    if (!surreal) throw new Error('No active connection.');
+    if (!surreal) throw new CerialNotConnectedError('No active connection.', { operation: '$transaction' });
 
     // Validate all items are CerialQueryPromise or function
     for (const q of arg) {
       if (typeof q !== 'function' && !CerialQueryPromise.isCerialQueryPromise(q)) {
-        throw new Error('$transaction only accepts CerialQueryPromise objects or functions.');
+        throw new CerialValidationError('$transaction only accepts CerialQueryPromise objects or functions.', { operation: '$transaction' });
       }
     }
 

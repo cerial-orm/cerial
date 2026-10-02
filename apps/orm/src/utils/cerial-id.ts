@@ -11,6 +11,7 @@
 
 import type { RecordIdValue } from 'surrealdb';
 import { RecordId, StringRecordId } from 'surrealdb';
+import { CerialValidationError } from '../errors';
 
 /**
  * Union type for all acceptable record ID input formats (generic)
@@ -183,7 +184,7 @@ export class CerialId<T = RecordIdValue> {
       this.table = undefined;
       this.id = input as T;
     } else {
-      throw new Error(`Invalid input type for CerialId: ${typeof input}`);
+      throw new CerialValidationError(`Invalid input type for CerialId: ${typeof input}`);
     }
 
     // Apply table override if provided
@@ -240,7 +241,7 @@ export class CerialId<T = RecordIdValue> {
 
     if (expectedTable !== undefined) {
       if (cerialId.hasTable && cerialId.table !== expectedTable) {
-        throw new Error(`Table "${cerialId.table}" does not match expected table "${expectedTable}"`);
+        throw new CerialValidationError(`Table "${cerialId.table}" does not match expected table "${expectedTable}"`);
       }
       if (!cerialId.hasTable) {
         cerialId.table = expectedTable;
@@ -387,7 +388,7 @@ export class CerialId<T = RecordIdValue> {
    */
   toRecordId(): RecordId<string, any> {
     if (!this.hasTable) {
-      throw new Error('Cannot create RecordId: table is undefined');
+      throw new CerialValidationError('Cannot create RecordId: table is undefined');
     }
 
     return new RecordId(this.table!, this.id as any) as RecordId<string, any>;
