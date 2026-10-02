@@ -183,6 +183,24 @@ median body is nine non-blank lines, and every body under three lines is a relea
 `docs` commit whose subject already says everything. A flat minimum would have refused a
 fifth of this repository's own commits.
 
+## Known blind spots
+
+These are narrow enough to document rather than fix. If you hit one, it is known, and CI will
+not catch it either, because CI runs the same scans.
+
+- **The ratchet reaches six path prefixes.** Only the prefixes recorded in `baseline.json` are
+  counted, so a new cast to `any` under `apps/orm/tests/parser` or any other path passes. There
+  are none there today. The project rule covers every test; the enforcement does not.
+- **The registry scan reads new schema files only.** It checks `.cerial` files newly added under
+  `apps/orm/tests/e2e/schemas/`. A model added to an existing file is not checked against the
+  `tables` registry.
+- **The e2e setup scan names its receiver.** It matches `client.migrate(`, so `db.migrate()` or
+  `c.migrate()` in an e2e file escapes it.
+
+When you audit a ratchet, count the way the ratchet counts. A plain `grep` for the text once
+reported a stale baseline because it matched the substring inside "has any" and read ignored
+directories; the hook's own counter showed every recorded number was right.
+
 ## Skipping the hooks
 
 `git commit --no-verify` skips both hooks. It stays available for emergencies, because a
