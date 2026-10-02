@@ -148,7 +148,7 @@ export function buildDeleteWithCascade(
 
   // If no explicit cascade operations needed, use simple delete
   if (cascadeDeps.length === 0) {
-    return buildDeleteQueryWithReturn(model, where);
+    return buildDeleteQueryWithReturn(model, where, registry);
   }
 
   // Build statements with transaction for atomicity
@@ -230,8 +230,9 @@ export function buildDeleteWithCascade(
     }
   }
 
-  // Delete the main records and return them
-  statements.push(`DELETE FROM ${model.tableName} ${whereClause.text} RETURN BEFORE`);
+  // Delete by the ids captured above, not by re-running the filter: the cascade statements have already
+  // removed the children a relation filter such as posts: { some } looks at, so it would match nothing
+  statements.push(`DELETE FROM ${model.tableName} WHERE id IN $to_delete.id RETURN BEFORE`);
 
   // Commit transaction
   if (!transactionMode) statements.push('COMMIT TRANSACTION');

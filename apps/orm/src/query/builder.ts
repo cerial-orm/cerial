@@ -228,7 +228,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     }
 
     // Simple update without nested operations
-    const query = buildUpdateManyQuery(this.model, where, transformedData, select, unset);
+    const query = buildUpdateManyQuery(this.model, where, transformedData, select, unset, this.registry);
     const result = await executeQuery(this.db, query);
 
     return mapResult<T>(result, this.model);
@@ -374,7 +374,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     }
 
     // Simple delete without cascade
-    const query = buildDeleteQueryWithReturn(this.model, where);
+    const query = buildDeleteQueryWithReturn(this.model, where, this.registry);
     const result = await executeQuery(this.db, query);
 
     return Array.isArray(result) ? result.length : 0;
@@ -801,7 +801,7 @@ export function compileUpdateMany(
   }
 
   return {
-    query: buildUpdateManyQuery(model, where, transformedData, select, unset),
+    query: buildUpdateManyQuery(model, where, transformedData, select, unset, registry),
     resultType: 'array',
   };
 }
@@ -891,7 +891,7 @@ export function compileDeleteMany(
   }
 
   return {
-    query: buildDeleteQueryWithReturn(model, where),
+    query: buildDeleteQueryWithReturn(model, where, registry),
     resultType: 'number',
   };
 }
