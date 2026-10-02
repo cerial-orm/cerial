@@ -196,6 +196,7 @@ export const tables = {
     'literal_with_object_opt',
   ],
   enums: ['enum_basic', 'enum_defaults', 'enum_multiple', 'enum_with_object', 'enum_literal_ref'],
+  nestedMembership: ['nm_object_doc', 'nm_tuple_doc'],
 
   // ── Data Types ──
   uuid: ['uuid_basic', 'uuid_decorated', 'uuid_with_object', 'uuid_with_tuple'],

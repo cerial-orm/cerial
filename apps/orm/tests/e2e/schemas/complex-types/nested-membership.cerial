@@ -1,0 +1,67 @@
+// Enum and literal fields nested inside objects and tuples, to depth 3
+
+enum NmGrade { LOW, MID, HIGH }
+
+literal NmCode { 'a1', 'b2', 7 }
+
+object NmLeaf {
+  grade NmGrade
+  code NmCode?
+}
+
+object NmMid {
+  label String
+  leaf NmLeaf
+}
+
+object NmTop {
+  title String
+  mid NmMid
+}
+
+// An enum as a direct tuple element is not covered here: the migration generator emits `literal`
+// for such an element, which SurrealDB rejects. The unit suite covers it.
+tuple NmWithLeaf {
+  label String,
+  NmLeaf
+}
+
+tuple NmNamedLeaf {
+  tag String,
+  leaf NmLeaf
+}
+
+tuple NmOuter {
+  NmWithLeaf,
+  Int
+}
+
+object NmHoldsTuple {
+  entry NmWithLeaf
+}
+
+object NmHoldsHolder {
+  holder NmHoldsTuple
+}
+
+model NmObjectDoc {
+  id Record @id
+  name String
+  leaf NmLeaf?
+  mid NmMid?
+  top NmTop?
+  leaves NmLeaf[]
+  tops NmTop[]
+}
+
+model NmTupleDoc {
+  id Record @id
+  name String
+  withLeaf NmWithLeaf?
+  named NmNamedLeaf?
+  outer NmOuter?
+  holds NmHoldsTuple?
+  deepHolds NmHoldsHolder?
+  withLeaves NmWithLeaf[]
+  nameds NmNamedLeaf[]
+}
