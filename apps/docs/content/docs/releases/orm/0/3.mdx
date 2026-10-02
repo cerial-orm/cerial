@@ -14,6 +14,23 @@ development branch and is not available on npm.
 
 ### Security
 
+- Sub-keys of a `@flexible` object field were written into the query text
+  without being quoted, while only the value was bound. A crafted sub-key could
+  therefore change the statement around it. It is reachable wherever a sub-key
+  comes from input rather than from your own code, such as a JSON filter body or
+  a query-string filter forwarded into a `where` or an update. Affected
+  surfaces: `where`, update `data`, an object sub-`select`, and `orderBy`.
+  `create` was never affected, because the object travels as a bound value.
+  Present in 0.1.0 and 0.2.0.
+
+  Sub-keys of a flexible field are now quoted when written. Quoting rather than
+  rejecting is deliberate: an undeclared sub-key is the whole point of
+  `@flexible`, and a name check would have refused legitimate keys such as
+  `my-key` or a non-ASCII name. Strict object fields reject an undeclared
+  sub-key instead, which is a separate change listed under Fixed. If you forward
+  user input into a flexible field, upgrade; until then allow-list the sub-keys
+  you expect before they reach the call.
+
 - `orderBy`, `limit` and `offset` inside `include` were written into the query
   text without being checked, so a crafted value could run an extra `SELECT`
   and return rows from other tables under the included relation, including
