@@ -11,6 +11,7 @@ import {
   validateConfig,
   validateFolderConfig,
 } from '../../../../src/cli/config';
+import { CerialDatabaseError, CerialError, CerialGenerationError } from '../../../../src/errors';
 
 describe('validateConfig', () => {
   it('should accept valid single-schema config', () => {
@@ -144,6 +145,17 @@ describe('detectConfigsInsideRootPaths', () => {
     await expect(detectConfigsInsideRootPaths(rootPaths, cwd)).rejects.toThrow(
       /Found config file at.*inside schema path/,
     );
+  });
+
+  it('throws a CerialGenerationError that carries its code', async () => {
+    const rootPaths = [resolve(__dirname, '../../../fixtures/config-merge/nested-config')];
+    const cwd = resolve(__dirname, '../../../fixtures/config-merge');
+    const caught = await detectConfigsInsideRootPaths(rootPaths, cwd).catch((e: unknown) => e);
+
+    expect(caught).toBeInstanceOf(CerialGenerationError);
+    expect(caught).toBeInstanceOf(CerialError);
+    expect(caught).not.toBeInstanceOf(CerialDatabaseError);
+    expect((caught as CerialGenerationError).code).toBe('C7000');
   });
 
   it('should not throw when config is at root path itself', async () => {

@@ -9,7 +9,7 @@ export function generateImports(models: ModelMetadata[]): string {
   const modelImports = models.map((m) => m.name).join(', ');
   const modelTypeImports = models.map((m) => `${m.name}Model`).join(', ');
 
-  return `import { ConnectionManager, CerialQueryPromise, executeClientTransaction, createCerialTransactionProxy, type CerialTransaction, type DatabaseProxy, type ModelRegistry, type BeforeQueryCallback, type PerModelCallbacks, type TransactionItem, type TransactionExecutionItem, type TransactionItemResult, type TransactionOptions, type TransactionClient } from 'cerial';
+  return `import { ConnectionManager, CerialQueryPromise, executeClientTransaction, createCerialTransactionProxy, isTransactionConflict, type CerialTransaction, type DatabaseProxy, type ModelRegistry, type BeforeQueryCallback, type PerModelCallbacks, type TransactionItem, type TransactionExecutionItem, type TransactionItemResult, type TransactionOptions, type TransactionClient } from 'cerial';
 import type { ConnectionConfig } from 'cerial';
 import { modelRegistry } from './internal/model-registry';
 import { migrationsByModel, getModelMigrationQuery, getMigrationModelNames, type ModelName } from './internal/migrations';
@@ -450,10 +450,6 @@ ${_generateTransactionOverloads()}
 
       const maxRetries = options?.retries ?? 0;
       const backoffFn = options?.backoff ?? ((attempt: number) => 2 ** attempt * 10 + Math.random() * 10);
-      const isConflict = (e: unknown): boolean =>
-        e instanceof Error &&
-        (e.message.toLowerCase().includes('transaction conflict') ||
-          e.message.toLowerCase().includes('write conflict'));
       let lastError: unknown;
 
       for (let attempt = 0; attempt <= maxRetries; attempt++) {
@@ -493,7 +489,7 @@ ${_generateTransactionOverloads()}
           }
         } catch (error) {
           lastError = error;
-          if (isConflict(error) && attempt < maxRetries) {
+          if (isTransactionConflict(error) && attempt < maxRetries) {
             const delay = backoffFn(attempt);
             await new Promise(resolve => setTimeout(resolve, delay));
             continue;

@@ -283,6 +283,7 @@ export {
   isEmptyFragment,
   isOperatorObject,
   isRegisteredOperator,
+  isTransactionConflict,
   joinFragments,
   mapFieldValue,
   mapRecord,

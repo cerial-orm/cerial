@@ -2,7 +2,7 @@
  * Query executor - executes queries via SurrealDB SDK
  */
 
-import { BoundQuery, type Surreal, SurrealTransaction } from 'surrealdb';
+import { BoundQuery, isRetryableConflict, type Surreal, SurrealTransaction } from 'surrealdb';
 import type { ModelMetadata, ModelRegistry, TransactionOptions } from '../types';
 import { CerialQueryPromise, type QueryResultType } from './cerial-query-promise';
 import type { CompiledQuery } from './compile/types';
@@ -35,16 +35,11 @@ export type TransactionExecutionItem =
       prevResults: unknown[],
     ) => unknown | CerialQueryPromise<unknown> | Promise<unknown> | Promise<CerialQueryPromise<unknown>>);
 
-/** Check if an error is a transaction conflict that can be retried */
-function isTransactionConflict(error: unknown): boolean {
-  if (error instanceof Error) {
-    const message = error.message.toLowerCase();
-
-    return message.includes('transaction conflict') || message.includes('write conflict');
-  }
-
-  return false;
-}
+/**
+ * Whether an error is a transaction conflict that can be retried. The SDK reads the structured
+ * `TransactionConflict` detail the server sends (SurrealDB 3.1.0 and later), never the message.
+ */
+export const isTransactionConflict: (error: unknown) => boolean = isRetryableConflict;
 
 /** Sleep for a given number of milliseconds */
 function sleep(ms: number): Promise<void> {

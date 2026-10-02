@@ -5,6 +5,7 @@
 import { dirname, resolve } from 'node:path';
 import fg from 'fast-glob';
 import * as v from 'valibot';
+import { CerialGenerationError } from '../../errors';
 import type { FormatConfig } from '../../formatter/types';
 import { FORMAT_DEFAULTS } from '../../formatter/types';
 import type { CerialConfig, ResolvedSchemaEntry } from './types';
@@ -322,12 +323,13 @@ export async function detectConfigsInsideRootPaths(rootPaths: string[], _cwd: st
           const isConfig = pattern.endsWith('.ts') || pattern.endsWith('.json');
           const fileType = isConfig ? 'config file' : 'convention marker';
 
-          throw new Error(
+          throw new CerialGenerationError(
             `Found ${fileType} at '${configDir}' inside schema path '${normalizedRoot}' defined in root config. Remove the nested ${fileType} or adjust root config paths.`,
           );
         }
       } catch (error) {
-        if (error instanceof Error && error.message.includes('inside schema path')) {
+        // Glob failures are ignored; only the nested-config rejection thrown above is meaningful.
+        if (error instanceof CerialGenerationError) {
           throw error;
         }
       }

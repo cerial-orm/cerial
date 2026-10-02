@@ -57,6 +57,7 @@ export {
   executeQuerySingle,
   executeRaw,
   executeTransaction,
+  isTransactionConflict,
 } from './executor';
 // Filters
 export {
