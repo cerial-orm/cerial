@@ -798,6 +798,12 @@ export function generateOrderByType(model: ModelMetadata): string {
 
   for (const field of model.fields) {
     if (field.type === 'relation') {
+      // Only forward to-one relations can be ordered: they have a single FK to project through
+      const info = field.relationInfo;
+      const storage = info?.fieldRef ? model.fields.find((f) => f.name === info.fieldRef) : undefined;
+
+      if (info && !info.isReverse && storage && !storage.isArray)
+        fields.push(`  ${field.name}?: ${info.targetModel}OrderBy;`);
     } else if (field.type === 'object' && field.objectInfo) {
       // Object fields support nested ordering (e.g., orderBy: { address: { city: 'asc' } })
       fields.push(`  ${field.name}?: ${field.objectInfo.objectName}OrderBy;`);

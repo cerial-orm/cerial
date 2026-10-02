@@ -2,7 +2,7 @@
  * Validators for select, orderBy, limit and offset
  */
 
-import type { FieldMetadata, ModelMetadata, TupleFieldMetadata } from '../../types';
+import type { FieldMetadata, ModelMetadata, ModelRegistry, TupleFieldMetadata } from '../../types';
 import { isObject } from '../../utils/type-utils';
 import { resolveElementBySelectKey } from '../builders/select-builder';
 
@@ -108,6 +108,7 @@ function validateOrderByLevel(
   isFlexible: boolean | undefined,
   prefix: string,
   model: ModelMetadata,
+  registry: ModelRegistry | undefined,
 ): SelectValidationError[] {
   const errors: SelectValidationError[] = [];
 
@@ -123,13 +124,10 @@ function validateOrderByLevel(
     if (value === undefined) continue;
 
     if (field.type === 'relation') {
-      errors.push({
-        path,
-        message: `Cannot order by relation field '${path}' on model ${model.name} — relations are not orderable`,
-      });
+      errors.push(...validateRelationOrderBy(value, field, path, model, fields, registry));
     } else if (isObject(value)) {
       if (field.type === 'object' && field.objectInfo) {
-        errors.push(...validateOrderByLevel(value, field.objectInfo.fields, field.isFlexible, path, model));
+        errors.push(...validateOrderByLevel(value, field.objectInfo.fields, field.isFlexible, path, model, registry));
       } else {
         errors.push({
           path,
@@ -147,11 +145,69 @@ function validateOrderByLevel(
   return errors;
 }
 
-/** Reject orderBy paths that are unknown or relations, and directions other than asc/desc. */
-export function validateOrderBy(orderBy: object | undefined, model: ModelMetadata): SelectValidationError[] {
+/**
+ * A relation can be ordered by the target's fields when it is a forward, to-one link: that is the
+ * only shape with a single foreign key on the queried side to project through.
+ */
+function validateRelationOrderBy(
+  value: unknown,
+  field: FieldMetadata,
+  path: string,
+  model: ModelMetadata,
+  siblings: FieldMetadata[],
+  registry: ModelRegistry | undefined,
+): SelectValidationError[] {
+  const info = field.relationInfo;
+  const target = info ? registry?.[info.targetModel] : undefined;
+
+  if (!info || info.isReverse || !info.fieldRef) {
+    return [
+      {
+        path,
+        message: `Cannot order by reverse relation '${path}' on model ${model.name} — it has no foreign key on this side, so there is nothing to sort by`,
+      },
+    ];
+  }
+
+  if (siblings.find((f) => f.name === info.fieldRef)?.isArray) {
+    return [
+      {
+        path,
+        message: `Cannot order by to-many relation '${path}' on model ${model.name} — it links to several records, so it has no single value to sort by`,
+      },
+    ];
+  }
+
+  if (!isObject(value)) {
+    return [
+      {
+        path,
+        message: `Cannot order by relation '${path}' on model ${model.name} directly — name a field of ${info.targetModel}, e.g. { ${path.split('.').pop()}: { <field>: 'asc' } }`,
+      },
+    ];
+  }
+
+  if (!target) {
+    return [
+      {
+        path,
+        message: `Cannot order by relation '${path}' on model ${model.name} — target model ${info.targetModel} is not in the registry`,
+      },
+    ];
+  }
+
+  return validateOrderByLevel(value, target.fields, false, path, target, registry);
+}
+
+/** Reject orderBy paths that are unknown or unorderable relations, and directions other than asc/desc. */
+export function validateOrderBy(
+  orderBy: object | undefined,
+  model: ModelMetadata,
+  registry?: ModelRegistry,
+): SelectValidationError[] {
   if (!orderBy) return [];
 
-  return validateOrderByLevel(orderBy as Record<string, unknown>, model.fields, false, '', model);
+  return validateOrderByLevel(orderBy as Record<string, unknown>, model.fields, false, '', model, registry);
 }
 
 function validatePageValue(name: 'limit' | 'offset', value: unknown): SelectValidationError[] {

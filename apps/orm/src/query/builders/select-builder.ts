@@ -239,30 +239,100 @@ export function buildSelectFields(
   return baseSelect;
 }
 
-/** Recursively build order by parts with dot notation */
-function buildOrderByParts(prefix: string, orderBy: Record<string, unknown>, parts: string[]): void {
-  for (const [field, directionOrNested] of Object.entries(orderBy)) {
-    const path = prefix ? `${prefix}.${quoteSubKey(field)}` : quoteSubKey(field);
+/** Alias prefix for projected relation sort keys; OMITted again by the outer query. */
+const ORDER_ALIAS_PREFIX = '__cerial_ord_';
+
+/** An ORDER BY plan: the clause plus the projections it needs on the inner query. */
+export interface OrderByPlan {
+  clause: string;
+  /** `path AS alias` entries, one per relation sort key */
+  projections: string[];
+  /** Alias names, to OMIT from the outer query */
+  aliases: string[];
+}
+
+interface OrderByContext {
+  registry?: ModelRegistry;
+  parts: string[];
+  projections: string[];
+  aliases: string[];
+}
+
+/**
+ * Recursively build order by parts with dot notation.
+ * `viaRelation` is true once the path crosses a record link: SurrealDB does not sort on
+ * `link.field` directly, so those keys are projected to an alias and ordered by the alias.
+ */
+function buildOrderByParts(
+  prefix: string,
+  orderBy: Record<string, unknown>,
+  fields: FieldMetadata[] | undefined,
+  viaRelation: boolean,
+  ctx: OrderByContext,
+): void {
+  for (const [key, directionOrNested] of Object.entries(orderBy)) {
+    const fieldMeta = fields?.find((f) => f.name === key);
+
+    if (fieldMeta?.type === 'relation' && fieldMeta.relationInfo) {
+      const { fieldRef, targetModel, isReverse } = fieldMeta.relationInfo;
+      const target = ctx.registry?.[targetModel];
+
+      if (isReverse || !fieldRef || !target)
+        throw new Error(`Cannot order by relation '${key}': no foreign key or target model available`);
+      if (typeof directionOrNested !== 'object' || directionOrNested === null) continue;
+
+      const path = prefix ? `${prefix}.${quoteSubKey(fieldRef)}` : quoteSubKey(fieldRef);
+      buildOrderByParts(path, directionOrNested as Record<string, unknown>, target.fields, true, ctx);
+      continue;
+    }
+
+    const path = prefix ? `${prefix}.${quoteSubKey(key)}` : quoteSubKey(key);
+    const nextFields = fieldMeta?.type === 'object' ? fieldMeta.objectInfo?.fields : undefined;
 
     if (typeof directionOrNested === 'string') {
-      parts.push(`${path} ${directionOrNested.toUpperCase()}`);
+      const direction = directionOrNested.toUpperCase();
+
+      if (viaRelation) {
+        const alias = `${ORDER_ALIAS_PREFIX}${ctx.aliases.length}`;
+        ctx.projections.push(`${path} AS ${alias}`);
+        ctx.aliases.push(alias);
+        ctx.parts.push(`${alias} ${direction}`);
+      } else {
+        ctx.parts.push(`${path} ${direction}`);
+      }
     } else if (typeof directionOrNested === 'object' && directionOrNested !== null) {
-      // Recursive: nested object or relation ordering
-      buildOrderByParts(path, directionOrNested as Record<string, unknown>, parts);
+      // Recursive: nested object ordering
+      buildOrderByParts(path, directionOrNested as Record<string, unknown>, nextFields, viaRelation, ctx);
     }
   }
 }
 
+/**
+ * Plan an ORDER BY. Relation keys need `model` and `registry` to resolve the foreign key and the
+ * target's fields; own and object keys do not.
+ */
+export function buildOrderByPlan(
+  orderBy: OrderByClause | undefined,
+  model?: ModelMetadata,
+  registry?: ModelRegistry,
+): OrderByPlan {
+  const ctx: OrderByContext = { registry, parts: [], projections: [], aliases: [] };
+  if (orderBy) buildOrderByParts('', orderBy as Record<string, unknown>, model?.fields, false, ctx);
+
+  return {
+    clause: ctx.parts.length ? `ORDER BY ${ctx.parts.join(', ')}` : '',
+    projections: ctx.projections,
+    aliases: ctx.aliases,
+  };
+}
+
 /** Build ORDER BY clause - supports nested object ordering like { address: { city: 'asc' } } */
-export function buildOrderBy(orderBy: OrderByClause | undefined): string {
-  if (!orderBy) return '';
-
-  const parts: string[] = [];
-  buildOrderByParts('', orderBy as Record<string, unknown>, parts);
-
-  if (!parts.length) return '';
-
-  return `ORDER BY ${parts.join(', ')}`;
+export function buildOrderBy(
+  orderBy: OrderByClause | undefined,
+  model?: ModelMetadata,
+  registry?: ModelRegistry,
+): string {
+  return buildOrderByPlan(orderBy, model, registry).clause;
 }
 
 /** Build LIMIT clause */
@@ -288,21 +358,26 @@ export function buildSelectQuery(
 
   const fields = buildSelectFields(select, model, include, registry);
   const whereClause = transformWhereClause(where, model, registry);
-  const orderByClause = buildOrderBy(orderBy);
+  const orderPlan = buildOrderByPlan(orderBy, model, registry);
   const limitClause = buildLimit(limit);
   const offsetClause = buildOffset(offset);
+  const source = fromSingle ? 'FROM ONLY' : 'FROM';
 
-  // Build query parts
+  // Relation sort keys are projected to aliases on an inner query, which also owns WHERE, ORDER BY,
+  // LIMIT and START so paging happens after sorting. The outer query drops the aliases again.
+  const selectList = orderPlan.projections.length ? `${fields}, ${orderPlan.projections.join(', ')}` : fields;
   const parts = [
-    `SELECT ${fields} ${fromSingle ? 'FROM ONLY' : 'FROM'} ${model.tableName}`,
+    `SELECT ${selectList} ${orderPlan.projections.length ? 'FROM' : source} ${model.tableName}`,
     whereClause.text,
-    orderByClause,
+    orderPlan.clause,
     limitClause,
     offsetClause,
   ].filter((p) => p);
 
+  if (!orderPlan.projections.length) return { text: parts.join(' '), vars: whereClause.vars };
+
   return {
-    text: parts.join(' '),
+    text: `SELECT * OMIT ${orderPlan.aliases.join(', ')} ${source} (${parts.join(' ')})`,
     vars: whereClause.vars,
   };
 }
