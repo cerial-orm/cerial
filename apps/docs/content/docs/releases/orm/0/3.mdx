@@ -79,6 +79,13 @@ development branch and is not available on npm.
   used. A `broadType` variant such as `String` still accepts any value of that type,
   and object and tuple variants are matched by kind rather than deep shape, which the
   database continues to enforce.
+
+  The check also reaches enum and literal fields nested inside objects and tuples, at
+  any depth, in create data and in update data. Object fields, tuple elements, and
+  arrays of either are covered, including the items of a `push` and the contents of a
+  `set`. The error carries the path from the model, for example
+  `top.mid.leaf.grade must be one of: 'LOW', 'MID', 'HIGH' (received 'NOPE')`.
+  Previously a nested value outside the variants was left entirely to the database.
 - **Breaking.** Sub-field names inside a `where` filter are now validated. Object
   and tuple filters were handed to the query builder unchecked, and the builder
   passed anything it did not recognise straight through as if the object were
