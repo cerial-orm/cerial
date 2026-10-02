@@ -11,14 +11,19 @@
 import { getUniqueFields } from '../../parser/model-metadata';
 import type { ModelMetadata, ModelRegistry, OnDeleteAction, WhereClause } from '../../types';
 import type { CompiledQuery } from '../compile/types';
-import { transformWhereClause } from '../filters/transformer';
+import { transformDestructiveWhere } from '../filters/transformer';
 import { transformOrValidateRecordId } from '../transformers';
 import { expandCompositeKey, expandObjectUniqueKey, validateUniqueField } from './select-builder';
 
 /** Build DELETE query */
-export function buildDeleteQuery(model: ModelMetadata, where: WhereClause): CompiledQuery {
+export function buildDeleteQuery(
+  model: ModelMetadata,
+  where: WhereClause,
+  registry?: ModelRegistry,
+  operation = 'deleteMany',
+): CompiledQuery {
   // Build WHERE clause
-  const whereClause = transformWhereClause(where, model);
+  const whereClause = transformDestructiveWhere(where, model, operation, registry);
 
   // Build query
   const parts = [`DELETE FROM ${model.tableName}`, whereClause.text].filter((p) => p);
@@ -30,9 +35,14 @@ export function buildDeleteQuery(model: ModelMetadata, where: WhereClause): Comp
 }
 
 /** Build DELETE query with RETURN */
-export function buildDeleteQueryWithReturn(model: ModelMetadata, where: WhereClause): CompiledQuery {
+export function buildDeleteQueryWithReturn(
+  model: ModelMetadata,
+  where: WhereClause,
+  registry?: ModelRegistry,
+  operation = 'deleteMany',
+): CompiledQuery {
   // Build WHERE clause
-  const whereClause = transformWhereClause(where, model);
+  const whereClause = transformDestructiveWhere(where, model, operation, registry);
 
   // Build query with RETURN BEFORE to get deleted records
   const parts = [`DELETE FROM ${model.tableName}`, whereClause.text, 'RETURN BEFORE'].filter((p) => p);
@@ -126,7 +136,7 @@ export function buildDeleteWithCascade(
   transactionMode?: boolean,
 ): CompiledQuery {
   // Build where clause
-  const whereClause = transformWhereClause(where, model);
+  const whereClause = transformDestructiveWhere(where, model, 'deleteMany', registry);
 
   // Find all dependent relations and filter out NoAction
   // Required relations cascade, optional relations SetNull (or their explicit @onDelete action)
@@ -292,8 +302,13 @@ export function buildDeleteUniqueQuery(model: ModelMetadata, id: string, returnB
  * Build a query to find a record by unique field (not ID)
  * Returns the record ID for subsequent DELETE operation
  */
-function buildFindIdByUniqueFieldQuery(model: ModelMetadata, where: WhereClause): CompiledQuery {
-  const whereClause = transformWhereClause(where, model);
+function buildFindIdByUniqueFieldQuery(
+  model: ModelMetadata,
+  where: WhereClause,
+  registry: ModelRegistry,
+): CompiledQuery {
+  // Without a condition this would pick an arbitrary row, which the DELETE below then removes
+  const whereClause = transformDestructiveWhere(where, model, 'deleteUnique', registry);
 
   return {
     text: `SELECT id FROM ONLY ${model.tableName} ${whereClause.text} LIMIT 1`,
@@ -327,7 +342,9 @@ export function buildDeleteUniqueWithCascade(
     if (hasId) return buildDeleteUniqueQuery(model, id!, returnBefore);
 
     // Non-ID lookup without cascade - use simple WHERE-based delete
-    return returnBefore ? buildDeleteQueryWithReturn(model, expandedWhere) : buildDeleteQuery(model, expandedWhere);
+    return returnBefore
+      ? buildDeleteQueryWithReturn(model, expandedWhere, registry, 'deleteUnique')
+      : buildDeleteQuery(model, expandedWhere, registry, 'deleteUnique');
   }
 
   // Build transaction
@@ -341,7 +358,7 @@ export function buildDeleteUniqueWithCascade(
     statements.push('LET $deleteId = $deleteId');
   } else {
     // Look up record by unique field - need to handle case where record doesn't exist
-    const lookupQuery = buildFindIdByUniqueFieldQuery(model, expandedWhere);
+    const lookupQuery = buildFindIdByUniqueFieldQuery(model, expandedWhere, registry);
     Object.assign(vars, lookupQuery.vars);
     statements.push(`LET $record = (${lookupQuery.text})`);
     // If record doesn't exist, return empty array

@@ -17,7 +17,7 @@ import { isNone, NONE } from '../../utils/none';
 import { quoteSubKey } from '../../utils/string-utils';
 import type { CompiledQuery } from '../compile/types';
 import { createCompileContext, type FilterCompileContext } from '../compile/var-allocator';
-import { transformWhereClause } from '../filters/transformer';
+import { transformDestructiveWhere } from '../filters/transformer';
 import { transformOrValidateRecordId } from '../transformers';
 import { buildArrayUpdateClause, isArrayField, isArrayUpdateOps } from './array-update-builder';
 import { getRecordIdFromWhere } from './delete-builder';
@@ -238,6 +238,7 @@ export function buildUpdateManyQuery(
   data: Record<string, unknown>,
   select?: SelectClause,
   unset?: Record<string, unknown>,
+  registry?: ModelRegistry,
 ): CompiledQuery {
   const ctx = createCompileContext();
 
@@ -248,7 +249,7 @@ export function buildUpdateManyQuery(
   const { setParts, setVars } = buildUpdateSetClauses(ctx, mergedData, model);
 
   // Build WHERE clause
-  const whereClause = transformWhereClause(where, model);
+  const whereClause = transformDestructiveWhere(where, model, 'updateMany', registry);
 
   // Build select fields for RETURN
   const fields = buildSelectFields(select, model);
@@ -271,22 +272,19 @@ export function buildUpdateManyQuery(
  * Build WHERE clause from fields excluding the id field
  * Used for updateUnique when id is provided along with other fields
  */
-function buildWhereClauseWithoutId(where: WhereClause, model: ModelMetadata): CompiledQuery {
+function buildWhereClauseWithoutId(where: WhereClause, model: ModelMetadata, registry?: ModelRegistry): CompiledQuery {
   const idField = model.fields.find((f) => f.isId);
   if (!idField) {
-    return transformWhereClause(where, model);
+    return transformDestructiveWhere(where, model, 'updateUnique', registry);
   }
 
   // Remove id field from where clause
   const whereWithoutId = { ...where };
   delete whereWithoutId[idField.name];
 
-  // If no other fields, return empty
-  if (!Object.keys(whereWithoutId).length) {
-    return { text: '', vars: {} };
-  }
-
-  return transformWhereClause(whereWithoutId, model);
+  // transformDestructiveWhere treats no remaining keys as "the id alone", and throws when keys remain
+  // but compile to nothing
+  return transformDestructiveWhere(whereWithoutId, model, 'updateUnique', registry);
 }
 
 /**
@@ -686,7 +684,7 @@ export function buildUpdateUniqueQuery(
   if (hasId) {
     // ID-based: UPDATE ONLY table:id SET ... [WHERE other fields] [RETURN ...]
     const recordId = transformOrValidateRecordId(model.tableName, id!);
-    const whereClause = buildWhereClauseWithoutId(expandedWhere, model);
+    const whereClause = buildWhereClauseWithoutId(expandedWhere, model, registry);
 
     const parts = [
       `UPDATE ONLY ${recordId.toString()}`,
@@ -702,7 +700,7 @@ export function buildUpdateUniqueQuery(
   }
 
   // Unique field (no id): UPDATE table SET ... WHERE all fields [RETURN ...]
-  const whereClause = transformWhereClause(expandedWhere, model);
+  const whereClause = transformDestructiveWhere(expandedWhere, model, 'updateUnique', registry);
 
   const parts = [
     `UPDATE ${model.tableName}`,

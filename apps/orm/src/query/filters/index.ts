@@ -26,4 +26,4 @@ export { handleBetween, handleIsDefined, handleIsNotDefined, handleIsNotNull, ha
 // String operators
 export { handleContains, handleEndsWith, handleStartsWith } from './string-operators';
 // Transformer
-export { transformWhere, transformWhereClause } from './transformer';
+export { transformDestructiveWhere, transformWhere, transformWhereClause } from './transformer';

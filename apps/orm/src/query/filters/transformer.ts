@@ -41,3 +41,27 @@ export function transformWhereClause(
     vars: compiled.vars,
   };
 }
+
+/**
+ * Compile the WHERE clause of a DELETE or UPDATE.
+ *
+ * A `where` the caller did not give, or gave with no keys, is deliberate: it means every row. A `where`
+ * that names at least one key but compiles to no conditions (every value undefined, `AND: []`, an
+ * unknown or unresolvable key) is a filter that evaporated. Running it would silently hit every row, so
+ * it throws instead. Checking the compiled output, not the causes, keeps unknown causes covered.
+ */
+export function transformDestructiveWhere(
+  where: WhereClause | undefined,
+  model: ModelMetadata,
+  operation: string,
+  registry?: ModelRegistry,
+): CompiledQuery {
+  const suppliedNoFilter = where === undefined || Object.keys(where).length === 0;
+  const clause = transformWhereClause(where, model, registry);
+  if (suppliedNoFilter || clause.text) return clause;
+
+  throw new Error(
+    `${operation} on ${model.name}: the where filter resolved to no conditions, so the statement would affect every row. ` +
+      'Omit where entirely to affect every row.',
+  );
+}

@@ -23,7 +23,7 @@ import type { FieldMetadata, ModelMetadata, ModelRegistry, SelectClause, UpsertR
 import { isNone } from '../../utils/none';
 import type { CompiledQuery } from '../compile/types';
 import { createCompileContext, type FilterCompileContext } from '../compile/var-allocator';
-import { transformWhereClause } from '../filters/transformer';
+import { transformDestructiveWhere } from '../filters/transformer';
 import { transformOrValidateRecordId } from '../transformers';
 import { getRecordIdFromWhere } from './delete-builder';
 import { buildCreateSetClauses } from './insert-builder';
@@ -215,7 +215,7 @@ export function buildUpsertWhereQuery(
   const { setParts, setVars } = buildUpsertSetClauses(ctx, createData, updateData, model);
 
   // Build WHERE clause
-  const whereClause = transformWhereClause(where, model);
+  const whereClause = transformDestructiveWhere(where, model, 'upsert', registry);
 
   // Build RETURN clause
   const returnClause = buildUpsertReturnClause(returnOption, select, include, model, registry);
@@ -293,7 +293,7 @@ export function buildUpsertIdQuery(
   const hasAdditionalWhere = Object.keys(whereWithoutId).length > 0;
   let additionalWhereClause: CompiledQuery | null = null;
   if (hasAdditionalWhere) {
-    additionalWhereClause = transformWhereClause(whereWithoutId, model);
+    additionalWhereClause = transformDestructiveWhere(whereWithoutId, model, 'upsert', registry);
     Object.assign(vars, additionalWhereClause.vars);
   }
 

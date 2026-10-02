@@ -420,8 +420,8 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     } else {
       // Non-ID lookup without cascade - use simple WHERE-based delete
       const query = needsReturnBefore
-        ? buildDeleteQueryWithReturn(this.model, expandedWhere)
-        : buildDeleteQuery(this.model, expandedWhere);
+        ? buildDeleteQueryWithReturn(this.model, expandedWhere, this.registry, 'deleteUnique')
+        : buildDeleteQuery(this.model, expandedWhere, this.registry, 'deleteUnique');
       result = (await executeQuery(this.db, query)) as unknown[];
     }
 
@@ -918,8 +918,8 @@ export function compileDeleteUnique(
     query = buildDeleteUniqueQuery(model, id!, needsReturnBefore);
   } else {
     query = needsReturnBefore
-      ? buildDeleteQueryWithReturn(model, expandedWhere)
-      : buildDeleteQuery(model, expandedWhere);
+      ? buildDeleteQueryWithReturn(model, expandedWhere, registry, 'deleteUnique')
+      : buildDeleteQuery(model, expandedWhere, registry, 'deleteUnique');
   }
 
   // Determine result type based on return option
