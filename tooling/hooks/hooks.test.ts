@@ -2,19 +2,24 @@
 // pattern source does not refuse itself, and that rule identifiers are unique.
 
 import { describe, expect, test } from 'bun:test';
-import { mkdtempSync, readdirSync, readFileSync } from 'node:fs';
+import { cpSync, mkdtempSync, readdirSync, readFileSync, statSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { SHAPE_RULES } from './message.ts';
 import { AS_ANY, E2E_SETUP_PATTERNS, STUB_PATTERNS, SUPPRESSION, TRACKER_PATTERNS } from './patterns.ts';
 import { type StagedFile, scanFiles } from './scan.ts';
-import { scratchRepository, withoutGit } from './scratch.ts';
+import { type Ran, type Scratch, scratchRepository, withoutGit } from './scratch.ts';
 import {
   guardRepositoryConfiguration,
   HOOKS_DIR,
+  installHooksCopy,
   newScratch,
+  REPO_ROOT,
   removeScratchesAfterAll,
   sameDirectory,
+  seed,
+  stage,
+  write,
 } from './test-support.ts';
 import { runVerify, type VerifyParts, verifySteps } from './verify.ts';
 
@@ -187,6 +192,135 @@ describe('verify', () => {
 
     expect(extension?.command).toContain('tests/unit');
     expect(extension?.command).toContain('tests/grammar');
+  });
+});
+
+const CAST = ['as', 'any'].join(' ');
+const UNIT = 'apps/orm/tests/unit';
+const PASSING = "import { expect, test } from 'bun:test';\n\ntest('passes', () => {\n  expect(1).toBe(1);\n});\n";
+
+/** Run the installer the way `bun run setup` does, inside a scratch repository. */
+function setup(scratch: Scratch): Ran {
+  const run = Bun.spawnSync([process.execPath, 'tooling/hooks/install.ts'], {
+    cwd: scratch.dir,
+    env: { ...scratch.env },
+    stdout: 'pipe',
+    stderr: 'pipe',
+  });
+
+  return { status: run.exitCode ?? -1, stdout: run.stdout.toString(), stderr: run.stderr.toString() };
+}
+
+/**
+ * A repository that has run the installer and carries one cast under a recorded
+ * path, with a recorded count of one. The verify step needs the formatter and a
+ * passing suite in each workspace it visits, so those are supplied.
+ */
+function gatedRepository(): Scratch {
+  const scratch = newScratch();
+  installHooksCopy(scratch);
+  cpSync(join(REPO_ROOT, 'biome.json'), join(scratch.dir, 'biome.json'));
+  // The formatter's configuration asks for the repository's ignore file and stops without one.
+  write(scratch, '.gitignore', 'node_modules\n');
+  symlinkSync(join(REPO_ROOT, 'node_modules'), join(scratch.dir, 'node_modules'));
+  seed(scratch, {
+    'tooling/hooks/baseline.json': JSON.stringify({ 'as-any': { [UNIT]: 1 } }),
+    [`${UNIT}/a.test.ts`]: `export const a = 1 ${CAST};\n`,
+    'apps/orm/tests/generators/ok.test.ts': PASSING,
+    'apps/vscode-extension/tests/unit/ok.test.ts': PASSING,
+    'apps/vscode-extension/tests/grammar/ok.test.ts': PASSING,
+  });
+  expect(setup(scratch).status).toBe(0);
+
+  return scratch;
+}
+
+/** A commit attempt that goes through whatever hooks the repository's own configuration names. */
+function attempt(scratch: Scratch, message: string): Ran {
+  return scratch.git(
+    '-c',
+    'user.name=Suite',
+    '-c',
+    'user.email=suite@example.com',
+    '-c',
+    'commit.gpgsign=false',
+    'commit',
+    '-m',
+    message,
+  );
+}
+
+const commitCount = (scratch: Scratch): string => scratch.git('rev-list', '--count', 'HEAD').stdout.trim();
+
+describe('the installer', () => {
+  test('points git at the tracked directory and leaves both hooks executable', () => {
+    const scratch = gatedRepository();
+
+    expect(scratch.git('config', '--get', 'core.hooksPath').stdout.trim()).toBe('tooling/hooks');
+    for (const hook of ['pre-commit', 'commit-msg']) {
+      expect(statSync(join(scratch.dir, 'tooling/hooks', hook)).mode & 0o111).not.toBe(0);
+    }
+  });
+
+  test('refuses to run outside a working tree and records nothing', () => {
+    const outside = newScratch();
+    const bare = mkdtempSync(join(tmpdir(), 'cerial-hooks-'));
+    cpSync(join(HOOKS_DIR, 'install.ts'), join(bare, 'install.ts'));
+    const run = Bun.spawnSync([process.execPath, 'install.ts'], { cwd: bare, env: { ...outside.env }, stderr: 'pipe' });
+
+    expect(run.exitCode).toBe(1);
+    expect(run.stderr.toString()).toContain('not a git working tree');
+  });
+});
+
+describe('the activated gate, driven by git', () => {
+  const SANCTION = '// @ts-expect-error negative test: the type forbids a number here\n';
+
+  test('refuses a commit that adds a cast to a recorded path, and nothing is committed', () => {
+    const scratch = gatedRepository();
+    write(scratch, `${UNIT}/b.test.ts`, `export const b = 1 ${CAST};\n`);
+    stage(scratch, `${UNIT}/b.test.ts`);
+    const run = attempt(scratch, 'test(orm): cover the cast');
+
+    expect(run.status).not.toBe(0);
+    expect(run.stderr).toContain('cast to any');
+    expect(run.stderr).toContain(`${UNIT}/b.test.ts`);
+    expect(run.stderr).toContain('2 found, 1 recorded');
+    expect(commitCount(scratch)).toBe('1');
+  });
+
+  test('accepts the same cast under a type-error expectation with an explanation, when the count holds', () => {
+    const scratch = gatedRepository();
+    write(scratch, `${UNIT}/a.test.ts`, 'export const a = 1;\n');
+    write(scratch, `${UNIT}/b.test.ts`, `${SANCTION}export const b = 1 ${CAST};\n`);
+    stage(scratch, `${UNIT}/a.test.ts`, `${UNIT}/b.test.ts`);
+    const run = attempt(scratch, 'test(orm): cover the cast');
+
+    expect(run.stderr).not.toContain('refused');
+    expect(run.status).toBe(0);
+    expect(commitCount(scratch)).toBe('2');
+  });
+
+  test('still refuses the unexplained cast when the count would hold', () => {
+    const scratch = gatedRepository();
+    write(scratch, `${UNIT}/a.test.ts`, 'export const a = 1;\n');
+    write(scratch, `${UNIT}/b.test.ts`, `export const b = 1 ${CAST};\n`);
+    stage(scratch, `${UNIT}/a.test.ts`, `${UNIT}/b.test.ts`);
+    const run = attempt(scratch, 'test(orm): cover the cast');
+
+    expect(run.status).not.toBe(0);
+    expect(run.stderr).toContain('cast to any');
+    expect(commitCount(scratch)).toBe('1');
+  });
+
+  test('refuses a message the commit-msg hook rejects, even when the staged tree is clean', () => {
+    const scratch = gatedRepository();
+    write(scratch, `${UNIT}/c.test.ts`, 'export const c = 1;\n');
+    stage(scratch, `${UNIT}/c.test.ts`);
+    const run = attempt(scratch, 'added things');
+
+    expect(run.status).not.toBe(0);
+    expect(commitCount(scratch)).toBe('1');
   });
 });
 
