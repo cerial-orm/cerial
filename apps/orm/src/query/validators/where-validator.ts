@@ -7,6 +7,7 @@ import type {
   CompositeIndex,
   FieldMetadata,
   ModelMetadata,
+  ModelRegistry,
   TupleFieldMetadata,
   WhereClause,
 } from '../../types';
@@ -220,12 +221,76 @@ function validateTupleFilter(
   return errors;
 }
 
-/** Validate a single field filter */
+/**
+ * Validate the filter on a relation against the target model's fields. An array relation takes
+ * some/every/none, each holding a target where; a single relation takes the target where directly.
+ * The nested builders skip a key they cannot resolve, so an unchecked typo would widen the result.
+ */
+function validateRelationFilter(
+  filter: Record<string, unknown>,
+  field: FieldMetadata,
+  model: ModelMetadata,
+  registry: ModelRegistry,
+  path: string,
+  fieldPath: string,
+): ValidationError[] {
+  const target = field.relationInfo ? registry[field.relationInfo.targetModel] : undefined;
+  if (!target) return [];
+
+  if (!field.isArray) return validateTargetWhere(filter, target, registry, path, fieldPath);
+
+  const errors: ValidationError[] = [];
+
+  for (const [key, value] of Object.entries(filter)) {
+    if (value === undefined) continue;
+
+    if (!QUANTIFIERS.includes(key)) {
+      errors.push({
+        path: `${path}.${key}`,
+        message: `Unknown key '${key}' in the filter on relation '${fieldPath}' of model ${model.name} — use some, every or none`,
+      });
+    } else if (isObject(value)) {
+      errors.push(...validateTargetWhere(value, target, registry, `${path}.${key}`, `${fieldPath}.${key}`));
+    }
+  }
+
+  return errors;
+}
+
+/** Validate a where written against a relation's target model, naming that model in every message. */
+function validateTargetWhere(
+  where: Record<string, unknown>,
+  target: ModelMetadata,
+  registry: ModelRegistry,
+  path: string,
+  fieldPath: string,
+): ValidationError[] {
+  const errors: ValidationError[] = [];
+
+  for (const [key, value] of Object.entries(where)) {
+    if (value === undefined) continue;
+
+    if (LOGICAL_KEYS.includes(key)) {
+      for (const item of key === 'NOT' ? [value] : Array.isArray(value) ? value : []) {
+        if (isObject(item)) errors.push(...validateTargetWhere(item, target, registry, `${path}.${key}`, fieldPath));
+      }
+    } else if (!target.fields.some((f) => f.name === key)) {
+      errors.push(unknownSubField(`${path}.${key}`, `${fieldPath}.${key}`, target));
+    } else {
+      errors.push(...validateFieldFilter(key, value, target, `${path}.${key}`, registry));
+    }
+  }
+
+  return errors;
+}
+
+/** Validate a single field filter. The registry lets a relation filter be checked against its target model. */
 export function validateFieldFilter(
   fieldName: string,
   filter: unknown,
   model: ModelMetadata,
   path: string,
+  registry?: ModelRegistry,
 ): ValidationError[] {
   const errors: ValidationError[] = [];
 
@@ -269,9 +334,10 @@ export function validateFieldFilter(
     // For relation fields, the filter object contains nested field conditions, not operators
     // e.g., profile: { bio: { contains: 'x' } } - bio is a field, not an operator
     if (field.type === 'relation') {
-      // Skip detailed validation for nested relation conditions
-      // The nested-condition-builder will handle this at query build time
-      return errors;
+      // Without a registry the target model is unknown, so the nested keys cannot be checked
+      if (!registry) return errors;
+
+      return validateRelationFilter(filter, field, model, registry, path, fieldName);
     }
 
     // For object fields, the filter object contains sub-field conditions, not operators
@@ -310,6 +376,7 @@ export function validateWhereClause(
   where: WhereClause,
   model: ModelMetadata,
   path: string = 'where',
+  registry?: ModelRegistry,
 ): ValidationError[] {
   const errors: ValidationError[] = [];
 
@@ -326,7 +393,7 @@ export function validateWhereClause(
       for (let i = 0; i < value.length; i++) {
         const item = value[i];
         if (isObject(item)) {
-          errors.push(...validateWhereClause(item as WhereClause, model, `${path}.${key}[${i}]`));
+          errors.push(...validateWhereClause(item as WhereClause, model, `${path}.${key}[${i}]`, registry));
         }
       }
       continue;
@@ -337,24 +404,28 @@ export function validateWhereClause(
         errors.push({ path: `${path}.NOT`, message: 'NOT must be an object' });
         continue;
       }
-      errors.push(...validateWhereClause(value as WhereClause, model, `${path}.NOT`));
+      errors.push(...validateWhereClause(value as WhereClause, model, `${path}.NOT`, registry));
       continue;
     }
 
     // Validate field filter
-    errors.push(...validateFieldFilter(key, value, model, `${path}.${key}`));
+    errors.push(...validateFieldFilter(key, value, model, `${path}.${key}`, registry));
   }
 
   return errors;
 }
 
 /** Validate a where clause and return result */
-export function validateWhere(where: WhereClause | undefined, model: ModelMetadata): WhereValidationResult {
+export function validateWhere(
+  where: WhereClause | undefined,
+  model: ModelMetadata,
+  registry?: ModelRegistry,
+): WhereValidationResult {
   if (!where) {
     return { valid: true, errors: [] };
   }
 
-  const errors = validateWhereClause(where, model);
+  const errors = validateWhereClause(where, model, 'where', registry);
   return {
     valid: errors.length === 0,
     errors,

@@ -113,7 +113,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     assertValidReadOptions(this.model, options, this.registry);
 
     // Validate where clause
-    const validation = validateWhere(options.where, this.model);
+    const validation = validateWhere(options.where, this.model, this.registry);
     if (!validation.valid)
       throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
 
@@ -131,7 +131,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
 
     // Validate the entire where clause (including unique fields)
     // The unique field validation is handled in buildFindUniqueQuery
-    const validation = validateWhere(where, this.model);
+    const validation = validateWhere(where, this.model, this.registry);
     if (!validation.valid)
       throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
 
@@ -146,7 +146,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     assertValidReadOptions(this.model, options, this.registry);
 
     // Validate where clause
-    const validation = validateWhere(options.where, this.model);
+    const validation = validateWhere(options.where, this.model, this.registry);
     if (!validation.valid)
       throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
 
@@ -194,7 +194,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     assertValidReadOptions(this.model, { select });
 
     // Validate where clause
-    const whereValidation = validateWhere(where, this.model);
+    const whereValidation = validateWhere(where, this.model, this.registry);
     if (!whereValidation.valid)
       throw new Error(`Invalid where clause: ${whereValidation.errors.map((e) => e.message).join(', ')}`);
 
@@ -254,7 +254,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     assertValidReadOptions(this.model, { select });
 
     // Validate where clause
-    const whereValidation = validateWhere(where, this.model);
+    const whereValidation = validateWhere(where, this.model, this.registry);
     if (!whereValidation.valid)
       throw new Error(`Invalid where clause: ${whereValidation.errors.map((e) => e.message).join(', ')}`);
 
@@ -361,7 +361,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     const { where } = options;
 
     // Validate where clause
-    const validation = validateWhere(where, this.model);
+    const validation = validateWhere(where, this.model, this.registry);
     if (!validation.valid)
       throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
 
@@ -395,7 +395,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     const { where, return: returnOption } = options;
 
     // Validate where clause
-    const validation = validateWhere(where, this.model);
+    const validation = validateWhere(where, this.model, this.registry);
     if (!validation.valid)
       throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
 
@@ -453,7 +453,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
   async count(where?: WhereClause): Promise<number> {
     // Validate where clause
     if (where) {
-      const validation = validateWhere(where, this.model);
+      const validation = validateWhere(where, this.model, this.registry);
       if (!validation.valid)
         throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
     }
@@ -494,7 +494,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     assertValidReadOptions(this.model, { select });
 
     // Validate where clause
-    const whereValidation = validateWhere(where, this.model);
+    const whereValidation = validateWhere(where, this.model, this.registry);
     if (!whereValidation.valid)
       throw new Error(`Invalid where clause: ${whereValidation.errors.map((e) => e.message).join(', ')}`);
 
@@ -693,7 +693,7 @@ export function compileFindOne(
   registry?: ModelRegistry,
 ): CompiledQueryDescriptor {
   assertValidReadOptions(model, options, registry);
-  const validation = validateWhere(options.where, model);
+  const validation = validateWhere(options.where, model, registry);
   if (!validation.valid) throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
 
   return {
@@ -709,7 +709,7 @@ export function compileFindUnique(
   registry?: ModelRegistry,
 ): CompiledQueryDescriptor {
   assertValidReadOptions(model, options, registry);
-  const validation = validateWhere(options.where, model);
+  const validation = validateWhere(options.where, model, registry);
   if (!validation.valid) throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
 
   return {
@@ -725,7 +725,7 @@ export function compileFindMany(
   registry?: ModelRegistry,
 ): CompiledQueryDescriptor {
   assertValidReadOptions(model, options, registry);
-  const validation = validateWhere(options.where, model);
+  const validation = validateWhere(options.where, model, registry);
   if (!validation.valid) throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
 
   return {
@@ -772,7 +772,7 @@ export function compileUpdateMany(
   const { where, data, select, unset } = options;
   assertValidReadOptions(model, { select });
 
-  const whereValidation = validateWhere(where, model);
+  const whereValidation = validateWhere(where, model, registry);
   if (!whereValidation.valid)
     throw new Error(`Invalid where clause: ${whereValidation.errors.map((e) => e.message).join(', ')}`);
 
@@ -822,7 +822,7 @@ export function compileUpdateUnique(
   const { where, data, select, include, return: returnOption, unset } = options;
   assertValidReadOptions(model, { select });
 
-  const whereValidation = validateWhere(where, model);
+  const whereValidation = validateWhere(where, model, registry);
   if (!whereValidation.valid)
     throw new Error(`Invalid where clause: ${whereValidation.errors.map((e) => e.message).join(', ')}`);
 
@@ -880,7 +880,7 @@ export function compileDeleteMany(
 ): CompiledQueryDescriptor {
   const { where } = options;
 
-  const validation = validateWhere(where, model);
+  const validation = validateWhere(where, model, registry);
   if (!validation.valid) throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
 
   if (registry) {
@@ -904,7 +904,7 @@ export function compileDeleteUnique(
 ): CompiledQueryDescriptor {
   const { where, return: returnOption } = options;
 
-  const validation = validateWhere(where, model);
+  const validation = validateWhere(where, model, registry);
   if (!validation.valid) throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
 
   const { hasId, id, expandedWhere } = getRecordIdFromWhere(where, model, 'deleteUnique');
@@ -948,7 +948,7 @@ export function compileCount(
   registry?: ModelRegistry,
 ): CompiledQueryDescriptor {
   if (where) {
-    const validation = validateWhere(where, model);
+    const validation = validateWhere(where, model, registry);
     if (!validation.valid)
       throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
   }
@@ -966,7 +966,7 @@ export function compileExists(
   registry?: ModelRegistry,
 ): CompiledQueryDescriptor {
   if (where) {
-    const validation = validateWhere(where, model);
+    const validation = validateWhere(where, model, registry);
     if (!validation.valid)
       throw new Error(`Invalid where clause: ${validation.errors.map((e) => e.message).join(', ')}`);
   }
@@ -994,7 +994,7 @@ export function compileUpsert(
   const { where, create: createData, update: updateData, unset, select, include, return: returnOption } = options;
   assertValidReadOptions(model, { select });
 
-  const whereValidation = validateWhere(where, model);
+  const whereValidation = validateWhere(where, model, registry);
   if (!whereValidation.valid)
     throw new Error(`Invalid where clause: ${whereValidation.errors.map((e) => e.message).join(', ')}`);
 
