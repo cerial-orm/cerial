@@ -12,6 +12,7 @@ import type {
   ASTTuple,
   CompositeIndex,
   FieldMetadata,
+  LiteralFieldMetadata,
   LiteralMetadata,
   LiteralRegistry,
   ModelMetadata,
@@ -96,18 +97,7 @@ export function resolveObjectFields(
     for (const tupleName of Object.keys(tupleRegistry)) {
       const tupleMeta = tupleRegistry[tupleName]!;
       resolveTupleElementsRecursive(tupleMeta.elements, objectRegistry, tupleRegistry);
-      // Resolve literal-typed tuple elements
-      if (literalRegistry) {
-        for (const el of tupleMeta.elements) {
-          if (el.type === 'literal' && el.literalInfo && !el.literalInfo.variants.length) {
-            const litMeta = literalRegistry[el.literalInfo.literalName];
-            if (litMeta) {
-              el.literalInfo.variants = JSON.parse(JSON.stringify(litMeta.variants));
-              if (litMeta.isEnum) el.literalInfo.isEnum = true;
-            }
-          }
-        }
-      }
+      if (literalRegistry) resolveLiteralElements(tupleMeta.elements, literalRegistry);
     }
   }
 }
@@ -297,16 +287,34 @@ export function resolveLiteralVariants(
   }
 }
 
-/** Resolve literalInfo.variants on fields that reference literals */
+/** Fill literalInfo.variants from the registry, so the validator can check the value against them */
+function resolveLiteralInfo(
+  target: { type: string; literalInfo?: LiteralFieldMetadata },
+  literalRegistry: LiteralRegistry,
+): void {
+  if (target.type !== 'literal' || !target.literalInfo || target.literalInfo.variants.length) return;
+
+  const litMeta = literalRegistry[target.literalInfo.literalName];
+  if (!litMeta) return;
+
+  target.literalInfo.variants = JSON.parse(JSON.stringify(litMeta.variants));
+  if (litMeta.isEnum) target.literalInfo.isEnum = true;
+}
+
+/** Resolve literalInfo.variants on fields that reference literals, including those nested in objects and tuples */
 function resolveLiteralFields(fields: FieldMetadata[], literalRegistry: LiteralRegistry): void {
   for (const field of fields) {
-    if (field.type === 'literal' && field.literalInfo && !field.literalInfo.variants.length) {
-      const litMeta = literalRegistry[field.literalInfo.literalName];
-      if (litMeta) {
-        field.literalInfo.variants = JSON.parse(JSON.stringify(litMeta.variants));
-        if (litMeta.isEnum) field.literalInfo.isEnum = true;
-      }
-    }
+    resolveLiteralInfo(field, literalRegistry);
+    if (field.objectInfo) resolveLiteralFields(field.objectInfo.fields, literalRegistry);
+    if (field.tupleInfo) resolveLiteralElements(field.tupleInfo.elements, literalRegistry);
+  }
+}
+
+function resolveLiteralElements(elements: TupleElementMetadata[], literalRegistry: LiteralRegistry): void {
+  for (const element of elements) {
+    resolveLiteralInfo(element, literalRegistry);
+    if (element.objectInfo) resolveLiteralFields(element.objectInfo.fields, literalRegistry);
+    if (element.tupleInfo) resolveLiteralElements(element.tupleInfo.elements, literalRegistry);
   }
 }
 

@@ -294,7 +294,7 @@ function transformObjectData(
  * Object form is always a single tuple. For array form, check if the shape matches
  * the tuple definition (length equals element count and first element is a primitive).
  */
-function isSingleTupleInput(value: unknown, tupleInfo: TupleFieldMetadata): boolean {
+export function isSingleTupleInput(value: unknown, tupleInfo: TupleFieldMetadata): boolean {
   // Object form: always a single tuple
   if (!Array.isArray(value)) return typeof value === 'object' && value !== null;
   // Empty array: not a single tuple

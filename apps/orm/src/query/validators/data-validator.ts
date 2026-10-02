@@ -6,7 +6,6 @@ import type {
   FieldMetadata,
   LiteralFieldMetadata,
   ModelMetadata,
-  ObjectFieldMetadata,
   ResolvedLiteralVariant,
   SchemaFieldType,
   TupleFieldMetadata,
@@ -15,6 +14,7 @@ import { isRecordIdInput } from '../../utils/cerial-id';
 import { isNone } from '../../utils/none';
 import { isObject } from '../../utils/type-utils';
 import { isValidEmail, validateFieldType, validateTypedRecordId } from '../../utils/validation-utils';
+import { isSingleTupleInput } from '../transformers/data-transformer';
 
 /** Validation error */
 export interface DataValidationError {
@@ -74,16 +74,21 @@ function literalError(label: string, value: unknown, literalInfo: LiteralFieldMe
   return `${label} must be one of: ${literalInfo.variants.map(describeVariant).join(', ')} (received ${received})`;
 }
 
+/** What a value is checked against. Model fields and tuple elements both reduce to this. */
+export interface FieldValueRules {
+  type: SchemaFieldType;
+  isRequired: boolean;
+  isArray?: boolean;
+  isNullable?: boolean;
+  recordIdTypes?: string[];
+  literalInfo?: LiteralFieldMetadata;
+}
+
 /** Validate a single field value */
 export function validateFieldValue(
   fieldName: string,
   value: unknown,
-  fieldType: SchemaFieldType,
-  isRequired: boolean,
-  isArray?: boolean,
-  isNullable?: boolean,
-  recordIdTypes?: string[],
-  literalInfo?: LiteralFieldMetadata,
+  { type: fieldType, isRequired, isArray, isNullable, recordIdTypes, literalInfo }: FieldValueRules,
 ): DataValidationError | null {
   // NONE sentinel is always valid for optional fields (clear the field)
   if (isNone(value)) {
@@ -240,19 +245,15 @@ export function validateCreateData(
     // Skip Record fields that will be populated by nested operations
     if (field.type === 'record' && fieldsFromNestedOps.has(field.name)) continue;
 
-    const error = validateFieldValue(
-      field.name,
-      value,
-      field.type,
-      field.isRequired,
-      field.isArray,
-      field.isNullable,
-      field.recordIdTypes,
-      field.literalInfo,
-    );
+    const error = validateFieldValue(field.name, value, field);
     if (error) {
       errors.push(error);
+      continue;
     }
+
+    // The top-level call above already covered literal fields
+    if (field.type === 'object' || field.type === 'tuple')
+      errors.push(...validateSubValue(value, field, model, field.name, false));
   }
 
   return {
@@ -429,27 +430,77 @@ function isSetWrapper(value: Record<string, unknown>): boolean {
   return 'set' in value && Object.keys(value).length === 1;
 }
 
-/** Validate a sub-value that the builder merges key by key: a single object, or a tuple in object form. */
+/** The slice of a model field or tuple element that the nested walk reads. */
+type WalkField = Pick<
+  FieldMetadata,
+  'type' | 'isArray' | 'isFlexible' | 'isNullable' | 'literalInfo' | 'objectInfo' | 'tupleInfo'
+>;
+
+/**
+ * Validate a value nested inside an object or tuple, to any depth.
+ * `partial` is true while the builder merges the value key by key (an update's object or object-form
+ * tuple), where an undeclared key would be dropped. A value it binds whole (array element, `{ set }`
+ * contents, push item) is not partial. Enum fields carry `type: 'literal'`, so one branch covers both.
+ */
 function validateSubValue(
   value: unknown,
-  field: { type: SchemaFieldType; isArray?: boolean; isFlexible?: boolean },
-  objectInfo: ObjectFieldMetadata | undefined,
-  tupleInfo: TupleFieldMetadata | undefined,
+  field: WalkField,
   model: ModelMetadata,
   path: string,
+  partial: boolean,
 ): DataValidationError[] {
-  if (isNone(value) || !isObject(value) || isSetWrapper(value) || field.isArray) return [];
+  if (value === undefined || isNone(value)) return [];
 
-  if (field.type === 'object' && objectInfo)
-    return validateObjectData(value, objectInfo.fields, field.isFlexible, model, path);
-  if (field.type === 'tuple' && tupleInfo) return validateTupleData(value, tupleInfo, model, path);
+  if (field.type === 'literal' && field.literalInfo) {
+    // An object on an array field is an operation ({ push }, { set }), not a value to check
+    if (field.isArray && isObject(value)) return [];
+    const error = validateFieldValue(path, value, { ...field, isRequired: false });
 
-  return [];
+    return error ? [error] : [];
+  }
+
+  if (field.type !== 'object' && field.type !== 'tuple') return [];
+
+  if (field.isArray) {
+    const element = { ...field, isArray: false };
+    if (Array.isArray(value))
+      return value.flatMap((item, i) => validateSubValue(item, element, model, `${path}[${i}]`, false));
+    if (!isObject(value)) return [];
+
+    // { push } and { set } carry whole elements; updateWhere and unset are not value-checked
+    const errors: DataValidationError[] = [];
+    if (value.set !== undefined && Array.isArray(value.set))
+      errors.push(...validateSubValue(value.set, field, model, path, false));
+    if (value.push !== undefined) {
+      const items =
+        Array.isArray(value.push) && !(field.tupleInfo && isSingleTupleInput(value.push, field.tupleInfo))
+          ? value.push
+          : [value.push];
+      items.forEach((item, i) => {
+        errors.push(...validateSubValue(item, element, model, `${path}.push[${i}]`, false));
+      });
+    }
+
+    return errors;
+  }
+
+  if (isObject(value) && isSetWrapper(value)) return validateSubValue(value.set, field, model, path, false);
+
+  if (field.type === 'tuple') {
+    if (!field.tupleInfo) return [];
+    if (Array.isArray(value)) return validateTupleArray(value, field.tupleInfo, model, path);
+
+    return isObject(value) ? validateTupleData(value, field.tupleInfo, model, path, partial) : [];
+  }
+
+  if (!field.objectInfo || !isObject(value)) return [];
+
+  return validateObjectData(value, field.objectInfo.fields, field.isFlexible, model, path, partial);
 }
 
 /**
- * Validate the sub-keys of an object merge. The builder skips an undeclared sub-key on a strict
- * object, so without this check the write is dropped and reported as a success.
+ * Validate the sub-keys of an object. Merged key by key (`partial`), the builder skips an undeclared
+ * sub-key on a strict object, so without the key check the write is dropped and reported as a success.
  * @flexible objects accept any undeclared sub-key; that is read per field, never per object type.
  */
 function validateObjectData(
@@ -458,6 +509,7 @@ function validateObjectData(
   isFlexible: boolean | undefined,
   model: ModelMetadata,
   path: string,
+  partial: boolean,
 ): DataValidationError[] {
   const errors: DataValidationError[] = [];
 
@@ -468,22 +520,35 @@ function validateObjectData(
     const subPath = `${path}.${key}`;
 
     if (!subField) {
-      if (!isFlexible) errors.push(unknownSubKey(subPath, model));
+      if (partial && !isFlexible) errors.push(unknownSubKey(subPath, model));
       continue;
     }
 
-    errors.push(...validateSubValue(value, subField, subField.objectInfo, subField.tupleInfo, model, subPath));
+    errors.push(...validateSubValue(value, subField, model, subPath, partial));
   }
 
   return errors;
 }
 
-/** Validate the element keys (by name or index) of a per-element tuple update. */
+/** Validate the elements of a tuple in array form, which is a whole value. */
+function validateTupleArray(
+  data: unknown[],
+  tupleInfo: TupleFieldMetadata,
+  model: ModelMetadata,
+  path: string,
+): DataValidationError[] {
+  return tupleInfo.elements.flatMap((element) =>
+    validateSubValue(data[element.index], element, model, `${path}[${element.index}]`, false),
+  );
+}
+
+/** Validate the element keys (by name or index) of a tuple in object form. */
 function validateTupleData(
   data: Record<string, unknown>,
   tupleInfo: TupleFieldMetadata,
   model: ModelMetadata,
   path: string,
+  partial: boolean,
 ): DataValidationError[] {
   const errors: DataValidationError[] = [];
 
@@ -494,14 +559,12 @@ function validateTupleData(
     const subPath = `${path}.${key}`;
 
     if (!element) {
-      errors.push(unknownSubKey(subPath, model));
+      if (partial) errors.push(unknownSubKey(subPath, model));
       continue;
     }
 
     // Tuple elements are never flexible
-    errors.push(
-      ...validateSubValue(value, { type: element.type }, element.objectInfo, element.tupleInfo, model, subPath),
-    );
+    errors.push(...validateSubValue(value, element, model, subPath, partial));
   }
 
   return errors;
@@ -529,6 +592,7 @@ export function validateUpdateData(data: Record<string, unknown>, model: ModelMe
     // For array fields with object values (push/unset operations), skip type validation
     // as the operation format is handled separately
     if (field.isArray && typeof value === 'object' && !Array.isArray(value) && value !== null) {
+      errors.push(...validateSubValue(value, field, model, fieldName, true));
       continue;
     }
 
@@ -540,28 +604,19 @@ export function validateUpdateData(data: Record<string, unknown>, model: ModelMe
       value !== null &&
       !Array.isArray(value)
     ) {
-      errors.push(...validateSubValue(value, field, undefined, field.tupleInfo, model, fieldName));
+      errors.push(...validateSubValue(value, field, model, fieldName, true));
       continue;
     }
 
     // NONE sentinel is always valid in updates (clears the field)
     if (isNone(value)) continue;
 
-    // Partial object merge: sub-keys are checked here
-    if (field.type === 'object')
-      errors.push(...validateSubValue(value, field, field.objectInfo, undefined, model, fieldName));
+    // Partial object merge sub-keys, and whole object or tuple values, are checked here
+    if (field.type === 'object' || field.type === 'tuple')
+      errors.push(...validateSubValue(value, field, model, fieldName, true));
 
     // For updates, don't require fields - just validate types
-    const error = validateFieldValue(
-      fieldName,
-      value,
-      field.type,
-      false,
-      field.isArray,
-      field.isNullable,
-      field.recordIdTypes,
-      field.literalInfo,
-    );
+    const error = validateFieldValue(fieldName, value, { ...field, isRequired: false });
     if (error) {
       errors.push(error);
     }
