@@ -19,6 +19,7 @@ import type {
 import { quoteSubKey } from '../../utils/string-utils';
 import type { CompiledQuery } from '../compile/types';
 import { expandCompositeKey, findCompositeUniqueKey } from '../filters/composite-key';
+import { isOperatorObject } from '../filters/condition-builder';
 import { transformWhereClause } from '../filters/transformer';
 import { transformOrValidateRecordId } from '../transformers';
 import { combineSelectWithIncludes, type IncludeClause } from './relation-builder';
@@ -501,6 +502,16 @@ export function expandObjectUniqueKey(where: WhereClause, model: ModelMetadata):
   return expanded;
 }
 
+/** A unique filter identifies one record, so it takes a plain value; an operator object would match many. */
+function assertPlainUniqueValue(methodName: string, model: ModelMetadata, path: string, value: unknown): void {
+  if (!isOperatorObject(value)) return;
+
+  throw new Error(
+    `${methodName} on ${model.name}: unique key '${path}' must be a plain value, not a filter object ` +
+      `(${Object.keys(value).join(', ')}). A unique filter takes plain values only; filter with operators through findMany, updateMany or deleteMany.`,
+  );
+}
+
 /**
  * Validate at least one unique field or composite unique key is present in where clause
  * @param where - The where clause to validate
@@ -512,8 +523,17 @@ export function validateUniqueField(where: WhereClause, model: ModelMetadata, me
   // Check for composite unique key first
   if (findCompositeUniqueKey(where, model)) return;
 
-  // Check for object @unique key
-  if (findObjectUniqueKey(where, model)) return;
+  // Check for object @unique key. Its parts are checked here because an undefined one is skipped by the
+  // condition builder, which would leave a unique-key DELETE or UPDATE with no condition at all.
+  const objectKey = findObjectUniqueKey(where, model);
+  if (objectKey) {
+    for (const [path, value] of Object.entries(objectKey.dotPaths)) {
+      if (value === undefined) throw new Error(`${methodName} on ${model.name}: unique key '${path}' has no value`);
+      assertPlainUniqueValue(methodName, model, path, value);
+    }
+
+    return;
+  }
 
   const idField = model.fields.find((f) => f.isId);
   const uniqueFields = getUniqueFields(model);
@@ -521,6 +541,8 @@ export function validateUniqueField(where: WhereClause, model: ModelMetadata, me
 
   // Find which unique fields are present (as direct values, not operators)
   const providedFields = allUniqueFields.filter((f) => !!where[f.name]);
+
+  for (const field of providedFields) assertPlainUniqueValue(methodName, model, field.name, where[field.name]);
 
   // Validation: at least one unique field required
   if (!providedFields.length) {
