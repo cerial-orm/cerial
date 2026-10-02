@@ -83,7 +83,10 @@ describe('Hostile keys — negative cases', () => {
       rejects(() => client.db.User.findMany({ include: { [key]: true } }), unknown('Invalid include')));
 
     test('where at top level', () =>
-      rejects(() => client.db.User.findMany({ where: { [key]: 'x' } }), `Invalid where clause: Unknown field: ${key}`));
+      rejects(
+        () => client.db.User.findMany({ where: { [key]: 'x' } }),
+        `Invalid where clause: Unknown field '${key}' on model User`,
+      ));
 
     test('where object sub-key', () =>
       rejects(
@@ -201,7 +204,7 @@ describe('Hostile keys — negative cases', () => {
               },
               update: { strictAddress: { [key]: 'x' } },
             }),
-          `Invalid update data: ${unknown(`strictAddress.${key}`)}`,
+          `Invalid data: ${unknown(`strictAddress.${key}`)}`,
         );
 
         await expectVictimSurvived();

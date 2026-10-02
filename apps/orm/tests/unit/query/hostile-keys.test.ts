@@ -62,10 +62,10 @@ describe.each(HOSTILE_KEYS)('key %j', (key) => {
         { where: { id: 'post:1' }, create: { ...createData, [key]: 'x' }, update: { title: 'U' } } as never,
         registry,
       ),
-    ).toThrow(unknown('Invalid create data'));
+    ).toThrow(unknown('Invalid data'));
     expect(() =>
       compileUpsert(post, { where: { id: 'post:1' }, create: createData, update: hostile } as never, registry),
-    ).toThrow(unknown('Invalid update data'));
+    ).toThrow(unknown('Invalid data'));
   });
 
   test('select', () => {
@@ -97,7 +97,7 @@ describe.each(HOSTILE_KEYS)('key %j', (key) => {
 
   test('where at top level', () => {
     expect(() => compileFindMany(post, { where: hostile }, registry)).toThrow(
-      `Invalid where clause: Unknown field: ${key}`,
+      `Invalid where clause: Unknown field '${key}' on model Post`,
     );
   });
 

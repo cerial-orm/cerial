@@ -214,6 +214,6 @@ describe('every update entry point rejects the typo and emits nothing', () => {
         },
         update: data,
       }),
-    ).toThrow("Invalid update data: Unknown field 'strict.titel' on model Post");
+    ).toThrow("Invalid data: Unknown field 'strict.titel' on model Post");
   });
 });

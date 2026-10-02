@@ -119,13 +119,13 @@ describe('entry points reject unknown data keys', () => {
         { where: { id: 'post:1' }, create: { ...postData, typo: 1 }, update: { title: 'U' } },
         registry,
       ),
-    ).toThrow(`Invalid create data: ${unknownMsg}`);
+    ).toThrow(`Invalid data: ${unknownMsg}`);
   });
 
   test('compileUpsert update half', () => {
     expect(() =>
       compileUpsert(post, { where: { id: 'post:1' }, create: postData, update: { typo: 1 } }, registry),
-    ).toThrow(`Invalid update data: ${unknownMsg}`);
+    ).toThrow(`Invalid data: ${unknownMsg}`);
   });
 
   test('computed field still accepted through compileCreate', () => {

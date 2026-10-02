@@ -79,7 +79,9 @@ describe('validateWhere — composite key values', () => {
   });
 
   test('still validates sibling keys next to a valid composite', () => {
-    expect(messages({ nameCity: { name: 'Hub', address: { city: 'NYC' } }, nope: 1 })).toEqual(['Unknown field: nope']);
+    expect(messages({ nameCity: { name: 'Hub', address: { city: 'NYC' } }, nope: 1 })).toEqual([
+      "Unknown field 'nope' on model Place — check the field name against the schema",
+    ]);
   });
 });
 

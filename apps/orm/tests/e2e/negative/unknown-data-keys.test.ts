@@ -78,7 +78,7 @@ describe('Unknown data keys — negative cases', () => {
         create: { name: 'A', nmae: 'x' },
         update: { name: 'B' },
       });
-    }).toThrow("Invalid create data: Unknown field 'nmae'");
+    }).toThrow("Invalid data: Unknown field 'nmae'");
   });
 
   test('upsert throws on an unknown key in update', () => {
@@ -89,7 +89,7 @@ describe('Unknown data keys — negative cases', () => {
         // @ts-expect-error — unknown key in update, testing runtime guard
         update: { nmae: 'x' },
       });
-    }).toThrow("Invalid update data: Unknown field 'nmae'");
+    }).toThrow("Invalid data: Unknown field 'nmae'");
   });
 
   test('known-but-computed @now field is still accepted and ignored on create', async () => {

@@ -114,7 +114,7 @@ describe('Hostile identifiers at the remaining key-path sites', () => {
           where: { [HOSTILE]: 'x' },
           data: { employees: { create: { name: 'E', homeAddress: { street: 'S', city: 'C', state: 'ST' } } } },
         }),
-      `Invalid where clause: Unknown field: ${HOSTILE}`,
+      `Invalid where clause: Unknown field '${HOSTILE}' on model RelObjCompany`,
     );
 
     expect(await client.db.RelObjEmployee.count()).toBe(0);

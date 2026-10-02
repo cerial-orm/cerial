@@ -31,3 +31,19 @@ export const ERROR_CLASSES: ErrorClassCase[] = [
   { name: 'CerialDatabaseError', ctor: CerialDatabaseError, code: 'C6001' },
   { name: 'CerialGenerationError', ctor: CerialGenerationError, code: 'C7000' },
 ];
+
+/** What a callback throws, or undefined when it does not throw. A thrown non-error is returned as it is. */
+export function thrown(fn: () => unknown): unknown {
+  try {
+    fn();
+  } catch (error) {
+    return error;
+  }
+
+  return undefined;
+}
+
+/** The classes a thrown error must not be an instance of: every sibling of the one expected. */
+export function wrongClasses(expected: new (...args: never[]) => Error): ErrorClassCase['ctor'][] {
+  return ERROR_CLASSES.map((c) => c.ctor).filter((ctor) => ctor !== expected);
+}
