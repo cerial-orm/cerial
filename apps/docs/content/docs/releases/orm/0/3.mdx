@@ -297,3 +297,10 @@ development branch and is not available on npm.
   // after
   onBeforeQuery: async (modelNames) => modelNames.forEach(log)
   ```
+- An unknown field in a top-level `where` now reads
+  `Unknown field 'nmae' on model User`, the wording every other surface already
+  used, where it used to read `Invalid where clause: Unknown field: nmae`. The
+  same wording now covers `unset`. `upsert` reports a rejected `create` or
+  `update` payload as `Invalid data`, since a caller does not know which half
+  would have run. Code that matched on the old wording needs updating; branch on
+  the error class or `code` instead.
