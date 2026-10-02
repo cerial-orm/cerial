@@ -442,6 +442,15 @@ export function findCompositeUniqueKey(
 }
 
 /**
+ * The condition builder skips an undefined value, so a missing part would silently narrow nothing and a
+ * unique-key DELETE or UPDATE would run unconditionally. validateWhere rejects this first; the check
+ * stays because this is the last place the part is still known by name.
+ */
+function assertCompositePart(directiveName: string, fieldRef: string, value: unknown): void {
+  if (value === undefined) throw new Error(`Composite key '${directiveName}' is missing a value for '${fieldRef}'`);
+}
+
+/**
  * Expand composite unique keys in a where clause into flat field conditions.
  * Removes the composite key name from the where clause and injects the individual fields.
  *
@@ -470,6 +479,7 @@ export function expandCompositeKey(where: WhereClause, model: ModelMetadata): Wh
     if (parts.length === 1) {
       // Simple field: extract directly from composite values
       expanded[fieldRef] = composite.values[fieldRef];
+      assertCompositePart(directive.name, fieldRef, expanded[fieldRef]);
     } else {
       // Dot-notation field: extract from nested structure
       // e.g., for "address.city", walk composite.values.address.city
@@ -484,6 +494,7 @@ export function expandCompositeKey(where: WhereClause, model: ModelMetadata): Wh
       }
       // Store with dot notation key — the condition builder will handle it
       expanded[fieldRef] = current;
+      assertCompositePart(directive.name, fieldRef, current);
     }
   }
 
