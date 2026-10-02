@@ -237,7 +237,7 @@ const GATE_FIXTURES: Readonly<Record<string, { refused: string; passes: string }
   ...TRACKER_FIXTURES,
   'message.status-green': { refused: 'all tests green again', passes: 'paint the button green' },
   'message.status-all-pass': { refused: 'all the tests pass now', passes: 'pass the flag to the tests' },
-  'message.status-ratio': { refused: 'finished 12/13 of them', passes: 'split input and output' },
+  'message.status-ratio': { refused: 'finished 12/13 tasks', passes: 'split input and output' },
   'message.status-count': { refused: 'then 40 tests pass', passes: 'add 40 tests for filters' },
   'message.status-measurement': { refused: 'coverage 90 on filters', passes: 'add a coverage report' },
   'message.status-percentage': { refused: 'reaches 90% coverage', passes: 'cover 90 cases of input' },
@@ -345,6 +345,132 @@ describe('attribution and planning paths', () => {
 
   test('a bare mention of the plugin with no path is accepted', () => {
     expect(rulesOf(withBody('docs: add the thing', 'Body line one.\nThe omc plugin reads it.'))).toEqual([]);
+  });
+});
+
+describe('status-ratio refuses a progress ratio and nothing else', () => {
+  const inBody = (line: string): string[] =>
+    rulesOf(withBody('docs: add the thing', `Body line one.\n${line}\nBody line three.`));
+
+  test.each([
+    'finished 3/7 tasks',
+    'only 9/10 tests pass',
+    'reports 12 / 13 checks',
+    'leaves 2/5 specs failing',
+    'got 4/4 done',
+  ])('%s is refused', (line) => {
+    expect(inBody(line)).toEqual(['message.status-ratio']);
+  });
+
+  test.each([
+    ['a date in slashes', 'Landed on 2026/10/02 after review.'],
+    ['a date in slashes followed by a unit noun', 'Dated 2026/10/02 tests were rewritten.'],
+    ['a rate', 'Runs 24/7 on the shared instance.'],
+    ['a fraction in prose', 'About 9/10 of the users hit it.'],
+    ['a version range', 'Supports node 18/20 and bun.'],
+    ['a path with numbers', 'Moves tests/01/02 to tests/e2e.'],
+    ['a decimal over a count', 'Takes 1.5/2 seconds on a cold start.'],
+  ])('%s is accepted', (_label, line) => {
+    expect(inBody(line)).toEqual([]);
+  });
+});
+
+describe('attribution-vendor refuses attribution and not a filename', () => {
+  const inBody = (line: string): string[] =>
+    rulesOf(withBody('docs: add the thing', `Body line one.\n${line}\nBody line three.`));
+
+  test.each([
+    'Updated CLAUDE.md to point at the README.',
+    'Edited claude.md and the docs.',
+    'Pointed docs/CLAUDE.md at the new page.',
+    'Touched apps/orm/CLAUDE.md, too.',
+  ])('%s is accepted', (line) => {
+    expect(inBody(line)).toEqual([]);
+  });
+
+  test.each([
+    ['a trailer', 'Co-Authored-By: Claude <noreply@anthropic.com>'],
+    ['a generated-with line', `${dot('Gener', 'ated with')} Claude Code`],
+    ['a vendor word as authorship', 'Written by Claude.'],
+    ['a vendor word at the end of a sentence', 'Thanks to Claude.'],
+    ['a vendor word before a markdown link', 'Reviewed by Claude, see notes.md.'],
+  ])('%s is still refused', (_label, line) => {
+    const found = inBody(line);
+
+    expect(found.length).toBeGreaterThanOrEqual(1);
+    for (const rule of found) expect(rule).toMatch(/^message\.attribution-/);
+  });
+
+  test('the file name is spared and a vendor word beside it is not', () => {
+    expect(inBody('Updated CLAUDE.md, thanks to Claude.')).toEqual(['message.attribution-vendor']);
+  });
+});
+
+describe('release subjects are matched without regard to the leading letter', () => {
+  const declares = (scope: string): string | null => (scope === 'orm' ? '0.3.0' : null);
+
+  test.each([
+    ['chore(orm): release v9.9.9', 'lower case'],
+    ['chore(orm): Release v9.9.9', 'capitalised'],
+  ])('%s with a disagreeing version is refused for the version (%s)', (subject) => {
+    expect(rulesOf(withBody(subject), declares)).toEqual([SHAPE_RULES.releaseVersion]);
+  });
+
+  test.each([
+    'chore(orm): release v0.3.0',
+    'chore(orm): Release v0.3.0',
+  ])('%s with the declared version is accepted', (subject) => {
+    expect(rulesOf(withBody(subject), declares)).toEqual([]);
+  });
+
+  test('a capitalised release of the wrong form is refused for the form', () => {
+    expect(rulesOf(withBody('feat(orm): Release v0.3.0'), declares)).toEqual([SHAPE_RULES.releaseForm]);
+  });
+
+  test('the word release not followed by a version is not a release subject', () => {
+    expect(rulesOf(withBody('fix(orm): Release the lock on rollback'), declares)).toEqual([]);
+  });
+});
+
+describe('verbs that end in the letters a past tense or plural ends in', () => {
+  // Approach: an explicit list of the verbs, not a rule on word length or shape. `ping` and a gerund
+  // differ only by spelling, and `has` must stay refused while `bias` must not, so a rule that
+  // generalised would have to be wrong one way. The list is short, auditable, and a missing verb
+  // fails visibly as a false refusal that is fixed by adding one word.
+  test.each([
+    'ping',
+    'sling',
+    'fling',
+    'sting',
+    'wing',
+    'bias',
+    'canvas',
+    'alias',
+    'atlas',
+    'Ping',
+  ])('the verb %s is accepted', (verb) => {
+    expect(rulesOf(withBody(`fix(orm): ${verb} the health endpoint`))).toEqual([]);
+  });
+
+  test.each([
+    'fixed',
+    'pinged',
+    'has',
+    'was',
+    'biases',
+    'pings',
+    'aliases',
+    'pinging',
+    'slinging',
+    'flinging',
+    'biasing',
+  ])('the form %s is still refused', (word) => {
+    expect(rulesOf(withBody(`fix(orm): ${word} the health endpoint`))).toEqual([SHAPE_RULES.subjectNotImperative]);
+  });
+
+  test('hold is judged by the ordinary rule and passes, with no entry of its own', () => {
+    expect(looksImperative('hold the lock')).toBe(true);
+    expect(looksImperative('holded the lock')).toBe(false);
   });
 });
 

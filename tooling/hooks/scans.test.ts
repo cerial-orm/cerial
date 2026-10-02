@@ -145,6 +145,27 @@ describe('lint suppressions', () => {
     expect(rules(scanSuppressions('apps/orm/src/a.ts', line))).toEqual(['suppression.bare']);
   });
 
+  describe('the -all, -start and -end forms', () => {
+    const forms = ['', '-all', '-start', '-end'];
+
+    test.each(forms)('the %s form with a rule and a reason is accepted', (suffix) => {
+      expect(
+        scanSuppressions(
+          'apps/orm/src/a.ts',
+          `// ${marker}${suffix} lint/suspicious/noExplicitAny: the registry is untyped`,
+        ),
+      ).toEqual([]);
+    });
+
+    test.each(forms)('the %s form with no reason is refused', (suffix) => {
+      for (const tail of ['', ' lint/suspicious/noExplicitAny', ' lint/suspicious/noExplicitAny: ok']) {
+        expect(rules(scanSuppressions('apps/orm/src/a.ts', `// ${marker}${suffix}${tail}`))).toEqual([
+          'suppression.bare',
+        ]);
+      }
+    });
+  });
+
   test('a path that is not code is not read', () => {
     expect(scanSuppressions('README.md', `// ${marker}`)).toEqual([]);
   });
