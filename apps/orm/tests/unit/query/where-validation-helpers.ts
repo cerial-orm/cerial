@@ -30,15 +30,24 @@ tuple Pair {
   second Int
 }
 
+model Owner {
+  id Record @id
+  name String
+  places Relation[] @model(Place)
+}
+
 model Place {
   id Record @id
   name String
+  ownerId Record
+  owner Relation @field(ownerId) @model(Owner)
   address Addr
   open Addr @flexible
   stops Addr[]
   openStops Addr[] @flexible
   spot Spot
   pairs Pair[]
+  @@unique(nameCity, [name, address.city])
 }
 `;
 
@@ -48,4 +57,8 @@ const objects = convertObjects(ast.objects);
 const tuples = convertTuples(ast.tuples);
 resolveObjectFields(models, objects, createObjectRegistry(objects), createTupleRegistry(tuples));
 
-export const place = createRegistry(models).Place!;
+const registry = createRegistry(models);
+
+export const place = registry.Place!;
+export const owner = registry.Owner!;
+export const placeRegistry = registry;
