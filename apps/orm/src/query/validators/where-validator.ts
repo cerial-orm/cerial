@@ -3,7 +3,13 @@
  */
 
 import { RecordId, StringRecordId } from 'surrealdb';
-import type { FieldMetadata, ModelMetadata, TupleFieldMetadata, WhereClause } from '../../types';
+import type {
+  CompositeIndex,
+  FieldMetadata,
+  ModelMetadata,
+  TupleFieldMetadata,
+  WhereClause,
+} from '../../types';
 import { CerialBytes } from '../../utils/cerial-bytes';
 import { CerialDecimal } from '../../utils/cerial-decimal';
 import { CerialDuration } from '../../utils/cerial-duration';
@@ -41,9 +47,62 @@ export interface WhereValidationResult {
   errors: ValidationError[];
 }
 
-/** Check if a key is a composite unique directive name */
-function isCompositeKeyName(key: string, model: ModelMetadata): boolean {
-  return model.compositeDirectives?.some((d) => d.kind === 'unique' && d.name === key) ?? false;
+/** Find the @@unique directive a where key names, if any */
+function findCompositeDirective(key: string, model: ModelMetadata): CompositeIndex | undefined {
+  return model.compositeDirectives?.find((d) => d.kind === 'unique' && d.name === key);
+}
+
+/**
+ * Check a composite key value against its @@unique directive. The query builder flattens the value to
+ * the directive's own fields and drops any that are missing or undefined, so an incomplete value would
+ * otherwise widen the filter, all the way to an unconditional DELETE or UPDATE.
+ */
+function validateCompositeValue(
+  directive: CompositeIndex,
+  value: unknown,
+  model: ModelMetadata,
+  path: string,
+): ValidationError[] {
+  const required = `@@unique(${directive.name}, [${directive.fields.join(', ')}])`;
+  const fail = (problem: string): ValidationError[] => [
+    {
+      path,
+      message: `Invalid composite key '${directive.name}' on model ${model.name} — it must name every field of ${required} as a plain value; ${problem}`,
+    },
+  ];
+
+  if (!isObject(value) || isDirectValue(value))
+    return fail(`got ${Array.isArray(value) ? 'an array' : value === null ? 'null' : typeof value}`);
+
+  const seen = new Set<string>();
+  const problems: string[] = [];
+
+  const walk = (node: Record<string, unknown>, prefix: string): void => {
+    for (const [key, child] of Object.entries(node)) {
+      const keyPath = prefix ? `${prefix}.${key}` : key;
+
+      // The builder walks nested objects, so a key that is itself dotted would never be read
+      if (key.includes('.')) {
+        if (child !== undefined) problems.push(`'${keyPath}' must be written as nested objects, not a dotted key`);
+      } else if (directive.fields.includes(keyPath)) {
+        if (child === undefined) continue;
+        if (isOperatorObject(child) || (isObject(child) && !isDirectValue(child)) || Array.isArray(child))
+          problems.push(`'${keyPath}' must be a plain value, not a filter or nested object`);
+        else seen.add(keyPath);
+      } else if (directive.fields.some((f) => f.startsWith(`${keyPath}.`))) {
+        if (isObject(child) && !isDirectValue(child)) walk(child, keyPath);
+        else if (child !== undefined) problems.push(`'${keyPath}' must be an object holding ${required} fields`);
+      } else if (child !== undefined) {
+        problems.push(`'${keyPath}' is not part of the directive`);
+      }
+    }
+  };
+  walk(value, '');
+
+  const missing = directive.fields.filter((f) => !seen.has(f));
+  if (missing.length) problems.unshift(`missing ${missing.map((f) => `'${f}'`).join(', ')}`);
+
+  return problems.length ? fail(problems.join('; ')) : [];
 }
 
 const QUANTIFIERS = ['some', 'every', 'none'];
@@ -170,8 +229,10 @@ export function validateFieldFilter(
 ): ValidationError[] {
   const errors: ValidationError[] = [];
 
-  // Skip composite unique key names - they are expanded later by the query builder
-  if (isCompositeKeyName(fieldName, model)) return errors;
+  // Composite unique keys are expanded later by the query builder, which cannot tell a missing part from
+  // an absent one, so the value is checked here against the directive
+  const directive = findCompositeDirective(fieldName, model);
+  if (directive) return validateCompositeValue(directive, filter, model, path);
 
   // Check if field exists in model
   const field = model.fields.find((f) => f.name === fieldName);
