@@ -121,19 +121,22 @@ describe('Hostile identifiers at the remaining key-path sites', () => {
     await expectVictimSurvived();
   });
 
-  test('unset with a hostile sub-key does not run the key', async () => {
+  test('unset with a hostile sub-key is rejected and the key never runs', async () => {
     const address = { street: 'S', city: 'C', zip: null };
     const row = await client.db.FlexUser.create({
       data: { name: 'F', address, profile: { bio: 'b', metadata: { label: 'l' } }, strictAddress: address },
     });
 
-    // Whether this throws or is ignored is the open question in the band notes; the payload must not run either way.
-    await client.db.FlexUser.updateUnique({
-      where: { id: row.id },
-      data: {},
-      // @ts-expect-error — hostile key is not a sub-field, testing runtime guard
-      unset: { strictAddress: { [HOSTILE_STATEMENT]: true } },
-    }).catch(() => undefined);
+    await rejects(
+      () =>
+        client.db.FlexUser.updateUnique({
+          where: { id: row.id },
+          data: {},
+          // @ts-expect-error — hostile key is not a sub-field, testing runtime guard
+          unset: { strictAddress: { [HOSTILE_STATEMENT]: true } },
+        }),
+      `Invalid unset: Unknown field 'strictAddress.${HOSTILE_STATEMENT}' on model FlexUser`,
+    );
 
     await expectVictimSurvived();
   });
