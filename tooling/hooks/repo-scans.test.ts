@@ -18,10 +18,12 @@ import {
 import type { Scratch } from './scratch.ts';
 import {
   guardRepositoryConfiguration,
+  HOOKS_DIR,
   NOISE,
   newScratch,
   removeScratchesAfterAll,
   ruleNames,
+  runScript,
   seed,
   stage,
   stagedRefusals,
@@ -381,6 +383,61 @@ describe('the ratchet', () => {
 
     expect(ruleNames(found)).toEqual(['ratchet.baseline-stale']);
     expect(found[0]?.where).toBe('apps/orm/tests/unit');
+  });
+
+  describe('counting casts in the index', () => {
+    const SANCTION = '// @ts-expect-error negative test: the type forbids a number here';
+    const counted = (scratch: Scratch): number => {
+      const run = runScript(
+        scratch,
+        `import { countCasts } from ${JSON.stringify(`${HOOKS_DIR}/repo-scans.ts`)};
+         console.log(countCasts('apps/orm/tests/unit'));`,
+      );
+
+      if (run.status !== 0) throw new Error(`count failed: ${run.stderr}`);
+
+      return Number(run.stdout.trim());
+    };
+    const countOf = (content: string): number => {
+      const scratch = newScratch();
+      write(scratch, UNIT, content);
+      stage(scratch, UNIT);
+
+      return counted(scratch);
+    };
+
+    test('an unsanctioned cast is counted', () => {
+      expect(countOf(`export const a = 1 ${CAST};\n`)).toBe(1);
+    });
+
+    test('a cast under a type-error expectation with an explanation is not counted', () => {
+      expect(countOf(`${SANCTION}\nexport const a = 1 ${CAST};\n`)).toBe(0);
+    });
+
+    test('a sanction on the same line does not exempt the cast', () => {
+      expect(countOf(`export const a = 1 ${CAST}; ${SANCTION}\n`)).toBe(1);
+    });
+
+    test('a sanction two lines above does not exempt the cast', () => {
+      expect(countOf(`${SANCTION}\n\nexport const a = 1 ${CAST};\n`)).toBe(1);
+    });
+
+    test('a type-error expectation without an explanation does not exempt the cast', () => {
+      expect(countOf(`// @ts-expect-error\nexport const a = 1 ${CAST};\n`)).toBe(1);
+    });
+
+    test('counts each cast on its own, sanctioned or not, across files', () => {
+      const scratch = newScratch();
+      write(scratch, UNIT, `${SANCTION}\nexport const a = 1 ${CAST};\nexport const b = 2 ${CAST};\n`);
+      write(scratch, 'apps/orm/tests/unit/other.test.ts', `export const c = 3 ${CAST};\n`);
+      stage(scratch, UNIT, 'apps/orm/tests/unit/other.test.ts');
+
+      expect(counted(scratch)).toBe(2);
+    });
+
+    test('the first line of a file has no line before it to sanction it', () => {
+      expect(countOf(`export const a = 1 ${CAST};\n`)).toBe(1);
+    });
   });
 
   test('a baseline raised in the index is refused and one lowered or unchanged is accepted', () => {

@@ -217,14 +217,28 @@ function scanStagedReleaseNotes(): Refusal[] {
   return refusals;
 }
 
-/** Per-path counts of casts in the index, from a search that treats no match as zero. */
-function countCasts(prefix: string): number {
-  const run = Bun.spawnSync(['git', 'grep', '--cached', '-o', '-P', AS_ANY.regex.source, '--', prefix], {
+/**
+ * Casts in the index under a prefix, a no-match search counting as zero. A cast
+ * whose preceding line carries the sanction is not counted: the same exemption
+ * {@link scanAddedCasts} gives it, so the two halves of the rule agree.
+ */
+export function countCasts(prefix: string): number {
+  // -z ends the path with a NUL, so a colon in a path cannot be mistaken for the line number.
+  const run = Bun.spawnSync(['git', 'grep', '--cached', '-z', '-n', '-o', '-P', AS_ANY.regex.source, '--', prefix], {
     stdout: 'pipe',
     stderr: 'pipe',
   });
+  const linesByPath = new Map<string, string[]>();
+  let count = 0;
+  for (const hit of run.stdout.toString().split('\n').filter(Boolean)) {
+    const [path = '', rest = ''] = hit.split('\0');
+    const number = Number.parseInt(rest, 10);
+    if (!linesByPath.has(path)) linesByPath.set(path, (stagedContent(path) ?? '').split('\n'));
+    if (SANCTIONED_TYPE_ERROR.test(linesByPath.get(path)?.[number - 2] ?? '')) continue;
+    count++;
+  }
 
-  return run.stdout.toString().split('\n').filter(Boolean).length;
+  return count;
 }
 
 /** The ratchet: the tree must hold exactly the recorded count, and the record may not rise. */

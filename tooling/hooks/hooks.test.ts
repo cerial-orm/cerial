@@ -289,16 +289,37 @@ describe('the activated gate, driven by git', () => {
     expect(commitCount(scratch)).toBe('1');
   });
 
-  test('accepts the same cast under a type-error expectation with an explanation, when the count holds', () => {
+  test('accepts a sanctioned cast at net plus one, which the count alone used to refuse', () => {
     const scratch = gatedRepository();
-    write(scratch, `${UNIT}/a.test.ts`, 'export const a = 1;\n');
     write(scratch, `${UNIT}/b.test.ts`, `${SANCTION}export const b = 1 ${CAST};\n`);
-    stage(scratch, `${UNIT}/a.test.ts`, `${UNIT}/b.test.ts`);
+    stage(scratch, `${UNIT}/b.test.ts`);
     const run = attempt(scratch, 'test(orm): cover the cast');
 
     expect(run.stderr).not.toContain('refused');
     expect(run.status).toBe(0);
     expect(commitCount(scratch)).toBe('2');
+  });
+
+  test('still refuses an unsanctioned cast at net plus one', () => {
+    const scratch = gatedRepository();
+    write(scratch, `${UNIT}/b.test.ts`, `export const b = 1 ${CAST};\n`);
+    stage(scratch, `${UNIT}/b.test.ts`);
+    const run = attempt(scratch, 'test(orm): cover the cast');
+
+    expect(run.status).not.toBe(0);
+    expect(run.stderr).toContain('2 found, 1 recorded');
+    expect(commitCount(scratch)).toBe('1');
+  });
+
+  test('refuses a cast whose sanction is on the same line, at net plus one', () => {
+    const scratch = gatedRepository();
+    write(scratch, `${UNIT}/b.test.ts`, `export const b = 1 ${CAST}; ${SANCTION.trim()}\n`);
+    stage(scratch, `${UNIT}/b.test.ts`);
+    const run = attempt(scratch, 'test(orm): cover the cast');
+
+    expect(run.status).not.toBe(0);
+    expect(run.stderr).toContain('cast to any');
+    expect(commitCount(scratch)).toBe('1');
   });
 
   test('still refuses the unexplained cast when the count would hold', () => {
