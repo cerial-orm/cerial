@@ -27,6 +27,32 @@ const count = await client.db.User.deleteMany({
 // count: number (number of deleted records)
 ```
 
+## Matching Every Row
+
+`where` is required, so an empty filter is how you say "every row":
+
+```typescript
+const count = await client.db.User.deleteMany({
+  where: {},
+});
+// deletes every User
+```
+
+This follows the same rule as `select`: nothing specified means no restriction.
+
+A filter that does specify something but resolves to no conditions throws instead, so
+a dropped value cannot quietly turn a filtered delete into a full one:
+
+```typescript
+await client.db.User.deleteMany({
+  where: { AND: [] },
+});
+// throws: the where filter resolved to no conditions
+```
+
+If the filter arrives from request input, validate it before passing it on. `{}` is a
+valid filter and it means every row.
+
 ## With Complex Filter
 
 ```typescript

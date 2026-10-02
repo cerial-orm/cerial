@@ -32,6 +32,24 @@ const updated = await client.db.User.updateMany({
 // updated: User[]
 ```
 
+## Matching Every Row
+
+`where` is required, so an empty filter is how you say "every row":
+
+```typescript
+const count = await client.db.User.updateMany({
+  where: {},
+  data: { isActive: false },
+});
+// updates every User
+```
+
+This follows the same rule as `select`: nothing specified means no restriction.
+
+A filter that does specify something but resolves to no conditions throws instead, so
+a dropped value cannot quietly turn a filtered update into a full one. If the filter
+arrives from request input, validate it before passing it on.
+
 ## With Select
 
 ```typescript

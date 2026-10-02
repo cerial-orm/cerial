@@ -46,6 +46,28 @@ development branch and is not available on npm.
   input into a composite key, upgrade; until then check that every part is
   present before the call.
 
+- A `where` that was supplied but compiled to no conditions left `deleteMany`,
+  `updateMany`, `deleteUnique`, `updateUnique` and the update half of `upsert`
+  running with no `WHERE` at all. `deleteMany({ where: { AND: [] } })`, a
+  `where` whose values were all `undefined` (such as
+  `{ email: body.email }` when the body has no email), a composite `@@unique`
+  key (which `deleteMany` and `updateMany` never expanded), and an operator
+  object on a unique field (`deleteUnique({ where: { email: { contains: 'x' } } })`)
+  each removed or rewrote every row in the table.
+
+  A destructive statement whose `where` has keys but compiles to nothing now
+  throws, naming the model and saying that the filter resolved to no
+  conditions. Leaving `where` out, or passing `{}`, still affects every row;
+  that is how you ask for it. If you build a `where` from request input, upgrade;
+  until then check that each value is defined before the call.
+
+  Related changes in the same release: a unique filter takes plain values and
+  throws on an operator object or an undefined part of an object `@unique`;
+  composite keys now filter in `findMany`, `count`, `updateMany` and
+  `deleteMany`, including inside `AND`, `OR` and `NOT`; `OR: []` and `NOT: {}`
+  match no rows, in reads and writes alike; and a relation filter in
+  `deleteMany` and `updateMany` now matches the rows it names instead of none.
+
 ### Added
 
 - `orderBy` now accepts a relation field, so you can sort by a value on the
