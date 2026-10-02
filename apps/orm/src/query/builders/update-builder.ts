@@ -76,7 +76,7 @@ export function mergeUnsetIntoData(
 }
 
 /** Convert an unset sub-tree to NONE values */
-function convertUnsetToNoneValues(unset: Record<string, unknown>): Record<string, unknown> {
+export function convertUnsetToNoneValues(unset: Record<string, unknown>): Record<string, unknown> {
   const result: Record<string, unknown> = {};
 
   for (const [key, value] of Object.entries(unset)) {

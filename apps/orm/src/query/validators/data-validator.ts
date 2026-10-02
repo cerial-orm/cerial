@@ -14,6 +14,7 @@ import { isRecordIdInput } from '../../utils/cerial-id';
 import { isNone } from '../../utils/none';
 import { isObject } from '../../utils/type-utils';
 import { isValidEmail, validateFieldType, validateTypedRecordId } from '../../utils/validation-utils';
+import { convertUnsetToNoneValues } from '../builders/update-builder';
 import { isSingleTupleInput } from '../transformers/data-transformer';
 
 /** Validation error */
@@ -307,10 +308,20 @@ export function validateUnset(unset: Record<string, unknown>, model: ModelMetada
       continue;
     }
 
-    // Object value = sub-field unset — validate recursively
+    // Object value = sub-field unset. The builder merges it into data as NONE values, so it is walked
+    // the same way: an undeclared sub-key on a strict object would otherwise emit a NONE write to a
+    // path that does not exist and report success.
     if (typeof value === 'object' && value !== null) {
-      // Sub-field unset on objects and tuples is valid if the sub-fields exist
-      // Deep validation is handled by the type system; runtime just checks structure
+      if (field.type === 'object' || field.type === 'tuple')
+        errors.push(
+          ...validateSubValue(
+            convertUnsetToNoneValues(value as Record<string, unknown>),
+            field,
+            model,
+            fieldName,
+            true,
+          ),
+        );
       continue;
     }
 
