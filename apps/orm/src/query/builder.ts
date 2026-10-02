@@ -315,20 +315,9 @@ export class QueryBuilder<T extends Record<string, unknown>> {
 
     // Execute query - UPDATE ONLY returns single result, UPDATE returns array
     if (hasId) {
-      try {
-        const result = await executeQuerySingle(this.db, query);
+      const result = await executeQuerySingle(this.db, query);
 
-        return this.handleUpdateUniqueResult<R>(result, returnOption);
-      } catch (error) {
-        // UPDATE ONLY throws error when record doesn't exist
-        if (
-          error instanceof Error &&
-          error.message.includes('Expected a single result output when using the ONLY keyword')
-        ) {
-          return this.handleUpdateUniqueResult<R>(null, returnOption);
-        }
-        throw error;
-      }
+      return this.handleUpdateUniqueResult<R>(result, returnOption);
     }
 
     // Non-ID unique field: UPDATE returns array, take first result
@@ -581,19 +570,9 @@ export class QueryBuilder<T extends Record<string, unknown>> {
 
     if (isSingle) {
       // Unique field: UPSERT ONLY returns single result
-      try {
-        const result = await executeQuerySingle(this.db, query);
+      const result = await executeQuerySingle(this.db, query);
 
-        return this.handleUpsertResult(result, returnOption);
-      } catch (error) {
-        if (
-          error instanceof Error &&
-          error.message.includes('Expected a single result output when using the ONLY keyword')
-        ) {
-          return this.handleUpsertResult(null, returnOption);
-        }
-        throw error;
-      }
+      return this.handleUpsertResult(result, returnOption);
     }
 
     // Non-unique: UPSERT/UPDATE returns array
