@@ -30,6 +30,22 @@ development branch and is not available on npm.
   until then allow-list the `orderBy` keys, and cast `limit` and `offset` to
   integers, before they reach `include`.
 
+- A composite `@@unique` key in `where` was never checked against its
+  directive, so an empty or partial value silently dropped the missing parts
+  from the filter. `deleteUnique({ where: { cityZip: {} } })` ran an
+  unconditional `DELETE` and removed every row in the table, and a partial key
+  such as `{ location: { city: 'NYC' } }` removed every row matching only that
+  part. `updateUnique` and `upsert` widened the same way. The generated types
+  already require the full shape, so a correctly typed call could not reach
+  this; it was reachable from JavaScript, from casts, and from values that
+  arrive at runtime, such as `deleteUnique({ where: { cityZip: body.key } })`.
+
+  A composite value must now name every field of its `@@unique` directive,
+  each as a plain value, with dotted paths written as nested objects. Anything
+  else throws, naming the directive and what it requires. If you forward user
+  input into a composite key, upgrade; until then check that every part is
+  present before the call.
+
 ### Added
 
 - `orderBy` now accepts a relation field, so you can sort by a value on the
@@ -127,6 +143,20 @@ development branch and is not available on npm.
   of the object type, so the same object type accepts undeclared sub-keys on a
   `@flexible` field and rejects them on a strict one. A `{ set: ... }` full
   replace is unaffected.
+
+- Unknown sub-keys of a strict object in `unset` are now rejected the same
+  way. `unset: { address: { cty: true } }` used to emit a write to a path that
+  does not exist and report success while changing nothing. It now throws with
+  the same message as the equivalent `data` value, on `updateMany`,
+  `updateUnique` and the update half of `upsert`.
+
+- A key that the related model does not have is now rejected inside a relation
+  filter. `findMany({ where: { author: { nmae: 'Ada' } } })` used to ignore the
+  unknown key, so the filter vanished and more rows came back than asked for.
+  It now throws, naming the key and the related model, and the same applies
+  inside `some`, `every` and `none` on array relations and under
+  `AND`/`OR`/`NOT`. An array relation filter accepts only `some`, `every` and
+  `none` as keys.
 
 ### Changed
 
