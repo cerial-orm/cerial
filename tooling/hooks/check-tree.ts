@@ -1,8 +1,12 @@
 // Runs the file scans over paths on disk rather than over the index, for CI and
 // for checking a tree that is not being committed. With no arguments it reads
 // every tracked file. An argument may be a file or a directory.
+//
+// With no arguments it also reconciles baseline.json against the tree, counting
+// as the commit gate does (the index, which a CI checkout makes equal to disk).
 
 import { readFileSync, statSync } from 'node:fs';
+import { checkRatchet } from './repo-scans.ts';
 import { printRefusals } from './report.ts';
 import { gitText, isSourcePath, type StagedFile, scanFiles } from './scan.ts';
 
@@ -36,7 +40,10 @@ if (given.length && files.length === 0) {
   process.exit(2);
 }
 
-const refusals = scanFiles(files);
+// The recorded counts are a statement about the whole tree, so naming paths skips them.
+// A count that fell is refused as firmly as one that rose: an unrecorded fall is a
+// saving the next commit can spend a second time.
+const refusals = [...scanFiles(files), ...(given.length ? [] : checkRatchet())];
 if (refusals.length) {
   printRefusals('The scans refuse this tree.', refusals);
   process.exit(1);
