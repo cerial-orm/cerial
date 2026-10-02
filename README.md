@@ -281,6 +281,7 @@ bun run ext:dev:cursor # after that reload cursor window
 
 ```bash
 bun install
+bun run setup                  # turns on the commit hooks
 docker compose up -d surrealdb
 cd apps/orm && bun run test:full
 ```

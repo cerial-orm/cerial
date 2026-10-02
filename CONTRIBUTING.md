@@ -30,6 +30,19 @@ suites want: the e2e preload drops and recreates every table on each run.
 
 Code style, test rules and the SurrealDB gotchas are in `CLAUDE.md`.
 
+## Commit hooks
+
+Run this once after cloning, from the repo root:
+
+```bash
+bun run setup
+```
+
+It turns on the commit hooks that check your staged files and your commit message. What
+each one refuses, how to fix it, and why the local check does not run the e2e suite are in
+[`tooling/hooks/README.md`](tooling/hooks/README.md). That page is the only copy of the
+rules.
+
 ## Release Notes Rules (CRITICAL)
 
 Release notes live in the **docs site** as the single source of truth. There are no `CHANGELOG.md` files — GitHub Releases link to the docs pages.

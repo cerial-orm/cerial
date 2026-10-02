@@ -3,6 +3,7 @@
 A Prisma-like ORM for SurrealDB. Runtime: **Bun**. Language: **TypeScript**.
 
 Release, branching and commit process: `CONTRIBUTING.md`.
+Commit hooks (run `bun run setup` once per clone) and what they refuse: `tooling/hooks/README.md`.
 User-facing feature documentation: `apps/docs/content/docs/` — 160+ pages covering
 every field type, decorator, query method and filter operator. Do not restate it here.
 
