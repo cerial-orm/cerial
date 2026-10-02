@@ -108,11 +108,36 @@ const users = await client.db.User.findMany({
 });
 ```
 
-:::caution
-Ordering by relation fields (e.g., `orderBy: { author: { name: 'asc' } }`) is **not supported**. SurrealDB 3.x does not resolve record-link dot notation in `ORDER BY` clauses — the query runs without error but returns results in insertion order instead of the expected sort. Relation fields are excluded from the `OrderBy` type to prevent this.
+### Ordering by a relation
 
-Ordering *within* included relations (e.g., `include: { posts: { orderBy: { createdAt: 'desc' } } }`) works correctly since it uses a subquery.
-:::
+Sort by a field of a related record by naming the relation and then the field:
+
+```typescript
+const books = await client.db.Book.findMany({
+  orderBy: { publisher: { name: 'asc' }, title: 'asc' },
+});
+```
+
+Keys apply in the order you write them, so relation keys, object-field keys and
+ordinary keys can be mixed. It combines with `select`, `where`, `limit` and
+`offset`; paging always follows the sort. A path can cross several relations and
+end in an object sub-field:
+
+```typescript
+const items = await client.db.CategoryTree.findMany({
+  orderBy: { parent: { parent: { name: 'desc' } } },
+});
+```
+
+Rows whose relation is unset or `null` come first when ascending and last when
+descending.
+
+Only forward, single-valued relations can be ordered. Reverse relations and
+relations over an array of ids (many-to-many) have no single value to sort by:
+they are not in the `OrderBy` type and throw at runtime, naming the field and the
+model. An unknown field under a relation throws the same way.
+
+Ordering *within* included relations (e.g., `include: { posts: { orderBy: { createdAt: 'desc' } } }`) takes the same shape as a top-level `orderBy` on the included model: its own fields, object sub-fields and forward relations. A field the included model does not have throws, as it does at the top level, and `limit` and `offset` inside an include must be non-negative integers.
 
 ## With Select
 

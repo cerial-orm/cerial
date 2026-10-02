@@ -12,6 +12,68 @@ development branch and is not available on npm.
 
 **SurrealDB compatibility:** 3.3.0 | **SDK:** surrealdb 2.0.9
 
+### Security
+
+- `orderBy`, `limit` and `offset` inside `include` were written into the query
+  text without being checked, so a crafted value could run an extra `SELECT`
+  and return rows from other tables under the included relation, including
+  fields the call never selected. It needs no `@flexible` field. It is
+  reachable wherever one of those values comes from request input, such as a
+  JSON body passed straight into `include`, for example
+  `include: { posts: { orderBy: body.sort } }`. Present in 0.1.0 and 0.2.0.
+
+  These options are now checked against the included model before anything is
+  built: an `orderBy` key that is not a field of it throws `Unknown field
+  '<path>' on model <Model>`, a direction other than `asc` or `desc` throws, and
+  `limit` and `offset` must be non-negative integers. Keys that are accepted are
+  still quoted when written. If you forward user input into an include, upgrade;
+  until then allow-list the `orderBy` keys, and cast `limit` and `offset` to
+  integers, before they reach `include`.
+
+### Added
+
+- `orderBy` now accepts a relation field, so you can sort by a value on the
+  related record:
+
+  ```typescript
+  const books = await client.db.Book.findMany({
+    orderBy: { publisher: { name: 'asc' }, title: 'asc' },
+    limit: 10,
+  });
+  ```
+
+  The key is the relation, and its value names fields of the related model. It
+  works on `findMany`, together with `select`, `where`, `limit` and `offset`,
+  and mixes freely with ordinary and object-field keys in the
+  order you write them. A path can cross more than one relation
+  (`{ parent: { parent: { name: 'asc' } } }`) and can end in an object
+  sub-field of the related model. Rows whose relation is unset or `null` sort
+  before every value ascending and after every value descending.
+
+  Only a forward, single-valued relation can be ordered. A reverse relation and
+  a relation over an array of ids have no single value to sort by, so they are
+  rejected with a message naming the field and the model, and the generated
+  `{Model}OrderBy` type does not offer them.
+
+  An earlier entry on this page, under Changed, rejected relation fields in
+  `orderBy`. That rejection rested on a wrong conclusion: SurrealDB does not sort
+  on a bare record-link path such as `authorId.name`, but it does sort on a
+  projected alias of it. Cerial now projects the related value under an internal
+  alias, sorts and pages on that, and removes the alias before rows are returned.
+
+- `orderBy` inside `include` takes the same shapes as a top-level `orderBy` on
+  the included model: object sub-fields and forward relations as well as plain
+  fields.
+
+  ```typescript
+  const companies = await client.db.Company.findMany({
+    include: { employees: { orderBy: { homeAddress: { city: 'asc' } } } },
+  });
+  ```
+
+  A nested value for a field that has no sub-fields used to fail with a raw
+  `TypeError`. It now throws a message naming the field and the model.
+
 ### Fixed
 
 - Deleting a record now prepares its dependent models first. A `deleteMany` or
@@ -106,10 +168,10 @@ development branch and is not available on npm.
   return rows with the field quietly missing, or in `orderBy` to return rows in
   insertion order.
 
-  Also rejected now: ordering by a relation field, which SurrealDB silently
-  ignores because it does not resolve record links in `ORDER BY`; a sort
-  direction other than `asc` or `desc`; a nested path under a field that has no
-  sub-fields; and a `limit` or `offset` that is not a non-negative integer.
+  Also rejected now: a sort direction other than `asc` or `desc`; a nested path
+  under a field that has no sub-fields; and a `limit` or `offset` that is not a
+  non-negative integer. Ordering by a relation field was rejected too in the
+  first form of this change; it is supported again, see Added.
 
   Unaffected: `@flexible` object fields still accept undeclared sub-keys,
   ordering by a sub-field of a declared object still works, and `0` remains a

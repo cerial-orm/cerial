@@ -19,7 +19,7 @@ For each model in your schema, Cerial generates the following types:
 | `UserWhere` | Where clause type. Includes comparison operators, logical operators (`AND`, `OR`, `NOT`), nested relation filtering, and object field filtering. |
 | `UserSelect` | Field selection type. Each field is `boolean`. Object fields accept `boolean \| ObjectSelect` for sub-field narrowing. |
 | `UserInclude` | Relation include type. Each relation accepts `boolean` or an object with nested `where`, `select`, `include`, `orderBy`, `limit`, `offset`. |
-| `UserOrderBy` | Ordering type. Each field accepts `'asc' \| 'desc'`. Supports nested object field ordering. |
+| `UserOrderBy` | Ordering type. Each field accepts `'asc' \| 'desc'`. Supports nested object field ordering, and forward single-valued relations (`{ author: { name: 'asc' } }`). |
 | `UserUnset` | Unset type for clearing optional fields (set to NONE). Supports nested object fields and tuple elements. |
 | `UserFindUniqueWhere` | Where clause for unique lookups. Requires exactly one unique field (typically `id`). |
 | `User$Relations` | Relation metadata mapping. Maps relation names to their target model and cardinality. |
