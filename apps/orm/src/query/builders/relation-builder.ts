@@ -3,13 +3,15 @@
  * Supports nested includes for recursive relation fetching
  */
 
-import type { FieldMetadata, ModelMetadata, ModelRegistry } from '../../types';
+import type { FieldMetadata, ModelMetadata, ModelRegistry, OrderByClause } from '../../types';
+import { validateOrderBy, validatePagination } from '../validators/select-validator';
+import { buildOrderByPlan } from './select-builder';
 
 /** Include options for a relation */
 export interface IncludeOptions {
   select?: Record<string, boolean>;
   where?: Record<string, unknown>;
-  orderBy?: Record<string, 'asc' | 'desc'>;
+  orderBy?: Record<string, unknown>;
   limit?: number;
   offset?: number;
   include?: Record<string, boolean | IncludeOptions>;
@@ -75,13 +77,45 @@ function buildNestedSelectFields(
   return `*, ${nestedFields.join(', ')}`;
 }
 
-/** Build ORDER BY clause for subqueries */
-function buildSubqueryOrderBy(orderBy: Record<string, 'asc' | 'desc'> | undefined): string {
-  if (!orderBy) return '';
+/**
+ * Build the subquery behind an included relation.
+ *
+ * The include `orderBy`, `limit` and `offset` are checked against the target model first: they come
+ * from the caller and end up in query text, so an unknown key must never get that far. Relation
+ * sort keys are projected to an alias on an inner query and dropped again by the outer one, the
+ * same shape top-level `orderBy` uses.
+ */
+function buildIncludeSubquery(
+  relationName: string,
+  selectFields: string,
+  table: string,
+  condition: string,
+  options: IncludeOptions | undefined,
+  targetModel: ModelMetadata,
+  registry: ModelRegistry,
+): string {
+  const checks = [
+    ['orderBy', validateOrderBy(options?.orderBy, targetModel, registry)],
+    ['limit/offset', validatePagination(options?.limit, options?.offset)],
+  ] as const;
 
-  const parts = Object.entries(orderBy).map(([field, direction]) => `${field} ${direction.toUpperCase()}`);
+  for (const [context, errors] of checks) {
+    if (errors.length)
+      throw new Error(`Invalid ${context} in include '${relationName}': ${errors.map((e) => e.message).join(', ')}`);
+  }
 
-  return parts.length ? ` ORDER BY ${parts.join(', ')}` : '';
+  const plan = buildOrderByPlan(options?.orderBy as OrderByClause | undefined, targetModel, registry);
+  const select = plan.projections.length ? `${selectFields}, ${plan.projections.join(', ')}` : selectFields;
+  const inner = [
+    `SELECT ${select} FROM ${table} WHERE ${condition}`,
+    plan.clause,
+    buildSubqueryLimit(options?.limit).trim(),
+    buildSubqueryOffset(options?.offset).trim(),
+  ]
+    .filter((p) => p)
+    .join(' ');
+
+  return plan.projections.length ? `SELECT * OMIT ${plan.aliases.join(', ')} FROM (${inner})` : inner;
 }
 
 /** Build LIMIT clause for subqueries */
@@ -121,16 +155,33 @@ function buildForwardRelationSelectInternal(
 
   if (needsSubquery && targetModel) {
     const nestedSelect = options?.include ? buildNestedSelectFields(options.include, targetModel, registry) : '*';
-    const orderByClause = buildSubqueryOrderBy(options?.orderBy);
-    const limitClause = buildSubqueryLimit(options?.limit);
-    const offsetClause = buildSubqueryOffset(options?.offset);
 
     // Use subquery to fetch related record with nested includes/ordering/pagination
     if (field.isArray) {
-      return `(SELECT ${nestedSelect} FROM ${targetTable} WHERE id INSIDE $parent.${fieldRef}${orderByClause}${limitClause}${offsetClause}) AS ${field.name}`;
+      const sub = buildIncludeSubquery(
+        field.name,
+        nestedSelect,
+        targetTable,
+        `id INSIDE $parent.${fieldRef}`,
+        options,
+        targetModel,
+        registry,
+      );
+
+      return `(${sub}) AS ${field.name}`;
     }
 
-    return `(SELECT ${nestedSelect} FROM ${targetTable} WHERE id = $parent.${fieldRef}${orderByClause}${limitClause}${offsetClause})[0] AS ${field.name}`;
+    const sub = buildIncludeSubquery(
+      field.name,
+      nestedSelect,
+      targetTable,
+      `id = $parent.${fieldRef}`,
+      options,
+      targetModel,
+      registry,
+    );
+
+    return `(${sub})[0] AS ${field.name}`;
   }
 
   // No nested includes or orderBy - use simple dot notation
@@ -163,16 +214,19 @@ function buildReverseRelationSelectInternal(
 
   // Build nested select fields if nested includes are present
   const selectFields = options?.include ? buildNestedSelectFields(options.include, targetModel, registry) : '*';
-  const orderByClause = buildSubqueryOrderBy(options?.orderBy);
-  const limitClause = buildSubqueryLimit(options?.limit);
-  const offsetClause = buildSubqueryOffset(options?.offset);
 
   // Build subquery using $parent to reference the outer record
-  if (field.isArray) {
-    return `(SELECT ${selectFields} FROM ${targetTable} WHERE ${sourceFieldName} = $parent.id${orderByClause}${limitClause}${offsetClause}) AS ${field.name}`;
-  }
+  const sub = buildIncludeSubquery(
+    field.name,
+    selectFields,
+    targetTable,
+    `${sourceFieldName} = $parent.id`,
+    options,
+    targetModel,
+    registry,
+  );
 
-  return `(SELECT ${selectFields} FROM ${targetTable} WHERE ${sourceFieldName} = $parent.id${orderByClause}${limitClause}${offsetClause})[0] AS ${field.name}`;
+  return field.isArray ? `(${sub}) AS ${field.name}` : `(${sub})[0] AS ${field.name}`;
 }
 
 /**
