@@ -52,6 +52,20 @@ development branch and is not available on npm.
   being computed, are still accepted and ignored as before. Sub-keys of
   `@flexible` object fields are unaffected.
 
+- Unknown sub-keys of a strict object in `data` are now rejected on update
+  instead of being silently dropped. A typo such as
+  `data: { address: { cty: 'NYC' } }` on an object field that is not `@flexible`
+  used to be skipped, and when it was the only key the update wrote nothing and
+  still reported success. It now throws, naming the full path from the model
+  (`address.cty`) and the model.
+
+  The check applies to `updateMany`, `updateUnique` and the update half of
+  `upsert`, at any depth, including objects inside tuples and the element keys
+  of a tuple updated in object form. `@flexible` is a property of the field, not
+  of the object type, so the same object type accepts undeclared sub-keys on a
+  `@flexible` field and rejects them on a strict one. A `{ set: ... }` full
+  replace is unaffected.
+
 ### Changed
 
 - **Breaking.** Enum and literal field values are now checked against the variants the
