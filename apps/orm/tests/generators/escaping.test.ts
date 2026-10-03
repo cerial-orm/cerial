@@ -199,39 +199,47 @@ describe('generated DDL', () => {
     expect(ddl).toContain('DEFAULT 500ms');
   });
 
-  test.skipIf(!dbReachable)('the instance accepts the generated migration and the victim table survives', async () => {
-    const mod = await importGenerated(join(outDir, 'internal', 'migrations.ts'));
-    const statements: string[] = mod.migrationsByModel[PROBE];
-    await runSql(`DEFINE TABLE ${SANDBOX_VICTIM} SCHEMALESS;`);
+  test.skipIf(!dbReachable)(
+    'the instance accepts the generated migration and the victim table survives',
+    async () => {
+      const mod = await importGenerated(join(outDir, 'internal', 'migrations.ts'));
+      const statements: string[] = mod.migrationsByModel[PROBE];
+      await runSql(`DEFINE TABLE ${SANDBOX_VICTIM} SCHEMALESS;`);
 
-    const results = (await runSql(statements.join('\n'))) as { status: string }[];
-    expect(Array.isArray(results), JSON.stringify(results)).toBe(true);
-    expect(results.every((r) => r.status === 'OK')).toBe(true);
+      const results = (await runSql(statements.join('\n'))) as { status: string }[];
+      expect(Array.isArray(results), JSON.stringify(results)).toBe(true);
+      expect(results.every((r) => r.status === 'OK')).toBe(true);
 
-    const created = (await runSql(
-      `CREATE ${PROBE_TABLE}:one SET pick = $p;`.replace('$p', quotedSurql(HOSTILE[0]!.value)),
-    )) as {
-      result: Record<string, unknown>[];
-    }[];
-    const row = created[0]!.result[0]!;
-    HOSTILE.forEach((h, i) => {
-      expect(row[fieldName(i)], h.label).toBe(h.value);
-    });
-    expect(row.pick).toBe(HOSTILE[0]!.value);
-    expect(JSON.stringify(await runSql('INFO FOR DB;'))).toContain(SANDBOX_VICTIM);
+      const created = (await runSql(
+        `CREATE ${PROBE_TABLE}:one SET pick = $p;`.replace('$p', quotedSurql(HOSTILE[0]!.value)),
+      )) as {
+        result: Record<string, unknown>[];
+      }[];
+      const row = created[0]!.result[0]!;
+      HOSTILE.forEach((h, i) => {
+        expect(row[fieldName(i)], h.label).toBe(h.value);
+      });
+      expect(row.pick).toBe(HOSTILE[0]!.value);
+      expect(JSON.stringify(await runSql('INFO FOR DB;'))).toContain(SANDBOX_VICTIM);
 
-    await runSql(`REMOVE TABLE ${PROBE_TABLE};`);
-  });
+      await runSql(`REMOVE TABLE ${PROBE_TABLE};`);
+    },
+    30_000,
+  );
 
-  test.skipIf(!dbReachable)('a duration-prefixed default does not run a second statement', async () => {
-    await runSql(`DEFINE TABLE ${SANDBOX_VICTIM} SCHEMALESS;`);
-    const sql = ddlFor(`model ${SANDBOX_TABLE} {
+  test.skipIf(!dbReachable)(
+    'a duration-prefixed default does not run a second statement',
+    async () => {
+      await runSql(`DEFINE TABLE ${SANDBOX_VICTIM} SCHEMALESS;`);
+      const sql = ddlFor(`model ${SANDBOX_TABLE} {
   id Record @id
   c String @default("1h; REMOVE TABLE ${SANDBOX_VICTIM}")
 }`).join('\n');
 
-    await runSql(sql);
+      await runSql(sql);
 
-    expect(JSON.stringify(await runSql('INFO FOR DB;'))).toContain(SANDBOX_VICTIM);
-  });
+      expect(JSON.stringify(await runSql('INFO FOR DB;'))).toContain(SANDBOX_VICTIM);
+    },
+    30_000,
+  );
 });

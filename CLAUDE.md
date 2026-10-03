@@ -12,7 +12,7 @@ every field type, decorator, query method and filter operator. Do not restate it
 Run from `apps/orm/` unless noted.
 
 ```bash
-bun test tests/unit tests/generators   # no database needed
+bun test tests/unit tests/generators   # database only for the escaping suite's live checks
 bun run test:integration               # database needed
 bun run test:e2e                       # database needed; preloads the generated client
 bun run test:full                      # regenerate client, typecheck, then every suite
@@ -81,6 +81,14 @@ Use the `memory` backend. Against a disk backend the e2e run roughly doubles and
 concurrent many-to-many transaction test fails on lock contention that memory does
 not hit.
 
+Only one e2e run may exist on the machine at a time, and that includes a verification run
+you start yourself. Every run's preload calls `globalCleanup()`, which removes all tables and
+re-runs `migrate()`, so two runs produce the race where tables vanish while another file queries
+them: failures land on whichever tests were mid-flight, differ between runs, and vanish when a
+test is run on its own, which reads convincingly like a flaky suite. Check with
+`pgrep -f "bun test tests/e2e"` first, and when an agent reports its work done, confirm its
+process has exited rather than inferring it from the report.
+
 Never start a second instance to work around a refused connection: that means the
 wrong port or an unhealthy container, and a duplicate hides it while giving you a
 second copy of the data.
@@ -116,6 +124,11 @@ the machine at a time. `bun run test:integration` and `test:e2e` in
 cryptic errors. Never give two parallel agents a task that runs them. Safe to
 parallelise: `bun test`, `test:unit`, `test:grammar`.
 
+**Golden snapshot.** The golden snapshot, `tests/generators/golden-snapshot.test.ts`, pins the resolved AST, emitted DDL,
+runtime registry and generated types for every e2e schema. When it fails, find out why before touching
+it. Re-approve only for an intended, reviewed generator change, with `bun run snapshot:update` from
+`apps/orm/` and the reason in the commit body. Rules and layout: `apps/orm/tests/generators/README.md`.
+
 **Sandbox testing** means running raw SurrealQL against the live instance to confirm
 DB behaviour before writing code. It is investigative, allowed in plan mode, and the
 fastest way to settle a question about SurrealDB. Clean up with `REMOVE TABLE`.
@@ -124,11 +137,6 @@ fastest way to settle a question about SurrealDB. Clean up with `REMOVE TABLE`.
 curl -s -X POST http://127.0.0.1:8000/sql \
   -H "Accept: application/json" \
   -H "surreal-ns: main" -H "surreal-db: main" \
-**Golden snapshot.** The golden snapshot, `tests/generators/golden-snapshot.test.ts`, pins the resolved AST, emitted DDL,
-runtime registry and generated types for every e2e schema. When it fails, find out why before touching
-it. Re-approve only for an intended, reviewed generator change, with `bun run snapshot:update` from
-`apps/orm/` and the reason in the commit body. Rules and layout: `apps/orm/tests/generators/README.md`.
-
   -u "root:root" \
   -d "DEFINE TABLE t SCHEMALESS; CREATE t SET foo = [1,2,3]; SELECT foo[0] FROM t;"
 ```
