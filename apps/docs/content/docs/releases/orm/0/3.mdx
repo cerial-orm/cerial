@@ -388,6 +388,12 @@ development branch and is not available on npm.
   being skipped as an unknown key. Unknown format keys are now skipped whatever they
   are called.
 
+- Regenerating a client no longer produces spurious diffs. Schema files were discovered in
+  whatever order the filesystem returned them, so `client.ts`, the barrel files, the migrations
+  and the model registry came out in a different order on each run, and a regenerated client
+  showed changes in seven files even when no schema had changed. Discovery is now sorted, so
+  the same schemas always produce the same bytes.
+
 ### Changed
 
 - Transaction conflict retries (`TransactionOptions.retries`) now recognise a

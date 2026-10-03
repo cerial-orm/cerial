@@ -53,7 +53,8 @@ export async function findSchemasInDir(dir: string, patterns: string[]): Promise
     }
   }
 
-  return files;
+  // fast-glob returns matches in traversal order, which varies between runs; output order follows it
+  return files.sort();
 }
 
 /** Find schema files in a directory, then apply a PathFilter */
@@ -87,7 +88,7 @@ async function findDirectoriesByName(cwd: string, folderName: string): Promise<s
     // Directory might not exist or be inaccessible
   }
 
-  return matchingDirs;
+  return matchingDirs.sort();
 }
 
 /** Resolve schema files */
