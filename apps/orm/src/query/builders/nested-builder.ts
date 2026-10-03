@@ -11,9 +11,10 @@
 
 import { CerialValidationError } from '../../errors';
 import type { ModelMetadata, ModelRegistry } from '../../types';
-import { CerialId, type RecordIdInput } from '../../utils/cerial-id';
+import type { RecordIdInput } from '../../utils/cerial-id';
 import type { CompiledQuery } from '../compile/types';
 import { createCompileContext } from '../compile/var-allocator';
+import { transformDestructiveWhere } from '../filters/transformer';
 import { transformOrValidateRecordId } from '../transformers';
 
 /**
@@ -648,27 +649,10 @@ export function buildUpdateWithNestedTransaction(
   if (whereKeys.length === 0) {
     throw new CerialValidationError('Update requires a where clause', { operation: 'update' });
   }
-  const whereField = whereKeys[0] as string;
-  let whereValue = where[whereField];
-
-  // Transform id values to RecordId for proper matching
-  if (whereField === 'id' && (typeof whereValue === 'string' || CerialId.is(whereValue))) {
-    whereValue = transformOrValidateRecordId(model.tableName, whereValue);
-  }
-
-  // Transform Record field values to RecordId
-  const fieldMeta = model.fields.find((f) => f.name === whereField);
-  if (fieldMeta?.type === 'record' && (typeof whereValue === 'string' || CerialId.is(whereValue))) {
-    // Find target table from paired Relation field
-    const pairedRelation = model.fields.find((f) => f.type === 'relation' && f.relationInfo?.fieldRef === whereField);
-    const targetTable = pairedRelation?.relationInfo?.targetTable;
-    if (targetTable) {
-      whereValue = transformOrValidateRecordId(targetTable, whereValue);
-    }
-  }
-
-  const whereVar = ctx.bind('where', whereField, whereValue, 'string');
-  Object.assign(vars, whereVar.vars);
+  // Same clause builder as the plain update path, so every key, filter object and AND/OR/NOT reaches
+  // the WHERE and id/Record values are coerced to RecordId in one place
+  const whereClause = transformDestructiveWhere(where, model, 'update', registry);
+  Object.assign(vars, whereClause.vars);
 
   // Track the Record field updates we need to make
   const fieldUpdates: string[] = [];
@@ -692,6 +676,8 @@ export function buildUpdateWithNestedTransaction(
     targetRecordField: string;
     isTargetFieldNullable?: boolean;
   }> = [];
+
+  const reverseCreates: string[] = [];
 
   const reverseConnects: Array<{
     targetModel: ModelMetadata;
@@ -721,14 +707,14 @@ export function buildUpdateWithNestedTransaction(
       if (!reverseFieldName) continue;
 
       if (isNestedCreate(op)) {
-        // Reverse create: create records in target model with FK pointing to parent
-        // Include FK directly in content - we have the parent ID from where clause
+        // Reverse create: the parent id is only known once the where has matched, so the CREATEs are
+        // emitted after the main update and take the FK from $result[0].id
         const createData = op.create;
         const items = Array.isArray(createData) ? createData : [createData];
 
         items.forEach((item, idx) => {
           const varName = `rev_create_${fieldName}_${idx}`;
-          // Filter out undefined and null record fields, add FK to parent
+          // Filter out undefined and null record fields
           const itemContent: Record<string, unknown> = {};
           for (const [key, value] of Object.entries(item)) {
             if (value === undefined) continue;
@@ -736,11 +722,10 @@ export function buildUpdateWithNestedTransaction(
             if (value === null && fieldMeta?.type === 'record') continue;
             itemContent[key] = value;
           }
-          // Add FK pointing to parent (whereValue is the parent ID, already transformed)
-          itemContent[reverseFieldName] = whereValue;
           vars[varName] = itemContent;
-          // Simple CREATE statement
-          statements.push(`CREATE ${targetModel.tableName} CONTENT $${varName};`);
+          reverseCreates.push(
+            `CREATE ${targetModel.tableName} CONTENT object::extend($${varName}, { ${reverseFieldName}: $result[0].id });`,
+          );
         });
       } else if (isNestedDisconnect(op)) {
         // Reverse disconnect: update target records to clear their reference
@@ -920,30 +905,34 @@ export function buildUpdateWithNestedTransaction(
 
   // For bidirectional set sync, fetch old values first
   if (arraySets.length > 0) {
-    statements.push(`LET $old = (SELECT * FROM ${model.tableName} WHERE ${whereField} = ${whereVar.placeholder});`);
+    statements.push(`LET $old = (SELECT * FROM ${model.tableName} ${whereClause.text});`);
   }
 
   // Build the main update
   if (fieldUpdates.length > 0) {
     statements.push(
-      `LET $result = (UPDATE ${model.tableName} SET ${fieldUpdates.join(', ')} WHERE ${whereField} = ${whereVar.placeholder} RETURN *);`,
+      `LET $result = (UPDATE ${model.tableName} SET ${fieldUpdates.join(', ')} ${whereClause.text} RETURN *);`,
     );
   } else {
-    statements.push(`LET $result = (SELECT * FROM ${model.tableName} WHERE ${whereField} = ${whereVar.placeholder});`);
+    statements.push(`LET $result = (SELECT * FROM ${model.tableName} ${whereClause.text});`);
   }
+
+  // Statements that act on the matched row only run when the where matched something, so a
+  // non-matching where writes nothing, as on the plain path
+  const postStatements: string[] = [...reverseCreates];
 
   // Add bidirectional sync for n-n connects
   arrayConnects.forEach((sync, syncIdx) => {
     if (sync.isCreated) {
       // For created records, targetIds are var names like "$users0.id"
       sync.targetIds.forEach((varRef) => {
-        statements.push(`UPDATE ${varRef} SET ${sync.targetRecordField} += $result[0].id;`);
+        postStatements.push(`UPDATE ${varRef} SET ${sync.targetRecordField} += $result[0].id;`);
       });
     } else {
       // For connected records, use WHERE id INSIDE $array to batch update
       const varName = `sync_connect_ids_${syncIdx}`;
       vars[varName] = sync.targetIds.map((id) => transformOrValidateRecordId(sync.targetModel.tableName, id));
-      statements.push(
+      postStatements.push(
         `UPDATE ${sync.targetModel.tableName} SET ${sync.targetRecordField} += $result[0].id WHERE id INSIDE $${varName};`,
       );
     }
@@ -953,7 +942,7 @@ export function buildUpdateWithNestedTransaction(
   arrayDisconnects.forEach((sync, syncIdx) => {
     const varName = `sync_disconnect_ids_${syncIdx}`;
     vars[varName] = sync.targetIds.map((id) => transformOrValidateRecordId(sync.targetModel.tableName, id));
-    statements.push(
+    postStatements.push(
       `UPDATE ${sync.targetModel.tableName} SET ${sync.targetRecordField} -= $result[0].id WHERE id INSIDE $${varName};`,
     );
   });
@@ -963,7 +952,7 @@ export function buildUpdateWithNestedTransaction(
     // @nullable fields use NULL (queryable), non-@nullable fields use NONE (absent)
     const clearValue = rd.isTargetFieldNullable ? 'NULL' : 'NONE';
     // Update all records in target model where the reference points to our record
-    statements.push(
+    postStatements.push(
       `UPDATE ${rd.targetModel.tableName} SET ${rd.targetRecordField} = ${clearValue} WHERE ${rd.targetRecordField} = $result[0].id;`,
     );
   });
@@ -972,7 +961,7 @@ export function buildUpdateWithNestedTransaction(
   reverseConnects.forEach((rc, idx) => {
     const varName = `rev_connect_${idx}`;
     vars[varName] = rc.targetIds.map((id) => transformOrValidateRecordId(rc.targetModel.tableName, id));
-    statements.push(
+    postStatements.push(
       `UPDATE ${rc.targetModel.tableName} SET ${rc.targetRecordField} = $result[0].id WHERE id INSIDE $${varName};`,
     );
   });
@@ -984,17 +973,19 @@ export function buildUpdateWithNestedTransaction(
 
     // Remove current record from all old items' arrays
     // $old[0].{sourceRecordField} contains the old array values
-    statements.push(
+    postStatements.push(
       `UPDATE ${setOp.targetModel.tableName} SET ${setOp.targetRecordField} -= $result[0].id WHERE id INSIDE $old[0].${setOp.sourceRecordField};`,
     );
 
     // Add current record to all new items' arrays
     if (setOp.newIds.length > 0) {
-      statements.push(
+      postStatements.push(
         `UPDATE ${setOp.targetModel.tableName} SET ${setOp.targetRecordField} += $result[0].id WHERE id INSIDE $${newIdsVar};`,
       );
     }
   });
+
+  if (postStatements.length) statements.push(`IF $result[0] {\n${postStatements.join('\n')}\n};`);
 
   if (!transactionMode) statements.push('COMMIT TRANSACTION;');
   statements.push('RETURN $result;');

@@ -50,6 +50,7 @@ import {
 import type { QueryResultType } from './cerial-query-promise';
 import type { CompiledQuery } from './compile/types';
 import { executeQuery, executeQuerySingle } from './executor';
+import { transformWhereClause } from './filters';
 import { mapResult, mapSingleResult } from './mappers';
 import { applyFieldDefaults, transformData, transformOrValidateRecordId } from './transformers';
 import {
@@ -604,10 +605,10 @@ export class QueryBuilder<T extends Record<string, unknown>> {
       existingRecord = checkResult;
     } else {
       // Unique field lookup
-      const whereKey = Object.keys(where)[0] as string;
+      const whereClause = transformWhereClause(where, this.model, this.registry);
       const checkResult = await executeQuery(this.db, {
-        text: `SELECT * FROM ${this.model.tableName} WHERE ${whereKey} = $check_val;`,
-        vars: { check_val: where[whereKey!] },
+        text: `SELECT * FROM ${this.model.tableName} ${whereClause.text};`,
+        vars: whereClause.vars,
       });
       existingRecord = Array.isArray(checkResult) && checkResult.length > 0 ? checkResult[0] : null;
     }
