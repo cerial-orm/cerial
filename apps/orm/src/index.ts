@@ -13,7 +13,7 @@ import { CerialConnectionError } from './errors';
 export class Cerial {
   private static instances: Record<string, Cerial> = {};
 
-  private _db = new Surreal();
+  private readonly _db = new Surreal();
 
   private readonly _originalOptions: IRPCConnectionOption;
 
@@ -25,27 +25,42 @@ export class Cerial {
 
   private _isConnected = false;
 
-  constructor(options: IRPCConnectionOption) {
-    options.name = options.name || DEFAULT_CONNECTION_NAME;
-    options.onDuplicateConnection = options.onDuplicateConnection || 'use_existing';
-
+  // Private so every instance goes through `Cerial.create`: a constructor cannot return the existing instance,
+  // and the `_db` initialiser above would already have built a second client by the time a check could run.
+  private constructor(options: IRPCConnectionOption & { name: string }) {
     this._originalOptions = options;
 
-    const { name, url, auth, namespace, database, onDuplicateConnection } = options;
+    const { name, url, auth, namespace, database } = options;
 
     this._name = name;
     this._rpcUrl = `${url}/rpc`;
     this._auth = auth;
     this._namespace = namespace;
     this._database = database;
+  }
 
-    if (Cerial.instances[name]) {
-      if (onDuplicateConnection === 'use_existing') Cerial.instances[name]!;
-      if (onDuplicateConnection === 'overwrite') delete Cerial.instances[name];
+  /**
+   * Registers a connection under `options.name` (default `'default'`) and returns it, not yet connected.
+   * When the name is taken, `onDuplicateConnection` decides: `use_existing` (default) returns the registered
+   * instance and builds nothing, `overwrite` disconnects it and registers a new one, `throw` rejects.
+   */
+  static async create(options: IRPCConnectionOption): Promise<Cerial> {
+    const name = options.name || DEFAULT_CONNECTION_NAME;
+    const onDuplicateConnection = options.onDuplicateConnection || 'use_existing';
+
+    const existing = Cerial.instances[name];
+    if (existing) {
+      if (onDuplicateConnection === 'use_existing') return existing;
       if (onDuplicateConnection === 'throw') throw new CerialConnectionError(`Connection ${name} already exists`);
+
+      // Drop the registry entry only once the old socket is closed, so a failed close leaves a handle to retry.
+      await existing.disconnect();
     }
 
-    Cerial.instances[options.name] = this;
+    const instance = new Cerial({ ...options, name, onDuplicateConnection });
+    Cerial.instances[name] = instance;
+
+    return instance;
   }
 
   static getInstance(name: string) {

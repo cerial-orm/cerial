@@ -510,3 +510,29 @@ describe('Dual WS/HTTP Connection Strategy', () => {
     });
   });
 });
+
+describe('Cerial.create against a live database', () => {
+  test('use_existing returns the connected instance and the second call opens no new client', async () => {
+    const { Cerial } = await import('../../src');
+    const name = 'duplicate-live';
+    const options = {
+      url: testConfig.url,
+      namespace: 'main',
+      database: 'main',
+      auth: { user: 'root', password: 'root' },
+      name,
+    };
+    const first = await Cerial.create(options);
+
+    try {
+      await first.connect();
+      const second = await Cerial.create(options);
+
+      expect(second).toBe(first);
+      expect(second.isConnected()).toBe(true);
+      expect(await second.getDB().query('RETURN 1')).toEqual([1]);
+    } finally {
+      await first.disconnect();
+    }
+  });
+});
