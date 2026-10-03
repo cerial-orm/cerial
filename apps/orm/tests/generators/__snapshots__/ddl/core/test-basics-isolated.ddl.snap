@@ -1,0 +1,31 @@
+-- BasicsPost
+DEFINE TABLE OVERWRITE basics_post SCHEMAFULL;
+DEFINE FIELD OVERWRITE title ON TABLE basics_post TYPE string;
+DEFINE FIELD OVERWRITE content ON TABLE basics_post TYPE option<string>;
+DEFINE FIELD OVERWRITE authorId ON TABLE basics_post TYPE record<basics_user>;
+
+-- BasicsProfile
+DEFINE TABLE OVERWRITE basics_profile SCHEMAFULL;
+DEFINE FIELD OVERWRITE bio ON TABLE basics_profile TYPE option<string | null>;
+DEFINE FIELD OVERWRITE avatarUrl ON TABLE basics_profile TYPE option<string>;
+DEFINE FIELD OVERWRITE userId ON TABLE basics_profile TYPE option<record<basics_user> | null>;
+
+-- BasicsTag
+DEFINE TABLE OVERWRITE basics_tag SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE basics_tag TYPE string;
+DEFINE FIELD OVERWRITE userIds ON TABLE basics_tag TYPE array<record<basics_user>> VALUE IF $value THEN $value.distinct() ELSE [] END;
+DEFINE INDEX OVERWRITE basics_tag_name_unique ON TABLE basics_tag COLUMNS name UNIQUE;
+
+-- BasicsUser
+DEFINE TABLE OVERWRITE basics_user SCHEMAFULL;
+DEFINE FIELD OVERWRITE email ON TABLE basics_user TYPE string ASSERT string::is_email($value);
+DEFINE FIELD OVERWRITE name ON TABLE basics_user TYPE string;
+DEFINE FIELD OVERWRITE age ON TABLE basics_user TYPE option<int | null>;
+DEFINE FIELD OVERWRITE isActive ON TABLE basics_user TYPE bool;
+DEFINE FIELD OVERWRITE createdAt ON TABLE basics_user TYPE option<datetime> DEFAULT time::now();
+DEFINE FIELD OVERWRITE nicknames ON TABLE basics_user TYPE array<string>;
+DEFINE FIELD OVERWRITE scores ON TABLE basics_user TYPE array<int>;
+DEFINE FIELD OVERWRITE loginDates ON TABLE basics_user TYPE array<datetime>;
+DEFINE FIELD OVERWRITE profileId ON TABLE basics_user TYPE option<record<basics_profile> | null>;
+DEFINE FIELD OVERWRITE tagIds ON TABLE basics_user TYPE array<record<basics_tag>> VALUE IF $value THEN $value.distinct() ELSE [] END;
+DEFINE INDEX OVERWRITE basics_user_email_unique ON TABLE basics_user COLUMNS email UNIQUE;

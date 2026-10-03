@@ -1,0 +1,744 @@
+{
+  "models": [
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "location",
+          "tupleName": "Coordinate",
+          "type": "tuple"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "backup",
+          "tupleName": "Coordinate",
+          "type": "tuple"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "history",
+          "tupleName": "Coordinate",
+          "type": "tuple"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "entry",
+          "tupleName": "Entry",
+          "type": "tuple"
+        }
+      ],
+      "name": "TupleBasic"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "payload",
+          "tupleName": "Outer",
+          "type": "tuple"
+        }
+      ],
+      "name": "TupleNested"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "place",
+          "tupleName": "Located",
+          "type": "tuple"
+        }
+      ],
+      "name": "TupleObjInTuple"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "details",
+          "objectName": "TupleHolder",
+          "type": "object"
+        }
+      ],
+      "name": "TupleInObj"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "location",
+          "tupleName": "Coordinate",
+          "type": "tuple"
+        },
+        {
+          "decorators": [
+            {
+              "type": "model",
+              "value": "TupleRelatedPost"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "posts",
+          "type": "relation"
+        }
+      ],
+      "name": "TupleWithRelation"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "position",
+          "tupleName": "Coordinate",
+          "type": "tuple"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "authorId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "authorId"
+            },
+            {
+              "type": "model",
+              "value": "TupleWithRelation"
+            }
+          ],
+          "isOptional": false,
+          "name": "author",
+          "type": "relation"
+        }
+      ],
+      "name": "TupleRelatedPost"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "deep",
+          "tupleName": "DeepOuterTuple",
+          "type": "tuple"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "deepOpt",
+          "tupleName": "DeepOuterTuple",
+          "type": "tuple"
+        }
+      ],
+      "name": "TupleDeepNest"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "pair",
+          "tupleName": "NullablePair",
+          "type": "tuple"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "optNull",
+          "tupleName": "OptNullPair",
+          "type": "tuple"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "mixed",
+          "tupleName": "MixedNullability",
+          "type": "tuple"
+        }
+      ],
+      "name": "TupleNullable"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "stamp",
+          "tupleName": "Stamped",
+          "type": "tuple"
+        }
+      ],
+      "name": "TupleStamped"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "status",
+          "tupleName": "StatusPair",
+          "type": "tuple"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "role",
+          "tupleName": "RolePair",
+          "type": "tuple"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "history",
+          "tupleName": "StatusPair",
+          "type": "tuple"
+        }
+      ],
+      "name": "TupleLiteralElement"
+    }
+  ],
+  "objects": [
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "street",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "city",
+          "type": "string"
+        }
+      ],
+      "name": "TupleAddress"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "coord",
+          "tupleName": "Coordinate",
+          "type": "tuple"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "optCoord",
+          "tupleName": "Coordinate",
+          "type": "tuple"
+        }
+      ],
+      "name": "TupleHolder"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "value",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "extra",
+          "type": "string"
+        }
+      ],
+      "name": "DeepInnerObj"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "age",
+          "type": "int"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "pos",
+          "tupleName": "DeepInnerTuple",
+          "type": "tuple"
+        }
+      ],
+      "name": "DeepMidObj"
+    }
+  ],
+  "tuples": [
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "name": "lat",
+          "type": "float"
+        },
+        {
+          "isOptional": false,
+          "name": "lng",
+          "type": "float"
+        }
+      ],
+      "name": "Coordinate"
+    },
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isOptional": false,
+          "type": "int"
+        },
+        {
+          "isOptional": false,
+          "type": "bool"
+        }
+      ],
+      "name": "Entry"
+    },
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "name": "x",
+          "type": "int"
+        },
+        {
+          "isOptional": false,
+          "name": "y",
+          "type": "int"
+        }
+      ],
+      "name": "Inner"
+    },
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "isOptional": false,
+          "tupleName": "Inner",
+          "type": "tuple"
+        }
+      ],
+      "name": "Outer"
+    },
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "name": "tag",
+          "type": "string"
+        },
+        {
+          "isOptional": false,
+          "objectName": "TupleAddress",
+          "type": "object"
+        }
+      ],
+      "name": "Located"
+    },
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "name": "text",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": false,
+          "type": "float"
+        }
+      ],
+      "name": "WithOptional"
+    },
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "type": "float"
+        },
+        {
+          "isOptional": false,
+          "objectName": "DeepInnerObj",
+          "type": "object"
+        }
+      ],
+      "name": "DeepInnerTuple"
+    },
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "type": "string"
+        },
+        {
+          "isOptional": false,
+          "objectName": "DeepMidObj",
+          "type": "object"
+        }
+      ],
+      "name": "DeepMidTuple"
+    },
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "type": "string"
+        },
+        {
+          "isOptional": false,
+          "tupleName": "DeepMidTuple",
+          "type": "tuple"
+        }
+      ],
+      "name": "DeepOuterTuple"
+    },
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": false,
+          "name": "count",
+          "type": "int"
+        }
+      ],
+      "name": "NullablePair"
+    },
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "name": "tag",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": false,
+          "name": "score",
+          "type": "float"
+        }
+      ],
+      "name": "OptNullPair"
+    },
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "name": "required",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": false,
+          "name": "optOnly",
+          "type": "int"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": false,
+          "name": "nullOnly",
+          "type": "float"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": false,
+          "name": "both",
+          "type": "bool"
+        }
+      ],
+      "name": "MixedNullability"
+    },
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "createdAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "born",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "updatedAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "touched",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "defaultAlways",
+              "value": 7
+            }
+          ],
+          "isOptional": false,
+          "name": "hits",
+          "type": "int"
+        }
+      ],
+      "name": "Stamped"
+    },
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "literalName": "Status",
+          "name": "state",
+          "type": "literal"
+        },
+        {
+          "isOptional": false,
+          "name": "count",
+          "type": "int"
+        }
+      ],
+      "name": "StatusPair"
+    },
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "literalName": "Role",
+          "type": "literal"
+        },
+        {
+          "isOptional": false,
+          "type": "int"
+        }
+      ],
+      "name": "RolePair"
+    }
+  ]
+}

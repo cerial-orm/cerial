@@ -1,0 +1,74 @@
+-- TupleBasic
+DEFINE TABLE OVERWRITE tuple_basic SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE tuple_basic TYPE string;
+DEFINE FIELD OVERWRITE location ON TABLE tuple_basic TYPE [float, float];
+DEFINE FIELD OVERWRITE backup ON TABLE tuple_basic TYPE option<[float, float]>;
+DEFINE FIELD OVERWRITE history ON TABLE tuple_basic TYPE array<[float, float]>;
+DEFINE FIELD OVERWRITE entry ON TABLE tuple_basic TYPE option<[string, int, bool]>;
+
+-- TupleDeepNest
+DEFINE TABLE OVERWRITE tuple_deep_nest SCHEMAFULL;
+DEFINE FIELD OVERWRITE deep ON TABLE tuple_deep_nest TYPE [string, [string, object]];
+DEFINE FIELD OVERWRITE deep[1] ON TABLE tuple_deep_nest TYPE [string, object];
+DEFINE FIELD OVERWRITE deep[1][1] ON TABLE tuple_deep_nest TYPE object;
+DEFINE FIELD OVERWRITE deep[1][1].name ON TABLE tuple_deep_nest TYPE string;
+DEFINE FIELD OVERWRITE deep[1][1].age ON TABLE tuple_deep_nest TYPE option<int>;
+DEFINE FIELD OVERWRITE deep[1][1].pos ON TABLE tuple_deep_nest TYPE [float, object];
+DEFINE FIELD OVERWRITE deepOpt ON TABLE tuple_deep_nest TYPE option<[string, [string, object]]>;
+DEFINE FIELD OVERWRITE deepOpt[1] ON TABLE tuple_deep_nest TYPE [string, object];
+DEFINE FIELD OVERWRITE deepOpt[1][1] ON TABLE tuple_deep_nest TYPE object;
+DEFINE FIELD OVERWRITE deepOpt[1][1].name ON TABLE tuple_deep_nest TYPE string;
+DEFINE FIELD OVERWRITE deepOpt[1][1].age ON TABLE tuple_deep_nest TYPE option<int>;
+DEFINE FIELD OVERWRITE deepOpt[1][1].pos ON TABLE tuple_deep_nest TYPE [float, object];
+
+-- TupleInObj
+DEFINE TABLE OVERWRITE tuple_in_obj SCHEMAFULL;
+DEFINE FIELD OVERWRITE details ON TABLE tuple_in_obj TYPE object;
+DEFINE FIELD OVERWRITE details.label ON TABLE tuple_in_obj TYPE string;
+DEFINE FIELD OVERWRITE details.coord ON TABLE tuple_in_obj TYPE [float, float];
+DEFINE FIELD OVERWRITE details.optCoord ON TABLE tuple_in_obj TYPE option<[float, float]>;
+
+-- TupleLiteralElement
+DEFINE TABLE OVERWRITE tuple_literal_element SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE tuple_literal_element TYPE string;
+DEFINE FIELD OVERWRITE status ON TABLE tuple_literal_element TYPE ['active' | 'inactive' | 'pending', int];
+DEFINE FIELD OVERWRITE role ON TABLE tuple_literal_element TYPE ['ADMIN' | 'USER' | 'MODERATOR', int];
+DEFINE FIELD OVERWRITE history ON TABLE tuple_literal_element TYPE array<['active' | 'inactive' | 'pending', int]>;
+
+-- TupleNested
+DEFINE TABLE OVERWRITE tuple_nested SCHEMAFULL;
+DEFINE FIELD OVERWRITE payload ON TABLE tuple_nested TYPE [string, [int, int]];
+DEFINE FIELD OVERWRITE payload[1] ON TABLE tuple_nested TYPE [int, int];
+
+-- TupleNullable
+DEFINE TABLE OVERWRITE tuple_nullable SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE tuple_nullable TYPE string;
+DEFINE FIELD OVERWRITE pair ON TABLE tuple_nullable TYPE [string, int | null];
+DEFINE FIELD OVERWRITE optNull ON TABLE tuple_nullable TYPE [string, float | null];
+DEFINE FIELD OVERWRITE mixed ON TABLE tuple_nullable TYPE [string, int | null, float | null, bool | null];
+
+-- TupleObjInTuple
+DEFINE TABLE OVERWRITE tuple_obj_in_tuple SCHEMAFULL;
+DEFINE FIELD OVERWRITE place ON TABLE tuple_obj_in_tuple TYPE [string, object];
+DEFINE FIELD OVERWRITE place[1] ON TABLE tuple_obj_in_tuple TYPE object;
+DEFINE FIELD OVERWRITE place[1].street ON TABLE tuple_obj_in_tuple TYPE string;
+DEFINE FIELD OVERWRITE place[1].city ON TABLE tuple_obj_in_tuple TYPE string;
+
+-- TupleRelatedPost
+DEFINE TABLE OVERWRITE tuple_related_post SCHEMAFULL;
+DEFINE FIELD OVERWRITE title ON TABLE tuple_related_post TYPE string;
+DEFINE FIELD OVERWRITE position ON TABLE tuple_related_post TYPE option<[float, float]>;
+DEFINE FIELD OVERWRITE authorId ON TABLE tuple_related_post TYPE record<tuple_with_relation>;
+
+-- TupleStamped
+DEFINE TABLE OVERWRITE tuple_stamped SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE tuple_stamped TYPE string;
+DEFINE FIELD OVERWRITE stamp ON TABLE tuple_stamped TYPE [string, datetime, datetime, int];
+DEFINE FIELD OVERWRITE stamp[1] ON TABLE tuple_stamped TYPE datetime DEFAULT time::now();
+DEFINE FIELD OVERWRITE stamp[2] ON TABLE tuple_stamped TYPE datetime DEFAULT ALWAYS time::now();
+DEFINE FIELD OVERWRITE stamp[3] ON TABLE tuple_stamped TYPE int DEFAULT ALWAYS 7;
+
+-- TupleWithRelation
+DEFINE TABLE OVERWRITE tuple_with_relation SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE tuple_with_relation TYPE string;
+DEFINE FIELD OVERWRITE location ON TABLE tuple_with_relation TYPE [float, float];

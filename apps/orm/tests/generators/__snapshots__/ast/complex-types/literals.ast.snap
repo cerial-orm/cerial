@@ -1,0 +1,756 @@
+{
+  "literals": [
+    {
+      "name": "Status",
+      "variants": [
+        {
+          "kind": "string",
+          "value": "active"
+        },
+        {
+          "kind": "string",
+          "value": "inactive"
+        },
+        {
+          "kind": "string",
+          "value": "pending"
+        }
+      ]
+    },
+    {
+      "name": "Priority",
+      "variants": [
+        {
+          "kind": "int",
+          "value": 1
+        },
+        {
+          "kind": "int",
+          "value": 2
+        },
+        {
+          "kind": "int",
+          "value": 3
+        }
+      ]
+    },
+    {
+      "name": "Mixed",
+      "variants": [
+        {
+          "kind": "string",
+          "value": "low"
+        },
+        {
+          "kind": "string",
+          "value": "high"
+        },
+        {
+          "kind": "int",
+          "value": 1
+        },
+        {
+          "kind": "int",
+          "value": 2
+        },
+        {
+          "kind": "bool",
+          "value": true
+        }
+      ]
+    },
+    {
+      "name": "ExtendedStatus",
+      "variants": [
+        {
+          "kind": "literalRef",
+          "literalName": "Status"
+        },
+        {
+          "kind": "string",
+          "value": "archived"
+        },
+        {
+          "kind": "string",
+          "value": "deleted"
+        }
+      ]
+    },
+    {
+      "name": "Broad",
+      "variants": [
+        {
+          "kind": "broadType",
+          "typeName": "String"
+        },
+        {
+          "kind": "broadType",
+          "typeName": "Int"
+        }
+      ]
+    },
+    {
+      "name": "NumericOnly",
+      "variants": [
+        {
+          "kind": "int",
+          "value": 1
+        },
+        {
+          "kind": "int",
+          "value": 2
+        },
+        {
+          "kind": "int",
+          "value": 3
+        },
+        {
+          "kind": "int",
+          "value": 4
+        },
+        {
+          "kind": "int",
+          "value": 5
+        }
+      ]
+    },
+    {
+      "name": "WithTuple",
+      "variants": [
+        {
+          "kind": "string",
+          "value": "none"
+        },
+        {
+          "kind": "tupleRef",
+          "tupleName": "LiteralCoord"
+        }
+      ]
+    },
+    {
+      "name": "WithObject",
+      "variants": [
+        {
+          "kind": "string",
+          "value": "empty"
+        },
+        {
+          "kind": "objectRef",
+          "objectName": "LiteralPoint"
+        }
+      ]
+    },
+    {
+      "name": "WithBoth",
+      "variants": [
+        {
+          "kind": "string",
+          "value": "none"
+        },
+        {
+          "kind": "string",
+          "value": "empty"
+        },
+        {
+          "kind": "tupleRef",
+          "tupleName": "LiteralCoord"
+        },
+        {
+          "kind": "objectRef",
+          "objectName": "LiteralPoint"
+        }
+      ]
+    },
+    {
+      "name": "WithObjectOpt",
+      "variants": [
+        {
+          "kind": "string",
+          "value": "empty"
+        },
+        {
+          "kind": "objectRef",
+          "objectName": "LiteralPointOpt"
+        }
+      ]
+    },
+    {
+      "name": "Ratio",
+      "variants": [
+        {
+          "kind": "float",
+          "value": 0.5
+        },
+        {
+          "kind": "float",
+          "value": 1.5
+        },
+        {
+          "kind": "float",
+          "value": 2.5
+        }
+      ]
+    },
+    {
+      "name": "FloatOrText",
+      "variants": [
+        {
+          "kind": "broadType",
+          "typeName": "Float"
+        },
+        {
+          "kind": "broadType",
+          "typeName": "String"
+        }
+      ]
+    },
+    {
+      "name": "DateOrFlag",
+      "variants": [
+        {
+          "kind": "broadType",
+          "typeName": "Date"
+        },
+        {
+          "kind": "broadType",
+          "typeName": "Bool"
+        }
+      ]
+    }
+  ],
+  "models": [
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "literalName": "Status",
+          "name": "status",
+          "type": "literal"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "literalName": "Priority",
+          "name": "priority",
+          "type": "literal"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "literalName": "Status",
+          "name": "optStatus",
+          "type": "literal"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "literalName": "Status",
+          "name": "nullStatus",
+          "type": "literal"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "literalName": "Status",
+          "name": "statuses",
+          "type": "literal"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "literalName": "Mixed",
+          "name": "mixed",
+          "type": "literal"
+        }
+      ],
+      "name": "LiteralBasic"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": "active"
+            }
+          ],
+          "isOptional": false,
+          "literalName": "Status",
+          "name": "status",
+          "type": "literal"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": 1
+            }
+          ],
+          "isOptional": false,
+          "literalName": "Priority",
+          "name": "priority",
+          "type": "literal"
+        }
+      ],
+      "name": "LiteralDefaults"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "literalName": "Broad",
+          "name": "value",
+          "type": "literal"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "literalName": "Broad",
+          "name": "values",
+          "type": "literal"
+        }
+      ],
+      "name": "LiteralBroad"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "literalName": "ExtendedStatus",
+          "name": "status",
+          "type": "literal"
+        }
+      ],
+      "name": "LiteralExtended"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "literalName": "NumericOnly",
+          "name": "rank",
+          "type": "literal"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "literalName": "NumericOnly",
+          "name": "optRank",
+          "type": "literal"
+        }
+      ],
+      "name": "LiteralNumeric"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "address",
+          "objectName": "LiteralAddress",
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "optAddress",
+          "objectName": "LiteralAddress",
+          "type": "object"
+        }
+      ],
+      "name": "LiteralWithObject"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "literalName": "WithTuple",
+          "name": "payload",
+          "type": "literal"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "literalName": "WithTuple",
+          "name": "optPayload",
+          "type": "literal"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "literalName": "WithTuple",
+          "name": "payloads",
+          "type": "literal"
+        }
+      ],
+      "name": "LiteralWithTuple"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "literalName": "WithObject",
+          "name": "payload",
+          "type": "literal"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "literalName": "WithObject",
+          "name": "optPayload",
+          "type": "literal"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "literalName": "WithObject",
+          "name": "payloads",
+          "type": "literal"
+        }
+      ],
+      "name": "LiteralWithObjectVariant"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "literalName": "WithBoth",
+          "name": "data",
+          "type": "literal"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "literalName": "WithBoth",
+          "name": "optData",
+          "type": "literal"
+        }
+      ],
+      "name": "LiteralWithBoth"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "literalName": "WithObjectOpt",
+          "name": "payload",
+          "type": "literal"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "literalName": "WithObjectOpt",
+          "name": "optPayload",
+          "type": "literal"
+        }
+      ],
+      "name": "LiteralWithObjectOpt"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "literalName": "Ratio",
+          "name": "ratio",
+          "type": "literal"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "literalName": "FloatOrText",
+          "name": "amount",
+          "type": "literal"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "literalName": "DateOrFlag",
+          "name": "moment",
+          "type": "literal"
+        }
+      ],
+      "name": "LiteralNumberKinds"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "tagged",
+          "objectName": "LiteralTagged",
+          "type": "object"
+        }
+      ],
+      "name": "LiteralObjectArray"
+    }
+  ],
+  "objects": [
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "city",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "literalName": "Status",
+          "name": "status",
+          "type": "literal"
+        }
+      ],
+      "name": "LiteralAddress"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "value",
+          "type": "int"
+        }
+      ],
+      "name": "LiteralPoint"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "count",
+          "type": "int"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "tag",
+          "type": "string"
+        }
+      ],
+      "name": "LiteralPointOpt"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "literalName": "Status",
+          "name": "states",
+          "type": "literal"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "label",
+          "type": "string"
+        }
+      ],
+      "name": "LiteralTagged"
+    }
+  ],
+  "tuples": [
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "name": "x",
+          "type": "float"
+        },
+        {
+          "isOptional": false,
+          "name": "y",
+          "type": "float"
+        }
+      ],
+      "name": "LiteralCoord"
+    }
+  ]
+}

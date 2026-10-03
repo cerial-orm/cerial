@@ -1,0 +1,112 @@
+{
+  "models": [
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "body",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "defaultAlways",
+              "value": false
+            }
+          ],
+          "isOptional": false,
+          "name": "reviewed",
+          "type": "bool"
+        },
+        {
+          "decorators": [
+            {
+              "type": "defaultAlways",
+              "value": "dirty"
+            }
+          ],
+          "isOptional": false,
+          "name": "syncStatus",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "defaultAlways",
+              "value": 0
+            }
+          ],
+          "isOptional": false,
+          "name": "retryCount",
+          "type": "int"
+        },
+        {
+          "decorators": [
+            {
+              "type": "defaultAlways",
+              "value": 1
+            }
+          ],
+          "isOptional": false,
+          "name": "score",
+          "type": "float"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "meta",
+          "objectName": "ReviewMeta",
+          "type": "object"
+        }
+      ],
+      "name": "ContentItem"
+    }
+  ],
+  "objects": [
+    {
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "defaultAlways",
+              "value": "pending review"
+            }
+          ],
+          "isOptional": false,
+          "name": "note",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "defaultAlways",
+              "value": false
+            }
+          ],
+          "isOptional": false,
+          "name": "flagged",
+          "type": "bool"
+        }
+      ],
+      "name": "ReviewMeta"
+    }
+  ]
+}

@@ -1,0 +1,212 @@
+{
+  "models": {
+    "AnyBasic": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "data",
+          "type": "any"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "items",
+          "type": "any"
+        }
+      ],
+      "name": "AnyBasic",
+      "tableName": "any_basic"
+    },
+    "AnyDecorated": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "defaultValue": "hello",
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "defData",
+          "type": "any"
+        },
+        {
+          "defaultAlwaysValue": 42,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "alwaysData",
+          "type": "any"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isReadonly": true,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "readonlyData",
+          "type": "any"
+        },
+        {
+          "isId": false,
+          "isIndexed": true,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "indexedData",
+          "type": "any"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "sortedItems",
+          "sortOrder": "asc",
+          "type": "any"
+        },
+        {
+          "isArray": true,
+          "isDistinct": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "distinctItems",
+          "type": "any"
+        }
+      ],
+      "name": "AnyDecorated",
+      "tableName": "any_decorated"
+    },
+    "AnyUnique": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": true,
+          "name": "uniqueData",
+          "type": "any"
+        }
+      ],
+      "name": "AnyUnique",
+      "tableName": "any_unique"
+    },
+    "AnyWithObject": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "meta",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "data",
+                "type": "any"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "label",
+                "type": "string"
+              }
+            ],
+            "objectName": "AnyMeta"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "AnyWithObject",
+      "tableName": "any_with_object"
+    }
+  },
+  "objects": {
+    "AnyMeta": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "data",
+          "type": "any"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "label",
+          "type": "string"
+        }
+      ],
+      "name": "AnyMeta"
+    }
+  }
+}

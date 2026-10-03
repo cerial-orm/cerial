@@ -1,0 +1,95 @@
+{
+  "models": {
+    "Book": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": true,
+          "name": "isbn",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "publisherId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "publisher",
+          "relationInfo": {
+            "fieldRef": "publisherId",
+            "isReverse": false,
+            "targetModel": "Publisher",
+            "targetTable": "publisher"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "Book",
+      "tableName": "book"
+    },
+    "Publisher": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "books",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "Book",
+            "targetTable": "book"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "Publisher",
+      "tableName": "publisher"
+    }
+  }
+}

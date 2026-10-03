@@ -1,0 +1,334 @@
+{
+  "models": [
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "bio",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "age",
+          "type": "int"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "address",
+          "objectName": "UnsetAddress",
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "shipping",
+          "objectName": "UnsetAddress",
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "pos",
+          "tupleName": "UnsetCoord",
+          "type": "tuple"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "backup",
+          "tupleName": "UnsetCoord",
+          "type": "tuple"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "opt",
+          "tupleName": "UnsetOptTuple",
+          "type": "tuple"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "tagged",
+          "tupleName": "UnsetObjTuple",
+          "type": "tuple"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "nested",
+          "objectName": "UnsetDeepOuter",
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "optNested",
+          "objectName": "UnsetDeepOuter",
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "deepTuple",
+          "tupleName": "UnsetDeepTuple",
+          "type": "tuple"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "tree",
+          "objectName": "UnsetTreeNode",
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "recursive",
+          "tupleName": "UnsetRecursive",
+          "type": "tuple"
+        }
+      ],
+      "name": "UnsetTest"
+    }
+  ],
+  "objects": [
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "street",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "city",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "zip",
+          "type": "string"
+        }
+      ],
+      "name": "UnsetAddress"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "value",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "extra",
+          "type": "string"
+        }
+      ],
+      "name": "UnsetInner"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "code",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "note",
+          "type": "string"
+        }
+      ],
+      "name": "UnsetDeepInner"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "score",
+          "type": "int"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "deep",
+          "objectName": "UnsetDeepInner",
+          "type": "object"
+        }
+      ],
+      "name": "UnsetDeepMid"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "mid",
+          "objectName": "UnsetDeepMid",
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "desc",
+          "type": "string"
+        }
+      ],
+      "name": "UnsetDeepOuter"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "value",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "extra",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "child",
+          "objectName": "UnsetTreeNode",
+          "type": "object"
+        }
+      ],
+      "name": "UnsetTreeNode"
+    }
+  ],
+  "tuples": [
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "name": "lat",
+          "type": "float"
+        },
+        {
+          "isOptional": false,
+          "name": "lng",
+          "type": "float"
+        }
+      ],
+      "name": "UnsetCoord"
+    },
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": false,
+          "type": "float"
+        }
+      ],
+      "name": "UnsetOptTuple"
+    },
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "name": "tag",
+          "type": "string"
+        },
+        {
+          "isOptional": false,
+          "objectName": "UnsetInner",
+          "type": "object"
+        }
+      ],
+      "name": "UnsetObjTuple"
+    },
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isOptional": false,
+          "objectName": "UnsetDeepMid",
+          "type": "object"
+        }
+      ],
+      "name": "UnsetDeepTuple"
+    },
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": false,
+          "tupleName": "UnsetRecursive",
+          "type": "tuple"
+        }
+      ],
+      "name": "UnsetRecursive"
+    }
+  ]
+}

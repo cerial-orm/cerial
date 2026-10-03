@@ -1,0 +1,146 @@
+{
+  "models": {
+    "Agent": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "assignedOrders",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "Order",
+            "targetTable": "order"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "Agent",
+      "tableName": "agent"
+    },
+    "Customer": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "orders",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "Order",
+            "targetTable": "order"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "Customer",
+      "tableName": "customer"
+    },
+    "Order": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": true,
+          "name": "orderNumber",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "customerId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "customer",
+          "relationInfo": {
+            "fieldRef": "customerId",
+            "isReverse": false,
+            "targetModel": "Customer",
+            "targetTable": "customer"
+          },
+          "type": "relation"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "assigneeId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "assignee",
+          "relationInfo": {
+            "fieldRef": "assigneeId",
+            "isReverse": false,
+            "targetModel": "Agent",
+            "targetTable": "agent"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "Order",
+      "tableName": "order"
+    }
+  }
+}

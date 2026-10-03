@@ -1,0 +1,340 @@
+{
+  "models": {
+    "KitchenSinkBadge": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": true,
+          "name": "name",
+          "type": "string"
+        }
+      ],
+      "name": "KitchenSinkBadge",
+      "tableName": "kitchen_sink_badge"
+    },
+    "KitchenSinkPost": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "authorId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "author",
+          "relationInfo": {
+            "fieldRef": "authorId",
+            "isReverse": false,
+            "targetModel": "KitchenSinkUser",
+            "targetTable": "kitchen_sink_user"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "KitchenSinkPost",
+      "tableName": "kitchen_sink_post"
+    },
+    "KitchenSinkProfile": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "bio",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "userId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "user",
+          "relationInfo": {
+            "fieldRef": "userId",
+            "isReverse": false,
+            "targetModel": "KitchenSinkUser",
+            "targetTable": "kitchen_sink_user"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "KitchenSinkProfile",
+      "tableName": "kitchen_sink_profile"
+    },
+    "KitchenSinkSettings": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "theme",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "userId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "user",
+          "relationInfo": {
+            "fieldRef": "userId",
+            "isReverse": false,
+            "onDelete": "Cascade",
+            "targetModel": "KitchenSinkUser",
+            "targetTable": "kitchen_sink_user"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "KitchenSinkSettings",
+      "tableName": "kitchen_sink_settings"
+    },
+    "KitchenSinkTag": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": true,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "userIds",
+          "type": "record"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "users",
+          "relationInfo": {
+            "fieldRef": "userIds",
+            "isReverse": false,
+            "targetModel": "KitchenSinkUser",
+            "targetTable": "kitchen_sink_user"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "KitchenSinkTag",
+      "tableName": "kitchen_sink_tag"
+    },
+    "KitchenSinkUser": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": true,
+          "name": "email",
+          "type": "email"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "profile",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "KitchenSinkProfile",
+            "targetTable": "kitchen_sink_profile"
+          },
+          "type": "relation"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "posts",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "KitchenSinkPost",
+            "targetTable": "kitchen_sink_post"
+          },
+          "type": "relation"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "tagIds",
+          "type": "record"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "tags",
+          "relationInfo": {
+            "fieldRef": "tagIds",
+            "isReverse": false,
+            "targetModel": "KitchenSinkTag",
+            "targetTable": "kitchen_sink_tag"
+          },
+          "type": "relation"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "settingsId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "settings",
+          "relationInfo": {
+            "fieldRef": "settingsId",
+            "isReverse": false,
+            "targetModel": "KitchenSinkSettings",
+            "targetTable": "kitchen_sink_settings"
+          },
+          "type": "relation"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "badgeIds",
+          "type": "record"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "badges",
+          "relationInfo": {
+            "fieldRef": "badgeIds",
+            "isReverse": false,
+            "targetModel": "KitchenSinkBadge",
+            "targetTable": "kitchen_sink_badge"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "KitchenSinkUser",
+      "tableName": "kitchen_sink_user"
+    }
+  }
+}

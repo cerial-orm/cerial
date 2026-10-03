@@ -1,0 +1,2720 @@
+// ===== models/extl4altconcrete.ts =====
+/**
+ * Generated types for ExtL4AltConcrete
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface ExtL4AltConcrete {
+  id: CerialId<string>;
+  createdAt?: Date;
+  name: string;
+  description?: string;
+  owner: CerialId<string>;
+  isPublic: boolean;
+  viewCount: number;
+  lastViewed?: Date;
+}
+
+export interface ExtL4AltConcreteInput {
+  id?: string;
+  createdAt?: Date;
+  name: string;
+  description?: string;
+  owner: RecordIdInput<string>;
+  isPublic: boolean;
+  viewCount: number;
+  lastViewed?: Date;
+}
+
+export interface ExtL4AltConcreteWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  createdAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  description?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  owner?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  isPublic?:
+    | boolean
+    | ({
+        eq?: boolean;
+        neq?: boolean;
+      } & {});
+  viewCount?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  lastViewed?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  AND?: ExtL4AltConcreteWhere[];
+  OR?: ExtL4AltConcreteWhere[];
+  NOT?: ExtL4AltConcreteWhere;
+}
+
+export type ExtL4AltConcreteWhereInput = ExtL4AltConcreteWhere;
+
+export type ExtL4AltConcreteFindUniqueWhere = { id: RecordIdInput<string> } & Omit<ExtL4AltConcreteWhere, 'id'>;
+
+export type ExtL4AltConcreteCreate = O.Optional<
+  ExtL4AltConcreteInput,
+  'id' | 'createdAt' | 'description' | 'isPublic' | 'viewCount' | 'lastViewed'
+>;
+
+export type ExtL4AltConcreteNestedCreate = O.Optional<
+  ExtL4AltConcreteInput,
+  'id' | 'createdAt' | 'description' | 'isPublic' | 'viewCount' | 'lastViewed'
+>;
+
+export type ExtL4AltConcreteCreateInput = ExtL4AltConcreteCreate;
+
+export type ExtL4AltConcreteUpdate = Partial<
+  O.Omit<ExtL4AltConcreteInput, 'id' | 'createdAt' | 'description' | 'lastViewed'>
+> & {
+  createdAt?: Date | CerialNone;
+  description?: string | CerialNone;
+  lastViewed?: Date | CerialNone;
+};
+
+export type ExtL4AltConcreteUpdateInput = ExtL4AltConcreteUpdate;
+
+export type ExtL4AltConcreteUnset = {
+  createdAt?: true;
+  description?: true;
+  lastViewed?: true;
+};
+
+export type ExtL4AltConcreteSelect =
+  | ({ id: boolean } & Partial<
+      Record<'createdAt' | 'name' | 'description' | 'owner' | 'isPublic' | 'viewCount' | 'lastViewed', boolean>
+    >)
+  | ({ createdAt: boolean } & Partial<
+      Record<'id' | 'name' | 'description' | 'owner' | 'isPublic' | 'viewCount' | 'lastViewed', boolean>
+    >)
+  | ({ name: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'description' | 'owner' | 'isPublic' | 'viewCount' | 'lastViewed', boolean>
+    >)
+  | ({ description: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'name' | 'owner' | 'isPublic' | 'viewCount' | 'lastViewed', boolean>
+    >)
+  | ({ owner: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'name' | 'description' | 'isPublic' | 'viewCount' | 'lastViewed', boolean>
+    >)
+  | ({ isPublic: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'name' | 'description' | 'owner' | 'viewCount' | 'lastViewed', boolean>
+    >)
+  | ({ viewCount: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'name' | 'description' | 'owner' | 'isPublic' | 'lastViewed', boolean>
+    >)
+  | ({ lastViewed: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'name' | 'description' | 'owner' | 'isPublic' | 'viewCount', boolean>
+    >);
+
+export interface ExtL4AltConcreteOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  description?: 'asc' | 'desc';
+  owner?: 'asc' | 'desc';
+  isPublic?: 'asc' | 'desc';
+  viewCount?: 'asc' | 'desc';
+  lastViewed?: 'asc' | 'desc';
+}
+
+export type ExtL4AltConcrete$Relations = {};
+
+export type GetExtL4AltConcretePayload<
+  S extends ExtL4AltConcreteSelect | undefined = undefined,
+  I = undefined,
+> = A.Compute<
+  S extends ExtL4AltConcreteSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ExtL4AltConcrete
+          ? ResolveFieldSelect<ExtL4AltConcrete[K], S[K]>
+          : never;
+      }
+    : ExtL4AltConcrete,
+  'flat'
+>;
+
+export interface ExtL4AltConcreteModel {
+  findOne<S extends ExtL4AltConcreteSelect | undefined = undefined>(options?: {
+    where?: ExtL4AltConcreteWhere;
+    select?: S;
+    orderBy?: ExtL4AltConcreteOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtL4AltConcretePayload<S> | null>;
+
+  findMany<S extends ExtL4AltConcreteSelect | undefined = undefined>(options?: {
+    where?: ExtL4AltConcreteWhere;
+    select?: S;
+    orderBy?: ExtL4AltConcreteOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtL4AltConcretePayload<S>[]>;
+
+  findUnique<S extends ExtL4AltConcreteSelect | undefined = undefined>(options: {
+    where: ExtL4AltConcreteFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtL4AltConcretePayload<S> | null>;
+
+  create<S extends ExtL4AltConcreteSelect | undefined = undefined>(options: {
+    data: ExtL4AltConcreteCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtL4AltConcretePayload<S>>;
+
+  updateMany<
+    S extends ExtL4AltConcreteSelect | undefined = undefined,
+    D extends ExtL4AltConcreteUpdateInput = ExtL4AltConcreteUpdateInput,
+  >(options: {
+    where: ExtL4AltConcreteWhere;
+    data: D;
+    unset?: SafeUnset<ExtL4AltConcreteUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtL4AltConcretePayload<S>[]>;
+
+  updateUnique<
+    S extends ExtL4AltConcreteSelect | undefined = undefined,
+    D extends ExtL4AltConcreteUpdateInput = ExtL4AltConcreteUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ExtL4AltConcreteFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ExtL4AltConcreteUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ExtL4AltConcrete | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetExtL4AltConcretePayload<S>, R>>;
+
+  upsert<
+    S extends ExtL4AltConcreteSelect | undefined = undefined,
+    D extends ExtL4AltConcreteUpdateInput = ExtL4AltConcreteUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtL4AltConcreteFindUniqueWhere;
+    create: ExtL4AltConcreteCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtL4AltConcreteUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetExtL4AltConcretePayload<S>, R>>;
+
+  upsert<
+    S extends ExtL4AltConcreteSelect | undefined = undefined,
+    D extends ExtL4AltConcreteUpdateInput = ExtL4AltConcreteUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtL4AltConcreteWhere;
+    create: ExtL4AltConcreteCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtL4AltConcreteUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetExtL4AltConcretePayload<S>, R>>;
+
+  deleteMany(options: { where: ExtL4AltConcreteWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ExtL4AltConcreteFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ExtL4AltConcrete | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ExtL4AltConcrete, R>>;
+
+  count(where?: ExtL4AltConcreteWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ExtL4AltConcreteWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/extl4concrete.ts =====
+/**
+ * Generated types for ExtL4Concrete
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface ExtL4Concrete {
+  id: CerialId<string>;
+  createdAt?: Date;
+  name: string;
+  description?: string;
+  tags: string[];
+  metadata?: number;
+  status: string;
+  priority: number;
+}
+
+export interface ExtL4ConcreteInput {
+  id?: string;
+  createdAt?: Date;
+  name: string;
+  description?: string;
+  tags: string[];
+  metadata?: number;
+  status: string;
+  priority: number;
+}
+
+export interface ExtL4ConcreteWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  createdAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  description?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  tags?:
+    | string[]
+    | {
+        has?: string;
+        hasAll?: string[];
+        hasAny?: string[];
+        isEmpty?: boolean;
+      };
+  metadata?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  status?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  priority?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  AND?: ExtL4ConcreteWhere[];
+  OR?: ExtL4ConcreteWhere[];
+  NOT?: ExtL4ConcreteWhere;
+}
+
+export type ExtL4ConcreteWhereInput = ExtL4ConcreteWhere;
+
+export type ExtL4ConcreteFindUniqueWhere = { id: RecordIdInput<string> } & Omit<ExtL4ConcreteWhere, 'id'>;
+
+export type ExtL4ConcreteCreate = O.Optional<
+  ExtL4ConcreteInput,
+  'id' | 'createdAt' | 'description' | 'tags' | 'metadata' | 'status' | 'priority'
+>;
+
+export type ExtL4ConcreteNestedCreate = O.Optional<
+  ExtL4ConcreteInput,
+  'id' | 'createdAt' | 'description' | 'tags' | 'metadata' | 'status' | 'priority'
+>;
+
+export type ExtL4ConcreteCreateInput = ExtL4ConcreteCreate;
+
+export type ExtL4ConcreteUpdate = Partial<
+  O.Omit<ExtL4ConcreteInput, 'id' | 'tags' | 'createdAt' | 'description' | 'metadata'>
+> & {
+  tags?:
+    | string[]
+    | {
+        push?: string | string[];
+        unset?: string | string[];
+      };
+  createdAt?: Date | CerialNone;
+  description?: string | CerialNone;
+  metadata?: number | CerialNone;
+};
+
+export type ExtL4ConcreteUpdateInput = ExtL4ConcreteUpdate;
+
+export type ExtL4ConcreteUnset = {
+  createdAt?: true;
+  description?: true;
+  metadata?: true;
+};
+
+export type ExtL4ConcreteSelect =
+  | ({ id: boolean } & Partial<
+      Record<'createdAt' | 'name' | 'description' | 'tags' | 'metadata' | 'status' | 'priority', boolean>
+    >)
+  | ({ createdAt: boolean } & Partial<
+      Record<'id' | 'name' | 'description' | 'tags' | 'metadata' | 'status' | 'priority', boolean>
+    >)
+  | ({ name: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'description' | 'tags' | 'metadata' | 'status' | 'priority', boolean>
+    >)
+  | ({ description: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'name' | 'tags' | 'metadata' | 'status' | 'priority', boolean>
+    >)
+  | ({ tags: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'name' | 'description' | 'metadata' | 'status' | 'priority', boolean>
+    >)
+  | ({ metadata: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'name' | 'description' | 'tags' | 'status' | 'priority', boolean>
+    >)
+  | ({ status: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'name' | 'description' | 'tags' | 'metadata' | 'priority', boolean>
+    >)
+  | ({ priority: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'name' | 'description' | 'tags' | 'metadata' | 'status', boolean>
+    >);
+
+export interface ExtL4ConcreteOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  description?: 'asc' | 'desc';
+  tags?: 'asc' | 'desc';
+  metadata?: 'asc' | 'desc';
+  status?: 'asc' | 'desc';
+  priority?: 'asc' | 'desc';
+}
+
+export type ExtL4Concrete$Relations = {};
+
+export type GetExtL4ConcretePayload<S extends ExtL4ConcreteSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends ExtL4ConcreteSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ExtL4Concrete
+          ? ResolveFieldSelect<ExtL4Concrete[K], S[K]>
+          : never;
+      }
+    : ExtL4Concrete,
+  'flat'
+>;
+
+export interface ExtL4ConcreteModel {
+  findOne<S extends ExtL4ConcreteSelect | undefined = undefined>(options?: {
+    where?: ExtL4ConcreteWhere;
+    select?: S;
+    orderBy?: ExtL4ConcreteOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtL4ConcretePayload<S> | null>;
+
+  findMany<S extends ExtL4ConcreteSelect | undefined = undefined>(options?: {
+    where?: ExtL4ConcreteWhere;
+    select?: S;
+    orderBy?: ExtL4ConcreteOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtL4ConcretePayload<S>[]>;
+
+  findUnique<S extends ExtL4ConcreteSelect | undefined = undefined>(options: {
+    where: ExtL4ConcreteFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtL4ConcretePayload<S> | null>;
+
+  create<S extends ExtL4ConcreteSelect | undefined = undefined>(options: {
+    data: ExtL4ConcreteCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtL4ConcretePayload<S>>;
+
+  updateMany<
+    S extends ExtL4ConcreteSelect | undefined = undefined,
+    D extends ExtL4ConcreteUpdateInput = ExtL4ConcreteUpdateInput,
+  >(options: {
+    where: ExtL4ConcreteWhere;
+    data: D;
+    unset?: SafeUnset<ExtL4ConcreteUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtL4ConcretePayload<S>[]>;
+
+  updateUnique<
+    S extends ExtL4ConcreteSelect | undefined = undefined,
+    D extends ExtL4ConcreteUpdateInput = ExtL4ConcreteUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ExtL4ConcreteFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ExtL4ConcreteUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ExtL4Concrete | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetExtL4ConcretePayload<S>, R>>;
+
+  upsert<
+    S extends ExtL4ConcreteSelect | undefined = undefined,
+    D extends ExtL4ConcreteUpdateInput = ExtL4ConcreteUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtL4ConcreteFindUniqueWhere;
+    create: ExtL4ConcreteCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtL4ConcreteUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetExtL4ConcretePayload<S>, R>>;
+
+  upsert<
+    S extends ExtL4ConcreteSelect | undefined = undefined,
+    D extends ExtL4ConcreteUpdateInput = ExtL4ConcreteUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtL4ConcreteWhere;
+    create: ExtL4ConcreteCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtL4ConcreteUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetExtL4ConcretePayload<S>, R>>;
+
+  deleteMany(options: { where: ExtL4ConcreteWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ExtL4ConcreteFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ExtL4Concrete | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ExtL4Concrete, R>>;
+
+  count(where?: ExtL4ConcreteWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ExtL4ConcreteWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/extl4omitconcrete.ts =====
+/**
+ * Generated types for ExtL4OmitConcrete
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface ExtL4OmitConcrete {
+  id: CerialId<string>;
+  createdAt?: Date;
+  name: string;
+  type: string;
+  subtype?: string;
+  version: number;
+}
+
+export interface ExtL4OmitConcreteInput {
+  id?: string;
+  createdAt?: Date;
+  name: string;
+  type: string;
+  subtype?: string;
+  version: number;
+}
+
+export interface ExtL4OmitConcreteWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  createdAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  type?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  subtype?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  version?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  AND?: ExtL4OmitConcreteWhere[];
+  OR?: ExtL4OmitConcreteWhere[];
+  NOT?: ExtL4OmitConcreteWhere;
+}
+
+export type ExtL4OmitConcreteWhereInput = ExtL4OmitConcreteWhere;
+
+export type ExtL4OmitConcreteFindUniqueWhere = { id: RecordIdInput<string> } & Omit<ExtL4OmitConcreteWhere, 'id'>;
+
+export type ExtL4OmitConcreteCreate = O.Optional<ExtL4OmitConcreteInput, 'id' | 'createdAt' | 'subtype' | 'version'>;
+
+export type ExtL4OmitConcreteNestedCreate = O.Optional<
+  ExtL4OmitConcreteInput,
+  'id' | 'createdAt' | 'subtype' | 'version'
+>;
+
+export type ExtL4OmitConcreteCreateInput = ExtL4OmitConcreteCreate;
+
+export type ExtL4OmitConcreteUpdate = Partial<O.Omit<ExtL4OmitConcreteInput, 'id' | 'createdAt' | 'subtype'>> & {
+  createdAt?: Date | CerialNone;
+  subtype?: string | CerialNone;
+};
+
+export type ExtL4OmitConcreteUpdateInput = ExtL4OmitConcreteUpdate;
+
+export type ExtL4OmitConcreteUnset = {
+  createdAt?: true;
+  subtype?: true;
+};
+
+export type ExtL4OmitConcreteSelect =
+  | ({ id: boolean } & Partial<Record<'createdAt' | 'name' | 'type' | 'subtype' | 'version', boolean>>)
+  | ({ createdAt: boolean } & Partial<Record<'id' | 'name' | 'type' | 'subtype' | 'version', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'createdAt' | 'type' | 'subtype' | 'version', boolean>>)
+  | ({ type: boolean } & Partial<Record<'id' | 'createdAt' | 'name' | 'subtype' | 'version', boolean>>)
+  | ({ subtype: boolean } & Partial<Record<'id' | 'createdAt' | 'name' | 'type' | 'version', boolean>>)
+  | ({ version: boolean } & Partial<Record<'id' | 'createdAt' | 'name' | 'type' | 'subtype', boolean>>);
+
+export interface ExtL4OmitConcreteOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  type?: 'asc' | 'desc';
+  subtype?: 'asc' | 'desc';
+  version?: 'asc' | 'desc';
+}
+
+export type ExtL4OmitConcrete$Relations = {};
+
+export type GetExtL4OmitConcretePayload<
+  S extends ExtL4OmitConcreteSelect | undefined = undefined,
+  I = undefined,
+> = A.Compute<
+  S extends ExtL4OmitConcreteSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ExtL4OmitConcrete
+          ? ResolveFieldSelect<ExtL4OmitConcrete[K], S[K]>
+          : never;
+      }
+    : ExtL4OmitConcrete,
+  'flat'
+>;
+
+export interface ExtL4OmitConcreteModel {
+  findOne<S extends ExtL4OmitConcreteSelect | undefined = undefined>(options?: {
+    where?: ExtL4OmitConcreteWhere;
+    select?: S;
+    orderBy?: ExtL4OmitConcreteOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtL4OmitConcretePayload<S> | null>;
+
+  findMany<S extends ExtL4OmitConcreteSelect | undefined = undefined>(options?: {
+    where?: ExtL4OmitConcreteWhere;
+    select?: S;
+    orderBy?: ExtL4OmitConcreteOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtL4OmitConcretePayload<S>[]>;
+
+  findUnique<S extends ExtL4OmitConcreteSelect | undefined = undefined>(options: {
+    where: ExtL4OmitConcreteFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtL4OmitConcretePayload<S> | null>;
+
+  create<S extends ExtL4OmitConcreteSelect | undefined = undefined>(options: {
+    data: ExtL4OmitConcreteCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtL4OmitConcretePayload<S>>;
+
+  updateMany<
+    S extends ExtL4OmitConcreteSelect | undefined = undefined,
+    D extends ExtL4OmitConcreteUpdateInput = ExtL4OmitConcreteUpdateInput,
+  >(options: {
+    where: ExtL4OmitConcreteWhere;
+    data: D;
+    unset?: SafeUnset<ExtL4OmitConcreteUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtL4OmitConcretePayload<S>[]>;
+
+  updateUnique<
+    S extends ExtL4OmitConcreteSelect | undefined = undefined,
+    D extends ExtL4OmitConcreteUpdateInput = ExtL4OmitConcreteUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ExtL4OmitConcreteFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ExtL4OmitConcreteUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ExtL4OmitConcrete | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetExtL4OmitConcretePayload<S>, R>>;
+
+  upsert<
+    S extends ExtL4OmitConcreteSelect | undefined = undefined,
+    D extends ExtL4OmitConcreteUpdateInput = ExtL4OmitConcreteUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtL4OmitConcreteFindUniqueWhere;
+    create: ExtL4OmitConcreteCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtL4OmitConcreteUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetExtL4OmitConcretePayload<S>, R>>;
+
+  upsert<
+    S extends ExtL4OmitConcreteSelect | undefined = undefined,
+    D extends ExtL4OmitConcreteUpdateInput = ExtL4OmitConcreteUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtL4OmitConcreteWhere;
+    create: ExtL4OmitConcreteCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtL4OmitConcreteUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetExtL4OmitConcretePayload<S>, R>>;
+
+  deleteMany(options: { where: ExtL4OmitConcreteWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ExtL4OmitConcreteFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ExtL4OmitConcrete | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ExtL4OmitConcrete, R>>;
+
+  count(where?: ExtL4OmitConcreteWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ExtL4OmitConcreteWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/extl4pickconcrete.ts =====
+/**
+ * Generated types for ExtL4PickConcrete
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface ExtL4PickConcrete {
+  id: CerialId<string>;
+  createdAt?: Date;
+  name: string;
+  description?: string;
+  category: string;
+  subcategory?: string;
+  rank?: number;
+}
+
+export interface ExtL4PickConcreteInput {
+  id?: string;
+  createdAt?: Date;
+  name: string;
+  description?: string;
+  category: string;
+  subcategory?: string;
+  rank?: number;
+}
+
+export interface ExtL4PickConcreteWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  createdAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  description?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  category?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  subcategory?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  rank?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  AND?: ExtL4PickConcreteWhere[];
+  OR?: ExtL4PickConcreteWhere[];
+  NOT?: ExtL4PickConcreteWhere;
+}
+
+export type ExtL4PickConcreteWhereInput = ExtL4PickConcreteWhere;
+
+export type ExtL4PickConcreteFindUniqueWhere = { id: RecordIdInput<string> } & Omit<ExtL4PickConcreteWhere, 'id'>;
+
+export type ExtL4PickConcreteCreate = O.Optional<
+  ExtL4PickConcreteInput,
+  'id' | 'createdAt' | 'description' | 'subcategory' | 'rank'
+>;
+
+export type ExtL4PickConcreteNestedCreate = O.Optional<
+  ExtL4PickConcreteInput,
+  'id' | 'createdAt' | 'description' | 'subcategory' | 'rank'
+>;
+
+export type ExtL4PickConcreteCreateInput = ExtL4PickConcreteCreate;
+
+export type ExtL4PickConcreteUpdate = Partial<
+  O.Omit<ExtL4PickConcreteInput, 'id' | 'createdAt' | 'description' | 'subcategory' | 'rank'>
+> & {
+  createdAt?: Date | CerialNone;
+  description?: string | CerialNone;
+  subcategory?: string | CerialNone;
+  rank?: number | CerialNone;
+};
+
+export type ExtL4PickConcreteUpdateInput = ExtL4PickConcreteUpdate;
+
+export type ExtL4PickConcreteUnset = {
+  createdAt?: true;
+  description?: true;
+  subcategory?: true;
+  rank?: true;
+};
+
+export type ExtL4PickConcreteSelect =
+  | ({ id: boolean } & Partial<
+      Record<'createdAt' | 'name' | 'description' | 'category' | 'subcategory' | 'rank', boolean>
+    >)
+  | ({ createdAt: boolean } & Partial<
+      Record<'id' | 'name' | 'description' | 'category' | 'subcategory' | 'rank', boolean>
+    >)
+  | ({ name: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'description' | 'category' | 'subcategory' | 'rank', boolean>
+    >)
+  | ({ description: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'name' | 'category' | 'subcategory' | 'rank', boolean>
+    >)
+  | ({ category: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'name' | 'description' | 'subcategory' | 'rank', boolean>
+    >)
+  | ({ subcategory: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'name' | 'description' | 'category' | 'rank', boolean>
+    >)
+  | ({ rank: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'name' | 'description' | 'category' | 'subcategory', boolean>
+    >);
+
+export interface ExtL4PickConcreteOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  description?: 'asc' | 'desc';
+  category?: 'asc' | 'desc';
+  subcategory?: 'asc' | 'desc';
+  rank?: 'asc' | 'desc';
+}
+
+export type ExtL4PickConcrete$Relations = {};
+
+export type GetExtL4PickConcretePayload<
+  S extends ExtL4PickConcreteSelect | undefined = undefined,
+  I = undefined,
+> = A.Compute<
+  S extends ExtL4PickConcreteSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ExtL4PickConcrete
+          ? ResolveFieldSelect<ExtL4PickConcrete[K], S[K]>
+          : never;
+      }
+    : ExtL4PickConcrete,
+  'flat'
+>;
+
+export interface ExtL4PickConcreteModel {
+  findOne<S extends ExtL4PickConcreteSelect | undefined = undefined>(options?: {
+    where?: ExtL4PickConcreteWhere;
+    select?: S;
+    orderBy?: ExtL4PickConcreteOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtL4PickConcretePayload<S> | null>;
+
+  findMany<S extends ExtL4PickConcreteSelect | undefined = undefined>(options?: {
+    where?: ExtL4PickConcreteWhere;
+    select?: S;
+    orderBy?: ExtL4PickConcreteOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtL4PickConcretePayload<S>[]>;
+
+  findUnique<S extends ExtL4PickConcreteSelect | undefined = undefined>(options: {
+    where: ExtL4PickConcreteFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtL4PickConcretePayload<S> | null>;
+
+  create<S extends ExtL4PickConcreteSelect | undefined = undefined>(options: {
+    data: ExtL4PickConcreteCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtL4PickConcretePayload<S>>;
+
+  updateMany<
+    S extends ExtL4PickConcreteSelect | undefined = undefined,
+    D extends ExtL4PickConcreteUpdateInput = ExtL4PickConcreteUpdateInput,
+  >(options: {
+    where: ExtL4PickConcreteWhere;
+    data: D;
+    unset?: SafeUnset<ExtL4PickConcreteUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtL4PickConcretePayload<S>[]>;
+
+  updateUnique<
+    S extends ExtL4PickConcreteSelect | undefined = undefined,
+    D extends ExtL4PickConcreteUpdateInput = ExtL4PickConcreteUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ExtL4PickConcreteFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ExtL4PickConcreteUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ExtL4PickConcrete | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetExtL4PickConcretePayload<S>, R>>;
+
+  upsert<
+    S extends ExtL4PickConcreteSelect | undefined = undefined,
+    D extends ExtL4PickConcreteUpdateInput = ExtL4PickConcreteUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtL4PickConcreteFindUniqueWhere;
+    create: ExtL4PickConcreteCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtL4PickConcreteUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetExtL4PickConcretePayload<S>, R>>;
+
+  upsert<
+    S extends ExtL4PickConcreteSelect | undefined = undefined,
+    D extends ExtL4PickConcreteUpdateInput = ExtL4PickConcreteUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtL4PickConcreteWhere;
+    create: ExtL4PickConcreteCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtL4PickConcreteUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetExtL4PickConcretePayload<S>, R>>;
+
+  deleteMany(options: { where: ExtL4PickConcreteWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ExtL4PickConcreteFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ExtL4PickConcrete | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ExtL4PickConcrete, R>>;
+
+  count(where?: ExtL4PickConcreteWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ExtL4PickConcreteWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/extl5verydeep.ts =====
+/**
+ * Generated types for ExtL5VeryDeep
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface ExtL5VeryDeep {
+  id: CerialId<string>;
+  createdAt?: Date;
+  name: string;
+  description?: string;
+  tags: string[];
+  metadata?: number;
+  status: string;
+  priority: number;
+  archived: boolean;
+}
+
+export interface ExtL5VeryDeepInput {
+  id?: string;
+  createdAt?: Date;
+  name: string;
+  description?: string;
+  tags: string[];
+  metadata?: number;
+  status: string;
+  priority: number;
+  archived: boolean;
+}
+
+export interface ExtL5VeryDeepWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  createdAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  description?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  tags?:
+    | string[]
+    | {
+        has?: string;
+        hasAll?: string[];
+        hasAny?: string[];
+        isEmpty?: boolean;
+      };
+  metadata?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  status?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  priority?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  archived?:
+    | boolean
+    | ({
+        eq?: boolean;
+        neq?: boolean;
+      } & {});
+  AND?: ExtL5VeryDeepWhere[];
+  OR?: ExtL5VeryDeepWhere[];
+  NOT?: ExtL5VeryDeepWhere;
+}
+
+export type ExtL5VeryDeepWhereInput = ExtL5VeryDeepWhere;
+
+export type ExtL5VeryDeepFindUniqueWhere = { id: RecordIdInput<string> } & Omit<ExtL5VeryDeepWhere, 'id'>;
+
+export type ExtL5VeryDeepCreate = O.Optional<
+  ExtL5VeryDeepInput,
+  'id' | 'createdAt' | 'description' | 'tags' | 'metadata' | 'status' | 'priority' | 'archived'
+>;
+
+export type ExtL5VeryDeepNestedCreate = O.Optional<
+  ExtL5VeryDeepInput,
+  'id' | 'createdAt' | 'description' | 'tags' | 'metadata' | 'status' | 'priority' | 'archived'
+>;
+
+export type ExtL5VeryDeepCreateInput = ExtL5VeryDeepCreate;
+
+export type ExtL5VeryDeepUpdate = Partial<
+  O.Omit<ExtL5VeryDeepInput, 'id' | 'tags' | 'createdAt' | 'description' | 'metadata'>
+> & {
+  tags?:
+    | string[]
+    | {
+        push?: string | string[];
+        unset?: string | string[];
+      };
+  createdAt?: Date | CerialNone;
+  description?: string | CerialNone;
+  metadata?: number | CerialNone;
+};
+
+export type ExtL5VeryDeepUpdateInput = ExtL5VeryDeepUpdate;
+
+export type ExtL5VeryDeepUnset = {
+  createdAt?: true;
+  description?: true;
+  metadata?: true;
+};
+
+export type ExtL5VeryDeepSelect =
+  | ({ id: boolean } & Partial<
+      Record<'createdAt' | 'name' | 'description' | 'tags' | 'metadata' | 'status' | 'priority' | 'archived', boolean>
+    >)
+  | ({ createdAt: boolean } & Partial<
+      Record<'id' | 'name' | 'description' | 'tags' | 'metadata' | 'status' | 'priority' | 'archived', boolean>
+    >)
+  | ({ name: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'description' | 'tags' | 'metadata' | 'status' | 'priority' | 'archived', boolean>
+    >)
+  | ({ description: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'name' | 'tags' | 'metadata' | 'status' | 'priority' | 'archived', boolean>
+    >)
+  | ({ tags: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'name' | 'description' | 'metadata' | 'status' | 'priority' | 'archived', boolean>
+    >)
+  | ({ metadata: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'name' | 'description' | 'tags' | 'status' | 'priority' | 'archived', boolean>
+    >)
+  | ({ status: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'name' | 'description' | 'tags' | 'metadata' | 'priority' | 'archived', boolean>
+    >)
+  | ({ priority: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'name' | 'description' | 'tags' | 'metadata' | 'status' | 'archived', boolean>
+    >)
+  | ({ archived: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'name' | 'description' | 'tags' | 'metadata' | 'status' | 'priority', boolean>
+    >);
+
+export interface ExtL5VeryDeepOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  description?: 'asc' | 'desc';
+  tags?: 'asc' | 'desc';
+  metadata?: 'asc' | 'desc';
+  status?: 'asc' | 'desc';
+  priority?: 'asc' | 'desc';
+  archived?: 'asc' | 'desc';
+}
+
+export type ExtL5VeryDeep$Relations = {};
+
+export type GetExtL5VeryDeepPayload<S extends ExtL5VeryDeepSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends ExtL5VeryDeepSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ExtL5VeryDeep
+          ? ResolveFieldSelect<ExtL5VeryDeep[K], S[K]>
+          : never;
+      }
+    : ExtL5VeryDeep,
+  'flat'
+>;
+
+export interface ExtL5VeryDeepModel {
+  findOne<S extends ExtL5VeryDeepSelect | undefined = undefined>(options?: {
+    where?: ExtL5VeryDeepWhere;
+    select?: S;
+    orderBy?: ExtL5VeryDeepOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtL5VeryDeepPayload<S> | null>;
+
+  findMany<S extends ExtL5VeryDeepSelect | undefined = undefined>(options?: {
+    where?: ExtL5VeryDeepWhere;
+    select?: S;
+    orderBy?: ExtL5VeryDeepOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtL5VeryDeepPayload<S>[]>;
+
+  findUnique<S extends ExtL5VeryDeepSelect | undefined = undefined>(options: {
+    where: ExtL5VeryDeepFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtL5VeryDeepPayload<S> | null>;
+
+  create<S extends ExtL5VeryDeepSelect | undefined = undefined>(options: {
+    data: ExtL5VeryDeepCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtL5VeryDeepPayload<S>>;
+
+  updateMany<
+    S extends ExtL5VeryDeepSelect | undefined = undefined,
+    D extends ExtL5VeryDeepUpdateInput = ExtL5VeryDeepUpdateInput,
+  >(options: {
+    where: ExtL5VeryDeepWhere;
+    data: D;
+    unset?: SafeUnset<ExtL5VeryDeepUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtL5VeryDeepPayload<S>[]>;
+
+  updateUnique<
+    S extends ExtL5VeryDeepSelect | undefined = undefined,
+    D extends ExtL5VeryDeepUpdateInput = ExtL5VeryDeepUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ExtL5VeryDeepFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ExtL5VeryDeepUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ExtL5VeryDeep | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetExtL5VeryDeepPayload<S>, R>>;
+
+  upsert<
+    S extends ExtL5VeryDeepSelect | undefined = undefined,
+    D extends ExtL5VeryDeepUpdateInput = ExtL5VeryDeepUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtL5VeryDeepFindUniqueWhere;
+    create: ExtL5VeryDeepCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtL5VeryDeepUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetExtL5VeryDeepPayload<S>, R>>;
+
+  upsert<
+    S extends ExtL5VeryDeepSelect | undefined = undefined,
+    D extends ExtL5VeryDeepUpdateInput = ExtL5VeryDeepUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtL5VeryDeepWhere;
+    create: ExtL5VeryDeepCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtL5VeryDeepUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetExtL5VeryDeepPayload<S>, R>>;
+
+  deleteMany(options: { where: ExtL5VeryDeepWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ExtL5VeryDeepFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ExtL5VeryDeep | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ExtL5VeryDeep, R>>;
+
+  count(where?: ExtL5VeryDeepWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ExtL5VeryDeepWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/extl6ultradeep.ts =====
+/**
+ * Generated types for ExtL6UltraDeep
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface ExtL6UltraDeep {
+  id: CerialId<string>;
+  createdAt?: Date;
+  name: string;
+  description?: string;
+  tags: string[];
+  metadata?: number;
+  status: string;
+  priority: number;
+  archived: boolean;
+  archiveReason?: string;
+  archivedAt?: Date;
+}
+
+export interface ExtL6UltraDeepInput {
+  id?: string;
+  createdAt?: Date;
+  name: string;
+  description?: string;
+  tags: string[];
+  metadata?: number;
+  status: string;
+  priority: number;
+  archived: boolean;
+  archiveReason?: string;
+  archivedAt?: Date;
+}
+
+export interface ExtL6UltraDeepWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  createdAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  description?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  tags?:
+    | string[]
+    | {
+        has?: string;
+        hasAll?: string[];
+        hasAny?: string[];
+        isEmpty?: boolean;
+      };
+  metadata?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  status?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  priority?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  archived?:
+    | boolean
+    | ({
+        eq?: boolean;
+        neq?: boolean;
+      } & {});
+  archiveReason?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  archivedAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  AND?: ExtL6UltraDeepWhere[];
+  OR?: ExtL6UltraDeepWhere[];
+  NOT?: ExtL6UltraDeepWhere;
+}
+
+export type ExtL6UltraDeepWhereInput = ExtL6UltraDeepWhere;
+
+export type ExtL6UltraDeepFindUniqueWhere = { id: RecordIdInput<string> } & Omit<ExtL6UltraDeepWhere, 'id'>;
+
+export type ExtL6UltraDeepCreate = O.Optional<
+  ExtL6UltraDeepInput,
+  | 'id'
+  | 'createdAt'
+  | 'description'
+  | 'tags'
+  | 'metadata'
+  | 'status'
+  | 'priority'
+  | 'archived'
+  | 'archiveReason'
+  | 'archivedAt'
+>;
+
+export type ExtL6UltraDeepNestedCreate = O.Optional<
+  ExtL6UltraDeepInput,
+  | 'id'
+  | 'createdAt'
+  | 'description'
+  | 'tags'
+  | 'metadata'
+  | 'status'
+  | 'priority'
+  | 'archived'
+  | 'archiveReason'
+  | 'archivedAt'
+>;
+
+export type ExtL6UltraDeepCreateInput = ExtL6UltraDeepCreate;
+
+export type ExtL6UltraDeepUpdate = Partial<
+  O.Omit<ExtL6UltraDeepInput, 'id' | 'tags' | 'createdAt' | 'description' | 'metadata' | 'archiveReason' | 'archivedAt'>
+> & {
+  tags?:
+    | string[]
+    | {
+        push?: string | string[];
+        unset?: string | string[];
+      };
+  createdAt?: Date | CerialNone;
+  description?: string | CerialNone;
+  metadata?: number | CerialNone;
+  archiveReason?: string | CerialNone;
+  archivedAt?: Date | CerialNone;
+};
+
+export type ExtL6UltraDeepUpdateInput = ExtL6UltraDeepUpdate;
+
+export type ExtL6UltraDeepUnset = {
+  createdAt?: true;
+  description?: true;
+  metadata?: true;
+  archiveReason?: true;
+  archivedAt?: true;
+};
+
+export type ExtL6UltraDeepSelect =
+  | ({ id: boolean } & Partial<
+      Record<
+        | 'createdAt'
+        | 'name'
+        | 'description'
+        | 'tags'
+        | 'metadata'
+        | 'status'
+        | 'priority'
+        | 'archived'
+        | 'archiveReason'
+        | 'archivedAt',
+        boolean
+      >
+    >)
+  | ({ createdAt: boolean } & Partial<
+      Record<
+        | 'id'
+        | 'name'
+        | 'description'
+        | 'tags'
+        | 'metadata'
+        | 'status'
+        | 'priority'
+        | 'archived'
+        | 'archiveReason'
+        | 'archivedAt',
+        boolean
+      >
+    >)
+  | ({ name: boolean } & Partial<
+      Record<
+        | 'id'
+        | 'createdAt'
+        | 'description'
+        | 'tags'
+        | 'metadata'
+        | 'status'
+        | 'priority'
+        | 'archived'
+        | 'archiveReason'
+        | 'archivedAt',
+        boolean
+      >
+    >)
+  | ({ description: boolean } & Partial<
+      Record<
+        | 'id'
+        | 'createdAt'
+        | 'name'
+        | 'tags'
+        | 'metadata'
+        | 'status'
+        | 'priority'
+        | 'archived'
+        | 'archiveReason'
+        | 'archivedAt',
+        boolean
+      >
+    >)
+  | ({ tags: boolean } & Partial<
+      Record<
+        | 'id'
+        | 'createdAt'
+        | 'name'
+        | 'description'
+        | 'metadata'
+        | 'status'
+        | 'priority'
+        | 'archived'
+        | 'archiveReason'
+        | 'archivedAt',
+        boolean
+      >
+    >)
+  | ({ metadata: boolean } & Partial<
+      Record<
+        | 'id'
+        | 'createdAt'
+        | 'name'
+        | 'description'
+        | 'tags'
+        | 'status'
+        | 'priority'
+        | 'archived'
+        | 'archiveReason'
+        | 'archivedAt',
+        boolean
+      >
+    >)
+  | ({ status: boolean } & Partial<
+      Record<
+        | 'id'
+        | 'createdAt'
+        | 'name'
+        | 'description'
+        | 'tags'
+        | 'metadata'
+        | 'priority'
+        | 'archived'
+        | 'archiveReason'
+        | 'archivedAt',
+        boolean
+      >
+    >)
+  | ({ priority: boolean } & Partial<
+      Record<
+        | 'id'
+        | 'createdAt'
+        | 'name'
+        | 'description'
+        | 'tags'
+        | 'metadata'
+        | 'status'
+        | 'archived'
+        | 'archiveReason'
+        | 'archivedAt',
+        boolean
+      >
+    >)
+  | ({ archived: boolean } & Partial<
+      Record<
+        | 'id'
+        | 'createdAt'
+        | 'name'
+        | 'description'
+        | 'tags'
+        | 'metadata'
+        | 'status'
+        | 'priority'
+        | 'archiveReason'
+        | 'archivedAt',
+        boolean
+      >
+    >)
+  | ({ archiveReason: boolean } & Partial<
+      Record<
+        | 'id'
+        | 'createdAt'
+        | 'name'
+        | 'description'
+        | 'tags'
+        | 'metadata'
+        | 'status'
+        | 'priority'
+        | 'archived'
+        | 'archivedAt',
+        boolean
+      >
+    >)
+  | ({ archivedAt: boolean } & Partial<
+      Record<
+        | 'id'
+        | 'createdAt'
+        | 'name'
+        | 'description'
+        | 'tags'
+        | 'metadata'
+        | 'status'
+        | 'priority'
+        | 'archived'
+        | 'archiveReason',
+        boolean
+      >
+    >);
+
+export interface ExtL6UltraDeepOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  description?: 'asc' | 'desc';
+  tags?: 'asc' | 'desc';
+  metadata?: 'asc' | 'desc';
+  status?: 'asc' | 'desc';
+  priority?: 'asc' | 'desc';
+  archived?: 'asc' | 'desc';
+  archiveReason?: 'asc' | 'desc';
+  archivedAt?: 'asc' | 'desc';
+}
+
+export type ExtL6UltraDeep$Relations = {};
+
+export type GetExtL6UltraDeepPayload<S extends ExtL6UltraDeepSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends ExtL6UltraDeepSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ExtL6UltraDeep
+          ? ResolveFieldSelect<ExtL6UltraDeep[K], S[K]>
+          : never;
+      }
+    : ExtL6UltraDeep,
+  'flat'
+>;
+
+export interface ExtL6UltraDeepModel {
+  findOne<S extends ExtL6UltraDeepSelect | undefined = undefined>(options?: {
+    where?: ExtL6UltraDeepWhere;
+    select?: S;
+    orderBy?: ExtL6UltraDeepOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtL6UltraDeepPayload<S> | null>;
+
+  findMany<S extends ExtL6UltraDeepSelect | undefined = undefined>(options?: {
+    where?: ExtL6UltraDeepWhere;
+    select?: S;
+    orderBy?: ExtL6UltraDeepOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtL6UltraDeepPayload<S>[]>;
+
+  findUnique<S extends ExtL6UltraDeepSelect | undefined = undefined>(options: {
+    where: ExtL6UltraDeepFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtL6UltraDeepPayload<S> | null>;
+
+  create<S extends ExtL6UltraDeepSelect | undefined = undefined>(options: {
+    data: ExtL6UltraDeepCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtL6UltraDeepPayload<S>>;
+
+  updateMany<
+    S extends ExtL6UltraDeepSelect | undefined = undefined,
+    D extends ExtL6UltraDeepUpdateInput = ExtL6UltraDeepUpdateInput,
+  >(options: {
+    where: ExtL6UltraDeepWhere;
+    data: D;
+    unset?: SafeUnset<ExtL6UltraDeepUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtL6UltraDeepPayload<S>[]>;
+
+  updateUnique<
+    S extends ExtL6UltraDeepSelect | undefined = undefined,
+    D extends ExtL6UltraDeepUpdateInput = ExtL6UltraDeepUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ExtL6UltraDeepFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ExtL6UltraDeepUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ExtL6UltraDeep | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetExtL6UltraDeepPayload<S>, R>>;
+
+  upsert<
+    S extends ExtL6UltraDeepSelect | undefined = undefined,
+    D extends ExtL6UltraDeepUpdateInput = ExtL6UltraDeepUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtL6UltraDeepFindUniqueWhere;
+    create: ExtL6UltraDeepCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtL6UltraDeepUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetExtL6UltraDeepPayload<S>, R>>;
+
+  upsert<
+    S extends ExtL6UltraDeepSelect | undefined = undefined,
+    D extends ExtL6UltraDeepUpdateInput = ExtL6UltraDeepUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtL6UltraDeepWhere;
+    create: ExtL6UltraDeepCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtL6UltraDeepUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetExtL6UltraDeepPayload<S>, R>>;
+
+  deleteMany(options: { where: ExtL6UltraDeepWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ExtL6UltraDeepFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ExtL6UltraDeep | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ExtL6UltraDeep, R>>;
+
+  count(where?: ExtL6UltraDeepWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ExtL6UltraDeepWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/extp4concrete.ts =====
+/**
+ * Generated types for ExtP4Concrete
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface ExtP4Concrete {
+  id: CerialId<string>;
+  secret: string;
+  name: string;
+  tag: string;
+  extra?: string;
+  level: number;
+  final?: string;
+}
+
+export interface ExtP4ConcreteInput {
+  id?: string;
+  secret: string;
+  name: string;
+  tag: string;
+  extra?: string;
+  level: number;
+  final?: string;
+}
+
+export interface ExtP4ConcreteWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  secret?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  tag?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  extra?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  level?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  final?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  AND?: ExtP4ConcreteWhere[];
+  OR?: ExtP4ConcreteWhere[];
+  NOT?: ExtP4ConcreteWhere;
+}
+
+export type ExtP4ConcreteWhereInput = ExtP4ConcreteWhere;
+
+export type ExtP4ConcreteFindUniqueWhere = { id: RecordIdInput<string> } & Omit<ExtP4ConcreteWhere, 'id'>;
+
+export type ExtP4ConcreteCreate = O.Optional<ExtP4ConcreteInput, 'id' | 'extra' | 'level' | 'final'>;
+
+export type ExtP4ConcreteNestedCreate = O.Optional<ExtP4ConcreteInput, 'id' | 'extra' | 'level' | 'final'>;
+
+export type ExtP4ConcreteCreateInput = ExtP4ConcreteCreate;
+
+export type ExtP4ConcreteUpdate = Partial<O.Omit<ExtP4ConcreteInput, 'id' | 'extra' | 'final'>> & {
+  extra?: string | CerialNone;
+  final?: string | CerialNone;
+};
+
+export type ExtP4ConcreteUpdateInput = ExtP4ConcreteUpdate;
+
+export type ExtP4ConcreteUnset = {
+  extra?: true;
+  final?: true;
+};
+
+export type ExtP4ConcreteSelect =
+  | ({ id: boolean } & Partial<Record<'secret' | 'name' | 'tag' | 'extra' | 'level' | 'final', boolean>>)
+  | ({ secret: boolean } & Partial<Record<'id' | 'name' | 'tag' | 'extra' | 'level' | 'final', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'secret' | 'tag' | 'extra' | 'level' | 'final', boolean>>)
+  | ({ tag: boolean } & Partial<Record<'id' | 'secret' | 'name' | 'extra' | 'level' | 'final', boolean>>)
+  | ({ extra: boolean } & Partial<Record<'id' | 'secret' | 'name' | 'tag' | 'level' | 'final', boolean>>)
+  | ({ level: boolean } & Partial<Record<'id' | 'secret' | 'name' | 'tag' | 'extra' | 'final', boolean>>)
+  | ({ final: boolean } & Partial<Record<'id' | 'secret' | 'name' | 'tag' | 'extra' | 'level', boolean>>);
+
+export interface ExtP4ConcreteOrderBy {
+  id?: 'asc' | 'desc';
+  secret?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  tag?: 'asc' | 'desc';
+  extra?: 'asc' | 'desc';
+  level?: 'asc' | 'desc';
+  final?: 'asc' | 'desc';
+}
+
+export type ExtP4Concrete$Relations = {};
+
+export type GetExtP4ConcretePayload<S extends ExtP4ConcreteSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends ExtP4ConcreteSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ExtP4Concrete
+          ? ResolveFieldSelect<ExtP4Concrete[K], S[K]>
+          : never;
+      }
+    : ExtP4Concrete,
+  'flat'
+>;
+
+export interface ExtP4ConcreteModel {
+  findOne<S extends ExtP4ConcreteSelect | undefined = undefined>(options?: {
+    where?: ExtP4ConcreteWhere;
+    select?: S;
+    orderBy?: ExtP4ConcreteOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtP4ConcretePayload<S> | null>;
+
+  findMany<S extends ExtP4ConcreteSelect | undefined = undefined>(options?: {
+    where?: ExtP4ConcreteWhere;
+    select?: S;
+    orderBy?: ExtP4ConcreteOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtP4ConcretePayload<S>[]>;
+
+  findUnique<S extends ExtP4ConcreteSelect | undefined = undefined>(options: {
+    where: ExtP4ConcreteFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtP4ConcretePayload<S> | null>;
+
+  create<S extends ExtP4ConcreteSelect | undefined = undefined>(options: {
+    data: ExtP4ConcreteCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtP4ConcretePayload<S>>;
+
+  updateMany<
+    S extends ExtP4ConcreteSelect | undefined = undefined,
+    D extends ExtP4ConcreteUpdateInput = ExtP4ConcreteUpdateInput,
+  >(options: {
+    where: ExtP4ConcreteWhere;
+    data: D;
+    unset?: SafeUnset<ExtP4ConcreteUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtP4ConcretePayload<S>[]>;
+
+  updateUnique<
+    S extends ExtP4ConcreteSelect | undefined = undefined,
+    D extends ExtP4ConcreteUpdateInput = ExtP4ConcreteUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ExtP4ConcreteFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ExtP4ConcreteUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ExtP4Concrete | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetExtP4ConcretePayload<S>, R>>;
+
+  upsert<
+    S extends ExtP4ConcreteSelect | undefined = undefined,
+    D extends ExtP4ConcreteUpdateInput = ExtP4ConcreteUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtP4ConcreteFindUniqueWhere;
+    create: ExtP4ConcreteCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtP4ConcreteUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetExtP4ConcretePayload<S>, R>>;
+
+  upsert<
+    S extends ExtP4ConcreteSelect | undefined = undefined,
+    D extends ExtP4ConcreteUpdateInput = ExtP4ConcreteUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtP4ConcreteWhere;
+    create: ExtP4ConcreteCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtP4ConcreteUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetExtP4ConcretePayload<S>, R>>;
+
+  deleteMany(options: { where: ExtP4ConcreteWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ExtP4ConcreteFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ExtP4Concrete | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ExtP4Concrete, R>>;
+
+  count(where?: ExtP4ConcreteWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ExtP4ConcreteWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}

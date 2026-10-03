@@ -1,0 +1,666 @@
+// ===== models/book.ts =====
+/**
+ * Generated types for Book
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  Publisher,
+  PublisherWhere,
+  PublisherSelect,
+  PublisherOrderBy,
+  PublisherNestedCreate,
+  PublisherInclude,
+  GetPublisherIncludePayload,
+} from './publisher';
+export interface Book {
+  id: CerialId<string>;
+  title: string;
+  isbn: string;
+  publisherId?: CerialId<string> | null;
+}
+
+export interface BookInput {
+  id?: string;
+  title: string;
+  isbn: string;
+  publisherId?: RecordIdInput<string> | null;
+}
+
+export interface BookWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  title?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  /** @unique — Unique indexed field */
+  isbn?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  publisherId?:
+    | null
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {
+        not?: string | null;
+        isNull?: boolean;
+        isNone?: boolean;
+      });
+  publisher?: null | PublisherWhere;
+  AND?: BookWhere[];
+  OR?: BookWhere[];
+  NOT?: BookWhere;
+}
+
+export type BookWhereInput = BookWhere;
+
+export type BookFindUniqueWhere =
+  | ({ id: RecordIdInput<string> } & { isbn?: string } & Omit<BookWhere, 'id' | 'isbn'>)
+  | ({ isbn: string } & { id?: RecordIdInput<string> } & Omit<BookWhere, 'id' | 'isbn'>);
+
+export type BookCreate = O.Optional<O.Omit<BookInput, 'publisher'>, 'id' | 'publisherId'>;
+
+export type BookNestedCreate = O.Optional<O.Omit<BookInput, 'publisher' | 'publisherId'>, 'id'>;
+
+export type BookCreateInput =
+  | BookCreate
+  | (O.Omit<BookCreate, 'publisherId'> & {
+      publisher?: { create: PublisherNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type BookUpdate = Partial<O.Omit<BookInput, 'id' | 'publisher' | 'publisherId'>> & {
+  publisherId?: RecordIdInput<string> | null | CerialNone;
+};
+
+export type BookUpdateInput =
+  | BookUpdate
+  | (O.Omit<BookUpdate, 'publisherId'> & {
+      publisher?: { create: PublisherNestedCreate } | { connect: RecordIdInput } | { disconnect: true };
+    });
+
+export type BookUnset = {
+  publisherId?: true;
+};
+
+export type BookSelect =
+  | ({ id: boolean } & Partial<Record<'title' | 'isbn' | 'publisherId', boolean>>)
+  | ({ title: boolean } & Partial<Record<'id' | 'isbn' | 'publisherId', boolean>>)
+  | ({ isbn: boolean } & Partial<Record<'id' | 'title' | 'publisherId', boolean>>)
+  | ({ publisherId: boolean } & Partial<Record<'id' | 'title' | 'isbn', boolean>>);
+
+export interface BookOrderBy {
+  id?: 'asc' | 'desc';
+  title?: 'asc' | 'desc';
+  isbn?: 'asc' | 'desc';
+  publisherId?: 'asc' | 'desc';
+  publisher?: PublisherOrderBy;
+}
+
+export interface BookInclude {
+  publisher?:
+    | boolean
+    | {
+        select?: PublisherSelect;
+        where?: PublisherWhere;
+        include?: PublisherInclude;
+      };
+}
+
+export type Book$Relations = {
+  publisher: { type: Publisher; include: PublisherInclude };
+};
+
+export type GetBookIncludePayload<I extends BookInclude | undefined> = I extends BookInclude
+  ? Pick<
+      {
+        publisher: I['publisher'] extends true
+          ? Publisher
+          : I['publisher'] extends {
+                select: infer S extends PublisherSelect;
+                include: infer NI extends PublisherInclude;
+              }
+            ? {
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Publisher
+                  ? ResolveFieldSelect<Publisher[P], S[P]>
+                  : never;
+              } & GetPublisherIncludePayload<NI>
+            : I['publisher'] extends { select: infer S extends PublisherSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Publisher
+                    ? ResolveFieldSelect<Publisher[P], S[P]>
+                    : never;
+                }
+              : I['publisher'] extends { include: infer NI extends PublisherInclude }
+                ? Publisher & GetPublisherIncludePayload<NI>
+                : Publisher;
+      },
+      Extract<keyof I, keyof Book$Relations> & { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetBookPayload<
+  S extends BookSelect | undefined = undefined,
+  I extends BookInclude | undefined = undefined,
+> = A.Compute<
+  S extends BookSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof Book
+          ? ResolveFieldSelect<Book[K], S[K]>
+          : never;
+      } & GetBookIncludePayload<I>
+    : I extends BookInclude
+      ? Book & GetBookIncludePayload<I>
+      : Book,
+  'flat'
+>;
+
+export interface BookModel {
+  findOne<S extends BookSelect | undefined = undefined, I extends BookInclude | undefined = undefined>(options?: {
+    where?: BookWhere;
+    select?: S;
+    include?: I;
+    orderBy?: BookOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetBookPayload<S, I> | null>;
+
+  findMany<S extends BookSelect | undefined = undefined, I extends BookInclude | undefined = undefined>(options?: {
+    where?: BookWhere;
+    select?: S;
+    orderBy?: BookOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetBookPayload<S, I>[]>;
+
+  findUnique<S extends BookSelect | undefined = undefined, I extends BookInclude | undefined = undefined>(options: {
+    where: BookFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetBookPayload<S, I> | null>;
+
+  create<S extends BookSelect | undefined = undefined, I extends BookInclude | undefined = undefined>(options: {
+    data: BookCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetBookPayload<S, I>>;
+
+  updateMany<
+    S extends BookSelect | undefined = undefined,
+    I extends BookInclude | undefined = undefined,
+    D extends BookUpdateInput = BookUpdateInput,
+  >(options: {
+    where: BookWhere;
+    data: D;
+    unset?: SafeUnset<BookUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetBookPayload<S, I>[]>;
+
+  updateUnique<
+    S extends BookSelect | undefined = undefined,
+    I extends BookInclude | undefined = undefined,
+    D extends BookUpdateInput = BookUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: BookFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<BookUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns Book | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetBookPayload<S, I>, R>>;
+
+  upsert<
+    S extends BookSelect | undefined = undefined,
+    I extends BookInclude | undefined = undefined,
+    D extends BookUpdateInput = BookUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: BookFindUniqueWhere;
+    create: BookCreateInput;
+    update?: D;
+    unset?: SafeUnset<BookUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetBookPayload<S, I>, R>>;
+
+  upsert<
+    S extends BookSelect | undefined = undefined,
+    I extends BookInclude | undefined = undefined,
+    D extends BookUpdateInput = BookUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: BookWhere;
+    create: BookCreateInput;
+    update?: D;
+    unset?: SafeUnset<BookUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetBookPayload<S, I>, R>>;
+
+  deleteMany(options: { where: BookWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: BookFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns Book | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<Book, R>>;
+
+  count(where?: BookWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: BookWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/publisher.ts =====
+/**
+ * Generated types for Publisher
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  Book,
+  BookWhere,
+  BookSelect,
+  BookOrderBy,
+  BookNestedCreate,
+  BookInclude,
+  GetBookIncludePayload,
+} from './book';
+export interface Publisher {
+  id: CerialId<string>;
+  name: string;
+}
+
+export interface PublisherInput {
+  id?: string;
+  name: string;
+}
+
+export interface PublisherWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  books?: { some?: BookWhere; every?: BookWhere; none?: BookWhere };
+  AND?: PublisherWhere[];
+  OR?: PublisherWhere[];
+  NOT?: PublisherWhere;
+}
+
+export type PublisherWhereInput = PublisherWhere;
+
+export type PublisherFindUniqueWhere = { id: RecordIdInput<string> } & Omit<PublisherWhere, 'id'>;
+
+export type PublisherCreate = O.Optional<O.Omit<PublisherInput, 'books'>, 'id'>;
+
+export type PublisherNestedCreate = O.Optional<O.Omit<PublisherInput, 'books'>, 'id'>;
+
+export type PublisherCreateInput = PublisherCreate & {
+  books?: {
+    create?: BookNestedCreate | BookNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+  };
+};
+
+export type PublisherUpdate = Partial<O.Omit<PublisherInput, 'id' | 'books'>>;
+
+export type PublisherUpdateInput = PublisherUpdate & {
+  books?: {
+    create?: BookNestedCreate | BookNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+    disconnect?: RecordIdInput | RecordIdInput[];
+    set?: RecordIdInput[];
+  };
+};
+
+export type PublisherUnset = {};
+
+export type PublisherSelect =
+  | ({ id: boolean } & Partial<Record<'name', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id', boolean>>);
+
+export interface PublisherOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+}
+
+export interface PublisherInclude {
+  books?:
+    | boolean
+    | {
+        select?: BookSelect;
+        where?: BookWhere;
+        orderBy?: BookOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: BookInclude;
+      };
+}
+
+export type Publisher$Relations = {
+  books: { type: Book[]; include: BookInclude };
+};
+
+export type GetPublisherIncludePayload<I extends PublisherInclude | undefined> = I extends PublisherInclude
+  ? Pick<
+      {
+        books: I['books'] extends true
+          ? Book[]
+          : I['books'] extends { select: infer S extends BookSelect; include: infer NI extends BookInclude }
+            ? ({
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Book
+                  ? ResolveFieldSelect<Book[P], S[P]>
+                  : never;
+              } & GetBookIncludePayload<NI>)[]
+            : I['books'] extends { select: infer S extends BookSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Book
+                    ? ResolveFieldSelect<Book[P], S[P]>
+                    : never;
+                }[]
+              : I['books'] extends { include: infer NI extends BookInclude }
+                ? (Book & GetBookIncludePayload<NI>)[]
+                : Book[];
+      },
+      Extract<keyof I, keyof Publisher$Relations> &
+        { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetPublisherPayload<
+  S extends PublisherSelect | undefined = undefined,
+  I extends PublisherInclude | undefined = undefined,
+> = A.Compute<
+  S extends PublisherSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof Publisher
+          ? ResolveFieldSelect<Publisher[K], S[K]>
+          : never;
+      } & GetPublisherIncludePayload<I>
+    : I extends PublisherInclude
+      ? Publisher & GetPublisherIncludePayload<I>
+      : Publisher,
+  'flat'
+>;
+
+export interface PublisherModel {
+  findOne<
+    S extends PublisherSelect | undefined = undefined,
+    I extends PublisherInclude | undefined = undefined,
+  >(options?: {
+    where?: PublisherWhere;
+    select?: S;
+    include?: I;
+    orderBy?: PublisherOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetPublisherPayload<S, I> | null>;
+
+  findMany<
+    S extends PublisherSelect | undefined = undefined,
+    I extends PublisherInclude | undefined = undefined,
+  >(options?: {
+    where?: PublisherWhere;
+    select?: S;
+    orderBy?: PublisherOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetPublisherPayload<S, I>[]>;
+
+  findUnique<
+    S extends PublisherSelect | undefined = undefined,
+    I extends PublisherInclude | undefined = undefined,
+  >(options: {
+    where: PublisherFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetPublisherPayload<S, I> | null>;
+
+  create<
+    S extends PublisherSelect | undefined = undefined,
+    I extends PublisherInclude | undefined = undefined,
+  >(options: {
+    data: PublisherCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetPublisherPayload<S, I>>;
+
+  updateMany<
+    S extends PublisherSelect | undefined = undefined,
+    I extends PublisherInclude | undefined = undefined,
+    D extends PublisherUpdateInput = PublisherUpdateInput,
+  >(options: {
+    where: PublisherWhere;
+    data: D;
+    unset?: SafeUnset<PublisherUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetPublisherPayload<S, I>[]>;
+
+  updateUnique<
+    S extends PublisherSelect | undefined = undefined,
+    I extends PublisherInclude | undefined = undefined,
+    D extends PublisherUpdateInput = PublisherUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: PublisherFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<PublisherUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns Publisher | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetPublisherPayload<S, I>, R>>;
+
+  upsert<
+    S extends PublisherSelect | undefined = undefined,
+    I extends PublisherInclude | undefined = undefined,
+    D extends PublisherUpdateInput = PublisherUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: PublisherFindUniqueWhere;
+    create: PublisherCreateInput;
+    update?: D;
+    unset?: SafeUnset<PublisherUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetPublisherPayload<S, I>, R>>;
+
+  upsert<
+    S extends PublisherSelect | undefined = undefined,
+    I extends PublisherInclude | undefined = undefined,
+    D extends PublisherUpdateInput = PublisherUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: PublisherWhere;
+    create: PublisherCreateInput;
+    update?: D;
+    unset?: SafeUnset<PublisherUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetPublisherPayload<S, I>, R>>;
+
+  deleteMany(options: { where: PublisherWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: PublisherFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns Publisher | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<Publisher, R>>;
+
+  count(where?: PublisherWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: PublisherWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}

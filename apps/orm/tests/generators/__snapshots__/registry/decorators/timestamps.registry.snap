@@ -1,0 +1,126 @@
+{
+  "models": {
+    "TimestampTest": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "createdAt",
+          "timestampDecorator": "createdAt",
+          "type": "date"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "updatedAt",
+          "timestampDecorator": "updatedAt",
+          "type": "date"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "accessedAt",
+          "timestampDecorator": "now",
+          "type": "date"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "meta",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "label",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "createdAt",
+                "timestampDecorator": "createdAt",
+                "type": "date"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "updatedAt",
+                "timestampDecorator": "updatedAt",
+                "type": "date"
+              }
+            ],
+            "objectName": "TimestampInfo"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "TimestampTest",
+      "tableName": "timestamp_test"
+    }
+  },
+  "objects": {
+    "TimestampInfo": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "createdAt",
+          "timestampDecorator": "createdAt",
+          "type": "date"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "updatedAt",
+          "timestampDecorator": "updatedAt",
+          "type": "date"
+        }
+      ],
+      "name": "TimestampInfo"
+    }
+  }
+}

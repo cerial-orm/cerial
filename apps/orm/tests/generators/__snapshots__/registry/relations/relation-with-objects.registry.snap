@@ -1,0 +1,230 @@
+{
+  "models": {
+    "RelObjCompany": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "headquarters",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "street",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "city",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "state",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isNullable": true,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "zipCode",
+                "type": "string"
+              }
+            ],
+            "objectName": "Address"
+          },
+          "type": "object"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "meta",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "industry",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "founded",
+                "type": "int"
+              }
+            ],
+            "objectName": "CompanyMeta"
+          },
+          "type": "object"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "employees",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "RelObjEmployee",
+            "targetTable": "rel_obj_employee"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "RelObjCompany",
+      "tableName": "rel_obj_company"
+    },
+    "RelObjEmployee": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "homeAddress",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "street",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "city",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "state",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isNullable": true,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "zipCode",
+                "type": "string"
+              }
+            ],
+            "objectName": "Address"
+          },
+          "type": "object"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "companyId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "company",
+          "relationInfo": {
+            "fieldRef": "companyId",
+            "isReverse": false,
+            "targetModel": "RelObjCompany",
+            "targetTable": "rel_obj_company"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "RelObjEmployee",
+      "tableName": "rel_obj_employee"
+    }
+  },
+  "objects": {
+    "CompanyMeta": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "industry",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "founded",
+          "type": "int"
+        }
+      ],
+      "name": "CompanyMeta"
+    }
+  }
+}

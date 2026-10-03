@@ -1,0 +1,1161 @@
+// ===== models/anybasic.ts =====
+/**
+ * Generated types for AnyBasic
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialAny } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface AnyBasic {
+  id: CerialId<string>;
+  name: string;
+  data: CerialAny;
+  items: CerialAny[];
+}
+
+export interface AnyBasicInput {
+  id?: string;
+  name: string;
+  data: CerialAny;
+  items: CerialAny[];
+}
+
+export interface AnyBasicWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  data?:
+    | CerialAny
+    | ({
+        eq?: CerialAny;
+        neq?: CerialAny;
+        gt?: CerialAny;
+        gte?: CerialAny;
+        lt?: CerialAny;
+        lte?: CerialAny;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: CerialAny[];
+        notIn?: CerialAny[];
+      } & {
+        between?: [CerialAny, CerialAny];
+      });
+  items?:
+    | CerialAny[]
+    | {
+        has?: CerialAny;
+        hasAll?: CerialAny[];
+        hasAny?: CerialAny[];
+        isEmpty?: boolean;
+      };
+  AND?: AnyBasicWhere[];
+  OR?: AnyBasicWhere[];
+  NOT?: AnyBasicWhere;
+}
+
+export type AnyBasicWhereInput = AnyBasicWhere;
+
+export type AnyBasicFindUniqueWhere = { id: RecordIdInput<string> } & Omit<AnyBasicWhere, 'id'>;
+
+export type AnyBasicCreate = O.Optional<AnyBasicInput, 'id' | 'items'>;
+
+export type AnyBasicNestedCreate = O.Optional<AnyBasicInput, 'id' | 'items'>;
+
+export type AnyBasicCreateInput = AnyBasicCreate;
+
+export type AnyBasicUpdate = Partial<O.Omit<AnyBasicInput, 'id' | 'items'>> & {
+  items?:
+    | CerialAny[]
+    | {
+        push?: CerialAny | CerialAny[];
+        unset?: CerialAny | CerialAny[];
+      };
+};
+
+export type AnyBasicUpdateInput = AnyBasicUpdate;
+
+export type AnyBasicUnset = {};
+
+export type AnyBasicSelect =
+  | ({ id: boolean } & Partial<Record<'name' | 'data' | 'items', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'data' | 'items', boolean>>)
+  | ({ data: boolean } & Partial<Record<'id' | 'name' | 'items', boolean>>)
+  | ({ items: boolean } & Partial<Record<'id' | 'name' | 'data', boolean>>);
+
+export interface AnyBasicOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+}
+
+export type AnyBasic$Relations = {};
+
+export type GetAnyBasicPayload<S extends AnyBasicSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends AnyBasicSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof AnyBasic
+          ? ResolveFieldSelect<AnyBasic[K], S[K]>
+          : never;
+      }
+    : AnyBasic,
+  'flat'
+>;
+
+export interface AnyBasicModel {
+  findOne<S extends AnyBasicSelect | undefined = undefined>(options?: {
+    where?: AnyBasicWhere;
+    select?: S;
+    orderBy?: AnyBasicOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetAnyBasicPayload<S> | null>;
+
+  findMany<S extends AnyBasicSelect | undefined = undefined>(options?: {
+    where?: AnyBasicWhere;
+    select?: S;
+    orderBy?: AnyBasicOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetAnyBasicPayload<S>[]>;
+
+  findUnique<S extends AnyBasicSelect | undefined = undefined>(options: {
+    where: AnyBasicFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetAnyBasicPayload<S> | null>;
+
+  create<S extends AnyBasicSelect | undefined = undefined>(options: {
+    data: AnyBasicCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetAnyBasicPayload<S>>;
+
+  updateMany<
+    S extends AnyBasicSelect | undefined = undefined,
+    D extends AnyBasicUpdateInput = AnyBasicUpdateInput,
+  >(options: {
+    where: AnyBasicWhere;
+    data: D;
+    unset?: SafeUnset<AnyBasicUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetAnyBasicPayload<S>[]>;
+
+  updateUnique<
+    S extends AnyBasicSelect | undefined = undefined,
+    D extends AnyBasicUpdateInput = AnyBasicUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: AnyBasicFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<AnyBasicUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns AnyBasic | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetAnyBasicPayload<S>, R>>;
+
+  upsert<
+    S extends AnyBasicSelect | undefined = undefined,
+    D extends AnyBasicUpdateInput = AnyBasicUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: AnyBasicFindUniqueWhere;
+    create: AnyBasicCreateInput;
+    update?: D;
+    unset?: SafeUnset<AnyBasicUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetAnyBasicPayload<S>, R>>;
+
+  upsert<
+    S extends AnyBasicSelect | undefined = undefined,
+    D extends AnyBasicUpdateInput = AnyBasicUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: AnyBasicWhere;
+    create: AnyBasicCreateInput;
+    update?: D;
+    unset?: SafeUnset<AnyBasicUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetAnyBasicPayload<S>, R>>;
+
+  deleteMany(options: { where: AnyBasicWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: AnyBasicFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns AnyBasic | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<AnyBasic, R>>;
+
+  count(where?: AnyBasicWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: AnyBasicWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/anydecorated.ts =====
+/**
+ * Generated types for AnyDecorated
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type { CerialAny } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface AnyDecorated {
+  id: CerialId<string>;
+  defData: CerialAny;
+  alwaysData?: CerialAny;
+  readonlyData: CerialAny;
+  indexedData: CerialAny;
+  sortedItems: CerialAny[];
+  distinctItems: CerialAny[];
+}
+
+export interface AnyDecoratedInput {
+  id?: string;
+  defData: CerialAny;
+  alwaysData?: CerialAny;
+  readonlyData: CerialAny;
+  indexedData: CerialAny;
+  sortedItems: CerialAny[];
+  distinctItems: CerialAny[];
+}
+
+export interface AnyDecoratedWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  defData?:
+    | CerialAny
+    | ({
+        eq?: CerialAny;
+        neq?: CerialAny;
+        gt?: CerialAny;
+        gte?: CerialAny;
+        lt?: CerialAny;
+        lte?: CerialAny;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: CerialAny[];
+        notIn?: CerialAny[];
+      } & {
+        between?: [CerialAny, CerialAny];
+      });
+  alwaysData?:
+    | CerialAny
+    | ({
+        eq?: CerialAny;
+        neq?: CerialAny;
+        gt?: CerialAny;
+        gte?: CerialAny;
+        lt?: CerialAny;
+        lte?: CerialAny;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: CerialAny[];
+        notIn?: CerialAny[];
+      } & {
+        not?: CerialAny;
+        isNone?: boolean;
+        between?: [CerialAny, CerialAny];
+      });
+  readonlyData?:
+    | CerialAny
+    | ({
+        eq?: CerialAny;
+        neq?: CerialAny;
+        gt?: CerialAny;
+        gte?: CerialAny;
+        lt?: CerialAny;
+        lte?: CerialAny;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: CerialAny[];
+        notIn?: CerialAny[];
+      } & {
+        between?: [CerialAny, CerialAny];
+      });
+  /** @index — Indexed field */
+  indexedData?:
+    | CerialAny
+    | ({
+        eq?: CerialAny;
+        neq?: CerialAny;
+        gt?: CerialAny;
+        gte?: CerialAny;
+        lt?: CerialAny;
+        lte?: CerialAny;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: CerialAny[];
+        notIn?: CerialAny[];
+      } & {
+        between?: [CerialAny, CerialAny];
+      });
+  sortedItems?:
+    | CerialAny[]
+    | {
+        has?: CerialAny;
+        hasAll?: CerialAny[];
+        hasAny?: CerialAny[];
+        isEmpty?: boolean;
+      };
+  distinctItems?:
+    | CerialAny[]
+    | {
+        has?: CerialAny;
+        hasAll?: CerialAny[];
+        hasAny?: CerialAny[];
+        isEmpty?: boolean;
+      };
+  AND?: AnyDecoratedWhere[];
+  OR?: AnyDecoratedWhere[];
+  NOT?: AnyDecoratedWhere;
+}
+
+export type AnyDecoratedWhereInput = AnyDecoratedWhere;
+
+export type AnyDecoratedFindUniqueWhere = { id: RecordIdInput<string> } & Omit<AnyDecoratedWhere, 'id'>;
+
+export type AnyDecoratedCreate = O.Optional<
+  AnyDecoratedInput,
+  'id' | 'defData' | 'alwaysData' | 'sortedItems' | 'distinctItems'
+>;
+
+export type AnyDecoratedNestedCreate = O.Optional<
+  AnyDecoratedInput,
+  'id' | 'defData' | 'alwaysData' | 'sortedItems' | 'distinctItems'
+>;
+
+export type AnyDecoratedCreateInput = AnyDecoratedCreate;
+
+export type AnyDecoratedUpdate = Partial<
+  O.Omit<AnyDecoratedInput, 'id' | 'readonlyData' | 'sortedItems' | 'distinctItems' | 'alwaysData'>
+> & {
+  sortedItems?:
+    | CerialAny[]
+    | {
+        push?: CerialAny | CerialAny[];
+        unset?: CerialAny | CerialAny[];
+      };
+  distinctItems?:
+    | CerialAny[]
+    | {
+        push?: CerialAny | CerialAny[];
+        unset?: CerialAny | CerialAny[];
+      };
+  alwaysData?: CerialAny | CerialNone;
+};
+
+export type AnyDecoratedUpdateInput = AnyDecoratedUpdate;
+
+export type AnyDecoratedUnset = {
+  alwaysData?: true;
+};
+
+export type AnyDecoratedSelect =
+  | ({ id: boolean } & Partial<
+      Record<'defData' | 'alwaysData' | 'readonlyData' | 'indexedData' | 'sortedItems' | 'distinctItems', boolean>
+    >)
+  | ({ defData: boolean } & Partial<
+      Record<'id' | 'alwaysData' | 'readonlyData' | 'indexedData' | 'sortedItems' | 'distinctItems', boolean>
+    >)
+  | ({ alwaysData: boolean } & Partial<
+      Record<'id' | 'defData' | 'readonlyData' | 'indexedData' | 'sortedItems' | 'distinctItems', boolean>
+    >)
+  | ({ readonlyData: boolean } & Partial<
+      Record<'id' | 'defData' | 'alwaysData' | 'indexedData' | 'sortedItems' | 'distinctItems', boolean>
+    >)
+  | ({ indexedData: boolean } & Partial<
+      Record<'id' | 'defData' | 'alwaysData' | 'readonlyData' | 'sortedItems' | 'distinctItems', boolean>
+    >)
+  | ({ sortedItems: boolean } & Partial<
+      Record<'id' | 'defData' | 'alwaysData' | 'readonlyData' | 'indexedData' | 'distinctItems', boolean>
+    >)
+  | ({ distinctItems: boolean } & Partial<
+      Record<'id' | 'defData' | 'alwaysData' | 'readonlyData' | 'indexedData' | 'sortedItems', boolean>
+    >);
+
+export interface AnyDecoratedOrderBy {
+  id?: 'asc' | 'desc';
+}
+
+export type AnyDecorated$Relations = {};
+
+export type GetAnyDecoratedPayload<S extends AnyDecoratedSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends AnyDecoratedSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof AnyDecorated
+          ? ResolveFieldSelect<AnyDecorated[K], S[K]>
+          : never;
+      }
+    : AnyDecorated,
+  'flat'
+>;
+
+export interface AnyDecoratedModel {
+  findOne<S extends AnyDecoratedSelect | undefined = undefined>(options?: {
+    where?: AnyDecoratedWhere;
+    select?: S;
+    orderBy?: AnyDecoratedOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetAnyDecoratedPayload<S> | null>;
+
+  findMany<S extends AnyDecoratedSelect | undefined = undefined>(options?: {
+    where?: AnyDecoratedWhere;
+    select?: S;
+    orderBy?: AnyDecoratedOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetAnyDecoratedPayload<S>[]>;
+
+  findUnique<S extends AnyDecoratedSelect | undefined = undefined>(options: {
+    where: AnyDecoratedFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetAnyDecoratedPayload<S> | null>;
+
+  create<S extends AnyDecoratedSelect | undefined = undefined>(options: {
+    data: AnyDecoratedCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetAnyDecoratedPayload<S>>;
+
+  updateMany<
+    S extends AnyDecoratedSelect | undefined = undefined,
+    D extends AnyDecoratedUpdateInput = AnyDecoratedUpdateInput,
+  >(options: {
+    where: AnyDecoratedWhere;
+    data: D;
+    unset?: SafeUnset<AnyDecoratedUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetAnyDecoratedPayload<S>[]>;
+
+  updateUnique<
+    S extends AnyDecoratedSelect | undefined = undefined,
+    D extends AnyDecoratedUpdateInput = AnyDecoratedUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: AnyDecoratedFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<AnyDecoratedUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns AnyDecorated | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetAnyDecoratedPayload<S>, R>>;
+
+  upsert<
+    S extends AnyDecoratedSelect | undefined = undefined,
+    D extends AnyDecoratedUpdateInput = AnyDecoratedUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: AnyDecoratedFindUniqueWhere;
+    create: AnyDecoratedCreateInput;
+    update?: D;
+    unset?: SafeUnset<AnyDecoratedUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetAnyDecoratedPayload<S>, R>>;
+
+  upsert<
+    S extends AnyDecoratedSelect | undefined = undefined,
+    D extends AnyDecoratedUpdateInput = AnyDecoratedUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: AnyDecoratedWhere;
+    create: AnyDecoratedCreateInput;
+    update?: D;
+    unset?: SafeUnset<AnyDecoratedUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetAnyDecoratedPayload<S>, R>>;
+
+  deleteMany(options: { where: AnyDecoratedWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: AnyDecoratedFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns AnyDecorated | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<AnyDecorated, R>>;
+
+  count(where?: AnyDecoratedWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: AnyDecoratedWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/anyunique.ts =====
+/**
+ * Generated types for AnyUnique
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialAny } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface AnyUnique {
+  id: CerialId<string>;
+  uniqueData: CerialAny;
+}
+
+export interface AnyUniqueInput {
+  id?: string;
+  uniqueData: CerialAny;
+}
+
+export interface AnyUniqueWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  /** @unique — Unique indexed field */
+  uniqueData?:
+    | CerialAny
+    | ({
+        eq?: CerialAny;
+        neq?: CerialAny;
+        gt?: CerialAny;
+        gte?: CerialAny;
+        lt?: CerialAny;
+        lte?: CerialAny;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: CerialAny[];
+        notIn?: CerialAny[];
+      } & {
+        between?: [CerialAny, CerialAny];
+      });
+  AND?: AnyUniqueWhere[];
+  OR?: AnyUniqueWhere[];
+  NOT?: AnyUniqueWhere;
+}
+
+export type AnyUniqueWhereInput = AnyUniqueWhere;
+
+export type AnyUniqueFindUniqueWhere =
+  | ({ id: RecordIdInput<string> } & { uniqueData?: unknown } & Omit<AnyUniqueWhere, 'id' | 'uniqueData'>)
+  | ({ uniqueData: unknown } & { id?: RecordIdInput<string> } & Omit<AnyUniqueWhere, 'id' | 'uniqueData'>);
+
+export type AnyUniqueCreate = O.Optional<AnyUniqueInput, 'id'>;
+
+export type AnyUniqueNestedCreate = O.Optional<AnyUniqueInput, 'id'>;
+
+export type AnyUniqueCreateInput = AnyUniqueCreate;
+
+export type AnyUniqueUpdate = Partial<O.Omit<AnyUniqueInput, 'id'>>;
+
+export type AnyUniqueUpdateInput = AnyUniqueUpdate;
+
+export type AnyUniqueUnset = {};
+
+export type AnyUniqueSelect =
+  | ({ id: boolean } & Partial<Record<'uniqueData', boolean>>)
+  | ({ uniqueData: boolean } & Partial<Record<'id', boolean>>);
+
+export interface AnyUniqueOrderBy {
+  id?: 'asc' | 'desc';
+}
+
+export type AnyUnique$Relations = {};
+
+export type GetAnyUniquePayload<S extends AnyUniqueSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends AnyUniqueSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof AnyUnique
+          ? ResolveFieldSelect<AnyUnique[K], S[K]>
+          : never;
+      }
+    : AnyUnique,
+  'flat'
+>;
+
+export interface AnyUniqueModel {
+  findOne<S extends AnyUniqueSelect | undefined = undefined>(options?: {
+    where?: AnyUniqueWhere;
+    select?: S;
+    orderBy?: AnyUniqueOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetAnyUniquePayload<S> | null>;
+
+  findMany<S extends AnyUniqueSelect | undefined = undefined>(options?: {
+    where?: AnyUniqueWhere;
+    select?: S;
+    orderBy?: AnyUniqueOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetAnyUniquePayload<S>[]>;
+
+  findUnique<S extends AnyUniqueSelect | undefined = undefined>(options: {
+    where: AnyUniqueFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetAnyUniquePayload<S> | null>;
+
+  create<S extends AnyUniqueSelect | undefined = undefined>(options: {
+    data: AnyUniqueCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetAnyUniquePayload<S>>;
+
+  updateMany<
+    S extends AnyUniqueSelect | undefined = undefined,
+    D extends AnyUniqueUpdateInput = AnyUniqueUpdateInput,
+  >(options: {
+    where: AnyUniqueWhere;
+    data: D;
+    unset?: SafeUnset<AnyUniqueUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetAnyUniquePayload<S>[]>;
+
+  updateUnique<
+    S extends AnyUniqueSelect | undefined = undefined,
+    D extends AnyUniqueUpdateInput = AnyUniqueUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: AnyUniqueFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<AnyUniqueUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns AnyUnique | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetAnyUniquePayload<S>, R>>;
+
+  upsert<
+    S extends AnyUniqueSelect | undefined = undefined,
+    D extends AnyUniqueUpdateInput = AnyUniqueUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: AnyUniqueFindUniqueWhere;
+    create: AnyUniqueCreateInput;
+    update?: D;
+    unset?: SafeUnset<AnyUniqueUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetAnyUniquePayload<S>, R>>;
+
+  upsert<
+    S extends AnyUniqueSelect | undefined = undefined,
+    D extends AnyUniqueUpdateInput = AnyUniqueUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: AnyUniqueWhere;
+    create: AnyUniqueCreateInput;
+    update?: D;
+    unset?: SafeUnset<AnyUniqueUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetAnyUniquePayload<S>, R>>;
+
+  deleteMany(options: { where: AnyUniqueWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: AnyUniqueFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns AnyUnique | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<AnyUnique, R>>;
+
+  count(where?: AnyUniqueWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: AnyUniqueWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/anywithobject.ts =====
+/**
+ * Generated types for AnyWithObject
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { AnyMeta, AnyMetaInput, AnyMetaWhere, AnyMetaSelect, AnyMetaOrderBy } from '../objects/anymeta';
+export interface AnyWithObject {
+  id: CerialId<string>;
+  name: string;
+  meta: AnyMeta;
+}
+
+export interface AnyWithObjectInput {
+  id?: string;
+  name: string;
+  meta: AnyMetaInput;
+}
+
+export interface AnyWithObjectWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  meta?: AnyMetaWhere;
+  AND?: AnyWithObjectWhere[];
+  OR?: AnyWithObjectWhere[];
+  NOT?: AnyWithObjectWhere;
+}
+
+export type AnyWithObjectWhereInput = AnyWithObjectWhere;
+
+export type AnyWithObjectFindUniqueWhere = { id: RecordIdInput<string> } & Omit<AnyWithObjectWhere, 'id'>;
+
+export type AnyWithObjectCreate = O.Optional<AnyWithObjectInput, 'id'>;
+
+export type AnyWithObjectNestedCreate = O.Optional<AnyWithObjectInput, 'id'>;
+
+export type AnyWithObjectCreateInput = AnyWithObjectCreate;
+
+export type AnyWithObjectUpdate = Partial<O.Omit<AnyWithObjectInput, 'id' | 'meta'>> & {
+  meta?: Partial<AnyMetaInput> | { set: AnyMetaInput };
+};
+
+export type AnyWithObjectUpdateInput = AnyWithObjectUpdate;
+
+export type AnyWithObjectUnset = {};
+
+export type AnyWithObjectSelect =
+  | ({ id: boolean } & { name?: boolean; meta?: boolean | AnyMetaSelect })
+  | ({ name: boolean } & { id?: boolean; meta?: boolean | AnyMetaSelect })
+  | ({ meta: boolean | AnyMetaSelect } & Partial<Record<'id' | 'name', boolean>>);
+
+export interface AnyWithObjectOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  meta?: AnyMetaOrderBy;
+}
+
+export type AnyWithObject$Relations = {};
+
+export type GetAnyWithObjectPayload<S extends AnyWithObjectSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends AnyWithObjectSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof AnyWithObject
+          ? ResolveFieldSelect<AnyWithObject[K], S[K]>
+          : never;
+      }
+    : AnyWithObject,
+  'flat'
+>;
+
+export interface AnyWithObjectModel {
+  findOne<S extends AnyWithObjectSelect | undefined = undefined>(options?: {
+    where?: AnyWithObjectWhere;
+    select?: S;
+    orderBy?: AnyWithObjectOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetAnyWithObjectPayload<S> | null>;
+
+  findMany<S extends AnyWithObjectSelect | undefined = undefined>(options?: {
+    where?: AnyWithObjectWhere;
+    select?: S;
+    orderBy?: AnyWithObjectOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetAnyWithObjectPayload<S>[]>;
+
+  findUnique<S extends AnyWithObjectSelect | undefined = undefined>(options: {
+    where: AnyWithObjectFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetAnyWithObjectPayload<S> | null>;
+
+  create<S extends AnyWithObjectSelect | undefined = undefined>(options: {
+    data: AnyWithObjectCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetAnyWithObjectPayload<S>>;
+
+  updateMany<
+    S extends AnyWithObjectSelect | undefined = undefined,
+    D extends AnyWithObjectUpdateInput = AnyWithObjectUpdateInput,
+  >(options: {
+    where: AnyWithObjectWhere;
+    data: D;
+    unset?: SafeUnset<AnyWithObjectUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetAnyWithObjectPayload<S>[]>;
+
+  updateUnique<
+    S extends AnyWithObjectSelect | undefined = undefined,
+    D extends AnyWithObjectUpdateInput = AnyWithObjectUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: AnyWithObjectFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<AnyWithObjectUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns AnyWithObject | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetAnyWithObjectPayload<S>, R>>;
+
+  upsert<
+    S extends AnyWithObjectSelect | undefined = undefined,
+    D extends AnyWithObjectUpdateInput = AnyWithObjectUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: AnyWithObjectFindUniqueWhere;
+    create: AnyWithObjectCreateInput;
+    update?: D;
+    unset?: SafeUnset<AnyWithObjectUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetAnyWithObjectPayload<S>, R>>;
+
+  upsert<
+    S extends AnyWithObjectSelect | undefined = undefined,
+    D extends AnyWithObjectUpdateInput = AnyWithObjectUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: AnyWithObjectWhere;
+    create: AnyWithObjectCreateInput;
+    update?: D;
+    unset?: SafeUnset<AnyWithObjectUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetAnyWithObjectPayload<S>, R>>;
+
+  deleteMany(options: { where: AnyWithObjectWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: AnyWithObjectFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns AnyWithObject | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<AnyWithObject, R>>;
+
+  count(where?: AnyWithObjectWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: AnyWithObjectWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== objects/anymeta.ts =====
+/**
+ * Generated types for AnyMeta
+ * Do not edit manually
+ */
+
+import type { CerialAny } from 'cerial';
+export interface AnyMeta {
+  data: CerialAny;
+  label: string;
+}
+
+export interface AnyMetaInput {
+  data: CerialAny;
+  label: string;
+}
+
+export interface AnyMetaWhere {
+  data?:
+    | CerialAny
+    | ({
+        eq?: CerialAny;
+        neq?: CerialAny;
+        gt?: CerialAny;
+        gte?: CerialAny;
+        lt?: CerialAny;
+        lte?: CerialAny;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: CerialAny[];
+        notIn?: CerialAny[];
+      } & {
+        between?: [CerialAny, CerialAny];
+      });
+  label?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  AND?: AnyMetaWhere[];
+  OR?: AnyMetaWhere[];
+  NOT?: AnyMetaWhere;
+}
+
+export type AnyMetaSelect =
+  | ({ data: boolean } & Partial<Record<'label', boolean>>)
+  | ({ label: boolean } & Partial<Record<'data', boolean>>);
+
+export interface AnyMetaOrderBy {
+  data?: 'asc' | 'desc';
+  label?: 'asc' | 'desc';
+}

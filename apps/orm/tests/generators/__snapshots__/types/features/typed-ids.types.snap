@@ -1,0 +1,2853 @@
+// ===== models/fkchildmodel.ts =====
+/**
+ * Generated types for FkChildModel
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  FkTargetIntId,
+  FkTargetIntIdWhere,
+  FkTargetIntIdSelect,
+  FkTargetIntIdOrderBy,
+  FkTargetIntIdNestedCreate,
+  FkTargetIntIdInclude,
+  GetFkTargetIntIdIncludePayload,
+} from './fktargetintid';
+export interface FkChildModel {
+  id: CerialId<string>;
+  parentId: CerialId<number>;
+  note: string;
+}
+
+export interface FkChildModelInput {
+  id?: string;
+  parentId: RecordIdInput<number>;
+  note: string;
+}
+
+export interface FkChildModelWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  parentId?:
+    | RecordIdInput<number>
+    | ({
+        eq?: RecordIdInput<number>;
+        neq?: RecordIdInput<number>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<number>[];
+        notIn?: RecordIdInput<number>[];
+      } & {});
+  parent?: FkTargetIntIdWhere;
+  note?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  AND?: FkChildModelWhere[];
+  OR?: FkChildModelWhere[];
+  NOT?: FkChildModelWhere;
+}
+
+export type FkChildModelWhereInput = FkChildModelWhere;
+
+export type FkChildModelFindUniqueWhere = { id: RecordIdInput<string> } & Omit<FkChildModelWhere, 'id'>;
+
+export type FkChildModelCreate = O.Optional<O.Omit<FkChildModelInput, 'parent'>, 'id'>;
+
+export type FkChildModelNestedCreate = O.Optional<O.Omit<FkChildModelInput, 'parent' | 'parentId'>, 'id'>;
+
+export type FkChildModelCreateInput =
+  | FkChildModelCreate
+  | (O.Omit<FkChildModelCreate, 'parentId'> & {
+      parent: { create: FkTargetIntIdNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type FkChildModelUpdate = Partial<O.Omit<FkChildModelInput, 'id' | 'parent'>>;
+
+export type FkChildModelUpdateInput =
+  | FkChildModelUpdate
+  | (O.Omit<FkChildModelUpdate, 'parentId'> & {
+      parent?: { create: FkTargetIntIdNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type FkChildModelUnset = {};
+
+export type FkChildModelSelect =
+  | ({ id: boolean } & Partial<Record<'parentId' | 'note', boolean>>)
+  | ({ parentId: boolean } & Partial<Record<'id' | 'note', boolean>>)
+  | ({ note: boolean } & Partial<Record<'id' | 'parentId', boolean>>);
+
+export interface FkChildModelOrderBy {
+  id?: 'asc' | 'desc';
+  parentId?: 'asc' | 'desc';
+  parent?: FkTargetIntIdOrderBy;
+  note?: 'asc' | 'desc';
+}
+
+export interface FkChildModelInclude {
+  parent?:
+    | boolean
+    | {
+        select?: FkTargetIntIdSelect;
+        where?: FkTargetIntIdWhere;
+        include?: FkTargetIntIdInclude;
+      };
+}
+
+export type FkChildModel$Relations = {
+  parent: { type: FkTargetIntId; include: FkTargetIntIdInclude };
+};
+
+export type GetFkChildModelIncludePayload<I extends FkChildModelInclude | undefined> = I extends FkChildModelInclude
+  ? Pick<
+      {
+        parent: I['parent'] extends true
+          ? FkTargetIntId
+          : I['parent'] extends {
+                select: infer S extends FkTargetIntIdSelect;
+                include: infer NI extends FkTargetIntIdInclude;
+              }
+            ? {
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof FkTargetIntId
+                  ? ResolveFieldSelect<FkTargetIntId[P], S[P]>
+                  : never;
+              } & GetFkTargetIntIdIncludePayload<NI>
+            : I['parent'] extends { select: infer S extends FkTargetIntIdSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof FkTargetIntId
+                    ? ResolveFieldSelect<FkTargetIntId[P], S[P]>
+                    : never;
+                }
+              : I['parent'] extends { include: infer NI extends FkTargetIntIdInclude }
+                ? FkTargetIntId & GetFkTargetIntIdIncludePayload<NI>
+                : FkTargetIntId;
+      },
+      Extract<keyof I, keyof FkChildModel$Relations> &
+        { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetFkChildModelPayload<
+  S extends FkChildModelSelect | undefined = undefined,
+  I extends FkChildModelInclude | undefined = undefined,
+> = A.Compute<
+  S extends FkChildModelSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof FkChildModel
+          ? ResolveFieldSelect<FkChildModel[K], S[K]>
+          : never;
+      } & GetFkChildModelIncludePayload<I>
+    : I extends FkChildModelInclude
+      ? FkChildModel & GetFkChildModelIncludePayload<I>
+      : FkChildModel,
+  'flat'
+>;
+
+export interface FkChildModelModel {
+  findOne<
+    S extends FkChildModelSelect | undefined = undefined,
+    I extends FkChildModelInclude | undefined = undefined,
+  >(options?: {
+    where?: FkChildModelWhere;
+    select?: S;
+    include?: I;
+    orderBy?: FkChildModelOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetFkChildModelPayload<S, I> | null>;
+
+  findMany<
+    S extends FkChildModelSelect | undefined = undefined,
+    I extends FkChildModelInclude | undefined = undefined,
+  >(options?: {
+    where?: FkChildModelWhere;
+    select?: S;
+    orderBy?: FkChildModelOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetFkChildModelPayload<S, I>[]>;
+
+  findUnique<
+    S extends FkChildModelSelect | undefined = undefined,
+    I extends FkChildModelInclude | undefined = undefined,
+  >(options: {
+    where: FkChildModelFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetFkChildModelPayload<S, I> | null>;
+
+  create<
+    S extends FkChildModelSelect | undefined = undefined,
+    I extends FkChildModelInclude | undefined = undefined,
+  >(options: {
+    data: FkChildModelCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetFkChildModelPayload<S, I>>;
+
+  updateMany<
+    S extends FkChildModelSelect | undefined = undefined,
+    I extends FkChildModelInclude | undefined = undefined,
+    D extends FkChildModelUpdateInput = FkChildModelUpdateInput,
+  >(options: {
+    where: FkChildModelWhere;
+    data: D;
+    unset?: SafeUnset<FkChildModelUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetFkChildModelPayload<S, I>[]>;
+
+  updateUnique<
+    S extends FkChildModelSelect | undefined = undefined,
+    I extends FkChildModelInclude | undefined = undefined,
+    D extends FkChildModelUpdateInput = FkChildModelUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: FkChildModelFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<FkChildModelUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns FkChildModel | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetFkChildModelPayload<S, I>, R>>;
+
+  upsert<
+    S extends FkChildModelSelect | undefined = undefined,
+    I extends FkChildModelInclude | undefined = undefined,
+    D extends FkChildModelUpdateInput = FkChildModelUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: FkChildModelFindUniqueWhere;
+    create: FkChildModelCreateInput;
+    update?: D;
+    unset?: SafeUnset<FkChildModelUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetFkChildModelPayload<S, I>, R>>;
+
+  upsert<
+    S extends FkChildModelSelect | undefined = undefined,
+    I extends FkChildModelInclude | undefined = undefined,
+    D extends FkChildModelUpdateInput = FkChildModelUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: FkChildModelWhere;
+    create: FkChildModelCreateInput;
+    update?: D;
+    unset?: SafeUnset<FkChildModelUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetFkChildModelPayload<S, I>, R>>;
+
+  deleteMany(options: { where: FkChildModelWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: FkChildModelFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns FkChildModel | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<FkChildModel, R>>;
+
+  count(where?: FkChildModelWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: FkChildModelWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/fktargetintid.ts =====
+/**
+ * Generated types for FkTargetIntId
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  FkChildModel,
+  FkChildModelWhere,
+  FkChildModelSelect,
+  FkChildModelOrderBy,
+  FkChildModelNestedCreate,
+  FkChildModelInclude,
+  GetFkChildModelIncludePayload,
+} from './fkchildmodel';
+export interface FkTargetIntId {
+  id: CerialId<number>;
+  label: string;
+}
+
+export interface FkTargetIntIdInput {
+  id: number;
+  label: string;
+}
+
+export interface FkTargetIntIdWhere {
+  id?:
+    | RecordIdInput<number>
+    | ({
+        eq?: RecordIdInput<number>;
+        neq?: RecordIdInput<number>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<number>[];
+        notIn?: RecordIdInput<number>[];
+      } & {});
+  label?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  children?: { some?: FkChildModelWhere; every?: FkChildModelWhere; none?: FkChildModelWhere };
+  AND?: FkTargetIntIdWhere[];
+  OR?: FkTargetIntIdWhere[];
+  NOT?: FkTargetIntIdWhere;
+}
+
+export type FkTargetIntIdWhereInput = FkTargetIntIdWhere;
+
+export type FkTargetIntIdFindUniqueWhere = { id: RecordIdInput<number> } & Omit<FkTargetIntIdWhere, 'id'>;
+
+export type FkTargetIntIdCreate = O.Omit<FkTargetIntIdInput, 'children'>;
+
+export type FkTargetIntIdNestedCreate = O.Omit<FkTargetIntIdInput, 'children'>;
+
+export type FkTargetIntIdCreateInput = FkTargetIntIdCreate & {
+  children?: {
+    create?: FkChildModelNestedCreate | FkChildModelNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+  };
+};
+
+export type FkTargetIntIdUpdate = Partial<O.Omit<FkTargetIntIdInput, 'id' | 'children'>>;
+
+export type FkTargetIntIdUpdateInput = FkTargetIntIdUpdate & {
+  children?: {
+    create?: FkChildModelNestedCreate | FkChildModelNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+    disconnect?: RecordIdInput | RecordIdInput[];
+    set?: RecordIdInput[];
+  };
+};
+
+export type FkTargetIntIdUnset = {};
+
+export type FkTargetIntIdSelect =
+  | ({ id: boolean } & Partial<Record<'label', boolean>>)
+  | ({ label: boolean } & Partial<Record<'id', boolean>>);
+
+export interface FkTargetIntIdOrderBy {
+  id?: 'asc' | 'desc';
+  label?: 'asc' | 'desc';
+}
+
+export interface FkTargetIntIdInclude {
+  children?:
+    | boolean
+    | {
+        select?: FkChildModelSelect;
+        where?: FkChildModelWhere;
+        orderBy?: FkChildModelOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: FkChildModelInclude;
+      };
+}
+
+export type FkTargetIntId$Relations = {
+  children: { type: FkChildModel[]; include: FkChildModelInclude };
+};
+
+export type GetFkTargetIntIdIncludePayload<I extends FkTargetIntIdInclude | undefined> = I extends FkTargetIntIdInclude
+  ? Pick<
+      {
+        children: I['children'] extends true
+          ? FkChildModel[]
+          : I['children'] extends {
+                select: infer S extends FkChildModelSelect;
+                include: infer NI extends FkChildModelInclude;
+              }
+            ? ({
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof FkChildModel
+                  ? ResolveFieldSelect<FkChildModel[P], S[P]>
+                  : never;
+              } & GetFkChildModelIncludePayload<NI>)[]
+            : I['children'] extends { select: infer S extends FkChildModelSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof FkChildModel
+                    ? ResolveFieldSelect<FkChildModel[P], S[P]>
+                    : never;
+                }[]
+              : I['children'] extends { include: infer NI extends FkChildModelInclude }
+                ? (FkChildModel & GetFkChildModelIncludePayload<NI>)[]
+                : FkChildModel[];
+      },
+      Extract<keyof I, keyof FkTargetIntId$Relations> &
+        { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetFkTargetIntIdPayload<
+  S extends FkTargetIntIdSelect | undefined = undefined,
+  I extends FkTargetIntIdInclude | undefined = undefined,
+> = A.Compute<
+  S extends FkTargetIntIdSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof FkTargetIntId
+          ? ResolveFieldSelect<FkTargetIntId[K], S[K]>
+          : never;
+      } & GetFkTargetIntIdIncludePayload<I>
+    : I extends FkTargetIntIdInclude
+      ? FkTargetIntId & GetFkTargetIntIdIncludePayload<I>
+      : FkTargetIntId,
+  'flat'
+>;
+
+export interface FkTargetIntIdModel {
+  findOne<
+    S extends FkTargetIntIdSelect | undefined = undefined,
+    I extends FkTargetIntIdInclude | undefined = undefined,
+  >(options?: {
+    where?: FkTargetIntIdWhere;
+    select?: S;
+    include?: I;
+    orderBy?: FkTargetIntIdOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetFkTargetIntIdPayload<S, I> | null>;
+
+  findMany<
+    S extends FkTargetIntIdSelect | undefined = undefined,
+    I extends FkTargetIntIdInclude | undefined = undefined,
+  >(options?: {
+    where?: FkTargetIntIdWhere;
+    select?: S;
+    orderBy?: FkTargetIntIdOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetFkTargetIntIdPayload<S, I>[]>;
+
+  findUnique<
+    S extends FkTargetIntIdSelect | undefined = undefined,
+    I extends FkTargetIntIdInclude | undefined = undefined,
+  >(options: {
+    where: FkTargetIntIdFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetFkTargetIntIdPayload<S, I> | null>;
+
+  create<
+    S extends FkTargetIntIdSelect | undefined = undefined,
+    I extends FkTargetIntIdInclude | undefined = undefined,
+  >(options: {
+    data: FkTargetIntIdCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetFkTargetIntIdPayload<S, I>>;
+
+  updateMany<
+    S extends FkTargetIntIdSelect | undefined = undefined,
+    I extends FkTargetIntIdInclude | undefined = undefined,
+    D extends FkTargetIntIdUpdateInput = FkTargetIntIdUpdateInput,
+  >(options: {
+    where: FkTargetIntIdWhere;
+    data: D;
+    unset?: SafeUnset<FkTargetIntIdUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetFkTargetIntIdPayload<S, I>[]>;
+
+  updateUnique<
+    S extends FkTargetIntIdSelect | undefined = undefined,
+    I extends FkTargetIntIdInclude | undefined = undefined,
+    D extends FkTargetIntIdUpdateInput = FkTargetIntIdUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: FkTargetIntIdFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<FkTargetIntIdUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns FkTargetIntId | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetFkTargetIntIdPayload<S, I>, R>>;
+
+  upsert<
+    S extends FkTargetIntIdSelect | undefined = undefined,
+    I extends FkTargetIntIdInclude | undefined = undefined,
+    D extends FkTargetIntIdUpdateInput = FkTargetIntIdUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: FkTargetIntIdFindUniqueWhere;
+    create: FkTargetIntIdCreateInput;
+    update?: D;
+    unset?: SafeUnset<FkTargetIntIdUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetFkTargetIntIdPayload<S, I>, R>>;
+
+  upsert<
+    S extends FkTargetIntIdSelect | undefined = undefined,
+    I extends FkTargetIntIdInclude | undefined = undefined,
+    D extends FkTargetIntIdUpdateInput = FkTargetIntIdUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: FkTargetIntIdWhere;
+    create: FkTargetIntIdCreateInput;
+    update?: D;
+    unset?: SafeUnset<FkTargetIntIdUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetFkTargetIntIdPayload<S, I>, R>>;
+
+  deleteMany(options: { where: FkTargetIntIdWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: FkTargetIntIdFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns FkTargetIntId | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<FkTargetIntId, R>>;
+
+  count(where?: FkTargetIntIdWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: FkTargetIntIdWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/intidmodel.ts =====
+/**
+ * Generated types for IntIdModel
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface IntIdModel {
+  id: CerialId<number>;
+  name: string;
+}
+
+export interface IntIdModelInput {
+  id: number;
+  name: string;
+}
+
+export interface IntIdModelWhere {
+  id?:
+    | RecordIdInput<number>
+    | ({
+        eq?: RecordIdInput<number>;
+        neq?: RecordIdInput<number>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<number>[];
+        notIn?: RecordIdInput<number>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  AND?: IntIdModelWhere[];
+  OR?: IntIdModelWhere[];
+  NOT?: IntIdModelWhere;
+}
+
+export type IntIdModelWhereInput = IntIdModelWhere;
+
+export type IntIdModelFindUniqueWhere = { id: RecordIdInput<number> } & Omit<IntIdModelWhere, 'id'>;
+
+export type IntIdModelCreate = IntIdModelInput;
+
+export type IntIdModelNestedCreate = IntIdModelInput;
+
+export type IntIdModelCreateInput = IntIdModelCreate;
+
+export type IntIdModelUpdate = Partial<O.Omit<IntIdModelInput, 'id'>>;
+
+export type IntIdModelUpdateInput = IntIdModelUpdate;
+
+export type IntIdModelUnset = {};
+
+export type IntIdModelSelect =
+  | ({ id: boolean } & Partial<Record<'name', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id', boolean>>);
+
+export interface IntIdModelOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+}
+
+export type IntIdModel$Relations = {};
+
+export type GetIntIdModelPayload<S extends IntIdModelSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends IntIdModelSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof IntIdModel
+          ? ResolveFieldSelect<IntIdModel[K], S[K]>
+          : never;
+      }
+    : IntIdModel,
+  'flat'
+>;
+
+export interface IntIdModelModel {
+  findOne<S extends IntIdModelSelect | undefined = undefined>(options?: {
+    where?: IntIdModelWhere;
+    select?: S;
+    orderBy?: IntIdModelOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetIntIdModelPayload<S> | null>;
+
+  findMany<S extends IntIdModelSelect | undefined = undefined>(options?: {
+    where?: IntIdModelWhere;
+    select?: S;
+    orderBy?: IntIdModelOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetIntIdModelPayload<S>[]>;
+
+  findUnique<S extends IntIdModelSelect | undefined = undefined>(options: {
+    where: IntIdModelFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetIntIdModelPayload<S> | null>;
+
+  create<S extends IntIdModelSelect | undefined = undefined>(options: {
+    data: IntIdModelCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetIntIdModelPayload<S>>;
+
+  updateMany<
+    S extends IntIdModelSelect | undefined = undefined,
+    D extends IntIdModelUpdateInput = IntIdModelUpdateInput,
+  >(options: {
+    where: IntIdModelWhere;
+    data: D;
+    unset?: SafeUnset<IntIdModelUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetIntIdModelPayload<S>[]>;
+
+  updateUnique<
+    S extends IntIdModelSelect | undefined = undefined,
+    D extends IntIdModelUpdateInput = IntIdModelUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: IntIdModelFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<IntIdModelUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns IntIdModel | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetIntIdModelPayload<S>, R>>;
+
+  upsert<
+    S extends IntIdModelSelect | undefined = undefined,
+    D extends IntIdModelUpdateInput = IntIdModelUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: IntIdModelFindUniqueWhere;
+    create: IntIdModelCreateInput;
+    update?: D;
+    unset?: SafeUnset<IntIdModelUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetIntIdModelPayload<S>, R>>;
+
+  upsert<
+    S extends IntIdModelSelect | undefined = undefined,
+    D extends IntIdModelUpdateInput = IntIdModelUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: IntIdModelWhere;
+    create: IntIdModelCreateInput;
+    update?: D;
+    unset?: SafeUnset<IntIdModelUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetIntIdModelPayload<S>, R>>;
+
+  deleteMany(options: { where: IntIdModelWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: IntIdModelFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns IntIdModel | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<IntIdModel, R>>;
+
+  count(where?: IntIdModelWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: IntIdModelWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/intunionidmodel.ts =====
+/**
+ * Generated types for IntUnionIdModel
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface IntUnionIdModel {
+  id: CerialId<number | string>;
+  label: string;
+}
+
+export interface IntUnionIdModelInput {
+  id: number | string;
+  label: string;
+}
+
+export interface IntUnionIdModelWhere {
+  id?:
+    | RecordIdInput<number | string>
+    | ({
+        eq?: RecordIdInput<number | string>;
+        neq?: RecordIdInput<number | string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<number | string>[];
+        notIn?: RecordIdInput<number | string>[];
+      } & {});
+  label?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  AND?: IntUnionIdModelWhere[];
+  OR?: IntUnionIdModelWhere[];
+  NOT?: IntUnionIdModelWhere;
+}
+
+export type IntUnionIdModelWhereInput = IntUnionIdModelWhere;
+
+export type IntUnionIdModelFindUniqueWhere = { id: RecordIdInput<number | string> } & Omit<IntUnionIdModelWhere, 'id'>;
+
+export type IntUnionIdModelCreate = IntUnionIdModelInput;
+
+export type IntUnionIdModelNestedCreate = IntUnionIdModelInput;
+
+export type IntUnionIdModelCreateInput = IntUnionIdModelCreate;
+
+export type IntUnionIdModelUpdate = Partial<O.Omit<IntUnionIdModelInput, 'id'>>;
+
+export type IntUnionIdModelUpdateInput = IntUnionIdModelUpdate;
+
+export type IntUnionIdModelUnset = {};
+
+export type IntUnionIdModelSelect =
+  | ({ id: boolean } & Partial<Record<'label', boolean>>)
+  | ({ label: boolean } & Partial<Record<'id', boolean>>);
+
+export interface IntUnionIdModelOrderBy {
+  id?: 'asc' | 'desc';
+  label?: 'asc' | 'desc';
+}
+
+export type IntUnionIdModel$Relations = {};
+
+export type GetIntUnionIdModelPayload<
+  S extends IntUnionIdModelSelect | undefined = undefined,
+  I = undefined,
+> = A.Compute<
+  S extends IntUnionIdModelSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof IntUnionIdModel
+          ? ResolveFieldSelect<IntUnionIdModel[K], S[K]>
+          : never;
+      }
+    : IntUnionIdModel,
+  'flat'
+>;
+
+export interface IntUnionIdModelModel {
+  findOne<S extends IntUnionIdModelSelect | undefined = undefined>(options?: {
+    where?: IntUnionIdModelWhere;
+    select?: S;
+    orderBy?: IntUnionIdModelOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetIntUnionIdModelPayload<S> | null>;
+
+  findMany<S extends IntUnionIdModelSelect | undefined = undefined>(options?: {
+    where?: IntUnionIdModelWhere;
+    select?: S;
+    orderBy?: IntUnionIdModelOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetIntUnionIdModelPayload<S>[]>;
+
+  findUnique<S extends IntUnionIdModelSelect | undefined = undefined>(options: {
+    where: IntUnionIdModelFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetIntUnionIdModelPayload<S> | null>;
+
+  create<S extends IntUnionIdModelSelect | undefined = undefined>(options: {
+    data: IntUnionIdModelCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetIntUnionIdModelPayload<S>>;
+
+  updateMany<
+    S extends IntUnionIdModelSelect | undefined = undefined,
+    D extends IntUnionIdModelUpdateInput = IntUnionIdModelUpdateInput,
+  >(options: {
+    where: IntUnionIdModelWhere;
+    data: D;
+    unset?: SafeUnset<IntUnionIdModelUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetIntUnionIdModelPayload<S>[]>;
+
+  updateUnique<
+    S extends IntUnionIdModelSelect | undefined = undefined,
+    D extends IntUnionIdModelUpdateInput = IntUnionIdModelUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: IntUnionIdModelFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<IntUnionIdModelUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns IntUnionIdModel | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetIntUnionIdModelPayload<S>, R>>;
+
+  upsert<
+    S extends IntUnionIdModelSelect | undefined = undefined,
+    D extends IntUnionIdModelUpdateInput = IntUnionIdModelUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: IntUnionIdModelFindUniqueWhere;
+    create: IntUnionIdModelCreateInput;
+    update?: D;
+    unset?: SafeUnset<IntUnionIdModelUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetIntUnionIdModelPayload<S>, R>>;
+
+  upsert<
+    S extends IntUnionIdModelSelect | undefined = undefined,
+    D extends IntUnionIdModelUpdateInput = IntUnionIdModelUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: IntUnionIdModelWhere;
+    create: IntUnionIdModelCreateInput;
+    update?: D;
+    unset?: SafeUnset<IntUnionIdModelUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetIntUnionIdModelPayload<S>, R>>;
+
+  deleteMany(options: { where: IntUnionIdModelWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: IntUnionIdModelFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns IntUnionIdModel | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<IntUnionIdModel, R>>;
+
+  count(where?: IntUnionIdModelWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: IntUnionIdModelWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/numberidmodel.ts =====
+/**
+ * Generated types for NumberIdModel
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface NumberIdModel {
+  id: CerialId<number>;
+  label: string;
+}
+
+export interface NumberIdModelInput {
+  id: number;
+  label: string;
+}
+
+export interface NumberIdModelWhere {
+  id?:
+    | RecordIdInput<number>
+    | ({
+        eq?: RecordIdInput<number>;
+        neq?: RecordIdInput<number>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<number>[];
+        notIn?: RecordIdInput<number>[];
+      } & {});
+  label?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  AND?: NumberIdModelWhere[];
+  OR?: NumberIdModelWhere[];
+  NOT?: NumberIdModelWhere;
+}
+
+export type NumberIdModelWhereInput = NumberIdModelWhere;
+
+export type NumberIdModelFindUniqueWhere = { id: RecordIdInput<number> } & Omit<NumberIdModelWhere, 'id'>;
+
+export type NumberIdModelCreate = NumberIdModelInput;
+
+export type NumberIdModelNestedCreate = NumberIdModelInput;
+
+export type NumberIdModelCreateInput = NumberIdModelCreate;
+
+export type NumberIdModelUpdate = Partial<O.Omit<NumberIdModelInput, 'id'>>;
+
+export type NumberIdModelUpdateInput = NumberIdModelUpdate;
+
+export type NumberIdModelUnset = {};
+
+export type NumberIdModelSelect =
+  | ({ id: boolean } & Partial<Record<'label', boolean>>)
+  | ({ label: boolean } & Partial<Record<'id', boolean>>);
+
+export interface NumberIdModelOrderBy {
+  id?: 'asc' | 'desc';
+  label?: 'asc' | 'desc';
+}
+
+export type NumberIdModel$Relations = {};
+
+export type GetNumberIdModelPayload<S extends NumberIdModelSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends NumberIdModelSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof NumberIdModel
+          ? ResolveFieldSelect<NumberIdModel[K], S[K]>
+          : never;
+      }
+    : NumberIdModel,
+  'flat'
+>;
+
+export interface NumberIdModelModel {
+  findOne<S extends NumberIdModelSelect | undefined = undefined>(options?: {
+    where?: NumberIdModelWhere;
+    select?: S;
+    orderBy?: NumberIdModelOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNumberIdModelPayload<S> | null>;
+
+  findMany<S extends NumberIdModelSelect | undefined = undefined>(options?: {
+    where?: NumberIdModelWhere;
+    select?: S;
+    orderBy?: NumberIdModelOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNumberIdModelPayload<S>[]>;
+
+  findUnique<S extends NumberIdModelSelect | undefined = undefined>(options: {
+    where: NumberIdModelFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNumberIdModelPayload<S> | null>;
+
+  create<S extends NumberIdModelSelect | undefined = undefined>(options: {
+    data: NumberIdModelCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNumberIdModelPayload<S>>;
+
+  updateMany<
+    S extends NumberIdModelSelect | undefined = undefined,
+    D extends NumberIdModelUpdateInput = NumberIdModelUpdateInput,
+  >(options: {
+    where: NumberIdModelWhere;
+    data: D;
+    unset?: SafeUnset<NumberIdModelUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNumberIdModelPayload<S>[]>;
+
+  updateUnique<
+    S extends NumberIdModelSelect | undefined = undefined,
+    D extends NumberIdModelUpdateInput = NumberIdModelUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: NumberIdModelFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<NumberIdModelUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns NumberIdModel | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetNumberIdModelPayload<S>, R>>;
+
+  upsert<
+    S extends NumberIdModelSelect | undefined = undefined,
+    D extends NumberIdModelUpdateInput = NumberIdModelUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: NumberIdModelFindUniqueWhere;
+    create: NumberIdModelCreateInput;
+    update?: D;
+    unset?: SafeUnset<NumberIdModelUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetNumberIdModelPayload<S>, R>>;
+
+  upsert<
+    S extends NumberIdModelSelect | undefined = undefined,
+    D extends NumberIdModelUpdateInput = NumberIdModelUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: NumberIdModelWhere;
+    create: NumberIdModelCreateInput;
+    update?: D;
+    unset?: SafeUnset<NumberIdModelUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetNumberIdModelPayload<S>, R>>;
+
+  deleteMany(options: { where: NumberIdModelWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: NumberIdModelFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns NumberIdModel | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<NumberIdModel, R>>;
+
+  count(where?: NumberIdModelWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: NumberIdModelWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/objectidmodel.ts =====
+/**
+ * Generated types for ObjectIdModel
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  IdMetricKey,
+  IdMetricKeyInput,
+  IdMetricKeyWhere,
+  IdMetricKeySelect,
+  IdMetricKeyOrderBy,
+} from '../objects/idmetrickey';
+export interface ObjectIdModel {
+  id: CerialId<{ service: string; timestamp: number }>;
+  value: number;
+}
+
+export interface ObjectIdModelInput {
+  id: { service: string; timestamp: number };
+  value: number;
+}
+
+export interface ObjectIdModelWhere {
+  id?:
+    | RecordIdInput<IdMetricKey>
+    | ({
+        eq?: RecordIdInput<IdMetricKey>;
+        neq?: RecordIdInput<IdMetricKey>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<IdMetricKey>[];
+        notIn?: RecordIdInput<IdMetricKey>[];
+      } & {});
+  value?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  AND?: ObjectIdModelWhere[];
+  OR?: ObjectIdModelWhere[];
+  NOT?: ObjectIdModelWhere;
+}
+
+export type ObjectIdModelWhereInput = ObjectIdModelWhere;
+
+export type ObjectIdModelFindUniqueWhere = { id: RecordIdInput<{ service: string; timestamp: number }> } & Omit<
+  ObjectIdModelWhere,
+  'id'
+>;
+
+export type ObjectIdModelCreate = ObjectIdModelInput;
+
+export type ObjectIdModelNestedCreate = ObjectIdModelInput;
+
+export type ObjectIdModelCreateInput = ObjectIdModelCreate;
+
+export type ObjectIdModelUpdate = Partial<O.Omit<ObjectIdModelInput, 'id'>>;
+
+export type ObjectIdModelUpdateInput = ObjectIdModelUpdate;
+
+export type ObjectIdModelUnset = {};
+
+export type ObjectIdModelSelect =
+  | ({ id: boolean } & Partial<Record<'value', boolean>>)
+  | ({ value: boolean } & Partial<Record<'id', boolean>>);
+
+export interface ObjectIdModelOrderBy {
+  id?: 'asc' | 'desc';
+  value?: 'asc' | 'desc';
+}
+
+export type ObjectIdModel$Relations = {};
+
+export type GetObjectIdModelPayload<S extends ObjectIdModelSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends ObjectIdModelSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ObjectIdModel
+          ? ResolveFieldSelect<ObjectIdModel[K], S[K]>
+          : never;
+      }
+    : ObjectIdModel,
+  'flat'
+>;
+
+export interface ObjectIdModelModel {
+  findOne<S extends ObjectIdModelSelect | undefined = undefined>(options?: {
+    where?: ObjectIdModelWhere;
+    select?: S;
+    orderBy?: ObjectIdModelOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetObjectIdModelPayload<S> | null>;
+
+  findMany<S extends ObjectIdModelSelect | undefined = undefined>(options?: {
+    where?: ObjectIdModelWhere;
+    select?: S;
+    orderBy?: ObjectIdModelOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetObjectIdModelPayload<S>[]>;
+
+  findUnique<S extends ObjectIdModelSelect | undefined = undefined>(options: {
+    where: ObjectIdModelFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetObjectIdModelPayload<S> | null>;
+
+  create<S extends ObjectIdModelSelect | undefined = undefined>(options: {
+    data: ObjectIdModelCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetObjectIdModelPayload<S>>;
+
+  updateMany<
+    S extends ObjectIdModelSelect | undefined = undefined,
+    D extends ObjectIdModelUpdateInput = ObjectIdModelUpdateInput,
+  >(options: {
+    where: ObjectIdModelWhere;
+    data: D;
+    unset?: SafeUnset<ObjectIdModelUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetObjectIdModelPayload<S>[]>;
+
+  updateUnique<
+    S extends ObjectIdModelSelect | undefined = undefined,
+    D extends ObjectIdModelUpdateInput = ObjectIdModelUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ObjectIdModelFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ObjectIdModelUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ObjectIdModel | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetObjectIdModelPayload<S>, R>>;
+
+  upsert<
+    S extends ObjectIdModelSelect | undefined = undefined,
+    D extends ObjectIdModelUpdateInput = ObjectIdModelUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ObjectIdModelFindUniqueWhere;
+    create: ObjectIdModelCreateInput;
+    update?: D;
+    unset?: SafeUnset<ObjectIdModelUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetObjectIdModelPayload<S>, R>>;
+
+  upsert<
+    S extends ObjectIdModelSelect | undefined = undefined,
+    D extends ObjectIdModelUpdateInput = ObjectIdModelUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ObjectIdModelWhere;
+    create: ObjectIdModelCreateInput;
+    update?: D;
+    unset?: SafeUnset<ObjectIdModelUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetObjectIdModelPayload<S>, R>>;
+
+  deleteMany(options: { where: ObjectIdModelWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ObjectIdModelFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ObjectIdModel | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ObjectIdModel, R>>;
+
+  count(where?: ObjectIdModelWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ObjectIdModelWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/standalonerefmodel.ts =====
+/**
+ * Generated types for StandaloneRefModel
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface StandaloneRefModel {
+  id: CerialId<string>;
+  externalRef: CerialId<number>;
+  externalRefs: CerialId<number>[];
+  label: string;
+}
+
+export interface StandaloneRefModelInput {
+  id?: string;
+  externalRef: RecordIdInput<number>;
+  externalRefs: RecordIdInput<number>[];
+  label: string;
+}
+
+export interface StandaloneRefModelWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  externalRef?:
+    | RecordIdInput<number>
+    | ({
+        eq?: RecordIdInput<number>;
+        neq?: RecordIdInput<number>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<number>[];
+        notIn?: RecordIdInput<number>[];
+      } & {});
+  externalRefs?:
+    | RecordIdInput<number>[]
+    | {
+        has?: RecordIdInput<number>;
+        hasAll?: RecordIdInput<number>[];
+        hasAny?: RecordIdInput<number>[];
+        isEmpty?: boolean;
+      };
+  label?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  AND?: StandaloneRefModelWhere[];
+  OR?: StandaloneRefModelWhere[];
+  NOT?: StandaloneRefModelWhere;
+}
+
+export type StandaloneRefModelWhereInput = StandaloneRefModelWhere;
+
+export type StandaloneRefModelFindUniqueWhere = { id: RecordIdInput<string> } & Omit<StandaloneRefModelWhere, 'id'>;
+
+export type StandaloneRefModelCreate = O.Optional<StandaloneRefModelInput, 'id' | 'externalRefs'>;
+
+export type StandaloneRefModelNestedCreate = O.Optional<StandaloneRefModelInput, 'id' | 'externalRefs'>;
+
+export type StandaloneRefModelCreateInput = StandaloneRefModelCreate;
+
+export type StandaloneRefModelUpdate = Partial<O.Omit<StandaloneRefModelInput, 'id' | 'externalRefs'>> & {
+  externalRefs?:
+    | RecordIdInput<number>[]
+    | {
+        push?: RecordIdInput<number> | RecordIdInput<number>[];
+        unset?: RecordIdInput<number> | RecordIdInput<number>[];
+      };
+};
+
+export type StandaloneRefModelUpdateInput = StandaloneRefModelUpdate;
+
+export type StandaloneRefModelUnset = {};
+
+export type StandaloneRefModelSelect =
+  | ({ id: boolean } & Partial<Record<'externalRef' | 'externalRefs' | 'label', boolean>>)
+  | ({ externalRef: boolean } & Partial<Record<'id' | 'externalRefs' | 'label', boolean>>)
+  | ({ externalRefs: boolean } & Partial<Record<'id' | 'externalRef' | 'label', boolean>>)
+  | ({ label: boolean } & Partial<Record<'id' | 'externalRef' | 'externalRefs', boolean>>);
+
+export interface StandaloneRefModelOrderBy {
+  id?: 'asc' | 'desc';
+  externalRef?: 'asc' | 'desc';
+  externalRefs?: 'asc' | 'desc';
+  label?: 'asc' | 'desc';
+}
+
+export type StandaloneRefModel$Relations = {};
+
+export type GetStandaloneRefModelPayload<
+  S extends StandaloneRefModelSelect | undefined = undefined,
+  I = undefined,
+> = A.Compute<
+  S extends StandaloneRefModelSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof StandaloneRefModel
+          ? ResolveFieldSelect<StandaloneRefModel[K], S[K]>
+          : never;
+      }
+    : StandaloneRefModel,
+  'flat'
+>;
+
+export interface StandaloneRefModelModel {
+  findOne<S extends StandaloneRefModelSelect | undefined = undefined>(options?: {
+    where?: StandaloneRefModelWhere;
+    select?: S;
+    orderBy?: StandaloneRefModelOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetStandaloneRefModelPayload<S> | null>;
+
+  findMany<S extends StandaloneRefModelSelect | undefined = undefined>(options?: {
+    where?: StandaloneRefModelWhere;
+    select?: S;
+    orderBy?: StandaloneRefModelOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetStandaloneRefModelPayload<S>[]>;
+
+  findUnique<S extends StandaloneRefModelSelect | undefined = undefined>(options: {
+    where: StandaloneRefModelFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetStandaloneRefModelPayload<S> | null>;
+
+  create<S extends StandaloneRefModelSelect | undefined = undefined>(options: {
+    data: StandaloneRefModelCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetStandaloneRefModelPayload<S>>;
+
+  updateMany<
+    S extends StandaloneRefModelSelect | undefined = undefined,
+    D extends StandaloneRefModelUpdateInput = StandaloneRefModelUpdateInput,
+  >(options: {
+    where: StandaloneRefModelWhere;
+    data: D;
+    unset?: SafeUnset<StandaloneRefModelUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetStandaloneRefModelPayload<S>[]>;
+
+  updateUnique<
+    S extends StandaloneRefModelSelect | undefined = undefined,
+    D extends StandaloneRefModelUpdateInput = StandaloneRefModelUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: StandaloneRefModelFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<StandaloneRefModelUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns StandaloneRefModel | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetStandaloneRefModelPayload<S>, R>>;
+
+  upsert<
+    S extends StandaloneRefModelSelect | undefined = undefined,
+    D extends StandaloneRefModelUpdateInput = StandaloneRefModelUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: StandaloneRefModelFindUniqueWhere;
+    create: StandaloneRefModelCreateInput;
+    update?: D;
+    unset?: SafeUnset<StandaloneRefModelUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetStandaloneRefModelPayload<S>, R>>;
+
+  upsert<
+    S extends StandaloneRefModelSelect | undefined = undefined,
+    D extends StandaloneRefModelUpdateInput = StandaloneRefModelUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: StandaloneRefModelWhere;
+    create: StandaloneRefModelCreateInput;
+    update?: D;
+    unset?: SafeUnset<StandaloneRefModelUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetStandaloneRefModelPayload<S>, R>>;
+
+  deleteMany(options: { where: StandaloneRefModelWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: StandaloneRefModelFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns StandaloneRefModel | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<StandaloneRefModel, R>>;
+
+  count(where?: StandaloneRefModelWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: StandaloneRefModelWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/stringidmodel.ts =====
+/**
+ * Generated types for StringIdModel
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface StringIdModel {
+  id: CerialId<string>;
+  value: string;
+}
+
+export interface StringIdModelInput {
+  id?: string;
+  value: string;
+}
+
+export interface StringIdModelWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  value?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  AND?: StringIdModelWhere[];
+  OR?: StringIdModelWhere[];
+  NOT?: StringIdModelWhere;
+}
+
+export type StringIdModelWhereInput = StringIdModelWhere;
+
+export type StringIdModelFindUniqueWhere = { id: RecordIdInput<string> } & Omit<StringIdModelWhere, 'id'>;
+
+export type StringIdModelCreate = O.Optional<StringIdModelInput, 'id'>;
+
+export type StringIdModelNestedCreate = O.Optional<StringIdModelInput, 'id'>;
+
+export type StringIdModelCreateInput = StringIdModelCreate;
+
+export type StringIdModelUpdate = Partial<O.Omit<StringIdModelInput, 'id'>>;
+
+export type StringIdModelUpdateInput = StringIdModelUpdate;
+
+export type StringIdModelUnset = {};
+
+export type StringIdModelSelect =
+  | ({ id: boolean } & Partial<Record<'value', boolean>>)
+  | ({ value: boolean } & Partial<Record<'id', boolean>>);
+
+export interface StringIdModelOrderBy {
+  id?: 'asc' | 'desc';
+  value?: 'asc' | 'desc';
+}
+
+export type StringIdModel$Relations = {};
+
+export type GetStringIdModelPayload<S extends StringIdModelSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends StringIdModelSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof StringIdModel
+          ? ResolveFieldSelect<StringIdModel[K], S[K]>
+          : never;
+      }
+    : StringIdModel,
+  'flat'
+>;
+
+export interface StringIdModelModel {
+  findOne<S extends StringIdModelSelect | undefined = undefined>(options?: {
+    where?: StringIdModelWhere;
+    select?: S;
+    orderBy?: StringIdModelOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetStringIdModelPayload<S> | null>;
+
+  findMany<S extends StringIdModelSelect | undefined = undefined>(options?: {
+    where?: StringIdModelWhere;
+    select?: S;
+    orderBy?: StringIdModelOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetStringIdModelPayload<S>[]>;
+
+  findUnique<S extends StringIdModelSelect | undefined = undefined>(options: {
+    where: StringIdModelFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetStringIdModelPayload<S> | null>;
+
+  create<S extends StringIdModelSelect | undefined = undefined>(options: {
+    data: StringIdModelCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetStringIdModelPayload<S>>;
+
+  updateMany<
+    S extends StringIdModelSelect | undefined = undefined,
+    D extends StringIdModelUpdateInput = StringIdModelUpdateInput,
+  >(options: {
+    where: StringIdModelWhere;
+    data: D;
+    unset?: SafeUnset<StringIdModelUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetStringIdModelPayload<S>[]>;
+
+  updateUnique<
+    S extends StringIdModelSelect | undefined = undefined,
+    D extends StringIdModelUpdateInput = StringIdModelUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: StringIdModelFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<StringIdModelUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns StringIdModel | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetStringIdModelPayload<S>, R>>;
+
+  upsert<
+    S extends StringIdModelSelect | undefined = undefined,
+    D extends StringIdModelUpdateInput = StringIdModelUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: StringIdModelFindUniqueWhere;
+    create: StringIdModelCreateInput;
+    update?: D;
+    unset?: SafeUnset<StringIdModelUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetStringIdModelPayload<S>, R>>;
+
+  upsert<
+    S extends StringIdModelSelect | undefined = undefined,
+    D extends StringIdModelUpdateInput = StringIdModelUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: StringIdModelWhere;
+    create: StringIdModelCreateInput;
+    update?: D;
+    unset?: SafeUnset<StringIdModelUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetStringIdModelPayload<S>, R>>;
+
+  deleteMany(options: { where: StringIdModelWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: StringIdModelFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns StringIdModel | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<StringIdModel, R>>;
+
+  count(where?: StringIdModelWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: StringIdModelWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/tupleidmodel.ts =====
+/**
+ * Generated types for TupleIdModel
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { IdCoord, IdCoordInput, IdCoordWhere, IdCoordUpdate } from '../tuples/idcoord';
+export interface TupleIdModel {
+  id: CerialId<[number, number]>;
+  city: string;
+}
+
+export interface TupleIdModelInput {
+  id: [number, number];
+  city: string;
+}
+
+export interface TupleIdModelWhere {
+  id?:
+    | RecordIdInput<IdCoord>
+    | ({
+        eq?: RecordIdInput<IdCoord>;
+        neq?: RecordIdInput<IdCoord>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<IdCoord>[];
+        notIn?: RecordIdInput<IdCoord>[];
+      } & {});
+  city?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  AND?: TupleIdModelWhere[];
+  OR?: TupleIdModelWhere[];
+  NOT?: TupleIdModelWhere;
+}
+
+export type TupleIdModelWhereInput = TupleIdModelWhere;
+
+export type TupleIdModelFindUniqueWhere = { id: RecordIdInput<[number, number]> } & Omit<TupleIdModelWhere, 'id'>;
+
+export type TupleIdModelCreate = TupleIdModelInput;
+
+export type TupleIdModelNestedCreate = TupleIdModelInput;
+
+export type TupleIdModelCreateInput = TupleIdModelCreate;
+
+export type TupleIdModelUpdate = Partial<O.Omit<TupleIdModelInput, 'id'>>;
+
+export type TupleIdModelUpdateInput = TupleIdModelUpdate;
+
+export type TupleIdModelUnset = {};
+
+export type TupleIdModelSelect =
+  | ({ id: boolean } & Partial<Record<'city', boolean>>)
+  | ({ city: boolean } & Partial<Record<'id', boolean>>);
+
+export interface TupleIdModelOrderBy {
+  id?: 'asc' | 'desc';
+  city?: 'asc' | 'desc';
+}
+
+export type TupleIdModel$Relations = {};
+
+export type GetTupleIdModelPayload<S extends TupleIdModelSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends TupleIdModelSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof TupleIdModel
+          ? ResolveFieldSelect<TupleIdModel[K], S[K]>
+          : never;
+      }
+    : TupleIdModel,
+  'flat'
+>;
+
+export interface TupleIdModelModel {
+  findOne<S extends TupleIdModelSelect | undefined = undefined>(options?: {
+    where?: TupleIdModelWhere;
+    select?: S;
+    orderBy?: TupleIdModelOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleIdModelPayload<S> | null>;
+
+  findMany<S extends TupleIdModelSelect | undefined = undefined>(options?: {
+    where?: TupleIdModelWhere;
+    select?: S;
+    orderBy?: TupleIdModelOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleIdModelPayload<S>[]>;
+
+  findUnique<S extends TupleIdModelSelect | undefined = undefined>(options: {
+    where: TupleIdModelFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleIdModelPayload<S> | null>;
+
+  create<S extends TupleIdModelSelect | undefined = undefined>(options: {
+    data: TupleIdModelCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleIdModelPayload<S>>;
+
+  updateMany<
+    S extends TupleIdModelSelect | undefined = undefined,
+    D extends TupleIdModelUpdateInput = TupleIdModelUpdateInput,
+  >(options: {
+    where: TupleIdModelWhere;
+    data: D;
+    unset?: SafeUnset<TupleIdModelUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleIdModelPayload<S>[]>;
+
+  updateUnique<
+    S extends TupleIdModelSelect | undefined = undefined,
+    D extends TupleIdModelUpdateInput = TupleIdModelUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: TupleIdModelFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<TupleIdModelUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns TupleIdModel | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetTupleIdModelPayload<S>, R>>;
+
+  upsert<
+    S extends TupleIdModelSelect | undefined = undefined,
+    D extends TupleIdModelUpdateInput = TupleIdModelUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: TupleIdModelFindUniqueWhere;
+    create: TupleIdModelCreateInput;
+    update?: D;
+    unset?: SafeUnset<TupleIdModelUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetTupleIdModelPayload<S>, R>>;
+
+  upsert<
+    S extends TupleIdModelSelect | undefined = undefined,
+    D extends TupleIdModelUpdateInput = TupleIdModelUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: TupleIdModelWhere;
+    create: TupleIdModelCreateInput;
+    update?: D;
+    unset?: SafeUnset<TupleIdModelUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetTupleIdModelPayload<S>, R>>;
+
+  deleteMany(options: { where: TupleIdModelWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: TupleIdModelFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns TupleIdModel | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<TupleIdModel, R>>;
+
+  count(where?: TupleIdModelWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: TupleIdModelWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/unionidmodel.ts =====
+/**
+ * Generated types for UnionIdModel
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface UnionIdModel {
+  id: CerialId<string | number>;
+  label: string;
+}
+
+export interface UnionIdModelInput {
+  id: string | number;
+  label: string;
+}
+
+export interface UnionIdModelWhere {
+  id?:
+    | RecordIdInput<string | number>
+    | ({
+        eq?: RecordIdInput<string | number>;
+        neq?: RecordIdInput<string | number>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string | number>[];
+        notIn?: RecordIdInput<string | number>[];
+      } & {});
+  label?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  AND?: UnionIdModelWhere[];
+  OR?: UnionIdModelWhere[];
+  NOT?: UnionIdModelWhere;
+}
+
+export type UnionIdModelWhereInput = UnionIdModelWhere;
+
+export type UnionIdModelFindUniqueWhere = { id: RecordIdInput<string | number> } & Omit<UnionIdModelWhere, 'id'>;
+
+export type UnionIdModelCreate = UnionIdModelInput;
+
+export type UnionIdModelNestedCreate = UnionIdModelInput;
+
+export type UnionIdModelCreateInput = UnionIdModelCreate;
+
+export type UnionIdModelUpdate = Partial<O.Omit<UnionIdModelInput, 'id'>>;
+
+export type UnionIdModelUpdateInput = UnionIdModelUpdate;
+
+export type UnionIdModelUnset = {};
+
+export type UnionIdModelSelect =
+  | ({ id: boolean } & Partial<Record<'label', boolean>>)
+  | ({ label: boolean } & Partial<Record<'id', boolean>>);
+
+export interface UnionIdModelOrderBy {
+  id?: 'asc' | 'desc';
+  label?: 'asc' | 'desc';
+}
+
+export type UnionIdModel$Relations = {};
+
+export type GetUnionIdModelPayload<S extends UnionIdModelSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends UnionIdModelSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof UnionIdModel
+          ? ResolveFieldSelect<UnionIdModel[K], S[K]>
+          : never;
+      }
+    : UnionIdModel,
+  'flat'
+>;
+
+export interface UnionIdModelModel {
+  findOne<S extends UnionIdModelSelect | undefined = undefined>(options?: {
+    where?: UnionIdModelWhere;
+    select?: S;
+    orderBy?: UnionIdModelOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetUnionIdModelPayload<S> | null>;
+
+  findMany<S extends UnionIdModelSelect | undefined = undefined>(options?: {
+    where?: UnionIdModelWhere;
+    select?: S;
+    orderBy?: UnionIdModelOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetUnionIdModelPayload<S>[]>;
+
+  findUnique<S extends UnionIdModelSelect | undefined = undefined>(options: {
+    where: UnionIdModelFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetUnionIdModelPayload<S> | null>;
+
+  create<S extends UnionIdModelSelect | undefined = undefined>(options: {
+    data: UnionIdModelCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetUnionIdModelPayload<S>>;
+
+  updateMany<
+    S extends UnionIdModelSelect | undefined = undefined,
+    D extends UnionIdModelUpdateInput = UnionIdModelUpdateInput,
+  >(options: {
+    where: UnionIdModelWhere;
+    data: D;
+    unset?: SafeUnset<UnionIdModelUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetUnionIdModelPayload<S>[]>;
+
+  updateUnique<
+    S extends UnionIdModelSelect | undefined = undefined,
+    D extends UnionIdModelUpdateInput = UnionIdModelUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: UnionIdModelFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<UnionIdModelUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns UnionIdModel | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetUnionIdModelPayload<S>, R>>;
+
+  upsert<
+    S extends UnionIdModelSelect | undefined = undefined,
+    D extends UnionIdModelUpdateInput = UnionIdModelUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: UnionIdModelFindUniqueWhere;
+    create: UnionIdModelCreateInput;
+    update?: D;
+    unset?: SafeUnset<UnionIdModelUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetUnionIdModelPayload<S>, R>>;
+
+  upsert<
+    S extends UnionIdModelSelect | undefined = undefined,
+    D extends UnionIdModelUpdateInput = UnionIdModelUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: UnionIdModelWhere;
+    create: UnionIdModelCreateInput;
+    update?: D;
+    unset?: SafeUnset<UnionIdModelUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetUnionIdModelPayload<S>, R>>;
+
+  deleteMany(options: { where: UnionIdModelWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: UnionIdModelFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns UnionIdModel | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<UnionIdModel, R>>;
+
+  count(where?: UnionIdModelWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: UnionIdModelWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/uuididmodel.ts =====
+/**
+ * Generated types for UuidIdModel
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface UuidIdModel {
+  id: CerialId<string>;
+  data: string;
+}
+
+export interface UuidIdModelInput {
+  id?: string;
+  data: string;
+}
+
+export interface UuidIdModelWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  data?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  AND?: UuidIdModelWhere[];
+  OR?: UuidIdModelWhere[];
+  NOT?: UuidIdModelWhere;
+}
+
+export type UuidIdModelWhereInput = UuidIdModelWhere;
+
+export type UuidIdModelFindUniqueWhere = { id: RecordIdInput<string> } & Omit<UuidIdModelWhere, 'id'>;
+
+export type UuidIdModelCreate = O.Optional<UuidIdModelInput, 'id'>;
+
+export type UuidIdModelNestedCreate = O.Optional<UuidIdModelInput, 'id'>;
+
+export type UuidIdModelCreateInput = UuidIdModelCreate;
+
+export type UuidIdModelUpdate = Partial<O.Omit<UuidIdModelInput, 'id'>>;
+
+export type UuidIdModelUpdateInput = UuidIdModelUpdate;
+
+export type UuidIdModelUnset = {};
+
+export type UuidIdModelSelect =
+  | ({ id: boolean } & Partial<Record<'data', boolean>>)
+  | ({ data: boolean } & Partial<Record<'id', boolean>>);
+
+export interface UuidIdModelOrderBy {
+  id?: 'asc' | 'desc';
+  data?: 'asc' | 'desc';
+}
+
+export type UuidIdModel$Relations = {};
+
+export type GetUuidIdModelPayload<S extends UuidIdModelSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends UuidIdModelSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof UuidIdModel
+          ? ResolveFieldSelect<UuidIdModel[K], S[K]>
+          : never;
+      }
+    : UuidIdModel,
+  'flat'
+>;
+
+export interface UuidIdModelModel {
+  findOne<S extends UuidIdModelSelect | undefined = undefined>(options?: {
+    where?: UuidIdModelWhere;
+    select?: S;
+    orderBy?: UuidIdModelOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetUuidIdModelPayload<S> | null>;
+
+  findMany<S extends UuidIdModelSelect | undefined = undefined>(options?: {
+    where?: UuidIdModelWhere;
+    select?: S;
+    orderBy?: UuidIdModelOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetUuidIdModelPayload<S>[]>;
+
+  findUnique<S extends UuidIdModelSelect | undefined = undefined>(options: {
+    where: UuidIdModelFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetUuidIdModelPayload<S> | null>;
+
+  create<S extends UuidIdModelSelect | undefined = undefined>(options: {
+    data: UuidIdModelCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetUuidIdModelPayload<S>>;
+
+  updateMany<
+    S extends UuidIdModelSelect | undefined = undefined,
+    D extends UuidIdModelUpdateInput = UuidIdModelUpdateInput,
+  >(options: {
+    where: UuidIdModelWhere;
+    data: D;
+    unset?: SafeUnset<UuidIdModelUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetUuidIdModelPayload<S>[]>;
+
+  updateUnique<
+    S extends UuidIdModelSelect | undefined = undefined,
+    D extends UuidIdModelUpdateInput = UuidIdModelUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: UuidIdModelFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<UuidIdModelUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns UuidIdModel | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetUuidIdModelPayload<S>, R>>;
+
+  upsert<
+    S extends UuidIdModelSelect | undefined = undefined,
+    D extends UuidIdModelUpdateInput = UuidIdModelUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: UuidIdModelFindUniqueWhere;
+    create: UuidIdModelCreateInput;
+    update?: D;
+    unset?: SafeUnset<UuidIdModelUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetUuidIdModelPayload<S>, R>>;
+
+  upsert<
+    S extends UuidIdModelSelect | undefined = undefined,
+    D extends UuidIdModelUpdateInput = UuidIdModelUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: UuidIdModelWhere;
+    create: UuidIdModelCreateInput;
+    update?: D;
+    unset?: SafeUnset<UuidIdModelUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetUuidIdModelPayload<S>, R>>;
+
+  deleteMany(options: { where: UuidIdModelWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: UuidIdModelFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns UuidIdModel | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<UuidIdModel, R>>;
+
+  count(where?: UuidIdModelWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: UuidIdModelWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== objects/idmetrickey.ts =====
+/**
+ * Generated types for IdMetricKey
+ * Do not edit manually
+ */
+
+export interface IdMetricKey {
+  service: string;
+  timestamp: number;
+}
+
+export interface IdMetricKeyInput {
+  service: string;
+  timestamp: number;
+}
+
+export interface IdMetricKeyWhere {
+  service?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  timestamp?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  AND?: IdMetricKeyWhere[];
+  OR?: IdMetricKeyWhere[];
+  NOT?: IdMetricKeyWhere;
+}
+
+export type IdMetricKeySelect =
+  | ({ service: boolean } & Partial<Record<'timestamp', boolean>>)
+  | ({ timestamp: boolean } & Partial<Record<'service', boolean>>);
+
+export interface IdMetricKeyOrderBy {
+  service?: 'asc' | 'desc';
+  timestamp?: 'asc' | 'desc';
+}
+
+// ===== tuples/idcoord.ts =====
+/**
+ * Generated types for IdCoord
+ * Do not edit manually
+ */
+
+export type IdCoord = [number, number];
+
+export type IdCoordInput =
+  | [number, number]
+  | {
+      0?: number;
+      1?: number;
+    };
+
+export interface IdCoordWhere {
+  0?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  1?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+}
+
+export type IdCoordUpdate = {
+  0?: number;
+  1?: number;
+};

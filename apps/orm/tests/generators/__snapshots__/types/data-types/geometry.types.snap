@@ -1,0 +1,1272 @@
+// ===== models/geometrybasic.ts =====
+/**
+ * Generated types for GeometryBasic
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import {
+  CerialGeometry,
+  CerialPoint,
+  CerialLineString,
+  CerialPolygon,
+  CerialMultiPoint,
+  CerialMultiLineString,
+  CerialMultiPolygon,
+  CerialGeometryCollection,
+} from 'cerial';
+import type {
+  CerialGeometryInput,
+  CerialPointInput,
+  CerialLineStringInput,
+  CerialPolygonInput,
+  CerialMultiPointInput,
+  CerialMultiLineStringInput,
+  CerialMultiPolygonInput,
+  CerialGeometryCollectionInput,
+} from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface GeometryBasic {
+  id: CerialId<string>;
+  name: string;
+  location: CerialPoint;
+  area: CerialPolygon;
+  shape: CerialGeometry;
+  route: CerialLineString;
+  multi: CerialPoint | CerialPolygon;
+  optionalGeo?: CerialPoint;
+  geoArray: CerialPoint[];
+}
+
+export interface GeometryBasicInput {
+  id?: string;
+  name: string;
+  location: CerialPointInput;
+  area: CerialPolygonInput;
+  shape: CerialGeometryInput;
+  route: CerialLineStringInput;
+  multi: CerialPointInput | CerialPolygonInput;
+  optionalGeo?: CerialPointInput;
+  geoArray: CerialPointInput[];
+}
+
+export interface GeometryBasicWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  location?:
+    | CerialPointInput
+    | ({
+        eq?: CerialPointInput;
+        neq?: CerialPointInput;
+      } & {
+        in?: CerialPointInput[];
+        notIn?: CerialPointInput[];
+      } & {});
+  area?:
+    | CerialPolygonInput
+    | ({
+        eq?: CerialPolygonInput;
+        neq?: CerialPolygonInput;
+      } & {
+        in?: CerialPolygonInput[];
+        notIn?: CerialPolygonInput[];
+      } & {});
+  shape?:
+    | CerialGeometryInput
+    | ({
+        eq?: CerialGeometryInput;
+        neq?: CerialGeometryInput;
+      } & {
+        in?: CerialGeometryInput[];
+        notIn?: CerialGeometryInput[];
+      } & {});
+  route?:
+    | CerialLineStringInput
+    | ({
+        eq?: CerialLineStringInput;
+        neq?: CerialLineStringInput;
+      } & {
+        in?: CerialLineStringInput[];
+        notIn?: CerialLineStringInput[];
+      } & {});
+  multi?:
+    | CerialPointInput
+    | CerialPolygonInput
+    | ({
+        eq?: CerialPointInput | CerialPolygonInput;
+        neq?: CerialPointInput | CerialPolygonInput;
+      } & {
+        in?: CerialPointInput | CerialPolygonInput[];
+        notIn?: CerialPointInput | CerialPolygonInput[];
+      } & {});
+  optionalGeo?:
+    | CerialPointInput
+    | ({
+        eq?: CerialPointInput;
+        neq?: CerialPointInput;
+      } & {
+        in?: CerialPointInput[];
+        notIn?: CerialPointInput[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  geoArray?:
+    | CerialPointInput[]
+    | {
+        has?: CerialPointInput;
+        hasAll?: CerialPointInput[];
+        hasAny?: CerialPointInput[];
+        isEmpty?: boolean;
+      };
+  AND?: GeometryBasicWhere[];
+  OR?: GeometryBasicWhere[];
+  NOT?: GeometryBasicWhere;
+}
+
+export type GeometryBasicWhereInput = GeometryBasicWhere;
+
+export type GeometryBasicFindUniqueWhere = { id: RecordIdInput<string> } & Omit<GeometryBasicWhere, 'id'>;
+
+export type GeometryBasicCreate = O.Optional<GeometryBasicInput, 'id' | 'optionalGeo' | 'geoArray'>;
+
+export type GeometryBasicNestedCreate = O.Optional<GeometryBasicInput, 'id' | 'optionalGeo' | 'geoArray'>;
+
+export type GeometryBasicCreateInput = GeometryBasicCreate;
+
+export type GeometryBasicUpdate = Partial<O.Omit<GeometryBasicInput, 'id' | 'geoArray' | 'optionalGeo'>> & {
+  geoArray?:
+    | CerialGeometryInput[]
+    | {
+        push?: CerialGeometryInput | CerialGeometryInput[];
+        unset?: CerialGeometryInput | CerialGeometryInput[];
+      };
+  optionalGeo?: CerialPointInput | CerialNone;
+};
+
+export type GeometryBasicUpdateInput = GeometryBasicUpdate;
+
+export type GeometryBasicUnset = {
+  optionalGeo?: true;
+};
+
+export type GeometryBasicSelect =
+  | ({ id: boolean } & Partial<
+      Record<'name' | 'location' | 'area' | 'shape' | 'route' | 'multi' | 'optionalGeo' | 'geoArray', boolean>
+    >)
+  | ({ name: boolean } & Partial<
+      Record<'id' | 'location' | 'area' | 'shape' | 'route' | 'multi' | 'optionalGeo' | 'geoArray', boolean>
+    >)
+  | ({ location: boolean } & Partial<
+      Record<'id' | 'name' | 'area' | 'shape' | 'route' | 'multi' | 'optionalGeo' | 'geoArray', boolean>
+    >)
+  | ({ area: boolean } & Partial<
+      Record<'id' | 'name' | 'location' | 'shape' | 'route' | 'multi' | 'optionalGeo' | 'geoArray', boolean>
+    >)
+  | ({ shape: boolean } & Partial<
+      Record<'id' | 'name' | 'location' | 'area' | 'route' | 'multi' | 'optionalGeo' | 'geoArray', boolean>
+    >)
+  | ({ route: boolean } & Partial<
+      Record<'id' | 'name' | 'location' | 'area' | 'shape' | 'multi' | 'optionalGeo' | 'geoArray', boolean>
+    >)
+  | ({ multi: boolean } & Partial<
+      Record<'id' | 'name' | 'location' | 'area' | 'shape' | 'route' | 'optionalGeo' | 'geoArray', boolean>
+    >)
+  | ({ optionalGeo: boolean } & Partial<
+      Record<'id' | 'name' | 'location' | 'area' | 'shape' | 'route' | 'multi' | 'geoArray', boolean>
+    >)
+  | ({ geoArray: boolean } & Partial<
+      Record<'id' | 'name' | 'location' | 'area' | 'shape' | 'route' | 'multi' | 'optionalGeo', boolean>
+    >);
+
+export interface GeometryBasicOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+}
+
+export type GeometryBasic$Relations = {};
+
+export type GetGeometryBasicPayload<S extends GeometryBasicSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends GeometryBasicSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof GeometryBasic
+          ? ResolveFieldSelect<GeometryBasic[K], S[K]>
+          : never;
+      }
+    : GeometryBasic,
+  'flat'
+>;
+
+export interface GeometryBasicModel {
+  findOne<S extends GeometryBasicSelect | undefined = undefined>(options?: {
+    where?: GeometryBasicWhere;
+    select?: S;
+    orderBy?: GeometryBasicOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetGeometryBasicPayload<S> | null>;
+
+  findMany<S extends GeometryBasicSelect | undefined = undefined>(options?: {
+    where?: GeometryBasicWhere;
+    select?: S;
+    orderBy?: GeometryBasicOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetGeometryBasicPayload<S>[]>;
+
+  findUnique<S extends GeometryBasicSelect | undefined = undefined>(options: {
+    where: GeometryBasicFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetGeometryBasicPayload<S> | null>;
+
+  create<S extends GeometryBasicSelect | undefined = undefined>(options: {
+    data: GeometryBasicCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetGeometryBasicPayload<S>>;
+
+  updateMany<
+    S extends GeometryBasicSelect | undefined = undefined,
+    D extends GeometryBasicUpdateInput = GeometryBasicUpdateInput,
+  >(options: {
+    where: GeometryBasicWhere;
+    data: D;
+    unset?: SafeUnset<GeometryBasicUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetGeometryBasicPayload<S>[]>;
+
+  updateUnique<
+    S extends GeometryBasicSelect | undefined = undefined,
+    D extends GeometryBasicUpdateInput = GeometryBasicUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: GeometryBasicFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<GeometryBasicUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns GeometryBasic | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetGeometryBasicPayload<S>, R>>;
+
+  upsert<
+    S extends GeometryBasicSelect | undefined = undefined,
+    D extends GeometryBasicUpdateInput = GeometryBasicUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: GeometryBasicFindUniqueWhere;
+    create: GeometryBasicCreateInput;
+    update?: D;
+    unset?: SafeUnset<GeometryBasicUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetGeometryBasicPayload<S>, R>>;
+
+  upsert<
+    S extends GeometryBasicSelect | undefined = undefined,
+    D extends GeometryBasicUpdateInput = GeometryBasicUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: GeometryBasicWhere;
+    create: GeometryBasicCreateInput;
+    update?: D;
+    unset?: SafeUnset<GeometryBasicUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetGeometryBasicPayload<S>, R>>;
+
+  deleteMany(options: { where: GeometryBasicWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: GeometryBasicFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns GeometryBasic | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<GeometryBasic, R>>;
+
+  count(where?: GeometryBasicWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: GeometryBasicWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/geometrymulti.ts =====
+/**
+ * Generated types for GeometryMulti
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import {
+  CerialGeometry,
+  CerialPoint,
+  CerialLineString,
+  CerialPolygon,
+  CerialMultiPoint,
+  CerialMultiLineString,
+  CerialMultiPolygon,
+  CerialGeometryCollection,
+} from 'cerial';
+import type {
+  CerialGeometryInput,
+  CerialPointInput,
+  CerialLineStringInput,
+  CerialPolygonInput,
+  CerialMultiPointInput,
+  CerialMultiLineStringInput,
+  CerialMultiPolygonInput,
+  CerialGeometryCollectionInput,
+} from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface GeometryMulti {
+  id: CerialId<string>;
+  name: string;
+  points: CerialMultiPoint;
+  lines: CerialMultiLineString;
+  polygons: CerialMultiPolygon;
+  collection: CerialGeometryCollection;
+}
+
+export interface GeometryMultiInput {
+  id?: string;
+  name: string;
+  points: CerialMultiPointInput;
+  lines: CerialMultiLineStringInput;
+  polygons: CerialMultiPolygonInput;
+  collection: CerialGeometryCollectionInput;
+}
+
+export interface GeometryMultiWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  points?:
+    | CerialMultiPointInput
+    | ({
+        eq?: CerialMultiPointInput;
+        neq?: CerialMultiPointInput;
+      } & {
+        in?: CerialMultiPointInput[];
+        notIn?: CerialMultiPointInput[];
+      } & {});
+  lines?:
+    | CerialMultiLineStringInput
+    | ({
+        eq?: CerialMultiLineStringInput;
+        neq?: CerialMultiLineStringInput;
+      } & {
+        in?: CerialMultiLineStringInput[];
+        notIn?: CerialMultiLineStringInput[];
+      } & {});
+  polygons?:
+    | CerialMultiPolygonInput
+    | ({
+        eq?: CerialMultiPolygonInput;
+        neq?: CerialMultiPolygonInput;
+      } & {
+        in?: CerialMultiPolygonInput[];
+        notIn?: CerialMultiPolygonInput[];
+      } & {});
+  collection?:
+    | CerialGeometryCollectionInput
+    | ({
+        eq?: CerialGeometryCollectionInput;
+        neq?: CerialGeometryCollectionInput;
+      } & {
+        in?: CerialGeometryCollectionInput[];
+        notIn?: CerialGeometryCollectionInput[];
+      } & {});
+  AND?: GeometryMultiWhere[];
+  OR?: GeometryMultiWhere[];
+  NOT?: GeometryMultiWhere;
+}
+
+export type GeometryMultiWhereInput = GeometryMultiWhere;
+
+export type GeometryMultiFindUniqueWhere = { id: RecordIdInput<string> } & Omit<GeometryMultiWhere, 'id'>;
+
+export type GeometryMultiCreate = O.Optional<GeometryMultiInput, 'id'>;
+
+export type GeometryMultiNestedCreate = O.Optional<GeometryMultiInput, 'id'>;
+
+export type GeometryMultiCreateInput = GeometryMultiCreate;
+
+export type GeometryMultiUpdate = Partial<O.Omit<GeometryMultiInput, 'id'>>;
+
+export type GeometryMultiUpdateInput = GeometryMultiUpdate;
+
+export type GeometryMultiUnset = {};
+
+export type GeometryMultiSelect =
+  | ({ id: boolean } & Partial<Record<'name' | 'points' | 'lines' | 'polygons' | 'collection', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'points' | 'lines' | 'polygons' | 'collection', boolean>>)
+  | ({ points: boolean } & Partial<Record<'id' | 'name' | 'lines' | 'polygons' | 'collection', boolean>>)
+  | ({ lines: boolean } & Partial<Record<'id' | 'name' | 'points' | 'polygons' | 'collection', boolean>>)
+  | ({ polygons: boolean } & Partial<Record<'id' | 'name' | 'points' | 'lines' | 'collection', boolean>>)
+  | ({ collection: boolean } & Partial<Record<'id' | 'name' | 'points' | 'lines' | 'polygons', boolean>>);
+
+export interface GeometryMultiOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+}
+
+export type GeometryMulti$Relations = {};
+
+export type GetGeometryMultiPayload<S extends GeometryMultiSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends GeometryMultiSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof GeometryMulti
+          ? ResolveFieldSelect<GeometryMulti[K], S[K]>
+          : never;
+      }
+    : GeometryMulti,
+  'flat'
+>;
+
+export interface GeometryMultiModel {
+  findOne<S extends GeometryMultiSelect | undefined = undefined>(options?: {
+    where?: GeometryMultiWhere;
+    select?: S;
+    orderBy?: GeometryMultiOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetGeometryMultiPayload<S> | null>;
+
+  findMany<S extends GeometryMultiSelect | undefined = undefined>(options?: {
+    where?: GeometryMultiWhere;
+    select?: S;
+    orderBy?: GeometryMultiOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetGeometryMultiPayload<S>[]>;
+
+  findUnique<S extends GeometryMultiSelect | undefined = undefined>(options: {
+    where: GeometryMultiFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetGeometryMultiPayload<S> | null>;
+
+  create<S extends GeometryMultiSelect | undefined = undefined>(options: {
+    data: GeometryMultiCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetGeometryMultiPayload<S>>;
+
+  updateMany<
+    S extends GeometryMultiSelect | undefined = undefined,
+    D extends GeometryMultiUpdateInput = GeometryMultiUpdateInput,
+  >(options: {
+    where: GeometryMultiWhere;
+    data: D;
+    unset?: SafeUnset<GeometryMultiUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetGeometryMultiPayload<S>[]>;
+
+  updateUnique<
+    S extends GeometryMultiSelect | undefined = undefined,
+    D extends GeometryMultiUpdateInput = GeometryMultiUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: GeometryMultiFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<GeometryMultiUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns GeometryMulti | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetGeometryMultiPayload<S>, R>>;
+
+  upsert<
+    S extends GeometryMultiSelect | undefined = undefined,
+    D extends GeometryMultiUpdateInput = GeometryMultiUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: GeometryMultiFindUniqueWhere;
+    create: GeometryMultiCreateInput;
+    update?: D;
+    unset?: SafeUnset<GeometryMultiUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetGeometryMultiPayload<S>, R>>;
+
+  upsert<
+    S extends GeometryMultiSelect | undefined = undefined,
+    D extends GeometryMultiUpdateInput = GeometryMultiUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: GeometryMultiWhere;
+    create: GeometryMultiCreateInput;
+    update?: D;
+    unset?: SafeUnset<GeometryMultiUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetGeometryMultiPayload<S>, R>>;
+
+  deleteMany(options: { where: GeometryMultiWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: GeometryMultiFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns GeometryMulti | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<GeometryMulti, R>>;
+
+  count(where?: GeometryMultiWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: GeometryMultiWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/geometrywithobject.ts =====
+/**
+ * Generated types for GeometryWithObject
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { GeoInfo, GeoInfoInput, GeoInfoWhere, GeoInfoSelect, GeoInfoOrderBy } from '../objects/geoinfo';
+export interface GeometryWithObject {
+  id: CerialId<string>;
+  name: string;
+  geo: GeoInfo;
+}
+
+export interface GeometryWithObjectInput {
+  id?: string;
+  name: string;
+  geo: GeoInfoInput;
+}
+
+export interface GeometryWithObjectWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  geo?: GeoInfoWhere;
+  AND?: GeometryWithObjectWhere[];
+  OR?: GeometryWithObjectWhere[];
+  NOT?: GeometryWithObjectWhere;
+}
+
+export type GeometryWithObjectWhereInput = GeometryWithObjectWhere;
+
+export type GeometryWithObjectFindUniqueWhere = { id: RecordIdInput<string> } & Omit<GeometryWithObjectWhere, 'id'>;
+
+export type GeometryWithObjectCreate = O.Optional<GeometryWithObjectInput, 'id'>;
+
+export type GeometryWithObjectNestedCreate = O.Optional<GeometryWithObjectInput, 'id'>;
+
+export type GeometryWithObjectCreateInput = GeometryWithObjectCreate;
+
+export type GeometryWithObjectUpdate = Partial<O.Omit<GeometryWithObjectInput, 'id' | 'geo'>> & {
+  geo?: Partial<GeoInfoInput> | { set: GeoInfoInput };
+};
+
+export type GeometryWithObjectUpdateInput = GeometryWithObjectUpdate;
+
+export type GeometryWithObjectUnset = {
+  geo?: {
+    boundary?: true;
+  };
+};
+
+export type GeometryWithObjectSelect =
+  | ({ id: boolean } & { name?: boolean; geo?: boolean | GeoInfoSelect })
+  | ({ name: boolean } & { id?: boolean; geo?: boolean | GeoInfoSelect })
+  | ({ geo: boolean | GeoInfoSelect } & Partial<Record<'id' | 'name', boolean>>);
+
+export interface GeometryWithObjectOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  geo?: GeoInfoOrderBy;
+}
+
+export type GeometryWithObject$Relations = {};
+
+export type GetGeometryWithObjectPayload<
+  S extends GeometryWithObjectSelect | undefined = undefined,
+  I = undefined,
+> = A.Compute<
+  S extends GeometryWithObjectSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof GeometryWithObject
+          ? ResolveFieldSelect<GeometryWithObject[K], S[K]>
+          : never;
+      }
+    : GeometryWithObject,
+  'flat'
+>;
+
+export interface GeometryWithObjectModel {
+  findOne<S extends GeometryWithObjectSelect | undefined = undefined>(options?: {
+    where?: GeometryWithObjectWhere;
+    select?: S;
+    orderBy?: GeometryWithObjectOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetGeometryWithObjectPayload<S> | null>;
+
+  findMany<S extends GeometryWithObjectSelect | undefined = undefined>(options?: {
+    where?: GeometryWithObjectWhere;
+    select?: S;
+    orderBy?: GeometryWithObjectOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetGeometryWithObjectPayload<S>[]>;
+
+  findUnique<S extends GeometryWithObjectSelect | undefined = undefined>(options: {
+    where: GeometryWithObjectFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetGeometryWithObjectPayload<S> | null>;
+
+  create<S extends GeometryWithObjectSelect | undefined = undefined>(options: {
+    data: GeometryWithObjectCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetGeometryWithObjectPayload<S>>;
+
+  updateMany<
+    S extends GeometryWithObjectSelect | undefined = undefined,
+    D extends GeometryWithObjectUpdateInput = GeometryWithObjectUpdateInput,
+  >(options: {
+    where: GeometryWithObjectWhere;
+    data: D;
+    unset?: SafeUnset<GeometryWithObjectUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetGeometryWithObjectPayload<S>[]>;
+
+  updateUnique<
+    S extends GeometryWithObjectSelect | undefined = undefined,
+    D extends GeometryWithObjectUpdateInput = GeometryWithObjectUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: GeometryWithObjectFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<GeometryWithObjectUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns GeometryWithObject | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetGeometryWithObjectPayload<S>, R>>;
+
+  upsert<
+    S extends GeometryWithObjectSelect | undefined = undefined,
+    D extends GeometryWithObjectUpdateInput = GeometryWithObjectUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: GeometryWithObjectFindUniqueWhere;
+    create: GeometryWithObjectCreateInput;
+    update?: D;
+    unset?: SafeUnset<GeometryWithObjectUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetGeometryWithObjectPayload<S>, R>>;
+
+  upsert<
+    S extends GeometryWithObjectSelect | undefined = undefined,
+    D extends GeometryWithObjectUpdateInput = GeometryWithObjectUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: GeometryWithObjectWhere;
+    create: GeometryWithObjectCreateInput;
+    update?: D;
+    unset?: SafeUnset<GeometryWithObjectUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetGeometryWithObjectPayload<S>, R>>;
+
+  deleteMany(options: { where: GeometryWithObjectWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: GeometryWithObjectFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns GeometryWithObject | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<GeometryWithObject, R>>;
+
+  count(where?: GeometryWithObjectWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: GeometryWithObjectWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/geometrywithtuple.ts =====
+/**
+ * Generated types for GeometryWithTuple
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { GeoPair, GeoPairInput, GeoPairWhere, GeoPairUpdate, GeoPairUnset } from '../tuples/geopair';
+export interface GeometryWithTuple {
+  id: CerialId<string>;
+  name: string;
+  pair: GeoPair;
+}
+
+export interface GeometryWithTupleInput {
+  id?: string;
+  name: string;
+  pair: GeoPairInput;
+}
+
+export interface GeometryWithTupleWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  pair?: GeoPairWhere;
+  AND?: GeometryWithTupleWhere[];
+  OR?: GeometryWithTupleWhere[];
+  NOT?: GeometryWithTupleWhere;
+}
+
+export type GeometryWithTupleWhereInput = GeometryWithTupleWhere;
+
+export type GeometryWithTupleFindUniqueWhere = { id: RecordIdInput<string> } & Omit<GeometryWithTupleWhere, 'id'>;
+
+export type GeometryWithTupleCreate = O.Optional<GeometryWithTupleInput, 'id'>;
+
+export type GeometryWithTupleNestedCreate = O.Optional<GeometryWithTupleInput, 'id'>;
+
+export type GeometryWithTupleCreateInput = GeometryWithTupleCreate;
+
+export type GeometryWithTupleUpdate = Partial<O.Omit<GeometryWithTupleInput, 'id' | 'pair'>> & {
+  pair?: [unknown, unknown | null] | GeoPairUpdate;
+};
+
+export type GeometryWithTupleUpdateInput = GeometryWithTupleUpdate;
+
+export type GeometryWithTupleUnset = {
+  pair?: GeoPairUnset;
+};
+
+export type GeometryWithTupleSelect =
+  | ({ id: boolean } & Partial<Record<'name' | 'pair', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'pair', boolean>>)
+  | ({ pair: boolean } & Partial<Record<'id' | 'name', boolean>>);
+
+export interface GeometryWithTupleOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+}
+
+export type GeometryWithTuple$Relations = {};
+
+export type GetGeometryWithTuplePayload<
+  S extends GeometryWithTupleSelect | undefined = undefined,
+  I = undefined,
+> = A.Compute<
+  S extends GeometryWithTupleSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof GeometryWithTuple
+          ? ResolveFieldSelect<GeometryWithTuple[K], S[K]>
+          : never;
+      }
+    : GeometryWithTuple,
+  'flat'
+>;
+
+export interface GeometryWithTupleModel {
+  findOne<S extends GeometryWithTupleSelect | undefined = undefined>(options?: {
+    where?: GeometryWithTupleWhere;
+    select?: S;
+    orderBy?: GeometryWithTupleOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetGeometryWithTuplePayload<S> | null>;
+
+  findMany<S extends GeometryWithTupleSelect | undefined = undefined>(options?: {
+    where?: GeometryWithTupleWhere;
+    select?: S;
+    orderBy?: GeometryWithTupleOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetGeometryWithTuplePayload<S>[]>;
+
+  findUnique<S extends GeometryWithTupleSelect | undefined = undefined>(options: {
+    where: GeometryWithTupleFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetGeometryWithTuplePayload<S> | null>;
+
+  create<S extends GeometryWithTupleSelect | undefined = undefined>(options: {
+    data: GeometryWithTupleCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetGeometryWithTuplePayload<S>>;
+
+  updateMany<
+    S extends GeometryWithTupleSelect | undefined = undefined,
+    D extends GeometryWithTupleUpdateInput = GeometryWithTupleUpdateInput,
+  >(options: {
+    where: GeometryWithTupleWhere;
+    data: D;
+    unset?: SafeUnset<GeometryWithTupleUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetGeometryWithTuplePayload<S>[]>;
+
+  updateUnique<
+    S extends GeometryWithTupleSelect | undefined = undefined,
+    D extends GeometryWithTupleUpdateInput = GeometryWithTupleUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: GeometryWithTupleFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<GeometryWithTupleUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns GeometryWithTuple | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetGeometryWithTuplePayload<S>, R>>;
+
+  upsert<
+    S extends GeometryWithTupleSelect | undefined = undefined,
+    D extends GeometryWithTupleUpdateInput = GeometryWithTupleUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: GeometryWithTupleFindUniqueWhere;
+    create: GeometryWithTupleCreateInput;
+    update?: D;
+    unset?: SafeUnset<GeometryWithTupleUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetGeometryWithTuplePayload<S>, R>>;
+
+  upsert<
+    S extends GeometryWithTupleSelect | undefined = undefined,
+    D extends GeometryWithTupleUpdateInput = GeometryWithTupleUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: GeometryWithTupleWhere;
+    create: GeometryWithTupleCreateInput;
+    update?: D;
+    unset?: SafeUnset<GeometryWithTupleUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetGeometryWithTuplePayload<S>, R>>;
+
+  deleteMany(options: { where: GeometryWithTupleWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: GeometryWithTupleFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns GeometryWithTuple | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<GeometryWithTuple, R>>;
+
+  count(where?: GeometryWithTupleWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: GeometryWithTupleWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== objects/geoinfo.ts =====
+/**
+ * Generated types for GeoInfo
+ * Do not edit manually
+ */
+
+import {
+  CerialGeometry,
+  CerialPoint,
+  CerialLineString,
+  CerialPolygon,
+  CerialMultiPoint,
+  CerialMultiLineString,
+  CerialMultiPolygon,
+  CerialGeometryCollection,
+} from 'cerial';
+import type {
+  CerialGeometryInput,
+  CerialPointInput,
+  CerialLineStringInput,
+  CerialPolygonInput,
+  CerialMultiPointInput,
+  CerialMultiLineStringInput,
+  CerialMultiPolygonInput,
+  CerialGeometryCollectionInput,
+} from 'cerial';
+export interface GeoInfo {
+  position: CerialPoint;
+  boundary?: CerialGeometry;
+}
+
+export interface GeoInfoInput {
+  position: CerialPointInput;
+  boundary?: CerialGeometryInput;
+}
+
+export interface GeoInfoWhere {
+  position?:
+    | CerialPointInput
+    | ({
+        eq?: CerialPointInput;
+        neq?: CerialPointInput;
+      } & {
+        in?: CerialPointInput[];
+        notIn?: CerialPointInput[];
+      } & {});
+  boundary?:
+    | CerialGeometryInput
+    | ({
+        eq?: CerialGeometryInput;
+        neq?: CerialGeometryInput;
+      } & {
+        in?: CerialGeometryInput[];
+        notIn?: CerialGeometryInput[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  AND?: GeoInfoWhere[];
+  OR?: GeoInfoWhere[];
+  NOT?: GeoInfoWhere;
+}
+
+export type GeoInfoSelect =
+  | ({ position: boolean } & Partial<Record<'boundary', boolean>>)
+  | ({ boundary: boolean } & Partial<Record<'position', boolean>>);
+
+export interface GeoInfoOrderBy {}
+
+// ===== tuples/geopair.ts =====
+/**
+ * Generated types for GeoPair
+ * Do not edit manually
+ */
+
+import {
+  CerialGeometry,
+  CerialPoint,
+  CerialLineString,
+  CerialPolygon,
+  CerialMultiPoint,
+  CerialMultiLineString,
+  CerialMultiPolygon,
+  CerialGeometryCollection,
+} from 'cerial';
+import type {
+  CerialGeometryInput,
+  CerialPointInput,
+  CerialLineStringInput,
+  CerialPolygonInput,
+  CerialMultiPointInput,
+  CerialMultiLineStringInput,
+  CerialMultiPolygonInput,
+  CerialGeometryCollectionInput,
+} from 'cerial';
+export type GeoPair = [CerialGeometry, CerialGeometry | null];
+
+export type GeoPairInput =
+  | [CerialGeometryInput, CerialGeometryInput | null]
+  | {
+      0?: CerialGeometryInput;
+      1?: CerialGeometryInput | null;
+    };
+
+export interface GeoPairWhere {
+  0?:
+    | CerialGeometryInput
+    | ({
+        eq?: CerialGeometryInput;
+        neq?: CerialGeometryInput;
+      } & {
+        in?: CerialGeometryInput[];
+        notIn?: CerialGeometryInput[];
+      } & {});
+  1?:
+    | null
+    | CerialGeometryInput
+    | ({
+        eq?: CerialGeometryInput;
+        neq?: CerialGeometryInput;
+      } & {
+        in?: CerialGeometryInput[];
+        notIn?: CerialGeometryInput[];
+      } & {
+        not?: string | null;
+        isNull?: boolean;
+      });
+}
+
+export type GeoPairUpdate = {
+  0?: unknown;
+  1?: unknown | null;
+};
+
+export type GeoPairUnset = {
+  1?: true;
+};

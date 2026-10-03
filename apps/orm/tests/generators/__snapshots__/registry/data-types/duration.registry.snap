@@ -1,0 +1,242 @@
+{
+  "models": {
+    "DurationBasic": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "ttl",
+          "type": "duration"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "timeout",
+          "type": "duration"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "cooldown",
+          "type": "duration"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "intervals",
+          "type": "duration"
+        }
+      ],
+      "name": "DurationBasic",
+      "tableName": "duration_basic"
+    },
+    "DurationDecorated": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "defaultValue": "1h",
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "defaultTtl",
+          "type": "duration"
+        },
+        {
+          "defaultAlwaysValue": "30m",
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "alwaysTtl",
+          "type": "duration"
+        }
+      ],
+      "name": "DurationDecorated",
+      "tableName": "duration_decorated"
+    },
+    "DurationWithObject": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "timing",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "expires",
+                "type": "duration"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "grace",
+                "type": "duration"
+              }
+            ],
+            "objectName": "DurationInfo"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "DurationWithObject",
+      "tableName": "duration_with_object"
+    },
+    "DurationWithTuple": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "pair",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "type": "duration"
+              },
+              {
+                "index": 1,
+                "isNullable": true,
+                "isOptional": false,
+                "type": "duration"
+              }
+            ],
+            "tupleName": "DurationPair"
+          },
+          "type": "tuple"
+        }
+      ],
+      "name": "DurationWithTuple",
+      "tableName": "duration_with_tuple"
+    }
+  },
+  "objects": {
+    "DurationInfo": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "expires",
+          "type": "duration"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "grace",
+          "type": "duration"
+        }
+      ],
+      "name": "DurationInfo"
+    }
+  },
+  "tuples": {
+    "DurationPair": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "type": "duration"
+        },
+        {
+          "index": 1,
+          "isNullable": true,
+          "isOptional": false,
+          "type": "duration"
+        }
+      ],
+      "name": "DurationPair"
+    }
+  }
+}

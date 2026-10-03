@@ -1,0 +1,905 @@
+{
+  "models": [
+    {
+      "abstract": true,
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "createdAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "createdAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "updatedAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "updatedAt",
+          "type": "date"
+        }
+      ],
+      "name": "ExtRelBase"
+    },
+    {
+      "abstract": true,
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "createdAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "createdAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "updatedAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "updatedAt",
+          "type": "date"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "unique"
+            }
+          ],
+          "isOptional": false,
+          "name": "email",
+          "type": "email"
+        }
+      ],
+      "name": "ExtRelAuthor"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "createdAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "createdAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "updatedAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "updatedAt",
+          "type": "date"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "unique"
+            }
+          ],
+          "isOptional": false,
+          "name": "email",
+          "type": "email"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "bio",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "model",
+              "value": "ExtRelBlogPost"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "posts",
+          "type": "relation"
+        }
+      ],
+      "name": "ExtRelBlogAuthor"
+    },
+    {
+      "abstract": true,
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "createdAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "createdAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "updatedAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "updatedAt",
+          "type": "date"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "content",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "authorId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "authorId"
+            },
+            {
+              "type": "model",
+              "value": "ExtRelBlogAuthor"
+            }
+          ],
+          "isOptional": false,
+          "name": "author",
+          "type": "relation"
+        }
+      ],
+      "name": "ExtRelBaseBlogPost"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "createdAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "createdAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "updatedAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "updatedAt",
+          "type": "date"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "content",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "authorId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "authorId"
+            },
+            {
+              "type": "model",
+              "value": "ExtRelBlogAuthor"
+            }
+          ],
+          "isOptional": false,
+          "name": "author",
+          "type": "relation"
+        }
+      ],
+      "name": "ExtRelBlogPost"
+    },
+    {
+      "abstract": true,
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "createdAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "createdAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "updatedAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "updatedAt",
+          "type": "date"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        }
+      ],
+      "name": "ExtRelOwner"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "createdAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "createdAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "updatedAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "updatedAt",
+          "type": "date"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "description",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "ownerId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "ownerId"
+            },
+            {
+              "type": "model",
+              "value": "ExtRelBlogAuthor"
+            }
+          ],
+          "isOptional": true,
+          "name": "owner",
+          "type": "relation"
+        }
+      ],
+      "name": "ExtRelProject"
+    },
+    {
+      "abstract": true,
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "createdAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "createdAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "updatedAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "updatedAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "unique"
+            }
+          ],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        }
+      ],
+      "name": "ExtRelTag"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "createdAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "createdAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "updatedAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "updatedAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "unique"
+            }
+          ],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "model",
+              "value": "ExtRelBlogPostTag"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "postTags",
+          "type": "relation"
+        }
+      ],
+      "name": "ExtRelBlogTag"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "postId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "postId"
+            },
+            {
+              "type": "model",
+              "value": "ExtRelBlogPost"
+            }
+          ],
+          "isOptional": true,
+          "name": "post",
+          "type": "relation"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "tagId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "tagId"
+            },
+            {
+              "type": "model",
+              "value": "ExtRelBlogTag"
+            }
+          ],
+          "isOptional": false,
+          "name": "tag",
+          "type": "relation"
+        }
+      ],
+      "name": "ExtRelBlogPostTag"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "createdAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "createdAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "updatedAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "updatedAt",
+          "type": "date"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "content",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "summary",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "wordCount",
+          "type": "int"
+        }
+      ],
+      "name": "ExtRelPostSummary"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "createdAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "createdAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "updatedAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "updatedAt",
+          "type": "date"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "createdAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "archivedAt",
+          "type": "date"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "archiveReason",
+          "type": "string"
+        }
+      ],
+      "name": "ExtRelPostArchive"
+    },
+    {
+      "abstract": true,
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "createdAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "createdAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "updatedAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "updatedAt",
+          "type": "date"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "content",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "parentCommentId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "parentCommentId"
+            },
+            {
+              "type": "model",
+              "value": "ExtRelComment"
+            }
+          ],
+          "isOptional": true,
+          "name": "parentComment",
+          "type": "relation"
+        }
+      ],
+      "name": "ExtRelBaseComment"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "createdAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "createdAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "updatedAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "updatedAt",
+          "type": "date"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "content",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "parentCommentId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "parentCommentId"
+            },
+            {
+              "type": "model",
+              "value": "ExtRelComment"
+            }
+          ],
+          "isOptional": true,
+          "name": "parentComment",
+          "type": "relation"
+        }
+      ],
+      "name": "ExtRelComment"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "createdAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "createdAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "updatedAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "updatedAt",
+          "type": "date"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "content",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "parentCommentId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "parentCommentId"
+            },
+            {
+              "type": "model",
+              "value": "ExtRelComment"
+            }
+          ],
+          "isOptional": true,
+          "name": "parentComment",
+          "type": "relation"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": false
+            }
+          ],
+          "isOptional": false,
+          "name": "isApproved",
+          "type": "bool"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "approvedBy",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "approvedBy"
+            },
+            {
+              "type": "model",
+              "value": "ExtRelBlogAuthor"
+            }
+          ],
+          "isOptional": true,
+          "name": "approver",
+          "type": "relation"
+        }
+      ],
+      "name": "ExtRelCommentModerated"
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "models": [
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "model",
+              "value": "Book"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "books",
+          "type": "relation"
+        }
+      ],
+      "name": "Publisher"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "unique"
+            }
+          ],
+          "isOptional": false,
+          "name": "isbn",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "publisherId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "publisherId"
+            },
+            {
+              "type": "model",
+              "value": "Publisher"
+            }
+          ],
+          "isOptional": true,
+          "name": "publisher",
+          "type": "relation"
+        }
+      ],
+      "name": "Book"
+    }
+  ]
+}

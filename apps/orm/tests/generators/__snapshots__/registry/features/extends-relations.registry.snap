@@ -1,0 +1,611 @@
+{
+  "models": {
+    "ExtRelBlogAuthor": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "createdAt",
+          "timestampDecorator": "createdAt",
+          "type": "date"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "updatedAt",
+          "timestampDecorator": "updatedAt",
+          "type": "date"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": true,
+          "name": "email",
+          "type": "email"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "bio",
+          "type": "string"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "posts",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "ExtRelBlogPost",
+            "targetTable": "ext_rel_blog_post"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "ExtRelBlogAuthor",
+      "tableName": "ext_rel_blog_author"
+    },
+    "ExtRelBlogPost": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "createdAt",
+          "timestampDecorator": "createdAt",
+          "type": "date"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "updatedAt",
+          "timestampDecorator": "updatedAt",
+          "type": "date"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "content",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "authorId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "author",
+          "relationInfo": {
+            "fieldRef": "authorId",
+            "isReverse": false,
+            "targetModel": "ExtRelBlogAuthor",
+            "targetTable": "ext_rel_blog_author"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "ExtRelBlogPost",
+      "tableName": "ext_rel_blog_post"
+    },
+    "ExtRelBlogPostTag": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "postId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "post",
+          "relationInfo": {
+            "fieldRef": "postId",
+            "isReverse": false,
+            "targetModel": "ExtRelBlogPost",
+            "targetTable": "ext_rel_blog_post"
+          },
+          "type": "relation"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "tagId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "tag",
+          "relationInfo": {
+            "fieldRef": "tagId",
+            "isReverse": false,
+            "targetModel": "ExtRelBlogTag",
+            "targetTable": "ext_rel_blog_tag"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "ExtRelBlogPostTag",
+      "tableName": "ext_rel_blog_post_tag"
+    },
+    "ExtRelBlogTag": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "createdAt",
+          "timestampDecorator": "createdAt",
+          "type": "date"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "updatedAt",
+          "timestampDecorator": "updatedAt",
+          "type": "date"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": true,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "postTags",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "ExtRelBlogPostTag",
+            "targetTable": "ext_rel_blog_post_tag"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "ExtRelBlogTag",
+      "tableName": "ext_rel_blog_tag"
+    },
+    "ExtRelComment": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "createdAt",
+          "timestampDecorator": "createdAt",
+          "type": "date"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "updatedAt",
+          "timestampDecorator": "updatedAt",
+          "type": "date"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "content",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "parentCommentId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "parentComment",
+          "relationInfo": {
+            "fieldRef": "parentCommentId",
+            "isReverse": false,
+            "targetModel": "ExtRelComment",
+            "targetTable": "ext_rel_comment"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "ExtRelComment",
+      "tableName": "ext_rel_comment"
+    },
+    "ExtRelCommentModerated": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "createdAt",
+          "timestampDecorator": "createdAt",
+          "type": "date"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "updatedAt",
+          "timestampDecorator": "updatedAt",
+          "type": "date"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "content",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "parentCommentId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "parentComment",
+          "relationInfo": {
+            "fieldRef": "parentCommentId",
+            "isReverse": false,
+            "targetModel": "ExtRelComment",
+            "targetTable": "ext_rel_comment"
+          },
+          "type": "relation"
+        },
+        {
+          "defaultValue": false,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "isApproved",
+          "type": "bool"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "approvedBy",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "approver",
+          "relationInfo": {
+            "fieldRef": "approvedBy",
+            "isReverse": false,
+            "targetModel": "ExtRelBlogAuthor",
+            "targetTable": "ext_rel_blog_author"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "ExtRelCommentModerated",
+      "tableName": "ext_rel_comment_moderated"
+    },
+    "ExtRelPostArchive": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "createdAt",
+          "timestampDecorator": "createdAt",
+          "type": "date"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "updatedAt",
+          "timestampDecorator": "updatedAt",
+          "type": "date"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "archivedAt",
+          "timestampDecorator": "createdAt",
+          "type": "date"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "archiveReason",
+          "type": "string"
+        }
+      ],
+      "name": "ExtRelPostArchive",
+      "tableName": "ext_rel_post_archive"
+    },
+    "ExtRelPostSummary": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "createdAt",
+          "timestampDecorator": "createdAt",
+          "type": "date"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "updatedAt",
+          "timestampDecorator": "updatedAt",
+          "type": "date"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "content",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "summary",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "wordCount",
+          "type": "int"
+        }
+      ],
+      "name": "ExtRelPostSummary",
+      "tableName": "ext_rel_post_summary"
+    },
+    "ExtRelProject": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "createdAt",
+          "timestampDecorator": "createdAt",
+          "type": "date"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "updatedAt",
+          "timestampDecorator": "updatedAt",
+          "type": "date"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "description",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "ownerId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "owner",
+          "relationInfo": {
+            "fieldRef": "ownerId",
+            "isReverse": false,
+            "targetModel": "ExtRelBlogAuthor",
+            "targetTable": "ext_rel_blog_author"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "ExtRelProject",
+      "tableName": "ext_rel_project"
+    }
+  }
+}

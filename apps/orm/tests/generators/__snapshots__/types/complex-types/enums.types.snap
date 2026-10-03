@@ -1,0 +1,1361 @@
+// ===== models/enumbasic.ts =====
+/**
+ * Generated types for EnumBasic
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import { RoleEnum } from '../enums/role';
+import type { RoleEnumType, RoleEnumWhere } from '../enums/role';
+export interface EnumBasic {
+  id: CerialId<string>;
+  name: string;
+  role: RoleEnumType;
+  optRole?: RoleEnumType;
+  nullRole?: RoleEnumType | null;
+  roles: RoleEnumType[];
+}
+
+export interface EnumBasicInput {
+  id?: string;
+  name: string;
+  role: RoleEnumType;
+  optRole?: RoleEnumType;
+  nullRole?: RoleEnumType | null;
+  roles: RoleEnumType[];
+}
+
+export interface EnumBasicWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  role?: RoleEnumType | RoleEnumWhere;
+  optRole?: RoleEnumType | RoleEnumWhere;
+  nullRole?: null | RoleEnumType | RoleEnumWhere;
+  roles?: { has?: RoleEnumType; hasAll?: RoleEnumType[]; hasAny?: RoleEnumType[]; isEmpty?: boolean };
+  AND?: EnumBasicWhere[];
+  OR?: EnumBasicWhere[];
+  NOT?: EnumBasicWhere;
+}
+
+export type EnumBasicWhereInput = EnumBasicWhere;
+
+export type EnumBasicFindUniqueWhere = { id: RecordIdInput<string> } & Omit<EnumBasicWhere, 'id'>;
+
+export type EnumBasicCreate = O.Optional<EnumBasicInput, 'id' | 'optRole' | 'nullRole' | 'roles'>;
+
+export type EnumBasicNestedCreate = O.Optional<EnumBasicInput, 'id' | 'optRole' | 'nullRole' | 'roles'>;
+
+export type EnumBasicCreateInput = EnumBasicCreate;
+
+export type EnumBasicUpdate = Partial<O.Omit<EnumBasicInput, 'id' | 'roles' | 'optRole' | 'nullRole'>> & {
+  roles?:
+    | RoleEnumType[]
+    | {
+        push?: RoleEnumType | RoleEnumType[];
+        unset?: RoleEnumType | RoleEnumType[];
+      };
+  optRole?: RoleEnumType | CerialNone;
+  nullRole?: RoleEnumType | null | CerialNone;
+};
+
+export type EnumBasicUpdateInput = EnumBasicUpdate;
+
+export type EnumBasicUnset = {
+  optRole?: true;
+  nullRole?: true;
+};
+
+export type EnumBasicSelect =
+  | ({ id: boolean } & Partial<Record<'name' | 'role' | 'optRole' | 'nullRole' | 'roles', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'role' | 'optRole' | 'nullRole' | 'roles', boolean>>)
+  | ({ role: boolean } & Partial<Record<'id' | 'name' | 'optRole' | 'nullRole' | 'roles', boolean>>)
+  | ({ optRole: boolean } & Partial<Record<'id' | 'name' | 'role' | 'nullRole' | 'roles', boolean>>)
+  | ({ nullRole: boolean } & Partial<Record<'id' | 'name' | 'role' | 'optRole' | 'roles', boolean>>)
+  | ({ roles: boolean } & Partial<Record<'id' | 'name' | 'role' | 'optRole' | 'nullRole', boolean>>);
+
+export interface EnumBasicOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  role?: 'asc' | 'desc';
+  optRole?: 'asc' | 'desc';
+  nullRole?: 'asc' | 'desc';
+  roles?: 'asc' | 'desc';
+}
+
+export type EnumBasic$Relations = {};
+
+export type GetEnumBasicPayload<S extends EnumBasicSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends EnumBasicSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof EnumBasic
+          ? ResolveFieldSelect<EnumBasic[K], S[K]>
+          : never;
+      }
+    : EnumBasic,
+  'flat'
+>;
+
+export interface EnumBasicModel {
+  findOne<S extends EnumBasicSelect | undefined = undefined>(options?: {
+    where?: EnumBasicWhere;
+    select?: S;
+    orderBy?: EnumBasicOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetEnumBasicPayload<S> | null>;
+
+  findMany<S extends EnumBasicSelect | undefined = undefined>(options?: {
+    where?: EnumBasicWhere;
+    select?: S;
+    orderBy?: EnumBasicOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetEnumBasicPayload<S>[]>;
+
+  findUnique<S extends EnumBasicSelect | undefined = undefined>(options: {
+    where: EnumBasicFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetEnumBasicPayload<S> | null>;
+
+  create<S extends EnumBasicSelect | undefined = undefined>(options: {
+    data: EnumBasicCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetEnumBasicPayload<S>>;
+
+  updateMany<
+    S extends EnumBasicSelect | undefined = undefined,
+    D extends EnumBasicUpdateInput = EnumBasicUpdateInput,
+  >(options: {
+    where: EnumBasicWhere;
+    data: D;
+    unset?: SafeUnset<EnumBasicUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetEnumBasicPayload<S>[]>;
+
+  updateUnique<
+    S extends EnumBasicSelect | undefined = undefined,
+    D extends EnumBasicUpdateInput = EnumBasicUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: EnumBasicFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<EnumBasicUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns EnumBasic | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetEnumBasicPayload<S>, R>>;
+
+  upsert<
+    S extends EnumBasicSelect | undefined = undefined,
+    D extends EnumBasicUpdateInput = EnumBasicUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: EnumBasicFindUniqueWhere;
+    create: EnumBasicCreateInput;
+    update?: D;
+    unset?: SafeUnset<EnumBasicUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetEnumBasicPayload<S>, R>>;
+
+  upsert<
+    S extends EnumBasicSelect | undefined = undefined,
+    D extends EnumBasicUpdateInput = EnumBasicUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: EnumBasicWhere;
+    create: EnumBasicCreateInput;
+    update?: D;
+    unset?: SafeUnset<EnumBasicUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetEnumBasicPayload<S>, R>>;
+
+  deleteMany(options: { where: EnumBasicWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: EnumBasicFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns EnumBasic | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<EnumBasic, R>>;
+
+  count(where?: EnumBasicWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: EnumBasicWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/enumdefaults.ts =====
+/**
+ * Generated types for EnumDefaults
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import { RoleEnum } from '../enums/role';
+import type { RoleEnumType, RoleEnumWhere } from '../enums/role';
+import { SeverityEnum } from '../enums/severity';
+import type { SeverityEnumType, SeverityEnumWhere } from '../enums/severity';
+export interface EnumDefaults {
+  id: CerialId<string>;
+  label: string;
+  role: RoleEnumType;
+  severity: SeverityEnumType;
+}
+
+export interface EnumDefaultsInput {
+  id?: string;
+  label: string;
+  role: RoleEnumType;
+  severity: SeverityEnumType;
+}
+
+export interface EnumDefaultsWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  label?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  role?: RoleEnumType | RoleEnumWhere;
+  severity?: SeverityEnumType | SeverityEnumWhere;
+  AND?: EnumDefaultsWhere[];
+  OR?: EnumDefaultsWhere[];
+  NOT?: EnumDefaultsWhere;
+}
+
+export type EnumDefaultsWhereInput = EnumDefaultsWhere;
+
+export type EnumDefaultsFindUniqueWhere = { id: RecordIdInput<string> } & Omit<EnumDefaultsWhere, 'id'>;
+
+export type EnumDefaultsCreate = O.Optional<EnumDefaultsInput, 'id' | 'role' | 'severity'>;
+
+export type EnumDefaultsNestedCreate = O.Optional<EnumDefaultsInput, 'id' | 'role' | 'severity'>;
+
+export type EnumDefaultsCreateInput = EnumDefaultsCreate;
+
+export type EnumDefaultsUpdate = Partial<O.Omit<EnumDefaultsInput, 'id'>>;
+
+export type EnumDefaultsUpdateInput = EnumDefaultsUpdate;
+
+export type EnumDefaultsUnset = {};
+
+export type EnumDefaultsSelect =
+  | ({ id: boolean } & Partial<Record<'label' | 'role' | 'severity', boolean>>)
+  | ({ label: boolean } & Partial<Record<'id' | 'role' | 'severity', boolean>>)
+  | ({ role: boolean } & Partial<Record<'id' | 'label' | 'severity', boolean>>)
+  | ({ severity: boolean } & Partial<Record<'id' | 'label' | 'role', boolean>>);
+
+export interface EnumDefaultsOrderBy {
+  id?: 'asc' | 'desc';
+  label?: 'asc' | 'desc';
+  role?: 'asc' | 'desc';
+  severity?: 'asc' | 'desc';
+}
+
+export type EnumDefaults$Relations = {};
+
+export type GetEnumDefaultsPayload<S extends EnumDefaultsSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends EnumDefaultsSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof EnumDefaults
+          ? ResolveFieldSelect<EnumDefaults[K], S[K]>
+          : never;
+      }
+    : EnumDefaults,
+  'flat'
+>;
+
+export interface EnumDefaultsModel {
+  findOne<S extends EnumDefaultsSelect | undefined = undefined>(options?: {
+    where?: EnumDefaultsWhere;
+    select?: S;
+    orderBy?: EnumDefaultsOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetEnumDefaultsPayload<S> | null>;
+
+  findMany<S extends EnumDefaultsSelect | undefined = undefined>(options?: {
+    where?: EnumDefaultsWhere;
+    select?: S;
+    orderBy?: EnumDefaultsOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetEnumDefaultsPayload<S>[]>;
+
+  findUnique<S extends EnumDefaultsSelect | undefined = undefined>(options: {
+    where: EnumDefaultsFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetEnumDefaultsPayload<S> | null>;
+
+  create<S extends EnumDefaultsSelect | undefined = undefined>(options: {
+    data: EnumDefaultsCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetEnumDefaultsPayload<S>>;
+
+  updateMany<
+    S extends EnumDefaultsSelect | undefined = undefined,
+    D extends EnumDefaultsUpdateInput = EnumDefaultsUpdateInput,
+  >(options: {
+    where: EnumDefaultsWhere;
+    data: D;
+    unset?: SafeUnset<EnumDefaultsUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetEnumDefaultsPayload<S>[]>;
+
+  updateUnique<
+    S extends EnumDefaultsSelect | undefined = undefined,
+    D extends EnumDefaultsUpdateInput = EnumDefaultsUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: EnumDefaultsFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<EnumDefaultsUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns EnumDefaults | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetEnumDefaultsPayload<S>, R>>;
+
+  upsert<
+    S extends EnumDefaultsSelect | undefined = undefined,
+    D extends EnumDefaultsUpdateInput = EnumDefaultsUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: EnumDefaultsFindUniqueWhere;
+    create: EnumDefaultsCreateInput;
+    update?: D;
+    unset?: SafeUnset<EnumDefaultsUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetEnumDefaultsPayload<S>, R>>;
+
+  upsert<
+    S extends EnumDefaultsSelect | undefined = undefined,
+    D extends EnumDefaultsUpdateInput = EnumDefaultsUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: EnumDefaultsWhere;
+    create: EnumDefaultsCreateInput;
+    update?: D;
+    unset?: SafeUnset<EnumDefaultsUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetEnumDefaultsPayload<S>, R>>;
+
+  deleteMany(options: { where: EnumDefaultsWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: EnumDefaultsFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns EnumDefaults | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<EnumDefaults, R>>;
+
+  count(where?: EnumDefaultsWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: EnumDefaultsWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/enumliteralref.ts =====
+/**
+ * Generated types for EnumLiteralRef
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { RoleOrCustom, RoleOrCustomWhere } from '../literals/roleorcustom';
+export interface EnumLiteralRef {
+  id: CerialId<string>;
+  access: RoleOrCustom;
+}
+
+export interface EnumLiteralRefInput {
+  id?: string;
+  access: RoleOrCustom;
+}
+
+export interface EnumLiteralRefWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  access?: RoleOrCustom | RoleOrCustomWhere;
+  AND?: EnumLiteralRefWhere[];
+  OR?: EnumLiteralRefWhere[];
+  NOT?: EnumLiteralRefWhere;
+}
+
+export type EnumLiteralRefWhereInput = EnumLiteralRefWhere;
+
+export type EnumLiteralRefFindUniqueWhere = { id: RecordIdInput<string> } & Omit<EnumLiteralRefWhere, 'id'>;
+
+export type EnumLiteralRefCreate = O.Optional<EnumLiteralRefInput, 'id'>;
+
+export type EnumLiteralRefNestedCreate = O.Optional<EnumLiteralRefInput, 'id'>;
+
+export type EnumLiteralRefCreateInput = EnumLiteralRefCreate;
+
+export type EnumLiteralRefUpdate = Partial<O.Omit<EnumLiteralRefInput, 'id'>>;
+
+export type EnumLiteralRefUpdateInput = EnumLiteralRefUpdate;
+
+export type EnumLiteralRefUnset = {};
+
+export type EnumLiteralRefSelect =
+  | ({ id: boolean } & Partial<Record<'access', boolean>>)
+  | ({ access: boolean } & Partial<Record<'id', boolean>>);
+
+export interface EnumLiteralRefOrderBy {
+  id?: 'asc' | 'desc';
+}
+
+export type EnumLiteralRef$Relations = {};
+
+export type GetEnumLiteralRefPayload<S extends EnumLiteralRefSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends EnumLiteralRefSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof EnumLiteralRef
+          ? ResolveFieldSelect<EnumLiteralRef[K], S[K]>
+          : never;
+      }
+    : EnumLiteralRef,
+  'flat'
+>;
+
+export interface EnumLiteralRefModel {
+  findOne<S extends EnumLiteralRefSelect | undefined = undefined>(options?: {
+    where?: EnumLiteralRefWhere;
+    select?: S;
+    orderBy?: EnumLiteralRefOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetEnumLiteralRefPayload<S> | null>;
+
+  findMany<S extends EnumLiteralRefSelect | undefined = undefined>(options?: {
+    where?: EnumLiteralRefWhere;
+    select?: S;
+    orderBy?: EnumLiteralRefOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetEnumLiteralRefPayload<S>[]>;
+
+  findUnique<S extends EnumLiteralRefSelect | undefined = undefined>(options: {
+    where: EnumLiteralRefFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetEnumLiteralRefPayload<S> | null>;
+
+  create<S extends EnumLiteralRefSelect | undefined = undefined>(options: {
+    data: EnumLiteralRefCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetEnumLiteralRefPayload<S>>;
+
+  updateMany<
+    S extends EnumLiteralRefSelect | undefined = undefined,
+    D extends EnumLiteralRefUpdateInput = EnumLiteralRefUpdateInput,
+  >(options: {
+    where: EnumLiteralRefWhere;
+    data: D;
+    unset?: SafeUnset<EnumLiteralRefUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetEnumLiteralRefPayload<S>[]>;
+
+  updateUnique<
+    S extends EnumLiteralRefSelect | undefined = undefined,
+    D extends EnumLiteralRefUpdateInput = EnumLiteralRefUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: EnumLiteralRefFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<EnumLiteralRefUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns EnumLiteralRef | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetEnumLiteralRefPayload<S>, R>>;
+
+  upsert<
+    S extends EnumLiteralRefSelect | undefined = undefined,
+    D extends EnumLiteralRefUpdateInput = EnumLiteralRefUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: EnumLiteralRefFindUniqueWhere;
+    create: EnumLiteralRefCreateInput;
+    update?: D;
+    unset?: SafeUnset<EnumLiteralRefUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetEnumLiteralRefPayload<S>, R>>;
+
+  upsert<
+    S extends EnumLiteralRefSelect | undefined = undefined,
+    D extends EnumLiteralRefUpdateInput = EnumLiteralRefUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: EnumLiteralRefWhere;
+    create: EnumLiteralRefCreateInput;
+    update?: D;
+    unset?: SafeUnset<EnumLiteralRefUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetEnumLiteralRefPayload<S>, R>>;
+
+  deleteMany(options: { where: EnumLiteralRefWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: EnumLiteralRefFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns EnumLiteralRef | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<EnumLiteralRef, R>>;
+
+  count(where?: EnumLiteralRefWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: EnumLiteralRefWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/enummultiple.ts =====
+/**
+ * Generated types for EnumMultiple
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import { RoleEnum } from '../enums/role';
+import type { RoleEnumType, RoleEnumWhere } from '../enums/role';
+import { ColorEnum } from '../enums/color';
+import type { ColorEnumType, ColorEnumWhere } from '../enums/color';
+import { SeverityEnum } from '../enums/severity';
+import type { SeverityEnumType, SeverityEnumWhere } from '../enums/severity';
+export interface EnumMultiple {
+  id: CerialId<string>;
+  title: string;
+  role: RoleEnumType;
+  color: ColorEnumType;
+  severity: SeverityEnumType;
+}
+
+export interface EnumMultipleInput {
+  id?: string;
+  title: string;
+  role: RoleEnumType;
+  color: ColorEnumType;
+  severity: SeverityEnumType;
+}
+
+export interface EnumMultipleWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  title?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  role?: RoleEnumType | RoleEnumWhere;
+  color?: ColorEnumType | ColorEnumWhere;
+  severity?: SeverityEnumType | SeverityEnumWhere;
+  AND?: EnumMultipleWhere[];
+  OR?: EnumMultipleWhere[];
+  NOT?: EnumMultipleWhere;
+}
+
+export type EnumMultipleWhereInput = EnumMultipleWhere;
+
+export type EnumMultipleFindUniqueWhere = { id: RecordIdInput<string> } & Omit<EnumMultipleWhere, 'id'>;
+
+export type EnumMultipleCreate = O.Optional<EnumMultipleInput, 'id'>;
+
+export type EnumMultipleNestedCreate = O.Optional<EnumMultipleInput, 'id'>;
+
+export type EnumMultipleCreateInput = EnumMultipleCreate;
+
+export type EnumMultipleUpdate = Partial<O.Omit<EnumMultipleInput, 'id'>>;
+
+export type EnumMultipleUpdateInput = EnumMultipleUpdate;
+
+export type EnumMultipleUnset = {};
+
+export type EnumMultipleSelect =
+  | ({ id: boolean } & Partial<Record<'title' | 'role' | 'color' | 'severity', boolean>>)
+  | ({ title: boolean } & Partial<Record<'id' | 'role' | 'color' | 'severity', boolean>>)
+  | ({ role: boolean } & Partial<Record<'id' | 'title' | 'color' | 'severity', boolean>>)
+  | ({ color: boolean } & Partial<Record<'id' | 'title' | 'role' | 'severity', boolean>>)
+  | ({ severity: boolean } & Partial<Record<'id' | 'title' | 'role' | 'color', boolean>>);
+
+export interface EnumMultipleOrderBy {
+  id?: 'asc' | 'desc';
+  title?: 'asc' | 'desc';
+  role?: 'asc' | 'desc';
+  color?: 'asc' | 'desc';
+  severity?: 'asc' | 'desc';
+}
+
+export type EnumMultiple$Relations = {};
+
+export type GetEnumMultiplePayload<S extends EnumMultipleSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends EnumMultipleSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof EnumMultiple
+          ? ResolveFieldSelect<EnumMultiple[K], S[K]>
+          : never;
+      }
+    : EnumMultiple,
+  'flat'
+>;
+
+export interface EnumMultipleModel {
+  findOne<S extends EnumMultipleSelect | undefined = undefined>(options?: {
+    where?: EnumMultipleWhere;
+    select?: S;
+    orderBy?: EnumMultipleOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetEnumMultiplePayload<S> | null>;
+
+  findMany<S extends EnumMultipleSelect | undefined = undefined>(options?: {
+    where?: EnumMultipleWhere;
+    select?: S;
+    orderBy?: EnumMultipleOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetEnumMultiplePayload<S>[]>;
+
+  findUnique<S extends EnumMultipleSelect | undefined = undefined>(options: {
+    where: EnumMultipleFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetEnumMultiplePayload<S> | null>;
+
+  create<S extends EnumMultipleSelect | undefined = undefined>(options: {
+    data: EnumMultipleCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetEnumMultiplePayload<S>>;
+
+  updateMany<
+    S extends EnumMultipleSelect | undefined = undefined,
+    D extends EnumMultipleUpdateInput = EnumMultipleUpdateInput,
+  >(options: {
+    where: EnumMultipleWhere;
+    data: D;
+    unset?: SafeUnset<EnumMultipleUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetEnumMultiplePayload<S>[]>;
+
+  updateUnique<
+    S extends EnumMultipleSelect | undefined = undefined,
+    D extends EnumMultipleUpdateInput = EnumMultipleUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: EnumMultipleFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<EnumMultipleUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns EnumMultiple | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetEnumMultiplePayload<S>, R>>;
+
+  upsert<
+    S extends EnumMultipleSelect | undefined = undefined,
+    D extends EnumMultipleUpdateInput = EnumMultipleUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: EnumMultipleFindUniqueWhere;
+    create: EnumMultipleCreateInput;
+    update?: D;
+    unset?: SafeUnset<EnumMultipleUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetEnumMultiplePayload<S>, R>>;
+
+  upsert<
+    S extends EnumMultipleSelect | undefined = undefined,
+    D extends EnumMultipleUpdateInput = EnumMultipleUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: EnumMultipleWhere;
+    create: EnumMultipleCreateInput;
+    update?: D;
+    unset?: SafeUnset<EnumMultipleUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetEnumMultiplePayload<S>, R>>;
+
+  deleteMany(options: { where: EnumMultipleWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: EnumMultipleFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns EnumMultiple | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<EnumMultiple, R>>;
+
+  count(where?: EnumMultipleWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: EnumMultipleWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/enumwithobject.ts =====
+/**
+ * Generated types for EnumWithObject
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  EnumAddress,
+  EnumAddressInput,
+  EnumAddressWhere,
+  EnumAddressSelect,
+  EnumAddressOrderBy,
+} from '../objects/enumaddress';
+export interface EnumWithObject {
+  id: CerialId<string>;
+  name: string;
+  address: EnumAddress;
+  optAddress?: EnumAddress;
+}
+
+export interface EnumWithObjectInput {
+  id?: string;
+  name: string;
+  address: EnumAddressInput;
+  optAddress?: EnumAddressInput;
+}
+
+export interface EnumWithObjectWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  address?: EnumAddressWhere;
+  optAddress?: EnumAddressWhere;
+  AND?: EnumWithObjectWhere[];
+  OR?: EnumWithObjectWhere[];
+  NOT?: EnumWithObjectWhere;
+}
+
+export type EnumWithObjectWhereInput = EnumWithObjectWhere;
+
+export type EnumWithObjectFindUniqueWhere = { id: RecordIdInput<string> } & Omit<EnumWithObjectWhere, 'id'>;
+
+export type EnumWithObjectCreate = O.Optional<EnumWithObjectInput, 'id' | 'optAddress'>;
+
+export type EnumWithObjectNestedCreate = O.Optional<EnumWithObjectInput, 'id' | 'optAddress'>;
+
+export type EnumWithObjectCreateInput = EnumWithObjectCreate;
+
+export type EnumWithObjectUpdate = Partial<O.Omit<EnumWithObjectInput, 'id' | 'address' | 'optAddress'>> & {
+  address?: Partial<EnumAddressInput> | { set: EnumAddressInput };
+  optAddress?: Partial<EnumAddressInput> | { set: EnumAddressInput } | CerialNone;
+};
+
+export type EnumWithObjectUpdateInput = EnumWithObjectUpdate;
+
+export type EnumWithObjectUnset = {
+  optAddress?: true;
+};
+
+export type EnumWithObjectSelect =
+  | ({ id: boolean } & {
+      name?: boolean;
+      address?: boolean | EnumAddressSelect;
+      optAddress?: boolean | EnumAddressSelect;
+    })
+  | ({ name: boolean } & {
+      id?: boolean;
+      address?: boolean | EnumAddressSelect;
+      optAddress?: boolean | EnumAddressSelect;
+    })
+  | ({ address: boolean | EnumAddressSelect } & {
+      id?: boolean;
+      name?: boolean;
+      optAddress?: boolean | EnumAddressSelect;
+    })
+  | ({ optAddress: boolean | EnumAddressSelect } & {
+      id?: boolean;
+      name?: boolean;
+      address?: boolean | EnumAddressSelect;
+    });
+
+export interface EnumWithObjectOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  address?: EnumAddressOrderBy;
+  optAddress?: EnumAddressOrderBy;
+}
+
+export type EnumWithObject$Relations = {};
+
+export type GetEnumWithObjectPayload<S extends EnumWithObjectSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends EnumWithObjectSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof EnumWithObject
+          ? ResolveFieldSelect<EnumWithObject[K], S[K]>
+          : never;
+      }
+    : EnumWithObject,
+  'flat'
+>;
+
+export interface EnumWithObjectModel {
+  findOne<S extends EnumWithObjectSelect | undefined = undefined>(options?: {
+    where?: EnumWithObjectWhere;
+    select?: S;
+    orderBy?: EnumWithObjectOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetEnumWithObjectPayload<S> | null>;
+
+  findMany<S extends EnumWithObjectSelect | undefined = undefined>(options?: {
+    where?: EnumWithObjectWhere;
+    select?: S;
+    orderBy?: EnumWithObjectOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetEnumWithObjectPayload<S>[]>;
+
+  findUnique<S extends EnumWithObjectSelect | undefined = undefined>(options: {
+    where: EnumWithObjectFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetEnumWithObjectPayload<S> | null>;
+
+  create<S extends EnumWithObjectSelect | undefined = undefined>(options: {
+    data: EnumWithObjectCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetEnumWithObjectPayload<S>>;
+
+  updateMany<
+    S extends EnumWithObjectSelect | undefined = undefined,
+    D extends EnumWithObjectUpdateInput = EnumWithObjectUpdateInput,
+  >(options: {
+    where: EnumWithObjectWhere;
+    data: D;
+    unset?: SafeUnset<EnumWithObjectUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetEnumWithObjectPayload<S>[]>;
+
+  updateUnique<
+    S extends EnumWithObjectSelect | undefined = undefined,
+    D extends EnumWithObjectUpdateInput = EnumWithObjectUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: EnumWithObjectFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<EnumWithObjectUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns EnumWithObject | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetEnumWithObjectPayload<S>, R>>;
+
+  upsert<
+    S extends EnumWithObjectSelect | undefined = undefined,
+    D extends EnumWithObjectUpdateInput = EnumWithObjectUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: EnumWithObjectFindUniqueWhere;
+    create: EnumWithObjectCreateInput;
+    update?: D;
+    unset?: SafeUnset<EnumWithObjectUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetEnumWithObjectPayload<S>, R>>;
+
+  upsert<
+    S extends EnumWithObjectSelect | undefined = undefined,
+    D extends EnumWithObjectUpdateInput = EnumWithObjectUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: EnumWithObjectWhere;
+    create: EnumWithObjectCreateInput;
+    update?: D;
+    unset?: SafeUnset<EnumWithObjectUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetEnumWithObjectPayload<S>, R>>;
+
+  deleteMany(options: { where: EnumWithObjectWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: EnumWithObjectFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns EnumWithObject | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<EnumWithObject, R>>;
+
+  count(where?: EnumWithObjectWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: EnumWithObjectWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== objects/enumaddress.ts =====
+/**
+ * Generated types for EnumAddress
+ * Do not edit manually
+ */
+
+import { SeverityEnum } from '../enums/severity';
+import type { SeverityEnumType, SeverityEnumWhere } from '../enums/severity';
+export interface EnumAddress {
+  city: string;
+  severity: SeverityEnumType;
+}
+
+export interface EnumAddressInput {
+  city: string;
+  severity: SeverityEnumType;
+}
+
+export interface EnumAddressWhere {
+  city?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  severity?: SeverityEnumType | SeverityEnumWhere;
+  AND?: EnumAddressWhere[];
+  OR?: EnumAddressWhere[];
+  NOT?: EnumAddressWhere;
+}
+
+export type EnumAddressSelect =
+  | ({ city: boolean } & Partial<Record<'severity', boolean>>)
+  | ({ severity: boolean } & Partial<Record<'city', boolean>>);
+
+export interface EnumAddressOrderBy {
+  city?: 'asc' | 'desc';
+  severity?: 'asc' | 'desc';
+}
+
+// ===== literals/roleorcustom.ts =====
+/**
+ * Generated types for RoleOrCustom
+ * Do not edit manually
+ */
+
+export type RoleOrCustom = 'ADMIN' | 'USER' | 'MODERATOR' | 'custom';
+
+export interface RoleOrCustomWhere {
+  eq?: RoleOrCustom;
+  neq?: RoleOrCustom;
+  in?: RoleOrCustom[];
+  notIn?: RoleOrCustom[];
+}
+
+// ===== enums/color.ts =====
+/**
+ * Generated types for Color enum
+ * Do not edit manually
+ */
+
+export const ColorEnum = {
+  RED: 'RED',
+  GREEN: 'GREEN',
+  BLUE: 'BLUE',
+} as const;
+
+export type ColorEnumType = (typeof ColorEnum)[keyof typeof ColorEnum];
+
+export interface ColorEnumWhere {
+  eq?: ColorEnumType;
+  neq?: ColorEnumType;
+  in?: ColorEnumType[];
+  notIn?: ColorEnumType[];
+  contains?: string;
+  startsWith?: string;
+  endsWith?: string;
+}
+
+// ===== enums/role.ts =====
+/**
+ * Generated types for Role enum
+ * Do not edit manually
+ */
+
+export const RoleEnum = {
+  ADMIN: 'ADMIN',
+  USER: 'USER',
+  MODERATOR: 'MODERATOR',
+} as const;
+
+export type RoleEnumType = (typeof RoleEnum)[keyof typeof RoleEnum];
+
+export interface RoleEnumWhere {
+  eq?: RoleEnumType;
+  neq?: RoleEnumType;
+  in?: RoleEnumType[];
+  notIn?: RoleEnumType[];
+  contains?: string;
+  startsWith?: string;
+  endsWith?: string;
+}
+
+// ===== enums/severity.ts =====
+/**
+ * Generated types for Severity enum
+ * Do not edit manually
+ */
+
+export const SeverityEnum = {
+  LOW: 'LOW',
+  MEDIUM: 'MEDIUM',
+  HIGH: 'HIGH',
+  CRITICAL: 'CRITICAL',
+} as const;
+
+export type SeverityEnumType = (typeof SeverityEnum)[keyof typeof SeverityEnum];
+
+export interface SeverityEnumWhere {
+  eq?: SeverityEnumType;
+  neq?: SeverityEnumType;
+  in?: SeverityEnumType[];
+  notIn?: SeverityEnumType[];
+  contains?: string;
+  startsWith?: string;
+  endsWith?: string;
+}

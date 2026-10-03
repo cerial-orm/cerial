@@ -1,0 +1,101 @@
+-- Department
+DEFINE TABLE OVERWRITE department SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE department TYPE string;
+
+-- Employee
+DEFINE TABLE OVERWRITE employee SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE employee TYPE string;
+DEFINE FIELD OVERWRITE departmentId ON TABLE employee TYPE option<record<department> | null>;
+
+-- Member
+DEFINE TABLE OVERWRITE member SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE member TYPE string;
+DEFINE FIELD OVERWRITE teamId ON TABLE member TYPE option<record<team> | null>;
+
+-- MemberNoAction
+DEFINE TABLE OVERWRITE member_no_action SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE member_no_action TYPE string;
+DEFINE FIELD OVERWRITE teamId ON TABLE member_no_action TYPE option<record<team_no_action> | null>;
+
+-- MemberSetNull
+DEFINE TABLE OVERWRITE member_set_null SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE member_set_null TYPE string;
+DEFINE FIELD OVERWRITE teamId ON TABLE member_set_null TYPE option<record<team_set_null> | null>;
+
+-- OdChild
+DEFINE TABLE OVERWRITE od_child SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE od_child TYPE string;
+DEFINE FIELD OVERWRITE parentId ON TABLE od_child TYPE option<record<od_parent> | null>;
+
+-- OdFolder
+DEFINE TABLE OVERWRITE od_folder SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE od_folder TYPE string;
+DEFINE FIELD OVERWRITE parentId ON TABLE od_folder TYPE option<record<od_folder> | null>;
+
+-- OdGrandparent
+DEFINE TABLE OVERWRITE od_grandparent SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE od_grandparent TYPE string;
+
+-- OdParent
+DEFINE TABLE OVERWRITE od_parent SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE od_parent TYPE string;
+DEFINE FIELD OVERWRITE grandparentId ON TABLE od_parent TYPE option<record<od_grandparent> | null>;
+
+-- ProfileCascade
+DEFINE TABLE OVERWRITE profile_cascade SCHEMAFULL;
+DEFINE FIELD OVERWRITE bio ON TABLE profile_cascade TYPE option<string>;
+DEFINE FIELD OVERWRITE userId ON TABLE profile_cascade TYPE option<record<user_cascade> | null>;
+
+-- ProfileNoAction
+DEFINE TABLE OVERWRITE profile_no_action SCHEMAFULL;
+DEFINE FIELD OVERWRITE bio ON TABLE profile_no_action TYPE option<string>;
+DEFINE FIELD OVERWRITE userId ON TABLE profile_no_action TYPE option<record<user_no_action> | null>;
+
+-- ProfileRestrict
+DEFINE TABLE OVERWRITE profile_restrict SCHEMAFULL;
+DEFINE FIELD OVERWRITE bio ON TABLE profile_restrict TYPE option<string>;
+DEFINE FIELD OVERWRITE userId ON TABLE profile_restrict TYPE option<record<user_restrict> | null>;
+
+-- ProfileSetNone
+DEFINE TABLE OVERWRITE profile_set_none SCHEMAFULL;
+DEFINE FIELD OVERWRITE bio ON TABLE profile_set_none TYPE option<string>;
+DEFINE FIELD OVERWRITE userId ON TABLE profile_set_none TYPE option<record<user_set_none>>;
+
+-- ProfileSetNull
+DEFINE TABLE OVERWRITE profile_set_null SCHEMAFULL;
+DEFINE FIELD OVERWRITE bio ON TABLE profile_set_null TYPE option<string>;
+DEFINE FIELD OVERWRITE userId ON TABLE profile_set_null TYPE option<record<user_set_null> | null>;
+
+-- Team
+DEFINE TABLE OVERWRITE team SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE team TYPE string;
+
+-- TeamNoAction
+DEFINE TABLE OVERWRITE team_no_action SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE team_no_action TYPE string;
+
+-- TeamSetNull
+DEFINE TABLE OVERWRITE team_set_null SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE team_set_null TYPE string;
+
+-- UserCascade
+DEFINE TABLE OVERWRITE user_cascade SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE user_cascade TYPE string;
+
+-- UserNoAction
+DEFINE TABLE OVERWRITE user_no_action SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE user_no_action TYPE string;
+
+-- UserRestrict
+DEFINE TABLE OVERWRITE user_restrict SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE user_restrict TYPE string;
+
+-- UserSetNone
+DEFINE TABLE OVERWRITE user_set_none SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE user_set_none TYPE string;
+
+-- UserSetNull
+DEFINE TABLE OVERWRITE user_set_null SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE user_set_null TYPE string;
+DEFINE FIELD OVERWRITE email ON TABLE user_set_null TYPE string ASSERT string::is_email($value);
+DEFINE INDEX OVERWRITE user_set_null_email_unique ON TABLE user_set_null COLUMNS email UNIQUE;

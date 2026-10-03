@@ -1,0 +1,460 @@
+{
+  "models": [
+    {
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "createdAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "createdAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "updatedAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "updatedAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "unique"
+            }
+          ],
+          "isOptional": false,
+          "name": "email",
+          "type": "email"
+        },
+        {
+          "decorators": [
+            {
+              "type": "unique"
+            }
+          ],
+          "isOptional": false,
+          "name": "username",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "displayName",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "bio",
+          "type": "string"
+        }
+      ],
+      "name": "ExtCrossUser"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "createdAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "createdAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "updatedAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "updatedAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "unique"
+            }
+          ],
+          "isOptional": false,
+          "name": "email",
+          "type": "email"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": 1
+            }
+          ],
+          "isOptional": false,
+          "name": "level",
+          "type": "int"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "permissions",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "department",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "budget",
+          "type": "float"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "teamSize",
+          "type": "int"
+        }
+      ],
+      "name": "ExtCrossAdmin"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "createdAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "createdAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "unique"
+            }
+          ],
+          "isOptional": false,
+          "name": "email",
+          "type": "email"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": 0
+            }
+          ],
+          "isOptional": false,
+          "name": "warningCount",
+          "type": "int"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "lastWarning",
+          "type": "date"
+        }
+      ],
+      "name": "ExtCrossModerator"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "createdAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "createdAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "updatedAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "updatedAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "unique"
+            }
+          ],
+          "isOptional": false,
+          "name": "email",
+          "type": "email"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": true
+            }
+          ],
+          "isOptional": false,
+          "name": "isActive",
+          "type": "bool"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "age",
+          "type": "int"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": "user"
+            }
+          ],
+          "isOptional": false,
+          "name": "role",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": 0
+            }
+          ],
+          "isOptional": false,
+          "name": "loyaltyPoints",
+          "type": "int"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "referralCode",
+          "type": "string"
+        }
+      ],
+      "name": "ExtCrossPremium"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "createdAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "createdAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "updatedAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "updatedAt",
+          "type": "date"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "userId",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "bio",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "avatar",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "tags",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "metadata",
+          "type": "int"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "owner",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "followers",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "following",
+          "type": "record"
+        }
+      ],
+      "name": "ExtCrossProfile"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "createdAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "createdAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "updatedAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "updatedAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "unique"
+            }
+          ],
+          "isOptional": false,
+          "name": "email",
+          "type": "email"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": "No bio"
+            }
+          ],
+          "isOptional": false,
+          "name": "publicBio",
+          "type": "string"
+        }
+      ],
+      "name": "ExtCrossPrivate"
+    }
+  ]
+}

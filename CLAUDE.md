@@ -124,6 +124,11 @@ fastest way to settle a question about SurrealDB. Clean up with `REMOVE TABLE`.
 curl -s -X POST http://127.0.0.1:8000/sql \
   -H "Accept: application/json" \
   -H "surreal-ns: main" -H "surreal-db: main" \
+**Golden snapshot.** The golden snapshot, `tests/generators/golden-snapshot.test.ts`, pins the resolved AST, emitted DDL,
+runtime registry and generated types for every e2e schema. When it fails, find out why before touching
+it. Re-approve only for an intended, reviewed generator change, with `bun run snapshot:update` from
+`apps/orm/` and the reason in the commit body. Rules and layout: `apps/orm/tests/generators/README.md`.
+
   -u "root:root" \
   -d "DEFINE TABLE t SCHEMALESS; CREATE t SET foo = [1,2,3]; SELECT foo[0] FROM t;"
 ```

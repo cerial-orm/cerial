@@ -1,0 +1,891 @@
+{
+  "models": [
+    {
+      "abstract": true,
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "createdAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "createdAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "updatedAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "updatedAt",
+          "type": "date"
+        }
+      ],
+      "name": "ExtBaseEntity"
+    },
+    {
+      "abstract": true,
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "createdAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "createdAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "updatedAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "updatedAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "unique"
+            }
+          ],
+          "isOptional": false,
+          "name": "email",
+          "type": "email"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": true
+            }
+          ],
+          "isOptional": false,
+          "name": "isActive",
+          "type": "bool"
+        }
+      ],
+      "name": "ExtBaseUser"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "createdAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "createdAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "updatedAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "updatedAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "unique"
+            }
+          ],
+          "isOptional": false,
+          "name": "email",
+          "type": "email"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": true
+            }
+          ],
+          "isOptional": false,
+          "name": "isActive",
+          "type": "bool"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "age",
+          "type": "int"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": "user"
+            }
+          ],
+          "isOptional": false,
+          "name": "role",
+          "type": "string"
+        }
+      ],
+      "name": "ExtUser"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "createdAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "createdAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "updatedAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "updatedAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "unique"
+            }
+          ],
+          "isOptional": false,
+          "name": "email",
+          "type": "email"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": 1
+            }
+          ],
+          "isOptional": false,
+          "name": "level",
+          "type": "int"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "permissions",
+          "type": "string"
+        }
+      ],
+      "name": "ExtAdmin"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "createdAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "createdAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "unique"
+            }
+          ],
+          "isOptional": false,
+          "name": "email",
+          "type": "email"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "bannedUntil",
+          "type": "date"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "notes",
+          "type": "string"
+        }
+      ],
+      "name": "ExtModerator"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "createdAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "createdAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "updatedAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "updatedAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "unique"
+            }
+          ],
+          "isOptional": false,
+          "name": "email",
+          "type": "email"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": true
+            }
+          ],
+          "isOptional": false,
+          "name": "isActive",
+          "type": "bool"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": "superadmin"
+            }
+          ],
+          "isOptional": false,
+          "name": "role",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": 99
+            }
+          ],
+          "isOptional": false,
+          "name": "level",
+          "type": "int"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": true
+            }
+          ],
+          "isOptional": false,
+          "name": "canDeleteUsers",
+          "type": "bool"
+        }
+      ],
+      "name": "ExtSuperAdmin"
+    },
+    {
+      "abstract": true,
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "createdAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "createdAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "updatedAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "updatedAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "unique"
+            }
+          ],
+          "isOptional": false,
+          "name": "email",
+          "type": "email"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": true
+            }
+          ],
+          "isOptional": false,
+          "name": "isActive",
+          "type": "bool"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "age",
+          "type": "int"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": "user"
+            }
+          ],
+          "isOptional": false,
+          "name": "role",
+          "type": "string"
+        }
+      ],
+      "name": "ExtBaseUserFull"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "createdAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "createdAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "updatedAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "updatedAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "unique"
+            }
+          ],
+          "isOptional": false,
+          "name": "email",
+          "type": "email"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": true
+            }
+          ],
+          "isOptional": false,
+          "name": "isActive",
+          "type": "bool"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "age",
+          "type": "int"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": "user"
+            }
+          ],
+          "isOptional": false,
+          "name": "role",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": "basic"
+            }
+          ],
+          "isOptional": false,
+          "name": "subscriptionTier",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "subscriptionEnd",
+          "type": "date"
+        }
+      ],
+      "name": "ExtPremiumUser"
+    },
+    {
+      "abstract": true,
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "createdAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "createdAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "updatedAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "updatedAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "unique"
+            }
+          ],
+          "isOptional": false,
+          "name": "email",
+          "type": "email"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": 1
+            }
+          ],
+          "isOptional": false,
+          "name": "level",
+          "type": "int"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "permissions",
+          "type": "string"
+        }
+      ],
+      "name": "ExtBaseAdmin"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "createdAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "createdAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "updatedAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "updatedAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "unique"
+            }
+          ],
+          "isOptional": false,
+          "name": "email",
+          "type": "email"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": 1
+            }
+          ],
+          "isOptional": false,
+          "name": "level",
+          "type": "int"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "permissions",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": false
+            }
+          ],
+          "isOptional": false,
+          "name": "systemAccess",
+          "type": "bool"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "auditLog",
+          "type": "string"
+        }
+      ],
+      "name": "ExtSystemAdmin"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "createdAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "createdAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "updatedAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "updatedAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "unique"
+            }
+          ],
+          "isOptional": false,
+          "name": "email",
+          "type": "email"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "publicBio",
+          "type": "string"
+        }
+      ],
+      "name": "ExtPrivateUser"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "createdAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "createdAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "updatedAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "updatedAt",
+          "type": "date"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "userId",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "bio",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "avatar",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "tags",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "metadata",
+          "type": "int"
+        }
+      ],
+      "name": "ExtProfile"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "createdAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "createdAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "updatedAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "updatedAt",
+          "type": "date"
+        }
+      ],
+      "name": "ExtEmptyChild"
+    }
+  ]
+}

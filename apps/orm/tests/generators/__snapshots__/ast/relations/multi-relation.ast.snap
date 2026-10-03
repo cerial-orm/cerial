@@ -1,0 +1,135 @@
+{
+  "models": [
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "model",
+              "value": "Document"
+            },
+            {
+              "type": "key",
+              "value": "author"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "authoredDocs",
+          "type": "relation"
+        },
+        {
+          "decorators": [
+            {
+              "type": "model",
+              "value": "Document"
+            },
+            {
+              "type": "key",
+              "value": "reviewer"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "reviewedDocs",
+          "type": "relation"
+        }
+      ],
+      "name": "Writer"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "authorId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "authorId"
+            },
+            {
+              "type": "model",
+              "value": "Writer"
+            },
+            {
+              "type": "key",
+              "value": "author"
+            }
+          ],
+          "isOptional": false,
+          "name": "author",
+          "type": "relation"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "reviewerId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "reviewerId"
+            },
+            {
+              "type": "model",
+              "value": "Writer"
+            },
+            {
+              "type": "key",
+              "value": "reviewer"
+            }
+          ],
+          "isOptional": true,
+          "name": "reviewer",
+          "type": "relation"
+        }
+      ],
+      "name": "Document"
+    }
+  ]
+}

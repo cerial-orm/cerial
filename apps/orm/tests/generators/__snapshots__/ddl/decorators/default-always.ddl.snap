@@ -1,0 +1,11 @@
+-- ContentItem
+DEFINE TABLE OVERWRITE content_item SCHEMAFULL;
+DEFINE FIELD OVERWRITE title ON TABLE content_item TYPE string;
+DEFINE FIELD OVERWRITE body ON TABLE content_item TYPE string;
+DEFINE FIELD OVERWRITE reviewed ON TABLE content_item TYPE option<bool> DEFAULT ALWAYS false;
+DEFINE FIELD OVERWRITE syncStatus ON TABLE content_item TYPE option<string> DEFAULT ALWAYS 'dirty';
+DEFINE FIELD OVERWRITE retryCount ON TABLE content_item TYPE option<int> DEFAULT ALWAYS 0;
+DEFINE FIELD OVERWRITE score ON TABLE content_item TYPE option<float> DEFAULT ALWAYS 1;
+DEFINE FIELD OVERWRITE meta ON TABLE content_item TYPE option<object>;
+DEFINE FIELD OVERWRITE meta.note ON TABLE content_item TYPE option<string> DEFAULT ALWAYS 'pending review';
+DEFINE FIELD OVERWRITE meta.flagged ON TABLE content_item TYPE option<bool> DEFAULT ALWAYS false;

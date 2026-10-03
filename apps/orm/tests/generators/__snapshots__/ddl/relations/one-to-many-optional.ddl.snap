@@ -1,0 +1,10 @@
+-- Book
+DEFINE TABLE OVERWRITE book SCHEMAFULL;
+DEFINE FIELD OVERWRITE title ON TABLE book TYPE string;
+DEFINE FIELD OVERWRITE isbn ON TABLE book TYPE string;
+DEFINE FIELD OVERWRITE publisherId ON TABLE book TYPE option<record<publisher> | null>;
+DEFINE INDEX OVERWRITE book_isbn_unique ON TABLE book COLUMNS isbn UNIQUE;
+
+-- Publisher
+DEFINE TABLE OVERWRITE publisher SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE publisher TYPE string;

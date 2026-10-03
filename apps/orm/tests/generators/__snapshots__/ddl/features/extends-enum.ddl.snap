@@ -1,0 +1,20 @@
+-- ExtEnumContainer
+DEFINE TABLE OVERWRITE ext_enum_container SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE ext_enum_container TYPE string;
+DEFINE FIELD OVERWRITE details ON TABLE ext_enum_container TYPE object;
+DEFINE FIELD OVERWRITE details.role ON TABLE ext_enum_container TYPE 'ADMIN' | 'USER' | 'MODERATOR' | 'SUPERADMIN' | 'GUEST';
+DEFINE FIELD OVERWRITE details.status ON TABLE ext_enum_container TYPE 'ACTIVE' | 'INACTIVE' | 'PENDING' | 'ARCHIVED' | 'DELETED' | 'SUSPENDED';
+DEFINE FIELD OVERWRITE details.backupRole ON TABLE ext_enum_container TYPE option<'ADMIN' | 'USER'>;
+DEFINE FIELD OVERWRITE detailsList ON TABLE ext_enum_container TYPE array<object>;
+DEFINE FIELD OVERWRITE detailsList.*.role ON TABLE ext_enum_container TYPE 'ADMIN' | 'USER' | 'MODERATOR' | 'SUPERADMIN' | 'GUEST';
+DEFINE FIELD OVERWRITE detailsList.*.status ON TABLE ext_enum_container TYPE 'ACTIVE' | 'INACTIVE' | 'PENDING' | 'ARCHIVED' | 'DELETED' | 'SUSPENDED';
+DEFINE FIELD OVERWRITE detailsList.*.backupRole ON TABLE ext_enum_container TYPE option<'ADMIN' | 'USER'>;
+
+-- ExtEnumModel
+DEFINE TABLE OVERWRITE ext_enum_model SCHEMAFULL;
+DEFINE FIELD OVERWRITE role ON TABLE ext_enum_model TYPE 'ADMIN' | 'USER' | 'MODERATOR' | 'SUPERADMIN' | 'GUEST';
+DEFINE FIELD OVERWRITE status ON TABLE ext_enum_model TYPE 'ACTIVE' | 'INACTIVE' | 'PENDING' | 'ARCHIVED' | 'DELETED' | 'SUSPENDED';
+DEFINE FIELD OVERWRITE coreRole ON TABLE ext_enum_model TYPE option<'ADMIN' | 'USER'>;
+DEFINE FIELD OVERWRITE nonAdminRole ON TABLE ext_enum_model TYPE option<'USER' | 'MODERATOR'>;
+DEFINE FIELD OVERWRITE roles ON TABLE ext_enum_model TYPE array<'ADMIN' | 'USER' | 'MODERATOR' | 'SUPERADMIN' | 'GUEST'>;
+DEFINE FIELD OVERWRITE statuses ON TABLE ext_enum_model TYPE array<'ACTIVE' | 'INACTIVE' | 'PENDING' | 'ARCHIVED' | 'DELETED' | 'SUSPENDED'>;

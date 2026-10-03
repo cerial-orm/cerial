@@ -1,0 +1,683 @@
+{
+  "enums": {
+    "ExtBaseRole": {
+      "name": "ExtBaseRole",
+      "variants": [
+        {
+          "kind": "string",
+          "value": "ADMIN"
+        },
+        {
+          "kind": "string",
+          "value": "USER"
+        },
+        {
+          "kind": "string",
+          "value": "MODERATOR"
+        }
+      ]
+    },
+    "ExtBaseStatus": {
+      "name": "ExtBaseStatus",
+      "variants": [
+        {
+          "kind": "string",
+          "value": "ACTIVE"
+        },
+        {
+          "kind": "string",
+          "value": "INACTIVE"
+        },
+        {
+          "kind": "string",
+          "value": "PENDING"
+        }
+      ]
+    },
+    "ExtCoreRole": {
+      "name": "ExtCoreRole",
+      "variants": [
+        {
+          "kind": "string",
+          "value": "ADMIN"
+        },
+        {
+          "kind": "string",
+          "value": "USER"
+        }
+      ]
+    },
+    "ExtCustomRole": {
+      "name": "ExtCustomRole",
+      "variants": [
+        {
+          "kind": "string",
+          "value": "ADMIN"
+        },
+        {
+          "kind": "string",
+          "value": "USER"
+        },
+        {
+          "kind": "string",
+          "value": "MODERATOR"
+        },
+        {
+          "kind": "string",
+          "value": "CUSTOM"
+        }
+      ]
+    },
+    "ExtDetailedStatus": {
+      "name": "ExtDetailedStatus",
+      "variants": [
+        {
+          "kind": "string",
+          "value": "ACTIVE"
+        },
+        {
+          "kind": "string",
+          "value": "INACTIVE"
+        },
+        {
+          "kind": "string",
+          "value": "PENDING"
+        },
+        {
+          "kind": "string",
+          "value": "ARCHIVED"
+        },
+        {
+          "kind": "string",
+          "value": "DELETED"
+        },
+        {
+          "kind": "string",
+          "value": "SUSPENDED"
+        }
+      ]
+    },
+    "ExtExtendedRole": {
+      "name": "ExtExtendedRole",
+      "variants": [
+        {
+          "kind": "string",
+          "value": "ADMIN"
+        },
+        {
+          "kind": "string",
+          "value": "USER"
+        },
+        {
+          "kind": "string",
+          "value": "MODERATOR"
+        },
+        {
+          "kind": "string",
+          "value": "SUPERADMIN"
+        },
+        {
+          "kind": "string",
+          "value": "GUEST"
+        }
+      ]
+    },
+    "ExtNonAdminRole": {
+      "name": "ExtNonAdminRole",
+      "variants": [
+        {
+          "kind": "string",
+          "value": "USER"
+        },
+        {
+          "kind": "string",
+          "value": "MODERATOR"
+        }
+      ]
+    },
+    "ExtSimpleStatus": {
+      "name": "ExtSimpleStatus",
+      "variants": [
+        {
+          "kind": "string",
+          "value": "ACTIVE"
+        },
+        {
+          "kind": "string",
+          "value": "INACTIVE"
+        }
+      ]
+    }
+  },
+  "models": {
+    "ExtEnumContainer": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "details",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "literalInfo": {
+                  "literalName": "ExtExtendedRole",
+                  "variants": [
+                    {
+                      "kind": "string",
+                      "value": "ADMIN"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "USER"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "MODERATOR"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "SUPERADMIN"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "GUEST"
+                    }
+                  ]
+                },
+                "name": "role",
+                "type": "literal"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "literalInfo": {
+                  "literalName": "ExtDetailedStatus",
+                  "variants": [
+                    {
+                      "kind": "string",
+                      "value": "ACTIVE"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "INACTIVE"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "PENDING"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "ARCHIVED"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "DELETED"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "SUSPENDED"
+                    }
+                  ]
+                },
+                "name": "status",
+                "type": "literal"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "literalInfo": {
+                  "literalName": "ExtCoreRole",
+                  "variants": [
+                    {
+                      "kind": "string",
+                      "value": "ADMIN"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "USER"
+                    }
+                  ]
+                },
+                "name": "backupRole",
+                "type": "literal"
+              }
+            ],
+            "objectName": "ExtEnumInfo"
+          },
+          "type": "object"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "detailsList",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "literalInfo": {
+                  "literalName": "ExtExtendedRole",
+                  "variants": [
+                    {
+                      "kind": "string",
+                      "value": "ADMIN"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "USER"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "MODERATOR"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "SUPERADMIN"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "GUEST"
+                    }
+                  ]
+                },
+                "name": "role",
+                "type": "literal"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "literalInfo": {
+                  "literalName": "ExtDetailedStatus",
+                  "variants": [
+                    {
+                      "kind": "string",
+                      "value": "ACTIVE"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "INACTIVE"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "PENDING"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "ARCHIVED"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "DELETED"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "SUSPENDED"
+                    }
+                  ]
+                },
+                "name": "status",
+                "type": "literal"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "literalInfo": {
+                  "literalName": "ExtCoreRole",
+                  "variants": [
+                    {
+                      "kind": "string",
+                      "value": "ADMIN"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "USER"
+                    }
+                  ]
+                },
+                "name": "backupRole",
+                "type": "literal"
+              }
+            ],
+            "objectName": "ExtEnumInfo"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "ExtEnumContainer",
+      "tableName": "ext_enum_container"
+    },
+    "ExtEnumModel": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "ExtExtendedRole",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "ADMIN"
+              },
+              {
+                "kind": "string",
+                "value": "USER"
+              },
+              {
+                "kind": "string",
+                "value": "MODERATOR"
+              },
+              {
+                "kind": "string",
+                "value": "SUPERADMIN"
+              },
+              {
+                "kind": "string",
+                "value": "GUEST"
+              }
+            ]
+          },
+          "name": "role",
+          "type": "literal"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "ExtDetailedStatus",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "ACTIVE"
+              },
+              {
+                "kind": "string",
+                "value": "INACTIVE"
+              },
+              {
+                "kind": "string",
+                "value": "PENDING"
+              },
+              {
+                "kind": "string",
+                "value": "ARCHIVED"
+              },
+              {
+                "kind": "string",
+                "value": "DELETED"
+              },
+              {
+                "kind": "string",
+                "value": "SUSPENDED"
+              }
+            ]
+          },
+          "name": "status",
+          "type": "literal"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "ExtCoreRole",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "ADMIN"
+              },
+              {
+                "kind": "string",
+                "value": "USER"
+              }
+            ]
+          },
+          "name": "coreRole",
+          "type": "literal"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "ExtNonAdminRole",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "USER"
+              },
+              {
+                "kind": "string",
+                "value": "MODERATOR"
+              }
+            ]
+          },
+          "name": "nonAdminRole",
+          "type": "literal"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "ExtExtendedRole",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "ADMIN"
+              },
+              {
+                "kind": "string",
+                "value": "USER"
+              },
+              {
+                "kind": "string",
+                "value": "MODERATOR"
+              },
+              {
+                "kind": "string",
+                "value": "SUPERADMIN"
+              },
+              {
+                "kind": "string",
+                "value": "GUEST"
+              }
+            ]
+          },
+          "name": "roles",
+          "type": "literal"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "ExtDetailedStatus",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "ACTIVE"
+              },
+              {
+                "kind": "string",
+                "value": "INACTIVE"
+              },
+              {
+                "kind": "string",
+                "value": "PENDING"
+              },
+              {
+                "kind": "string",
+                "value": "ARCHIVED"
+              },
+              {
+                "kind": "string",
+                "value": "DELETED"
+              },
+              {
+                "kind": "string",
+                "value": "SUSPENDED"
+              }
+            ]
+          },
+          "name": "statuses",
+          "type": "literal"
+        }
+      ],
+      "name": "ExtEnumModel",
+      "tableName": "ext_enum_model"
+    }
+  },
+  "objects": {
+    "ExtEnumInfo": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "ExtExtendedRole",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "ADMIN"
+              },
+              {
+                "kind": "string",
+                "value": "USER"
+              },
+              {
+                "kind": "string",
+                "value": "MODERATOR"
+              },
+              {
+                "kind": "string",
+                "value": "SUPERADMIN"
+              },
+              {
+                "kind": "string",
+                "value": "GUEST"
+              }
+            ]
+          },
+          "name": "role",
+          "type": "literal"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "ExtDetailedStatus",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "ACTIVE"
+              },
+              {
+                "kind": "string",
+                "value": "INACTIVE"
+              },
+              {
+                "kind": "string",
+                "value": "PENDING"
+              },
+              {
+                "kind": "string",
+                "value": "ARCHIVED"
+              },
+              {
+                "kind": "string",
+                "value": "DELETED"
+              },
+              {
+                "kind": "string",
+                "value": "SUSPENDED"
+              }
+            ]
+          },
+          "name": "status",
+          "type": "literal"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "ExtCoreRole",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "ADMIN"
+              },
+              {
+                "kind": "string",
+                "value": "USER"
+              }
+            ]
+          },
+          "name": "backupRole",
+          "type": "literal"
+        }
+      ],
+      "name": "ExtEnumInfo"
+    }
+  }
+}

@@ -22,6 +22,8 @@ export const SCHEMAS_DIR = join(import.meta.dir, '..', 'e2e', 'schemas');
 export interface Corpus {
   readonly files: readonly string[];
   readonly errors: readonly string[];
+  /** Each file's own parse, in `files` order; `ast` is these concatenated. */
+  readonly parsed: readonly SchemaAST[];
   readonly ast: SchemaAST;
   readonly fields: readonly ASTField[];
   readonly elements: readonly ASTTupleElement[];
@@ -59,8 +61,10 @@ export function loadCorpus(dir: string = SCHEMAS_DIR): Corpus {
 
   const ast: SchemaAST = { models: [], objects: [], tuples: [], literals: [], enums: [], source: '' };
   const errors: string[] = [];
+  const parsed: SchemaAST[] = [];
   sources.forEach((source, i) => {
     const result = parse(source, objectNames, tupleNames, literalNames, enumNames);
+    parsed.push(result.ast);
     for (const e of result.errors) errors.push(`${relative(dir, paths[i]!)}: ${e.message}`);
     ast.models.push(...result.ast.models);
     ast.objects.push(...result.ast.objects);
@@ -72,6 +76,7 @@ export function loadCorpus(dir: string = SCHEMAS_DIR): Corpus {
   return {
     files: paths.map((p) => relative(dir, p)),
     errors,
+    parsed,
     ast,
     fields: [...ast.models.flatMap((m) => m.fields), ...ast.objects.flatMap((o) => o.fields)],
     elements: ast.tuples.flatMap((t) => t.elements),

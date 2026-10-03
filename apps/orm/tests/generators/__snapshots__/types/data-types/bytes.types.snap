@@ -1,0 +1,884 @@
+// ===== models/bytesbasic.ts =====
+/**
+ * Generated types for BytesBasic
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import { CerialBytes } from 'cerial';
+import type { CerialBytesInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface BytesBasic {
+  id: CerialId<string>;
+  name: string;
+  payload: CerialBytes;
+  metadata?: CerialBytes;
+  tag: CerialBytes | null;
+  chunks: CerialBytes[];
+}
+
+export interface BytesBasicInput {
+  id?: string;
+  name: string;
+  payload: CerialBytesInput;
+  metadata?: CerialBytesInput;
+  tag: CerialBytesInput | null;
+  chunks: CerialBytesInput[];
+}
+
+export interface BytesBasicWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  payload?:
+    | CerialBytesInput
+    | ({
+        eq?: CerialBytesInput;
+        neq?: CerialBytesInput;
+      } & {
+        in?: CerialBytesInput[];
+        notIn?: CerialBytesInput[];
+      } & {});
+  metadata?:
+    | CerialBytesInput
+    | ({
+        eq?: CerialBytesInput;
+        neq?: CerialBytesInput;
+      } & {
+        in?: CerialBytesInput[];
+        notIn?: CerialBytesInput[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  tag?:
+    | null
+    | CerialBytesInput
+    | ({
+        eq?: CerialBytesInput;
+        neq?: CerialBytesInput;
+      } & {
+        in?: CerialBytesInput[];
+        notIn?: CerialBytesInput[];
+      } & {
+        not?: string | null;
+        isNull?: boolean;
+      });
+  chunks?:
+    | CerialBytesInput[]
+    | {
+        has?: CerialBytesInput;
+        hasAll?: CerialBytesInput[];
+        hasAny?: CerialBytesInput[];
+        isEmpty?: boolean;
+      };
+  AND?: BytesBasicWhere[];
+  OR?: BytesBasicWhere[];
+  NOT?: BytesBasicWhere;
+}
+
+export type BytesBasicWhereInput = BytesBasicWhere;
+
+export type BytesBasicFindUniqueWhere = { id: RecordIdInput<string> } & Omit<BytesBasicWhere, 'id'>;
+
+export type BytesBasicCreate = O.Optional<BytesBasicInput, 'id' | 'metadata' | 'chunks'>;
+
+export type BytesBasicNestedCreate = O.Optional<BytesBasicInput, 'id' | 'metadata' | 'chunks'>;
+
+export type BytesBasicCreateInput = BytesBasicCreate;
+
+export type BytesBasicUpdate = Partial<O.Omit<BytesBasicInput, 'id' | 'chunks' | 'metadata' | 'tag'>> & {
+  chunks?:
+    | CerialBytesInput[]
+    | {
+        push?: CerialBytesInput | CerialBytesInput[];
+        unset?: CerialBytesInput | CerialBytesInput[];
+      };
+  metadata?: CerialBytesInput | CerialNone;
+  tag?: CerialBytesInput | null;
+};
+
+export type BytesBasicUpdateInput = BytesBasicUpdate;
+
+export type BytesBasicUnset = {
+  metadata?: true;
+};
+
+export type BytesBasicSelect =
+  | ({ id: boolean } & Partial<Record<'name' | 'payload' | 'metadata' | 'tag' | 'chunks', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'payload' | 'metadata' | 'tag' | 'chunks', boolean>>)
+  | ({ payload: boolean } & Partial<Record<'id' | 'name' | 'metadata' | 'tag' | 'chunks', boolean>>)
+  | ({ metadata: boolean } & Partial<Record<'id' | 'name' | 'payload' | 'tag' | 'chunks', boolean>>)
+  | ({ tag: boolean } & Partial<Record<'id' | 'name' | 'payload' | 'metadata' | 'chunks', boolean>>)
+  | ({ chunks: boolean } & Partial<Record<'id' | 'name' | 'payload' | 'metadata' | 'tag', boolean>>);
+
+export interface BytesBasicOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  payload?: 'asc' | 'desc';
+  metadata?: 'asc' | 'desc';
+  tag?: 'asc' | 'desc';
+  chunks?: 'asc' | 'desc';
+}
+
+export type BytesBasic$Relations = {};
+
+export type GetBytesBasicPayload<S extends BytesBasicSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends BytesBasicSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof BytesBasic
+          ? ResolveFieldSelect<BytesBasic[K], S[K]>
+          : never;
+      }
+    : BytesBasic,
+  'flat'
+>;
+
+export interface BytesBasicModel {
+  findOne<S extends BytesBasicSelect | undefined = undefined>(options?: {
+    where?: BytesBasicWhere;
+    select?: S;
+    orderBy?: BytesBasicOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetBytesBasicPayload<S> | null>;
+
+  findMany<S extends BytesBasicSelect | undefined = undefined>(options?: {
+    where?: BytesBasicWhere;
+    select?: S;
+    orderBy?: BytesBasicOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetBytesBasicPayload<S>[]>;
+
+  findUnique<S extends BytesBasicSelect | undefined = undefined>(options: {
+    where: BytesBasicFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetBytesBasicPayload<S> | null>;
+
+  create<S extends BytesBasicSelect | undefined = undefined>(options: {
+    data: BytesBasicCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetBytesBasicPayload<S>>;
+
+  updateMany<
+    S extends BytesBasicSelect | undefined = undefined,
+    D extends BytesBasicUpdateInput = BytesBasicUpdateInput,
+  >(options: {
+    where: BytesBasicWhere;
+    data: D;
+    unset?: SafeUnset<BytesBasicUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetBytesBasicPayload<S>[]>;
+
+  updateUnique<
+    S extends BytesBasicSelect | undefined = undefined,
+    D extends BytesBasicUpdateInput = BytesBasicUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: BytesBasicFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<BytesBasicUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns BytesBasic | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetBytesBasicPayload<S>, R>>;
+
+  upsert<
+    S extends BytesBasicSelect | undefined = undefined,
+    D extends BytesBasicUpdateInput = BytesBasicUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: BytesBasicFindUniqueWhere;
+    create: BytesBasicCreateInput;
+    update?: D;
+    unset?: SafeUnset<BytesBasicUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetBytesBasicPayload<S>, R>>;
+
+  upsert<
+    S extends BytesBasicSelect | undefined = undefined,
+    D extends BytesBasicUpdateInput = BytesBasicUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: BytesBasicWhere;
+    create: BytesBasicCreateInput;
+    update?: D;
+    unset?: SafeUnset<BytesBasicUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetBytesBasicPayload<S>, R>>;
+
+  deleteMany(options: { where: BytesBasicWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: BytesBasicFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns BytesBasic | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<BytesBasic, R>>;
+
+  count(where?: BytesBasicWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: BytesBasicWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/byteswithobject.ts =====
+/**
+ * Generated types for BytesWithObject
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  BytesInfo,
+  BytesInfoInput,
+  BytesInfoWhere,
+  BytesInfoSelect,
+  BytesInfoOrderBy,
+} from '../objects/bytesinfo';
+export interface BytesWithObject {
+  id: CerialId<string>;
+  name: string;
+  details: BytesInfo;
+}
+
+export interface BytesWithObjectInput {
+  id?: string;
+  name: string;
+  details: BytesInfoInput;
+}
+
+export interface BytesWithObjectWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  details?: BytesInfoWhere;
+  AND?: BytesWithObjectWhere[];
+  OR?: BytesWithObjectWhere[];
+  NOT?: BytesWithObjectWhere;
+}
+
+export type BytesWithObjectWhereInput = BytesWithObjectWhere;
+
+export type BytesWithObjectFindUniqueWhere = { id: RecordIdInput<string> } & Omit<BytesWithObjectWhere, 'id'>;
+
+export type BytesWithObjectCreate = O.Optional<BytesWithObjectInput, 'id'>;
+
+export type BytesWithObjectNestedCreate = O.Optional<BytesWithObjectInput, 'id'>;
+
+export type BytesWithObjectCreateInput = BytesWithObjectCreate;
+
+export type BytesWithObjectUpdate = Partial<O.Omit<BytesWithObjectInput, 'id' | 'details'>> & {
+  details?: Partial<BytesInfoInput> | { set: BytesInfoInput };
+};
+
+export type BytesWithObjectUpdateInput = BytesWithObjectUpdate;
+
+export type BytesWithObjectUnset = {
+  details?: {
+    extra?: true;
+  };
+};
+
+export type BytesWithObjectSelect =
+  | ({ id: boolean } & { name?: boolean; details?: boolean | BytesInfoSelect })
+  | ({ name: boolean } & { id?: boolean; details?: boolean | BytesInfoSelect })
+  | ({ details: boolean | BytesInfoSelect } & Partial<Record<'id' | 'name', boolean>>);
+
+export interface BytesWithObjectOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  details?: BytesInfoOrderBy;
+}
+
+export type BytesWithObject$Relations = {};
+
+export type GetBytesWithObjectPayload<
+  S extends BytesWithObjectSelect | undefined = undefined,
+  I = undefined,
+> = A.Compute<
+  S extends BytesWithObjectSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof BytesWithObject
+          ? ResolveFieldSelect<BytesWithObject[K], S[K]>
+          : never;
+      }
+    : BytesWithObject,
+  'flat'
+>;
+
+export interface BytesWithObjectModel {
+  findOne<S extends BytesWithObjectSelect | undefined = undefined>(options?: {
+    where?: BytesWithObjectWhere;
+    select?: S;
+    orderBy?: BytesWithObjectOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetBytesWithObjectPayload<S> | null>;
+
+  findMany<S extends BytesWithObjectSelect | undefined = undefined>(options?: {
+    where?: BytesWithObjectWhere;
+    select?: S;
+    orderBy?: BytesWithObjectOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetBytesWithObjectPayload<S>[]>;
+
+  findUnique<S extends BytesWithObjectSelect | undefined = undefined>(options: {
+    where: BytesWithObjectFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetBytesWithObjectPayload<S> | null>;
+
+  create<S extends BytesWithObjectSelect | undefined = undefined>(options: {
+    data: BytesWithObjectCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetBytesWithObjectPayload<S>>;
+
+  updateMany<
+    S extends BytesWithObjectSelect | undefined = undefined,
+    D extends BytesWithObjectUpdateInput = BytesWithObjectUpdateInput,
+  >(options: {
+    where: BytesWithObjectWhere;
+    data: D;
+    unset?: SafeUnset<BytesWithObjectUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetBytesWithObjectPayload<S>[]>;
+
+  updateUnique<
+    S extends BytesWithObjectSelect | undefined = undefined,
+    D extends BytesWithObjectUpdateInput = BytesWithObjectUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: BytesWithObjectFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<BytesWithObjectUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns BytesWithObject | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetBytesWithObjectPayload<S>, R>>;
+
+  upsert<
+    S extends BytesWithObjectSelect | undefined = undefined,
+    D extends BytesWithObjectUpdateInput = BytesWithObjectUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: BytesWithObjectFindUniqueWhere;
+    create: BytesWithObjectCreateInput;
+    update?: D;
+    unset?: SafeUnset<BytesWithObjectUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetBytesWithObjectPayload<S>, R>>;
+
+  upsert<
+    S extends BytesWithObjectSelect | undefined = undefined,
+    D extends BytesWithObjectUpdateInput = BytesWithObjectUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: BytesWithObjectWhere;
+    create: BytesWithObjectCreateInput;
+    update?: D;
+    unset?: SafeUnset<BytesWithObjectUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetBytesWithObjectPayload<S>, R>>;
+
+  deleteMany(options: { where: BytesWithObjectWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: BytesWithObjectFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns BytesWithObject | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<BytesWithObject, R>>;
+
+  count(where?: BytesWithObjectWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: BytesWithObjectWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/byteswithtuple.ts =====
+/**
+ * Generated types for BytesWithTuple
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { BytesPair, BytesPairInput, BytesPairWhere, BytesPairUpdate, BytesPairUnset } from '../tuples/bytespair';
+export interface BytesWithTuple {
+  id: CerialId<string>;
+  name: string;
+  pair: BytesPair;
+}
+
+export interface BytesWithTupleInput {
+  id?: string;
+  name: string;
+  pair: BytesPairInput;
+}
+
+export interface BytesWithTupleWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  pair?: BytesPairWhere;
+  AND?: BytesWithTupleWhere[];
+  OR?: BytesWithTupleWhere[];
+  NOT?: BytesWithTupleWhere;
+}
+
+export type BytesWithTupleWhereInput = BytesWithTupleWhere;
+
+export type BytesWithTupleFindUniqueWhere = { id: RecordIdInput<string> } & Omit<BytesWithTupleWhere, 'id'>;
+
+export type BytesWithTupleCreate = O.Optional<BytesWithTupleInput, 'id'>;
+
+export type BytesWithTupleNestedCreate = O.Optional<BytesWithTupleInput, 'id'>;
+
+export type BytesWithTupleCreateInput = BytesWithTupleCreate;
+
+export type BytesWithTupleUpdate = Partial<O.Omit<BytesWithTupleInput, 'id' | 'pair'>> & {
+  pair?: [string, string | null] | BytesPairUpdate;
+};
+
+export type BytesWithTupleUpdateInput = BytesWithTupleUpdate;
+
+export type BytesWithTupleUnset = {
+  pair?: BytesPairUnset;
+};
+
+export type BytesWithTupleSelect =
+  | ({ id: boolean } & Partial<Record<'name' | 'pair', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'pair', boolean>>)
+  | ({ pair: boolean } & Partial<Record<'id' | 'name', boolean>>);
+
+export interface BytesWithTupleOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+}
+
+export type BytesWithTuple$Relations = {};
+
+export type GetBytesWithTuplePayload<S extends BytesWithTupleSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends BytesWithTupleSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof BytesWithTuple
+          ? ResolveFieldSelect<BytesWithTuple[K], S[K]>
+          : never;
+      }
+    : BytesWithTuple,
+  'flat'
+>;
+
+export interface BytesWithTupleModel {
+  findOne<S extends BytesWithTupleSelect | undefined = undefined>(options?: {
+    where?: BytesWithTupleWhere;
+    select?: S;
+    orderBy?: BytesWithTupleOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetBytesWithTuplePayload<S> | null>;
+
+  findMany<S extends BytesWithTupleSelect | undefined = undefined>(options?: {
+    where?: BytesWithTupleWhere;
+    select?: S;
+    orderBy?: BytesWithTupleOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetBytesWithTuplePayload<S>[]>;
+
+  findUnique<S extends BytesWithTupleSelect | undefined = undefined>(options: {
+    where: BytesWithTupleFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetBytesWithTuplePayload<S> | null>;
+
+  create<S extends BytesWithTupleSelect | undefined = undefined>(options: {
+    data: BytesWithTupleCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetBytesWithTuplePayload<S>>;
+
+  updateMany<
+    S extends BytesWithTupleSelect | undefined = undefined,
+    D extends BytesWithTupleUpdateInput = BytesWithTupleUpdateInput,
+  >(options: {
+    where: BytesWithTupleWhere;
+    data: D;
+    unset?: SafeUnset<BytesWithTupleUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetBytesWithTuplePayload<S>[]>;
+
+  updateUnique<
+    S extends BytesWithTupleSelect | undefined = undefined,
+    D extends BytesWithTupleUpdateInput = BytesWithTupleUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: BytesWithTupleFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<BytesWithTupleUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns BytesWithTuple | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetBytesWithTuplePayload<S>, R>>;
+
+  upsert<
+    S extends BytesWithTupleSelect | undefined = undefined,
+    D extends BytesWithTupleUpdateInput = BytesWithTupleUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: BytesWithTupleFindUniqueWhere;
+    create: BytesWithTupleCreateInput;
+    update?: D;
+    unset?: SafeUnset<BytesWithTupleUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetBytesWithTuplePayload<S>, R>>;
+
+  upsert<
+    S extends BytesWithTupleSelect | undefined = undefined,
+    D extends BytesWithTupleUpdateInput = BytesWithTupleUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: BytesWithTupleWhere;
+    create: BytesWithTupleCreateInput;
+    update?: D;
+    unset?: SafeUnset<BytesWithTupleUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetBytesWithTuplePayload<S>, R>>;
+
+  deleteMany(options: { where: BytesWithTupleWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: BytesWithTupleFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns BytesWithTuple | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<BytesWithTuple, R>>;
+
+  count(where?: BytesWithTupleWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: BytesWithTupleWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== objects/bytesinfo.ts =====
+/**
+ * Generated types for BytesInfo
+ * Do not edit manually
+ */
+
+import { CerialBytes } from 'cerial';
+import type { CerialBytesInput } from 'cerial';
+export interface BytesInfo {
+  content: CerialBytes;
+  extra?: CerialBytes;
+}
+
+export interface BytesInfoInput {
+  content: CerialBytesInput;
+  extra?: CerialBytesInput;
+}
+
+export interface BytesInfoWhere {
+  content?:
+    | CerialBytesInput
+    | ({
+        eq?: CerialBytesInput;
+        neq?: CerialBytesInput;
+      } & {
+        in?: CerialBytesInput[];
+        notIn?: CerialBytesInput[];
+      } & {});
+  extra?:
+    | CerialBytesInput
+    | ({
+        eq?: CerialBytesInput;
+        neq?: CerialBytesInput;
+      } & {
+        in?: CerialBytesInput[];
+        notIn?: CerialBytesInput[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  AND?: BytesInfoWhere[];
+  OR?: BytesInfoWhere[];
+  NOT?: BytesInfoWhere;
+}
+
+export type BytesInfoSelect =
+  | ({ content: boolean } & Partial<Record<'extra', boolean>>)
+  | ({ extra: boolean } & Partial<Record<'content', boolean>>);
+
+export interface BytesInfoOrderBy {
+  content?: 'asc' | 'desc';
+  extra?: 'asc' | 'desc';
+}
+
+// ===== tuples/bytespair.ts =====
+/**
+ * Generated types for BytesPair
+ * Do not edit manually
+ */
+
+import { CerialBytes } from 'cerial';
+import type { CerialBytesInput } from 'cerial';
+export type BytesPair = [CerialBytes, CerialBytes | null];
+
+export type BytesPairInput =
+  | [CerialBytesInput, CerialBytesInput | null]
+  | {
+      0?: CerialBytesInput;
+      1?: CerialBytesInput | null;
+    };
+
+export interface BytesPairWhere {
+  0?:
+    | CerialBytesInput
+    | ({
+        eq?: CerialBytesInput;
+        neq?: CerialBytesInput;
+      } & {
+        in?: CerialBytesInput[];
+        notIn?: CerialBytesInput[];
+      } & {});
+  1?:
+    | null
+    | CerialBytesInput
+    | ({
+        eq?: CerialBytesInput;
+        neq?: CerialBytesInput;
+      } & {
+        in?: CerialBytesInput[];
+        notIn?: CerialBytesInput[];
+      } & {
+        not?: string | null;
+        isNull?: boolean;
+      });
+}
+
+export type BytesPairUpdate = {
+  0?: string;
+  1?: string | null;
+};
+
+export type BytesPairUnset = {
+  1?: true;
+};

@@ -1,0 +1,71 @@
+{
+  "models": [
+    {
+      "directives": [
+        {
+          "fields": [
+            "firstName",
+            "lastName"
+          ],
+          "kind": "unique",
+          "name": "staffFullName"
+        },
+        {
+          "fields": [
+            "department",
+            "firstName"
+          ],
+          "kind": "index",
+          "name": "staffDeptName"
+        }
+      ],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "firstName",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "lastName",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "department",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "unique"
+            }
+          ],
+          "isOptional": false,
+          "name": "email",
+          "type": "email"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "age",
+          "type": "int"
+        }
+      ],
+      "name": "Staff"
+    }
+  ]
+}

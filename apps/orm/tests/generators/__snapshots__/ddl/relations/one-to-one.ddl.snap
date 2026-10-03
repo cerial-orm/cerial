@@ -1,0 +1,31 @@
+-- ProfileOptional
+DEFINE TABLE OVERWRITE profile_optional SCHEMAFULL;
+DEFINE FIELD OVERWRITE bio ON TABLE profile_optional TYPE option<string>;
+DEFINE FIELD OVERWRITE userId ON TABLE profile_optional TYPE option<record<user_optional> | null>;
+
+-- ProfileRequired
+DEFINE TABLE OVERWRITE profile_required SCHEMAFULL;
+DEFINE FIELD OVERWRITE bio ON TABLE profile_required TYPE option<string>;
+DEFINE FIELD OVERWRITE avatarUrl ON TABLE profile_required TYPE option<string>;
+DEFINE FIELD OVERWRITE userId ON TABLE profile_required TYPE record<user_required>;
+
+-- ProfileSingleSided
+DEFINE TABLE OVERWRITE profile_single_sided SCHEMAFULL;
+DEFINE FIELD OVERWRITE bio ON TABLE profile_single_sided TYPE option<string>;
+DEFINE FIELD OVERWRITE userId ON TABLE profile_single_sided TYPE option<record<user_single_sided> | null>;
+
+-- UserOptional
+DEFINE TABLE OVERWRITE user_optional SCHEMAFULL;
+DEFINE FIELD OVERWRITE email ON TABLE user_optional TYPE string ASSERT string::is_email($value);
+DEFINE FIELD OVERWRITE name ON TABLE user_optional TYPE string;
+DEFINE INDEX OVERWRITE user_optional_email_unique ON TABLE user_optional COLUMNS email UNIQUE;
+
+-- UserRequired
+DEFINE TABLE OVERWRITE user_required SCHEMAFULL;
+DEFINE FIELD OVERWRITE email ON TABLE user_required TYPE string ASSERT string::is_email($value);
+DEFINE FIELD OVERWRITE name ON TABLE user_required TYPE string;
+DEFINE INDEX OVERWRITE user_required_email_unique ON TABLE user_required COLUMNS email UNIQUE;
+
+-- UserSingleSided
+DEFINE TABLE OVERWRITE user_single_sided SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE user_single_sided TYPE string;

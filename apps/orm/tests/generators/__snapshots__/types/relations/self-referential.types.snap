@@ -1,0 +1,2434 @@
+// ===== models/assistant.ts =====
+/**
+ * Generated types for Assistant
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface Assistant {
+  id: CerialId<string>;
+  name: string;
+  assistsId?: CerialId<string> | null;
+}
+
+export interface AssistantInput {
+  id?: string;
+  name: string;
+  assistsId?: RecordIdInput<string> | null;
+}
+
+export interface AssistantWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  assistsId?:
+    | null
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {
+        not?: string | null;
+        isNull?: boolean;
+        isNone?: boolean;
+      });
+  assists?: null | AssistantWhere;
+  assistedBy?: AssistantWhere;
+  AND?: AssistantWhere[];
+  OR?: AssistantWhere[];
+  NOT?: AssistantWhere;
+}
+
+export type AssistantWhereInput = AssistantWhere;
+
+export type AssistantFindUniqueWhere = { id: RecordIdInput<string> } & Omit<AssistantWhere, 'id'>;
+
+export type AssistantCreate = O.Optional<O.Omit<AssistantInput, 'assists' | 'assistedBy'>, 'id' | 'assistsId'>;
+
+export type AssistantNestedCreate = O.Optional<O.Omit<AssistantInput, 'assists' | 'assistedBy' | 'assistsId'>, 'id'>;
+
+export type AssistantCreateInput =
+  | AssistantCreate
+  | (O.Omit<AssistantCreate, 'assistsId'> & {
+      assists?: { create: AssistantNestedCreate } | { connect: RecordIdInput };
+      assistedBy?: { create: AssistantNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type AssistantUpdate = Partial<O.Omit<AssistantInput, 'id' | 'assists' | 'assistedBy' | 'assistsId'>> & {
+  assistsId?: RecordIdInput<string> | null | CerialNone;
+};
+
+export type AssistantUpdateInput =
+  | AssistantUpdate
+  | (O.Omit<AssistantUpdate, 'assistsId'> & {
+      assists?: { create: AssistantNestedCreate } | { connect: RecordIdInput } | { disconnect: true };
+      assistedBy?: { create: AssistantNestedCreate } | { connect: RecordIdInput } | { disconnect: true };
+    });
+
+export type AssistantUnset = {
+  assistsId?: true;
+};
+
+export type AssistantSelect =
+  | ({ id: boolean } & Partial<Record<'name' | 'assistsId', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'assistsId', boolean>>)
+  | ({ assistsId: boolean } & Partial<Record<'id' | 'name', boolean>>);
+
+export interface AssistantOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  assistsId?: 'asc' | 'desc';
+  assists?: AssistantOrderBy;
+}
+
+export interface AssistantInclude {
+  assists?:
+    | boolean
+    | {
+        select?: AssistantSelect;
+        where?: AssistantWhere;
+        include?: AssistantInclude;
+      };
+  assistedBy?:
+    | boolean
+    | {
+        select?: AssistantSelect;
+        where?: AssistantWhere;
+        orderBy?: AssistantOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: AssistantInclude;
+      };
+}
+
+export type Assistant$Relations = {
+  assists: { type: Assistant; include: AssistantInclude };
+  assistedBy: { type: Assistant; include: AssistantInclude };
+};
+
+export type GetAssistantIncludePayload<I extends AssistantInclude | undefined> = I extends AssistantInclude
+  ? Pick<
+      {
+        assists: I['assists'] extends true
+          ? Assistant
+          : I['assists'] extends { select: infer S extends AssistantSelect; include: infer NI extends AssistantInclude }
+            ? {
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Assistant
+                  ? ResolveFieldSelect<Assistant[P], S[P]>
+                  : never;
+              } & GetAssistantIncludePayload<NI>
+            : I['assists'] extends { select: infer S extends AssistantSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Assistant
+                    ? ResolveFieldSelect<Assistant[P], S[P]>
+                    : never;
+                }
+              : I['assists'] extends { include: infer NI extends AssistantInclude }
+                ? Assistant & GetAssistantIncludePayload<NI>
+                : Assistant;
+        assistedBy: I['assistedBy'] extends true
+          ? Assistant
+          : I['assistedBy'] extends {
+                select: infer S extends AssistantSelect;
+                include: infer NI extends AssistantInclude;
+              }
+            ? {
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Assistant
+                  ? ResolveFieldSelect<Assistant[P], S[P]>
+                  : never;
+              } & GetAssistantIncludePayload<NI>
+            : I['assistedBy'] extends { select: infer S extends AssistantSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Assistant
+                    ? ResolveFieldSelect<Assistant[P], S[P]>
+                    : never;
+                }
+              : I['assistedBy'] extends { include: infer NI extends AssistantInclude }
+                ? Assistant & GetAssistantIncludePayload<NI>
+                : Assistant;
+      },
+      Extract<keyof I, keyof Assistant$Relations> &
+        { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetAssistantPayload<
+  S extends AssistantSelect | undefined = undefined,
+  I extends AssistantInclude | undefined = undefined,
+> = A.Compute<
+  S extends AssistantSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof Assistant
+          ? ResolveFieldSelect<Assistant[K], S[K]>
+          : never;
+      } & GetAssistantIncludePayload<I>
+    : I extends AssistantInclude
+      ? Assistant & GetAssistantIncludePayload<I>
+      : Assistant,
+  'flat'
+>;
+
+export interface AssistantModel {
+  findOne<
+    S extends AssistantSelect | undefined = undefined,
+    I extends AssistantInclude | undefined = undefined,
+  >(options?: {
+    where?: AssistantWhere;
+    select?: S;
+    include?: I;
+    orderBy?: AssistantOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetAssistantPayload<S, I> | null>;
+
+  findMany<
+    S extends AssistantSelect | undefined = undefined,
+    I extends AssistantInclude | undefined = undefined,
+  >(options?: {
+    where?: AssistantWhere;
+    select?: S;
+    orderBy?: AssistantOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetAssistantPayload<S, I>[]>;
+
+  findUnique<
+    S extends AssistantSelect | undefined = undefined,
+    I extends AssistantInclude | undefined = undefined,
+  >(options: {
+    where: AssistantFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetAssistantPayload<S, I> | null>;
+
+  create<
+    S extends AssistantSelect | undefined = undefined,
+    I extends AssistantInclude | undefined = undefined,
+  >(options: {
+    data: AssistantCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetAssistantPayload<S, I>>;
+
+  updateMany<
+    S extends AssistantSelect | undefined = undefined,
+    I extends AssistantInclude | undefined = undefined,
+    D extends AssistantUpdateInput = AssistantUpdateInput,
+  >(options: {
+    where: AssistantWhere;
+    data: D;
+    unset?: SafeUnset<AssistantUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetAssistantPayload<S, I>[]>;
+
+  updateUnique<
+    S extends AssistantSelect | undefined = undefined,
+    I extends AssistantInclude | undefined = undefined,
+    D extends AssistantUpdateInput = AssistantUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: AssistantFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<AssistantUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns Assistant | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetAssistantPayload<S, I>, R>>;
+
+  upsert<
+    S extends AssistantSelect | undefined = undefined,
+    I extends AssistantInclude | undefined = undefined,
+    D extends AssistantUpdateInput = AssistantUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: AssistantFindUniqueWhere;
+    create: AssistantCreateInput;
+    update?: D;
+    unset?: SafeUnset<AssistantUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetAssistantPayload<S, I>, R>>;
+
+  upsert<
+    S extends AssistantSelect | undefined = undefined,
+    I extends AssistantInclude | undefined = undefined,
+    D extends AssistantUpdateInput = AssistantUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: AssistantWhere;
+    create: AssistantCreateInput;
+    update?: D;
+    unset?: SafeUnset<AssistantUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetAssistantPayload<S, I>, R>>;
+
+  deleteMany(options: { where: AssistantWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: AssistantFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns Assistant | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<Assistant, R>>;
+
+  count(where?: AssistantWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: AssistantWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/categorytree.ts =====
+/**
+ * Generated types for CategoryTree
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface CategoryTree {
+  id: CerialId<string>;
+  name: string;
+  parentId?: CerialId<string> | null;
+}
+
+export interface CategoryTreeInput {
+  id?: string;
+  name: string;
+  parentId?: RecordIdInput<string> | null;
+}
+
+export interface CategoryTreeWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  parentId?:
+    | null
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {
+        not?: string | null;
+        isNull?: boolean;
+        isNone?: boolean;
+      });
+  parent?: null | CategoryTreeWhere;
+  children?: { some?: CategoryTreeWhere; every?: CategoryTreeWhere; none?: CategoryTreeWhere };
+  AND?: CategoryTreeWhere[];
+  OR?: CategoryTreeWhere[];
+  NOT?: CategoryTreeWhere;
+}
+
+export type CategoryTreeWhereInput = CategoryTreeWhere;
+
+export type CategoryTreeFindUniqueWhere = { id: RecordIdInput<string> } & Omit<CategoryTreeWhere, 'id'>;
+
+export type CategoryTreeCreate = O.Optional<O.Omit<CategoryTreeInput, 'parent' | 'children'>, 'id' | 'parentId'>;
+
+export type CategoryTreeNestedCreate = O.Optional<O.Omit<CategoryTreeInput, 'parent' | 'children' | 'parentId'>, 'id'>;
+
+export type CategoryTreeCreateInput =
+  | CategoryTreeCreate
+  | (O.Omit<CategoryTreeCreate, 'parentId'> & {
+      parent?: { create: CategoryTreeNestedCreate } | { connect: RecordIdInput };
+      children?: {
+        create?: CategoryTreeNestedCreate | CategoryTreeNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+      };
+    });
+
+export type CategoryTreeUpdate = Partial<O.Omit<CategoryTreeInput, 'id' | 'parent' | 'children' | 'parentId'>> & {
+  parentId?: RecordIdInput<string> | null | CerialNone;
+};
+
+export type CategoryTreeUpdateInput =
+  | CategoryTreeUpdate
+  | (O.Omit<CategoryTreeUpdate, 'parentId'> & {
+      parent?: { create: CategoryTreeNestedCreate } | { connect: RecordIdInput } | { disconnect: true };
+      children?: {
+        create?: CategoryTreeNestedCreate | CategoryTreeNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+        disconnect?: RecordIdInput | RecordIdInput[];
+        set?: RecordIdInput[];
+      };
+    });
+
+export type CategoryTreeUnset = {
+  parentId?: true;
+};
+
+export type CategoryTreeSelect =
+  | ({ id: boolean } & Partial<Record<'name' | 'parentId', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'parentId', boolean>>)
+  | ({ parentId: boolean } & Partial<Record<'id' | 'name', boolean>>);
+
+export interface CategoryTreeOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  parentId?: 'asc' | 'desc';
+  parent?: CategoryTreeOrderBy;
+}
+
+export interface CategoryTreeInclude {
+  parent?:
+    | boolean
+    | {
+        select?: CategoryTreeSelect;
+        where?: CategoryTreeWhere;
+        include?: CategoryTreeInclude;
+      };
+  children?:
+    | boolean
+    | {
+        select?: CategoryTreeSelect;
+        where?: CategoryTreeWhere;
+        orderBy?: CategoryTreeOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: CategoryTreeInclude;
+      };
+}
+
+export type CategoryTree$Relations = {
+  parent: { type: CategoryTree; include: CategoryTreeInclude };
+  children: { type: CategoryTree[]; include: CategoryTreeInclude };
+};
+
+export type GetCategoryTreeIncludePayload<I extends CategoryTreeInclude | undefined> = I extends CategoryTreeInclude
+  ? Pick<
+      {
+        parent: I['parent'] extends true
+          ? CategoryTree
+          : I['parent'] extends {
+                select: infer S extends CategoryTreeSelect;
+                include: infer NI extends CategoryTreeInclude;
+              }
+            ? {
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof CategoryTree
+                  ? ResolveFieldSelect<CategoryTree[P], S[P]>
+                  : never;
+              } & GetCategoryTreeIncludePayload<NI>
+            : I['parent'] extends { select: infer S extends CategoryTreeSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof CategoryTree
+                    ? ResolveFieldSelect<CategoryTree[P], S[P]>
+                    : never;
+                }
+              : I['parent'] extends { include: infer NI extends CategoryTreeInclude }
+                ? CategoryTree & GetCategoryTreeIncludePayload<NI>
+                : CategoryTree;
+        children: I['children'] extends true
+          ? CategoryTree[]
+          : I['children'] extends {
+                select: infer S extends CategoryTreeSelect;
+                include: infer NI extends CategoryTreeInclude;
+              }
+            ? ({
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof CategoryTree
+                  ? ResolveFieldSelect<CategoryTree[P], S[P]>
+                  : never;
+              } & GetCategoryTreeIncludePayload<NI>)[]
+            : I['children'] extends { select: infer S extends CategoryTreeSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof CategoryTree
+                    ? ResolveFieldSelect<CategoryTree[P], S[P]>
+                    : never;
+                }[]
+              : I['children'] extends { include: infer NI extends CategoryTreeInclude }
+                ? (CategoryTree & GetCategoryTreeIncludePayload<NI>)[]
+                : CategoryTree[];
+      },
+      Extract<keyof I, keyof CategoryTree$Relations> &
+        { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetCategoryTreePayload<
+  S extends CategoryTreeSelect | undefined = undefined,
+  I extends CategoryTreeInclude | undefined = undefined,
+> = A.Compute<
+  S extends CategoryTreeSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof CategoryTree
+          ? ResolveFieldSelect<CategoryTree[K], S[K]>
+          : never;
+      } & GetCategoryTreeIncludePayload<I>
+    : I extends CategoryTreeInclude
+      ? CategoryTree & GetCategoryTreeIncludePayload<I>
+      : CategoryTree,
+  'flat'
+>;
+
+export interface CategoryTreeModel {
+  findOne<
+    S extends CategoryTreeSelect | undefined = undefined,
+    I extends CategoryTreeInclude | undefined = undefined,
+  >(options?: {
+    where?: CategoryTreeWhere;
+    select?: S;
+    include?: I;
+    orderBy?: CategoryTreeOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetCategoryTreePayload<S, I> | null>;
+
+  findMany<
+    S extends CategoryTreeSelect | undefined = undefined,
+    I extends CategoryTreeInclude | undefined = undefined,
+  >(options?: {
+    where?: CategoryTreeWhere;
+    select?: S;
+    orderBy?: CategoryTreeOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetCategoryTreePayload<S, I>[]>;
+
+  findUnique<
+    S extends CategoryTreeSelect | undefined = undefined,
+    I extends CategoryTreeInclude | undefined = undefined,
+  >(options: {
+    where: CategoryTreeFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetCategoryTreePayload<S, I> | null>;
+
+  create<
+    S extends CategoryTreeSelect | undefined = undefined,
+    I extends CategoryTreeInclude | undefined = undefined,
+  >(options: {
+    data: CategoryTreeCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetCategoryTreePayload<S, I>>;
+
+  updateMany<
+    S extends CategoryTreeSelect | undefined = undefined,
+    I extends CategoryTreeInclude | undefined = undefined,
+    D extends CategoryTreeUpdateInput = CategoryTreeUpdateInput,
+  >(options: {
+    where: CategoryTreeWhere;
+    data: D;
+    unset?: SafeUnset<CategoryTreeUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetCategoryTreePayload<S, I>[]>;
+
+  updateUnique<
+    S extends CategoryTreeSelect | undefined = undefined,
+    I extends CategoryTreeInclude | undefined = undefined,
+    D extends CategoryTreeUpdateInput = CategoryTreeUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: CategoryTreeFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<CategoryTreeUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns CategoryTree | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetCategoryTreePayload<S, I>, R>>;
+
+  upsert<
+    S extends CategoryTreeSelect | undefined = undefined,
+    I extends CategoryTreeInclude | undefined = undefined,
+    D extends CategoryTreeUpdateInput = CategoryTreeUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: CategoryTreeFindUniqueWhere;
+    create: CategoryTreeCreateInput;
+    update?: D;
+    unset?: SafeUnset<CategoryTreeUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetCategoryTreePayload<S, I>, R>>;
+
+  upsert<
+    S extends CategoryTreeSelect | undefined = undefined,
+    I extends CategoryTreeInclude | undefined = undefined,
+    D extends CategoryTreeUpdateInput = CategoryTreeUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: CategoryTreeWhere;
+    create: CategoryTreeCreateInput;
+    update?: D;
+    unset?: SafeUnset<CategoryTreeUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetCategoryTreePayload<S, I>, R>>;
+
+  deleteMany(options: { where: CategoryTreeWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: CategoryTreeFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns CategoryTree | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<CategoryTree, R>>;
+
+  count(where?: CategoryTreeWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: CategoryTreeWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/employeesinglesided.ts =====
+/**
+ * Generated types for EmployeeSingleSided
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface EmployeeSingleSided {
+  id: CerialId<string>;
+  name: string;
+  managerId?: CerialId<string> | null;
+}
+
+export interface EmployeeSingleSidedInput {
+  id?: string;
+  name: string;
+  managerId?: RecordIdInput<string> | null;
+}
+
+export interface EmployeeSingleSidedWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  managerId?:
+    | null
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {
+        not?: string | null;
+        isNull?: boolean;
+        isNone?: boolean;
+      });
+  manager?: null | EmployeeSingleSidedWhere;
+  AND?: EmployeeSingleSidedWhere[];
+  OR?: EmployeeSingleSidedWhere[];
+  NOT?: EmployeeSingleSidedWhere;
+}
+
+export type EmployeeSingleSidedWhereInput = EmployeeSingleSidedWhere;
+
+export type EmployeeSingleSidedFindUniqueWhere = { id: RecordIdInput<string> } & Omit<EmployeeSingleSidedWhere, 'id'>;
+
+export type EmployeeSingleSidedCreate = O.Optional<O.Omit<EmployeeSingleSidedInput, 'manager'>, 'id' | 'managerId'>;
+
+export type EmployeeSingleSidedNestedCreate = O.Optional<
+  O.Omit<EmployeeSingleSidedInput, 'manager' | 'managerId'>,
+  'id'
+>;
+
+export type EmployeeSingleSidedCreateInput =
+  | EmployeeSingleSidedCreate
+  | (O.Omit<EmployeeSingleSidedCreate, 'managerId'> & {
+      manager?: { create: EmployeeSingleSidedNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type EmployeeSingleSidedUpdate = Partial<O.Omit<EmployeeSingleSidedInput, 'id' | 'manager' | 'managerId'>> & {
+  managerId?: RecordIdInput<string> | null | CerialNone;
+};
+
+export type EmployeeSingleSidedUpdateInput =
+  | EmployeeSingleSidedUpdate
+  | (O.Omit<EmployeeSingleSidedUpdate, 'managerId'> & {
+      manager?: { create: EmployeeSingleSidedNestedCreate } | { connect: RecordIdInput } | { disconnect: true };
+    });
+
+export type EmployeeSingleSidedUnset = {
+  managerId?: true;
+};
+
+export type EmployeeSingleSidedSelect =
+  | ({ id: boolean } & Partial<Record<'name' | 'managerId', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'managerId', boolean>>)
+  | ({ managerId: boolean } & Partial<Record<'id' | 'name', boolean>>);
+
+export interface EmployeeSingleSidedOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  managerId?: 'asc' | 'desc';
+  manager?: EmployeeSingleSidedOrderBy;
+}
+
+export interface EmployeeSingleSidedInclude {
+  manager?:
+    | boolean
+    | {
+        select?: EmployeeSingleSidedSelect;
+        where?: EmployeeSingleSidedWhere;
+        include?: EmployeeSingleSidedInclude;
+      };
+}
+
+export type EmployeeSingleSided$Relations = {
+  manager: { type: EmployeeSingleSided; include: EmployeeSingleSidedInclude };
+};
+
+export type GetEmployeeSingleSidedIncludePayload<I extends EmployeeSingleSidedInclude | undefined> =
+  I extends EmployeeSingleSidedInclude
+    ? Pick<
+        {
+          manager: I['manager'] extends true
+            ? EmployeeSingleSided
+            : I['manager'] extends {
+                  select: infer S extends EmployeeSingleSidedSelect;
+                  include: infer NI extends EmployeeSingleSidedInclude;
+                }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof EmployeeSingleSided
+                    ? ResolveFieldSelect<EmployeeSingleSided[P], S[P]>
+                    : never;
+                } & GetEmployeeSingleSidedIncludePayload<NI>
+              : I['manager'] extends { select: infer S extends EmployeeSingleSidedSelect }
+                ? {
+                    [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof EmployeeSingleSided
+                      ? ResolveFieldSelect<EmployeeSingleSided[P], S[P]>
+                      : never;
+                  }
+                : I['manager'] extends { include: infer NI extends EmployeeSingleSidedInclude }
+                  ? EmployeeSingleSided & GetEmployeeSingleSidedIncludePayload<NI>
+                  : EmployeeSingleSided;
+        },
+        Extract<keyof I, keyof EmployeeSingleSided$Relations> &
+          { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+      >
+    : {};
+
+export type GetEmployeeSingleSidedPayload<
+  S extends EmployeeSingleSidedSelect | undefined = undefined,
+  I extends EmployeeSingleSidedInclude | undefined = undefined,
+> = A.Compute<
+  S extends EmployeeSingleSidedSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof EmployeeSingleSided
+          ? ResolveFieldSelect<EmployeeSingleSided[K], S[K]>
+          : never;
+      } & GetEmployeeSingleSidedIncludePayload<I>
+    : I extends EmployeeSingleSidedInclude
+      ? EmployeeSingleSided & GetEmployeeSingleSidedIncludePayload<I>
+      : EmployeeSingleSided,
+  'flat'
+>;
+
+export interface EmployeeSingleSidedModel {
+  findOne<
+    S extends EmployeeSingleSidedSelect | undefined = undefined,
+    I extends EmployeeSingleSidedInclude | undefined = undefined,
+  >(options?: {
+    where?: EmployeeSingleSidedWhere;
+    select?: S;
+    include?: I;
+    orderBy?: EmployeeSingleSidedOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetEmployeeSingleSidedPayload<S, I> | null>;
+
+  findMany<
+    S extends EmployeeSingleSidedSelect | undefined = undefined,
+    I extends EmployeeSingleSidedInclude | undefined = undefined,
+  >(options?: {
+    where?: EmployeeSingleSidedWhere;
+    select?: S;
+    orderBy?: EmployeeSingleSidedOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetEmployeeSingleSidedPayload<S, I>[]>;
+
+  findUnique<
+    S extends EmployeeSingleSidedSelect | undefined = undefined,
+    I extends EmployeeSingleSidedInclude | undefined = undefined,
+  >(options: {
+    where: EmployeeSingleSidedFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetEmployeeSingleSidedPayload<S, I> | null>;
+
+  create<
+    S extends EmployeeSingleSidedSelect | undefined = undefined,
+    I extends EmployeeSingleSidedInclude | undefined = undefined,
+  >(options: {
+    data: EmployeeSingleSidedCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetEmployeeSingleSidedPayload<S, I>>;
+
+  updateMany<
+    S extends EmployeeSingleSidedSelect | undefined = undefined,
+    I extends EmployeeSingleSidedInclude | undefined = undefined,
+    D extends EmployeeSingleSidedUpdateInput = EmployeeSingleSidedUpdateInput,
+  >(options: {
+    where: EmployeeSingleSidedWhere;
+    data: D;
+    unset?: SafeUnset<EmployeeSingleSidedUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetEmployeeSingleSidedPayload<S, I>[]>;
+
+  updateUnique<
+    S extends EmployeeSingleSidedSelect | undefined = undefined,
+    I extends EmployeeSingleSidedInclude | undefined = undefined,
+    D extends EmployeeSingleSidedUpdateInput = EmployeeSingleSidedUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: EmployeeSingleSidedFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<EmployeeSingleSidedUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns EmployeeSingleSided | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetEmployeeSingleSidedPayload<S, I>, R>>;
+
+  upsert<
+    S extends EmployeeSingleSidedSelect | undefined = undefined,
+    I extends EmployeeSingleSidedInclude | undefined = undefined,
+    D extends EmployeeSingleSidedUpdateInput = EmployeeSingleSidedUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: EmployeeSingleSidedFindUniqueWhere;
+    create: EmployeeSingleSidedCreateInput;
+    update?: D;
+    unset?: SafeUnset<EmployeeSingleSidedUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetEmployeeSingleSidedPayload<S, I>, R>>;
+
+  upsert<
+    S extends EmployeeSingleSidedSelect | undefined = undefined,
+    I extends EmployeeSingleSidedInclude | undefined = undefined,
+    D extends EmployeeSingleSidedUpdateInput = EmployeeSingleSidedUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: EmployeeSingleSidedWhere;
+    create: EmployeeSingleSidedCreateInput;
+    update?: D;
+    unset?: SafeUnset<EmployeeSingleSidedUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetEmployeeSingleSidedPayload<S, I>, R>>;
+
+  deleteMany(options: { where: EmployeeSingleSidedWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: EmployeeSingleSidedFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns EmployeeSingleSided | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<EmployeeSingleSided, R>>;
+
+  count(where?: EmployeeSingleSidedWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: EmployeeSingleSidedWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/employeewithreports.ts =====
+/**
+ * Generated types for EmployeeWithReports
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface EmployeeWithReports {
+  id: CerialId<string>;
+  name: string;
+  managerId?: CerialId<string> | null;
+}
+
+export interface EmployeeWithReportsInput {
+  id?: string;
+  name: string;
+  managerId?: RecordIdInput<string> | null;
+}
+
+export interface EmployeeWithReportsWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  managerId?:
+    | null
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {
+        not?: string | null;
+        isNull?: boolean;
+        isNone?: boolean;
+      });
+  manager?: null | EmployeeWithReportsWhere;
+  directReports?: {
+    some?: EmployeeWithReportsWhere;
+    every?: EmployeeWithReportsWhere;
+    none?: EmployeeWithReportsWhere;
+  };
+  AND?: EmployeeWithReportsWhere[];
+  OR?: EmployeeWithReportsWhere[];
+  NOT?: EmployeeWithReportsWhere;
+}
+
+export type EmployeeWithReportsWhereInput = EmployeeWithReportsWhere;
+
+export type EmployeeWithReportsFindUniqueWhere = { id: RecordIdInput<string> } & Omit<EmployeeWithReportsWhere, 'id'>;
+
+export type EmployeeWithReportsCreate = O.Optional<
+  O.Omit<EmployeeWithReportsInput, 'manager' | 'directReports'>,
+  'id' | 'managerId'
+>;
+
+export type EmployeeWithReportsNestedCreate = O.Optional<
+  O.Omit<EmployeeWithReportsInput, 'manager' | 'directReports' | 'managerId'>,
+  'id'
+>;
+
+export type EmployeeWithReportsCreateInput =
+  | EmployeeWithReportsCreate
+  | (O.Omit<EmployeeWithReportsCreate, 'managerId'> & {
+      manager?: { create: EmployeeWithReportsNestedCreate } | { connect: RecordIdInput };
+      directReports?: {
+        create?: EmployeeWithReportsNestedCreate | EmployeeWithReportsNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+      };
+    });
+
+export type EmployeeWithReportsUpdate = Partial<
+  O.Omit<EmployeeWithReportsInput, 'id' | 'manager' | 'directReports' | 'managerId'>
+> & {
+  managerId?: RecordIdInput<string> | null | CerialNone;
+};
+
+export type EmployeeWithReportsUpdateInput =
+  | EmployeeWithReportsUpdate
+  | (O.Omit<EmployeeWithReportsUpdate, 'managerId'> & {
+      manager?: { create: EmployeeWithReportsNestedCreate } | { connect: RecordIdInput } | { disconnect: true };
+      directReports?: {
+        create?: EmployeeWithReportsNestedCreate | EmployeeWithReportsNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+        disconnect?: RecordIdInput | RecordIdInput[];
+        set?: RecordIdInput[];
+      };
+    });
+
+export type EmployeeWithReportsUnset = {
+  managerId?: true;
+};
+
+export type EmployeeWithReportsSelect =
+  | ({ id: boolean } & Partial<Record<'name' | 'managerId', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'managerId', boolean>>)
+  | ({ managerId: boolean } & Partial<Record<'id' | 'name', boolean>>);
+
+export interface EmployeeWithReportsOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  managerId?: 'asc' | 'desc';
+  manager?: EmployeeWithReportsOrderBy;
+}
+
+export interface EmployeeWithReportsInclude {
+  manager?:
+    | boolean
+    | {
+        select?: EmployeeWithReportsSelect;
+        where?: EmployeeWithReportsWhere;
+        include?: EmployeeWithReportsInclude;
+      };
+  directReports?:
+    | boolean
+    | {
+        select?: EmployeeWithReportsSelect;
+        where?: EmployeeWithReportsWhere;
+        orderBy?: EmployeeWithReportsOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: EmployeeWithReportsInclude;
+      };
+}
+
+export type EmployeeWithReports$Relations = {
+  manager: { type: EmployeeWithReports; include: EmployeeWithReportsInclude };
+  directReports: { type: EmployeeWithReports[]; include: EmployeeWithReportsInclude };
+};
+
+export type GetEmployeeWithReportsIncludePayload<I extends EmployeeWithReportsInclude | undefined> =
+  I extends EmployeeWithReportsInclude
+    ? Pick<
+        {
+          manager: I['manager'] extends true
+            ? EmployeeWithReports
+            : I['manager'] extends {
+                  select: infer S extends EmployeeWithReportsSelect;
+                  include: infer NI extends EmployeeWithReportsInclude;
+                }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof EmployeeWithReports
+                    ? ResolveFieldSelect<EmployeeWithReports[P], S[P]>
+                    : never;
+                } & GetEmployeeWithReportsIncludePayload<NI>
+              : I['manager'] extends { select: infer S extends EmployeeWithReportsSelect }
+                ? {
+                    [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof EmployeeWithReports
+                      ? ResolveFieldSelect<EmployeeWithReports[P], S[P]>
+                      : never;
+                  }
+                : I['manager'] extends { include: infer NI extends EmployeeWithReportsInclude }
+                  ? EmployeeWithReports & GetEmployeeWithReportsIncludePayload<NI>
+                  : EmployeeWithReports;
+          directReports: I['directReports'] extends true
+            ? EmployeeWithReports[]
+            : I['directReports'] extends {
+                  select: infer S extends EmployeeWithReportsSelect;
+                  include: infer NI extends EmployeeWithReportsInclude;
+                }
+              ? ({
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof EmployeeWithReports
+                    ? ResolveFieldSelect<EmployeeWithReports[P], S[P]>
+                    : never;
+                } & GetEmployeeWithReportsIncludePayload<NI>)[]
+              : I['directReports'] extends { select: infer S extends EmployeeWithReportsSelect }
+                ? {
+                    [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof EmployeeWithReports
+                      ? ResolveFieldSelect<EmployeeWithReports[P], S[P]>
+                      : never;
+                  }[]
+                : I['directReports'] extends { include: infer NI extends EmployeeWithReportsInclude }
+                  ? (EmployeeWithReports & GetEmployeeWithReportsIncludePayload<NI>)[]
+                  : EmployeeWithReports[];
+        },
+        Extract<keyof I, keyof EmployeeWithReports$Relations> &
+          { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+      >
+    : {};
+
+export type GetEmployeeWithReportsPayload<
+  S extends EmployeeWithReportsSelect | undefined = undefined,
+  I extends EmployeeWithReportsInclude | undefined = undefined,
+> = A.Compute<
+  S extends EmployeeWithReportsSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof EmployeeWithReports
+          ? ResolveFieldSelect<EmployeeWithReports[K], S[K]>
+          : never;
+      } & GetEmployeeWithReportsIncludePayload<I>
+    : I extends EmployeeWithReportsInclude
+      ? EmployeeWithReports & GetEmployeeWithReportsIncludePayload<I>
+      : EmployeeWithReports,
+  'flat'
+>;
+
+export interface EmployeeWithReportsModel {
+  findOne<
+    S extends EmployeeWithReportsSelect | undefined = undefined,
+    I extends EmployeeWithReportsInclude | undefined = undefined,
+  >(options?: {
+    where?: EmployeeWithReportsWhere;
+    select?: S;
+    include?: I;
+    orderBy?: EmployeeWithReportsOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetEmployeeWithReportsPayload<S, I> | null>;
+
+  findMany<
+    S extends EmployeeWithReportsSelect | undefined = undefined,
+    I extends EmployeeWithReportsInclude | undefined = undefined,
+  >(options?: {
+    where?: EmployeeWithReportsWhere;
+    select?: S;
+    orderBy?: EmployeeWithReportsOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetEmployeeWithReportsPayload<S, I>[]>;
+
+  findUnique<
+    S extends EmployeeWithReportsSelect | undefined = undefined,
+    I extends EmployeeWithReportsInclude | undefined = undefined,
+  >(options: {
+    where: EmployeeWithReportsFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetEmployeeWithReportsPayload<S, I> | null>;
+
+  create<
+    S extends EmployeeWithReportsSelect | undefined = undefined,
+    I extends EmployeeWithReportsInclude | undefined = undefined,
+  >(options: {
+    data: EmployeeWithReportsCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetEmployeeWithReportsPayload<S, I>>;
+
+  updateMany<
+    S extends EmployeeWithReportsSelect | undefined = undefined,
+    I extends EmployeeWithReportsInclude | undefined = undefined,
+    D extends EmployeeWithReportsUpdateInput = EmployeeWithReportsUpdateInput,
+  >(options: {
+    where: EmployeeWithReportsWhere;
+    data: D;
+    unset?: SafeUnset<EmployeeWithReportsUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetEmployeeWithReportsPayload<S, I>[]>;
+
+  updateUnique<
+    S extends EmployeeWithReportsSelect | undefined = undefined,
+    I extends EmployeeWithReportsInclude | undefined = undefined,
+    D extends EmployeeWithReportsUpdateInput = EmployeeWithReportsUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: EmployeeWithReportsFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<EmployeeWithReportsUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns EmployeeWithReports | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetEmployeeWithReportsPayload<S, I>, R>>;
+
+  upsert<
+    S extends EmployeeWithReportsSelect | undefined = undefined,
+    I extends EmployeeWithReportsInclude | undefined = undefined,
+    D extends EmployeeWithReportsUpdateInput = EmployeeWithReportsUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: EmployeeWithReportsFindUniqueWhere;
+    create: EmployeeWithReportsCreateInput;
+    update?: D;
+    unset?: SafeUnset<EmployeeWithReportsUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetEmployeeWithReportsPayload<S, I>, R>>;
+
+  upsert<
+    S extends EmployeeWithReportsSelect | undefined = undefined,
+    I extends EmployeeWithReportsInclude | undefined = undefined,
+    D extends EmployeeWithReportsUpdateInput = EmployeeWithReportsUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: EmployeeWithReportsWhere;
+    create: EmployeeWithReportsCreateInput;
+    update?: D;
+    unset?: SafeUnset<EmployeeWithReportsUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetEmployeeWithReportsPayload<S, I>, R>>;
+
+  deleteMany(options: { where: EmployeeWithReportsWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: EmployeeWithReportsFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns EmployeeWithReports | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<EmployeeWithReports, R>>;
+
+  count(where?: EmployeeWithReportsWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: EmployeeWithReportsWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/friend.ts =====
+/**
+ * Generated types for Friend
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface Friend {
+  id: CerialId<string>;
+  name: string;
+  friendIds: CerialId<string>[];
+}
+
+export interface FriendInput {
+  id?: string;
+  name: string;
+  friendIds: RecordIdInput<string>[];
+}
+
+export interface FriendWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  friendIds?:
+    | RecordIdInput<string>[]
+    | {
+        has?: RecordIdInput<string>;
+        hasAll?: RecordIdInput<string>[];
+        hasAny?: RecordIdInput<string>[];
+        isEmpty?: boolean;
+      };
+  friends?: { some?: FriendWhere; every?: FriendWhere; none?: FriendWhere };
+  AND?: FriendWhere[];
+  OR?: FriendWhere[];
+  NOT?: FriendWhere;
+}
+
+export type FriendWhereInput = FriendWhere;
+
+export type FriendFindUniqueWhere = { id: RecordIdInput<string> } & Omit<FriendWhere, 'id'>;
+
+export type FriendCreate = O.Optional<O.Omit<FriendInput, 'friends'>, 'id' | 'friendIds'>;
+
+export type FriendNestedCreate = O.Optional<O.Omit<FriendInput, 'friends' | 'friendIds'>, 'id'>;
+
+export type FriendCreateInput =
+  | FriendCreate
+  | (O.Omit<FriendCreate, 'friendIds'> & {
+      friends?: {
+        create?: FriendNestedCreate | FriendNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+      };
+    });
+
+export type FriendUpdate = Partial<O.Omit<FriendInput, 'id' | 'friends' | 'friendIds'>> & {
+  friendIds?:
+    | RecordIdInput<string>[]
+    | {
+        push?: RecordIdInput<string> | RecordIdInput<string>[];
+        unset?: RecordIdInput<string> | RecordIdInput<string>[];
+      };
+};
+
+export type FriendUpdateInput =
+  | FriendUpdate
+  | (O.Omit<FriendUpdate, 'friendIds'> & {
+      friends?: {
+        create?: FriendNestedCreate | FriendNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+        disconnect?: RecordIdInput | RecordIdInput[];
+        set?: RecordIdInput[];
+      };
+    });
+
+export type FriendUnset = {};
+
+export type FriendSelect =
+  | ({ id: boolean } & Partial<Record<'name' | 'friendIds', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'friendIds', boolean>>)
+  | ({ friendIds: boolean } & Partial<Record<'id' | 'name', boolean>>);
+
+export interface FriendOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  friendIds?: 'asc' | 'desc';
+}
+
+export interface FriendInclude {
+  friends?:
+    | boolean
+    | {
+        select?: FriendSelect;
+        where?: FriendWhere;
+        orderBy?: FriendOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: FriendInclude;
+      };
+}
+
+export type Friend$Relations = {
+  friends: { type: Friend[]; include: FriendInclude };
+};
+
+export type GetFriendIncludePayload<I extends FriendInclude | undefined> = I extends FriendInclude
+  ? Pick<
+      {
+        friends: I['friends'] extends true
+          ? Friend[]
+          : I['friends'] extends { select: infer S extends FriendSelect; include: infer NI extends FriendInclude }
+            ? ({
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Friend
+                  ? ResolveFieldSelect<Friend[P], S[P]>
+                  : never;
+              } & GetFriendIncludePayload<NI>)[]
+            : I['friends'] extends { select: infer S extends FriendSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Friend
+                    ? ResolveFieldSelect<Friend[P], S[P]>
+                    : never;
+                }[]
+              : I['friends'] extends { include: infer NI extends FriendInclude }
+                ? (Friend & GetFriendIncludePayload<NI>)[]
+                : Friend[];
+      },
+      Extract<keyof I, keyof Friend$Relations> & { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetFriendPayload<
+  S extends FriendSelect | undefined = undefined,
+  I extends FriendInclude | undefined = undefined,
+> = A.Compute<
+  S extends FriendSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof Friend
+          ? ResolveFieldSelect<Friend[K], S[K]>
+          : never;
+      } & GetFriendIncludePayload<I>
+    : I extends FriendInclude
+      ? Friend & GetFriendIncludePayload<I>
+      : Friend,
+  'flat'
+>;
+
+export interface FriendModel {
+  findOne<S extends FriendSelect | undefined = undefined, I extends FriendInclude | undefined = undefined>(options?: {
+    where?: FriendWhere;
+    select?: S;
+    include?: I;
+    orderBy?: FriendOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetFriendPayload<S, I> | null>;
+
+  findMany<S extends FriendSelect | undefined = undefined, I extends FriendInclude | undefined = undefined>(options?: {
+    where?: FriendWhere;
+    select?: S;
+    orderBy?: FriendOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetFriendPayload<S, I>[]>;
+
+  findUnique<S extends FriendSelect | undefined = undefined, I extends FriendInclude | undefined = undefined>(options: {
+    where: FriendFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetFriendPayload<S, I> | null>;
+
+  create<S extends FriendSelect | undefined = undefined, I extends FriendInclude | undefined = undefined>(options: {
+    data: FriendCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetFriendPayload<S, I>>;
+
+  updateMany<
+    S extends FriendSelect | undefined = undefined,
+    I extends FriendInclude | undefined = undefined,
+    D extends FriendUpdateInput = FriendUpdateInput,
+  >(options: {
+    where: FriendWhere;
+    data: D;
+    unset?: SafeUnset<FriendUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetFriendPayload<S, I>[]>;
+
+  updateUnique<
+    S extends FriendSelect | undefined = undefined,
+    I extends FriendInclude | undefined = undefined,
+    D extends FriendUpdateInput = FriendUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: FriendFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<FriendUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns Friend | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetFriendPayload<S, I>, R>>;
+
+  upsert<
+    S extends FriendSelect | undefined = undefined,
+    I extends FriendInclude | undefined = undefined,
+    D extends FriendUpdateInput = FriendUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: FriendFindUniqueWhere;
+    create: FriendCreateInput;
+    update?: D;
+    unset?: SafeUnset<FriendUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetFriendPayload<S, I>, R>>;
+
+  upsert<
+    S extends FriendSelect | undefined = undefined,
+    I extends FriendInclude | undefined = undefined,
+    D extends FriendUpdateInput = FriendUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: FriendWhere;
+    create: FriendCreateInput;
+    update?: D;
+    unset?: SafeUnset<FriendUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetFriendPayload<S, I>, R>>;
+
+  deleteMany(options: { where: FriendWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: FriendFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns Friend | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<Friend, R>>;
+
+  count(where?: FriendWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: FriendWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/person.ts =====
+/**
+ * Generated types for Person
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface Person {
+  id: CerialId<string>;
+  name: string;
+  mentorId?: CerialId<string> | null;
+}
+
+export interface PersonInput {
+  id?: string;
+  name: string;
+  mentorId?: RecordIdInput<string> | null;
+}
+
+export interface PersonWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  mentorId?:
+    | null
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {
+        not?: string | null;
+        isNull?: boolean;
+        isNone?: boolean;
+      });
+  mentor?: null | PersonWhere;
+  AND?: PersonWhere[];
+  OR?: PersonWhere[];
+  NOT?: PersonWhere;
+}
+
+export type PersonWhereInput = PersonWhere;
+
+export type PersonFindUniqueWhere = { id: RecordIdInput<string> } & Omit<PersonWhere, 'id'>;
+
+export type PersonCreate = O.Optional<O.Omit<PersonInput, 'mentor'>, 'id' | 'mentorId'>;
+
+export type PersonNestedCreate = O.Optional<O.Omit<PersonInput, 'mentor' | 'mentorId'>, 'id'>;
+
+export type PersonCreateInput =
+  | PersonCreate
+  | (O.Omit<PersonCreate, 'mentorId'> & {
+      mentor?: { create: PersonNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type PersonUpdate = Partial<O.Omit<PersonInput, 'id' | 'mentor' | 'mentorId'>> & {
+  mentorId?: RecordIdInput<string> | null | CerialNone;
+};
+
+export type PersonUpdateInput =
+  | PersonUpdate
+  | (O.Omit<PersonUpdate, 'mentorId'> & {
+      mentor?: { create: PersonNestedCreate } | { connect: RecordIdInput } | { disconnect: true };
+    });
+
+export type PersonUnset = {
+  mentorId?: true;
+};
+
+export type PersonSelect =
+  | ({ id: boolean } & Partial<Record<'name' | 'mentorId', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'mentorId', boolean>>)
+  | ({ mentorId: boolean } & Partial<Record<'id' | 'name', boolean>>);
+
+export interface PersonOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  mentorId?: 'asc' | 'desc';
+  mentor?: PersonOrderBy;
+}
+
+export interface PersonInclude {
+  mentor?:
+    | boolean
+    | {
+        select?: PersonSelect;
+        where?: PersonWhere;
+        include?: PersonInclude;
+      };
+}
+
+export type Person$Relations = {
+  mentor: { type: Person; include: PersonInclude };
+};
+
+export type GetPersonIncludePayload<I extends PersonInclude | undefined> = I extends PersonInclude
+  ? Pick<
+      {
+        mentor: I['mentor'] extends true
+          ? Person
+          : I['mentor'] extends { select: infer S extends PersonSelect; include: infer NI extends PersonInclude }
+            ? {
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Person
+                  ? ResolveFieldSelect<Person[P], S[P]>
+                  : never;
+              } & GetPersonIncludePayload<NI>
+            : I['mentor'] extends { select: infer S extends PersonSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Person
+                    ? ResolveFieldSelect<Person[P], S[P]>
+                    : never;
+                }
+              : I['mentor'] extends { include: infer NI extends PersonInclude }
+                ? Person & GetPersonIncludePayload<NI>
+                : Person;
+      },
+      Extract<keyof I, keyof Person$Relations> & { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetPersonPayload<
+  S extends PersonSelect | undefined = undefined,
+  I extends PersonInclude | undefined = undefined,
+> = A.Compute<
+  S extends PersonSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof Person
+          ? ResolveFieldSelect<Person[K], S[K]>
+          : never;
+      } & GetPersonIncludePayload<I>
+    : I extends PersonInclude
+      ? Person & GetPersonIncludePayload<I>
+      : Person,
+  'flat'
+>;
+
+export interface PersonModel {
+  findOne<S extends PersonSelect | undefined = undefined, I extends PersonInclude | undefined = undefined>(options?: {
+    where?: PersonWhere;
+    select?: S;
+    include?: I;
+    orderBy?: PersonOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetPersonPayload<S, I> | null>;
+
+  findMany<S extends PersonSelect | undefined = undefined, I extends PersonInclude | undefined = undefined>(options?: {
+    where?: PersonWhere;
+    select?: S;
+    orderBy?: PersonOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetPersonPayload<S, I>[]>;
+
+  findUnique<S extends PersonSelect | undefined = undefined, I extends PersonInclude | undefined = undefined>(options: {
+    where: PersonFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetPersonPayload<S, I> | null>;
+
+  create<S extends PersonSelect | undefined = undefined, I extends PersonInclude | undefined = undefined>(options: {
+    data: PersonCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetPersonPayload<S, I>>;
+
+  updateMany<
+    S extends PersonSelect | undefined = undefined,
+    I extends PersonInclude | undefined = undefined,
+    D extends PersonUpdateInput = PersonUpdateInput,
+  >(options: {
+    where: PersonWhere;
+    data: D;
+    unset?: SafeUnset<PersonUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetPersonPayload<S, I>[]>;
+
+  updateUnique<
+    S extends PersonSelect | undefined = undefined,
+    I extends PersonInclude | undefined = undefined,
+    D extends PersonUpdateInput = PersonUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: PersonFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<PersonUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns Person | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetPersonPayload<S, I>, R>>;
+
+  upsert<
+    S extends PersonSelect | undefined = undefined,
+    I extends PersonInclude | undefined = undefined,
+    D extends PersonUpdateInput = PersonUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: PersonFindUniqueWhere;
+    create: PersonCreateInput;
+    update?: D;
+    unset?: SafeUnset<PersonUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetPersonPayload<S, I>, R>>;
+
+  upsert<
+    S extends PersonSelect | undefined = undefined,
+    I extends PersonInclude | undefined = undefined,
+    D extends PersonUpdateInput = PersonUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: PersonWhere;
+    create: PersonCreateInput;
+    update?: D;
+    unset?: SafeUnset<PersonUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetPersonPayload<S, I>, R>>;
+
+  deleteMany(options: { where: PersonWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: PersonFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns Person | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<Person, R>>;
+
+  count(where?: PersonWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: PersonWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/socialuser.ts =====
+/**
+ * Generated types for SocialUser
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface SocialUser {
+  id: CerialId<string>;
+  name: string;
+  followingIds: CerialId<string>[];
+}
+
+export interface SocialUserInput {
+  id?: string;
+  name: string;
+  followingIds: RecordIdInput<string>[];
+}
+
+export interface SocialUserWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  followingIds?:
+    | RecordIdInput<string>[]
+    | {
+        has?: RecordIdInput<string>;
+        hasAll?: RecordIdInput<string>[];
+        hasAny?: RecordIdInput<string>[];
+        isEmpty?: boolean;
+      };
+  following?: { some?: SocialUserWhere; every?: SocialUserWhere; none?: SocialUserWhere };
+  AND?: SocialUserWhere[];
+  OR?: SocialUserWhere[];
+  NOT?: SocialUserWhere;
+}
+
+export type SocialUserWhereInput = SocialUserWhere;
+
+export type SocialUserFindUniqueWhere = { id: RecordIdInput<string> } & Omit<SocialUserWhere, 'id'>;
+
+export type SocialUserCreate = O.Optional<O.Omit<SocialUserInput, 'following'>, 'id' | 'followingIds'>;
+
+export type SocialUserNestedCreate = O.Optional<O.Omit<SocialUserInput, 'following' | 'followingIds'>, 'id'>;
+
+export type SocialUserCreateInput =
+  | SocialUserCreate
+  | (O.Omit<SocialUserCreate, 'followingIds'> & {
+      following?: {
+        create?: SocialUserNestedCreate | SocialUserNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+      };
+    });
+
+export type SocialUserUpdate = Partial<O.Omit<SocialUserInput, 'id' | 'following' | 'followingIds'>> & {
+  followingIds?:
+    | RecordIdInput<string>[]
+    | {
+        push?: RecordIdInput<string> | RecordIdInput<string>[];
+        unset?: RecordIdInput<string> | RecordIdInput<string>[];
+      };
+};
+
+export type SocialUserUpdateInput =
+  | SocialUserUpdate
+  | (O.Omit<SocialUserUpdate, 'followingIds'> & {
+      following?: {
+        create?: SocialUserNestedCreate | SocialUserNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+        disconnect?: RecordIdInput | RecordIdInput[];
+        set?: RecordIdInput[];
+      };
+    });
+
+export type SocialUserUnset = {};
+
+export type SocialUserSelect =
+  | ({ id: boolean } & Partial<Record<'name' | 'followingIds', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'followingIds', boolean>>)
+  | ({ followingIds: boolean } & Partial<Record<'id' | 'name', boolean>>);
+
+export interface SocialUserOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  followingIds?: 'asc' | 'desc';
+}
+
+export interface SocialUserInclude {
+  following?:
+    | boolean
+    | {
+        select?: SocialUserSelect;
+        where?: SocialUserWhere;
+        orderBy?: SocialUserOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: SocialUserInclude;
+      };
+}
+
+export type SocialUser$Relations = {
+  following: { type: SocialUser[]; include: SocialUserInclude };
+};
+
+export type GetSocialUserIncludePayload<I extends SocialUserInclude | undefined> = I extends SocialUserInclude
+  ? Pick<
+      {
+        following: I['following'] extends true
+          ? SocialUser[]
+          : I['following'] extends {
+                select: infer S extends SocialUserSelect;
+                include: infer NI extends SocialUserInclude;
+              }
+            ? ({
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof SocialUser
+                  ? ResolveFieldSelect<SocialUser[P], S[P]>
+                  : never;
+              } & GetSocialUserIncludePayload<NI>)[]
+            : I['following'] extends { select: infer S extends SocialUserSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof SocialUser
+                    ? ResolveFieldSelect<SocialUser[P], S[P]>
+                    : never;
+                }[]
+              : I['following'] extends { include: infer NI extends SocialUserInclude }
+                ? (SocialUser & GetSocialUserIncludePayload<NI>)[]
+                : SocialUser[];
+      },
+      Extract<keyof I, keyof SocialUser$Relations> &
+        { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetSocialUserPayload<
+  S extends SocialUserSelect | undefined = undefined,
+  I extends SocialUserInclude | undefined = undefined,
+> = A.Compute<
+  S extends SocialUserSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof SocialUser
+          ? ResolveFieldSelect<SocialUser[K], S[K]>
+          : never;
+      } & GetSocialUserIncludePayload<I>
+    : I extends SocialUserInclude
+      ? SocialUser & GetSocialUserIncludePayload<I>
+      : SocialUser,
+  'flat'
+>;
+
+export interface SocialUserModel {
+  findOne<
+    S extends SocialUserSelect | undefined = undefined,
+    I extends SocialUserInclude | undefined = undefined,
+  >(options?: {
+    where?: SocialUserWhere;
+    select?: S;
+    include?: I;
+    orderBy?: SocialUserOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetSocialUserPayload<S, I> | null>;
+
+  findMany<
+    S extends SocialUserSelect | undefined = undefined,
+    I extends SocialUserInclude | undefined = undefined,
+  >(options?: {
+    where?: SocialUserWhere;
+    select?: S;
+    orderBy?: SocialUserOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetSocialUserPayload<S, I>[]>;
+
+  findUnique<
+    S extends SocialUserSelect | undefined = undefined,
+    I extends SocialUserInclude | undefined = undefined,
+  >(options: {
+    where: SocialUserFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetSocialUserPayload<S, I> | null>;
+
+  create<
+    S extends SocialUserSelect | undefined = undefined,
+    I extends SocialUserInclude | undefined = undefined,
+  >(options: {
+    data: SocialUserCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetSocialUserPayload<S, I>>;
+
+  updateMany<
+    S extends SocialUserSelect | undefined = undefined,
+    I extends SocialUserInclude | undefined = undefined,
+    D extends SocialUserUpdateInput = SocialUserUpdateInput,
+  >(options: {
+    where: SocialUserWhere;
+    data: D;
+    unset?: SafeUnset<SocialUserUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetSocialUserPayload<S, I>[]>;
+
+  updateUnique<
+    S extends SocialUserSelect | undefined = undefined,
+    I extends SocialUserInclude | undefined = undefined,
+    D extends SocialUserUpdateInput = SocialUserUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: SocialUserFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<SocialUserUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns SocialUser | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetSocialUserPayload<S, I>, R>>;
+
+  upsert<
+    S extends SocialUserSelect | undefined = undefined,
+    I extends SocialUserInclude | undefined = undefined,
+    D extends SocialUserUpdateInput = SocialUserUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: SocialUserFindUniqueWhere;
+    create: SocialUserCreateInput;
+    update?: D;
+    unset?: SafeUnset<SocialUserUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetSocialUserPayload<S, I>, R>>;
+
+  upsert<
+    S extends SocialUserSelect | undefined = undefined,
+    I extends SocialUserInclude | undefined = undefined,
+    D extends SocialUserUpdateInput = SocialUserUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: SocialUserWhere;
+    create: SocialUserCreateInput;
+    update?: D;
+    unset?: SafeUnset<SocialUserUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetSocialUserPayload<S, I>, R>>;
+
+  deleteMany(options: { where: SocialUserWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: SocialUserFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns SocialUser | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<SocialUser, R>>;
+
+  count(where?: SocialUserWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: SocialUserWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}

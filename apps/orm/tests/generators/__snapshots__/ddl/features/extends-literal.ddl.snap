@@ -1,0 +1,25 @@
+-- ExtLiteralContainer
+DEFINE TABLE OVERWRITE ext_literal_container SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE ext_literal_container TYPE string;
+DEFINE FIELD OVERWRITE details ON TABLE ext_literal_container TYPE object;
+DEFINE FIELD OVERWRITE details.priority ON TABLE ext_literal_container TYPE 'low' | 'medium' | 'high' | 'critical' | 'urgent';
+DEFINE FIELD OVERWRITE details.level ON TABLE ext_literal_container TYPE 1 | 2 | 3 | 4 | 5;
+DEFINE FIELD OVERWRITE details.status ON TABLE ext_literal_container TYPE option<'active' | 'inactive' | true | false | 'pending' | 0>;
+DEFINE FIELD OVERWRITE detailsList ON TABLE ext_literal_container TYPE array<object>;
+DEFINE FIELD OVERWRITE detailsList.*.priority ON TABLE ext_literal_container TYPE 'low' | 'medium' | 'high' | 'critical' | 'urgent';
+DEFINE FIELD OVERWRITE detailsList.*.level ON TABLE ext_literal_container TYPE 1 | 2 | 3 | 4 | 5;
+DEFINE FIELD OVERWRITE detailsList.*.status ON TABLE ext_literal_container TYPE option<'active' | 'inactive' | true | false | 'pending' | 0>;
+
+-- ExtLiteralModel
+DEFINE TABLE OVERWRITE ext_literal_model SCHEMAFULL;
+DEFINE FIELD OVERWRITE priority ON TABLE ext_literal_model TYPE 'low' | 'medium' | 'high' | 'critical' | 'urgent';
+DEFINE FIELD OVERWRITE level ON TABLE ext_literal_model TYPE 1 | 2 | 3 | 4 | 5;
+DEFINE FIELD OVERWRITE status ON TABLE ext_literal_model TYPE 'active' | 'inactive' | true | false | 'pending' | 0;
+DEFINE FIELD OVERWRITE broadValue ON TABLE ext_literal_model TYPE string | int | bool;
+DEFINE FIELD OVERWRITE highPriority ON TABLE ext_literal_model TYPE option<'low' | 'medium' | 'high' | 'critical'>;
+DEFINE FIELD OVERWRITE priorities ON TABLE ext_literal_model TYPE array<'low' | 'medium' | 'high' | 'critical' | 'urgent'>;
+
+-- ExtLiteralQuoted
+DEFINE TABLE OVERWRITE ext_literal_quoted SCHEMAFULL;
+DEFINE FIELD OVERWRITE picked ON TABLE ext_literal_quoted TYPE 'low' | 'high';
+DEFINE FIELD OVERWRITE omitted ON TABLE ext_literal_quoted TYPE 'low' | 'high';

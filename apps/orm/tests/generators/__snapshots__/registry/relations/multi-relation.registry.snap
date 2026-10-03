@@ -1,0 +1,127 @@
+{
+  "models": {
+    "Document": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "authorId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "author",
+          "relationInfo": {
+            "fieldRef": "authorId",
+            "isReverse": false,
+            "key": "author",
+            "targetModel": "Writer",
+            "targetTable": "writer"
+          },
+          "type": "relation"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "reviewerId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "reviewer",
+          "relationInfo": {
+            "fieldRef": "reviewerId",
+            "isReverse": false,
+            "key": "reviewer",
+            "targetModel": "Writer",
+            "targetTable": "writer"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "Document",
+      "tableName": "document"
+    },
+    "Writer": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "authoredDocs",
+          "relationInfo": {
+            "isReverse": true,
+            "key": "author",
+            "targetModel": "Document",
+            "targetTable": "document"
+          },
+          "type": "relation"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "reviewedDocs",
+          "relationInfo": {
+            "isReverse": true,
+            "key": "reviewer",
+            "targetModel": "Document",
+            "targetTable": "document"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "Writer",
+      "tableName": "writer"
+    }
+  }
+}

@@ -1,0 +1,55 @@
+-- FkChildModel
+DEFINE TABLE OVERWRITE fk_child_model SCHEMAFULL;
+DEFINE FIELD OVERWRITE parentId ON TABLE fk_child_model TYPE record<fk_target_int_id>;
+DEFINE FIELD OVERWRITE note ON TABLE fk_child_model TYPE string;
+
+-- FkTargetIntId
+DEFINE TABLE OVERWRITE fk_target_int_id SCHEMAFULL;
+DEFINE FIELD OVERWRITE id ON TABLE fk_target_int_id TYPE int;
+DEFINE FIELD OVERWRITE label ON TABLE fk_target_int_id TYPE string;
+
+-- IntIdModel
+DEFINE TABLE OVERWRITE int_id_model SCHEMAFULL;
+DEFINE FIELD OVERWRITE id ON TABLE int_id_model TYPE int;
+DEFINE FIELD OVERWRITE name ON TABLE int_id_model TYPE string;
+
+-- IntUnionIdModel
+DEFINE TABLE OVERWRITE int_union_id_model SCHEMAFULL;
+DEFINE FIELD OVERWRITE id ON TABLE int_union_id_model TYPE int | uuid;
+DEFINE FIELD OVERWRITE label ON TABLE int_union_id_model TYPE string;
+
+-- NumberIdModel
+DEFINE TABLE OVERWRITE number_id_model SCHEMAFULL;
+DEFINE FIELD OVERWRITE id ON TABLE number_id_model TYPE number;
+DEFINE FIELD OVERWRITE label ON TABLE number_id_model TYPE string;
+
+-- ObjectIdModel
+DEFINE TABLE OVERWRITE object_id_model SCHEMAFULL;
+DEFINE FIELD OVERWRITE id ON TABLE object_id_model TYPE { service: string, timestamp: int };
+DEFINE FIELD OVERWRITE value ON TABLE object_id_model TYPE float;
+
+-- StandaloneRefModel
+DEFINE TABLE OVERWRITE standalone_ref_model SCHEMAFULL;
+DEFINE FIELD OVERWRITE externalRef ON TABLE standalone_ref_model TYPE record;
+DEFINE FIELD OVERWRITE externalRefs ON TABLE standalone_ref_model TYPE array<record>;
+DEFINE FIELD OVERWRITE label ON TABLE standalone_ref_model TYPE string;
+
+-- StringIdModel
+DEFINE TABLE OVERWRITE string_id_model SCHEMAFULL;
+DEFINE FIELD OVERWRITE id ON TABLE string_id_model TYPE string;
+DEFINE FIELD OVERWRITE value ON TABLE string_id_model TYPE string;
+
+-- TupleIdModel
+DEFINE TABLE OVERWRITE tuple_id_model SCHEMAFULL;
+DEFINE FIELD OVERWRITE id ON TABLE tuple_id_model TYPE [float, float];
+DEFINE FIELD OVERWRITE city ON TABLE tuple_id_model TYPE string;
+
+-- UnionIdModel
+DEFINE TABLE OVERWRITE union_id_model SCHEMAFULL;
+DEFINE FIELD OVERWRITE id ON TABLE union_id_model TYPE string | int;
+DEFINE FIELD OVERWRITE label ON TABLE union_id_model TYPE string;
+
+-- UuidIdModel
+DEFINE TABLE OVERWRITE uuid_id_model SCHEMAFULL;
+DEFINE FIELD OVERWRITE id ON TABLE uuid_id_model TYPE uuid;
+DEFINE FIELD OVERWRITE data ON TABLE uuid_id_model TYPE string;

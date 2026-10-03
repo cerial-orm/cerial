@@ -1,0 +1,127 @@
+{
+  "models": {
+    "ContentItem": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "body",
+          "type": "string"
+        },
+        {
+          "defaultAlwaysValue": false,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "reviewed",
+          "type": "bool"
+        },
+        {
+          "defaultAlwaysValue": "dirty",
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "syncStatus",
+          "type": "string"
+        },
+        {
+          "defaultAlwaysValue": 0,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "retryCount",
+          "type": "int"
+        },
+        {
+          "defaultAlwaysValue": 1,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "score",
+          "type": "float"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "meta",
+          "objectInfo": {
+            "fields": [
+              {
+                "defaultAlwaysValue": "pending review",
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "note",
+                "type": "string"
+              },
+              {
+                "defaultAlwaysValue": false,
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "flagged",
+                "type": "bool"
+              }
+            ],
+            "objectName": "ReviewMeta"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "ContentItem",
+      "tableName": "content_item"
+    }
+  },
+  "objects": {
+    "ReviewMeta": {
+      "fields": [
+        {
+          "defaultAlwaysValue": "pending review",
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "note",
+          "type": "string"
+        },
+        {
+          "defaultAlwaysValue": false,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "flagged",
+          "type": "bool"
+        }
+      ],
+      "name": "ReviewMeta"
+    }
+  }
+}

@@ -1,0 +1,2194 @@
+// ===== models/kitchensinkbadge.ts =====
+/**
+ * Generated types for KitchenSinkBadge
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface KitchenSinkBadge {
+  id: CerialId<string>;
+  name: string;
+}
+
+export interface KitchenSinkBadgeInput {
+  id?: string;
+  name: string;
+}
+
+export interface KitchenSinkBadgeWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  /** @unique — Unique indexed field */
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  AND?: KitchenSinkBadgeWhere[];
+  OR?: KitchenSinkBadgeWhere[];
+  NOT?: KitchenSinkBadgeWhere;
+}
+
+export type KitchenSinkBadgeWhereInput = KitchenSinkBadgeWhere;
+
+export type KitchenSinkBadgeFindUniqueWhere =
+  | ({ id: RecordIdInput<string> } & { name?: string } & Omit<KitchenSinkBadgeWhere, 'id' | 'name'>)
+  | ({ name: string } & { id?: RecordIdInput<string> } & Omit<KitchenSinkBadgeWhere, 'id' | 'name'>);
+
+export type KitchenSinkBadgeCreate = O.Optional<KitchenSinkBadgeInput, 'id'>;
+
+export type KitchenSinkBadgeNestedCreate = O.Optional<KitchenSinkBadgeInput, 'id'>;
+
+export type KitchenSinkBadgeCreateInput = KitchenSinkBadgeCreate;
+
+export type KitchenSinkBadgeUpdate = Partial<O.Omit<KitchenSinkBadgeInput, 'id'>>;
+
+export type KitchenSinkBadgeUpdateInput = KitchenSinkBadgeUpdate;
+
+export type KitchenSinkBadgeUnset = {};
+
+export type KitchenSinkBadgeSelect =
+  | ({ id: boolean } & Partial<Record<'name', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id', boolean>>);
+
+export interface KitchenSinkBadgeOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+}
+
+export type KitchenSinkBadge$Relations = {};
+
+export type GetKitchenSinkBadgePayload<
+  S extends KitchenSinkBadgeSelect | undefined = undefined,
+  I = undefined,
+> = A.Compute<
+  S extends KitchenSinkBadgeSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof KitchenSinkBadge
+          ? ResolveFieldSelect<KitchenSinkBadge[K], S[K]>
+          : never;
+      }
+    : KitchenSinkBadge,
+  'flat'
+>;
+
+export interface KitchenSinkBadgeModel {
+  findOne<S extends KitchenSinkBadgeSelect | undefined = undefined>(options?: {
+    where?: KitchenSinkBadgeWhere;
+    select?: S;
+    orderBy?: KitchenSinkBadgeOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetKitchenSinkBadgePayload<S> | null>;
+
+  findMany<S extends KitchenSinkBadgeSelect | undefined = undefined>(options?: {
+    where?: KitchenSinkBadgeWhere;
+    select?: S;
+    orderBy?: KitchenSinkBadgeOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetKitchenSinkBadgePayload<S>[]>;
+
+  findUnique<S extends KitchenSinkBadgeSelect | undefined = undefined>(options: {
+    where: KitchenSinkBadgeFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetKitchenSinkBadgePayload<S> | null>;
+
+  create<S extends KitchenSinkBadgeSelect | undefined = undefined>(options: {
+    data: KitchenSinkBadgeCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetKitchenSinkBadgePayload<S>>;
+
+  updateMany<
+    S extends KitchenSinkBadgeSelect | undefined = undefined,
+    D extends KitchenSinkBadgeUpdateInput = KitchenSinkBadgeUpdateInput,
+  >(options: {
+    where: KitchenSinkBadgeWhere;
+    data: D;
+    unset?: SafeUnset<KitchenSinkBadgeUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetKitchenSinkBadgePayload<S>[]>;
+
+  updateUnique<
+    S extends KitchenSinkBadgeSelect | undefined = undefined,
+    D extends KitchenSinkBadgeUpdateInput = KitchenSinkBadgeUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: KitchenSinkBadgeFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<KitchenSinkBadgeUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns KitchenSinkBadge | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetKitchenSinkBadgePayload<S>, R>>;
+
+  upsert<
+    S extends KitchenSinkBadgeSelect | undefined = undefined,
+    D extends KitchenSinkBadgeUpdateInput = KitchenSinkBadgeUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: KitchenSinkBadgeFindUniqueWhere;
+    create: KitchenSinkBadgeCreateInput;
+    update?: D;
+    unset?: SafeUnset<KitchenSinkBadgeUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetKitchenSinkBadgePayload<S>, R>>;
+
+  upsert<
+    S extends KitchenSinkBadgeSelect | undefined = undefined,
+    D extends KitchenSinkBadgeUpdateInput = KitchenSinkBadgeUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: KitchenSinkBadgeWhere;
+    create: KitchenSinkBadgeCreateInput;
+    update?: D;
+    unset?: SafeUnset<KitchenSinkBadgeUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetKitchenSinkBadgePayload<S>, R>>;
+
+  deleteMany(options: { where: KitchenSinkBadgeWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: KitchenSinkBadgeFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns KitchenSinkBadge | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<KitchenSinkBadge, R>>;
+
+  count(where?: KitchenSinkBadgeWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: KitchenSinkBadgeWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/kitchensinkpost.ts =====
+/**
+ * Generated types for KitchenSinkPost
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  KitchenSinkUser,
+  KitchenSinkUserWhere,
+  KitchenSinkUserSelect,
+  KitchenSinkUserOrderBy,
+  KitchenSinkUserNestedCreate,
+  KitchenSinkUserInclude,
+  GetKitchenSinkUserIncludePayload,
+} from './kitchensinkuser';
+export interface KitchenSinkPost {
+  id: CerialId<string>;
+  title: string;
+  authorId: CerialId<string>;
+}
+
+export interface KitchenSinkPostInput {
+  id?: string;
+  title: string;
+  authorId: RecordIdInput<string>;
+}
+
+export interface KitchenSinkPostWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  title?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  authorId?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  author?: KitchenSinkUserWhere;
+  AND?: KitchenSinkPostWhere[];
+  OR?: KitchenSinkPostWhere[];
+  NOT?: KitchenSinkPostWhere;
+}
+
+export type KitchenSinkPostWhereInput = KitchenSinkPostWhere;
+
+export type KitchenSinkPostFindUniqueWhere = { id: RecordIdInput<string> } & Omit<KitchenSinkPostWhere, 'id'>;
+
+export type KitchenSinkPostCreate = O.Optional<O.Omit<KitchenSinkPostInput, 'author'>, 'id'>;
+
+export type KitchenSinkPostNestedCreate = O.Optional<O.Omit<KitchenSinkPostInput, 'author' | 'authorId'>, 'id'>;
+
+export type KitchenSinkPostCreateInput =
+  | KitchenSinkPostCreate
+  | (O.Omit<KitchenSinkPostCreate, 'authorId'> & {
+      author: { create: KitchenSinkUserNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type KitchenSinkPostUpdate = Partial<O.Omit<KitchenSinkPostInput, 'id' | 'author'>>;
+
+export type KitchenSinkPostUpdateInput =
+  | KitchenSinkPostUpdate
+  | (O.Omit<KitchenSinkPostUpdate, 'authorId'> & {
+      author?: { create: KitchenSinkUserNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type KitchenSinkPostUnset = {};
+
+export type KitchenSinkPostSelect =
+  | ({ id: boolean } & Partial<Record<'title' | 'authorId', boolean>>)
+  | ({ title: boolean } & Partial<Record<'id' | 'authorId', boolean>>)
+  | ({ authorId: boolean } & Partial<Record<'id' | 'title', boolean>>);
+
+export interface KitchenSinkPostOrderBy {
+  id?: 'asc' | 'desc';
+  title?: 'asc' | 'desc';
+  authorId?: 'asc' | 'desc';
+  author?: KitchenSinkUserOrderBy;
+}
+
+export interface KitchenSinkPostInclude {
+  author?:
+    | boolean
+    | {
+        select?: KitchenSinkUserSelect;
+        where?: KitchenSinkUserWhere;
+        include?: KitchenSinkUserInclude;
+      };
+}
+
+export type KitchenSinkPost$Relations = {
+  author: { type: KitchenSinkUser; include: KitchenSinkUserInclude };
+};
+
+export type GetKitchenSinkPostIncludePayload<I extends KitchenSinkPostInclude | undefined> =
+  I extends KitchenSinkPostInclude
+    ? Pick<
+        {
+          author: I['author'] extends true
+            ? KitchenSinkUser
+            : I['author'] extends {
+                  select: infer S extends KitchenSinkUserSelect;
+                  include: infer NI extends KitchenSinkUserInclude;
+                }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof KitchenSinkUser
+                    ? ResolveFieldSelect<KitchenSinkUser[P], S[P]>
+                    : never;
+                } & GetKitchenSinkUserIncludePayload<NI>
+              : I['author'] extends { select: infer S extends KitchenSinkUserSelect }
+                ? {
+                    [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof KitchenSinkUser
+                      ? ResolveFieldSelect<KitchenSinkUser[P], S[P]>
+                      : never;
+                  }
+                : I['author'] extends { include: infer NI extends KitchenSinkUserInclude }
+                  ? KitchenSinkUser & GetKitchenSinkUserIncludePayload<NI>
+                  : KitchenSinkUser;
+        },
+        Extract<keyof I, keyof KitchenSinkPost$Relations> &
+          { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+      >
+    : {};
+
+export type GetKitchenSinkPostPayload<
+  S extends KitchenSinkPostSelect | undefined = undefined,
+  I extends KitchenSinkPostInclude | undefined = undefined,
+> = A.Compute<
+  S extends KitchenSinkPostSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof KitchenSinkPost
+          ? ResolveFieldSelect<KitchenSinkPost[K], S[K]>
+          : never;
+      } & GetKitchenSinkPostIncludePayload<I>
+    : I extends KitchenSinkPostInclude
+      ? KitchenSinkPost & GetKitchenSinkPostIncludePayload<I>
+      : KitchenSinkPost,
+  'flat'
+>;
+
+export interface KitchenSinkPostModel {
+  findOne<
+    S extends KitchenSinkPostSelect | undefined = undefined,
+    I extends KitchenSinkPostInclude | undefined = undefined,
+  >(options?: {
+    where?: KitchenSinkPostWhere;
+    select?: S;
+    include?: I;
+    orderBy?: KitchenSinkPostOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetKitchenSinkPostPayload<S, I> | null>;
+
+  findMany<
+    S extends KitchenSinkPostSelect | undefined = undefined,
+    I extends KitchenSinkPostInclude | undefined = undefined,
+  >(options?: {
+    where?: KitchenSinkPostWhere;
+    select?: S;
+    orderBy?: KitchenSinkPostOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetKitchenSinkPostPayload<S, I>[]>;
+
+  findUnique<
+    S extends KitchenSinkPostSelect | undefined = undefined,
+    I extends KitchenSinkPostInclude | undefined = undefined,
+  >(options: {
+    where: KitchenSinkPostFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetKitchenSinkPostPayload<S, I> | null>;
+
+  create<
+    S extends KitchenSinkPostSelect | undefined = undefined,
+    I extends KitchenSinkPostInclude | undefined = undefined,
+  >(options: {
+    data: KitchenSinkPostCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetKitchenSinkPostPayload<S, I>>;
+
+  updateMany<
+    S extends KitchenSinkPostSelect | undefined = undefined,
+    I extends KitchenSinkPostInclude | undefined = undefined,
+    D extends KitchenSinkPostUpdateInput = KitchenSinkPostUpdateInput,
+  >(options: {
+    where: KitchenSinkPostWhere;
+    data: D;
+    unset?: SafeUnset<KitchenSinkPostUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetKitchenSinkPostPayload<S, I>[]>;
+
+  updateUnique<
+    S extends KitchenSinkPostSelect | undefined = undefined,
+    I extends KitchenSinkPostInclude | undefined = undefined,
+    D extends KitchenSinkPostUpdateInput = KitchenSinkPostUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: KitchenSinkPostFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<KitchenSinkPostUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns KitchenSinkPost | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetKitchenSinkPostPayload<S, I>, R>>;
+
+  upsert<
+    S extends KitchenSinkPostSelect | undefined = undefined,
+    I extends KitchenSinkPostInclude | undefined = undefined,
+    D extends KitchenSinkPostUpdateInput = KitchenSinkPostUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: KitchenSinkPostFindUniqueWhere;
+    create: KitchenSinkPostCreateInput;
+    update?: D;
+    unset?: SafeUnset<KitchenSinkPostUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetKitchenSinkPostPayload<S, I>, R>>;
+
+  upsert<
+    S extends KitchenSinkPostSelect | undefined = undefined,
+    I extends KitchenSinkPostInclude | undefined = undefined,
+    D extends KitchenSinkPostUpdateInput = KitchenSinkPostUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: KitchenSinkPostWhere;
+    create: KitchenSinkPostCreateInput;
+    update?: D;
+    unset?: SafeUnset<KitchenSinkPostUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetKitchenSinkPostPayload<S, I>, R>>;
+
+  deleteMany(options: { where: KitchenSinkPostWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: KitchenSinkPostFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns KitchenSinkPost | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<KitchenSinkPost, R>>;
+
+  count(where?: KitchenSinkPostWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: KitchenSinkPostWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/kitchensinkprofile.ts =====
+/**
+ * Generated types for KitchenSinkProfile
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  KitchenSinkUser,
+  KitchenSinkUserWhere,
+  KitchenSinkUserSelect,
+  KitchenSinkUserOrderBy,
+  KitchenSinkUserNestedCreate,
+  KitchenSinkUserInclude,
+  GetKitchenSinkUserIncludePayload,
+} from './kitchensinkuser';
+export interface KitchenSinkProfile {
+  id: CerialId<string>;
+  bio?: string;
+  userId: CerialId<string>;
+}
+
+export interface KitchenSinkProfileInput {
+  id?: string;
+  bio?: string;
+  userId: RecordIdInput<string>;
+}
+
+export interface KitchenSinkProfileWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  bio?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  userId?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  user?: KitchenSinkUserWhere;
+  AND?: KitchenSinkProfileWhere[];
+  OR?: KitchenSinkProfileWhere[];
+  NOT?: KitchenSinkProfileWhere;
+}
+
+export type KitchenSinkProfileWhereInput = KitchenSinkProfileWhere;
+
+export type KitchenSinkProfileFindUniqueWhere = { id: RecordIdInput<string> } & Omit<KitchenSinkProfileWhere, 'id'>;
+
+export type KitchenSinkProfileCreate = O.Optional<O.Omit<KitchenSinkProfileInput, 'user'>, 'id' | 'bio'>;
+
+export type KitchenSinkProfileNestedCreate = O.Optional<
+  O.Omit<KitchenSinkProfileInput, 'user' | 'userId'>,
+  'id' | 'bio'
+>;
+
+export type KitchenSinkProfileCreateInput =
+  | KitchenSinkProfileCreate
+  | (O.Omit<KitchenSinkProfileCreate, 'userId'> & {
+      user: { create: KitchenSinkUserNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type KitchenSinkProfileUpdate = Partial<O.Omit<KitchenSinkProfileInput, 'id' | 'user' | 'bio'>> & {
+  bio?: string | CerialNone;
+};
+
+export type KitchenSinkProfileUpdateInput =
+  | KitchenSinkProfileUpdate
+  | (O.Omit<KitchenSinkProfileUpdate, 'userId'> & {
+      user?: { create: KitchenSinkUserNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type KitchenSinkProfileUnset = {
+  bio?: true;
+};
+
+export type KitchenSinkProfileSelect =
+  | ({ id: boolean } & Partial<Record<'bio' | 'userId', boolean>>)
+  | ({ bio: boolean } & Partial<Record<'id' | 'userId', boolean>>)
+  | ({ userId: boolean } & Partial<Record<'id' | 'bio', boolean>>);
+
+export interface KitchenSinkProfileOrderBy {
+  id?: 'asc' | 'desc';
+  bio?: 'asc' | 'desc';
+  userId?: 'asc' | 'desc';
+  user?: KitchenSinkUserOrderBy;
+}
+
+export interface KitchenSinkProfileInclude {
+  user?:
+    | boolean
+    | {
+        select?: KitchenSinkUserSelect;
+        where?: KitchenSinkUserWhere;
+        include?: KitchenSinkUserInclude;
+      };
+}
+
+export type KitchenSinkProfile$Relations = {
+  user: { type: KitchenSinkUser; include: KitchenSinkUserInclude };
+};
+
+export type GetKitchenSinkProfileIncludePayload<I extends KitchenSinkProfileInclude | undefined> =
+  I extends KitchenSinkProfileInclude
+    ? Pick<
+        {
+          user: I['user'] extends true
+            ? KitchenSinkUser
+            : I['user'] extends {
+                  select: infer S extends KitchenSinkUserSelect;
+                  include: infer NI extends KitchenSinkUserInclude;
+                }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof KitchenSinkUser
+                    ? ResolveFieldSelect<KitchenSinkUser[P], S[P]>
+                    : never;
+                } & GetKitchenSinkUserIncludePayload<NI>
+              : I['user'] extends { select: infer S extends KitchenSinkUserSelect }
+                ? {
+                    [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof KitchenSinkUser
+                      ? ResolveFieldSelect<KitchenSinkUser[P], S[P]>
+                      : never;
+                  }
+                : I['user'] extends { include: infer NI extends KitchenSinkUserInclude }
+                  ? KitchenSinkUser & GetKitchenSinkUserIncludePayload<NI>
+                  : KitchenSinkUser;
+        },
+        Extract<keyof I, keyof KitchenSinkProfile$Relations> &
+          { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+      >
+    : {};
+
+export type GetKitchenSinkProfilePayload<
+  S extends KitchenSinkProfileSelect | undefined = undefined,
+  I extends KitchenSinkProfileInclude | undefined = undefined,
+> = A.Compute<
+  S extends KitchenSinkProfileSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof KitchenSinkProfile
+          ? ResolveFieldSelect<KitchenSinkProfile[K], S[K]>
+          : never;
+      } & GetKitchenSinkProfileIncludePayload<I>
+    : I extends KitchenSinkProfileInclude
+      ? KitchenSinkProfile & GetKitchenSinkProfileIncludePayload<I>
+      : KitchenSinkProfile,
+  'flat'
+>;
+
+export interface KitchenSinkProfileModel {
+  findOne<
+    S extends KitchenSinkProfileSelect | undefined = undefined,
+    I extends KitchenSinkProfileInclude | undefined = undefined,
+  >(options?: {
+    where?: KitchenSinkProfileWhere;
+    select?: S;
+    include?: I;
+    orderBy?: KitchenSinkProfileOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetKitchenSinkProfilePayload<S, I> | null>;
+
+  findMany<
+    S extends KitchenSinkProfileSelect | undefined = undefined,
+    I extends KitchenSinkProfileInclude | undefined = undefined,
+  >(options?: {
+    where?: KitchenSinkProfileWhere;
+    select?: S;
+    orderBy?: KitchenSinkProfileOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetKitchenSinkProfilePayload<S, I>[]>;
+
+  findUnique<
+    S extends KitchenSinkProfileSelect | undefined = undefined,
+    I extends KitchenSinkProfileInclude | undefined = undefined,
+  >(options: {
+    where: KitchenSinkProfileFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetKitchenSinkProfilePayload<S, I> | null>;
+
+  create<
+    S extends KitchenSinkProfileSelect | undefined = undefined,
+    I extends KitchenSinkProfileInclude | undefined = undefined,
+  >(options: {
+    data: KitchenSinkProfileCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetKitchenSinkProfilePayload<S, I>>;
+
+  updateMany<
+    S extends KitchenSinkProfileSelect | undefined = undefined,
+    I extends KitchenSinkProfileInclude | undefined = undefined,
+    D extends KitchenSinkProfileUpdateInput = KitchenSinkProfileUpdateInput,
+  >(options: {
+    where: KitchenSinkProfileWhere;
+    data: D;
+    unset?: SafeUnset<KitchenSinkProfileUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetKitchenSinkProfilePayload<S, I>[]>;
+
+  updateUnique<
+    S extends KitchenSinkProfileSelect | undefined = undefined,
+    I extends KitchenSinkProfileInclude | undefined = undefined,
+    D extends KitchenSinkProfileUpdateInput = KitchenSinkProfileUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: KitchenSinkProfileFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<KitchenSinkProfileUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns KitchenSinkProfile | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetKitchenSinkProfilePayload<S, I>, R>>;
+
+  upsert<
+    S extends KitchenSinkProfileSelect | undefined = undefined,
+    I extends KitchenSinkProfileInclude | undefined = undefined,
+    D extends KitchenSinkProfileUpdateInput = KitchenSinkProfileUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: KitchenSinkProfileFindUniqueWhere;
+    create: KitchenSinkProfileCreateInput;
+    update?: D;
+    unset?: SafeUnset<KitchenSinkProfileUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetKitchenSinkProfilePayload<S, I>, R>>;
+
+  upsert<
+    S extends KitchenSinkProfileSelect | undefined = undefined,
+    I extends KitchenSinkProfileInclude | undefined = undefined,
+    D extends KitchenSinkProfileUpdateInput = KitchenSinkProfileUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: KitchenSinkProfileWhere;
+    create: KitchenSinkProfileCreateInput;
+    update?: D;
+    unset?: SafeUnset<KitchenSinkProfileUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetKitchenSinkProfilePayload<S, I>, R>>;
+
+  deleteMany(options: { where: KitchenSinkProfileWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: KitchenSinkProfileFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns KitchenSinkProfile | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<KitchenSinkProfile, R>>;
+
+  count(where?: KitchenSinkProfileWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: KitchenSinkProfileWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/kitchensinksettings.ts =====
+/**
+ * Generated types for KitchenSinkSettings
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  KitchenSinkUser,
+  KitchenSinkUserWhere,
+  KitchenSinkUserSelect,
+  KitchenSinkUserOrderBy,
+  KitchenSinkUserNestedCreate,
+  KitchenSinkUserInclude,
+  GetKitchenSinkUserIncludePayload,
+} from './kitchensinkuser';
+export interface KitchenSinkSettings {
+  id: CerialId<string>;
+  theme: string;
+  userId?: CerialId<string> | null;
+}
+
+export interface KitchenSinkSettingsInput {
+  id?: string;
+  theme: string;
+  userId?: RecordIdInput<string> | null;
+}
+
+export interface KitchenSinkSettingsWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  theme?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  userId?:
+    | null
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {
+        not?: string | null;
+        isNull?: boolean;
+        isNone?: boolean;
+      });
+  user?: null | KitchenSinkUserWhere;
+  AND?: KitchenSinkSettingsWhere[];
+  OR?: KitchenSinkSettingsWhere[];
+  NOT?: KitchenSinkSettingsWhere;
+}
+
+export type KitchenSinkSettingsWhereInput = KitchenSinkSettingsWhere;
+
+export type KitchenSinkSettingsFindUniqueWhere = { id: RecordIdInput<string> } & Omit<KitchenSinkSettingsWhere, 'id'>;
+
+export type KitchenSinkSettingsCreate = O.Optional<O.Omit<KitchenSinkSettingsInput, 'user'>, 'id' | 'userId'>;
+
+export type KitchenSinkSettingsNestedCreate = O.Optional<O.Omit<KitchenSinkSettingsInput, 'user' | 'userId'>, 'id'>;
+
+export type KitchenSinkSettingsCreateInput =
+  | KitchenSinkSettingsCreate
+  | (O.Omit<KitchenSinkSettingsCreate, 'userId'> & {
+      user?: { create: KitchenSinkUserNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type KitchenSinkSettingsUpdate = Partial<O.Omit<KitchenSinkSettingsInput, 'id' | 'user' | 'userId'>> & {
+  userId?: RecordIdInput<string> | null | CerialNone;
+};
+
+export type KitchenSinkSettingsUpdateInput =
+  | KitchenSinkSettingsUpdate
+  | (O.Omit<KitchenSinkSettingsUpdate, 'userId'> & {
+      user?: { create: KitchenSinkUserNestedCreate } | { connect: RecordIdInput } | { disconnect: true };
+    });
+
+export type KitchenSinkSettingsUnset = {
+  userId?: true;
+};
+
+export type KitchenSinkSettingsSelect =
+  | ({ id: boolean } & Partial<Record<'theme' | 'userId', boolean>>)
+  | ({ theme: boolean } & Partial<Record<'id' | 'userId', boolean>>)
+  | ({ userId: boolean } & Partial<Record<'id' | 'theme', boolean>>);
+
+export interface KitchenSinkSettingsOrderBy {
+  id?: 'asc' | 'desc';
+  theme?: 'asc' | 'desc';
+  userId?: 'asc' | 'desc';
+  user?: KitchenSinkUserOrderBy;
+}
+
+export interface KitchenSinkSettingsInclude {
+  user?:
+    | boolean
+    | {
+        select?: KitchenSinkUserSelect;
+        where?: KitchenSinkUserWhere;
+        include?: KitchenSinkUserInclude;
+      };
+}
+
+export type KitchenSinkSettings$Relations = {
+  user: { type: KitchenSinkUser; include: KitchenSinkUserInclude };
+};
+
+export type GetKitchenSinkSettingsIncludePayload<I extends KitchenSinkSettingsInclude | undefined> =
+  I extends KitchenSinkSettingsInclude
+    ? Pick<
+        {
+          user: I['user'] extends true
+            ? KitchenSinkUser
+            : I['user'] extends {
+                  select: infer S extends KitchenSinkUserSelect;
+                  include: infer NI extends KitchenSinkUserInclude;
+                }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof KitchenSinkUser
+                    ? ResolveFieldSelect<KitchenSinkUser[P], S[P]>
+                    : never;
+                } & GetKitchenSinkUserIncludePayload<NI>
+              : I['user'] extends { select: infer S extends KitchenSinkUserSelect }
+                ? {
+                    [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof KitchenSinkUser
+                      ? ResolveFieldSelect<KitchenSinkUser[P], S[P]>
+                      : never;
+                  }
+                : I['user'] extends { include: infer NI extends KitchenSinkUserInclude }
+                  ? KitchenSinkUser & GetKitchenSinkUserIncludePayload<NI>
+                  : KitchenSinkUser;
+        },
+        Extract<keyof I, keyof KitchenSinkSettings$Relations> &
+          { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+      >
+    : {};
+
+export type GetKitchenSinkSettingsPayload<
+  S extends KitchenSinkSettingsSelect | undefined = undefined,
+  I extends KitchenSinkSettingsInclude | undefined = undefined,
+> = A.Compute<
+  S extends KitchenSinkSettingsSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof KitchenSinkSettings
+          ? ResolveFieldSelect<KitchenSinkSettings[K], S[K]>
+          : never;
+      } & GetKitchenSinkSettingsIncludePayload<I>
+    : I extends KitchenSinkSettingsInclude
+      ? KitchenSinkSettings & GetKitchenSinkSettingsIncludePayload<I>
+      : KitchenSinkSettings,
+  'flat'
+>;
+
+export interface KitchenSinkSettingsModel {
+  findOne<
+    S extends KitchenSinkSettingsSelect | undefined = undefined,
+    I extends KitchenSinkSettingsInclude | undefined = undefined,
+  >(options?: {
+    where?: KitchenSinkSettingsWhere;
+    select?: S;
+    include?: I;
+    orderBy?: KitchenSinkSettingsOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetKitchenSinkSettingsPayload<S, I> | null>;
+
+  findMany<
+    S extends KitchenSinkSettingsSelect | undefined = undefined,
+    I extends KitchenSinkSettingsInclude | undefined = undefined,
+  >(options?: {
+    where?: KitchenSinkSettingsWhere;
+    select?: S;
+    orderBy?: KitchenSinkSettingsOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetKitchenSinkSettingsPayload<S, I>[]>;
+
+  findUnique<
+    S extends KitchenSinkSettingsSelect | undefined = undefined,
+    I extends KitchenSinkSettingsInclude | undefined = undefined,
+  >(options: {
+    where: KitchenSinkSettingsFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetKitchenSinkSettingsPayload<S, I> | null>;
+
+  create<
+    S extends KitchenSinkSettingsSelect | undefined = undefined,
+    I extends KitchenSinkSettingsInclude | undefined = undefined,
+  >(options: {
+    data: KitchenSinkSettingsCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetKitchenSinkSettingsPayload<S, I>>;
+
+  updateMany<
+    S extends KitchenSinkSettingsSelect | undefined = undefined,
+    I extends KitchenSinkSettingsInclude | undefined = undefined,
+    D extends KitchenSinkSettingsUpdateInput = KitchenSinkSettingsUpdateInput,
+  >(options: {
+    where: KitchenSinkSettingsWhere;
+    data: D;
+    unset?: SafeUnset<KitchenSinkSettingsUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetKitchenSinkSettingsPayload<S, I>[]>;
+
+  updateUnique<
+    S extends KitchenSinkSettingsSelect | undefined = undefined,
+    I extends KitchenSinkSettingsInclude | undefined = undefined,
+    D extends KitchenSinkSettingsUpdateInput = KitchenSinkSettingsUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: KitchenSinkSettingsFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<KitchenSinkSettingsUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns KitchenSinkSettings | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetKitchenSinkSettingsPayload<S, I>, R>>;
+
+  upsert<
+    S extends KitchenSinkSettingsSelect | undefined = undefined,
+    I extends KitchenSinkSettingsInclude | undefined = undefined,
+    D extends KitchenSinkSettingsUpdateInput = KitchenSinkSettingsUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: KitchenSinkSettingsFindUniqueWhere;
+    create: KitchenSinkSettingsCreateInput;
+    update?: D;
+    unset?: SafeUnset<KitchenSinkSettingsUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetKitchenSinkSettingsPayload<S, I>, R>>;
+
+  upsert<
+    S extends KitchenSinkSettingsSelect | undefined = undefined,
+    I extends KitchenSinkSettingsInclude | undefined = undefined,
+    D extends KitchenSinkSettingsUpdateInput = KitchenSinkSettingsUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: KitchenSinkSettingsWhere;
+    create: KitchenSinkSettingsCreateInput;
+    update?: D;
+    unset?: SafeUnset<KitchenSinkSettingsUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetKitchenSinkSettingsPayload<S, I>, R>>;
+
+  deleteMany(options: { where: KitchenSinkSettingsWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: KitchenSinkSettingsFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns KitchenSinkSettings | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<KitchenSinkSettings, R>>;
+
+  count(where?: KitchenSinkSettingsWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: KitchenSinkSettingsWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/kitchensinktag.ts =====
+/**
+ * Generated types for KitchenSinkTag
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  KitchenSinkUser,
+  KitchenSinkUserWhere,
+  KitchenSinkUserSelect,
+  KitchenSinkUserOrderBy,
+  KitchenSinkUserNestedCreate,
+  KitchenSinkUserInclude,
+  GetKitchenSinkUserIncludePayload,
+} from './kitchensinkuser';
+export interface KitchenSinkTag {
+  id: CerialId<string>;
+  name: string;
+  userIds: CerialId<string>[];
+}
+
+export interface KitchenSinkTagInput {
+  id?: string;
+  name: string;
+  userIds: RecordIdInput<string>[];
+}
+
+export interface KitchenSinkTagWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  /** @unique — Unique indexed field */
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  userIds?:
+    | RecordIdInput<string>[]
+    | {
+        has?: RecordIdInput<string>;
+        hasAll?: RecordIdInput<string>[];
+        hasAny?: RecordIdInput<string>[];
+        isEmpty?: boolean;
+      };
+  users?: { some?: KitchenSinkUserWhere; every?: KitchenSinkUserWhere; none?: KitchenSinkUserWhere };
+  AND?: KitchenSinkTagWhere[];
+  OR?: KitchenSinkTagWhere[];
+  NOT?: KitchenSinkTagWhere;
+}
+
+export type KitchenSinkTagWhereInput = KitchenSinkTagWhere;
+
+export type KitchenSinkTagFindUniqueWhere =
+  | ({ id: RecordIdInput<string> } & { name?: string } & Omit<KitchenSinkTagWhere, 'id' | 'name'>)
+  | ({ name: string } & { id?: RecordIdInput<string> } & Omit<KitchenSinkTagWhere, 'id' | 'name'>);
+
+export type KitchenSinkTagCreate = O.Optional<O.Omit<KitchenSinkTagInput, 'users'>, 'id' | 'userIds'>;
+
+export type KitchenSinkTagNestedCreate = O.Optional<O.Omit<KitchenSinkTagInput, 'users' | 'userIds'>, 'id'>;
+
+export type KitchenSinkTagCreateInput =
+  | KitchenSinkTagCreate
+  | (O.Omit<KitchenSinkTagCreate, 'userIds'> & {
+      users?: {
+        create?: KitchenSinkUserNestedCreate | KitchenSinkUserNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+      };
+    });
+
+export type KitchenSinkTagUpdate = Partial<O.Omit<KitchenSinkTagInput, 'id' | 'users' | 'userIds'>> & {
+  userIds?:
+    | RecordIdInput<string>[]
+    | {
+        push?: RecordIdInput<string> | RecordIdInput<string>[];
+        unset?: RecordIdInput<string> | RecordIdInput<string>[];
+      };
+};
+
+export type KitchenSinkTagUpdateInput =
+  | KitchenSinkTagUpdate
+  | (O.Omit<KitchenSinkTagUpdate, 'userIds'> & {
+      users?: {
+        create?: KitchenSinkUserNestedCreate | KitchenSinkUserNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+        disconnect?: RecordIdInput | RecordIdInput[];
+        set?: RecordIdInput[];
+      };
+    });
+
+export type KitchenSinkTagUnset = {};
+
+export type KitchenSinkTagSelect =
+  | ({ id: boolean } & Partial<Record<'name' | 'userIds', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'userIds', boolean>>)
+  | ({ userIds: boolean } & Partial<Record<'id' | 'name', boolean>>);
+
+export interface KitchenSinkTagOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  userIds?: 'asc' | 'desc';
+}
+
+export interface KitchenSinkTagInclude {
+  users?:
+    | boolean
+    | {
+        select?: KitchenSinkUserSelect;
+        where?: KitchenSinkUserWhere;
+        orderBy?: KitchenSinkUserOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: KitchenSinkUserInclude;
+      };
+}
+
+export type KitchenSinkTag$Relations = {
+  users: { type: KitchenSinkUser[]; include: KitchenSinkUserInclude };
+};
+
+export type GetKitchenSinkTagIncludePayload<I extends KitchenSinkTagInclude | undefined> =
+  I extends KitchenSinkTagInclude
+    ? Pick<
+        {
+          users: I['users'] extends true
+            ? KitchenSinkUser[]
+            : I['users'] extends {
+                  select: infer S extends KitchenSinkUserSelect;
+                  include: infer NI extends KitchenSinkUserInclude;
+                }
+              ? ({
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof KitchenSinkUser
+                    ? ResolveFieldSelect<KitchenSinkUser[P], S[P]>
+                    : never;
+                } & GetKitchenSinkUserIncludePayload<NI>)[]
+              : I['users'] extends { select: infer S extends KitchenSinkUserSelect }
+                ? {
+                    [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof KitchenSinkUser
+                      ? ResolveFieldSelect<KitchenSinkUser[P], S[P]>
+                      : never;
+                  }[]
+                : I['users'] extends { include: infer NI extends KitchenSinkUserInclude }
+                  ? (KitchenSinkUser & GetKitchenSinkUserIncludePayload<NI>)[]
+                  : KitchenSinkUser[];
+        },
+        Extract<keyof I, keyof KitchenSinkTag$Relations> &
+          { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+      >
+    : {};
+
+export type GetKitchenSinkTagPayload<
+  S extends KitchenSinkTagSelect | undefined = undefined,
+  I extends KitchenSinkTagInclude | undefined = undefined,
+> = A.Compute<
+  S extends KitchenSinkTagSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof KitchenSinkTag
+          ? ResolveFieldSelect<KitchenSinkTag[K], S[K]>
+          : never;
+      } & GetKitchenSinkTagIncludePayload<I>
+    : I extends KitchenSinkTagInclude
+      ? KitchenSinkTag & GetKitchenSinkTagIncludePayload<I>
+      : KitchenSinkTag,
+  'flat'
+>;
+
+export interface KitchenSinkTagModel {
+  findOne<
+    S extends KitchenSinkTagSelect | undefined = undefined,
+    I extends KitchenSinkTagInclude | undefined = undefined,
+  >(options?: {
+    where?: KitchenSinkTagWhere;
+    select?: S;
+    include?: I;
+    orderBy?: KitchenSinkTagOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetKitchenSinkTagPayload<S, I> | null>;
+
+  findMany<
+    S extends KitchenSinkTagSelect | undefined = undefined,
+    I extends KitchenSinkTagInclude | undefined = undefined,
+  >(options?: {
+    where?: KitchenSinkTagWhere;
+    select?: S;
+    orderBy?: KitchenSinkTagOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetKitchenSinkTagPayload<S, I>[]>;
+
+  findUnique<
+    S extends KitchenSinkTagSelect | undefined = undefined,
+    I extends KitchenSinkTagInclude | undefined = undefined,
+  >(options: {
+    where: KitchenSinkTagFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetKitchenSinkTagPayload<S, I> | null>;
+
+  create<
+    S extends KitchenSinkTagSelect | undefined = undefined,
+    I extends KitchenSinkTagInclude | undefined = undefined,
+  >(options: {
+    data: KitchenSinkTagCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetKitchenSinkTagPayload<S, I>>;
+
+  updateMany<
+    S extends KitchenSinkTagSelect | undefined = undefined,
+    I extends KitchenSinkTagInclude | undefined = undefined,
+    D extends KitchenSinkTagUpdateInput = KitchenSinkTagUpdateInput,
+  >(options: {
+    where: KitchenSinkTagWhere;
+    data: D;
+    unset?: SafeUnset<KitchenSinkTagUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetKitchenSinkTagPayload<S, I>[]>;
+
+  updateUnique<
+    S extends KitchenSinkTagSelect | undefined = undefined,
+    I extends KitchenSinkTagInclude | undefined = undefined,
+    D extends KitchenSinkTagUpdateInput = KitchenSinkTagUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: KitchenSinkTagFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<KitchenSinkTagUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns KitchenSinkTag | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetKitchenSinkTagPayload<S, I>, R>>;
+
+  upsert<
+    S extends KitchenSinkTagSelect | undefined = undefined,
+    I extends KitchenSinkTagInclude | undefined = undefined,
+    D extends KitchenSinkTagUpdateInput = KitchenSinkTagUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: KitchenSinkTagFindUniqueWhere;
+    create: KitchenSinkTagCreateInput;
+    update?: D;
+    unset?: SafeUnset<KitchenSinkTagUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetKitchenSinkTagPayload<S, I>, R>>;
+
+  upsert<
+    S extends KitchenSinkTagSelect | undefined = undefined,
+    I extends KitchenSinkTagInclude | undefined = undefined,
+    D extends KitchenSinkTagUpdateInput = KitchenSinkTagUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: KitchenSinkTagWhere;
+    create: KitchenSinkTagCreateInput;
+    update?: D;
+    unset?: SafeUnset<KitchenSinkTagUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetKitchenSinkTagPayload<S, I>, R>>;
+
+  deleteMany(options: { where: KitchenSinkTagWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: KitchenSinkTagFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns KitchenSinkTag | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<KitchenSinkTag, R>>;
+
+  count(where?: KitchenSinkTagWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: KitchenSinkTagWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/kitchensinkuser.ts =====
+/**
+ * Generated types for KitchenSinkUser
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  KitchenSinkProfile,
+  KitchenSinkProfileWhere,
+  KitchenSinkProfileSelect,
+  KitchenSinkProfileOrderBy,
+  KitchenSinkProfileNestedCreate,
+  KitchenSinkProfileInclude,
+  GetKitchenSinkProfileIncludePayload,
+} from './kitchensinkprofile';
+import type {
+  KitchenSinkPost,
+  KitchenSinkPostWhere,
+  KitchenSinkPostSelect,
+  KitchenSinkPostOrderBy,
+  KitchenSinkPostNestedCreate,
+  KitchenSinkPostInclude,
+  GetKitchenSinkPostIncludePayload,
+} from './kitchensinkpost';
+import type {
+  KitchenSinkTag,
+  KitchenSinkTagWhere,
+  KitchenSinkTagSelect,
+  KitchenSinkTagOrderBy,
+  KitchenSinkTagNestedCreate,
+  KitchenSinkTagInclude,
+  GetKitchenSinkTagIncludePayload,
+} from './kitchensinktag';
+import type {
+  KitchenSinkSettings,
+  KitchenSinkSettingsWhere,
+  KitchenSinkSettingsSelect,
+  KitchenSinkSettingsOrderBy,
+  KitchenSinkSettingsNestedCreate,
+  KitchenSinkSettingsInclude,
+  GetKitchenSinkSettingsIncludePayload,
+} from './kitchensinksettings';
+import type {
+  KitchenSinkBadge,
+  KitchenSinkBadgeWhere,
+  KitchenSinkBadgeSelect,
+  KitchenSinkBadgeOrderBy,
+  KitchenSinkBadgeNestedCreate,
+} from './kitchensinkbadge';
+export interface KitchenSinkUser {
+  id: CerialId<string>;
+  email: string;
+  name: string;
+  tagIds: CerialId<string>[];
+  settingsId?: CerialId<string> | null;
+  badgeIds: CerialId<string>[];
+}
+
+export interface KitchenSinkUserInput {
+  id?: string;
+  email: string;
+  name: string;
+  tagIds: RecordIdInput<string>[];
+  settingsId?: RecordIdInput<string> | null;
+  badgeIds: RecordIdInput<string>[];
+}
+
+export interface KitchenSinkUserWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  /** @unique — Unique indexed field */
+  email?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  profile?: KitchenSinkProfileWhere;
+  posts?: { some?: KitchenSinkPostWhere; every?: KitchenSinkPostWhere; none?: KitchenSinkPostWhere };
+  tagIds?:
+    | RecordIdInput<string>[]
+    | {
+        has?: RecordIdInput<string>;
+        hasAll?: RecordIdInput<string>[];
+        hasAny?: RecordIdInput<string>[];
+        isEmpty?: boolean;
+      };
+  tags?: { some?: KitchenSinkTagWhere; every?: KitchenSinkTagWhere; none?: KitchenSinkTagWhere };
+  settingsId?:
+    | null
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {
+        not?: string | null;
+        isNull?: boolean;
+        isNone?: boolean;
+      });
+  settings?: null | KitchenSinkSettingsWhere;
+  badgeIds?:
+    | RecordIdInput<string>[]
+    | {
+        has?: RecordIdInput<string>;
+        hasAll?: RecordIdInput<string>[];
+        hasAny?: RecordIdInput<string>[];
+        isEmpty?: boolean;
+      };
+  badges?: { some?: KitchenSinkBadgeWhere; every?: KitchenSinkBadgeWhere; none?: KitchenSinkBadgeWhere };
+  AND?: KitchenSinkUserWhere[];
+  OR?: KitchenSinkUserWhere[];
+  NOT?: KitchenSinkUserWhere;
+}
+
+export type KitchenSinkUserWhereInput = KitchenSinkUserWhere;
+
+export type KitchenSinkUserFindUniqueWhere =
+  | ({ id: RecordIdInput<string> } & { email?: string } & Omit<KitchenSinkUserWhere, 'id' | 'email'>)
+  | ({ email: string } & { id?: RecordIdInput<string> } & Omit<KitchenSinkUserWhere, 'id' | 'email'>);
+
+export type KitchenSinkUserCreate = O.Optional<
+  O.Omit<KitchenSinkUserInput, 'profile' | 'posts' | 'tags' | 'settings' | 'badges'>,
+  'id' | 'tagIds' | 'settingsId' | 'badgeIds'
+>;
+
+export type KitchenSinkUserNestedCreate = O.Optional<
+  O.Omit<
+    KitchenSinkUserInput,
+    'profile' | 'posts' | 'tags' | 'settings' | 'badges' | 'tagIds' | 'settingsId' | 'badgeIds'
+  >,
+  'id'
+>;
+
+export type KitchenSinkUserCreateInput =
+  | KitchenSinkUserCreate
+  | (O.Omit<KitchenSinkUserCreate, 'tagIds' | 'settingsId' | 'badgeIds'> & {
+      profile?: { create: KitchenSinkProfileNestedCreate } | { connect: RecordIdInput };
+      posts?: {
+        create?: KitchenSinkPostNestedCreate | KitchenSinkPostNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+      };
+      tags?: {
+        create?: KitchenSinkTagNestedCreate | KitchenSinkTagNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+      };
+      settings?: { create: KitchenSinkSettingsNestedCreate } | { connect: RecordIdInput };
+      badges?: {
+        create?: KitchenSinkBadgeNestedCreate | KitchenSinkBadgeNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+      };
+    });
+
+export type KitchenSinkUserUpdate = Partial<
+  O.Omit<
+    KitchenSinkUserInput,
+    'id' | 'profile' | 'posts' | 'tags' | 'settings' | 'badges' | 'tagIds' | 'badgeIds' | 'settingsId'
+  >
+> & {
+  tagIds?:
+    | RecordIdInput<string>[]
+    | {
+        push?: RecordIdInput<string> | RecordIdInput<string>[];
+        unset?: RecordIdInput<string> | RecordIdInput<string>[];
+      };
+  badgeIds?:
+    | RecordIdInput<string>[]
+    | {
+        push?: RecordIdInput<string> | RecordIdInput<string>[];
+        unset?: RecordIdInput<string> | RecordIdInput<string>[];
+      };
+  settingsId?: RecordIdInput<string> | null | CerialNone;
+};
+
+export type KitchenSinkUserUpdateInput =
+  | KitchenSinkUserUpdate
+  | (O.Omit<KitchenSinkUserUpdate, 'tagIds' | 'settingsId' | 'badgeIds'> & {
+      profile?: { create: KitchenSinkProfileNestedCreate } | { connect: RecordIdInput } | { disconnect: true };
+      posts?: {
+        create?: KitchenSinkPostNestedCreate | KitchenSinkPostNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+        disconnect?: RecordIdInput | RecordIdInput[];
+        set?: RecordIdInput[];
+      };
+      tags?: {
+        create?: KitchenSinkTagNestedCreate | KitchenSinkTagNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+        disconnect?: RecordIdInput | RecordIdInput[];
+        set?: RecordIdInput[];
+      };
+      settings?: { create: KitchenSinkSettingsNestedCreate } | { connect: RecordIdInput } | { disconnect: true };
+      badges?: {
+        create?: KitchenSinkBadgeNestedCreate | KitchenSinkBadgeNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+        disconnect?: RecordIdInput | RecordIdInput[];
+        set?: RecordIdInput[];
+      };
+    });
+
+export type KitchenSinkUserUnset = {
+  settingsId?: true;
+};
+
+export type KitchenSinkUserSelect =
+  | ({ id: boolean } & Partial<Record<'email' | 'name' | 'tagIds' | 'settingsId' | 'badgeIds', boolean>>)
+  | ({ email: boolean } & Partial<Record<'id' | 'name' | 'tagIds' | 'settingsId' | 'badgeIds', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'email' | 'tagIds' | 'settingsId' | 'badgeIds', boolean>>)
+  | ({ tagIds: boolean } & Partial<Record<'id' | 'email' | 'name' | 'settingsId' | 'badgeIds', boolean>>)
+  | ({ settingsId: boolean } & Partial<Record<'id' | 'email' | 'name' | 'tagIds' | 'badgeIds', boolean>>)
+  | ({ badgeIds: boolean } & Partial<Record<'id' | 'email' | 'name' | 'tagIds' | 'settingsId', boolean>>);
+
+export interface KitchenSinkUserOrderBy {
+  id?: 'asc' | 'desc';
+  email?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  tagIds?: 'asc' | 'desc';
+  settingsId?: 'asc' | 'desc';
+  settings?: KitchenSinkSettingsOrderBy;
+  badgeIds?: 'asc' | 'desc';
+}
+
+export interface KitchenSinkUserInclude {
+  profile?:
+    | boolean
+    | {
+        select?: KitchenSinkProfileSelect;
+        where?: KitchenSinkProfileWhere;
+        orderBy?: KitchenSinkProfileOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: KitchenSinkProfileInclude;
+      };
+  posts?:
+    | boolean
+    | {
+        select?: KitchenSinkPostSelect;
+        where?: KitchenSinkPostWhere;
+        orderBy?: KitchenSinkPostOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: KitchenSinkPostInclude;
+      };
+  tags?:
+    | boolean
+    | {
+        select?: KitchenSinkTagSelect;
+        where?: KitchenSinkTagWhere;
+        orderBy?: KitchenSinkTagOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: KitchenSinkTagInclude;
+      };
+  settings?:
+    | boolean
+    | {
+        select?: KitchenSinkSettingsSelect;
+        where?: KitchenSinkSettingsWhere;
+        include?: KitchenSinkSettingsInclude;
+      };
+  badges?:
+    | boolean
+    | {
+        select?: KitchenSinkBadgeSelect;
+        where?: KitchenSinkBadgeWhere;
+        orderBy?: KitchenSinkBadgeOrderBy;
+        limit?: number;
+        offset?: number;
+      };
+}
+
+export type KitchenSinkUser$Relations = {
+  profile: { type: KitchenSinkProfile; include: KitchenSinkProfileInclude };
+  posts: { type: KitchenSinkPost[]; include: KitchenSinkPostInclude };
+  tags: { type: KitchenSinkTag[]; include: KitchenSinkTagInclude };
+  settings: { type: KitchenSinkSettings; include: KitchenSinkSettingsInclude };
+  badges: { type: KitchenSinkBadge[]; include: never };
+};
+
+export type GetKitchenSinkUserIncludePayload<I extends KitchenSinkUserInclude | undefined> =
+  I extends KitchenSinkUserInclude
+    ? Pick<
+        {
+          profile: I['profile'] extends true
+            ? KitchenSinkProfile
+            : I['profile'] extends {
+                  select: infer S extends KitchenSinkProfileSelect;
+                  include: infer NI extends KitchenSinkProfileInclude;
+                }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof KitchenSinkProfile
+                    ? ResolveFieldSelect<KitchenSinkProfile[P], S[P]>
+                    : never;
+                } & GetKitchenSinkProfileIncludePayload<NI>
+              : I['profile'] extends { select: infer S extends KitchenSinkProfileSelect }
+                ? {
+                    [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof KitchenSinkProfile
+                      ? ResolveFieldSelect<KitchenSinkProfile[P], S[P]>
+                      : never;
+                  }
+                : I['profile'] extends { include: infer NI extends KitchenSinkProfileInclude }
+                  ? KitchenSinkProfile & GetKitchenSinkProfileIncludePayload<NI>
+                  : KitchenSinkProfile;
+          posts: I['posts'] extends true
+            ? KitchenSinkPost[]
+            : I['posts'] extends {
+                  select: infer S extends KitchenSinkPostSelect;
+                  include: infer NI extends KitchenSinkPostInclude;
+                }
+              ? ({
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof KitchenSinkPost
+                    ? ResolveFieldSelect<KitchenSinkPost[P], S[P]>
+                    : never;
+                } & GetKitchenSinkPostIncludePayload<NI>)[]
+              : I['posts'] extends { select: infer S extends KitchenSinkPostSelect }
+                ? {
+                    [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof KitchenSinkPost
+                      ? ResolveFieldSelect<KitchenSinkPost[P], S[P]>
+                      : never;
+                  }[]
+                : I['posts'] extends { include: infer NI extends KitchenSinkPostInclude }
+                  ? (KitchenSinkPost & GetKitchenSinkPostIncludePayload<NI>)[]
+                  : KitchenSinkPost[];
+          tags: I['tags'] extends true
+            ? KitchenSinkTag[]
+            : I['tags'] extends {
+                  select: infer S extends KitchenSinkTagSelect;
+                  include: infer NI extends KitchenSinkTagInclude;
+                }
+              ? ({
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof KitchenSinkTag
+                    ? ResolveFieldSelect<KitchenSinkTag[P], S[P]>
+                    : never;
+                } & GetKitchenSinkTagIncludePayload<NI>)[]
+              : I['tags'] extends { select: infer S extends KitchenSinkTagSelect }
+                ? {
+                    [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof KitchenSinkTag
+                      ? ResolveFieldSelect<KitchenSinkTag[P], S[P]>
+                      : never;
+                  }[]
+                : I['tags'] extends { include: infer NI extends KitchenSinkTagInclude }
+                  ? (KitchenSinkTag & GetKitchenSinkTagIncludePayload<NI>)[]
+                  : KitchenSinkTag[];
+          settings: I['settings'] extends true
+            ? KitchenSinkSettings
+            : I['settings'] extends {
+                  select: infer S extends KitchenSinkSettingsSelect;
+                  include: infer NI extends KitchenSinkSettingsInclude;
+                }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof KitchenSinkSettings
+                    ? ResolveFieldSelect<KitchenSinkSettings[P], S[P]>
+                    : never;
+                } & GetKitchenSinkSettingsIncludePayload<NI>
+              : I['settings'] extends { select: infer S extends KitchenSinkSettingsSelect }
+                ? {
+                    [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof KitchenSinkSettings
+                      ? ResolveFieldSelect<KitchenSinkSettings[P], S[P]>
+                      : never;
+                  }
+                : I['settings'] extends { include: infer NI extends KitchenSinkSettingsInclude }
+                  ? KitchenSinkSettings & GetKitchenSinkSettingsIncludePayload<NI>
+                  : KitchenSinkSettings;
+          badges: I['badges'] extends true
+            ? KitchenSinkBadge[]
+            : I['badges'] extends { select: infer S extends KitchenSinkBadgeSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof KitchenSinkBadge
+                    ? ResolveFieldSelect<KitchenSinkBadge[P], S[P]>
+                    : never;
+                }[]
+              : KitchenSinkBadge[];
+        },
+        Extract<keyof I, keyof KitchenSinkUser$Relations> &
+          { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+      >
+    : {};
+
+export type GetKitchenSinkUserPayload<
+  S extends KitchenSinkUserSelect | undefined = undefined,
+  I extends KitchenSinkUserInclude | undefined = undefined,
+> = A.Compute<
+  S extends KitchenSinkUserSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof KitchenSinkUser
+          ? ResolveFieldSelect<KitchenSinkUser[K], S[K]>
+          : never;
+      } & GetKitchenSinkUserIncludePayload<I>
+    : I extends KitchenSinkUserInclude
+      ? KitchenSinkUser & GetKitchenSinkUserIncludePayload<I>
+      : KitchenSinkUser,
+  'flat'
+>;
+
+export interface KitchenSinkUserModel {
+  findOne<
+    S extends KitchenSinkUserSelect | undefined = undefined,
+    I extends KitchenSinkUserInclude | undefined = undefined,
+  >(options?: {
+    where?: KitchenSinkUserWhere;
+    select?: S;
+    include?: I;
+    orderBy?: KitchenSinkUserOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetKitchenSinkUserPayload<S, I> | null>;
+
+  findMany<
+    S extends KitchenSinkUserSelect | undefined = undefined,
+    I extends KitchenSinkUserInclude | undefined = undefined,
+  >(options?: {
+    where?: KitchenSinkUserWhere;
+    select?: S;
+    orderBy?: KitchenSinkUserOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetKitchenSinkUserPayload<S, I>[]>;
+
+  findUnique<
+    S extends KitchenSinkUserSelect | undefined = undefined,
+    I extends KitchenSinkUserInclude | undefined = undefined,
+  >(options: {
+    where: KitchenSinkUserFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetKitchenSinkUserPayload<S, I> | null>;
+
+  create<
+    S extends KitchenSinkUserSelect | undefined = undefined,
+    I extends KitchenSinkUserInclude | undefined = undefined,
+  >(options: {
+    data: KitchenSinkUserCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetKitchenSinkUserPayload<S, I>>;
+
+  updateMany<
+    S extends KitchenSinkUserSelect | undefined = undefined,
+    I extends KitchenSinkUserInclude | undefined = undefined,
+    D extends KitchenSinkUserUpdateInput = KitchenSinkUserUpdateInput,
+  >(options: {
+    where: KitchenSinkUserWhere;
+    data: D;
+    unset?: SafeUnset<KitchenSinkUserUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetKitchenSinkUserPayload<S, I>[]>;
+
+  updateUnique<
+    S extends KitchenSinkUserSelect | undefined = undefined,
+    I extends KitchenSinkUserInclude | undefined = undefined,
+    D extends KitchenSinkUserUpdateInput = KitchenSinkUserUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: KitchenSinkUserFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<KitchenSinkUserUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns KitchenSinkUser | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetKitchenSinkUserPayload<S, I>, R>>;
+
+  upsert<
+    S extends KitchenSinkUserSelect | undefined = undefined,
+    I extends KitchenSinkUserInclude | undefined = undefined,
+    D extends KitchenSinkUserUpdateInput = KitchenSinkUserUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: KitchenSinkUserFindUniqueWhere;
+    create: KitchenSinkUserCreateInput;
+    update?: D;
+    unset?: SafeUnset<KitchenSinkUserUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetKitchenSinkUserPayload<S, I>, R>>;
+
+  upsert<
+    S extends KitchenSinkUserSelect | undefined = undefined,
+    I extends KitchenSinkUserInclude | undefined = undefined,
+    D extends KitchenSinkUserUpdateInput = KitchenSinkUserUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: KitchenSinkUserWhere;
+    create: KitchenSinkUserCreateInput;
+    update?: D;
+    unset?: SafeUnset<KitchenSinkUserUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetKitchenSinkUserPayload<S, I>, R>>;
+
+  deleteMany(options: { where: KitchenSinkUserWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: KitchenSinkUserFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns KitchenSinkUser | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<KitchenSinkUser, R>>;
+
+  count(where?: KitchenSinkUserWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: KitchenSinkUserWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}

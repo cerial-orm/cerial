@@ -1,0 +1,198 @@
+{
+  "models": [
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "ttl",
+          "type": "duration"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "timeout",
+          "type": "duration"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": false,
+          "name": "cooldown",
+          "type": "duration"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "intervals",
+          "type": "duration"
+        }
+      ],
+      "name": "DurationBasic"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": "1h"
+            }
+          ],
+          "isOptional": false,
+          "name": "defaultTtl",
+          "type": "duration"
+        },
+        {
+          "decorators": [
+            {
+              "type": "defaultAlways",
+              "value": "30m"
+            }
+          ],
+          "isOptional": false,
+          "name": "alwaysTtl",
+          "type": "duration"
+        }
+      ],
+      "name": "DurationDecorated"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "timing",
+          "objectName": "DurationInfo",
+          "type": "object"
+        }
+      ],
+      "name": "DurationWithObject"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "pair",
+          "tupleName": "DurationPair",
+          "type": "tuple"
+        }
+      ],
+      "name": "DurationWithTuple"
+    }
+  ],
+  "objects": [
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "expires",
+          "type": "duration"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "grace",
+          "type": "duration"
+        }
+      ],
+      "name": "DurationInfo"
+    }
+  ],
+  "tuples": [
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "type": "duration"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": false,
+          "type": "duration"
+        }
+      ],
+      "name": "DurationPair"
+    }
+  ]
+}

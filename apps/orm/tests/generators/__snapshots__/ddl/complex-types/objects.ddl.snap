@@ -1,0 +1,48 @@
+-- ObjectTestOrder
+DEFINE TABLE OVERWRITE object_test_order SCHEMAFULL;
+DEFINE FIELD OVERWRITE billingAddress ON TABLE object_test_order TYPE object;
+DEFINE FIELD OVERWRITE billingAddress.street ON TABLE object_test_order TYPE string;
+DEFINE FIELD OVERWRITE billingAddress.city ON TABLE object_test_order TYPE string;
+DEFINE FIELD OVERWRITE billingAddress.state ON TABLE object_test_order TYPE string;
+DEFINE FIELD OVERWRITE billingAddress.zipCode ON TABLE object_test_order TYPE option<string | null>;
+DEFINE FIELD OVERWRITE shippingAddress ON TABLE object_test_order TYPE option<object>;
+DEFINE FIELD OVERWRITE shippingAddress.street ON TABLE object_test_order TYPE string;
+DEFINE FIELD OVERWRITE shippingAddress.city ON TABLE object_test_order TYPE string;
+DEFINE FIELD OVERWRITE shippingAddress.state ON TABLE object_test_order TYPE string;
+DEFINE FIELD OVERWRITE shippingAddress.zipCode ON TABLE object_test_order TYPE option<string | null>;
+DEFINE FIELD OVERWRITE items ON TABLE object_test_order TYPE array<object>;
+DEFINE FIELD OVERWRITE items.*.productName ON TABLE object_test_order TYPE string;
+DEFINE FIELD OVERWRITE items.*.quantity ON TABLE object_test_order TYPE int;
+DEFINE FIELD OVERWRITE items.*.price ON TABLE object_test_order TYPE float;
+DEFINE FIELD OVERWRITE items.*.tags ON TABLE object_test_order TYPE array<string>;
+DEFINE FIELD OVERWRITE metadata ON TABLE object_test_order TYPE option<object> FLEXIBLE;
+
+-- ObjectTestUser
+DEFINE TABLE OVERWRITE object_test_user SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE object_test_user TYPE string;
+DEFINE FIELD OVERWRITE address ON TABLE object_test_user TYPE object;
+DEFINE FIELD OVERWRITE address.street ON TABLE object_test_user TYPE string;
+DEFINE FIELD OVERWRITE address.city ON TABLE object_test_user TYPE string;
+DEFINE FIELD OVERWRITE address.state ON TABLE object_test_user TYPE string;
+DEFINE FIELD OVERWRITE address.zipCode ON TABLE object_test_user TYPE option<string | null>;
+DEFINE FIELD OVERWRITE shipping ON TABLE object_test_user TYPE option<object>;
+DEFINE FIELD OVERWRITE shipping.street ON TABLE object_test_user TYPE string;
+DEFINE FIELD OVERWRITE shipping.city ON TABLE object_test_user TYPE string;
+DEFINE FIELD OVERWRITE shipping.state ON TABLE object_test_user TYPE string;
+DEFINE FIELD OVERWRITE shipping.zipCode ON TABLE object_test_user TYPE option<string | null>;
+DEFINE FIELD OVERWRITE locations ON TABLE object_test_user TYPE array<object>;
+DEFINE FIELD OVERWRITE locations.*.lat ON TABLE object_test_user TYPE float;
+DEFINE FIELD OVERWRITE locations.*.lng ON TABLE object_test_user TYPE float;
+DEFINE FIELD OVERWRITE locations.*.label ON TABLE object_test_user TYPE option<object>;
+DEFINE FIELD OVERWRITE locations.*.label.street ON TABLE object_test_user TYPE string;
+DEFINE FIELD OVERWRITE locations.*.label.city ON TABLE object_test_user TYPE string;
+DEFINE FIELD OVERWRITE locations.*.label.state ON TABLE object_test_user TYPE string;
+DEFINE FIELD OVERWRITE locations.*.label.zipCode ON TABLE object_test_user TYPE option<string | null>;
+DEFINE FIELD OVERWRITE primaryLocation ON TABLE object_test_user TYPE option<object>;
+DEFINE FIELD OVERWRITE primaryLocation.lat ON TABLE object_test_user TYPE float;
+DEFINE FIELD OVERWRITE primaryLocation.lng ON TABLE object_test_user TYPE float;
+DEFINE FIELD OVERWRITE primaryLocation.label ON TABLE object_test_user TYPE option<object>;
+DEFINE FIELD OVERWRITE primaryLocation.label.street ON TABLE object_test_user TYPE string;
+DEFINE FIELD OVERWRITE primaryLocation.label.city ON TABLE object_test_user TYPE string;
+DEFINE FIELD OVERWRITE primaryLocation.label.state ON TABLE object_test_user TYPE string;
+DEFINE FIELD OVERWRITE primaryLocation.label.zipCode ON TABLE object_test_user TYPE option<string | null>;

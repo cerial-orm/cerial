@@ -1,0 +1,260 @@
+{
+  "models": [
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "point"
+            }
+          ],
+          "isOptional": false,
+          "name": "location",
+          "type": "geometry"
+        },
+        {
+          "decorators": [
+            {
+              "type": "polygon"
+            }
+          ],
+          "isOptional": false,
+          "name": "area",
+          "type": "geometry"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "shape",
+          "type": "geometry"
+        },
+        {
+          "decorators": [
+            {
+              "type": "line"
+            }
+          ],
+          "isOptional": false,
+          "name": "route",
+          "type": "geometry"
+        },
+        {
+          "decorators": [
+            {
+              "type": "point"
+            },
+            {
+              "type": "polygon"
+            }
+          ],
+          "isOptional": false,
+          "name": "multi",
+          "type": "geometry"
+        },
+        {
+          "decorators": [
+            {
+              "type": "point"
+            }
+          ],
+          "isOptional": true,
+          "name": "optionalGeo",
+          "type": "geometry"
+        },
+        {
+          "decorators": [
+            {
+              "type": "point"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "geoArray",
+          "type": "geometry"
+        }
+      ],
+      "name": "GeometryBasic"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "geo",
+          "objectName": "GeoInfo",
+          "type": "object"
+        }
+      ],
+      "name": "GeometryWithObject"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "pair",
+          "tupleName": "GeoPair",
+          "type": "tuple"
+        }
+      ],
+      "name": "GeometryWithTuple"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "multipoint"
+            }
+          ],
+          "isOptional": false,
+          "name": "points",
+          "type": "geometry"
+        },
+        {
+          "decorators": [
+            {
+              "type": "multiline"
+            }
+          ],
+          "isOptional": false,
+          "name": "lines",
+          "type": "geometry"
+        },
+        {
+          "decorators": [
+            {
+              "type": "multipolygon"
+            }
+          ],
+          "isOptional": false,
+          "name": "polygons",
+          "type": "geometry"
+        },
+        {
+          "decorators": [
+            {
+              "type": "geoCollection"
+            }
+          ],
+          "isOptional": false,
+          "name": "collection",
+          "type": "geometry"
+        }
+      ],
+      "name": "GeometryMulti"
+    }
+  ],
+  "objects": [
+    {
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "point"
+            }
+          ],
+          "isOptional": false,
+          "name": "position",
+          "type": "geometry"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "boundary",
+          "type": "geometry"
+        }
+      ],
+      "name": "GeoInfo"
+    }
+  ],
+  "tuples": [
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "type": "geometry"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": false,
+          "type": "geometry"
+        }
+      ],
+      "name": "GeoPair"
+    }
+  ]
+}

@@ -1,0 +1,490 @@
+// ===== models/objdecuser.ts =====
+/**
+ * Generated types for ObjDecUser
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  ContactInfo,
+  ContactInfoInput,
+  ContactInfoWhere,
+  ContactInfoSelect,
+  ContactInfoOrderBy,
+  ContactInfoCreateInput,
+} from '../objects/contactinfo';
+import type {
+  LocationInfo,
+  LocationInfoInput,
+  LocationInfoWhere,
+  LocationInfoSelect,
+  LocationInfoOrderBy,
+} from '../objects/locationinfo';
+export interface ObjDecUser {
+  id: CerialId<string>;
+  name: string;
+  contact: ContactInfo;
+  location: LocationInfo;
+  altLocation?: LocationInfo;
+}
+
+export interface ObjDecUserInput {
+  id?: string;
+  name: string;
+  contact: ContactInfoInput;
+  location: LocationInfoInput;
+  altLocation?: LocationInfoInput;
+}
+
+export interface ObjDecUserWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  contact?: ContactInfoWhere;
+  location?: LocationInfoWhere;
+  altLocation?: LocationInfoWhere;
+  AND?: ObjDecUserWhere[];
+  OR?: ObjDecUserWhere[];
+  NOT?: ObjDecUserWhere;
+}
+
+export type ObjDecUserWhereInput = ObjDecUserWhere;
+
+export type ObjDecUserFindUniqueWhere =
+  | ({ id: RecordIdInput<string> } & Omit<ObjDecUserWhere, 'id' | 'location' | 'altLocation'>)
+  | ({ location: { zip: string } } & Omit<ObjDecUserWhere, 'id' | 'location' | 'altLocation'>)
+  | ({ altLocation: { zip: string } } & Omit<ObjDecUserWhere, 'id' | 'location' | 'altLocation'>);
+
+export type ObjDecUserCreate = O.Optional<O.Omit<ObjDecUserInput, 'contact'>, 'id' | 'altLocation'> & {
+  contact: ContactInfoCreateInput;
+};
+
+export type ObjDecUserNestedCreate = O.Optional<ObjDecUserInput, 'id' | 'altLocation'>;
+
+export type ObjDecUserCreateInput = ObjDecUserCreate;
+
+export type ObjDecUserUpdate = Partial<O.Omit<ObjDecUserInput, 'id' | 'contact' | 'location' | 'altLocation'>> & {
+  contact?: Partial<ContactInfoInput> | { set: ContactInfoInput };
+  location?: Partial<LocationInfoInput> | { set: LocationInfoInput };
+  altLocation?: Partial<LocationInfoInput> | { set: LocationInfoInput } | CerialNone;
+};
+
+export type ObjDecUserUpdateInput = ObjDecUserUpdate;
+
+export type ObjDecUserUnset = {
+  contact?: {
+    phone?: true;
+    createdAt?: true;
+  };
+  altLocation?: true;
+};
+
+export type ObjDecUserSelect =
+  | ({ id: boolean } & {
+      name?: boolean;
+      contact?: boolean | ContactInfoSelect;
+      location?: boolean | LocationInfoSelect;
+      altLocation?: boolean | LocationInfoSelect;
+    })
+  | ({ name: boolean } & {
+      id?: boolean;
+      contact?: boolean | ContactInfoSelect;
+      location?: boolean | LocationInfoSelect;
+      altLocation?: boolean | LocationInfoSelect;
+    })
+  | ({ contact: boolean | ContactInfoSelect } & {
+      id?: boolean;
+      name?: boolean;
+      location?: boolean | LocationInfoSelect;
+      altLocation?: boolean | LocationInfoSelect;
+    })
+  | ({ location: boolean | LocationInfoSelect } & {
+      id?: boolean;
+      name?: boolean;
+      contact?: boolean | ContactInfoSelect;
+      altLocation?: boolean | LocationInfoSelect;
+    })
+  | ({ altLocation: boolean | LocationInfoSelect } & {
+      id?: boolean;
+      name?: boolean;
+      contact?: boolean | ContactInfoSelect;
+      location?: boolean | LocationInfoSelect;
+    });
+
+export interface ObjDecUserOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  contact?: ContactInfoOrderBy;
+  location?: LocationInfoOrderBy;
+  altLocation?: LocationInfoOrderBy;
+}
+
+export type ObjDecUser$Relations = {};
+
+export type GetObjDecUserPayload<S extends ObjDecUserSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends ObjDecUserSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ObjDecUser
+          ? ResolveFieldSelect<ObjDecUser[K], S[K]>
+          : never;
+      }
+    : ObjDecUser,
+  'flat'
+>;
+
+export interface ObjDecUserModel {
+  findOne<S extends ObjDecUserSelect | undefined = undefined>(options?: {
+    where?: ObjDecUserWhere;
+    select?: S;
+    orderBy?: ObjDecUserOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetObjDecUserPayload<S> | null>;
+
+  findMany<S extends ObjDecUserSelect | undefined = undefined>(options?: {
+    where?: ObjDecUserWhere;
+    select?: S;
+    orderBy?: ObjDecUserOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetObjDecUserPayload<S>[]>;
+
+  findUnique<S extends ObjDecUserSelect | undefined = undefined>(options: {
+    where: ObjDecUserFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetObjDecUserPayload<S> | null>;
+
+  create<S extends ObjDecUserSelect | undefined = undefined>(options: {
+    data: ObjDecUserCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetObjDecUserPayload<S>>;
+
+  updateMany<
+    S extends ObjDecUserSelect | undefined = undefined,
+    D extends ObjDecUserUpdateInput = ObjDecUserUpdateInput,
+  >(options: {
+    where: ObjDecUserWhere;
+    data: D;
+    unset?: SafeUnset<ObjDecUserUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetObjDecUserPayload<S>[]>;
+
+  updateUnique<
+    S extends ObjDecUserSelect | undefined = undefined,
+    D extends ObjDecUserUpdateInput = ObjDecUserUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ObjDecUserFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ObjDecUserUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ObjDecUser | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetObjDecUserPayload<S>, R>>;
+
+  upsert<
+    S extends ObjDecUserSelect | undefined = undefined,
+    D extends ObjDecUserUpdateInput = ObjDecUserUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ObjDecUserFindUniqueWhere;
+    create: ObjDecUserCreateInput;
+    update?: D;
+    unset?: SafeUnset<ObjDecUserUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetObjDecUserPayload<S>, R>>;
+
+  upsert<
+    S extends ObjDecUserSelect | undefined = undefined,
+    D extends ObjDecUserUpdateInput = ObjDecUserUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ObjDecUserWhere;
+    create: ObjDecUserCreateInput;
+    update?: D;
+    unset?: SafeUnset<ObjDecUserUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetObjDecUserPayload<S>, R>>;
+
+  deleteMany(options: { where: ObjDecUserWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ObjDecUserFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ObjDecUser | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ObjDecUser, R>>;
+
+  count(where?: ObjDecUserWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ObjDecUserWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== objects/contactinfo.ts =====
+/**
+ * Generated types for ContactInfo
+ * Do not edit manually
+ */
+
+export interface ContactInfo {
+  email: string;
+  phone?: string | null;
+  city: string;
+  createdAt?: Date;
+  tags: string[];
+}
+
+export interface ContactInfoInput {
+  email: string;
+  phone?: string | null;
+  city: string;
+  createdAt?: Date;
+  tags: string[];
+}
+
+export interface ContactInfoCreateInput {
+  email: string;
+  phone?: string | null;
+  city?: string;
+  createdAt?: Date;
+  tags?: string[];
+}
+
+export interface ContactInfoWhere {
+  email?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  phone?:
+    | null
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string | null;
+        isNull?: boolean;
+        isNone?: boolean;
+      });
+  city?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  createdAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  tags?:
+    | string[]
+    | {
+        has?: string;
+        hasAll?: string[];
+        hasAny?: string[];
+        isEmpty?: boolean;
+      };
+  AND?: ContactInfoWhere[];
+  OR?: ContactInfoWhere[];
+  NOT?: ContactInfoWhere;
+}
+
+export type ContactInfoSelect =
+  | ({ email: boolean } & Partial<Record<'phone' | 'city' | 'createdAt' | 'tags', boolean>>)
+  | ({ phone: boolean } & Partial<Record<'email' | 'city' | 'createdAt' | 'tags', boolean>>)
+  | ({ city: boolean } & Partial<Record<'email' | 'phone' | 'createdAt' | 'tags', boolean>>)
+  | ({ createdAt: boolean } & Partial<Record<'email' | 'phone' | 'city' | 'tags', boolean>>)
+  | ({ tags: boolean } & Partial<Record<'email' | 'phone' | 'city' | 'createdAt', boolean>>);
+
+export interface ContactInfoOrderBy {
+  email?: 'asc' | 'desc';
+  phone?: 'asc' | 'desc';
+  city?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  tags?: 'asc' | 'desc';
+}
+
+// ===== objects/locationinfo.ts =====
+/**
+ * Generated types for LocationInfo
+ * Do not edit manually
+ */
+
+export interface LocationInfo {
+  address: string;
+  zip: string;
+  country: string;
+}
+
+export interface LocationInfoInput {
+  address: string;
+  zip: string;
+  country: string;
+}
+
+export interface LocationInfoWhere {
+  address?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  zip?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  country?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  AND?: LocationInfoWhere[];
+  OR?: LocationInfoWhere[];
+  NOT?: LocationInfoWhere;
+}
+
+export type LocationInfoSelect =
+  | ({ address: boolean } & Partial<Record<'zip' | 'country', boolean>>)
+  | ({ zip: boolean } & Partial<Record<'address' | 'country', boolean>>)
+  | ({ country: boolean } & Partial<Record<'address' | 'zip', boolean>>);
+
+export interface LocationInfoOrderBy {
+  address?: 'asc' | 'desc';
+  zip?: 'asc' | 'desc';
+  country?: 'asc' | 'desc';
+}

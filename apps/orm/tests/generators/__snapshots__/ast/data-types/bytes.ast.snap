@@ -1,0 +1,154 @@
+{
+  "models": [
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "payload",
+          "type": "bytes"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "metadata",
+          "type": "bytes"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": false,
+          "name": "tag",
+          "type": "bytes"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "chunks",
+          "type": "bytes"
+        }
+      ],
+      "name": "BytesBasic"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "details",
+          "objectName": "BytesInfo",
+          "type": "object"
+        }
+      ],
+      "name": "BytesWithObject"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "pair",
+          "tupleName": "BytesPair",
+          "type": "tuple"
+        }
+      ],
+      "name": "BytesWithTuple"
+    }
+  ],
+  "objects": [
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "content",
+          "type": "bytes"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "extra",
+          "type": "bytes"
+        }
+      ],
+      "name": "BytesInfo"
+    }
+  ],
+  "tuples": [
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "type": "bytes"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": false,
+          "type": "bytes"
+        }
+      ],
+      "name": "BytesPair"
+    }
+  ]
+}

@@ -1,0 +1,1043 @@
+{
+  "models": [
+    {
+      "abstract": true,
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        }
+      ],
+      "name": "OnDeleteParent"
+    },
+    {
+      "abstract": true,
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "bio",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "userId",
+          "type": "record"
+        }
+      ],
+      "name": "OnDeleteProfile"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "model",
+              "value": "ProfileCascade"
+            }
+          ],
+          "isOptional": true,
+          "name": "profile",
+          "type": "relation"
+        }
+      ],
+      "name": "UserCascade"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "bio",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "userId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "userId"
+            },
+            {
+              "type": "model",
+              "value": "UserCascade"
+            },
+            {
+              "type": "onDelete",
+              "value": "Cascade"
+            }
+          ],
+          "isOptional": true,
+          "name": "user",
+          "type": "relation"
+        }
+      ],
+      "name": "ProfileCascade"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "model",
+              "value": "ProfileNoAction"
+            }
+          ],
+          "isOptional": true,
+          "name": "profile",
+          "type": "relation"
+        }
+      ],
+      "name": "UserNoAction"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "bio",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "userId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "userId"
+            },
+            {
+              "type": "model",
+              "value": "UserNoAction"
+            },
+            {
+              "type": "onDelete",
+              "value": "NoAction"
+            }
+          ],
+          "isOptional": true,
+          "name": "user",
+          "type": "relation"
+        }
+      ],
+      "name": "ProfileNoAction"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "model",
+              "value": "ProfileRestrict"
+            }
+          ],
+          "isOptional": true,
+          "name": "profile",
+          "type": "relation"
+        }
+      ],
+      "name": "UserRestrict"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "bio",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "userId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "userId"
+            },
+            {
+              "type": "model",
+              "value": "UserRestrict"
+            },
+            {
+              "type": "onDelete",
+              "value": "Restrict"
+            }
+          ],
+          "isOptional": true,
+          "name": "user",
+          "type": "relation"
+        }
+      ],
+      "name": "ProfileRestrict"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "unique"
+            }
+          ],
+          "isOptional": false,
+          "name": "email",
+          "type": "email"
+        },
+        {
+          "decorators": [
+            {
+              "type": "model",
+              "value": "ProfileSetNull"
+            }
+          ],
+          "isOptional": true,
+          "name": "profile",
+          "type": "relation"
+        }
+      ],
+      "name": "UserSetNull"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "bio",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "userId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "userId"
+            },
+            {
+              "type": "model",
+              "value": "UserSetNull"
+            },
+            {
+              "type": "onDelete",
+              "value": "SetNull"
+            }
+          ],
+          "isOptional": true,
+          "name": "user",
+          "type": "relation"
+        }
+      ],
+      "name": "ProfileSetNull"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "model",
+              "value": "Member"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "members",
+          "type": "relation"
+        }
+      ],
+      "name": "Team"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "teamId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "teamId"
+            },
+            {
+              "type": "model",
+              "value": "Team"
+            },
+            {
+              "type": "onDelete",
+              "value": "Cascade"
+            }
+          ],
+          "isOptional": true,
+          "name": "team",
+          "type": "relation"
+        }
+      ],
+      "name": "Member"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "model",
+              "value": "Employee"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "employees",
+          "type": "relation"
+        }
+      ],
+      "name": "Department"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "departmentId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "departmentId"
+            },
+            {
+              "type": "model",
+              "value": "Department"
+            },
+            {
+              "type": "onDelete",
+              "value": "Restrict"
+            }
+          ],
+          "isOptional": true,
+          "name": "department",
+          "type": "relation"
+        }
+      ],
+      "name": "Employee"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "model",
+              "value": "ProfileSetNone"
+            }
+          ],
+          "isOptional": true,
+          "name": "profile",
+          "type": "relation"
+        }
+      ],
+      "name": "UserSetNone"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "bio",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "userId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "userId"
+            },
+            {
+              "type": "model",
+              "value": "UserSetNone"
+            },
+            {
+              "type": "onDelete",
+              "value": "SetNone"
+            }
+          ],
+          "isOptional": true,
+          "name": "user",
+          "type": "relation"
+        }
+      ],
+      "name": "ProfileSetNone"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "model",
+              "value": "MemberNoAction"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "members",
+          "type": "relation"
+        }
+      ],
+      "name": "TeamNoAction"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "teamId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "teamId"
+            },
+            {
+              "type": "model",
+              "value": "TeamNoAction"
+            },
+            {
+              "type": "onDelete",
+              "value": "NoAction"
+            }
+          ],
+          "isOptional": true,
+          "name": "team",
+          "type": "relation"
+        }
+      ],
+      "name": "MemberNoAction"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "model",
+              "value": "MemberSetNull"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "members",
+          "type": "relation"
+        }
+      ],
+      "name": "TeamSetNull"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "teamId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "teamId"
+            },
+            {
+              "type": "model",
+              "value": "TeamSetNull"
+            },
+            {
+              "type": "onDelete",
+              "value": "SetNull"
+            }
+          ],
+          "isOptional": true,
+          "name": "team",
+          "type": "relation"
+        }
+      ],
+      "name": "MemberSetNull"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "parentId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "parentId"
+            },
+            {
+              "type": "model",
+              "value": "OdFolder"
+            },
+            {
+              "type": "onDelete",
+              "value": "SetNull"
+            },
+            {
+              "type": "key",
+              "value": "tree"
+            }
+          ],
+          "isOptional": true,
+          "name": "parent",
+          "type": "relation"
+        },
+        {
+          "decorators": [
+            {
+              "type": "model",
+              "value": "OdFolder"
+            },
+            {
+              "type": "key",
+              "value": "tree"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "children",
+          "type": "relation"
+        }
+      ],
+      "name": "OdFolder"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "model",
+              "value": "OdParent"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "parents",
+          "type": "relation"
+        }
+      ],
+      "name": "OdGrandparent"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "grandparentId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "grandparentId"
+            },
+            {
+              "type": "model",
+              "value": "OdGrandparent"
+            },
+            {
+              "type": "onDelete",
+              "value": "Cascade"
+            }
+          ],
+          "isOptional": true,
+          "name": "grandparent",
+          "type": "relation"
+        },
+        {
+          "decorators": [
+            {
+              "type": "model",
+              "value": "OdChild"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "children",
+          "type": "relation"
+        }
+      ],
+      "name": "OdParent"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "parentId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "parentId"
+            },
+            {
+              "type": "model",
+              "value": "OdParent"
+            },
+            {
+              "type": "onDelete",
+              "value": "Cascade"
+            }
+          ],
+          "isOptional": true,
+          "name": "parent",
+          "type": "relation"
+        }
+      ],
+      "name": "OdChild"
+    }
+  ]
+}

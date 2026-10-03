@@ -1,0 +1,302 @@
+{
+  "models": [
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "unique"
+            }
+          ],
+          "isOptional": false,
+          "name": "email",
+          "type": "email"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "age",
+          "type": "int"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "isActive",
+          "type": "bool"
+        },
+        {
+          "decorators": [
+            {
+              "type": "createdAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "createdAt",
+          "type": "date"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "nicknames",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "scores",
+          "type": "int"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "loginDates",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "profileId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "profileId"
+            },
+            {
+              "type": "model",
+              "value": "BasicsProfile"
+            }
+          ],
+          "isOptional": true,
+          "name": "profile",
+          "type": "relation"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "tagIds",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "tagIds"
+            },
+            {
+              "type": "model",
+              "value": "BasicsTag"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "tags",
+          "type": "relation"
+        },
+        {
+          "decorators": [
+            {
+              "type": "model",
+              "value": "BasicsPost"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "posts",
+          "type": "relation"
+        }
+      ],
+      "name": "BasicsUser"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "bio",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "avatarUrl",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "userId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "userId"
+            },
+            {
+              "type": "model",
+              "value": "BasicsUser"
+            }
+          ],
+          "isOptional": true,
+          "name": "user",
+          "type": "relation"
+        }
+      ],
+      "name": "BasicsProfile"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "content",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "authorId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "authorId"
+            },
+            {
+              "type": "model",
+              "value": "BasicsUser"
+            }
+          ],
+          "isOptional": false,
+          "name": "author",
+          "type": "relation"
+        }
+      ],
+      "name": "BasicsPost"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "unique"
+            }
+          ],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "userIds",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "userIds"
+            },
+            {
+              "type": "model",
+              "value": "BasicsUser"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "users",
+          "type": "relation"
+        }
+      ],
+      "name": "BasicsTag"
+    }
+  ]
+}

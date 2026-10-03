@@ -1,0 +1,25 @@
+-- DurationBasic
+DEFINE TABLE OVERWRITE duration_basic SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE duration_basic TYPE string;
+DEFINE FIELD OVERWRITE ttl ON TABLE duration_basic TYPE duration;
+DEFINE FIELD OVERWRITE timeout ON TABLE duration_basic TYPE option<duration>;
+DEFINE FIELD OVERWRITE cooldown ON TABLE duration_basic TYPE duration | null;
+DEFINE FIELD OVERWRITE intervals ON TABLE duration_basic TYPE array<duration>;
+
+-- DurationDecorated
+DEFINE TABLE OVERWRITE duration_decorated SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE duration_decorated TYPE string;
+DEFINE FIELD OVERWRITE defaultTtl ON TABLE duration_decorated TYPE duration DEFAULT 1h;
+DEFINE FIELD OVERWRITE alwaysTtl ON TABLE duration_decorated TYPE option<duration> DEFAULT ALWAYS 30m;
+
+-- DurationWithObject
+DEFINE TABLE OVERWRITE duration_with_object SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE duration_with_object TYPE string;
+DEFINE FIELD OVERWRITE timing ON TABLE duration_with_object TYPE object;
+DEFINE FIELD OVERWRITE timing.expires ON TABLE duration_with_object TYPE duration;
+DEFINE FIELD OVERWRITE timing.grace ON TABLE duration_with_object TYPE option<duration>;
+
+-- DurationWithTuple
+DEFINE TABLE OVERWRITE duration_with_tuple SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE duration_with_tuple TYPE string;
+DEFINE FIELD OVERWRITE pair ON TABLE duration_with_tuple TYPE [duration, duration | null];

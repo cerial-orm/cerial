@@ -1,0 +1,1615 @@
+{
+  "models": {
+    "TupleBasic": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "location",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "name": "lat",
+                "type": "float"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "name": "lng",
+                "type": "float"
+              }
+            ],
+            "tupleName": "Coordinate"
+          },
+          "type": "tuple"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "backup",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "name": "lat",
+                "type": "float"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "name": "lng",
+                "type": "float"
+              }
+            ],
+            "tupleName": "Coordinate"
+          },
+          "type": "tuple"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "history",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "name": "lat",
+                "type": "float"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "name": "lng",
+                "type": "float"
+              }
+            ],
+            "tupleName": "Coordinate"
+          },
+          "type": "tuple"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "entry",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "name": "name",
+                "type": "string"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "type": "int"
+              },
+              {
+                "index": 2,
+                "isOptional": false,
+                "type": "bool"
+              }
+            ],
+            "tupleName": "Entry"
+          },
+          "type": "tuple"
+        }
+      ],
+      "name": "TupleBasic",
+      "tableName": "tuple_basic"
+    },
+    "TupleDeepNest": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "deep",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "type": "string"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "tupleInfo": {
+                  "elements": [
+                    {
+                      "index": 0,
+                      "isOptional": false,
+                      "type": "string"
+                    },
+                    {
+                      "index": 1,
+                      "isOptional": false,
+                      "objectInfo": {
+                        "fields": [
+                          {
+                            "isId": false,
+                            "isIndexed": false,
+                            "isRequired": true,
+                            "isUnique": false,
+                            "name": "name",
+                            "type": "string"
+                          },
+                          {
+                            "isId": false,
+                            "isIndexed": false,
+                            "isRequired": false,
+                            "isUnique": false,
+                            "name": "age",
+                            "type": "int"
+                          },
+                          {
+                            "isId": false,
+                            "isIndexed": false,
+                            "isRequired": true,
+                            "isUnique": false,
+                            "name": "pos",
+                            "tupleInfo": {
+                              "elements": [
+                                {
+                                  "index": 0,
+                                  "isOptional": false,
+                                  "type": "float"
+                                },
+                                {
+                                  "index": 1,
+                                  "isOptional": false,
+                                  "objectInfo": {
+                                    "fields": [
+                                      {
+                                        "isId": false,
+                                        "isIndexed": false,
+                                        "isRequired": true,
+                                        "isUnique": false,
+                                        "name": "value",
+                                        "type": "string"
+                                      },
+                                      {
+                                        "isId": false,
+                                        "isIndexed": false,
+                                        "isRequired": true,
+                                        "isUnique": false,
+                                        "name": "extra",
+                                        "type": "string"
+                                      }
+                                    ],
+                                    "objectName": "DeepInnerObj"
+                                  },
+                                  "type": "object"
+                                }
+                              ],
+                              "tupleName": "DeepInnerTuple"
+                            },
+                            "type": "tuple"
+                          }
+                        ],
+                        "objectName": "DeepMidObj"
+                      },
+                      "type": "object"
+                    }
+                  ],
+                  "tupleName": "DeepMidTuple"
+                },
+                "type": "tuple"
+              }
+            ],
+            "tupleName": "DeepOuterTuple"
+          },
+          "type": "tuple"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "deepOpt",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "type": "string"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "tupleInfo": {
+                  "elements": [
+                    {
+                      "index": 0,
+                      "isOptional": false,
+                      "type": "string"
+                    },
+                    {
+                      "index": 1,
+                      "isOptional": false,
+                      "objectInfo": {
+                        "fields": [
+                          {
+                            "isId": false,
+                            "isIndexed": false,
+                            "isRequired": true,
+                            "isUnique": false,
+                            "name": "name",
+                            "type": "string"
+                          },
+                          {
+                            "isId": false,
+                            "isIndexed": false,
+                            "isRequired": false,
+                            "isUnique": false,
+                            "name": "age",
+                            "type": "int"
+                          },
+                          {
+                            "isId": false,
+                            "isIndexed": false,
+                            "isRequired": true,
+                            "isUnique": false,
+                            "name": "pos",
+                            "tupleInfo": {
+                              "elements": [
+                                {
+                                  "index": 0,
+                                  "isOptional": false,
+                                  "type": "float"
+                                },
+                                {
+                                  "index": 1,
+                                  "isOptional": false,
+                                  "objectInfo": {
+                                    "fields": [
+                                      {
+                                        "isId": false,
+                                        "isIndexed": false,
+                                        "isRequired": true,
+                                        "isUnique": false,
+                                        "name": "value",
+                                        "type": "string"
+                                      },
+                                      {
+                                        "isId": false,
+                                        "isIndexed": false,
+                                        "isRequired": true,
+                                        "isUnique": false,
+                                        "name": "extra",
+                                        "type": "string"
+                                      }
+                                    ],
+                                    "objectName": "DeepInnerObj"
+                                  },
+                                  "type": "object"
+                                }
+                              ],
+                              "tupleName": "DeepInnerTuple"
+                            },
+                            "type": "tuple"
+                          }
+                        ],
+                        "objectName": "DeepMidObj"
+                      },
+                      "type": "object"
+                    }
+                  ],
+                  "tupleName": "DeepMidTuple"
+                },
+                "type": "tuple"
+              }
+            ],
+            "tupleName": "DeepOuterTuple"
+          },
+          "type": "tuple"
+        }
+      ],
+      "name": "TupleDeepNest",
+      "tableName": "tuple_deep_nest"
+    },
+    "TupleInObj": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "details",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "label",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "coord",
+                "tupleInfo": {
+                  "elements": [
+                    {
+                      "index": 0,
+                      "isOptional": false,
+                      "name": "lat",
+                      "type": "float"
+                    },
+                    {
+                      "index": 1,
+                      "isOptional": false,
+                      "name": "lng",
+                      "type": "float"
+                    }
+                  ],
+                  "tupleName": "Coordinate"
+                },
+                "type": "tuple"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "optCoord",
+                "tupleInfo": {
+                  "elements": [
+                    {
+                      "index": 0,
+                      "isOptional": false,
+                      "name": "lat",
+                      "type": "float"
+                    },
+                    {
+                      "index": 1,
+                      "isOptional": false,
+                      "name": "lng",
+                      "type": "float"
+                    }
+                  ],
+                  "tupleName": "Coordinate"
+                },
+                "type": "tuple"
+              }
+            ],
+            "objectName": "TupleHolder"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "TupleInObj",
+      "tableName": "tuple_in_obj"
+    },
+    "TupleLiteralElement": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "status",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "name": "state",
+                "type": "literal"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "name": "count",
+                "type": "int"
+              }
+            ],
+            "tupleName": "StatusPair"
+          },
+          "type": "tuple"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "role",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "type": "literal"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "type": "int"
+              }
+            ],
+            "tupleName": "RolePair"
+          },
+          "type": "tuple"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "history",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "name": "state",
+                "type": "literal"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "name": "count",
+                "type": "int"
+              }
+            ],
+            "tupleName": "StatusPair"
+          },
+          "type": "tuple"
+        }
+      ],
+      "name": "TupleLiteralElement",
+      "tableName": "tuple_literal_element"
+    },
+    "TupleNested": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "payload",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "name": "label",
+                "type": "string"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "tupleInfo": {
+                  "elements": [
+                    {
+                      "index": 0,
+                      "isOptional": false,
+                      "name": "x",
+                      "type": "int"
+                    },
+                    {
+                      "index": 1,
+                      "isOptional": false,
+                      "name": "y",
+                      "type": "int"
+                    }
+                  ],
+                  "tupleName": "Inner"
+                },
+                "type": "tuple"
+              }
+            ],
+            "tupleName": "Outer"
+          },
+          "type": "tuple"
+        }
+      ],
+      "name": "TupleNested",
+      "tableName": "tuple_nested"
+    },
+    "TupleNullable": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "pair",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "name": "label",
+                "type": "string"
+              },
+              {
+                "index": 1,
+                "isNullable": true,
+                "isOptional": false,
+                "name": "count",
+                "type": "int"
+              }
+            ],
+            "tupleName": "NullablePair"
+          },
+          "type": "tuple"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "optNull",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "name": "tag",
+                "type": "string"
+              },
+              {
+                "index": 1,
+                "isNullable": true,
+                "isOptional": false,
+                "name": "score",
+                "type": "float"
+              }
+            ],
+            "tupleName": "OptNullPair"
+          },
+          "type": "tuple"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "mixed",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "name": "required",
+                "type": "string"
+              },
+              {
+                "index": 1,
+                "isNullable": true,
+                "isOptional": false,
+                "name": "optOnly",
+                "type": "int"
+              },
+              {
+                "index": 2,
+                "isNullable": true,
+                "isOptional": false,
+                "name": "nullOnly",
+                "type": "float"
+              },
+              {
+                "index": 3,
+                "isNullable": true,
+                "isOptional": false,
+                "name": "both",
+                "type": "bool"
+              }
+            ],
+            "tupleName": "MixedNullability"
+          },
+          "type": "tuple"
+        }
+      ],
+      "name": "TupleNullable",
+      "tableName": "tuple_nullable"
+    },
+    "TupleObjInTuple": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "place",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "name": "tag",
+                "type": "string"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "objectInfo": {
+                  "fields": [
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "name": "street",
+                      "type": "string"
+                    },
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "name": "city",
+                      "type": "string"
+                    }
+                  ],
+                  "objectName": "TupleAddress"
+                },
+                "type": "object"
+              }
+            ],
+            "tupleName": "Located"
+          },
+          "type": "tuple"
+        }
+      ],
+      "name": "TupleObjInTuple",
+      "tableName": "tuple_obj_in_tuple"
+    },
+    "TupleRelatedPost": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "position",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "name": "lat",
+                "type": "float"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "name": "lng",
+                "type": "float"
+              }
+            ],
+            "tupleName": "Coordinate"
+          },
+          "type": "tuple"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "authorId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "author",
+          "relationInfo": {
+            "fieldRef": "authorId",
+            "isReverse": false,
+            "targetModel": "TupleWithRelation",
+            "targetTable": "tuple_with_relation"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "TupleRelatedPost",
+      "tableName": "tuple_related_post"
+    },
+    "TupleStamped": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "stamp",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "name": "label",
+                "type": "string"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "name": "born",
+                "type": "date"
+              },
+              {
+                "index": 2,
+                "isOptional": false,
+                "name": "touched",
+                "type": "date"
+              },
+              {
+                "index": 3,
+                "isOptional": false,
+                "name": "hits",
+                "type": "int"
+              }
+            ],
+            "tupleName": "Stamped"
+          },
+          "type": "tuple"
+        }
+      ],
+      "name": "TupleStamped",
+      "tableName": "tuple_stamped"
+    },
+    "TupleWithRelation": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "location",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "name": "lat",
+                "type": "float"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "name": "lng",
+                "type": "float"
+              }
+            ],
+            "tupleName": "Coordinate"
+          },
+          "type": "tuple"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "posts",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "TupleRelatedPost",
+            "targetTable": "tuple_related_post"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "TupleWithRelation",
+      "tableName": "tuple_with_relation"
+    }
+  },
+  "objects": {
+    "DeepInnerObj": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "value",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "extra",
+          "type": "string"
+        }
+      ],
+      "name": "DeepInnerObj"
+    },
+    "DeepMidObj": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "age",
+          "type": "int"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "pos",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "type": "float"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "objectInfo": {
+                  "fields": [
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "name": "value",
+                      "type": "string"
+                    },
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "name": "extra",
+                      "type": "string"
+                    }
+                  ],
+                  "objectName": "DeepInnerObj"
+                },
+                "type": "object"
+              }
+            ],
+            "tupleName": "DeepInnerTuple"
+          },
+          "type": "tuple"
+        }
+      ],
+      "name": "DeepMidObj"
+    },
+    "TupleAddress": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "street",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "city",
+          "type": "string"
+        }
+      ],
+      "name": "TupleAddress"
+    },
+    "TupleHolder": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "coord",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "name": "lat",
+                "type": "float"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "name": "lng",
+                "type": "float"
+              }
+            ],
+            "tupleName": "Coordinate"
+          },
+          "type": "tuple"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "optCoord",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "name": "lat",
+                "type": "float"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "name": "lng",
+                "type": "float"
+              }
+            ],
+            "tupleName": "Coordinate"
+          },
+          "type": "tuple"
+        }
+      ],
+      "name": "TupleHolder"
+    }
+  },
+  "tuples": {
+    "Coordinate": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "name": "lat",
+          "type": "float"
+        },
+        {
+          "index": 1,
+          "isOptional": false,
+          "name": "lng",
+          "type": "float"
+        }
+      ],
+      "name": "Coordinate"
+    },
+    "DeepInnerTuple": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "type": "float"
+        },
+        {
+          "index": 1,
+          "isOptional": false,
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "value",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "extra",
+                "type": "string"
+              }
+            ],
+            "objectName": "DeepInnerObj"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "DeepInnerTuple"
+    },
+    "DeepMidTuple": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "type": "string"
+        },
+        {
+          "index": 1,
+          "isOptional": false,
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "name",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "age",
+                "type": "int"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "pos",
+                "tupleInfo": {
+                  "elements": [
+                    {
+                      "index": 0,
+                      "isOptional": false,
+                      "type": "float"
+                    },
+                    {
+                      "index": 1,
+                      "isOptional": false,
+                      "objectInfo": {
+                        "fields": [
+                          {
+                            "isId": false,
+                            "isIndexed": false,
+                            "isRequired": true,
+                            "isUnique": false,
+                            "name": "value",
+                            "type": "string"
+                          },
+                          {
+                            "isId": false,
+                            "isIndexed": false,
+                            "isRequired": true,
+                            "isUnique": false,
+                            "name": "extra",
+                            "type": "string"
+                          }
+                        ],
+                        "objectName": "DeepInnerObj"
+                      },
+                      "type": "object"
+                    }
+                  ],
+                  "tupleName": "DeepInnerTuple"
+                },
+                "type": "tuple"
+              }
+            ],
+            "objectName": "DeepMidObj"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "DeepMidTuple"
+    },
+    "DeepOuterTuple": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "type": "string"
+        },
+        {
+          "index": 1,
+          "isOptional": false,
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "type": "string"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "objectInfo": {
+                  "fields": [
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "name": "name",
+                      "type": "string"
+                    },
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": false,
+                      "isUnique": false,
+                      "name": "age",
+                      "type": "int"
+                    },
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "name": "pos",
+                      "tupleInfo": {
+                        "elements": [
+                          {
+                            "index": 0,
+                            "isOptional": false,
+                            "type": "float"
+                          },
+                          {
+                            "index": 1,
+                            "isOptional": false,
+                            "objectInfo": {
+                              "fields": [
+                                {
+                                  "isId": false,
+                                  "isIndexed": false,
+                                  "isRequired": true,
+                                  "isUnique": false,
+                                  "name": "value",
+                                  "type": "string"
+                                },
+                                {
+                                  "isId": false,
+                                  "isIndexed": false,
+                                  "isRequired": true,
+                                  "isUnique": false,
+                                  "name": "extra",
+                                  "type": "string"
+                                }
+                              ],
+                              "objectName": "DeepInnerObj"
+                            },
+                            "type": "object"
+                          }
+                        ],
+                        "tupleName": "DeepInnerTuple"
+                      },
+                      "type": "tuple"
+                    }
+                  ],
+                  "objectName": "DeepMidObj"
+                },
+                "type": "object"
+              }
+            ],
+            "tupleName": "DeepMidTuple"
+          },
+          "type": "tuple"
+        }
+      ],
+      "name": "DeepOuterTuple"
+    },
+    "Entry": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "index": 1,
+          "isOptional": false,
+          "type": "int"
+        },
+        {
+          "index": 2,
+          "isOptional": false,
+          "type": "bool"
+        }
+      ],
+      "name": "Entry"
+    },
+    "Inner": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "name": "x",
+          "type": "int"
+        },
+        {
+          "index": 1,
+          "isOptional": false,
+          "name": "y",
+          "type": "int"
+        }
+      ],
+      "name": "Inner"
+    },
+    "Located": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "name": "tag",
+          "type": "string"
+        },
+        {
+          "index": 1,
+          "isOptional": false,
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "street",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "city",
+                "type": "string"
+              }
+            ],
+            "objectName": "TupleAddress"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "Located"
+    },
+    "MixedNullability": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "name": "required",
+          "type": "string"
+        },
+        {
+          "index": 1,
+          "isNullable": true,
+          "isOptional": false,
+          "name": "optOnly",
+          "type": "int"
+        },
+        {
+          "index": 2,
+          "isNullable": true,
+          "isOptional": false,
+          "name": "nullOnly",
+          "type": "float"
+        },
+        {
+          "index": 3,
+          "isNullable": true,
+          "isOptional": false,
+          "name": "both",
+          "type": "bool"
+        }
+      ],
+      "name": "MixedNullability"
+    },
+    "NullablePair": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "index": 1,
+          "isNullable": true,
+          "isOptional": false,
+          "name": "count",
+          "type": "int"
+        }
+      ],
+      "name": "NullablePair"
+    },
+    "OptNullPair": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "name": "tag",
+          "type": "string"
+        },
+        {
+          "index": 1,
+          "isNullable": true,
+          "isOptional": false,
+          "name": "score",
+          "type": "float"
+        }
+      ],
+      "name": "OptNullPair"
+    },
+    "Outer": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "index": 1,
+          "isOptional": false,
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "name": "x",
+                "type": "int"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "name": "y",
+                "type": "int"
+              }
+            ],
+            "tupleName": "Inner"
+          },
+          "type": "tuple"
+        }
+      ],
+      "name": "Outer"
+    },
+    "RolePair": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "type": "literal"
+        },
+        {
+          "index": 1,
+          "isOptional": false,
+          "type": "int"
+        }
+      ],
+      "name": "RolePair"
+    },
+    "Stamped": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "index": 1,
+          "isOptional": false,
+          "name": "born",
+          "type": "date"
+        },
+        {
+          "index": 2,
+          "isOptional": false,
+          "name": "touched",
+          "type": "date"
+        },
+        {
+          "index": 3,
+          "isOptional": false,
+          "name": "hits",
+          "type": "int"
+        }
+      ],
+      "name": "Stamped"
+    },
+    "StatusPair": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "name": "state",
+          "type": "literal"
+        },
+        {
+          "index": 1,
+          "isOptional": false,
+          "name": "count",
+          "type": "int"
+        }
+      ],
+      "name": "StatusPair"
+    },
+    "WithOptional": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "name": "text",
+          "type": "string"
+        },
+        {
+          "index": 1,
+          "isNullable": true,
+          "isOptional": false,
+          "type": "float"
+        }
+      ],
+      "name": "WithOptional"
+    }
+  }
+}

@@ -1,0 +1,1451 @@
+// ===== models/unsettest.ts =====
+/**
+ * Generated types for UnsetTest
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  UnsetAddress,
+  UnsetAddressInput,
+  UnsetAddressWhere,
+  UnsetAddressSelect,
+  UnsetAddressOrderBy,
+} from '../objects/unsetaddress';
+import type {
+  UnsetDeepOuter,
+  UnsetDeepOuterInput,
+  UnsetDeepOuterWhere,
+  UnsetDeepOuterSelect,
+  UnsetDeepOuterOrderBy,
+} from '../objects/unsetdeepouter';
+import type {
+  UnsetTreeNode,
+  UnsetTreeNodeInput,
+  UnsetTreeNodeWhere,
+  UnsetTreeNodeSelect,
+  UnsetTreeNodeOrderBy,
+} from '../objects/unsettreenode';
+import type {
+  UnsetInner,
+  UnsetInnerInput,
+  UnsetInnerWhere,
+  UnsetInnerSelect,
+  UnsetInnerOrderBy,
+} from '../objects/unsetinner';
+import type {
+  UnsetDeepMid,
+  UnsetDeepMidInput,
+  UnsetDeepMidWhere,
+  UnsetDeepMidSelect,
+  UnsetDeepMidOrderBy,
+} from '../objects/unsetdeepmid';
+import type { UnsetCoord, UnsetCoordInput, UnsetCoordWhere, UnsetCoordUpdate } from '../tuples/unsetcoord';
+import type {
+  UnsetOptTuple,
+  UnsetOptTupleInput,
+  UnsetOptTupleWhere,
+  UnsetOptTupleUpdate,
+  UnsetOptTupleUnset,
+} from '../tuples/unsetopttuple';
+import type {
+  UnsetObjTuple,
+  UnsetObjTupleInput,
+  UnsetObjTupleWhere,
+  UnsetObjTupleUpdate,
+  UnsetObjTupleSelect,
+  UnsetObjTupleUnset,
+} from '../tuples/unsetobjtuple';
+import type {
+  UnsetDeepTuple,
+  UnsetDeepTupleInput,
+  UnsetDeepTupleWhere,
+  UnsetDeepTupleUpdate,
+  UnsetDeepTupleSelect,
+  UnsetDeepTupleUnset,
+} from '../tuples/unsetdeeptuple';
+import type {
+  UnsetRecursive,
+  UnsetRecursiveInput,
+  UnsetRecursiveWhere,
+  UnsetRecursiveUpdate,
+  UnsetRecursiveUnset,
+} from '../tuples/unsetrecursive';
+export interface UnsetTest {
+  id: CerialId<string>;
+  name: string;
+  bio?: string;
+  age?: number;
+  address: UnsetAddress;
+  shipping?: UnsetAddress;
+  pos: UnsetCoord;
+  backup?: UnsetCoord;
+  opt?: UnsetOptTuple;
+  tagged?: UnsetObjTuple;
+  nested: UnsetDeepOuter;
+  optNested?: UnsetDeepOuter;
+  deepTuple?: UnsetDeepTuple;
+  tree?: UnsetTreeNode;
+  recursive?: UnsetRecursive;
+}
+
+export interface UnsetTestInput {
+  id?: string;
+  name: string;
+  bio?: string;
+  age?: number;
+  address: UnsetAddressInput;
+  shipping?: UnsetAddressInput;
+  pos: UnsetCoordInput;
+  backup?: UnsetCoordInput;
+  opt?: UnsetOptTupleInput;
+  tagged?: UnsetObjTupleInput;
+  nested: UnsetDeepOuterInput;
+  optNested?: UnsetDeepOuterInput;
+  deepTuple?: UnsetDeepTupleInput;
+  tree?: UnsetTreeNodeInput;
+  recursive?: UnsetRecursiveInput;
+}
+
+export interface UnsetTestWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  bio?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  age?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  address?: UnsetAddressWhere;
+  shipping?: UnsetAddressWhere;
+  pos?: UnsetCoordWhere;
+  backup?: UnsetCoordWhere;
+  opt?: UnsetOptTupleWhere;
+  tagged?: UnsetObjTupleWhere;
+  nested?: UnsetDeepOuterWhere;
+  optNested?: UnsetDeepOuterWhere;
+  deepTuple?: UnsetDeepTupleWhere;
+  tree?: UnsetTreeNodeWhere;
+  recursive?: UnsetRecursiveWhere;
+  AND?: UnsetTestWhere[];
+  OR?: UnsetTestWhere[];
+  NOT?: UnsetTestWhere;
+}
+
+export type UnsetTestWhereInput = UnsetTestWhere;
+
+export type UnsetTestFindUniqueWhere = { id: RecordIdInput<string> } & Omit<UnsetTestWhere, 'id'>;
+
+export type UnsetTestCreate = O.Optional<
+  UnsetTestInput,
+  'id' | 'bio' | 'age' | 'shipping' | 'backup' | 'opt' | 'tagged' | 'optNested' | 'deepTuple' | 'tree' | 'recursive'
+>;
+
+export type UnsetTestNestedCreate = O.Optional<
+  UnsetTestInput,
+  'id' | 'bio' | 'age' | 'shipping' | 'backup' | 'opt' | 'tagged' | 'optNested' | 'deepTuple' | 'tree' | 'recursive'
+>;
+
+export type UnsetTestCreateInput = UnsetTestCreate;
+
+export type UnsetTestUpdate = Partial<
+  O.Omit<
+    UnsetTestInput,
+    | 'id'
+    | 'address'
+    | 'shipping'
+    | 'nested'
+    | 'optNested'
+    | 'tree'
+    | 'pos'
+    | 'backup'
+    | 'opt'
+    | 'tagged'
+    | 'deepTuple'
+    | 'recursive'
+    | 'bio'
+    | 'age'
+  >
+> & {
+  address?: Partial<UnsetAddressInput> | { set: UnsetAddressInput };
+  shipping?: Partial<UnsetAddressInput> | { set: UnsetAddressInput } | CerialNone;
+  nested?: Partial<UnsetDeepOuterInput> | { set: UnsetDeepOuterInput };
+  optNested?: Partial<UnsetDeepOuterInput> | { set: UnsetDeepOuterInput } | CerialNone;
+  tree?: Partial<UnsetTreeNodeInput> | { set: UnsetTreeNodeInput } | CerialNone;
+  pos?: [number, number] | UnsetCoordUpdate;
+  backup?: [number, number] | UnsetCoordUpdate | CerialNone;
+  opt?: [string, number | null] | UnsetOptTupleUpdate | CerialNone;
+  tagged?: [string, UnsetInnerInput] | UnsetObjTupleUpdate | CerialNone;
+  deepTuple?: [string, UnsetDeepMidInput] | UnsetDeepTupleUpdate | CerialNone;
+  recursive?: [string, UnsetRecursiveInput | null] | UnsetRecursiveUpdate | CerialNone;
+  bio?: string | CerialNone;
+  age?: number | CerialNone;
+};
+
+export type UnsetTestUpdateInput = UnsetTestUpdate;
+
+export type UnsetTestUnset = {
+  bio?: true;
+  age?: true;
+  address?: {
+    zip?: true;
+  };
+  shipping?:
+    | true
+    | {
+        zip?: true;
+      };
+  backup?: true;
+  opt?: true | UnsetOptTupleUnset;
+  tagged?: true | UnsetObjTupleUnset;
+  nested?: {
+    mid?: {
+      score?: true;
+      deep?: {
+        note?: true;
+      };
+    };
+    desc?: true;
+  };
+  optNested?:
+    | true
+    | {
+        mid?: {
+          score?: true;
+          deep?: {
+            note?: true;
+          };
+        };
+        desc?: true;
+      };
+  deepTuple?: true | UnsetDeepTupleUnset;
+  tree?:
+    | true
+    | {
+        extra?: true;
+        child?: true;
+      };
+  recursive?: true | UnsetRecursiveUnset;
+};
+
+export type UnsetTestSelect =
+  | ({ id: boolean } & {
+      name?: boolean;
+      bio?: boolean;
+      age?: boolean;
+      address?: boolean | UnsetAddressSelect;
+      shipping?: boolean | UnsetAddressSelect;
+      pos?: boolean;
+      backup?: boolean;
+      opt?: boolean;
+      tagged?: boolean | UnsetObjTupleSelect;
+      nested?: boolean | UnsetDeepOuterSelect;
+      optNested?: boolean | UnsetDeepOuterSelect;
+      deepTuple?: boolean | UnsetDeepTupleSelect;
+      tree?: boolean | UnsetTreeNodeSelect;
+      recursive?: boolean;
+    })
+  | ({ name: boolean } & {
+      id?: boolean;
+      bio?: boolean;
+      age?: boolean;
+      address?: boolean | UnsetAddressSelect;
+      shipping?: boolean | UnsetAddressSelect;
+      pos?: boolean;
+      backup?: boolean;
+      opt?: boolean;
+      tagged?: boolean | UnsetObjTupleSelect;
+      nested?: boolean | UnsetDeepOuterSelect;
+      optNested?: boolean | UnsetDeepOuterSelect;
+      deepTuple?: boolean | UnsetDeepTupleSelect;
+      tree?: boolean | UnsetTreeNodeSelect;
+      recursive?: boolean;
+    })
+  | ({ bio: boolean } & {
+      id?: boolean;
+      name?: boolean;
+      age?: boolean;
+      address?: boolean | UnsetAddressSelect;
+      shipping?: boolean | UnsetAddressSelect;
+      pos?: boolean;
+      backup?: boolean;
+      opt?: boolean;
+      tagged?: boolean | UnsetObjTupleSelect;
+      nested?: boolean | UnsetDeepOuterSelect;
+      optNested?: boolean | UnsetDeepOuterSelect;
+      deepTuple?: boolean | UnsetDeepTupleSelect;
+      tree?: boolean | UnsetTreeNodeSelect;
+      recursive?: boolean;
+    })
+  | ({ age: boolean } & {
+      id?: boolean;
+      name?: boolean;
+      bio?: boolean;
+      address?: boolean | UnsetAddressSelect;
+      shipping?: boolean | UnsetAddressSelect;
+      pos?: boolean;
+      backup?: boolean;
+      opt?: boolean;
+      tagged?: boolean | UnsetObjTupleSelect;
+      nested?: boolean | UnsetDeepOuterSelect;
+      optNested?: boolean | UnsetDeepOuterSelect;
+      deepTuple?: boolean | UnsetDeepTupleSelect;
+      tree?: boolean | UnsetTreeNodeSelect;
+      recursive?: boolean;
+    })
+  | ({ address: boolean | UnsetAddressSelect } & {
+      id?: boolean;
+      name?: boolean;
+      bio?: boolean;
+      age?: boolean;
+      shipping?: boolean | UnsetAddressSelect;
+      pos?: boolean;
+      backup?: boolean;
+      opt?: boolean;
+      tagged?: boolean | UnsetObjTupleSelect;
+      nested?: boolean | UnsetDeepOuterSelect;
+      optNested?: boolean | UnsetDeepOuterSelect;
+      deepTuple?: boolean | UnsetDeepTupleSelect;
+      tree?: boolean | UnsetTreeNodeSelect;
+      recursive?: boolean;
+    })
+  | ({ shipping: boolean | UnsetAddressSelect } & {
+      id?: boolean;
+      name?: boolean;
+      bio?: boolean;
+      age?: boolean;
+      address?: boolean | UnsetAddressSelect;
+      pos?: boolean;
+      backup?: boolean;
+      opt?: boolean;
+      tagged?: boolean | UnsetObjTupleSelect;
+      nested?: boolean | UnsetDeepOuterSelect;
+      optNested?: boolean | UnsetDeepOuterSelect;
+      deepTuple?: boolean | UnsetDeepTupleSelect;
+      tree?: boolean | UnsetTreeNodeSelect;
+      recursive?: boolean;
+    })
+  | ({ pos: boolean } & {
+      id?: boolean;
+      name?: boolean;
+      bio?: boolean;
+      age?: boolean;
+      address?: boolean | UnsetAddressSelect;
+      shipping?: boolean | UnsetAddressSelect;
+      backup?: boolean;
+      opt?: boolean;
+      tagged?: boolean | UnsetObjTupleSelect;
+      nested?: boolean | UnsetDeepOuterSelect;
+      optNested?: boolean | UnsetDeepOuterSelect;
+      deepTuple?: boolean | UnsetDeepTupleSelect;
+      tree?: boolean | UnsetTreeNodeSelect;
+      recursive?: boolean;
+    })
+  | ({ backup: boolean } & {
+      id?: boolean;
+      name?: boolean;
+      bio?: boolean;
+      age?: boolean;
+      address?: boolean | UnsetAddressSelect;
+      shipping?: boolean | UnsetAddressSelect;
+      pos?: boolean;
+      opt?: boolean;
+      tagged?: boolean | UnsetObjTupleSelect;
+      nested?: boolean | UnsetDeepOuterSelect;
+      optNested?: boolean | UnsetDeepOuterSelect;
+      deepTuple?: boolean | UnsetDeepTupleSelect;
+      tree?: boolean | UnsetTreeNodeSelect;
+      recursive?: boolean;
+    })
+  | ({ opt: boolean } & {
+      id?: boolean;
+      name?: boolean;
+      bio?: boolean;
+      age?: boolean;
+      address?: boolean | UnsetAddressSelect;
+      shipping?: boolean | UnsetAddressSelect;
+      pos?: boolean;
+      backup?: boolean;
+      tagged?: boolean | UnsetObjTupleSelect;
+      nested?: boolean | UnsetDeepOuterSelect;
+      optNested?: boolean | UnsetDeepOuterSelect;
+      deepTuple?: boolean | UnsetDeepTupleSelect;
+      tree?: boolean | UnsetTreeNodeSelect;
+      recursive?: boolean;
+    })
+  | ({ tagged: boolean | UnsetObjTupleSelect } & {
+      id?: boolean;
+      name?: boolean;
+      bio?: boolean;
+      age?: boolean;
+      address?: boolean | UnsetAddressSelect;
+      shipping?: boolean | UnsetAddressSelect;
+      pos?: boolean;
+      backup?: boolean;
+      opt?: boolean;
+      nested?: boolean | UnsetDeepOuterSelect;
+      optNested?: boolean | UnsetDeepOuterSelect;
+      deepTuple?: boolean | UnsetDeepTupleSelect;
+      tree?: boolean | UnsetTreeNodeSelect;
+      recursive?: boolean;
+    })
+  | ({ nested: boolean | UnsetDeepOuterSelect } & {
+      id?: boolean;
+      name?: boolean;
+      bio?: boolean;
+      age?: boolean;
+      address?: boolean | UnsetAddressSelect;
+      shipping?: boolean | UnsetAddressSelect;
+      pos?: boolean;
+      backup?: boolean;
+      opt?: boolean;
+      tagged?: boolean | UnsetObjTupleSelect;
+      optNested?: boolean | UnsetDeepOuterSelect;
+      deepTuple?: boolean | UnsetDeepTupleSelect;
+      tree?: boolean | UnsetTreeNodeSelect;
+      recursive?: boolean;
+    })
+  | ({ optNested: boolean | UnsetDeepOuterSelect } & {
+      id?: boolean;
+      name?: boolean;
+      bio?: boolean;
+      age?: boolean;
+      address?: boolean | UnsetAddressSelect;
+      shipping?: boolean | UnsetAddressSelect;
+      pos?: boolean;
+      backup?: boolean;
+      opt?: boolean;
+      tagged?: boolean | UnsetObjTupleSelect;
+      nested?: boolean | UnsetDeepOuterSelect;
+      deepTuple?: boolean | UnsetDeepTupleSelect;
+      tree?: boolean | UnsetTreeNodeSelect;
+      recursive?: boolean;
+    })
+  | ({ deepTuple: boolean | UnsetDeepTupleSelect } & {
+      id?: boolean;
+      name?: boolean;
+      bio?: boolean;
+      age?: boolean;
+      address?: boolean | UnsetAddressSelect;
+      shipping?: boolean | UnsetAddressSelect;
+      pos?: boolean;
+      backup?: boolean;
+      opt?: boolean;
+      tagged?: boolean | UnsetObjTupleSelect;
+      nested?: boolean | UnsetDeepOuterSelect;
+      optNested?: boolean | UnsetDeepOuterSelect;
+      tree?: boolean | UnsetTreeNodeSelect;
+      recursive?: boolean;
+    })
+  | ({ tree: boolean | UnsetTreeNodeSelect } & {
+      id?: boolean;
+      name?: boolean;
+      bio?: boolean;
+      age?: boolean;
+      address?: boolean | UnsetAddressSelect;
+      shipping?: boolean | UnsetAddressSelect;
+      pos?: boolean;
+      backup?: boolean;
+      opt?: boolean;
+      tagged?: boolean | UnsetObjTupleSelect;
+      nested?: boolean | UnsetDeepOuterSelect;
+      optNested?: boolean | UnsetDeepOuterSelect;
+      deepTuple?: boolean | UnsetDeepTupleSelect;
+      recursive?: boolean;
+    })
+  | ({ recursive: boolean } & {
+      id?: boolean;
+      name?: boolean;
+      bio?: boolean;
+      age?: boolean;
+      address?: boolean | UnsetAddressSelect;
+      shipping?: boolean | UnsetAddressSelect;
+      pos?: boolean;
+      backup?: boolean;
+      opt?: boolean;
+      tagged?: boolean | UnsetObjTupleSelect;
+      nested?: boolean | UnsetDeepOuterSelect;
+      optNested?: boolean | UnsetDeepOuterSelect;
+      deepTuple?: boolean | UnsetDeepTupleSelect;
+      tree?: boolean | UnsetTreeNodeSelect;
+    });
+
+export interface UnsetTestOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  bio?: 'asc' | 'desc';
+  age?: 'asc' | 'desc';
+  address?: UnsetAddressOrderBy;
+  shipping?: UnsetAddressOrderBy;
+  nested?: UnsetDeepOuterOrderBy;
+  optNested?: UnsetDeepOuterOrderBy;
+  tree?: UnsetTreeNodeOrderBy;
+}
+
+export type UnsetTest$Relations = {};
+
+export type GetUnsetTestPayload<S extends UnsetTestSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends UnsetTestSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof UnsetTest
+          ? ResolveFieldSelect<UnsetTest[K], S[K]>
+          : never;
+      }
+    : UnsetTest,
+  'flat'
+>;
+
+export interface UnsetTestModel {
+  findOne<S extends UnsetTestSelect | undefined = undefined>(options?: {
+    where?: UnsetTestWhere;
+    select?: S;
+    orderBy?: UnsetTestOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetUnsetTestPayload<S> | null>;
+
+  findMany<S extends UnsetTestSelect | undefined = undefined>(options?: {
+    where?: UnsetTestWhere;
+    select?: S;
+    orderBy?: UnsetTestOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetUnsetTestPayload<S>[]>;
+
+  findUnique<S extends UnsetTestSelect | undefined = undefined>(options: {
+    where: UnsetTestFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetUnsetTestPayload<S> | null>;
+
+  create<S extends UnsetTestSelect | undefined = undefined>(options: {
+    data: UnsetTestCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetUnsetTestPayload<S>>;
+
+  updateMany<
+    S extends UnsetTestSelect | undefined = undefined,
+    D extends UnsetTestUpdateInput = UnsetTestUpdateInput,
+  >(options: {
+    where: UnsetTestWhere;
+    data: D;
+    unset?: SafeUnset<UnsetTestUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetUnsetTestPayload<S>[]>;
+
+  updateUnique<
+    S extends UnsetTestSelect | undefined = undefined,
+    D extends UnsetTestUpdateInput = UnsetTestUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: UnsetTestFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<UnsetTestUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns UnsetTest | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetUnsetTestPayload<S>, R>>;
+
+  upsert<
+    S extends UnsetTestSelect | undefined = undefined,
+    D extends UnsetTestUpdateInput = UnsetTestUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: UnsetTestFindUniqueWhere;
+    create: UnsetTestCreateInput;
+    update?: D;
+    unset?: SafeUnset<UnsetTestUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetUnsetTestPayload<S>, R>>;
+
+  upsert<
+    S extends UnsetTestSelect | undefined = undefined,
+    D extends UnsetTestUpdateInput = UnsetTestUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: UnsetTestWhere;
+    create: UnsetTestCreateInput;
+    update?: D;
+    unset?: SafeUnset<UnsetTestUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetUnsetTestPayload<S>, R>>;
+
+  deleteMany(options: { where: UnsetTestWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: UnsetTestFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns UnsetTest | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<UnsetTest, R>>;
+
+  count(where?: UnsetTestWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: UnsetTestWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== objects/unsetaddress.ts =====
+/**
+ * Generated types for UnsetAddress
+ * Do not edit manually
+ */
+
+export interface UnsetAddress {
+  street: string;
+  city: string;
+  zip?: string;
+}
+
+export interface UnsetAddressInput {
+  street: string;
+  city: string;
+  zip?: string;
+}
+
+export interface UnsetAddressWhere {
+  street?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  city?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  zip?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  AND?: UnsetAddressWhere[];
+  OR?: UnsetAddressWhere[];
+  NOT?: UnsetAddressWhere;
+}
+
+export type UnsetAddressSelect =
+  | ({ street: boolean } & Partial<Record<'city' | 'zip', boolean>>)
+  | ({ city: boolean } & Partial<Record<'street' | 'zip', boolean>>)
+  | ({ zip: boolean } & Partial<Record<'street' | 'city', boolean>>);
+
+export interface UnsetAddressOrderBy {
+  street?: 'asc' | 'desc';
+  city?: 'asc' | 'desc';
+  zip?: 'asc' | 'desc';
+}
+
+// ===== objects/unsetdeepinner.ts =====
+/**
+ * Generated types for UnsetDeepInner
+ * Do not edit manually
+ */
+
+export interface UnsetDeepInner {
+  code: string;
+  note?: string;
+}
+
+export interface UnsetDeepInnerInput {
+  code: string;
+  note?: string;
+}
+
+export interface UnsetDeepInnerWhere {
+  code?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  note?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  AND?: UnsetDeepInnerWhere[];
+  OR?: UnsetDeepInnerWhere[];
+  NOT?: UnsetDeepInnerWhere;
+}
+
+export type UnsetDeepInnerSelect =
+  | ({ code: boolean } & Partial<Record<'note', boolean>>)
+  | ({ note: boolean } & Partial<Record<'code', boolean>>);
+
+export interface UnsetDeepInnerOrderBy {
+  code?: 'asc' | 'desc';
+  note?: 'asc' | 'desc';
+}
+
+// ===== objects/unsetdeepmid.ts =====
+/**
+ * Generated types for UnsetDeepMid
+ * Do not edit manually
+ */
+
+import type {
+  UnsetDeepInner,
+  UnsetDeepInnerInput,
+  UnsetDeepInnerWhere,
+  UnsetDeepInnerSelect,
+  UnsetDeepInnerOrderBy,
+} from './unsetdeepinner';
+export interface UnsetDeepMid {
+  label: string;
+  score?: number;
+  deep: UnsetDeepInner;
+}
+
+export interface UnsetDeepMidInput {
+  label: string;
+  score?: number;
+  deep: UnsetDeepInnerInput;
+}
+
+export interface UnsetDeepMidWhere {
+  label?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  score?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  deep?: UnsetDeepInnerWhere;
+  AND?: UnsetDeepMidWhere[];
+  OR?: UnsetDeepMidWhere[];
+  NOT?: UnsetDeepMidWhere;
+}
+
+export type UnsetDeepMidSelect =
+  | ({ label: boolean } & { score?: boolean; deep?: boolean | UnsetDeepInnerSelect })
+  | ({ score: boolean } & { label?: boolean; deep?: boolean | UnsetDeepInnerSelect })
+  | ({ deep: boolean | UnsetDeepInnerSelect } & Partial<Record<'label' | 'score', boolean>>);
+
+export interface UnsetDeepMidOrderBy {
+  label?: 'asc' | 'desc';
+  score?: 'asc' | 'desc';
+  deep?: UnsetDeepInnerOrderBy;
+}
+
+// ===== objects/unsetdeepouter.ts =====
+/**
+ * Generated types for UnsetDeepOuter
+ * Do not edit manually
+ */
+
+import type {
+  UnsetDeepMid,
+  UnsetDeepMidInput,
+  UnsetDeepMidWhere,
+  UnsetDeepMidSelect,
+  UnsetDeepMidOrderBy,
+} from './unsetdeepmid';
+export interface UnsetDeepOuter {
+  title: string;
+  mid: UnsetDeepMid;
+  desc?: string;
+}
+
+export interface UnsetDeepOuterInput {
+  title: string;
+  mid: UnsetDeepMidInput;
+  desc?: string;
+}
+
+export interface UnsetDeepOuterWhere {
+  title?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  mid?: UnsetDeepMidWhere;
+  desc?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  AND?: UnsetDeepOuterWhere[];
+  OR?: UnsetDeepOuterWhere[];
+  NOT?: UnsetDeepOuterWhere;
+}
+
+export type UnsetDeepOuterSelect =
+  | ({ title: boolean } & { mid?: boolean | UnsetDeepMidSelect; desc?: boolean })
+  | ({ mid: boolean | UnsetDeepMidSelect } & Partial<Record<'title' | 'desc', boolean>>)
+  | ({ desc: boolean } & { title?: boolean; mid?: boolean | UnsetDeepMidSelect });
+
+export interface UnsetDeepOuterOrderBy {
+  title?: 'asc' | 'desc';
+  mid?: UnsetDeepMidOrderBy;
+  desc?: 'asc' | 'desc';
+}
+
+// ===== objects/unsetinner.ts =====
+/**
+ * Generated types for UnsetInner
+ * Do not edit manually
+ */
+
+export interface UnsetInner {
+  value: string;
+  extra?: string;
+}
+
+export interface UnsetInnerInput {
+  value: string;
+  extra?: string;
+}
+
+export interface UnsetInnerWhere {
+  value?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  extra?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  AND?: UnsetInnerWhere[];
+  OR?: UnsetInnerWhere[];
+  NOT?: UnsetInnerWhere;
+}
+
+export type UnsetInnerSelect =
+  | ({ value: boolean } & Partial<Record<'extra', boolean>>)
+  | ({ extra: boolean } & Partial<Record<'value', boolean>>);
+
+export interface UnsetInnerOrderBy {
+  value?: 'asc' | 'desc';
+  extra?: 'asc' | 'desc';
+}
+
+// ===== objects/unsettreenode.ts =====
+/**
+ * Generated types for UnsetTreeNode
+ * Do not edit manually
+ */
+
+export interface UnsetTreeNode {
+  value: string;
+  extra?: string;
+  child?: UnsetTreeNode;
+}
+
+export interface UnsetTreeNodeInput {
+  value: string;
+  extra?: string;
+  child?: UnsetTreeNodeInput;
+}
+
+export interface UnsetTreeNodeWhere {
+  value?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  extra?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  child?: UnsetTreeNodeWhere;
+  AND?: UnsetTreeNodeWhere[];
+  OR?: UnsetTreeNodeWhere[];
+  NOT?: UnsetTreeNodeWhere;
+}
+
+export type UnsetTreeNodeSelect =
+  | ({ value: boolean } & { extra?: boolean; child?: boolean | UnsetTreeNodeSelect })
+  | ({ extra: boolean } & { value?: boolean; child?: boolean | UnsetTreeNodeSelect })
+  | ({ child: boolean | UnsetTreeNodeSelect } & Partial<Record<'value' | 'extra', boolean>>);
+
+export interface UnsetTreeNodeOrderBy {
+  value?: 'asc' | 'desc';
+  extra?: 'asc' | 'desc';
+  child?: UnsetTreeNodeOrderBy;
+}
+
+// ===== tuples/unsetcoord.ts =====
+/**
+ * Generated types for UnsetCoord
+ * Do not edit manually
+ */
+
+export type UnsetCoord = [number, number];
+
+export type UnsetCoordInput =
+  | [number, number]
+  | {
+      0?: number;
+      lat?: number;
+      1?: number;
+      lng?: number;
+    };
+
+export interface UnsetCoordWhere {
+  0?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  lat?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  1?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  lng?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+}
+
+export type UnsetCoordUpdate = {
+  0?: number;
+  lat?: number;
+  1?: number;
+  lng?: number;
+};
+
+// ===== tuples/unsetdeeptuple.ts =====
+/**
+ * Generated types for UnsetDeepTuple
+ * Do not edit manually
+ */
+
+import type {
+  UnsetDeepMid,
+  UnsetDeepMidInput,
+  UnsetDeepMidWhere,
+  UnsetDeepMidSelect,
+  UnsetDeepMidOrderBy,
+} from '../objects/unsetdeepmid';
+export type UnsetDeepTuple = [string, UnsetDeepMid];
+
+export type UnsetDeepTupleInput =
+  | [string, UnsetDeepMidInput]
+  | {
+      0?: string;
+      name?: string;
+      1?: UnsetDeepMidInput;
+    };
+
+export interface UnsetDeepTupleWhere {
+  0?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  1?: UnsetDeepMidWhere;
+}
+
+export type UnsetDeepTupleUpdate = {
+  0?: string;
+  name?: string;
+  1?: Partial<UnsetDeepMidInput> | { set: UnsetDeepMidInput };
+};
+
+export type UnsetDeepTupleSelect = {
+  1?: boolean | UnsetDeepMidSelect;
+};
+
+export type UnsetDeepTupleUnset = {
+  1?: {
+    score?: true;
+    deep?: {
+      note?: true;
+    };
+  };
+};
+
+// ===== tuples/unsetobjtuple.ts =====
+/**
+ * Generated types for UnsetObjTuple
+ * Do not edit manually
+ */
+
+import type {
+  UnsetInner,
+  UnsetInnerInput,
+  UnsetInnerWhere,
+  UnsetInnerSelect,
+  UnsetInnerOrderBy,
+} from '../objects/unsetinner';
+export type UnsetObjTuple = [string, UnsetInner];
+
+export type UnsetObjTupleInput =
+  | [string, UnsetInnerInput]
+  | {
+      0?: string;
+      tag?: string;
+      1?: UnsetInnerInput;
+    };
+
+export interface UnsetObjTupleWhere {
+  0?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  tag?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  1?: UnsetInnerWhere;
+}
+
+export type UnsetObjTupleUpdate = {
+  0?: string;
+  tag?: string;
+  1?: Partial<UnsetInnerInput> | { set: UnsetInnerInput };
+};
+
+export type UnsetObjTupleSelect = {
+  1?: boolean | UnsetInnerSelect;
+};
+
+export type UnsetObjTupleUnset = {
+  1?: {
+    extra?: true;
+  };
+};
+
+// ===== tuples/unsetopttuple.ts =====
+/**
+ * Generated types for UnsetOptTuple
+ * Do not edit manually
+ */
+
+export type UnsetOptTuple = [string, number | null];
+
+export type UnsetOptTupleInput =
+  | [string, number | null]
+  | {
+      0?: string;
+      label?: string;
+      1?: number | null;
+    };
+
+export interface UnsetOptTupleWhere {
+  0?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  label?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  1?:
+    | null
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number | null;
+        isNull?: boolean;
+        between?: [number, number];
+      });
+}
+
+export type UnsetOptTupleUpdate = {
+  0?: string;
+  label?: string;
+  1?: number | null;
+};
+
+export type UnsetOptTupleUnset = {
+  1?: true;
+};
+
+// ===== tuples/unsetrecursive.ts =====
+/**
+ * Generated types for UnsetRecursive
+ * Do not edit manually
+ */
+
+export type UnsetRecursive = [string, UnsetRecursive | null];
+
+export type UnsetRecursiveInput =
+  | [string, UnsetRecursiveInput | null]
+  | {
+      0?: string;
+      label?: string;
+      1?: UnsetRecursiveInput | null;
+    };
+
+export interface UnsetRecursiveWhere {
+  0?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  label?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  1?: UnsetRecursiveWhere;
+}
+
+export type UnsetRecursiveUpdate = {
+  0?: string;
+  label?: string;
+  1?: [string, UnsetRecursiveInput | null] | UnsetRecursiveUpdate | null;
+};
+
+export type UnsetRecursiveUnset = {
+  1?: true | UnsetRecursiveUnset;
+};

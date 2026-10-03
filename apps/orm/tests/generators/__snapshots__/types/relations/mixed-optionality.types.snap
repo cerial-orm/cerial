@@ -1,0 +1,1006 @@
+// ===== models/agent.ts =====
+/**
+ * Generated types for Agent
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  Order,
+  OrderWhere,
+  OrderSelect,
+  OrderOrderBy,
+  OrderNestedCreate,
+  OrderInclude,
+  GetOrderIncludePayload,
+} from './order';
+export interface Agent {
+  id: CerialId<string>;
+  name: string;
+}
+
+export interface AgentInput {
+  id?: string;
+  name: string;
+}
+
+export interface AgentWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  assignedOrders?: { some?: OrderWhere; every?: OrderWhere; none?: OrderWhere };
+  AND?: AgentWhere[];
+  OR?: AgentWhere[];
+  NOT?: AgentWhere;
+}
+
+export type AgentWhereInput = AgentWhere;
+
+export type AgentFindUniqueWhere = { id: RecordIdInput<string> } & Omit<AgentWhere, 'id'>;
+
+export type AgentCreate = O.Optional<O.Omit<AgentInput, 'assignedOrders'>, 'id'>;
+
+export type AgentNestedCreate = O.Optional<O.Omit<AgentInput, 'assignedOrders'>, 'id'>;
+
+export type AgentCreateInput = AgentCreate & {
+  assignedOrders?: {
+    create?: OrderNestedCreate | OrderNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+  };
+};
+
+export type AgentUpdate = Partial<O.Omit<AgentInput, 'id' | 'assignedOrders'>>;
+
+export type AgentUpdateInput = AgentUpdate & {
+  assignedOrders?: {
+    create?: OrderNestedCreate | OrderNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+    disconnect?: RecordIdInput | RecordIdInput[];
+    set?: RecordIdInput[];
+  };
+};
+
+export type AgentUnset = {};
+
+export type AgentSelect =
+  | ({ id: boolean } & Partial<Record<'name', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id', boolean>>);
+
+export interface AgentOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+}
+
+export interface AgentInclude {
+  assignedOrders?:
+    | boolean
+    | {
+        select?: OrderSelect;
+        where?: OrderWhere;
+        orderBy?: OrderOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: OrderInclude;
+      };
+}
+
+export type Agent$Relations = {
+  assignedOrders: { type: Order[]; include: OrderInclude };
+};
+
+export type GetAgentIncludePayload<I extends AgentInclude | undefined> = I extends AgentInclude
+  ? Pick<
+      {
+        assignedOrders: I['assignedOrders'] extends true
+          ? Order[]
+          : I['assignedOrders'] extends { select: infer S extends OrderSelect; include: infer NI extends OrderInclude }
+            ? ({
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Order
+                  ? ResolveFieldSelect<Order[P], S[P]>
+                  : never;
+              } & GetOrderIncludePayload<NI>)[]
+            : I['assignedOrders'] extends { select: infer S extends OrderSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Order
+                    ? ResolveFieldSelect<Order[P], S[P]>
+                    : never;
+                }[]
+              : I['assignedOrders'] extends { include: infer NI extends OrderInclude }
+                ? (Order & GetOrderIncludePayload<NI>)[]
+                : Order[];
+      },
+      Extract<keyof I, keyof Agent$Relations> & { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetAgentPayload<
+  S extends AgentSelect | undefined = undefined,
+  I extends AgentInclude | undefined = undefined,
+> = A.Compute<
+  S extends AgentSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof Agent
+          ? ResolveFieldSelect<Agent[K], S[K]>
+          : never;
+      } & GetAgentIncludePayload<I>
+    : I extends AgentInclude
+      ? Agent & GetAgentIncludePayload<I>
+      : Agent,
+  'flat'
+>;
+
+export interface AgentModel {
+  findOne<S extends AgentSelect | undefined = undefined, I extends AgentInclude | undefined = undefined>(options?: {
+    where?: AgentWhere;
+    select?: S;
+    include?: I;
+    orderBy?: AgentOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetAgentPayload<S, I> | null>;
+
+  findMany<S extends AgentSelect | undefined = undefined, I extends AgentInclude | undefined = undefined>(options?: {
+    where?: AgentWhere;
+    select?: S;
+    orderBy?: AgentOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetAgentPayload<S, I>[]>;
+
+  findUnique<S extends AgentSelect | undefined = undefined, I extends AgentInclude | undefined = undefined>(options: {
+    where: AgentFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetAgentPayload<S, I> | null>;
+
+  create<S extends AgentSelect | undefined = undefined, I extends AgentInclude | undefined = undefined>(options: {
+    data: AgentCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetAgentPayload<S, I>>;
+
+  updateMany<
+    S extends AgentSelect | undefined = undefined,
+    I extends AgentInclude | undefined = undefined,
+    D extends AgentUpdateInput = AgentUpdateInput,
+  >(options: {
+    where: AgentWhere;
+    data: D;
+    unset?: SafeUnset<AgentUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetAgentPayload<S, I>[]>;
+
+  updateUnique<
+    S extends AgentSelect | undefined = undefined,
+    I extends AgentInclude | undefined = undefined,
+    D extends AgentUpdateInput = AgentUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: AgentFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<AgentUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns Agent | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetAgentPayload<S, I>, R>>;
+
+  upsert<
+    S extends AgentSelect | undefined = undefined,
+    I extends AgentInclude | undefined = undefined,
+    D extends AgentUpdateInput = AgentUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: AgentFindUniqueWhere;
+    create: AgentCreateInput;
+    update?: D;
+    unset?: SafeUnset<AgentUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetAgentPayload<S, I>, R>>;
+
+  upsert<
+    S extends AgentSelect | undefined = undefined,
+    I extends AgentInclude | undefined = undefined,
+    D extends AgentUpdateInput = AgentUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: AgentWhere;
+    create: AgentCreateInput;
+    update?: D;
+    unset?: SafeUnset<AgentUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetAgentPayload<S, I>, R>>;
+
+  deleteMany(options: { where: AgentWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: AgentFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns Agent | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<Agent, R>>;
+
+  count(where?: AgentWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: AgentWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/customer.ts =====
+/**
+ * Generated types for Customer
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  Order,
+  OrderWhere,
+  OrderSelect,
+  OrderOrderBy,
+  OrderNestedCreate,
+  OrderInclude,
+  GetOrderIncludePayload,
+} from './order';
+export interface Customer {
+  id: CerialId<string>;
+  name: string;
+}
+
+export interface CustomerInput {
+  id?: string;
+  name: string;
+}
+
+export interface CustomerWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  orders?: { some?: OrderWhere; every?: OrderWhere; none?: OrderWhere };
+  AND?: CustomerWhere[];
+  OR?: CustomerWhere[];
+  NOT?: CustomerWhere;
+}
+
+export type CustomerWhereInput = CustomerWhere;
+
+export type CustomerFindUniqueWhere = { id: RecordIdInput<string> } & Omit<CustomerWhere, 'id'>;
+
+export type CustomerCreate = O.Optional<O.Omit<CustomerInput, 'orders'>, 'id'>;
+
+export type CustomerNestedCreate = O.Optional<O.Omit<CustomerInput, 'orders'>, 'id'>;
+
+export type CustomerCreateInput = CustomerCreate & {
+  orders?: {
+    create?: OrderNestedCreate | OrderNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+  };
+};
+
+export type CustomerUpdate = Partial<O.Omit<CustomerInput, 'id' | 'orders'>>;
+
+export type CustomerUpdateInput = CustomerUpdate & {
+  orders?: {
+    create?: OrderNestedCreate | OrderNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+    disconnect?: RecordIdInput | RecordIdInput[];
+    set?: RecordIdInput[];
+  };
+};
+
+export type CustomerUnset = {};
+
+export type CustomerSelect =
+  | ({ id: boolean } & Partial<Record<'name', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id', boolean>>);
+
+export interface CustomerOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+}
+
+export interface CustomerInclude {
+  orders?:
+    | boolean
+    | {
+        select?: OrderSelect;
+        where?: OrderWhere;
+        orderBy?: OrderOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: OrderInclude;
+      };
+}
+
+export type Customer$Relations = {
+  orders: { type: Order[]; include: OrderInclude };
+};
+
+export type GetCustomerIncludePayload<I extends CustomerInclude | undefined> = I extends CustomerInclude
+  ? Pick<
+      {
+        orders: I['orders'] extends true
+          ? Order[]
+          : I['orders'] extends { select: infer S extends OrderSelect; include: infer NI extends OrderInclude }
+            ? ({
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Order
+                  ? ResolveFieldSelect<Order[P], S[P]>
+                  : never;
+              } & GetOrderIncludePayload<NI>)[]
+            : I['orders'] extends { select: infer S extends OrderSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Order
+                    ? ResolveFieldSelect<Order[P], S[P]>
+                    : never;
+                }[]
+              : I['orders'] extends { include: infer NI extends OrderInclude }
+                ? (Order & GetOrderIncludePayload<NI>)[]
+                : Order[];
+      },
+      Extract<keyof I, keyof Customer$Relations> &
+        { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetCustomerPayload<
+  S extends CustomerSelect | undefined = undefined,
+  I extends CustomerInclude | undefined = undefined,
+> = A.Compute<
+  S extends CustomerSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof Customer
+          ? ResolveFieldSelect<Customer[K], S[K]>
+          : never;
+      } & GetCustomerIncludePayload<I>
+    : I extends CustomerInclude
+      ? Customer & GetCustomerIncludePayload<I>
+      : Customer,
+  'flat'
+>;
+
+export interface CustomerModel {
+  findOne<
+    S extends CustomerSelect | undefined = undefined,
+    I extends CustomerInclude | undefined = undefined,
+  >(options?: {
+    where?: CustomerWhere;
+    select?: S;
+    include?: I;
+    orderBy?: CustomerOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetCustomerPayload<S, I> | null>;
+
+  findMany<
+    S extends CustomerSelect | undefined = undefined,
+    I extends CustomerInclude | undefined = undefined,
+  >(options?: {
+    where?: CustomerWhere;
+    select?: S;
+    orderBy?: CustomerOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetCustomerPayload<S, I>[]>;
+
+  findUnique<
+    S extends CustomerSelect | undefined = undefined,
+    I extends CustomerInclude | undefined = undefined,
+  >(options: {
+    where: CustomerFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetCustomerPayload<S, I> | null>;
+
+  create<S extends CustomerSelect | undefined = undefined, I extends CustomerInclude | undefined = undefined>(options: {
+    data: CustomerCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetCustomerPayload<S, I>>;
+
+  updateMany<
+    S extends CustomerSelect | undefined = undefined,
+    I extends CustomerInclude | undefined = undefined,
+    D extends CustomerUpdateInput = CustomerUpdateInput,
+  >(options: {
+    where: CustomerWhere;
+    data: D;
+    unset?: SafeUnset<CustomerUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetCustomerPayload<S, I>[]>;
+
+  updateUnique<
+    S extends CustomerSelect | undefined = undefined,
+    I extends CustomerInclude | undefined = undefined,
+    D extends CustomerUpdateInput = CustomerUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: CustomerFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<CustomerUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns Customer | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetCustomerPayload<S, I>, R>>;
+
+  upsert<
+    S extends CustomerSelect | undefined = undefined,
+    I extends CustomerInclude | undefined = undefined,
+    D extends CustomerUpdateInput = CustomerUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: CustomerFindUniqueWhere;
+    create: CustomerCreateInput;
+    update?: D;
+    unset?: SafeUnset<CustomerUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetCustomerPayload<S, I>, R>>;
+
+  upsert<
+    S extends CustomerSelect | undefined = undefined,
+    I extends CustomerInclude | undefined = undefined,
+    D extends CustomerUpdateInput = CustomerUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: CustomerWhere;
+    create: CustomerCreateInput;
+    update?: D;
+    unset?: SafeUnset<CustomerUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetCustomerPayload<S, I>, R>>;
+
+  deleteMany(options: { where: CustomerWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: CustomerFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns Customer | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<Customer, R>>;
+
+  count(where?: CustomerWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: CustomerWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/order.ts =====
+/**
+ * Generated types for Order
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  Customer,
+  CustomerWhere,
+  CustomerSelect,
+  CustomerOrderBy,
+  CustomerNestedCreate,
+  CustomerInclude,
+  GetCustomerIncludePayload,
+} from './customer';
+import type {
+  Agent,
+  AgentWhere,
+  AgentSelect,
+  AgentOrderBy,
+  AgentNestedCreate,
+  AgentInclude,
+  GetAgentIncludePayload,
+} from './agent';
+export interface Order {
+  id: CerialId<string>;
+  orderNumber: string;
+  customerId: CerialId<string>;
+  assigneeId?: CerialId<string> | null;
+}
+
+export interface OrderInput {
+  id?: string;
+  orderNumber: string;
+  customerId: RecordIdInput<string>;
+  assigneeId?: RecordIdInput<string> | null;
+}
+
+export interface OrderWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  /** @unique — Unique indexed field */
+  orderNumber?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  customerId?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  customer?: CustomerWhere;
+  assigneeId?:
+    | null
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {
+        not?: string | null;
+        isNull?: boolean;
+        isNone?: boolean;
+      });
+  assignee?: null | AgentWhere;
+  AND?: OrderWhere[];
+  OR?: OrderWhere[];
+  NOT?: OrderWhere;
+}
+
+export type OrderWhereInput = OrderWhere;
+
+export type OrderFindUniqueWhere =
+  | ({ id: RecordIdInput<string> } & { orderNumber?: string } & Omit<OrderWhere, 'id' | 'orderNumber'>)
+  | ({ orderNumber: string } & { id?: RecordIdInput<string> } & Omit<OrderWhere, 'id' | 'orderNumber'>);
+
+export type OrderCreate = O.Optional<O.Omit<OrderInput, 'customer' | 'assignee'>, 'id' | 'assigneeId'>;
+
+export type OrderNestedCreate = O.Optional<
+  O.Omit<OrderInput, 'customer' | 'assignee' | 'customerId' | 'assigneeId'>,
+  'id'
+>;
+
+export type OrderCreateInput =
+  | OrderCreate
+  | (O.Omit<OrderCreate, 'customerId' | 'assigneeId'> & {
+      customer: { create: CustomerNestedCreate } | { connect: RecordIdInput };
+      assignee?: { create: AgentNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type OrderUpdate = Partial<O.Omit<OrderInput, 'id' | 'customer' | 'assignee' | 'assigneeId'>> & {
+  assigneeId?: RecordIdInput<string> | null | CerialNone;
+};
+
+export type OrderUpdateInput =
+  | OrderUpdate
+  | (O.Omit<OrderUpdate, 'customerId' | 'assigneeId'> & {
+      customer?: { create: CustomerNestedCreate } | { connect: RecordIdInput };
+      assignee?: { create: AgentNestedCreate } | { connect: RecordIdInput } | { disconnect: true };
+    });
+
+export type OrderUnset = {
+  assigneeId?: true;
+};
+
+export type OrderSelect =
+  | ({ id: boolean } & Partial<Record<'orderNumber' | 'customerId' | 'assigneeId', boolean>>)
+  | ({ orderNumber: boolean } & Partial<Record<'id' | 'customerId' | 'assigneeId', boolean>>)
+  | ({ customerId: boolean } & Partial<Record<'id' | 'orderNumber' | 'assigneeId', boolean>>)
+  | ({ assigneeId: boolean } & Partial<Record<'id' | 'orderNumber' | 'customerId', boolean>>);
+
+export interface OrderOrderBy {
+  id?: 'asc' | 'desc';
+  orderNumber?: 'asc' | 'desc';
+  customerId?: 'asc' | 'desc';
+  customer?: CustomerOrderBy;
+  assigneeId?: 'asc' | 'desc';
+  assignee?: AgentOrderBy;
+}
+
+export interface OrderInclude {
+  customer?:
+    | boolean
+    | {
+        select?: CustomerSelect;
+        where?: CustomerWhere;
+        include?: CustomerInclude;
+      };
+  assignee?:
+    | boolean
+    | {
+        select?: AgentSelect;
+        where?: AgentWhere;
+        include?: AgentInclude;
+      };
+}
+
+export type Order$Relations = {
+  customer: { type: Customer; include: CustomerInclude };
+  assignee: { type: Agent; include: AgentInclude };
+};
+
+export type GetOrderIncludePayload<I extends OrderInclude | undefined> = I extends OrderInclude
+  ? Pick<
+      {
+        customer: I['customer'] extends true
+          ? Customer
+          : I['customer'] extends { select: infer S extends CustomerSelect; include: infer NI extends CustomerInclude }
+            ? {
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Customer
+                  ? ResolveFieldSelect<Customer[P], S[P]>
+                  : never;
+              } & GetCustomerIncludePayload<NI>
+            : I['customer'] extends { select: infer S extends CustomerSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Customer
+                    ? ResolveFieldSelect<Customer[P], S[P]>
+                    : never;
+                }
+              : I['customer'] extends { include: infer NI extends CustomerInclude }
+                ? Customer & GetCustomerIncludePayload<NI>
+                : Customer;
+        assignee: I['assignee'] extends true
+          ? Agent
+          : I['assignee'] extends { select: infer S extends AgentSelect; include: infer NI extends AgentInclude }
+            ? {
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Agent
+                  ? ResolveFieldSelect<Agent[P], S[P]>
+                  : never;
+              } & GetAgentIncludePayload<NI>
+            : I['assignee'] extends { select: infer S extends AgentSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Agent
+                    ? ResolveFieldSelect<Agent[P], S[P]>
+                    : never;
+                }
+              : I['assignee'] extends { include: infer NI extends AgentInclude }
+                ? Agent & GetAgentIncludePayload<NI>
+                : Agent;
+      },
+      Extract<keyof I, keyof Order$Relations> & { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetOrderPayload<
+  S extends OrderSelect | undefined = undefined,
+  I extends OrderInclude | undefined = undefined,
+> = A.Compute<
+  S extends OrderSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof Order
+          ? ResolveFieldSelect<Order[K], S[K]>
+          : never;
+      } & GetOrderIncludePayload<I>
+    : I extends OrderInclude
+      ? Order & GetOrderIncludePayload<I>
+      : Order,
+  'flat'
+>;
+
+export interface OrderModel {
+  findOne<S extends OrderSelect | undefined = undefined, I extends OrderInclude | undefined = undefined>(options?: {
+    where?: OrderWhere;
+    select?: S;
+    include?: I;
+    orderBy?: OrderOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetOrderPayload<S, I> | null>;
+
+  findMany<S extends OrderSelect | undefined = undefined, I extends OrderInclude | undefined = undefined>(options?: {
+    where?: OrderWhere;
+    select?: S;
+    orderBy?: OrderOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetOrderPayload<S, I>[]>;
+
+  findUnique<S extends OrderSelect | undefined = undefined, I extends OrderInclude | undefined = undefined>(options: {
+    where: OrderFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetOrderPayload<S, I> | null>;
+
+  create<S extends OrderSelect | undefined = undefined, I extends OrderInclude | undefined = undefined>(options: {
+    data: OrderCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetOrderPayload<S, I>>;
+
+  updateMany<
+    S extends OrderSelect | undefined = undefined,
+    I extends OrderInclude | undefined = undefined,
+    D extends OrderUpdateInput = OrderUpdateInput,
+  >(options: {
+    where: OrderWhere;
+    data: D;
+    unset?: SafeUnset<OrderUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetOrderPayload<S, I>[]>;
+
+  updateUnique<
+    S extends OrderSelect | undefined = undefined,
+    I extends OrderInclude | undefined = undefined,
+    D extends OrderUpdateInput = OrderUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: OrderFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<OrderUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns Order | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetOrderPayload<S, I>, R>>;
+
+  upsert<
+    S extends OrderSelect | undefined = undefined,
+    I extends OrderInclude | undefined = undefined,
+    D extends OrderUpdateInput = OrderUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: OrderFindUniqueWhere;
+    create: OrderCreateInput;
+    update?: D;
+    unset?: SafeUnset<OrderUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetOrderPayload<S, I>, R>>;
+
+  upsert<
+    S extends OrderSelect | undefined = undefined,
+    I extends OrderInclude | undefined = undefined,
+    D extends OrderUpdateInput = OrderUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: OrderWhere;
+    create: OrderCreateInput;
+    update?: D;
+    unset?: SafeUnset<OrderUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetOrderPayload<S, I>, R>>;
+
+  deleteMany(options: { where: OrderWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: OrderFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns Order | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<Order, R>>;
+
+  count(where?: OrderWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: OrderWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}

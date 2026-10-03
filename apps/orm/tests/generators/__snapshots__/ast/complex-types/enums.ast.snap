@@ -1,0 +1,270 @@
+{
+  "enums": [
+    {
+      "name": "Role",
+      "values": [
+        "ADMIN",
+        "USER",
+        "MODERATOR"
+      ]
+    },
+    {
+      "name": "Color",
+      "values": [
+        "RED",
+        "GREEN",
+        "BLUE"
+      ]
+    },
+    {
+      "name": "Severity",
+      "values": [
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "CRITICAL"
+      ]
+    }
+  ],
+  "literals": [
+    {
+      "name": "RoleOrCustom",
+      "variants": [
+        {
+          "kind": "literalRef",
+          "literalName": "Role"
+        },
+        {
+          "kind": "string",
+          "value": "custom"
+        }
+      ]
+    }
+  ],
+  "models": [
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "literalName": "Role",
+          "name": "role",
+          "type": "literal"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "literalName": "Role",
+          "name": "optRole",
+          "type": "literal"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "literalName": "Role",
+          "name": "nullRole",
+          "type": "literal"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "literalName": "Role",
+          "name": "roles",
+          "type": "literal"
+        }
+      ],
+      "name": "EnumBasic"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": "ADMIN"
+            }
+          ],
+          "isOptional": false,
+          "literalName": "Role",
+          "name": "role",
+          "type": "literal"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": "LOW"
+            }
+          ],
+          "isOptional": false,
+          "literalName": "Severity",
+          "name": "severity",
+          "type": "literal"
+        }
+      ],
+      "name": "EnumDefaults"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "literalName": "Role",
+          "name": "role",
+          "type": "literal"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "literalName": "Color",
+          "name": "color",
+          "type": "literal"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "literalName": "Severity",
+          "name": "severity",
+          "type": "literal"
+        }
+      ],
+      "name": "EnumMultiple"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "address",
+          "objectName": "EnumAddress",
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "optAddress",
+          "objectName": "EnumAddress",
+          "type": "object"
+        }
+      ],
+      "name": "EnumWithObject"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "literalName": "RoleOrCustom",
+          "name": "access",
+          "type": "literal"
+        }
+      ],
+      "name": "EnumLiteralRef"
+    }
+  ],
+  "objects": [
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "city",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "literalName": "Severity",
+          "name": "severity",
+          "type": "literal"
+        }
+      ],
+      "name": "EnumAddress"
+    }
+  ]
+}

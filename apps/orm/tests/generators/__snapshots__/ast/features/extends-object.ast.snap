@@ -1,0 +1,565 @@
+{
+  "models": [
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "homeAddress",
+          "objectName": "ExtAddress",
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "workAddress",
+          "objectName": "ExtDetailedAddress",
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "previousAddresses",
+          "objectName": "ExtGeoAddress",
+          "type": "object"
+        }
+      ],
+      "name": "ExtAddressUser"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "pickThenOmit",
+          "objectName": "ExtChainPickedThenOmitted",
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "omitThenPick",
+          "objectName": "ExtChainOmittedThenPicked",
+          "type": "object"
+        }
+      ],
+      "name": "ExtChainModel"
+    }
+  ],
+  "objects": [
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "street",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "city",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "zip",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": "US"
+            }
+          ],
+          "isOptional": false,
+          "name": "country",
+          "type": "string"
+        }
+      ],
+      "name": "ExtBaseAddress"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "street",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "city",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "zip",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": "US"
+            }
+          ],
+          "isOptional": false,
+          "name": "country",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "apartment",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "coordinates",
+          "type": "float"
+        }
+      ],
+      "name": "ExtAddress"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "city",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": "US"
+            }
+          ],
+          "isOptional": false,
+          "name": "country",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "district",
+          "type": "string"
+        }
+      ],
+      "name": "ExtCityAddress"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "street",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "city",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "zip",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "region",
+          "type": "string"
+        }
+      ],
+      "name": "ExtSimpleAddress"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "street",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "city",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "zip",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": "USA"
+            }
+          ],
+          "isOptional": false,
+          "name": "country",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "latitude",
+          "type": "float"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "longitude",
+          "type": "float"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "timezone",
+          "type": "string"
+        }
+      ],
+      "name": "ExtDetailedAddress"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "city",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": "US"
+            }
+          ],
+          "isOptional": false,
+          "name": "country",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "street",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "zip",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "publicCity",
+          "type": "string"
+        }
+      ],
+      "name": "ExtPrivateAddress"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "street",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "city",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "zip",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": "US"
+            }
+          ],
+          "isOptional": false,
+          "name": "country",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "apartment",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "coordinates",
+          "type": "float"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "elevation",
+          "type": "float"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": "UTC"
+            }
+          ],
+          "isOptional": false,
+          "name": "timezone",
+          "type": "string"
+        }
+      ],
+      "name": "ExtGeoAddress"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "street",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "city",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "zip",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": "US"
+            }
+          ],
+          "isOptional": false,
+          "name": "country",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": false
+            }
+          ],
+          "isOptional": false,
+          "name": "verified",
+          "type": "bool"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "verifiedAt",
+          "type": "date"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "tags",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "rating",
+          "type": "int"
+        }
+      ],
+      "name": "ExtMetaAddress"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "a",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "b",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "c",
+          "type": "string"
+        }
+      ],
+      "name": "ExtChainBase"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "a",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "b",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "p",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "q",
+          "type": "string"
+        }
+      ],
+      "name": "ExtChainPicked"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "a",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "b",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "q",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "r",
+          "type": "string"
+        }
+      ],
+      "name": "ExtChainPickedThenOmitted"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "a",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "b",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "p",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "q",
+          "type": "string"
+        }
+      ],
+      "name": "ExtChainOmitted"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "q",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "r",
+          "type": "string"
+        }
+      ],
+      "name": "ExtChainOmittedThenPicked"
+    }
+  ]
+}

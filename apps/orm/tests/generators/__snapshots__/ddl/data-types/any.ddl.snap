@@ -1,0 +1,27 @@
+-- AnyBasic
+DEFINE TABLE OVERWRITE any_basic SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE any_basic TYPE string;
+DEFINE FIELD OVERWRITE data ON TABLE any_basic TYPE any;
+DEFINE FIELD OVERWRITE items ON TABLE any_basic TYPE any;
+
+-- AnyDecorated
+DEFINE TABLE OVERWRITE any_decorated SCHEMAFULL;
+DEFINE FIELD OVERWRITE defData ON TABLE any_decorated TYPE any DEFAULT 'hello';
+DEFINE FIELD OVERWRITE alwaysData ON TABLE any_decorated TYPE any DEFAULT ALWAYS 42;
+DEFINE FIELD OVERWRITE readonlyData ON TABLE any_decorated TYPE any READONLY;
+DEFINE FIELD OVERWRITE indexedData ON TABLE any_decorated TYPE any;
+DEFINE FIELD OVERWRITE sortedItems ON TABLE any_decorated TYPE any VALUE IF $value THEN $value.sort(true) ELSE [] END;
+DEFINE FIELD OVERWRITE distinctItems ON TABLE any_decorated TYPE any VALUE IF $value THEN $value.distinct() ELSE [] END;
+DEFINE INDEX OVERWRITE any_decorated_indexedData_index ON TABLE any_decorated COLUMNS indexedData;
+
+-- AnyUnique
+DEFINE TABLE OVERWRITE any_unique SCHEMAFULL;
+DEFINE FIELD OVERWRITE uniqueData ON TABLE any_unique TYPE any;
+DEFINE INDEX OVERWRITE any_unique_uniqueData_unique ON TABLE any_unique COLUMNS uniqueData UNIQUE;
+
+-- AnyWithObject
+DEFINE TABLE OVERWRITE any_with_object SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE any_with_object TYPE string;
+DEFINE FIELD OVERWRITE meta ON TABLE any_with_object TYPE object;
+DEFINE FIELD OVERWRITE meta.data ON TABLE any_with_object TYPE any;
+DEFINE FIELD OVERWRITE meta.label ON TABLE any_with_object TYPE string;

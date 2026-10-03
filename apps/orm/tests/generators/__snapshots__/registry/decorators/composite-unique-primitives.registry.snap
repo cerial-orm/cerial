@@ -1,0 +1,76 @@
+{
+  "models": {
+    "Staff": {
+      "compositeDirectives": [
+        {
+          "fields": [
+            "firstName",
+            "lastName"
+          ],
+          "kind": "unique",
+          "name": "staffFullName"
+        },
+        {
+          "fields": [
+            "department",
+            "firstName"
+          ],
+          "kind": "index",
+          "name": "staffDeptName"
+        }
+      ],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "firstName",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "lastName",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "department",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": true,
+          "name": "email",
+          "type": "email"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "age",
+          "type": "int"
+        }
+      ],
+      "name": "Staff",
+      "tableName": "staff"
+    }
+  }
+}

@@ -1,0 +1,19 @@
+-- ReadonlyRecord
+DEFINE TABLE OVERWRITE readonly_record SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE readonly_record TYPE string;
+DEFINE FIELD OVERWRITE authorId ON TABLE readonly_record TYPE option<record<readonly_test>> READONLY;
+
+-- ReadonlyTest
+DEFINE TABLE OVERWRITE readonly_test SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE readonly_test TYPE string;
+DEFINE FIELD OVERWRITE code ON TABLE readonly_test TYPE string READONLY;
+DEFINE FIELD OVERWRITE score ON TABLE readonly_test TYPE option<int> READONLY;
+DEFINE FIELD OVERWRITE tags ON TABLE readonly_test TYPE array<string>;
+DEFINE FIELD OVERWRITE createdBy ON TABLE readonly_test TYPE string DEFAULT 'system' READONLY;
+DEFINE FIELD OVERWRITE address ON TABLE readonly_test TYPE object;
+DEFINE FIELD OVERWRITE address.street ON TABLE readonly_test TYPE string;
+DEFINE FIELD OVERWRITE address.city ON TABLE readonly_test TYPE string READONLY;
+DEFINE FIELD OVERWRITE address.zip ON TABLE readonly_test TYPE option<string>;
+DEFINE FIELD OVERWRITE meta ON TABLE readonly_test TYPE option<object>;
+DEFINE FIELD OVERWRITE meta.label ON TABLE readonly_test TYPE string READONLY;
+DEFINE FIELD OVERWRITE meta.value ON TABLE readonly_test TYPE int;

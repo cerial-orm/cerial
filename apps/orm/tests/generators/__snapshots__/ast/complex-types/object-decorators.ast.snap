@@ -1,0 +1,134 @@
+{
+  "models": [
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "contact",
+          "objectName": "ContactInfo",
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "location",
+          "objectName": "LocationInfo",
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "altLocation",
+          "objectName": "LocationInfo",
+          "type": "object"
+        }
+      ],
+      "name": "ObjDecUser"
+    }
+  ],
+  "objects": [
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "email",
+          "type": "email"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "phone",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": "Unknown"
+            }
+          ],
+          "isOptional": false,
+          "name": "city",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "createdAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "createdAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "distinct"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "tags",
+          "type": "string"
+        }
+      ],
+      "name": "ContactInfo"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "address",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "unique"
+            }
+          ],
+          "isOptional": false,
+          "name": "zip",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "index"
+            }
+          ],
+          "isOptional": false,
+          "name": "country",
+          "type": "string"
+        }
+      ],
+      "name": "LocationInfo"
+    }
+  ]
+}

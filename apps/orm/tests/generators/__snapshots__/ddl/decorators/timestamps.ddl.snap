@@ -1,0 +1,10 @@
+-- TimestampTest
+DEFINE TABLE OVERWRITE timestamp_test SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE timestamp_test TYPE string;
+DEFINE FIELD OVERWRITE createdAt ON TABLE timestamp_test TYPE option<datetime> DEFAULT time::now();
+DEFINE FIELD OVERWRITE updatedAt ON TABLE timestamp_test TYPE option<datetime> DEFAULT ALWAYS time::now();
+DEFINE FIELD OVERWRITE accessedAt ON TABLE timestamp_test TYPE datetime COMPUTED time::now();
+DEFINE FIELD OVERWRITE meta ON TABLE timestamp_test TYPE option<object>;
+DEFINE FIELD OVERWRITE meta.label ON TABLE timestamp_test TYPE string;
+DEFINE FIELD OVERWRITE meta.createdAt ON TABLE timestamp_test TYPE option<datetime> DEFAULT time::now();
+DEFINE FIELD OVERWRITE meta.updatedAt ON TABLE timestamp_test TYPE option<datetime> DEFAULT ALWAYS time::now();

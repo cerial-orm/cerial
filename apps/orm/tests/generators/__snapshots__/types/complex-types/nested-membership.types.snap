@@ -1,0 +1,1192 @@
+// ===== models/nmobjectdoc.ts =====
+/**
+ * Generated types for NmObjectDoc
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { NmLeaf, NmLeafInput, NmLeafWhere, NmLeafSelect, NmLeafOrderBy } from '../objects/nmleaf';
+import type { NmMid, NmMidInput, NmMidWhere, NmMidSelect, NmMidOrderBy } from '../objects/nmmid';
+import type { NmTop, NmTopInput, NmTopWhere, NmTopSelect, NmTopOrderBy } from '../objects/nmtop';
+export interface NmObjectDoc {
+  id: CerialId<string>;
+  name: string;
+  leaf?: NmLeaf;
+  mid?: NmMid;
+  top?: NmTop;
+  leaves: NmLeaf[];
+  tops: NmTop[];
+}
+
+export interface NmObjectDocInput {
+  id?: string;
+  name: string;
+  leaf?: NmLeafInput;
+  mid?: NmMidInput;
+  top?: NmTopInput;
+  leaves: NmLeafInput[];
+  tops: NmTopInput[];
+}
+
+export interface NmObjectDocWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  leaf?: NmLeafWhere;
+  mid?: NmMidWhere;
+  top?: NmTopWhere;
+  leaves?: { some?: NmLeafWhere; every?: NmLeafWhere; none?: NmLeafWhere };
+  tops?: { some?: NmTopWhere; every?: NmTopWhere; none?: NmTopWhere };
+  AND?: NmObjectDocWhere[];
+  OR?: NmObjectDocWhere[];
+  NOT?: NmObjectDocWhere;
+}
+
+export type NmObjectDocWhereInput = NmObjectDocWhere;
+
+export type NmObjectDocFindUniqueWhere = { id: RecordIdInput<string> } & Omit<NmObjectDocWhere, 'id'>;
+
+export type NmObjectDocCreate = O.Optional<NmObjectDocInput, 'id' | 'leaf' | 'mid' | 'top' | 'leaves' | 'tops'>;
+
+export type NmObjectDocNestedCreate = O.Optional<NmObjectDocInput, 'id' | 'leaf' | 'mid' | 'top' | 'leaves' | 'tops'>;
+
+export type NmObjectDocCreateInput = NmObjectDocCreate;
+
+export type NmObjectDocUpdate = Partial<O.Omit<NmObjectDocInput, 'id' | 'leaf' | 'mid' | 'top' | 'leaves' | 'tops'>> & {
+  leaf?: Partial<NmLeafInput> | { set: NmLeafInput } | CerialNone;
+  mid?: Partial<NmMidInput> | { set: NmMidInput } | CerialNone;
+  top?: Partial<NmTopInput> | { set: NmTopInput } | CerialNone;
+  leaves?:
+    | NmLeafInput[]
+    | {
+        push?: NmLeafInput | NmLeafInput[];
+        set?: NmLeafInput[];
+        updateWhere?: {
+          where: NmLeafWhere;
+          data: Partial<NmLeafInput>;
+        };
+        unset?: { where: NmLeafWhere };
+      };
+  tops?:
+    | NmTopInput[]
+    | {
+        push?: NmTopInput | NmTopInput[];
+        set?: NmTopInput[];
+        updateWhere?: {
+          where: NmTopWhere;
+          data: Partial<NmTopInput>;
+        };
+        unset?: { where: NmTopWhere };
+      };
+};
+
+export type NmObjectDocUpdateInput = NmObjectDocUpdate;
+
+export type NmObjectDocUnset = {
+  leaf?:
+    | true
+    | {
+        code?: true;
+      };
+  mid?:
+    | true
+    | {
+        leaf?: {
+          code?: true;
+        };
+      };
+  top?:
+    | true
+    | {
+        mid?: {
+          leaf?: {
+            code?: true;
+          };
+        };
+      };
+};
+
+export type NmObjectDocSelect =
+  | ({ id: boolean } & {
+      name?: boolean;
+      leaf?: boolean | NmLeafSelect;
+      mid?: boolean | NmMidSelect;
+      top?: boolean | NmTopSelect;
+      leaves?: boolean | NmLeafSelect;
+      tops?: boolean | NmTopSelect;
+    })
+  | ({ name: boolean } & {
+      id?: boolean;
+      leaf?: boolean | NmLeafSelect;
+      mid?: boolean | NmMidSelect;
+      top?: boolean | NmTopSelect;
+      leaves?: boolean | NmLeafSelect;
+      tops?: boolean | NmTopSelect;
+    })
+  | ({ leaf: boolean | NmLeafSelect } & {
+      id?: boolean;
+      name?: boolean;
+      mid?: boolean | NmMidSelect;
+      top?: boolean | NmTopSelect;
+      leaves?: boolean | NmLeafSelect;
+      tops?: boolean | NmTopSelect;
+    })
+  | ({ mid: boolean | NmMidSelect } & {
+      id?: boolean;
+      name?: boolean;
+      leaf?: boolean | NmLeafSelect;
+      top?: boolean | NmTopSelect;
+      leaves?: boolean | NmLeafSelect;
+      tops?: boolean | NmTopSelect;
+    })
+  | ({ top: boolean | NmTopSelect } & {
+      id?: boolean;
+      name?: boolean;
+      leaf?: boolean | NmLeafSelect;
+      mid?: boolean | NmMidSelect;
+      leaves?: boolean | NmLeafSelect;
+      tops?: boolean | NmTopSelect;
+    })
+  | ({ leaves: boolean | NmLeafSelect } & {
+      id?: boolean;
+      name?: boolean;
+      leaf?: boolean | NmLeafSelect;
+      mid?: boolean | NmMidSelect;
+      top?: boolean | NmTopSelect;
+      tops?: boolean | NmTopSelect;
+    })
+  | ({ tops: boolean | NmTopSelect } & {
+      id?: boolean;
+      name?: boolean;
+      leaf?: boolean | NmLeafSelect;
+      mid?: boolean | NmMidSelect;
+      top?: boolean | NmTopSelect;
+      leaves?: boolean | NmLeafSelect;
+    });
+
+export interface NmObjectDocOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  leaf?: NmLeafOrderBy;
+  mid?: NmMidOrderBy;
+  top?: NmTopOrderBy;
+  leaves?: NmLeafOrderBy;
+  tops?: NmTopOrderBy;
+}
+
+export type NmObjectDoc$Relations = {};
+
+export type GetNmObjectDocPayload<S extends NmObjectDocSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends NmObjectDocSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof NmObjectDoc
+          ? ResolveFieldSelect<NmObjectDoc[K], S[K]>
+          : never;
+      }
+    : NmObjectDoc,
+  'flat'
+>;
+
+export interface NmObjectDocModel {
+  findOne<S extends NmObjectDocSelect | undefined = undefined>(options?: {
+    where?: NmObjectDocWhere;
+    select?: S;
+    orderBy?: NmObjectDocOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNmObjectDocPayload<S> | null>;
+
+  findMany<S extends NmObjectDocSelect | undefined = undefined>(options?: {
+    where?: NmObjectDocWhere;
+    select?: S;
+    orderBy?: NmObjectDocOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNmObjectDocPayload<S>[]>;
+
+  findUnique<S extends NmObjectDocSelect | undefined = undefined>(options: {
+    where: NmObjectDocFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNmObjectDocPayload<S> | null>;
+
+  create<S extends NmObjectDocSelect | undefined = undefined>(options: {
+    data: NmObjectDocCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNmObjectDocPayload<S>>;
+
+  updateMany<
+    S extends NmObjectDocSelect | undefined = undefined,
+    D extends NmObjectDocUpdateInput = NmObjectDocUpdateInput,
+  >(options: {
+    where: NmObjectDocWhere;
+    data: D;
+    unset?: SafeUnset<NmObjectDocUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNmObjectDocPayload<S>[]>;
+
+  updateUnique<
+    S extends NmObjectDocSelect | undefined = undefined,
+    D extends NmObjectDocUpdateInput = NmObjectDocUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: NmObjectDocFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<NmObjectDocUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns NmObjectDoc | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetNmObjectDocPayload<S>, R>>;
+
+  upsert<
+    S extends NmObjectDocSelect | undefined = undefined,
+    D extends NmObjectDocUpdateInput = NmObjectDocUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: NmObjectDocFindUniqueWhere;
+    create: NmObjectDocCreateInput;
+    update?: D;
+    unset?: SafeUnset<NmObjectDocUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetNmObjectDocPayload<S>, R>>;
+
+  upsert<
+    S extends NmObjectDocSelect | undefined = undefined,
+    D extends NmObjectDocUpdateInput = NmObjectDocUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: NmObjectDocWhere;
+    create: NmObjectDocCreateInput;
+    update?: D;
+    unset?: SafeUnset<NmObjectDocUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetNmObjectDocPayload<S>, R>>;
+
+  deleteMany(options: { where: NmObjectDocWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: NmObjectDocFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns NmObjectDoc | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<NmObjectDoc, R>>;
+
+  count(where?: NmObjectDocWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: NmObjectDocWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/nmtupledoc.ts =====
+/**
+ * Generated types for NmTupleDoc
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  NmHoldsTuple,
+  NmHoldsTupleInput,
+  NmHoldsTupleWhere,
+  NmHoldsTupleSelect,
+  NmHoldsTupleOrderBy,
+} from '../objects/nmholdstuple';
+import type {
+  NmHoldsHolder,
+  NmHoldsHolderInput,
+  NmHoldsHolderWhere,
+  NmHoldsHolderSelect,
+  NmHoldsHolderOrderBy,
+} from '../objects/nmholdsholder';
+import type { NmLeaf, NmLeafInput, NmLeafWhere, NmLeafSelect, NmLeafOrderBy } from '../objects/nmleaf';
+import type {
+  NmWithLeaf,
+  NmWithLeafInput,
+  NmWithLeafWhere,
+  NmWithLeafUpdate,
+  NmWithLeafSelect,
+  NmWithLeafUnset,
+} from '../tuples/nmwithleaf';
+import type {
+  NmNamedLeaf,
+  NmNamedLeafInput,
+  NmNamedLeafWhere,
+  NmNamedLeafUpdate,
+  NmNamedLeafSelect,
+  NmNamedLeafUnset,
+} from '../tuples/nmnamedleaf';
+import type {
+  NmOuter,
+  NmOuterInput,
+  NmOuterWhere,
+  NmOuterUpdate,
+  NmOuterSelect,
+  NmOuterUnset,
+} from '../tuples/nmouter';
+export interface NmTupleDoc {
+  id: CerialId<string>;
+  name: string;
+  withLeaf?: NmWithLeaf;
+  named?: NmNamedLeaf;
+  outer?: NmOuter;
+  holds?: NmHoldsTuple;
+  deepHolds?: NmHoldsHolder;
+  withLeaves: NmWithLeaf[];
+  nameds: NmNamedLeaf[];
+}
+
+export interface NmTupleDocInput {
+  id?: string;
+  name: string;
+  withLeaf?: NmWithLeafInput;
+  named?: NmNamedLeafInput;
+  outer?: NmOuterInput;
+  holds?: NmHoldsTupleInput;
+  deepHolds?: NmHoldsHolderInput;
+  withLeaves: NmWithLeafInput[];
+  nameds: NmNamedLeafInput[];
+}
+
+export interface NmTupleDocWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  withLeaf?: NmWithLeafWhere;
+  named?: NmNamedLeafWhere;
+  outer?: NmOuterWhere;
+  holds?: NmHoldsTupleWhere;
+  deepHolds?: NmHoldsHolderWhere;
+  withLeaves?: { some?: NmWithLeafWhere; every?: NmWithLeafWhere; none?: NmWithLeafWhere };
+  nameds?: { some?: NmNamedLeafWhere; every?: NmNamedLeafWhere; none?: NmNamedLeafWhere };
+  AND?: NmTupleDocWhere[];
+  OR?: NmTupleDocWhere[];
+  NOT?: NmTupleDocWhere;
+}
+
+export type NmTupleDocWhereInput = NmTupleDocWhere;
+
+export type NmTupleDocFindUniqueWhere = { id: RecordIdInput<string> } & Omit<NmTupleDocWhere, 'id'>;
+
+export type NmTupleDocCreate = O.Optional<
+  NmTupleDocInput,
+  'id' | 'withLeaf' | 'named' | 'outer' | 'holds' | 'deepHolds' | 'withLeaves' | 'nameds'
+>;
+
+export type NmTupleDocNestedCreate = O.Optional<
+  NmTupleDocInput,
+  'id' | 'withLeaf' | 'named' | 'outer' | 'holds' | 'deepHolds' | 'withLeaves' | 'nameds'
+>;
+
+export type NmTupleDocCreateInput = NmTupleDocCreate;
+
+export type NmTupleDocUpdate = Partial<
+  O.Omit<NmTupleDocInput, 'id' | 'holds' | 'deepHolds' | 'withLeaf' | 'named' | 'outer' | 'withLeaves' | 'nameds'>
+> & {
+  holds?: Partial<NmHoldsTupleInput> | { set: NmHoldsTupleInput } | CerialNone;
+  deepHolds?: Partial<NmHoldsHolderInput> | { set: NmHoldsHolderInput } | CerialNone;
+  withLeaf?: [string, NmLeafInput] | NmWithLeafUpdate | CerialNone;
+  named?: [string, NmLeafInput] | NmNamedLeafUpdate | CerialNone;
+  outer?: [NmWithLeafInput, number] | NmOuterUpdate | CerialNone;
+  withLeaves?:
+    | NmWithLeafInput[]
+    | {
+        push?: NmWithLeafInput | NmWithLeafInput[];
+        set?: NmWithLeafInput[];
+      };
+  nameds?:
+    | NmNamedLeafInput[]
+    | {
+        push?: NmNamedLeafInput | NmNamedLeafInput[];
+        set?: NmNamedLeafInput[];
+      };
+};
+
+export type NmTupleDocUpdateInput = NmTupleDocUpdate;
+
+export type NmTupleDocUnset = {
+  withLeaf?: true | NmWithLeafUnset;
+  named?: true | NmNamedLeafUnset;
+  outer?: true | NmOuterUnset;
+  holds?:
+    | true
+    | {
+        entry?: NmWithLeafUnset;
+      };
+  deepHolds?:
+    | true
+    | {
+        holder?: {
+          entry?: NmWithLeafUnset;
+        };
+      };
+};
+
+export type NmTupleDocSelect =
+  | ({ id: boolean } & {
+      name?: boolean;
+      withLeaf?: boolean | NmWithLeafSelect;
+      named?: boolean | NmNamedLeafSelect;
+      outer?: boolean | NmOuterSelect;
+      holds?: boolean | NmHoldsTupleSelect;
+      deepHolds?: boolean | NmHoldsHolderSelect;
+      withLeaves?: boolean | NmWithLeafSelect;
+      nameds?: boolean | NmNamedLeafSelect;
+    })
+  | ({ name: boolean } & {
+      id?: boolean;
+      withLeaf?: boolean | NmWithLeafSelect;
+      named?: boolean | NmNamedLeafSelect;
+      outer?: boolean | NmOuterSelect;
+      holds?: boolean | NmHoldsTupleSelect;
+      deepHolds?: boolean | NmHoldsHolderSelect;
+      withLeaves?: boolean | NmWithLeafSelect;
+      nameds?: boolean | NmNamedLeafSelect;
+    })
+  | ({ withLeaf: boolean | NmWithLeafSelect } & {
+      id?: boolean;
+      name?: boolean;
+      named?: boolean | NmNamedLeafSelect;
+      outer?: boolean | NmOuterSelect;
+      holds?: boolean | NmHoldsTupleSelect;
+      deepHolds?: boolean | NmHoldsHolderSelect;
+      withLeaves?: boolean | NmWithLeafSelect;
+      nameds?: boolean | NmNamedLeafSelect;
+    })
+  | ({ named: boolean | NmNamedLeafSelect } & {
+      id?: boolean;
+      name?: boolean;
+      withLeaf?: boolean | NmWithLeafSelect;
+      outer?: boolean | NmOuterSelect;
+      holds?: boolean | NmHoldsTupleSelect;
+      deepHolds?: boolean | NmHoldsHolderSelect;
+      withLeaves?: boolean | NmWithLeafSelect;
+      nameds?: boolean | NmNamedLeafSelect;
+    })
+  | ({ outer: boolean | NmOuterSelect } & {
+      id?: boolean;
+      name?: boolean;
+      withLeaf?: boolean | NmWithLeafSelect;
+      named?: boolean | NmNamedLeafSelect;
+      holds?: boolean | NmHoldsTupleSelect;
+      deepHolds?: boolean | NmHoldsHolderSelect;
+      withLeaves?: boolean | NmWithLeafSelect;
+      nameds?: boolean | NmNamedLeafSelect;
+    })
+  | ({ holds: boolean | NmHoldsTupleSelect } & {
+      id?: boolean;
+      name?: boolean;
+      withLeaf?: boolean | NmWithLeafSelect;
+      named?: boolean | NmNamedLeafSelect;
+      outer?: boolean | NmOuterSelect;
+      deepHolds?: boolean | NmHoldsHolderSelect;
+      withLeaves?: boolean | NmWithLeafSelect;
+      nameds?: boolean | NmNamedLeafSelect;
+    })
+  | ({ deepHolds: boolean | NmHoldsHolderSelect } & {
+      id?: boolean;
+      name?: boolean;
+      withLeaf?: boolean | NmWithLeafSelect;
+      named?: boolean | NmNamedLeafSelect;
+      outer?: boolean | NmOuterSelect;
+      holds?: boolean | NmHoldsTupleSelect;
+      withLeaves?: boolean | NmWithLeafSelect;
+      nameds?: boolean | NmNamedLeafSelect;
+    })
+  | ({ withLeaves: boolean | NmWithLeafSelect } & {
+      id?: boolean;
+      name?: boolean;
+      withLeaf?: boolean | NmWithLeafSelect;
+      named?: boolean | NmNamedLeafSelect;
+      outer?: boolean | NmOuterSelect;
+      holds?: boolean | NmHoldsTupleSelect;
+      deepHolds?: boolean | NmHoldsHolderSelect;
+      nameds?: boolean | NmNamedLeafSelect;
+    })
+  | ({ nameds: boolean | NmNamedLeafSelect } & {
+      id?: boolean;
+      name?: boolean;
+      withLeaf?: boolean | NmWithLeafSelect;
+      named?: boolean | NmNamedLeafSelect;
+      outer?: boolean | NmOuterSelect;
+      holds?: boolean | NmHoldsTupleSelect;
+      deepHolds?: boolean | NmHoldsHolderSelect;
+      withLeaves?: boolean | NmWithLeafSelect;
+    });
+
+export interface NmTupleDocOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  holds?: NmHoldsTupleOrderBy;
+  deepHolds?: NmHoldsHolderOrderBy;
+}
+
+export type NmTupleDoc$Relations = {};
+
+export type GetNmTupleDocPayload<S extends NmTupleDocSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends NmTupleDocSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof NmTupleDoc
+          ? ResolveFieldSelect<NmTupleDoc[K], S[K]>
+          : never;
+      }
+    : NmTupleDoc,
+  'flat'
+>;
+
+export interface NmTupleDocModel {
+  findOne<S extends NmTupleDocSelect | undefined = undefined>(options?: {
+    where?: NmTupleDocWhere;
+    select?: S;
+    orderBy?: NmTupleDocOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNmTupleDocPayload<S> | null>;
+
+  findMany<S extends NmTupleDocSelect | undefined = undefined>(options?: {
+    where?: NmTupleDocWhere;
+    select?: S;
+    orderBy?: NmTupleDocOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNmTupleDocPayload<S>[]>;
+
+  findUnique<S extends NmTupleDocSelect | undefined = undefined>(options: {
+    where: NmTupleDocFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNmTupleDocPayload<S> | null>;
+
+  create<S extends NmTupleDocSelect | undefined = undefined>(options: {
+    data: NmTupleDocCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNmTupleDocPayload<S>>;
+
+  updateMany<
+    S extends NmTupleDocSelect | undefined = undefined,
+    D extends NmTupleDocUpdateInput = NmTupleDocUpdateInput,
+  >(options: {
+    where: NmTupleDocWhere;
+    data: D;
+    unset?: SafeUnset<NmTupleDocUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNmTupleDocPayload<S>[]>;
+
+  updateUnique<
+    S extends NmTupleDocSelect | undefined = undefined,
+    D extends NmTupleDocUpdateInput = NmTupleDocUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: NmTupleDocFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<NmTupleDocUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns NmTupleDoc | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetNmTupleDocPayload<S>, R>>;
+
+  upsert<
+    S extends NmTupleDocSelect | undefined = undefined,
+    D extends NmTupleDocUpdateInput = NmTupleDocUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: NmTupleDocFindUniqueWhere;
+    create: NmTupleDocCreateInput;
+    update?: D;
+    unset?: SafeUnset<NmTupleDocUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetNmTupleDocPayload<S>, R>>;
+
+  upsert<
+    S extends NmTupleDocSelect | undefined = undefined,
+    D extends NmTupleDocUpdateInput = NmTupleDocUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: NmTupleDocWhere;
+    create: NmTupleDocCreateInput;
+    update?: D;
+    unset?: SafeUnset<NmTupleDocUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetNmTupleDocPayload<S>, R>>;
+
+  deleteMany(options: { where: NmTupleDocWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: NmTupleDocFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns NmTupleDoc | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<NmTupleDoc, R>>;
+
+  count(where?: NmTupleDocWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: NmTupleDocWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== objects/nmholdsholder.ts =====
+/**
+ * Generated types for NmHoldsHolder
+ * Do not edit manually
+ */
+
+import type {
+  NmHoldsTuple,
+  NmHoldsTupleInput,
+  NmHoldsTupleWhere,
+  NmHoldsTupleSelect,
+  NmHoldsTupleOrderBy,
+} from './nmholdstuple';
+export interface NmHoldsHolder {
+  holder: NmHoldsTuple;
+}
+
+export interface NmHoldsHolderInput {
+  holder: NmHoldsTupleInput;
+}
+
+export interface NmHoldsHolderWhere {
+  holder?: NmHoldsTupleWhere;
+  AND?: NmHoldsHolderWhere[];
+  OR?: NmHoldsHolderWhere[];
+  NOT?: NmHoldsHolderWhere;
+}
+
+export type NmHoldsHolderSelect = { holder: boolean | NmHoldsTupleSelect };
+
+export interface NmHoldsHolderOrderBy {
+  holder?: NmHoldsTupleOrderBy;
+}
+
+// ===== objects/nmholdstuple.ts =====
+/**
+ * Generated types for NmHoldsTuple
+ * Do not edit manually
+ */
+
+import type {
+  NmWithLeaf,
+  NmWithLeafInput,
+  NmWithLeafWhere,
+  NmWithLeafUpdate,
+  NmWithLeafSelect,
+  NmWithLeafUnset,
+} from '../tuples/nmwithleaf';
+export interface NmHoldsTuple {
+  entry: NmWithLeaf;
+}
+
+export interface NmHoldsTupleInput {
+  entry: NmWithLeafInput;
+}
+
+export interface NmHoldsTupleWhere {
+  entry?: NmWithLeafWhere;
+  AND?: NmHoldsTupleWhere[];
+  OR?: NmHoldsTupleWhere[];
+  NOT?: NmHoldsTupleWhere;
+}
+
+export type NmHoldsTupleSelect = { entry: boolean | NmWithLeafSelect };
+
+export interface NmHoldsTupleOrderBy {}
+
+// ===== objects/nmleaf.ts =====
+/**
+ * Generated types for NmLeaf
+ * Do not edit manually
+ */
+
+import type { NmCode, NmCodeWhere } from '../literals/nmcode';
+import { NmGradeEnum } from '../enums/nmgrade';
+import type { NmGradeEnumType, NmGradeEnumWhere } from '../enums/nmgrade';
+export interface NmLeaf {
+  grade: NmGradeEnumType;
+  code?: NmCode;
+}
+
+export interface NmLeafInput {
+  grade: NmGradeEnumType;
+  code?: NmCode;
+}
+
+export interface NmLeafWhere {
+  grade?: NmGradeEnumType | NmGradeEnumWhere;
+  code?: NmCode | NmCodeWhere;
+  AND?: NmLeafWhere[];
+  OR?: NmLeafWhere[];
+  NOT?: NmLeafWhere;
+}
+
+export type NmLeafSelect =
+  | ({ grade: boolean } & Partial<Record<'code', boolean>>)
+  | ({ code: boolean } & Partial<Record<'grade', boolean>>);
+
+export interface NmLeafOrderBy {
+  grade?: 'asc' | 'desc';
+}
+
+// ===== objects/nmmid.ts =====
+/**
+ * Generated types for NmMid
+ * Do not edit manually
+ */
+
+import type { NmLeaf, NmLeafInput, NmLeafWhere, NmLeafSelect, NmLeafOrderBy } from './nmleaf';
+export interface NmMid {
+  label: string;
+  leaf: NmLeaf;
+}
+
+export interface NmMidInput {
+  label: string;
+  leaf: NmLeafInput;
+}
+
+export interface NmMidWhere {
+  label?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  leaf?: NmLeafWhere;
+  AND?: NmMidWhere[];
+  OR?: NmMidWhere[];
+  NOT?: NmMidWhere;
+}
+
+export type NmMidSelect =
+  | ({ label: boolean } & { leaf?: boolean | NmLeafSelect })
+  | ({ leaf: boolean | NmLeafSelect } & Partial<Record<'label', boolean>>);
+
+export interface NmMidOrderBy {
+  label?: 'asc' | 'desc';
+  leaf?: NmLeafOrderBy;
+}
+
+// ===== objects/nmtop.ts =====
+/**
+ * Generated types for NmTop
+ * Do not edit manually
+ */
+
+import type { NmMid, NmMidInput, NmMidWhere, NmMidSelect, NmMidOrderBy } from './nmmid';
+export interface NmTop {
+  title: string;
+  mid: NmMid;
+}
+
+export interface NmTopInput {
+  title: string;
+  mid: NmMidInput;
+}
+
+export interface NmTopWhere {
+  title?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  mid?: NmMidWhere;
+  AND?: NmTopWhere[];
+  OR?: NmTopWhere[];
+  NOT?: NmTopWhere;
+}
+
+export type NmTopSelect =
+  | ({ title: boolean } & { mid?: boolean | NmMidSelect })
+  | ({ mid: boolean | NmMidSelect } & Partial<Record<'title', boolean>>);
+
+export interface NmTopOrderBy {
+  title?: 'asc' | 'desc';
+  mid?: NmMidOrderBy;
+}
+
+// ===== tuples/nmnamedleaf.ts =====
+/**
+ * Generated types for NmNamedLeaf
+ * Do not edit manually
+ */
+
+import type { NmLeaf, NmLeafInput, NmLeafWhere, NmLeafSelect, NmLeafOrderBy } from '../objects/nmleaf';
+export type NmNamedLeaf = [string, NmLeaf];
+
+export type NmNamedLeafInput =
+  | [string, NmLeafInput]
+  | {
+      0?: string;
+      tag?: string;
+      1?: NmLeafInput;
+      leaf?: NmLeafInput;
+    };
+
+export interface NmNamedLeafWhere {
+  0?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  tag?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  1?: NmLeafWhere;
+  leaf?: NmLeafWhere;
+}
+
+export type NmNamedLeafUpdate = {
+  0?: string;
+  tag?: string;
+  1?: Partial<NmLeafInput> | { set: NmLeafInput };
+  leaf?: Partial<NmLeafInput> | { set: NmLeafInput };
+};
+
+export type NmNamedLeafSelect = {
+  1?: boolean | NmLeafSelect;
+  leaf?: boolean | NmLeafSelect;
+};
+
+export type NmNamedLeafUnset = {
+  1?: {
+    code?: true;
+  };
+  leaf?: {
+    code?: true;
+  };
+};
+
+// ===== tuples/nmouter.ts =====
+/**
+ * Generated types for NmOuter
+ * Do not edit manually
+ */
+
+import type { NmLeaf, NmLeafInput, NmLeafWhere, NmLeafSelect, NmLeafOrderBy } from '../objects/nmleaf';
+import type {
+  NmWithLeaf,
+  NmWithLeafInput,
+  NmWithLeafWhere,
+  NmWithLeafUpdate,
+  NmWithLeafSelect,
+  NmWithLeafUnset,
+} from './nmwithleaf';
+export type NmOuter = [NmWithLeaf, number];
+
+export type NmOuterInput =
+  | [NmWithLeafInput, number]
+  | {
+      0?: NmWithLeafInput;
+      1?: number;
+    };
+
+export interface NmOuterWhere {
+  0?: NmWithLeafWhere;
+  1?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+}
+
+export type NmOuterUpdate = {
+  0?: [string, NmLeafInput] | NmWithLeafUpdate;
+  1?: number;
+};
+
+export type NmOuterSelect = {
+  0?: boolean | NmWithLeafSelect;
+};
+
+export type NmOuterUnset = {
+  0?: NmWithLeafUnset;
+};
+
+// ===== tuples/nmwithleaf.ts =====
+/**
+ * Generated types for NmWithLeaf
+ * Do not edit manually
+ */
+
+import type { NmLeaf, NmLeafInput, NmLeafWhere, NmLeafSelect, NmLeafOrderBy } from '../objects/nmleaf';
+export type NmWithLeaf = [string, NmLeaf];
+
+export type NmWithLeafInput =
+  | [string, NmLeafInput]
+  | {
+      0?: string;
+      label?: string;
+      1?: NmLeafInput;
+    };
+
+export interface NmWithLeafWhere {
+  0?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  label?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  1?: NmLeafWhere;
+}
+
+export type NmWithLeafUpdate = {
+  0?: string;
+  label?: string;
+  1?: Partial<NmLeafInput> | { set: NmLeafInput };
+};
+
+export type NmWithLeafSelect = {
+  1?: boolean | NmLeafSelect;
+};
+
+export type NmWithLeafUnset = {
+  1?: {
+    code?: true;
+  };
+};
+
+// ===== literals/nmcode.ts =====
+/**
+ * Generated types for NmCode
+ * Do not edit manually
+ */
+
+export type NmCode = 'a1' | 'b2' | 7;
+
+export interface NmCodeWhere {
+  eq?: NmCode;
+  neq?: NmCode;
+  in?: NmCode[];
+  notIn?: NmCode[];
+}
+
+// ===== enums/nmgrade.ts =====
+/**
+ * Generated types for NmGrade enum
+ * Do not edit manually
+ */
+
+export const NmGradeEnum = {
+  LOW: 'LOW',
+  MID: 'MID',
+  HIGH: 'HIGH',
+} as const;
+
+export type NmGradeEnumType = (typeof NmGradeEnum)[keyof typeof NmGradeEnum];
+
+export interface NmGradeEnumWhere {
+  eq?: NmGradeEnumType;
+  neq?: NmGradeEnumType;
+  in?: NmGradeEnumType[];
+  notIn?: NmGradeEnumType[];
+  contains?: string;
+  startsWith?: string;
+  endsWith?: string;
+}

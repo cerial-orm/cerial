@@ -1,0 +1,67 @@
+-- ExtCrossAdmin
+DEFINE TABLE OVERWRITE ext_cross_admin SCHEMAFULL;
+DEFINE FIELD OVERWRITE createdAt ON TABLE ext_cross_admin TYPE option<datetime> DEFAULT time::now();
+DEFINE FIELD OVERWRITE updatedAt ON TABLE ext_cross_admin TYPE option<datetime> DEFAULT ALWAYS time::now();
+DEFINE FIELD OVERWRITE email ON TABLE ext_cross_admin TYPE string ASSERT string::is_email($value);
+DEFINE FIELD OVERWRITE name ON TABLE ext_cross_admin TYPE string;
+DEFINE FIELD OVERWRITE level ON TABLE ext_cross_admin TYPE int DEFAULT 1;
+DEFINE FIELD OVERWRITE permissions ON TABLE ext_cross_admin TYPE array<string>;
+DEFINE FIELD OVERWRITE department ON TABLE ext_cross_admin TYPE string;
+DEFINE FIELD OVERWRITE budget ON TABLE ext_cross_admin TYPE option<float>;
+DEFINE FIELD OVERWRITE teamSize ON TABLE ext_cross_admin TYPE option<int>;
+DEFINE INDEX OVERWRITE ext_cross_admin_email_unique ON TABLE ext_cross_admin COLUMNS email UNIQUE;
+
+-- ExtCrossModerator
+DEFINE TABLE OVERWRITE ext_cross_moderator SCHEMAFULL;
+DEFINE FIELD OVERWRITE createdAt ON TABLE ext_cross_moderator TYPE option<datetime> DEFAULT time::now();
+DEFINE FIELD OVERWRITE email ON TABLE ext_cross_moderator TYPE string ASSERT string::is_email($value);
+DEFINE FIELD OVERWRITE name ON TABLE ext_cross_moderator TYPE string;
+DEFINE FIELD OVERWRITE warningCount ON TABLE ext_cross_moderator TYPE int DEFAULT 0;
+DEFINE FIELD OVERWRITE lastWarning ON TABLE ext_cross_moderator TYPE option<datetime>;
+DEFINE INDEX OVERWRITE ext_cross_moderator_email_unique ON TABLE ext_cross_moderator COLUMNS email UNIQUE;
+
+-- ExtCrossPremium
+DEFINE TABLE OVERWRITE ext_cross_premium SCHEMAFULL;
+DEFINE FIELD OVERWRITE createdAt ON TABLE ext_cross_premium TYPE option<datetime> DEFAULT time::now();
+DEFINE FIELD OVERWRITE updatedAt ON TABLE ext_cross_premium TYPE option<datetime> DEFAULT ALWAYS time::now();
+DEFINE FIELD OVERWRITE email ON TABLE ext_cross_premium TYPE string ASSERT string::is_email($value);
+DEFINE FIELD OVERWRITE name ON TABLE ext_cross_premium TYPE string;
+DEFINE FIELD OVERWRITE isActive ON TABLE ext_cross_premium TYPE bool DEFAULT true;
+DEFINE FIELD OVERWRITE age ON TABLE ext_cross_premium TYPE option<int>;
+DEFINE FIELD OVERWRITE role ON TABLE ext_cross_premium TYPE string DEFAULT 'user';
+DEFINE FIELD OVERWRITE loyaltyPoints ON TABLE ext_cross_premium TYPE int DEFAULT 0;
+DEFINE FIELD OVERWRITE referralCode ON TABLE ext_cross_premium TYPE option<string>;
+DEFINE INDEX OVERWRITE ext_cross_premium_email_unique ON TABLE ext_cross_premium COLUMNS email UNIQUE;
+
+-- ExtCrossPrivate
+DEFINE TABLE OVERWRITE ext_cross_private SCHEMAFULL;
+DEFINE FIELD OVERWRITE createdAt ON TABLE ext_cross_private TYPE option<datetime> DEFAULT time::now();
+DEFINE FIELD OVERWRITE updatedAt ON TABLE ext_cross_private TYPE option<datetime> DEFAULT ALWAYS time::now();
+DEFINE FIELD OVERWRITE email ON TABLE ext_cross_private TYPE string ASSERT string::is_email($value);
+DEFINE FIELD OVERWRITE name ON TABLE ext_cross_private TYPE string;
+DEFINE FIELD OVERWRITE publicBio ON TABLE ext_cross_private TYPE string DEFAULT 'No bio';
+DEFINE INDEX OVERWRITE ext_cross_private_email_unique ON TABLE ext_cross_private COLUMNS email UNIQUE;
+
+-- ExtCrossProfile
+DEFINE TABLE OVERWRITE ext_cross_profile SCHEMAFULL;
+DEFINE FIELD OVERWRITE createdAt ON TABLE ext_cross_profile TYPE option<datetime> DEFAULT time::now();
+DEFINE FIELD OVERWRITE updatedAt ON TABLE ext_cross_profile TYPE option<datetime> DEFAULT ALWAYS time::now();
+DEFINE FIELD OVERWRITE userId ON TABLE ext_cross_profile TYPE record;
+DEFINE FIELD OVERWRITE bio ON TABLE ext_cross_profile TYPE option<string>;
+DEFINE FIELD OVERWRITE avatar ON TABLE ext_cross_profile TYPE option<string>;
+DEFINE FIELD OVERWRITE tags ON TABLE ext_cross_profile TYPE array<string>;
+DEFINE FIELD OVERWRITE metadata ON TABLE ext_cross_profile TYPE option<int>;
+DEFINE FIELD OVERWRITE owner ON TABLE ext_cross_profile TYPE record;
+DEFINE FIELD OVERWRITE followers ON TABLE ext_cross_profile TYPE array<record>;
+DEFINE FIELD OVERWRITE following ON TABLE ext_cross_profile TYPE array<record>;
+
+-- ExtCrossUser
+DEFINE TABLE OVERWRITE ext_cross_user SCHEMAFULL;
+DEFINE FIELD OVERWRITE createdAt ON TABLE ext_cross_user TYPE option<datetime> DEFAULT time::now();
+DEFINE FIELD OVERWRITE updatedAt ON TABLE ext_cross_user TYPE option<datetime> DEFAULT ALWAYS time::now();
+DEFINE FIELD OVERWRITE email ON TABLE ext_cross_user TYPE string ASSERT string::is_email($value);
+DEFINE FIELD OVERWRITE username ON TABLE ext_cross_user TYPE string;
+DEFINE FIELD OVERWRITE displayName ON TABLE ext_cross_user TYPE string;
+DEFINE FIELD OVERWRITE bio ON TABLE ext_cross_user TYPE option<string>;
+DEFINE INDEX OVERWRITE ext_cross_user_email_unique ON TABLE ext_cross_user COLUMNS email UNIQUE;
+DEFINE INDEX OVERWRITE ext_cross_user_username_unique ON TABLE ext_cross_user COLUMNS username UNIQUE;

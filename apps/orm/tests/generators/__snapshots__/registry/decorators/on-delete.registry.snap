@@ -1,0 +1,970 @@
+{
+  "models": {
+    "Department": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "employees",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "Employee",
+            "targetTable": "employee"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "Department",
+      "tableName": "department"
+    },
+    "Employee": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "departmentId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "department",
+          "relationInfo": {
+            "fieldRef": "departmentId",
+            "isReverse": false,
+            "onDelete": "Restrict",
+            "targetModel": "Department",
+            "targetTable": "department"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "Employee",
+      "tableName": "employee"
+    },
+    "Member": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "teamId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "team",
+          "relationInfo": {
+            "fieldRef": "teamId",
+            "isReverse": false,
+            "onDelete": "Cascade",
+            "targetModel": "Team",
+            "targetTable": "team"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "Member",
+      "tableName": "member"
+    },
+    "MemberNoAction": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "teamId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "team",
+          "relationInfo": {
+            "fieldRef": "teamId",
+            "isReverse": false,
+            "onDelete": "NoAction",
+            "targetModel": "TeamNoAction",
+            "targetTable": "team_no_action"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "MemberNoAction",
+      "tableName": "member_no_action"
+    },
+    "MemberSetNull": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "teamId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "team",
+          "relationInfo": {
+            "fieldRef": "teamId",
+            "isReverse": false,
+            "onDelete": "SetNull",
+            "targetModel": "TeamSetNull",
+            "targetTable": "team_set_null"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "MemberSetNull",
+      "tableName": "member_set_null"
+    },
+    "OdChild": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "parentId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "parent",
+          "relationInfo": {
+            "fieldRef": "parentId",
+            "isReverse": false,
+            "onDelete": "Cascade",
+            "targetModel": "OdParent",
+            "targetTable": "od_parent"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "OdChild",
+      "tableName": "od_child"
+    },
+    "OdFolder": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "parentId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "parent",
+          "relationInfo": {
+            "fieldRef": "parentId",
+            "isReverse": false,
+            "key": "tree",
+            "onDelete": "SetNull",
+            "targetModel": "OdFolder",
+            "targetTable": "od_folder"
+          },
+          "type": "relation"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "children",
+          "relationInfo": {
+            "isReverse": true,
+            "key": "tree",
+            "targetModel": "OdFolder",
+            "targetTable": "od_folder"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "OdFolder",
+      "tableName": "od_folder"
+    },
+    "OdGrandparent": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "parents",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "OdParent",
+            "targetTable": "od_parent"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "OdGrandparent",
+      "tableName": "od_grandparent"
+    },
+    "OdParent": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "grandparentId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "grandparent",
+          "relationInfo": {
+            "fieldRef": "grandparentId",
+            "isReverse": false,
+            "onDelete": "Cascade",
+            "targetModel": "OdGrandparent",
+            "targetTable": "od_grandparent"
+          },
+          "type": "relation"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "children",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "OdChild",
+            "targetTable": "od_child"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "OdParent",
+      "tableName": "od_parent"
+    },
+    "ProfileCascade": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "bio",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "userId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "user",
+          "relationInfo": {
+            "fieldRef": "userId",
+            "isReverse": false,
+            "onDelete": "Cascade",
+            "targetModel": "UserCascade",
+            "targetTable": "user_cascade"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "ProfileCascade",
+      "tableName": "profile_cascade"
+    },
+    "ProfileNoAction": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "bio",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "userId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "user",
+          "relationInfo": {
+            "fieldRef": "userId",
+            "isReverse": false,
+            "onDelete": "NoAction",
+            "targetModel": "UserNoAction",
+            "targetTable": "user_no_action"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "ProfileNoAction",
+      "tableName": "profile_no_action"
+    },
+    "ProfileRestrict": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "bio",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "userId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "user",
+          "relationInfo": {
+            "fieldRef": "userId",
+            "isReverse": false,
+            "onDelete": "Restrict",
+            "targetModel": "UserRestrict",
+            "targetTable": "user_restrict"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "ProfileRestrict",
+      "tableName": "profile_restrict"
+    },
+    "ProfileSetNone": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "bio",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "userId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "user",
+          "relationInfo": {
+            "fieldRef": "userId",
+            "isReverse": false,
+            "onDelete": "SetNone",
+            "targetModel": "UserSetNone",
+            "targetTable": "user_set_none"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "ProfileSetNone",
+      "tableName": "profile_set_none"
+    },
+    "ProfileSetNull": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "bio",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "userId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "user",
+          "relationInfo": {
+            "fieldRef": "userId",
+            "isReverse": false,
+            "onDelete": "SetNull",
+            "targetModel": "UserSetNull",
+            "targetTable": "user_set_null"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "ProfileSetNull",
+      "tableName": "profile_set_null"
+    },
+    "Team": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "members",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "Member",
+            "targetTable": "member"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "Team",
+      "tableName": "team"
+    },
+    "TeamNoAction": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "members",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "MemberNoAction",
+            "targetTable": "member_no_action"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "TeamNoAction",
+      "tableName": "team_no_action"
+    },
+    "TeamSetNull": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "members",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "MemberSetNull",
+            "targetTable": "member_set_null"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "TeamSetNull",
+      "tableName": "team_set_null"
+    },
+    "UserCascade": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "profile",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "ProfileCascade",
+            "targetTable": "profile_cascade"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "UserCascade",
+      "tableName": "user_cascade"
+    },
+    "UserNoAction": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "profile",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "ProfileNoAction",
+            "targetTable": "profile_no_action"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "UserNoAction",
+      "tableName": "user_no_action"
+    },
+    "UserRestrict": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "profile",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "ProfileRestrict",
+            "targetTable": "profile_restrict"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "UserRestrict",
+      "tableName": "user_restrict"
+    },
+    "UserSetNone": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "profile",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "ProfileSetNone",
+            "targetTable": "profile_set_none"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "UserSetNone",
+      "tableName": "user_set_none"
+    },
+    "UserSetNull": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": true,
+          "name": "email",
+          "type": "email"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "profile",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "ProfileSetNull",
+            "targetTable": "profile_set_null"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "UserSetNull",
+      "tableName": "user_set_null"
+    }
+  }
+}

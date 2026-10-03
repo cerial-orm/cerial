@@ -1,0 +1,3231 @@
+// ===== models/extadmin.ts =====
+/**
+ * Generated types for ExtAdmin
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface ExtAdmin {
+  id: CerialId<string>;
+  createdAt?: Date;
+  updatedAt?: Date;
+  email: string;
+  name: string;
+  level: number;
+  permissions: string[];
+}
+
+export interface ExtAdminInput {
+  id?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  email: string;
+  name: string;
+  level: number;
+  permissions: string[];
+}
+
+export interface ExtAdminWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  createdAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  updatedAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  /** @unique — Unique indexed field */
+  email?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  level?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  permissions?:
+    | string[]
+    | {
+        has?: string;
+        hasAll?: string[];
+        hasAny?: string[];
+        isEmpty?: boolean;
+      };
+  AND?: ExtAdminWhere[];
+  OR?: ExtAdminWhere[];
+  NOT?: ExtAdminWhere;
+}
+
+export type ExtAdminWhereInput = ExtAdminWhere;
+
+export type ExtAdminFindUniqueWhere =
+  | ({ id: RecordIdInput<string> } & { email?: string } & Omit<ExtAdminWhere, 'id' | 'email'>)
+  | ({ email: string } & { id?: RecordIdInput<string> } & Omit<ExtAdminWhere, 'id' | 'email'>);
+
+export type ExtAdminCreate = O.Optional<ExtAdminInput, 'id' | 'createdAt' | 'updatedAt' | 'level' | 'permissions'>;
+
+export type ExtAdminNestedCreate = O.Optional<
+  ExtAdminInput,
+  'id' | 'createdAt' | 'updatedAt' | 'level' | 'permissions'
+>;
+
+export type ExtAdminCreateInput = ExtAdminCreate;
+
+export type ExtAdminUpdate = Partial<O.Omit<ExtAdminInput, 'id' | 'permissions' | 'createdAt' | 'updatedAt'>> & {
+  permissions?:
+    | string[]
+    | {
+        push?: string | string[];
+        unset?: string | string[];
+      };
+  createdAt?: Date | CerialNone;
+  updatedAt?: Date | CerialNone;
+};
+
+export type ExtAdminUpdateInput = ExtAdminUpdate;
+
+export type ExtAdminUnset = {
+  createdAt?: true;
+  updatedAt?: true;
+};
+
+export type ExtAdminSelect =
+  | ({ id: boolean } & Partial<Record<'createdAt' | 'updatedAt' | 'email' | 'name' | 'level' | 'permissions', boolean>>)
+  | ({ createdAt: boolean } & Partial<Record<'id' | 'updatedAt' | 'email' | 'name' | 'level' | 'permissions', boolean>>)
+  | ({ updatedAt: boolean } & Partial<Record<'id' | 'createdAt' | 'email' | 'name' | 'level' | 'permissions', boolean>>)
+  | ({ email: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'name' | 'level' | 'permissions', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'level' | 'permissions', boolean>>)
+  | ({ level: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'permissions', boolean>>)
+  | ({ permissions: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'level', boolean>
+    >);
+
+export interface ExtAdminOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  updatedAt?: 'asc' | 'desc';
+  email?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  level?: 'asc' | 'desc';
+  permissions?: 'asc' | 'desc';
+}
+
+export type ExtAdmin$Relations = {};
+
+export type GetExtAdminPayload<S extends ExtAdminSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends ExtAdminSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ExtAdmin
+          ? ResolveFieldSelect<ExtAdmin[K], S[K]>
+          : never;
+      }
+    : ExtAdmin,
+  'flat'
+>;
+
+export interface ExtAdminModel {
+  findOne<S extends ExtAdminSelect | undefined = undefined>(options?: {
+    where?: ExtAdminWhere;
+    select?: S;
+    orderBy?: ExtAdminOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtAdminPayload<S> | null>;
+
+  findMany<S extends ExtAdminSelect | undefined = undefined>(options?: {
+    where?: ExtAdminWhere;
+    select?: S;
+    orderBy?: ExtAdminOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtAdminPayload<S>[]>;
+
+  findUnique<S extends ExtAdminSelect | undefined = undefined>(options: {
+    where: ExtAdminFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtAdminPayload<S> | null>;
+
+  create<S extends ExtAdminSelect | undefined = undefined>(options: {
+    data: ExtAdminCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtAdminPayload<S>>;
+
+  updateMany<
+    S extends ExtAdminSelect | undefined = undefined,
+    D extends ExtAdminUpdateInput = ExtAdminUpdateInput,
+  >(options: {
+    where: ExtAdminWhere;
+    data: D;
+    unset?: SafeUnset<ExtAdminUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtAdminPayload<S>[]>;
+
+  updateUnique<
+    S extends ExtAdminSelect | undefined = undefined,
+    D extends ExtAdminUpdateInput = ExtAdminUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ExtAdminFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ExtAdminUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ExtAdmin | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetExtAdminPayload<S>, R>>;
+
+  upsert<
+    S extends ExtAdminSelect | undefined = undefined,
+    D extends ExtAdminUpdateInput = ExtAdminUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtAdminFindUniqueWhere;
+    create: ExtAdminCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtAdminUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetExtAdminPayload<S>, R>>;
+
+  upsert<
+    S extends ExtAdminSelect | undefined = undefined,
+    D extends ExtAdminUpdateInput = ExtAdminUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtAdminWhere;
+    create: ExtAdminCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtAdminUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetExtAdminPayload<S>, R>>;
+
+  deleteMany(options: { where: ExtAdminWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ExtAdminFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ExtAdmin | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ExtAdmin, R>>;
+
+  count(where?: ExtAdminWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ExtAdminWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/extemptychild.ts =====
+/**
+ * Generated types for ExtEmptyChild
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface ExtEmptyChild {
+  id: CerialId<string>;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface ExtEmptyChildInput {
+  id?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface ExtEmptyChildWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  createdAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  updatedAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  AND?: ExtEmptyChildWhere[];
+  OR?: ExtEmptyChildWhere[];
+  NOT?: ExtEmptyChildWhere;
+}
+
+export type ExtEmptyChildWhereInput = ExtEmptyChildWhere;
+
+export type ExtEmptyChildFindUniqueWhere = { id: RecordIdInput<string> } & Omit<ExtEmptyChildWhere, 'id'>;
+
+export type ExtEmptyChildCreate = O.Optional<ExtEmptyChildInput, 'id' | 'createdAt' | 'updatedAt'>;
+
+export type ExtEmptyChildNestedCreate = O.Optional<ExtEmptyChildInput, 'id' | 'createdAt' | 'updatedAt'>;
+
+export type ExtEmptyChildCreateInput = ExtEmptyChildCreate;
+
+export type ExtEmptyChildUpdate = Partial<O.Omit<ExtEmptyChildInput, 'id' | 'createdAt' | 'updatedAt'>> & {
+  createdAt?: Date | CerialNone;
+  updatedAt?: Date | CerialNone;
+};
+
+export type ExtEmptyChildUpdateInput = ExtEmptyChildUpdate;
+
+export type ExtEmptyChildUnset = {
+  createdAt?: true;
+  updatedAt?: true;
+};
+
+export type ExtEmptyChildSelect =
+  | ({ id: boolean } & Partial<Record<'createdAt' | 'updatedAt', boolean>>)
+  | ({ createdAt: boolean } & Partial<Record<'id' | 'updatedAt', boolean>>)
+  | ({ updatedAt: boolean } & Partial<Record<'id' | 'createdAt', boolean>>);
+
+export interface ExtEmptyChildOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  updatedAt?: 'asc' | 'desc';
+}
+
+export type ExtEmptyChild$Relations = {};
+
+export type GetExtEmptyChildPayload<S extends ExtEmptyChildSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends ExtEmptyChildSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ExtEmptyChild
+          ? ResolveFieldSelect<ExtEmptyChild[K], S[K]>
+          : never;
+      }
+    : ExtEmptyChild,
+  'flat'
+>;
+
+export interface ExtEmptyChildModel {
+  findOne<S extends ExtEmptyChildSelect | undefined = undefined>(options?: {
+    where?: ExtEmptyChildWhere;
+    select?: S;
+    orderBy?: ExtEmptyChildOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtEmptyChildPayload<S> | null>;
+
+  findMany<S extends ExtEmptyChildSelect | undefined = undefined>(options?: {
+    where?: ExtEmptyChildWhere;
+    select?: S;
+    orderBy?: ExtEmptyChildOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtEmptyChildPayload<S>[]>;
+
+  findUnique<S extends ExtEmptyChildSelect | undefined = undefined>(options: {
+    where: ExtEmptyChildFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtEmptyChildPayload<S> | null>;
+
+  create<S extends ExtEmptyChildSelect | undefined = undefined>(options: {
+    data: ExtEmptyChildCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtEmptyChildPayload<S>>;
+
+  updateMany<
+    S extends ExtEmptyChildSelect | undefined = undefined,
+    D extends ExtEmptyChildUpdateInput = ExtEmptyChildUpdateInput,
+  >(options: {
+    where: ExtEmptyChildWhere;
+    data: D;
+    unset?: SafeUnset<ExtEmptyChildUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtEmptyChildPayload<S>[]>;
+
+  updateUnique<
+    S extends ExtEmptyChildSelect | undefined = undefined,
+    D extends ExtEmptyChildUpdateInput = ExtEmptyChildUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ExtEmptyChildFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ExtEmptyChildUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ExtEmptyChild | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetExtEmptyChildPayload<S>, R>>;
+
+  upsert<
+    S extends ExtEmptyChildSelect | undefined = undefined,
+    D extends ExtEmptyChildUpdateInput = ExtEmptyChildUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtEmptyChildFindUniqueWhere;
+    create: ExtEmptyChildCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtEmptyChildUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetExtEmptyChildPayload<S>, R>>;
+
+  upsert<
+    S extends ExtEmptyChildSelect | undefined = undefined,
+    D extends ExtEmptyChildUpdateInput = ExtEmptyChildUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtEmptyChildWhere;
+    create: ExtEmptyChildCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtEmptyChildUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetExtEmptyChildPayload<S>, R>>;
+
+  deleteMany(options: { where: ExtEmptyChildWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ExtEmptyChildFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ExtEmptyChild | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ExtEmptyChild, R>>;
+
+  count(where?: ExtEmptyChildWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ExtEmptyChildWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/extmoderator.ts =====
+/**
+ * Generated types for ExtModerator
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface ExtModerator {
+  id: CerialId<string>;
+  createdAt?: Date;
+  email: string;
+  name: string;
+  bannedUntil?: Date;
+  notes?: string;
+}
+
+export interface ExtModeratorInput {
+  id?: string;
+  createdAt?: Date;
+  email: string;
+  name: string;
+  bannedUntil?: Date;
+  notes?: string;
+}
+
+export interface ExtModeratorWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  createdAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  /** @unique — Unique indexed field */
+  email?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  bannedUntil?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  notes?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  AND?: ExtModeratorWhere[];
+  OR?: ExtModeratorWhere[];
+  NOT?: ExtModeratorWhere;
+}
+
+export type ExtModeratorWhereInput = ExtModeratorWhere;
+
+export type ExtModeratorFindUniqueWhere =
+  | ({ id: RecordIdInput<string> } & { email?: string } & Omit<ExtModeratorWhere, 'id' | 'email'>)
+  | ({ email: string } & { id?: RecordIdInput<string> } & Omit<ExtModeratorWhere, 'id' | 'email'>);
+
+export type ExtModeratorCreate = O.Optional<ExtModeratorInput, 'id' | 'createdAt' | 'bannedUntil' | 'notes'>;
+
+export type ExtModeratorNestedCreate = O.Optional<ExtModeratorInput, 'id' | 'createdAt' | 'bannedUntil' | 'notes'>;
+
+export type ExtModeratorCreateInput = ExtModeratorCreate;
+
+export type ExtModeratorUpdate = Partial<O.Omit<ExtModeratorInput, 'id' | 'createdAt' | 'bannedUntil' | 'notes'>> & {
+  createdAt?: Date | CerialNone;
+  bannedUntil?: Date | CerialNone;
+  notes?: string | CerialNone;
+};
+
+export type ExtModeratorUpdateInput = ExtModeratorUpdate;
+
+export type ExtModeratorUnset = {
+  createdAt?: true;
+  bannedUntil?: true;
+  notes?: true;
+};
+
+export type ExtModeratorSelect =
+  | ({ id: boolean } & Partial<Record<'createdAt' | 'email' | 'name' | 'bannedUntil' | 'notes', boolean>>)
+  | ({ createdAt: boolean } & Partial<Record<'id' | 'email' | 'name' | 'bannedUntil' | 'notes', boolean>>)
+  | ({ email: boolean } & Partial<Record<'id' | 'createdAt' | 'name' | 'bannedUntil' | 'notes', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'createdAt' | 'email' | 'bannedUntil' | 'notes', boolean>>)
+  | ({ bannedUntil: boolean } & Partial<Record<'id' | 'createdAt' | 'email' | 'name' | 'notes', boolean>>)
+  | ({ notes: boolean } & Partial<Record<'id' | 'createdAt' | 'email' | 'name' | 'bannedUntil', boolean>>);
+
+export interface ExtModeratorOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  email?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  bannedUntil?: 'asc' | 'desc';
+  notes?: 'asc' | 'desc';
+}
+
+export type ExtModerator$Relations = {};
+
+export type GetExtModeratorPayload<S extends ExtModeratorSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends ExtModeratorSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ExtModerator
+          ? ResolveFieldSelect<ExtModerator[K], S[K]>
+          : never;
+      }
+    : ExtModerator,
+  'flat'
+>;
+
+export interface ExtModeratorModel {
+  findOne<S extends ExtModeratorSelect | undefined = undefined>(options?: {
+    where?: ExtModeratorWhere;
+    select?: S;
+    orderBy?: ExtModeratorOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtModeratorPayload<S> | null>;
+
+  findMany<S extends ExtModeratorSelect | undefined = undefined>(options?: {
+    where?: ExtModeratorWhere;
+    select?: S;
+    orderBy?: ExtModeratorOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtModeratorPayload<S>[]>;
+
+  findUnique<S extends ExtModeratorSelect | undefined = undefined>(options: {
+    where: ExtModeratorFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtModeratorPayload<S> | null>;
+
+  create<S extends ExtModeratorSelect | undefined = undefined>(options: {
+    data: ExtModeratorCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtModeratorPayload<S>>;
+
+  updateMany<
+    S extends ExtModeratorSelect | undefined = undefined,
+    D extends ExtModeratorUpdateInput = ExtModeratorUpdateInput,
+  >(options: {
+    where: ExtModeratorWhere;
+    data: D;
+    unset?: SafeUnset<ExtModeratorUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtModeratorPayload<S>[]>;
+
+  updateUnique<
+    S extends ExtModeratorSelect | undefined = undefined,
+    D extends ExtModeratorUpdateInput = ExtModeratorUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ExtModeratorFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ExtModeratorUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ExtModerator | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetExtModeratorPayload<S>, R>>;
+
+  upsert<
+    S extends ExtModeratorSelect | undefined = undefined,
+    D extends ExtModeratorUpdateInput = ExtModeratorUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtModeratorFindUniqueWhere;
+    create: ExtModeratorCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtModeratorUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetExtModeratorPayload<S>, R>>;
+
+  upsert<
+    S extends ExtModeratorSelect | undefined = undefined,
+    D extends ExtModeratorUpdateInput = ExtModeratorUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtModeratorWhere;
+    create: ExtModeratorCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtModeratorUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetExtModeratorPayload<S>, R>>;
+
+  deleteMany(options: { where: ExtModeratorWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ExtModeratorFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ExtModerator | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ExtModerator, R>>;
+
+  count(where?: ExtModeratorWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ExtModeratorWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/extpremiumuser.ts =====
+/**
+ * Generated types for ExtPremiumUser
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface ExtPremiumUser {
+  id: CerialId<string>;
+  createdAt?: Date;
+  updatedAt?: Date;
+  email: string;
+  name: string;
+  isActive: boolean;
+  age?: number;
+  role: string;
+  subscriptionTier: string;
+  subscriptionEnd?: Date;
+}
+
+export interface ExtPremiumUserInput {
+  id?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  email: string;
+  name: string;
+  isActive: boolean;
+  age?: number;
+  role: string;
+  subscriptionTier: string;
+  subscriptionEnd?: Date;
+}
+
+export interface ExtPremiumUserWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  createdAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  updatedAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  /** @unique — Unique indexed field */
+  email?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  isActive?:
+    | boolean
+    | ({
+        eq?: boolean;
+        neq?: boolean;
+      } & {});
+  age?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  role?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  subscriptionTier?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  subscriptionEnd?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  AND?: ExtPremiumUserWhere[];
+  OR?: ExtPremiumUserWhere[];
+  NOT?: ExtPremiumUserWhere;
+}
+
+export type ExtPremiumUserWhereInput = ExtPremiumUserWhere;
+
+export type ExtPremiumUserFindUniqueWhere =
+  | ({ id: RecordIdInput<string> } & { email?: string } & Omit<ExtPremiumUserWhere, 'id' | 'email'>)
+  | ({ email: string } & { id?: RecordIdInput<string> } & Omit<ExtPremiumUserWhere, 'id' | 'email'>);
+
+export type ExtPremiumUserCreate = O.Optional<
+  ExtPremiumUserInput,
+  'id' | 'createdAt' | 'updatedAt' | 'isActive' | 'age' | 'role' | 'subscriptionTier' | 'subscriptionEnd'
+>;
+
+export type ExtPremiumUserNestedCreate = O.Optional<
+  ExtPremiumUserInput,
+  'id' | 'createdAt' | 'updatedAt' | 'isActive' | 'age' | 'role' | 'subscriptionTier' | 'subscriptionEnd'
+>;
+
+export type ExtPremiumUserCreateInput = ExtPremiumUserCreate;
+
+export type ExtPremiumUserUpdate = Partial<
+  O.Omit<ExtPremiumUserInput, 'id' | 'createdAt' | 'updatedAt' | 'age' | 'subscriptionEnd'>
+> & {
+  createdAt?: Date | CerialNone;
+  updatedAt?: Date | CerialNone;
+  age?: number | CerialNone;
+  subscriptionEnd?: Date | CerialNone;
+};
+
+export type ExtPremiumUserUpdateInput = ExtPremiumUserUpdate;
+
+export type ExtPremiumUserUnset = {
+  createdAt?: true;
+  updatedAt?: true;
+  age?: true;
+  subscriptionEnd?: true;
+};
+
+export type ExtPremiumUserSelect =
+  | ({ id: boolean } & Partial<
+      Record<
+        | 'createdAt'
+        | 'updatedAt'
+        | 'email'
+        | 'name'
+        | 'isActive'
+        | 'age'
+        | 'role'
+        | 'subscriptionTier'
+        | 'subscriptionEnd',
+        boolean
+      >
+    >)
+  | ({ createdAt: boolean } & Partial<
+      Record<
+        'id' | 'updatedAt' | 'email' | 'name' | 'isActive' | 'age' | 'role' | 'subscriptionTier' | 'subscriptionEnd',
+        boolean
+      >
+    >)
+  | ({ updatedAt: boolean } & Partial<
+      Record<
+        'id' | 'createdAt' | 'email' | 'name' | 'isActive' | 'age' | 'role' | 'subscriptionTier' | 'subscriptionEnd',
+        boolean
+      >
+    >)
+  | ({ email: boolean } & Partial<
+      Record<
+        | 'id'
+        | 'createdAt'
+        | 'updatedAt'
+        | 'name'
+        | 'isActive'
+        | 'age'
+        | 'role'
+        | 'subscriptionTier'
+        | 'subscriptionEnd',
+        boolean
+      >
+    >)
+  | ({ name: boolean } & Partial<
+      Record<
+        | 'id'
+        | 'createdAt'
+        | 'updatedAt'
+        | 'email'
+        | 'isActive'
+        | 'age'
+        | 'role'
+        | 'subscriptionTier'
+        | 'subscriptionEnd',
+        boolean
+      >
+    >)
+  | ({ isActive: boolean } & Partial<
+      Record<
+        'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'age' | 'role' | 'subscriptionTier' | 'subscriptionEnd',
+        boolean
+      >
+    >)
+  | ({ age: boolean } & Partial<
+      Record<
+        | 'id'
+        | 'createdAt'
+        | 'updatedAt'
+        | 'email'
+        | 'name'
+        | 'isActive'
+        | 'role'
+        | 'subscriptionTier'
+        | 'subscriptionEnd',
+        boolean
+      >
+    >)
+  | ({ role: boolean } & Partial<
+      Record<
+        | 'id'
+        | 'createdAt'
+        | 'updatedAt'
+        | 'email'
+        | 'name'
+        | 'isActive'
+        | 'age'
+        | 'subscriptionTier'
+        | 'subscriptionEnd',
+        boolean
+      >
+    >)
+  | ({ subscriptionTier: boolean } & Partial<
+      Record<
+        'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'isActive' | 'age' | 'role' | 'subscriptionEnd',
+        boolean
+      >
+    >)
+  | ({ subscriptionEnd: boolean } & Partial<
+      Record<
+        'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'isActive' | 'age' | 'role' | 'subscriptionTier',
+        boolean
+      >
+    >);
+
+export interface ExtPremiumUserOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  updatedAt?: 'asc' | 'desc';
+  email?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  isActive?: 'asc' | 'desc';
+  age?: 'asc' | 'desc';
+  role?: 'asc' | 'desc';
+  subscriptionTier?: 'asc' | 'desc';
+  subscriptionEnd?: 'asc' | 'desc';
+}
+
+export type ExtPremiumUser$Relations = {};
+
+export type GetExtPremiumUserPayload<S extends ExtPremiumUserSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends ExtPremiumUserSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ExtPremiumUser
+          ? ResolveFieldSelect<ExtPremiumUser[K], S[K]>
+          : never;
+      }
+    : ExtPremiumUser,
+  'flat'
+>;
+
+export interface ExtPremiumUserModel {
+  findOne<S extends ExtPremiumUserSelect | undefined = undefined>(options?: {
+    where?: ExtPremiumUserWhere;
+    select?: S;
+    orderBy?: ExtPremiumUserOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtPremiumUserPayload<S> | null>;
+
+  findMany<S extends ExtPremiumUserSelect | undefined = undefined>(options?: {
+    where?: ExtPremiumUserWhere;
+    select?: S;
+    orderBy?: ExtPremiumUserOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtPremiumUserPayload<S>[]>;
+
+  findUnique<S extends ExtPremiumUserSelect | undefined = undefined>(options: {
+    where: ExtPremiumUserFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtPremiumUserPayload<S> | null>;
+
+  create<S extends ExtPremiumUserSelect | undefined = undefined>(options: {
+    data: ExtPremiumUserCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtPremiumUserPayload<S>>;
+
+  updateMany<
+    S extends ExtPremiumUserSelect | undefined = undefined,
+    D extends ExtPremiumUserUpdateInput = ExtPremiumUserUpdateInput,
+  >(options: {
+    where: ExtPremiumUserWhere;
+    data: D;
+    unset?: SafeUnset<ExtPremiumUserUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtPremiumUserPayload<S>[]>;
+
+  updateUnique<
+    S extends ExtPremiumUserSelect | undefined = undefined,
+    D extends ExtPremiumUserUpdateInput = ExtPremiumUserUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ExtPremiumUserFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ExtPremiumUserUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ExtPremiumUser | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetExtPremiumUserPayload<S>, R>>;
+
+  upsert<
+    S extends ExtPremiumUserSelect | undefined = undefined,
+    D extends ExtPremiumUserUpdateInput = ExtPremiumUserUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtPremiumUserFindUniqueWhere;
+    create: ExtPremiumUserCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtPremiumUserUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetExtPremiumUserPayload<S>, R>>;
+
+  upsert<
+    S extends ExtPremiumUserSelect | undefined = undefined,
+    D extends ExtPremiumUserUpdateInput = ExtPremiumUserUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtPremiumUserWhere;
+    create: ExtPremiumUserCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtPremiumUserUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetExtPremiumUserPayload<S>, R>>;
+
+  deleteMany(options: { where: ExtPremiumUserWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ExtPremiumUserFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ExtPremiumUser | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ExtPremiumUser, R>>;
+
+  count(where?: ExtPremiumUserWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ExtPremiumUserWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/extprivateuser.ts =====
+/**
+ * Generated types for ExtPrivateUser
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface ExtPrivateUser {
+  id: CerialId<string>;
+  createdAt?: Date;
+  updatedAt?: Date;
+  email: string;
+  name: string;
+  publicBio?: string;
+}
+
+export interface ExtPrivateUserInput {
+  id?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  email: string;
+  name: string;
+  publicBio?: string;
+}
+
+export interface ExtPrivateUserWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  createdAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  updatedAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  /** @unique — Unique indexed field */
+  email?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  publicBio?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  AND?: ExtPrivateUserWhere[];
+  OR?: ExtPrivateUserWhere[];
+  NOT?: ExtPrivateUserWhere;
+}
+
+export type ExtPrivateUserWhereInput = ExtPrivateUserWhere;
+
+export type ExtPrivateUserFindUniqueWhere =
+  | ({ id: RecordIdInput<string> } & { email?: string } & Omit<ExtPrivateUserWhere, 'id' | 'email'>)
+  | ({ email: string } & { id?: RecordIdInput<string> } & Omit<ExtPrivateUserWhere, 'id' | 'email'>);
+
+export type ExtPrivateUserCreate = O.Optional<ExtPrivateUserInput, 'id' | 'createdAt' | 'updatedAt' | 'publicBio'>;
+
+export type ExtPrivateUserNestedCreate = O.Optional<
+  ExtPrivateUserInput,
+  'id' | 'createdAt' | 'updatedAt' | 'publicBio'
+>;
+
+export type ExtPrivateUserCreateInput = ExtPrivateUserCreate;
+
+export type ExtPrivateUserUpdate = Partial<
+  O.Omit<ExtPrivateUserInput, 'id' | 'createdAt' | 'updatedAt' | 'publicBio'>
+> & {
+  createdAt?: Date | CerialNone;
+  updatedAt?: Date | CerialNone;
+  publicBio?: string | CerialNone;
+};
+
+export type ExtPrivateUserUpdateInput = ExtPrivateUserUpdate;
+
+export type ExtPrivateUserUnset = {
+  createdAt?: true;
+  updatedAt?: true;
+  publicBio?: true;
+};
+
+export type ExtPrivateUserSelect =
+  | ({ id: boolean } & Partial<Record<'createdAt' | 'updatedAt' | 'email' | 'name' | 'publicBio', boolean>>)
+  | ({ createdAt: boolean } & Partial<Record<'id' | 'updatedAt' | 'email' | 'name' | 'publicBio', boolean>>)
+  | ({ updatedAt: boolean } & Partial<Record<'id' | 'createdAt' | 'email' | 'name' | 'publicBio', boolean>>)
+  | ({ email: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'name' | 'publicBio', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'publicBio', boolean>>)
+  | ({ publicBio: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'name', boolean>>);
+
+export interface ExtPrivateUserOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  updatedAt?: 'asc' | 'desc';
+  email?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  publicBio?: 'asc' | 'desc';
+}
+
+export type ExtPrivateUser$Relations = {};
+
+export type GetExtPrivateUserPayload<S extends ExtPrivateUserSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends ExtPrivateUserSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ExtPrivateUser
+          ? ResolveFieldSelect<ExtPrivateUser[K], S[K]>
+          : never;
+      }
+    : ExtPrivateUser,
+  'flat'
+>;
+
+export interface ExtPrivateUserModel {
+  findOne<S extends ExtPrivateUserSelect | undefined = undefined>(options?: {
+    where?: ExtPrivateUserWhere;
+    select?: S;
+    orderBy?: ExtPrivateUserOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtPrivateUserPayload<S> | null>;
+
+  findMany<S extends ExtPrivateUserSelect | undefined = undefined>(options?: {
+    where?: ExtPrivateUserWhere;
+    select?: S;
+    orderBy?: ExtPrivateUserOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtPrivateUserPayload<S>[]>;
+
+  findUnique<S extends ExtPrivateUserSelect | undefined = undefined>(options: {
+    where: ExtPrivateUserFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtPrivateUserPayload<S> | null>;
+
+  create<S extends ExtPrivateUserSelect | undefined = undefined>(options: {
+    data: ExtPrivateUserCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtPrivateUserPayload<S>>;
+
+  updateMany<
+    S extends ExtPrivateUserSelect | undefined = undefined,
+    D extends ExtPrivateUserUpdateInput = ExtPrivateUserUpdateInput,
+  >(options: {
+    where: ExtPrivateUserWhere;
+    data: D;
+    unset?: SafeUnset<ExtPrivateUserUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtPrivateUserPayload<S>[]>;
+
+  updateUnique<
+    S extends ExtPrivateUserSelect | undefined = undefined,
+    D extends ExtPrivateUserUpdateInput = ExtPrivateUserUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ExtPrivateUserFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ExtPrivateUserUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ExtPrivateUser | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetExtPrivateUserPayload<S>, R>>;
+
+  upsert<
+    S extends ExtPrivateUserSelect | undefined = undefined,
+    D extends ExtPrivateUserUpdateInput = ExtPrivateUserUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtPrivateUserFindUniqueWhere;
+    create: ExtPrivateUserCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtPrivateUserUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetExtPrivateUserPayload<S>, R>>;
+
+  upsert<
+    S extends ExtPrivateUserSelect | undefined = undefined,
+    D extends ExtPrivateUserUpdateInput = ExtPrivateUserUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtPrivateUserWhere;
+    create: ExtPrivateUserCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtPrivateUserUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetExtPrivateUserPayload<S>, R>>;
+
+  deleteMany(options: { where: ExtPrivateUserWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ExtPrivateUserFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ExtPrivateUser | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ExtPrivateUser, R>>;
+
+  count(where?: ExtPrivateUserWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ExtPrivateUserWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/extprofile.ts =====
+/**
+ * Generated types for ExtProfile
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface ExtProfile {
+  id: CerialId<string>;
+  createdAt?: Date;
+  updatedAt?: Date;
+  userId: CerialId<string>;
+  bio?: string;
+  avatar?: string;
+  tags: string[];
+  metadata?: number;
+}
+
+export interface ExtProfileInput {
+  id?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  userId: RecordIdInput<string>;
+  bio?: string;
+  avatar?: string;
+  tags: string[];
+  metadata?: number;
+}
+
+export interface ExtProfileWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  createdAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  updatedAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  userId?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  bio?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  avatar?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  tags?:
+    | string[]
+    | {
+        has?: string;
+        hasAll?: string[];
+        hasAny?: string[];
+        isEmpty?: boolean;
+      };
+  metadata?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  AND?: ExtProfileWhere[];
+  OR?: ExtProfileWhere[];
+  NOT?: ExtProfileWhere;
+}
+
+export type ExtProfileWhereInput = ExtProfileWhere;
+
+export type ExtProfileFindUniqueWhere = { id: RecordIdInput<string> } & Omit<ExtProfileWhere, 'id'>;
+
+export type ExtProfileCreate = O.Optional<
+  ExtProfileInput,
+  'id' | 'createdAt' | 'updatedAt' | 'bio' | 'avatar' | 'tags' | 'metadata'
+>;
+
+export type ExtProfileNestedCreate = O.Optional<
+  ExtProfileInput,
+  'id' | 'createdAt' | 'updatedAt' | 'bio' | 'avatar' | 'tags' | 'metadata'
+>;
+
+export type ExtProfileCreateInput = ExtProfileCreate;
+
+export type ExtProfileUpdate = Partial<
+  O.Omit<ExtProfileInput, 'id' | 'tags' | 'createdAt' | 'updatedAt' | 'bio' | 'avatar' | 'metadata'>
+> & {
+  tags?:
+    | string[]
+    | {
+        push?: string | string[];
+        unset?: string | string[];
+      };
+  createdAt?: Date | CerialNone;
+  updatedAt?: Date | CerialNone;
+  bio?: string | CerialNone;
+  avatar?: string | CerialNone;
+  metadata?: number | CerialNone;
+};
+
+export type ExtProfileUpdateInput = ExtProfileUpdate;
+
+export type ExtProfileUnset = {
+  createdAt?: true;
+  updatedAt?: true;
+  bio?: true;
+  avatar?: true;
+  metadata?: true;
+};
+
+export type ExtProfileSelect =
+  | ({ id: boolean } & Partial<
+      Record<'createdAt' | 'updatedAt' | 'userId' | 'bio' | 'avatar' | 'tags' | 'metadata', boolean>
+    >)
+  | ({ createdAt: boolean } & Partial<
+      Record<'id' | 'updatedAt' | 'userId' | 'bio' | 'avatar' | 'tags' | 'metadata', boolean>
+    >)
+  | ({ updatedAt: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'userId' | 'bio' | 'avatar' | 'tags' | 'metadata', boolean>
+    >)
+  | ({ userId: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'updatedAt' | 'bio' | 'avatar' | 'tags' | 'metadata', boolean>
+    >)
+  | ({ bio: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'updatedAt' | 'userId' | 'avatar' | 'tags' | 'metadata', boolean>
+    >)
+  | ({ avatar: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'updatedAt' | 'userId' | 'bio' | 'tags' | 'metadata', boolean>
+    >)
+  | ({ tags: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'updatedAt' | 'userId' | 'bio' | 'avatar' | 'metadata', boolean>
+    >)
+  | ({ metadata: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'updatedAt' | 'userId' | 'bio' | 'avatar' | 'tags', boolean>
+    >);
+
+export interface ExtProfileOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  updatedAt?: 'asc' | 'desc';
+  userId?: 'asc' | 'desc';
+  bio?: 'asc' | 'desc';
+  avatar?: 'asc' | 'desc';
+  tags?: 'asc' | 'desc';
+  metadata?: 'asc' | 'desc';
+}
+
+export type ExtProfile$Relations = {};
+
+export type GetExtProfilePayload<S extends ExtProfileSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends ExtProfileSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ExtProfile
+          ? ResolveFieldSelect<ExtProfile[K], S[K]>
+          : never;
+      }
+    : ExtProfile,
+  'flat'
+>;
+
+export interface ExtProfileModel {
+  findOne<S extends ExtProfileSelect | undefined = undefined>(options?: {
+    where?: ExtProfileWhere;
+    select?: S;
+    orderBy?: ExtProfileOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtProfilePayload<S> | null>;
+
+  findMany<S extends ExtProfileSelect | undefined = undefined>(options?: {
+    where?: ExtProfileWhere;
+    select?: S;
+    orderBy?: ExtProfileOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtProfilePayload<S>[]>;
+
+  findUnique<S extends ExtProfileSelect | undefined = undefined>(options: {
+    where: ExtProfileFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtProfilePayload<S> | null>;
+
+  create<S extends ExtProfileSelect | undefined = undefined>(options: {
+    data: ExtProfileCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtProfilePayload<S>>;
+
+  updateMany<
+    S extends ExtProfileSelect | undefined = undefined,
+    D extends ExtProfileUpdateInput = ExtProfileUpdateInput,
+  >(options: {
+    where: ExtProfileWhere;
+    data: D;
+    unset?: SafeUnset<ExtProfileUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtProfilePayload<S>[]>;
+
+  updateUnique<
+    S extends ExtProfileSelect | undefined = undefined,
+    D extends ExtProfileUpdateInput = ExtProfileUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ExtProfileFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ExtProfileUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ExtProfile | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetExtProfilePayload<S>, R>>;
+
+  upsert<
+    S extends ExtProfileSelect | undefined = undefined,
+    D extends ExtProfileUpdateInput = ExtProfileUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtProfileFindUniqueWhere;
+    create: ExtProfileCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtProfileUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetExtProfilePayload<S>, R>>;
+
+  upsert<
+    S extends ExtProfileSelect | undefined = undefined,
+    D extends ExtProfileUpdateInput = ExtProfileUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtProfileWhere;
+    create: ExtProfileCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtProfileUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetExtProfilePayload<S>, R>>;
+
+  deleteMany(options: { where: ExtProfileWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ExtProfileFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ExtProfile | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ExtProfile, R>>;
+
+  count(where?: ExtProfileWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ExtProfileWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/extsuperadmin.ts =====
+/**
+ * Generated types for ExtSuperAdmin
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface ExtSuperAdmin {
+  id: CerialId<string>;
+  createdAt?: Date;
+  updatedAt?: Date;
+  email: string;
+  name: string;
+  isActive: boolean;
+  role: string;
+  level: number;
+  canDeleteUsers: boolean;
+}
+
+export interface ExtSuperAdminInput {
+  id?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  email: string;
+  name: string;
+  isActive: boolean;
+  role: string;
+  level: number;
+  canDeleteUsers: boolean;
+}
+
+export interface ExtSuperAdminWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  createdAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  updatedAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  /** @unique — Unique indexed field */
+  email?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  isActive?:
+    | boolean
+    | ({
+        eq?: boolean;
+        neq?: boolean;
+      } & {});
+  role?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  level?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  canDeleteUsers?:
+    | boolean
+    | ({
+        eq?: boolean;
+        neq?: boolean;
+      } & {});
+  AND?: ExtSuperAdminWhere[];
+  OR?: ExtSuperAdminWhere[];
+  NOT?: ExtSuperAdminWhere;
+}
+
+export type ExtSuperAdminWhereInput = ExtSuperAdminWhere;
+
+export type ExtSuperAdminFindUniqueWhere =
+  | ({ id: RecordIdInput<string> } & { email?: string } & Omit<ExtSuperAdminWhere, 'id' | 'email'>)
+  | ({ email: string } & { id?: RecordIdInput<string> } & Omit<ExtSuperAdminWhere, 'id' | 'email'>);
+
+export type ExtSuperAdminCreate = O.Optional<
+  ExtSuperAdminInput,
+  'id' | 'createdAt' | 'updatedAt' | 'isActive' | 'role' | 'level' | 'canDeleteUsers'
+>;
+
+export type ExtSuperAdminNestedCreate = O.Optional<
+  ExtSuperAdminInput,
+  'id' | 'createdAt' | 'updatedAt' | 'isActive' | 'role' | 'level' | 'canDeleteUsers'
+>;
+
+export type ExtSuperAdminCreateInput = ExtSuperAdminCreate;
+
+export type ExtSuperAdminUpdate = Partial<O.Omit<ExtSuperAdminInput, 'id' | 'createdAt' | 'updatedAt'>> & {
+  createdAt?: Date | CerialNone;
+  updatedAt?: Date | CerialNone;
+};
+
+export type ExtSuperAdminUpdateInput = ExtSuperAdminUpdate;
+
+export type ExtSuperAdminUnset = {
+  createdAt?: true;
+  updatedAt?: true;
+};
+
+export type ExtSuperAdminSelect =
+  | ({ id: boolean } & Partial<
+      Record<'createdAt' | 'updatedAt' | 'email' | 'name' | 'isActive' | 'role' | 'level' | 'canDeleteUsers', boolean>
+    >)
+  | ({ createdAt: boolean } & Partial<
+      Record<'id' | 'updatedAt' | 'email' | 'name' | 'isActive' | 'role' | 'level' | 'canDeleteUsers', boolean>
+    >)
+  | ({ updatedAt: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'email' | 'name' | 'isActive' | 'role' | 'level' | 'canDeleteUsers', boolean>
+    >)
+  | ({ email: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'updatedAt' | 'name' | 'isActive' | 'role' | 'level' | 'canDeleteUsers', boolean>
+    >)
+  | ({ name: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'isActive' | 'role' | 'level' | 'canDeleteUsers', boolean>
+    >)
+  | ({ isActive: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'role' | 'level' | 'canDeleteUsers', boolean>
+    >)
+  | ({ role: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'isActive' | 'level' | 'canDeleteUsers', boolean>
+    >)
+  | ({ level: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'isActive' | 'role' | 'canDeleteUsers', boolean>
+    >)
+  | ({ canDeleteUsers: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'isActive' | 'role' | 'level', boolean>
+    >);
+
+export interface ExtSuperAdminOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  updatedAt?: 'asc' | 'desc';
+  email?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  isActive?: 'asc' | 'desc';
+  role?: 'asc' | 'desc';
+  level?: 'asc' | 'desc';
+  canDeleteUsers?: 'asc' | 'desc';
+}
+
+export type ExtSuperAdmin$Relations = {};
+
+export type GetExtSuperAdminPayload<S extends ExtSuperAdminSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends ExtSuperAdminSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ExtSuperAdmin
+          ? ResolveFieldSelect<ExtSuperAdmin[K], S[K]>
+          : never;
+      }
+    : ExtSuperAdmin,
+  'flat'
+>;
+
+export interface ExtSuperAdminModel {
+  findOne<S extends ExtSuperAdminSelect | undefined = undefined>(options?: {
+    where?: ExtSuperAdminWhere;
+    select?: S;
+    orderBy?: ExtSuperAdminOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtSuperAdminPayload<S> | null>;
+
+  findMany<S extends ExtSuperAdminSelect | undefined = undefined>(options?: {
+    where?: ExtSuperAdminWhere;
+    select?: S;
+    orderBy?: ExtSuperAdminOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtSuperAdminPayload<S>[]>;
+
+  findUnique<S extends ExtSuperAdminSelect | undefined = undefined>(options: {
+    where: ExtSuperAdminFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtSuperAdminPayload<S> | null>;
+
+  create<S extends ExtSuperAdminSelect | undefined = undefined>(options: {
+    data: ExtSuperAdminCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtSuperAdminPayload<S>>;
+
+  updateMany<
+    S extends ExtSuperAdminSelect | undefined = undefined,
+    D extends ExtSuperAdminUpdateInput = ExtSuperAdminUpdateInput,
+  >(options: {
+    where: ExtSuperAdminWhere;
+    data: D;
+    unset?: SafeUnset<ExtSuperAdminUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtSuperAdminPayload<S>[]>;
+
+  updateUnique<
+    S extends ExtSuperAdminSelect | undefined = undefined,
+    D extends ExtSuperAdminUpdateInput = ExtSuperAdminUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ExtSuperAdminFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ExtSuperAdminUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ExtSuperAdmin | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetExtSuperAdminPayload<S>, R>>;
+
+  upsert<
+    S extends ExtSuperAdminSelect | undefined = undefined,
+    D extends ExtSuperAdminUpdateInput = ExtSuperAdminUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtSuperAdminFindUniqueWhere;
+    create: ExtSuperAdminCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtSuperAdminUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetExtSuperAdminPayload<S>, R>>;
+
+  upsert<
+    S extends ExtSuperAdminSelect | undefined = undefined,
+    D extends ExtSuperAdminUpdateInput = ExtSuperAdminUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtSuperAdminWhere;
+    create: ExtSuperAdminCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtSuperAdminUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetExtSuperAdminPayload<S>, R>>;
+
+  deleteMany(options: { where: ExtSuperAdminWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ExtSuperAdminFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ExtSuperAdmin | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ExtSuperAdmin, R>>;
+
+  count(where?: ExtSuperAdminWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ExtSuperAdminWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/extsystemadmin.ts =====
+/**
+ * Generated types for ExtSystemAdmin
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface ExtSystemAdmin {
+  id: CerialId<string>;
+  createdAt?: Date;
+  updatedAt?: Date;
+  email: string;
+  name: string;
+  level: number;
+  permissions: string[];
+  systemAccess: boolean;
+  auditLog: string[];
+}
+
+export interface ExtSystemAdminInput {
+  id?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  email: string;
+  name: string;
+  level: number;
+  permissions: string[];
+  systemAccess: boolean;
+  auditLog: string[];
+}
+
+export interface ExtSystemAdminWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  createdAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  updatedAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  /** @unique — Unique indexed field */
+  email?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  level?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  permissions?:
+    | string[]
+    | {
+        has?: string;
+        hasAll?: string[];
+        hasAny?: string[];
+        isEmpty?: boolean;
+      };
+  systemAccess?:
+    | boolean
+    | ({
+        eq?: boolean;
+        neq?: boolean;
+      } & {});
+  auditLog?:
+    | string[]
+    | {
+        has?: string;
+        hasAll?: string[];
+        hasAny?: string[];
+        isEmpty?: boolean;
+      };
+  AND?: ExtSystemAdminWhere[];
+  OR?: ExtSystemAdminWhere[];
+  NOT?: ExtSystemAdminWhere;
+}
+
+export type ExtSystemAdminWhereInput = ExtSystemAdminWhere;
+
+export type ExtSystemAdminFindUniqueWhere =
+  | ({ id: RecordIdInput<string> } & { email?: string } & Omit<ExtSystemAdminWhere, 'id' | 'email'>)
+  | ({ email: string } & { id?: RecordIdInput<string> } & Omit<ExtSystemAdminWhere, 'id' | 'email'>);
+
+export type ExtSystemAdminCreate = O.Optional<
+  ExtSystemAdminInput,
+  'id' | 'createdAt' | 'updatedAt' | 'level' | 'permissions' | 'systemAccess' | 'auditLog'
+>;
+
+export type ExtSystemAdminNestedCreate = O.Optional<
+  ExtSystemAdminInput,
+  'id' | 'createdAt' | 'updatedAt' | 'level' | 'permissions' | 'systemAccess' | 'auditLog'
+>;
+
+export type ExtSystemAdminCreateInput = ExtSystemAdminCreate;
+
+export type ExtSystemAdminUpdate = Partial<
+  O.Omit<ExtSystemAdminInput, 'id' | 'permissions' | 'auditLog' | 'createdAt' | 'updatedAt'>
+> & {
+  permissions?:
+    | string[]
+    | {
+        push?: string | string[];
+        unset?: string | string[];
+      };
+  auditLog?:
+    | string[]
+    | {
+        push?: string | string[];
+        unset?: string | string[];
+      };
+  createdAt?: Date | CerialNone;
+  updatedAt?: Date | CerialNone;
+};
+
+export type ExtSystemAdminUpdateInput = ExtSystemAdminUpdate;
+
+export type ExtSystemAdminUnset = {
+  createdAt?: true;
+  updatedAt?: true;
+};
+
+export type ExtSystemAdminSelect =
+  | ({ id: boolean } & Partial<
+      Record<
+        'createdAt' | 'updatedAt' | 'email' | 'name' | 'level' | 'permissions' | 'systemAccess' | 'auditLog',
+        boolean
+      >
+    >)
+  | ({ createdAt: boolean } & Partial<
+      Record<'id' | 'updatedAt' | 'email' | 'name' | 'level' | 'permissions' | 'systemAccess' | 'auditLog', boolean>
+    >)
+  | ({ updatedAt: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'email' | 'name' | 'level' | 'permissions' | 'systemAccess' | 'auditLog', boolean>
+    >)
+  | ({ email: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'updatedAt' | 'name' | 'level' | 'permissions' | 'systemAccess' | 'auditLog', boolean>
+    >)
+  | ({ name: boolean } & Partial<
+      Record<
+        'id' | 'createdAt' | 'updatedAt' | 'email' | 'level' | 'permissions' | 'systemAccess' | 'auditLog',
+        boolean
+      >
+    >)
+  | ({ level: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'permissions' | 'systemAccess' | 'auditLog', boolean>
+    >)
+  | ({ permissions: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'level' | 'systemAccess' | 'auditLog', boolean>
+    >)
+  | ({ systemAccess: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'level' | 'permissions' | 'auditLog', boolean>
+    >)
+  | ({ auditLog: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'level' | 'permissions' | 'systemAccess', boolean>
+    >);
+
+export interface ExtSystemAdminOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  updatedAt?: 'asc' | 'desc';
+  email?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  level?: 'asc' | 'desc';
+  permissions?: 'asc' | 'desc';
+  systemAccess?: 'asc' | 'desc';
+  auditLog?: 'asc' | 'desc';
+}
+
+export type ExtSystemAdmin$Relations = {};
+
+export type GetExtSystemAdminPayload<S extends ExtSystemAdminSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends ExtSystemAdminSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ExtSystemAdmin
+          ? ResolveFieldSelect<ExtSystemAdmin[K], S[K]>
+          : never;
+      }
+    : ExtSystemAdmin,
+  'flat'
+>;
+
+export interface ExtSystemAdminModel {
+  findOne<S extends ExtSystemAdminSelect | undefined = undefined>(options?: {
+    where?: ExtSystemAdminWhere;
+    select?: S;
+    orderBy?: ExtSystemAdminOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtSystemAdminPayload<S> | null>;
+
+  findMany<S extends ExtSystemAdminSelect | undefined = undefined>(options?: {
+    where?: ExtSystemAdminWhere;
+    select?: S;
+    orderBy?: ExtSystemAdminOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtSystemAdminPayload<S>[]>;
+
+  findUnique<S extends ExtSystemAdminSelect | undefined = undefined>(options: {
+    where: ExtSystemAdminFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtSystemAdminPayload<S> | null>;
+
+  create<S extends ExtSystemAdminSelect | undefined = undefined>(options: {
+    data: ExtSystemAdminCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtSystemAdminPayload<S>>;
+
+  updateMany<
+    S extends ExtSystemAdminSelect | undefined = undefined,
+    D extends ExtSystemAdminUpdateInput = ExtSystemAdminUpdateInput,
+  >(options: {
+    where: ExtSystemAdminWhere;
+    data: D;
+    unset?: SafeUnset<ExtSystemAdminUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtSystemAdminPayload<S>[]>;
+
+  updateUnique<
+    S extends ExtSystemAdminSelect | undefined = undefined,
+    D extends ExtSystemAdminUpdateInput = ExtSystemAdminUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ExtSystemAdminFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ExtSystemAdminUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ExtSystemAdmin | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetExtSystemAdminPayload<S>, R>>;
+
+  upsert<
+    S extends ExtSystemAdminSelect | undefined = undefined,
+    D extends ExtSystemAdminUpdateInput = ExtSystemAdminUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtSystemAdminFindUniqueWhere;
+    create: ExtSystemAdminCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtSystemAdminUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetExtSystemAdminPayload<S>, R>>;
+
+  upsert<
+    S extends ExtSystemAdminSelect | undefined = undefined,
+    D extends ExtSystemAdminUpdateInput = ExtSystemAdminUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtSystemAdminWhere;
+    create: ExtSystemAdminCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtSystemAdminUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetExtSystemAdminPayload<S>, R>>;
+
+  deleteMany(options: { where: ExtSystemAdminWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ExtSystemAdminFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ExtSystemAdmin | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ExtSystemAdmin, R>>;
+
+  count(where?: ExtSystemAdminWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ExtSystemAdminWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/extuser.ts =====
+/**
+ * Generated types for ExtUser
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface ExtUser {
+  id: CerialId<string>;
+  createdAt?: Date;
+  updatedAt?: Date;
+  email: string;
+  name: string;
+  isActive: boolean;
+  age?: number;
+  role: string;
+}
+
+export interface ExtUserInput {
+  id?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  email: string;
+  name: string;
+  isActive: boolean;
+  age?: number;
+  role: string;
+}
+
+export interface ExtUserWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  createdAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  updatedAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  /** @unique — Unique indexed field */
+  email?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  isActive?:
+    | boolean
+    | ({
+        eq?: boolean;
+        neq?: boolean;
+      } & {});
+  age?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  role?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  AND?: ExtUserWhere[];
+  OR?: ExtUserWhere[];
+  NOT?: ExtUserWhere;
+}
+
+export type ExtUserWhereInput = ExtUserWhere;
+
+export type ExtUserFindUniqueWhere =
+  | ({ id: RecordIdInput<string> } & { email?: string } & Omit<ExtUserWhere, 'id' | 'email'>)
+  | ({ email: string } & { id?: RecordIdInput<string> } & Omit<ExtUserWhere, 'id' | 'email'>);
+
+export type ExtUserCreate = O.Optional<ExtUserInput, 'id' | 'createdAt' | 'updatedAt' | 'isActive' | 'age' | 'role'>;
+
+export type ExtUserNestedCreate = O.Optional<
+  ExtUserInput,
+  'id' | 'createdAt' | 'updatedAt' | 'isActive' | 'age' | 'role'
+>;
+
+export type ExtUserCreateInput = ExtUserCreate;
+
+export type ExtUserUpdate = Partial<O.Omit<ExtUserInput, 'id' | 'createdAt' | 'updatedAt' | 'age'>> & {
+  createdAt?: Date | CerialNone;
+  updatedAt?: Date | CerialNone;
+  age?: number | CerialNone;
+};
+
+export type ExtUserUpdateInput = ExtUserUpdate;
+
+export type ExtUserUnset = {
+  createdAt?: true;
+  updatedAt?: true;
+  age?: true;
+};
+
+export type ExtUserSelect =
+  | ({ id: boolean } & Partial<
+      Record<'createdAt' | 'updatedAt' | 'email' | 'name' | 'isActive' | 'age' | 'role', boolean>
+    >)
+  | ({ createdAt: boolean } & Partial<
+      Record<'id' | 'updatedAt' | 'email' | 'name' | 'isActive' | 'age' | 'role', boolean>
+    >)
+  | ({ updatedAt: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'email' | 'name' | 'isActive' | 'age' | 'role', boolean>
+    >)
+  | ({ email: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'updatedAt' | 'name' | 'isActive' | 'age' | 'role', boolean>
+    >)
+  | ({ name: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'isActive' | 'age' | 'role', boolean>
+    >)
+  | ({ isActive: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'age' | 'role', boolean>
+    >)
+  | ({ age: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'isActive' | 'role', boolean>
+    >)
+  | ({ role: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'isActive' | 'age', boolean>
+    >);
+
+export interface ExtUserOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  updatedAt?: 'asc' | 'desc';
+  email?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  isActive?: 'asc' | 'desc';
+  age?: 'asc' | 'desc';
+  role?: 'asc' | 'desc';
+}
+
+export type ExtUser$Relations = {};
+
+export type GetExtUserPayload<S extends ExtUserSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends ExtUserSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ExtUser
+          ? ResolveFieldSelect<ExtUser[K], S[K]>
+          : never;
+      }
+    : ExtUser,
+  'flat'
+>;
+
+export interface ExtUserModel {
+  findOne<S extends ExtUserSelect | undefined = undefined>(options?: {
+    where?: ExtUserWhere;
+    select?: S;
+    orderBy?: ExtUserOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtUserPayload<S> | null>;
+
+  findMany<S extends ExtUserSelect | undefined = undefined>(options?: {
+    where?: ExtUserWhere;
+    select?: S;
+    orderBy?: ExtUserOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtUserPayload<S>[]>;
+
+  findUnique<S extends ExtUserSelect | undefined = undefined>(options: {
+    where: ExtUserFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtUserPayload<S> | null>;
+
+  create<S extends ExtUserSelect | undefined = undefined>(options: {
+    data: ExtUserCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtUserPayload<S>>;
+
+  updateMany<
+    S extends ExtUserSelect | undefined = undefined,
+    D extends ExtUserUpdateInput = ExtUserUpdateInput,
+  >(options: {
+    where: ExtUserWhere;
+    data: D;
+    unset?: SafeUnset<ExtUserUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtUserPayload<S>[]>;
+
+  updateUnique<
+    S extends ExtUserSelect | undefined = undefined,
+    D extends ExtUserUpdateInput = ExtUserUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ExtUserFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ExtUserUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ExtUser | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetExtUserPayload<S>, R>>;
+
+  upsert<
+    S extends ExtUserSelect | undefined = undefined,
+    D extends ExtUserUpdateInput = ExtUserUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtUserFindUniqueWhere;
+    create: ExtUserCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtUserUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetExtUserPayload<S>, R>>;
+
+  upsert<
+    S extends ExtUserSelect | undefined = undefined,
+    D extends ExtUserUpdateInput = ExtUserUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtUserWhere;
+    create: ExtUserCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtUserUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetExtUserPayload<S>, R>>;
+
+  deleteMany(options: { where: ExtUserWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ExtUserFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ExtUser | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ExtUser, R>>;
+
+  count(where?: ExtUserWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ExtUserWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}

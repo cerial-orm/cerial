@@ -1,0 +1,31 @@
+-- Post
+DEFINE TABLE OVERWRITE post SCHEMAFULL;
+DEFINE FIELD OVERWRITE title ON TABLE post TYPE string;
+DEFINE FIELD OVERWRITE content ON TABLE post TYPE option<string>;
+DEFINE FIELD OVERWRITE authorId ON TABLE post TYPE record<user>;
+
+-- Profile
+DEFINE TABLE OVERWRITE profile SCHEMAFULL;
+DEFINE FIELD OVERWRITE bio ON TABLE profile TYPE option<string | null>;
+DEFINE FIELD OVERWRITE avatarUrl ON TABLE profile TYPE option<string>;
+DEFINE FIELD OVERWRITE userId ON TABLE profile TYPE option<record<user> | null>;
+
+-- Tag
+DEFINE TABLE OVERWRITE tag SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE tag TYPE string;
+DEFINE FIELD OVERWRITE userIds ON TABLE tag TYPE array<record<user>> VALUE IF $value THEN $value.distinct() ELSE [] END;
+DEFINE INDEX OVERWRITE tag_name_unique ON TABLE tag COLUMNS name UNIQUE;
+
+-- User
+DEFINE TABLE OVERWRITE user SCHEMAFULL;
+DEFINE FIELD OVERWRITE email ON TABLE user TYPE string ASSERT string::is_email($value);
+DEFINE FIELD OVERWRITE name ON TABLE user TYPE string;
+DEFINE FIELD OVERWRITE age ON TABLE user TYPE option<int | null>;
+DEFINE FIELD OVERWRITE isActive ON TABLE user TYPE bool;
+DEFINE FIELD OVERWRITE createdAt ON TABLE user TYPE option<datetime> DEFAULT time::now();
+DEFINE FIELD OVERWRITE nicknames ON TABLE user TYPE array<string>;
+DEFINE FIELD OVERWRITE scores ON TABLE user TYPE array<int>;
+DEFINE FIELD OVERWRITE loginDates ON TABLE user TYPE array<datetime>;
+DEFINE FIELD OVERWRITE profileId ON TABLE user TYPE option<record<profile> | null>;
+DEFINE FIELD OVERWRITE tagIds ON TABLE user TYPE array<record<tag>> VALUE IF $value THEN $value.distinct() ELSE [] END;
+DEFINE INDEX OVERWRITE user_email_unique ON TABLE user COLUMNS email UNIQUE;

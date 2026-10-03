@@ -1,0 +1,69 @@
+-- ExtRelBlogAuthor
+DEFINE TABLE OVERWRITE ext_rel_blog_author SCHEMAFULL;
+DEFINE FIELD OVERWRITE createdAt ON TABLE ext_rel_blog_author TYPE option<datetime> DEFAULT time::now();
+DEFINE FIELD OVERWRITE updatedAt ON TABLE ext_rel_blog_author TYPE option<datetime> DEFAULT ALWAYS time::now();
+DEFINE FIELD OVERWRITE name ON TABLE ext_rel_blog_author TYPE string;
+DEFINE FIELD OVERWRITE email ON TABLE ext_rel_blog_author TYPE string ASSERT string::is_email($value);
+DEFINE FIELD OVERWRITE bio ON TABLE ext_rel_blog_author TYPE option<string>;
+DEFINE INDEX OVERWRITE ext_rel_blog_author_email_unique ON TABLE ext_rel_blog_author COLUMNS email UNIQUE;
+
+-- ExtRelBlogPost
+DEFINE TABLE OVERWRITE ext_rel_blog_post SCHEMAFULL;
+DEFINE FIELD OVERWRITE createdAt ON TABLE ext_rel_blog_post TYPE option<datetime> DEFAULT time::now();
+DEFINE FIELD OVERWRITE updatedAt ON TABLE ext_rel_blog_post TYPE option<datetime> DEFAULT ALWAYS time::now();
+DEFINE FIELD OVERWRITE title ON TABLE ext_rel_blog_post TYPE string;
+DEFINE FIELD OVERWRITE content ON TABLE ext_rel_blog_post TYPE option<string>;
+DEFINE FIELD OVERWRITE authorId ON TABLE ext_rel_blog_post TYPE record<ext_rel_blog_author>;
+
+-- ExtRelBlogPostTag
+DEFINE TABLE OVERWRITE ext_rel_blog_post_tag SCHEMAFULL;
+DEFINE FIELD OVERWRITE postId ON TABLE ext_rel_blog_post_tag TYPE option<record<ext_rel_blog_post>>;
+DEFINE FIELD OVERWRITE tagId ON TABLE ext_rel_blog_post_tag TYPE record<ext_rel_blog_tag>;
+
+-- ExtRelBlogTag
+DEFINE TABLE OVERWRITE ext_rel_blog_tag SCHEMAFULL;
+DEFINE FIELD OVERWRITE createdAt ON TABLE ext_rel_blog_tag TYPE option<datetime> DEFAULT time::now();
+DEFINE FIELD OVERWRITE updatedAt ON TABLE ext_rel_blog_tag TYPE option<datetime> DEFAULT ALWAYS time::now();
+DEFINE FIELD OVERWRITE name ON TABLE ext_rel_blog_tag TYPE string;
+DEFINE INDEX OVERWRITE ext_rel_blog_tag_name_unique ON TABLE ext_rel_blog_tag COLUMNS name UNIQUE;
+
+-- ExtRelComment
+DEFINE TABLE OVERWRITE ext_rel_comment SCHEMAFULL;
+DEFINE FIELD OVERWRITE createdAt ON TABLE ext_rel_comment TYPE option<datetime> DEFAULT time::now();
+DEFINE FIELD OVERWRITE updatedAt ON TABLE ext_rel_comment TYPE option<datetime> DEFAULT ALWAYS time::now();
+DEFINE FIELD OVERWRITE content ON TABLE ext_rel_comment TYPE string;
+DEFINE FIELD OVERWRITE parentCommentId ON TABLE ext_rel_comment TYPE option<record<ext_rel_comment>>;
+
+-- ExtRelCommentModerated
+DEFINE TABLE OVERWRITE ext_rel_comment_moderated SCHEMAFULL;
+DEFINE FIELD OVERWRITE createdAt ON TABLE ext_rel_comment_moderated TYPE option<datetime> DEFAULT time::now();
+DEFINE FIELD OVERWRITE updatedAt ON TABLE ext_rel_comment_moderated TYPE option<datetime> DEFAULT ALWAYS time::now();
+DEFINE FIELD OVERWRITE content ON TABLE ext_rel_comment_moderated TYPE string;
+DEFINE FIELD OVERWRITE parentCommentId ON TABLE ext_rel_comment_moderated TYPE option<record<ext_rel_comment>>;
+DEFINE FIELD OVERWRITE isApproved ON TABLE ext_rel_comment_moderated TYPE bool DEFAULT false;
+DEFINE FIELD OVERWRITE approvedBy ON TABLE ext_rel_comment_moderated TYPE option<record<ext_rel_blog_author>>;
+
+-- ExtRelPostArchive
+DEFINE TABLE OVERWRITE ext_rel_post_archive SCHEMAFULL;
+DEFINE FIELD OVERWRITE createdAt ON TABLE ext_rel_post_archive TYPE option<datetime> DEFAULT time::now();
+DEFINE FIELD OVERWRITE updatedAt ON TABLE ext_rel_post_archive TYPE option<datetime> DEFAULT ALWAYS time::now();
+DEFINE FIELD OVERWRITE title ON TABLE ext_rel_post_archive TYPE string;
+DEFINE FIELD OVERWRITE archivedAt ON TABLE ext_rel_post_archive TYPE option<datetime> DEFAULT time::now();
+DEFINE FIELD OVERWRITE archiveReason ON TABLE ext_rel_post_archive TYPE option<string>;
+
+-- ExtRelPostSummary
+DEFINE TABLE OVERWRITE ext_rel_post_summary SCHEMAFULL;
+DEFINE FIELD OVERWRITE createdAt ON TABLE ext_rel_post_summary TYPE option<datetime> DEFAULT time::now();
+DEFINE FIELD OVERWRITE updatedAt ON TABLE ext_rel_post_summary TYPE option<datetime> DEFAULT ALWAYS time::now();
+DEFINE FIELD OVERWRITE title ON TABLE ext_rel_post_summary TYPE string;
+DEFINE FIELD OVERWRITE content ON TABLE ext_rel_post_summary TYPE option<string>;
+DEFINE FIELD OVERWRITE summary ON TABLE ext_rel_post_summary TYPE option<string>;
+DEFINE FIELD OVERWRITE wordCount ON TABLE ext_rel_post_summary TYPE option<int>;
+
+-- ExtRelProject
+DEFINE TABLE OVERWRITE ext_rel_project SCHEMAFULL;
+DEFINE FIELD OVERWRITE createdAt ON TABLE ext_rel_project TYPE option<datetime> DEFAULT time::now();
+DEFINE FIELD OVERWRITE updatedAt ON TABLE ext_rel_project TYPE option<datetime> DEFAULT ALWAYS time::now();
+DEFINE FIELD OVERWRITE name ON TABLE ext_rel_project TYPE string;
+DEFINE FIELD OVERWRITE description ON TABLE ext_rel_project TYPE option<string>;
+DEFINE FIELD OVERWRITE ownerId ON TABLE ext_rel_project TYPE option<record<ext_rel_blog_author>>;

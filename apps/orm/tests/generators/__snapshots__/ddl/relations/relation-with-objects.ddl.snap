@@ -1,0 +1,21 @@
+-- RelObjCompany
+DEFINE TABLE OVERWRITE rel_obj_company SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE rel_obj_company TYPE string;
+DEFINE FIELD OVERWRITE headquarters ON TABLE rel_obj_company TYPE object;
+DEFINE FIELD OVERWRITE headquarters.street ON TABLE rel_obj_company TYPE string;
+DEFINE FIELD OVERWRITE headquarters.city ON TABLE rel_obj_company TYPE string;
+DEFINE FIELD OVERWRITE headquarters.state ON TABLE rel_obj_company TYPE string;
+DEFINE FIELD OVERWRITE headquarters.zipCode ON TABLE rel_obj_company TYPE option<string | null>;
+DEFINE FIELD OVERWRITE meta ON TABLE rel_obj_company TYPE option<object>;
+DEFINE FIELD OVERWRITE meta.industry ON TABLE rel_obj_company TYPE string;
+DEFINE FIELD OVERWRITE meta.founded ON TABLE rel_obj_company TYPE option<int>;
+
+-- RelObjEmployee
+DEFINE TABLE OVERWRITE rel_obj_employee SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE rel_obj_employee TYPE string;
+DEFINE FIELD OVERWRITE homeAddress ON TABLE rel_obj_employee TYPE object;
+DEFINE FIELD OVERWRITE homeAddress.street ON TABLE rel_obj_employee TYPE string;
+DEFINE FIELD OVERWRITE homeAddress.city ON TABLE rel_obj_employee TYPE string;
+DEFINE FIELD OVERWRITE homeAddress.state ON TABLE rel_obj_employee TYPE string;
+DEFINE FIELD OVERWRITE homeAddress.zipCode ON TABLE rel_obj_employee TYPE option<string | null>;
+DEFINE FIELD OVERWRITE companyId ON TABLE rel_obj_employee TYPE record<rel_obj_company>;

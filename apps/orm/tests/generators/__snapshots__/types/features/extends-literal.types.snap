@@ -1,0 +1,1034 @@
+// ===== models/extliteralcontainer.ts =====
+/**
+ * Generated types for ExtLiteralContainer
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  ExtLiteralInfo,
+  ExtLiteralInfoInput,
+  ExtLiteralInfoWhere,
+  ExtLiteralInfoSelect,
+  ExtLiteralInfoOrderBy,
+} from '../objects/extliteralinfo';
+export interface ExtLiteralContainer {
+  id: CerialId<string>;
+  name: string;
+  details: ExtLiteralInfo;
+  detailsList: ExtLiteralInfo[];
+}
+
+export interface ExtLiteralContainerInput {
+  id?: string;
+  name: string;
+  details: ExtLiteralInfoInput;
+  detailsList: ExtLiteralInfoInput[];
+}
+
+export interface ExtLiteralContainerWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  details?: ExtLiteralInfoWhere;
+  detailsList?: { some?: ExtLiteralInfoWhere; every?: ExtLiteralInfoWhere; none?: ExtLiteralInfoWhere };
+  AND?: ExtLiteralContainerWhere[];
+  OR?: ExtLiteralContainerWhere[];
+  NOT?: ExtLiteralContainerWhere;
+}
+
+export type ExtLiteralContainerWhereInput = ExtLiteralContainerWhere;
+
+export type ExtLiteralContainerFindUniqueWhere = { id: RecordIdInput<string> } & Omit<ExtLiteralContainerWhere, 'id'>;
+
+export type ExtLiteralContainerCreate = O.Optional<ExtLiteralContainerInput, 'id' | 'detailsList'>;
+
+export type ExtLiteralContainerNestedCreate = O.Optional<ExtLiteralContainerInput, 'id' | 'detailsList'>;
+
+export type ExtLiteralContainerCreateInput = ExtLiteralContainerCreate;
+
+export type ExtLiteralContainerUpdate = Partial<O.Omit<ExtLiteralContainerInput, 'id' | 'details' | 'detailsList'>> & {
+  details?: Partial<ExtLiteralInfoInput> | { set: ExtLiteralInfoInput };
+  detailsList?:
+    | ExtLiteralInfoInput[]
+    | {
+        push?: ExtLiteralInfoInput | ExtLiteralInfoInput[];
+        set?: ExtLiteralInfoInput[];
+        updateWhere?: {
+          where: ExtLiteralInfoWhere;
+          data: Partial<ExtLiteralInfoInput>;
+        };
+        unset?: { where: ExtLiteralInfoWhere };
+      };
+};
+
+export type ExtLiteralContainerUpdateInput = ExtLiteralContainerUpdate;
+
+export type ExtLiteralContainerUnset = {
+  details?: {
+    status?: true;
+  };
+};
+
+export type ExtLiteralContainerSelect =
+  | ({ id: boolean } & {
+      name?: boolean;
+      details?: boolean | ExtLiteralInfoSelect;
+      detailsList?: boolean | ExtLiteralInfoSelect;
+    })
+  | ({ name: boolean } & {
+      id?: boolean;
+      details?: boolean | ExtLiteralInfoSelect;
+      detailsList?: boolean | ExtLiteralInfoSelect;
+    })
+  | ({ details: boolean | ExtLiteralInfoSelect } & {
+      id?: boolean;
+      name?: boolean;
+      detailsList?: boolean | ExtLiteralInfoSelect;
+    })
+  | ({ detailsList: boolean | ExtLiteralInfoSelect } & {
+      id?: boolean;
+      name?: boolean;
+      details?: boolean | ExtLiteralInfoSelect;
+    });
+
+export interface ExtLiteralContainerOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  details?: ExtLiteralInfoOrderBy;
+  detailsList?: ExtLiteralInfoOrderBy;
+}
+
+export type ExtLiteralContainer$Relations = {};
+
+export type GetExtLiteralContainerPayload<
+  S extends ExtLiteralContainerSelect | undefined = undefined,
+  I = undefined,
+> = A.Compute<
+  S extends ExtLiteralContainerSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ExtLiteralContainer
+          ? ResolveFieldSelect<ExtLiteralContainer[K], S[K]>
+          : never;
+      }
+    : ExtLiteralContainer,
+  'flat'
+>;
+
+export interface ExtLiteralContainerModel {
+  findOne<S extends ExtLiteralContainerSelect | undefined = undefined>(options?: {
+    where?: ExtLiteralContainerWhere;
+    select?: S;
+    orderBy?: ExtLiteralContainerOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtLiteralContainerPayload<S> | null>;
+
+  findMany<S extends ExtLiteralContainerSelect | undefined = undefined>(options?: {
+    where?: ExtLiteralContainerWhere;
+    select?: S;
+    orderBy?: ExtLiteralContainerOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtLiteralContainerPayload<S>[]>;
+
+  findUnique<S extends ExtLiteralContainerSelect | undefined = undefined>(options: {
+    where: ExtLiteralContainerFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtLiteralContainerPayload<S> | null>;
+
+  create<S extends ExtLiteralContainerSelect | undefined = undefined>(options: {
+    data: ExtLiteralContainerCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtLiteralContainerPayload<S>>;
+
+  updateMany<
+    S extends ExtLiteralContainerSelect | undefined = undefined,
+    D extends ExtLiteralContainerUpdateInput = ExtLiteralContainerUpdateInput,
+  >(options: {
+    where: ExtLiteralContainerWhere;
+    data: D;
+    unset?: SafeUnset<ExtLiteralContainerUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtLiteralContainerPayload<S>[]>;
+
+  updateUnique<
+    S extends ExtLiteralContainerSelect | undefined = undefined,
+    D extends ExtLiteralContainerUpdateInput = ExtLiteralContainerUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ExtLiteralContainerFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ExtLiteralContainerUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ExtLiteralContainer | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetExtLiteralContainerPayload<S>, R>>;
+
+  upsert<
+    S extends ExtLiteralContainerSelect | undefined = undefined,
+    D extends ExtLiteralContainerUpdateInput = ExtLiteralContainerUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtLiteralContainerFindUniqueWhere;
+    create: ExtLiteralContainerCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtLiteralContainerUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetExtLiteralContainerPayload<S>, R>>;
+
+  upsert<
+    S extends ExtLiteralContainerSelect | undefined = undefined,
+    D extends ExtLiteralContainerUpdateInput = ExtLiteralContainerUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtLiteralContainerWhere;
+    create: ExtLiteralContainerCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtLiteralContainerUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetExtLiteralContainerPayload<S>, R>>;
+
+  deleteMany(options: { where: ExtLiteralContainerWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ExtLiteralContainerFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ExtLiteralContainer | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ExtLiteralContainer, R>>;
+
+  count(where?: ExtLiteralContainerWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ExtLiteralContainerWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/extliteralmodel.ts =====
+/**
+ * Generated types for ExtLiteralModel
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { ExtExtendedPriority, ExtExtendedPriorityWhere } from '../literals/extextendedpriority';
+import type { ExtExtendedLevel, ExtExtendedLevelWhere } from '../literals/extextendedlevel';
+import type { ExtExtendedMixed, ExtExtendedMixedWhere } from '../literals/extextendedmixed';
+import type { ExtExtendedBroad, ExtExtendedBroadWhere } from '../literals/extextendedbroad';
+import type { ExtHighPriority, ExtHighPriorityWhere } from '../literals/exthighpriority';
+export interface ExtLiteralModel {
+  id: CerialId<string>;
+  priority: ExtExtendedPriority;
+  level: ExtExtendedLevel;
+  status: ExtExtendedMixed;
+  broadValue: ExtExtendedBroad;
+  highPriority?: ExtHighPriority;
+  priorities: ExtExtendedPriority[];
+}
+
+export interface ExtLiteralModelInput {
+  id?: string;
+  priority: ExtExtendedPriority;
+  level: ExtExtendedLevel;
+  status: ExtExtendedMixed;
+  broadValue: ExtExtendedBroad;
+  highPriority?: ExtHighPriority;
+  priorities: ExtExtendedPriority[];
+}
+
+export interface ExtLiteralModelWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  priority?: ExtExtendedPriority | ExtExtendedPriorityWhere;
+  level?: ExtExtendedLevel | ExtExtendedLevelWhere;
+  status?: ExtExtendedMixed | ExtExtendedMixedWhere;
+  broadValue?: ExtExtendedBroad | ExtExtendedBroadWhere;
+  highPriority?: ExtHighPriority | ExtHighPriorityWhere;
+  priorities?: {
+    has?: ExtExtendedPriority;
+    hasAll?: ExtExtendedPriority[];
+    hasAny?: ExtExtendedPriority[];
+    isEmpty?: boolean;
+  };
+  AND?: ExtLiteralModelWhere[];
+  OR?: ExtLiteralModelWhere[];
+  NOT?: ExtLiteralModelWhere;
+}
+
+export type ExtLiteralModelWhereInput = ExtLiteralModelWhere;
+
+export type ExtLiteralModelFindUniqueWhere = { id: RecordIdInput<string> } & Omit<ExtLiteralModelWhere, 'id'>;
+
+export type ExtLiteralModelCreate = O.Optional<ExtLiteralModelInput, 'id' | 'highPriority' | 'priorities'>;
+
+export type ExtLiteralModelNestedCreate = O.Optional<ExtLiteralModelInput, 'id' | 'highPriority' | 'priorities'>;
+
+export type ExtLiteralModelCreateInput = ExtLiteralModelCreate;
+
+export type ExtLiteralModelUpdate = Partial<O.Omit<ExtLiteralModelInput, 'id' | 'priorities' | 'highPriority'>> & {
+  priorities?:
+    | ExtExtendedPriority[]
+    | {
+        push?: ExtExtendedPriority | ExtExtendedPriority[];
+        unset?: ExtExtendedPriority | ExtExtendedPriority[];
+      };
+  highPriority?: ExtHighPriority | CerialNone;
+};
+
+export type ExtLiteralModelUpdateInput = ExtLiteralModelUpdate;
+
+export type ExtLiteralModelUnset = {
+  highPriority?: true;
+};
+
+export type ExtLiteralModelSelect =
+  | ({ id: boolean } & Partial<
+      Record<'priority' | 'level' | 'status' | 'broadValue' | 'highPriority' | 'priorities', boolean>
+    >)
+  | ({ priority: boolean } & Partial<
+      Record<'id' | 'level' | 'status' | 'broadValue' | 'highPriority' | 'priorities', boolean>
+    >)
+  | ({ level: boolean } & Partial<
+      Record<'id' | 'priority' | 'status' | 'broadValue' | 'highPriority' | 'priorities', boolean>
+    >)
+  | ({ status: boolean } & Partial<
+      Record<'id' | 'priority' | 'level' | 'broadValue' | 'highPriority' | 'priorities', boolean>
+    >)
+  | ({ broadValue: boolean } & Partial<
+      Record<'id' | 'priority' | 'level' | 'status' | 'highPriority' | 'priorities', boolean>
+    >)
+  | ({ highPriority: boolean } & Partial<
+      Record<'id' | 'priority' | 'level' | 'status' | 'broadValue' | 'priorities', boolean>
+    >)
+  | ({ priorities: boolean } & Partial<
+      Record<'id' | 'priority' | 'level' | 'status' | 'broadValue' | 'highPriority', boolean>
+    >);
+
+export interface ExtLiteralModelOrderBy {
+  id?: 'asc' | 'desc';
+}
+
+export type ExtLiteralModel$Relations = {};
+
+export type GetExtLiteralModelPayload<
+  S extends ExtLiteralModelSelect | undefined = undefined,
+  I = undefined,
+> = A.Compute<
+  S extends ExtLiteralModelSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ExtLiteralModel
+          ? ResolveFieldSelect<ExtLiteralModel[K], S[K]>
+          : never;
+      }
+    : ExtLiteralModel,
+  'flat'
+>;
+
+export interface ExtLiteralModelModel {
+  findOne<S extends ExtLiteralModelSelect | undefined = undefined>(options?: {
+    where?: ExtLiteralModelWhere;
+    select?: S;
+    orderBy?: ExtLiteralModelOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtLiteralModelPayload<S> | null>;
+
+  findMany<S extends ExtLiteralModelSelect | undefined = undefined>(options?: {
+    where?: ExtLiteralModelWhere;
+    select?: S;
+    orderBy?: ExtLiteralModelOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtLiteralModelPayload<S>[]>;
+
+  findUnique<S extends ExtLiteralModelSelect | undefined = undefined>(options: {
+    where: ExtLiteralModelFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtLiteralModelPayload<S> | null>;
+
+  create<S extends ExtLiteralModelSelect | undefined = undefined>(options: {
+    data: ExtLiteralModelCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtLiteralModelPayload<S>>;
+
+  updateMany<
+    S extends ExtLiteralModelSelect | undefined = undefined,
+    D extends ExtLiteralModelUpdateInput = ExtLiteralModelUpdateInput,
+  >(options: {
+    where: ExtLiteralModelWhere;
+    data: D;
+    unset?: SafeUnset<ExtLiteralModelUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtLiteralModelPayload<S>[]>;
+
+  updateUnique<
+    S extends ExtLiteralModelSelect | undefined = undefined,
+    D extends ExtLiteralModelUpdateInput = ExtLiteralModelUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ExtLiteralModelFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ExtLiteralModelUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ExtLiteralModel | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetExtLiteralModelPayload<S>, R>>;
+
+  upsert<
+    S extends ExtLiteralModelSelect | undefined = undefined,
+    D extends ExtLiteralModelUpdateInput = ExtLiteralModelUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtLiteralModelFindUniqueWhere;
+    create: ExtLiteralModelCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtLiteralModelUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetExtLiteralModelPayload<S>, R>>;
+
+  upsert<
+    S extends ExtLiteralModelSelect | undefined = undefined,
+    D extends ExtLiteralModelUpdateInput = ExtLiteralModelUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtLiteralModelWhere;
+    create: ExtLiteralModelCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtLiteralModelUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetExtLiteralModelPayload<S>, R>>;
+
+  deleteMany(options: { where: ExtLiteralModelWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ExtLiteralModelFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ExtLiteralModel | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ExtLiteralModel, R>>;
+
+  count(where?: ExtLiteralModelWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ExtLiteralModelWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/extliteralquoted.ts =====
+/**
+ * Generated types for ExtLiteralQuoted
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { ExtQuotedPick, ExtQuotedPickWhere } from '../literals/extquotedpick';
+import type { ExtQuotedOmit, ExtQuotedOmitWhere } from '../literals/extquotedomit';
+export interface ExtLiteralQuoted {
+  id: CerialId<string>;
+  picked: ExtQuotedPick;
+  omitted: ExtQuotedOmit;
+}
+
+export interface ExtLiteralQuotedInput {
+  id?: string;
+  picked: ExtQuotedPick;
+  omitted: ExtQuotedOmit;
+}
+
+export interface ExtLiteralQuotedWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  picked?: ExtQuotedPick | ExtQuotedPickWhere;
+  omitted?: ExtQuotedOmit | ExtQuotedOmitWhere;
+  AND?: ExtLiteralQuotedWhere[];
+  OR?: ExtLiteralQuotedWhere[];
+  NOT?: ExtLiteralQuotedWhere;
+}
+
+export type ExtLiteralQuotedWhereInput = ExtLiteralQuotedWhere;
+
+export type ExtLiteralQuotedFindUniqueWhere = { id: RecordIdInput<string> } & Omit<ExtLiteralQuotedWhere, 'id'>;
+
+export type ExtLiteralQuotedCreate = O.Optional<ExtLiteralQuotedInput, 'id'>;
+
+export type ExtLiteralQuotedNestedCreate = O.Optional<ExtLiteralQuotedInput, 'id'>;
+
+export type ExtLiteralQuotedCreateInput = ExtLiteralQuotedCreate;
+
+export type ExtLiteralQuotedUpdate = Partial<O.Omit<ExtLiteralQuotedInput, 'id'>>;
+
+export type ExtLiteralQuotedUpdateInput = ExtLiteralQuotedUpdate;
+
+export type ExtLiteralQuotedUnset = {};
+
+export type ExtLiteralQuotedSelect =
+  | ({ id: boolean } & Partial<Record<'picked' | 'omitted', boolean>>)
+  | ({ picked: boolean } & Partial<Record<'id' | 'omitted', boolean>>)
+  | ({ omitted: boolean } & Partial<Record<'id' | 'picked', boolean>>);
+
+export interface ExtLiteralQuotedOrderBy {
+  id?: 'asc' | 'desc';
+}
+
+export type ExtLiteralQuoted$Relations = {};
+
+export type GetExtLiteralQuotedPayload<
+  S extends ExtLiteralQuotedSelect | undefined = undefined,
+  I = undefined,
+> = A.Compute<
+  S extends ExtLiteralQuotedSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ExtLiteralQuoted
+          ? ResolveFieldSelect<ExtLiteralQuoted[K], S[K]>
+          : never;
+      }
+    : ExtLiteralQuoted,
+  'flat'
+>;
+
+export interface ExtLiteralQuotedModel {
+  findOne<S extends ExtLiteralQuotedSelect | undefined = undefined>(options?: {
+    where?: ExtLiteralQuotedWhere;
+    select?: S;
+    orderBy?: ExtLiteralQuotedOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtLiteralQuotedPayload<S> | null>;
+
+  findMany<S extends ExtLiteralQuotedSelect | undefined = undefined>(options?: {
+    where?: ExtLiteralQuotedWhere;
+    select?: S;
+    orderBy?: ExtLiteralQuotedOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtLiteralQuotedPayload<S>[]>;
+
+  findUnique<S extends ExtLiteralQuotedSelect | undefined = undefined>(options: {
+    where: ExtLiteralQuotedFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtLiteralQuotedPayload<S> | null>;
+
+  create<S extends ExtLiteralQuotedSelect | undefined = undefined>(options: {
+    data: ExtLiteralQuotedCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtLiteralQuotedPayload<S>>;
+
+  updateMany<
+    S extends ExtLiteralQuotedSelect | undefined = undefined,
+    D extends ExtLiteralQuotedUpdateInput = ExtLiteralQuotedUpdateInput,
+  >(options: {
+    where: ExtLiteralQuotedWhere;
+    data: D;
+    unset?: SafeUnset<ExtLiteralQuotedUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtLiteralQuotedPayload<S>[]>;
+
+  updateUnique<
+    S extends ExtLiteralQuotedSelect | undefined = undefined,
+    D extends ExtLiteralQuotedUpdateInput = ExtLiteralQuotedUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ExtLiteralQuotedFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ExtLiteralQuotedUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ExtLiteralQuoted | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetExtLiteralQuotedPayload<S>, R>>;
+
+  upsert<
+    S extends ExtLiteralQuotedSelect | undefined = undefined,
+    D extends ExtLiteralQuotedUpdateInput = ExtLiteralQuotedUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtLiteralQuotedFindUniqueWhere;
+    create: ExtLiteralQuotedCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtLiteralQuotedUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetExtLiteralQuotedPayload<S>, R>>;
+
+  upsert<
+    S extends ExtLiteralQuotedSelect | undefined = undefined,
+    D extends ExtLiteralQuotedUpdateInput = ExtLiteralQuotedUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtLiteralQuotedWhere;
+    create: ExtLiteralQuotedCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtLiteralQuotedUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetExtLiteralQuotedPayload<S>, R>>;
+
+  deleteMany(options: { where: ExtLiteralQuotedWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ExtLiteralQuotedFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ExtLiteralQuoted | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ExtLiteralQuoted, R>>;
+
+  count(where?: ExtLiteralQuotedWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ExtLiteralQuotedWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== objects/extliteralinfo.ts =====
+/**
+ * Generated types for ExtLiteralInfo
+ * Do not edit manually
+ */
+
+import type { ExtExtendedPriority, ExtExtendedPriorityWhere } from '../literals/extextendedpriority';
+import type { ExtExtendedLevel, ExtExtendedLevelWhere } from '../literals/extextendedlevel';
+import type { ExtExtendedMixed, ExtExtendedMixedWhere } from '../literals/extextendedmixed';
+export interface ExtLiteralInfo {
+  priority: ExtExtendedPriority;
+  level: ExtExtendedLevel;
+  status?: ExtExtendedMixed;
+}
+
+export interface ExtLiteralInfoInput {
+  priority: ExtExtendedPriority;
+  level: ExtExtendedLevel;
+  status?: ExtExtendedMixed;
+}
+
+export interface ExtLiteralInfoWhere {
+  priority?: ExtExtendedPriority | ExtExtendedPriorityWhere;
+  level?: ExtExtendedLevel | ExtExtendedLevelWhere;
+  status?: ExtExtendedMixed | ExtExtendedMixedWhere;
+  AND?: ExtLiteralInfoWhere[];
+  OR?: ExtLiteralInfoWhere[];
+  NOT?: ExtLiteralInfoWhere;
+}
+
+export type ExtLiteralInfoSelect =
+  | ({ priority: boolean } & Partial<Record<'level' | 'status', boolean>>)
+  | ({ level: boolean } & Partial<Record<'priority' | 'status', boolean>>)
+  | ({ status: boolean } & Partial<Record<'priority' | 'level', boolean>>);
+
+export interface ExtLiteralInfoOrderBy {}
+
+// ===== literals/extbaselevel.ts =====
+/**
+ * Generated types for ExtBaseLevel
+ * Do not edit manually
+ */
+
+export type ExtBaseLevel = 1 | 2 | 3;
+
+export interface ExtBaseLevelWhere {
+  eq?: ExtBaseLevel;
+  neq?: ExtBaseLevel;
+  in?: ExtBaseLevel[];
+  notIn?: ExtBaseLevel[];
+  gt?: number;
+  gte?: number;
+  lt?: number;
+  lte?: number;
+  between?: [number, number];
+}
+
+// ===== literals/extbasemixed.ts =====
+/**
+ * Generated types for ExtBaseMixed
+ * Do not edit manually
+ */
+
+export type ExtBaseMixed = 'active' | 'inactive' | true | false;
+
+export interface ExtBaseMixedWhere {
+  eq?: ExtBaseMixed;
+  neq?: ExtBaseMixed;
+  in?: ExtBaseMixed[];
+  notIn?: ExtBaseMixed[];
+}
+
+// ===== literals/extbasepriority.ts =====
+/**
+ * Generated types for ExtBasePriority
+ * Do not edit manually
+ */
+
+export type ExtBasePriority = 'low' | 'medium' | 'high';
+
+export interface ExtBasePriorityWhere {
+  eq?: ExtBasePriority;
+  neq?: ExtBasePriority;
+  in?: ExtBasePriority[];
+  notIn?: ExtBasePriority[];
+}
+
+// ===== literals/extbroadtype.ts =====
+/**
+ * Generated types for ExtBroadType
+ * Do not edit manually
+ */
+
+export type ExtBroadType = string | number;
+
+export interface ExtBroadTypeWhere {
+  eq?: ExtBroadType;
+  neq?: ExtBroadType;
+  in?: ExtBroadType[];
+  notIn?: ExtBroadType[];
+  contains?: string;
+  startsWith?: string;
+  endsWith?: string;
+}
+
+// ===== literals/extextendedbroad.ts =====
+/**
+ * Generated types for ExtExtendedBroad
+ * Do not edit manually
+ */
+
+export type ExtExtendedBroad = string | number | boolean;
+
+export interface ExtExtendedBroadWhere {
+  eq?: ExtExtendedBroad;
+  neq?: ExtExtendedBroad;
+  in?: ExtExtendedBroad[];
+  notIn?: ExtExtendedBroad[];
+  contains?: string;
+  startsWith?: string;
+  endsWith?: string;
+}
+
+// ===== literals/extextendedlevel.ts =====
+/**
+ * Generated types for ExtExtendedLevel
+ * Do not edit manually
+ */
+
+export type ExtExtendedLevel = 1 | 2 | 3 | 4 | 5;
+
+export interface ExtExtendedLevelWhere {
+  eq?: ExtExtendedLevel;
+  neq?: ExtExtendedLevel;
+  in?: ExtExtendedLevel[];
+  notIn?: ExtExtendedLevel[];
+  gt?: number;
+  gte?: number;
+  lt?: number;
+  lte?: number;
+  between?: [number, number];
+}
+
+// ===== literals/extextendedmixed.ts =====
+/**
+ * Generated types for ExtExtendedMixed
+ * Do not edit manually
+ */
+
+export type ExtExtendedMixed = 'active' | 'inactive' | true | false | 'pending' | 0;
+
+export interface ExtExtendedMixedWhere {
+  eq?: ExtExtendedMixed;
+  neq?: ExtExtendedMixed;
+  in?: ExtExtendedMixed[];
+  notIn?: ExtExtendedMixed[];
+}
+
+// ===== literals/extextendedpriority.ts =====
+/**
+ * Generated types for ExtExtendedPriority
+ * Do not edit manually
+ */
+
+export type ExtExtendedPriority = 'low' | 'medium' | 'high' | 'critical' | 'urgent';
+
+export interface ExtExtendedPriorityWhere {
+  eq?: ExtExtendedPriority;
+  neq?: ExtExtendedPriority;
+  in?: ExtExtendedPriority[];
+  notIn?: ExtExtendedPriority[];
+}
+
+// ===== literals/exthighpriority.ts =====
+/**
+ * Generated types for ExtHighPriority
+ * Do not edit manually
+ */
+
+export type ExtHighPriority = 'low' | 'medium' | 'high' | 'critical';
+
+export interface ExtHighPriorityWhere {
+  eq?: ExtHighPriority;
+  neq?: ExtHighPriority;
+  in?: ExtHighPriority[];
+  notIn?: ExtHighPriority[];
+}
+
+// ===== literals/extlowmediumpriority.ts =====
+/**
+ * Generated types for ExtLowMediumPriority
+ * Do not edit manually
+ */
+
+export type ExtLowMediumPriority = 'low' | 'medium';
+
+export interface ExtLowMediumPriorityWhere {
+  eq?: ExtLowMediumPriority;
+  neq?: ExtLowMediumPriority;
+  in?: ExtLowMediumPriority[];
+  notIn?: ExtLowMediumPriority[];
+}
+
+// ===== literals/extnonboolmixed.ts =====
+/**
+ * Generated types for ExtNonBoolMixed
+ * Do not edit manually
+ */
+
+export type ExtNonBoolMixed = 'active' | 'inactive';
+
+export interface ExtNonBoolMixedWhere {
+  eq?: ExtNonBoolMixed;
+  neq?: ExtNonBoolMixed;
+  in?: ExtNonBoolMixed[];
+  notIn?: ExtNonBoolMixed[];
+}
+
+// ===== literals/extquotedomit.ts =====
+/**
+ * Generated types for ExtQuotedOmit
+ * Do not edit manually
+ */
+
+export type ExtQuotedOmit = 'low' | 'high';
+
+export interface ExtQuotedOmitWhere {
+  eq?: ExtQuotedOmit;
+  neq?: ExtQuotedOmit;
+  in?: ExtQuotedOmit[];
+  notIn?: ExtQuotedOmit[];
+}
+
+// ===== literals/extquotedpick.ts =====
+/**
+ * Generated types for ExtQuotedPick
+ * Do not edit manually
+ */
+
+export type ExtQuotedPick = 'low' | 'high';
+
+export interface ExtQuotedPickWhere {
+  eq?: ExtQuotedPick;
+  neq?: ExtQuotedPick;
+  in?: ExtQuotedPick[];
+  notIn?: ExtQuotedPick[];
+}
+
+// ===== literals/extstringonly.ts =====
+/**
+ * Generated types for ExtStringOnly
+ * Do not edit manually
+ */
+
+export type ExtStringOnly = true | false;
+
+export interface ExtStringOnlyWhere {
+  eq?: ExtStringOnly;
+  neq?: ExtStringOnly;
+  in?: ExtStringOnly[];
+  notIn?: ExtStringOnly[];
+}

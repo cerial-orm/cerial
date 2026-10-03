@@ -1,0 +1,337 @@
+{
+  "models": {
+    "NumberBasic": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "price",
+          "type": "number"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "rating",
+          "type": "number"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "weight",
+          "type": "number"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "scores",
+          "type": "number"
+        }
+      ],
+      "name": "NumberBasic",
+      "tableName": "number_basic"
+    },
+    "NumberDecorated": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "defaultValue": 0,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "score",
+          "type": "number"
+        },
+        {
+          "defaultAlwaysValue": 1,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "multiplier",
+          "type": "number"
+        }
+      ],
+      "name": "NumberDecorated",
+      "tableName": "number_decorated"
+    },
+    "NumberWithObject": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "stats",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "views",
+                "type": "number"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "downloads",
+                "type": "number"
+              },
+              {
+                "defaultValue": 0,
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "rating",
+                "type": "number"
+              }
+            ],
+            "objectName": "NumberInfo"
+          },
+          "type": "object"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "optStats",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "views",
+                "type": "number"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "downloads",
+                "type": "number"
+              },
+              {
+                "defaultValue": 0,
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "rating",
+                "type": "number"
+              }
+            ],
+            "objectName": "NumberInfo"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "NumberWithObject",
+      "tableName": "number_with_object"
+    },
+    "NumberWithTuple": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "coord",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "type": "number"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "type": "number"
+              },
+              {
+                "index": 2,
+                "isNullable": true,
+                "isOptional": false,
+                "type": "number"
+              }
+            ],
+            "tupleName": "NumberCoord"
+          },
+          "type": "tuple"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "optCoord",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "type": "number"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "type": "number"
+              },
+              {
+                "index": 2,
+                "isNullable": true,
+                "isOptional": false,
+                "type": "number"
+              }
+            ],
+            "tupleName": "NumberCoord"
+          },
+          "type": "tuple"
+        }
+      ],
+      "name": "NumberWithTuple",
+      "tableName": "number_with_tuple"
+    }
+  },
+  "objects": {
+    "NumberInfo": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "views",
+          "type": "number"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "downloads",
+          "type": "number"
+        },
+        {
+          "defaultValue": 0,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "rating",
+          "type": "number"
+        }
+      ],
+      "name": "NumberInfo"
+    }
+  },
+  "tuples": {
+    "NumberCoord": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "type": "number"
+        },
+        {
+          "index": 1,
+          "isOptional": false,
+          "type": "number"
+        },
+        {
+          "index": 2,
+          "isNullable": true,
+          "isOptional": false,
+          "type": "number"
+        }
+      ],
+      "name": "NumberCoord"
+    }
+  }
+}

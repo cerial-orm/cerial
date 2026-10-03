@@ -1,0 +1,194 @@
+{
+  "models": [
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "data",
+          "type": "any"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "items",
+          "type": "any"
+        }
+      ],
+      "name": "AnyBasic"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "meta",
+          "objectName": "AnyMeta",
+          "type": "object"
+        }
+      ],
+      "name": "AnyWithObject"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": "hello"
+            }
+          ],
+          "isOptional": false,
+          "name": "defData",
+          "type": "any"
+        },
+        {
+          "decorators": [
+            {
+              "type": "defaultAlways",
+              "value": 42
+            }
+          ],
+          "isOptional": false,
+          "name": "alwaysData",
+          "type": "any"
+        },
+        {
+          "decorators": [
+            {
+              "type": "readonly"
+            }
+          ],
+          "isOptional": false,
+          "name": "readonlyData",
+          "type": "any"
+        },
+        {
+          "decorators": [
+            {
+              "type": "index"
+            }
+          ],
+          "isOptional": false,
+          "name": "indexedData",
+          "type": "any"
+        },
+        {
+          "decorators": [
+            {
+              "type": "sort",
+              "value": true
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "sortedItems",
+          "type": "any"
+        },
+        {
+          "decorators": [
+            {
+              "type": "distinct"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "distinctItems",
+          "type": "any"
+        }
+      ],
+      "name": "AnyDecorated"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "unique"
+            }
+          ],
+          "isOptional": false,
+          "name": "uniqueData",
+          "type": "any"
+        }
+      ],
+      "name": "AnyUnique"
+    }
+  ],
+  "objects": [
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "data",
+          "type": "any"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "label",
+          "type": "string"
+        }
+      ],
+      "name": "AnyMeta"
+    }
+  ]
+}

@@ -1,0 +1,279 @@
+{
+  "models": {
+    "GeometryBasic": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "location",
+          "type": "geometry"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "area",
+          "type": "geometry"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "shape",
+          "type": "geometry"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "route",
+          "type": "geometry"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "multi",
+          "type": "geometry"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "optionalGeo",
+          "type": "geometry"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "geoArray",
+          "type": "geometry"
+        }
+      ],
+      "name": "GeometryBasic",
+      "tableName": "geometry_basic"
+    },
+    "GeometryMulti": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "points",
+          "type": "geometry"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "lines",
+          "type": "geometry"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "polygons",
+          "type": "geometry"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "collection",
+          "type": "geometry"
+        }
+      ],
+      "name": "GeometryMulti",
+      "tableName": "geometry_multi"
+    },
+    "GeometryWithObject": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "geo",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "position",
+                "type": "geometry"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "boundary",
+                "type": "geometry"
+              }
+            ],
+            "objectName": "GeoInfo"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "GeometryWithObject",
+      "tableName": "geometry_with_object"
+    },
+    "GeometryWithTuple": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "pair",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "type": "geometry"
+              },
+              {
+                "index": 1,
+                "isNullable": true,
+                "isOptional": false,
+                "type": "geometry"
+              }
+            ],
+            "tupleName": "GeoPair"
+          },
+          "type": "tuple"
+        }
+      ],
+      "name": "GeometryWithTuple",
+      "tableName": "geometry_with_tuple"
+    }
+  },
+  "objects": {
+    "GeoInfo": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "position",
+          "type": "geometry"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "boundary",
+          "type": "geometry"
+        }
+      ],
+      "name": "GeoInfo"
+    }
+  },
+  "tuples": {
+    "GeoPair": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "type": "geometry"
+        },
+        {
+          "index": 1,
+          "isNullable": true,
+          "isOptional": false,
+          "type": "geometry"
+        }
+      ],
+      "name": "GeoPair"
+    }
+  }
+}

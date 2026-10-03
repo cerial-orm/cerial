@@ -1,0 +1,137 @@
+{
+  "models": [
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "flexible"
+            }
+          ],
+          "isOptional": false,
+          "name": "address",
+          "objectName": "FlexAddress",
+          "type": "object"
+        },
+        {
+          "decorators": [
+            {
+              "type": "flexible"
+            }
+          ],
+          "isOptional": true,
+          "name": "shipping",
+          "objectName": "FlexAddress",
+          "type": "object"
+        },
+        {
+          "decorators": [
+            {
+              "type": "flexible"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "tags",
+          "objectName": "FlexAddress",
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "profile",
+          "objectName": "FlexProfile",
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "strictAddress",
+          "objectName": "FlexAddress",
+          "type": "object"
+        }
+      ],
+      "name": "FlexUser"
+    }
+  ],
+  "objects": [
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "street",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "city",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "zip",
+          "type": "string"
+        }
+      ],
+      "name": "FlexAddress"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "label",
+          "type": "string"
+        }
+      ],
+      "name": "FlexMeta"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "bio",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "flexible"
+            }
+          ],
+          "isOptional": false,
+          "name": "metadata",
+          "objectName": "FlexMeta",
+          "type": "object"
+        }
+      ],
+      "name": "FlexProfile"
+    }
+  ]
+}

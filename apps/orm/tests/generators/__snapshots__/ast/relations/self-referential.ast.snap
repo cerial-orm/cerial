@@ -1,0 +1,393 @@
+{
+  "models": [
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "mentorId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "mentorId"
+            },
+            {
+              "type": "model",
+              "value": "Person"
+            }
+          ],
+          "isOptional": true,
+          "name": "mentor",
+          "type": "relation"
+        }
+      ],
+      "name": "Person"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "assistsId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "assistsId"
+            },
+            {
+              "type": "model",
+              "value": "Assistant"
+            },
+            {
+              "type": "key",
+              "value": "assist"
+            }
+          ],
+          "isOptional": true,
+          "name": "assists",
+          "type": "relation"
+        },
+        {
+          "decorators": [
+            {
+              "type": "model",
+              "value": "Assistant"
+            },
+            {
+              "type": "key",
+              "value": "assist"
+            }
+          ],
+          "isOptional": true,
+          "name": "assistedBy",
+          "type": "relation"
+        }
+      ],
+      "name": "Assistant"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "managerId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "managerId"
+            },
+            {
+              "type": "model",
+              "value": "EmployeeSingleSided"
+            }
+          ],
+          "isOptional": true,
+          "name": "manager",
+          "type": "relation"
+        }
+      ],
+      "name": "EmployeeSingleSided"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "managerId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "managerId"
+            },
+            {
+              "type": "model",
+              "value": "EmployeeWithReports"
+            },
+            {
+              "type": "key",
+              "value": "manages"
+            }
+          ],
+          "isOptional": true,
+          "name": "manager",
+          "type": "relation"
+        },
+        {
+          "decorators": [
+            {
+              "type": "model",
+              "value": "EmployeeWithReports"
+            },
+            {
+              "type": "key",
+              "value": "manages"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "directReports",
+          "type": "relation"
+        }
+      ],
+      "name": "EmployeeWithReports"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "friendIds",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "friendIds"
+            },
+            {
+              "type": "model",
+              "value": "Friend"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "friends",
+          "type": "relation"
+        }
+      ],
+      "name": "Friend"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "followingIds",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "followingIds"
+            },
+            {
+              "type": "model",
+              "value": "SocialUser"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "following",
+          "type": "relation"
+        }
+      ],
+      "name": "SocialUser"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "parentId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "parentId"
+            },
+            {
+              "type": "model",
+              "value": "CategoryTree"
+            },
+            {
+              "type": "key",
+              "value": "hierarchy"
+            }
+          ],
+          "isOptional": true,
+          "name": "parent",
+          "type": "relation"
+        },
+        {
+          "decorators": [
+            {
+              "type": "model",
+              "value": "CategoryTree"
+            },
+            {
+              "type": "key",
+              "value": "hierarchy"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "children",
+          "type": "relation"
+        }
+      ],
+      "name": "CategoryTree"
+    }
+  ]
+}

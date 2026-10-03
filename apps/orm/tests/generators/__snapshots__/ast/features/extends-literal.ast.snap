@@ -1,0 +1,410 @@
+{
+  "literals": [
+    {
+      "name": "ExtBasePriority",
+      "variants": [
+        {
+          "kind": "string",
+          "value": "low"
+        },
+        {
+          "kind": "string",
+          "value": "medium"
+        },
+        {
+          "kind": "string",
+          "value": "high"
+        }
+      ]
+    },
+    {
+      "name": "ExtExtendedPriority",
+      "variants": [
+        {
+          "kind": "string",
+          "value": "low"
+        },
+        {
+          "kind": "string",
+          "value": "medium"
+        },
+        {
+          "kind": "string",
+          "value": "high"
+        },
+        {
+          "kind": "string",
+          "value": "critical"
+        },
+        {
+          "kind": "string",
+          "value": "urgent"
+        }
+      ]
+    },
+    {
+      "name": "ExtHighPriority",
+      "variants": [
+        {
+          "kind": "string",
+          "value": "low"
+        },
+        {
+          "kind": "string",
+          "value": "medium"
+        },
+        {
+          "kind": "string",
+          "value": "high"
+        },
+        {
+          "kind": "string",
+          "value": "critical"
+        }
+      ]
+    },
+    {
+      "name": "ExtLowMediumPriority",
+      "variants": [
+        {
+          "kind": "string",
+          "value": "low"
+        },
+        {
+          "kind": "string",
+          "value": "medium"
+        }
+      ]
+    },
+    {
+      "name": "ExtBaseLevel",
+      "variants": [
+        {
+          "kind": "int",
+          "value": 1
+        },
+        {
+          "kind": "int",
+          "value": 2
+        },
+        {
+          "kind": "int",
+          "value": 3
+        }
+      ]
+    },
+    {
+      "name": "ExtExtendedLevel",
+      "variants": [
+        {
+          "kind": "int",
+          "value": 1
+        },
+        {
+          "kind": "int",
+          "value": 2
+        },
+        {
+          "kind": "int",
+          "value": 3
+        },
+        {
+          "kind": "int",
+          "value": 4
+        },
+        {
+          "kind": "int",
+          "value": 5
+        }
+      ]
+    },
+    {
+      "name": "ExtBaseMixed",
+      "variants": [
+        {
+          "kind": "string",
+          "value": "active"
+        },
+        {
+          "kind": "string",
+          "value": "inactive"
+        },
+        {
+          "kind": "bool",
+          "value": true
+        },
+        {
+          "kind": "bool",
+          "value": false
+        }
+      ]
+    },
+    {
+      "name": "ExtExtendedMixed",
+      "variants": [
+        {
+          "kind": "string",
+          "value": "active"
+        },
+        {
+          "kind": "string",
+          "value": "inactive"
+        },
+        {
+          "kind": "bool",
+          "value": true
+        },
+        {
+          "kind": "bool",
+          "value": false
+        },
+        {
+          "kind": "string",
+          "value": "pending"
+        },
+        {
+          "kind": "int",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "name": "ExtBroadType",
+      "variants": [
+        {
+          "kind": "broadType",
+          "typeName": "String"
+        },
+        {
+          "kind": "broadType",
+          "typeName": "Int"
+        }
+      ]
+    },
+    {
+      "name": "ExtExtendedBroad",
+      "variants": [
+        {
+          "kind": "broadType",
+          "typeName": "String"
+        },
+        {
+          "kind": "broadType",
+          "typeName": "Int"
+        },
+        {
+          "kind": "broadType",
+          "typeName": "Bool"
+        }
+      ]
+    },
+    {
+      "name": "ExtStringOnly",
+      "variants": [
+        {
+          "kind": "bool",
+          "value": true
+        },
+        {
+          "kind": "bool",
+          "value": false
+        }
+      ]
+    },
+    {
+      "name": "ExtNonBoolMixed",
+      "variants": [
+        {
+          "kind": "string",
+          "value": "active"
+        },
+        {
+          "kind": "string",
+          "value": "inactive"
+        }
+      ]
+    },
+    {
+      "name": "ExtQuotedPick",
+      "variants": [
+        {
+          "kind": "string",
+          "value": "low"
+        },
+        {
+          "kind": "string",
+          "value": "high"
+        }
+      ]
+    },
+    {
+      "name": "ExtQuotedOmit",
+      "variants": [
+        {
+          "kind": "string",
+          "value": "low"
+        },
+        {
+          "kind": "string",
+          "value": "high"
+        }
+      ]
+    }
+  ],
+  "models": [
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "literalName": "ExtExtendedPriority",
+          "name": "priority",
+          "type": "literal"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "literalName": "ExtExtendedLevel",
+          "name": "level",
+          "type": "literal"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "literalName": "ExtExtendedMixed",
+          "name": "status",
+          "type": "literal"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "literalName": "ExtExtendedBroad",
+          "name": "broadValue",
+          "type": "literal"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "literalName": "ExtHighPriority",
+          "name": "highPriority",
+          "type": "literal"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "literalName": "ExtExtendedPriority",
+          "name": "priorities",
+          "type": "literal"
+        }
+      ],
+      "name": "ExtLiteralModel"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "details",
+          "objectName": "ExtLiteralInfo",
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "detailsList",
+          "objectName": "ExtLiteralInfo",
+          "type": "object"
+        }
+      ],
+      "name": "ExtLiteralContainer"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "literalName": "ExtQuotedPick",
+          "name": "picked",
+          "type": "literal"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "literalName": "ExtQuotedOmit",
+          "name": "omitted",
+          "type": "literal"
+        }
+      ],
+      "name": "ExtLiteralQuoted"
+    }
+  ],
+  "objects": [
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "literalName": "ExtExtendedPriority",
+          "name": "priority",
+          "type": "literal"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "literalName": "ExtExtendedLevel",
+          "name": "level",
+          "type": "literal"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "literalName": "ExtExtendedMixed",
+          "name": "status",
+          "type": "literal"
+        }
+      ],
+      "name": "ExtLiteralInfo"
+    }
+  ]
+}

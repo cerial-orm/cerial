@@ -1,0 +1,10 @@
+-- Staff
+DEFINE TABLE OVERWRITE staff SCHEMAFULL;
+DEFINE FIELD OVERWRITE firstName ON TABLE staff TYPE string;
+DEFINE FIELD OVERWRITE lastName ON TABLE staff TYPE string;
+DEFINE FIELD OVERWRITE department ON TABLE staff TYPE string;
+DEFINE FIELD OVERWRITE email ON TABLE staff TYPE string ASSERT string::is_email($value);
+DEFINE FIELD OVERWRITE age ON TABLE staff TYPE option<int>;
+DEFINE INDEX OVERWRITE staff_email_unique ON TABLE staff COLUMNS email UNIQUE;
+DEFINE INDEX OVERWRITE staffFullName ON TABLE staff COLUMNS firstName, lastName UNIQUE;
+DEFINE INDEX OVERWRITE staffDeptName ON TABLE staff COLUMNS department, firstName;

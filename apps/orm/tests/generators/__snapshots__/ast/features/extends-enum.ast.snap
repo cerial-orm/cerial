@@ -1,0 +1,198 @@
+{
+  "enums": [
+    {
+      "name": "ExtBaseRole",
+      "values": [
+        "ADMIN",
+        "USER",
+        "MODERATOR"
+      ]
+    },
+    {
+      "name": "ExtExtendedRole",
+      "values": [
+        "ADMIN",
+        "USER",
+        "MODERATOR",
+        "SUPERADMIN",
+        "GUEST"
+      ]
+    },
+    {
+      "name": "ExtCoreRole",
+      "values": [
+        "ADMIN",
+        "USER"
+      ]
+    },
+    {
+      "name": "ExtNonAdminRole",
+      "values": [
+        "USER",
+        "MODERATOR"
+      ]
+    },
+    {
+      "name": "ExtCustomRole",
+      "values": [
+        "ADMIN",
+        "USER",
+        "MODERATOR",
+        "CUSTOM"
+      ]
+    },
+    {
+      "name": "ExtBaseStatus",
+      "values": [
+        "ACTIVE",
+        "INACTIVE",
+        "PENDING"
+      ]
+    },
+    {
+      "name": "ExtDetailedStatus",
+      "values": [
+        "ACTIVE",
+        "INACTIVE",
+        "PENDING",
+        "ARCHIVED",
+        "DELETED",
+        "SUSPENDED"
+      ]
+    },
+    {
+      "name": "ExtSimpleStatus",
+      "values": [
+        "ACTIVE",
+        "INACTIVE"
+      ]
+    }
+  ],
+  "models": [
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "literalName": "ExtExtendedRole",
+          "name": "role",
+          "type": "literal"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "literalName": "ExtDetailedStatus",
+          "name": "status",
+          "type": "literal"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "literalName": "ExtCoreRole",
+          "name": "coreRole",
+          "type": "literal"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "literalName": "ExtNonAdminRole",
+          "name": "nonAdminRole",
+          "type": "literal"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "literalName": "ExtExtendedRole",
+          "name": "roles",
+          "type": "literal"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "literalName": "ExtDetailedStatus",
+          "name": "statuses",
+          "type": "literal"
+        }
+      ],
+      "name": "ExtEnumModel"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "details",
+          "objectName": "ExtEnumInfo",
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "detailsList",
+          "objectName": "ExtEnumInfo",
+          "type": "object"
+        }
+      ],
+      "name": "ExtEnumContainer"
+    }
+  ],
+  "objects": [
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "literalName": "ExtExtendedRole",
+          "name": "role",
+          "type": "literal"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "literalName": "ExtDetailedStatus",
+          "name": "status",
+          "type": "literal"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "literalName": "ExtCoreRole",
+          "name": "backupRole",
+          "type": "literal"
+        }
+      ],
+      "name": "ExtEnumInfo"
+    }
+  ]
+}

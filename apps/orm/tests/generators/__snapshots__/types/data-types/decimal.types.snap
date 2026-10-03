@@ -1,0 +1,1207 @@
+// ===== models/decimalbasic.ts =====
+/**
+ * Generated types for DecimalBasic
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import { CerialDecimal } from 'cerial';
+import type { CerialDecimalInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface DecimalBasic {
+  id: CerialId<string>;
+  name: string;
+  price: CerialDecimal;
+  discount?: CerialDecimal;
+  tax: CerialDecimal | null;
+  amounts: CerialDecimal[];
+}
+
+export interface DecimalBasicInput {
+  id?: string;
+  name: string;
+  price: CerialDecimalInput;
+  discount?: CerialDecimalInput;
+  tax: CerialDecimalInput | null;
+  amounts: CerialDecimalInput[];
+}
+
+export interface DecimalBasicWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  price?:
+    | CerialDecimalInput
+    | ({
+        eq?: CerialDecimalInput;
+        neq?: CerialDecimalInput;
+        gt?: CerialDecimalInput;
+        gte?: CerialDecimalInput;
+        lt?: CerialDecimalInput;
+        lte?: CerialDecimalInput;
+      } & {
+        in?: CerialDecimalInput[];
+        notIn?: CerialDecimalInput[];
+      } & {
+        between?: [CerialDecimalInput, CerialDecimalInput];
+      });
+  discount?:
+    | CerialDecimalInput
+    | ({
+        eq?: CerialDecimalInput;
+        neq?: CerialDecimalInput;
+        gt?: CerialDecimalInput;
+        gte?: CerialDecimalInput;
+        lt?: CerialDecimalInput;
+        lte?: CerialDecimalInput;
+      } & {
+        in?: CerialDecimalInput[];
+        notIn?: CerialDecimalInput[];
+      } & {
+        not?: CerialDecimalInput;
+        isNone?: boolean;
+        between?: [CerialDecimalInput, CerialDecimalInput];
+      });
+  tax?:
+    | null
+    | CerialDecimalInput
+    | ({
+        eq?: CerialDecimalInput;
+        neq?: CerialDecimalInput;
+        gt?: CerialDecimalInput;
+        gte?: CerialDecimalInput;
+        lt?: CerialDecimalInput;
+        lte?: CerialDecimalInput;
+      } & {
+        in?: CerialDecimalInput[];
+        notIn?: CerialDecimalInput[];
+      } & {
+        not?: CerialDecimalInput | null;
+        isNull?: boolean;
+        between?: [CerialDecimalInput, CerialDecimalInput];
+      });
+  amounts?:
+    | CerialDecimalInput[]
+    | {
+        has?: CerialDecimalInput;
+        hasAll?: CerialDecimalInput[];
+        hasAny?: CerialDecimalInput[];
+        isEmpty?: boolean;
+      };
+  AND?: DecimalBasicWhere[];
+  OR?: DecimalBasicWhere[];
+  NOT?: DecimalBasicWhere;
+}
+
+export type DecimalBasicWhereInput = DecimalBasicWhere;
+
+export type DecimalBasicFindUniqueWhere = { id: RecordIdInput<string> } & Omit<DecimalBasicWhere, 'id'>;
+
+export type DecimalBasicCreate = O.Optional<DecimalBasicInput, 'id' | 'discount' | 'amounts'>;
+
+export type DecimalBasicNestedCreate = O.Optional<DecimalBasicInput, 'id' | 'discount' | 'amounts'>;
+
+export type DecimalBasicCreateInput = DecimalBasicCreate;
+
+export type DecimalBasicUpdate = Partial<O.Omit<DecimalBasicInput, 'id' | 'amounts' | 'discount' | 'tax'>> & {
+  amounts?:
+    | CerialDecimalInput[]
+    | {
+        push?: CerialDecimalInput | CerialDecimalInput[];
+        unset?: CerialDecimalInput | CerialDecimalInput[];
+      };
+  discount?: CerialDecimalInput | CerialNone;
+  tax?: CerialDecimalInput | null;
+};
+
+export type DecimalBasicUpdateInput = DecimalBasicUpdate;
+
+export type DecimalBasicUnset = {
+  discount?: true;
+};
+
+export type DecimalBasicSelect =
+  | ({ id: boolean } & Partial<Record<'name' | 'price' | 'discount' | 'tax' | 'amounts', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'price' | 'discount' | 'tax' | 'amounts', boolean>>)
+  | ({ price: boolean } & Partial<Record<'id' | 'name' | 'discount' | 'tax' | 'amounts', boolean>>)
+  | ({ discount: boolean } & Partial<Record<'id' | 'name' | 'price' | 'tax' | 'amounts', boolean>>)
+  | ({ tax: boolean } & Partial<Record<'id' | 'name' | 'price' | 'discount' | 'amounts', boolean>>)
+  | ({ amounts: boolean } & Partial<Record<'id' | 'name' | 'price' | 'discount' | 'tax', boolean>>);
+
+export interface DecimalBasicOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  price?: 'asc' | 'desc';
+  discount?: 'asc' | 'desc';
+  tax?: 'asc' | 'desc';
+  amounts?: 'asc' | 'desc';
+}
+
+export type DecimalBasic$Relations = {};
+
+export type GetDecimalBasicPayload<S extends DecimalBasicSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends DecimalBasicSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof DecimalBasic
+          ? ResolveFieldSelect<DecimalBasic[K], S[K]>
+          : never;
+      }
+    : DecimalBasic,
+  'flat'
+>;
+
+export interface DecimalBasicModel {
+  findOne<S extends DecimalBasicSelect | undefined = undefined>(options?: {
+    where?: DecimalBasicWhere;
+    select?: S;
+    orderBy?: DecimalBasicOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetDecimalBasicPayload<S> | null>;
+
+  findMany<S extends DecimalBasicSelect | undefined = undefined>(options?: {
+    where?: DecimalBasicWhere;
+    select?: S;
+    orderBy?: DecimalBasicOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetDecimalBasicPayload<S>[]>;
+
+  findUnique<S extends DecimalBasicSelect | undefined = undefined>(options: {
+    where: DecimalBasicFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetDecimalBasicPayload<S> | null>;
+
+  create<S extends DecimalBasicSelect | undefined = undefined>(options: {
+    data: DecimalBasicCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetDecimalBasicPayload<S>>;
+
+  updateMany<
+    S extends DecimalBasicSelect | undefined = undefined,
+    D extends DecimalBasicUpdateInput = DecimalBasicUpdateInput,
+  >(options: {
+    where: DecimalBasicWhere;
+    data: D;
+    unset?: SafeUnset<DecimalBasicUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetDecimalBasicPayload<S>[]>;
+
+  updateUnique<
+    S extends DecimalBasicSelect | undefined = undefined,
+    D extends DecimalBasicUpdateInput = DecimalBasicUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: DecimalBasicFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<DecimalBasicUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns DecimalBasic | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetDecimalBasicPayload<S>, R>>;
+
+  upsert<
+    S extends DecimalBasicSelect | undefined = undefined,
+    D extends DecimalBasicUpdateInput = DecimalBasicUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: DecimalBasicFindUniqueWhere;
+    create: DecimalBasicCreateInput;
+    update?: D;
+    unset?: SafeUnset<DecimalBasicUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetDecimalBasicPayload<S>, R>>;
+
+  upsert<
+    S extends DecimalBasicSelect | undefined = undefined,
+    D extends DecimalBasicUpdateInput = DecimalBasicUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: DecimalBasicWhere;
+    create: DecimalBasicCreateInput;
+    update?: D;
+    unset?: SafeUnset<DecimalBasicUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetDecimalBasicPayload<S>, R>>;
+
+  deleteMany(options: { where: DecimalBasicWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: DecimalBasicFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns DecimalBasic | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<DecimalBasic, R>>;
+
+  count(where?: DecimalBasicWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: DecimalBasicWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/decimaldecorated.ts =====
+/**
+ * Generated types for DecimalDecorated
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import { CerialDecimal } from 'cerial';
+import type { CerialDecimalInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface DecimalDecorated {
+  id: CerialId<string>;
+  name: string;
+  defaultPrice: CerialDecimal;
+  alwaysPrice?: CerialDecimal;
+}
+
+export interface DecimalDecoratedInput {
+  id?: string;
+  name: string;
+  defaultPrice: CerialDecimalInput;
+  alwaysPrice?: CerialDecimalInput;
+}
+
+export interface DecimalDecoratedWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  defaultPrice?:
+    | CerialDecimalInput
+    | ({
+        eq?: CerialDecimalInput;
+        neq?: CerialDecimalInput;
+        gt?: CerialDecimalInput;
+        gte?: CerialDecimalInput;
+        lt?: CerialDecimalInput;
+        lte?: CerialDecimalInput;
+      } & {
+        in?: CerialDecimalInput[];
+        notIn?: CerialDecimalInput[];
+      } & {
+        between?: [CerialDecimalInput, CerialDecimalInput];
+      });
+  alwaysPrice?:
+    | CerialDecimalInput
+    | ({
+        eq?: CerialDecimalInput;
+        neq?: CerialDecimalInput;
+        gt?: CerialDecimalInput;
+        gte?: CerialDecimalInput;
+        lt?: CerialDecimalInput;
+        lte?: CerialDecimalInput;
+      } & {
+        in?: CerialDecimalInput[];
+        notIn?: CerialDecimalInput[];
+      } & {
+        not?: CerialDecimalInput;
+        isNone?: boolean;
+        between?: [CerialDecimalInput, CerialDecimalInput];
+      });
+  AND?: DecimalDecoratedWhere[];
+  OR?: DecimalDecoratedWhere[];
+  NOT?: DecimalDecoratedWhere;
+}
+
+export type DecimalDecoratedWhereInput = DecimalDecoratedWhere;
+
+export type DecimalDecoratedFindUniqueWhere = { id: RecordIdInput<string> } & Omit<DecimalDecoratedWhere, 'id'>;
+
+export type DecimalDecoratedCreate = O.Optional<DecimalDecoratedInput, 'id' | 'defaultPrice' | 'alwaysPrice'>;
+
+export type DecimalDecoratedNestedCreate = O.Optional<DecimalDecoratedInput, 'id' | 'defaultPrice' | 'alwaysPrice'>;
+
+export type DecimalDecoratedCreateInput = DecimalDecoratedCreate;
+
+export type DecimalDecoratedUpdate = Partial<O.Omit<DecimalDecoratedInput, 'id' | 'alwaysPrice'>> & {
+  alwaysPrice?: CerialDecimalInput | CerialNone;
+};
+
+export type DecimalDecoratedUpdateInput = DecimalDecoratedUpdate;
+
+export type DecimalDecoratedUnset = {
+  alwaysPrice?: true;
+};
+
+export type DecimalDecoratedSelect =
+  | ({ id: boolean } & Partial<Record<'name' | 'defaultPrice' | 'alwaysPrice', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'defaultPrice' | 'alwaysPrice', boolean>>)
+  | ({ defaultPrice: boolean } & Partial<Record<'id' | 'name' | 'alwaysPrice', boolean>>)
+  | ({ alwaysPrice: boolean } & Partial<Record<'id' | 'name' | 'defaultPrice', boolean>>);
+
+export interface DecimalDecoratedOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  defaultPrice?: 'asc' | 'desc';
+  alwaysPrice?: 'asc' | 'desc';
+}
+
+export type DecimalDecorated$Relations = {};
+
+export type GetDecimalDecoratedPayload<
+  S extends DecimalDecoratedSelect | undefined = undefined,
+  I = undefined,
+> = A.Compute<
+  S extends DecimalDecoratedSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof DecimalDecorated
+          ? ResolveFieldSelect<DecimalDecorated[K], S[K]>
+          : never;
+      }
+    : DecimalDecorated,
+  'flat'
+>;
+
+export interface DecimalDecoratedModel {
+  findOne<S extends DecimalDecoratedSelect | undefined = undefined>(options?: {
+    where?: DecimalDecoratedWhere;
+    select?: S;
+    orderBy?: DecimalDecoratedOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetDecimalDecoratedPayload<S> | null>;
+
+  findMany<S extends DecimalDecoratedSelect | undefined = undefined>(options?: {
+    where?: DecimalDecoratedWhere;
+    select?: S;
+    orderBy?: DecimalDecoratedOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetDecimalDecoratedPayload<S>[]>;
+
+  findUnique<S extends DecimalDecoratedSelect | undefined = undefined>(options: {
+    where: DecimalDecoratedFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetDecimalDecoratedPayload<S> | null>;
+
+  create<S extends DecimalDecoratedSelect | undefined = undefined>(options: {
+    data: DecimalDecoratedCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetDecimalDecoratedPayload<S>>;
+
+  updateMany<
+    S extends DecimalDecoratedSelect | undefined = undefined,
+    D extends DecimalDecoratedUpdateInput = DecimalDecoratedUpdateInput,
+  >(options: {
+    where: DecimalDecoratedWhere;
+    data: D;
+    unset?: SafeUnset<DecimalDecoratedUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetDecimalDecoratedPayload<S>[]>;
+
+  updateUnique<
+    S extends DecimalDecoratedSelect | undefined = undefined,
+    D extends DecimalDecoratedUpdateInput = DecimalDecoratedUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: DecimalDecoratedFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<DecimalDecoratedUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns DecimalDecorated | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetDecimalDecoratedPayload<S>, R>>;
+
+  upsert<
+    S extends DecimalDecoratedSelect | undefined = undefined,
+    D extends DecimalDecoratedUpdateInput = DecimalDecoratedUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: DecimalDecoratedFindUniqueWhere;
+    create: DecimalDecoratedCreateInput;
+    update?: D;
+    unset?: SafeUnset<DecimalDecoratedUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetDecimalDecoratedPayload<S>, R>>;
+
+  upsert<
+    S extends DecimalDecoratedSelect | undefined = undefined,
+    D extends DecimalDecoratedUpdateInput = DecimalDecoratedUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: DecimalDecoratedWhere;
+    create: DecimalDecoratedCreateInput;
+    update?: D;
+    unset?: SafeUnset<DecimalDecoratedUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetDecimalDecoratedPayload<S>, R>>;
+
+  deleteMany(options: { where: DecimalDecoratedWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: DecimalDecoratedFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns DecimalDecorated | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<DecimalDecorated, R>>;
+
+  count(where?: DecimalDecoratedWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: DecimalDecoratedWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/decimalwithobject.ts =====
+/**
+ * Generated types for DecimalWithObject
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  DecimalInfo,
+  DecimalInfoInput,
+  DecimalInfoWhere,
+  DecimalInfoSelect,
+  DecimalInfoOrderBy,
+} from '../objects/decimalinfo';
+export interface DecimalWithObject {
+  id: CerialId<string>;
+  name: string;
+  pricing: DecimalInfo;
+}
+
+export interface DecimalWithObjectInput {
+  id?: string;
+  name: string;
+  pricing: DecimalInfoInput;
+}
+
+export interface DecimalWithObjectWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  pricing?: DecimalInfoWhere;
+  AND?: DecimalWithObjectWhere[];
+  OR?: DecimalWithObjectWhere[];
+  NOT?: DecimalWithObjectWhere;
+}
+
+export type DecimalWithObjectWhereInput = DecimalWithObjectWhere;
+
+export type DecimalWithObjectFindUniqueWhere = { id: RecordIdInput<string> } & Omit<DecimalWithObjectWhere, 'id'>;
+
+export type DecimalWithObjectCreate = O.Optional<DecimalWithObjectInput, 'id'>;
+
+export type DecimalWithObjectNestedCreate = O.Optional<DecimalWithObjectInput, 'id'>;
+
+export type DecimalWithObjectCreateInput = DecimalWithObjectCreate;
+
+export type DecimalWithObjectUpdate = Partial<O.Omit<DecimalWithObjectInput, 'id' | 'pricing'>> & {
+  pricing?: Partial<DecimalInfoInput> | { set: DecimalInfoInput };
+};
+
+export type DecimalWithObjectUpdateInput = DecimalWithObjectUpdate;
+
+export type DecimalWithObjectUnset = {
+  pricing?: {
+    fee?: true;
+  };
+};
+
+export type DecimalWithObjectSelect =
+  | ({ id: boolean } & { name?: boolean; pricing?: boolean | DecimalInfoSelect })
+  | ({ name: boolean } & { id?: boolean; pricing?: boolean | DecimalInfoSelect })
+  | ({ pricing: boolean | DecimalInfoSelect } & Partial<Record<'id' | 'name', boolean>>);
+
+export interface DecimalWithObjectOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  pricing?: DecimalInfoOrderBy;
+}
+
+export type DecimalWithObject$Relations = {};
+
+export type GetDecimalWithObjectPayload<
+  S extends DecimalWithObjectSelect | undefined = undefined,
+  I = undefined,
+> = A.Compute<
+  S extends DecimalWithObjectSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof DecimalWithObject
+          ? ResolveFieldSelect<DecimalWithObject[K], S[K]>
+          : never;
+      }
+    : DecimalWithObject,
+  'flat'
+>;
+
+export interface DecimalWithObjectModel {
+  findOne<S extends DecimalWithObjectSelect | undefined = undefined>(options?: {
+    where?: DecimalWithObjectWhere;
+    select?: S;
+    orderBy?: DecimalWithObjectOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetDecimalWithObjectPayload<S> | null>;
+
+  findMany<S extends DecimalWithObjectSelect | undefined = undefined>(options?: {
+    where?: DecimalWithObjectWhere;
+    select?: S;
+    orderBy?: DecimalWithObjectOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetDecimalWithObjectPayload<S>[]>;
+
+  findUnique<S extends DecimalWithObjectSelect | undefined = undefined>(options: {
+    where: DecimalWithObjectFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetDecimalWithObjectPayload<S> | null>;
+
+  create<S extends DecimalWithObjectSelect | undefined = undefined>(options: {
+    data: DecimalWithObjectCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetDecimalWithObjectPayload<S>>;
+
+  updateMany<
+    S extends DecimalWithObjectSelect | undefined = undefined,
+    D extends DecimalWithObjectUpdateInput = DecimalWithObjectUpdateInput,
+  >(options: {
+    where: DecimalWithObjectWhere;
+    data: D;
+    unset?: SafeUnset<DecimalWithObjectUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetDecimalWithObjectPayload<S>[]>;
+
+  updateUnique<
+    S extends DecimalWithObjectSelect | undefined = undefined,
+    D extends DecimalWithObjectUpdateInput = DecimalWithObjectUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: DecimalWithObjectFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<DecimalWithObjectUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns DecimalWithObject | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetDecimalWithObjectPayload<S>, R>>;
+
+  upsert<
+    S extends DecimalWithObjectSelect | undefined = undefined,
+    D extends DecimalWithObjectUpdateInput = DecimalWithObjectUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: DecimalWithObjectFindUniqueWhere;
+    create: DecimalWithObjectCreateInput;
+    update?: D;
+    unset?: SafeUnset<DecimalWithObjectUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetDecimalWithObjectPayload<S>, R>>;
+
+  upsert<
+    S extends DecimalWithObjectSelect | undefined = undefined,
+    D extends DecimalWithObjectUpdateInput = DecimalWithObjectUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: DecimalWithObjectWhere;
+    create: DecimalWithObjectCreateInput;
+    update?: D;
+    unset?: SafeUnset<DecimalWithObjectUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetDecimalWithObjectPayload<S>, R>>;
+
+  deleteMany(options: { where: DecimalWithObjectWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: DecimalWithObjectFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns DecimalWithObject | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<DecimalWithObject, R>>;
+
+  count(where?: DecimalWithObjectWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: DecimalWithObjectWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/decimalwithtuple.ts =====
+/**
+ * Generated types for DecimalWithTuple
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  DecimalPair,
+  DecimalPairInput,
+  DecimalPairWhere,
+  DecimalPairUpdate,
+  DecimalPairUnset,
+} from '../tuples/decimalpair';
+export interface DecimalWithTuple {
+  id: CerialId<string>;
+  name: string;
+  pair: DecimalPair;
+}
+
+export interface DecimalWithTupleInput {
+  id?: string;
+  name: string;
+  pair: DecimalPairInput;
+}
+
+export interface DecimalWithTupleWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  pair?: DecimalPairWhere;
+  AND?: DecimalWithTupleWhere[];
+  OR?: DecimalWithTupleWhere[];
+  NOT?: DecimalWithTupleWhere;
+}
+
+export type DecimalWithTupleWhereInput = DecimalWithTupleWhere;
+
+export type DecimalWithTupleFindUniqueWhere = { id: RecordIdInput<string> } & Omit<DecimalWithTupleWhere, 'id'>;
+
+export type DecimalWithTupleCreate = O.Optional<DecimalWithTupleInput, 'id'>;
+
+export type DecimalWithTupleNestedCreate = O.Optional<DecimalWithTupleInput, 'id'>;
+
+export type DecimalWithTupleCreateInput = DecimalWithTupleCreate;
+
+export type DecimalWithTupleUpdate = Partial<O.Omit<DecimalWithTupleInput, 'id' | 'pair'>> & {
+  pair?: [string, string | null] | DecimalPairUpdate;
+};
+
+export type DecimalWithTupleUpdateInput = DecimalWithTupleUpdate;
+
+export type DecimalWithTupleUnset = {
+  pair?: DecimalPairUnset;
+};
+
+export type DecimalWithTupleSelect =
+  | ({ id: boolean } & Partial<Record<'name' | 'pair', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'pair', boolean>>)
+  | ({ pair: boolean } & Partial<Record<'id' | 'name', boolean>>);
+
+export interface DecimalWithTupleOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+}
+
+export type DecimalWithTuple$Relations = {};
+
+export type GetDecimalWithTuplePayload<
+  S extends DecimalWithTupleSelect | undefined = undefined,
+  I = undefined,
+> = A.Compute<
+  S extends DecimalWithTupleSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof DecimalWithTuple
+          ? ResolveFieldSelect<DecimalWithTuple[K], S[K]>
+          : never;
+      }
+    : DecimalWithTuple,
+  'flat'
+>;
+
+export interface DecimalWithTupleModel {
+  findOne<S extends DecimalWithTupleSelect | undefined = undefined>(options?: {
+    where?: DecimalWithTupleWhere;
+    select?: S;
+    orderBy?: DecimalWithTupleOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetDecimalWithTuplePayload<S> | null>;
+
+  findMany<S extends DecimalWithTupleSelect | undefined = undefined>(options?: {
+    where?: DecimalWithTupleWhere;
+    select?: S;
+    orderBy?: DecimalWithTupleOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetDecimalWithTuplePayload<S>[]>;
+
+  findUnique<S extends DecimalWithTupleSelect | undefined = undefined>(options: {
+    where: DecimalWithTupleFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetDecimalWithTuplePayload<S> | null>;
+
+  create<S extends DecimalWithTupleSelect | undefined = undefined>(options: {
+    data: DecimalWithTupleCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetDecimalWithTuplePayload<S>>;
+
+  updateMany<
+    S extends DecimalWithTupleSelect | undefined = undefined,
+    D extends DecimalWithTupleUpdateInput = DecimalWithTupleUpdateInput,
+  >(options: {
+    where: DecimalWithTupleWhere;
+    data: D;
+    unset?: SafeUnset<DecimalWithTupleUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetDecimalWithTuplePayload<S>[]>;
+
+  updateUnique<
+    S extends DecimalWithTupleSelect | undefined = undefined,
+    D extends DecimalWithTupleUpdateInput = DecimalWithTupleUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: DecimalWithTupleFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<DecimalWithTupleUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns DecimalWithTuple | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetDecimalWithTuplePayload<S>, R>>;
+
+  upsert<
+    S extends DecimalWithTupleSelect | undefined = undefined,
+    D extends DecimalWithTupleUpdateInput = DecimalWithTupleUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: DecimalWithTupleFindUniqueWhere;
+    create: DecimalWithTupleCreateInput;
+    update?: D;
+    unset?: SafeUnset<DecimalWithTupleUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetDecimalWithTuplePayload<S>, R>>;
+
+  upsert<
+    S extends DecimalWithTupleSelect | undefined = undefined,
+    D extends DecimalWithTupleUpdateInput = DecimalWithTupleUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: DecimalWithTupleWhere;
+    create: DecimalWithTupleCreateInput;
+    update?: D;
+    unset?: SafeUnset<DecimalWithTupleUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetDecimalWithTuplePayload<S>, R>>;
+
+  deleteMany(options: { where: DecimalWithTupleWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: DecimalWithTupleFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns DecimalWithTuple | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<DecimalWithTuple, R>>;
+
+  count(where?: DecimalWithTupleWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: DecimalWithTupleWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== objects/decimalinfo.ts =====
+/**
+ * Generated types for DecimalInfo
+ * Do not edit manually
+ */
+
+import { CerialDecimal } from 'cerial';
+import type { CerialDecimalInput } from 'cerial';
+export interface DecimalInfo {
+  amount: CerialDecimal;
+  fee?: CerialDecimal;
+}
+
+export interface DecimalInfoInput {
+  amount: CerialDecimalInput;
+  fee?: CerialDecimalInput;
+}
+
+export interface DecimalInfoWhere {
+  amount?:
+    | CerialDecimalInput
+    | ({
+        eq?: CerialDecimalInput;
+        neq?: CerialDecimalInput;
+        gt?: CerialDecimalInput;
+        gte?: CerialDecimalInput;
+        lt?: CerialDecimalInput;
+        lte?: CerialDecimalInput;
+      } & {
+        in?: CerialDecimalInput[];
+        notIn?: CerialDecimalInput[];
+      } & {
+        between?: [CerialDecimalInput, CerialDecimalInput];
+      });
+  fee?:
+    | CerialDecimalInput
+    | ({
+        eq?: CerialDecimalInput;
+        neq?: CerialDecimalInput;
+        gt?: CerialDecimalInput;
+        gte?: CerialDecimalInput;
+        lt?: CerialDecimalInput;
+        lte?: CerialDecimalInput;
+      } & {
+        in?: CerialDecimalInput[];
+        notIn?: CerialDecimalInput[];
+      } & {
+        not?: CerialDecimalInput;
+        isNone?: boolean;
+        between?: [CerialDecimalInput, CerialDecimalInput];
+      });
+  AND?: DecimalInfoWhere[];
+  OR?: DecimalInfoWhere[];
+  NOT?: DecimalInfoWhere;
+}
+
+export type DecimalInfoSelect =
+  | ({ amount: boolean } & Partial<Record<'fee', boolean>>)
+  | ({ fee: boolean } & Partial<Record<'amount', boolean>>);
+
+export interface DecimalInfoOrderBy {
+  amount?: 'asc' | 'desc';
+  fee?: 'asc' | 'desc';
+}
+
+// ===== tuples/decimalpair.ts =====
+/**
+ * Generated types for DecimalPair
+ * Do not edit manually
+ */
+
+import { CerialDecimal } from 'cerial';
+import type { CerialDecimalInput } from 'cerial';
+export type DecimalPair = [CerialDecimal, CerialDecimal | null];
+
+export type DecimalPairInput =
+  | [CerialDecimalInput, CerialDecimalInput | null]
+  | {
+      0?: CerialDecimalInput;
+      1?: CerialDecimalInput | null;
+    };
+
+export interface DecimalPairWhere {
+  0?:
+    | CerialDecimalInput
+    | ({
+        eq?: CerialDecimalInput;
+        neq?: CerialDecimalInput;
+        gt?: CerialDecimalInput;
+        gte?: CerialDecimalInput;
+        lt?: CerialDecimalInput;
+        lte?: CerialDecimalInput;
+      } & {
+        in?: CerialDecimalInput[];
+        notIn?: CerialDecimalInput[];
+      } & {
+        between?: [CerialDecimalInput, CerialDecimalInput];
+      });
+  1?:
+    | null
+    | CerialDecimalInput
+    | ({
+        eq?: CerialDecimalInput;
+        neq?: CerialDecimalInput;
+        gt?: CerialDecimalInput;
+        gte?: CerialDecimalInput;
+        lt?: CerialDecimalInput;
+        lte?: CerialDecimalInput;
+      } & {
+        in?: CerialDecimalInput[];
+        notIn?: CerialDecimalInput[];
+      } & {
+        not?: CerialDecimalInput | null;
+        isNull?: boolean;
+        between?: [CerialDecimalInput, CerialDecimalInput];
+      });
+}
+
+export type DecimalPairUpdate = {
+  0?: string;
+  1?: string | null;
+};
+
+export type DecimalPairUnset = {
+  1?: true;
+};

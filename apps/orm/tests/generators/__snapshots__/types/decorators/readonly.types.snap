@@ -1,0 +1,851 @@
+// ===== models/readonlyrecord.ts =====
+/**
+ * Generated types for ReadonlyRecord
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  ReadonlyTest,
+  ReadonlyTestWhere,
+  ReadonlyTestSelect,
+  ReadonlyTestOrderBy,
+  ReadonlyTestNestedCreate,
+} from './readonlytest';
+export interface ReadonlyRecord {
+  id: CerialId<string>;
+  name: string;
+  authorId?: CerialId<string>;
+}
+
+export interface ReadonlyRecordInput {
+  id?: string;
+  name: string;
+  authorId?: RecordIdInput<string>;
+}
+
+export interface ReadonlyRecordWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  authorId?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  author?: ReadonlyTestWhere;
+  AND?: ReadonlyRecordWhere[];
+  OR?: ReadonlyRecordWhere[];
+  NOT?: ReadonlyRecordWhere;
+}
+
+export type ReadonlyRecordWhereInput = ReadonlyRecordWhere;
+
+export type ReadonlyRecordFindUniqueWhere = { id: RecordIdInput<string> } & Omit<ReadonlyRecordWhere, 'id'>;
+
+export type ReadonlyRecordCreate = O.Optional<O.Omit<ReadonlyRecordInput, 'author'>, 'id' | 'authorId'>;
+
+export type ReadonlyRecordNestedCreate = O.Optional<O.Omit<ReadonlyRecordInput, 'author' | 'authorId'>, 'id'>;
+
+export type ReadonlyRecordCreateInput =
+  | ReadonlyRecordCreate
+  | (O.Omit<ReadonlyRecordCreate, 'authorId'> & {
+      author?: { create: ReadonlyTestNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type ReadonlyRecordUpdate = Partial<O.Omit<ReadonlyRecordInput, 'id' | 'author' | 'authorId'>>;
+
+export type ReadonlyRecordUpdateInput = ReadonlyRecordUpdate;
+
+export type ReadonlyRecordUnset = {};
+
+export type ReadonlyRecordSelect =
+  | ({ id: boolean } & Partial<Record<'name' | 'authorId', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'authorId', boolean>>)
+  | ({ authorId: boolean } & Partial<Record<'id' | 'name', boolean>>);
+
+export interface ReadonlyRecordOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  authorId?: 'asc' | 'desc';
+  author?: ReadonlyTestOrderBy;
+}
+
+export interface ReadonlyRecordInclude {
+  author?:
+    | boolean
+    | {
+        select?: ReadonlyTestSelect;
+        where?: ReadonlyTestWhere;
+      };
+}
+
+export type ReadonlyRecord$Relations = {
+  author: { type: ReadonlyTest; include: never };
+};
+
+export type GetReadonlyRecordIncludePayload<I extends ReadonlyRecordInclude | undefined> =
+  I extends ReadonlyRecordInclude
+    ? Pick<
+        {
+          author: I['author'] extends true
+            ? ReadonlyTest
+            : I['author'] extends { select: infer S extends ReadonlyTestSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof ReadonlyTest
+                    ? ResolveFieldSelect<ReadonlyTest[P], S[P]>
+                    : never;
+                }
+              : ReadonlyTest;
+        },
+        Extract<keyof I, keyof ReadonlyRecord$Relations> &
+          { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+      >
+    : {};
+
+export type GetReadonlyRecordPayload<
+  S extends ReadonlyRecordSelect | undefined = undefined,
+  I extends ReadonlyRecordInclude | undefined = undefined,
+> = A.Compute<
+  S extends ReadonlyRecordSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ReadonlyRecord
+          ? ResolveFieldSelect<ReadonlyRecord[K], S[K]>
+          : never;
+      } & GetReadonlyRecordIncludePayload<I>
+    : I extends ReadonlyRecordInclude
+      ? ReadonlyRecord & GetReadonlyRecordIncludePayload<I>
+      : ReadonlyRecord,
+  'flat'
+>;
+
+export interface ReadonlyRecordModel {
+  findOne<
+    S extends ReadonlyRecordSelect | undefined = undefined,
+    I extends ReadonlyRecordInclude | undefined = undefined,
+  >(options?: {
+    where?: ReadonlyRecordWhere;
+    select?: S;
+    include?: I;
+    orderBy?: ReadonlyRecordOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetReadonlyRecordPayload<S, I> | null>;
+
+  findMany<
+    S extends ReadonlyRecordSelect | undefined = undefined,
+    I extends ReadonlyRecordInclude | undefined = undefined,
+  >(options?: {
+    where?: ReadonlyRecordWhere;
+    select?: S;
+    orderBy?: ReadonlyRecordOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetReadonlyRecordPayload<S, I>[]>;
+
+  findUnique<
+    S extends ReadonlyRecordSelect | undefined = undefined,
+    I extends ReadonlyRecordInclude | undefined = undefined,
+  >(options: {
+    where: ReadonlyRecordFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetReadonlyRecordPayload<S, I> | null>;
+
+  create<
+    S extends ReadonlyRecordSelect | undefined = undefined,
+    I extends ReadonlyRecordInclude | undefined = undefined,
+  >(options: {
+    data: ReadonlyRecordCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetReadonlyRecordPayload<S, I>>;
+
+  updateMany<
+    S extends ReadonlyRecordSelect | undefined = undefined,
+    I extends ReadonlyRecordInclude | undefined = undefined,
+    D extends ReadonlyRecordUpdateInput = ReadonlyRecordUpdateInput,
+  >(options: {
+    where: ReadonlyRecordWhere;
+    data: D;
+    unset?: SafeUnset<ReadonlyRecordUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetReadonlyRecordPayload<S, I>[]>;
+
+  updateUnique<
+    S extends ReadonlyRecordSelect | undefined = undefined,
+    I extends ReadonlyRecordInclude | undefined = undefined,
+    D extends ReadonlyRecordUpdateInput = ReadonlyRecordUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ReadonlyRecordFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ReadonlyRecordUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ReadonlyRecord | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetReadonlyRecordPayload<S, I>, R>>;
+
+  upsert<
+    S extends ReadonlyRecordSelect | undefined = undefined,
+    I extends ReadonlyRecordInclude | undefined = undefined,
+    D extends ReadonlyRecordUpdateInput = ReadonlyRecordUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ReadonlyRecordFindUniqueWhere;
+    create: ReadonlyRecordCreateInput;
+    update?: D;
+    unset?: SafeUnset<ReadonlyRecordUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetReadonlyRecordPayload<S, I>, R>>;
+
+  upsert<
+    S extends ReadonlyRecordSelect | undefined = undefined,
+    I extends ReadonlyRecordInclude | undefined = undefined,
+    D extends ReadonlyRecordUpdateInput = ReadonlyRecordUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ReadonlyRecordWhere;
+    create: ReadonlyRecordCreateInput;
+    update?: D;
+    unset?: SafeUnset<ReadonlyRecordUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetReadonlyRecordPayload<S, I>, R>>;
+
+  deleteMany(options: { where: ReadonlyRecordWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ReadonlyRecordFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ReadonlyRecord | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ReadonlyRecord, R>>;
+
+  count(where?: ReadonlyRecordWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ReadonlyRecordWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/readonlytest.ts =====
+/**
+ * Generated types for ReadonlyTest
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  ReadonlyAddress,
+  ReadonlyAddressInput,
+  ReadonlyAddressWhere,
+  ReadonlyAddressSelect,
+  ReadonlyAddressOrderBy,
+} from '../objects/readonlyaddress';
+import type {
+  ReadonlyMeta,
+  ReadonlyMetaInput,
+  ReadonlyMetaWhere,
+  ReadonlyMetaSelect,
+  ReadonlyMetaOrderBy,
+} from '../objects/readonlymeta';
+export interface ReadonlyTest {
+  id: CerialId<string>;
+  name: string;
+  code: string;
+  score?: number;
+  tags: string[];
+  createdBy: string;
+  address: ReadonlyAddress;
+  meta?: ReadonlyMeta;
+}
+
+export interface ReadonlyTestInput {
+  id?: string;
+  name: string;
+  code: string;
+  score?: number;
+  tags: string[];
+  createdBy: string;
+  address: ReadonlyAddressInput;
+  meta?: ReadonlyMetaInput;
+}
+
+export interface ReadonlyTestWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  code?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  score?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  tags?:
+    | string[]
+    | {
+        has?: string;
+        hasAll?: string[];
+        hasAny?: string[];
+        isEmpty?: boolean;
+      };
+  createdBy?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  address?: ReadonlyAddressWhere;
+  meta?: ReadonlyMetaWhere;
+  AND?: ReadonlyTestWhere[];
+  OR?: ReadonlyTestWhere[];
+  NOT?: ReadonlyTestWhere;
+}
+
+export type ReadonlyTestWhereInput = ReadonlyTestWhere;
+
+export type ReadonlyTestFindUniqueWhere = { id: RecordIdInput<string> } & Omit<ReadonlyTestWhere, 'id'>;
+
+export type ReadonlyTestCreate = O.Optional<ReadonlyTestInput, 'id' | 'score' | 'tags' | 'createdBy' | 'meta'>;
+
+export type ReadonlyTestNestedCreate = O.Optional<ReadonlyTestInput, 'id' | 'score' | 'tags' | 'createdBy' | 'meta'>;
+
+export type ReadonlyTestCreateInput = ReadonlyTestCreate;
+
+export type ReadonlyTestUpdate = Partial<
+  O.Omit<ReadonlyTestInput, 'id' | 'code' | 'score' | 'createdBy' | 'tags' | 'address' | 'meta'>
+> & {
+  tags?:
+    | string[]
+    | {
+        push?: string | string[];
+        unset?: string | string[];
+      };
+  address?: Partial<O.Omit<ReadonlyAddressInput, 'city'>> | { set: ReadonlyAddressInput };
+  meta?: Partial<O.Omit<ReadonlyMetaInput, 'label'>> | { set: ReadonlyMetaInput } | CerialNone;
+};
+
+export type ReadonlyTestUpdateInput = ReadonlyTestUpdate;
+
+export type ReadonlyTestUnset = {
+  address?: {
+    zip?: true;
+  };
+  meta?: true;
+};
+
+export type ReadonlyTestSelect =
+  | ({ id: boolean } & {
+      name?: boolean;
+      code?: boolean;
+      score?: boolean;
+      tags?: boolean;
+      createdBy?: boolean;
+      address?: boolean | ReadonlyAddressSelect;
+      meta?: boolean | ReadonlyMetaSelect;
+    })
+  | ({ name: boolean } & {
+      id?: boolean;
+      code?: boolean;
+      score?: boolean;
+      tags?: boolean;
+      createdBy?: boolean;
+      address?: boolean | ReadonlyAddressSelect;
+      meta?: boolean | ReadonlyMetaSelect;
+    })
+  | ({ code: boolean } & {
+      id?: boolean;
+      name?: boolean;
+      score?: boolean;
+      tags?: boolean;
+      createdBy?: boolean;
+      address?: boolean | ReadonlyAddressSelect;
+      meta?: boolean | ReadonlyMetaSelect;
+    })
+  | ({ score: boolean } & {
+      id?: boolean;
+      name?: boolean;
+      code?: boolean;
+      tags?: boolean;
+      createdBy?: boolean;
+      address?: boolean | ReadonlyAddressSelect;
+      meta?: boolean | ReadonlyMetaSelect;
+    })
+  | ({ tags: boolean } & {
+      id?: boolean;
+      name?: boolean;
+      code?: boolean;
+      score?: boolean;
+      createdBy?: boolean;
+      address?: boolean | ReadonlyAddressSelect;
+      meta?: boolean | ReadonlyMetaSelect;
+    })
+  | ({ createdBy: boolean } & {
+      id?: boolean;
+      name?: boolean;
+      code?: boolean;
+      score?: boolean;
+      tags?: boolean;
+      address?: boolean | ReadonlyAddressSelect;
+      meta?: boolean | ReadonlyMetaSelect;
+    })
+  | ({ address: boolean | ReadonlyAddressSelect } & {
+      id?: boolean;
+      name?: boolean;
+      code?: boolean;
+      score?: boolean;
+      tags?: boolean;
+      createdBy?: boolean;
+      meta?: boolean | ReadonlyMetaSelect;
+    })
+  | ({ meta: boolean | ReadonlyMetaSelect } & {
+      id?: boolean;
+      name?: boolean;
+      code?: boolean;
+      score?: boolean;
+      tags?: boolean;
+      createdBy?: boolean;
+      address?: boolean | ReadonlyAddressSelect;
+    });
+
+export interface ReadonlyTestOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  code?: 'asc' | 'desc';
+  score?: 'asc' | 'desc';
+  tags?: 'asc' | 'desc';
+  createdBy?: 'asc' | 'desc';
+  address?: ReadonlyAddressOrderBy;
+  meta?: ReadonlyMetaOrderBy;
+}
+
+export type ReadonlyTest$Relations = {};
+
+export type GetReadonlyTestPayload<S extends ReadonlyTestSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends ReadonlyTestSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ReadonlyTest
+          ? ResolveFieldSelect<ReadonlyTest[K], S[K]>
+          : never;
+      }
+    : ReadonlyTest,
+  'flat'
+>;
+
+export interface ReadonlyTestModel {
+  findOne<S extends ReadonlyTestSelect | undefined = undefined>(options?: {
+    where?: ReadonlyTestWhere;
+    select?: S;
+    orderBy?: ReadonlyTestOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetReadonlyTestPayload<S> | null>;
+
+  findMany<S extends ReadonlyTestSelect | undefined = undefined>(options?: {
+    where?: ReadonlyTestWhere;
+    select?: S;
+    orderBy?: ReadonlyTestOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetReadonlyTestPayload<S>[]>;
+
+  findUnique<S extends ReadonlyTestSelect | undefined = undefined>(options: {
+    where: ReadonlyTestFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetReadonlyTestPayload<S> | null>;
+
+  create<S extends ReadonlyTestSelect | undefined = undefined>(options: {
+    data: ReadonlyTestCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetReadonlyTestPayload<S>>;
+
+  updateMany<
+    S extends ReadonlyTestSelect | undefined = undefined,
+    D extends ReadonlyTestUpdateInput = ReadonlyTestUpdateInput,
+  >(options: {
+    where: ReadonlyTestWhere;
+    data: D;
+    unset?: SafeUnset<ReadonlyTestUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetReadonlyTestPayload<S>[]>;
+
+  updateUnique<
+    S extends ReadonlyTestSelect | undefined = undefined,
+    D extends ReadonlyTestUpdateInput = ReadonlyTestUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ReadonlyTestFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ReadonlyTestUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ReadonlyTest | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetReadonlyTestPayload<S>, R>>;
+
+  upsert<
+    S extends ReadonlyTestSelect | undefined = undefined,
+    D extends ReadonlyTestUpdateInput = ReadonlyTestUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ReadonlyTestFindUniqueWhere;
+    create: ReadonlyTestCreateInput;
+    update?: D;
+    unset?: SafeUnset<ReadonlyTestUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetReadonlyTestPayload<S>, R>>;
+
+  upsert<
+    S extends ReadonlyTestSelect | undefined = undefined,
+    D extends ReadonlyTestUpdateInput = ReadonlyTestUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ReadonlyTestWhere;
+    create: ReadonlyTestCreateInput;
+    update?: D;
+    unset?: SafeUnset<ReadonlyTestUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetReadonlyTestPayload<S>, R>>;
+
+  deleteMany(options: { where: ReadonlyTestWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ReadonlyTestFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ReadonlyTest | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ReadonlyTest, R>>;
+
+  count(where?: ReadonlyTestWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ReadonlyTestWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== objects/readonlyaddress.ts =====
+/**
+ * Generated types for ReadonlyAddress
+ * Do not edit manually
+ */
+
+export interface ReadonlyAddress {
+  street: string;
+  city: string;
+  zip?: string;
+}
+
+export interface ReadonlyAddressInput {
+  street: string;
+  city: string;
+  zip?: string;
+}
+
+export interface ReadonlyAddressWhere {
+  street?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  city?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  zip?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  AND?: ReadonlyAddressWhere[];
+  OR?: ReadonlyAddressWhere[];
+  NOT?: ReadonlyAddressWhere;
+}
+
+export type ReadonlyAddressSelect =
+  | ({ street: boolean } & Partial<Record<'city' | 'zip', boolean>>)
+  | ({ city: boolean } & Partial<Record<'street' | 'zip', boolean>>)
+  | ({ zip: boolean } & Partial<Record<'street' | 'city', boolean>>);
+
+export interface ReadonlyAddressOrderBy {
+  street?: 'asc' | 'desc';
+  city?: 'asc' | 'desc';
+  zip?: 'asc' | 'desc';
+}
+
+// ===== objects/readonlymeta.ts =====
+/**
+ * Generated types for ReadonlyMeta
+ * Do not edit manually
+ */
+
+export interface ReadonlyMeta {
+  label: string;
+  value: number;
+}
+
+export interface ReadonlyMetaInput {
+  label: string;
+  value: number;
+}
+
+export interface ReadonlyMetaWhere {
+  label?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  value?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  AND?: ReadonlyMetaWhere[];
+  OR?: ReadonlyMetaWhere[];
+  NOT?: ReadonlyMetaWhere;
+}
+
+export type ReadonlyMetaSelect =
+  | ({ label: boolean } & Partial<Record<'value', boolean>>)
+  | ({ value: boolean } & Partial<Record<'label', boolean>>);
+
+export interface ReadonlyMetaOrderBy {
+  label?: 'asc' | 'desc';
+  value?: 'asc' | 'desc';
+}

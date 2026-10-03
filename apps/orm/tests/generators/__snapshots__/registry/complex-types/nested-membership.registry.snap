@@ -1,0 +1,1763 @@
+{
+  "enums": {
+    "NmGrade": {
+      "name": "NmGrade",
+      "variants": [
+        {
+          "kind": "string",
+          "value": "LOW"
+        },
+        {
+          "kind": "string",
+          "value": "MID"
+        },
+        {
+          "kind": "string",
+          "value": "HIGH"
+        }
+      ]
+    }
+  },
+  "literals": {
+    "NmCode": {
+      "name": "NmCode",
+      "variants": [
+        {
+          "kind": "string",
+          "value": "a1"
+        },
+        {
+          "kind": "string",
+          "value": "b2"
+        },
+        {
+          "kind": "int",
+          "value": 7
+        }
+      ]
+    }
+  },
+  "models": {
+    "NmObjectDoc": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "leaf",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "literalInfo": {
+                  "literalName": "NmGrade",
+                  "variants": [
+                    {
+                      "kind": "string",
+                      "value": "LOW"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "MID"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "HIGH"
+                    }
+                  ]
+                },
+                "name": "grade",
+                "type": "literal"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "literalInfo": {
+                  "literalName": "NmCode",
+                  "variants": [
+                    {
+                      "kind": "string",
+                      "value": "a1"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "b2"
+                    },
+                    {
+                      "kind": "int",
+                      "value": 7
+                    }
+                  ]
+                },
+                "name": "code",
+                "type": "literal"
+              }
+            ],
+            "objectName": "NmLeaf"
+          },
+          "type": "object"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "mid",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "label",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "leaf",
+                "objectInfo": {
+                  "fields": [
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "literalInfo": {
+                        "literalName": "NmGrade",
+                        "variants": [
+                          {
+                            "kind": "string",
+                            "value": "LOW"
+                          },
+                          {
+                            "kind": "string",
+                            "value": "MID"
+                          },
+                          {
+                            "kind": "string",
+                            "value": "HIGH"
+                          }
+                        ]
+                      },
+                      "name": "grade",
+                      "type": "literal"
+                    },
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": false,
+                      "isUnique": false,
+                      "literalInfo": {
+                        "literalName": "NmCode",
+                        "variants": [
+                          {
+                            "kind": "string",
+                            "value": "a1"
+                          },
+                          {
+                            "kind": "string",
+                            "value": "b2"
+                          },
+                          {
+                            "kind": "int",
+                            "value": 7
+                          }
+                        ]
+                      },
+                      "name": "code",
+                      "type": "literal"
+                    }
+                  ],
+                  "objectName": "NmLeaf"
+                },
+                "type": "object"
+              }
+            ],
+            "objectName": "NmMid"
+          },
+          "type": "object"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "top",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "title",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "mid",
+                "objectInfo": {
+                  "fields": [
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "name": "label",
+                      "type": "string"
+                    },
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "name": "leaf",
+                      "objectInfo": {
+                        "fields": [
+                          {
+                            "isId": false,
+                            "isIndexed": false,
+                            "isRequired": true,
+                            "isUnique": false,
+                            "literalInfo": {
+                              "literalName": "NmGrade",
+                              "variants": [
+                                {
+                                  "kind": "string",
+                                  "value": "LOW"
+                                },
+                                {
+                                  "kind": "string",
+                                  "value": "MID"
+                                },
+                                {
+                                  "kind": "string",
+                                  "value": "HIGH"
+                                }
+                              ]
+                            },
+                            "name": "grade",
+                            "type": "literal"
+                          },
+                          {
+                            "isId": false,
+                            "isIndexed": false,
+                            "isRequired": false,
+                            "isUnique": false,
+                            "literalInfo": {
+                              "literalName": "NmCode",
+                              "variants": [
+                                {
+                                  "kind": "string",
+                                  "value": "a1"
+                                },
+                                {
+                                  "kind": "string",
+                                  "value": "b2"
+                                },
+                                {
+                                  "kind": "int",
+                                  "value": 7
+                                }
+                              ]
+                            },
+                            "name": "code",
+                            "type": "literal"
+                          }
+                        ],
+                        "objectName": "NmLeaf"
+                      },
+                      "type": "object"
+                    }
+                  ],
+                  "objectName": "NmMid"
+                },
+                "type": "object"
+              }
+            ],
+            "objectName": "NmTop"
+          },
+          "type": "object"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "leaves",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "literalInfo": {
+                  "literalName": "NmGrade",
+                  "variants": [
+                    {
+                      "kind": "string",
+                      "value": "LOW"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "MID"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "HIGH"
+                    }
+                  ]
+                },
+                "name": "grade",
+                "type": "literal"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "literalInfo": {
+                  "literalName": "NmCode",
+                  "variants": [
+                    {
+                      "kind": "string",
+                      "value": "a1"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "b2"
+                    },
+                    {
+                      "kind": "int",
+                      "value": 7
+                    }
+                  ]
+                },
+                "name": "code",
+                "type": "literal"
+              }
+            ],
+            "objectName": "NmLeaf"
+          },
+          "type": "object"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "tops",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "title",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "mid",
+                "objectInfo": {
+                  "fields": [
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "name": "label",
+                      "type": "string"
+                    },
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "name": "leaf",
+                      "objectInfo": {
+                        "fields": [
+                          {
+                            "isId": false,
+                            "isIndexed": false,
+                            "isRequired": true,
+                            "isUnique": false,
+                            "literalInfo": {
+                              "literalName": "NmGrade",
+                              "variants": [
+                                {
+                                  "kind": "string",
+                                  "value": "LOW"
+                                },
+                                {
+                                  "kind": "string",
+                                  "value": "MID"
+                                },
+                                {
+                                  "kind": "string",
+                                  "value": "HIGH"
+                                }
+                              ]
+                            },
+                            "name": "grade",
+                            "type": "literal"
+                          },
+                          {
+                            "isId": false,
+                            "isIndexed": false,
+                            "isRequired": false,
+                            "isUnique": false,
+                            "literalInfo": {
+                              "literalName": "NmCode",
+                              "variants": [
+                                {
+                                  "kind": "string",
+                                  "value": "a1"
+                                },
+                                {
+                                  "kind": "string",
+                                  "value": "b2"
+                                },
+                                {
+                                  "kind": "int",
+                                  "value": 7
+                                }
+                              ]
+                            },
+                            "name": "code",
+                            "type": "literal"
+                          }
+                        ],
+                        "objectName": "NmLeaf"
+                      },
+                      "type": "object"
+                    }
+                  ],
+                  "objectName": "NmMid"
+                },
+                "type": "object"
+              }
+            ],
+            "objectName": "NmTop"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "NmObjectDoc",
+      "tableName": "nm_object_doc"
+    },
+    "NmTupleDoc": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "withLeaf",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "name": "label",
+                "type": "string"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "objectInfo": {
+                  "fields": [
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "literalInfo": {
+                        "literalName": "NmGrade",
+                        "variants": [
+                          {
+                            "kind": "string",
+                            "value": "LOW"
+                          },
+                          {
+                            "kind": "string",
+                            "value": "MID"
+                          },
+                          {
+                            "kind": "string",
+                            "value": "HIGH"
+                          }
+                        ]
+                      },
+                      "name": "grade",
+                      "type": "literal"
+                    },
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": false,
+                      "isUnique": false,
+                      "literalInfo": {
+                        "literalName": "NmCode",
+                        "variants": [
+                          {
+                            "kind": "string",
+                            "value": "a1"
+                          },
+                          {
+                            "kind": "string",
+                            "value": "b2"
+                          },
+                          {
+                            "kind": "int",
+                            "value": 7
+                          }
+                        ]
+                      },
+                      "name": "code",
+                      "type": "literal"
+                    }
+                  ],
+                  "objectName": "NmLeaf"
+                },
+                "type": "object"
+              }
+            ],
+            "tupleName": "NmWithLeaf"
+          },
+          "type": "tuple"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "named",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "name": "tag",
+                "type": "string"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "name": "leaf",
+                "objectInfo": {
+                  "fields": [
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "literalInfo": {
+                        "literalName": "NmGrade",
+                        "variants": [
+                          {
+                            "kind": "string",
+                            "value": "LOW"
+                          },
+                          {
+                            "kind": "string",
+                            "value": "MID"
+                          },
+                          {
+                            "kind": "string",
+                            "value": "HIGH"
+                          }
+                        ]
+                      },
+                      "name": "grade",
+                      "type": "literal"
+                    },
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": false,
+                      "isUnique": false,
+                      "literalInfo": {
+                        "literalName": "NmCode",
+                        "variants": [
+                          {
+                            "kind": "string",
+                            "value": "a1"
+                          },
+                          {
+                            "kind": "string",
+                            "value": "b2"
+                          },
+                          {
+                            "kind": "int",
+                            "value": 7
+                          }
+                        ]
+                      },
+                      "name": "code",
+                      "type": "literal"
+                    }
+                  ],
+                  "objectName": "NmLeaf"
+                },
+                "type": "object"
+              }
+            ],
+            "tupleName": "NmNamedLeaf"
+          },
+          "type": "tuple"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "outer",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "tupleInfo": {
+                  "elements": [
+                    {
+                      "index": 0,
+                      "isOptional": false,
+                      "name": "label",
+                      "type": "string"
+                    },
+                    {
+                      "index": 1,
+                      "isOptional": false,
+                      "objectInfo": {
+                        "fields": [
+                          {
+                            "isId": false,
+                            "isIndexed": false,
+                            "isRequired": true,
+                            "isUnique": false,
+                            "literalInfo": {
+                              "literalName": "NmGrade",
+                              "variants": [
+                                {
+                                  "kind": "string",
+                                  "value": "LOW"
+                                },
+                                {
+                                  "kind": "string",
+                                  "value": "MID"
+                                },
+                                {
+                                  "kind": "string",
+                                  "value": "HIGH"
+                                }
+                              ]
+                            },
+                            "name": "grade",
+                            "type": "literal"
+                          },
+                          {
+                            "isId": false,
+                            "isIndexed": false,
+                            "isRequired": false,
+                            "isUnique": false,
+                            "literalInfo": {
+                              "literalName": "NmCode",
+                              "variants": [
+                                {
+                                  "kind": "string",
+                                  "value": "a1"
+                                },
+                                {
+                                  "kind": "string",
+                                  "value": "b2"
+                                },
+                                {
+                                  "kind": "int",
+                                  "value": 7
+                                }
+                              ]
+                            },
+                            "name": "code",
+                            "type": "literal"
+                          }
+                        ],
+                        "objectName": "NmLeaf"
+                      },
+                      "type": "object"
+                    }
+                  ],
+                  "tupleName": "NmWithLeaf"
+                },
+                "type": "tuple"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "type": "int"
+              }
+            ],
+            "tupleName": "NmOuter"
+          },
+          "type": "tuple"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "holds",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "entry",
+                "tupleInfo": {
+                  "elements": [
+                    {
+                      "index": 0,
+                      "isOptional": false,
+                      "name": "label",
+                      "type": "string"
+                    },
+                    {
+                      "index": 1,
+                      "isOptional": false,
+                      "objectInfo": {
+                        "fields": [
+                          {
+                            "isId": false,
+                            "isIndexed": false,
+                            "isRequired": true,
+                            "isUnique": false,
+                            "literalInfo": {
+                              "literalName": "NmGrade",
+                              "variants": [
+                                {
+                                  "kind": "string",
+                                  "value": "LOW"
+                                },
+                                {
+                                  "kind": "string",
+                                  "value": "MID"
+                                },
+                                {
+                                  "kind": "string",
+                                  "value": "HIGH"
+                                }
+                              ]
+                            },
+                            "name": "grade",
+                            "type": "literal"
+                          },
+                          {
+                            "isId": false,
+                            "isIndexed": false,
+                            "isRequired": false,
+                            "isUnique": false,
+                            "literalInfo": {
+                              "literalName": "NmCode",
+                              "variants": [
+                                {
+                                  "kind": "string",
+                                  "value": "a1"
+                                },
+                                {
+                                  "kind": "string",
+                                  "value": "b2"
+                                },
+                                {
+                                  "kind": "int",
+                                  "value": 7
+                                }
+                              ]
+                            },
+                            "name": "code",
+                            "type": "literal"
+                          }
+                        ],
+                        "objectName": "NmLeaf"
+                      },
+                      "type": "object"
+                    }
+                  ],
+                  "tupleName": "NmWithLeaf"
+                },
+                "type": "tuple"
+              }
+            ],
+            "objectName": "NmHoldsTuple"
+          },
+          "type": "object"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "deepHolds",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "holder",
+                "objectInfo": {
+                  "fields": [
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "name": "entry",
+                      "tupleInfo": {
+                        "elements": [
+                          {
+                            "index": 0,
+                            "isOptional": false,
+                            "name": "label",
+                            "type": "string"
+                          },
+                          {
+                            "index": 1,
+                            "isOptional": false,
+                            "objectInfo": {
+                              "fields": [
+                                {
+                                  "isId": false,
+                                  "isIndexed": false,
+                                  "isRequired": true,
+                                  "isUnique": false,
+                                  "literalInfo": {
+                                    "literalName": "NmGrade",
+                                    "variants": [
+                                      {
+                                        "kind": "string",
+                                        "value": "LOW"
+                                      },
+                                      {
+                                        "kind": "string",
+                                        "value": "MID"
+                                      },
+                                      {
+                                        "kind": "string",
+                                        "value": "HIGH"
+                                      }
+                                    ]
+                                  },
+                                  "name": "grade",
+                                  "type": "literal"
+                                },
+                                {
+                                  "isId": false,
+                                  "isIndexed": false,
+                                  "isRequired": false,
+                                  "isUnique": false,
+                                  "literalInfo": {
+                                    "literalName": "NmCode",
+                                    "variants": [
+                                      {
+                                        "kind": "string",
+                                        "value": "a1"
+                                      },
+                                      {
+                                        "kind": "string",
+                                        "value": "b2"
+                                      },
+                                      {
+                                        "kind": "int",
+                                        "value": 7
+                                      }
+                                    ]
+                                  },
+                                  "name": "code",
+                                  "type": "literal"
+                                }
+                              ],
+                              "objectName": "NmLeaf"
+                            },
+                            "type": "object"
+                          }
+                        ],
+                        "tupleName": "NmWithLeaf"
+                      },
+                      "type": "tuple"
+                    }
+                  ],
+                  "objectName": "NmHoldsTuple"
+                },
+                "type": "object"
+              }
+            ],
+            "objectName": "NmHoldsHolder"
+          },
+          "type": "object"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "withLeaves",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "name": "label",
+                "type": "string"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "objectInfo": {
+                  "fields": [
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "literalInfo": {
+                        "literalName": "NmGrade",
+                        "variants": [
+                          {
+                            "kind": "string",
+                            "value": "LOW"
+                          },
+                          {
+                            "kind": "string",
+                            "value": "MID"
+                          },
+                          {
+                            "kind": "string",
+                            "value": "HIGH"
+                          }
+                        ]
+                      },
+                      "name": "grade",
+                      "type": "literal"
+                    },
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": false,
+                      "isUnique": false,
+                      "literalInfo": {
+                        "literalName": "NmCode",
+                        "variants": [
+                          {
+                            "kind": "string",
+                            "value": "a1"
+                          },
+                          {
+                            "kind": "string",
+                            "value": "b2"
+                          },
+                          {
+                            "kind": "int",
+                            "value": 7
+                          }
+                        ]
+                      },
+                      "name": "code",
+                      "type": "literal"
+                    }
+                  ],
+                  "objectName": "NmLeaf"
+                },
+                "type": "object"
+              }
+            ],
+            "tupleName": "NmWithLeaf"
+          },
+          "type": "tuple"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "nameds",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "name": "tag",
+                "type": "string"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "name": "leaf",
+                "objectInfo": {
+                  "fields": [
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "literalInfo": {
+                        "literalName": "NmGrade",
+                        "variants": [
+                          {
+                            "kind": "string",
+                            "value": "LOW"
+                          },
+                          {
+                            "kind": "string",
+                            "value": "MID"
+                          },
+                          {
+                            "kind": "string",
+                            "value": "HIGH"
+                          }
+                        ]
+                      },
+                      "name": "grade",
+                      "type": "literal"
+                    },
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": false,
+                      "isUnique": false,
+                      "literalInfo": {
+                        "literalName": "NmCode",
+                        "variants": [
+                          {
+                            "kind": "string",
+                            "value": "a1"
+                          },
+                          {
+                            "kind": "string",
+                            "value": "b2"
+                          },
+                          {
+                            "kind": "int",
+                            "value": 7
+                          }
+                        ]
+                      },
+                      "name": "code",
+                      "type": "literal"
+                    }
+                  ],
+                  "objectName": "NmLeaf"
+                },
+                "type": "object"
+              }
+            ],
+            "tupleName": "NmNamedLeaf"
+          },
+          "type": "tuple"
+        }
+      ],
+      "name": "NmTupleDoc",
+      "tableName": "nm_tuple_doc"
+    }
+  },
+  "objects": {
+    "NmHoldsHolder": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "holder",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "entry",
+                "tupleInfo": {
+                  "elements": [
+                    {
+                      "index": 0,
+                      "isOptional": false,
+                      "name": "label",
+                      "type": "string"
+                    },
+                    {
+                      "index": 1,
+                      "isOptional": false,
+                      "objectInfo": {
+                        "fields": [
+                          {
+                            "isId": false,
+                            "isIndexed": false,
+                            "isRequired": true,
+                            "isUnique": false,
+                            "literalInfo": {
+                              "literalName": "NmGrade",
+                              "variants": [
+                                {
+                                  "kind": "string",
+                                  "value": "LOW"
+                                },
+                                {
+                                  "kind": "string",
+                                  "value": "MID"
+                                },
+                                {
+                                  "kind": "string",
+                                  "value": "HIGH"
+                                }
+                              ]
+                            },
+                            "name": "grade",
+                            "type": "literal"
+                          },
+                          {
+                            "isId": false,
+                            "isIndexed": false,
+                            "isRequired": false,
+                            "isUnique": false,
+                            "literalInfo": {
+                              "literalName": "NmCode",
+                              "variants": [
+                                {
+                                  "kind": "string",
+                                  "value": "a1"
+                                },
+                                {
+                                  "kind": "string",
+                                  "value": "b2"
+                                },
+                                {
+                                  "kind": "int",
+                                  "value": 7
+                                }
+                              ]
+                            },
+                            "name": "code",
+                            "type": "literal"
+                          }
+                        ],
+                        "objectName": "NmLeaf"
+                      },
+                      "type": "object"
+                    }
+                  ],
+                  "tupleName": "NmWithLeaf"
+                },
+                "type": "tuple"
+              }
+            ],
+            "objectName": "NmHoldsTuple"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "NmHoldsHolder"
+    },
+    "NmHoldsTuple": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "entry",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "name": "label",
+                "type": "string"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "objectInfo": {
+                  "fields": [
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "literalInfo": {
+                        "literalName": "NmGrade",
+                        "variants": [
+                          {
+                            "kind": "string",
+                            "value": "LOW"
+                          },
+                          {
+                            "kind": "string",
+                            "value": "MID"
+                          },
+                          {
+                            "kind": "string",
+                            "value": "HIGH"
+                          }
+                        ]
+                      },
+                      "name": "grade",
+                      "type": "literal"
+                    },
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": false,
+                      "isUnique": false,
+                      "literalInfo": {
+                        "literalName": "NmCode",
+                        "variants": [
+                          {
+                            "kind": "string",
+                            "value": "a1"
+                          },
+                          {
+                            "kind": "string",
+                            "value": "b2"
+                          },
+                          {
+                            "kind": "int",
+                            "value": 7
+                          }
+                        ]
+                      },
+                      "name": "code",
+                      "type": "literal"
+                    }
+                  ],
+                  "objectName": "NmLeaf"
+                },
+                "type": "object"
+              }
+            ],
+            "tupleName": "NmWithLeaf"
+          },
+          "type": "tuple"
+        }
+      ],
+      "name": "NmHoldsTuple"
+    },
+    "NmLeaf": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "NmGrade",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "LOW"
+              },
+              {
+                "kind": "string",
+                "value": "MID"
+              },
+              {
+                "kind": "string",
+                "value": "HIGH"
+              }
+            ]
+          },
+          "name": "grade",
+          "type": "literal"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "NmCode",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "a1"
+              },
+              {
+                "kind": "string",
+                "value": "b2"
+              },
+              {
+                "kind": "int",
+                "value": 7
+              }
+            ]
+          },
+          "name": "code",
+          "type": "literal"
+        }
+      ],
+      "name": "NmLeaf"
+    },
+    "NmMid": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "leaf",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "literalInfo": {
+                  "literalName": "NmGrade",
+                  "variants": [
+                    {
+                      "kind": "string",
+                      "value": "LOW"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "MID"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "HIGH"
+                    }
+                  ]
+                },
+                "name": "grade",
+                "type": "literal"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "literalInfo": {
+                  "literalName": "NmCode",
+                  "variants": [
+                    {
+                      "kind": "string",
+                      "value": "a1"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "b2"
+                    },
+                    {
+                      "kind": "int",
+                      "value": 7
+                    }
+                  ]
+                },
+                "name": "code",
+                "type": "literal"
+              }
+            ],
+            "objectName": "NmLeaf"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "NmMid"
+    },
+    "NmTop": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "mid",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "label",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "leaf",
+                "objectInfo": {
+                  "fields": [
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "literalInfo": {
+                        "literalName": "NmGrade",
+                        "variants": [
+                          {
+                            "kind": "string",
+                            "value": "LOW"
+                          },
+                          {
+                            "kind": "string",
+                            "value": "MID"
+                          },
+                          {
+                            "kind": "string",
+                            "value": "HIGH"
+                          }
+                        ]
+                      },
+                      "name": "grade",
+                      "type": "literal"
+                    },
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": false,
+                      "isUnique": false,
+                      "literalInfo": {
+                        "literalName": "NmCode",
+                        "variants": [
+                          {
+                            "kind": "string",
+                            "value": "a1"
+                          },
+                          {
+                            "kind": "string",
+                            "value": "b2"
+                          },
+                          {
+                            "kind": "int",
+                            "value": 7
+                          }
+                        ]
+                      },
+                      "name": "code",
+                      "type": "literal"
+                    }
+                  ],
+                  "objectName": "NmLeaf"
+                },
+                "type": "object"
+              }
+            ],
+            "objectName": "NmMid"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "NmTop"
+    }
+  },
+  "tuples": {
+    "NmNamedLeaf": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "name": "tag",
+          "type": "string"
+        },
+        {
+          "index": 1,
+          "isOptional": false,
+          "name": "leaf",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "literalInfo": {
+                  "literalName": "NmGrade",
+                  "variants": [
+                    {
+                      "kind": "string",
+                      "value": "LOW"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "MID"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "HIGH"
+                    }
+                  ]
+                },
+                "name": "grade",
+                "type": "literal"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "literalInfo": {
+                  "literalName": "NmCode",
+                  "variants": [
+                    {
+                      "kind": "string",
+                      "value": "a1"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "b2"
+                    },
+                    {
+                      "kind": "int",
+                      "value": 7
+                    }
+                  ]
+                },
+                "name": "code",
+                "type": "literal"
+              }
+            ],
+            "objectName": "NmLeaf"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "NmNamedLeaf"
+    },
+    "NmOuter": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "name": "label",
+                "type": "string"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "objectInfo": {
+                  "fields": [
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "literalInfo": {
+                        "literalName": "NmGrade",
+                        "variants": [
+                          {
+                            "kind": "string",
+                            "value": "LOW"
+                          },
+                          {
+                            "kind": "string",
+                            "value": "MID"
+                          },
+                          {
+                            "kind": "string",
+                            "value": "HIGH"
+                          }
+                        ]
+                      },
+                      "name": "grade",
+                      "type": "literal"
+                    },
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": false,
+                      "isUnique": false,
+                      "literalInfo": {
+                        "literalName": "NmCode",
+                        "variants": [
+                          {
+                            "kind": "string",
+                            "value": "a1"
+                          },
+                          {
+                            "kind": "string",
+                            "value": "b2"
+                          },
+                          {
+                            "kind": "int",
+                            "value": 7
+                          }
+                        ]
+                      },
+                      "name": "code",
+                      "type": "literal"
+                    }
+                  ],
+                  "objectName": "NmLeaf"
+                },
+                "type": "object"
+              }
+            ],
+            "tupleName": "NmWithLeaf"
+          },
+          "type": "tuple"
+        },
+        {
+          "index": 1,
+          "isOptional": false,
+          "type": "int"
+        }
+      ],
+      "name": "NmOuter"
+    },
+    "NmWithLeaf": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "index": 1,
+          "isOptional": false,
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "literalInfo": {
+                  "literalName": "NmGrade",
+                  "variants": [
+                    {
+                      "kind": "string",
+                      "value": "LOW"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "MID"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "HIGH"
+                    }
+                  ]
+                },
+                "name": "grade",
+                "type": "literal"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "literalInfo": {
+                  "literalName": "NmCode",
+                  "variants": [
+                    {
+                      "kind": "string",
+                      "value": "a1"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "b2"
+                    },
+                    {
+                      "kind": "int",
+                      "value": 7
+                    }
+                  ]
+                },
+                "name": "code",
+                "type": "literal"
+              }
+            ],
+            "objectName": "NmLeaf"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "NmWithLeaf"
+    }
+  }
+}

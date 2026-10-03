@@ -1,0 +1,13 @@
+-- Course
+DEFINE TABLE OVERWRITE course SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE course TYPE string;
+DEFINE FIELD OVERWRITE code ON TABLE course TYPE string;
+DEFINE FIELD OVERWRITE studentIds ON TABLE course TYPE array<record<student>> VALUE IF $value THEN $value.distinct() ELSE [] END;
+DEFINE INDEX OVERWRITE course_code_unique ON TABLE course COLUMNS code UNIQUE;
+
+-- Student
+DEFINE TABLE OVERWRITE student SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE student TYPE string;
+DEFINE FIELD OVERWRITE email ON TABLE student TYPE string ASSERT string::is_email($value);
+DEFINE FIELD OVERWRITE courseIds ON TABLE student TYPE array<record<course>> VALUE IF $value THEN $value.distinct() ELSE [] END;
+DEFINE INDEX OVERWRITE student_email_unique ON TABLE student COLUMNS email UNIQUE;

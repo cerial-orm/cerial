@@ -1,0 +1,23 @@
+-- FlexUser
+DEFINE TABLE OVERWRITE flex_user SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE flex_user TYPE string;
+DEFINE FIELD OVERWRITE address ON TABLE flex_user TYPE object FLEXIBLE;
+DEFINE FIELD OVERWRITE address.street ON TABLE flex_user TYPE string;
+DEFINE FIELD OVERWRITE address.city ON TABLE flex_user TYPE string;
+DEFINE FIELD OVERWRITE address.zip ON TABLE flex_user TYPE option<string | null>;
+DEFINE FIELD OVERWRITE shipping ON TABLE flex_user TYPE option<object> FLEXIBLE;
+DEFINE FIELD OVERWRITE shipping.street ON TABLE flex_user TYPE string;
+DEFINE FIELD OVERWRITE shipping.city ON TABLE flex_user TYPE string;
+DEFINE FIELD OVERWRITE shipping.zip ON TABLE flex_user TYPE option<string | null>;
+DEFINE FIELD OVERWRITE tags ON TABLE flex_user TYPE array<object> FLEXIBLE;
+DEFINE FIELD OVERWRITE tags.*.street ON TABLE flex_user TYPE string;
+DEFINE FIELD OVERWRITE tags.*.city ON TABLE flex_user TYPE string;
+DEFINE FIELD OVERWRITE tags.*.zip ON TABLE flex_user TYPE option<string | null>;
+DEFINE FIELD OVERWRITE profile ON TABLE flex_user TYPE object;
+DEFINE FIELD OVERWRITE profile.bio ON TABLE flex_user TYPE string;
+DEFINE FIELD OVERWRITE profile.metadata ON TABLE flex_user TYPE object FLEXIBLE;
+DEFINE FIELD OVERWRITE profile.metadata.label ON TABLE flex_user TYPE string;
+DEFINE FIELD OVERWRITE strictAddress ON TABLE flex_user TYPE object;
+DEFINE FIELD OVERWRITE strictAddress.street ON TABLE flex_user TYPE string;
+DEFINE FIELD OVERWRITE strictAddress.city ON TABLE flex_user TYPE string;
+DEFINE FIELD OVERWRITE strictAddress.zip ON TABLE flex_user TYPE option<string | null>;

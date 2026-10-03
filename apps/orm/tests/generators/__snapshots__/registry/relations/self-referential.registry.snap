@@ -1,0 +1,375 @@
+{
+  "models": {
+    "Assistant": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "assistsId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "assists",
+          "relationInfo": {
+            "fieldRef": "assistsId",
+            "isReverse": false,
+            "key": "assist",
+            "targetModel": "Assistant",
+            "targetTable": "assistant"
+          },
+          "type": "relation"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "assistedBy",
+          "relationInfo": {
+            "isReverse": true,
+            "key": "assist",
+            "targetModel": "Assistant",
+            "targetTable": "assistant"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "Assistant",
+      "tableName": "assistant"
+    },
+    "CategoryTree": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "parentId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "parent",
+          "relationInfo": {
+            "fieldRef": "parentId",
+            "isReverse": false,
+            "key": "hierarchy",
+            "targetModel": "CategoryTree",
+            "targetTable": "category_tree"
+          },
+          "type": "relation"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "children",
+          "relationInfo": {
+            "isReverse": true,
+            "key": "hierarchy",
+            "targetModel": "CategoryTree",
+            "targetTable": "category_tree"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "CategoryTree",
+      "tableName": "category_tree"
+    },
+    "EmployeeSingleSided": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "managerId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "manager",
+          "relationInfo": {
+            "fieldRef": "managerId",
+            "isReverse": false,
+            "targetModel": "EmployeeSingleSided",
+            "targetTable": "employee_single_sided"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "EmployeeSingleSided",
+      "tableName": "employee_single_sided"
+    },
+    "EmployeeWithReports": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "managerId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "manager",
+          "relationInfo": {
+            "fieldRef": "managerId",
+            "isReverse": false,
+            "key": "manages",
+            "targetModel": "EmployeeWithReports",
+            "targetTable": "employee_with_reports"
+          },
+          "type": "relation"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "directReports",
+          "relationInfo": {
+            "isReverse": true,
+            "key": "manages",
+            "targetModel": "EmployeeWithReports",
+            "targetTable": "employee_with_reports"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "EmployeeWithReports",
+      "tableName": "employee_with_reports"
+    },
+    "Friend": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "friendIds",
+          "type": "record"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "friends",
+          "relationInfo": {
+            "fieldRef": "friendIds",
+            "isReverse": false,
+            "targetModel": "Friend",
+            "targetTable": "friend"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "Friend",
+      "tableName": "friend"
+    },
+    "Person": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "mentorId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "mentor",
+          "relationInfo": {
+            "fieldRef": "mentorId",
+            "isReverse": false,
+            "targetModel": "Person",
+            "targetTable": "person"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "Person",
+      "tableName": "person"
+    },
+    "SocialUser": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "followingIds",
+          "type": "record"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "following",
+          "relationInfo": {
+            "fieldRef": "followingIds",
+            "isReverse": false,
+            "targetModel": "SocialUser",
+            "targetTable": "social_user"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "SocialUser",
+      "tableName": "social_user"
+    }
+  }
+}

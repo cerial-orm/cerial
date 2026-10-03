@@ -1,0 +1,96 @@
+{
+  "models": [
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "createdAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "createdAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "updatedAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "updatedAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "now"
+            }
+          ],
+          "isOptional": false,
+          "name": "accessedAt",
+          "type": "date"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "meta",
+          "objectName": "TimestampInfo",
+          "type": "object"
+        }
+      ],
+      "name": "TimestampTest"
+    }
+  ],
+  "objects": [
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "createdAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "createdAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "updatedAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "updatedAt",
+          "type": "date"
+        }
+      ],
+      "name": "TimestampInfo"
+    }
+  ]
+}

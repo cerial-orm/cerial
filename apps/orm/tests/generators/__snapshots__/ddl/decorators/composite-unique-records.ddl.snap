@@ -1,0 +1,31 @@
+-- Attendee
+DEFINE TABLE OVERWRITE attendee SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE attendee TYPE string;
+
+-- Booking
+DEFINE TABLE OVERWRITE booking SCHEMAFULL;
+DEFINE FIELD OVERWRITE attendeeId ON TABLE booking TYPE record<attendee>;
+DEFINE FIELD OVERWRITE slot ON TABLE booking TYPE object;
+DEFINE FIELD OVERWRITE slot.row ON TABLE booking TYPE string;
+DEFINE INDEX OVERWRITE bookingAttendeeRow ON TABLE booking COLUMNS attendeeId, slot.row;
+DEFINE INDEX OVERWRITE bookingAttendeeRowUnique ON TABLE booking COLUMNS attendeeId, slot.row UNIQUE;
+
+-- Registration
+DEFINE TABLE OVERWRITE registration SCHEMAFULL;
+DEFINE FIELD OVERWRITE attendeeId ON TABLE registration TYPE record<attendee>;
+DEFINE FIELD OVERWRITE workshopId ON TABLE registration TYPE record<workshop>;
+DEFINE FIELD OVERWRITE role ON TABLE registration TYPE option<string>;
+DEFINE INDEX OVERWRITE attendeeWorkshop ON TABLE registration COLUMNS attendeeId, workshopId UNIQUE;
+
+-- Ticket
+DEFINE TABLE OVERWRITE ticket SCHEMAFULL;
+DEFINE FIELD OVERWRITE attendeeId ON TABLE ticket TYPE record<attendee>;
+DEFINE FIELD OVERWRITE workshopId ON TABLE ticket TYPE record<workshop>;
+DEFINE FIELD OVERWRITE seat ON TABLE ticket TYPE string;
+DEFINE INDEX OVERWRITE ticketAttendeeWorkshop ON TABLE ticket COLUMNS attendeeId, workshopId;
+DEFINE INDEX OVERWRITE ticketAttendeeSeat ON TABLE ticket COLUMNS attendeeId, seat;
+DEFINE INDEX OVERWRITE ticketWorkshopSeat ON TABLE ticket COLUMNS workshopId, seat UNIQUE;
+
+-- Workshop
+DEFINE TABLE OVERWRITE workshop SCHEMAFULL;
+DEFINE FIELD OVERWRITE title ON TABLE workshop TYPE string;

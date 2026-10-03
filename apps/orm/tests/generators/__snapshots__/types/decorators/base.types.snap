@@ -1,0 +1,692 @@
+// ===== models/arraydecoratortest.ts =====
+/**
+ * Generated types for ArrayDecoratorTest
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface ArrayDecoratorTest {
+  id: CerialId<string>;
+  uniqueTags: string[];
+  sortedScores: number[];
+  recentDates: Date[];
+  uniqueSortedCategories: string[];
+  uniqueSortedPriorities: number[];
+  normalTags: string[];
+  normalScores: number[];
+}
+
+export interface ArrayDecoratorTestInput {
+  id?: string;
+  uniqueTags: string[];
+  sortedScores: number[];
+  recentDates: Date[];
+  uniqueSortedCategories: string[];
+  uniqueSortedPriorities: number[];
+  normalTags: string[];
+  normalScores: number[];
+}
+
+export interface ArrayDecoratorTestWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  uniqueTags?:
+    | string[]
+    | {
+        has?: string;
+        hasAll?: string[];
+        hasAny?: string[];
+        isEmpty?: boolean;
+      };
+  sortedScores?:
+    | number[]
+    | {
+        has?: number;
+        hasAll?: number[];
+        hasAny?: number[];
+        isEmpty?: boolean;
+      };
+  recentDates?:
+    | Date[]
+    | {
+        has?: Date;
+        hasAll?: Date[];
+        hasAny?: Date[];
+        isEmpty?: boolean;
+      };
+  uniqueSortedCategories?:
+    | string[]
+    | {
+        has?: string;
+        hasAll?: string[];
+        hasAny?: string[];
+        isEmpty?: boolean;
+      };
+  uniqueSortedPriorities?:
+    | number[]
+    | {
+        has?: number;
+        hasAll?: number[];
+        hasAny?: number[];
+        isEmpty?: boolean;
+      };
+  normalTags?:
+    | string[]
+    | {
+        has?: string;
+        hasAll?: string[];
+        hasAny?: string[];
+        isEmpty?: boolean;
+      };
+  normalScores?:
+    | number[]
+    | {
+        has?: number;
+        hasAll?: number[];
+        hasAny?: number[];
+        isEmpty?: boolean;
+      };
+  AND?: ArrayDecoratorTestWhere[];
+  OR?: ArrayDecoratorTestWhere[];
+  NOT?: ArrayDecoratorTestWhere;
+}
+
+export type ArrayDecoratorTestWhereInput = ArrayDecoratorTestWhere;
+
+export type ArrayDecoratorTestFindUniqueWhere = { id: RecordIdInput<string> } & Omit<ArrayDecoratorTestWhere, 'id'>;
+
+export type ArrayDecoratorTestCreate = O.Optional<
+  ArrayDecoratorTestInput,
+  | 'id'
+  | 'uniqueTags'
+  | 'sortedScores'
+  | 'recentDates'
+  | 'uniqueSortedCategories'
+  | 'uniqueSortedPriorities'
+  | 'normalTags'
+  | 'normalScores'
+>;
+
+export type ArrayDecoratorTestNestedCreate = O.Optional<
+  ArrayDecoratorTestInput,
+  | 'id'
+  | 'uniqueTags'
+  | 'sortedScores'
+  | 'recentDates'
+  | 'uniqueSortedCategories'
+  | 'uniqueSortedPriorities'
+  | 'normalTags'
+  | 'normalScores'
+>;
+
+export type ArrayDecoratorTestCreateInput = ArrayDecoratorTestCreate;
+
+export type ArrayDecoratorTestUpdate = Partial<
+  O.Omit<
+    ArrayDecoratorTestInput,
+    | 'id'
+    | 'uniqueTags'
+    | 'sortedScores'
+    | 'recentDates'
+    | 'uniqueSortedCategories'
+    | 'uniqueSortedPriorities'
+    | 'normalTags'
+    | 'normalScores'
+  >
+> & {
+  uniqueTags?:
+    | string[]
+    | {
+        push?: string | string[];
+        unset?: string | string[];
+      };
+  sortedScores?:
+    | number[]
+    | {
+        push?: number | number[];
+        unset?: number | number[];
+      };
+  recentDates?:
+    | Date[]
+    | {
+        push?: Date | Date[];
+        unset?: Date | Date[];
+      };
+  uniqueSortedCategories?:
+    | string[]
+    | {
+        push?: string | string[];
+        unset?: string | string[];
+      };
+  uniqueSortedPriorities?:
+    | number[]
+    | {
+        push?: number | number[];
+        unset?: number | number[];
+      };
+  normalTags?:
+    | string[]
+    | {
+        push?: string | string[];
+        unset?: string | string[];
+      };
+  normalScores?:
+    | number[]
+    | {
+        push?: number | number[];
+        unset?: number | number[];
+      };
+};
+
+export type ArrayDecoratorTestUpdateInput = ArrayDecoratorTestUpdate;
+
+export type ArrayDecoratorTestUnset = {};
+
+export type ArrayDecoratorTestSelect =
+  | ({ id: boolean } & Partial<
+      Record<
+        | 'uniqueTags'
+        | 'sortedScores'
+        | 'recentDates'
+        | 'uniqueSortedCategories'
+        | 'uniqueSortedPriorities'
+        | 'normalTags'
+        | 'normalScores',
+        boolean
+      >
+    >)
+  | ({ uniqueTags: boolean } & Partial<
+      Record<
+        | 'id'
+        | 'sortedScores'
+        | 'recentDates'
+        | 'uniqueSortedCategories'
+        | 'uniqueSortedPriorities'
+        | 'normalTags'
+        | 'normalScores',
+        boolean
+      >
+    >)
+  | ({ sortedScores: boolean } & Partial<
+      Record<
+        | 'id'
+        | 'uniqueTags'
+        | 'recentDates'
+        | 'uniqueSortedCategories'
+        | 'uniqueSortedPriorities'
+        | 'normalTags'
+        | 'normalScores',
+        boolean
+      >
+    >)
+  | ({ recentDates: boolean } & Partial<
+      Record<
+        | 'id'
+        | 'uniqueTags'
+        | 'sortedScores'
+        | 'uniqueSortedCategories'
+        | 'uniqueSortedPriorities'
+        | 'normalTags'
+        | 'normalScores',
+        boolean
+      >
+    >)
+  | ({ uniqueSortedCategories: boolean } & Partial<
+      Record<
+        'id' | 'uniqueTags' | 'sortedScores' | 'recentDates' | 'uniqueSortedPriorities' | 'normalTags' | 'normalScores',
+        boolean
+      >
+    >)
+  | ({ uniqueSortedPriorities: boolean } & Partial<
+      Record<
+        'id' | 'uniqueTags' | 'sortedScores' | 'recentDates' | 'uniqueSortedCategories' | 'normalTags' | 'normalScores',
+        boolean
+      >
+    >)
+  | ({ normalTags: boolean } & Partial<
+      Record<
+        | 'id'
+        | 'uniqueTags'
+        | 'sortedScores'
+        | 'recentDates'
+        | 'uniqueSortedCategories'
+        | 'uniqueSortedPriorities'
+        | 'normalScores',
+        boolean
+      >
+    >)
+  | ({ normalScores: boolean } & Partial<
+      Record<
+        | 'id'
+        | 'uniqueTags'
+        | 'sortedScores'
+        | 'recentDates'
+        | 'uniqueSortedCategories'
+        | 'uniqueSortedPriorities'
+        | 'normalTags',
+        boolean
+      >
+    >);
+
+export interface ArrayDecoratorTestOrderBy {
+  id?: 'asc' | 'desc';
+  uniqueTags?: 'asc' | 'desc';
+  sortedScores?: 'asc' | 'desc';
+  recentDates?: 'asc' | 'desc';
+  uniqueSortedCategories?: 'asc' | 'desc';
+  uniqueSortedPriorities?: 'asc' | 'desc';
+  normalTags?: 'asc' | 'desc';
+  normalScores?: 'asc' | 'desc';
+}
+
+export type ArrayDecoratorTest$Relations = {};
+
+export type GetArrayDecoratorTestPayload<
+  S extends ArrayDecoratorTestSelect | undefined = undefined,
+  I = undefined,
+> = A.Compute<
+  S extends ArrayDecoratorTestSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ArrayDecoratorTest
+          ? ResolveFieldSelect<ArrayDecoratorTest[K], S[K]>
+          : never;
+      }
+    : ArrayDecoratorTest,
+  'flat'
+>;
+
+export interface ArrayDecoratorTestModel {
+  findOne<S extends ArrayDecoratorTestSelect | undefined = undefined>(options?: {
+    where?: ArrayDecoratorTestWhere;
+    select?: S;
+    orderBy?: ArrayDecoratorTestOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetArrayDecoratorTestPayload<S> | null>;
+
+  findMany<S extends ArrayDecoratorTestSelect | undefined = undefined>(options?: {
+    where?: ArrayDecoratorTestWhere;
+    select?: S;
+    orderBy?: ArrayDecoratorTestOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetArrayDecoratorTestPayload<S>[]>;
+
+  findUnique<S extends ArrayDecoratorTestSelect | undefined = undefined>(options: {
+    where: ArrayDecoratorTestFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetArrayDecoratorTestPayload<S> | null>;
+
+  create<S extends ArrayDecoratorTestSelect | undefined = undefined>(options: {
+    data: ArrayDecoratorTestCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetArrayDecoratorTestPayload<S>>;
+
+  updateMany<
+    S extends ArrayDecoratorTestSelect | undefined = undefined,
+    D extends ArrayDecoratorTestUpdateInput = ArrayDecoratorTestUpdateInput,
+  >(options: {
+    where: ArrayDecoratorTestWhere;
+    data: D;
+    unset?: SafeUnset<ArrayDecoratorTestUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetArrayDecoratorTestPayload<S>[]>;
+
+  updateUnique<
+    S extends ArrayDecoratorTestSelect | undefined = undefined,
+    D extends ArrayDecoratorTestUpdateInput = ArrayDecoratorTestUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ArrayDecoratorTestFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ArrayDecoratorTestUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ArrayDecoratorTest | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetArrayDecoratorTestPayload<S>, R>>;
+
+  upsert<
+    S extends ArrayDecoratorTestSelect | undefined = undefined,
+    D extends ArrayDecoratorTestUpdateInput = ArrayDecoratorTestUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ArrayDecoratorTestFindUniqueWhere;
+    create: ArrayDecoratorTestCreateInput;
+    update?: D;
+    unset?: SafeUnset<ArrayDecoratorTestUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetArrayDecoratorTestPayload<S>, R>>;
+
+  upsert<
+    S extends ArrayDecoratorTestSelect | undefined = undefined,
+    D extends ArrayDecoratorTestUpdateInput = ArrayDecoratorTestUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ArrayDecoratorTestWhere;
+    create: ArrayDecoratorTestCreateInput;
+    update?: D;
+    unset?: SafeUnset<ArrayDecoratorTestUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetArrayDecoratorTestPayload<S>, R>>;
+
+  deleteMany(options: { where: ArrayDecoratorTestWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ArrayDecoratorTestFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ArrayDecoratorTest | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ArrayDecoratorTest, R>>;
+
+  count(where?: ArrayDecoratorTestWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ArrayDecoratorTestWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/scalararrays.ts =====
+/**
+ * Generated types for ScalarArrays
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface ScalarArrays {
+  id: CerialId<string>;
+  emails: string[];
+  flags: boolean[];
+}
+
+export interface ScalarArraysInput {
+  id?: string;
+  emails: string[];
+  flags: boolean[];
+}
+
+export interface ScalarArraysWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  emails?:
+    | string[]
+    | {
+        has?: string;
+        hasAll?: string[];
+        hasAny?: string[];
+        isEmpty?: boolean;
+      };
+  flags?:
+    | boolean[]
+    | {
+        has?: boolean;
+        hasAll?: boolean[];
+        hasAny?: boolean[];
+        isEmpty?: boolean;
+      };
+  AND?: ScalarArraysWhere[];
+  OR?: ScalarArraysWhere[];
+  NOT?: ScalarArraysWhere;
+}
+
+export type ScalarArraysWhereInput = ScalarArraysWhere;
+
+export type ScalarArraysFindUniqueWhere = { id: RecordIdInput<string> } & Omit<ScalarArraysWhere, 'id'>;
+
+export type ScalarArraysCreate = O.Optional<ScalarArraysInput, 'id' | 'emails' | 'flags'>;
+
+export type ScalarArraysNestedCreate = O.Optional<ScalarArraysInput, 'id' | 'emails' | 'flags'>;
+
+export type ScalarArraysCreateInput = ScalarArraysCreate;
+
+export type ScalarArraysUpdate = Partial<O.Omit<ScalarArraysInput, 'id' | 'emails' | 'flags'>> & {
+  emails?:
+    | string[]
+    | {
+        push?: string | string[];
+        unset?: string | string[];
+      };
+  flags?:
+    | boolean[]
+    | {
+        push?: boolean | boolean[];
+        unset?: boolean | boolean[];
+      };
+};
+
+export type ScalarArraysUpdateInput = ScalarArraysUpdate;
+
+export type ScalarArraysUnset = {};
+
+export type ScalarArraysSelect =
+  | ({ id: boolean } & Partial<Record<'emails' | 'flags', boolean>>)
+  | ({ emails: boolean } & Partial<Record<'id' | 'flags', boolean>>)
+  | ({ flags: boolean } & Partial<Record<'id' | 'emails', boolean>>);
+
+export interface ScalarArraysOrderBy {
+  id?: 'asc' | 'desc';
+  emails?: 'asc' | 'desc';
+  flags?: 'asc' | 'desc';
+}
+
+export type ScalarArrays$Relations = {};
+
+export type GetScalarArraysPayload<S extends ScalarArraysSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends ScalarArraysSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ScalarArrays
+          ? ResolveFieldSelect<ScalarArrays[K], S[K]>
+          : never;
+      }
+    : ScalarArrays,
+  'flat'
+>;
+
+export interface ScalarArraysModel {
+  findOne<S extends ScalarArraysSelect | undefined = undefined>(options?: {
+    where?: ScalarArraysWhere;
+    select?: S;
+    orderBy?: ScalarArraysOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetScalarArraysPayload<S> | null>;
+
+  findMany<S extends ScalarArraysSelect | undefined = undefined>(options?: {
+    where?: ScalarArraysWhere;
+    select?: S;
+    orderBy?: ScalarArraysOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetScalarArraysPayload<S>[]>;
+
+  findUnique<S extends ScalarArraysSelect | undefined = undefined>(options: {
+    where: ScalarArraysFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetScalarArraysPayload<S> | null>;
+
+  create<S extends ScalarArraysSelect | undefined = undefined>(options: {
+    data: ScalarArraysCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetScalarArraysPayload<S>>;
+
+  updateMany<
+    S extends ScalarArraysSelect | undefined = undefined,
+    D extends ScalarArraysUpdateInput = ScalarArraysUpdateInput,
+  >(options: {
+    where: ScalarArraysWhere;
+    data: D;
+    unset?: SafeUnset<ScalarArraysUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetScalarArraysPayload<S>[]>;
+
+  updateUnique<
+    S extends ScalarArraysSelect | undefined = undefined,
+    D extends ScalarArraysUpdateInput = ScalarArraysUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ScalarArraysFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ScalarArraysUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ScalarArrays | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetScalarArraysPayload<S>, R>>;
+
+  upsert<
+    S extends ScalarArraysSelect | undefined = undefined,
+    D extends ScalarArraysUpdateInput = ScalarArraysUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ScalarArraysFindUniqueWhere;
+    create: ScalarArraysCreateInput;
+    update?: D;
+    unset?: SafeUnset<ScalarArraysUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetScalarArraysPayload<S>, R>>;
+
+  upsert<
+    S extends ScalarArraysSelect | undefined = undefined,
+    D extends ScalarArraysUpdateInput = ScalarArraysUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ScalarArraysWhere;
+    create: ScalarArraysCreateInput;
+    update?: D;
+    unset?: SafeUnset<ScalarArraysUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetScalarArraysPayload<S>, R>>;
+
+  deleteMany(options: { where: ScalarArraysWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ScalarArraysFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ScalarArrays | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ScalarArrays, R>>;
+
+  count(where?: ScalarArraysWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ScalarArraysWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}

@@ -1,0 +1,34 @@
+-- Assistant
+DEFINE TABLE OVERWRITE assistant SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE assistant TYPE string;
+DEFINE FIELD OVERWRITE assistsId ON TABLE assistant TYPE option<record<assistant> | null>;
+
+-- CategoryTree
+DEFINE TABLE OVERWRITE category_tree SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE category_tree TYPE string;
+DEFINE FIELD OVERWRITE parentId ON TABLE category_tree TYPE option<record<category_tree> | null>;
+
+-- EmployeeSingleSided
+DEFINE TABLE OVERWRITE employee_single_sided SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE employee_single_sided TYPE string;
+DEFINE FIELD OVERWRITE managerId ON TABLE employee_single_sided TYPE option<record<employee_single_sided> | null>;
+
+-- EmployeeWithReports
+DEFINE TABLE OVERWRITE employee_with_reports SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE employee_with_reports TYPE string;
+DEFINE FIELD OVERWRITE managerId ON TABLE employee_with_reports TYPE option<record<employee_with_reports> | null>;
+
+-- Friend
+DEFINE TABLE OVERWRITE friend SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE friend TYPE string;
+DEFINE FIELD OVERWRITE friendIds ON TABLE friend TYPE array<record<friend>> VALUE IF $value THEN $value.distinct() ELSE [] END;
+
+-- Person
+DEFINE TABLE OVERWRITE person SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE person TYPE string;
+DEFINE FIELD OVERWRITE mentorId ON TABLE person TYPE option<record<person> | null>;
+
+-- SocialUser
+DEFINE TABLE OVERWRITE social_user SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE social_user TYPE string;
+DEFINE FIELD OVERWRITE followingIds ON TABLE social_user TYPE array<record<social_user>> VALUE IF $value THEN $value.distinct() ELSE [] END;

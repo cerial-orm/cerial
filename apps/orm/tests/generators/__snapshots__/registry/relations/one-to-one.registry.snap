@@ -1,0 +1,260 @@
+{
+  "models": {
+    "ProfileOptional": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "bio",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "userId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "user",
+          "relationInfo": {
+            "fieldRef": "userId",
+            "isReverse": false,
+            "targetModel": "UserOptional",
+            "targetTable": "user_optional"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "ProfileOptional",
+      "tableName": "profile_optional"
+    },
+    "ProfileRequired": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "bio",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "avatarUrl",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "userId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "user",
+          "relationInfo": {
+            "fieldRef": "userId",
+            "isReverse": false,
+            "targetModel": "UserRequired",
+            "targetTable": "user_required"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "ProfileRequired",
+      "tableName": "profile_required"
+    },
+    "ProfileSingleSided": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "bio",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "userId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "user",
+          "relationInfo": {
+            "fieldRef": "userId",
+            "isReverse": false,
+            "targetModel": "UserSingleSided",
+            "targetTable": "user_single_sided"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "ProfileSingleSided",
+      "tableName": "profile_single_sided"
+    },
+    "UserOptional": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": true,
+          "name": "email",
+          "type": "email"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "profile",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "ProfileOptional",
+            "targetTable": "profile_optional"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "UserOptional",
+      "tableName": "user_optional"
+    },
+    "UserRequired": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": true,
+          "name": "email",
+          "type": "email"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "profile",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "ProfileRequired",
+            "targetTable": "profile_required"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "UserRequired",
+      "tableName": "user_required"
+    },
+    "UserSingleSided": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        }
+      ],
+      "name": "UserSingleSided",
+      "tableName": "user_single_sided"
+    }
+  }
+}

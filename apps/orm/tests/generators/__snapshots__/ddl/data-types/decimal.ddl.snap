@@ -1,0 +1,25 @@
+-- DecimalBasic
+DEFINE TABLE OVERWRITE decimal_basic SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE decimal_basic TYPE string;
+DEFINE FIELD OVERWRITE price ON TABLE decimal_basic TYPE decimal;
+DEFINE FIELD OVERWRITE discount ON TABLE decimal_basic TYPE option<decimal>;
+DEFINE FIELD OVERWRITE tax ON TABLE decimal_basic TYPE decimal | null;
+DEFINE FIELD OVERWRITE amounts ON TABLE decimal_basic TYPE array<decimal>;
+
+-- DecimalDecorated
+DEFINE TABLE OVERWRITE decimal_decorated SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE decimal_decorated TYPE string;
+DEFINE FIELD OVERWRITE defaultPrice ON TABLE decimal_decorated TYPE decimal DEFAULT 99.99;
+DEFINE FIELD OVERWRITE alwaysPrice ON TABLE decimal_decorated TYPE option<decimal> DEFAULT ALWAYS 0;
+
+-- DecimalWithObject
+DEFINE TABLE OVERWRITE decimal_with_object SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE decimal_with_object TYPE string;
+DEFINE FIELD OVERWRITE pricing ON TABLE decimal_with_object TYPE object;
+DEFINE FIELD OVERWRITE pricing.amount ON TABLE decimal_with_object TYPE decimal;
+DEFINE FIELD OVERWRITE pricing.fee ON TABLE decimal_with_object TYPE option<decimal>;
+
+-- DecimalWithTuple
+DEFINE TABLE OVERWRITE decimal_with_tuple SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE decimal_with_tuple TYPE string;
+DEFINE FIELD OVERWRITE pair ON TABLE decimal_with_tuple TYPE [decimal, decimal | null];

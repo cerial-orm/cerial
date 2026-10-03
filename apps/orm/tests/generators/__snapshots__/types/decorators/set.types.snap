@@ -1,0 +1,283 @@
+// ===== models/setbasic.ts =====
+/**
+ * Generated types for SetBasic
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import { CerialUuid } from 'cerial';
+import type { CerialUuidInput } from 'cerial';
+import type { CerialSet } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface SetBasic {
+  id: CerialId<string>;
+  name: string;
+  tags: CerialSet<string>;
+  numbers: CerialSet<number>;
+  uuids: CerialSet<CerialUuid>;
+}
+
+export interface SetBasicInput {
+  id?: string;
+  name: string;
+  tags: string[];
+  numbers: number[];
+  uuids: CerialUuidInput[];
+}
+
+export interface SetBasicWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  tags?:
+    | string[]
+    | {
+        has?: string;
+        hasAll?: string[];
+        hasAny?: string[];
+        isEmpty?: boolean;
+      };
+  numbers?:
+    | number[]
+    | {
+        has?: number;
+        hasAll?: number[];
+        hasAny?: number[];
+        isEmpty?: boolean;
+      };
+  uuids?:
+    | CerialUuidInput[]
+    | {
+        has?: CerialUuidInput;
+        hasAll?: CerialUuidInput[];
+        hasAny?: CerialUuidInput[];
+        isEmpty?: boolean;
+      };
+  AND?: SetBasicWhere[];
+  OR?: SetBasicWhere[];
+  NOT?: SetBasicWhere;
+}
+
+export type SetBasicWhereInput = SetBasicWhere;
+
+export type SetBasicFindUniqueWhere = { id: RecordIdInput<string> } & Omit<SetBasicWhere, 'id'>;
+
+export type SetBasicCreate = O.Optional<SetBasicInput, 'id' | 'tags' | 'numbers' | 'uuids'>;
+
+export type SetBasicNestedCreate = O.Optional<SetBasicInput, 'id' | 'tags' | 'numbers' | 'uuids'>;
+
+export type SetBasicCreateInput = SetBasicCreate;
+
+export type SetBasicUpdate = Partial<O.Omit<SetBasicInput, 'id' | 'tags' | 'numbers' | 'uuids'>> & {
+  tags?:
+    | string[]
+    | {
+        push?: string | string[];
+        unset?: string | string[];
+      };
+  numbers?:
+    | number[]
+    | {
+        push?: number | number[];
+        unset?: number | number[];
+      };
+  uuids?:
+    | CerialUuidInput[]
+    | {
+        push?: CerialUuidInput | CerialUuidInput[];
+        unset?: CerialUuidInput | CerialUuidInput[];
+      };
+};
+
+export type SetBasicUpdateInput = SetBasicUpdate;
+
+export type SetBasicUnset = {};
+
+export type SetBasicSelect =
+  | ({ id: boolean } & Partial<Record<'name' | 'tags' | 'numbers' | 'uuids', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'tags' | 'numbers' | 'uuids', boolean>>)
+  | ({ tags: boolean } & Partial<Record<'id' | 'name' | 'numbers' | 'uuids', boolean>>)
+  | ({ numbers: boolean } & Partial<Record<'id' | 'name' | 'tags' | 'uuids', boolean>>)
+  | ({ uuids: boolean } & Partial<Record<'id' | 'name' | 'tags' | 'numbers', boolean>>);
+
+export interface SetBasicOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  tags?: 'asc' | 'desc';
+  numbers?: 'asc' | 'desc';
+  uuids?: 'asc' | 'desc';
+}
+
+export type SetBasic$Relations = {};
+
+export type GetSetBasicPayload<S extends SetBasicSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends SetBasicSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof SetBasic
+          ? ResolveFieldSelect<SetBasic[K], S[K]>
+          : never;
+      }
+    : SetBasic,
+  'flat'
+>;
+
+export interface SetBasicModel {
+  findOne<S extends SetBasicSelect | undefined = undefined>(options?: {
+    where?: SetBasicWhere;
+    select?: S;
+    orderBy?: SetBasicOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetSetBasicPayload<S> | null>;
+
+  findMany<S extends SetBasicSelect | undefined = undefined>(options?: {
+    where?: SetBasicWhere;
+    select?: S;
+    orderBy?: SetBasicOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetSetBasicPayload<S>[]>;
+
+  findUnique<S extends SetBasicSelect | undefined = undefined>(options: {
+    where: SetBasicFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetSetBasicPayload<S> | null>;
+
+  create<S extends SetBasicSelect | undefined = undefined>(options: {
+    data: SetBasicCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetSetBasicPayload<S>>;
+
+  updateMany<
+    S extends SetBasicSelect | undefined = undefined,
+    D extends SetBasicUpdateInput = SetBasicUpdateInput,
+  >(options: {
+    where: SetBasicWhere;
+    data: D;
+    unset?: SafeUnset<SetBasicUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetSetBasicPayload<S>[]>;
+
+  updateUnique<
+    S extends SetBasicSelect | undefined = undefined,
+    D extends SetBasicUpdateInput = SetBasicUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: SetBasicFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<SetBasicUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns SetBasic | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetSetBasicPayload<S>, R>>;
+
+  upsert<
+    S extends SetBasicSelect | undefined = undefined,
+    D extends SetBasicUpdateInput = SetBasicUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: SetBasicFindUniqueWhere;
+    create: SetBasicCreateInput;
+    update?: D;
+    unset?: SafeUnset<SetBasicUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetSetBasicPayload<S>, R>>;
+
+  upsert<
+    S extends SetBasicSelect | undefined = undefined,
+    D extends SetBasicUpdateInput = SetBasicUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: SetBasicWhere;
+    create: SetBasicCreateInput;
+    update?: D;
+    unset?: SafeUnset<SetBasicUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetSetBasicPayload<S>, R>>;
+
+  deleteMany(options: { where: SetBasicWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: SetBasicFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns SetBasic | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<SetBasic, R>>;
+
+  count(where?: SetBasicWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: SetBasicWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}

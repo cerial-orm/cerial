@@ -1,0 +1,2417 @@
+// ===== models/extcrossadmin.ts =====
+/**
+ * Generated types for ExtCrossAdmin
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface ExtCrossAdmin {
+  id: CerialId<string>;
+  createdAt?: Date;
+  updatedAt?: Date;
+  email: string;
+  name: string;
+  level: number;
+  permissions: string[];
+  department: string;
+  budget?: number;
+  teamSize?: number;
+}
+
+export interface ExtCrossAdminInput {
+  id?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  email: string;
+  name: string;
+  level: number;
+  permissions: string[];
+  department: string;
+  budget?: number;
+  teamSize?: number;
+}
+
+export interface ExtCrossAdminWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  createdAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  updatedAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  /** @unique — Unique indexed field */
+  email?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  level?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  permissions?:
+    | string[]
+    | {
+        has?: string;
+        hasAll?: string[];
+        hasAny?: string[];
+        isEmpty?: boolean;
+      };
+  department?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  budget?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  teamSize?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  AND?: ExtCrossAdminWhere[];
+  OR?: ExtCrossAdminWhere[];
+  NOT?: ExtCrossAdminWhere;
+}
+
+export type ExtCrossAdminWhereInput = ExtCrossAdminWhere;
+
+export type ExtCrossAdminFindUniqueWhere =
+  | ({ id: RecordIdInput<string> } & { email?: string } & Omit<ExtCrossAdminWhere, 'id' | 'email'>)
+  | ({ email: string } & { id?: RecordIdInput<string> } & Omit<ExtCrossAdminWhere, 'id' | 'email'>);
+
+export type ExtCrossAdminCreate = O.Optional<
+  ExtCrossAdminInput,
+  'id' | 'createdAt' | 'updatedAt' | 'level' | 'permissions' | 'budget' | 'teamSize'
+>;
+
+export type ExtCrossAdminNestedCreate = O.Optional<
+  ExtCrossAdminInput,
+  'id' | 'createdAt' | 'updatedAt' | 'level' | 'permissions' | 'budget' | 'teamSize'
+>;
+
+export type ExtCrossAdminCreateInput = ExtCrossAdminCreate;
+
+export type ExtCrossAdminUpdate = Partial<
+  O.Omit<ExtCrossAdminInput, 'id' | 'permissions' | 'createdAt' | 'updatedAt' | 'budget' | 'teamSize'>
+> & {
+  permissions?:
+    | string[]
+    | {
+        push?: string | string[];
+        unset?: string | string[];
+      };
+  createdAt?: Date | CerialNone;
+  updatedAt?: Date | CerialNone;
+  budget?: number | CerialNone;
+  teamSize?: number | CerialNone;
+};
+
+export type ExtCrossAdminUpdateInput = ExtCrossAdminUpdate;
+
+export type ExtCrossAdminUnset = {
+  createdAt?: true;
+  updatedAt?: true;
+  budget?: true;
+  teamSize?: true;
+};
+
+export type ExtCrossAdminSelect =
+  | ({ id: boolean } & Partial<
+      Record<
+        'createdAt' | 'updatedAt' | 'email' | 'name' | 'level' | 'permissions' | 'department' | 'budget' | 'teamSize',
+        boolean
+      >
+    >)
+  | ({ createdAt: boolean } & Partial<
+      Record<
+        'id' | 'updatedAt' | 'email' | 'name' | 'level' | 'permissions' | 'department' | 'budget' | 'teamSize',
+        boolean
+      >
+    >)
+  | ({ updatedAt: boolean } & Partial<
+      Record<
+        'id' | 'createdAt' | 'email' | 'name' | 'level' | 'permissions' | 'department' | 'budget' | 'teamSize',
+        boolean
+      >
+    >)
+  | ({ email: boolean } & Partial<
+      Record<
+        'id' | 'createdAt' | 'updatedAt' | 'name' | 'level' | 'permissions' | 'department' | 'budget' | 'teamSize',
+        boolean
+      >
+    >)
+  | ({ name: boolean } & Partial<
+      Record<
+        'id' | 'createdAt' | 'updatedAt' | 'email' | 'level' | 'permissions' | 'department' | 'budget' | 'teamSize',
+        boolean
+      >
+    >)
+  | ({ level: boolean } & Partial<
+      Record<
+        'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'permissions' | 'department' | 'budget' | 'teamSize',
+        boolean
+      >
+    >)
+  | ({ permissions: boolean } & Partial<
+      Record<
+        'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'level' | 'department' | 'budget' | 'teamSize',
+        boolean
+      >
+    >)
+  | ({ department: boolean } & Partial<
+      Record<
+        'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'level' | 'permissions' | 'budget' | 'teamSize',
+        boolean
+      >
+    >)
+  | ({ budget: boolean } & Partial<
+      Record<
+        'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'level' | 'permissions' | 'department' | 'teamSize',
+        boolean
+      >
+    >)
+  | ({ teamSize: boolean } & Partial<
+      Record<
+        'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'level' | 'permissions' | 'department' | 'budget',
+        boolean
+      >
+    >);
+
+export interface ExtCrossAdminOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  updatedAt?: 'asc' | 'desc';
+  email?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  level?: 'asc' | 'desc';
+  permissions?: 'asc' | 'desc';
+  department?: 'asc' | 'desc';
+  budget?: 'asc' | 'desc';
+  teamSize?: 'asc' | 'desc';
+}
+
+export type ExtCrossAdmin$Relations = {};
+
+export type GetExtCrossAdminPayload<S extends ExtCrossAdminSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends ExtCrossAdminSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ExtCrossAdmin
+          ? ResolveFieldSelect<ExtCrossAdmin[K], S[K]>
+          : never;
+      }
+    : ExtCrossAdmin,
+  'flat'
+>;
+
+export interface ExtCrossAdminModel {
+  findOne<S extends ExtCrossAdminSelect | undefined = undefined>(options?: {
+    where?: ExtCrossAdminWhere;
+    select?: S;
+    orderBy?: ExtCrossAdminOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtCrossAdminPayload<S> | null>;
+
+  findMany<S extends ExtCrossAdminSelect | undefined = undefined>(options?: {
+    where?: ExtCrossAdminWhere;
+    select?: S;
+    orderBy?: ExtCrossAdminOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtCrossAdminPayload<S>[]>;
+
+  findUnique<S extends ExtCrossAdminSelect | undefined = undefined>(options: {
+    where: ExtCrossAdminFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtCrossAdminPayload<S> | null>;
+
+  create<S extends ExtCrossAdminSelect | undefined = undefined>(options: {
+    data: ExtCrossAdminCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtCrossAdminPayload<S>>;
+
+  updateMany<
+    S extends ExtCrossAdminSelect | undefined = undefined,
+    D extends ExtCrossAdminUpdateInput = ExtCrossAdminUpdateInput,
+  >(options: {
+    where: ExtCrossAdminWhere;
+    data: D;
+    unset?: SafeUnset<ExtCrossAdminUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtCrossAdminPayload<S>[]>;
+
+  updateUnique<
+    S extends ExtCrossAdminSelect | undefined = undefined,
+    D extends ExtCrossAdminUpdateInput = ExtCrossAdminUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ExtCrossAdminFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ExtCrossAdminUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ExtCrossAdmin | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetExtCrossAdminPayload<S>, R>>;
+
+  upsert<
+    S extends ExtCrossAdminSelect | undefined = undefined,
+    D extends ExtCrossAdminUpdateInput = ExtCrossAdminUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtCrossAdminFindUniqueWhere;
+    create: ExtCrossAdminCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtCrossAdminUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetExtCrossAdminPayload<S>, R>>;
+
+  upsert<
+    S extends ExtCrossAdminSelect | undefined = undefined,
+    D extends ExtCrossAdminUpdateInput = ExtCrossAdminUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtCrossAdminWhere;
+    create: ExtCrossAdminCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtCrossAdminUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetExtCrossAdminPayload<S>, R>>;
+
+  deleteMany(options: { where: ExtCrossAdminWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ExtCrossAdminFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ExtCrossAdmin | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ExtCrossAdmin, R>>;
+
+  count(where?: ExtCrossAdminWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ExtCrossAdminWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/extcrossmoderator.ts =====
+/**
+ * Generated types for ExtCrossModerator
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface ExtCrossModerator {
+  id: CerialId<string>;
+  createdAt?: Date;
+  email: string;
+  name: string;
+  warningCount: number;
+  lastWarning?: Date;
+}
+
+export interface ExtCrossModeratorInput {
+  id?: string;
+  createdAt?: Date;
+  email: string;
+  name: string;
+  warningCount: number;
+  lastWarning?: Date;
+}
+
+export interface ExtCrossModeratorWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  createdAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  /** @unique — Unique indexed field */
+  email?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  warningCount?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  lastWarning?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  AND?: ExtCrossModeratorWhere[];
+  OR?: ExtCrossModeratorWhere[];
+  NOT?: ExtCrossModeratorWhere;
+}
+
+export type ExtCrossModeratorWhereInput = ExtCrossModeratorWhere;
+
+export type ExtCrossModeratorFindUniqueWhere =
+  | ({ id: RecordIdInput<string> } & { email?: string } & Omit<ExtCrossModeratorWhere, 'id' | 'email'>)
+  | ({ email: string } & { id?: RecordIdInput<string> } & Omit<ExtCrossModeratorWhere, 'id' | 'email'>);
+
+export type ExtCrossModeratorCreate = O.Optional<
+  ExtCrossModeratorInput,
+  'id' | 'createdAt' | 'warningCount' | 'lastWarning'
+>;
+
+export type ExtCrossModeratorNestedCreate = O.Optional<
+  ExtCrossModeratorInput,
+  'id' | 'createdAt' | 'warningCount' | 'lastWarning'
+>;
+
+export type ExtCrossModeratorCreateInput = ExtCrossModeratorCreate;
+
+export type ExtCrossModeratorUpdate = Partial<O.Omit<ExtCrossModeratorInput, 'id' | 'createdAt' | 'lastWarning'>> & {
+  createdAt?: Date | CerialNone;
+  lastWarning?: Date | CerialNone;
+};
+
+export type ExtCrossModeratorUpdateInput = ExtCrossModeratorUpdate;
+
+export type ExtCrossModeratorUnset = {
+  createdAt?: true;
+  lastWarning?: true;
+};
+
+export type ExtCrossModeratorSelect =
+  | ({ id: boolean } & Partial<Record<'createdAt' | 'email' | 'name' | 'warningCount' | 'lastWarning', boolean>>)
+  | ({ createdAt: boolean } & Partial<Record<'id' | 'email' | 'name' | 'warningCount' | 'lastWarning', boolean>>)
+  | ({ email: boolean } & Partial<Record<'id' | 'createdAt' | 'name' | 'warningCount' | 'lastWarning', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'createdAt' | 'email' | 'warningCount' | 'lastWarning', boolean>>)
+  | ({ warningCount: boolean } & Partial<Record<'id' | 'createdAt' | 'email' | 'name' | 'lastWarning', boolean>>)
+  | ({ lastWarning: boolean } & Partial<Record<'id' | 'createdAt' | 'email' | 'name' | 'warningCount', boolean>>);
+
+export interface ExtCrossModeratorOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  email?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  warningCount?: 'asc' | 'desc';
+  lastWarning?: 'asc' | 'desc';
+}
+
+export type ExtCrossModerator$Relations = {};
+
+export type GetExtCrossModeratorPayload<
+  S extends ExtCrossModeratorSelect | undefined = undefined,
+  I = undefined,
+> = A.Compute<
+  S extends ExtCrossModeratorSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ExtCrossModerator
+          ? ResolveFieldSelect<ExtCrossModerator[K], S[K]>
+          : never;
+      }
+    : ExtCrossModerator,
+  'flat'
+>;
+
+export interface ExtCrossModeratorModel {
+  findOne<S extends ExtCrossModeratorSelect | undefined = undefined>(options?: {
+    where?: ExtCrossModeratorWhere;
+    select?: S;
+    orderBy?: ExtCrossModeratorOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtCrossModeratorPayload<S> | null>;
+
+  findMany<S extends ExtCrossModeratorSelect | undefined = undefined>(options?: {
+    where?: ExtCrossModeratorWhere;
+    select?: S;
+    orderBy?: ExtCrossModeratorOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtCrossModeratorPayload<S>[]>;
+
+  findUnique<S extends ExtCrossModeratorSelect | undefined = undefined>(options: {
+    where: ExtCrossModeratorFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtCrossModeratorPayload<S> | null>;
+
+  create<S extends ExtCrossModeratorSelect | undefined = undefined>(options: {
+    data: ExtCrossModeratorCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtCrossModeratorPayload<S>>;
+
+  updateMany<
+    S extends ExtCrossModeratorSelect | undefined = undefined,
+    D extends ExtCrossModeratorUpdateInput = ExtCrossModeratorUpdateInput,
+  >(options: {
+    where: ExtCrossModeratorWhere;
+    data: D;
+    unset?: SafeUnset<ExtCrossModeratorUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtCrossModeratorPayload<S>[]>;
+
+  updateUnique<
+    S extends ExtCrossModeratorSelect | undefined = undefined,
+    D extends ExtCrossModeratorUpdateInput = ExtCrossModeratorUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ExtCrossModeratorFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ExtCrossModeratorUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ExtCrossModerator | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetExtCrossModeratorPayload<S>, R>>;
+
+  upsert<
+    S extends ExtCrossModeratorSelect | undefined = undefined,
+    D extends ExtCrossModeratorUpdateInput = ExtCrossModeratorUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtCrossModeratorFindUniqueWhere;
+    create: ExtCrossModeratorCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtCrossModeratorUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetExtCrossModeratorPayload<S>, R>>;
+
+  upsert<
+    S extends ExtCrossModeratorSelect | undefined = undefined,
+    D extends ExtCrossModeratorUpdateInput = ExtCrossModeratorUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtCrossModeratorWhere;
+    create: ExtCrossModeratorCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtCrossModeratorUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetExtCrossModeratorPayload<S>, R>>;
+
+  deleteMany(options: { where: ExtCrossModeratorWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ExtCrossModeratorFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ExtCrossModerator | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ExtCrossModerator, R>>;
+
+  count(where?: ExtCrossModeratorWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ExtCrossModeratorWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/extcrosspremium.ts =====
+/**
+ * Generated types for ExtCrossPremium
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface ExtCrossPremium {
+  id: CerialId<string>;
+  createdAt?: Date;
+  updatedAt?: Date;
+  email: string;
+  name: string;
+  isActive: boolean;
+  age?: number;
+  role: string;
+  loyaltyPoints: number;
+  referralCode?: string;
+}
+
+export interface ExtCrossPremiumInput {
+  id?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  email: string;
+  name: string;
+  isActive: boolean;
+  age?: number;
+  role: string;
+  loyaltyPoints: number;
+  referralCode?: string;
+}
+
+export interface ExtCrossPremiumWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  createdAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  updatedAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  /** @unique — Unique indexed field */
+  email?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  isActive?:
+    | boolean
+    | ({
+        eq?: boolean;
+        neq?: boolean;
+      } & {});
+  age?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  role?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  loyaltyPoints?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  referralCode?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  AND?: ExtCrossPremiumWhere[];
+  OR?: ExtCrossPremiumWhere[];
+  NOT?: ExtCrossPremiumWhere;
+}
+
+export type ExtCrossPremiumWhereInput = ExtCrossPremiumWhere;
+
+export type ExtCrossPremiumFindUniqueWhere =
+  | ({ id: RecordIdInput<string> } & { email?: string } & Omit<ExtCrossPremiumWhere, 'id' | 'email'>)
+  | ({ email: string } & { id?: RecordIdInput<string> } & Omit<ExtCrossPremiumWhere, 'id' | 'email'>);
+
+export type ExtCrossPremiumCreate = O.Optional<
+  ExtCrossPremiumInput,
+  'id' | 'createdAt' | 'updatedAt' | 'isActive' | 'age' | 'role' | 'loyaltyPoints' | 'referralCode'
+>;
+
+export type ExtCrossPremiumNestedCreate = O.Optional<
+  ExtCrossPremiumInput,
+  'id' | 'createdAt' | 'updatedAt' | 'isActive' | 'age' | 'role' | 'loyaltyPoints' | 'referralCode'
+>;
+
+export type ExtCrossPremiumCreateInput = ExtCrossPremiumCreate;
+
+export type ExtCrossPremiumUpdate = Partial<
+  O.Omit<ExtCrossPremiumInput, 'id' | 'createdAt' | 'updatedAt' | 'age' | 'referralCode'>
+> & {
+  createdAt?: Date | CerialNone;
+  updatedAt?: Date | CerialNone;
+  age?: number | CerialNone;
+  referralCode?: string | CerialNone;
+};
+
+export type ExtCrossPremiumUpdateInput = ExtCrossPremiumUpdate;
+
+export type ExtCrossPremiumUnset = {
+  createdAt?: true;
+  updatedAt?: true;
+  age?: true;
+  referralCode?: true;
+};
+
+export type ExtCrossPremiumSelect =
+  | ({ id: boolean } & Partial<
+      Record<
+        'createdAt' | 'updatedAt' | 'email' | 'name' | 'isActive' | 'age' | 'role' | 'loyaltyPoints' | 'referralCode',
+        boolean
+      >
+    >)
+  | ({ createdAt: boolean } & Partial<
+      Record<
+        'id' | 'updatedAt' | 'email' | 'name' | 'isActive' | 'age' | 'role' | 'loyaltyPoints' | 'referralCode',
+        boolean
+      >
+    >)
+  | ({ updatedAt: boolean } & Partial<
+      Record<
+        'id' | 'createdAt' | 'email' | 'name' | 'isActive' | 'age' | 'role' | 'loyaltyPoints' | 'referralCode',
+        boolean
+      >
+    >)
+  | ({ email: boolean } & Partial<
+      Record<
+        'id' | 'createdAt' | 'updatedAt' | 'name' | 'isActive' | 'age' | 'role' | 'loyaltyPoints' | 'referralCode',
+        boolean
+      >
+    >)
+  | ({ name: boolean } & Partial<
+      Record<
+        'id' | 'createdAt' | 'updatedAt' | 'email' | 'isActive' | 'age' | 'role' | 'loyaltyPoints' | 'referralCode',
+        boolean
+      >
+    >)
+  | ({ isActive: boolean } & Partial<
+      Record<
+        'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'age' | 'role' | 'loyaltyPoints' | 'referralCode',
+        boolean
+      >
+    >)
+  | ({ age: boolean } & Partial<
+      Record<
+        'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'isActive' | 'role' | 'loyaltyPoints' | 'referralCode',
+        boolean
+      >
+    >)
+  | ({ role: boolean } & Partial<
+      Record<
+        'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'isActive' | 'age' | 'loyaltyPoints' | 'referralCode',
+        boolean
+      >
+    >)
+  | ({ loyaltyPoints: boolean } & Partial<
+      Record<
+        'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'isActive' | 'age' | 'role' | 'referralCode',
+        boolean
+      >
+    >)
+  | ({ referralCode: boolean } & Partial<
+      Record<
+        'id' | 'createdAt' | 'updatedAt' | 'email' | 'name' | 'isActive' | 'age' | 'role' | 'loyaltyPoints',
+        boolean
+      >
+    >);
+
+export interface ExtCrossPremiumOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  updatedAt?: 'asc' | 'desc';
+  email?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  isActive?: 'asc' | 'desc';
+  age?: 'asc' | 'desc';
+  role?: 'asc' | 'desc';
+  loyaltyPoints?: 'asc' | 'desc';
+  referralCode?: 'asc' | 'desc';
+}
+
+export type ExtCrossPremium$Relations = {};
+
+export type GetExtCrossPremiumPayload<
+  S extends ExtCrossPremiumSelect | undefined = undefined,
+  I = undefined,
+> = A.Compute<
+  S extends ExtCrossPremiumSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ExtCrossPremium
+          ? ResolveFieldSelect<ExtCrossPremium[K], S[K]>
+          : never;
+      }
+    : ExtCrossPremium,
+  'flat'
+>;
+
+export interface ExtCrossPremiumModel {
+  findOne<S extends ExtCrossPremiumSelect | undefined = undefined>(options?: {
+    where?: ExtCrossPremiumWhere;
+    select?: S;
+    orderBy?: ExtCrossPremiumOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtCrossPremiumPayload<S> | null>;
+
+  findMany<S extends ExtCrossPremiumSelect | undefined = undefined>(options?: {
+    where?: ExtCrossPremiumWhere;
+    select?: S;
+    orderBy?: ExtCrossPremiumOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtCrossPremiumPayload<S>[]>;
+
+  findUnique<S extends ExtCrossPremiumSelect | undefined = undefined>(options: {
+    where: ExtCrossPremiumFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtCrossPremiumPayload<S> | null>;
+
+  create<S extends ExtCrossPremiumSelect | undefined = undefined>(options: {
+    data: ExtCrossPremiumCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtCrossPremiumPayload<S>>;
+
+  updateMany<
+    S extends ExtCrossPremiumSelect | undefined = undefined,
+    D extends ExtCrossPremiumUpdateInput = ExtCrossPremiumUpdateInput,
+  >(options: {
+    where: ExtCrossPremiumWhere;
+    data: D;
+    unset?: SafeUnset<ExtCrossPremiumUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtCrossPremiumPayload<S>[]>;
+
+  updateUnique<
+    S extends ExtCrossPremiumSelect | undefined = undefined,
+    D extends ExtCrossPremiumUpdateInput = ExtCrossPremiumUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ExtCrossPremiumFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ExtCrossPremiumUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ExtCrossPremium | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetExtCrossPremiumPayload<S>, R>>;
+
+  upsert<
+    S extends ExtCrossPremiumSelect | undefined = undefined,
+    D extends ExtCrossPremiumUpdateInput = ExtCrossPremiumUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtCrossPremiumFindUniqueWhere;
+    create: ExtCrossPremiumCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtCrossPremiumUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetExtCrossPremiumPayload<S>, R>>;
+
+  upsert<
+    S extends ExtCrossPremiumSelect | undefined = undefined,
+    D extends ExtCrossPremiumUpdateInput = ExtCrossPremiumUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtCrossPremiumWhere;
+    create: ExtCrossPremiumCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtCrossPremiumUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetExtCrossPremiumPayload<S>, R>>;
+
+  deleteMany(options: { where: ExtCrossPremiumWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ExtCrossPremiumFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ExtCrossPremium | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ExtCrossPremium, R>>;
+
+  count(where?: ExtCrossPremiumWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ExtCrossPremiumWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/extcrossprivate.ts =====
+/**
+ * Generated types for ExtCrossPrivate
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface ExtCrossPrivate {
+  id: CerialId<string>;
+  createdAt?: Date;
+  updatedAt?: Date;
+  email: string;
+  name: string;
+  publicBio: string;
+}
+
+export interface ExtCrossPrivateInput {
+  id?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  email: string;
+  name: string;
+  publicBio: string;
+}
+
+export interface ExtCrossPrivateWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  createdAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  updatedAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  /** @unique — Unique indexed field */
+  email?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  publicBio?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  AND?: ExtCrossPrivateWhere[];
+  OR?: ExtCrossPrivateWhere[];
+  NOT?: ExtCrossPrivateWhere;
+}
+
+export type ExtCrossPrivateWhereInput = ExtCrossPrivateWhere;
+
+export type ExtCrossPrivateFindUniqueWhere =
+  | ({ id: RecordIdInput<string> } & { email?: string } & Omit<ExtCrossPrivateWhere, 'id' | 'email'>)
+  | ({ email: string } & { id?: RecordIdInput<string> } & Omit<ExtCrossPrivateWhere, 'id' | 'email'>);
+
+export type ExtCrossPrivateCreate = O.Optional<ExtCrossPrivateInput, 'id' | 'createdAt' | 'updatedAt' | 'publicBio'>;
+
+export type ExtCrossPrivateNestedCreate = O.Optional<
+  ExtCrossPrivateInput,
+  'id' | 'createdAt' | 'updatedAt' | 'publicBio'
+>;
+
+export type ExtCrossPrivateCreateInput = ExtCrossPrivateCreate;
+
+export type ExtCrossPrivateUpdate = Partial<O.Omit<ExtCrossPrivateInput, 'id' | 'createdAt' | 'updatedAt'>> & {
+  createdAt?: Date | CerialNone;
+  updatedAt?: Date | CerialNone;
+};
+
+export type ExtCrossPrivateUpdateInput = ExtCrossPrivateUpdate;
+
+export type ExtCrossPrivateUnset = {
+  createdAt?: true;
+  updatedAt?: true;
+};
+
+export type ExtCrossPrivateSelect =
+  | ({ id: boolean } & Partial<Record<'createdAt' | 'updatedAt' | 'email' | 'name' | 'publicBio', boolean>>)
+  | ({ createdAt: boolean } & Partial<Record<'id' | 'updatedAt' | 'email' | 'name' | 'publicBio', boolean>>)
+  | ({ updatedAt: boolean } & Partial<Record<'id' | 'createdAt' | 'email' | 'name' | 'publicBio', boolean>>)
+  | ({ email: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'name' | 'publicBio', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'publicBio', boolean>>)
+  | ({ publicBio: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'name', boolean>>);
+
+export interface ExtCrossPrivateOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  updatedAt?: 'asc' | 'desc';
+  email?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  publicBio?: 'asc' | 'desc';
+}
+
+export type ExtCrossPrivate$Relations = {};
+
+export type GetExtCrossPrivatePayload<
+  S extends ExtCrossPrivateSelect | undefined = undefined,
+  I = undefined,
+> = A.Compute<
+  S extends ExtCrossPrivateSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ExtCrossPrivate
+          ? ResolveFieldSelect<ExtCrossPrivate[K], S[K]>
+          : never;
+      }
+    : ExtCrossPrivate,
+  'flat'
+>;
+
+export interface ExtCrossPrivateModel {
+  findOne<S extends ExtCrossPrivateSelect | undefined = undefined>(options?: {
+    where?: ExtCrossPrivateWhere;
+    select?: S;
+    orderBy?: ExtCrossPrivateOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtCrossPrivatePayload<S> | null>;
+
+  findMany<S extends ExtCrossPrivateSelect | undefined = undefined>(options?: {
+    where?: ExtCrossPrivateWhere;
+    select?: S;
+    orderBy?: ExtCrossPrivateOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtCrossPrivatePayload<S>[]>;
+
+  findUnique<S extends ExtCrossPrivateSelect | undefined = undefined>(options: {
+    where: ExtCrossPrivateFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtCrossPrivatePayload<S> | null>;
+
+  create<S extends ExtCrossPrivateSelect | undefined = undefined>(options: {
+    data: ExtCrossPrivateCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtCrossPrivatePayload<S>>;
+
+  updateMany<
+    S extends ExtCrossPrivateSelect | undefined = undefined,
+    D extends ExtCrossPrivateUpdateInput = ExtCrossPrivateUpdateInput,
+  >(options: {
+    where: ExtCrossPrivateWhere;
+    data: D;
+    unset?: SafeUnset<ExtCrossPrivateUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtCrossPrivatePayload<S>[]>;
+
+  updateUnique<
+    S extends ExtCrossPrivateSelect | undefined = undefined,
+    D extends ExtCrossPrivateUpdateInput = ExtCrossPrivateUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ExtCrossPrivateFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ExtCrossPrivateUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ExtCrossPrivate | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetExtCrossPrivatePayload<S>, R>>;
+
+  upsert<
+    S extends ExtCrossPrivateSelect | undefined = undefined,
+    D extends ExtCrossPrivateUpdateInput = ExtCrossPrivateUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtCrossPrivateFindUniqueWhere;
+    create: ExtCrossPrivateCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtCrossPrivateUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetExtCrossPrivatePayload<S>, R>>;
+
+  upsert<
+    S extends ExtCrossPrivateSelect | undefined = undefined,
+    D extends ExtCrossPrivateUpdateInput = ExtCrossPrivateUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtCrossPrivateWhere;
+    create: ExtCrossPrivateCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtCrossPrivateUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetExtCrossPrivatePayload<S>, R>>;
+
+  deleteMany(options: { where: ExtCrossPrivateWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ExtCrossPrivateFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ExtCrossPrivate | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ExtCrossPrivate, R>>;
+
+  count(where?: ExtCrossPrivateWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ExtCrossPrivateWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/extcrossprofile.ts =====
+/**
+ * Generated types for ExtCrossProfile
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface ExtCrossProfile {
+  id: CerialId<string>;
+  createdAt?: Date;
+  updatedAt?: Date;
+  userId: CerialId<string>;
+  bio?: string;
+  avatar?: string;
+  tags: string[];
+  metadata?: number;
+  owner: CerialId<string>;
+  followers: CerialId<string>[];
+  following: CerialId<string>[];
+}
+
+export interface ExtCrossProfileInput {
+  id?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  userId: RecordIdInput<string>;
+  bio?: string;
+  avatar?: string;
+  tags: string[];
+  metadata?: number;
+  owner: RecordIdInput<string>;
+  followers: RecordIdInput<string>[];
+  following: RecordIdInput<string>[];
+}
+
+export interface ExtCrossProfileWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  createdAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  updatedAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  userId?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  bio?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  avatar?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  tags?:
+    | string[]
+    | {
+        has?: string;
+        hasAll?: string[];
+        hasAny?: string[];
+        isEmpty?: boolean;
+      };
+  metadata?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  owner?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  followers?:
+    | RecordIdInput<string>[]
+    | {
+        has?: RecordIdInput<string>;
+        hasAll?: RecordIdInput<string>[];
+        hasAny?: RecordIdInput<string>[];
+        isEmpty?: boolean;
+      };
+  following?:
+    | RecordIdInput<string>[]
+    | {
+        has?: RecordIdInput<string>;
+        hasAll?: RecordIdInput<string>[];
+        hasAny?: RecordIdInput<string>[];
+        isEmpty?: boolean;
+      };
+  AND?: ExtCrossProfileWhere[];
+  OR?: ExtCrossProfileWhere[];
+  NOT?: ExtCrossProfileWhere;
+}
+
+export type ExtCrossProfileWhereInput = ExtCrossProfileWhere;
+
+export type ExtCrossProfileFindUniqueWhere = { id: RecordIdInput<string> } & Omit<ExtCrossProfileWhere, 'id'>;
+
+export type ExtCrossProfileCreate = O.Optional<
+  ExtCrossProfileInput,
+  'id' | 'createdAt' | 'updatedAt' | 'bio' | 'avatar' | 'tags' | 'metadata' | 'followers' | 'following'
+>;
+
+export type ExtCrossProfileNestedCreate = O.Optional<
+  ExtCrossProfileInput,
+  'id' | 'createdAt' | 'updatedAt' | 'bio' | 'avatar' | 'tags' | 'metadata' | 'followers' | 'following'
+>;
+
+export type ExtCrossProfileCreateInput = ExtCrossProfileCreate;
+
+export type ExtCrossProfileUpdate = Partial<
+  O.Omit<
+    ExtCrossProfileInput,
+    'id' | 'tags' | 'followers' | 'following' | 'createdAt' | 'updatedAt' | 'bio' | 'avatar' | 'metadata'
+  >
+> & {
+  tags?:
+    | string[]
+    | {
+        push?: string | string[];
+        unset?: string | string[];
+      };
+  followers?:
+    | RecordIdInput<string>[]
+    | {
+        push?: RecordIdInput<string> | RecordIdInput<string>[];
+        unset?: RecordIdInput<string> | RecordIdInput<string>[];
+      };
+  following?:
+    | RecordIdInput<string>[]
+    | {
+        push?: RecordIdInput<string> | RecordIdInput<string>[];
+        unset?: RecordIdInput<string> | RecordIdInput<string>[];
+      };
+  createdAt?: Date | CerialNone;
+  updatedAt?: Date | CerialNone;
+  bio?: string | CerialNone;
+  avatar?: string | CerialNone;
+  metadata?: number | CerialNone;
+};
+
+export type ExtCrossProfileUpdateInput = ExtCrossProfileUpdate;
+
+export type ExtCrossProfileUnset = {
+  createdAt?: true;
+  updatedAt?: true;
+  bio?: true;
+  avatar?: true;
+  metadata?: true;
+};
+
+export type ExtCrossProfileSelect =
+  | ({ id: boolean } & Partial<
+      Record<
+        | 'createdAt'
+        | 'updatedAt'
+        | 'userId'
+        | 'bio'
+        | 'avatar'
+        | 'tags'
+        | 'metadata'
+        | 'owner'
+        | 'followers'
+        | 'following',
+        boolean
+      >
+    >)
+  | ({ createdAt: boolean } & Partial<
+      Record<
+        'id' | 'updatedAt' | 'userId' | 'bio' | 'avatar' | 'tags' | 'metadata' | 'owner' | 'followers' | 'following',
+        boolean
+      >
+    >)
+  | ({ updatedAt: boolean } & Partial<
+      Record<
+        'id' | 'createdAt' | 'userId' | 'bio' | 'avatar' | 'tags' | 'metadata' | 'owner' | 'followers' | 'following',
+        boolean
+      >
+    >)
+  | ({ userId: boolean } & Partial<
+      Record<
+        'id' | 'createdAt' | 'updatedAt' | 'bio' | 'avatar' | 'tags' | 'metadata' | 'owner' | 'followers' | 'following',
+        boolean
+      >
+    >)
+  | ({ bio: boolean } & Partial<
+      Record<
+        | 'id'
+        | 'createdAt'
+        | 'updatedAt'
+        | 'userId'
+        | 'avatar'
+        | 'tags'
+        | 'metadata'
+        | 'owner'
+        | 'followers'
+        | 'following',
+        boolean
+      >
+    >)
+  | ({ avatar: boolean } & Partial<
+      Record<
+        'id' | 'createdAt' | 'updatedAt' | 'userId' | 'bio' | 'tags' | 'metadata' | 'owner' | 'followers' | 'following',
+        boolean
+      >
+    >)
+  | ({ tags: boolean } & Partial<
+      Record<
+        | 'id'
+        | 'createdAt'
+        | 'updatedAt'
+        | 'userId'
+        | 'bio'
+        | 'avatar'
+        | 'metadata'
+        | 'owner'
+        | 'followers'
+        | 'following',
+        boolean
+      >
+    >)
+  | ({ metadata: boolean } & Partial<
+      Record<
+        'id' | 'createdAt' | 'updatedAt' | 'userId' | 'bio' | 'avatar' | 'tags' | 'owner' | 'followers' | 'following',
+        boolean
+      >
+    >)
+  | ({ owner: boolean } & Partial<
+      Record<
+        | 'id'
+        | 'createdAt'
+        | 'updatedAt'
+        | 'userId'
+        | 'bio'
+        | 'avatar'
+        | 'tags'
+        | 'metadata'
+        | 'followers'
+        | 'following',
+        boolean
+      >
+    >)
+  | ({ followers: boolean } & Partial<
+      Record<
+        'id' | 'createdAt' | 'updatedAt' | 'userId' | 'bio' | 'avatar' | 'tags' | 'metadata' | 'owner' | 'following',
+        boolean
+      >
+    >)
+  | ({ following: boolean } & Partial<
+      Record<
+        'id' | 'createdAt' | 'updatedAt' | 'userId' | 'bio' | 'avatar' | 'tags' | 'metadata' | 'owner' | 'followers',
+        boolean
+      >
+    >);
+
+export interface ExtCrossProfileOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  updatedAt?: 'asc' | 'desc';
+  userId?: 'asc' | 'desc';
+  bio?: 'asc' | 'desc';
+  avatar?: 'asc' | 'desc';
+  tags?: 'asc' | 'desc';
+  metadata?: 'asc' | 'desc';
+  owner?: 'asc' | 'desc';
+  followers?: 'asc' | 'desc';
+  following?: 'asc' | 'desc';
+}
+
+export type ExtCrossProfile$Relations = {};
+
+export type GetExtCrossProfilePayload<
+  S extends ExtCrossProfileSelect | undefined = undefined,
+  I = undefined,
+> = A.Compute<
+  S extends ExtCrossProfileSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ExtCrossProfile
+          ? ResolveFieldSelect<ExtCrossProfile[K], S[K]>
+          : never;
+      }
+    : ExtCrossProfile,
+  'flat'
+>;
+
+export interface ExtCrossProfileModel {
+  findOne<S extends ExtCrossProfileSelect | undefined = undefined>(options?: {
+    where?: ExtCrossProfileWhere;
+    select?: S;
+    orderBy?: ExtCrossProfileOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtCrossProfilePayload<S> | null>;
+
+  findMany<S extends ExtCrossProfileSelect | undefined = undefined>(options?: {
+    where?: ExtCrossProfileWhere;
+    select?: S;
+    orderBy?: ExtCrossProfileOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtCrossProfilePayload<S>[]>;
+
+  findUnique<S extends ExtCrossProfileSelect | undefined = undefined>(options: {
+    where: ExtCrossProfileFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtCrossProfilePayload<S> | null>;
+
+  create<S extends ExtCrossProfileSelect | undefined = undefined>(options: {
+    data: ExtCrossProfileCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtCrossProfilePayload<S>>;
+
+  updateMany<
+    S extends ExtCrossProfileSelect | undefined = undefined,
+    D extends ExtCrossProfileUpdateInput = ExtCrossProfileUpdateInput,
+  >(options: {
+    where: ExtCrossProfileWhere;
+    data: D;
+    unset?: SafeUnset<ExtCrossProfileUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtCrossProfilePayload<S>[]>;
+
+  updateUnique<
+    S extends ExtCrossProfileSelect | undefined = undefined,
+    D extends ExtCrossProfileUpdateInput = ExtCrossProfileUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ExtCrossProfileFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ExtCrossProfileUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ExtCrossProfile | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetExtCrossProfilePayload<S>, R>>;
+
+  upsert<
+    S extends ExtCrossProfileSelect | undefined = undefined,
+    D extends ExtCrossProfileUpdateInput = ExtCrossProfileUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtCrossProfileFindUniqueWhere;
+    create: ExtCrossProfileCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtCrossProfileUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetExtCrossProfilePayload<S>, R>>;
+
+  upsert<
+    S extends ExtCrossProfileSelect | undefined = undefined,
+    D extends ExtCrossProfileUpdateInput = ExtCrossProfileUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtCrossProfileWhere;
+    create: ExtCrossProfileCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtCrossProfileUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetExtCrossProfilePayload<S>, R>>;
+
+  deleteMany(options: { where: ExtCrossProfileWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ExtCrossProfileFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ExtCrossProfile | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ExtCrossProfile, R>>;
+
+  count(where?: ExtCrossProfileWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ExtCrossProfileWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/extcrossuser.ts =====
+/**
+ * Generated types for ExtCrossUser
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface ExtCrossUser {
+  id: CerialId<string>;
+  createdAt?: Date;
+  updatedAt?: Date;
+  email: string;
+  username: string;
+  displayName: string;
+  bio?: string;
+}
+
+export interface ExtCrossUserInput {
+  id?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  email: string;
+  username: string;
+  displayName: string;
+  bio?: string;
+}
+
+export interface ExtCrossUserWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  createdAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  updatedAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  /** @unique — Unique indexed field */
+  email?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  /** @unique — Unique indexed field */
+  username?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  displayName?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  bio?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  AND?: ExtCrossUserWhere[];
+  OR?: ExtCrossUserWhere[];
+  NOT?: ExtCrossUserWhere;
+}
+
+export type ExtCrossUserWhereInput = ExtCrossUserWhere;
+
+export type ExtCrossUserFindUniqueWhere =
+  | ({ id: RecordIdInput<string> } & { email?: string; username?: string } & Omit<
+        ExtCrossUserWhere,
+        'id' | 'email' | 'username'
+      >)
+  | ({ email: string } & { id?: RecordIdInput<string>; username?: string } & Omit<
+        ExtCrossUserWhere,
+        'id' | 'email' | 'username'
+      >)
+  | ({ username: string } & { id?: RecordIdInput<string>; email?: string } & Omit<
+        ExtCrossUserWhere,
+        'id' | 'email' | 'username'
+      >);
+
+export type ExtCrossUserCreate = O.Optional<ExtCrossUserInput, 'id' | 'createdAt' | 'updatedAt' | 'bio'>;
+
+export type ExtCrossUserNestedCreate = O.Optional<ExtCrossUserInput, 'id' | 'createdAt' | 'updatedAt' | 'bio'>;
+
+export type ExtCrossUserCreateInput = ExtCrossUserCreate;
+
+export type ExtCrossUserUpdate = Partial<O.Omit<ExtCrossUserInput, 'id' | 'createdAt' | 'updatedAt' | 'bio'>> & {
+  createdAt?: Date | CerialNone;
+  updatedAt?: Date | CerialNone;
+  bio?: string | CerialNone;
+};
+
+export type ExtCrossUserUpdateInput = ExtCrossUserUpdate;
+
+export type ExtCrossUserUnset = {
+  createdAt?: true;
+  updatedAt?: true;
+  bio?: true;
+};
+
+export type ExtCrossUserSelect =
+  | ({ id: boolean } & Partial<
+      Record<'createdAt' | 'updatedAt' | 'email' | 'username' | 'displayName' | 'bio', boolean>
+    >)
+  | ({ createdAt: boolean } & Partial<
+      Record<'id' | 'updatedAt' | 'email' | 'username' | 'displayName' | 'bio', boolean>
+    >)
+  | ({ updatedAt: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'email' | 'username' | 'displayName' | 'bio', boolean>
+    >)
+  | ({ email: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'updatedAt' | 'username' | 'displayName' | 'bio', boolean>
+    >)
+  | ({ username: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'displayName' | 'bio', boolean>
+    >)
+  | ({ displayName: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'username' | 'bio', boolean>
+    >)
+  | ({ bio: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'username' | 'displayName', boolean>
+    >);
+
+export interface ExtCrossUserOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  updatedAt?: 'asc' | 'desc';
+  email?: 'asc' | 'desc';
+  username?: 'asc' | 'desc';
+  displayName?: 'asc' | 'desc';
+  bio?: 'asc' | 'desc';
+}
+
+export type ExtCrossUser$Relations = {};
+
+export type GetExtCrossUserPayload<S extends ExtCrossUserSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends ExtCrossUserSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ExtCrossUser
+          ? ResolveFieldSelect<ExtCrossUser[K], S[K]>
+          : never;
+      }
+    : ExtCrossUser,
+  'flat'
+>;
+
+export interface ExtCrossUserModel {
+  findOne<S extends ExtCrossUserSelect | undefined = undefined>(options?: {
+    where?: ExtCrossUserWhere;
+    select?: S;
+    orderBy?: ExtCrossUserOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtCrossUserPayload<S> | null>;
+
+  findMany<S extends ExtCrossUserSelect | undefined = undefined>(options?: {
+    where?: ExtCrossUserWhere;
+    select?: S;
+    orderBy?: ExtCrossUserOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtCrossUserPayload<S>[]>;
+
+  findUnique<S extends ExtCrossUserSelect | undefined = undefined>(options: {
+    where: ExtCrossUserFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtCrossUserPayload<S> | null>;
+
+  create<S extends ExtCrossUserSelect | undefined = undefined>(options: {
+    data: ExtCrossUserCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtCrossUserPayload<S>>;
+
+  updateMany<
+    S extends ExtCrossUserSelect | undefined = undefined,
+    D extends ExtCrossUserUpdateInput = ExtCrossUserUpdateInput,
+  >(options: {
+    where: ExtCrossUserWhere;
+    data: D;
+    unset?: SafeUnset<ExtCrossUserUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtCrossUserPayload<S>[]>;
+
+  updateUnique<
+    S extends ExtCrossUserSelect | undefined = undefined,
+    D extends ExtCrossUserUpdateInput = ExtCrossUserUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ExtCrossUserFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ExtCrossUserUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ExtCrossUser | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetExtCrossUserPayload<S>, R>>;
+
+  upsert<
+    S extends ExtCrossUserSelect | undefined = undefined,
+    D extends ExtCrossUserUpdateInput = ExtCrossUserUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtCrossUserFindUniqueWhere;
+    create: ExtCrossUserCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtCrossUserUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetExtCrossUserPayload<S>, R>>;
+
+  upsert<
+    S extends ExtCrossUserSelect | undefined = undefined,
+    D extends ExtCrossUserUpdateInput = ExtCrossUserUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtCrossUserWhere;
+    create: ExtCrossUserCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtCrossUserUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetExtCrossUserPayload<S>, R>>;
+
+  deleteMany(options: { where: ExtCrossUserWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ExtCrossUserFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ExtCrossUser | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ExtCrossUser, R>>;
+
+  count(where?: ExtCrossUserWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ExtCrossUserWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}

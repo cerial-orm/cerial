@@ -1,0 +1,20 @@
+-- Depot
+DEFINE TABLE OVERWRITE depot SCHEMAFULL;
+DEFINE FIELD OVERWRITE label ON TABLE depot TYPE string;
+DEFINE FIELD OVERWRITE dock ON TABLE depot TYPE object;
+DEFINE FIELD OVERWRITE dock.bay ON TABLE depot TYPE string;
+DEFINE FIELD OVERWRITE dock.level ON TABLE depot TYPE int;
+DEFINE INDEX OVERWRITE dockBayLevel ON TABLE depot COLUMNS dock.bay, dock.level;
+DEFINE INDEX OVERWRITE labelDockBay ON TABLE depot COLUMNS label, dock.bay;
+
+-- Warehouse
+DEFINE TABLE OVERWRITE warehouse SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE warehouse TYPE string;
+DEFINE FIELD OVERWRITE location ON TABLE warehouse TYPE object;
+DEFINE FIELD OVERWRITE location.city ON TABLE warehouse TYPE string;
+DEFINE FIELD OVERWRITE location.zip ON TABLE warehouse TYPE string;
+DEFINE FIELD OVERWRITE location.street ON TABLE warehouse TYPE option<string>;
+DEFINE FIELD OVERWRITE capacity ON TABLE warehouse TYPE option<int>;
+DEFINE INDEX OVERWRITE warehouse_name_index ON TABLE warehouse COLUMNS name;
+DEFINE INDEX OVERWRITE cityZip ON TABLE warehouse COLUMNS location.city, location.zip UNIQUE;
+DEFINE INDEX OVERWRITE nameCity ON TABLE warehouse COLUMNS name, location.city UNIQUE;

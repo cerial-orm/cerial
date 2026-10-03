@@ -1,0 +1,240 @@
+{
+  "models": [
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "token",
+          "type": "uuid"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "optionalToken",
+          "type": "uuid"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "nullableToken",
+          "type": "uuid"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "tags",
+          "type": "uuid"
+        }
+      ],
+      "name": "UuidBasic"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "uuid"
+            }
+          ],
+          "isOptional": false,
+          "name": "autoId",
+          "type": "uuid"
+        },
+        {
+          "decorators": [
+            {
+              "type": "uuid4"
+            }
+          ],
+          "isOptional": false,
+          "name": "autoV4",
+          "type": "uuid"
+        },
+        {
+          "decorators": [
+            {
+              "type": "uuid7"
+            }
+          ],
+          "isOptional": false,
+          "name": "autoV7",
+          "type": "uuid"
+        },
+        {
+          "decorators": [
+            {
+              "type": "uuid"
+            }
+          ],
+          "isOptional": true,
+          "name": "optAutoId",
+          "type": "uuid"
+        }
+      ],
+      "name": "UuidDecorated"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "meta",
+          "objectName": "UuidInfo",
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "optMeta",
+          "objectName": "UuidInfo",
+          "type": "object"
+        }
+      ],
+      "name": "UuidWithObject"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "pair",
+          "tupleName": "UuidPair",
+          "type": "tuple"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "optPair",
+          "tupleName": "UuidPair",
+          "type": "tuple"
+        }
+      ],
+      "name": "UuidWithTuple"
+    }
+  ],
+  "objects": [
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "trackingId",
+          "type": "uuid"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "optionalId",
+          "type": "uuid"
+        },
+        {
+          "decorators": [
+            {
+              "type": "uuid"
+            }
+          ],
+          "isOptional": false,
+          "name": "autoGenId",
+          "type": "uuid"
+        }
+      ],
+      "name": "UuidInfo"
+    }
+  ],
+  "tuples": [
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "type": "uuid"
+        },
+        {
+          "isOptional": false,
+          "type": "uuid"
+        }
+      ],
+      "name": "UuidPair"
+    }
+  ]
+}

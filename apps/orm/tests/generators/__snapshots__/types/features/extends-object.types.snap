@@ -1,0 +1,2047 @@
+// ===== models/extaddressuser.ts =====
+/**
+ * Generated types for ExtAddressUser
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  ExtAddress,
+  ExtAddressInput,
+  ExtAddressWhere,
+  ExtAddressSelect,
+  ExtAddressOrderBy,
+  ExtAddressCreateInput,
+} from '../objects/extaddress';
+import type {
+  ExtDetailedAddress,
+  ExtDetailedAddressInput,
+  ExtDetailedAddressWhere,
+  ExtDetailedAddressSelect,
+  ExtDetailedAddressOrderBy,
+  ExtDetailedAddressCreateInput,
+} from '../objects/extdetailedaddress';
+import type {
+  ExtGeoAddress,
+  ExtGeoAddressInput,
+  ExtGeoAddressWhere,
+  ExtGeoAddressSelect,
+  ExtGeoAddressOrderBy,
+  ExtGeoAddressCreateInput,
+} from '../objects/extgeoaddress';
+export interface ExtAddressUser {
+  id: CerialId<string>;
+  name: string;
+  homeAddress: ExtAddress;
+  workAddress?: ExtDetailedAddress;
+  previousAddresses: ExtGeoAddress[];
+}
+
+export interface ExtAddressUserInput {
+  id?: string;
+  name: string;
+  homeAddress: ExtAddressInput;
+  workAddress?: ExtDetailedAddressInput;
+  previousAddresses: ExtGeoAddressInput[];
+}
+
+export interface ExtAddressUserWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  homeAddress?: ExtAddressWhere;
+  workAddress?: ExtDetailedAddressWhere;
+  previousAddresses?: { some?: ExtGeoAddressWhere; every?: ExtGeoAddressWhere; none?: ExtGeoAddressWhere };
+  AND?: ExtAddressUserWhere[];
+  OR?: ExtAddressUserWhere[];
+  NOT?: ExtAddressUserWhere;
+}
+
+export type ExtAddressUserWhereInput = ExtAddressUserWhere;
+
+export type ExtAddressUserFindUniqueWhere = { id: RecordIdInput<string> } & Omit<ExtAddressUserWhere, 'id'>;
+
+export type ExtAddressUserCreate = O.Optional<
+  O.Omit<ExtAddressUserInput, 'homeAddress' | 'workAddress' | 'previousAddresses'>,
+  'id'
+> & {
+  homeAddress: ExtAddressCreateInput;
+  workAddress?: ExtDetailedAddressCreateInput;
+  previousAddresses?: ExtGeoAddressCreateInput[];
+};
+
+export type ExtAddressUserNestedCreate = O.Optional<ExtAddressUserInput, 'id' | 'workAddress' | 'previousAddresses'>;
+
+export type ExtAddressUserCreateInput = ExtAddressUserCreate;
+
+export type ExtAddressUserUpdate = Partial<
+  O.Omit<ExtAddressUserInput, 'id' | 'homeAddress' | 'workAddress' | 'previousAddresses'>
+> & {
+  homeAddress?: Partial<ExtAddressInput> | { set: ExtAddressInput };
+  workAddress?: Partial<ExtDetailedAddressInput> | { set: ExtDetailedAddressInput } | CerialNone;
+  previousAddresses?:
+    | ExtGeoAddressInput[]
+    | {
+        push?: ExtGeoAddressInput | ExtGeoAddressInput[];
+        set?: ExtGeoAddressInput[];
+        updateWhere?: {
+          where: ExtGeoAddressWhere;
+          data: Partial<ExtGeoAddressInput>;
+        };
+        unset?: { where: ExtGeoAddressWhere };
+      };
+};
+
+export type ExtAddressUserUpdateInput = ExtAddressUserUpdate;
+
+export type ExtAddressUserUnset = {
+  homeAddress?: {
+    apartment?: true;
+  };
+  workAddress?:
+    | true
+    | {
+        latitude?: true;
+        longitude?: true;
+        timezone?: true;
+      };
+};
+
+export type ExtAddressUserSelect =
+  | ({ id: boolean } & {
+      name?: boolean;
+      homeAddress?: boolean | ExtAddressSelect;
+      workAddress?: boolean | ExtDetailedAddressSelect;
+      previousAddresses?: boolean | ExtGeoAddressSelect;
+    })
+  | ({ name: boolean } & {
+      id?: boolean;
+      homeAddress?: boolean | ExtAddressSelect;
+      workAddress?: boolean | ExtDetailedAddressSelect;
+      previousAddresses?: boolean | ExtGeoAddressSelect;
+    })
+  | ({ homeAddress: boolean | ExtAddressSelect } & {
+      id?: boolean;
+      name?: boolean;
+      workAddress?: boolean | ExtDetailedAddressSelect;
+      previousAddresses?: boolean | ExtGeoAddressSelect;
+    })
+  | ({ workAddress: boolean | ExtDetailedAddressSelect } & {
+      id?: boolean;
+      name?: boolean;
+      homeAddress?: boolean | ExtAddressSelect;
+      previousAddresses?: boolean | ExtGeoAddressSelect;
+    })
+  | ({ previousAddresses: boolean | ExtGeoAddressSelect } & {
+      id?: boolean;
+      name?: boolean;
+      homeAddress?: boolean | ExtAddressSelect;
+      workAddress?: boolean | ExtDetailedAddressSelect;
+    });
+
+export interface ExtAddressUserOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  homeAddress?: ExtAddressOrderBy;
+  workAddress?: ExtDetailedAddressOrderBy;
+  previousAddresses?: ExtGeoAddressOrderBy;
+}
+
+export type ExtAddressUser$Relations = {};
+
+export type GetExtAddressUserPayload<S extends ExtAddressUserSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends ExtAddressUserSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ExtAddressUser
+          ? ResolveFieldSelect<ExtAddressUser[K], S[K]>
+          : never;
+      }
+    : ExtAddressUser,
+  'flat'
+>;
+
+export interface ExtAddressUserModel {
+  findOne<S extends ExtAddressUserSelect | undefined = undefined>(options?: {
+    where?: ExtAddressUserWhere;
+    select?: S;
+    orderBy?: ExtAddressUserOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtAddressUserPayload<S> | null>;
+
+  findMany<S extends ExtAddressUserSelect | undefined = undefined>(options?: {
+    where?: ExtAddressUserWhere;
+    select?: S;
+    orderBy?: ExtAddressUserOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtAddressUserPayload<S>[]>;
+
+  findUnique<S extends ExtAddressUserSelect | undefined = undefined>(options: {
+    where: ExtAddressUserFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtAddressUserPayload<S> | null>;
+
+  create<S extends ExtAddressUserSelect | undefined = undefined>(options: {
+    data: ExtAddressUserCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtAddressUserPayload<S>>;
+
+  updateMany<
+    S extends ExtAddressUserSelect | undefined = undefined,
+    D extends ExtAddressUserUpdateInput = ExtAddressUserUpdateInput,
+  >(options: {
+    where: ExtAddressUserWhere;
+    data: D;
+    unset?: SafeUnset<ExtAddressUserUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtAddressUserPayload<S>[]>;
+
+  updateUnique<
+    S extends ExtAddressUserSelect | undefined = undefined,
+    D extends ExtAddressUserUpdateInput = ExtAddressUserUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ExtAddressUserFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ExtAddressUserUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ExtAddressUser | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetExtAddressUserPayload<S>, R>>;
+
+  upsert<
+    S extends ExtAddressUserSelect | undefined = undefined,
+    D extends ExtAddressUserUpdateInput = ExtAddressUserUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtAddressUserFindUniqueWhere;
+    create: ExtAddressUserCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtAddressUserUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetExtAddressUserPayload<S>, R>>;
+
+  upsert<
+    S extends ExtAddressUserSelect | undefined = undefined,
+    D extends ExtAddressUserUpdateInput = ExtAddressUserUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtAddressUserWhere;
+    create: ExtAddressUserCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtAddressUserUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetExtAddressUserPayload<S>, R>>;
+
+  deleteMany(options: { where: ExtAddressUserWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ExtAddressUserFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ExtAddressUser | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ExtAddressUser, R>>;
+
+  count(where?: ExtAddressUserWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ExtAddressUserWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/extchainmodel.ts =====
+/**
+ * Generated types for ExtChainModel
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  ExtChainPickedThenOmitted,
+  ExtChainPickedThenOmittedInput,
+  ExtChainPickedThenOmittedWhere,
+  ExtChainPickedThenOmittedSelect,
+  ExtChainPickedThenOmittedOrderBy,
+} from '../objects/extchainpickedthenomitted';
+import type {
+  ExtChainOmittedThenPicked,
+  ExtChainOmittedThenPickedInput,
+  ExtChainOmittedThenPickedWhere,
+  ExtChainOmittedThenPickedSelect,
+  ExtChainOmittedThenPickedOrderBy,
+} from '../objects/extchainomittedthenpicked';
+export interface ExtChainModel {
+  id: CerialId<string>;
+  pickThenOmit: ExtChainPickedThenOmitted;
+  omitThenPick: ExtChainOmittedThenPicked;
+}
+
+export interface ExtChainModelInput {
+  id?: string;
+  pickThenOmit: ExtChainPickedThenOmittedInput;
+  omitThenPick: ExtChainOmittedThenPickedInput;
+}
+
+export interface ExtChainModelWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  pickThenOmit?: ExtChainPickedThenOmittedWhere;
+  omitThenPick?: ExtChainOmittedThenPickedWhere;
+  AND?: ExtChainModelWhere[];
+  OR?: ExtChainModelWhere[];
+  NOT?: ExtChainModelWhere;
+}
+
+export type ExtChainModelWhereInput = ExtChainModelWhere;
+
+export type ExtChainModelFindUniqueWhere = { id: RecordIdInput<string> } & Omit<ExtChainModelWhere, 'id'>;
+
+export type ExtChainModelCreate = O.Optional<ExtChainModelInput, 'id'>;
+
+export type ExtChainModelNestedCreate = O.Optional<ExtChainModelInput, 'id'>;
+
+export type ExtChainModelCreateInput = ExtChainModelCreate;
+
+export type ExtChainModelUpdate = Partial<O.Omit<ExtChainModelInput, 'id' | 'pickThenOmit' | 'omitThenPick'>> & {
+  pickThenOmit?: Partial<ExtChainPickedThenOmittedInput> | { set: ExtChainPickedThenOmittedInput };
+  omitThenPick?: Partial<ExtChainOmittedThenPickedInput> | { set: ExtChainOmittedThenPickedInput };
+};
+
+export type ExtChainModelUpdateInput = ExtChainModelUpdate;
+
+export type ExtChainModelUnset = {
+  pickThenOmit?: {
+    r?: true;
+  };
+  omitThenPick?: {
+    r?: true;
+  };
+};
+
+export type ExtChainModelSelect =
+  | ({ id: boolean } & {
+      pickThenOmit?: boolean | ExtChainPickedThenOmittedSelect;
+      omitThenPick?: boolean | ExtChainOmittedThenPickedSelect;
+    })
+  | ({ pickThenOmit: boolean | ExtChainPickedThenOmittedSelect } & {
+      id?: boolean;
+      omitThenPick?: boolean | ExtChainOmittedThenPickedSelect;
+    })
+  | ({ omitThenPick: boolean | ExtChainOmittedThenPickedSelect } & {
+      id?: boolean;
+      pickThenOmit?: boolean | ExtChainPickedThenOmittedSelect;
+    });
+
+export interface ExtChainModelOrderBy {
+  id?: 'asc' | 'desc';
+  pickThenOmit?: ExtChainPickedThenOmittedOrderBy;
+  omitThenPick?: ExtChainOmittedThenPickedOrderBy;
+}
+
+export type ExtChainModel$Relations = {};
+
+export type GetExtChainModelPayload<S extends ExtChainModelSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends ExtChainModelSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ExtChainModel
+          ? ResolveFieldSelect<ExtChainModel[K], S[K]>
+          : never;
+      }
+    : ExtChainModel,
+  'flat'
+>;
+
+export interface ExtChainModelModel {
+  findOne<S extends ExtChainModelSelect | undefined = undefined>(options?: {
+    where?: ExtChainModelWhere;
+    select?: S;
+    orderBy?: ExtChainModelOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtChainModelPayload<S> | null>;
+
+  findMany<S extends ExtChainModelSelect | undefined = undefined>(options?: {
+    where?: ExtChainModelWhere;
+    select?: S;
+    orderBy?: ExtChainModelOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtChainModelPayload<S>[]>;
+
+  findUnique<S extends ExtChainModelSelect | undefined = undefined>(options: {
+    where: ExtChainModelFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtChainModelPayload<S> | null>;
+
+  create<S extends ExtChainModelSelect | undefined = undefined>(options: {
+    data: ExtChainModelCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtChainModelPayload<S>>;
+
+  updateMany<
+    S extends ExtChainModelSelect | undefined = undefined,
+    D extends ExtChainModelUpdateInput = ExtChainModelUpdateInput,
+  >(options: {
+    where: ExtChainModelWhere;
+    data: D;
+    unset?: SafeUnset<ExtChainModelUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtChainModelPayload<S>[]>;
+
+  updateUnique<
+    S extends ExtChainModelSelect | undefined = undefined,
+    D extends ExtChainModelUpdateInput = ExtChainModelUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ExtChainModelFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ExtChainModelUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ExtChainModel | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetExtChainModelPayload<S>, R>>;
+
+  upsert<
+    S extends ExtChainModelSelect | undefined = undefined,
+    D extends ExtChainModelUpdateInput = ExtChainModelUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtChainModelFindUniqueWhere;
+    create: ExtChainModelCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtChainModelUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetExtChainModelPayload<S>, R>>;
+
+  upsert<
+    S extends ExtChainModelSelect | undefined = undefined,
+    D extends ExtChainModelUpdateInput = ExtChainModelUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtChainModelWhere;
+    create: ExtChainModelCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtChainModelUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetExtChainModelPayload<S>, R>>;
+
+  deleteMany(options: { where: ExtChainModelWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ExtChainModelFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ExtChainModel | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ExtChainModel, R>>;
+
+  count(where?: ExtChainModelWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ExtChainModelWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== objects/extaddress.ts =====
+/**
+ * Generated types for ExtAddress
+ * Do not edit manually
+ */
+
+export interface ExtAddress {
+  street: string;
+  city: string;
+  zip: string;
+  country: string;
+  apartment?: string;
+  coordinates: number[];
+}
+
+export interface ExtAddressInput {
+  street: string;
+  city: string;
+  zip: string;
+  country: string;
+  apartment?: string;
+  coordinates: number[];
+}
+
+export interface ExtAddressCreateInput {
+  street: string;
+  city: string;
+  zip: string;
+  country?: string;
+  apartment?: string;
+  coordinates?: number[];
+}
+
+export interface ExtAddressWhere {
+  street?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  city?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  zip?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  country?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  apartment?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  coordinates?:
+    | number[]
+    | {
+        has?: number;
+        hasAll?: number[];
+        hasAny?: number[];
+        isEmpty?: boolean;
+      };
+  AND?: ExtAddressWhere[];
+  OR?: ExtAddressWhere[];
+  NOT?: ExtAddressWhere;
+}
+
+export type ExtAddressSelect =
+  | ({ street: boolean } & Partial<Record<'city' | 'zip' | 'country' | 'apartment' | 'coordinates', boolean>>)
+  | ({ city: boolean } & Partial<Record<'street' | 'zip' | 'country' | 'apartment' | 'coordinates', boolean>>)
+  | ({ zip: boolean } & Partial<Record<'street' | 'city' | 'country' | 'apartment' | 'coordinates', boolean>>)
+  | ({ country: boolean } & Partial<Record<'street' | 'city' | 'zip' | 'apartment' | 'coordinates', boolean>>)
+  | ({ apartment: boolean } & Partial<Record<'street' | 'city' | 'zip' | 'country' | 'coordinates', boolean>>)
+  | ({ coordinates: boolean } & Partial<Record<'street' | 'city' | 'zip' | 'country' | 'apartment', boolean>>);
+
+export interface ExtAddressOrderBy {
+  street?: 'asc' | 'desc';
+  city?: 'asc' | 'desc';
+  zip?: 'asc' | 'desc';
+  country?: 'asc' | 'desc';
+  apartment?: 'asc' | 'desc';
+  coordinates?: 'asc' | 'desc';
+}
+
+// ===== objects/extbaseaddress.ts =====
+/**
+ * Generated types for ExtBaseAddress
+ * Do not edit manually
+ */
+
+export interface ExtBaseAddress {
+  street: string;
+  city: string;
+  zip: string;
+  country: string;
+}
+
+export interface ExtBaseAddressInput {
+  street: string;
+  city: string;
+  zip: string;
+  country: string;
+}
+
+export interface ExtBaseAddressCreateInput {
+  street: string;
+  city: string;
+  zip: string;
+  country?: string;
+}
+
+export interface ExtBaseAddressWhere {
+  street?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  city?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  zip?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  country?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  AND?: ExtBaseAddressWhere[];
+  OR?: ExtBaseAddressWhere[];
+  NOT?: ExtBaseAddressWhere;
+}
+
+export type ExtBaseAddressSelect =
+  | ({ street: boolean } & Partial<Record<'city' | 'zip' | 'country', boolean>>)
+  | ({ city: boolean } & Partial<Record<'street' | 'zip' | 'country', boolean>>)
+  | ({ zip: boolean } & Partial<Record<'street' | 'city' | 'country', boolean>>)
+  | ({ country: boolean } & Partial<Record<'street' | 'city' | 'zip', boolean>>);
+
+export interface ExtBaseAddressOrderBy {
+  street?: 'asc' | 'desc';
+  city?: 'asc' | 'desc';
+  zip?: 'asc' | 'desc';
+  country?: 'asc' | 'desc';
+}
+
+// ===== objects/extchainbase.ts =====
+/**
+ * Generated types for ExtChainBase
+ * Do not edit manually
+ */
+
+export interface ExtChainBase {
+  a: string;
+  b: string;
+  c: string;
+}
+
+export interface ExtChainBaseInput {
+  a: string;
+  b: string;
+  c: string;
+}
+
+export interface ExtChainBaseWhere {
+  a?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  b?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  c?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  AND?: ExtChainBaseWhere[];
+  OR?: ExtChainBaseWhere[];
+  NOT?: ExtChainBaseWhere;
+}
+
+export type ExtChainBaseSelect =
+  | ({ a: boolean } & Partial<Record<'b' | 'c', boolean>>)
+  | ({ b: boolean } & Partial<Record<'a' | 'c', boolean>>)
+  | ({ c: boolean } & Partial<Record<'a' | 'b', boolean>>);
+
+export interface ExtChainBaseOrderBy {
+  a?: 'asc' | 'desc';
+  b?: 'asc' | 'desc';
+  c?: 'asc' | 'desc';
+}
+
+// ===== objects/extchainomitted.ts =====
+/**
+ * Generated types for ExtChainOmitted
+ * Do not edit manually
+ */
+
+export interface ExtChainOmitted {
+  a: string;
+  b: string;
+  p: string;
+  q: string;
+}
+
+export interface ExtChainOmittedInput {
+  a: string;
+  b: string;
+  p: string;
+  q: string;
+}
+
+export interface ExtChainOmittedWhere {
+  a?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  b?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  p?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  q?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  AND?: ExtChainOmittedWhere[];
+  OR?: ExtChainOmittedWhere[];
+  NOT?: ExtChainOmittedWhere;
+}
+
+export type ExtChainOmittedSelect =
+  | ({ a: boolean } & Partial<Record<'b' | 'p' | 'q', boolean>>)
+  | ({ b: boolean } & Partial<Record<'a' | 'p' | 'q', boolean>>)
+  | ({ p: boolean } & Partial<Record<'a' | 'b' | 'q', boolean>>)
+  | ({ q: boolean } & Partial<Record<'a' | 'b' | 'p', boolean>>);
+
+export interface ExtChainOmittedOrderBy {
+  a?: 'asc' | 'desc';
+  b?: 'asc' | 'desc';
+  p?: 'asc' | 'desc';
+  q?: 'asc' | 'desc';
+}
+
+// ===== objects/extchainomittedthenpicked.ts =====
+/**
+ * Generated types for ExtChainOmittedThenPicked
+ * Do not edit manually
+ */
+
+export interface ExtChainOmittedThenPicked {
+  q: string;
+  r?: string;
+}
+
+export interface ExtChainOmittedThenPickedInput {
+  q: string;
+  r?: string;
+}
+
+export interface ExtChainOmittedThenPickedWhere {
+  q?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  r?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  AND?: ExtChainOmittedThenPickedWhere[];
+  OR?: ExtChainOmittedThenPickedWhere[];
+  NOT?: ExtChainOmittedThenPickedWhere;
+}
+
+export type ExtChainOmittedThenPickedSelect =
+  | ({ q: boolean } & Partial<Record<'r', boolean>>)
+  | ({ r: boolean } & Partial<Record<'q', boolean>>);
+
+export interface ExtChainOmittedThenPickedOrderBy {
+  q?: 'asc' | 'desc';
+  r?: 'asc' | 'desc';
+}
+
+// ===== objects/extchainpicked.ts =====
+/**
+ * Generated types for ExtChainPicked
+ * Do not edit manually
+ */
+
+export interface ExtChainPicked {
+  a: string;
+  b: string;
+  p: string;
+  q: string;
+}
+
+export interface ExtChainPickedInput {
+  a: string;
+  b: string;
+  p: string;
+  q: string;
+}
+
+export interface ExtChainPickedWhere {
+  a?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  b?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  p?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  q?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  AND?: ExtChainPickedWhere[];
+  OR?: ExtChainPickedWhere[];
+  NOT?: ExtChainPickedWhere;
+}
+
+export type ExtChainPickedSelect =
+  | ({ a: boolean } & Partial<Record<'b' | 'p' | 'q', boolean>>)
+  | ({ b: boolean } & Partial<Record<'a' | 'p' | 'q', boolean>>)
+  | ({ p: boolean } & Partial<Record<'a' | 'b' | 'q', boolean>>)
+  | ({ q: boolean } & Partial<Record<'a' | 'b' | 'p', boolean>>);
+
+export interface ExtChainPickedOrderBy {
+  a?: 'asc' | 'desc';
+  b?: 'asc' | 'desc';
+  p?: 'asc' | 'desc';
+  q?: 'asc' | 'desc';
+}
+
+// ===== objects/extchainpickedthenomitted.ts =====
+/**
+ * Generated types for ExtChainPickedThenOmitted
+ * Do not edit manually
+ */
+
+export interface ExtChainPickedThenOmitted {
+  a: string;
+  b: string;
+  q: string;
+  r?: string;
+}
+
+export interface ExtChainPickedThenOmittedInput {
+  a: string;
+  b: string;
+  q: string;
+  r?: string;
+}
+
+export interface ExtChainPickedThenOmittedWhere {
+  a?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  b?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  q?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  r?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  AND?: ExtChainPickedThenOmittedWhere[];
+  OR?: ExtChainPickedThenOmittedWhere[];
+  NOT?: ExtChainPickedThenOmittedWhere;
+}
+
+export type ExtChainPickedThenOmittedSelect =
+  | ({ a: boolean } & Partial<Record<'b' | 'q' | 'r', boolean>>)
+  | ({ b: boolean } & Partial<Record<'a' | 'q' | 'r', boolean>>)
+  | ({ q: boolean } & Partial<Record<'a' | 'b' | 'r', boolean>>)
+  | ({ r: boolean } & Partial<Record<'a' | 'b' | 'q', boolean>>);
+
+export interface ExtChainPickedThenOmittedOrderBy {
+  a?: 'asc' | 'desc';
+  b?: 'asc' | 'desc';
+  q?: 'asc' | 'desc';
+  r?: 'asc' | 'desc';
+}
+
+// ===== objects/extcityaddress.ts =====
+/**
+ * Generated types for ExtCityAddress
+ * Do not edit manually
+ */
+
+export interface ExtCityAddress {
+  city: string;
+  country: string;
+  district?: string;
+}
+
+export interface ExtCityAddressInput {
+  city: string;
+  country: string;
+  district?: string;
+}
+
+export interface ExtCityAddressCreateInput {
+  city: string;
+  country?: string;
+  district?: string;
+}
+
+export interface ExtCityAddressWhere {
+  city?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  country?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  district?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  AND?: ExtCityAddressWhere[];
+  OR?: ExtCityAddressWhere[];
+  NOT?: ExtCityAddressWhere;
+}
+
+export type ExtCityAddressSelect =
+  | ({ city: boolean } & Partial<Record<'country' | 'district', boolean>>)
+  | ({ country: boolean } & Partial<Record<'city' | 'district', boolean>>)
+  | ({ district: boolean } & Partial<Record<'city' | 'country', boolean>>);
+
+export interface ExtCityAddressOrderBy {
+  city?: 'asc' | 'desc';
+  country?: 'asc' | 'desc';
+  district?: 'asc' | 'desc';
+}
+
+// ===== objects/extdetailedaddress.ts =====
+/**
+ * Generated types for ExtDetailedAddress
+ * Do not edit manually
+ */
+
+export interface ExtDetailedAddress {
+  street: string;
+  city: string;
+  zip: string;
+  country: string;
+  latitude?: number;
+  longitude?: number;
+  timezone?: string;
+}
+
+export interface ExtDetailedAddressInput {
+  street: string;
+  city: string;
+  zip: string;
+  country: string;
+  latitude?: number;
+  longitude?: number;
+  timezone?: string;
+}
+
+export interface ExtDetailedAddressCreateInput {
+  street: string;
+  city: string;
+  zip: string;
+  country?: string;
+  latitude?: number;
+  longitude?: number;
+  timezone?: string;
+}
+
+export interface ExtDetailedAddressWhere {
+  street?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  city?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  zip?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  country?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  latitude?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  longitude?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  timezone?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  AND?: ExtDetailedAddressWhere[];
+  OR?: ExtDetailedAddressWhere[];
+  NOT?: ExtDetailedAddressWhere;
+}
+
+export type ExtDetailedAddressSelect =
+  | ({ street: boolean } & Partial<Record<'city' | 'zip' | 'country' | 'latitude' | 'longitude' | 'timezone', boolean>>)
+  | ({ city: boolean } & Partial<Record<'street' | 'zip' | 'country' | 'latitude' | 'longitude' | 'timezone', boolean>>)
+  | ({ zip: boolean } & Partial<Record<'street' | 'city' | 'country' | 'latitude' | 'longitude' | 'timezone', boolean>>)
+  | ({ country: boolean } & Partial<Record<'street' | 'city' | 'zip' | 'latitude' | 'longitude' | 'timezone', boolean>>)
+  | ({ latitude: boolean } & Partial<Record<'street' | 'city' | 'zip' | 'country' | 'longitude' | 'timezone', boolean>>)
+  | ({ longitude: boolean } & Partial<Record<'street' | 'city' | 'zip' | 'country' | 'latitude' | 'timezone', boolean>>)
+  | ({ timezone: boolean } & Partial<
+      Record<'street' | 'city' | 'zip' | 'country' | 'latitude' | 'longitude', boolean>
+    >);
+
+export interface ExtDetailedAddressOrderBy {
+  street?: 'asc' | 'desc';
+  city?: 'asc' | 'desc';
+  zip?: 'asc' | 'desc';
+  country?: 'asc' | 'desc';
+  latitude?: 'asc' | 'desc';
+  longitude?: 'asc' | 'desc';
+  timezone?: 'asc' | 'desc';
+}
+
+// ===== objects/extgeoaddress.ts =====
+/**
+ * Generated types for ExtGeoAddress
+ * Do not edit manually
+ */
+
+export interface ExtGeoAddress {
+  street: string;
+  city: string;
+  zip: string;
+  country: string;
+  apartment?: string;
+  coordinates: number[];
+  elevation?: number;
+  timezone: string;
+}
+
+export interface ExtGeoAddressInput {
+  street: string;
+  city: string;
+  zip: string;
+  country: string;
+  apartment?: string;
+  coordinates: number[];
+  elevation?: number;
+  timezone: string;
+}
+
+export interface ExtGeoAddressCreateInput {
+  street: string;
+  city: string;
+  zip: string;
+  country?: string;
+  apartment?: string;
+  coordinates?: number[];
+  elevation?: number;
+  timezone?: string;
+}
+
+export interface ExtGeoAddressWhere {
+  street?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  city?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  zip?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  country?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  apartment?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  coordinates?:
+    | number[]
+    | {
+        has?: number;
+        hasAll?: number[];
+        hasAny?: number[];
+        isEmpty?: boolean;
+      };
+  elevation?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  timezone?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  AND?: ExtGeoAddressWhere[];
+  OR?: ExtGeoAddressWhere[];
+  NOT?: ExtGeoAddressWhere;
+}
+
+export type ExtGeoAddressSelect =
+  | ({ street: boolean } & Partial<
+      Record<'city' | 'zip' | 'country' | 'apartment' | 'coordinates' | 'elevation' | 'timezone', boolean>
+    >)
+  | ({ city: boolean } & Partial<
+      Record<'street' | 'zip' | 'country' | 'apartment' | 'coordinates' | 'elevation' | 'timezone', boolean>
+    >)
+  | ({ zip: boolean } & Partial<
+      Record<'street' | 'city' | 'country' | 'apartment' | 'coordinates' | 'elevation' | 'timezone', boolean>
+    >)
+  | ({ country: boolean } & Partial<
+      Record<'street' | 'city' | 'zip' | 'apartment' | 'coordinates' | 'elevation' | 'timezone', boolean>
+    >)
+  | ({ apartment: boolean } & Partial<
+      Record<'street' | 'city' | 'zip' | 'country' | 'coordinates' | 'elevation' | 'timezone', boolean>
+    >)
+  | ({ coordinates: boolean } & Partial<
+      Record<'street' | 'city' | 'zip' | 'country' | 'apartment' | 'elevation' | 'timezone', boolean>
+    >)
+  | ({ elevation: boolean } & Partial<
+      Record<'street' | 'city' | 'zip' | 'country' | 'apartment' | 'coordinates' | 'timezone', boolean>
+    >)
+  | ({ timezone: boolean } & Partial<
+      Record<'street' | 'city' | 'zip' | 'country' | 'apartment' | 'coordinates' | 'elevation', boolean>
+    >);
+
+export interface ExtGeoAddressOrderBy {
+  street?: 'asc' | 'desc';
+  city?: 'asc' | 'desc';
+  zip?: 'asc' | 'desc';
+  country?: 'asc' | 'desc';
+  apartment?: 'asc' | 'desc';
+  coordinates?: 'asc' | 'desc';
+  elevation?: 'asc' | 'desc';
+  timezone?: 'asc' | 'desc';
+}
+
+// ===== objects/extmetaaddress.ts =====
+/**
+ * Generated types for ExtMetaAddress
+ * Do not edit manually
+ */
+
+export interface ExtMetaAddress {
+  street: string;
+  city: string;
+  zip: string;
+  country: string;
+  verified: boolean;
+  verifiedAt?: Date;
+  tags: string[];
+  rating?: number;
+}
+
+export interface ExtMetaAddressInput {
+  street: string;
+  city: string;
+  zip: string;
+  country: string;
+  verified: boolean;
+  verifiedAt?: Date;
+  tags: string[];
+  rating?: number;
+}
+
+export interface ExtMetaAddressCreateInput {
+  street: string;
+  city: string;
+  zip: string;
+  country?: string;
+  verified?: boolean;
+  verifiedAt?: Date;
+  tags?: string[];
+  rating?: number;
+}
+
+export interface ExtMetaAddressWhere {
+  street?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  city?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  zip?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  country?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  verified?:
+    | boolean
+    | ({
+        eq?: boolean;
+        neq?: boolean;
+      } & {});
+  verifiedAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  tags?:
+    | string[]
+    | {
+        has?: string;
+        hasAll?: string[];
+        hasAny?: string[];
+        isEmpty?: boolean;
+      };
+  rating?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  AND?: ExtMetaAddressWhere[];
+  OR?: ExtMetaAddressWhere[];
+  NOT?: ExtMetaAddressWhere;
+}
+
+export type ExtMetaAddressSelect =
+  | ({ street: boolean } & Partial<
+      Record<'city' | 'zip' | 'country' | 'verified' | 'verifiedAt' | 'tags' | 'rating', boolean>
+    >)
+  | ({ city: boolean } & Partial<
+      Record<'street' | 'zip' | 'country' | 'verified' | 'verifiedAt' | 'tags' | 'rating', boolean>
+    >)
+  | ({ zip: boolean } & Partial<
+      Record<'street' | 'city' | 'country' | 'verified' | 'verifiedAt' | 'tags' | 'rating', boolean>
+    >)
+  | ({ country: boolean } & Partial<
+      Record<'street' | 'city' | 'zip' | 'verified' | 'verifiedAt' | 'tags' | 'rating', boolean>
+    >)
+  | ({ verified: boolean } & Partial<
+      Record<'street' | 'city' | 'zip' | 'country' | 'verifiedAt' | 'tags' | 'rating', boolean>
+    >)
+  | ({ verifiedAt: boolean } & Partial<
+      Record<'street' | 'city' | 'zip' | 'country' | 'verified' | 'tags' | 'rating', boolean>
+    >)
+  | ({ tags: boolean } & Partial<
+      Record<'street' | 'city' | 'zip' | 'country' | 'verified' | 'verifiedAt' | 'rating', boolean>
+    >)
+  | ({ rating: boolean } & Partial<
+      Record<'street' | 'city' | 'zip' | 'country' | 'verified' | 'verifiedAt' | 'tags', boolean>
+    >);
+
+export interface ExtMetaAddressOrderBy {
+  street?: 'asc' | 'desc';
+  city?: 'asc' | 'desc';
+  zip?: 'asc' | 'desc';
+  country?: 'asc' | 'desc';
+  verified?: 'asc' | 'desc';
+  verifiedAt?: 'asc' | 'desc';
+  tags?: 'asc' | 'desc';
+  rating?: 'asc' | 'desc';
+}
+
+// ===== objects/extprivateaddress.ts =====
+/**
+ * Generated types for ExtPrivateAddress
+ * Do not edit manually
+ */
+
+export interface ExtPrivateAddress {
+  city: string;
+  country: string;
+  street: string;
+  zip: string;
+  publicCity?: string;
+}
+
+export interface ExtPrivateAddressInput {
+  city: string;
+  country: string;
+  street: string;
+  zip: string;
+  publicCity?: string;
+}
+
+export interface ExtPrivateAddressCreateInput {
+  city: string;
+  country?: string;
+  street: string;
+  zip: string;
+  publicCity?: string;
+}
+
+export interface ExtPrivateAddressWhere {
+  city?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  country?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  street?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  zip?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  publicCity?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  AND?: ExtPrivateAddressWhere[];
+  OR?: ExtPrivateAddressWhere[];
+  NOT?: ExtPrivateAddressWhere;
+}
+
+export type ExtPrivateAddressSelect =
+  | ({ city: boolean } & Partial<Record<'country' | 'street' | 'zip' | 'publicCity', boolean>>)
+  | ({ country: boolean } & Partial<Record<'city' | 'street' | 'zip' | 'publicCity', boolean>>)
+  | ({ street: boolean } & Partial<Record<'city' | 'country' | 'zip' | 'publicCity', boolean>>)
+  | ({ zip: boolean } & Partial<Record<'city' | 'country' | 'street' | 'publicCity', boolean>>)
+  | ({ publicCity: boolean } & Partial<Record<'city' | 'country' | 'street' | 'zip', boolean>>);
+
+export interface ExtPrivateAddressOrderBy {
+  city?: 'asc' | 'desc';
+  country?: 'asc' | 'desc';
+  street?: 'asc' | 'desc';
+  zip?: 'asc' | 'desc';
+  publicCity?: 'asc' | 'desc';
+}
+
+// ===== objects/extsimpleaddress.ts =====
+/**
+ * Generated types for ExtSimpleAddress
+ * Do not edit manually
+ */
+
+export interface ExtSimpleAddress {
+  street: string;
+  city: string;
+  zip: string;
+  region?: string;
+}
+
+export interface ExtSimpleAddressInput {
+  street: string;
+  city: string;
+  zip: string;
+  region?: string;
+}
+
+export interface ExtSimpleAddressWhere {
+  street?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  city?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  zip?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  region?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  AND?: ExtSimpleAddressWhere[];
+  OR?: ExtSimpleAddressWhere[];
+  NOT?: ExtSimpleAddressWhere;
+}
+
+export type ExtSimpleAddressSelect =
+  | ({ street: boolean } & Partial<Record<'city' | 'zip' | 'region', boolean>>)
+  | ({ city: boolean } & Partial<Record<'street' | 'zip' | 'region', boolean>>)
+  | ({ zip: boolean } & Partial<Record<'street' | 'city' | 'region', boolean>>)
+  | ({ region: boolean } & Partial<Record<'street' | 'city' | 'zip', boolean>>);
+
+export interface ExtSimpleAddressOrderBy {
+  street?: 'asc' | 'desc';
+  city?: 'asc' | 'desc';
+  zip?: 'asc' | 'desc';
+  region?: 'asc' | 'desc';
+}

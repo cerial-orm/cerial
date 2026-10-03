@@ -1,0 +1,1728 @@
+{
+  "literals": {
+    "Broad": {
+      "name": "Broad",
+      "variants": [
+        {
+          "kind": "broadType",
+          "typeName": "String"
+        },
+        {
+          "kind": "broadType",
+          "typeName": "Int"
+        }
+      ]
+    },
+    "DateOrFlag": {
+      "name": "DateOrFlag",
+      "variants": [
+        {
+          "kind": "broadType",
+          "typeName": "Date"
+        },
+        {
+          "kind": "broadType",
+          "typeName": "Bool"
+        }
+      ]
+    },
+    "ExtendedStatus": {
+      "name": "ExtendedStatus",
+      "variants": [
+        {
+          "kind": "string",
+          "value": "active"
+        },
+        {
+          "kind": "string",
+          "value": "inactive"
+        },
+        {
+          "kind": "string",
+          "value": "pending"
+        },
+        {
+          "kind": "string",
+          "value": "archived"
+        },
+        {
+          "kind": "string",
+          "value": "deleted"
+        }
+      ]
+    },
+    "FloatOrText": {
+      "name": "FloatOrText",
+      "variants": [
+        {
+          "kind": "broadType",
+          "typeName": "Float"
+        },
+        {
+          "kind": "broadType",
+          "typeName": "String"
+        }
+      ]
+    },
+    "Mixed": {
+      "name": "Mixed",
+      "variants": [
+        {
+          "kind": "string",
+          "value": "low"
+        },
+        {
+          "kind": "string",
+          "value": "high"
+        },
+        {
+          "kind": "int",
+          "value": 1
+        },
+        {
+          "kind": "int",
+          "value": 2
+        },
+        {
+          "kind": "bool",
+          "value": true
+        }
+      ]
+    },
+    "NumericOnly": {
+      "name": "NumericOnly",
+      "variants": [
+        {
+          "kind": "int",
+          "value": 1
+        },
+        {
+          "kind": "int",
+          "value": 2
+        },
+        {
+          "kind": "int",
+          "value": 3
+        },
+        {
+          "kind": "int",
+          "value": 4
+        },
+        {
+          "kind": "int",
+          "value": 5
+        }
+      ]
+    },
+    "Priority": {
+      "name": "Priority",
+      "variants": [
+        {
+          "kind": "int",
+          "value": 1
+        },
+        {
+          "kind": "int",
+          "value": 2
+        },
+        {
+          "kind": "int",
+          "value": 3
+        }
+      ]
+    },
+    "Ratio": {
+      "name": "Ratio",
+      "variants": [
+        {
+          "kind": "float",
+          "value": 0.5
+        },
+        {
+          "kind": "float",
+          "value": 1.5
+        },
+        {
+          "kind": "float",
+          "value": 2.5
+        }
+      ]
+    },
+    "Status": {
+      "name": "Status",
+      "variants": [
+        {
+          "kind": "string",
+          "value": "active"
+        },
+        {
+          "kind": "string",
+          "value": "inactive"
+        },
+        {
+          "kind": "string",
+          "value": "pending"
+        }
+      ]
+    },
+    "WithBoth": {
+      "name": "WithBoth",
+      "variants": [
+        {
+          "kind": "string",
+          "value": "none"
+        },
+        {
+          "kind": "string",
+          "value": "empty"
+        },
+        {
+          "kind": "tupleRef",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "name": "x",
+                "type": "float"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "name": "y",
+                "type": "float"
+              }
+            ],
+            "tupleName": "LiteralCoord"
+          },
+          "tupleName": "LiteralCoord"
+        },
+        {
+          "kind": "objectRef",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "label",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "value",
+                "type": "int"
+              }
+            ],
+            "objectName": "LiteralPoint"
+          },
+          "objectName": "LiteralPoint"
+        }
+      ]
+    },
+    "WithObject": {
+      "name": "WithObject",
+      "variants": [
+        {
+          "kind": "string",
+          "value": "empty"
+        },
+        {
+          "kind": "objectRef",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "label",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "value",
+                "type": "int"
+              }
+            ],
+            "objectName": "LiteralPoint"
+          },
+          "objectName": "LiteralPoint"
+        }
+      ]
+    },
+    "WithObjectOpt": {
+      "name": "WithObjectOpt",
+      "variants": [
+        {
+          "kind": "string",
+          "value": "empty"
+        },
+        {
+          "kind": "objectRef",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "label",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "count",
+                "type": "int"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isNullable": true,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "tag",
+                "type": "string"
+              }
+            ],
+            "objectName": "LiteralPointOpt"
+          },
+          "objectName": "LiteralPointOpt"
+        }
+      ]
+    },
+    "WithTuple": {
+      "name": "WithTuple",
+      "variants": [
+        {
+          "kind": "string",
+          "value": "none"
+        },
+        {
+          "kind": "tupleRef",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "name": "x",
+                "type": "float"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "name": "y",
+                "type": "float"
+              }
+            ],
+            "tupleName": "LiteralCoord"
+          },
+          "tupleName": "LiteralCoord"
+        }
+      ]
+    }
+  },
+  "models": {
+    "LiteralBasic": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "Status",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "active"
+              },
+              {
+                "kind": "string",
+                "value": "inactive"
+              },
+              {
+                "kind": "string",
+                "value": "pending"
+              }
+            ]
+          },
+          "name": "status",
+          "type": "literal"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "Priority",
+            "variants": [
+              {
+                "kind": "int",
+                "value": 1
+              },
+              {
+                "kind": "int",
+                "value": 2
+              },
+              {
+                "kind": "int",
+                "value": 3
+              }
+            ]
+          },
+          "name": "priority",
+          "type": "literal"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "Status",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "active"
+              },
+              {
+                "kind": "string",
+                "value": "inactive"
+              },
+              {
+                "kind": "string",
+                "value": "pending"
+              }
+            ]
+          },
+          "name": "optStatus",
+          "type": "literal"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "Status",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "active"
+              },
+              {
+                "kind": "string",
+                "value": "inactive"
+              },
+              {
+                "kind": "string",
+                "value": "pending"
+              }
+            ]
+          },
+          "name": "nullStatus",
+          "type": "literal"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "Status",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "active"
+              },
+              {
+                "kind": "string",
+                "value": "inactive"
+              },
+              {
+                "kind": "string",
+                "value": "pending"
+              }
+            ]
+          },
+          "name": "statuses",
+          "type": "literal"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "Mixed",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "low"
+              },
+              {
+                "kind": "string",
+                "value": "high"
+              },
+              {
+                "kind": "int",
+                "value": 1
+              },
+              {
+                "kind": "int",
+                "value": 2
+              },
+              {
+                "kind": "bool",
+                "value": true
+              }
+            ]
+          },
+          "name": "mixed",
+          "type": "literal"
+        }
+      ],
+      "name": "LiteralBasic",
+      "tableName": "literal_basic"
+    },
+    "LiteralBroad": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "Broad",
+            "variants": [
+              {
+                "kind": "broadType",
+                "typeName": "String"
+              },
+              {
+                "kind": "broadType",
+                "typeName": "Int"
+              }
+            ]
+          },
+          "name": "value",
+          "type": "literal"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "Broad",
+            "variants": [
+              {
+                "kind": "broadType",
+                "typeName": "String"
+              },
+              {
+                "kind": "broadType",
+                "typeName": "Int"
+              }
+            ]
+          },
+          "name": "values",
+          "type": "literal"
+        }
+      ],
+      "name": "LiteralBroad",
+      "tableName": "literal_broad"
+    },
+    "LiteralDefaults": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "defaultValue": "active",
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "Status",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "active"
+              },
+              {
+                "kind": "string",
+                "value": "inactive"
+              },
+              {
+                "kind": "string",
+                "value": "pending"
+              }
+            ]
+          },
+          "name": "status",
+          "type": "literal"
+        },
+        {
+          "defaultValue": 1,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "Priority",
+            "variants": [
+              {
+                "kind": "int",
+                "value": 1
+              },
+              {
+                "kind": "int",
+                "value": 2
+              },
+              {
+                "kind": "int",
+                "value": 3
+              }
+            ]
+          },
+          "name": "priority",
+          "type": "literal"
+        }
+      ],
+      "name": "LiteralDefaults",
+      "tableName": "literal_defaults"
+    },
+    "LiteralExtended": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "ExtendedStatus",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "active"
+              },
+              {
+                "kind": "string",
+                "value": "inactive"
+              },
+              {
+                "kind": "string",
+                "value": "pending"
+              },
+              {
+                "kind": "string",
+                "value": "archived"
+              },
+              {
+                "kind": "string",
+                "value": "deleted"
+              }
+            ]
+          },
+          "name": "status",
+          "type": "literal"
+        }
+      ],
+      "name": "LiteralExtended",
+      "tableName": "literal_extended"
+    },
+    "LiteralNumberKinds": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "Ratio",
+            "variants": [
+              {
+                "kind": "float",
+                "value": 0.5
+              },
+              {
+                "kind": "float",
+                "value": 1.5
+              },
+              {
+                "kind": "float",
+                "value": 2.5
+              }
+            ]
+          },
+          "name": "ratio",
+          "type": "literal"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "FloatOrText",
+            "variants": [
+              {
+                "kind": "broadType",
+                "typeName": "Float"
+              },
+              {
+                "kind": "broadType",
+                "typeName": "String"
+              }
+            ]
+          },
+          "name": "amount",
+          "type": "literal"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "DateOrFlag",
+            "variants": [
+              {
+                "kind": "broadType",
+                "typeName": "Date"
+              },
+              {
+                "kind": "broadType",
+                "typeName": "Bool"
+              }
+            ]
+          },
+          "name": "moment",
+          "type": "literal"
+        }
+      ],
+      "name": "LiteralNumberKinds",
+      "tableName": "literal_number_kinds"
+    },
+    "LiteralNumeric": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "NumericOnly",
+            "variants": [
+              {
+                "kind": "int",
+                "value": 1
+              },
+              {
+                "kind": "int",
+                "value": 2
+              },
+              {
+                "kind": "int",
+                "value": 3
+              },
+              {
+                "kind": "int",
+                "value": 4
+              },
+              {
+                "kind": "int",
+                "value": 5
+              }
+            ]
+          },
+          "name": "rank",
+          "type": "literal"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "NumericOnly",
+            "variants": [
+              {
+                "kind": "int",
+                "value": 1
+              },
+              {
+                "kind": "int",
+                "value": 2
+              },
+              {
+                "kind": "int",
+                "value": 3
+              },
+              {
+                "kind": "int",
+                "value": 4
+              },
+              {
+                "kind": "int",
+                "value": 5
+              }
+            ]
+          },
+          "name": "optRank",
+          "type": "literal"
+        }
+      ],
+      "name": "LiteralNumeric",
+      "tableName": "literal_numeric"
+    },
+    "LiteralObjectArray": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "tagged",
+          "objectInfo": {
+            "fields": [
+              {
+                "isArray": true,
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "literalInfo": {
+                  "literalName": "Status",
+                  "variants": [
+                    {
+                      "kind": "string",
+                      "value": "active"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "inactive"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "pending"
+                    }
+                  ]
+                },
+                "name": "states",
+                "type": "literal"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "label",
+                "type": "string"
+              }
+            ],
+            "objectName": "LiteralTagged"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "LiteralObjectArray",
+      "tableName": "literal_object_array"
+    },
+    "LiteralWithBoth": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "WithBoth",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "none"
+              },
+              {
+                "kind": "string",
+                "value": "empty"
+              },
+              {
+                "kind": "tupleRef",
+                "tupleInfo": {
+                  "elements": [
+                    {
+                      "index": 0,
+                      "isOptional": false,
+                      "name": "x",
+                      "type": "float"
+                    },
+                    {
+                      "index": 1,
+                      "isOptional": false,
+                      "name": "y",
+                      "type": "float"
+                    }
+                  ],
+                  "tupleName": "LiteralCoord"
+                },
+                "tupleName": "LiteralCoord"
+              },
+              {
+                "kind": "objectRef",
+                "objectInfo": {
+                  "fields": [
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "name": "label",
+                      "type": "string"
+                    },
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "name": "value",
+                      "type": "int"
+                    }
+                  ],
+                  "objectName": "LiteralPoint"
+                },
+                "objectName": "LiteralPoint"
+              }
+            ]
+          },
+          "name": "data",
+          "type": "literal"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "WithBoth",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "none"
+              },
+              {
+                "kind": "string",
+                "value": "empty"
+              },
+              {
+                "kind": "tupleRef",
+                "tupleInfo": {
+                  "elements": [
+                    {
+                      "index": 0,
+                      "isOptional": false,
+                      "name": "x",
+                      "type": "float"
+                    },
+                    {
+                      "index": 1,
+                      "isOptional": false,
+                      "name": "y",
+                      "type": "float"
+                    }
+                  ],
+                  "tupleName": "LiteralCoord"
+                },
+                "tupleName": "LiteralCoord"
+              },
+              {
+                "kind": "objectRef",
+                "objectInfo": {
+                  "fields": [
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "name": "label",
+                      "type": "string"
+                    },
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "name": "value",
+                      "type": "int"
+                    }
+                  ],
+                  "objectName": "LiteralPoint"
+                },
+                "objectName": "LiteralPoint"
+              }
+            ]
+          },
+          "name": "optData",
+          "type": "literal"
+        }
+      ],
+      "name": "LiteralWithBoth",
+      "tableName": "literal_with_both"
+    },
+    "LiteralWithObject": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "address",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "city",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "literalInfo": {
+                  "literalName": "Status",
+                  "variants": [
+                    {
+                      "kind": "string",
+                      "value": "active"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "inactive"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "pending"
+                    }
+                  ]
+                },
+                "name": "status",
+                "type": "literal"
+              }
+            ],
+            "objectName": "LiteralAddress"
+          },
+          "type": "object"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "optAddress",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "city",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "literalInfo": {
+                  "literalName": "Status",
+                  "variants": [
+                    {
+                      "kind": "string",
+                      "value": "active"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "inactive"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "pending"
+                    }
+                  ]
+                },
+                "name": "status",
+                "type": "literal"
+              }
+            ],
+            "objectName": "LiteralAddress"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "LiteralWithObject",
+      "tableName": "literal_with_object"
+    },
+    "LiteralWithObjectOpt": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "WithObjectOpt",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "empty"
+              },
+              {
+                "kind": "objectRef",
+                "objectInfo": {
+                  "fields": [
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "name": "label",
+                      "type": "string"
+                    },
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": false,
+                      "isUnique": false,
+                      "name": "count",
+                      "type": "int"
+                    },
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isNullable": true,
+                      "isRequired": false,
+                      "isUnique": false,
+                      "name": "tag",
+                      "type": "string"
+                    }
+                  ],
+                  "objectName": "LiteralPointOpt"
+                },
+                "objectName": "LiteralPointOpt"
+              }
+            ]
+          },
+          "name": "payload",
+          "type": "literal"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "WithObjectOpt",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "empty"
+              },
+              {
+                "kind": "objectRef",
+                "objectInfo": {
+                  "fields": [
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "name": "label",
+                      "type": "string"
+                    },
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": false,
+                      "isUnique": false,
+                      "name": "count",
+                      "type": "int"
+                    },
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isNullable": true,
+                      "isRequired": false,
+                      "isUnique": false,
+                      "name": "tag",
+                      "type": "string"
+                    }
+                  ],
+                  "objectName": "LiteralPointOpt"
+                },
+                "objectName": "LiteralPointOpt"
+              }
+            ]
+          },
+          "name": "optPayload",
+          "type": "literal"
+        }
+      ],
+      "name": "LiteralWithObjectOpt",
+      "tableName": "literal_with_object_opt"
+    },
+    "LiteralWithObjectVariant": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "WithObject",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "empty"
+              },
+              {
+                "kind": "objectRef",
+                "objectInfo": {
+                  "fields": [
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "name": "label",
+                      "type": "string"
+                    },
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "name": "value",
+                      "type": "int"
+                    }
+                  ],
+                  "objectName": "LiteralPoint"
+                },
+                "objectName": "LiteralPoint"
+              }
+            ]
+          },
+          "name": "payload",
+          "type": "literal"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "WithObject",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "empty"
+              },
+              {
+                "kind": "objectRef",
+                "objectInfo": {
+                  "fields": [
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "name": "label",
+                      "type": "string"
+                    },
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "name": "value",
+                      "type": "int"
+                    }
+                  ],
+                  "objectName": "LiteralPoint"
+                },
+                "objectName": "LiteralPoint"
+              }
+            ]
+          },
+          "name": "optPayload",
+          "type": "literal"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "WithObject",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "empty"
+              },
+              {
+                "kind": "objectRef",
+                "objectInfo": {
+                  "fields": [
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "name": "label",
+                      "type": "string"
+                    },
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "name": "value",
+                      "type": "int"
+                    }
+                  ],
+                  "objectName": "LiteralPoint"
+                },
+                "objectName": "LiteralPoint"
+              }
+            ]
+          },
+          "name": "payloads",
+          "type": "literal"
+        }
+      ],
+      "name": "LiteralWithObjectVariant",
+      "tableName": "literal_with_object_variant"
+    },
+    "LiteralWithTuple": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "WithTuple",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "none"
+              },
+              {
+                "kind": "tupleRef",
+                "tupleInfo": {
+                  "elements": [
+                    {
+                      "index": 0,
+                      "isOptional": false,
+                      "name": "x",
+                      "type": "float"
+                    },
+                    {
+                      "index": 1,
+                      "isOptional": false,
+                      "name": "y",
+                      "type": "float"
+                    }
+                  ],
+                  "tupleName": "LiteralCoord"
+                },
+                "tupleName": "LiteralCoord"
+              }
+            ]
+          },
+          "name": "payload",
+          "type": "literal"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "WithTuple",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "none"
+              },
+              {
+                "kind": "tupleRef",
+                "tupleInfo": {
+                  "elements": [
+                    {
+                      "index": 0,
+                      "isOptional": false,
+                      "name": "x",
+                      "type": "float"
+                    },
+                    {
+                      "index": 1,
+                      "isOptional": false,
+                      "name": "y",
+                      "type": "float"
+                    }
+                  ],
+                  "tupleName": "LiteralCoord"
+                },
+                "tupleName": "LiteralCoord"
+              }
+            ]
+          },
+          "name": "optPayload",
+          "type": "literal"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "WithTuple",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "none"
+              },
+              {
+                "kind": "tupleRef",
+                "tupleInfo": {
+                  "elements": [
+                    {
+                      "index": 0,
+                      "isOptional": false,
+                      "name": "x",
+                      "type": "float"
+                    },
+                    {
+                      "index": 1,
+                      "isOptional": false,
+                      "name": "y",
+                      "type": "float"
+                    }
+                  ],
+                  "tupleName": "LiteralCoord"
+                },
+                "tupleName": "LiteralCoord"
+              }
+            ]
+          },
+          "name": "payloads",
+          "type": "literal"
+        }
+      ],
+      "name": "LiteralWithTuple",
+      "tableName": "literal_with_tuple"
+    }
+  },
+  "objects": {
+    "LiteralAddress": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "city",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "Status",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "active"
+              },
+              {
+                "kind": "string",
+                "value": "inactive"
+              },
+              {
+                "kind": "string",
+                "value": "pending"
+              }
+            ]
+          },
+          "name": "status",
+          "type": "literal"
+        }
+      ],
+      "name": "LiteralAddress"
+    },
+    "LiteralPoint": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "value",
+          "type": "int"
+        }
+      ],
+      "name": "LiteralPoint"
+    },
+    "LiteralPointOpt": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "count",
+          "type": "int"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "tag",
+          "type": "string"
+        }
+      ],
+      "name": "LiteralPointOpt"
+    },
+    "LiteralTagged": {
+      "fields": [
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "Status",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "active"
+              },
+              {
+                "kind": "string",
+                "value": "inactive"
+              },
+              {
+                "kind": "string",
+                "value": "pending"
+              }
+            ]
+          },
+          "name": "states",
+          "type": "literal"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "label",
+          "type": "string"
+        }
+      ],
+      "name": "LiteralTagged"
+    }
+  },
+  "tuples": {
+    "LiteralCoord": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "name": "x",
+          "type": "float"
+        },
+        {
+          "index": 1,
+          "isOptional": false,
+          "name": "y",
+          "type": "float"
+        }
+      ],
+      "name": "LiteralCoord"
+    }
+  }
+}

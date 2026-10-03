@@ -1,0 +1,996 @@
+{
+  "models": {
+    "UnsetTest": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "bio",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "age",
+          "type": "int"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "address",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "street",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "city",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "zip",
+                "type": "string"
+              }
+            ],
+            "objectName": "UnsetAddress"
+          },
+          "type": "object"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "shipping",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "street",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "city",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "zip",
+                "type": "string"
+              }
+            ],
+            "objectName": "UnsetAddress"
+          },
+          "type": "object"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "pos",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "name": "lat",
+                "type": "float"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "name": "lng",
+                "type": "float"
+              }
+            ],
+            "tupleName": "UnsetCoord"
+          },
+          "type": "tuple"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "backup",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "name": "lat",
+                "type": "float"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "name": "lng",
+                "type": "float"
+              }
+            ],
+            "tupleName": "UnsetCoord"
+          },
+          "type": "tuple"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "opt",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "name": "label",
+                "type": "string"
+              },
+              {
+                "index": 1,
+                "isNullable": true,
+                "isOptional": false,
+                "type": "float"
+              }
+            ],
+            "tupleName": "UnsetOptTuple"
+          },
+          "type": "tuple"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "tagged",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "name": "tag",
+                "type": "string"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "objectInfo": {
+                  "fields": [
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "name": "value",
+                      "type": "string"
+                    },
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": false,
+                      "isUnique": false,
+                      "name": "extra",
+                      "type": "string"
+                    }
+                  ],
+                  "objectName": "UnsetInner"
+                },
+                "type": "object"
+              }
+            ],
+            "tupleName": "UnsetObjTuple"
+          },
+          "type": "tuple"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "nested",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "title",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "mid",
+                "objectInfo": {
+                  "fields": [
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "name": "label",
+                      "type": "string"
+                    },
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": false,
+                      "isUnique": false,
+                      "name": "score",
+                      "type": "int"
+                    },
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "name": "deep",
+                      "objectInfo": {
+                        "fields": [
+                          {
+                            "isId": false,
+                            "isIndexed": false,
+                            "isRequired": true,
+                            "isUnique": false,
+                            "name": "code",
+                            "type": "string"
+                          },
+                          {
+                            "isId": false,
+                            "isIndexed": false,
+                            "isRequired": false,
+                            "isUnique": false,
+                            "name": "note",
+                            "type": "string"
+                          }
+                        ],
+                        "objectName": "UnsetDeepInner"
+                      },
+                      "type": "object"
+                    }
+                  ],
+                  "objectName": "UnsetDeepMid"
+                },
+                "type": "object"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "desc",
+                "type": "string"
+              }
+            ],
+            "objectName": "UnsetDeepOuter"
+          },
+          "type": "object"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "optNested",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "title",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "mid",
+                "objectInfo": {
+                  "fields": [
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "name": "label",
+                      "type": "string"
+                    },
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": false,
+                      "isUnique": false,
+                      "name": "score",
+                      "type": "int"
+                    },
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "name": "deep",
+                      "objectInfo": {
+                        "fields": [
+                          {
+                            "isId": false,
+                            "isIndexed": false,
+                            "isRequired": true,
+                            "isUnique": false,
+                            "name": "code",
+                            "type": "string"
+                          },
+                          {
+                            "isId": false,
+                            "isIndexed": false,
+                            "isRequired": false,
+                            "isUnique": false,
+                            "name": "note",
+                            "type": "string"
+                          }
+                        ],
+                        "objectName": "UnsetDeepInner"
+                      },
+                      "type": "object"
+                    }
+                  ],
+                  "objectName": "UnsetDeepMid"
+                },
+                "type": "object"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "desc",
+                "type": "string"
+              }
+            ],
+            "objectName": "UnsetDeepOuter"
+          },
+          "type": "object"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "deepTuple",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "name": "name",
+                "type": "string"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "objectInfo": {
+                  "fields": [
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "name": "label",
+                      "type": "string"
+                    },
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": false,
+                      "isUnique": false,
+                      "name": "score",
+                      "type": "int"
+                    },
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "name": "deep",
+                      "objectInfo": {
+                        "fields": [
+                          {
+                            "isId": false,
+                            "isIndexed": false,
+                            "isRequired": true,
+                            "isUnique": false,
+                            "name": "code",
+                            "type": "string"
+                          },
+                          {
+                            "isId": false,
+                            "isIndexed": false,
+                            "isRequired": false,
+                            "isUnique": false,
+                            "name": "note",
+                            "type": "string"
+                          }
+                        ],
+                        "objectName": "UnsetDeepInner"
+                      },
+                      "type": "object"
+                    }
+                  ],
+                  "objectName": "UnsetDeepMid"
+                },
+                "type": "object"
+              }
+            ],
+            "tupleName": "UnsetDeepTuple"
+          },
+          "type": "tuple"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "tree",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "value",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "extra",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "child",
+                "objectInfo": {
+                  "fields": [],
+                  "objectName": "UnsetTreeNode"
+                },
+                "type": "object"
+              }
+            ],
+            "objectName": "UnsetTreeNode"
+          },
+          "type": "object"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "recursive",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "name": "label",
+                "type": "string"
+              },
+              {
+                "index": 1,
+                "isNullable": true,
+                "isOptional": false,
+                "tupleInfo": {
+                  "elements": [],
+                  "tupleName": "UnsetRecursive"
+                },
+                "type": "tuple"
+              }
+            ],
+            "tupleName": "UnsetRecursive"
+          },
+          "type": "tuple"
+        }
+      ],
+      "name": "UnsetTest",
+      "tableName": "unset_test"
+    }
+  },
+  "objects": {
+    "UnsetAddress": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "street",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "city",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "zip",
+          "type": "string"
+        }
+      ],
+      "name": "UnsetAddress"
+    },
+    "UnsetDeepInner": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "code",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "note",
+          "type": "string"
+        }
+      ],
+      "name": "UnsetDeepInner"
+    },
+    "UnsetDeepMid": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "score",
+          "type": "int"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "deep",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "code",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "note",
+                "type": "string"
+              }
+            ],
+            "objectName": "UnsetDeepInner"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "UnsetDeepMid"
+    },
+    "UnsetDeepOuter": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "mid",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "label",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "score",
+                "type": "int"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "deep",
+                "objectInfo": {
+                  "fields": [
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "name": "code",
+                      "type": "string"
+                    },
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": false,
+                      "isUnique": false,
+                      "name": "note",
+                      "type": "string"
+                    }
+                  ],
+                  "objectName": "UnsetDeepInner"
+                },
+                "type": "object"
+              }
+            ],
+            "objectName": "UnsetDeepMid"
+          },
+          "type": "object"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "desc",
+          "type": "string"
+        }
+      ],
+      "name": "UnsetDeepOuter"
+    },
+    "UnsetInner": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "value",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "extra",
+          "type": "string"
+        }
+      ],
+      "name": "UnsetInner"
+    },
+    "UnsetTreeNode": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "value",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "extra",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "child",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "value",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "extra",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "child",
+                "objectInfo": {
+                  "fields": [],
+                  "objectName": "UnsetTreeNode"
+                },
+                "type": "object"
+              }
+            ],
+            "objectName": "UnsetTreeNode"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "UnsetTreeNode"
+    }
+  },
+  "tuples": {
+    "UnsetCoord": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "name": "lat",
+          "type": "float"
+        },
+        {
+          "index": 1,
+          "isOptional": false,
+          "name": "lng",
+          "type": "float"
+        }
+      ],
+      "name": "UnsetCoord"
+    },
+    "UnsetDeepTuple": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "index": 1,
+          "isOptional": false,
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "label",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "score",
+                "type": "int"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "deep",
+                "objectInfo": {
+                  "fields": [
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "name": "code",
+                      "type": "string"
+                    },
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": false,
+                      "isUnique": false,
+                      "name": "note",
+                      "type": "string"
+                    }
+                  ],
+                  "objectName": "UnsetDeepInner"
+                },
+                "type": "object"
+              }
+            ],
+            "objectName": "UnsetDeepMid"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "UnsetDeepTuple"
+    },
+    "UnsetObjTuple": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "name": "tag",
+          "type": "string"
+        },
+        {
+          "index": 1,
+          "isOptional": false,
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "value",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "extra",
+                "type": "string"
+              }
+            ],
+            "objectName": "UnsetInner"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "UnsetObjTuple"
+    },
+    "UnsetOptTuple": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "index": 1,
+          "isNullable": true,
+          "isOptional": false,
+          "type": "float"
+        }
+      ],
+      "name": "UnsetOptTuple"
+    },
+    "UnsetRecursive": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "index": 1,
+          "isNullable": true,
+          "isOptional": false,
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "name": "label",
+                "type": "string"
+              },
+              {
+                "index": 1,
+                "isNullable": true,
+                "isOptional": false,
+                "tupleInfo": {
+                  "elements": [],
+                  "tupleName": "UnsetRecursive"
+                },
+                "type": "tuple"
+              }
+            ],
+            "tupleName": "UnsetRecursive"
+          },
+          "type": "tuple"
+        }
+      ],
+      "name": "UnsetRecursive"
+    }
+  }
+}

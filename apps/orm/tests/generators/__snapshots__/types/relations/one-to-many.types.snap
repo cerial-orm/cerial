@@ -1,0 +1,1251 @@
+// ===== models/article.ts =====
+/**
+ * Generated types for Article
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface Article {
+  id: CerialId<string>;
+  title: string;
+}
+
+export interface ArticleInput {
+  id?: string;
+  title: string;
+}
+
+export interface ArticleWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  title?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  AND?: ArticleWhere[];
+  OR?: ArticleWhere[];
+  NOT?: ArticleWhere;
+}
+
+export type ArticleWhereInput = ArticleWhere;
+
+export type ArticleFindUniqueWhere = { id: RecordIdInput<string> } & Omit<ArticleWhere, 'id'>;
+
+export type ArticleCreate = O.Optional<ArticleInput, 'id'>;
+
+export type ArticleNestedCreate = O.Optional<ArticleInput, 'id'>;
+
+export type ArticleCreateInput = ArticleCreate;
+
+export type ArticleUpdate = Partial<O.Omit<ArticleInput, 'id'>>;
+
+export type ArticleUpdateInput = ArticleUpdate;
+
+export type ArticleUnset = {};
+
+export type ArticleSelect =
+  | ({ id: boolean } & Partial<Record<'title', boolean>>)
+  | ({ title: boolean } & Partial<Record<'id', boolean>>);
+
+export interface ArticleOrderBy {
+  id?: 'asc' | 'desc';
+  title?: 'asc' | 'desc';
+}
+
+export type Article$Relations = {};
+
+export type GetArticlePayload<S extends ArticleSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends ArticleSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof Article
+          ? ResolveFieldSelect<Article[K], S[K]>
+          : never;
+      }
+    : Article,
+  'flat'
+>;
+
+export interface ArticleModel {
+  findOne<S extends ArticleSelect | undefined = undefined>(options?: {
+    where?: ArticleWhere;
+    select?: S;
+    orderBy?: ArticleOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetArticlePayload<S> | null>;
+
+  findMany<S extends ArticleSelect | undefined = undefined>(options?: {
+    where?: ArticleWhere;
+    select?: S;
+    orderBy?: ArticleOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetArticlePayload<S>[]>;
+
+  findUnique<S extends ArticleSelect | undefined = undefined>(options: {
+    where: ArticleFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetArticlePayload<S> | null>;
+
+  create<S extends ArticleSelect | undefined = undefined>(options: {
+    data: ArticleCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetArticlePayload<S>>;
+
+  updateMany<
+    S extends ArticleSelect | undefined = undefined,
+    D extends ArticleUpdateInput = ArticleUpdateInput,
+  >(options: {
+    where: ArticleWhere;
+    data: D;
+    unset?: SafeUnset<ArticleUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetArticlePayload<S>[]>;
+
+  updateUnique<
+    S extends ArticleSelect | undefined = undefined,
+    D extends ArticleUpdateInput = ArticleUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ArticleFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ArticleUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns Article | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetArticlePayload<S>, R>>;
+
+  upsert<
+    S extends ArticleSelect | undefined = undefined,
+    D extends ArticleUpdateInput = ArticleUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ArticleFindUniqueWhere;
+    create: ArticleCreateInput;
+    update?: D;
+    unset?: SafeUnset<ArticleUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetArticlePayload<S>, R>>;
+
+  upsert<
+    S extends ArticleSelect | undefined = undefined,
+    D extends ArticleUpdateInput = ArticleUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ArticleWhere;
+    create: ArticleCreateInput;
+    update?: D;
+    unset?: SafeUnset<ArticleUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetArticlePayload<S>, R>>;
+
+  deleteMany(options: { where: ArticleWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ArticleFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns Article | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<Article, R>>;
+
+  count(where?: ArticleWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ArticleWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/author.ts =====
+/**
+ * Generated types for Author
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  PostRequired,
+  PostRequiredWhere,
+  PostRequiredSelect,
+  PostRequiredOrderBy,
+  PostRequiredNestedCreate,
+  PostRequiredInclude,
+  GetPostRequiredIncludePayload,
+} from './postrequired';
+export interface Author {
+  id: CerialId<string>;
+  name: string;
+  email: string;
+}
+
+export interface AuthorInput {
+  id?: string;
+  name: string;
+  email: string;
+}
+
+export interface AuthorWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  /** @unique — Unique indexed field */
+  email?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  posts?: { some?: PostRequiredWhere; every?: PostRequiredWhere; none?: PostRequiredWhere };
+  AND?: AuthorWhere[];
+  OR?: AuthorWhere[];
+  NOT?: AuthorWhere;
+}
+
+export type AuthorWhereInput = AuthorWhere;
+
+export type AuthorFindUniqueWhere =
+  | ({ id: RecordIdInput<string> } & { email?: string } & Omit<AuthorWhere, 'id' | 'email'>)
+  | ({ email: string } & { id?: RecordIdInput<string> } & Omit<AuthorWhere, 'id' | 'email'>);
+
+export type AuthorCreate = O.Optional<O.Omit<AuthorInput, 'posts'>, 'id'>;
+
+export type AuthorNestedCreate = O.Optional<O.Omit<AuthorInput, 'posts'>, 'id'>;
+
+export type AuthorCreateInput = AuthorCreate & {
+  posts?: {
+    create?: PostRequiredNestedCreate | PostRequiredNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+  };
+};
+
+export type AuthorUpdate = Partial<O.Omit<AuthorInput, 'id' | 'posts'>>;
+
+export type AuthorUpdateInput = AuthorUpdate & {
+  posts?: {
+    create?: PostRequiredNestedCreate | PostRequiredNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+    disconnect?: RecordIdInput | RecordIdInput[];
+    set?: RecordIdInput[];
+  };
+};
+
+export type AuthorUnset = {};
+
+export type AuthorSelect =
+  | ({ id: boolean } & Partial<Record<'name' | 'email', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'email', boolean>>)
+  | ({ email: boolean } & Partial<Record<'id' | 'name', boolean>>);
+
+export interface AuthorOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  email?: 'asc' | 'desc';
+}
+
+export interface AuthorInclude {
+  posts?:
+    | boolean
+    | {
+        select?: PostRequiredSelect;
+        where?: PostRequiredWhere;
+        orderBy?: PostRequiredOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: PostRequiredInclude;
+      };
+}
+
+export type Author$Relations = {
+  posts: { type: PostRequired[]; include: PostRequiredInclude };
+};
+
+export type GetAuthorIncludePayload<I extends AuthorInclude | undefined> = I extends AuthorInclude
+  ? Pick<
+      {
+        posts: I['posts'] extends true
+          ? PostRequired[]
+          : I['posts'] extends {
+                select: infer S extends PostRequiredSelect;
+                include: infer NI extends PostRequiredInclude;
+              }
+            ? ({
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof PostRequired
+                  ? ResolveFieldSelect<PostRequired[P], S[P]>
+                  : never;
+              } & GetPostRequiredIncludePayload<NI>)[]
+            : I['posts'] extends { select: infer S extends PostRequiredSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof PostRequired
+                    ? ResolveFieldSelect<PostRequired[P], S[P]>
+                    : never;
+                }[]
+              : I['posts'] extends { include: infer NI extends PostRequiredInclude }
+                ? (PostRequired & GetPostRequiredIncludePayload<NI>)[]
+                : PostRequired[];
+      },
+      Extract<keyof I, keyof Author$Relations> & { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetAuthorPayload<
+  S extends AuthorSelect | undefined = undefined,
+  I extends AuthorInclude | undefined = undefined,
+> = A.Compute<
+  S extends AuthorSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof Author
+          ? ResolveFieldSelect<Author[K], S[K]>
+          : never;
+      } & GetAuthorIncludePayload<I>
+    : I extends AuthorInclude
+      ? Author & GetAuthorIncludePayload<I>
+      : Author,
+  'flat'
+>;
+
+export interface AuthorModel {
+  findOne<S extends AuthorSelect | undefined = undefined, I extends AuthorInclude | undefined = undefined>(options?: {
+    where?: AuthorWhere;
+    select?: S;
+    include?: I;
+    orderBy?: AuthorOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetAuthorPayload<S, I> | null>;
+
+  findMany<S extends AuthorSelect | undefined = undefined, I extends AuthorInclude | undefined = undefined>(options?: {
+    where?: AuthorWhere;
+    select?: S;
+    orderBy?: AuthorOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetAuthorPayload<S, I>[]>;
+
+  findUnique<S extends AuthorSelect | undefined = undefined, I extends AuthorInclude | undefined = undefined>(options: {
+    where: AuthorFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetAuthorPayload<S, I> | null>;
+
+  create<S extends AuthorSelect | undefined = undefined, I extends AuthorInclude | undefined = undefined>(options: {
+    data: AuthorCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetAuthorPayload<S, I>>;
+
+  updateMany<
+    S extends AuthorSelect | undefined = undefined,
+    I extends AuthorInclude | undefined = undefined,
+    D extends AuthorUpdateInput = AuthorUpdateInput,
+  >(options: {
+    where: AuthorWhere;
+    data: D;
+    unset?: SafeUnset<AuthorUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetAuthorPayload<S, I>[]>;
+
+  updateUnique<
+    S extends AuthorSelect | undefined = undefined,
+    I extends AuthorInclude | undefined = undefined,
+    D extends AuthorUpdateInput = AuthorUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: AuthorFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<AuthorUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns Author | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetAuthorPayload<S, I>, R>>;
+
+  upsert<
+    S extends AuthorSelect | undefined = undefined,
+    I extends AuthorInclude | undefined = undefined,
+    D extends AuthorUpdateInput = AuthorUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: AuthorFindUniqueWhere;
+    create: AuthorCreateInput;
+    update?: D;
+    unset?: SafeUnset<AuthorUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetAuthorPayload<S, I>, R>>;
+
+  upsert<
+    S extends AuthorSelect | undefined = undefined,
+    I extends AuthorInclude | undefined = undefined,
+    D extends AuthorUpdateInput = AuthorUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: AuthorWhere;
+    create: AuthorCreateInput;
+    update?: D;
+    unset?: SafeUnset<AuthorUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetAuthorPayload<S, I>, R>>;
+
+  deleteMany(options: { where: AuthorWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: AuthorFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns Author | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<Author, R>>;
+
+  count(where?: AuthorWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: AuthorWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/comment.ts =====
+/**
+ * Generated types for Comment
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { Article, ArticleWhere, ArticleSelect, ArticleOrderBy, ArticleNestedCreate } from './article';
+export interface Comment {
+  id: CerialId<string>;
+  text: string;
+  articleId?: CerialId<string> | null;
+}
+
+export interface CommentInput {
+  id?: string;
+  text: string;
+  articleId?: RecordIdInput<string> | null;
+}
+
+export interface CommentWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  text?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  articleId?:
+    | null
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {
+        not?: string | null;
+        isNull?: boolean;
+        isNone?: boolean;
+      });
+  article?: null | ArticleWhere;
+  AND?: CommentWhere[];
+  OR?: CommentWhere[];
+  NOT?: CommentWhere;
+}
+
+export type CommentWhereInput = CommentWhere;
+
+export type CommentFindUniqueWhere = { id: RecordIdInput<string> } & Omit<CommentWhere, 'id'>;
+
+export type CommentCreate = O.Optional<O.Omit<CommentInput, 'article'>, 'id' | 'articleId'>;
+
+export type CommentNestedCreate = O.Optional<O.Omit<CommentInput, 'article' | 'articleId'>, 'id'>;
+
+export type CommentCreateInput =
+  | CommentCreate
+  | (O.Omit<CommentCreate, 'articleId'> & {
+      article?: { create: ArticleNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type CommentUpdate = Partial<O.Omit<CommentInput, 'id' | 'article' | 'articleId'>> & {
+  articleId?: RecordIdInput<string> | null | CerialNone;
+};
+
+export type CommentUpdateInput =
+  | CommentUpdate
+  | (O.Omit<CommentUpdate, 'articleId'> & {
+      article?: { create: ArticleNestedCreate } | { connect: RecordIdInput } | { disconnect: true };
+    });
+
+export type CommentUnset = {
+  articleId?: true;
+};
+
+export type CommentSelect =
+  | ({ id: boolean } & Partial<Record<'text' | 'articleId', boolean>>)
+  | ({ text: boolean } & Partial<Record<'id' | 'articleId', boolean>>)
+  | ({ articleId: boolean } & Partial<Record<'id' | 'text', boolean>>);
+
+export interface CommentOrderBy {
+  id?: 'asc' | 'desc';
+  text?: 'asc' | 'desc';
+  articleId?: 'asc' | 'desc';
+  article?: ArticleOrderBy;
+}
+
+export interface CommentInclude {
+  article?:
+    | boolean
+    | {
+        select?: ArticleSelect;
+        where?: ArticleWhere;
+      };
+}
+
+export type Comment$Relations = {
+  article: { type: Article; include: never };
+};
+
+export type GetCommentIncludePayload<I extends CommentInclude | undefined> = I extends CommentInclude
+  ? Pick<
+      {
+        article: I['article'] extends true
+          ? Article
+          : I['article'] extends { select: infer S extends ArticleSelect }
+            ? {
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Article
+                  ? ResolveFieldSelect<Article[P], S[P]>
+                  : never;
+              }
+            : Article;
+      },
+      Extract<keyof I, keyof Comment$Relations> &
+        { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetCommentPayload<
+  S extends CommentSelect | undefined = undefined,
+  I extends CommentInclude | undefined = undefined,
+> = A.Compute<
+  S extends CommentSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof Comment
+          ? ResolveFieldSelect<Comment[K], S[K]>
+          : never;
+      } & GetCommentIncludePayload<I>
+    : I extends CommentInclude
+      ? Comment & GetCommentIncludePayload<I>
+      : Comment,
+  'flat'
+>;
+
+export interface CommentModel {
+  findOne<S extends CommentSelect | undefined = undefined, I extends CommentInclude | undefined = undefined>(options?: {
+    where?: CommentWhere;
+    select?: S;
+    include?: I;
+    orderBy?: CommentOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetCommentPayload<S, I> | null>;
+
+  findMany<
+    S extends CommentSelect | undefined = undefined,
+    I extends CommentInclude | undefined = undefined,
+  >(options?: {
+    where?: CommentWhere;
+    select?: S;
+    orderBy?: CommentOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetCommentPayload<S, I>[]>;
+
+  findUnique<
+    S extends CommentSelect | undefined = undefined,
+    I extends CommentInclude | undefined = undefined,
+  >(options: {
+    where: CommentFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetCommentPayload<S, I> | null>;
+
+  create<S extends CommentSelect | undefined = undefined, I extends CommentInclude | undefined = undefined>(options: {
+    data: CommentCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetCommentPayload<S, I>>;
+
+  updateMany<
+    S extends CommentSelect | undefined = undefined,
+    I extends CommentInclude | undefined = undefined,
+    D extends CommentUpdateInput = CommentUpdateInput,
+  >(options: {
+    where: CommentWhere;
+    data: D;
+    unset?: SafeUnset<CommentUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetCommentPayload<S, I>[]>;
+
+  updateUnique<
+    S extends CommentSelect | undefined = undefined,
+    I extends CommentInclude | undefined = undefined,
+    D extends CommentUpdateInput = CommentUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: CommentFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<CommentUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns Comment | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetCommentPayload<S, I>, R>>;
+
+  upsert<
+    S extends CommentSelect | undefined = undefined,
+    I extends CommentInclude | undefined = undefined,
+    D extends CommentUpdateInput = CommentUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: CommentFindUniqueWhere;
+    create: CommentCreateInput;
+    update?: D;
+    unset?: SafeUnset<CommentUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetCommentPayload<S, I>, R>>;
+
+  upsert<
+    S extends CommentSelect | undefined = undefined,
+    I extends CommentInclude | undefined = undefined,
+    D extends CommentUpdateInput = CommentUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: CommentWhere;
+    create: CommentCreateInput;
+    update?: D;
+    unset?: SafeUnset<CommentUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetCommentPayload<S, I>, R>>;
+
+  deleteMany(options: { where: CommentWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: CommentFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns Comment | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<Comment, R>>;
+
+  count(where?: CommentWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: CommentWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/postrequired.ts =====
+/**
+ * Generated types for PostRequired
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  Author,
+  AuthorWhere,
+  AuthorSelect,
+  AuthorOrderBy,
+  AuthorNestedCreate,
+  AuthorInclude,
+  GetAuthorIncludePayload,
+} from './author';
+export interface PostRequired {
+  id: CerialId<string>;
+  title: string;
+  content?: string | null;
+  authorId: CerialId<string>;
+  createdAt?: Date;
+}
+
+export interface PostRequiredInput {
+  id?: string;
+  title: string;
+  content?: string | null;
+  authorId: RecordIdInput<string>;
+  createdAt?: Date;
+}
+
+export interface PostRequiredWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  title?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  content?:
+    | null
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string | null;
+        isNull?: boolean;
+        isNone?: boolean;
+      });
+  authorId?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  author?: AuthorWhere;
+  createdAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  AND?: PostRequiredWhere[];
+  OR?: PostRequiredWhere[];
+  NOT?: PostRequiredWhere;
+}
+
+export type PostRequiredWhereInput = PostRequiredWhere;
+
+export type PostRequiredFindUniqueWhere = { id: RecordIdInput<string> } & Omit<PostRequiredWhere, 'id'>;
+
+export type PostRequiredCreate = O.Optional<O.Omit<PostRequiredInput, 'author'>, 'id' | 'content' | 'createdAt'>;
+
+export type PostRequiredNestedCreate = O.Optional<
+  O.Omit<PostRequiredInput, 'author' | 'authorId'>,
+  'id' | 'content' | 'createdAt'
+>;
+
+export type PostRequiredCreateInput =
+  | PostRequiredCreate
+  | (O.Omit<PostRequiredCreate, 'authorId'> & {
+      author: { create: AuthorNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type PostRequiredUpdate = Partial<O.Omit<PostRequiredInput, 'id' | 'author' | 'content' | 'createdAt'>> & {
+  content?: string | null | CerialNone;
+  createdAt?: Date | CerialNone;
+};
+
+export type PostRequiredUpdateInput =
+  | PostRequiredUpdate
+  | (O.Omit<PostRequiredUpdate, 'authorId'> & {
+      author?: { create: AuthorNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type PostRequiredUnset = {
+  content?: true;
+  createdAt?: true;
+};
+
+export type PostRequiredSelect =
+  | ({ id: boolean } & Partial<Record<'title' | 'content' | 'authorId' | 'createdAt', boolean>>)
+  | ({ title: boolean } & Partial<Record<'id' | 'content' | 'authorId' | 'createdAt', boolean>>)
+  | ({ content: boolean } & Partial<Record<'id' | 'title' | 'authorId' | 'createdAt', boolean>>)
+  | ({ authorId: boolean } & Partial<Record<'id' | 'title' | 'content' | 'createdAt', boolean>>)
+  | ({ createdAt: boolean } & Partial<Record<'id' | 'title' | 'content' | 'authorId', boolean>>);
+
+export interface PostRequiredOrderBy {
+  id?: 'asc' | 'desc';
+  title?: 'asc' | 'desc';
+  content?: 'asc' | 'desc';
+  authorId?: 'asc' | 'desc';
+  author?: AuthorOrderBy;
+  createdAt?: 'asc' | 'desc';
+}
+
+export interface PostRequiredInclude {
+  author?:
+    | boolean
+    | {
+        select?: AuthorSelect;
+        where?: AuthorWhere;
+        include?: AuthorInclude;
+      };
+}
+
+export type PostRequired$Relations = {
+  author: { type: Author; include: AuthorInclude };
+};
+
+export type GetPostRequiredIncludePayload<I extends PostRequiredInclude | undefined> = I extends PostRequiredInclude
+  ? Pick<
+      {
+        author: I['author'] extends true
+          ? Author
+          : I['author'] extends { select: infer S extends AuthorSelect; include: infer NI extends AuthorInclude }
+            ? {
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Author
+                  ? ResolveFieldSelect<Author[P], S[P]>
+                  : never;
+              } & GetAuthorIncludePayload<NI>
+            : I['author'] extends { select: infer S extends AuthorSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Author
+                    ? ResolveFieldSelect<Author[P], S[P]>
+                    : never;
+                }
+              : I['author'] extends { include: infer NI extends AuthorInclude }
+                ? Author & GetAuthorIncludePayload<NI>
+                : Author;
+      },
+      Extract<keyof I, keyof PostRequired$Relations> &
+        { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetPostRequiredPayload<
+  S extends PostRequiredSelect | undefined = undefined,
+  I extends PostRequiredInclude | undefined = undefined,
+> = A.Compute<
+  S extends PostRequiredSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof PostRequired
+          ? ResolveFieldSelect<PostRequired[K], S[K]>
+          : never;
+      } & GetPostRequiredIncludePayload<I>
+    : I extends PostRequiredInclude
+      ? PostRequired & GetPostRequiredIncludePayload<I>
+      : PostRequired,
+  'flat'
+>;
+
+export interface PostRequiredModel {
+  findOne<
+    S extends PostRequiredSelect | undefined = undefined,
+    I extends PostRequiredInclude | undefined = undefined,
+  >(options?: {
+    where?: PostRequiredWhere;
+    select?: S;
+    include?: I;
+    orderBy?: PostRequiredOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetPostRequiredPayload<S, I> | null>;
+
+  findMany<
+    S extends PostRequiredSelect | undefined = undefined,
+    I extends PostRequiredInclude | undefined = undefined,
+  >(options?: {
+    where?: PostRequiredWhere;
+    select?: S;
+    orderBy?: PostRequiredOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetPostRequiredPayload<S, I>[]>;
+
+  findUnique<
+    S extends PostRequiredSelect | undefined = undefined,
+    I extends PostRequiredInclude | undefined = undefined,
+  >(options: {
+    where: PostRequiredFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetPostRequiredPayload<S, I> | null>;
+
+  create<
+    S extends PostRequiredSelect | undefined = undefined,
+    I extends PostRequiredInclude | undefined = undefined,
+  >(options: {
+    data: PostRequiredCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetPostRequiredPayload<S, I>>;
+
+  updateMany<
+    S extends PostRequiredSelect | undefined = undefined,
+    I extends PostRequiredInclude | undefined = undefined,
+    D extends PostRequiredUpdateInput = PostRequiredUpdateInput,
+  >(options: {
+    where: PostRequiredWhere;
+    data: D;
+    unset?: SafeUnset<PostRequiredUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetPostRequiredPayload<S, I>[]>;
+
+  updateUnique<
+    S extends PostRequiredSelect | undefined = undefined,
+    I extends PostRequiredInclude | undefined = undefined,
+    D extends PostRequiredUpdateInput = PostRequiredUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: PostRequiredFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<PostRequiredUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns PostRequired | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetPostRequiredPayload<S, I>, R>>;
+
+  upsert<
+    S extends PostRequiredSelect | undefined = undefined,
+    I extends PostRequiredInclude | undefined = undefined,
+    D extends PostRequiredUpdateInput = PostRequiredUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: PostRequiredFindUniqueWhere;
+    create: PostRequiredCreateInput;
+    update?: D;
+    unset?: SafeUnset<PostRequiredUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetPostRequiredPayload<S, I>, R>>;
+
+  upsert<
+    S extends PostRequiredSelect | undefined = undefined,
+    I extends PostRequiredInclude | undefined = undefined,
+    D extends PostRequiredUpdateInput = PostRequiredUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: PostRequiredWhere;
+    create: PostRequiredCreateInput;
+    update?: D;
+    unset?: SafeUnset<PostRequiredUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetPostRequiredPayload<S, I>, R>>;
+
+  deleteMany(options: { where: PostRequiredWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: PostRequiredFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns PostRequired | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<PostRequired, R>>;
+
+  count(where?: PostRequiredWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: PostRequiredWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}

@@ -1,0 +1,21 @@
+-- ObjDecUser
+DEFINE TABLE OVERWRITE obj_dec_user SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE obj_dec_user TYPE string;
+DEFINE FIELD OVERWRITE contact ON TABLE obj_dec_user TYPE object;
+DEFINE FIELD OVERWRITE contact.email ON TABLE obj_dec_user TYPE string ASSERT string::is_email($value);
+DEFINE FIELD OVERWRITE contact.phone ON TABLE obj_dec_user TYPE option<string | null>;
+DEFINE FIELD OVERWRITE contact.city ON TABLE obj_dec_user TYPE string DEFAULT 'Unknown';
+DEFINE FIELD OVERWRITE contact.createdAt ON TABLE obj_dec_user TYPE option<datetime> DEFAULT time::now();
+DEFINE FIELD OVERWRITE contact.tags ON TABLE obj_dec_user TYPE array<string> VALUE IF $value THEN $value.distinct() ELSE [] END;
+DEFINE FIELD OVERWRITE location ON TABLE obj_dec_user TYPE object;
+DEFINE FIELD OVERWRITE location.address ON TABLE obj_dec_user TYPE string;
+DEFINE FIELD OVERWRITE location.zip ON TABLE obj_dec_user TYPE string;
+DEFINE FIELD OVERWRITE location.country ON TABLE obj_dec_user TYPE string;
+DEFINE FIELD OVERWRITE altLocation ON TABLE obj_dec_user TYPE option<object>;
+DEFINE FIELD OVERWRITE altLocation.address ON TABLE obj_dec_user TYPE string;
+DEFINE FIELD OVERWRITE altLocation.zip ON TABLE obj_dec_user TYPE string;
+DEFINE FIELD OVERWRITE altLocation.country ON TABLE obj_dec_user TYPE string;
+DEFINE INDEX OVERWRITE obj_dec_user_location_zip_unique ON TABLE obj_dec_user COLUMNS location.zip UNIQUE;
+DEFINE INDEX OVERWRITE obj_dec_user_location_country_index ON TABLE obj_dec_user COLUMNS location.country;
+DEFINE INDEX OVERWRITE obj_dec_user_altLocation_zip_unique ON TABLE obj_dec_user COLUMNS altLocation.zip UNIQUE;
+DEFINE INDEX OVERWRITE obj_dec_user_altLocation_country_index ON TABLE obj_dec_user COLUMNS altLocation.country;

@@ -1,0 +1,19 @@
+-- ExtTupleByName
+DEFINE TABLE OVERWRITE ext_tuple_by_name SCHEMAFULL;
+DEFINE FIELD OVERWRITE picked ON TABLE ext_tuple_by_name TYPE [string];
+DEFINE FIELD OVERWRITE omitted ON TABLE ext_tuple_by_name TYPE [string];
+
+-- ExtTupleModel
+DEFINE TABLE OVERWRITE ext_tuple_model SCHEMAFULL;
+DEFINE FIELD OVERWRITE pair ON TABLE ext_tuple_model TYPE [string, int];
+DEFINE FIELD OVERWRITE triple ON TABLE ext_tuple_model TYPE [string, int, bool];
+DEFINE FIELD OVERWRITE namedTriple ON TABLE ext_tuple_model TYPE [string, int, bool];
+DEFINE FIELD OVERWRITE quad ON TABLE ext_tuple_model TYPE [string, int, bool, float];
+DEFINE FIELD OVERWRITE coordPair ON TABLE ext_tuple_model TYPE [object, object];
+DEFINE FIELD OVERWRITE coordPair[0] ON TABLE ext_tuple_model TYPE object;
+DEFINE FIELD OVERWRITE coordPair[0].x ON TABLE ext_tuple_model TYPE float;
+DEFINE FIELD OVERWRITE coordPair[0].y ON TABLE ext_tuple_model TYPE float;
+DEFINE FIELD OVERWRITE coordPair[1] ON TABLE ext_tuple_model TYPE object;
+DEFINE FIELD OVERWRITE coordPair[1].x ON TABLE ext_tuple_model TYPE float;
+DEFINE FIELD OVERWRITE coordPair[1].y ON TABLE ext_tuple_model TYPE float;
+DEFINE FIELD OVERWRITE optionalTriple ON TABLE ext_tuple_model TYPE option<[string | null, int | null, bool | null]>;

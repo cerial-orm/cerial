@@ -1,0 +1,34 @@
+-- KitchenSinkBadge
+DEFINE TABLE OVERWRITE kitchen_sink_badge SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE kitchen_sink_badge TYPE string;
+DEFINE INDEX OVERWRITE kitchen_sink_badge_name_unique ON TABLE kitchen_sink_badge COLUMNS name UNIQUE;
+
+-- KitchenSinkPost
+DEFINE TABLE OVERWRITE kitchen_sink_post SCHEMAFULL;
+DEFINE FIELD OVERWRITE title ON TABLE kitchen_sink_post TYPE string;
+DEFINE FIELD OVERWRITE authorId ON TABLE kitchen_sink_post TYPE record<kitchen_sink_user>;
+
+-- KitchenSinkProfile
+DEFINE TABLE OVERWRITE kitchen_sink_profile SCHEMAFULL;
+DEFINE FIELD OVERWRITE bio ON TABLE kitchen_sink_profile TYPE option<string>;
+DEFINE FIELD OVERWRITE userId ON TABLE kitchen_sink_profile TYPE record<kitchen_sink_user>;
+
+-- KitchenSinkSettings
+DEFINE TABLE OVERWRITE kitchen_sink_settings SCHEMAFULL;
+DEFINE FIELD OVERWRITE theme ON TABLE kitchen_sink_settings TYPE string;
+DEFINE FIELD OVERWRITE userId ON TABLE kitchen_sink_settings TYPE option<record<kitchen_sink_user> | null>;
+
+-- KitchenSinkTag
+DEFINE TABLE OVERWRITE kitchen_sink_tag SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE kitchen_sink_tag TYPE string;
+DEFINE FIELD OVERWRITE userIds ON TABLE kitchen_sink_tag TYPE array<record<kitchen_sink_user>> VALUE IF $value THEN $value.distinct() ELSE [] END;
+DEFINE INDEX OVERWRITE kitchen_sink_tag_name_unique ON TABLE kitchen_sink_tag COLUMNS name UNIQUE;
+
+-- KitchenSinkUser
+DEFINE TABLE OVERWRITE kitchen_sink_user SCHEMAFULL;
+DEFINE FIELD OVERWRITE email ON TABLE kitchen_sink_user TYPE string ASSERT string::is_email($value);
+DEFINE FIELD OVERWRITE name ON TABLE kitchen_sink_user TYPE string;
+DEFINE FIELD OVERWRITE tagIds ON TABLE kitchen_sink_user TYPE array<record<kitchen_sink_tag>> VALUE IF $value THEN $value.distinct() ELSE [] END;
+DEFINE FIELD OVERWRITE settingsId ON TABLE kitchen_sink_user TYPE option<record<kitchen_sink_settings> | null>;
+DEFINE FIELD OVERWRITE badgeIds ON TABLE kitchen_sink_user TYPE array<record<kitchen_sink_badge>> VALUE IF $value THEN $value.distinct() ELSE [] END;
+DEFINE INDEX OVERWRITE kitchen_sink_user_email_unique ON TABLE kitchen_sink_user COLUMNS email UNIQUE;

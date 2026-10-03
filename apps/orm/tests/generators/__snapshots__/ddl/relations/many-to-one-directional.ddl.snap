@@ -1,0 +1,9 @@
+-- Blogger
+DEFINE TABLE OVERWRITE blogger SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE blogger TYPE string;
+DEFINE FIELD OVERWRITE labelIds ON TABLE blogger TYPE array<record<label>> VALUE IF $value THEN $value.distinct() ELSE [] END;
+
+-- Label
+DEFINE TABLE OVERWRITE label SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE label TYPE string;
+DEFINE INDEX OVERWRITE label_name_unique ON TABLE label COLUMNS name UNIQUE;

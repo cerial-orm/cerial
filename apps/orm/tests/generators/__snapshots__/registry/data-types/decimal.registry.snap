@@ -1,0 +1,242 @@
+{
+  "models": {
+    "DecimalBasic": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "price",
+          "type": "decimal"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "discount",
+          "type": "decimal"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "tax",
+          "type": "decimal"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "amounts",
+          "type": "decimal"
+        }
+      ],
+      "name": "DecimalBasic",
+      "tableName": "decimal_basic"
+    },
+    "DecimalDecorated": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "defaultValue": 99.99,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "defaultPrice",
+          "type": "decimal"
+        },
+        {
+          "defaultAlwaysValue": 0,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "alwaysPrice",
+          "type": "decimal"
+        }
+      ],
+      "name": "DecimalDecorated",
+      "tableName": "decimal_decorated"
+    },
+    "DecimalWithObject": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "pricing",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "amount",
+                "type": "decimal"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "fee",
+                "type": "decimal"
+              }
+            ],
+            "objectName": "DecimalInfo"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "DecimalWithObject",
+      "tableName": "decimal_with_object"
+    },
+    "DecimalWithTuple": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "pair",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "type": "decimal"
+              },
+              {
+                "index": 1,
+                "isNullable": true,
+                "isOptional": false,
+                "type": "decimal"
+              }
+            ],
+            "tupleName": "DecimalPair"
+          },
+          "type": "tuple"
+        }
+      ],
+      "name": "DecimalWithTuple",
+      "tableName": "decimal_with_tuple"
+    }
+  },
+  "objects": {
+    "DecimalInfo": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "amount",
+          "type": "decimal"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "fee",
+          "type": "decimal"
+        }
+      ],
+      "name": "DecimalInfo"
+    }
+  },
+  "tuples": {
+    "DecimalPair": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "type": "decimal"
+        },
+        {
+          "index": 1,
+          "isNullable": true,
+          "isOptional": false,
+          "type": "decimal"
+        }
+      ],
+      "name": "DecimalPair"
+    }
+  }
+}

@@ -1,0 +1,702 @@
+// ===== models/course.ts =====
+/**
+ * Generated types for Course
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  Student,
+  StudentWhere,
+  StudentSelect,
+  StudentOrderBy,
+  StudentNestedCreate,
+  StudentInclude,
+  GetStudentIncludePayload,
+} from './student';
+export interface Course {
+  id: CerialId<string>;
+  name: string;
+  code: string;
+  studentIds: CerialId<string>[];
+}
+
+export interface CourseInput {
+  id?: string;
+  name: string;
+  code: string;
+  studentIds: RecordIdInput<string>[];
+}
+
+export interface CourseWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  /** @unique — Unique indexed field */
+  code?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  studentIds?:
+    | RecordIdInput<string>[]
+    | {
+        has?: RecordIdInput<string>;
+        hasAll?: RecordIdInput<string>[];
+        hasAny?: RecordIdInput<string>[];
+        isEmpty?: boolean;
+      };
+  students?: { some?: StudentWhere; every?: StudentWhere; none?: StudentWhere };
+  AND?: CourseWhere[];
+  OR?: CourseWhere[];
+  NOT?: CourseWhere;
+}
+
+export type CourseWhereInput = CourseWhere;
+
+export type CourseFindUniqueWhere =
+  | ({ id: RecordIdInput<string> } & { code?: string } & Omit<CourseWhere, 'id' | 'code'>)
+  | ({ code: string } & { id?: RecordIdInput<string> } & Omit<CourseWhere, 'id' | 'code'>);
+
+export type CourseCreate = O.Optional<O.Omit<CourseInput, 'students'>, 'id' | 'studentIds'>;
+
+export type CourseNestedCreate = O.Optional<O.Omit<CourseInput, 'students' | 'studentIds'>, 'id'>;
+
+export type CourseCreateInput =
+  | CourseCreate
+  | (O.Omit<CourseCreate, 'studentIds'> & {
+      students?: {
+        create?: StudentNestedCreate | StudentNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+      };
+    });
+
+export type CourseUpdate = Partial<O.Omit<CourseInput, 'id' | 'students' | 'studentIds'>> & {
+  studentIds?:
+    | RecordIdInput<string>[]
+    | {
+        push?: RecordIdInput<string> | RecordIdInput<string>[];
+        unset?: RecordIdInput<string> | RecordIdInput<string>[];
+      };
+};
+
+export type CourseUpdateInput =
+  | CourseUpdate
+  | (O.Omit<CourseUpdate, 'studentIds'> & {
+      students?: {
+        create?: StudentNestedCreate | StudentNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+        disconnect?: RecordIdInput | RecordIdInput[];
+        set?: RecordIdInput[];
+      };
+    });
+
+export type CourseUnset = {};
+
+export type CourseSelect =
+  | ({ id: boolean } & Partial<Record<'name' | 'code' | 'studentIds', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'code' | 'studentIds', boolean>>)
+  | ({ code: boolean } & Partial<Record<'id' | 'name' | 'studentIds', boolean>>)
+  | ({ studentIds: boolean } & Partial<Record<'id' | 'name' | 'code', boolean>>);
+
+export interface CourseOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  code?: 'asc' | 'desc';
+  studentIds?: 'asc' | 'desc';
+}
+
+export interface CourseInclude {
+  students?:
+    | boolean
+    | {
+        select?: StudentSelect;
+        where?: StudentWhere;
+        orderBy?: StudentOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: StudentInclude;
+      };
+}
+
+export type Course$Relations = {
+  students: { type: Student[]; include: StudentInclude };
+};
+
+export type GetCourseIncludePayload<I extends CourseInclude | undefined> = I extends CourseInclude
+  ? Pick<
+      {
+        students: I['students'] extends true
+          ? Student[]
+          : I['students'] extends { select: infer S extends StudentSelect; include: infer NI extends StudentInclude }
+            ? ({
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Student
+                  ? ResolveFieldSelect<Student[P], S[P]>
+                  : never;
+              } & GetStudentIncludePayload<NI>)[]
+            : I['students'] extends { select: infer S extends StudentSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Student
+                    ? ResolveFieldSelect<Student[P], S[P]>
+                    : never;
+                }[]
+              : I['students'] extends { include: infer NI extends StudentInclude }
+                ? (Student & GetStudentIncludePayload<NI>)[]
+                : Student[];
+      },
+      Extract<keyof I, keyof Course$Relations> & { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetCoursePayload<
+  S extends CourseSelect | undefined = undefined,
+  I extends CourseInclude | undefined = undefined,
+> = A.Compute<
+  S extends CourseSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof Course
+          ? ResolveFieldSelect<Course[K], S[K]>
+          : never;
+      } & GetCourseIncludePayload<I>
+    : I extends CourseInclude
+      ? Course & GetCourseIncludePayload<I>
+      : Course,
+  'flat'
+>;
+
+export interface CourseModel {
+  findOne<S extends CourseSelect | undefined = undefined, I extends CourseInclude | undefined = undefined>(options?: {
+    where?: CourseWhere;
+    select?: S;
+    include?: I;
+    orderBy?: CourseOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetCoursePayload<S, I> | null>;
+
+  findMany<S extends CourseSelect | undefined = undefined, I extends CourseInclude | undefined = undefined>(options?: {
+    where?: CourseWhere;
+    select?: S;
+    orderBy?: CourseOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetCoursePayload<S, I>[]>;
+
+  findUnique<S extends CourseSelect | undefined = undefined, I extends CourseInclude | undefined = undefined>(options: {
+    where: CourseFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetCoursePayload<S, I> | null>;
+
+  create<S extends CourseSelect | undefined = undefined, I extends CourseInclude | undefined = undefined>(options: {
+    data: CourseCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetCoursePayload<S, I>>;
+
+  updateMany<
+    S extends CourseSelect | undefined = undefined,
+    I extends CourseInclude | undefined = undefined,
+    D extends CourseUpdateInput = CourseUpdateInput,
+  >(options: {
+    where: CourseWhere;
+    data: D;
+    unset?: SafeUnset<CourseUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetCoursePayload<S, I>[]>;
+
+  updateUnique<
+    S extends CourseSelect | undefined = undefined,
+    I extends CourseInclude | undefined = undefined,
+    D extends CourseUpdateInput = CourseUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: CourseFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<CourseUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns Course | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetCoursePayload<S, I>, R>>;
+
+  upsert<
+    S extends CourseSelect | undefined = undefined,
+    I extends CourseInclude | undefined = undefined,
+    D extends CourseUpdateInput = CourseUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: CourseFindUniqueWhere;
+    create: CourseCreateInput;
+    update?: D;
+    unset?: SafeUnset<CourseUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetCoursePayload<S, I>, R>>;
+
+  upsert<
+    S extends CourseSelect | undefined = undefined,
+    I extends CourseInclude | undefined = undefined,
+    D extends CourseUpdateInput = CourseUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: CourseWhere;
+    create: CourseCreateInput;
+    update?: D;
+    unset?: SafeUnset<CourseUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetCoursePayload<S, I>, R>>;
+
+  deleteMany(options: { where: CourseWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: CourseFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns Course | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<Course, R>>;
+
+  count(where?: CourseWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: CourseWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/student.ts =====
+/**
+ * Generated types for Student
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  Course,
+  CourseWhere,
+  CourseSelect,
+  CourseOrderBy,
+  CourseNestedCreate,
+  CourseInclude,
+  GetCourseIncludePayload,
+} from './course';
+export interface Student {
+  id: CerialId<string>;
+  name: string;
+  email: string;
+  courseIds: CerialId<string>[];
+}
+
+export interface StudentInput {
+  id?: string;
+  name: string;
+  email: string;
+  courseIds: RecordIdInput<string>[];
+}
+
+export interface StudentWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  /** @unique — Unique indexed field */
+  email?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  courseIds?:
+    | RecordIdInput<string>[]
+    | {
+        has?: RecordIdInput<string>;
+        hasAll?: RecordIdInput<string>[];
+        hasAny?: RecordIdInput<string>[];
+        isEmpty?: boolean;
+      };
+  courses?: { some?: CourseWhere; every?: CourseWhere; none?: CourseWhere };
+  AND?: StudentWhere[];
+  OR?: StudentWhere[];
+  NOT?: StudentWhere;
+}
+
+export type StudentWhereInput = StudentWhere;
+
+export type StudentFindUniqueWhere =
+  | ({ id: RecordIdInput<string> } & { email?: string } & Omit<StudentWhere, 'id' | 'email'>)
+  | ({ email: string } & { id?: RecordIdInput<string> } & Omit<StudentWhere, 'id' | 'email'>);
+
+export type StudentCreate = O.Optional<O.Omit<StudentInput, 'courses'>, 'id' | 'courseIds'>;
+
+export type StudentNestedCreate = O.Optional<O.Omit<StudentInput, 'courses' | 'courseIds'>, 'id'>;
+
+export type StudentCreateInput =
+  | StudentCreate
+  | (O.Omit<StudentCreate, 'courseIds'> & {
+      courses?: {
+        create?: CourseNestedCreate | CourseNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+      };
+    });
+
+export type StudentUpdate = Partial<O.Omit<StudentInput, 'id' | 'courses' | 'courseIds'>> & {
+  courseIds?:
+    | RecordIdInput<string>[]
+    | {
+        push?: RecordIdInput<string> | RecordIdInput<string>[];
+        unset?: RecordIdInput<string> | RecordIdInput<string>[];
+      };
+};
+
+export type StudentUpdateInput =
+  | StudentUpdate
+  | (O.Omit<StudentUpdate, 'courseIds'> & {
+      courses?: {
+        create?: CourseNestedCreate | CourseNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+        disconnect?: RecordIdInput | RecordIdInput[];
+        set?: RecordIdInput[];
+      };
+    });
+
+export type StudentUnset = {};
+
+export type StudentSelect =
+  | ({ id: boolean } & Partial<Record<'name' | 'email' | 'courseIds', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'email' | 'courseIds', boolean>>)
+  | ({ email: boolean } & Partial<Record<'id' | 'name' | 'courseIds', boolean>>)
+  | ({ courseIds: boolean } & Partial<Record<'id' | 'name' | 'email', boolean>>);
+
+export interface StudentOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  email?: 'asc' | 'desc';
+  courseIds?: 'asc' | 'desc';
+}
+
+export interface StudentInclude {
+  courses?:
+    | boolean
+    | {
+        select?: CourseSelect;
+        where?: CourseWhere;
+        orderBy?: CourseOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: CourseInclude;
+      };
+}
+
+export type Student$Relations = {
+  courses: { type: Course[]; include: CourseInclude };
+};
+
+export type GetStudentIncludePayload<I extends StudentInclude | undefined> = I extends StudentInclude
+  ? Pick<
+      {
+        courses: I['courses'] extends true
+          ? Course[]
+          : I['courses'] extends { select: infer S extends CourseSelect; include: infer NI extends CourseInclude }
+            ? ({
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Course
+                  ? ResolveFieldSelect<Course[P], S[P]>
+                  : never;
+              } & GetCourseIncludePayload<NI>)[]
+            : I['courses'] extends { select: infer S extends CourseSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Course
+                    ? ResolveFieldSelect<Course[P], S[P]>
+                    : never;
+                }[]
+              : I['courses'] extends { include: infer NI extends CourseInclude }
+                ? (Course & GetCourseIncludePayload<NI>)[]
+                : Course[];
+      },
+      Extract<keyof I, keyof Student$Relations> &
+        { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetStudentPayload<
+  S extends StudentSelect | undefined = undefined,
+  I extends StudentInclude | undefined = undefined,
+> = A.Compute<
+  S extends StudentSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof Student
+          ? ResolveFieldSelect<Student[K], S[K]>
+          : never;
+      } & GetStudentIncludePayload<I>
+    : I extends StudentInclude
+      ? Student & GetStudentIncludePayload<I>
+      : Student,
+  'flat'
+>;
+
+export interface StudentModel {
+  findOne<S extends StudentSelect | undefined = undefined, I extends StudentInclude | undefined = undefined>(options?: {
+    where?: StudentWhere;
+    select?: S;
+    include?: I;
+    orderBy?: StudentOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetStudentPayload<S, I> | null>;
+
+  findMany<
+    S extends StudentSelect | undefined = undefined,
+    I extends StudentInclude | undefined = undefined,
+  >(options?: {
+    where?: StudentWhere;
+    select?: S;
+    orderBy?: StudentOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetStudentPayload<S, I>[]>;
+
+  findUnique<
+    S extends StudentSelect | undefined = undefined,
+    I extends StudentInclude | undefined = undefined,
+  >(options: {
+    where: StudentFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetStudentPayload<S, I> | null>;
+
+  create<S extends StudentSelect | undefined = undefined, I extends StudentInclude | undefined = undefined>(options: {
+    data: StudentCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetStudentPayload<S, I>>;
+
+  updateMany<
+    S extends StudentSelect | undefined = undefined,
+    I extends StudentInclude | undefined = undefined,
+    D extends StudentUpdateInput = StudentUpdateInput,
+  >(options: {
+    where: StudentWhere;
+    data: D;
+    unset?: SafeUnset<StudentUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetStudentPayload<S, I>[]>;
+
+  updateUnique<
+    S extends StudentSelect | undefined = undefined,
+    I extends StudentInclude | undefined = undefined,
+    D extends StudentUpdateInput = StudentUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: StudentFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<StudentUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns Student | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetStudentPayload<S, I>, R>>;
+
+  upsert<
+    S extends StudentSelect | undefined = undefined,
+    I extends StudentInclude | undefined = undefined,
+    D extends StudentUpdateInput = StudentUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: StudentFindUniqueWhere;
+    create: StudentCreateInput;
+    update?: D;
+    unset?: SafeUnset<StudentUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetStudentPayload<S, I>, R>>;
+
+  upsert<
+    S extends StudentSelect | undefined = undefined,
+    I extends StudentInclude | undefined = undefined,
+    D extends StudentUpdateInput = StudentUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: StudentWhere;
+    create: StudentCreateInput;
+    update?: D;
+    unset?: SafeUnset<StudentUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetStudentPayload<S, I>, R>>;
+
+  deleteMany(options: { where: StudentWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: StudentFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns Student | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<Student, R>>;
+
+  count(where?: StudentWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: StudentWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}

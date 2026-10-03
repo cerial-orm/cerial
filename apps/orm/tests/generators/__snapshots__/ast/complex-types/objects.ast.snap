@@ -1,0 +1,209 @@
+{
+  "models": [
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "address",
+          "objectName": "Address",
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "shipping",
+          "objectName": "Address",
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "locations",
+          "objectName": "GeoPoint",
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "primaryLocation",
+          "objectName": "GeoPoint",
+          "type": "object"
+        }
+      ],
+      "name": "ObjectTestUser"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "billingAddress",
+          "objectName": "Address",
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "shippingAddress",
+          "objectName": "Address",
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "items",
+          "objectName": "OrderItem",
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "metadata",
+          "objectName": "TreeNode",
+          "type": "object"
+        }
+      ],
+      "name": "ObjectTestOrder"
+    }
+  ],
+  "objects": [
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "street",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "city",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "state",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "zipCode",
+          "type": "string"
+        }
+      ],
+      "name": "Address"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "lat",
+          "type": "float"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "lng",
+          "type": "float"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "label",
+          "objectName": "Address",
+          "type": "object"
+        }
+      ],
+      "name": "GeoPoint"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "value",
+          "type": "int"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "children",
+          "objectName": "TreeNode",
+          "type": "object"
+        }
+      ],
+      "name": "TreeNode"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "productName",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "quantity",
+          "type": "int"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "price",
+          "type": "float"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "tags",
+          "type": "string"
+        }
+      ],
+      "name": "OrderItem"
+    }
+  ]
+}

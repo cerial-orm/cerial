@@ -1,0 +1,757 @@
+// ===== models/relobjcompany.ts =====
+/**
+ * Generated types for RelObjCompany
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  RelObjEmployee,
+  RelObjEmployeeWhere,
+  RelObjEmployeeSelect,
+  RelObjEmployeeOrderBy,
+  RelObjEmployeeNestedCreate,
+  RelObjEmployeeInclude,
+  GetRelObjEmployeeIncludePayload,
+} from './relobjemployee';
+import type { Address, AddressInput, AddressWhere, AddressSelect, AddressOrderBy } from '../objects/address';
+import type {
+  CompanyMeta,
+  CompanyMetaInput,
+  CompanyMetaWhere,
+  CompanyMetaSelect,
+  CompanyMetaOrderBy,
+} from '../objects/companymeta';
+export interface RelObjCompany {
+  id: CerialId<string>;
+  name: string;
+  headquarters: Address;
+  meta?: CompanyMeta;
+}
+
+export interface RelObjCompanyInput {
+  id?: string;
+  name: string;
+  headquarters: AddressInput;
+  meta?: CompanyMetaInput;
+}
+
+export interface RelObjCompanyWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  headquarters?: AddressWhere;
+  meta?: CompanyMetaWhere;
+  employees?: { some?: RelObjEmployeeWhere; every?: RelObjEmployeeWhere; none?: RelObjEmployeeWhere };
+  AND?: RelObjCompanyWhere[];
+  OR?: RelObjCompanyWhere[];
+  NOT?: RelObjCompanyWhere;
+}
+
+export type RelObjCompanyWhereInput = RelObjCompanyWhere;
+
+export type RelObjCompanyFindUniqueWhere = { id: RecordIdInput<string> } & Omit<RelObjCompanyWhere, 'id'>;
+
+export type RelObjCompanyCreate = O.Optional<O.Omit<RelObjCompanyInput, 'employees'>, 'id' | 'meta'>;
+
+export type RelObjCompanyNestedCreate = O.Optional<O.Omit<RelObjCompanyInput, 'employees'>, 'id' | 'meta'>;
+
+export type RelObjCompanyCreateInput = RelObjCompanyCreate & {
+  employees?: {
+    create?: RelObjEmployeeNestedCreate | RelObjEmployeeNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+  };
+};
+
+export type RelObjCompanyUpdate = Partial<O.Omit<RelObjCompanyInput, 'id' | 'employees' | 'headquarters' | 'meta'>> & {
+  headquarters?: Partial<AddressInput> | { set: AddressInput };
+  meta?: Partial<CompanyMetaInput> | { set: CompanyMetaInput } | CerialNone;
+};
+
+export type RelObjCompanyUpdateInput = RelObjCompanyUpdate & {
+  employees?: {
+    create?: RelObjEmployeeNestedCreate | RelObjEmployeeNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+    disconnect?: RecordIdInput | RecordIdInput[];
+    set?: RecordIdInput[];
+  };
+};
+
+export type RelObjCompanyUnset = {
+  headquarters?: {
+    zipCode?: true;
+  };
+  meta?:
+    | true
+    | {
+        founded?: true;
+      };
+};
+
+export type RelObjCompanySelect =
+  | ({ id: boolean } & { name?: boolean; headquarters?: boolean | AddressSelect; meta?: boolean | CompanyMetaSelect })
+  | ({ name: boolean } & { id?: boolean; headquarters?: boolean | AddressSelect; meta?: boolean | CompanyMetaSelect })
+  | ({ headquarters: boolean | AddressSelect } & { id?: boolean; name?: boolean; meta?: boolean | CompanyMetaSelect })
+  | ({ meta: boolean | CompanyMetaSelect } & { id?: boolean; name?: boolean; headquarters?: boolean | AddressSelect });
+
+export interface RelObjCompanyOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  headquarters?: AddressOrderBy;
+  meta?: CompanyMetaOrderBy;
+}
+
+export interface RelObjCompanyInclude {
+  employees?:
+    | boolean
+    | {
+        select?: RelObjEmployeeSelect;
+        where?: RelObjEmployeeWhere;
+        orderBy?: RelObjEmployeeOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: RelObjEmployeeInclude;
+      };
+}
+
+export type RelObjCompany$Relations = {
+  employees: { type: RelObjEmployee[]; include: RelObjEmployeeInclude };
+};
+
+export type GetRelObjCompanyIncludePayload<I extends RelObjCompanyInclude | undefined> = I extends RelObjCompanyInclude
+  ? Pick<
+      {
+        employees: I['employees'] extends true
+          ? RelObjEmployee[]
+          : I['employees'] extends {
+                select: infer S extends RelObjEmployeeSelect;
+                include: infer NI extends RelObjEmployeeInclude;
+              }
+            ? ({
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof RelObjEmployee
+                  ? ResolveFieldSelect<RelObjEmployee[P], S[P]>
+                  : never;
+              } & GetRelObjEmployeeIncludePayload<NI>)[]
+            : I['employees'] extends { select: infer S extends RelObjEmployeeSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof RelObjEmployee
+                    ? ResolveFieldSelect<RelObjEmployee[P], S[P]>
+                    : never;
+                }[]
+              : I['employees'] extends { include: infer NI extends RelObjEmployeeInclude }
+                ? (RelObjEmployee & GetRelObjEmployeeIncludePayload<NI>)[]
+                : RelObjEmployee[];
+      },
+      Extract<keyof I, keyof RelObjCompany$Relations> &
+        { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetRelObjCompanyPayload<
+  S extends RelObjCompanySelect | undefined = undefined,
+  I extends RelObjCompanyInclude | undefined = undefined,
+> = A.Compute<
+  S extends RelObjCompanySelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof RelObjCompany
+          ? ResolveFieldSelect<RelObjCompany[K], S[K]>
+          : never;
+      } & GetRelObjCompanyIncludePayload<I>
+    : I extends RelObjCompanyInclude
+      ? RelObjCompany & GetRelObjCompanyIncludePayload<I>
+      : RelObjCompany,
+  'flat'
+>;
+
+export interface RelObjCompanyModel {
+  findOne<
+    S extends RelObjCompanySelect | undefined = undefined,
+    I extends RelObjCompanyInclude | undefined = undefined,
+  >(options?: {
+    where?: RelObjCompanyWhere;
+    select?: S;
+    include?: I;
+    orderBy?: RelObjCompanyOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetRelObjCompanyPayload<S, I> | null>;
+
+  findMany<
+    S extends RelObjCompanySelect | undefined = undefined,
+    I extends RelObjCompanyInclude | undefined = undefined,
+  >(options?: {
+    where?: RelObjCompanyWhere;
+    select?: S;
+    orderBy?: RelObjCompanyOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetRelObjCompanyPayload<S, I>[]>;
+
+  findUnique<
+    S extends RelObjCompanySelect | undefined = undefined,
+    I extends RelObjCompanyInclude | undefined = undefined,
+  >(options: {
+    where: RelObjCompanyFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetRelObjCompanyPayload<S, I> | null>;
+
+  create<
+    S extends RelObjCompanySelect | undefined = undefined,
+    I extends RelObjCompanyInclude | undefined = undefined,
+  >(options: {
+    data: RelObjCompanyCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetRelObjCompanyPayload<S, I>>;
+
+  updateMany<
+    S extends RelObjCompanySelect | undefined = undefined,
+    I extends RelObjCompanyInclude | undefined = undefined,
+    D extends RelObjCompanyUpdateInput = RelObjCompanyUpdateInput,
+  >(options: {
+    where: RelObjCompanyWhere;
+    data: D;
+    unset?: SafeUnset<RelObjCompanyUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetRelObjCompanyPayload<S, I>[]>;
+
+  updateUnique<
+    S extends RelObjCompanySelect | undefined = undefined,
+    I extends RelObjCompanyInclude | undefined = undefined,
+    D extends RelObjCompanyUpdateInput = RelObjCompanyUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: RelObjCompanyFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<RelObjCompanyUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns RelObjCompany | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetRelObjCompanyPayload<S, I>, R>>;
+
+  upsert<
+    S extends RelObjCompanySelect | undefined = undefined,
+    I extends RelObjCompanyInclude | undefined = undefined,
+    D extends RelObjCompanyUpdateInput = RelObjCompanyUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: RelObjCompanyFindUniqueWhere;
+    create: RelObjCompanyCreateInput;
+    update?: D;
+    unset?: SafeUnset<RelObjCompanyUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetRelObjCompanyPayload<S, I>, R>>;
+
+  upsert<
+    S extends RelObjCompanySelect | undefined = undefined,
+    I extends RelObjCompanyInclude | undefined = undefined,
+    D extends RelObjCompanyUpdateInput = RelObjCompanyUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: RelObjCompanyWhere;
+    create: RelObjCompanyCreateInput;
+    update?: D;
+    unset?: SafeUnset<RelObjCompanyUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetRelObjCompanyPayload<S, I>, R>>;
+
+  deleteMany(options: { where: RelObjCompanyWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: RelObjCompanyFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns RelObjCompany | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<RelObjCompany, R>>;
+
+  count(where?: RelObjCompanyWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: RelObjCompanyWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/relobjemployee.ts =====
+/**
+ * Generated types for RelObjEmployee
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  RelObjCompany,
+  RelObjCompanyWhere,
+  RelObjCompanySelect,
+  RelObjCompanyOrderBy,
+  RelObjCompanyNestedCreate,
+  RelObjCompanyInclude,
+  GetRelObjCompanyIncludePayload,
+} from './relobjcompany';
+import type { Address, AddressInput, AddressWhere, AddressSelect, AddressOrderBy } from '../objects/address';
+export interface RelObjEmployee {
+  id: CerialId<string>;
+  name: string;
+  homeAddress: Address;
+  companyId: CerialId<string>;
+}
+
+export interface RelObjEmployeeInput {
+  id?: string;
+  name: string;
+  homeAddress: AddressInput;
+  companyId: RecordIdInput<string>;
+}
+
+export interface RelObjEmployeeWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  homeAddress?: AddressWhere;
+  companyId?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  company?: RelObjCompanyWhere;
+  AND?: RelObjEmployeeWhere[];
+  OR?: RelObjEmployeeWhere[];
+  NOT?: RelObjEmployeeWhere;
+}
+
+export type RelObjEmployeeWhereInput = RelObjEmployeeWhere;
+
+export type RelObjEmployeeFindUniqueWhere = { id: RecordIdInput<string> } & Omit<RelObjEmployeeWhere, 'id'>;
+
+export type RelObjEmployeeCreate = O.Optional<O.Omit<RelObjEmployeeInput, 'company'>, 'id'>;
+
+export type RelObjEmployeeNestedCreate = O.Optional<O.Omit<RelObjEmployeeInput, 'company' | 'companyId'>, 'id'>;
+
+export type RelObjEmployeeCreateInput =
+  | RelObjEmployeeCreate
+  | (O.Omit<RelObjEmployeeCreate, 'companyId'> & {
+      company: { create: RelObjCompanyNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type RelObjEmployeeUpdate = Partial<O.Omit<RelObjEmployeeInput, 'id' | 'company' | 'homeAddress'>> & {
+  homeAddress?: Partial<AddressInput> | { set: AddressInput };
+};
+
+export type RelObjEmployeeUpdateInput =
+  | RelObjEmployeeUpdate
+  | (O.Omit<RelObjEmployeeUpdate, 'companyId'> & {
+      company?: { create: RelObjCompanyNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type RelObjEmployeeUnset = {
+  homeAddress?: {
+    zipCode?: true;
+  };
+};
+
+export type RelObjEmployeeSelect =
+  | ({ id: boolean } & { name?: boolean; homeAddress?: boolean | AddressSelect; companyId?: boolean })
+  | ({ name: boolean } & { id?: boolean; homeAddress?: boolean | AddressSelect; companyId?: boolean })
+  | ({ homeAddress: boolean | AddressSelect } & Partial<Record<'id' | 'name' | 'companyId', boolean>>)
+  | ({ companyId: boolean } & { id?: boolean; name?: boolean; homeAddress?: boolean | AddressSelect });
+
+export interface RelObjEmployeeOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  homeAddress?: AddressOrderBy;
+  companyId?: 'asc' | 'desc';
+  company?: RelObjCompanyOrderBy;
+}
+
+export interface RelObjEmployeeInclude {
+  company?:
+    | boolean
+    | {
+        select?: RelObjCompanySelect;
+        where?: RelObjCompanyWhere;
+        include?: RelObjCompanyInclude;
+      };
+}
+
+export type RelObjEmployee$Relations = {
+  company: { type: RelObjCompany; include: RelObjCompanyInclude };
+};
+
+export type GetRelObjEmployeeIncludePayload<I extends RelObjEmployeeInclude | undefined> =
+  I extends RelObjEmployeeInclude
+    ? Pick<
+        {
+          company: I['company'] extends true
+            ? RelObjCompany
+            : I['company'] extends {
+                  select: infer S extends RelObjCompanySelect;
+                  include: infer NI extends RelObjCompanyInclude;
+                }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof RelObjCompany
+                    ? ResolveFieldSelect<RelObjCompany[P], S[P]>
+                    : never;
+                } & GetRelObjCompanyIncludePayload<NI>
+              : I['company'] extends { select: infer S extends RelObjCompanySelect }
+                ? {
+                    [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof RelObjCompany
+                      ? ResolveFieldSelect<RelObjCompany[P], S[P]>
+                      : never;
+                  }
+                : I['company'] extends { include: infer NI extends RelObjCompanyInclude }
+                  ? RelObjCompany & GetRelObjCompanyIncludePayload<NI>
+                  : RelObjCompany;
+        },
+        Extract<keyof I, keyof RelObjEmployee$Relations> &
+          { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+      >
+    : {};
+
+export type GetRelObjEmployeePayload<
+  S extends RelObjEmployeeSelect | undefined = undefined,
+  I extends RelObjEmployeeInclude | undefined = undefined,
+> = A.Compute<
+  S extends RelObjEmployeeSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof RelObjEmployee
+          ? ResolveFieldSelect<RelObjEmployee[K], S[K]>
+          : never;
+      } & GetRelObjEmployeeIncludePayload<I>
+    : I extends RelObjEmployeeInclude
+      ? RelObjEmployee & GetRelObjEmployeeIncludePayload<I>
+      : RelObjEmployee,
+  'flat'
+>;
+
+export interface RelObjEmployeeModel {
+  findOne<
+    S extends RelObjEmployeeSelect | undefined = undefined,
+    I extends RelObjEmployeeInclude | undefined = undefined,
+  >(options?: {
+    where?: RelObjEmployeeWhere;
+    select?: S;
+    include?: I;
+    orderBy?: RelObjEmployeeOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetRelObjEmployeePayload<S, I> | null>;
+
+  findMany<
+    S extends RelObjEmployeeSelect | undefined = undefined,
+    I extends RelObjEmployeeInclude | undefined = undefined,
+  >(options?: {
+    where?: RelObjEmployeeWhere;
+    select?: S;
+    orderBy?: RelObjEmployeeOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetRelObjEmployeePayload<S, I>[]>;
+
+  findUnique<
+    S extends RelObjEmployeeSelect | undefined = undefined,
+    I extends RelObjEmployeeInclude | undefined = undefined,
+  >(options: {
+    where: RelObjEmployeeFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetRelObjEmployeePayload<S, I> | null>;
+
+  create<
+    S extends RelObjEmployeeSelect | undefined = undefined,
+    I extends RelObjEmployeeInclude | undefined = undefined,
+  >(options: {
+    data: RelObjEmployeeCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetRelObjEmployeePayload<S, I>>;
+
+  updateMany<
+    S extends RelObjEmployeeSelect | undefined = undefined,
+    I extends RelObjEmployeeInclude | undefined = undefined,
+    D extends RelObjEmployeeUpdateInput = RelObjEmployeeUpdateInput,
+  >(options: {
+    where: RelObjEmployeeWhere;
+    data: D;
+    unset?: SafeUnset<RelObjEmployeeUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetRelObjEmployeePayload<S, I>[]>;
+
+  updateUnique<
+    S extends RelObjEmployeeSelect | undefined = undefined,
+    I extends RelObjEmployeeInclude | undefined = undefined,
+    D extends RelObjEmployeeUpdateInput = RelObjEmployeeUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: RelObjEmployeeFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<RelObjEmployeeUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns RelObjEmployee | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetRelObjEmployeePayload<S, I>, R>>;
+
+  upsert<
+    S extends RelObjEmployeeSelect | undefined = undefined,
+    I extends RelObjEmployeeInclude | undefined = undefined,
+    D extends RelObjEmployeeUpdateInput = RelObjEmployeeUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: RelObjEmployeeFindUniqueWhere;
+    create: RelObjEmployeeCreateInput;
+    update?: D;
+    unset?: SafeUnset<RelObjEmployeeUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetRelObjEmployeePayload<S, I>, R>>;
+
+  upsert<
+    S extends RelObjEmployeeSelect | undefined = undefined,
+    I extends RelObjEmployeeInclude | undefined = undefined,
+    D extends RelObjEmployeeUpdateInput = RelObjEmployeeUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: RelObjEmployeeWhere;
+    create: RelObjEmployeeCreateInput;
+    update?: D;
+    unset?: SafeUnset<RelObjEmployeeUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetRelObjEmployeePayload<S, I>, R>>;
+
+  deleteMany(options: { where: RelObjEmployeeWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: RelObjEmployeeFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns RelObjEmployee | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<RelObjEmployee, R>>;
+
+  count(where?: RelObjEmployeeWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: RelObjEmployeeWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== objects/companymeta.ts =====
+/**
+ * Generated types for CompanyMeta
+ * Do not edit manually
+ */
+
+export interface CompanyMeta {
+  industry: string;
+  founded?: number;
+}
+
+export interface CompanyMetaInput {
+  industry: string;
+  founded?: number;
+}
+
+export interface CompanyMetaWhere {
+  industry?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  founded?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  AND?: CompanyMetaWhere[];
+  OR?: CompanyMetaWhere[];
+  NOT?: CompanyMetaWhere;
+}
+
+export type CompanyMetaSelect =
+  | ({ industry: boolean } & Partial<Record<'founded', boolean>>)
+  | ({ founded: boolean } & Partial<Record<'industry', boolean>>);
+
+export interface CompanyMetaOrderBy {
+  industry?: 'asc' | 'desc';
+  founded?: 'asc' | 'desc';
+}

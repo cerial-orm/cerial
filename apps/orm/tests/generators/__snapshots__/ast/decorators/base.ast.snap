@@ -1,0 +1,129 @@
+{
+  "models": [
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "distinct"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "uniqueTags",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "sort",
+              "value": true
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "sortedScores",
+          "type": "int"
+        },
+        {
+          "decorators": [
+            {
+              "type": "sort",
+              "value": false
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "recentDates",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "distinct"
+            },
+            {
+              "type": "sort",
+              "value": true
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "uniqueSortedCategories",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "distinct"
+            },
+            {
+              "type": "sort",
+              "value": false
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "uniqueSortedPriorities",
+          "type": "int"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "normalTags",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "normalScores",
+          "type": "int"
+        }
+      ],
+      "name": "ArrayDecoratorTest"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "emails",
+          "type": "email"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "flags",
+          "type": "bool"
+        }
+      ],
+      "name": "ScalarArrays"
+    }
+  ]
+}

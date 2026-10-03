@@ -1,0 +1,4041 @@
+// ===== models/tuplebasic.ts =====
+/**
+ * Generated types for TupleBasic
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { Coordinate, CoordinateInput, CoordinateWhere, CoordinateUpdate } from '../tuples/coordinate';
+import type { Entry, EntryInput, EntryWhere, EntryUpdate } from '../tuples/entry';
+export interface TupleBasic {
+  id: CerialId<string>;
+  name: string;
+  location: Coordinate;
+  backup?: Coordinate;
+  history: Coordinate[];
+  entry?: Entry;
+}
+
+export interface TupleBasicInput {
+  id?: string;
+  name: string;
+  location: CoordinateInput;
+  backup?: CoordinateInput;
+  history: CoordinateInput[];
+  entry?: EntryInput;
+}
+
+export interface TupleBasicWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  location?: CoordinateWhere;
+  backup?: CoordinateWhere;
+  history?: { some?: CoordinateWhere; every?: CoordinateWhere; none?: CoordinateWhere };
+  entry?: EntryWhere;
+  AND?: TupleBasicWhere[];
+  OR?: TupleBasicWhere[];
+  NOT?: TupleBasicWhere;
+}
+
+export type TupleBasicWhereInput = TupleBasicWhere;
+
+export type TupleBasicFindUniqueWhere = { id: RecordIdInput<string> } & Omit<TupleBasicWhere, 'id'>;
+
+export type TupleBasicCreate = O.Optional<TupleBasicInput, 'id' | 'backup' | 'history' | 'entry'>;
+
+export type TupleBasicNestedCreate = O.Optional<TupleBasicInput, 'id' | 'backup' | 'history' | 'entry'>;
+
+export type TupleBasicCreateInput = TupleBasicCreate;
+
+export type TupleBasicUpdate = Partial<O.Omit<TupleBasicInput, 'id' | 'location' | 'backup' | 'history' | 'entry'>> & {
+  location?: [number, number] | CoordinateUpdate;
+  backup?: [number, number] | CoordinateUpdate | CerialNone;
+  history?:
+    | CoordinateInput[]
+    | {
+        push?: CoordinateInput | CoordinateInput[];
+        set?: CoordinateInput[];
+      };
+  entry?: [string, number, boolean] | EntryUpdate | CerialNone;
+};
+
+export type TupleBasicUpdateInput = TupleBasicUpdate;
+
+export type TupleBasicUnset = {
+  backup?: true;
+  entry?: true;
+};
+
+export type TupleBasicSelect =
+  | ({ id: boolean } & Partial<Record<'name' | 'location' | 'backup' | 'history' | 'entry', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'location' | 'backup' | 'history' | 'entry', boolean>>)
+  | ({ location: boolean } & Partial<Record<'id' | 'name' | 'backup' | 'history' | 'entry', boolean>>)
+  | ({ backup: boolean } & Partial<Record<'id' | 'name' | 'location' | 'history' | 'entry', boolean>>)
+  | ({ history: boolean } & Partial<Record<'id' | 'name' | 'location' | 'backup' | 'entry', boolean>>)
+  | ({ entry: boolean } & Partial<Record<'id' | 'name' | 'location' | 'backup' | 'history', boolean>>);
+
+export interface TupleBasicOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+}
+
+export type TupleBasic$Relations = {};
+
+export type GetTupleBasicPayload<S extends TupleBasicSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends TupleBasicSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof TupleBasic
+          ? ResolveFieldSelect<TupleBasic[K], S[K]>
+          : never;
+      }
+    : TupleBasic,
+  'flat'
+>;
+
+export interface TupleBasicModel {
+  findOne<S extends TupleBasicSelect | undefined = undefined>(options?: {
+    where?: TupleBasicWhere;
+    select?: S;
+    orderBy?: TupleBasicOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleBasicPayload<S> | null>;
+
+  findMany<S extends TupleBasicSelect | undefined = undefined>(options?: {
+    where?: TupleBasicWhere;
+    select?: S;
+    orderBy?: TupleBasicOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleBasicPayload<S>[]>;
+
+  findUnique<S extends TupleBasicSelect | undefined = undefined>(options: {
+    where: TupleBasicFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleBasicPayload<S> | null>;
+
+  create<S extends TupleBasicSelect | undefined = undefined>(options: {
+    data: TupleBasicCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleBasicPayload<S>>;
+
+  updateMany<
+    S extends TupleBasicSelect | undefined = undefined,
+    D extends TupleBasicUpdateInput = TupleBasicUpdateInput,
+  >(options: {
+    where: TupleBasicWhere;
+    data: D;
+    unset?: SafeUnset<TupleBasicUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleBasicPayload<S>[]>;
+
+  updateUnique<
+    S extends TupleBasicSelect | undefined = undefined,
+    D extends TupleBasicUpdateInput = TupleBasicUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: TupleBasicFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<TupleBasicUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns TupleBasic | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetTupleBasicPayload<S>, R>>;
+
+  upsert<
+    S extends TupleBasicSelect | undefined = undefined,
+    D extends TupleBasicUpdateInput = TupleBasicUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: TupleBasicFindUniqueWhere;
+    create: TupleBasicCreateInput;
+    update?: D;
+    unset?: SafeUnset<TupleBasicUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetTupleBasicPayload<S>, R>>;
+
+  upsert<
+    S extends TupleBasicSelect | undefined = undefined,
+    D extends TupleBasicUpdateInput = TupleBasicUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: TupleBasicWhere;
+    create: TupleBasicCreateInput;
+    update?: D;
+    unset?: SafeUnset<TupleBasicUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetTupleBasicPayload<S>, R>>;
+
+  deleteMany(options: { where: TupleBasicWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: TupleBasicFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns TupleBasic | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<TupleBasic, R>>;
+
+  count(where?: TupleBasicWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: TupleBasicWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/tupledeepnest.ts =====
+/**
+ * Generated types for TupleDeepNest
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  DeepMidObj,
+  DeepMidObjInput,
+  DeepMidObjWhere,
+  DeepMidObjSelect,
+  DeepMidObjOrderBy,
+} from '../objects/deepmidobj';
+import type {
+  DeepOuterTuple,
+  DeepOuterTupleInput,
+  DeepOuterTupleWhere,
+  DeepOuterTupleUpdate,
+  DeepOuterTupleSelect,
+  DeepOuterTupleUnset,
+} from '../tuples/deepoutertuple';
+import type {
+  DeepMidTuple,
+  DeepMidTupleInput,
+  DeepMidTupleWhere,
+  DeepMidTupleUpdate,
+  DeepMidTupleSelect,
+  DeepMidTupleUnset,
+} from '../tuples/deepmidtuple';
+export interface TupleDeepNest {
+  id: CerialId<string>;
+  deep: DeepOuterTuple;
+  deepOpt?: DeepOuterTuple;
+}
+
+export interface TupleDeepNestInput {
+  id?: string;
+  deep: DeepOuterTupleInput;
+  deepOpt?: DeepOuterTupleInput;
+}
+
+export interface TupleDeepNestWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  deep?: DeepOuterTupleWhere;
+  deepOpt?: DeepOuterTupleWhere;
+  AND?: TupleDeepNestWhere[];
+  OR?: TupleDeepNestWhere[];
+  NOT?: TupleDeepNestWhere;
+}
+
+export type TupleDeepNestWhereInput = TupleDeepNestWhere;
+
+export type TupleDeepNestFindUniqueWhere = { id: RecordIdInput<string> } & Omit<TupleDeepNestWhere, 'id'>;
+
+export type TupleDeepNestCreate = O.Optional<TupleDeepNestInput, 'id' | 'deepOpt'>;
+
+export type TupleDeepNestNestedCreate = O.Optional<TupleDeepNestInput, 'id' | 'deepOpt'>;
+
+export type TupleDeepNestCreateInput = TupleDeepNestCreate;
+
+export type TupleDeepNestUpdate = Partial<O.Omit<TupleDeepNestInput, 'id' | 'deep' | 'deepOpt'>> & {
+  deep?: [string, DeepMidTupleInput] | DeepOuterTupleUpdate;
+  deepOpt?: [string, DeepMidTupleInput] | DeepOuterTupleUpdate | CerialNone;
+};
+
+export type TupleDeepNestUpdateInput = TupleDeepNestUpdate;
+
+export type TupleDeepNestUnset = {
+  deep?: DeepOuterTupleUnset;
+  deepOpt?: true | DeepOuterTupleUnset;
+};
+
+export type TupleDeepNestSelect =
+  | ({ id: boolean } & { deep?: boolean | DeepOuterTupleSelect; deepOpt?: boolean | DeepOuterTupleSelect })
+  | ({ deep: boolean | DeepOuterTupleSelect } & { id?: boolean; deepOpt?: boolean | DeepOuterTupleSelect })
+  | ({ deepOpt: boolean | DeepOuterTupleSelect } & { id?: boolean; deep?: boolean | DeepOuterTupleSelect });
+
+export interface TupleDeepNestOrderBy {
+  id?: 'asc' | 'desc';
+}
+
+export type TupleDeepNest$Relations = {};
+
+export type GetTupleDeepNestPayload<S extends TupleDeepNestSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends TupleDeepNestSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof TupleDeepNest
+          ? ResolveFieldSelect<TupleDeepNest[K], S[K]>
+          : never;
+      }
+    : TupleDeepNest,
+  'flat'
+>;
+
+export interface TupleDeepNestModel {
+  findOne<S extends TupleDeepNestSelect | undefined = undefined>(options?: {
+    where?: TupleDeepNestWhere;
+    select?: S;
+    orderBy?: TupleDeepNestOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleDeepNestPayload<S> | null>;
+
+  findMany<S extends TupleDeepNestSelect | undefined = undefined>(options?: {
+    where?: TupleDeepNestWhere;
+    select?: S;
+    orderBy?: TupleDeepNestOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleDeepNestPayload<S>[]>;
+
+  findUnique<S extends TupleDeepNestSelect | undefined = undefined>(options: {
+    where: TupleDeepNestFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleDeepNestPayload<S> | null>;
+
+  create<S extends TupleDeepNestSelect | undefined = undefined>(options: {
+    data: TupleDeepNestCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleDeepNestPayload<S>>;
+
+  updateMany<
+    S extends TupleDeepNestSelect | undefined = undefined,
+    D extends TupleDeepNestUpdateInput = TupleDeepNestUpdateInput,
+  >(options: {
+    where: TupleDeepNestWhere;
+    data: D;
+    unset?: SafeUnset<TupleDeepNestUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleDeepNestPayload<S>[]>;
+
+  updateUnique<
+    S extends TupleDeepNestSelect | undefined = undefined,
+    D extends TupleDeepNestUpdateInput = TupleDeepNestUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: TupleDeepNestFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<TupleDeepNestUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns TupleDeepNest | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetTupleDeepNestPayload<S>, R>>;
+
+  upsert<
+    S extends TupleDeepNestSelect | undefined = undefined,
+    D extends TupleDeepNestUpdateInput = TupleDeepNestUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: TupleDeepNestFindUniqueWhere;
+    create: TupleDeepNestCreateInput;
+    update?: D;
+    unset?: SafeUnset<TupleDeepNestUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetTupleDeepNestPayload<S>, R>>;
+
+  upsert<
+    S extends TupleDeepNestSelect | undefined = undefined,
+    D extends TupleDeepNestUpdateInput = TupleDeepNestUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: TupleDeepNestWhere;
+    create: TupleDeepNestCreateInput;
+    update?: D;
+    unset?: SafeUnset<TupleDeepNestUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetTupleDeepNestPayload<S>, R>>;
+
+  deleteMany(options: { where: TupleDeepNestWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: TupleDeepNestFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns TupleDeepNest | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<TupleDeepNest, R>>;
+
+  count(where?: TupleDeepNestWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: TupleDeepNestWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/tupleinobj.ts =====
+/**
+ * Generated types for TupleInObj
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  TupleHolder,
+  TupleHolderInput,
+  TupleHolderWhere,
+  TupleHolderSelect,
+  TupleHolderOrderBy,
+} from '../objects/tupleholder';
+export interface TupleInObj {
+  id: CerialId<string>;
+  details: TupleHolder;
+}
+
+export interface TupleInObjInput {
+  id?: string;
+  details: TupleHolderInput;
+}
+
+export interface TupleInObjWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  details?: TupleHolderWhere;
+  AND?: TupleInObjWhere[];
+  OR?: TupleInObjWhere[];
+  NOT?: TupleInObjWhere;
+}
+
+export type TupleInObjWhereInput = TupleInObjWhere;
+
+export type TupleInObjFindUniqueWhere = { id: RecordIdInput<string> } & Omit<TupleInObjWhere, 'id'>;
+
+export type TupleInObjCreate = O.Optional<TupleInObjInput, 'id'>;
+
+export type TupleInObjNestedCreate = O.Optional<TupleInObjInput, 'id'>;
+
+export type TupleInObjCreateInput = TupleInObjCreate;
+
+export type TupleInObjUpdate = Partial<O.Omit<TupleInObjInput, 'id' | 'details'>> & {
+  details?: Partial<TupleHolderInput> | { set: TupleHolderInput };
+};
+
+export type TupleInObjUpdateInput = TupleInObjUpdate;
+
+export type TupleInObjUnset = {
+  details?: {
+    optCoord?: true;
+  };
+};
+
+export type TupleInObjSelect =
+  | ({ id: boolean } & { details?: boolean | TupleHolderSelect })
+  | ({ details: boolean | TupleHolderSelect } & Partial<Record<'id', boolean>>);
+
+export interface TupleInObjOrderBy {
+  id?: 'asc' | 'desc';
+  details?: TupleHolderOrderBy;
+}
+
+export type TupleInObj$Relations = {};
+
+export type GetTupleInObjPayload<S extends TupleInObjSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends TupleInObjSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof TupleInObj
+          ? ResolveFieldSelect<TupleInObj[K], S[K]>
+          : never;
+      }
+    : TupleInObj,
+  'flat'
+>;
+
+export interface TupleInObjModel {
+  findOne<S extends TupleInObjSelect | undefined = undefined>(options?: {
+    where?: TupleInObjWhere;
+    select?: S;
+    orderBy?: TupleInObjOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleInObjPayload<S> | null>;
+
+  findMany<S extends TupleInObjSelect | undefined = undefined>(options?: {
+    where?: TupleInObjWhere;
+    select?: S;
+    orderBy?: TupleInObjOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleInObjPayload<S>[]>;
+
+  findUnique<S extends TupleInObjSelect | undefined = undefined>(options: {
+    where: TupleInObjFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleInObjPayload<S> | null>;
+
+  create<S extends TupleInObjSelect | undefined = undefined>(options: {
+    data: TupleInObjCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleInObjPayload<S>>;
+
+  updateMany<
+    S extends TupleInObjSelect | undefined = undefined,
+    D extends TupleInObjUpdateInput = TupleInObjUpdateInput,
+  >(options: {
+    where: TupleInObjWhere;
+    data: D;
+    unset?: SafeUnset<TupleInObjUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleInObjPayload<S>[]>;
+
+  updateUnique<
+    S extends TupleInObjSelect | undefined = undefined,
+    D extends TupleInObjUpdateInput = TupleInObjUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: TupleInObjFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<TupleInObjUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns TupleInObj | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetTupleInObjPayload<S>, R>>;
+
+  upsert<
+    S extends TupleInObjSelect | undefined = undefined,
+    D extends TupleInObjUpdateInput = TupleInObjUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: TupleInObjFindUniqueWhere;
+    create: TupleInObjCreateInput;
+    update?: D;
+    unset?: SafeUnset<TupleInObjUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetTupleInObjPayload<S>, R>>;
+
+  upsert<
+    S extends TupleInObjSelect | undefined = undefined,
+    D extends TupleInObjUpdateInput = TupleInObjUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: TupleInObjWhere;
+    create: TupleInObjCreateInput;
+    update?: D;
+    unset?: SafeUnset<TupleInObjUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetTupleInObjPayload<S>, R>>;
+
+  deleteMany(options: { where: TupleInObjWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: TupleInObjFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns TupleInObj | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<TupleInObj, R>>;
+
+  count(where?: TupleInObjWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: TupleInObjWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/tupleliteralelement.ts =====
+/**
+ * Generated types for TupleLiteralElement
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { StatusPair, StatusPairInput, StatusPairWhere, StatusPairUpdate } from '../tuples/statuspair';
+import type { RolePair, RolePairInput, RolePairWhere, RolePairUpdate } from '../tuples/rolepair';
+export interface TupleLiteralElement {
+  id: CerialId<string>;
+  name: string;
+  status: StatusPair;
+  role: RolePair;
+  history: StatusPair[];
+}
+
+export interface TupleLiteralElementInput {
+  id?: string;
+  name: string;
+  status: StatusPairInput;
+  role: RolePairInput;
+  history: StatusPairInput[];
+}
+
+export interface TupleLiteralElementWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  status?: StatusPairWhere;
+  role?: RolePairWhere;
+  history?: { some?: StatusPairWhere; every?: StatusPairWhere; none?: StatusPairWhere };
+  AND?: TupleLiteralElementWhere[];
+  OR?: TupleLiteralElementWhere[];
+  NOT?: TupleLiteralElementWhere;
+}
+
+export type TupleLiteralElementWhereInput = TupleLiteralElementWhere;
+
+export type TupleLiteralElementFindUniqueWhere = { id: RecordIdInput<string> } & Omit<TupleLiteralElementWhere, 'id'>;
+
+export type TupleLiteralElementCreate = O.Optional<TupleLiteralElementInput, 'id' | 'history'>;
+
+export type TupleLiteralElementNestedCreate = O.Optional<TupleLiteralElementInput, 'id' | 'history'>;
+
+export type TupleLiteralElementCreateInput = TupleLiteralElementCreate;
+
+export type TupleLiteralElementUpdate = Partial<
+  O.Omit<TupleLiteralElementInput, 'id' | 'status' | 'role' | 'history'>
+> & {
+  status?: [unknown, number] | StatusPairUpdate;
+  role?: [unknown, number] | RolePairUpdate;
+  history?:
+    | StatusPairInput[]
+    | {
+        push?: StatusPairInput | StatusPairInput[];
+        set?: StatusPairInput[];
+      };
+};
+
+export type TupleLiteralElementUpdateInput = TupleLiteralElementUpdate;
+
+export type TupleLiteralElementUnset = {};
+
+export type TupleLiteralElementSelect =
+  | ({ id: boolean } & Partial<Record<'name' | 'status' | 'role' | 'history', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'status' | 'role' | 'history', boolean>>)
+  | ({ status: boolean } & Partial<Record<'id' | 'name' | 'role' | 'history', boolean>>)
+  | ({ role: boolean } & Partial<Record<'id' | 'name' | 'status' | 'history', boolean>>)
+  | ({ history: boolean } & Partial<Record<'id' | 'name' | 'status' | 'role', boolean>>);
+
+export interface TupleLiteralElementOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+}
+
+export type TupleLiteralElement$Relations = {};
+
+export type GetTupleLiteralElementPayload<
+  S extends TupleLiteralElementSelect | undefined = undefined,
+  I = undefined,
+> = A.Compute<
+  S extends TupleLiteralElementSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof TupleLiteralElement
+          ? ResolveFieldSelect<TupleLiteralElement[K], S[K]>
+          : never;
+      }
+    : TupleLiteralElement,
+  'flat'
+>;
+
+export interface TupleLiteralElementModel {
+  findOne<S extends TupleLiteralElementSelect | undefined = undefined>(options?: {
+    where?: TupleLiteralElementWhere;
+    select?: S;
+    orderBy?: TupleLiteralElementOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleLiteralElementPayload<S> | null>;
+
+  findMany<S extends TupleLiteralElementSelect | undefined = undefined>(options?: {
+    where?: TupleLiteralElementWhere;
+    select?: S;
+    orderBy?: TupleLiteralElementOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleLiteralElementPayload<S>[]>;
+
+  findUnique<S extends TupleLiteralElementSelect | undefined = undefined>(options: {
+    where: TupleLiteralElementFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleLiteralElementPayload<S> | null>;
+
+  create<S extends TupleLiteralElementSelect | undefined = undefined>(options: {
+    data: TupleLiteralElementCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleLiteralElementPayload<S>>;
+
+  updateMany<
+    S extends TupleLiteralElementSelect | undefined = undefined,
+    D extends TupleLiteralElementUpdateInput = TupleLiteralElementUpdateInput,
+  >(options: {
+    where: TupleLiteralElementWhere;
+    data: D;
+    unset?: SafeUnset<TupleLiteralElementUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleLiteralElementPayload<S>[]>;
+
+  updateUnique<
+    S extends TupleLiteralElementSelect | undefined = undefined,
+    D extends TupleLiteralElementUpdateInput = TupleLiteralElementUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: TupleLiteralElementFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<TupleLiteralElementUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns TupleLiteralElement | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetTupleLiteralElementPayload<S>, R>>;
+
+  upsert<
+    S extends TupleLiteralElementSelect | undefined = undefined,
+    D extends TupleLiteralElementUpdateInput = TupleLiteralElementUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: TupleLiteralElementFindUniqueWhere;
+    create: TupleLiteralElementCreateInput;
+    update?: D;
+    unset?: SafeUnset<TupleLiteralElementUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetTupleLiteralElementPayload<S>, R>>;
+
+  upsert<
+    S extends TupleLiteralElementSelect | undefined = undefined,
+    D extends TupleLiteralElementUpdateInput = TupleLiteralElementUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: TupleLiteralElementWhere;
+    create: TupleLiteralElementCreateInput;
+    update?: D;
+    unset?: SafeUnset<TupleLiteralElementUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetTupleLiteralElementPayload<S>, R>>;
+
+  deleteMany(options: { where: TupleLiteralElementWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: TupleLiteralElementFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns TupleLiteralElement | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<TupleLiteralElement, R>>;
+
+  count(where?: TupleLiteralElementWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: TupleLiteralElementWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/tuplenested.ts =====
+/**
+ * Generated types for TupleNested
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { Outer, OuterInput, OuterWhere, OuterUpdate } from '../tuples/outer';
+import type { Inner, InnerInput, InnerWhere, InnerUpdate } from '../tuples/inner';
+export interface TupleNested {
+  id: CerialId<string>;
+  payload: Outer;
+}
+
+export interface TupleNestedInput {
+  id?: string;
+  payload: OuterInput;
+}
+
+export interface TupleNestedWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  payload?: OuterWhere;
+  AND?: TupleNestedWhere[];
+  OR?: TupleNestedWhere[];
+  NOT?: TupleNestedWhere;
+}
+
+export type TupleNestedWhereInput = TupleNestedWhere;
+
+export type TupleNestedFindUniqueWhere = { id: RecordIdInput<string> } & Omit<TupleNestedWhere, 'id'>;
+
+export type TupleNestedCreate = O.Optional<TupleNestedInput, 'id'>;
+
+export type TupleNestedNestedCreate = O.Optional<TupleNestedInput, 'id'>;
+
+export type TupleNestedCreateInput = TupleNestedCreate;
+
+export type TupleNestedUpdate = Partial<O.Omit<TupleNestedInput, 'id' | 'payload'>> & {
+  payload?: [string, InnerInput] | OuterUpdate;
+};
+
+export type TupleNestedUpdateInput = TupleNestedUpdate;
+
+export type TupleNestedUnset = {};
+
+export type TupleNestedSelect =
+  | ({ id: boolean } & Partial<Record<'payload', boolean>>)
+  | ({ payload: boolean } & Partial<Record<'id', boolean>>);
+
+export interface TupleNestedOrderBy {
+  id?: 'asc' | 'desc';
+}
+
+export type TupleNested$Relations = {};
+
+export type GetTupleNestedPayload<S extends TupleNestedSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends TupleNestedSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof TupleNested
+          ? ResolveFieldSelect<TupleNested[K], S[K]>
+          : never;
+      }
+    : TupleNested,
+  'flat'
+>;
+
+export interface TupleNestedModel {
+  findOne<S extends TupleNestedSelect | undefined = undefined>(options?: {
+    where?: TupleNestedWhere;
+    select?: S;
+    orderBy?: TupleNestedOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleNestedPayload<S> | null>;
+
+  findMany<S extends TupleNestedSelect | undefined = undefined>(options?: {
+    where?: TupleNestedWhere;
+    select?: S;
+    orderBy?: TupleNestedOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleNestedPayload<S>[]>;
+
+  findUnique<S extends TupleNestedSelect | undefined = undefined>(options: {
+    where: TupleNestedFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleNestedPayload<S> | null>;
+
+  create<S extends TupleNestedSelect | undefined = undefined>(options: {
+    data: TupleNestedCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleNestedPayload<S>>;
+
+  updateMany<
+    S extends TupleNestedSelect | undefined = undefined,
+    D extends TupleNestedUpdateInput = TupleNestedUpdateInput,
+  >(options: {
+    where: TupleNestedWhere;
+    data: D;
+    unset?: SafeUnset<TupleNestedUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleNestedPayload<S>[]>;
+
+  updateUnique<
+    S extends TupleNestedSelect | undefined = undefined,
+    D extends TupleNestedUpdateInput = TupleNestedUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: TupleNestedFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<TupleNestedUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns TupleNested | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetTupleNestedPayload<S>, R>>;
+
+  upsert<
+    S extends TupleNestedSelect | undefined = undefined,
+    D extends TupleNestedUpdateInput = TupleNestedUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: TupleNestedFindUniqueWhere;
+    create: TupleNestedCreateInput;
+    update?: D;
+    unset?: SafeUnset<TupleNestedUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetTupleNestedPayload<S>, R>>;
+
+  upsert<
+    S extends TupleNestedSelect | undefined = undefined,
+    D extends TupleNestedUpdateInput = TupleNestedUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: TupleNestedWhere;
+    create: TupleNestedCreateInput;
+    update?: D;
+    unset?: SafeUnset<TupleNestedUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetTupleNestedPayload<S>, R>>;
+
+  deleteMany(options: { where: TupleNestedWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: TupleNestedFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns TupleNested | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<TupleNested, R>>;
+
+  count(where?: TupleNestedWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: TupleNestedWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/tuplenullable.ts =====
+/**
+ * Generated types for TupleNullable
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  NullablePair,
+  NullablePairInput,
+  NullablePairWhere,
+  NullablePairUpdate,
+  NullablePairUnset,
+} from '../tuples/nullablepair';
+import type {
+  OptNullPair,
+  OptNullPairInput,
+  OptNullPairWhere,
+  OptNullPairUpdate,
+  OptNullPairUnset,
+} from '../tuples/optnullpair';
+import type {
+  MixedNullability,
+  MixedNullabilityInput,
+  MixedNullabilityWhere,
+  MixedNullabilityUpdate,
+  MixedNullabilityUnset,
+} from '../tuples/mixednullability';
+export interface TupleNullable {
+  id: CerialId<string>;
+  name: string;
+  pair: NullablePair;
+  optNull: OptNullPair;
+  mixed: MixedNullability;
+}
+
+export interface TupleNullableInput {
+  id?: string;
+  name: string;
+  pair: NullablePairInput;
+  optNull: OptNullPairInput;
+  mixed: MixedNullabilityInput;
+}
+
+export interface TupleNullableWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  pair?: NullablePairWhere;
+  optNull?: OptNullPairWhere;
+  mixed?: MixedNullabilityWhere;
+  AND?: TupleNullableWhere[];
+  OR?: TupleNullableWhere[];
+  NOT?: TupleNullableWhere;
+}
+
+export type TupleNullableWhereInput = TupleNullableWhere;
+
+export type TupleNullableFindUniqueWhere = { id: RecordIdInput<string> } & Omit<TupleNullableWhere, 'id'>;
+
+export type TupleNullableCreate = O.Optional<TupleNullableInput, 'id'>;
+
+export type TupleNullableNestedCreate = O.Optional<TupleNullableInput, 'id'>;
+
+export type TupleNullableCreateInput = TupleNullableCreate;
+
+export type TupleNullableUpdate = Partial<O.Omit<TupleNullableInput, 'id' | 'pair' | 'optNull' | 'mixed'>> & {
+  pair?: [string, number | null] | NullablePairUpdate;
+  optNull?: [string, number | null] | OptNullPairUpdate;
+  mixed?: [string, number | null, number | null, boolean | null] | MixedNullabilityUpdate;
+};
+
+export type TupleNullableUpdateInput = TupleNullableUpdate;
+
+export type TupleNullableUnset = {
+  pair?: NullablePairUnset;
+  optNull?: OptNullPairUnset;
+  mixed?: MixedNullabilityUnset;
+};
+
+export type TupleNullableSelect =
+  | ({ id: boolean } & Partial<Record<'name' | 'pair' | 'optNull' | 'mixed', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'pair' | 'optNull' | 'mixed', boolean>>)
+  | ({ pair: boolean } & Partial<Record<'id' | 'name' | 'optNull' | 'mixed', boolean>>)
+  | ({ optNull: boolean } & Partial<Record<'id' | 'name' | 'pair' | 'mixed', boolean>>)
+  | ({ mixed: boolean } & Partial<Record<'id' | 'name' | 'pair' | 'optNull', boolean>>);
+
+export interface TupleNullableOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+}
+
+export type TupleNullable$Relations = {};
+
+export type GetTupleNullablePayload<S extends TupleNullableSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends TupleNullableSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof TupleNullable
+          ? ResolveFieldSelect<TupleNullable[K], S[K]>
+          : never;
+      }
+    : TupleNullable,
+  'flat'
+>;
+
+export interface TupleNullableModel {
+  findOne<S extends TupleNullableSelect | undefined = undefined>(options?: {
+    where?: TupleNullableWhere;
+    select?: S;
+    orderBy?: TupleNullableOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleNullablePayload<S> | null>;
+
+  findMany<S extends TupleNullableSelect | undefined = undefined>(options?: {
+    where?: TupleNullableWhere;
+    select?: S;
+    orderBy?: TupleNullableOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleNullablePayload<S>[]>;
+
+  findUnique<S extends TupleNullableSelect | undefined = undefined>(options: {
+    where: TupleNullableFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleNullablePayload<S> | null>;
+
+  create<S extends TupleNullableSelect | undefined = undefined>(options: {
+    data: TupleNullableCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleNullablePayload<S>>;
+
+  updateMany<
+    S extends TupleNullableSelect | undefined = undefined,
+    D extends TupleNullableUpdateInput = TupleNullableUpdateInput,
+  >(options: {
+    where: TupleNullableWhere;
+    data: D;
+    unset?: SafeUnset<TupleNullableUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleNullablePayload<S>[]>;
+
+  updateUnique<
+    S extends TupleNullableSelect | undefined = undefined,
+    D extends TupleNullableUpdateInput = TupleNullableUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: TupleNullableFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<TupleNullableUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns TupleNullable | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetTupleNullablePayload<S>, R>>;
+
+  upsert<
+    S extends TupleNullableSelect | undefined = undefined,
+    D extends TupleNullableUpdateInput = TupleNullableUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: TupleNullableFindUniqueWhere;
+    create: TupleNullableCreateInput;
+    update?: D;
+    unset?: SafeUnset<TupleNullableUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetTupleNullablePayload<S>, R>>;
+
+  upsert<
+    S extends TupleNullableSelect | undefined = undefined,
+    D extends TupleNullableUpdateInput = TupleNullableUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: TupleNullableWhere;
+    create: TupleNullableCreateInput;
+    update?: D;
+    unset?: SafeUnset<TupleNullableUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetTupleNullablePayload<S>, R>>;
+
+  deleteMany(options: { where: TupleNullableWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: TupleNullableFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns TupleNullable | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<TupleNullable, R>>;
+
+  count(where?: TupleNullableWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: TupleNullableWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/tupleobjintuple.ts =====
+/**
+ * Generated types for TupleObjInTuple
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  TupleAddress,
+  TupleAddressInput,
+  TupleAddressWhere,
+  TupleAddressSelect,
+  TupleAddressOrderBy,
+} from '../objects/tupleaddress';
+import type { Located, LocatedInput, LocatedWhere, LocatedUpdate, LocatedSelect } from '../tuples/located';
+export interface TupleObjInTuple {
+  id: CerialId<string>;
+  place: Located;
+}
+
+export interface TupleObjInTupleInput {
+  id?: string;
+  place: LocatedInput;
+}
+
+export interface TupleObjInTupleWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  place?: LocatedWhere;
+  AND?: TupleObjInTupleWhere[];
+  OR?: TupleObjInTupleWhere[];
+  NOT?: TupleObjInTupleWhere;
+}
+
+export type TupleObjInTupleWhereInput = TupleObjInTupleWhere;
+
+export type TupleObjInTupleFindUniqueWhere = { id: RecordIdInput<string> } & Omit<TupleObjInTupleWhere, 'id'>;
+
+export type TupleObjInTupleCreate = O.Optional<TupleObjInTupleInput, 'id'>;
+
+export type TupleObjInTupleNestedCreate = O.Optional<TupleObjInTupleInput, 'id'>;
+
+export type TupleObjInTupleCreateInput = TupleObjInTupleCreate;
+
+export type TupleObjInTupleUpdate = Partial<O.Omit<TupleObjInTupleInput, 'id' | 'place'>> & {
+  place?: [string, TupleAddressInput] | LocatedUpdate;
+};
+
+export type TupleObjInTupleUpdateInput = TupleObjInTupleUpdate;
+
+export type TupleObjInTupleUnset = {};
+
+export type TupleObjInTupleSelect =
+  | ({ id: boolean } & { place?: boolean | LocatedSelect })
+  | ({ place: boolean | LocatedSelect } & Partial<Record<'id', boolean>>);
+
+export interface TupleObjInTupleOrderBy {
+  id?: 'asc' | 'desc';
+}
+
+export type TupleObjInTuple$Relations = {};
+
+export type GetTupleObjInTuplePayload<
+  S extends TupleObjInTupleSelect | undefined = undefined,
+  I = undefined,
+> = A.Compute<
+  S extends TupleObjInTupleSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof TupleObjInTuple
+          ? ResolveFieldSelect<TupleObjInTuple[K], S[K]>
+          : never;
+      }
+    : TupleObjInTuple,
+  'flat'
+>;
+
+export interface TupleObjInTupleModel {
+  findOne<S extends TupleObjInTupleSelect | undefined = undefined>(options?: {
+    where?: TupleObjInTupleWhere;
+    select?: S;
+    orderBy?: TupleObjInTupleOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleObjInTuplePayload<S> | null>;
+
+  findMany<S extends TupleObjInTupleSelect | undefined = undefined>(options?: {
+    where?: TupleObjInTupleWhere;
+    select?: S;
+    orderBy?: TupleObjInTupleOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleObjInTuplePayload<S>[]>;
+
+  findUnique<S extends TupleObjInTupleSelect | undefined = undefined>(options: {
+    where: TupleObjInTupleFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleObjInTuplePayload<S> | null>;
+
+  create<S extends TupleObjInTupleSelect | undefined = undefined>(options: {
+    data: TupleObjInTupleCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleObjInTuplePayload<S>>;
+
+  updateMany<
+    S extends TupleObjInTupleSelect | undefined = undefined,
+    D extends TupleObjInTupleUpdateInput = TupleObjInTupleUpdateInput,
+  >(options: {
+    where: TupleObjInTupleWhere;
+    data: D;
+    unset?: SafeUnset<TupleObjInTupleUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleObjInTuplePayload<S>[]>;
+
+  updateUnique<
+    S extends TupleObjInTupleSelect | undefined = undefined,
+    D extends TupleObjInTupleUpdateInput = TupleObjInTupleUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: TupleObjInTupleFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<TupleObjInTupleUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns TupleObjInTuple | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetTupleObjInTuplePayload<S>, R>>;
+
+  upsert<
+    S extends TupleObjInTupleSelect | undefined = undefined,
+    D extends TupleObjInTupleUpdateInput = TupleObjInTupleUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: TupleObjInTupleFindUniqueWhere;
+    create: TupleObjInTupleCreateInput;
+    update?: D;
+    unset?: SafeUnset<TupleObjInTupleUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetTupleObjInTuplePayload<S>, R>>;
+
+  upsert<
+    S extends TupleObjInTupleSelect | undefined = undefined,
+    D extends TupleObjInTupleUpdateInput = TupleObjInTupleUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: TupleObjInTupleWhere;
+    create: TupleObjInTupleCreateInput;
+    update?: D;
+    unset?: SafeUnset<TupleObjInTupleUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetTupleObjInTuplePayload<S>, R>>;
+
+  deleteMany(options: { where: TupleObjInTupleWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: TupleObjInTupleFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns TupleObjInTuple | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<TupleObjInTuple, R>>;
+
+  count(where?: TupleObjInTupleWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: TupleObjInTupleWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/tuplerelatedpost.ts =====
+/**
+ * Generated types for TupleRelatedPost
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  TupleWithRelation,
+  TupleWithRelationWhere,
+  TupleWithRelationSelect,
+  TupleWithRelationOrderBy,
+  TupleWithRelationNestedCreate,
+  TupleWithRelationInclude,
+  GetTupleWithRelationIncludePayload,
+} from './tuplewithrelation';
+import type { Coordinate, CoordinateInput, CoordinateWhere, CoordinateUpdate } from '../tuples/coordinate';
+export interface TupleRelatedPost {
+  id: CerialId<string>;
+  title: string;
+  position?: Coordinate;
+  authorId: CerialId<string>;
+}
+
+export interface TupleRelatedPostInput {
+  id?: string;
+  title: string;
+  position?: CoordinateInput;
+  authorId: RecordIdInput<string>;
+}
+
+export interface TupleRelatedPostWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  title?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  position?: CoordinateWhere;
+  authorId?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  author?: TupleWithRelationWhere;
+  AND?: TupleRelatedPostWhere[];
+  OR?: TupleRelatedPostWhere[];
+  NOT?: TupleRelatedPostWhere;
+}
+
+export type TupleRelatedPostWhereInput = TupleRelatedPostWhere;
+
+export type TupleRelatedPostFindUniqueWhere = { id: RecordIdInput<string> } & Omit<TupleRelatedPostWhere, 'id'>;
+
+export type TupleRelatedPostCreate = O.Optional<O.Omit<TupleRelatedPostInput, 'author'>, 'id' | 'position'>;
+
+export type TupleRelatedPostNestedCreate = O.Optional<
+  O.Omit<TupleRelatedPostInput, 'author' | 'authorId'>,
+  'id' | 'position'
+>;
+
+export type TupleRelatedPostCreateInput =
+  | TupleRelatedPostCreate
+  | (O.Omit<TupleRelatedPostCreate, 'authorId'> & {
+      author: { create: TupleWithRelationNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type TupleRelatedPostUpdate = Partial<O.Omit<TupleRelatedPostInput, 'id' | 'author' | 'position'>> & {
+  position?: [number, number] | CoordinateUpdate | CerialNone;
+};
+
+export type TupleRelatedPostUpdateInput =
+  | TupleRelatedPostUpdate
+  | (O.Omit<TupleRelatedPostUpdate, 'authorId'> & {
+      author?: { create: TupleWithRelationNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type TupleRelatedPostUnset = {
+  position?: true;
+};
+
+export type TupleRelatedPostSelect =
+  | ({ id: boolean } & Partial<Record<'title' | 'position' | 'authorId', boolean>>)
+  | ({ title: boolean } & Partial<Record<'id' | 'position' | 'authorId', boolean>>)
+  | ({ position: boolean } & Partial<Record<'id' | 'title' | 'authorId', boolean>>)
+  | ({ authorId: boolean } & Partial<Record<'id' | 'title' | 'position', boolean>>);
+
+export interface TupleRelatedPostOrderBy {
+  id?: 'asc' | 'desc';
+  title?: 'asc' | 'desc';
+  authorId?: 'asc' | 'desc';
+  author?: TupleWithRelationOrderBy;
+}
+
+export interface TupleRelatedPostInclude {
+  author?:
+    | boolean
+    | {
+        select?: TupleWithRelationSelect;
+        where?: TupleWithRelationWhere;
+        include?: TupleWithRelationInclude;
+      };
+}
+
+export type TupleRelatedPost$Relations = {
+  author: { type: TupleWithRelation; include: TupleWithRelationInclude };
+};
+
+export type GetTupleRelatedPostIncludePayload<I extends TupleRelatedPostInclude | undefined> =
+  I extends TupleRelatedPostInclude
+    ? Pick<
+        {
+          author: I['author'] extends true
+            ? TupleWithRelation
+            : I['author'] extends {
+                  select: infer S extends TupleWithRelationSelect;
+                  include: infer NI extends TupleWithRelationInclude;
+                }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof TupleWithRelation
+                    ? ResolveFieldSelect<TupleWithRelation[P], S[P]>
+                    : never;
+                } & GetTupleWithRelationIncludePayload<NI>
+              : I['author'] extends { select: infer S extends TupleWithRelationSelect }
+                ? {
+                    [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof TupleWithRelation
+                      ? ResolveFieldSelect<TupleWithRelation[P], S[P]>
+                      : never;
+                  }
+                : I['author'] extends { include: infer NI extends TupleWithRelationInclude }
+                  ? TupleWithRelation & GetTupleWithRelationIncludePayload<NI>
+                  : TupleWithRelation;
+        },
+        Extract<keyof I, keyof TupleRelatedPost$Relations> &
+          { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+      >
+    : {};
+
+export type GetTupleRelatedPostPayload<
+  S extends TupleRelatedPostSelect | undefined = undefined,
+  I extends TupleRelatedPostInclude | undefined = undefined,
+> = A.Compute<
+  S extends TupleRelatedPostSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof TupleRelatedPost
+          ? ResolveFieldSelect<TupleRelatedPost[K], S[K]>
+          : never;
+      } & GetTupleRelatedPostIncludePayload<I>
+    : I extends TupleRelatedPostInclude
+      ? TupleRelatedPost & GetTupleRelatedPostIncludePayload<I>
+      : TupleRelatedPost,
+  'flat'
+>;
+
+export interface TupleRelatedPostModel {
+  findOne<
+    S extends TupleRelatedPostSelect | undefined = undefined,
+    I extends TupleRelatedPostInclude | undefined = undefined,
+  >(options?: {
+    where?: TupleRelatedPostWhere;
+    select?: S;
+    include?: I;
+    orderBy?: TupleRelatedPostOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleRelatedPostPayload<S, I> | null>;
+
+  findMany<
+    S extends TupleRelatedPostSelect | undefined = undefined,
+    I extends TupleRelatedPostInclude | undefined = undefined,
+  >(options?: {
+    where?: TupleRelatedPostWhere;
+    select?: S;
+    orderBy?: TupleRelatedPostOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleRelatedPostPayload<S, I>[]>;
+
+  findUnique<
+    S extends TupleRelatedPostSelect | undefined = undefined,
+    I extends TupleRelatedPostInclude | undefined = undefined,
+  >(options: {
+    where: TupleRelatedPostFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleRelatedPostPayload<S, I> | null>;
+
+  create<
+    S extends TupleRelatedPostSelect | undefined = undefined,
+    I extends TupleRelatedPostInclude | undefined = undefined,
+  >(options: {
+    data: TupleRelatedPostCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleRelatedPostPayload<S, I>>;
+
+  updateMany<
+    S extends TupleRelatedPostSelect | undefined = undefined,
+    I extends TupleRelatedPostInclude | undefined = undefined,
+    D extends TupleRelatedPostUpdateInput = TupleRelatedPostUpdateInput,
+  >(options: {
+    where: TupleRelatedPostWhere;
+    data: D;
+    unset?: SafeUnset<TupleRelatedPostUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleRelatedPostPayload<S, I>[]>;
+
+  updateUnique<
+    S extends TupleRelatedPostSelect | undefined = undefined,
+    I extends TupleRelatedPostInclude | undefined = undefined,
+    D extends TupleRelatedPostUpdateInput = TupleRelatedPostUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: TupleRelatedPostFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<TupleRelatedPostUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns TupleRelatedPost | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetTupleRelatedPostPayload<S, I>, R>>;
+
+  upsert<
+    S extends TupleRelatedPostSelect | undefined = undefined,
+    I extends TupleRelatedPostInclude | undefined = undefined,
+    D extends TupleRelatedPostUpdateInput = TupleRelatedPostUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: TupleRelatedPostFindUniqueWhere;
+    create: TupleRelatedPostCreateInput;
+    update?: D;
+    unset?: SafeUnset<TupleRelatedPostUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetTupleRelatedPostPayload<S, I>, R>>;
+
+  upsert<
+    S extends TupleRelatedPostSelect | undefined = undefined,
+    I extends TupleRelatedPostInclude | undefined = undefined,
+    D extends TupleRelatedPostUpdateInput = TupleRelatedPostUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: TupleRelatedPostWhere;
+    create: TupleRelatedPostCreateInput;
+    update?: D;
+    unset?: SafeUnset<TupleRelatedPostUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetTupleRelatedPostPayload<S, I>, R>>;
+
+  deleteMany(options: { where: TupleRelatedPostWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: TupleRelatedPostFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns TupleRelatedPost | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<TupleRelatedPost, R>>;
+
+  count(where?: TupleRelatedPostWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: TupleRelatedPostWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/tuplestamped.ts =====
+/**
+ * Generated types for TupleStamped
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { Stamped, StampedInput, StampedWhere, StampedUpdate } from '../tuples/stamped';
+export interface TupleStamped {
+  id: CerialId<string>;
+  name: string;
+  stamp: Stamped;
+}
+
+export interface TupleStampedInput {
+  id?: string;
+  name: string;
+  stamp: StampedInput;
+}
+
+export interface TupleStampedWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  stamp?: StampedWhere;
+  AND?: TupleStampedWhere[];
+  OR?: TupleStampedWhere[];
+  NOT?: TupleStampedWhere;
+}
+
+export type TupleStampedWhereInput = TupleStampedWhere;
+
+export type TupleStampedFindUniqueWhere = { id: RecordIdInput<string> } & Omit<TupleStampedWhere, 'id'>;
+
+export type TupleStampedCreate = O.Optional<TupleStampedInput, 'id'>;
+
+export type TupleStampedNestedCreate = O.Optional<TupleStampedInput, 'id'>;
+
+export type TupleStampedCreateInput = TupleStampedCreate;
+
+export type TupleStampedUpdate = Partial<O.Omit<TupleStampedInput, 'id' | 'stamp'>> & {
+  stamp?: [string, Date, Date, number] | StampedUpdate;
+};
+
+export type TupleStampedUpdateInput = TupleStampedUpdate;
+
+export type TupleStampedUnset = {};
+
+export type TupleStampedSelect =
+  | ({ id: boolean } & Partial<Record<'name' | 'stamp', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'stamp', boolean>>)
+  | ({ stamp: boolean } & Partial<Record<'id' | 'name', boolean>>);
+
+export interface TupleStampedOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+}
+
+export type TupleStamped$Relations = {};
+
+export type GetTupleStampedPayload<S extends TupleStampedSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends TupleStampedSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof TupleStamped
+          ? ResolveFieldSelect<TupleStamped[K], S[K]>
+          : never;
+      }
+    : TupleStamped,
+  'flat'
+>;
+
+export interface TupleStampedModel {
+  findOne<S extends TupleStampedSelect | undefined = undefined>(options?: {
+    where?: TupleStampedWhere;
+    select?: S;
+    orderBy?: TupleStampedOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleStampedPayload<S> | null>;
+
+  findMany<S extends TupleStampedSelect | undefined = undefined>(options?: {
+    where?: TupleStampedWhere;
+    select?: S;
+    orderBy?: TupleStampedOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleStampedPayload<S>[]>;
+
+  findUnique<S extends TupleStampedSelect | undefined = undefined>(options: {
+    where: TupleStampedFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleStampedPayload<S> | null>;
+
+  create<S extends TupleStampedSelect | undefined = undefined>(options: {
+    data: TupleStampedCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleStampedPayload<S>>;
+
+  updateMany<
+    S extends TupleStampedSelect | undefined = undefined,
+    D extends TupleStampedUpdateInput = TupleStampedUpdateInput,
+  >(options: {
+    where: TupleStampedWhere;
+    data: D;
+    unset?: SafeUnset<TupleStampedUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleStampedPayload<S>[]>;
+
+  updateUnique<
+    S extends TupleStampedSelect | undefined = undefined,
+    D extends TupleStampedUpdateInput = TupleStampedUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: TupleStampedFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<TupleStampedUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns TupleStamped | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetTupleStampedPayload<S>, R>>;
+
+  upsert<
+    S extends TupleStampedSelect | undefined = undefined,
+    D extends TupleStampedUpdateInput = TupleStampedUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: TupleStampedFindUniqueWhere;
+    create: TupleStampedCreateInput;
+    update?: D;
+    unset?: SafeUnset<TupleStampedUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetTupleStampedPayload<S>, R>>;
+
+  upsert<
+    S extends TupleStampedSelect | undefined = undefined,
+    D extends TupleStampedUpdateInput = TupleStampedUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: TupleStampedWhere;
+    create: TupleStampedCreateInput;
+    update?: D;
+    unset?: SafeUnset<TupleStampedUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetTupleStampedPayload<S>, R>>;
+
+  deleteMany(options: { where: TupleStampedWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: TupleStampedFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns TupleStamped | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<TupleStamped, R>>;
+
+  count(where?: TupleStampedWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: TupleStampedWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/tuplewithrelation.ts =====
+/**
+ * Generated types for TupleWithRelation
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  TupleRelatedPost,
+  TupleRelatedPostWhere,
+  TupleRelatedPostSelect,
+  TupleRelatedPostOrderBy,
+  TupleRelatedPostNestedCreate,
+  TupleRelatedPostInclude,
+  GetTupleRelatedPostIncludePayload,
+} from './tuplerelatedpost';
+import type { Coordinate, CoordinateInput, CoordinateWhere, CoordinateUpdate } from '../tuples/coordinate';
+export interface TupleWithRelation {
+  id: CerialId<string>;
+  name: string;
+  location: Coordinate;
+}
+
+export interface TupleWithRelationInput {
+  id?: string;
+  name: string;
+  location: CoordinateInput;
+}
+
+export interface TupleWithRelationWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  location?: CoordinateWhere;
+  posts?: { some?: TupleRelatedPostWhere; every?: TupleRelatedPostWhere; none?: TupleRelatedPostWhere };
+  AND?: TupleWithRelationWhere[];
+  OR?: TupleWithRelationWhere[];
+  NOT?: TupleWithRelationWhere;
+}
+
+export type TupleWithRelationWhereInput = TupleWithRelationWhere;
+
+export type TupleWithRelationFindUniqueWhere = { id: RecordIdInput<string> } & Omit<TupleWithRelationWhere, 'id'>;
+
+export type TupleWithRelationCreate = O.Optional<O.Omit<TupleWithRelationInput, 'posts'>, 'id'>;
+
+export type TupleWithRelationNestedCreate = O.Optional<O.Omit<TupleWithRelationInput, 'posts'>, 'id'>;
+
+export type TupleWithRelationCreateInput = TupleWithRelationCreate & {
+  posts?: {
+    create?: TupleRelatedPostNestedCreate | TupleRelatedPostNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+  };
+};
+
+export type TupleWithRelationUpdate = Partial<O.Omit<TupleWithRelationInput, 'id' | 'posts' | 'location'>> & {
+  location?: [number, number] | CoordinateUpdate;
+};
+
+export type TupleWithRelationUpdateInput = TupleWithRelationUpdate & {
+  posts?: {
+    create?: TupleRelatedPostNestedCreate | TupleRelatedPostNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+    disconnect?: RecordIdInput | RecordIdInput[];
+    set?: RecordIdInput[];
+  };
+};
+
+export type TupleWithRelationUnset = {};
+
+export type TupleWithRelationSelect =
+  | ({ id: boolean } & Partial<Record<'name' | 'location', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'location', boolean>>)
+  | ({ location: boolean } & Partial<Record<'id' | 'name', boolean>>);
+
+export interface TupleWithRelationOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+}
+
+export interface TupleWithRelationInclude {
+  posts?:
+    | boolean
+    | {
+        select?: TupleRelatedPostSelect;
+        where?: TupleRelatedPostWhere;
+        orderBy?: TupleRelatedPostOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: TupleRelatedPostInclude;
+      };
+}
+
+export type TupleWithRelation$Relations = {
+  posts: { type: TupleRelatedPost[]; include: TupleRelatedPostInclude };
+};
+
+export type GetTupleWithRelationIncludePayload<I extends TupleWithRelationInclude | undefined> =
+  I extends TupleWithRelationInclude
+    ? Pick<
+        {
+          posts: I['posts'] extends true
+            ? TupleRelatedPost[]
+            : I['posts'] extends {
+                  select: infer S extends TupleRelatedPostSelect;
+                  include: infer NI extends TupleRelatedPostInclude;
+                }
+              ? ({
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof TupleRelatedPost
+                    ? ResolveFieldSelect<TupleRelatedPost[P], S[P]>
+                    : never;
+                } & GetTupleRelatedPostIncludePayload<NI>)[]
+              : I['posts'] extends { select: infer S extends TupleRelatedPostSelect }
+                ? {
+                    [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof TupleRelatedPost
+                      ? ResolveFieldSelect<TupleRelatedPost[P], S[P]>
+                      : never;
+                  }[]
+                : I['posts'] extends { include: infer NI extends TupleRelatedPostInclude }
+                  ? (TupleRelatedPost & GetTupleRelatedPostIncludePayload<NI>)[]
+                  : TupleRelatedPost[];
+        },
+        Extract<keyof I, keyof TupleWithRelation$Relations> &
+          { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+      >
+    : {};
+
+export type GetTupleWithRelationPayload<
+  S extends TupleWithRelationSelect | undefined = undefined,
+  I extends TupleWithRelationInclude | undefined = undefined,
+> = A.Compute<
+  S extends TupleWithRelationSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof TupleWithRelation
+          ? ResolveFieldSelect<TupleWithRelation[K], S[K]>
+          : never;
+      } & GetTupleWithRelationIncludePayload<I>
+    : I extends TupleWithRelationInclude
+      ? TupleWithRelation & GetTupleWithRelationIncludePayload<I>
+      : TupleWithRelation,
+  'flat'
+>;
+
+export interface TupleWithRelationModel {
+  findOne<
+    S extends TupleWithRelationSelect | undefined = undefined,
+    I extends TupleWithRelationInclude | undefined = undefined,
+  >(options?: {
+    where?: TupleWithRelationWhere;
+    select?: S;
+    include?: I;
+    orderBy?: TupleWithRelationOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleWithRelationPayload<S, I> | null>;
+
+  findMany<
+    S extends TupleWithRelationSelect | undefined = undefined,
+    I extends TupleWithRelationInclude | undefined = undefined,
+  >(options?: {
+    where?: TupleWithRelationWhere;
+    select?: S;
+    orderBy?: TupleWithRelationOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleWithRelationPayload<S, I>[]>;
+
+  findUnique<
+    S extends TupleWithRelationSelect | undefined = undefined,
+    I extends TupleWithRelationInclude | undefined = undefined,
+  >(options: {
+    where: TupleWithRelationFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleWithRelationPayload<S, I> | null>;
+
+  create<
+    S extends TupleWithRelationSelect | undefined = undefined,
+    I extends TupleWithRelationInclude | undefined = undefined,
+  >(options: {
+    data: TupleWithRelationCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleWithRelationPayload<S, I>>;
+
+  updateMany<
+    S extends TupleWithRelationSelect | undefined = undefined,
+    I extends TupleWithRelationInclude | undefined = undefined,
+    D extends TupleWithRelationUpdateInput = TupleWithRelationUpdateInput,
+  >(options: {
+    where: TupleWithRelationWhere;
+    data: D;
+    unset?: SafeUnset<TupleWithRelationUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleWithRelationPayload<S, I>[]>;
+
+  updateUnique<
+    S extends TupleWithRelationSelect | undefined = undefined,
+    I extends TupleWithRelationInclude | undefined = undefined,
+    D extends TupleWithRelationUpdateInput = TupleWithRelationUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: TupleWithRelationFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<TupleWithRelationUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns TupleWithRelation | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetTupleWithRelationPayload<S, I>, R>>;
+
+  upsert<
+    S extends TupleWithRelationSelect | undefined = undefined,
+    I extends TupleWithRelationInclude | undefined = undefined,
+    D extends TupleWithRelationUpdateInput = TupleWithRelationUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: TupleWithRelationFindUniqueWhere;
+    create: TupleWithRelationCreateInput;
+    update?: D;
+    unset?: SafeUnset<TupleWithRelationUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetTupleWithRelationPayload<S, I>, R>>;
+
+  upsert<
+    S extends TupleWithRelationSelect | undefined = undefined,
+    I extends TupleWithRelationInclude | undefined = undefined,
+    D extends TupleWithRelationUpdateInput = TupleWithRelationUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: TupleWithRelationWhere;
+    create: TupleWithRelationCreateInput;
+    update?: D;
+    unset?: SafeUnset<TupleWithRelationUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetTupleWithRelationPayload<S, I>, R>>;
+
+  deleteMany(options: { where: TupleWithRelationWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: TupleWithRelationFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns TupleWithRelation | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<TupleWithRelation, R>>;
+
+  count(where?: TupleWithRelationWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: TupleWithRelationWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== objects/deepinnerobj.ts =====
+/**
+ * Generated types for DeepInnerObj
+ * Do not edit manually
+ */
+
+export interface DeepInnerObj {
+  value: string;
+  extra: string;
+}
+
+export interface DeepInnerObjInput {
+  value: string;
+  extra: string;
+}
+
+export interface DeepInnerObjWhere {
+  value?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  extra?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  AND?: DeepInnerObjWhere[];
+  OR?: DeepInnerObjWhere[];
+  NOT?: DeepInnerObjWhere;
+}
+
+export type DeepInnerObjSelect =
+  | ({ value: boolean } & Partial<Record<'extra', boolean>>)
+  | ({ extra: boolean } & Partial<Record<'value', boolean>>);
+
+export interface DeepInnerObjOrderBy {
+  value?: 'asc' | 'desc';
+  extra?: 'asc' | 'desc';
+}
+
+// ===== objects/deepmidobj.ts =====
+/**
+ * Generated types for DeepMidObj
+ * Do not edit manually
+ */
+
+import type {
+  DeepInnerTuple,
+  DeepInnerTupleInput,
+  DeepInnerTupleWhere,
+  DeepInnerTupleUpdate,
+  DeepInnerTupleSelect,
+} from '../tuples/deepinnertuple';
+export interface DeepMidObj {
+  name: string;
+  age?: number;
+  pos: DeepInnerTuple;
+}
+
+export interface DeepMidObjInput {
+  name: string;
+  age?: number;
+  pos: DeepInnerTupleInput;
+}
+
+export interface DeepMidObjWhere {
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  age?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  pos?: DeepInnerTupleWhere;
+  AND?: DeepMidObjWhere[];
+  OR?: DeepMidObjWhere[];
+  NOT?: DeepMidObjWhere;
+}
+
+export type DeepMidObjSelect =
+  | ({ name: boolean } & { age?: boolean; pos?: boolean | DeepInnerTupleSelect })
+  | ({ age: boolean } & { name?: boolean; pos?: boolean | DeepInnerTupleSelect })
+  | ({ pos: boolean | DeepInnerTupleSelect } & Partial<Record<'name' | 'age', boolean>>);
+
+export interface DeepMidObjOrderBy {
+  name?: 'asc' | 'desc';
+  age?: 'asc' | 'desc';
+}
+
+// ===== objects/tupleaddress.ts =====
+/**
+ * Generated types for TupleAddress
+ * Do not edit manually
+ */
+
+export interface TupleAddress {
+  street: string;
+  city: string;
+}
+
+export interface TupleAddressInput {
+  street: string;
+  city: string;
+}
+
+export interface TupleAddressWhere {
+  street?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  city?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  AND?: TupleAddressWhere[];
+  OR?: TupleAddressWhere[];
+  NOT?: TupleAddressWhere;
+}
+
+export type TupleAddressSelect =
+  | ({ street: boolean } & Partial<Record<'city', boolean>>)
+  | ({ city: boolean } & Partial<Record<'street', boolean>>);
+
+export interface TupleAddressOrderBy {
+  street?: 'asc' | 'desc';
+  city?: 'asc' | 'desc';
+}
+
+// ===== objects/tupleholder.ts =====
+/**
+ * Generated types for TupleHolder
+ * Do not edit manually
+ */
+
+import type { Coordinate, CoordinateInput, CoordinateWhere, CoordinateUpdate } from '../tuples/coordinate';
+export interface TupleHolder {
+  label: string;
+  coord: Coordinate;
+  optCoord?: Coordinate;
+}
+
+export interface TupleHolderInput {
+  label: string;
+  coord: CoordinateInput;
+  optCoord?: CoordinateInput;
+}
+
+export interface TupleHolderWhere {
+  label?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  coord?: CoordinateWhere;
+  optCoord?: CoordinateWhere;
+  AND?: TupleHolderWhere[];
+  OR?: TupleHolderWhere[];
+  NOT?: TupleHolderWhere;
+}
+
+export type TupleHolderSelect =
+  | ({ label: boolean } & Partial<Record<'coord' | 'optCoord', boolean>>)
+  | ({ coord: boolean } & Partial<Record<'label' | 'optCoord', boolean>>)
+  | ({ optCoord: boolean } & Partial<Record<'label' | 'coord', boolean>>);
+
+export interface TupleHolderOrderBy {
+  label?: 'asc' | 'desc';
+}
+
+// ===== tuples/coordinate.ts =====
+/**
+ * Generated types for Coordinate
+ * Do not edit manually
+ */
+
+export type Coordinate = [number, number];
+
+export type CoordinateInput =
+  | [number, number]
+  | {
+      0?: number;
+      lat?: number;
+      1?: number;
+      lng?: number;
+    };
+
+export interface CoordinateWhere {
+  0?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  lat?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  1?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  lng?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+}
+
+export type CoordinateUpdate = {
+  0?: number;
+  lat?: number;
+  1?: number;
+  lng?: number;
+};
+
+// ===== tuples/deepinnertuple.ts =====
+/**
+ * Generated types for DeepInnerTuple
+ * Do not edit manually
+ */
+
+import type {
+  DeepInnerObj,
+  DeepInnerObjInput,
+  DeepInnerObjWhere,
+  DeepInnerObjSelect,
+  DeepInnerObjOrderBy,
+} from '../objects/deepinnerobj';
+export type DeepInnerTuple = [number, DeepInnerObj];
+
+export type DeepInnerTupleInput =
+  | [number, DeepInnerObjInput]
+  | {
+      0?: number;
+      1?: DeepInnerObjInput;
+    };
+
+export interface DeepInnerTupleWhere {
+  0?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  1?: DeepInnerObjWhere;
+}
+
+export type DeepInnerTupleUpdate = {
+  0?: number;
+  1?: Partial<DeepInnerObjInput> | { set: DeepInnerObjInput };
+};
+
+export type DeepInnerTupleSelect = {
+  1?: boolean | DeepInnerObjSelect;
+};
+
+// ===== tuples/deepmidtuple.ts =====
+/**
+ * Generated types for DeepMidTuple
+ * Do not edit manually
+ */
+
+import type {
+  DeepMidObj,
+  DeepMidObjInput,
+  DeepMidObjWhere,
+  DeepMidObjSelect,
+  DeepMidObjOrderBy,
+} from '../objects/deepmidobj';
+export type DeepMidTuple = [string, DeepMidObj];
+
+export type DeepMidTupleInput =
+  | [string, DeepMidObjInput]
+  | {
+      0?: string;
+      1?: DeepMidObjInput;
+    };
+
+export interface DeepMidTupleWhere {
+  0?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  1?: DeepMidObjWhere;
+}
+
+export type DeepMidTupleUpdate = {
+  0?: string;
+  1?: Partial<DeepMidObjInput> | { set: DeepMidObjInput };
+};
+
+export type DeepMidTupleSelect = {
+  1?: boolean | DeepMidObjSelect;
+};
+
+export type DeepMidTupleUnset = {
+  1?: {
+    age?: true;
+  };
+};
+
+// ===== tuples/deepoutertuple.ts =====
+/**
+ * Generated types for DeepOuterTuple
+ * Do not edit manually
+ */
+
+import type {
+  DeepMidObj,
+  DeepMidObjInput,
+  DeepMidObjWhere,
+  DeepMidObjSelect,
+  DeepMidObjOrderBy,
+} from '../objects/deepmidobj';
+import type {
+  DeepMidTuple,
+  DeepMidTupleInput,
+  DeepMidTupleWhere,
+  DeepMidTupleUpdate,
+  DeepMidTupleSelect,
+  DeepMidTupleUnset,
+} from './deepmidtuple';
+export type DeepOuterTuple = [string, DeepMidTuple];
+
+export type DeepOuterTupleInput =
+  | [string, DeepMidTupleInput]
+  | {
+      0?: string;
+      1?: DeepMidTupleInput;
+    };
+
+export interface DeepOuterTupleWhere {
+  0?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  1?: DeepMidTupleWhere;
+}
+
+export type DeepOuterTupleUpdate = {
+  0?: string;
+  1?: [string, DeepMidObjInput] | DeepMidTupleUpdate;
+};
+
+export type DeepOuterTupleSelect = {
+  1?: boolean | DeepMidTupleSelect;
+};
+
+export type DeepOuterTupleUnset = {
+  1?: DeepMidTupleUnset;
+};
+
+// ===== tuples/entry.ts =====
+/**
+ * Generated types for Entry
+ * Do not edit manually
+ */
+
+export type Entry = [string, number, boolean];
+
+export type EntryInput =
+  | [string, number, boolean]
+  | {
+      0?: string;
+      name?: string;
+      1?: number;
+      2?: boolean;
+    };
+
+export interface EntryWhere {
+  0?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  1?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  2?:
+    | boolean
+    | ({
+        eq?: boolean;
+        neq?: boolean;
+      } & {});
+}
+
+export type EntryUpdate = {
+  0?: string;
+  name?: string;
+  1?: number;
+  2?: boolean;
+};
+
+// ===== tuples/inner.ts =====
+/**
+ * Generated types for Inner
+ * Do not edit manually
+ */
+
+export type Inner = [number, number];
+
+export type InnerInput =
+  | [number, number]
+  | {
+      0?: number;
+      x?: number;
+      1?: number;
+      y?: number;
+    };
+
+export interface InnerWhere {
+  0?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  x?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  1?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  y?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+}
+
+export type InnerUpdate = {
+  0?: number;
+  x?: number;
+  1?: number;
+  y?: number;
+};
+
+// ===== tuples/located.ts =====
+/**
+ * Generated types for Located
+ * Do not edit manually
+ */
+
+import type {
+  TupleAddress,
+  TupleAddressInput,
+  TupleAddressWhere,
+  TupleAddressSelect,
+  TupleAddressOrderBy,
+} from '../objects/tupleaddress';
+export type Located = [string, TupleAddress];
+
+export type LocatedInput =
+  | [string, TupleAddressInput]
+  | {
+      0?: string;
+      tag?: string;
+      1?: TupleAddressInput;
+    };
+
+export interface LocatedWhere {
+  0?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  tag?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  1?: TupleAddressWhere;
+}
+
+export type LocatedUpdate = {
+  0?: string;
+  tag?: string;
+  1?: Partial<TupleAddressInput> | { set: TupleAddressInput };
+};
+
+export type LocatedSelect = {
+  1?: boolean | TupleAddressSelect;
+};
+
+// ===== tuples/mixednullability.ts =====
+/**
+ * Generated types for MixedNullability
+ * Do not edit manually
+ */
+
+export type MixedNullability = [string, number | null, number | null, boolean | null];
+
+export type MixedNullabilityInput =
+  | [string, number | null, number | null, boolean | null]
+  | {
+      0?: string;
+      required?: string;
+      1?: number | null;
+      optOnly?: number | null;
+      2?: number | null;
+      nullOnly?: number | null;
+      3?: boolean | null;
+      both?: boolean | null;
+    };
+
+export interface MixedNullabilityWhere {
+  0?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  required?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  1?:
+    | null
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number | null;
+        isNull?: boolean;
+        between?: [number, number];
+      });
+  optOnly?:
+    | null
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number | null;
+        isNull?: boolean;
+        between?: [number, number];
+      });
+  2?:
+    | null
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number | null;
+        isNull?: boolean;
+        between?: [number, number];
+      });
+  nullOnly?:
+    | null
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number | null;
+        isNull?: boolean;
+        between?: [number, number];
+      });
+  3?:
+    | null
+    | boolean
+    | ({
+        eq?: boolean;
+        neq?: boolean;
+      } & {
+        not?: string | null;
+        isNull?: boolean;
+      });
+  both?:
+    | null
+    | boolean
+    | ({
+        eq?: boolean;
+        neq?: boolean;
+      } & {
+        not?: string | null;
+        isNull?: boolean;
+      });
+}
+
+export type MixedNullabilityUpdate = {
+  0?: string;
+  required?: string;
+  1?: number | null;
+  optOnly?: number | null;
+  2?: number | null;
+  nullOnly?: number | null;
+  3?: boolean | null;
+  both?: boolean | null;
+};
+
+export type MixedNullabilityUnset = {
+  1?: true;
+  optOnly?: true;
+  2?: true;
+  nullOnly?: true;
+  3?: true;
+  both?: true;
+};
+
+// ===== tuples/nullablepair.ts =====
+/**
+ * Generated types for NullablePair
+ * Do not edit manually
+ */
+
+export type NullablePair = [string, number | null];
+
+export type NullablePairInput =
+  | [string, number | null]
+  | {
+      0?: string;
+      label?: string;
+      1?: number | null;
+      count?: number | null;
+    };
+
+export interface NullablePairWhere {
+  0?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  label?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  1?:
+    | null
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number | null;
+        isNull?: boolean;
+        between?: [number, number];
+      });
+  count?:
+    | null
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number | null;
+        isNull?: boolean;
+        between?: [number, number];
+      });
+}
+
+export type NullablePairUpdate = {
+  0?: string;
+  label?: string;
+  1?: number | null;
+  count?: number | null;
+};
+
+export type NullablePairUnset = {
+  1?: true;
+  count?: true;
+};
+
+// ===== tuples/optnullpair.ts =====
+/**
+ * Generated types for OptNullPair
+ * Do not edit manually
+ */
+
+export type OptNullPair = [string, number | null];
+
+export type OptNullPairInput =
+  | [string, number | null]
+  | {
+      0?: string;
+      tag?: string;
+      1?: number | null;
+      score?: number | null;
+    };
+
+export interface OptNullPairWhere {
+  0?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  tag?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  1?:
+    | null
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number | null;
+        isNull?: boolean;
+        between?: [number, number];
+      });
+  score?:
+    | null
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number | null;
+        isNull?: boolean;
+        between?: [number, number];
+      });
+}
+
+export type OptNullPairUpdate = {
+  0?: string;
+  tag?: string;
+  1?: number | null;
+  score?: number | null;
+};
+
+export type OptNullPairUnset = {
+  1?: true;
+  score?: true;
+};
+
+// ===== tuples/outer.ts =====
+/**
+ * Generated types for Outer
+ * Do not edit manually
+ */
+
+import type { Inner, InnerInput, InnerWhere, InnerUpdate } from './inner';
+export type Outer = [string, Inner];
+
+export type OuterInput =
+  | [string, InnerInput]
+  | {
+      0?: string;
+      label?: string;
+      1?: InnerInput;
+    };
+
+export interface OuterWhere {
+  0?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  label?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  1?: InnerWhere;
+}
+
+export type OuterUpdate = {
+  0?: string;
+  label?: string;
+  1?: [number, number] | InnerUpdate;
+};
+
+// ===== tuples/rolepair.ts =====
+/**
+ * Generated types for RolePair
+ * Do not edit manually
+ */
+
+import { RoleEnum } from '../enums/role';
+import type { RoleEnumType, RoleEnumWhere } from '../enums/role';
+export type RolePair = [RoleEnumType, number];
+
+export type RolePairInput =
+  | [RoleEnumType, number]
+  | {
+      0?: RoleEnumType;
+      1?: number;
+    };
+
+export interface RolePairWhere {
+  0?: RoleEnumWhere;
+  1?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+}
+
+export type RolePairUpdate = {
+  0?: unknown;
+  1?: number;
+};
+
+// ===== tuples/stamped.ts =====
+/**
+ * Generated types for Stamped
+ * Do not edit manually
+ */
+
+export type Stamped = [string, Date, Date, number];
+
+export type StampedInput =
+  | [string, Date, Date, number]
+  | {
+      0?: string;
+      label?: string;
+      1?: Date;
+      born?: Date;
+      2?: Date;
+      touched?: Date;
+      3?: number;
+      hits?: number;
+    };
+
+export interface StampedWhere {
+  0?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  label?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  1?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        between?: [Date, Date];
+      });
+  born?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        between?: [Date, Date];
+      });
+  2?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        between?: [Date, Date];
+      });
+  touched?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        between?: [Date, Date];
+      });
+  3?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  hits?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+}
+
+export type StampedUpdate = {
+  0?: string;
+  label?: string;
+  1?: Date;
+  born?: Date;
+  2?: Date;
+  touched?: Date;
+  3?: number;
+  hits?: number;
+};
+
+// ===== tuples/statuspair.ts =====
+/**
+ * Generated types for StatusPair
+ * Do not edit manually
+ */
+
+import type { Status, StatusWhere } from '../literals/status';
+export type StatusPair = [Status, number];
+
+export type StatusPairInput =
+  | [Status, number]
+  | {
+      0?: Status;
+      state?: Status;
+      1?: number;
+      count?: number;
+    };
+
+export interface StatusPairWhere {
+  0?: StatusWhere;
+  state?: StatusWhere;
+  1?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  count?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+}
+
+export type StatusPairUpdate = {
+  0?: unknown;
+  state?: unknown;
+  1?: number;
+  count?: number;
+};
+
+// ===== tuples/withoptional.ts =====
+/**
+ * Generated types for WithOptional
+ * Do not edit manually
+ */
+
+export type WithOptional = [string, number | null];
+
+export type WithOptionalInput =
+  | [string, number | null]
+  | {
+      0?: string;
+      text?: string;
+      1?: number | null;
+    };
+
+export interface WithOptionalWhere {
+  0?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  text?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  1?:
+    | null
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number | null;
+        isNull?: boolean;
+        between?: [number, number];
+      });
+}
+
+export type WithOptionalUpdate = {
+  0?: string;
+  text?: string;
+  1?: number | null;
+};
+
+export type WithOptionalUnset = {
+  1?: true;
+};

@@ -1,0 +1,344 @@
+{
+  "models": [
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "unique"
+            }
+          ],
+          "isOptional": false,
+          "name": "email",
+          "type": "email"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "model",
+              "value": "KitchenSinkProfile"
+            }
+          ],
+          "isOptional": true,
+          "name": "profile",
+          "type": "relation"
+        },
+        {
+          "decorators": [
+            {
+              "type": "model",
+              "value": "KitchenSinkPost"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "posts",
+          "type": "relation"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "tagIds",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "tagIds"
+            },
+            {
+              "type": "model",
+              "value": "KitchenSinkTag"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "tags",
+          "type": "relation"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "settingsId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "settingsId"
+            },
+            {
+              "type": "model",
+              "value": "KitchenSinkSettings"
+            }
+          ],
+          "isOptional": true,
+          "name": "settings",
+          "type": "relation"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "badgeIds",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "badgeIds"
+            },
+            {
+              "type": "model",
+              "value": "KitchenSinkBadge"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "badges",
+          "type": "relation"
+        }
+      ],
+      "name": "KitchenSinkUser"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "bio",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "userId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "userId"
+            },
+            {
+              "type": "model",
+              "value": "KitchenSinkUser"
+            }
+          ],
+          "isOptional": false,
+          "name": "user",
+          "type": "relation"
+        }
+      ],
+      "name": "KitchenSinkProfile"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "authorId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "authorId"
+            },
+            {
+              "type": "model",
+              "value": "KitchenSinkUser"
+            }
+          ],
+          "isOptional": false,
+          "name": "author",
+          "type": "relation"
+        }
+      ],
+      "name": "KitchenSinkPost"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "unique"
+            }
+          ],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "userIds",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "userIds"
+            },
+            {
+              "type": "model",
+              "value": "KitchenSinkUser"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "users",
+          "type": "relation"
+        }
+      ],
+      "name": "KitchenSinkTag"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "theme",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "userId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "userId"
+            },
+            {
+              "type": "model",
+              "value": "KitchenSinkUser"
+            },
+            {
+              "type": "onDelete",
+              "value": "Cascade"
+            }
+          ],
+          "isOptional": true,
+          "name": "user",
+          "type": "relation"
+        }
+      ],
+      "name": "KitchenSinkSettings"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "unique"
+            }
+          ],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        }
+      ],
+      "name": "KitchenSinkBadge"
+    }
+  ]
+}

@@ -1,0 +1,1945 @@
+// ===== models/profileoptional.ts =====
+/**
+ * Generated types for ProfileOptional
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  UserOptional,
+  UserOptionalWhere,
+  UserOptionalSelect,
+  UserOptionalOrderBy,
+  UserOptionalNestedCreate,
+  UserOptionalInclude,
+  GetUserOptionalIncludePayload,
+} from './useroptional';
+export interface ProfileOptional {
+  id: CerialId<string>;
+  bio?: string;
+  userId?: CerialId<string> | null;
+}
+
+export interface ProfileOptionalInput {
+  id?: string;
+  bio?: string;
+  userId?: RecordIdInput<string> | null;
+}
+
+export interface ProfileOptionalWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  bio?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  userId?:
+    | null
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {
+        not?: string | null;
+        isNull?: boolean;
+        isNone?: boolean;
+      });
+  user?: null | UserOptionalWhere;
+  AND?: ProfileOptionalWhere[];
+  OR?: ProfileOptionalWhere[];
+  NOT?: ProfileOptionalWhere;
+}
+
+export type ProfileOptionalWhereInput = ProfileOptionalWhere;
+
+export type ProfileOptionalFindUniqueWhere = { id: RecordIdInput<string> } & Omit<ProfileOptionalWhere, 'id'>;
+
+export type ProfileOptionalCreate = O.Optional<O.Omit<ProfileOptionalInput, 'user'>, 'id' | 'bio' | 'userId'>;
+
+export type ProfileOptionalNestedCreate = O.Optional<O.Omit<ProfileOptionalInput, 'user' | 'userId'>, 'id' | 'bio'>;
+
+export type ProfileOptionalCreateInput =
+  | ProfileOptionalCreate
+  | (O.Omit<ProfileOptionalCreate, 'userId'> & {
+      user?: { create: UserOptionalNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type ProfileOptionalUpdate = Partial<O.Omit<ProfileOptionalInput, 'id' | 'user' | 'bio' | 'userId'>> & {
+  bio?: string | CerialNone;
+  userId?: RecordIdInput<string> | null | CerialNone;
+};
+
+export type ProfileOptionalUpdateInput =
+  | ProfileOptionalUpdate
+  | (O.Omit<ProfileOptionalUpdate, 'userId'> & {
+      user?: { create: UserOptionalNestedCreate } | { connect: RecordIdInput } | { disconnect: true };
+    });
+
+export type ProfileOptionalUnset = {
+  bio?: true;
+  userId?: true;
+};
+
+export type ProfileOptionalSelect =
+  | ({ id: boolean } & Partial<Record<'bio' | 'userId', boolean>>)
+  | ({ bio: boolean } & Partial<Record<'id' | 'userId', boolean>>)
+  | ({ userId: boolean } & Partial<Record<'id' | 'bio', boolean>>);
+
+export interface ProfileOptionalOrderBy {
+  id?: 'asc' | 'desc';
+  bio?: 'asc' | 'desc';
+  userId?: 'asc' | 'desc';
+  user?: UserOptionalOrderBy;
+}
+
+export interface ProfileOptionalInclude {
+  user?:
+    | boolean
+    | {
+        select?: UserOptionalSelect;
+        where?: UserOptionalWhere;
+        include?: UserOptionalInclude;
+      };
+}
+
+export type ProfileOptional$Relations = {
+  user: { type: UserOptional; include: UserOptionalInclude };
+};
+
+export type GetProfileOptionalIncludePayload<I extends ProfileOptionalInclude | undefined> =
+  I extends ProfileOptionalInclude
+    ? Pick<
+        {
+          user: I['user'] extends true
+            ? UserOptional
+            : I['user'] extends {
+                  select: infer S extends UserOptionalSelect;
+                  include: infer NI extends UserOptionalInclude;
+                }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof UserOptional
+                    ? ResolveFieldSelect<UserOptional[P], S[P]>
+                    : never;
+                } & GetUserOptionalIncludePayload<NI>
+              : I['user'] extends { select: infer S extends UserOptionalSelect }
+                ? {
+                    [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof UserOptional
+                      ? ResolveFieldSelect<UserOptional[P], S[P]>
+                      : never;
+                  }
+                : I['user'] extends { include: infer NI extends UserOptionalInclude }
+                  ? UserOptional & GetUserOptionalIncludePayload<NI>
+                  : UserOptional;
+        },
+        Extract<keyof I, keyof ProfileOptional$Relations> &
+          { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+      >
+    : {};
+
+export type GetProfileOptionalPayload<
+  S extends ProfileOptionalSelect | undefined = undefined,
+  I extends ProfileOptionalInclude | undefined = undefined,
+> = A.Compute<
+  S extends ProfileOptionalSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ProfileOptional
+          ? ResolveFieldSelect<ProfileOptional[K], S[K]>
+          : never;
+      } & GetProfileOptionalIncludePayload<I>
+    : I extends ProfileOptionalInclude
+      ? ProfileOptional & GetProfileOptionalIncludePayload<I>
+      : ProfileOptional,
+  'flat'
+>;
+
+export interface ProfileOptionalModel {
+  findOne<
+    S extends ProfileOptionalSelect | undefined = undefined,
+    I extends ProfileOptionalInclude | undefined = undefined,
+  >(options?: {
+    where?: ProfileOptionalWhere;
+    select?: S;
+    include?: I;
+    orderBy?: ProfileOptionalOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetProfileOptionalPayload<S, I> | null>;
+
+  findMany<
+    S extends ProfileOptionalSelect | undefined = undefined,
+    I extends ProfileOptionalInclude | undefined = undefined,
+  >(options?: {
+    where?: ProfileOptionalWhere;
+    select?: S;
+    orderBy?: ProfileOptionalOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetProfileOptionalPayload<S, I>[]>;
+
+  findUnique<
+    S extends ProfileOptionalSelect | undefined = undefined,
+    I extends ProfileOptionalInclude | undefined = undefined,
+  >(options: {
+    where: ProfileOptionalFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetProfileOptionalPayload<S, I> | null>;
+
+  create<
+    S extends ProfileOptionalSelect | undefined = undefined,
+    I extends ProfileOptionalInclude | undefined = undefined,
+  >(options: {
+    data: ProfileOptionalCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetProfileOptionalPayload<S, I>>;
+
+  updateMany<
+    S extends ProfileOptionalSelect | undefined = undefined,
+    I extends ProfileOptionalInclude | undefined = undefined,
+    D extends ProfileOptionalUpdateInput = ProfileOptionalUpdateInput,
+  >(options: {
+    where: ProfileOptionalWhere;
+    data: D;
+    unset?: SafeUnset<ProfileOptionalUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetProfileOptionalPayload<S, I>[]>;
+
+  updateUnique<
+    S extends ProfileOptionalSelect | undefined = undefined,
+    I extends ProfileOptionalInclude | undefined = undefined,
+    D extends ProfileOptionalUpdateInput = ProfileOptionalUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ProfileOptionalFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ProfileOptionalUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ProfileOptional | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetProfileOptionalPayload<S, I>, R>>;
+
+  upsert<
+    S extends ProfileOptionalSelect | undefined = undefined,
+    I extends ProfileOptionalInclude | undefined = undefined,
+    D extends ProfileOptionalUpdateInput = ProfileOptionalUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ProfileOptionalFindUniqueWhere;
+    create: ProfileOptionalCreateInput;
+    update?: D;
+    unset?: SafeUnset<ProfileOptionalUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetProfileOptionalPayload<S, I>, R>>;
+
+  upsert<
+    S extends ProfileOptionalSelect | undefined = undefined,
+    I extends ProfileOptionalInclude | undefined = undefined,
+    D extends ProfileOptionalUpdateInput = ProfileOptionalUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ProfileOptionalWhere;
+    create: ProfileOptionalCreateInput;
+    update?: D;
+    unset?: SafeUnset<ProfileOptionalUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetProfileOptionalPayload<S, I>, R>>;
+
+  deleteMany(options: { where: ProfileOptionalWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ProfileOptionalFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ProfileOptional | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ProfileOptional, R>>;
+
+  count(where?: ProfileOptionalWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ProfileOptionalWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/profilerequired.ts =====
+/**
+ * Generated types for ProfileRequired
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  UserRequired,
+  UserRequiredWhere,
+  UserRequiredSelect,
+  UserRequiredOrderBy,
+  UserRequiredNestedCreate,
+  UserRequiredInclude,
+  GetUserRequiredIncludePayload,
+} from './userrequired';
+export interface ProfileRequired {
+  id: CerialId<string>;
+  bio?: string;
+  avatarUrl?: string;
+  userId: CerialId<string>;
+}
+
+export interface ProfileRequiredInput {
+  id?: string;
+  bio?: string;
+  avatarUrl?: string;
+  userId: RecordIdInput<string>;
+}
+
+export interface ProfileRequiredWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  bio?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  avatarUrl?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  userId?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  user?: UserRequiredWhere;
+  AND?: ProfileRequiredWhere[];
+  OR?: ProfileRequiredWhere[];
+  NOT?: ProfileRequiredWhere;
+}
+
+export type ProfileRequiredWhereInput = ProfileRequiredWhere;
+
+export type ProfileRequiredFindUniqueWhere = { id: RecordIdInput<string> } & Omit<ProfileRequiredWhere, 'id'>;
+
+export type ProfileRequiredCreate = O.Optional<O.Omit<ProfileRequiredInput, 'user'>, 'id' | 'bio' | 'avatarUrl'>;
+
+export type ProfileRequiredNestedCreate = O.Optional<
+  O.Omit<ProfileRequiredInput, 'user' | 'userId'>,
+  'id' | 'bio' | 'avatarUrl'
+>;
+
+export type ProfileRequiredCreateInput =
+  | ProfileRequiredCreate
+  | (O.Omit<ProfileRequiredCreate, 'userId'> & {
+      user: { create: UserRequiredNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type ProfileRequiredUpdate = Partial<O.Omit<ProfileRequiredInput, 'id' | 'user' | 'bio' | 'avatarUrl'>> & {
+  bio?: string | CerialNone;
+  avatarUrl?: string | CerialNone;
+};
+
+export type ProfileRequiredUpdateInput =
+  | ProfileRequiredUpdate
+  | (O.Omit<ProfileRequiredUpdate, 'userId'> & {
+      user?: { create: UserRequiredNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type ProfileRequiredUnset = {
+  bio?: true;
+  avatarUrl?: true;
+};
+
+export type ProfileRequiredSelect =
+  | ({ id: boolean } & Partial<Record<'bio' | 'avatarUrl' | 'userId', boolean>>)
+  | ({ bio: boolean } & Partial<Record<'id' | 'avatarUrl' | 'userId', boolean>>)
+  | ({ avatarUrl: boolean } & Partial<Record<'id' | 'bio' | 'userId', boolean>>)
+  | ({ userId: boolean } & Partial<Record<'id' | 'bio' | 'avatarUrl', boolean>>);
+
+export interface ProfileRequiredOrderBy {
+  id?: 'asc' | 'desc';
+  bio?: 'asc' | 'desc';
+  avatarUrl?: 'asc' | 'desc';
+  userId?: 'asc' | 'desc';
+  user?: UserRequiredOrderBy;
+}
+
+export interface ProfileRequiredInclude {
+  user?:
+    | boolean
+    | {
+        select?: UserRequiredSelect;
+        where?: UserRequiredWhere;
+        include?: UserRequiredInclude;
+      };
+}
+
+export type ProfileRequired$Relations = {
+  user: { type: UserRequired; include: UserRequiredInclude };
+};
+
+export type GetProfileRequiredIncludePayload<I extends ProfileRequiredInclude | undefined> =
+  I extends ProfileRequiredInclude
+    ? Pick<
+        {
+          user: I['user'] extends true
+            ? UserRequired
+            : I['user'] extends {
+                  select: infer S extends UserRequiredSelect;
+                  include: infer NI extends UserRequiredInclude;
+                }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof UserRequired
+                    ? ResolveFieldSelect<UserRequired[P], S[P]>
+                    : never;
+                } & GetUserRequiredIncludePayload<NI>
+              : I['user'] extends { select: infer S extends UserRequiredSelect }
+                ? {
+                    [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof UserRequired
+                      ? ResolveFieldSelect<UserRequired[P], S[P]>
+                      : never;
+                  }
+                : I['user'] extends { include: infer NI extends UserRequiredInclude }
+                  ? UserRequired & GetUserRequiredIncludePayload<NI>
+                  : UserRequired;
+        },
+        Extract<keyof I, keyof ProfileRequired$Relations> &
+          { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+      >
+    : {};
+
+export type GetProfileRequiredPayload<
+  S extends ProfileRequiredSelect | undefined = undefined,
+  I extends ProfileRequiredInclude | undefined = undefined,
+> = A.Compute<
+  S extends ProfileRequiredSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ProfileRequired
+          ? ResolveFieldSelect<ProfileRequired[K], S[K]>
+          : never;
+      } & GetProfileRequiredIncludePayload<I>
+    : I extends ProfileRequiredInclude
+      ? ProfileRequired & GetProfileRequiredIncludePayload<I>
+      : ProfileRequired,
+  'flat'
+>;
+
+export interface ProfileRequiredModel {
+  findOne<
+    S extends ProfileRequiredSelect | undefined = undefined,
+    I extends ProfileRequiredInclude | undefined = undefined,
+  >(options?: {
+    where?: ProfileRequiredWhere;
+    select?: S;
+    include?: I;
+    orderBy?: ProfileRequiredOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetProfileRequiredPayload<S, I> | null>;
+
+  findMany<
+    S extends ProfileRequiredSelect | undefined = undefined,
+    I extends ProfileRequiredInclude | undefined = undefined,
+  >(options?: {
+    where?: ProfileRequiredWhere;
+    select?: S;
+    orderBy?: ProfileRequiredOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetProfileRequiredPayload<S, I>[]>;
+
+  findUnique<
+    S extends ProfileRequiredSelect | undefined = undefined,
+    I extends ProfileRequiredInclude | undefined = undefined,
+  >(options: {
+    where: ProfileRequiredFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetProfileRequiredPayload<S, I> | null>;
+
+  create<
+    S extends ProfileRequiredSelect | undefined = undefined,
+    I extends ProfileRequiredInclude | undefined = undefined,
+  >(options: {
+    data: ProfileRequiredCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetProfileRequiredPayload<S, I>>;
+
+  updateMany<
+    S extends ProfileRequiredSelect | undefined = undefined,
+    I extends ProfileRequiredInclude | undefined = undefined,
+    D extends ProfileRequiredUpdateInput = ProfileRequiredUpdateInput,
+  >(options: {
+    where: ProfileRequiredWhere;
+    data: D;
+    unset?: SafeUnset<ProfileRequiredUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetProfileRequiredPayload<S, I>[]>;
+
+  updateUnique<
+    S extends ProfileRequiredSelect | undefined = undefined,
+    I extends ProfileRequiredInclude | undefined = undefined,
+    D extends ProfileRequiredUpdateInput = ProfileRequiredUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ProfileRequiredFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ProfileRequiredUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ProfileRequired | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetProfileRequiredPayload<S, I>, R>>;
+
+  upsert<
+    S extends ProfileRequiredSelect | undefined = undefined,
+    I extends ProfileRequiredInclude | undefined = undefined,
+    D extends ProfileRequiredUpdateInput = ProfileRequiredUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ProfileRequiredFindUniqueWhere;
+    create: ProfileRequiredCreateInput;
+    update?: D;
+    unset?: SafeUnset<ProfileRequiredUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetProfileRequiredPayload<S, I>, R>>;
+
+  upsert<
+    S extends ProfileRequiredSelect | undefined = undefined,
+    I extends ProfileRequiredInclude | undefined = undefined,
+    D extends ProfileRequiredUpdateInput = ProfileRequiredUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ProfileRequiredWhere;
+    create: ProfileRequiredCreateInput;
+    update?: D;
+    unset?: SafeUnset<ProfileRequiredUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetProfileRequiredPayload<S, I>, R>>;
+
+  deleteMany(options: { where: ProfileRequiredWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ProfileRequiredFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ProfileRequired | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ProfileRequired, R>>;
+
+  count(where?: ProfileRequiredWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ProfileRequiredWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/profilesinglesided.ts =====
+/**
+ * Generated types for ProfileSingleSided
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  UserSingleSided,
+  UserSingleSidedWhere,
+  UserSingleSidedSelect,
+  UserSingleSidedOrderBy,
+  UserSingleSidedNestedCreate,
+} from './usersinglesided';
+export interface ProfileSingleSided {
+  id: CerialId<string>;
+  bio?: string;
+  userId?: CerialId<string> | null;
+}
+
+export interface ProfileSingleSidedInput {
+  id?: string;
+  bio?: string;
+  userId?: RecordIdInput<string> | null;
+}
+
+export interface ProfileSingleSidedWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  bio?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  userId?:
+    | null
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {
+        not?: string | null;
+        isNull?: boolean;
+        isNone?: boolean;
+      });
+  user?: null | UserSingleSidedWhere;
+  AND?: ProfileSingleSidedWhere[];
+  OR?: ProfileSingleSidedWhere[];
+  NOT?: ProfileSingleSidedWhere;
+}
+
+export type ProfileSingleSidedWhereInput = ProfileSingleSidedWhere;
+
+export type ProfileSingleSidedFindUniqueWhere = { id: RecordIdInput<string> } & Omit<ProfileSingleSidedWhere, 'id'>;
+
+export type ProfileSingleSidedCreate = O.Optional<O.Omit<ProfileSingleSidedInput, 'user'>, 'id' | 'bio' | 'userId'>;
+
+export type ProfileSingleSidedNestedCreate = O.Optional<
+  O.Omit<ProfileSingleSidedInput, 'user' | 'userId'>,
+  'id' | 'bio'
+>;
+
+export type ProfileSingleSidedCreateInput =
+  | ProfileSingleSidedCreate
+  | (O.Omit<ProfileSingleSidedCreate, 'userId'> & {
+      user?: { create: UserSingleSidedNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type ProfileSingleSidedUpdate = Partial<O.Omit<ProfileSingleSidedInput, 'id' | 'user' | 'bio' | 'userId'>> & {
+  bio?: string | CerialNone;
+  userId?: RecordIdInput<string> | null | CerialNone;
+};
+
+export type ProfileSingleSidedUpdateInput =
+  | ProfileSingleSidedUpdate
+  | (O.Omit<ProfileSingleSidedUpdate, 'userId'> & {
+      user?: { create: UserSingleSidedNestedCreate } | { connect: RecordIdInput } | { disconnect: true };
+    });
+
+export type ProfileSingleSidedUnset = {
+  bio?: true;
+  userId?: true;
+};
+
+export type ProfileSingleSidedSelect =
+  | ({ id: boolean } & Partial<Record<'bio' | 'userId', boolean>>)
+  | ({ bio: boolean } & Partial<Record<'id' | 'userId', boolean>>)
+  | ({ userId: boolean } & Partial<Record<'id' | 'bio', boolean>>);
+
+export interface ProfileSingleSidedOrderBy {
+  id?: 'asc' | 'desc';
+  bio?: 'asc' | 'desc';
+  userId?: 'asc' | 'desc';
+  user?: UserSingleSidedOrderBy;
+}
+
+export interface ProfileSingleSidedInclude {
+  user?:
+    | boolean
+    | {
+        select?: UserSingleSidedSelect;
+        where?: UserSingleSidedWhere;
+      };
+}
+
+export type ProfileSingleSided$Relations = {
+  user: { type: UserSingleSided; include: never };
+};
+
+export type GetProfileSingleSidedIncludePayload<I extends ProfileSingleSidedInclude | undefined> =
+  I extends ProfileSingleSidedInclude
+    ? Pick<
+        {
+          user: I['user'] extends true
+            ? UserSingleSided
+            : I['user'] extends { select: infer S extends UserSingleSidedSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof UserSingleSided
+                    ? ResolveFieldSelect<UserSingleSided[P], S[P]>
+                    : never;
+                }
+              : UserSingleSided;
+        },
+        Extract<keyof I, keyof ProfileSingleSided$Relations> &
+          { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+      >
+    : {};
+
+export type GetProfileSingleSidedPayload<
+  S extends ProfileSingleSidedSelect | undefined = undefined,
+  I extends ProfileSingleSidedInclude | undefined = undefined,
+> = A.Compute<
+  S extends ProfileSingleSidedSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ProfileSingleSided
+          ? ResolveFieldSelect<ProfileSingleSided[K], S[K]>
+          : never;
+      } & GetProfileSingleSidedIncludePayload<I>
+    : I extends ProfileSingleSidedInclude
+      ? ProfileSingleSided & GetProfileSingleSidedIncludePayload<I>
+      : ProfileSingleSided,
+  'flat'
+>;
+
+export interface ProfileSingleSidedModel {
+  findOne<
+    S extends ProfileSingleSidedSelect | undefined = undefined,
+    I extends ProfileSingleSidedInclude | undefined = undefined,
+  >(options?: {
+    where?: ProfileSingleSidedWhere;
+    select?: S;
+    include?: I;
+    orderBy?: ProfileSingleSidedOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetProfileSingleSidedPayload<S, I> | null>;
+
+  findMany<
+    S extends ProfileSingleSidedSelect | undefined = undefined,
+    I extends ProfileSingleSidedInclude | undefined = undefined,
+  >(options?: {
+    where?: ProfileSingleSidedWhere;
+    select?: S;
+    orderBy?: ProfileSingleSidedOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetProfileSingleSidedPayload<S, I>[]>;
+
+  findUnique<
+    S extends ProfileSingleSidedSelect | undefined = undefined,
+    I extends ProfileSingleSidedInclude | undefined = undefined,
+  >(options: {
+    where: ProfileSingleSidedFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetProfileSingleSidedPayload<S, I> | null>;
+
+  create<
+    S extends ProfileSingleSidedSelect | undefined = undefined,
+    I extends ProfileSingleSidedInclude | undefined = undefined,
+  >(options: {
+    data: ProfileSingleSidedCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetProfileSingleSidedPayload<S, I>>;
+
+  updateMany<
+    S extends ProfileSingleSidedSelect | undefined = undefined,
+    I extends ProfileSingleSidedInclude | undefined = undefined,
+    D extends ProfileSingleSidedUpdateInput = ProfileSingleSidedUpdateInput,
+  >(options: {
+    where: ProfileSingleSidedWhere;
+    data: D;
+    unset?: SafeUnset<ProfileSingleSidedUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetProfileSingleSidedPayload<S, I>[]>;
+
+  updateUnique<
+    S extends ProfileSingleSidedSelect | undefined = undefined,
+    I extends ProfileSingleSidedInclude | undefined = undefined,
+    D extends ProfileSingleSidedUpdateInput = ProfileSingleSidedUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ProfileSingleSidedFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ProfileSingleSidedUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ProfileSingleSided | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetProfileSingleSidedPayload<S, I>, R>>;
+
+  upsert<
+    S extends ProfileSingleSidedSelect | undefined = undefined,
+    I extends ProfileSingleSidedInclude | undefined = undefined,
+    D extends ProfileSingleSidedUpdateInput = ProfileSingleSidedUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ProfileSingleSidedFindUniqueWhere;
+    create: ProfileSingleSidedCreateInput;
+    update?: D;
+    unset?: SafeUnset<ProfileSingleSidedUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetProfileSingleSidedPayload<S, I>, R>>;
+
+  upsert<
+    S extends ProfileSingleSidedSelect | undefined = undefined,
+    I extends ProfileSingleSidedInclude | undefined = undefined,
+    D extends ProfileSingleSidedUpdateInput = ProfileSingleSidedUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ProfileSingleSidedWhere;
+    create: ProfileSingleSidedCreateInput;
+    update?: D;
+    unset?: SafeUnset<ProfileSingleSidedUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetProfileSingleSidedPayload<S, I>, R>>;
+
+  deleteMany(options: { where: ProfileSingleSidedWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ProfileSingleSidedFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ProfileSingleSided | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ProfileSingleSided, R>>;
+
+  count(where?: ProfileSingleSidedWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ProfileSingleSidedWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/useroptional.ts =====
+/**
+ * Generated types for UserOptional
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  ProfileOptional,
+  ProfileOptionalWhere,
+  ProfileOptionalSelect,
+  ProfileOptionalOrderBy,
+  ProfileOptionalNestedCreate,
+  ProfileOptionalInclude,
+  GetProfileOptionalIncludePayload,
+} from './profileoptional';
+export interface UserOptional {
+  id: CerialId<string>;
+  email: string;
+  name: string;
+}
+
+export interface UserOptionalInput {
+  id?: string;
+  email: string;
+  name: string;
+}
+
+export interface UserOptionalWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  /** @unique — Unique indexed field */
+  email?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  profile?: ProfileOptionalWhere;
+  AND?: UserOptionalWhere[];
+  OR?: UserOptionalWhere[];
+  NOT?: UserOptionalWhere;
+}
+
+export type UserOptionalWhereInput = UserOptionalWhere;
+
+export type UserOptionalFindUniqueWhere =
+  | ({ id: RecordIdInput<string> } & { email?: string } & Omit<UserOptionalWhere, 'id' | 'email'>)
+  | ({ email: string } & { id?: RecordIdInput<string> } & Omit<UserOptionalWhere, 'id' | 'email'>);
+
+export type UserOptionalCreate = O.Optional<O.Omit<UserOptionalInput, 'profile'>, 'id'>;
+
+export type UserOptionalNestedCreate = O.Optional<O.Omit<UserOptionalInput, 'profile'>, 'id'>;
+
+export type UserOptionalCreateInput = UserOptionalCreate & {
+  profile?: { create: ProfileOptionalNestedCreate } | { connect: RecordIdInput };
+};
+
+export type UserOptionalUpdate = Partial<O.Omit<UserOptionalInput, 'id' | 'profile'>>;
+
+export type UserOptionalUpdateInput = UserOptionalUpdate & {
+  profile?: { create: ProfileOptionalNestedCreate } | { connect: RecordIdInput } | { disconnect: true };
+};
+
+export type UserOptionalUnset = {};
+
+export type UserOptionalSelect =
+  | ({ id: boolean } & Partial<Record<'email' | 'name', boolean>>)
+  | ({ email: boolean } & Partial<Record<'id' | 'name', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'email', boolean>>);
+
+export interface UserOptionalOrderBy {
+  id?: 'asc' | 'desc';
+  email?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+}
+
+export interface UserOptionalInclude {
+  profile?:
+    | boolean
+    | {
+        select?: ProfileOptionalSelect;
+        where?: ProfileOptionalWhere;
+        orderBy?: ProfileOptionalOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: ProfileOptionalInclude;
+      };
+}
+
+export type UserOptional$Relations = {
+  profile: { type: ProfileOptional; include: ProfileOptionalInclude };
+};
+
+export type GetUserOptionalIncludePayload<I extends UserOptionalInclude | undefined> = I extends UserOptionalInclude
+  ? Pick<
+      {
+        profile: I['profile'] extends true
+          ? ProfileOptional
+          : I['profile'] extends {
+                select: infer S extends ProfileOptionalSelect;
+                include: infer NI extends ProfileOptionalInclude;
+              }
+            ? {
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof ProfileOptional
+                  ? ResolveFieldSelect<ProfileOptional[P], S[P]>
+                  : never;
+              } & GetProfileOptionalIncludePayload<NI>
+            : I['profile'] extends { select: infer S extends ProfileOptionalSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof ProfileOptional
+                    ? ResolveFieldSelect<ProfileOptional[P], S[P]>
+                    : never;
+                }
+              : I['profile'] extends { include: infer NI extends ProfileOptionalInclude }
+                ? ProfileOptional & GetProfileOptionalIncludePayload<NI>
+                : ProfileOptional;
+      },
+      Extract<keyof I, keyof UserOptional$Relations> &
+        { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetUserOptionalPayload<
+  S extends UserOptionalSelect | undefined = undefined,
+  I extends UserOptionalInclude | undefined = undefined,
+> = A.Compute<
+  S extends UserOptionalSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof UserOptional
+          ? ResolveFieldSelect<UserOptional[K], S[K]>
+          : never;
+      } & GetUserOptionalIncludePayload<I>
+    : I extends UserOptionalInclude
+      ? UserOptional & GetUserOptionalIncludePayload<I>
+      : UserOptional,
+  'flat'
+>;
+
+export interface UserOptionalModel {
+  findOne<
+    S extends UserOptionalSelect | undefined = undefined,
+    I extends UserOptionalInclude | undefined = undefined,
+  >(options?: {
+    where?: UserOptionalWhere;
+    select?: S;
+    include?: I;
+    orderBy?: UserOptionalOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetUserOptionalPayload<S, I> | null>;
+
+  findMany<
+    S extends UserOptionalSelect | undefined = undefined,
+    I extends UserOptionalInclude | undefined = undefined,
+  >(options?: {
+    where?: UserOptionalWhere;
+    select?: S;
+    orderBy?: UserOptionalOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetUserOptionalPayload<S, I>[]>;
+
+  findUnique<
+    S extends UserOptionalSelect | undefined = undefined,
+    I extends UserOptionalInclude | undefined = undefined,
+  >(options: {
+    where: UserOptionalFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetUserOptionalPayload<S, I> | null>;
+
+  create<
+    S extends UserOptionalSelect | undefined = undefined,
+    I extends UserOptionalInclude | undefined = undefined,
+  >(options: {
+    data: UserOptionalCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetUserOptionalPayload<S, I>>;
+
+  updateMany<
+    S extends UserOptionalSelect | undefined = undefined,
+    I extends UserOptionalInclude | undefined = undefined,
+    D extends UserOptionalUpdateInput = UserOptionalUpdateInput,
+  >(options: {
+    where: UserOptionalWhere;
+    data: D;
+    unset?: SafeUnset<UserOptionalUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetUserOptionalPayload<S, I>[]>;
+
+  updateUnique<
+    S extends UserOptionalSelect | undefined = undefined,
+    I extends UserOptionalInclude | undefined = undefined,
+    D extends UserOptionalUpdateInput = UserOptionalUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: UserOptionalFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<UserOptionalUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns UserOptional | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetUserOptionalPayload<S, I>, R>>;
+
+  upsert<
+    S extends UserOptionalSelect | undefined = undefined,
+    I extends UserOptionalInclude | undefined = undefined,
+    D extends UserOptionalUpdateInput = UserOptionalUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: UserOptionalFindUniqueWhere;
+    create: UserOptionalCreateInput;
+    update?: D;
+    unset?: SafeUnset<UserOptionalUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetUserOptionalPayload<S, I>, R>>;
+
+  upsert<
+    S extends UserOptionalSelect | undefined = undefined,
+    I extends UserOptionalInclude | undefined = undefined,
+    D extends UserOptionalUpdateInput = UserOptionalUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: UserOptionalWhere;
+    create: UserOptionalCreateInput;
+    update?: D;
+    unset?: SafeUnset<UserOptionalUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetUserOptionalPayload<S, I>, R>>;
+
+  deleteMany(options: { where: UserOptionalWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: UserOptionalFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns UserOptional | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<UserOptional, R>>;
+
+  count(where?: UserOptionalWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: UserOptionalWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/userrequired.ts =====
+/**
+ * Generated types for UserRequired
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  ProfileRequired,
+  ProfileRequiredWhere,
+  ProfileRequiredSelect,
+  ProfileRequiredOrderBy,
+  ProfileRequiredNestedCreate,
+  ProfileRequiredInclude,
+  GetProfileRequiredIncludePayload,
+} from './profilerequired';
+export interface UserRequired {
+  id: CerialId<string>;
+  email: string;
+  name: string;
+}
+
+export interface UserRequiredInput {
+  id?: string;
+  email: string;
+  name: string;
+}
+
+export interface UserRequiredWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  /** @unique — Unique indexed field */
+  email?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  profile?: ProfileRequiredWhere;
+  AND?: UserRequiredWhere[];
+  OR?: UserRequiredWhere[];
+  NOT?: UserRequiredWhere;
+}
+
+export type UserRequiredWhereInput = UserRequiredWhere;
+
+export type UserRequiredFindUniqueWhere =
+  | ({ id: RecordIdInput<string> } & { email?: string } & Omit<UserRequiredWhere, 'id' | 'email'>)
+  | ({ email: string } & { id?: RecordIdInput<string> } & Omit<UserRequiredWhere, 'id' | 'email'>);
+
+export type UserRequiredCreate = O.Optional<O.Omit<UserRequiredInput, 'profile'>, 'id'>;
+
+export type UserRequiredNestedCreate = O.Optional<O.Omit<UserRequiredInput, 'profile'>, 'id'>;
+
+export type UserRequiredCreateInput = UserRequiredCreate & {
+  profile?: { create: ProfileRequiredNestedCreate } | { connect: RecordIdInput };
+};
+
+export type UserRequiredUpdate = Partial<O.Omit<UserRequiredInput, 'id' | 'profile'>>;
+
+export type UserRequiredUpdateInput = UserRequiredUpdate & {
+  profile?: { create: ProfileRequiredNestedCreate } | { connect: RecordIdInput } | { disconnect: true };
+};
+
+export type UserRequiredUnset = {};
+
+export type UserRequiredSelect =
+  | ({ id: boolean } & Partial<Record<'email' | 'name', boolean>>)
+  | ({ email: boolean } & Partial<Record<'id' | 'name', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'email', boolean>>);
+
+export interface UserRequiredOrderBy {
+  id?: 'asc' | 'desc';
+  email?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+}
+
+export interface UserRequiredInclude {
+  profile?:
+    | boolean
+    | {
+        select?: ProfileRequiredSelect;
+        where?: ProfileRequiredWhere;
+        orderBy?: ProfileRequiredOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: ProfileRequiredInclude;
+      };
+}
+
+export type UserRequired$Relations = {
+  profile: { type: ProfileRequired; include: ProfileRequiredInclude };
+};
+
+export type GetUserRequiredIncludePayload<I extends UserRequiredInclude | undefined> = I extends UserRequiredInclude
+  ? Pick<
+      {
+        profile: I['profile'] extends true
+          ? ProfileRequired
+          : I['profile'] extends {
+                select: infer S extends ProfileRequiredSelect;
+                include: infer NI extends ProfileRequiredInclude;
+              }
+            ? {
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof ProfileRequired
+                  ? ResolveFieldSelect<ProfileRequired[P], S[P]>
+                  : never;
+              } & GetProfileRequiredIncludePayload<NI>
+            : I['profile'] extends { select: infer S extends ProfileRequiredSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof ProfileRequired
+                    ? ResolveFieldSelect<ProfileRequired[P], S[P]>
+                    : never;
+                }
+              : I['profile'] extends { include: infer NI extends ProfileRequiredInclude }
+                ? ProfileRequired & GetProfileRequiredIncludePayload<NI>
+                : ProfileRequired;
+      },
+      Extract<keyof I, keyof UserRequired$Relations> &
+        { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetUserRequiredPayload<
+  S extends UserRequiredSelect | undefined = undefined,
+  I extends UserRequiredInclude | undefined = undefined,
+> = A.Compute<
+  S extends UserRequiredSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof UserRequired
+          ? ResolveFieldSelect<UserRequired[K], S[K]>
+          : never;
+      } & GetUserRequiredIncludePayload<I>
+    : I extends UserRequiredInclude
+      ? UserRequired & GetUserRequiredIncludePayload<I>
+      : UserRequired,
+  'flat'
+>;
+
+export interface UserRequiredModel {
+  findOne<
+    S extends UserRequiredSelect | undefined = undefined,
+    I extends UserRequiredInclude | undefined = undefined,
+  >(options?: {
+    where?: UserRequiredWhere;
+    select?: S;
+    include?: I;
+    orderBy?: UserRequiredOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetUserRequiredPayload<S, I> | null>;
+
+  findMany<
+    S extends UserRequiredSelect | undefined = undefined,
+    I extends UserRequiredInclude | undefined = undefined,
+  >(options?: {
+    where?: UserRequiredWhere;
+    select?: S;
+    orderBy?: UserRequiredOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetUserRequiredPayload<S, I>[]>;
+
+  findUnique<
+    S extends UserRequiredSelect | undefined = undefined,
+    I extends UserRequiredInclude | undefined = undefined,
+  >(options: {
+    where: UserRequiredFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetUserRequiredPayload<S, I> | null>;
+
+  create<
+    S extends UserRequiredSelect | undefined = undefined,
+    I extends UserRequiredInclude | undefined = undefined,
+  >(options: {
+    data: UserRequiredCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetUserRequiredPayload<S, I>>;
+
+  updateMany<
+    S extends UserRequiredSelect | undefined = undefined,
+    I extends UserRequiredInclude | undefined = undefined,
+    D extends UserRequiredUpdateInput = UserRequiredUpdateInput,
+  >(options: {
+    where: UserRequiredWhere;
+    data: D;
+    unset?: SafeUnset<UserRequiredUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetUserRequiredPayload<S, I>[]>;
+
+  updateUnique<
+    S extends UserRequiredSelect | undefined = undefined,
+    I extends UserRequiredInclude | undefined = undefined,
+    D extends UserRequiredUpdateInput = UserRequiredUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: UserRequiredFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<UserRequiredUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns UserRequired | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetUserRequiredPayload<S, I>, R>>;
+
+  upsert<
+    S extends UserRequiredSelect | undefined = undefined,
+    I extends UserRequiredInclude | undefined = undefined,
+    D extends UserRequiredUpdateInput = UserRequiredUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: UserRequiredFindUniqueWhere;
+    create: UserRequiredCreateInput;
+    update?: D;
+    unset?: SafeUnset<UserRequiredUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetUserRequiredPayload<S, I>, R>>;
+
+  upsert<
+    S extends UserRequiredSelect | undefined = undefined,
+    I extends UserRequiredInclude | undefined = undefined,
+    D extends UserRequiredUpdateInput = UserRequiredUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: UserRequiredWhere;
+    create: UserRequiredCreateInput;
+    update?: D;
+    unset?: SafeUnset<UserRequiredUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetUserRequiredPayload<S, I>, R>>;
+
+  deleteMany(options: { where: UserRequiredWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: UserRequiredFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns UserRequired | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<UserRequired, R>>;
+
+  count(where?: UserRequiredWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: UserRequiredWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/usersinglesided.ts =====
+/**
+ * Generated types for UserSingleSided
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface UserSingleSided {
+  id: CerialId<string>;
+  name: string;
+}
+
+export interface UserSingleSidedInput {
+  id?: string;
+  name: string;
+}
+
+export interface UserSingleSidedWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  AND?: UserSingleSidedWhere[];
+  OR?: UserSingleSidedWhere[];
+  NOT?: UserSingleSidedWhere;
+}
+
+export type UserSingleSidedWhereInput = UserSingleSidedWhere;
+
+export type UserSingleSidedFindUniqueWhere = { id: RecordIdInput<string> } & Omit<UserSingleSidedWhere, 'id'>;
+
+export type UserSingleSidedCreate = O.Optional<UserSingleSidedInput, 'id'>;
+
+export type UserSingleSidedNestedCreate = O.Optional<UserSingleSidedInput, 'id'>;
+
+export type UserSingleSidedCreateInput = UserSingleSidedCreate;
+
+export type UserSingleSidedUpdate = Partial<O.Omit<UserSingleSidedInput, 'id'>>;
+
+export type UserSingleSidedUpdateInput = UserSingleSidedUpdate;
+
+export type UserSingleSidedUnset = {};
+
+export type UserSingleSidedSelect =
+  | ({ id: boolean } & Partial<Record<'name', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id', boolean>>);
+
+export interface UserSingleSidedOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+}
+
+export type UserSingleSided$Relations = {};
+
+export type GetUserSingleSidedPayload<
+  S extends UserSingleSidedSelect | undefined = undefined,
+  I = undefined,
+> = A.Compute<
+  S extends UserSingleSidedSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof UserSingleSided
+          ? ResolveFieldSelect<UserSingleSided[K], S[K]>
+          : never;
+      }
+    : UserSingleSided,
+  'flat'
+>;
+
+export interface UserSingleSidedModel {
+  findOne<S extends UserSingleSidedSelect | undefined = undefined>(options?: {
+    where?: UserSingleSidedWhere;
+    select?: S;
+    orderBy?: UserSingleSidedOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetUserSingleSidedPayload<S> | null>;
+
+  findMany<S extends UserSingleSidedSelect | undefined = undefined>(options?: {
+    where?: UserSingleSidedWhere;
+    select?: S;
+    orderBy?: UserSingleSidedOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetUserSingleSidedPayload<S>[]>;
+
+  findUnique<S extends UserSingleSidedSelect | undefined = undefined>(options: {
+    where: UserSingleSidedFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetUserSingleSidedPayload<S> | null>;
+
+  create<S extends UserSingleSidedSelect | undefined = undefined>(options: {
+    data: UserSingleSidedCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetUserSingleSidedPayload<S>>;
+
+  updateMany<
+    S extends UserSingleSidedSelect | undefined = undefined,
+    D extends UserSingleSidedUpdateInput = UserSingleSidedUpdateInput,
+  >(options: {
+    where: UserSingleSidedWhere;
+    data: D;
+    unset?: SafeUnset<UserSingleSidedUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetUserSingleSidedPayload<S>[]>;
+
+  updateUnique<
+    S extends UserSingleSidedSelect | undefined = undefined,
+    D extends UserSingleSidedUpdateInput = UserSingleSidedUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: UserSingleSidedFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<UserSingleSidedUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns UserSingleSided | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetUserSingleSidedPayload<S>, R>>;
+
+  upsert<
+    S extends UserSingleSidedSelect | undefined = undefined,
+    D extends UserSingleSidedUpdateInput = UserSingleSidedUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: UserSingleSidedFindUniqueWhere;
+    create: UserSingleSidedCreateInput;
+    update?: D;
+    unset?: SafeUnset<UserSingleSidedUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetUserSingleSidedPayload<S>, R>>;
+
+  upsert<
+    S extends UserSingleSidedSelect | undefined = undefined,
+    D extends UserSingleSidedUpdateInput = UserSingleSidedUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: UserSingleSidedWhere;
+    create: UserSingleSidedCreateInput;
+    update?: D;
+    unset?: SafeUnset<UserSingleSidedUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetUserSingleSidedPayload<S>, R>>;
+
+  deleteMany(options: { where: UserSingleSidedWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: UserSingleSidedFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns UserSingleSided | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<UserSingleSided, R>>;
+
+  count(where?: UserSingleSidedWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: UserSingleSidedWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}

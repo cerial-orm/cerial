@@ -1,0 +1,35 @@
+-- UuidBasic
+DEFINE TABLE OVERWRITE uuid_basic SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE uuid_basic TYPE string;
+DEFINE FIELD OVERWRITE token ON TABLE uuid_basic TYPE uuid;
+DEFINE FIELD OVERWRITE optionalToken ON TABLE uuid_basic TYPE option<uuid>;
+DEFINE FIELD OVERWRITE nullableToken ON TABLE uuid_basic TYPE option<uuid | null>;
+DEFINE FIELD OVERWRITE tags ON TABLE uuid_basic TYPE array<uuid>;
+
+-- UuidDecorated
+DEFINE TABLE OVERWRITE uuid_decorated SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE uuid_decorated TYPE string;
+DEFINE FIELD OVERWRITE autoId ON TABLE uuid_decorated TYPE option<uuid> DEFAULT rand::uuid();
+DEFINE FIELD OVERWRITE autoV4 ON TABLE uuid_decorated TYPE option<uuid> DEFAULT rand::uuid::v4();
+DEFINE FIELD OVERWRITE autoV7 ON TABLE uuid_decorated TYPE option<uuid> DEFAULT rand::uuid::v7();
+DEFINE FIELD OVERWRITE optAutoId ON TABLE uuid_decorated TYPE option<uuid> DEFAULT rand::uuid();
+
+-- UuidWithObject
+DEFINE TABLE OVERWRITE uuid_with_object SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE uuid_with_object TYPE string;
+DEFINE FIELD OVERWRITE meta ON TABLE uuid_with_object TYPE object;
+DEFINE FIELD OVERWRITE meta.label ON TABLE uuid_with_object TYPE string;
+DEFINE FIELD OVERWRITE meta.trackingId ON TABLE uuid_with_object TYPE uuid;
+DEFINE FIELD OVERWRITE meta.optionalId ON TABLE uuid_with_object TYPE option<uuid>;
+DEFINE FIELD OVERWRITE meta.autoGenId ON TABLE uuid_with_object TYPE option<uuid> DEFAULT rand::uuid();
+DEFINE FIELD OVERWRITE optMeta ON TABLE uuid_with_object TYPE option<object>;
+DEFINE FIELD OVERWRITE optMeta.label ON TABLE uuid_with_object TYPE string;
+DEFINE FIELD OVERWRITE optMeta.trackingId ON TABLE uuid_with_object TYPE uuid;
+DEFINE FIELD OVERWRITE optMeta.optionalId ON TABLE uuid_with_object TYPE option<uuid>;
+DEFINE FIELD OVERWRITE optMeta.autoGenId ON TABLE uuid_with_object TYPE option<uuid> DEFAULT rand::uuid();
+
+-- UuidWithTuple
+DEFINE TABLE OVERWRITE uuid_with_tuple SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE uuid_with_tuple TYPE string;
+DEFINE FIELD OVERWRITE pair ON TABLE uuid_with_tuple TYPE [uuid, uuid];
+DEFINE FIELD OVERWRITE optPair ON TABLE uuid_with_tuple TYPE option<[uuid, uuid]>;

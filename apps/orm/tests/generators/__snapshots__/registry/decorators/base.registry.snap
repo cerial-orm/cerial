@@ -1,0 +1,122 @@
+{
+  "models": {
+    "ArrayDecoratorTest": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isArray": true,
+          "isDistinct": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "uniqueTags",
+          "type": "string"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "sortedScores",
+          "sortOrder": "asc",
+          "type": "int"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "recentDates",
+          "sortOrder": "desc",
+          "type": "date"
+        },
+        {
+          "isArray": true,
+          "isDistinct": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "uniqueSortedCategories",
+          "sortOrder": "asc",
+          "type": "string"
+        },
+        {
+          "isArray": true,
+          "isDistinct": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "uniqueSortedPriorities",
+          "sortOrder": "desc",
+          "type": "int"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "normalTags",
+          "type": "string"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "normalScores",
+          "type": "int"
+        }
+      ],
+      "name": "ArrayDecoratorTest",
+      "tableName": "array_decorator_test"
+    },
+    "ScalarArrays": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "emails",
+          "type": "email"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "flags",
+          "type": "bool"
+        }
+      ],
+      "name": "ScalarArrays",
+      "tableName": "scalar_arrays"
+    }
+  }
+}

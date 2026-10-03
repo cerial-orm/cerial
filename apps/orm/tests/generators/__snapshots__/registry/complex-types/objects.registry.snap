@@ -1,0 +1,651 @@
+{
+  "models": {
+    "ObjectTestOrder": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "billingAddress",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "street",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "city",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "state",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isNullable": true,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "zipCode",
+                "type": "string"
+              }
+            ],
+            "objectName": "Address"
+          },
+          "type": "object"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "shippingAddress",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "street",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "city",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "state",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isNullable": true,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "zipCode",
+                "type": "string"
+              }
+            ],
+            "objectName": "Address"
+          },
+          "type": "object"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "items",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "productName",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "quantity",
+                "type": "int"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "price",
+                "type": "float"
+              },
+              {
+                "isArray": true,
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "tags",
+                "type": "string"
+              }
+            ],
+            "objectName": "OrderItem"
+          },
+          "type": "object"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "metadata",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "value",
+                "type": "int"
+              },
+              {
+                "isArray": true,
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "children",
+                "objectInfo": {
+                  "fields": [],
+                  "objectName": "TreeNode"
+                },
+                "type": "object"
+              }
+            ],
+            "objectName": "TreeNode"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "ObjectTestOrder",
+      "tableName": "object_test_order"
+    },
+    "ObjectTestUser": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "address",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "street",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "city",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "state",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isNullable": true,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "zipCode",
+                "type": "string"
+              }
+            ],
+            "objectName": "Address"
+          },
+          "type": "object"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "shipping",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "street",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "city",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "state",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isNullable": true,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "zipCode",
+                "type": "string"
+              }
+            ],
+            "objectName": "Address"
+          },
+          "type": "object"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "locations",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "lat",
+                "type": "float"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "lng",
+                "type": "float"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "label",
+                "objectInfo": {
+                  "fields": [
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "name": "street",
+                      "type": "string"
+                    },
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "name": "city",
+                      "type": "string"
+                    },
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "name": "state",
+                      "type": "string"
+                    },
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isNullable": true,
+                      "isRequired": false,
+                      "isUnique": false,
+                      "name": "zipCode",
+                      "type": "string"
+                    }
+                  ],
+                  "objectName": "Address"
+                },
+                "type": "object"
+              }
+            ],
+            "objectName": "GeoPoint"
+          },
+          "type": "object"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "primaryLocation",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "lat",
+                "type": "float"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "lng",
+                "type": "float"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "label",
+                "objectInfo": {
+                  "fields": [
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "name": "street",
+                      "type": "string"
+                    },
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "name": "city",
+                      "type": "string"
+                    },
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "name": "state",
+                      "type": "string"
+                    },
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isNullable": true,
+                      "isRequired": false,
+                      "isUnique": false,
+                      "name": "zipCode",
+                      "type": "string"
+                    }
+                  ],
+                  "objectName": "Address"
+                },
+                "type": "object"
+              }
+            ],
+            "objectName": "GeoPoint"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "ObjectTestUser",
+      "tableName": "object_test_user"
+    }
+  },
+  "objects": {
+    "Address": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "street",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "city",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "state",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "zipCode",
+          "type": "string"
+        }
+      ],
+      "name": "Address"
+    },
+    "GeoPoint": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "lat",
+          "type": "float"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "lng",
+          "type": "float"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "label",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "street",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "city",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "state",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isNullable": true,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "zipCode",
+                "type": "string"
+              }
+            ],
+            "objectName": "Address"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "GeoPoint"
+    },
+    "OrderItem": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "productName",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "quantity",
+          "type": "int"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "price",
+          "type": "float"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "tags",
+          "type": "string"
+        }
+      ],
+      "name": "OrderItem"
+    },
+    "TreeNode": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "value",
+          "type": "int"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "children",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "value",
+                "type": "int"
+              },
+              {
+                "isArray": true,
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "children",
+                "objectInfo": {
+                  "fields": [],
+                  "objectName": "TreeNode"
+                },
+                "type": "object"
+              }
+            ],
+            "objectName": "TreeNode"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "TreeNode"
+    }
+  }
+}

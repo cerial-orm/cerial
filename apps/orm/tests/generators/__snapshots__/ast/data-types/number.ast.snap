@@ -1,0 +1,227 @@
+{
+  "models": [
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "price",
+          "type": "number"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "rating",
+          "type": "number"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": false,
+          "name": "weight",
+          "type": "number"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "scores",
+          "type": "number"
+        }
+      ],
+      "name": "NumberBasic"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": 0
+            }
+          ],
+          "isOptional": false,
+          "name": "score",
+          "type": "number"
+        },
+        {
+          "decorators": [
+            {
+              "type": "defaultAlways",
+              "value": 1
+            }
+          ],
+          "isOptional": false,
+          "name": "multiplier",
+          "type": "number"
+        }
+      ],
+      "name": "NumberDecorated"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "stats",
+          "objectName": "NumberInfo",
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "optStats",
+          "objectName": "NumberInfo",
+          "type": "object"
+        }
+      ],
+      "name": "NumberWithObject"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "coord",
+          "tupleName": "NumberCoord",
+          "type": "tuple"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "optCoord",
+          "tupleName": "NumberCoord",
+          "type": "tuple"
+        }
+      ],
+      "name": "NumberWithTuple"
+    }
+  ],
+  "objects": [
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "views",
+          "type": "number"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "downloads",
+          "type": "number"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": 0
+            }
+          ],
+          "isOptional": false,
+          "name": "rating",
+          "type": "number"
+        }
+      ],
+      "name": "NumberInfo"
+    }
+  ],
+  "tuples": [
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "type": "number"
+        },
+        {
+          "isOptional": false,
+          "type": "number"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": false,
+          "type": "number"
+        }
+      ],
+      "name": "NumberCoord"
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+-- ExtL4AltConcrete
+DEFINE TABLE OVERWRITE ext_l4_alt_concrete SCHEMAFULL;
+DEFINE FIELD OVERWRITE createdAt ON TABLE ext_l4_alt_concrete TYPE option<datetime> DEFAULT time::now();
+DEFINE FIELD OVERWRITE name ON TABLE ext_l4_alt_concrete TYPE string;
+DEFINE FIELD OVERWRITE description ON TABLE ext_l4_alt_concrete TYPE option<string>;
+DEFINE FIELD OVERWRITE owner ON TABLE ext_l4_alt_concrete TYPE record;
+DEFINE FIELD OVERWRITE isPublic ON TABLE ext_l4_alt_concrete TYPE bool DEFAULT false;
+DEFINE FIELD OVERWRITE viewCount ON TABLE ext_l4_alt_concrete TYPE int DEFAULT 0;
+DEFINE FIELD OVERWRITE lastViewed ON TABLE ext_l4_alt_concrete TYPE option<datetime>;
+
+-- ExtL4Concrete
+DEFINE TABLE OVERWRITE ext_l4_concrete SCHEMAFULL;
+DEFINE FIELD OVERWRITE createdAt ON TABLE ext_l4_concrete TYPE option<datetime> DEFAULT time::now();
+DEFINE FIELD OVERWRITE name ON TABLE ext_l4_concrete TYPE string;
+DEFINE FIELD OVERWRITE description ON TABLE ext_l4_concrete TYPE option<string>;
+DEFINE FIELD OVERWRITE tags ON TABLE ext_l4_concrete TYPE array<string>;
+DEFINE FIELD OVERWRITE metadata ON TABLE ext_l4_concrete TYPE option<int>;
+DEFINE FIELD OVERWRITE status ON TABLE ext_l4_concrete TYPE string DEFAULT 'active';
+DEFINE FIELD OVERWRITE priority ON TABLE ext_l4_concrete TYPE int DEFAULT 0;
+
+-- ExtL4OmitConcrete
+DEFINE TABLE OVERWRITE ext_l4_omit_concrete SCHEMAFULL;
+DEFINE FIELD OVERWRITE createdAt ON TABLE ext_l4_omit_concrete TYPE option<datetime> DEFAULT time::now();
+DEFINE FIELD OVERWRITE name ON TABLE ext_l4_omit_concrete TYPE string;
+DEFINE FIELD OVERWRITE type ON TABLE ext_l4_omit_concrete TYPE string;
+DEFINE FIELD OVERWRITE subtype ON TABLE ext_l4_omit_concrete TYPE option<string>;
+DEFINE FIELD OVERWRITE version ON TABLE ext_l4_omit_concrete TYPE int DEFAULT 1;
+
+-- ExtL4PickConcrete
+DEFINE TABLE OVERWRITE ext_l4_pick_concrete SCHEMAFULL;
+DEFINE FIELD OVERWRITE createdAt ON TABLE ext_l4_pick_concrete TYPE option<datetime> DEFAULT time::now();
+DEFINE FIELD OVERWRITE name ON TABLE ext_l4_pick_concrete TYPE string;
+DEFINE FIELD OVERWRITE description ON TABLE ext_l4_pick_concrete TYPE option<string>;
+DEFINE FIELD OVERWRITE category ON TABLE ext_l4_pick_concrete TYPE string;
+DEFINE FIELD OVERWRITE subcategory ON TABLE ext_l4_pick_concrete TYPE option<string>;
+DEFINE FIELD OVERWRITE rank ON TABLE ext_l4_pick_concrete TYPE option<int>;
+
+-- ExtL5VeryDeep
+DEFINE TABLE OVERWRITE ext_l5_very_deep SCHEMAFULL;
+DEFINE FIELD OVERWRITE createdAt ON TABLE ext_l5_very_deep TYPE option<datetime> DEFAULT time::now();
+DEFINE FIELD OVERWRITE name ON TABLE ext_l5_very_deep TYPE string;
+DEFINE FIELD OVERWRITE description ON TABLE ext_l5_very_deep TYPE option<string>;
+DEFINE FIELD OVERWRITE tags ON TABLE ext_l5_very_deep TYPE array<string>;
+DEFINE FIELD OVERWRITE metadata ON TABLE ext_l5_very_deep TYPE option<int>;
+DEFINE FIELD OVERWRITE status ON TABLE ext_l5_very_deep TYPE string DEFAULT 'active';
+DEFINE FIELD OVERWRITE priority ON TABLE ext_l5_very_deep TYPE int DEFAULT 0;
+DEFINE FIELD OVERWRITE archived ON TABLE ext_l5_very_deep TYPE bool DEFAULT false;
+
+-- ExtL6UltraDeep
+DEFINE TABLE OVERWRITE ext_l6_ultra_deep SCHEMAFULL;
+DEFINE FIELD OVERWRITE createdAt ON TABLE ext_l6_ultra_deep TYPE option<datetime> DEFAULT time::now();
+DEFINE FIELD OVERWRITE name ON TABLE ext_l6_ultra_deep TYPE string;
+DEFINE FIELD OVERWRITE description ON TABLE ext_l6_ultra_deep TYPE option<string>;
+DEFINE FIELD OVERWRITE tags ON TABLE ext_l6_ultra_deep TYPE array<string>;
+DEFINE FIELD OVERWRITE metadata ON TABLE ext_l6_ultra_deep TYPE option<int>;
+DEFINE FIELD OVERWRITE status ON TABLE ext_l6_ultra_deep TYPE string DEFAULT 'active';
+DEFINE FIELD OVERWRITE priority ON TABLE ext_l6_ultra_deep TYPE int DEFAULT 0;
+DEFINE FIELD OVERWRITE archived ON TABLE ext_l6_ultra_deep TYPE bool DEFAULT false;
+DEFINE FIELD OVERWRITE archiveReason ON TABLE ext_l6_ultra_deep TYPE option<string>;
+DEFINE FIELD OVERWRITE archivedAt ON TABLE ext_l6_ultra_deep TYPE option<datetime>;
+
+-- ExtP4Concrete
+DEFINE TABLE OVERWRITE ext_p4_concrete SCHEMAFULL;
+DEFINE FIELD OVERWRITE secret ON TABLE ext_p4_concrete TYPE string;
+DEFINE FIELD OVERWRITE name ON TABLE ext_p4_concrete TYPE string;
+DEFINE FIELD OVERWRITE tag ON TABLE ext_p4_concrete TYPE string;
+DEFINE FIELD OVERWRITE extra ON TABLE ext_p4_concrete TYPE option<string>;
+DEFINE FIELD OVERWRITE level ON TABLE ext_p4_concrete TYPE int DEFAULT 1;
+DEFINE FIELD OVERWRITE final ON TABLE ext_p4_concrete TYPE option<string>;

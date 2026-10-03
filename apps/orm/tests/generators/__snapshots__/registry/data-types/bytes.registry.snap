@@ -1,0 +1,201 @@
+{
+  "models": {
+    "BytesBasic": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "payload",
+          "type": "bytes"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "metadata",
+          "type": "bytes"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "tag",
+          "type": "bytes"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "chunks",
+          "type": "bytes"
+        }
+      ],
+      "name": "BytesBasic",
+      "tableName": "bytes_basic"
+    },
+    "BytesWithObject": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "details",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "content",
+                "type": "bytes"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "extra",
+                "type": "bytes"
+              }
+            ],
+            "objectName": "BytesInfo"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "BytesWithObject",
+      "tableName": "bytes_with_object"
+    },
+    "BytesWithTuple": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "pair",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "type": "bytes"
+              },
+              {
+                "index": 1,
+                "isNullable": true,
+                "isOptional": false,
+                "type": "bytes"
+              }
+            ],
+            "tupleName": "BytesPair"
+          },
+          "type": "tuple"
+        }
+      ],
+      "name": "BytesWithTuple",
+      "tableName": "bytes_with_tuple"
+    }
+  },
+  "objects": {
+    "BytesInfo": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "content",
+          "type": "bytes"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "extra",
+          "type": "bytes"
+        }
+      ],
+      "name": "BytesInfo"
+    }
+  },
+  "tuples": {
+    "BytesPair": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "type": "bytes"
+        },
+        {
+          "index": 1,
+          "isNullable": true,
+          "isOptional": false,
+          "type": "bytes"
+        }
+      ],
+      "name": "BytesPair"
+    }
+  }
+}

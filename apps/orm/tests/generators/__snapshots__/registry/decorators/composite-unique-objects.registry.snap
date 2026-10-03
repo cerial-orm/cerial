@@ -1,0 +1,210 @@
+{
+  "models": {
+    "Depot": {
+      "compositeDirectives": [
+        {
+          "fields": [
+            "dock.bay",
+            "dock.level"
+          ],
+          "kind": "index",
+          "name": "dockBayLevel"
+        },
+        {
+          "fields": [
+            "label",
+            "dock.bay"
+          ],
+          "kind": "index",
+          "name": "labelDockBay"
+        }
+      ],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "dock",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "bay",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "level",
+                "type": "int"
+              }
+            ],
+            "objectName": "Dock"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "Depot",
+      "tableName": "depot"
+    },
+    "Warehouse": {
+      "compositeDirectives": [
+        {
+          "fields": [
+            "location.city",
+            "location.zip"
+          ],
+          "kind": "unique",
+          "name": "cityZip"
+        },
+        {
+          "fields": [
+            "name",
+            "location.city"
+          ],
+          "kind": "unique",
+          "name": "nameCity"
+        }
+      ],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": true,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "location",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "city",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "zip",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "street",
+                "type": "string"
+              }
+            ],
+            "objectName": "Location"
+          },
+          "type": "object"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "capacity",
+          "type": "int"
+        }
+      ],
+      "name": "Warehouse",
+      "tableName": "warehouse"
+    }
+  },
+  "objects": {
+    "Dock": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "bay",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "level",
+          "type": "int"
+        }
+      ],
+      "name": "Dock"
+    },
+    "Location": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "city",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "zip",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "street",
+          "type": "string"
+        }
+      ],
+      "name": "Location"
+    }
+  }
+}

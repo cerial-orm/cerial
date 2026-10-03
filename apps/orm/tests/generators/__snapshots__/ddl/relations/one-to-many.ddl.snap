@@ -1,0 +1,21 @@
+-- Article
+DEFINE TABLE OVERWRITE article SCHEMAFULL;
+DEFINE FIELD OVERWRITE title ON TABLE article TYPE string;
+
+-- Author
+DEFINE TABLE OVERWRITE author SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE author TYPE string;
+DEFINE FIELD OVERWRITE email ON TABLE author TYPE string ASSERT string::is_email($value);
+DEFINE INDEX OVERWRITE author_email_unique ON TABLE author COLUMNS email UNIQUE;
+
+-- Comment
+DEFINE TABLE OVERWRITE comment SCHEMAFULL;
+DEFINE FIELD OVERWRITE text ON TABLE comment TYPE string;
+DEFINE FIELD OVERWRITE articleId ON TABLE comment TYPE option<record<article> | null>;
+
+-- PostRequired
+DEFINE TABLE OVERWRITE post_required SCHEMAFULL;
+DEFINE FIELD OVERWRITE title ON TABLE post_required TYPE string;
+DEFINE FIELD OVERWRITE content ON TABLE post_required TYPE option<string | null>;
+DEFINE FIELD OVERWRITE authorId ON TABLE post_required TYPE record<author>;
+DEFINE FIELD OVERWRITE createdAt ON TABLE post_required TYPE option<datetime> DEFAULT time::now();

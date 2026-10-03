@@ -1,0 +1,31 @@
+-- NumberBasic
+DEFINE TABLE OVERWRITE number_basic SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE number_basic TYPE string;
+DEFINE FIELD OVERWRITE price ON TABLE number_basic TYPE number;
+DEFINE FIELD OVERWRITE rating ON TABLE number_basic TYPE option<number>;
+DEFINE FIELD OVERWRITE weight ON TABLE number_basic TYPE number | null;
+DEFINE FIELD OVERWRITE scores ON TABLE number_basic TYPE array<number>;
+
+-- NumberDecorated
+DEFINE TABLE OVERWRITE number_decorated SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE number_decorated TYPE string;
+DEFINE FIELD OVERWRITE score ON TABLE number_decorated TYPE number DEFAULT 0;
+DEFINE FIELD OVERWRITE multiplier ON TABLE number_decorated TYPE option<number> DEFAULT ALWAYS 1;
+
+-- NumberWithObject
+DEFINE TABLE OVERWRITE number_with_object SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE number_with_object TYPE string;
+DEFINE FIELD OVERWRITE stats ON TABLE number_with_object TYPE object;
+DEFINE FIELD OVERWRITE stats.views ON TABLE number_with_object TYPE number;
+DEFINE FIELD OVERWRITE stats.downloads ON TABLE number_with_object TYPE option<number>;
+DEFINE FIELD OVERWRITE stats.rating ON TABLE number_with_object TYPE number DEFAULT 0;
+DEFINE FIELD OVERWRITE optStats ON TABLE number_with_object TYPE option<object>;
+DEFINE FIELD OVERWRITE optStats.views ON TABLE number_with_object TYPE number;
+DEFINE FIELD OVERWRITE optStats.downloads ON TABLE number_with_object TYPE option<number>;
+DEFINE FIELD OVERWRITE optStats.rating ON TABLE number_with_object TYPE number DEFAULT 0;
+
+-- NumberWithTuple
+DEFINE TABLE OVERWRITE number_with_tuple SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE number_with_tuple TYPE string;
+DEFINE FIELD OVERWRITE coord ON TABLE number_with_tuple TYPE [number, number, number | null];
+DEFINE FIELD OVERWRITE optCoord ON TABLE number_with_tuple TYPE option<[number, number, number | null]>;

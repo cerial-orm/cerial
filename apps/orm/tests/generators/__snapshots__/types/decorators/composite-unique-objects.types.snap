@@ -1,0 +1,648 @@
+// ===== models/depot.ts =====
+/**
+ * Generated types for Depot
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { Dock, DockInput, DockWhere, DockSelect, DockOrderBy } from '../objects/dock';
+export interface Depot {
+  id: CerialId<string>;
+  label: string;
+  dock: Dock;
+}
+
+export interface DepotInput {
+  id?: string;
+  label: string;
+  dock: DockInput;
+}
+
+export interface DepotWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  /** @@index("labelDockBay") — Part of composite index (with: dock.bay) */
+  label?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  /**
+   * @@index("dockBayLevel") — Part of composite index
+   * @@index("labelDockBay") — Part of composite index (with: label)
+   */
+  dock?: DockWhere;
+  AND?: DepotWhere[];
+  OR?: DepotWhere[];
+  NOT?: DepotWhere;
+}
+
+export type DepotWhereInput = DepotWhere;
+
+export type DepotFindUniqueWhere = { id: RecordIdInput<string> } & Omit<DepotWhere, 'id'>;
+
+export type DepotCreate = O.Optional<DepotInput, 'id'>;
+
+export type DepotNestedCreate = O.Optional<DepotInput, 'id'>;
+
+export type DepotCreateInput = DepotCreate;
+
+export type DepotUpdate = Partial<O.Omit<DepotInput, 'id' | 'dock'>> & {
+  dock?: Partial<DockInput> | { set: DockInput };
+};
+
+export type DepotUpdateInput = DepotUpdate;
+
+export type DepotUnset = {};
+
+export type DepotSelect =
+  | ({ id: boolean } & { label?: boolean; dock?: boolean | DockSelect })
+  | ({ label: boolean } & { id?: boolean; dock?: boolean | DockSelect })
+  | ({ dock: boolean | DockSelect } & Partial<Record<'id' | 'label', boolean>>);
+
+export interface DepotOrderBy {
+  id?: 'asc' | 'desc';
+  label?: 'asc' | 'desc';
+  dock?: DockOrderBy;
+}
+
+export type Depot$Relations = {};
+
+export type GetDepotPayload<S extends DepotSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends DepotSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof Depot
+          ? ResolveFieldSelect<Depot[K], S[K]>
+          : never;
+      }
+    : Depot,
+  'flat'
+>;
+
+export interface DepotModel {
+  findOne<S extends DepotSelect | undefined = undefined>(options?: {
+    where?: DepotWhere;
+    select?: S;
+    orderBy?: DepotOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetDepotPayload<S> | null>;
+
+  findMany<S extends DepotSelect | undefined = undefined>(options?: {
+    where?: DepotWhere;
+    select?: S;
+    orderBy?: DepotOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetDepotPayload<S>[]>;
+
+  findUnique<S extends DepotSelect | undefined = undefined>(options: {
+    where: DepotFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetDepotPayload<S> | null>;
+
+  create<S extends DepotSelect | undefined = undefined>(options: {
+    data: DepotCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetDepotPayload<S>>;
+
+  updateMany<S extends DepotSelect | undefined = undefined, D extends DepotUpdateInput = DepotUpdateInput>(options: {
+    where: DepotWhere;
+    data: D;
+    unset?: SafeUnset<DepotUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetDepotPayload<S>[]>;
+
+  updateUnique<
+    S extends DepotSelect | undefined = undefined,
+    D extends DepotUpdateInput = DepotUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: DepotFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<DepotUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns Depot | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetDepotPayload<S>, R>>;
+
+  upsert<
+    S extends DepotSelect | undefined = undefined,
+    D extends DepotUpdateInput = DepotUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: DepotFindUniqueWhere;
+    create: DepotCreateInput;
+    update?: D;
+    unset?: SafeUnset<DepotUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetDepotPayload<S>, R>>;
+
+  upsert<
+    S extends DepotSelect | undefined = undefined,
+    D extends DepotUpdateInput = DepotUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: DepotWhere;
+    create: DepotCreateInput;
+    update?: D;
+    unset?: SafeUnset<DepotUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetDepotPayload<S>, R>>;
+
+  deleteMany(options: { where: DepotWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: DepotFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns Depot | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<Depot, R>>;
+
+  count(where?: DepotWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: DepotWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/warehouse.ts =====
+/**
+ * Generated types for Warehouse
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { Location, LocationInput, LocationWhere, LocationSelect, LocationOrderBy } from '../objects/location';
+export interface Warehouse {
+  id: CerialId<string>;
+  name: string;
+  location: Location;
+  capacity?: number;
+}
+
+export interface WarehouseInput {
+  id?: string;
+  name: string;
+  location: LocationInput;
+  capacity?: number;
+}
+
+export interface WarehouseWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  /**
+   * @index — Indexed field
+   * @@unique("nameCity") — Part of composite unique (with: location.city)
+   */
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  /**
+   * @@unique("cityZip") — Part of composite unique
+   * @@unique("nameCity") — Part of composite unique (with: name)
+   */
+  location?: LocationWhere;
+  capacity?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  AND?: WarehouseWhere[];
+  OR?: WarehouseWhere[];
+  NOT?: WarehouseWhere;
+}
+
+export type WarehouseWhereInput = WarehouseWhere;
+
+export type WarehouseFindUniqueWhere =
+  | ({ id: RecordIdInput<string> } & Omit<WarehouseWhere, 'id' | 'cityZip' | 'nameCity'>) /**
+     * Composite unique index on fields: location.city, location.zip
+     */
+  | ({ cityZip: { location: { city: string; zip: string } } } & Omit<WarehouseWhere, 'id' | 'cityZip' | 'nameCity'>) /**
+     * Composite unique index on fields: name, location.city
+     */
+  | ({ nameCity: { name: string; location: { city: string } } } & Omit<WarehouseWhere, 'id' | 'cityZip' | 'nameCity'>);
+
+export type WarehouseCreate = O.Optional<WarehouseInput, 'id' | 'capacity'>;
+
+export type WarehouseNestedCreate = O.Optional<WarehouseInput, 'id' | 'capacity'>;
+
+export type WarehouseCreateInput = WarehouseCreate;
+
+export type WarehouseUpdate = Partial<O.Omit<WarehouseInput, 'id' | 'location' | 'capacity'>> & {
+  location?: Partial<LocationInput> | { set: LocationInput };
+  capacity?: number | CerialNone;
+};
+
+export type WarehouseUpdateInput = WarehouseUpdate;
+
+export type WarehouseUnset = {
+  location?: {
+    street?: true;
+  };
+  capacity?: true;
+};
+
+export type WarehouseSelect =
+  | ({ id: boolean } & { name?: boolean; location?: boolean | LocationSelect; capacity?: boolean })
+  | ({ name: boolean } & { id?: boolean; location?: boolean | LocationSelect; capacity?: boolean })
+  | ({ location: boolean | LocationSelect } & Partial<Record<'id' | 'name' | 'capacity', boolean>>)
+  | ({ capacity: boolean } & { id?: boolean; name?: boolean; location?: boolean | LocationSelect });
+
+export interface WarehouseOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  location?: LocationOrderBy;
+  capacity?: 'asc' | 'desc';
+}
+
+export type Warehouse$Relations = {};
+
+export type GetWarehousePayload<S extends WarehouseSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends WarehouseSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof Warehouse
+          ? ResolveFieldSelect<Warehouse[K], S[K]>
+          : never;
+      }
+    : Warehouse,
+  'flat'
+>;
+
+export interface WarehouseModel {
+  findOne<S extends WarehouseSelect | undefined = undefined>(options?: {
+    where?: WarehouseWhere;
+    select?: S;
+    orderBy?: WarehouseOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetWarehousePayload<S> | null>;
+
+  findMany<S extends WarehouseSelect | undefined = undefined>(options?: {
+    where?: WarehouseWhere;
+    select?: S;
+    orderBy?: WarehouseOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetWarehousePayload<S>[]>;
+
+  findUnique<S extends WarehouseSelect | undefined = undefined>(options: {
+    where: WarehouseFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetWarehousePayload<S> | null>;
+
+  create<S extends WarehouseSelect | undefined = undefined>(options: {
+    data: WarehouseCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetWarehousePayload<S>>;
+
+  updateMany<
+    S extends WarehouseSelect | undefined = undefined,
+    D extends WarehouseUpdateInput = WarehouseUpdateInput,
+  >(options: {
+    where: WarehouseWhere;
+    data: D;
+    unset?: SafeUnset<WarehouseUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetWarehousePayload<S>[]>;
+
+  updateUnique<
+    S extends WarehouseSelect | undefined = undefined,
+    D extends WarehouseUpdateInput = WarehouseUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: WarehouseFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<WarehouseUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns Warehouse | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetWarehousePayload<S>, R>>;
+
+  upsert<
+    S extends WarehouseSelect | undefined = undefined,
+    D extends WarehouseUpdateInput = WarehouseUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: WarehouseFindUniqueWhere;
+    create: WarehouseCreateInput;
+    update?: D;
+    unset?: SafeUnset<WarehouseUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetWarehousePayload<S>, R>>;
+
+  upsert<
+    S extends WarehouseSelect | undefined = undefined,
+    D extends WarehouseUpdateInput = WarehouseUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: WarehouseWhere;
+    create: WarehouseCreateInput;
+    update?: D;
+    unset?: SafeUnset<WarehouseUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetWarehousePayload<S>, R>>;
+
+  deleteMany(options: { where: WarehouseWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: WarehouseFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns Warehouse | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<Warehouse, R>>;
+
+  count(where?: WarehouseWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: WarehouseWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== objects/dock.ts =====
+/**
+ * Generated types for Dock
+ * Do not edit manually
+ */
+
+export interface Dock {
+  bay: string;
+  level: number;
+}
+
+export interface DockInput {
+  bay: string;
+  level: number;
+}
+
+export interface DockWhere {
+  bay?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  level?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  AND?: DockWhere[];
+  OR?: DockWhere[];
+  NOT?: DockWhere;
+}
+
+export type DockSelect =
+  | ({ bay: boolean } & Partial<Record<'level', boolean>>)
+  | ({ level: boolean } & Partial<Record<'bay', boolean>>);
+
+export interface DockOrderBy {
+  bay?: 'asc' | 'desc';
+  level?: 'asc' | 'desc';
+}
+
+// ===== objects/location.ts =====
+/**
+ * Generated types for Location
+ * Do not edit manually
+ */
+
+export interface Location {
+  city: string;
+  zip: string;
+  street?: string;
+}
+
+export interface LocationInput {
+  city: string;
+  zip: string;
+  street?: string;
+}
+
+export interface LocationWhere {
+  city?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  zip?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  street?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  AND?: LocationWhere[];
+  OR?: LocationWhere[];
+  NOT?: LocationWhere;
+}
+
+export type LocationSelect =
+  | ({ city: boolean } & Partial<Record<'zip' | 'street', boolean>>)
+  | ({ zip: boolean } & Partial<Record<'city' | 'street', boolean>>)
+  | ({ street: boolean } & Partial<Record<'city' | 'zip', boolean>>);
+
+export interface LocationOrderBy {
+  city?: 'asc' | 'desc';
+  zip?: 'asc' | 'desc';
+  street?: 'asc' | 'desc';
+}

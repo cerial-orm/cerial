@@ -1,0 +1,51 @@
+/**
+ * Generated tuple exports
+ * Do not edit manually
+ */
+
+export * from './literalcoord';
+export * from './nmwithleaf';
+export * from './nmnamedleaf';
+export * from './nmouter';
+export * from './coordinate';
+export * from './entry';
+export * from './inner';
+export * from './outer';
+export * from './located';
+export * from './withoptional';
+export * from './deepinnertuple';
+export * from './deepmidtuple';
+export * from './deepoutertuple';
+export * from './nullablepair';
+export * from './optnullpair';
+export * from './mixednullability';
+export * from './stamped';
+export * from './statuspair';
+export * from './rolepair';
+export * from './bytespair';
+export * from './decimalpair';
+export * from './durationpair';
+export * from './geopair';
+export * from './numbercoord';
+export * from './uuidpair';
+export * from './extbasepair';
+export * from './exttriple';
+export * from './extnamedpair';
+export * from './extnamedtriple';
+export * from './extfirsttwo';
+export * from './extwithoutsecond';
+export * from './extoverridepair';
+export * from './extprivatepair';
+export * from './extoptionaltriple';
+export * from './extnullabletriple';
+export * from './extdecoratedtriple';
+export * from './extquad';
+export * from './extcoordpair';
+export * from './extpickedname';
+export * from './extomittedage';
+export * from './idcoord';
+export * from './unsetcoord';
+export * from './unsetopttuple';
+export * from './unsetobjtuple';
+export * from './unsetdeeptuple';
+export * from './unsetrecursive';

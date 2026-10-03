@@ -1,0 +1,344 @@
+{
+  "models": [
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "model",
+              "value": "Registration"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "registrations",
+          "type": "relation"
+        },
+        {
+          "decorators": [
+            {
+              "type": "model",
+              "value": "Ticket"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "tickets",
+          "type": "relation"
+        },
+        {
+          "decorators": [
+            {
+              "type": "model",
+              "value": "Booking"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "bookings",
+          "type": "relation"
+        }
+      ],
+      "name": "Attendee"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "model",
+              "value": "Registration"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "registrations",
+          "type": "relation"
+        },
+        {
+          "decorators": [
+            {
+              "type": "model",
+              "value": "Ticket"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "tickets",
+          "type": "relation"
+        }
+      ],
+      "name": "Workshop"
+    },
+    {
+      "directives": [
+        {
+          "fields": [
+            "attendeeId",
+            "workshopId"
+          ],
+          "kind": "unique",
+          "name": "attendeeWorkshop"
+        }
+      ],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "attendeeId",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "workshopId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "attendeeId"
+            },
+            {
+              "type": "model",
+              "value": "Attendee"
+            }
+          ],
+          "isOptional": false,
+          "name": "attendee",
+          "type": "relation"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "workshopId"
+            },
+            {
+              "type": "model",
+              "value": "Workshop"
+            }
+          ],
+          "isOptional": false,
+          "name": "workshop",
+          "type": "relation"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "role",
+          "type": "string"
+        }
+      ],
+      "name": "Registration"
+    },
+    {
+      "directives": [
+        {
+          "fields": [
+            "attendeeId",
+            "workshopId"
+          ],
+          "kind": "index",
+          "name": "ticketAttendeeWorkshop"
+        },
+        {
+          "fields": [
+            "attendeeId",
+            "seat"
+          ],
+          "kind": "index",
+          "name": "ticketAttendeeSeat"
+        },
+        {
+          "fields": [
+            "workshopId",
+            "seat"
+          ],
+          "kind": "unique",
+          "name": "ticketWorkshopSeat"
+        }
+      ],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "attendeeId",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "workshopId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "attendeeId"
+            },
+            {
+              "type": "model",
+              "value": "Attendee"
+            }
+          ],
+          "isOptional": false,
+          "name": "attendee",
+          "type": "relation"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "workshopId"
+            },
+            {
+              "type": "model",
+              "value": "Workshop"
+            }
+          ],
+          "isOptional": false,
+          "name": "workshop",
+          "type": "relation"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "seat",
+          "type": "string"
+        }
+      ],
+      "name": "Ticket"
+    },
+    {
+      "directives": [
+        {
+          "fields": [
+            "attendeeId",
+            "slot.row"
+          ],
+          "kind": "index",
+          "name": "bookingAttendeeRow"
+        },
+        {
+          "fields": [
+            "attendeeId",
+            "slot.row"
+          ],
+          "kind": "unique",
+          "name": "bookingAttendeeRowUnique"
+        }
+      ],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "attendeeId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "attendeeId"
+            },
+            {
+              "type": "model",
+              "value": "Attendee"
+            }
+          ],
+          "isOptional": false,
+          "name": "attendee",
+          "type": "relation"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "slot",
+          "objectName": "Slot",
+          "type": "object"
+        }
+      ],
+      "name": "Booking"
+    }
+  ],
+  "objects": [
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "row",
+          "type": "string"
+        }
+      ],
+      "name": "Slot"
+    }
+  ]
+}

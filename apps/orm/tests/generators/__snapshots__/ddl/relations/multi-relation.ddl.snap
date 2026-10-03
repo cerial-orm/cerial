@@ -1,0 +1,9 @@
+-- Document
+DEFINE TABLE OVERWRITE document SCHEMAFULL;
+DEFINE FIELD OVERWRITE title ON TABLE document TYPE string;
+DEFINE FIELD OVERWRITE authorId ON TABLE document TYPE record<writer>;
+DEFINE FIELD OVERWRITE reviewerId ON TABLE document TYPE option<record<writer> | null>;
+
+-- Writer
+DEFINE TABLE OVERWRITE writer SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE writer TYPE string;

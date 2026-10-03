@@ -1,0 +1,608 @@
+{
+  "models": {
+    "ExtTupleByName": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "picked",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "name": "name",
+                "type": "string"
+              }
+            ],
+            "tupleName": "ExtPickedName"
+          },
+          "type": "tuple"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "omitted",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "name": "name",
+                "type": "string"
+              }
+            ],
+            "tupleName": "ExtOmittedAge"
+          },
+          "type": "tuple"
+        }
+      ],
+      "name": "ExtTupleByName",
+      "tableName": "ext_tuple_by_name"
+    },
+    "ExtTupleModel": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "pair",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "type": "string"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "type": "int"
+              }
+            ],
+            "tupleName": "ExtBasePair"
+          },
+          "type": "tuple"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "triple",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "type": "string"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "type": "int"
+              },
+              {
+                "index": 2,
+                "isOptional": false,
+                "type": "bool"
+              }
+            ],
+            "tupleName": "ExtTriple"
+          },
+          "type": "tuple"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "namedTriple",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "name": "name",
+                "type": "string"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "name": "age",
+                "type": "int"
+              },
+              {
+                "index": 2,
+                "isOptional": false,
+                "name": "active",
+                "type": "bool"
+              }
+            ],
+            "tupleName": "ExtNamedTriple"
+          },
+          "type": "tuple"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "quad",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "type": "string"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "type": "int"
+              },
+              {
+                "index": 2,
+                "isOptional": false,
+                "type": "bool"
+              },
+              {
+                "index": 3,
+                "isOptional": false,
+                "type": "float"
+              }
+            ],
+            "tupleName": "ExtQuad"
+          },
+          "type": "tuple"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "coordPair",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "objectInfo": {
+                  "fields": [
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "name": "x",
+                      "type": "float"
+                    },
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "name": "y",
+                      "type": "float"
+                    }
+                  ],
+                  "objectName": "ExtCoord"
+                },
+                "type": "object"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "objectInfo": {
+                  "fields": [
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "name": "x",
+                      "type": "float"
+                    },
+                    {
+                      "isId": false,
+                      "isIndexed": false,
+                      "isRequired": true,
+                      "isUnique": false,
+                      "name": "y",
+                      "type": "float"
+                    }
+                  ],
+                  "objectName": "ExtCoord"
+                },
+                "type": "object"
+              }
+            ],
+            "tupleName": "ExtCoordPair"
+          },
+          "type": "tuple"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "optionalTriple",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isNullable": true,
+                "isOptional": false,
+                "type": "string"
+              },
+              {
+                "index": 1,
+                "isNullable": true,
+                "isOptional": false,
+                "type": "int"
+              },
+              {
+                "index": 2,
+                "isNullable": true,
+                "isOptional": false,
+                "type": "bool"
+              }
+            ],
+            "tupleName": "ExtOptionalTriple"
+          },
+          "type": "tuple"
+        }
+      ],
+      "name": "ExtTupleModel",
+      "tableName": "ext_tuple_model"
+    }
+  },
+  "objects": {
+    "ExtCoord": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "x",
+          "type": "float"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "y",
+          "type": "float"
+        }
+      ],
+      "name": "ExtCoord"
+    }
+  },
+  "tuples": {
+    "ExtBasePair": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "type": "string"
+        },
+        {
+          "index": 1,
+          "isOptional": false,
+          "type": "int"
+        }
+      ],
+      "name": "ExtBasePair"
+    },
+    "ExtCoordPair": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "x",
+                "type": "float"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "y",
+                "type": "float"
+              }
+            ],
+            "objectName": "ExtCoord"
+          },
+          "type": "object"
+        },
+        {
+          "index": 1,
+          "isOptional": false,
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "x",
+                "type": "float"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "y",
+                "type": "float"
+              }
+            ],
+            "objectName": "ExtCoord"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "ExtCoordPair"
+    },
+    "ExtDecoratedTriple": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "type": "string"
+        },
+        {
+          "index": 1,
+          "isOptional": false,
+          "type": "int"
+        },
+        {
+          "index": 2,
+          "isOptional": false,
+          "type": "bool"
+        }
+      ],
+      "name": "ExtDecoratedTriple"
+    },
+    "ExtFirstTwo": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "type": "string"
+        },
+        {
+          "index": 1,
+          "isOptional": false,
+          "type": "int"
+        }
+      ],
+      "name": "ExtFirstTwo"
+    },
+    "ExtNamedPair": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "index": 1,
+          "isOptional": false,
+          "name": "age",
+          "type": "int"
+        }
+      ],
+      "name": "ExtNamedPair"
+    },
+    "ExtNamedTriple": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "index": 1,
+          "isOptional": false,
+          "name": "age",
+          "type": "int"
+        },
+        {
+          "index": 2,
+          "isOptional": false,
+          "name": "active",
+          "type": "bool"
+        }
+      ],
+      "name": "ExtNamedTriple"
+    },
+    "ExtNullableTriple": {
+      "elements": [
+        {
+          "index": 0,
+          "isNullable": true,
+          "isOptional": false,
+          "type": "string"
+        },
+        {
+          "index": 1,
+          "isNullable": true,
+          "isOptional": false,
+          "type": "int"
+        },
+        {
+          "index": 2,
+          "isNullable": true,
+          "isOptional": false,
+          "type": "bool"
+        }
+      ],
+      "name": "ExtNullableTriple"
+    },
+    "ExtOmittedAge": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        }
+      ],
+      "name": "ExtOmittedAge"
+    },
+    "ExtOptionalTriple": {
+      "elements": [
+        {
+          "index": 0,
+          "isNullable": true,
+          "isOptional": false,
+          "type": "string"
+        },
+        {
+          "index": 1,
+          "isNullable": true,
+          "isOptional": false,
+          "type": "int"
+        },
+        {
+          "index": 2,
+          "isNullable": true,
+          "isOptional": false,
+          "type": "bool"
+        }
+      ],
+      "name": "ExtOptionalTriple"
+    },
+    "ExtOverridePair": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "type": "string"
+        },
+        {
+          "index": 1,
+          "isOptional": false,
+          "type": "float"
+        }
+      ],
+      "name": "ExtOverridePair"
+    },
+    "ExtPickedName": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        }
+      ],
+      "name": "ExtPickedName"
+    },
+    "ExtPrivatePair": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "type": "string"
+        },
+        {
+          "index": 1,
+          "isOptional": false,
+          "type": "int"
+        }
+      ],
+      "name": "ExtPrivatePair"
+    },
+    "ExtQuad": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "type": "string"
+        },
+        {
+          "index": 1,
+          "isOptional": false,
+          "type": "int"
+        },
+        {
+          "index": 2,
+          "isOptional": false,
+          "type": "bool"
+        },
+        {
+          "index": 3,
+          "isOptional": false,
+          "type": "float"
+        }
+      ],
+      "name": "ExtQuad"
+    },
+    "ExtTriple": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "type": "string"
+        },
+        {
+          "index": 1,
+          "isOptional": false,
+          "type": "int"
+        },
+        {
+          "index": 2,
+          "isOptional": false,
+          "type": "bool"
+        }
+      ],
+      "name": "ExtTriple"
+    },
+    "ExtWithoutSecond": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "type": "string"
+        }
+      ],
+      "name": "ExtWithoutSecond"
+    }
+  }
+}

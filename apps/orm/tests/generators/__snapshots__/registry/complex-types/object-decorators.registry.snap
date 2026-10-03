@@ -1,0 +1,240 @@
+{
+  "models": {
+    "ObjDecUser": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "contact",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "email",
+                "type": "email"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isNullable": true,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "phone",
+                "type": "string"
+              },
+              {
+                "defaultValue": "Unknown",
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "city",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "createdAt",
+                "timestampDecorator": "createdAt",
+                "type": "date"
+              },
+              {
+                "isArray": true,
+                "isDistinct": true,
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "tags",
+                "type": "string"
+              }
+            ],
+            "objectName": "ContactInfo"
+          },
+          "type": "object"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "location",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "address",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": true,
+                "name": "zip",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": true,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "country",
+                "type": "string"
+              }
+            ],
+            "objectName": "LocationInfo"
+          },
+          "type": "object"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "altLocation",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "address",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": true,
+                "name": "zip",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": true,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "country",
+                "type": "string"
+              }
+            ],
+            "objectName": "LocationInfo"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "ObjDecUser",
+      "tableName": "obj_dec_user"
+    }
+  },
+  "objects": {
+    "ContactInfo": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "email",
+          "type": "email"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "phone",
+          "type": "string"
+        },
+        {
+          "defaultValue": "Unknown",
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "city",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "createdAt",
+          "timestampDecorator": "createdAt",
+          "type": "date"
+        },
+        {
+          "isArray": true,
+          "isDistinct": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "tags",
+          "type": "string"
+        }
+      ],
+      "name": "ContactInfo"
+    },
+    "LocationInfo": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "address",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": true,
+          "name": "zip",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": true,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "country",
+          "type": "string"
+        }
+      ],
+      "name": "LocationInfo"
+    }
+  }
+}

@@ -1,0 +1,919 @@
+// ===== models/objecttestorder.ts =====
+/**
+ * Generated types for ObjectTestOrder
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { Address, AddressInput, AddressWhere, AddressSelect, AddressOrderBy } from '../objects/address';
+import type {
+  OrderItem,
+  OrderItemInput,
+  OrderItemWhere,
+  OrderItemSelect,
+  OrderItemOrderBy,
+} from '../objects/orderitem';
+import type { TreeNode, TreeNodeInput, TreeNodeWhere, TreeNodeSelect, TreeNodeOrderBy } from '../objects/treenode';
+export interface ObjectTestOrder {
+  id: CerialId<string>;
+  billingAddress: Address;
+  shippingAddress?: Address;
+  items: OrderItem[];
+  metadata?: TreeNode;
+}
+
+export interface ObjectTestOrderInput {
+  id?: string;
+  billingAddress: AddressInput;
+  shippingAddress?: AddressInput;
+  items: OrderItemInput[];
+  metadata?: TreeNodeInput;
+}
+
+export interface ObjectTestOrderWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  billingAddress?: AddressWhere;
+  shippingAddress?: AddressWhere;
+  items?: { some?: OrderItemWhere; every?: OrderItemWhere; none?: OrderItemWhere };
+  metadata?: TreeNodeWhere;
+  AND?: ObjectTestOrderWhere[];
+  OR?: ObjectTestOrderWhere[];
+  NOT?: ObjectTestOrderWhere;
+}
+
+export type ObjectTestOrderWhereInput = ObjectTestOrderWhere;
+
+export type ObjectTestOrderFindUniqueWhere = { id: RecordIdInput<string> } & Omit<ObjectTestOrderWhere, 'id'>;
+
+export type ObjectTestOrderCreate = O.Optional<ObjectTestOrderInput, 'id' | 'shippingAddress' | 'items' | 'metadata'>;
+
+export type ObjectTestOrderNestedCreate = O.Optional<
+  ObjectTestOrderInput,
+  'id' | 'shippingAddress' | 'items' | 'metadata'
+>;
+
+export type ObjectTestOrderCreateInput = ObjectTestOrderCreate;
+
+export type ObjectTestOrderUpdate = Partial<
+  O.Omit<ObjectTestOrderInput, 'id' | 'billingAddress' | 'shippingAddress' | 'items' | 'metadata'>
+> & {
+  billingAddress?: Partial<AddressInput> | { set: AddressInput };
+  shippingAddress?: Partial<AddressInput> | { set: AddressInput } | CerialNone;
+  items?:
+    | OrderItemInput[]
+    | {
+        push?: OrderItemInput | OrderItemInput[];
+        set?: OrderItemInput[];
+        updateWhere?: {
+          where: OrderItemWhere;
+          data: Partial<OrderItemInput>;
+        };
+        unset?: { where: OrderItemWhere };
+      };
+  metadata?: Partial<TreeNodeInput> | { set: TreeNodeInput } | CerialNone;
+};
+
+export type ObjectTestOrderUpdateInput = ObjectTestOrderUpdate;
+
+export type ObjectTestOrderUnset = {
+  billingAddress?: {
+    zipCode?: true;
+  };
+  shippingAddress?:
+    | true
+    | {
+        zipCode?: true;
+      };
+  metadata?: true;
+};
+
+export type ObjectTestOrderSelect =
+  | ({ id: boolean } & {
+      billingAddress?: boolean | AddressSelect;
+      shippingAddress?: boolean | AddressSelect;
+      items?: boolean | OrderItemSelect;
+      metadata?: boolean | TreeNodeSelect;
+    })
+  | ({ billingAddress: boolean | AddressSelect } & {
+      id?: boolean;
+      shippingAddress?: boolean | AddressSelect;
+      items?: boolean | OrderItemSelect;
+      metadata?: boolean | TreeNodeSelect;
+    })
+  | ({ shippingAddress: boolean | AddressSelect } & {
+      id?: boolean;
+      billingAddress?: boolean | AddressSelect;
+      items?: boolean | OrderItemSelect;
+      metadata?: boolean | TreeNodeSelect;
+    })
+  | ({ items: boolean | OrderItemSelect } & {
+      id?: boolean;
+      billingAddress?: boolean | AddressSelect;
+      shippingAddress?: boolean | AddressSelect;
+      metadata?: boolean | TreeNodeSelect;
+    })
+  | ({ metadata: boolean | TreeNodeSelect } & {
+      id?: boolean;
+      billingAddress?: boolean | AddressSelect;
+      shippingAddress?: boolean | AddressSelect;
+      items?: boolean | OrderItemSelect;
+    });
+
+export interface ObjectTestOrderOrderBy {
+  id?: 'asc' | 'desc';
+  billingAddress?: AddressOrderBy;
+  shippingAddress?: AddressOrderBy;
+  items?: OrderItemOrderBy;
+  metadata?: TreeNodeOrderBy;
+}
+
+export type ObjectTestOrder$Relations = {};
+
+export type GetObjectTestOrderPayload<
+  S extends ObjectTestOrderSelect | undefined = undefined,
+  I = undefined,
+> = A.Compute<
+  S extends ObjectTestOrderSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ObjectTestOrder
+          ? ResolveFieldSelect<ObjectTestOrder[K], S[K]>
+          : never;
+      }
+    : ObjectTestOrder,
+  'flat'
+>;
+
+export interface ObjectTestOrderModel {
+  findOne<S extends ObjectTestOrderSelect | undefined = undefined>(options?: {
+    where?: ObjectTestOrderWhere;
+    select?: S;
+    orderBy?: ObjectTestOrderOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetObjectTestOrderPayload<S> | null>;
+
+  findMany<S extends ObjectTestOrderSelect | undefined = undefined>(options?: {
+    where?: ObjectTestOrderWhere;
+    select?: S;
+    orderBy?: ObjectTestOrderOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetObjectTestOrderPayload<S>[]>;
+
+  findUnique<S extends ObjectTestOrderSelect | undefined = undefined>(options: {
+    where: ObjectTestOrderFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetObjectTestOrderPayload<S> | null>;
+
+  create<S extends ObjectTestOrderSelect | undefined = undefined>(options: {
+    data: ObjectTestOrderCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetObjectTestOrderPayload<S>>;
+
+  updateMany<
+    S extends ObjectTestOrderSelect | undefined = undefined,
+    D extends ObjectTestOrderUpdateInput = ObjectTestOrderUpdateInput,
+  >(options: {
+    where: ObjectTestOrderWhere;
+    data: D;
+    unset?: SafeUnset<ObjectTestOrderUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetObjectTestOrderPayload<S>[]>;
+
+  updateUnique<
+    S extends ObjectTestOrderSelect | undefined = undefined,
+    D extends ObjectTestOrderUpdateInput = ObjectTestOrderUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ObjectTestOrderFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ObjectTestOrderUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ObjectTestOrder | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetObjectTestOrderPayload<S>, R>>;
+
+  upsert<
+    S extends ObjectTestOrderSelect | undefined = undefined,
+    D extends ObjectTestOrderUpdateInput = ObjectTestOrderUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ObjectTestOrderFindUniqueWhere;
+    create: ObjectTestOrderCreateInput;
+    update?: D;
+    unset?: SafeUnset<ObjectTestOrderUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetObjectTestOrderPayload<S>, R>>;
+
+  upsert<
+    S extends ObjectTestOrderSelect | undefined = undefined,
+    D extends ObjectTestOrderUpdateInput = ObjectTestOrderUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ObjectTestOrderWhere;
+    create: ObjectTestOrderCreateInput;
+    update?: D;
+    unset?: SafeUnset<ObjectTestOrderUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetObjectTestOrderPayload<S>, R>>;
+
+  deleteMany(options: { where: ObjectTestOrderWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ObjectTestOrderFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ObjectTestOrder | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ObjectTestOrder, R>>;
+
+  count(where?: ObjectTestOrderWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ObjectTestOrderWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/objecttestuser.ts =====
+/**
+ * Generated types for ObjectTestUser
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { Address, AddressInput, AddressWhere, AddressSelect, AddressOrderBy } from '../objects/address';
+import type { GeoPoint, GeoPointInput, GeoPointWhere, GeoPointSelect, GeoPointOrderBy } from '../objects/geopoint';
+export interface ObjectTestUser {
+  id: CerialId<string>;
+  name: string;
+  address: Address;
+  shipping?: Address;
+  locations: GeoPoint[];
+  primaryLocation?: GeoPoint;
+}
+
+export interface ObjectTestUserInput {
+  id?: string;
+  name: string;
+  address: AddressInput;
+  shipping?: AddressInput;
+  locations: GeoPointInput[];
+  primaryLocation?: GeoPointInput;
+}
+
+export interface ObjectTestUserWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  address?: AddressWhere;
+  shipping?: AddressWhere;
+  locations?: { some?: GeoPointWhere; every?: GeoPointWhere; none?: GeoPointWhere };
+  primaryLocation?: GeoPointWhere;
+  AND?: ObjectTestUserWhere[];
+  OR?: ObjectTestUserWhere[];
+  NOT?: ObjectTestUserWhere;
+}
+
+export type ObjectTestUserWhereInput = ObjectTestUserWhere;
+
+export type ObjectTestUserFindUniqueWhere = { id: RecordIdInput<string> } & Omit<ObjectTestUserWhere, 'id'>;
+
+export type ObjectTestUserCreate = O.Optional<ObjectTestUserInput, 'id' | 'shipping' | 'locations' | 'primaryLocation'>;
+
+export type ObjectTestUserNestedCreate = O.Optional<
+  ObjectTestUserInput,
+  'id' | 'shipping' | 'locations' | 'primaryLocation'
+>;
+
+export type ObjectTestUserCreateInput = ObjectTestUserCreate;
+
+export type ObjectTestUserUpdate = Partial<
+  O.Omit<ObjectTestUserInput, 'id' | 'address' | 'shipping' | 'locations' | 'primaryLocation'>
+> & {
+  address?: Partial<AddressInput> | { set: AddressInput };
+  shipping?: Partial<AddressInput> | { set: AddressInput } | CerialNone;
+  locations?:
+    | GeoPointInput[]
+    | {
+        push?: GeoPointInput | GeoPointInput[];
+        set?: GeoPointInput[];
+        updateWhere?: {
+          where: GeoPointWhere;
+          data: Partial<GeoPointInput>;
+        };
+        unset?: { where: GeoPointWhere };
+      };
+  primaryLocation?: Partial<GeoPointInput> | { set: GeoPointInput } | CerialNone;
+};
+
+export type ObjectTestUserUpdateInput = ObjectTestUserUpdate;
+
+export type ObjectTestUserUnset = {
+  address?: {
+    zipCode?: true;
+  };
+  shipping?:
+    | true
+    | {
+        zipCode?: true;
+      };
+  primaryLocation?:
+    | true
+    | {
+        label?:
+          | true
+          | {
+              zipCode?: true;
+            };
+      };
+};
+
+export type ObjectTestUserSelect =
+  | ({ id: boolean } & {
+      name?: boolean;
+      address?: boolean | AddressSelect;
+      shipping?: boolean | AddressSelect;
+      locations?: boolean | GeoPointSelect;
+      primaryLocation?: boolean | GeoPointSelect;
+    })
+  | ({ name: boolean } & {
+      id?: boolean;
+      address?: boolean | AddressSelect;
+      shipping?: boolean | AddressSelect;
+      locations?: boolean | GeoPointSelect;
+      primaryLocation?: boolean | GeoPointSelect;
+    })
+  | ({ address: boolean | AddressSelect } & {
+      id?: boolean;
+      name?: boolean;
+      shipping?: boolean | AddressSelect;
+      locations?: boolean | GeoPointSelect;
+      primaryLocation?: boolean | GeoPointSelect;
+    })
+  | ({ shipping: boolean | AddressSelect } & {
+      id?: boolean;
+      name?: boolean;
+      address?: boolean | AddressSelect;
+      locations?: boolean | GeoPointSelect;
+      primaryLocation?: boolean | GeoPointSelect;
+    })
+  | ({ locations: boolean | GeoPointSelect } & {
+      id?: boolean;
+      name?: boolean;
+      address?: boolean | AddressSelect;
+      shipping?: boolean | AddressSelect;
+      primaryLocation?: boolean | GeoPointSelect;
+    })
+  | ({ primaryLocation: boolean | GeoPointSelect } & {
+      id?: boolean;
+      name?: boolean;
+      address?: boolean | AddressSelect;
+      shipping?: boolean | AddressSelect;
+      locations?: boolean | GeoPointSelect;
+    });
+
+export interface ObjectTestUserOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  address?: AddressOrderBy;
+  shipping?: AddressOrderBy;
+  locations?: GeoPointOrderBy;
+  primaryLocation?: GeoPointOrderBy;
+}
+
+export type ObjectTestUser$Relations = {};
+
+export type GetObjectTestUserPayload<S extends ObjectTestUserSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends ObjectTestUserSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ObjectTestUser
+          ? ResolveFieldSelect<ObjectTestUser[K], S[K]>
+          : never;
+      }
+    : ObjectTestUser,
+  'flat'
+>;
+
+export interface ObjectTestUserModel {
+  findOne<S extends ObjectTestUserSelect | undefined = undefined>(options?: {
+    where?: ObjectTestUserWhere;
+    select?: S;
+    orderBy?: ObjectTestUserOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetObjectTestUserPayload<S> | null>;
+
+  findMany<S extends ObjectTestUserSelect | undefined = undefined>(options?: {
+    where?: ObjectTestUserWhere;
+    select?: S;
+    orderBy?: ObjectTestUserOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetObjectTestUserPayload<S>[]>;
+
+  findUnique<S extends ObjectTestUserSelect | undefined = undefined>(options: {
+    where: ObjectTestUserFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetObjectTestUserPayload<S> | null>;
+
+  create<S extends ObjectTestUserSelect | undefined = undefined>(options: {
+    data: ObjectTestUserCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetObjectTestUserPayload<S>>;
+
+  updateMany<
+    S extends ObjectTestUserSelect | undefined = undefined,
+    D extends ObjectTestUserUpdateInput = ObjectTestUserUpdateInput,
+  >(options: {
+    where: ObjectTestUserWhere;
+    data: D;
+    unset?: SafeUnset<ObjectTestUserUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetObjectTestUserPayload<S>[]>;
+
+  updateUnique<
+    S extends ObjectTestUserSelect | undefined = undefined,
+    D extends ObjectTestUserUpdateInput = ObjectTestUserUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ObjectTestUserFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ObjectTestUserUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ObjectTestUser | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetObjectTestUserPayload<S>, R>>;
+
+  upsert<
+    S extends ObjectTestUserSelect | undefined = undefined,
+    D extends ObjectTestUserUpdateInput = ObjectTestUserUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ObjectTestUserFindUniqueWhere;
+    create: ObjectTestUserCreateInput;
+    update?: D;
+    unset?: SafeUnset<ObjectTestUserUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetObjectTestUserPayload<S>, R>>;
+
+  upsert<
+    S extends ObjectTestUserSelect | undefined = undefined,
+    D extends ObjectTestUserUpdateInput = ObjectTestUserUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ObjectTestUserWhere;
+    create: ObjectTestUserCreateInput;
+    update?: D;
+    unset?: SafeUnset<ObjectTestUserUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetObjectTestUserPayload<S>, R>>;
+
+  deleteMany(options: { where: ObjectTestUserWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ObjectTestUserFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ObjectTestUser | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ObjectTestUser, R>>;
+
+  count(where?: ObjectTestUserWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ObjectTestUserWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== objects/address.ts =====
+/**
+ * Generated types for Address
+ * Do not edit manually
+ */
+
+export interface Address {
+  street: string;
+  city: string;
+  state: string;
+  zipCode?: string | null;
+}
+
+export interface AddressInput {
+  street: string;
+  city: string;
+  state: string;
+  zipCode?: string | null;
+}
+
+export interface AddressWhere {
+  street?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  city?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  state?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  zipCode?:
+    | null
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string | null;
+        isNull?: boolean;
+        isNone?: boolean;
+      });
+  AND?: AddressWhere[];
+  OR?: AddressWhere[];
+  NOT?: AddressWhere;
+}
+
+export type AddressSelect =
+  | ({ street: boolean } & Partial<Record<'city' | 'state' | 'zipCode', boolean>>)
+  | ({ city: boolean } & Partial<Record<'street' | 'state' | 'zipCode', boolean>>)
+  | ({ state: boolean } & Partial<Record<'street' | 'city' | 'zipCode', boolean>>)
+  | ({ zipCode: boolean } & Partial<Record<'street' | 'city' | 'state', boolean>>);
+
+export interface AddressOrderBy {
+  street?: 'asc' | 'desc';
+  city?: 'asc' | 'desc';
+  state?: 'asc' | 'desc';
+  zipCode?: 'asc' | 'desc';
+}
+
+// ===== objects/geopoint.ts =====
+/**
+ * Generated types for GeoPoint
+ * Do not edit manually
+ */
+
+import type { Address, AddressInput, AddressWhere, AddressSelect, AddressOrderBy } from './address';
+export interface GeoPoint {
+  lat: number;
+  lng: number;
+  label?: Address;
+}
+
+export interface GeoPointInput {
+  lat: number;
+  lng: number;
+  label?: AddressInput;
+}
+
+export interface GeoPointWhere {
+  lat?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  lng?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  label?: AddressWhere;
+  AND?: GeoPointWhere[];
+  OR?: GeoPointWhere[];
+  NOT?: GeoPointWhere;
+}
+
+export type GeoPointSelect =
+  | ({ lat: boolean } & { lng?: boolean; label?: boolean | AddressSelect })
+  | ({ lng: boolean } & { lat?: boolean; label?: boolean | AddressSelect })
+  | ({ label: boolean | AddressSelect } & Partial<Record<'lat' | 'lng', boolean>>);
+
+export interface GeoPointOrderBy {
+  lat?: 'asc' | 'desc';
+  lng?: 'asc' | 'desc';
+  label?: AddressOrderBy;
+}
+
+// ===== objects/orderitem.ts =====
+/**
+ * Generated types for OrderItem
+ * Do not edit manually
+ */
+
+export interface OrderItem {
+  productName: string;
+  quantity: number;
+  price: number;
+  tags: string[];
+}
+
+export interface OrderItemInput {
+  productName: string;
+  quantity: number;
+  price: number;
+  tags: string[];
+}
+
+export interface OrderItemWhere {
+  productName?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  quantity?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  price?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  tags?:
+    | string[]
+    | {
+        has?: string;
+        hasAll?: string[];
+        hasAny?: string[];
+        isEmpty?: boolean;
+      };
+  AND?: OrderItemWhere[];
+  OR?: OrderItemWhere[];
+  NOT?: OrderItemWhere;
+}
+
+export type OrderItemSelect =
+  | ({ productName: boolean } & Partial<Record<'quantity' | 'price' | 'tags', boolean>>)
+  | ({ quantity: boolean } & Partial<Record<'productName' | 'price' | 'tags', boolean>>)
+  | ({ price: boolean } & Partial<Record<'productName' | 'quantity' | 'tags', boolean>>)
+  | ({ tags: boolean } & Partial<Record<'productName' | 'quantity' | 'price', boolean>>);
+
+export interface OrderItemOrderBy {
+  productName?: 'asc' | 'desc';
+  quantity?: 'asc' | 'desc';
+  price?: 'asc' | 'desc';
+  tags?: 'asc' | 'desc';
+}
+
+// ===== objects/treenode.ts =====
+/**
+ * Generated types for TreeNode
+ * Do not edit manually
+ */
+
+export interface TreeNode {
+  value: number;
+  children: TreeNode[];
+}
+
+export interface TreeNodeInput {
+  value: number;
+  children: TreeNodeInput[];
+}
+
+export interface TreeNodeWhere {
+  value?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  children?: { some?: TreeNodeWhere; every?: TreeNodeWhere; none?: TreeNodeWhere };
+  AND?: TreeNodeWhere[];
+  OR?: TreeNodeWhere[];
+  NOT?: TreeNodeWhere;
+}
+
+export type TreeNodeSelect =
+  | ({ value: boolean } & { children?: boolean | TreeNodeSelect })
+  | ({ children: boolean | TreeNodeSelect } & Partial<Record<'value', boolean>>);
+
+export interface TreeNodeOrderBy {
+  value?: 'asc' | 'desc';
+  children?: TreeNodeOrderBy;
+}

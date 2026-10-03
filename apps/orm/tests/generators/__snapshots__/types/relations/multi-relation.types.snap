@@ -1,0 +1,734 @@
+// ===== models/document.ts =====
+/**
+ * Generated types for Document
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  Writer,
+  WriterWhere,
+  WriterSelect,
+  WriterOrderBy,
+  WriterNestedCreate,
+  WriterInclude,
+  GetWriterIncludePayload,
+} from './writer';
+export interface Document {
+  id: CerialId<string>;
+  title: string;
+  authorId: CerialId<string>;
+  reviewerId?: CerialId<string> | null;
+}
+
+export interface DocumentInput {
+  id?: string;
+  title: string;
+  authorId: RecordIdInput<string>;
+  reviewerId?: RecordIdInput<string> | null;
+}
+
+export interface DocumentWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  title?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  authorId?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  author?: WriterWhere;
+  reviewerId?:
+    | null
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {
+        not?: string | null;
+        isNull?: boolean;
+        isNone?: boolean;
+      });
+  reviewer?: null | WriterWhere;
+  AND?: DocumentWhere[];
+  OR?: DocumentWhere[];
+  NOT?: DocumentWhere;
+}
+
+export type DocumentWhereInput = DocumentWhere;
+
+export type DocumentFindUniqueWhere = { id: RecordIdInput<string> } & Omit<DocumentWhere, 'id'>;
+
+export type DocumentCreate = O.Optional<O.Omit<DocumentInput, 'author' | 'reviewer'>, 'id' | 'reviewerId'>;
+
+export type DocumentNestedCreate = O.Optional<
+  O.Omit<DocumentInput, 'author' | 'reviewer' | 'authorId' | 'reviewerId'>,
+  'id'
+>;
+
+export type DocumentCreateInput =
+  | DocumentCreate
+  | (O.Omit<DocumentCreate, 'authorId' | 'reviewerId'> & {
+      author: { create: WriterNestedCreate } | { connect: RecordIdInput };
+      reviewer?: { create: WriterNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type DocumentUpdate = Partial<O.Omit<DocumentInput, 'id' | 'author' | 'reviewer' | 'reviewerId'>> & {
+  reviewerId?: RecordIdInput<string> | null | CerialNone;
+};
+
+export type DocumentUpdateInput =
+  | DocumentUpdate
+  | (O.Omit<DocumentUpdate, 'authorId' | 'reviewerId'> & {
+      author?: { create: WriterNestedCreate } | { connect: RecordIdInput };
+      reviewer?: { create: WriterNestedCreate } | { connect: RecordIdInput } | { disconnect: true };
+    });
+
+export type DocumentUnset = {
+  reviewerId?: true;
+};
+
+export type DocumentSelect =
+  | ({ id: boolean } & Partial<Record<'title' | 'authorId' | 'reviewerId', boolean>>)
+  | ({ title: boolean } & Partial<Record<'id' | 'authorId' | 'reviewerId', boolean>>)
+  | ({ authorId: boolean } & Partial<Record<'id' | 'title' | 'reviewerId', boolean>>)
+  | ({ reviewerId: boolean } & Partial<Record<'id' | 'title' | 'authorId', boolean>>);
+
+export interface DocumentOrderBy {
+  id?: 'asc' | 'desc';
+  title?: 'asc' | 'desc';
+  authorId?: 'asc' | 'desc';
+  author?: WriterOrderBy;
+  reviewerId?: 'asc' | 'desc';
+  reviewer?: WriterOrderBy;
+}
+
+export interface DocumentInclude {
+  author?:
+    | boolean
+    | {
+        select?: WriterSelect;
+        where?: WriterWhere;
+        include?: WriterInclude;
+      };
+  reviewer?:
+    | boolean
+    | {
+        select?: WriterSelect;
+        where?: WriterWhere;
+        include?: WriterInclude;
+      };
+}
+
+export type Document$Relations = {
+  author: { type: Writer; include: WriterInclude };
+  reviewer: { type: Writer; include: WriterInclude };
+};
+
+export type GetDocumentIncludePayload<I extends DocumentInclude | undefined> = I extends DocumentInclude
+  ? Pick<
+      {
+        author: I['author'] extends true
+          ? Writer
+          : I['author'] extends { select: infer S extends WriterSelect; include: infer NI extends WriterInclude }
+            ? {
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Writer
+                  ? ResolveFieldSelect<Writer[P], S[P]>
+                  : never;
+              } & GetWriterIncludePayload<NI>
+            : I['author'] extends { select: infer S extends WriterSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Writer
+                    ? ResolveFieldSelect<Writer[P], S[P]>
+                    : never;
+                }
+              : I['author'] extends { include: infer NI extends WriterInclude }
+                ? Writer & GetWriterIncludePayload<NI>
+                : Writer;
+        reviewer: I['reviewer'] extends true
+          ? Writer
+          : I['reviewer'] extends { select: infer S extends WriterSelect; include: infer NI extends WriterInclude }
+            ? {
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Writer
+                  ? ResolveFieldSelect<Writer[P], S[P]>
+                  : never;
+              } & GetWriterIncludePayload<NI>
+            : I['reviewer'] extends { select: infer S extends WriterSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Writer
+                    ? ResolveFieldSelect<Writer[P], S[P]>
+                    : never;
+                }
+              : I['reviewer'] extends { include: infer NI extends WriterInclude }
+                ? Writer & GetWriterIncludePayload<NI>
+                : Writer;
+      },
+      Extract<keyof I, keyof Document$Relations> &
+        { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetDocumentPayload<
+  S extends DocumentSelect | undefined = undefined,
+  I extends DocumentInclude | undefined = undefined,
+> = A.Compute<
+  S extends DocumentSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof Document
+          ? ResolveFieldSelect<Document[K], S[K]>
+          : never;
+      } & GetDocumentIncludePayload<I>
+    : I extends DocumentInclude
+      ? Document & GetDocumentIncludePayload<I>
+      : Document,
+  'flat'
+>;
+
+export interface DocumentModel {
+  findOne<
+    S extends DocumentSelect | undefined = undefined,
+    I extends DocumentInclude | undefined = undefined,
+  >(options?: {
+    where?: DocumentWhere;
+    select?: S;
+    include?: I;
+    orderBy?: DocumentOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetDocumentPayload<S, I> | null>;
+
+  findMany<
+    S extends DocumentSelect | undefined = undefined,
+    I extends DocumentInclude | undefined = undefined,
+  >(options?: {
+    where?: DocumentWhere;
+    select?: S;
+    orderBy?: DocumentOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetDocumentPayload<S, I>[]>;
+
+  findUnique<
+    S extends DocumentSelect | undefined = undefined,
+    I extends DocumentInclude | undefined = undefined,
+  >(options: {
+    where: DocumentFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetDocumentPayload<S, I> | null>;
+
+  create<S extends DocumentSelect | undefined = undefined, I extends DocumentInclude | undefined = undefined>(options: {
+    data: DocumentCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetDocumentPayload<S, I>>;
+
+  updateMany<
+    S extends DocumentSelect | undefined = undefined,
+    I extends DocumentInclude | undefined = undefined,
+    D extends DocumentUpdateInput = DocumentUpdateInput,
+  >(options: {
+    where: DocumentWhere;
+    data: D;
+    unset?: SafeUnset<DocumentUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetDocumentPayload<S, I>[]>;
+
+  updateUnique<
+    S extends DocumentSelect | undefined = undefined,
+    I extends DocumentInclude | undefined = undefined,
+    D extends DocumentUpdateInput = DocumentUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: DocumentFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<DocumentUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns Document | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetDocumentPayload<S, I>, R>>;
+
+  upsert<
+    S extends DocumentSelect | undefined = undefined,
+    I extends DocumentInclude | undefined = undefined,
+    D extends DocumentUpdateInput = DocumentUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: DocumentFindUniqueWhere;
+    create: DocumentCreateInput;
+    update?: D;
+    unset?: SafeUnset<DocumentUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetDocumentPayload<S, I>, R>>;
+
+  upsert<
+    S extends DocumentSelect | undefined = undefined,
+    I extends DocumentInclude | undefined = undefined,
+    D extends DocumentUpdateInput = DocumentUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: DocumentWhere;
+    create: DocumentCreateInput;
+    update?: D;
+    unset?: SafeUnset<DocumentUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetDocumentPayload<S, I>, R>>;
+
+  deleteMany(options: { where: DocumentWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: DocumentFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns Document | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<Document, R>>;
+
+  count(where?: DocumentWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: DocumentWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/writer.ts =====
+/**
+ * Generated types for Writer
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  Document,
+  DocumentWhere,
+  DocumentSelect,
+  DocumentOrderBy,
+  DocumentNestedCreate,
+  DocumentInclude,
+  GetDocumentIncludePayload,
+} from './document';
+export interface Writer {
+  id: CerialId<string>;
+  name: string;
+}
+
+export interface WriterInput {
+  id?: string;
+  name: string;
+}
+
+export interface WriterWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  authoredDocs?: { some?: DocumentWhere; every?: DocumentWhere; none?: DocumentWhere };
+  reviewedDocs?: { some?: DocumentWhere; every?: DocumentWhere; none?: DocumentWhere };
+  AND?: WriterWhere[];
+  OR?: WriterWhere[];
+  NOT?: WriterWhere;
+}
+
+export type WriterWhereInput = WriterWhere;
+
+export type WriterFindUniqueWhere = { id: RecordIdInput<string> } & Omit<WriterWhere, 'id'>;
+
+export type WriterCreate = O.Optional<O.Omit<WriterInput, 'authoredDocs' | 'reviewedDocs'>, 'id'>;
+
+export type WriterNestedCreate = O.Optional<O.Omit<WriterInput, 'authoredDocs' | 'reviewedDocs'>, 'id'>;
+
+export type WriterCreateInput = WriterCreate & {
+  authoredDocs?: {
+    create?: DocumentNestedCreate | DocumentNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+  };
+  reviewedDocs?: {
+    create?: DocumentNestedCreate | DocumentNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+  };
+};
+
+export type WriterUpdate = Partial<O.Omit<WriterInput, 'id' | 'authoredDocs' | 'reviewedDocs'>>;
+
+export type WriterUpdateInput = WriterUpdate & {
+  authoredDocs?: {
+    create?: DocumentNestedCreate | DocumentNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+    disconnect?: RecordIdInput | RecordIdInput[];
+    set?: RecordIdInput[];
+  };
+  reviewedDocs?: {
+    create?: DocumentNestedCreate | DocumentNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+    disconnect?: RecordIdInput | RecordIdInput[];
+    set?: RecordIdInput[];
+  };
+};
+
+export type WriterUnset = {};
+
+export type WriterSelect =
+  | ({ id: boolean } & Partial<Record<'name', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id', boolean>>);
+
+export interface WriterOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+}
+
+export interface WriterInclude {
+  authoredDocs?:
+    | boolean
+    | {
+        select?: DocumentSelect;
+        where?: DocumentWhere;
+        orderBy?: DocumentOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: DocumentInclude;
+      };
+  reviewedDocs?:
+    | boolean
+    | {
+        select?: DocumentSelect;
+        where?: DocumentWhere;
+        orderBy?: DocumentOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: DocumentInclude;
+      };
+}
+
+export type Writer$Relations = {
+  authoredDocs: { type: Document[]; include: DocumentInclude };
+  reviewedDocs: { type: Document[]; include: DocumentInclude };
+};
+
+export type GetWriterIncludePayload<I extends WriterInclude | undefined> = I extends WriterInclude
+  ? Pick<
+      {
+        authoredDocs: I['authoredDocs'] extends true
+          ? Document[]
+          : I['authoredDocs'] extends {
+                select: infer S extends DocumentSelect;
+                include: infer NI extends DocumentInclude;
+              }
+            ? ({
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Document
+                  ? ResolveFieldSelect<Document[P], S[P]>
+                  : never;
+              } & GetDocumentIncludePayload<NI>)[]
+            : I['authoredDocs'] extends { select: infer S extends DocumentSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Document
+                    ? ResolveFieldSelect<Document[P], S[P]>
+                    : never;
+                }[]
+              : I['authoredDocs'] extends { include: infer NI extends DocumentInclude }
+                ? (Document & GetDocumentIncludePayload<NI>)[]
+                : Document[];
+        reviewedDocs: I['reviewedDocs'] extends true
+          ? Document[]
+          : I['reviewedDocs'] extends {
+                select: infer S extends DocumentSelect;
+                include: infer NI extends DocumentInclude;
+              }
+            ? ({
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Document
+                  ? ResolveFieldSelect<Document[P], S[P]>
+                  : never;
+              } & GetDocumentIncludePayload<NI>)[]
+            : I['reviewedDocs'] extends { select: infer S extends DocumentSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Document
+                    ? ResolveFieldSelect<Document[P], S[P]>
+                    : never;
+                }[]
+              : I['reviewedDocs'] extends { include: infer NI extends DocumentInclude }
+                ? (Document & GetDocumentIncludePayload<NI>)[]
+                : Document[];
+      },
+      Extract<keyof I, keyof Writer$Relations> & { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetWriterPayload<
+  S extends WriterSelect | undefined = undefined,
+  I extends WriterInclude | undefined = undefined,
+> = A.Compute<
+  S extends WriterSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof Writer
+          ? ResolveFieldSelect<Writer[K], S[K]>
+          : never;
+      } & GetWriterIncludePayload<I>
+    : I extends WriterInclude
+      ? Writer & GetWriterIncludePayload<I>
+      : Writer,
+  'flat'
+>;
+
+export interface WriterModel {
+  findOne<S extends WriterSelect | undefined = undefined, I extends WriterInclude | undefined = undefined>(options?: {
+    where?: WriterWhere;
+    select?: S;
+    include?: I;
+    orderBy?: WriterOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetWriterPayload<S, I> | null>;
+
+  findMany<S extends WriterSelect | undefined = undefined, I extends WriterInclude | undefined = undefined>(options?: {
+    where?: WriterWhere;
+    select?: S;
+    orderBy?: WriterOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetWriterPayload<S, I>[]>;
+
+  findUnique<S extends WriterSelect | undefined = undefined, I extends WriterInclude | undefined = undefined>(options: {
+    where: WriterFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetWriterPayload<S, I> | null>;
+
+  create<S extends WriterSelect | undefined = undefined, I extends WriterInclude | undefined = undefined>(options: {
+    data: WriterCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetWriterPayload<S, I>>;
+
+  updateMany<
+    S extends WriterSelect | undefined = undefined,
+    I extends WriterInclude | undefined = undefined,
+    D extends WriterUpdateInput = WriterUpdateInput,
+  >(options: {
+    where: WriterWhere;
+    data: D;
+    unset?: SafeUnset<WriterUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetWriterPayload<S, I>[]>;
+
+  updateUnique<
+    S extends WriterSelect | undefined = undefined,
+    I extends WriterInclude | undefined = undefined,
+    D extends WriterUpdateInput = WriterUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: WriterFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<WriterUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns Writer | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetWriterPayload<S, I>, R>>;
+
+  upsert<
+    S extends WriterSelect | undefined = undefined,
+    I extends WriterInclude | undefined = undefined,
+    D extends WriterUpdateInput = WriterUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: WriterFindUniqueWhere;
+    create: WriterCreateInput;
+    update?: D;
+    unset?: SafeUnset<WriterUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetWriterPayload<S, I>, R>>;
+
+  upsert<
+    S extends WriterSelect | undefined = undefined,
+    I extends WriterInclude | undefined = undefined,
+    D extends WriterUpdateInput = WriterUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: WriterWhere;
+    create: WriterCreateInput;
+    update?: D;
+    unset?: SafeUnset<WriterUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetWriterPayload<S, I>, R>>;
+
+  deleteMany(options: { where: WriterWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: WriterFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns Writer | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<Writer, R>>;
+
+  count(where?: WriterWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: WriterWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}

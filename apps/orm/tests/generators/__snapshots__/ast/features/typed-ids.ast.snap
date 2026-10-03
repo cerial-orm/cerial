@@ -1,0 +1,361 @@
+{
+  "models": [
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "recordIdTypes": [
+            "int"
+          ],
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        }
+      ],
+      "name": "IntIdModel"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "recordIdTypes": [
+            "number"
+          ],
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "label",
+          "type": "string"
+        }
+      ],
+      "name": "NumberIdModel"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "recordIdTypes": [
+            "string"
+          ],
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "value",
+          "type": "string"
+        }
+      ],
+      "name": "StringIdModel"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "recordIdTypes": [
+            "uuid"
+          ],
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "data",
+          "type": "string"
+        }
+      ],
+      "name": "UuidIdModel"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "recordIdTypes": [
+            "IdCoord"
+          ],
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "city",
+          "type": "string"
+        }
+      ],
+      "name": "TupleIdModel"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "recordIdTypes": [
+            "IdMetricKey"
+          ],
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "value",
+          "type": "float"
+        }
+      ],
+      "name": "ObjectIdModel"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "recordIdTypes": [
+            "string",
+            "int"
+          ],
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "label",
+          "type": "string"
+        }
+      ],
+      "name": "UnionIdModel"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "recordIdTypes": [
+            "int",
+            "uuid"
+          ],
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "label",
+          "type": "string"
+        }
+      ],
+      "name": "IntUnionIdModel"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "recordIdTypes": [
+            "int"
+          ],
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "model",
+              "value": "FkChildModel"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "children",
+          "type": "relation"
+        }
+      ],
+      "name": "FkTargetIntId"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "parentId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "parentId"
+            },
+            {
+              "type": "model",
+              "value": "FkTargetIntId"
+            }
+          ],
+          "isOptional": false,
+          "name": "parent",
+          "type": "relation"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "note",
+          "type": "string"
+        }
+      ],
+      "name": "FkChildModel"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "externalRef",
+          "recordIdTypes": [
+            "int"
+          ],
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "externalRefs",
+          "recordIdTypes": [
+            "int"
+          ],
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "label",
+          "type": "string"
+        }
+      ],
+      "name": "StandaloneRefModel"
+    }
+  ],
+  "objects": [
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "service",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "timestamp",
+          "type": "int"
+        }
+      ],
+      "name": "IdMetricKey"
+    }
+  ],
+  "tuples": [
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "type": "float"
+        },
+        {
+          "isOptional": false,
+          "type": "float"
+        }
+      ],
+      "name": "IdCoord"
+    }
+  ]
+}

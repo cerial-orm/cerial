@@ -1,0 +1,148 @@
+{
+  "models": [
+    {
+      "directives": [
+        {
+          "fields": [
+            "location.city",
+            "location.zip"
+          ],
+          "kind": "unique",
+          "name": "cityZip"
+        },
+        {
+          "fields": [
+            "name",
+            "location.city"
+          ],
+          "kind": "unique",
+          "name": "nameCity"
+        }
+      ],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "index"
+            }
+          ],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "location",
+          "objectName": "Location",
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "capacity",
+          "type": "int"
+        }
+      ],
+      "name": "Warehouse"
+    },
+    {
+      "directives": [
+        {
+          "fields": [
+            "dock.bay",
+            "dock.level"
+          ],
+          "kind": "index",
+          "name": "dockBayLevel"
+        },
+        {
+          "fields": [
+            "label",
+            "dock.bay"
+          ],
+          "kind": "index",
+          "name": "labelDockBay"
+        }
+      ],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "dock",
+          "objectName": "Dock",
+          "type": "object"
+        }
+      ],
+      "name": "Depot"
+    }
+  ],
+  "objects": [
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "city",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "zip",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "street",
+          "type": "string"
+        }
+      ],
+      "name": "Location"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "bay",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "level",
+          "type": "int"
+        }
+      ],
+      "name": "Dock"
+    }
+  ]
+}

@@ -1,0 +1,1997 @@
+/**
+ * Generated database client
+ * Do not edit manually
+ */
+
+import {
+  CerialError,
+  CerialMigrationError,
+  CerialNotConnectedError,
+  CerialTransactionError,
+  CerialValidationError,
+  ConnectionManager,
+  CerialQueryPromise,
+  executeClientTransaction,
+  createCerialTransactionProxy,
+  guardUnknownModels,
+  isTransactionConflict,
+  type CerialTransaction,
+  type DatabaseProxy,
+  type ModelRegistry,
+  type BeforeQueryCallback,
+  type PerModelCallbacks,
+  type TransactionItem,
+  type TransactionExecutionItem,
+  type TransactionItemResult,
+  type TransactionOptions,
+  type TransactionClient,
+} from 'cerial';
+import type { ConnectionConfig } from 'cerial';
+import { modelRegistry } from './internal/model-registry';
+import {
+  migrationsByModel,
+  getModelMigrationQuery,
+  getMigrationModelNames,
+  type ModelName,
+} from './internal/migrations';
+import type {
+  EnumBasic,
+  EnumDefaults,
+  EnumMultiple,
+  EnumWithObject,
+  EnumLiteralRef,
+  LiteralBasic,
+  LiteralDefaults,
+  LiteralBroad,
+  LiteralExtended,
+  LiteralNumeric,
+  LiteralWithObject,
+  LiteralWithTuple,
+  LiteralWithObjectVariant,
+  LiteralWithBoth,
+  LiteralWithObjectOpt,
+  LiteralNumberKinds,
+  LiteralObjectArray,
+  NmObjectDoc,
+  NmTupleDoc,
+  ObjDecUser,
+  ObjectTestUser,
+  ObjectTestOrder,
+  TupleBasic,
+  TupleNested,
+  TupleObjInTuple,
+  TupleInObj,
+  TupleWithRelation,
+  TupleRelatedPost,
+  TupleDeepNest,
+  TupleNullable,
+  TupleStamped,
+  TupleLiteralElement,
+  BasicsUser,
+  BasicsProfile,
+  BasicsPost,
+  BasicsTag,
+  User,
+  Profile,
+  Post,
+  Tag,
+  AnyBasic,
+  AnyWithObject,
+  AnyDecorated,
+  AnyUnique,
+  BytesBasic,
+  BytesWithObject,
+  BytesWithTuple,
+  DecimalBasic,
+  DecimalDecorated,
+  DecimalWithObject,
+  DecimalWithTuple,
+  DurationBasic,
+  DurationDecorated,
+  DurationWithObject,
+  DurationWithTuple,
+  GeometryBasic,
+  GeometryWithObject,
+  GeometryWithTuple,
+  GeometryMulti,
+  NumberBasic,
+  NumberDecorated,
+  NumberWithObject,
+  NumberWithTuple,
+  UuidBasic,
+  UuidDecorated,
+  UuidWithObject,
+  UuidWithTuple,
+  ArrayDecoratorTest,
+  ScalarArrays,
+  Warehouse,
+  Depot,
+  Staff,
+  Attendee,
+  Workshop,
+  Registration,
+  Ticket,
+  Booking,
+  ContentItem,
+  FlexUser,
+  UserCascade,
+  ProfileCascade,
+  UserNoAction,
+  ProfileNoAction,
+  UserRestrict,
+  ProfileRestrict,
+  UserSetNull,
+  ProfileSetNull,
+  Team,
+  Member,
+  Department,
+  Employee,
+  UserSetNone,
+  ProfileSetNone,
+  TeamNoAction,
+  MemberNoAction,
+  TeamSetNull,
+  MemberSetNull,
+  OdFolder,
+  OdGrandparent,
+  OdParent,
+  OdChild,
+  ReadonlyTest,
+  ReadonlyRecord,
+  SetBasic,
+  TimestampTest,
+  ExtCrossUser,
+  ExtCrossAdmin,
+  ExtCrossModerator,
+  ExtCrossPremium,
+  ExtCrossProfile,
+  ExtCrossPrivate,
+  ExtEnumModel,
+  ExtEnumContainer,
+  ExtLiteralModel,
+  ExtLiteralContainer,
+  ExtLiteralQuoted,
+  ExtUser,
+  ExtAdmin,
+  ExtModerator,
+  ExtSuperAdmin,
+  ExtPremiumUser,
+  ExtSystemAdmin,
+  ExtPrivateUser,
+  ExtProfile,
+  ExtEmptyChild,
+  ExtL4Concrete,
+  ExtL4AltConcrete,
+  ExtL4PickConcrete,
+  ExtL4OmitConcrete,
+  ExtL5VeryDeep,
+  ExtL6UltraDeep,
+  ExtP4Concrete,
+  ExtAddressUser,
+  ExtChainModel,
+  ExtRelBlogAuthor,
+  ExtRelBlogPost,
+  ExtRelProject,
+  ExtRelBlogTag,
+  ExtRelBlogPostTag,
+  ExtRelPostSummary,
+  ExtRelPostArchive,
+  ExtRelComment,
+  ExtRelCommentModerated,
+  ExtTupleModel,
+  ExtTupleByName,
+  IntIdModel,
+  NumberIdModel,
+  StringIdModel,
+  UuidIdModel,
+  TupleIdModel,
+  ObjectIdModel,
+  UnionIdModel,
+  IntUnionIdModel,
+  FkTargetIntId,
+  FkChildModel,
+  StandaloneRefModel,
+  UnsetTest,
+  KitchenSinkUser,
+  KitchenSinkProfile,
+  KitchenSinkPost,
+  KitchenSinkTag,
+  KitchenSinkSettings,
+  KitchenSinkBadge,
+  Student,
+  Course,
+  Blogger,
+  Label,
+  Customer,
+  Agent,
+  Order,
+  Writer,
+  Document,
+  Publisher,
+  Book,
+  Author,
+  PostRequired,
+  Article,
+  Comment,
+  UserOptional,
+  ProfileOptional,
+  UserRequired,
+  ProfileRequired,
+  UserSingleSided,
+  ProfileSingleSided,
+  RelObjCompany,
+  RelObjEmployee,
+  Person,
+  Assistant,
+  EmployeeSingleSided,
+  EmployeeWithReports,
+  Friend,
+  SocialUser,
+  CategoryTree,
+  EnumBasicModel,
+  EnumDefaultsModel,
+  EnumMultipleModel,
+  EnumWithObjectModel,
+  EnumLiteralRefModel,
+  LiteralBasicModel,
+  LiteralDefaultsModel,
+  LiteralBroadModel,
+  LiteralExtendedModel,
+  LiteralNumericModel,
+  LiteralWithObjectModel,
+  LiteralWithTupleModel,
+  LiteralWithObjectVariantModel,
+  LiteralWithBothModel,
+  LiteralWithObjectOptModel,
+  LiteralNumberKindsModel,
+  LiteralObjectArrayModel,
+  NmObjectDocModel,
+  NmTupleDocModel,
+  ObjDecUserModel,
+  ObjectTestUserModel,
+  ObjectTestOrderModel,
+  TupleBasicModel,
+  TupleNestedModel,
+  TupleObjInTupleModel,
+  TupleInObjModel,
+  TupleWithRelationModel,
+  TupleRelatedPostModel,
+  TupleDeepNestModel,
+  TupleNullableModel,
+  TupleStampedModel,
+  TupleLiteralElementModel,
+  BasicsUserModel,
+  BasicsProfileModel,
+  BasicsPostModel,
+  BasicsTagModel,
+  UserModel,
+  ProfileModel,
+  PostModel,
+  TagModel,
+  AnyBasicModel,
+  AnyWithObjectModel,
+  AnyDecoratedModel,
+  AnyUniqueModel,
+  BytesBasicModel,
+  BytesWithObjectModel,
+  BytesWithTupleModel,
+  DecimalBasicModel,
+  DecimalDecoratedModel,
+  DecimalWithObjectModel,
+  DecimalWithTupleModel,
+  DurationBasicModel,
+  DurationDecoratedModel,
+  DurationWithObjectModel,
+  DurationWithTupleModel,
+  GeometryBasicModel,
+  GeometryWithObjectModel,
+  GeometryWithTupleModel,
+  GeometryMultiModel,
+  NumberBasicModel,
+  NumberDecoratedModel,
+  NumberWithObjectModel,
+  NumberWithTupleModel,
+  UuidBasicModel,
+  UuidDecoratedModel,
+  UuidWithObjectModel,
+  UuidWithTupleModel,
+  ArrayDecoratorTestModel,
+  ScalarArraysModel,
+  WarehouseModel,
+  DepotModel,
+  StaffModel,
+  AttendeeModel,
+  WorkshopModel,
+  RegistrationModel,
+  TicketModel,
+  BookingModel,
+  ContentItemModel,
+  FlexUserModel,
+  UserCascadeModel,
+  ProfileCascadeModel,
+  UserNoActionModel,
+  ProfileNoActionModel,
+  UserRestrictModel,
+  ProfileRestrictModel,
+  UserSetNullModel,
+  ProfileSetNullModel,
+  TeamModel,
+  MemberModel,
+  DepartmentModel,
+  EmployeeModel,
+  UserSetNoneModel,
+  ProfileSetNoneModel,
+  TeamNoActionModel,
+  MemberNoActionModel,
+  TeamSetNullModel,
+  MemberSetNullModel,
+  OdFolderModel,
+  OdGrandparentModel,
+  OdParentModel,
+  OdChildModel,
+  ReadonlyTestModel,
+  ReadonlyRecordModel,
+  SetBasicModel,
+  TimestampTestModel,
+  ExtCrossUserModel,
+  ExtCrossAdminModel,
+  ExtCrossModeratorModel,
+  ExtCrossPremiumModel,
+  ExtCrossProfileModel,
+  ExtCrossPrivateModel,
+  ExtEnumModelModel,
+  ExtEnumContainerModel,
+  ExtLiteralModelModel,
+  ExtLiteralContainerModel,
+  ExtLiteralQuotedModel,
+  ExtUserModel,
+  ExtAdminModel,
+  ExtModeratorModel,
+  ExtSuperAdminModel,
+  ExtPremiumUserModel,
+  ExtSystemAdminModel,
+  ExtPrivateUserModel,
+  ExtProfileModel,
+  ExtEmptyChildModel,
+  ExtL4ConcreteModel,
+  ExtL4AltConcreteModel,
+  ExtL4PickConcreteModel,
+  ExtL4OmitConcreteModel,
+  ExtL5VeryDeepModel,
+  ExtL6UltraDeepModel,
+  ExtP4ConcreteModel,
+  ExtAddressUserModel,
+  ExtChainModelModel,
+  ExtRelBlogAuthorModel,
+  ExtRelBlogPostModel,
+  ExtRelProjectModel,
+  ExtRelBlogTagModel,
+  ExtRelBlogPostTagModel,
+  ExtRelPostSummaryModel,
+  ExtRelPostArchiveModel,
+  ExtRelCommentModel,
+  ExtRelCommentModeratedModel,
+  ExtTupleModelModel,
+  ExtTupleByNameModel,
+  IntIdModelModel,
+  NumberIdModelModel,
+  StringIdModelModel,
+  UuidIdModelModel,
+  TupleIdModelModel,
+  ObjectIdModelModel,
+  UnionIdModelModel,
+  IntUnionIdModelModel,
+  FkTargetIntIdModel,
+  FkChildModelModel,
+  StandaloneRefModelModel,
+  UnsetTestModel,
+  KitchenSinkUserModel,
+  KitchenSinkProfileModel,
+  KitchenSinkPostModel,
+  KitchenSinkTagModel,
+  KitchenSinkSettingsModel,
+  KitchenSinkBadgeModel,
+  StudentModel,
+  CourseModel,
+  BloggerModel,
+  LabelModel,
+  CustomerModel,
+  AgentModel,
+  OrderModel,
+  WriterModel,
+  DocumentModel,
+  PublisherModel,
+  BookModel,
+  AuthorModel,
+  PostRequiredModel,
+  ArticleModel,
+  CommentModel,
+  UserOptionalModel,
+  ProfileOptionalModel,
+  UserRequiredModel,
+  ProfileRequiredModel,
+  UserSingleSidedModel,
+  ProfileSingleSidedModel,
+  RelObjCompanyModel,
+  RelObjEmployeeModel,
+  PersonModel,
+  AssistantModel,
+  EmployeeSingleSidedModel,
+  EmployeeWithReportsModel,
+  FriendModel,
+  SocialUserModel,
+  CategoryTreeModel,
+} from './models';
+
+/**
+ * Typed database interface for model access
+ */
+export interface TypedDb {
+  EnumBasic: EnumBasicModel;
+  EnumDefaults: EnumDefaultsModel;
+  EnumMultiple: EnumMultipleModel;
+  EnumWithObject: EnumWithObjectModel;
+  EnumLiteralRef: EnumLiteralRefModel;
+  LiteralBasic: LiteralBasicModel;
+  LiteralDefaults: LiteralDefaultsModel;
+  LiteralBroad: LiteralBroadModel;
+  LiteralExtended: LiteralExtendedModel;
+  LiteralNumeric: LiteralNumericModel;
+  LiteralWithObject: LiteralWithObjectModel;
+  LiteralWithTuple: LiteralWithTupleModel;
+  LiteralWithObjectVariant: LiteralWithObjectVariantModel;
+  LiteralWithBoth: LiteralWithBothModel;
+  LiteralWithObjectOpt: LiteralWithObjectOptModel;
+  LiteralNumberKinds: LiteralNumberKindsModel;
+  LiteralObjectArray: LiteralObjectArrayModel;
+  NmObjectDoc: NmObjectDocModel;
+  NmTupleDoc: NmTupleDocModel;
+  ObjDecUser: ObjDecUserModel;
+  ObjectTestUser: ObjectTestUserModel;
+  ObjectTestOrder: ObjectTestOrderModel;
+  TupleBasic: TupleBasicModel;
+  TupleNested: TupleNestedModel;
+  TupleObjInTuple: TupleObjInTupleModel;
+  TupleInObj: TupleInObjModel;
+  TupleWithRelation: TupleWithRelationModel;
+  TupleRelatedPost: TupleRelatedPostModel;
+  TupleDeepNest: TupleDeepNestModel;
+  TupleNullable: TupleNullableModel;
+  TupleStamped: TupleStampedModel;
+  TupleLiteralElement: TupleLiteralElementModel;
+  BasicsUser: BasicsUserModel;
+  BasicsProfile: BasicsProfileModel;
+  BasicsPost: BasicsPostModel;
+  BasicsTag: BasicsTagModel;
+  User: UserModel;
+  Profile: ProfileModel;
+  Post: PostModel;
+  Tag: TagModel;
+  AnyBasic: AnyBasicModel;
+  AnyWithObject: AnyWithObjectModel;
+  AnyDecorated: AnyDecoratedModel;
+  AnyUnique: AnyUniqueModel;
+  BytesBasic: BytesBasicModel;
+  BytesWithObject: BytesWithObjectModel;
+  BytesWithTuple: BytesWithTupleModel;
+  DecimalBasic: DecimalBasicModel;
+  DecimalDecorated: DecimalDecoratedModel;
+  DecimalWithObject: DecimalWithObjectModel;
+  DecimalWithTuple: DecimalWithTupleModel;
+  DurationBasic: DurationBasicModel;
+  DurationDecorated: DurationDecoratedModel;
+  DurationWithObject: DurationWithObjectModel;
+  DurationWithTuple: DurationWithTupleModel;
+  GeometryBasic: GeometryBasicModel;
+  GeometryWithObject: GeometryWithObjectModel;
+  GeometryWithTuple: GeometryWithTupleModel;
+  GeometryMulti: GeometryMultiModel;
+  NumberBasic: NumberBasicModel;
+  NumberDecorated: NumberDecoratedModel;
+  NumberWithObject: NumberWithObjectModel;
+  NumberWithTuple: NumberWithTupleModel;
+  UuidBasic: UuidBasicModel;
+  UuidDecorated: UuidDecoratedModel;
+  UuidWithObject: UuidWithObjectModel;
+  UuidWithTuple: UuidWithTupleModel;
+  ArrayDecoratorTest: ArrayDecoratorTestModel;
+  ScalarArrays: ScalarArraysModel;
+  Warehouse: WarehouseModel;
+  Depot: DepotModel;
+  Staff: StaffModel;
+  Attendee: AttendeeModel;
+  Workshop: WorkshopModel;
+  Registration: RegistrationModel;
+  Ticket: TicketModel;
+  Booking: BookingModel;
+  ContentItem: ContentItemModel;
+  FlexUser: FlexUserModel;
+  UserCascade: UserCascadeModel;
+  ProfileCascade: ProfileCascadeModel;
+  UserNoAction: UserNoActionModel;
+  ProfileNoAction: ProfileNoActionModel;
+  UserRestrict: UserRestrictModel;
+  ProfileRestrict: ProfileRestrictModel;
+  UserSetNull: UserSetNullModel;
+  ProfileSetNull: ProfileSetNullModel;
+  Team: TeamModel;
+  Member: MemberModel;
+  Department: DepartmentModel;
+  Employee: EmployeeModel;
+  UserSetNone: UserSetNoneModel;
+  ProfileSetNone: ProfileSetNoneModel;
+  TeamNoAction: TeamNoActionModel;
+  MemberNoAction: MemberNoActionModel;
+  TeamSetNull: TeamSetNullModel;
+  MemberSetNull: MemberSetNullModel;
+  OdFolder: OdFolderModel;
+  OdGrandparent: OdGrandparentModel;
+  OdParent: OdParentModel;
+  OdChild: OdChildModel;
+  ReadonlyTest: ReadonlyTestModel;
+  ReadonlyRecord: ReadonlyRecordModel;
+  SetBasic: SetBasicModel;
+  TimestampTest: TimestampTestModel;
+  ExtCrossUser: ExtCrossUserModel;
+  ExtCrossAdmin: ExtCrossAdminModel;
+  ExtCrossModerator: ExtCrossModeratorModel;
+  ExtCrossPremium: ExtCrossPremiumModel;
+  ExtCrossProfile: ExtCrossProfileModel;
+  ExtCrossPrivate: ExtCrossPrivateModel;
+  ExtEnumModel: ExtEnumModelModel;
+  ExtEnumContainer: ExtEnumContainerModel;
+  ExtLiteralModel: ExtLiteralModelModel;
+  ExtLiteralContainer: ExtLiteralContainerModel;
+  ExtLiteralQuoted: ExtLiteralQuotedModel;
+  ExtUser: ExtUserModel;
+  ExtAdmin: ExtAdminModel;
+  ExtModerator: ExtModeratorModel;
+  ExtSuperAdmin: ExtSuperAdminModel;
+  ExtPremiumUser: ExtPremiumUserModel;
+  ExtSystemAdmin: ExtSystemAdminModel;
+  ExtPrivateUser: ExtPrivateUserModel;
+  ExtProfile: ExtProfileModel;
+  ExtEmptyChild: ExtEmptyChildModel;
+  ExtL4Concrete: ExtL4ConcreteModel;
+  ExtL4AltConcrete: ExtL4AltConcreteModel;
+  ExtL4PickConcrete: ExtL4PickConcreteModel;
+  ExtL4OmitConcrete: ExtL4OmitConcreteModel;
+  ExtL5VeryDeep: ExtL5VeryDeepModel;
+  ExtL6UltraDeep: ExtL6UltraDeepModel;
+  ExtP4Concrete: ExtP4ConcreteModel;
+  ExtAddressUser: ExtAddressUserModel;
+  ExtChainModel: ExtChainModelModel;
+  ExtRelBlogAuthor: ExtRelBlogAuthorModel;
+  ExtRelBlogPost: ExtRelBlogPostModel;
+  ExtRelProject: ExtRelProjectModel;
+  ExtRelBlogTag: ExtRelBlogTagModel;
+  ExtRelBlogPostTag: ExtRelBlogPostTagModel;
+  ExtRelPostSummary: ExtRelPostSummaryModel;
+  ExtRelPostArchive: ExtRelPostArchiveModel;
+  ExtRelComment: ExtRelCommentModel;
+  ExtRelCommentModerated: ExtRelCommentModeratedModel;
+  ExtTupleModel: ExtTupleModelModel;
+  ExtTupleByName: ExtTupleByNameModel;
+  IntIdModel: IntIdModelModel;
+  NumberIdModel: NumberIdModelModel;
+  StringIdModel: StringIdModelModel;
+  UuidIdModel: UuidIdModelModel;
+  TupleIdModel: TupleIdModelModel;
+  ObjectIdModel: ObjectIdModelModel;
+  UnionIdModel: UnionIdModelModel;
+  IntUnionIdModel: IntUnionIdModelModel;
+  FkTargetIntId: FkTargetIntIdModel;
+  FkChildModel: FkChildModelModel;
+  StandaloneRefModel: StandaloneRefModelModel;
+  UnsetTest: UnsetTestModel;
+  KitchenSinkUser: KitchenSinkUserModel;
+  KitchenSinkProfile: KitchenSinkProfileModel;
+  KitchenSinkPost: KitchenSinkPostModel;
+  KitchenSinkTag: KitchenSinkTagModel;
+  KitchenSinkSettings: KitchenSinkSettingsModel;
+  KitchenSinkBadge: KitchenSinkBadgeModel;
+  Student: StudentModel;
+  Course: CourseModel;
+  Blogger: BloggerModel;
+  Label: LabelModel;
+  Customer: CustomerModel;
+  Agent: AgentModel;
+  Order: OrderModel;
+  Writer: WriterModel;
+  Document: DocumentModel;
+  Publisher: PublisherModel;
+  Book: BookModel;
+  Author: AuthorModel;
+  PostRequired: PostRequiredModel;
+  Article: ArticleModel;
+  Comment: CommentModel;
+  UserOptional: UserOptionalModel;
+  ProfileOptional: ProfileOptionalModel;
+  UserRequired: UserRequiredModel;
+  ProfileRequired: ProfileRequiredModel;
+  UserSingleSided: UserSingleSidedModel;
+  ProfileSingleSided: ProfileSingleSidedModel;
+  RelObjCompany: RelObjCompanyModel;
+  RelObjEmployee: RelObjEmployeeModel;
+  Person: PersonModel;
+  Assistant: AssistantModel;
+  EmployeeSingleSided: EmployeeSingleSidedModel;
+  EmployeeWithReports: EmployeeWithReportsModel;
+  Friend: FriendModel;
+  SocialUser: SocialUserModel;
+  CategoryTree: CategoryTreeModel;
+}
+
+/**
+ * Migration event types
+ */
+export type MigrationEventType = 'start' | 'complete' | 'error';
+
+/**
+ * Migration event callback
+ */
+export type MigrationEventCallback = (event: { type: MigrationEventType; modelName: ModelName; error?: Error }) => void;
+
+/**
+ * Client options for configuring callbacks and events
+ */
+export interface ClientOptions {
+  /** Callback(s) to run before each query - can be single function or array */
+  onBeforeQuery?: BeforeQueryCallback | BeforeQueryCallback[];
+  /** Callback for migration events (start, complete, error) */
+  onMigrationEvent?: MigrationEventCallback;
+  /**
+   * Attach the generated statement and its bound parameter values to a database error (default: false).
+   * The values are your data: turn this on in development, not where errors reach a shared log or tracker.
+   */
+  includeStatementInErrors?: boolean;
+}
+
+/**
+ * Extended connection config with per-model callbacks
+ */
+export interface CerialClientConnectConfig extends ConnectionConfig {
+  /** Per-model callbacks to run before queries to specific models */
+  perModelCallbacks?: PerModelCallbacks;
+}
+
+/**
+ * SurrealDB client with typed model access and per-model lazy migrations
+ */
+export class CerialClient {
+  private connectionManager: ConnectionManager<typeof modelRegistry>;
+  private _db: DatabaseProxy<typeof modelRegistry> | null = null;
+  private _migratedModels: Set<ModelName> = new Set();
+  private _pendingMigrations: Set<ModelName> = new Set();
+  private _migrationPromises: Map<ModelName, Promise<void>> = new Map();
+  private _onMigrationEvent?: MigrationEventCallback;
+  private _userCallbacks: BeforeQueryCallback[] = [];
+  private _includeStatementInErrors = false;
+  // Initialised explicitly so the guard proxy finds it on the instance rather than treating it as an unknown name.
+  private _perModelCallbacks?: PerModelCallbacks = undefined;
+
+  constructor(options?: ClientOptions) {
+    // Store user callbacks (normalized to array)
+    if (options?.onBeforeQuery) {
+      this._userCallbacks = Array.isArray(options.onBeforeQuery) ? options.onBeforeQuery : [options.onBeforeQuery];
+    }
+
+    this._onMigrationEvent = options?.onMigrationEvent;
+    this._includeStatementInErrors = options?.includeStatementInErrors ?? false;
+
+    // Combine migration callback with user callbacks
+    const allCallbacks: BeforeQueryCallback[] = [
+      async (modelNames: string[]) => {
+        await Promise.all(modelNames.map((name) => this.ensureModelMigrated(name as ModelName)));
+      },
+      ...this._userCallbacks,
+    ];
+
+    this.connectionManager = new ConnectionManager(modelRegistry, {
+      proxyOptions: {
+        onBeforeQuery: allCallbacks,
+        includeStatementInErrors: this._includeStatementInErrors,
+      },
+    });
+
+    return guardUnknownModels(this, modelRegistry);
+  }
+
+  /** @internal */
+  private _ensureDb(): TypedDb {
+    if (!this._db) throw new CerialNotConnectedError('Not connected. Call connect() first.');
+    return this._db as unknown as TypedDb;
+  }
+
+  /**
+   * Get the database proxy for model access
+   * @deprecated Access models directly on the client instead (e.g., `client.User` instead of `client.db.User`)
+   * @throws Error if not connected
+   */
+  get db(): TypedDb {
+    return this._ensureDb();
+  }
+
+  get EnumBasic(): EnumBasicModel {
+    return this._ensureDb().EnumBasic;
+  }
+
+  get EnumDefaults(): EnumDefaultsModel {
+    return this._ensureDb().EnumDefaults;
+  }
+
+  get EnumMultiple(): EnumMultipleModel {
+    return this._ensureDb().EnumMultiple;
+  }
+
+  get EnumWithObject(): EnumWithObjectModel {
+    return this._ensureDb().EnumWithObject;
+  }
+
+  get EnumLiteralRef(): EnumLiteralRefModel {
+    return this._ensureDb().EnumLiteralRef;
+  }
+
+  get LiteralBasic(): LiteralBasicModel {
+    return this._ensureDb().LiteralBasic;
+  }
+
+  get LiteralDefaults(): LiteralDefaultsModel {
+    return this._ensureDb().LiteralDefaults;
+  }
+
+  get LiteralBroad(): LiteralBroadModel {
+    return this._ensureDb().LiteralBroad;
+  }
+
+  get LiteralExtended(): LiteralExtendedModel {
+    return this._ensureDb().LiteralExtended;
+  }
+
+  get LiteralNumeric(): LiteralNumericModel {
+    return this._ensureDb().LiteralNumeric;
+  }
+
+  get LiteralWithObject(): LiteralWithObjectModel {
+    return this._ensureDb().LiteralWithObject;
+  }
+
+  get LiteralWithTuple(): LiteralWithTupleModel {
+    return this._ensureDb().LiteralWithTuple;
+  }
+
+  get LiteralWithObjectVariant(): LiteralWithObjectVariantModel {
+    return this._ensureDb().LiteralWithObjectVariant;
+  }
+
+  get LiteralWithBoth(): LiteralWithBothModel {
+    return this._ensureDb().LiteralWithBoth;
+  }
+
+  get LiteralWithObjectOpt(): LiteralWithObjectOptModel {
+    return this._ensureDb().LiteralWithObjectOpt;
+  }
+
+  get LiteralNumberKinds(): LiteralNumberKindsModel {
+    return this._ensureDb().LiteralNumberKinds;
+  }
+
+  get LiteralObjectArray(): LiteralObjectArrayModel {
+    return this._ensureDb().LiteralObjectArray;
+  }
+
+  get NmObjectDoc(): NmObjectDocModel {
+    return this._ensureDb().NmObjectDoc;
+  }
+
+  get NmTupleDoc(): NmTupleDocModel {
+    return this._ensureDb().NmTupleDoc;
+  }
+
+  get ObjDecUser(): ObjDecUserModel {
+    return this._ensureDb().ObjDecUser;
+  }
+
+  get ObjectTestUser(): ObjectTestUserModel {
+    return this._ensureDb().ObjectTestUser;
+  }
+
+  get ObjectTestOrder(): ObjectTestOrderModel {
+    return this._ensureDb().ObjectTestOrder;
+  }
+
+  get TupleBasic(): TupleBasicModel {
+    return this._ensureDb().TupleBasic;
+  }
+
+  get TupleNested(): TupleNestedModel {
+    return this._ensureDb().TupleNested;
+  }
+
+  get TupleObjInTuple(): TupleObjInTupleModel {
+    return this._ensureDb().TupleObjInTuple;
+  }
+
+  get TupleInObj(): TupleInObjModel {
+    return this._ensureDb().TupleInObj;
+  }
+
+  get TupleWithRelation(): TupleWithRelationModel {
+    return this._ensureDb().TupleWithRelation;
+  }
+
+  get TupleRelatedPost(): TupleRelatedPostModel {
+    return this._ensureDb().TupleRelatedPost;
+  }
+
+  get TupleDeepNest(): TupleDeepNestModel {
+    return this._ensureDb().TupleDeepNest;
+  }
+
+  get TupleNullable(): TupleNullableModel {
+    return this._ensureDb().TupleNullable;
+  }
+
+  get TupleStamped(): TupleStampedModel {
+    return this._ensureDb().TupleStamped;
+  }
+
+  get TupleLiteralElement(): TupleLiteralElementModel {
+    return this._ensureDb().TupleLiteralElement;
+  }
+
+  get BasicsUser(): BasicsUserModel {
+    return this._ensureDb().BasicsUser;
+  }
+
+  get BasicsProfile(): BasicsProfileModel {
+    return this._ensureDb().BasicsProfile;
+  }
+
+  get BasicsPost(): BasicsPostModel {
+    return this._ensureDb().BasicsPost;
+  }
+
+  get BasicsTag(): BasicsTagModel {
+    return this._ensureDb().BasicsTag;
+  }
+
+  get User(): UserModel {
+    return this._ensureDb().User;
+  }
+
+  get Profile(): ProfileModel {
+    return this._ensureDb().Profile;
+  }
+
+  get Post(): PostModel {
+    return this._ensureDb().Post;
+  }
+
+  get Tag(): TagModel {
+    return this._ensureDb().Tag;
+  }
+
+  get AnyBasic(): AnyBasicModel {
+    return this._ensureDb().AnyBasic;
+  }
+
+  get AnyWithObject(): AnyWithObjectModel {
+    return this._ensureDb().AnyWithObject;
+  }
+
+  get AnyDecorated(): AnyDecoratedModel {
+    return this._ensureDb().AnyDecorated;
+  }
+
+  get AnyUnique(): AnyUniqueModel {
+    return this._ensureDb().AnyUnique;
+  }
+
+  get BytesBasic(): BytesBasicModel {
+    return this._ensureDb().BytesBasic;
+  }
+
+  get BytesWithObject(): BytesWithObjectModel {
+    return this._ensureDb().BytesWithObject;
+  }
+
+  get BytesWithTuple(): BytesWithTupleModel {
+    return this._ensureDb().BytesWithTuple;
+  }
+
+  get DecimalBasic(): DecimalBasicModel {
+    return this._ensureDb().DecimalBasic;
+  }
+
+  get DecimalDecorated(): DecimalDecoratedModel {
+    return this._ensureDb().DecimalDecorated;
+  }
+
+  get DecimalWithObject(): DecimalWithObjectModel {
+    return this._ensureDb().DecimalWithObject;
+  }
+
+  get DecimalWithTuple(): DecimalWithTupleModel {
+    return this._ensureDb().DecimalWithTuple;
+  }
+
+  get DurationBasic(): DurationBasicModel {
+    return this._ensureDb().DurationBasic;
+  }
+
+  get DurationDecorated(): DurationDecoratedModel {
+    return this._ensureDb().DurationDecorated;
+  }
+
+  get DurationWithObject(): DurationWithObjectModel {
+    return this._ensureDb().DurationWithObject;
+  }
+
+  get DurationWithTuple(): DurationWithTupleModel {
+    return this._ensureDb().DurationWithTuple;
+  }
+
+  get GeometryBasic(): GeometryBasicModel {
+    return this._ensureDb().GeometryBasic;
+  }
+
+  get GeometryWithObject(): GeometryWithObjectModel {
+    return this._ensureDb().GeometryWithObject;
+  }
+
+  get GeometryWithTuple(): GeometryWithTupleModel {
+    return this._ensureDb().GeometryWithTuple;
+  }
+
+  get GeometryMulti(): GeometryMultiModel {
+    return this._ensureDb().GeometryMulti;
+  }
+
+  get NumberBasic(): NumberBasicModel {
+    return this._ensureDb().NumberBasic;
+  }
+
+  get NumberDecorated(): NumberDecoratedModel {
+    return this._ensureDb().NumberDecorated;
+  }
+
+  get NumberWithObject(): NumberWithObjectModel {
+    return this._ensureDb().NumberWithObject;
+  }
+
+  get NumberWithTuple(): NumberWithTupleModel {
+    return this._ensureDb().NumberWithTuple;
+  }
+
+  get UuidBasic(): UuidBasicModel {
+    return this._ensureDb().UuidBasic;
+  }
+
+  get UuidDecorated(): UuidDecoratedModel {
+    return this._ensureDb().UuidDecorated;
+  }
+
+  get UuidWithObject(): UuidWithObjectModel {
+    return this._ensureDb().UuidWithObject;
+  }
+
+  get UuidWithTuple(): UuidWithTupleModel {
+    return this._ensureDb().UuidWithTuple;
+  }
+
+  get ArrayDecoratorTest(): ArrayDecoratorTestModel {
+    return this._ensureDb().ArrayDecoratorTest;
+  }
+
+  get ScalarArrays(): ScalarArraysModel {
+    return this._ensureDb().ScalarArrays;
+  }
+
+  get Warehouse(): WarehouseModel {
+    return this._ensureDb().Warehouse;
+  }
+
+  get Depot(): DepotModel {
+    return this._ensureDb().Depot;
+  }
+
+  get Staff(): StaffModel {
+    return this._ensureDb().Staff;
+  }
+
+  get Attendee(): AttendeeModel {
+    return this._ensureDb().Attendee;
+  }
+
+  get Workshop(): WorkshopModel {
+    return this._ensureDb().Workshop;
+  }
+
+  get Registration(): RegistrationModel {
+    return this._ensureDb().Registration;
+  }
+
+  get Ticket(): TicketModel {
+    return this._ensureDb().Ticket;
+  }
+
+  get Booking(): BookingModel {
+    return this._ensureDb().Booking;
+  }
+
+  get ContentItem(): ContentItemModel {
+    return this._ensureDb().ContentItem;
+  }
+
+  get FlexUser(): FlexUserModel {
+    return this._ensureDb().FlexUser;
+  }
+
+  get UserCascade(): UserCascadeModel {
+    return this._ensureDb().UserCascade;
+  }
+
+  get ProfileCascade(): ProfileCascadeModel {
+    return this._ensureDb().ProfileCascade;
+  }
+
+  get UserNoAction(): UserNoActionModel {
+    return this._ensureDb().UserNoAction;
+  }
+
+  get ProfileNoAction(): ProfileNoActionModel {
+    return this._ensureDb().ProfileNoAction;
+  }
+
+  get UserRestrict(): UserRestrictModel {
+    return this._ensureDb().UserRestrict;
+  }
+
+  get ProfileRestrict(): ProfileRestrictModel {
+    return this._ensureDb().ProfileRestrict;
+  }
+
+  get UserSetNull(): UserSetNullModel {
+    return this._ensureDb().UserSetNull;
+  }
+
+  get ProfileSetNull(): ProfileSetNullModel {
+    return this._ensureDb().ProfileSetNull;
+  }
+
+  get Team(): TeamModel {
+    return this._ensureDb().Team;
+  }
+
+  get Member(): MemberModel {
+    return this._ensureDb().Member;
+  }
+
+  get Department(): DepartmentModel {
+    return this._ensureDb().Department;
+  }
+
+  get Employee(): EmployeeModel {
+    return this._ensureDb().Employee;
+  }
+
+  get UserSetNone(): UserSetNoneModel {
+    return this._ensureDb().UserSetNone;
+  }
+
+  get ProfileSetNone(): ProfileSetNoneModel {
+    return this._ensureDb().ProfileSetNone;
+  }
+
+  get TeamNoAction(): TeamNoActionModel {
+    return this._ensureDb().TeamNoAction;
+  }
+
+  get MemberNoAction(): MemberNoActionModel {
+    return this._ensureDb().MemberNoAction;
+  }
+
+  get TeamSetNull(): TeamSetNullModel {
+    return this._ensureDb().TeamSetNull;
+  }
+
+  get MemberSetNull(): MemberSetNullModel {
+    return this._ensureDb().MemberSetNull;
+  }
+
+  get OdFolder(): OdFolderModel {
+    return this._ensureDb().OdFolder;
+  }
+
+  get OdGrandparent(): OdGrandparentModel {
+    return this._ensureDb().OdGrandparent;
+  }
+
+  get OdParent(): OdParentModel {
+    return this._ensureDb().OdParent;
+  }
+
+  get OdChild(): OdChildModel {
+    return this._ensureDb().OdChild;
+  }
+
+  get ReadonlyTest(): ReadonlyTestModel {
+    return this._ensureDb().ReadonlyTest;
+  }
+
+  get ReadonlyRecord(): ReadonlyRecordModel {
+    return this._ensureDb().ReadonlyRecord;
+  }
+
+  get SetBasic(): SetBasicModel {
+    return this._ensureDb().SetBasic;
+  }
+
+  get TimestampTest(): TimestampTestModel {
+    return this._ensureDb().TimestampTest;
+  }
+
+  get ExtCrossUser(): ExtCrossUserModel {
+    return this._ensureDb().ExtCrossUser;
+  }
+
+  get ExtCrossAdmin(): ExtCrossAdminModel {
+    return this._ensureDb().ExtCrossAdmin;
+  }
+
+  get ExtCrossModerator(): ExtCrossModeratorModel {
+    return this._ensureDb().ExtCrossModerator;
+  }
+
+  get ExtCrossPremium(): ExtCrossPremiumModel {
+    return this._ensureDb().ExtCrossPremium;
+  }
+
+  get ExtCrossProfile(): ExtCrossProfileModel {
+    return this._ensureDb().ExtCrossProfile;
+  }
+
+  get ExtCrossPrivate(): ExtCrossPrivateModel {
+    return this._ensureDb().ExtCrossPrivate;
+  }
+
+  get ExtEnumModel(): ExtEnumModelModel {
+    return this._ensureDb().ExtEnumModel;
+  }
+
+  get ExtEnumContainer(): ExtEnumContainerModel {
+    return this._ensureDb().ExtEnumContainer;
+  }
+
+  get ExtLiteralModel(): ExtLiteralModelModel {
+    return this._ensureDb().ExtLiteralModel;
+  }
+
+  get ExtLiteralContainer(): ExtLiteralContainerModel {
+    return this._ensureDb().ExtLiteralContainer;
+  }
+
+  get ExtLiteralQuoted(): ExtLiteralQuotedModel {
+    return this._ensureDb().ExtLiteralQuoted;
+  }
+
+  get ExtUser(): ExtUserModel {
+    return this._ensureDb().ExtUser;
+  }
+
+  get ExtAdmin(): ExtAdminModel {
+    return this._ensureDb().ExtAdmin;
+  }
+
+  get ExtModerator(): ExtModeratorModel {
+    return this._ensureDb().ExtModerator;
+  }
+
+  get ExtSuperAdmin(): ExtSuperAdminModel {
+    return this._ensureDb().ExtSuperAdmin;
+  }
+
+  get ExtPremiumUser(): ExtPremiumUserModel {
+    return this._ensureDb().ExtPremiumUser;
+  }
+
+  get ExtSystemAdmin(): ExtSystemAdminModel {
+    return this._ensureDb().ExtSystemAdmin;
+  }
+
+  get ExtPrivateUser(): ExtPrivateUserModel {
+    return this._ensureDb().ExtPrivateUser;
+  }
+
+  get ExtProfile(): ExtProfileModel {
+    return this._ensureDb().ExtProfile;
+  }
+
+  get ExtEmptyChild(): ExtEmptyChildModel {
+    return this._ensureDb().ExtEmptyChild;
+  }
+
+  get ExtL4Concrete(): ExtL4ConcreteModel {
+    return this._ensureDb().ExtL4Concrete;
+  }
+
+  get ExtL4AltConcrete(): ExtL4AltConcreteModel {
+    return this._ensureDb().ExtL4AltConcrete;
+  }
+
+  get ExtL4PickConcrete(): ExtL4PickConcreteModel {
+    return this._ensureDb().ExtL4PickConcrete;
+  }
+
+  get ExtL4OmitConcrete(): ExtL4OmitConcreteModel {
+    return this._ensureDb().ExtL4OmitConcrete;
+  }
+
+  get ExtL5VeryDeep(): ExtL5VeryDeepModel {
+    return this._ensureDb().ExtL5VeryDeep;
+  }
+
+  get ExtL6UltraDeep(): ExtL6UltraDeepModel {
+    return this._ensureDb().ExtL6UltraDeep;
+  }
+
+  get ExtP4Concrete(): ExtP4ConcreteModel {
+    return this._ensureDb().ExtP4Concrete;
+  }
+
+  get ExtAddressUser(): ExtAddressUserModel {
+    return this._ensureDb().ExtAddressUser;
+  }
+
+  get ExtChainModel(): ExtChainModelModel {
+    return this._ensureDb().ExtChainModel;
+  }
+
+  get ExtRelBlogAuthor(): ExtRelBlogAuthorModel {
+    return this._ensureDb().ExtRelBlogAuthor;
+  }
+
+  get ExtRelBlogPost(): ExtRelBlogPostModel {
+    return this._ensureDb().ExtRelBlogPost;
+  }
+
+  get ExtRelProject(): ExtRelProjectModel {
+    return this._ensureDb().ExtRelProject;
+  }
+
+  get ExtRelBlogTag(): ExtRelBlogTagModel {
+    return this._ensureDb().ExtRelBlogTag;
+  }
+
+  get ExtRelBlogPostTag(): ExtRelBlogPostTagModel {
+    return this._ensureDb().ExtRelBlogPostTag;
+  }
+
+  get ExtRelPostSummary(): ExtRelPostSummaryModel {
+    return this._ensureDb().ExtRelPostSummary;
+  }
+
+  get ExtRelPostArchive(): ExtRelPostArchiveModel {
+    return this._ensureDb().ExtRelPostArchive;
+  }
+
+  get ExtRelComment(): ExtRelCommentModel {
+    return this._ensureDb().ExtRelComment;
+  }
+
+  get ExtRelCommentModerated(): ExtRelCommentModeratedModel {
+    return this._ensureDb().ExtRelCommentModerated;
+  }
+
+  get ExtTupleModel(): ExtTupleModelModel {
+    return this._ensureDb().ExtTupleModel;
+  }
+
+  get ExtTupleByName(): ExtTupleByNameModel {
+    return this._ensureDb().ExtTupleByName;
+  }
+
+  get IntIdModel(): IntIdModelModel {
+    return this._ensureDb().IntIdModel;
+  }
+
+  get NumberIdModel(): NumberIdModelModel {
+    return this._ensureDb().NumberIdModel;
+  }
+
+  get StringIdModel(): StringIdModelModel {
+    return this._ensureDb().StringIdModel;
+  }
+
+  get UuidIdModel(): UuidIdModelModel {
+    return this._ensureDb().UuidIdModel;
+  }
+
+  get TupleIdModel(): TupleIdModelModel {
+    return this._ensureDb().TupleIdModel;
+  }
+
+  get ObjectIdModel(): ObjectIdModelModel {
+    return this._ensureDb().ObjectIdModel;
+  }
+
+  get UnionIdModel(): UnionIdModelModel {
+    return this._ensureDb().UnionIdModel;
+  }
+
+  get IntUnionIdModel(): IntUnionIdModelModel {
+    return this._ensureDb().IntUnionIdModel;
+  }
+
+  get FkTargetIntId(): FkTargetIntIdModel {
+    return this._ensureDb().FkTargetIntId;
+  }
+
+  get FkChildModel(): FkChildModelModel {
+    return this._ensureDb().FkChildModel;
+  }
+
+  get StandaloneRefModel(): StandaloneRefModelModel {
+    return this._ensureDb().StandaloneRefModel;
+  }
+
+  get UnsetTest(): UnsetTestModel {
+    return this._ensureDb().UnsetTest;
+  }
+
+  get KitchenSinkUser(): KitchenSinkUserModel {
+    return this._ensureDb().KitchenSinkUser;
+  }
+
+  get KitchenSinkProfile(): KitchenSinkProfileModel {
+    return this._ensureDb().KitchenSinkProfile;
+  }
+
+  get KitchenSinkPost(): KitchenSinkPostModel {
+    return this._ensureDb().KitchenSinkPost;
+  }
+
+  get KitchenSinkTag(): KitchenSinkTagModel {
+    return this._ensureDb().KitchenSinkTag;
+  }
+
+  get KitchenSinkSettings(): KitchenSinkSettingsModel {
+    return this._ensureDb().KitchenSinkSettings;
+  }
+
+  get KitchenSinkBadge(): KitchenSinkBadgeModel {
+    return this._ensureDb().KitchenSinkBadge;
+  }
+
+  get Student(): StudentModel {
+    return this._ensureDb().Student;
+  }
+
+  get Course(): CourseModel {
+    return this._ensureDb().Course;
+  }
+
+  get Blogger(): BloggerModel {
+    return this._ensureDb().Blogger;
+  }
+
+  get Label(): LabelModel {
+    return this._ensureDb().Label;
+  }
+
+  get Customer(): CustomerModel {
+    return this._ensureDb().Customer;
+  }
+
+  get Agent(): AgentModel {
+    return this._ensureDb().Agent;
+  }
+
+  get Order(): OrderModel {
+    return this._ensureDb().Order;
+  }
+
+  get Writer(): WriterModel {
+    return this._ensureDb().Writer;
+  }
+
+  get Document(): DocumentModel {
+    return this._ensureDb().Document;
+  }
+
+  get Publisher(): PublisherModel {
+    return this._ensureDb().Publisher;
+  }
+
+  get Book(): BookModel {
+    return this._ensureDb().Book;
+  }
+
+  get Author(): AuthorModel {
+    return this._ensureDb().Author;
+  }
+
+  get PostRequired(): PostRequiredModel {
+    return this._ensureDb().PostRequired;
+  }
+
+  get Article(): ArticleModel {
+    return this._ensureDb().Article;
+  }
+
+  get Comment(): CommentModel {
+    return this._ensureDb().Comment;
+  }
+
+  get UserOptional(): UserOptionalModel {
+    return this._ensureDb().UserOptional;
+  }
+
+  get ProfileOptional(): ProfileOptionalModel {
+    return this._ensureDb().ProfileOptional;
+  }
+
+  get UserRequired(): UserRequiredModel {
+    return this._ensureDb().UserRequired;
+  }
+
+  get ProfileRequired(): ProfileRequiredModel {
+    return this._ensureDb().ProfileRequired;
+  }
+
+  get UserSingleSided(): UserSingleSidedModel {
+    return this._ensureDb().UserSingleSided;
+  }
+
+  get ProfileSingleSided(): ProfileSingleSidedModel {
+    return this._ensureDb().ProfileSingleSided;
+  }
+
+  get RelObjCompany(): RelObjCompanyModel {
+    return this._ensureDb().RelObjCompany;
+  }
+
+  get RelObjEmployee(): RelObjEmployeeModel {
+    return this._ensureDb().RelObjEmployee;
+  }
+
+  get Person(): PersonModel {
+    return this._ensureDb().Person;
+  }
+
+  get Assistant(): AssistantModel {
+    return this._ensureDb().Assistant;
+  }
+
+  get EmployeeSingleSided(): EmployeeSingleSidedModel {
+    return this._ensureDb().EmployeeSingleSided;
+  }
+
+  get EmployeeWithReports(): EmployeeWithReportsModel {
+    return this._ensureDb().EmployeeWithReports;
+  }
+
+  get Friend(): FriendModel {
+    return this._ensureDb().Friend;
+  }
+
+  get SocialUser(): SocialUserModel {
+    return this._ensureDb().SocialUser;
+  }
+
+  get CategoryTree(): CategoryTreeModel {
+    return this._ensureDb().CategoryTree;
+  }
+
+  /**
+   * Check if connected to the database
+   */
+  get isConnected(): boolean {
+    return this._db !== null;
+  }
+
+  /**
+   * Check if all models have been migrated
+   */
+  get isMigrated(): boolean {
+    const allModels = getMigrationModelNames();
+    return allModels.every((model) => this._migratedModels.has(model));
+  }
+
+  /**
+   * Check if a specific model has been migrated
+   * @param modelName - The model name to check
+   */
+  isModelMigrated(modelName: ModelName): boolean {
+    return this._migratedModels.has(modelName);
+  }
+
+  /**
+   * Get list of migrated models
+   */
+  getMigratedModels(): ModelName[] {
+    return Array.from(this._migratedModels);
+  }
+
+  /**
+   * Get list of pending models (not yet migrated)
+   */
+  getPendingModels(): ModelName[] {
+    const allModels = getMigrationModelNames();
+    return allModels.filter((model) => !this._migratedModels.has(model));
+  }
+
+  /**
+   * Connect to the database
+   * @param config - Connection configuration with optional per-model callbacks
+   */
+  async connect(config: CerialClientConnectConfig): Promise<void> {
+    // Store per-model callbacks for proxy creation
+    this._perModelCallbacks = config.perModelCallbacks;
+
+    // Update proxy options with per-model callbacks
+    if (this._perModelCallbacks) {
+      const allCallbacks: BeforeQueryCallback[] = [
+        async (modelNames: string[]) => {
+          await Promise.all(modelNames.map((name) => this.ensureModelMigrated(name as ModelName)));
+        },
+        ...this._userCallbacks,
+      ];
+
+      this.connectionManager.setProxyOptions({
+        onBeforeQuery: allCallbacks,
+        perModelCallbacks: this._perModelCallbacks,
+        includeStatementInErrors: this._includeStatementInErrors,
+      });
+    }
+
+    this._db = await this.connectionManager.connect(config);
+  }
+
+  /**
+   * Disconnect from the database
+   */
+  async disconnect(): Promise<void> {
+    await this.connectionManager.disconnect();
+    this._db = null;
+    this.resetMigrationState();
+  }
+
+  /**
+   * Reset migration tracking state so all models are re-migrated on next access.
+   * Useful after dropping tables (e.g., in test cleanup) to force schema re-creation.
+   */
+  resetMigrationState(): void {
+    this._migratedModels.clear();
+    this._pendingMigrations.clear();
+    this._migrationPromises.clear();
+  }
+
+  /**
+   * Run migrations for a specific model
+   * @param modelName - The model name to migrate
+   */
+  async migrateModel(modelName: ModelName): Promise<void> {
+    // Check if already migrated
+    if (this._migratedModels.has(modelName)) return;
+
+    // Thread safety: wait for in-progress migration
+    if (this._pendingMigrations.has(modelName)) {
+      const promise = this._migrationPromises.get(modelName);
+      if (promise) await promise;
+      return;
+    }
+
+    // Mark as pending
+    this._pendingMigrations.add(modelName);
+
+    // Create migration promise
+    const migrationPromise = this._doMigrateModel(modelName);
+    this._migrationPromises.set(modelName, migrationPromise);
+
+    try {
+      await migrationPromise;
+    } finally {
+      this._pendingMigrations.delete(modelName);
+      this._migrationPromises.delete(modelName);
+    }
+  }
+
+  /**
+   * Internal method to perform migration for a model
+   * @internal
+   */
+  private async _doMigrateModel(modelName: ModelName): Promise<void> {
+    if (!this._db)
+      throw new CerialNotConnectedError('Not connected. Call connect() first.', {
+        model: modelName,
+        operation: 'migrate',
+      });
+
+    this._onMigrationEvent?.({ type: 'start', modelName });
+
+    try {
+      const surreal = this.connectionManager.getSurreal();
+      if (!surreal)
+        throw new CerialNotConnectedError('No active connection.', { model: modelName, operation: 'migrate' });
+
+      // Get migration statements for this specific model
+      const query = getModelMigrationQuery(modelName);
+      await surreal.query(query);
+
+      // Mark as migrated
+      this._migratedModels.add(modelName);
+      this._onMigrationEvent?.({ type: 'complete', modelName });
+    } catch (error) {
+      this._onMigrationEvent?.({ type: 'error', modelName, error: error as Error });
+      if (error instanceof CerialError) throw error; // Fail fast - don't retry
+      throw new CerialMigrationError(
+        `Migration of ${modelName} failed: ${error instanceof Error ? error.message : String(error)}`,
+        {
+          model: modelName,
+          operation: 'migrate',
+          cause: error,
+        },
+      );
+    }
+  }
+
+  /**
+   * Ensure a specific model is migrated (called before queries)
+   * @param modelName - The model name to ensure is migrated
+   * @internal
+   */
+  async ensureModelMigrated(modelName: ModelName): Promise<void> {
+    if (!this._migratedModels.has(modelName)) {
+      await this.migrateModel(modelName);
+    }
+  }
+
+  /**
+   * Run schema migrations for all models
+   * This can be called manually to eagerly migrate all models upfront.
+   */
+  async migrate(): Promise<void> {
+    const allModels = getMigrationModelNames();
+    await Promise.all(allModels.map((model) => this.migrateModel(model)));
+  }
+
+  /**
+   * Ensure all migrations are applied (called before queries)
+   * @internal
+   */
+  async ensureMigrated(): Promise<void> {
+    await this.migrate();
+  }
+
+  /**
+   * Get the raw Cerial instance for advanced operations
+   */
+  getSurreal() {
+    return this.connectionManager.getSurreal();
+  }
+
+  /**
+   * Get the WebSocket Surreal instance for transactions.
+   * Always returns the WS connection regardless of primary URL scheme.
+   */
+  getTransactionSurreal() {
+    return this.connectionManager.getTransactionSurreal();
+  }
+
+  /**
+   * Close the HTTP connection, falling back to WebSocket for all operations.
+   * No-op if connected via WebSocket URL only.
+   */
+  async closeHttp(): Promise<void> {
+    await this.connectionManager.closeHttp();
+  }
+
+  /**
+   * Reopen the HTTP connection after closeHttp().
+   * No-op if connected via WebSocket URL only.
+   */
+  async reopenHttp(): Promise<void> {
+    await this.connectionManager.reopenHttp();
+  }
+
+  /**
+   * Execute a raw SurrealQL query
+   * @param query - The query string
+   * @param vars - Optional query variables
+   */
+  async query<T = unknown>(query: string, vars?: Record<string, unknown>): Promise<T[]> {
+    await this.ensureMigrated();
+    const surreal = this.getSurreal();
+    if (!surreal) throw new CerialNotConnectedError('Not connected.', { operation: 'query' });
+    const result = await surreal.query<T[]>(query, vars);
+    return result.flat() as T[];
+  }
+
+  /**
+   * Execute multiple queries in a single transaction (array mode).
+   * Supports CerialQueryPromise items and function items with typed prev parameter.
+   * Functions receive accumulated results from preceding items with full type inference.
+   *
+   * @example
+   * ```ts
+   * const [user, post] = await client.$transaction([
+   *   client.db.User.create({ data: { name: 'Alice', email: 'alice@test.com', isActive: true } }),
+   *   (prev) => client.db.Post.create({ data: { title: 'Hello', authorId: prev[0].id } }),
+   *   // prev[0] is User — fully typed, no casting needed
+   * ]);
+   * ```
+   */
+  $transaction<T1 extends CerialQueryPromise<any> | ((prev: []) => any)>(
+    queries: [T1],
+    options?: TransactionOptions,
+  ): Promise<[TransactionItemResult<T1>]>;
+
+  $transaction<
+    T1 extends CerialQueryPromise<any> | ((prev: []) => any),
+    T2 extends CerialQueryPromise<any> | ((prev: [TransactionItemResult<T1>]) => any),
+  >(queries: [T1, T2], options?: TransactionOptions): Promise<[TransactionItemResult<T1>, TransactionItemResult<T2>]>;
+
+  $transaction<
+    T1 extends CerialQueryPromise<any> | ((prev: []) => any),
+    T2 extends CerialQueryPromise<any> | ((prev: [TransactionItemResult<T1>]) => any),
+    T3 extends CerialQueryPromise<any> | ((prev: [TransactionItemResult<T1>, TransactionItemResult<T2>]) => any),
+  >(
+    queries: [T1, T2, T3],
+    options?: TransactionOptions,
+  ): Promise<[TransactionItemResult<T1>, TransactionItemResult<T2>, TransactionItemResult<T3>]>;
+
+  $transaction<
+    T1 extends CerialQueryPromise<any> | ((prev: []) => any),
+    T2 extends CerialQueryPromise<any> | ((prev: [TransactionItemResult<T1>]) => any),
+    T3 extends CerialQueryPromise<any> | ((prev: [TransactionItemResult<T1>, TransactionItemResult<T2>]) => any),
+    T4 extends
+      | CerialQueryPromise<any>
+      | ((prev: [TransactionItemResult<T1>, TransactionItemResult<T2>, TransactionItemResult<T3>]) => any),
+  >(
+    queries: [T1, T2, T3, T4],
+    options?: TransactionOptions,
+  ): Promise<
+    [TransactionItemResult<T1>, TransactionItemResult<T2>, TransactionItemResult<T3>, TransactionItemResult<T4>]
+  >;
+
+  $transaction<
+    T1 extends CerialQueryPromise<any> | ((prev: []) => any),
+    T2 extends CerialQueryPromise<any> | ((prev: [TransactionItemResult<T1>]) => any),
+    T3 extends CerialQueryPromise<any> | ((prev: [TransactionItemResult<T1>, TransactionItemResult<T2>]) => any),
+    T4 extends
+      | CerialQueryPromise<any>
+      | ((prev: [TransactionItemResult<T1>, TransactionItemResult<T2>, TransactionItemResult<T3>]) => any),
+    T5 extends
+      | CerialQueryPromise<any>
+      | ((
+          prev: [
+            TransactionItemResult<T1>,
+            TransactionItemResult<T2>,
+            TransactionItemResult<T3>,
+            TransactionItemResult<T4>,
+          ],
+        ) => any),
+  >(
+    queries: [T1, T2, T3, T4, T5],
+    options?: TransactionOptions,
+  ): Promise<
+    [
+      TransactionItemResult<T1>,
+      TransactionItemResult<T2>,
+      TransactionItemResult<T3>,
+      TransactionItemResult<T4>,
+      TransactionItemResult<T5>,
+    ]
+  >;
+
+  $transaction<
+    T1 extends CerialQueryPromise<any> | ((prev: []) => any),
+    T2 extends CerialQueryPromise<any> | ((prev: [TransactionItemResult<T1>]) => any),
+    T3 extends CerialQueryPromise<any> | ((prev: [TransactionItemResult<T1>, TransactionItemResult<T2>]) => any),
+    T4 extends
+      | CerialQueryPromise<any>
+      | ((prev: [TransactionItemResult<T1>, TransactionItemResult<T2>, TransactionItemResult<T3>]) => any),
+    T5 extends
+      | CerialQueryPromise<any>
+      | ((
+          prev: [
+            TransactionItemResult<T1>,
+            TransactionItemResult<T2>,
+            TransactionItemResult<T3>,
+            TransactionItemResult<T4>,
+          ],
+        ) => any),
+    T6 extends
+      | CerialQueryPromise<any>
+      | ((
+          prev: [
+            TransactionItemResult<T1>,
+            TransactionItemResult<T2>,
+            TransactionItemResult<T3>,
+            TransactionItemResult<T4>,
+            TransactionItemResult<T5>,
+          ],
+        ) => any),
+  >(
+    queries: [T1, T2, T3, T4, T5, T6],
+    options?: TransactionOptions,
+  ): Promise<
+    [
+      TransactionItemResult<T1>,
+      TransactionItemResult<T2>,
+      TransactionItemResult<T3>,
+      TransactionItemResult<T4>,
+      TransactionItemResult<T5>,
+      TransactionItemResult<T6>,
+    ]
+  >;
+
+  $transaction<T extends (CerialQueryPromise<any> | ((prev: any[]) => any))[]>(
+    queries: [...T],
+    options?: TransactionOptions,
+  ): Promise<{ [K in keyof T]: TransactionItemResult<T[K]> }>;
+
+  /**
+   * Execute a callback within a managed transaction (callback mode).
+   * The transaction is automatically committed on success or cancelled on error.
+   *
+   * @param fn - Callback receiving a transaction client with model access
+   * @param options - Optional transaction options (e.g., timeout)
+   * @returns The callback's return value
+   *
+   * @example
+   * ```ts
+   * const result = await client.$transaction(async (tx) => {
+   *   const user = await tx.User.create({ data: { name: 'Alice', email: 'alice@test.com', isActive: true } });
+   *   await tx.Post.create({ data: { title: 'Hello', authorId: user.id } });
+   *   return user;
+   * });
+   * ```
+   */
+  $transaction<R>(fn: (tx: Omit<TypedDb, '$transaction'>) => Promise<R> | R, options?: TransactionOptions): Promise<R>;
+
+  /**
+   * Begin a manual transaction for explicit commit/cancel control.
+   *
+   * @returns A transaction client with commit() and cancel() methods
+   *
+   * @example
+   * ```ts
+   * const tx = await client.$transaction();
+   * try {
+   *   await tx.User.create({ data: { name: 'Alice', email: 'alice@test.com', isActive: true } });
+   *   await tx.commit();
+   * } catch (error) {
+   *   await tx.cancel();
+   *   throw error;
+   * }
+   * ```
+   */
+  $transaction(): Promise<CerialTransaction & TypedDb>;
+
+  async $transaction(
+    arg?: (CerialQueryPromise<any> | ((prev: any[]) => any))[] | ((tx: any) => unknown),
+    options?: TransactionOptions,
+  ): Promise<unknown> {
+    if (!this._db)
+      throw new CerialNotConnectedError('Not connected. Call connect() first.', { operation: '$transaction' });
+
+    // Manual mode: no arguments
+    if (arg === undefined) {
+      const surreal = this.getTransactionSurreal();
+      if (!surreal) throw new CerialNotConnectedError('No active connection.', { operation: '$transaction' });
+      await this.ensureMigrated();
+      const sdkTxn = await surreal.beginTransaction();
+
+      return createCerialTransactionProxy(sdkTxn, modelRegistry, this._includeStatementInErrors);
+    }
+
+    // Callback mode: function argument
+    if (typeof arg === 'function') {
+      const surreal = this.getTransactionSurreal();
+      if (!surreal) throw new CerialNotConnectedError('No active connection.', { operation: '$transaction' });
+      await this.ensureMigrated();
+
+      const maxRetries = options?.retries ?? 0;
+      const backoffFn = options?.backoff ?? ((attempt: number) => 2 ** attempt * 10 + Math.random() * 10);
+      let lastError: unknown;
+
+      for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        try {
+          const sdkTxn = await surreal.beginTransaction();
+          const tx = createCerialTransactionProxy(sdkTxn, modelRegistry, this._includeStatementInErrors);
+
+          let timeoutId: ReturnType<typeof setTimeout> | undefined;
+          try {
+            let result: unknown;
+            if (options?.timeout) {
+              const timeoutMs = options.timeout;
+              result = await Promise.race([
+                Promise.resolve(arg(tx)),
+                new Promise<never>((_, reject) => {
+                  timeoutId = setTimeout(
+                    () => reject(new CerialTransactionError('Transaction timeout', { operation: '$transaction' })),
+                    timeoutMs,
+                  );
+                }),
+              ]);
+            } else {
+              result = await Promise.resolve(arg(tx));
+            }
+            await sdkTxn.commit();
+
+            return result;
+          } catch (error) {
+            try {
+              await sdkTxn.cancel();
+            } catch {
+              // Ignore cancel errors — transaction may already be aborted
+            }
+            throw error;
+          } finally {
+            if (timeoutId !== undefined) clearTimeout(timeoutId);
+          }
+        } catch (error) {
+          lastError = error;
+          if (isTransactionConflict(error) && attempt < maxRetries) {
+            const delay = backoffFn(attempt);
+            await new Promise((resolve) => setTimeout(resolve, delay));
+            continue;
+          }
+          throw error;
+        }
+      }
+
+      throw lastError;
+    }
+
+    // Array mode
+    if (!arg.length) return [] as any;
+
+    const surreal = this.getTransactionSurreal();
+    if (!surreal) throw new CerialNotConnectedError('No active connection.', { operation: '$transaction' });
+
+    // Validate all items are CerialQueryPromise or function
+    for (const q of arg) {
+      if (typeof q !== 'function' && !CerialQueryPromise.isCerialQueryPromise(q)) {
+        throw new CerialValidationError('$transaction only accepts CerialQueryPromise objects or functions.', {
+          operation: '$transaction',
+        });
+      }
+    }
+
+    // Ensure all involved models are migrated before executing
+    const queryItems = arg.filter((q) => CerialQueryPromise.isCerialQueryPromise(q)) as CerialQueryPromise<any>[];
+    const hasFunctions = arg.some((q) => typeof q === 'function');
+    if (hasFunctions) {
+      // Functions could access any model — migrate all
+      await this.ensureMigrated();
+    } else {
+      const modelNames = new Set(queryItems.flatMap((q) => q.modelNames));
+      await Promise.all([...modelNames].map((name) => this.ensureModelMigrated(name as ModelName)));
+    }
+
+    // Build transaction items — pass functions through, wrap CerialQueryPromise
+    const items: TransactionExecutionItem[] = arg.map((q) => {
+      if (typeof q === 'function') return q as TransactionExecutionItem;
+
+      return {
+        compiledQuery: (q as CerialQueryPromise<any>).compiledQuery,
+        metadata: (q as CerialQueryPromise<any>).metadata,
+        resultType: (q as CerialQueryPromise<any>).resultType,
+        registry: (q as CerialQueryPromise<any>).registry,
+        select: (q as CerialQueryPromise<any>).select,
+      };
+    });
+
+    // Execute the transaction
+    const results = await executeClientTransaction(surreal, items, options);
+
+    return results as any;
+  }
+}
+
+// Re-export connection types
+export type { ConnectionConfig } from 'cerial';

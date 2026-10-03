@@ -1,0 +1,388 @@
+{
+  "models": {
+    "FkChildModel": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "parentId",
+          "recordIdTypes": [
+            "int"
+          ],
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "parent",
+          "relationInfo": {
+            "fieldRef": "parentId",
+            "isReverse": false,
+            "targetModel": "FkTargetIntId",
+            "targetTable": "fk_target_int_id"
+          },
+          "type": "relation"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "note",
+          "type": "string"
+        }
+      ],
+      "name": "FkChildModel",
+      "tableName": "fk_child_model"
+    },
+    "FkTargetIntId": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "recordIdTypes": [
+            "int"
+          ],
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "children",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "FkChildModel",
+            "targetTable": "fk_child_model"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "FkTargetIntId",
+      "tableName": "fk_target_int_id"
+    },
+    "IntIdModel": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "recordIdTypes": [
+            "int"
+          ],
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        }
+      ],
+      "name": "IntIdModel",
+      "tableName": "int_id_model"
+    },
+    "IntUnionIdModel": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "recordIdTypes": [
+            "int",
+            "uuid"
+          ],
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "label",
+          "type": "string"
+        }
+      ],
+      "name": "IntUnionIdModel",
+      "tableName": "int_union_id_model"
+    },
+    "NumberIdModel": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "recordIdTypes": [
+            "number"
+          ],
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "label",
+          "type": "string"
+        }
+      ],
+      "name": "NumberIdModel",
+      "tableName": "number_id_model"
+    },
+    "ObjectIdModel": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "recordIdTypes": [
+            "IdMetricKey"
+          ],
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "value",
+          "type": "float"
+        }
+      ],
+      "name": "ObjectIdModel",
+      "tableName": "object_id_model"
+    },
+    "StandaloneRefModel": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "externalRef",
+          "recordIdTypes": [
+            "int"
+          ],
+          "type": "record"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "externalRefs",
+          "recordIdTypes": [
+            "int"
+          ],
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "label",
+          "type": "string"
+        }
+      ],
+      "name": "StandaloneRefModel",
+      "tableName": "standalone_ref_model"
+    },
+    "StringIdModel": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "recordIdTypes": [
+            "string"
+          ],
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "value",
+          "type": "string"
+        }
+      ],
+      "name": "StringIdModel",
+      "tableName": "string_id_model"
+    },
+    "TupleIdModel": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "recordIdTypes": [
+            "IdCoord"
+          ],
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "city",
+          "type": "string"
+        }
+      ],
+      "name": "TupleIdModel",
+      "tableName": "tuple_id_model"
+    },
+    "UnionIdModel": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "recordIdTypes": [
+            "string",
+            "int"
+          ],
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "label",
+          "type": "string"
+        }
+      ],
+      "name": "UnionIdModel",
+      "tableName": "union_id_model"
+    },
+    "UuidIdModel": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "recordIdTypes": [
+            "uuid"
+          ],
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "data",
+          "type": "string"
+        }
+      ],
+      "name": "UuidIdModel",
+      "tableName": "uuid_id_model"
+    }
+  },
+  "objects": {
+    "IdMetricKey": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "service",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "timestamp",
+          "type": "int"
+        }
+      ],
+      "name": "IdMetricKey"
+    }
+  },
+  "tuples": {
+    "IdCoord": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "type": "float"
+        },
+        {
+          "index": 1,
+          "isOptional": false,
+          "type": "float"
+        }
+      ],
+      "name": "IdCoord"
+    }
+  }
+}

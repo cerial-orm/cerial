@@ -1,0 +1,121 @@
+{
+  "models": [
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "headquarters",
+          "objectName": "Address",
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "meta",
+          "objectName": "CompanyMeta",
+          "type": "object"
+        },
+        {
+          "decorators": [
+            {
+              "type": "model",
+              "value": "RelObjEmployee"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "employees",
+          "type": "relation"
+        }
+      ],
+      "name": "RelObjCompany"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "homeAddress",
+          "objectName": "Address",
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "companyId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "companyId"
+            },
+            {
+              "type": "model",
+              "value": "RelObjCompany"
+            }
+          ],
+          "isOptional": false,
+          "name": "company",
+          "type": "relation"
+        }
+      ],
+      "name": "RelObjEmployee"
+    }
+  ],
+  "objects": [
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "industry",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "founded",
+          "type": "int"
+        }
+      ],
+      "name": "CompanyMeta"
+    }
+  ]
+}

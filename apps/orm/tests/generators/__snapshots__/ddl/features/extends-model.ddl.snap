@@ -1,0 +1,90 @@
+-- ExtAdmin
+DEFINE TABLE OVERWRITE ext_admin SCHEMAFULL;
+DEFINE FIELD OVERWRITE createdAt ON TABLE ext_admin TYPE option<datetime> DEFAULT time::now();
+DEFINE FIELD OVERWRITE updatedAt ON TABLE ext_admin TYPE option<datetime> DEFAULT ALWAYS time::now();
+DEFINE FIELD OVERWRITE email ON TABLE ext_admin TYPE string ASSERT string::is_email($value);
+DEFINE FIELD OVERWRITE name ON TABLE ext_admin TYPE string;
+DEFINE FIELD OVERWRITE level ON TABLE ext_admin TYPE int DEFAULT 1;
+DEFINE FIELD OVERWRITE permissions ON TABLE ext_admin TYPE array<string>;
+DEFINE INDEX OVERWRITE ext_admin_email_unique ON TABLE ext_admin COLUMNS email UNIQUE;
+
+-- ExtEmptyChild
+DEFINE TABLE OVERWRITE ext_empty_child SCHEMAFULL;
+DEFINE FIELD OVERWRITE createdAt ON TABLE ext_empty_child TYPE option<datetime> DEFAULT time::now();
+DEFINE FIELD OVERWRITE updatedAt ON TABLE ext_empty_child TYPE option<datetime> DEFAULT ALWAYS time::now();
+
+-- ExtModerator
+DEFINE TABLE OVERWRITE ext_moderator SCHEMAFULL;
+DEFINE FIELD OVERWRITE createdAt ON TABLE ext_moderator TYPE option<datetime> DEFAULT time::now();
+DEFINE FIELD OVERWRITE email ON TABLE ext_moderator TYPE string ASSERT string::is_email($value);
+DEFINE FIELD OVERWRITE name ON TABLE ext_moderator TYPE string;
+DEFINE FIELD OVERWRITE bannedUntil ON TABLE ext_moderator TYPE option<datetime>;
+DEFINE FIELD OVERWRITE notes ON TABLE ext_moderator TYPE option<string>;
+DEFINE INDEX OVERWRITE ext_moderator_email_unique ON TABLE ext_moderator COLUMNS email UNIQUE;
+
+-- ExtPremiumUser
+DEFINE TABLE OVERWRITE ext_premium_user SCHEMAFULL;
+DEFINE FIELD OVERWRITE createdAt ON TABLE ext_premium_user TYPE option<datetime> DEFAULT time::now();
+DEFINE FIELD OVERWRITE updatedAt ON TABLE ext_premium_user TYPE option<datetime> DEFAULT ALWAYS time::now();
+DEFINE FIELD OVERWRITE email ON TABLE ext_premium_user TYPE string ASSERT string::is_email($value);
+DEFINE FIELD OVERWRITE name ON TABLE ext_premium_user TYPE string;
+DEFINE FIELD OVERWRITE isActive ON TABLE ext_premium_user TYPE bool DEFAULT true;
+DEFINE FIELD OVERWRITE age ON TABLE ext_premium_user TYPE option<int>;
+DEFINE FIELD OVERWRITE role ON TABLE ext_premium_user TYPE string DEFAULT 'user';
+DEFINE FIELD OVERWRITE subscriptionTier ON TABLE ext_premium_user TYPE string DEFAULT 'basic';
+DEFINE FIELD OVERWRITE subscriptionEnd ON TABLE ext_premium_user TYPE option<datetime>;
+DEFINE INDEX OVERWRITE ext_premium_user_email_unique ON TABLE ext_premium_user COLUMNS email UNIQUE;
+
+-- ExtPrivateUser
+DEFINE TABLE OVERWRITE ext_private_user SCHEMAFULL;
+DEFINE FIELD OVERWRITE createdAt ON TABLE ext_private_user TYPE option<datetime> DEFAULT time::now();
+DEFINE FIELD OVERWRITE updatedAt ON TABLE ext_private_user TYPE option<datetime> DEFAULT ALWAYS time::now();
+DEFINE FIELD OVERWRITE email ON TABLE ext_private_user TYPE string ASSERT string::is_email($value);
+DEFINE FIELD OVERWRITE name ON TABLE ext_private_user TYPE string;
+DEFINE FIELD OVERWRITE publicBio ON TABLE ext_private_user TYPE option<string>;
+DEFINE INDEX OVERWRITE ext_private_user_email_unique ON TABLE ext_private_user COLUMNS email UNIQUE;
+
+-- ExtProfile
+DEFINE TABLE OVERWRITE ext_profile SCHEMAFULL;
+DEFINE FIELD OVERWRITE createdAt ON TABLE ext_profile TYPE option<datetime> DEFAULT time::now();
+DEFINE FIELD OVERWRITE updatedAt ON TABLE ext_profile TYPE option<datetime> DEFAULT ALWAYS time::now();
+DEFINE FIELD OVERWRITE userId ON TABLE ext_profile TYPE record;
+DEFINE FIELD OVERWRITE bio ON TABLE ext_profile TYPE option<string>;
+DEFINE FIELD OVERWRITE avatar ON TABLE ext_profile TYPE option<string>;
+DEFINE FIELD OVERWRITE tags ON TABLE ext_profile TYPE array<string>;
+DEFINE FIELD OVERWRITE metadata ON TABLE ext_profile TYPE option<int>;
+
+-- ExtSuperAdmin
+DEFINE TABLE OVERWRITE ext_super_admin SCHEMAFULL;
+DEFINE FIELD OVERWRITE createdAt ON TABLE ext_super_admin TYPE option<datetime> DEFAULT time::now();
+DEFINE FIELD OVERWRITE updatedAt ON TABLE ext_super_admin TYPE option<datetime> DEFAULT ALWAYS time::now();
+DEFINE FIELD OVERWRITE email ON TABLE ext_super_admin TYPE string ASSERT string::is_email($value);
+DEFINE FIELD OVERWRITE name ON TABLE ext_super_admin TYPE string;
+DEFINE FIELD OVERWRITE isActive ON TABLE ext_super_admin TYPE bool DEFAULT true;
+DEFINE FIELD OVERWRITE role ON TABLE ext_super_admin TYPE string DEFAULT 'superadmin';
+DEFINE FIELD OVERWRITE level ON TABLE ext_super_admin TYPE int DEFAULT 99;
+DEFINE FIELD OVERWRITE canDeleteUsers ON TABLE ext_super_admin TYPE bool DEFAULT true;
+DEFINE INDEX OVERWRITE ext_super_admin_email_unique ON TABLE ext_super_admin COLUMNS email UNIQUE;
+
+-- ExtSystemAdmin
+DEFINE TABLE OVERWRITE ext_system_admin SCHEMAFULL;
+DEFINE FIELD OVERWRITE createdAt ON TABLE ext_system_admin TYPE option<datetime> DEFAULT time::now();
+DEFINE FIELD OVERWRITE updatedAt ON TABLE ext_system_admin TYPE option<datetime> DEFAULT ALWAYS time::now();
+DEFINE FIELD OVERWRITE email ON TABLE ext_system_admin TYPE string ASSERT string::is_email($value);
+DEFINE FIELD OVERWRITE name ON TABLE ext_system_admin TYPE string;
+DEFINE FIELD OVERWRITE level ON TABLE ext_system_admin TYPE int DEFAULT 1;
+DEFINE FIELD OVERWRITE permissions ON TABLE ext_system_admin TYPE array<string>;
+DEFINE FIELD OVERWRITE systemAccess ON TABLE ext_system_admin TYPE bool DEFAULT false;
+DEFINE FIELD OVERWRITE auditLog ON TABLE ext_system_admin TYPE array<string>;
+DEFINE INDEX OVERWRITE ext_system_admin_email_unique ON TABLE ext_system_admin COLUMNS email UNIQUE;
+
+-- ExtUser
+DEFINE TABLE OVERWRITE ext_user SCHEMAFULL;
+DEFINE FIELD OVERWRITE createdAt ON TABLE ext_user TYPE option<datetime> DEFAULT time::now();
+DEFINE FIELD OVERWRITE updatedAt ON TABLE ext_user TYPE option<datetime> DEFAULT ALWAYS time::now();
+DEFINE FIELD OVERWRITE email ON TABLE ext_user TYPE string ASSERT string::is_email($value);
+DEFINE FIELD OVERWRITE name ON TABLE ext_user TYPE string;
+DEFINE FIELD OVERWRITE isActive ON TABLE ext_user TYPE bool DEFAULT true;
+DEFINE FIELD OVERWRITE age ON TABLE ext_user TYPE option<int>;
+DEFINE FIELD OVERWRITE role ON TABLE ext_user TYPE string DEFAULT 'user';
+DEFINE INDEX OVERWRITE ext_user_email_unique ON TABLE ext_user COLUMNS email UNIQUE;

@@ -1,0 +1,38 @@
+-- ExtAddressUser
+DEFINE TABLE OVERWRITE ext_address_user SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE ext_address_user TYPE string;
+DEFINE FIELD OVERWRITE homeAddress ON TABLE ext_address_user TYPE object;
+DEFINE FIELD OVERWRITE homeAddress.street ON TABLE ext_address_user TYPE string;
+DEFINE FIELD OVERWRITE homeAddress.city ON TABLE ext_address_user TYPE string;
+DEFINE FIELD OVERWRITE homeAddress.zip ON TABLE ext_address_user TYPE string;
+DEFINE FIELD OVERWRITE homeAddress.country ON TABLE ext_address_user TYPE string DEFAULT 'US';
+DEFINE FIELD OVERWRITE homeAddress.apartment ON TABLE ext_address_user TYPE option<string>;
+DEFINE FIELD OVERWRITE homeAddress.coordinates ON TABLE ext_address_user TYPE array<float>;
+DEFINE FIELD OVERWRITE workAddress ON TABLE ext_address_user TYPE option<object>;
+DEFINE FIELD OVERWRITE workAddress.street ON TABLE ext_address_user TYPE string;
+DEFINE FIELD OVERWRITE workAddress.city ON TABLE ext_address_user TYPE string;
+DEFINE FIELD OVERWRITE workAddress.zip ON TABLE ext_address_user TYPE string;
+DEFINE FIELD OVERWRITE workAddress.country ON TABLE ext_address_user TYPE string DEFAULT 'USA';
+DEFINE FIELD OVERWRITE workAddress.latitude ON TABLE ext_address_user TYPE option<float>;
+DEFINE FIELD OVERWRITE workAddress.longitude ON TABLE ext_address_user TYPE option<float>;
+DEFINE FIELD OVERWRITE workAddress.timezone ON TABLE ext_address_user TYPE option<string>;
+DEFINE FIELD OVERWRITE previousAddresses ON TABLE ext_address_user TYPE array<object>;
+DEFINE FIELD OVERWRITE previousAddresses.*.street ON TABLE ext_address_user TYPE string;
+DEFINE FIELD OVERWRITE previousAddresses.*.city ON TABLE ext_address_user TYPE string;
+DEFINE FIELD OVERWRITE previousAddresses.*.zip ON TABLE ext_address_user TYPE string;
+DEFINE FIELD OVERWRITE previousAddresses.*.country ON TABLE ext_address_user TYPE string DEFAULT 'US';
+DEFINE FIELD OVERWRITE previousAddresses.*.apartment ON TABLE ext_address_user TYPE option<string>;
+DEFINE FIELD OVERWRITE previousAddresses.*.coordinates ON TABLE ext_address_user TYPE array<float>;
+DEFINE FIELD OVERWRITE previousAddresses.*.elevation ON TABLE ext_address_user TYPE option<float>;
+DEFINE FIELD OVERWRITE previousAddresses.*.timezone ON TABLE ext_address_user TYPE string DEFAULT 'UTC';
+
+-- ExtChainModel
+DEFINE TABLE OVERWRITE ext_chain_model SCHEMAFULL;
+DEFINE FIELD OVERWRITE pickThenOmit ON TABLE ext_chain_model TYPE object;
+DEFINE FIELD OVERWRITE pickThenOmit.a ON TABLE ext_chain_model TYPE string;
+DEFINE FIELD OVERWRITE pickThenOmit.b ON TABLE ext_chain_model TYPE string;
+DEFINE FIELD OVERWRITE pickThenOmit.q ON TABLE ext_chain_model TYPE string;
+DEFINE FIELD OVERWRITE pickThenOmit.r ON TABLE ext_chain_model TYPE option<string>;
+DEFINE FIELD OVERWRITE omitThenPick ON TABLE ext_chain_model TYPE object;
+DEFINE FIELD OVERWRITE omitThenPick.q ON TABLE ext_chain_model TYPE string;
+DEFINE FIELD OVERWRITE omitThenPick.r ON TABLE ext_chain_model TYPE option<string>;

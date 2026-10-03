@@ -1,0 +1,232 @@
+{
+  "models": {
+    "ReadonlyRecord": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isReadonly": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "authorId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "author",
+          "relationInfo": {
+            "fieldRef": "authorId",
+            "isReverse": false,
+            "targetModel": "ReadonlyTest",
+            "targetTable": "readonly_test"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "ReadonlyRecord",
+      "tableName": "readonly_record"
+    },
+    "ReadonlyTest": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isReadonly": true,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "code",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isReadonly": true,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "score",
+          "type": "int"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "tags",
+          "type": "string"
+        },
+        {
+          "defaultValue": "system",
+          "isId": false,
+          "isIndexed": false,
+          "isReadonly": true,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "createdBy",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "address",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "street",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isReadonly": true,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "city",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": false,
+                "isUnique": false,
+                "name": "zip",
+                "type": "string"
+              }
+            ],
+            "objectName": "ReadonlyAddress"
+          },
+          "type": "object"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "meta",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isReadonly": true,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "label",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "value",
+                "type": "int"
+              }
+            ],
+            "objectName": "ReadonlyMeta"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "ReadonlyTest",
+      "tableName": "readonly_test"
+    }
+  },
+  "objects": {
+    "ReadonlyAddress": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "street",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isReadonly": true,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "city",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "zip",
+          "type": "string"
+        }
+      ],
+      "name": "ReadonlyAddress"
+    },
+    "ReadonlyMeta": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isReadonly": true,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "value",
+          "type": "int"
+        }
+      ],
+      "name": "ReadonlyMeta"
+    }
+  }
+}

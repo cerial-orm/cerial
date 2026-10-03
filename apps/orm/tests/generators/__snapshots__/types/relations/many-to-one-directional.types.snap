@@ -1,0 +1,543 @@
+// ===== models/blogger.ts =====
+/**
+ * Generated types for Blogger
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { Label, LabelWhere, LabelSelect, LabelOrderBy, LabelNestedCreate } from './label';
+export interface Blogger {
+  id: CerialId<string>;
+  name: string;
+  labelIds: CerialId<string>[];
+}
+
+export interface BloggerInput {
+  id?: string;
+  name: string;
+  labelIds: RecordIdInput<string>[];
+}
+
+export interface BloggerWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  labelIds?:
+    | RecordIdInput<string>[]
+    | {
+        has?: RecordIdInput<string>;
+        hasAll?: RecordIdInput<string>[];
+        hasAny?: RecordIdInput<string>[];
+        isEmpty?: boolean;
+      };
+  labels?: { some?: LabelWhere; every?: LabelWhere; none?: LabelWhere };
+  AND?: BloggerWhere[];
+  OR?: BloggerWhere[];
+  NOT?: BloggerWhere;
+}
+
+export type BloggerWhereInput = BloggerWhere;
+
+export type BloggerFindUniqueWhere = { id: RecordIdInput<string> } & Omit<BloggerWhere, 'id'>;
+
+export type BloggerCreate = O.Optional<O.Omit<BloggerInput, 'labels'>, 'id' | 'labelIds'>;
+
+export type BloggerNestedCreate = O.Optional<O.Omit<BloggerInput, 'labels' | 'labelIds'>, 'id'>;
+
+export type BloggerCreateInput =
+  | BloggerCreate
+  | (O.Omit<BloggerCreate, 'labelIds'> & {
+      labels?: {
+        create?: LabelNestedCreate | LabelNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+      };
+    });
+
+export type BloggerUpdate = Partial<O.Omit<BloggerInput, 'id' | 'labels' | 'labelIds'>> & {
+  labelIds?:
+    | RecordIdInput<string>[]
+    | {
+        push?: RecordIdInput<string> | RecordIdInput<string>[];
+        unset?: RecordIdInput<string> | RecordIdInput<string>[];
+      };
+};
+
+export type BloggerUpdateInput =
+  | BloggerUpdate
+  | (O.Omit<BloggerUpdate, 'labelIds'> & {
+      labels?: {
+        create?: LabelNestedCreate | LabelNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+        disconnect?: RecordIdInput | RecordIdInput[];
+        set?: RecordIdInput[];
+      };
+    });
+
+export type BloggerUnset = {};
+
+export type BloggerSelect =
+  | ({ id: boolean } & Partial<Record<'name' | 'labelIds', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'labelIds', boolean>>)
+  | ({ labelIds: boolean } & Partial<Record<'id' | 'name', boolean>>);
+
+export interface BloggerOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  labelIds?: 'asc' | 'desc';
+}
+
+export interface BloggerInclude {
+  labels?:
+    | boolean
+    | {
+        select?: LabelSelect;
+        where?: LabelWhere;
+        orderBy?: LabelOrderBy;
+        limit?: number;
+        offset?: number;
+      };
+}
+
+export type Blogger$Relations = {
+  labels: { type: Label[]; include: never };
+};
+
+export type GetBloggerIncludePayload<I extends BloggerInclude | undefined> = I extends BloggerInclude
+  ? Pick<
+      {
+        labels: I['labels'] extends true
+          ? Label[]
+          : I['labels'] extends { select: infer S extends LabelSelect }
+            ? {
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Label
+                  ? ResolveFieldSelect<Label[P], S[P]>
+                  : never;
+              }[]
+            : Label[];
+      },
+      Extract<keyof I, keyof Blogger$Relations> &
+        { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetBloggerPayload<
+  S extends BloggerSelect | undefined = undefined,
+  I extends BloggerInclude | undefined = undefined,
+> = A.Compute<
+  S extends BloggerSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof Blogger
+          ? ResolveFieldSelect<Blogger[K], S[K]>
+          : never;
+      } & GetBloggerIncludePayload<I>
+    : I extends BloggerInclude
+      ? Blogger & GetBloggerIncludePayload<I>
+      : Blogger,
+  'flat'
+>;
+
+export interface BloggerModel {
+  findOne<S extends BloggerSelect | undefined = undefined, I extends BloggerInclude | undefined = undefined>(options?: {
+    where?: BloggerWhere;
+    select?: S;
+    include?: I;
+    orderBy?: BloggerOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetBloggerPayload<S, I> | null>;
+
+  findMany<
+    S extends BloggerSelect | undefined = undefined,
+    I extends BloggerInclude | undefined = undefined,
+  >(options?: {
+    where?: BloggerWhere;
+    select?: S;
+    orderBy?: BloggerOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetBloggerPayload<S, I>[]>;
+
+  findUnique<
+    S extends BloggerSelect | undefined = undefined,
+    I extends BloggerInclude | undefined = undefined,
+  >(options: {
+    where: BloggerFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetBloggerPayload<S, I> | null>;
+
+  create<S extends BloggerSelect | undefined = undefined, I extends BloggerInclude | undefined = undefined>(options: {
+    data: BloggerCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetBloggerPayload<S, I>>;
+
+  updateMany<
+    S extends BloggerSelect | undefined = undefined,
+    I extends BloggerInclude | undefined = undefined,
+    D extends BloggerUpdateInput = BloggerUpdateInput,
+  >(options: {
+    where: BloggerWhere;
+    data: D;
+    unset?: SafeUnset<BloggerUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetBloggerPayload<S, I>[]>;
+
+  updateUnique<
+    S extends BloggerSelect | undefined = undefined,
+    I extends BloggerInclude | undefined = undefined,
+    D extends BloggerUpdateInput = BloggerUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: BloggerFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<BloggerUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns Blogger | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetBloggerPayload<S, I>, R>>;
+
+  upsert<
+    S extends BloggerSelect | undefined = undefined,
+    I extends BloggerInclude | undefined = undefined,
+    D extends BloggerUpdateInput = BloggerUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: BloggerFindUniqueWhere;
+    create: BloggerCreateInput;
+    update?: D;
+    unset?: SafeUnset<BloggerUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetBloggerPayload<S, I>, R>>;
+
+  upsert<
+    S extends BloggerSelect | undefined = undefined,
+    I extends BloggerInclude | undefined = undefined,
+    D extends BloggerUpdateInput = BloggerUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: BloggerWhere;
+    create: BloggerCreateInput;
+    update?: D;
+    unset?: SafeUnset<BloggerUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetBloggerPayload<S, I>, R>>;
+
+  deleteMany(options: { where: BloggerWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: BloggerFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns Blogger | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<Blogger, R>>;
+
+  count(where?: BloggerWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: BloggerWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/label.ts =====
+/**
+ * Generated types for Label
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface Label {
+  id: CerialId<string>;
+  name: string;
+}
+
+export interface LabelInput {
+  id?: string;
+  name: string;
+}
+
+export interface LabelWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  /** @unique — Unique indexed field */
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  AND?: LabelWhere[];
+  OR?: LabelWhere[];
+  NOT?: LabelWhere;
+}
+
+export type LabelWhereInput = LabelWhere;
+
+export type LabelFindUniqueWhere =
+  | ({ id: RecordIdInput<string> } & { name?: string } & Omit<LabelWhere, 'id' | 'name'>)
+  | ({ name: string } & { id?: RecordIdInput<string> } & Omit<LabelWhere, 'id' | 'name'>);
+
+export type LabelCreate = O.Optional<LabelInput, 'id'>;
+
+export type LabelNestedCreate = O.Optional<LabelInput, 'id'>;
+
+export type LabelCreateInput = LabelCreate;
+
+export type LabelUpdate = Partial<O.Omit<LabelInput, 'id'>>;
+
+export type LabelUpdateInput = LabelUpdate;
+
+export type LabelUnset = {};
+
+export type LabelSelect =
+  | ({ id: boolean } & Partial<Record<'name', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id', boolean>>);
+
+export interface LabelOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+}
+
+export type Label$Relations = {};
+
+export type GetLabelPayload<S extends LabelSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends LabelSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof Label
+          ? ResolveFieldSelect<Label[K], S[K]>
+          : never;
+      }
+    : Label,
+  'flat'
+>;
+
+export interface LabelModel {
+  findOne<S extends LabelSelect | undefined = undefined>(options?: {
+    where?: LabelWhere;
+    select?: S;
+    orderBy?: LabelOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetLabelPayload<S> | null>;
+
+  findMany<S extends LabelSelect | undefined = undefined>(options?: {
+    where?: LabelWhere;
+    select?: S;
+    orderBy?: LabelOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetLabelPayload<S>[]>;
+
+  findUnique<S extends LabelSelect | undefined = undefined>(options: {
+    where: LabelFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetLabelPayload<S> | null>;
+
+  create<S extends LabelSelect | undefined = undefined>(options: {
+    data: LabelCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetLabelPayload<S>>;
+
+  updateMany<S extends LabelSelect | undefined = undefined, D extends LabelUpdateInput = LabelUpdateInput>(options: {
+    where: LabelWhere;
+    data: D;
+    unset?: SafeUnset<LabelUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetLabelPayload<S>[]>;
+
+  updateUnique<
+    S extends LabelSelect | undefined = undefined,
+    D extends LabelUpdateInput = LabelUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: LabelFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<LabelUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns Label | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetLabelPayload<S>, R>>;
+
+  upsert<
+    S extends LabelSelect | undefined = undefined,
+    D extends LabelUpdateInput = LabelUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: LabelFindUniqueWhere;
+    create: LabelCreateInput;
+    update?: D;
+    unset?: SafeUnset<LabelUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetLabelPayload<S>, R>>;
+
+  upsert<
+    S extends LabelSelect | undefined = undefined,
+    D extends LabelUpdateInput = LabelUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: LabelWhere;
+    create: LabelCreateInput;
+    update?: D;
+    unset?: SafeUnset<LabelUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetLabelPayload<S>, R>>;
+
+  deleteMany(options: { where: LabelWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: LabelFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns Label | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<Label, R>>;
+
+  count(where?: LabelWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: LabelWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}

@@ -1,0 +1,1500 @@
+// ===== models/exttuplebyname.ts =====
+/**
+ * Generated types for ExtTupleByName
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  ExtPickedName,
+  ExtPickedNameInput,
+  ExtPickedNameWhere,
+  ExtPickedNameUpdate,
+} from '../tuples/extpickedname';
+import type {
+  ExtOmittedAge,
+  ExtOmittedAgeInput,
+  ExtOmittedAgeWhere,
+  ExtOmittedAgeUpdate,
+} from '../tuples/extomittedage';
+export interface ExtTupleByName {
+  id: CerialId<string>;
+  picked: ExtPickedName;
+  omitted: ExtOmittedAge;
+}
+
+export interface ExtTupleByNameInput {
+  id?: string;
+  picked: ExtPickedNameInput;
+  omitted: ExtOmittedAgeInput;
+}
+
+export interface ExtTupleByNameWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  picked?: ExtPickedNameWhere;
+  omitted?: ExtOmittedAgeWhere;
+  AND?: ExtTupleByNameWhere[];
+  OR?: ExtTupleByNameWhere[];
+  NOT?: ExtTupleByNameWhere;
+}
+
+export type ExtTupleByNameWhereInput = ExtTupleByNameWhere;
+
+export type ExtTupleByNameFindUniqueWhere = { id: RecordIdInput<string> } & Omit<ExtTupleByNameWhere, 'id'>;
+
+export type ExtTupleByNameCreate = O.Optional<ExtTupleByNameInput, 'id'>;
+
+export type ExtTupleByNameNestedCreate = O.Optional<ExtTupleByNameInput, 'id'>;
+
+export type ExtTupleByNameCreateInput = ExtTupleByNameCreate;
+
+export type ExtTupleByNameUpdate = Partial<O.Omit<ExtTupleByNameInput, 'id' | 'picked' | 'omitted'>> & {
+  picked?: [string] | ExtPickedNameUpdate;
+  omitted?: [string] | ExtOmittedAgeUpdate;
+};
+
+export type ExtTupleByNameUpdateInput = ExtTupleByNameUpdate;
+
+export type ExtTupleByNameUnset = {};
+
+export type ExtTupleByNameSelect =
+  | ({ id: boolean } & Partial<Record<'picked' | 'omitted', boolean>>)
+  | ({ picked: boolean } & Partial<Record<'id' | 'omitted', boolean>>)
+  | ({ omitted: boolean } & Partial<Record<'id' | 'picked', boolean>>);
+
+export interface ExtTupleByNameOrderBy {
+  id?: 'asc' | 'desc';
+}
+
+export type ExtTupleByName$Relations = {};
+
+export type GetExtTupleByNamePayload<S extends ExtTupleByNameSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends ExtTupleByNameSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ExtTupleByName
+          ? ResolveFieldSelect<ExtTupleByName[K], S[K]>
+          : never;
+      }
+    : ExtTupleByName,
+  'flat'
+>;
+
+export interface ExtTupleByNameModel {
+  findOne<S extends ExtTupleByNameSelect | undefined = undefined>(options?: {
+    where?: ExtTupleByNameWhere;
+    select?: S;
+    orderBy?: ExtTupleByNameOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtTupleByNamePayload<S> | null>;
+
+  findMany<S extends ExtTupleByNameSelect | undefined = undefined>(options?: {
+    where?: ExtTupleByNameWhere;
+    select?: S;
+    orderBy?: ExtTupleByNameOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtTupleByNamePayload<S>[]>;
+
+  findUnique<S extends ExtTupleByNameSelect | undefined = undefined>(options: {
+    where: ExtTupleByNameFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtTupleByNamePayload<S> | null>;
+
+  create<S extends ExtTupleByNameSelect | undefined = undefined>(options: {
+    data: ExtTupleByNameCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtTupleByNamePayload<S>>;
+
+  updateMany<
+    S extends ExtTupleByNameSelect | undefined = undefined,
+    D extends ExtTupleByNameUpdateInput = ExtTupleByNameUpdateInput,
+  >(options: {
+    where: ExtTupleByNameWhere;
+    data: D;
+    unset?: SafeUnset<ExtTupleByNameUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtTupleByNamePayload<S>[]>;
+
+  updateUnique<
+    S extends ExtTupleByNameSelect | undefined = undefined,
+    D extends ExtTupleByNameUpdateInput = ExtTupleByNameUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ExtTupleByNameFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ExtTupleByNameUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ExtTupleByName | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetExtTupleByNamePayload<S>, R>>;
+
+  upsert<
+    S extends ExtTupleByNameSelect | undefined = undefined,
+    D extends ExtTupleByNameUpdateInput = ExtTupleByNameUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtTupleByNameFindUniqueWhere;
+    create: ExtTupleByNameCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtTupleByNameUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetExtTupleByNamePayload<S>, R>>;
+
+  upsert<
+    S extends ExtTupleByNameSelect | undefined = undefined,
+    D extends ExtTupleByNameUpdateInput = ExtTupleByNameUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtTupleByNameWhere;
+    create: ExtTupleByNameCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtTupleByNameUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetExtTupleByNamePayload<S>, R>>;
+
+  deleteMany(options: { where: ExtTupleByNameWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ExtTupleByNameFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ExtTupleByName | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ExtTupleByName, R>>;
+
+  count(where?: ExtTupleByNameWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ExtTupleByNameWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/exttuplemodel.ts =====
+/**
+ * Generated types for ExtTupleModel
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { ExtCoord, ExtCoordInput, ExtCoordWhere, ExtCoordSelect, ExtCoordOrderBy } from '../objects/extcoord';
+import type { ExtBasePair, ExtBasePairInput, ExtBasePairWhere, ExtBasePairUpdate } from '../tuples/extbasepair';
+import type { ExtTriple, ExtTripleInput, ExtTripleWhere, ExtTripleUpdate } from '../tuples/exttriple';
+import type {
+  ExtNamedTriple,
+  ExtNamedTripleInput,
+  ExtNamedTripleWhere,
+  ExtNamedTripleUpdate,
+} from '../tuples/extnamedtriple';
+import type { ExtQuad, ExtQuadInput, ExtQuadWhere, ExtQuadUpdate } from '../tuples/extquad';
+import type {
+  ExtCoordPair,
+  ExtCoordPairInput,
+  ExtCoordPairWhere,
+  ExtCoordPairUpdate,
+  ExtCoordPairSelect,
+} from '../tuples/extcoordpair';
+import type {
+  ExtOptionalTriple,
+  ExtOptionalTripleInput,
+  ExtOptionalTripleWhere,
+  ExtOptionalTripleUpdate,
+  ExtOptionalTripleUnset,
+} from '../tuples/extoptionaltriple';
+export interface ExtTupleModel {
+  id: CerialId<string>;
+  pair: ExtBasePair;
+  triple: ExtTriple;
+  namedTriple: ExtNamedTriple;
+  quad: ExtQuad;
+  coordPair: ExtCoordPair;
+  optionalTriple?: ExtOptionalTriple;
+}
+
+export interface ExtTupleModelInput {
+  id?: string;
+  pair: ExtBasePairInput;
+  triple: ExtTripleInput;
+  namedTriple: ExtNamedTripleInput;
+  quad: ExtQuadInput;
+  coordPair: ExtCoordPairInput;
+  optionalTriple?: ExtOptionalTripleInput;
+}
+
+export interface ExtTupleModelWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  pair?: ExtBasePairWhere;
+  triple?: ExtTripleWhere;
+  namedTriple?: ExtNamedTripleWhere;
+  quad?: ExtQuadWhere;
+  coordPair?: ExtCoordPairWhere;
+  optionalTriple?: ExtOptionalTripleWhere;
+  AND?: ExtTupleModelWhere[];
+  OR?: ExtTupleModelWhere[];
+  NOT?: ExtTupleModelWhere;
+}
+
+export type ExtTupleModelWhereInput = ExtTupleModelWhere;
+
+export type ExtTupleModelFindUniqueWhere = { id: RecordIdInput<string> } & Omit<ExtTupleModelWhere, 'id'>;
+
+export type ExtTupleModelCreate = O.Optional<ExtTupleModelInput, 'id' | 'optionalTriple'>;
+
+export type ExtTupleModelNestedCreate = O.Optional<ExtTupleModelInput, 'id' | 'optionalTriple'>;
+
+export type ExtTupleModelCreateInput = ExtTupleModelCreate;
+
+export type ExtTupleModelUpdate = Partial<
+  O.Omit<ExtTupleModelInput, 'id' | 'pair' | 'triple' | 'namedTriple' | 'quad' | 'coordPair' | 'optionalTriple'>
+> & {
+  pair?: [string, number] | ExtBasePairUpdate;
+  triple?: [string, number, boolean] | ExtTripleUpdate;
+  namedTriple?: [string, number, boolean] | ExtNamedTripleUpdate;
+  quad?: [string, number, boolean, number] | ExtQuadUpdate;
+  coordPair?: [ExtCoordInput, ExtCoordInput] | ExtCoordPairUpdate;
+  optionalTriple?: [string | null, number | null, boolean | null] | ExtOptionalTripleUpdate | CerialNone;
+};
+
+export type ExtTupleModelUpdateInput = ExtTupleModelUpdate;
+
+export type ExtTupleModelUnset = {
+  optionalTriple?: true | ExtOptionalTripleUnset;
+};
+
+export type ExtTupleModelSelect =
+  | ({ id: boolean } & {
+      pair?: boolean;
+      triple?: boolean;
+      namedTriple?: boolean;
+      quad?: boolean;
+      coordPair?: boolean | ExtCoordPairSelect;
+      optionalTriple?: boolean;
+    })
+  | ({ pair: boolean } & {
+      id?: boolean;
+      triple?: boolean;
+      namedTriple?: boolean;
+      quad?: boolean;
+      coordPair?: boolean | ExtCoordPairSelect;
+      optionalTriple?: boolean;
+    })
+  | ({ triple: boolean } & {
+      id?: boolean;
+      pair?: boolean;
+      namedTriple?: boolean;
+      quad?: boolean;
+      coordPair?: boolean | ExtCoordPairSelect;
+      optionalTriple?: boolean;
+    })
+  | ({ namedTriple: boolean } & {
+      id?: boolean;
+      pair?: boolean;
+      triple?: boolean;
+      quad?: boolean;
+      coordPair?: boolean | ExtCoordPairSelect;
+      optionalTriple?: boolean;
+    })
+  | ({ quad: boolean } & {
+      id?: boolean;
+      pair?: boolean;
+      triple?: boolean;
+      namedTriple?: boolean;
+      coordPair?: boolean | ExtCoordPairSelect;
+      optionalTriple?: boolean;
+    })
+  | ({ coordPair: boolean | ExtCoordPairSelect } & Partial<
+      Record<'id' | 'pair' | 'triple' | 'namedTriple' | 'quad' | 'optionalTriple', boolean>
+    >)
+  | ({ optionalTriple: boolean } & {
+      id?: boolean;
+      pair?: boolean;
+      triple?: boolean;
+      namedTriple?: boolean;
+      quad?: boolean;
+      coordPair?: boolean | ExtCoordPairSelect;
+    });
+
+export interface ExtTupleModelOrderBy {
+  id?: 'asc' | 'desc';
+}
+
+export type ExtTupleModel$Relations = {};
+
+export type GetExtTupleModelPayload<S extends ExtTupleModelSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends ExtTupleModelSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ExtTupleModel
+          ? ResolveFieldSelect<ExtTupleModel[K], S[K]>
+          : never;
+      }
+    : ExtTupleModel,
+  'flat'
+>;
+
+export interface ExtTupleModelModel {
+  findOne<S extends ExtTupleModelSelect | undefined = undefined>(options?: {
+    where?: ExtTupleModelWhere;
+    select?: S;
+    orderBy?: ExtTupleModelOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtTupleModelPayload<S> | null>;
+
+  findMany<S extends ExtTupleModelSelect | undefined = undefined>(options?: {
+    where?: ExtTupleModelWhere;
+    select?: S;
+    orderBy?: ExtTupleModelOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtTupleModelPayload<S>[]>;
+
+  findUnique<S extends ExtTupleModelSelect | undefined = undefined>(options: {
+    where: ExtTupleModelFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtTupleModelPayload<S> | null>;
+
+  create<S extends ExtTupleModelSelect | undefined = undefined>(options: {
+    data: ExtTupleModelCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtTupleModelPayload<S>>;
+
+  updateMany<
+    S extends ExtTupleModelSelect | undefined = undefined,
+    D extends ExtTupleModelUpdateInput = ExtTupleModelUpdateInput,
+  >(options: {
+    where: ExtTupleModelWhere;
+    data: D;
+    unset?: SafeUnset<ExtTupleModelUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtTupleModelPayload<S>[]>;
+
+  updateUnique<
+    S extends ExtTupleModelSelect | undefined = undefined,
+    D extends ExtTupleModelUpdateInput = ExtTupleModelUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ExtTupleModelFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ExtTupleModelUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ExtTupleModel | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetExtTupleModelPayload<S>, R>>;
+
+  upsert<
+    S extends ExtTupleModelSelect | undefined = undefined,
+    D extends ExtTupleModelUpdateInput = ExtTupleModelUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtTupleModelFindUniqueWhere;
+    create: ExtTupleModelCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtTupleModelUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetExtTupleModelPayload<S>, R>>;
+
+  upsert<
+    S extends ExtTupleModelSelect | undefined = undefined,
+    D extends ExtTupleModelUpdateInput = ExtTupleModelUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtTupleModelWhere;
+    create: ExtTupleModelCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtTupleModelUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetExtTupleModelPayload<S>, R>>;
+
+  deleteMany(options: { where: ExtTupleModelWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ExtTupleModelFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ExtTupleModel | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ExtTupleModel, R>>;
+
+  count(where?: ExtTupleModelWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ExtTupleModelWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== objects/extcoord.ts =====
+/**
+ * Generated types for ExtCoord
+ * Do not edit manually
+ */
+
+export interface ExtCoord {
+  x: number;
+  y: number;
+}
+
+export interface ExtCoordInput {
+  x: number;
+  y: number;
+}
+
+export interface ExtCoordWhere {
+  x?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  y?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  AND?: ExtCoordWhere[];
+  OR?: ExtCoordWhere[];
+  NOT?: ExtCoordWhere;
+}
+
+export type ExtCoordSelect =
+  | ({ x: boolean } & Partial<Record<'y', boolean>>)
+  | ({ y: boolean } & Partial<Record<'x', boolean>>);
+
+export interface ExtCoordOrderBy {
+  x?: 'asc' | 'desc';
+  y?: 'asc' | 'desc';
+}
+
+// ===== tuples/extbasepair.ts =====
+/**
+ * Generated types for ExtBasePair
+ * Do not edit manually
+ */
+
+export type ExtBasePair = [string, number];
+
+export type ExtBasePairInput =
+  | [string, number]
+  | {
+      0?: string;
+      1?: number;
+    };
+
+export interface ExtBasePairWhere {
+  0?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  1?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+}
+
+export type ExtBasePairUpdate = {
+  0?: string;
+  1?: number;
+};
+
+// ===== tuples/extcoordpair.ts =====
+/**
+ * Generated types for ExtCoordPair
+ * Do not edit manually
+ */
+
+import type { ExtCoord, ExtCoordInput, ExtCoordWhere, ExtCoordSelect, ExtCoordOrderBy } from '../objects/extcoord';
+export type ExtCoordPair = [ExtCoord, ExtCoord];
+
+export type ExtCoordPairInput =
+  | [ExtCoordInput, ExtCoordInput]
+  | {
+      0?: ExtCoordInput;
+      1?: ExtCoordInput;
+    };
+
+export interface ExtCoordPairWhere {
+  0?: ExtCoordWhere;
+  1?: ExtCoordWhere;
+}
+
+export type ExtCoordPairUpdate = {
+  0?: Partial<ExtCoordInput> | { set: ExtCoordInput };
+  1?: Partial<ExtCoordInput> | { set: ExtCoordInput };
+};
+
+export type ExtCoordPairSelect = {
+  0?: boolean | ExtCoordSelect;
+  1?: boolean | ExtCoordSelect;
+};
+
+// ===== tuples/extdecoratedtriple.ts =====
+/**
+ * Generated types for ExtDecoratedTriple
+ * Do not edit manually
+ */
+
+export type ExtDecoratedTriple = [string, number, boolean];
+
+export type ExtDecoratedTripleInput =
+  | [string, number, boolean]
+  | {
+      0?: string;
+      1?: number;
+      2?: boolean;
+    };
+
+export interface ExtDecoratedTripleWhere {
+  0?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  1?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  2?:
+    | boolean
+    | ({
+        eq?: boolean;
+        neq?: boolean;
+      } & {});
+}
+
+export type ExtDecoratedTripleUpdate = {
+  0?: string;
+  1?: number;
+  2?: boolean;
+};
+
+// ===== tuples/extfirsttwo.ts =====
+/**
+ * Generated types for ExtFirstTwo
+ * Do not edit manually
+ */
+
+export type ExtFirstTwo = [string, number];
+
+export type ExtFirstTwoInput =
+  | [string, number]
+  | {
+      0?: string;
+      1?: number;
+    };
+
+export interface ExtFirstTwoWhere {
+  0?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  1?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+}
+
+export type ExtFirstTwoUpdate = {
+  0?: string;
+  1?: number;
+};
+
+// ===== tuples/extnamedpair.ts =====
+/**
+ * Generated types for ExtNamedPair
+ * Do not edit manually
+ */
+
+export type ExtNamedPair = [string, number];
+
+export type ExtNamedPairInput =
+  | [string, number]
+  | {
+      0?: string;
+      name?: string;
+      1?: number;
+      age?: number;
+    };
+
+export interface ExtNamedPairWhere {
+  0?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  1?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  age?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+}
+
+export type ExtNamedPairUpdate = {
+  0?: string;
+  name?: string;
+  1?: number;
+  age?: number;
+};
+
+// ===== tuples/extnamedtriple.ts =====
+/**
+ * Generated types for ExtNamedTriple
+ * Do not edit manually
+ */
+
+export type ExtNamedTriple = [string, number, boolean];
+
+export type ExtNamedTripleInput =
+  | [string, number, boolean]
+  | {
+      0?: string;
+      name?: string;
+      1?: number;
+      age?: number;
+      2?: boolean;
+      active?: boolean;
+    };
+
+export interface ExtNamedTripleWhere {
+  0?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  1?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  age?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  2?:
+    | boolean
+    | ({
+        eq?: boolean;
+        neq?: boolean;
+      } & {});
+  active?:
+    | boolean
+    | ({
+        eq?: boolean;
+        neq?: boolean;
+      } & {});
+}
+
+export type ExtNamedTripleUpdate = {
+  0?: string;
+  name?: string;
+  1?: number;
+  age?: number;
+  2?: boolean;
+  active?: boolean;
+};
+
+// ===== tuples/extnullabletriple.ts =====
+/**
+ * Generated types for ExtNullableTriple
+ * Do not edit manually
+ */
+
+export type ExtNullableTriple = [string | null, number | null, boolean | null];
+
+export type ExtNullableTripleInput =
+  | [string | null, number | null, boolean | null]
+  | {
+      0?: string | null;
+      1?: number | null;
+      2?: boolean | null;
+    };
+
+export interface ExtNullableTripleWhere {
+  0?:
+    | null
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string | null;
+        isNull?: boolean;
+      });
+  1?:
+    | null
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number | null;
+        isNull?: boolean;
+        between?: [number, number];
+      });
+  2?:
+    | null
+    | boolean
+    | ({
+        eq?: boolean;
+        neq?: boolean;
+      } & {
+        not?: string | null;
+        isNull?: boolean;
+      });
+}
+
+export type ExtNullableTripleUpdate = {
+  0?: string | null;
+  1?: number | null;
+  2?: boolean | null;
+};
+
+export type ExtNullableTripleUnset = {
+  0?: true;
+  1?: true;
+  2?: true;
+};
+
+// ===== tuples/extomittedage.ts =====
+/**
+ * Generated types for ExtOmittedAge
+ * Do not edit manually
+ */
+
+export type ExtOmittedAge = [string];
+
+export type ExtOmittedAgeInput =
+  | [string]
+  | {
+      0?: string;
+      name?: string;
+    };
+
+export interface ExtOmittedAgeWhere {
+  0?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+}
+
+export type ExtOmittedAgeUpdate = {
+  0?: string;
+  name?: string;
+};
+
+// ===== tuples/extoptionaltriple.ts =====
+/**
+ * Generated types for ExtOptionalTriple
+ * Do not edit manually
+ */
+
+export type ExtOptionalTriple = [string | null, number | null, boolean | null];
+
+export type ExtOptionalTripleInput =
+  | [string | null, number | null, boolean | null]
+  | {
+      0?: string | null;
+      1?: number | null;
+      2?: boolean | null;
+    };
+
+export interface ExtOptionalTripleWhere {
+  0?:
+    | null
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string | null;
+        isNull?: boolean;
+      });
+  1?:
+    | null
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number | null;
+        isNull?: boolean;
+        between?: [number, number];
+      });
+  2?:
+    | null
+    | boolean
+    | ({
+        eq?: boolean;
+        neq?: boolean;
+      } & {
+        not?: string | null;
+        isNull?: boolean;
+      });
+}
+
+export type ExtOptionalTripleUpdate = {
+  0?: string | null;
+  1?: number | null;
+  2?: boolean | null;
+};
+
+export type ExtOptionalTripleUnset = {
+  0?: true;
+  1?: true;
+  2?: true;
+};
+
+// ===== tuples/extoverridepair.ts =====
+/**
+ * Generated types for ExtOverridePair
+ * Do not edit manually
+ */
+
+export type ExtOverridePair = [string, number];
+
+export type ExtOverridePairInput =
+  | [string, number]
+  | {
+      0?: string;
+      1?: number;
+    };
+
+export interface ExtOverridePairWhere {
+  0?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  1?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+}
+
+export type ExtOverridePairUpdate = {
+  0?: string;
+  1?: number;
+};
+
+// ===== tuples/extpickedname.ts =====
+/**
+ * Generated types for ExtPickedName
+ * Do not edit manually
+ */
+
+export type ExtPickedName = [string];
+
+export type ExtPickedNameInput =
+  | [string]
+  | {
+      0?: string;
+      name?: string;
+    };
+
+export interface ExtPickedNameWhere {
+  0?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+}
+
+export type ExtPickedNameUpdate = {
+  0?: string;
+  name?: string;
+};
+
+// ===== tuples/extprivatepair.ts =====
+/**
+ * Generated types for ExtPrivatePair
+ * Do not edit manually
+ */
+
+export type ExtPrivatePair = [string, number];
+
+export type ExtPrivatePairInput =
+  | [string, number]
+  | {
+      0?: string;
+      1?: number;
+    };
+
+export interface ExtPrivatePairWhere {
+  0?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  1?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+}
+
+export type ExtPrivatePairUpdate = {
+  0?: string;
+  1?: number;
+};
+
+// ===== tuples/extquad.ts =====
+/**
+ * Generated types for ExtQuad
+ * Do not edit manually
+ */
+
+export type ExtQuad = [string, number, boolean, number];
+
+export type ExtQuadInput =
+  | [string, number, boolean, number]
+  | {
+      0?: string;
+      1?: number;
+      2?: boolean;
+      3?: number;
+    };
+
+export interface ExtQuadWhere {
+  0?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  1?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  2?:
+    | boolean
+    | ({
+        eq?: boolean;
+        neq?: boolean;
+      } & {});
+  3?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+}
+
+export type ExtQuadUpdate = {
+  0?: string;
+  1?: number;
+  2?: boolean;
+  3?: number;
+};
+
+// ===== tuples/exttriple.ts =====
+/**
+ * Generated types for ExtTriple
+ * Do not edit manually
+ */
+
+export type ExtTriple = [string, number, boolean];
+
+export type ExtTripleInput =
+  | [string, number, boolean]
+  | {
+      0?: string;
+      1?: number;
+      2?: boolean;
+    };
+
+export interface ExtTripleWhere {
+  0?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  1?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  2?:
+    | boolean
+    | ({
+        eq?: boolean;
+        neq?: boolean;
+      } & {});
+}
+
+export type ExtTripleUpdate = {
+  0?: string;
+  1?: number;
+  2?: boolean;
+};
+
+// ===== tuples/extwithoutsecond.ts =====
+/**
+ * Generated types for ExtWithoutSecond
+ * Do not edit manually
+ */
+
+export type ExtWithoutSecond = [string];
+
+export type ExtWithoutSecondInput =
+  | [string]
+  | {
+      0?: string;
+    };
+
+export interface ExtWithoutSecondWhere {
+  0?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+}
+
+export type ExtWithoutSecondUpdate = {
+  0?: string;
+};

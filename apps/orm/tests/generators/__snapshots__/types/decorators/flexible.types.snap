@@ -1,0 +1,519 @@
+// ===== models/flexuser.ts =====
+/**
+ * Generated types for FlexUser
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  FlexAddress,
+  FlexAddressInput,
+  FlexAddressWhere,
+  FlexAddressSelect,
+  FlexAddressOrderBy,
+} from '../objects/flexaddress';
+import type {
+  FlexProfile,
+  FlexProfileInput,
+  FlexProfileWhere,
+  FlexProfileSelect,
+  FlexProfileOrderBy,
+} from '../objects/flexprofile';
+export interface FlexUser {
+  id: CerialId<string>;
+  name: string;
+  address: FlexAddress & Record<string, any>;
+  shipping?: FlexAddress & Record<string, any>;
+  tags: (FlexAddress & Record<string, any>)[];
+  profile: FlexProfile;
+  strictAddress: FlexAddress;
+}
+
+export interface FlexUserInput {
+  id?: string;
+  name: string;
+  address: FlexAddressInput & Record<string, any>;
+  shipping?: FlexAddressInput & Record<string, any>;
+  tags: (FlexAddressInput & Record<string, any>)[];
+  profile: FlexProfileInput;
+  strictAddress: FlexAddressInput;
+}
+
+export interface FlexUserWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  address?: FlexAddressWhere & { [key: string]: any };
+  shipping?: FlexAddressWhere & { [key: string]: any };
+  tags?: {
+    some?: FlexAddressWhere & { [key: string]: any };
+    every?: FlexAddressWhere & { [key: string]: any };
+    none?: FlexAddressWhere & { [key: string]: any };
+  };
+  profile?: FlexProfileWhere;
+  strictAddress?: FlexAddressWhere;
+  AND?: FlexUserWhere[];
+  OR?: FlexUserWhere[];
+  NOT?: FlexUserWhere;
+}
+
+export type FlexUserWhereInput = FlexUserWhere;
+
+export type FlexUserFindUniqueWhere = { id: RecordIdInput<string> } & Omit<FlexUserWhere, 'id'>;
+
+export type FlexUserCreate = O.Optional<O.Omit<FlexUserInput, 'address' | 'shipping' | 'tags'>, 'id'> & {
+  address: FlexAddressInput & Record<string, any>;
+  shipping?: FlexAddressInput & Record<string, any>;
+  tags?: (FlexAddressInput & Record<string, any>)[];
+};
+
+export type FlexUserNestedCreate = O.Optional<FlexUserInput, 'id' | 'shipping' | 'tags'>;
+
+export type FlexUserCreateInput = FlexUserCreate;
+
+export type FlexUserUpdate = Partial<
+  O.Omit<FlexUserInput, 'id' | 'address' | 'shipping' | 'tags' | 'profile' | 'strictAddress'>
+> & {
+  address?: Partial<FlexAddressInput & Record<string, any>> | { set: FlexAddressInput & Record<string, any> };
+  shipping?:
+    | Partial<FlexAddressInput & Record<string, any>>
+    | { set: FlexAddressInput & Record<string, any> }
+    | CerialNone;
+  tags?:
+    | (FlexAddressInput & Record<string, any>)[]
+    | {
+        push?: (FlexAddressInput & Record<string, any>) | (FlexAddressInput & Record<string, any>)[];
+        set?: (FlexAddressInput & Record<string, any>)[];
+        updateWhere?: {
+          where: FlexAddressWhere & { [key: string]: any };
+          data: Partial<FlexAddressInput & Record<string, any>>;
+        };
+        unset?: { where: FlexAddressWhere & { [key: string]: any } };
+      };
+  profile?: Partial<FlexProfileInput> | { set: FlexProfileInput };
+  strictAddress?: Partial<FlexAddressInput> | { set: FlexAddressInput };
+};
+
+export type FlexUserUpdateInput = FlexUserUpdate;
+
+export type FlexUserUnset = {
+  address?: {
+    zip?: true;
+  };
+  shipping?:
+    | true
+    | {
+        zip?: true;
+      };
+  strictAddress?: {
+    zip?: true;
+  };
+};
+
+export type FlexUserSelect =
+  | ({ id: boolean } & {
+      name?: boolean;
+      address?: boolean | FlexAddressSelect;
+      shipping?: boolean | FlexAddressSelect;
+      tags?: boolean | FlexAddressSelect;
+      profile?: boolean | FlexProfileSelect;
+      strictAddress?: boolean | FlexAddressSelect;
+    })
+  | ({ name: boolean } & {
+      id?: boolean;
+      address?: boolean | FlexAddressSelect;
+      shipping?: boolean | FlexAddressSelect;
+      tags?: boolean | FlexAddressSelect;
+      profile?: boolean | FlexProfileSelect;
+      strictAddress?: boolean | FlexAddressSelect;
+    })
+  | ({ address: boolean | FlexAddressSelect } & {
+      id?: boolean;
+      name?: boolean;
+      shipping?: boolean | FlexAddressSelect;
+      tags?: boolean | FlexAddressSelect;
+      profile?: boolean | FlexProfileSelect;
+      strictAddress?: boolean | FlexAddressSelect;
+    })
+  | ({ shipping: boolean | FlexAddressSelect } & {
+      id?: boolean;
+      name?: boolean;
+      address?: boolean | FlexAddressSelect;
+      tags?: boolean | FlexAddressSelect;
+      profile?: boolean | FlexProfileSelect;
+      strictAddress?: boolean | FlexAddressSelect;
+    })
+  | ({ tags: boolean | FlexAddressSelect } & {
+      id?: boolean;
+      name?: boolean;
+      address?: boolean | FlexAddressSelect;
+      shipping?: boolean | FlexAddressSelect;
+      profile?: boolean | FlexProfileSelect;
+      strictAddress?: boolean | FlexAddressSelect;
+    })
+  | ({ profile: boolean | FlexProfileSelect } & {
+      id?: boolean;
+      name?: boolean;
+      address?: boolean | FlexAddressSelect;
+      shipping?: boolean | FlexAddressSelect;
+      tags?: boolean | FlexAddressSelect;
+      strictAddress?: boolean | FlexAddressSelect;
+    })
+  | ({ strictAddress: boolean | FlexAddressSelect } & {
+      id?: boolean;
+      name?: boolean;
+      address?: boolean | FlexAddressSelect;
+      shipping?: boolean | FlexAddressSelect;
+      tags?: boolean | FlexAddressSelect;
+      profile?: boolean | FlexProfileSelect;
+    });
+
+export interface FlexUserOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  address?: FlexAddressOrderBy;
+  shipping?: FlexAddressOrderBy;
+  tags?: FlexAddressOrderBy;
+  profile?: FlexProfileOrderBy;
+  strictAddress?: FlexAddressOrderBy;
+}
+
+export type FlexUser$Relations = {};
+
+export type GetFlexUserPayload<S extends FlexUserSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends FlexUserSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof FlexUser
+          ? ResolveFieldSelect<FlexUser[K], S[K]>
+          : never;
+      }
+    : FlexUser,
+  'flat'
+>;
+
+export interface FlexUserModel {
+  findOne<S extends FlexUserSelect | undefined = undefined>(options?: {
+    where?: FlexUserWhere;
+    select?: S;
+    orderBy?: FlexUserOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetFlexUserPayload<S> | null>;
+
+  findMany<S extends FlexUserSelect | undefined = undefined>(options?: {
+    where?: FlexUserWhere;
+    select?: S;
+    orderBy?: FlexUserOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetFlexUserPayload<S>[]>;
+
+  findUnique<S extends FlexUserSelect | undefined = undefined>(options: {
+    where: FlexUserFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetFlexUserPayload<S> | null>;
+
+  create<S extends FlexUserSelect | undefined = undefined>(options: {
+    data: FlexUserCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetFlexUserPayload<S>>;
+
+  updateMany<
+    S extends FlexUserSelect | undefined = undefined,
+    D extends FlexUserUpdateInput = FlexUserUpdateInput,
+  >(options: {
+    where: FlexUserWhere;
+    data: D;
+    unset?: SafeUnset<FlexUserUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetFlexUserPayload<S>[]>;
+
+  updateUnique<
+    S extends FlexUserSelect | undefined = undefined,
+    D extends FlexUserUpdateInput = FlexUserUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: FlexUserFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<FlexUserUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns FlexUser | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetFlexUserPayload<S>, R>>;
+
+  upsert<
+    S extends FlexUserSelect | undefined = undefined,
+    D extends FlexUserUpdateInput = FlexUserUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: FlexUserFindUniqueWhere;
+    create: FlexUserCreateInput;
+    update?: D;
+    unset?: SafeUnset<FlexUserUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetFlexUserPayload<S>, R>>;
+
+  upsert<
+    S extends FlexUserSelect | undefined = undefined,
+    D extends FlexUserUpdateInput = FlexUserUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: FlexUserWhere;
+    create: FlexUserCreateInput;
+    update?: D;
+    unset?: SafeUnset<FlexUserUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetFlexUserPayload<S>, R>>;
+
+  deleteMany(options: { where: FlexUserWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: FlexUserFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns FlexUser | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<FlexUser, R>>;
+
+  count(where?: FlexUserWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: FlexUserWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== objects/flexaddress.ts =====
+/**
+ * Generated types for FlexAddress
+ * Do not edit manually
+ */
+
+export interface FlexAddress {
+  street: string;
+  city: string;
+  zip?: string | null;
+}
+
+export interface FlexAddressInput {
+  street: string;
+  city: string;
+  zip?: string | null;
+}
+
+export interface FlexAddressWhere {
+  street?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  city?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  zip?:
+    | null
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string | null;
+        isNull?: boolean;
+        isNone?: boolean;
+      });
+  AND?: FlexAddressWhere[];
+  OR?: FlexAddressWhere[];
+  NOT?: FlexAddressWhere;
+}
+
+export type FlexAddressSelect =
+  | ({ street: boolean } & Partial<Record<'city' | 'zip', boolean>>)
+  | ({ city: boolean } & Partial<Record<'street' | 'zip', boolean>>)
+  | ({ zip: boolean } & Partial<Record<'street' | 'city', boolean>>);
+
+export interface FlexAddressOrderBy {
+  street?: 'asc' | 'desc';
+  city?: 'asc' | 'desc';
+  zip?: 'asc' | 'desc';
+}
+
+// ===== objects/flexmeta.ts =====
+/**
+ * Generated types for FlexMeta
+ * Do not edit manually
+ */
+
+export interface FlexMeta {
+  label: string;
+}
+
+export interface FlexMetaInput {
+  label: string;
+}
+
+export interface FlexMetaWhere {
+  label?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  AND?: FlexMetaWhere[];
+  OR?: FlexMetaWhere[];
+  NOT?: FlexMetaWhere;
+}
+
+export type FlexMetaSelect = { label: boolean };
+
+export interface FlexMetaOrderBy {
+  label?: 'asc' | 'desc';
+}
+
+// ===== objects/flexprofile.ts =====
+/**
+ * Generated types for FlexProfile
+ * Do not edit manually
+ */
+
+import type { FlexMeta, FlexMetaInput, FlexMetaWhere, FlexMetaSelect, FlexMetaOrderBy } from './flexmeta';
+export interface FlexProfile {
+  bio: string;
+  metadata: FlexMeta & Record<string, any>;
+}
+
+export interface FlexProfileInput {
+  bio: string;
+  metadata: FlexMetaInput & Record<string, any>;
+}
+
+export interface FlexProfileWhere {
+  bio?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  metadata?: FlexMetaWhere & { [key: string]: any };
+  AND?: FlexProfileWhere[];
+  OR?: FlexProfileWhere[];
+  NOT?: FlexProfileWhere;
+}
+
+export type FlexProfileSelect =
+  | ({ bio: boolean } & { metadata?: boolean | FlexMetaSelect })
+  | ({ metadata: boolean | FlexMetaSelect } & Partial<Record<'bio', boolean>>);
+
+export interface FlexProfileOrderBy {
+  bio?: 'asc' | 'desc';
+  metadata?: FlexMetaOrderBy;
+}

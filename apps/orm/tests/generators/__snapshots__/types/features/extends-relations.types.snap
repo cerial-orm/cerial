@@ -1,0 +1,3580 @@
+// ===== models/extrelblogauthor.ts =====
+/**
+ * Generated types for ExtRelBlogAuthor
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  ExtRelBlogPost,
+  ExtRelBlogPostWhere,
+  ExtRelBlogPostSelect,
+  ExtRelBlogPostOrderBy,
+  ExtRelBlogPostNestedCreate,
+  ExtRelBlogPostInclude,
+  GetExtRelBlogPostIncludePayload,
+} from './extrelblogpost';
+export interface ExtRelBlogAuthor {
+  id: CerialId<string>;
+  createdAt?: Date;
+  updatedAt?: Date;
+  name: string;
+  email: string;
+  bio?: string;
+}
+
+export interface ExtRelBlogAuthorInput {
+  id?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  name: string;
+  email: string;
+  bio?: string;
+}
+
+export interface ExtRelBlogAuthorWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  createdAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  updatedAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  /** @unique — Unique indexed field */
+  email?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  bio?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  posts?: { some?: ExtRelBlogPostWhere; every?: ExtRelBlogPostWhere; none?: ExtRelBlogPostWhere };
+  AND?: ExtRelBlogAuthorWhere[];
+  OR?: ExtRelBlogAuthorWhere[];
+  NOT?: ExtRelBlogAuthorWhere;
+}
+
+export type ExtRelBlogAuthorWhereInput = ExtRelBlogAuthorWhere;
+
+export type ExtRelBlogAuthorFindUniqueWhere =
+  | ({ id: RecordIdInput<string> } & { email?: string } & Omit<ExtRelBlogAuthorWhere, 'id' | 'email'>)
+  | ({ email: string } & { id?: RecordIdInput<string> } & Omit<ExtRelBlogAuthorWhere, 'id' | 'email'>);
+
+export type ExtRelBlogAuthorCreate = O.Optional<
+  O.Omit<ExtRelBlogAuthorInput, 'posts'>,
+  'id' | 'createdAt' | 'updatedAt' | 'bio'
+>;
+
+export type ExtRelBlogAuthorNestedCreate = O.Optional<
+  O.Omit<ExtRelBlogAuthorInput, 'posts'>,
+  'id' | 'createdAt' | 'updatedAt' | 'bio'
+>;
+
+export type ExtRelBlogAuthorCreateInput = ExtRelBlogAuthorCreate & {
+  posts?: {
+    create?: ExtRelBlogPostNestedCreate | ExtRelBlogPostNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+  };
+};
+
+export type ExtRelBlogAuthorUpdate = Partial<
+  O.Omit<ExtRelBlogAuthorInput, 'id' | 'posts' | 'createdAt' | 'updatedAt' | 'bio'>
+> & {
+  createdAt?: Date | CerialNone;
+  updatedAt?: Date | CerialNone;
+  bio?: string | CerialNone;
+};
+
+export type ExtRelBlogAuthorUpdateInput = ExtRelBlogAuthorUpdate & {
+  posts?: {
+    create?: ExtRelBlogPostNestedCreate | ExtRelBlogPostNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+    disconnect?: RecordIdInput | RecordIdInput[];
+    set?: RecordIdInput[];
+  };
+};
+
+export type ExtRelBlogAuthorUnset = {
+  createdAt?: true;
+  updatedAt?: true;
+  bio?: true;
+};
+
+export type ExtRelBlogAuthorSelect =
+  | ({ id: boolean } & Partial<Record<'createdAt' | 'updatedAt' | 'name' | 'email' | 'bio', boolean>>)
+  | ({ createdAt: boolean } & Partial<Record<'id' | 'updatedAt' | 'name' | 'email' | 'bio', boolean>>)
+  | ({ updatedAt: boolean } & Partial<Record<'id' | 'createdAt' | 'name' | 'email' | 'bio', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'email' | 'bio', boolean>>)
+  | ({ email: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'name' | 'bio', boolean>>)
+  | ({ bio: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'name' | 'email', boolean>>);
+
+export interface ExtRelBlogAuthorOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  updatedAt?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  email?: 'asc' | 'desc';
+  bio?: 'asc' | 'desc';
+}
+
+export interface ExtRelBlogAuthorInclude {
+  posts?:
+    | boolean
+    | {
+        select?: ExtRelBlogPostSelect;
+        where?: ExtRelBlogPostWhere;
+        orderBy?: ExtRelBlogPostOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: ExtRelBlogPostInclude;
+      };
+}
+
+export type ExtRelBlogAuthor$Relations = {
+  posts: { type: ExtRelBlogPost[]; include: ExtRelBlogPostInclude };
+};
+
+export type GetExtRelBlogAuthorIncludePayload<I extends ExtRelBlogAuthorInclude | undefined> =
+  I extends ExtRelBlogAuthorInclude
+    ? Pick<
+        {
+          posts: I['posts'] extends true
+            ? ExtRelBlogPost[]
+            : I['posts'] extends {
+                  select: infer S extends ExtRelBlogPostSelect;
+                  include: infer NI extends ExtRelBlogPostInclude;
+                }
+              ? ({
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof ExtRelBlogPost
+                    ? ResolveFieldSelect<ExtRelBlogPost[P], S[P]>
+                    : never;
+                } & GetExtRelBlogPostIncludePayload<NI>)[]
+              : I['posts'] extends { select: infer S extends ExtRelBlogPostSelect }
+                ? {
+                    [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof ExtRelBlogPost
+                      ? ResolveFieldSelect<ExtRelBlogPost[P], S[P]>
+                      : never;
+                  }[]
+                : I['posts'] extends { include: infer NI extends ExtRelBlogPostInclude }
+                  ? (ExtRelBlogPost & GetExtRelBlogPostIncludePayload<NI>)[]
+                  : ExtRelBlogPost[];
+        },
+        Extract<keyof I, keyof ExtRelBlogAuthor$Relations> &
+          { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+      >
+    : {};
+
+export type GetExtRelBlogAuthorPayload<
+  S extends ExtRelBlogAuthorSelect | undefined = undefined,
+  I extends ExtRelBlogAuthorInclude | undefined = undefined,
+> = A.Compute<
+  S extends ExtRelBlogAuthorSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ExtRelBlogAuthor
+          ? ResolveFieldSelect<ExtRelBlogAuthor[K], S[K]>
+          : never;
+      } & GetExtRelBlogAuthorIncludePayload<I>
+    : I extends ExtRelBlogAuthorInclude
+      ? ExtRelBlogAuthor & GetExtRelBlogAuthorIncludePayload<I>
+      : ExtRelBlogAuthor,
+  'flat'
+>;
+
+export interface ExtRelBlogAuthorModel {
+  findOne<
+    S extends ExtRelBlogAuthorSelect | undefined = undefined,
+    I extends ExtRelBlogAuthorInclude | undefined = undefined,
+  >(options?: {
+    where?: ExtRelBlogAuthorWhere;
+    select?: S;
+    include?: I;
+    orderBy?: ExtRelBlogAuthorOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelBlogAuthorPayload<S, I> | null>;
+
+  findMany<
+    S extends ExtRelBlogAuthorSelect | undefined = undefined,
+    I extends ExtRelBlogAuthorInclude | undefined = undefined,
+  >(options?: {
+    where?: ExtRelBlogAuthorWhere;
+    select?: S;
+    orderBy?: ExtRelBlogAuthorOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelBlogAuthorPayload<S, I>[]>;
+
+  findUnique<
+    S extends ExtRelBlogAuthorSelect | undefined = undefined,
+    I extends ExtRelBlogAuthorInclude | undefined = undefined,
+  >(options: {
+    where: ExtRelBlogAuthorFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelBlogAuthorPayload<S, I> | null>;
+
+  create<
+    S extends ExtRelBlogAuthorSelect | undefined = undefined,
+    I extends ExtRelBlogAuthorInclude | undefined = undefined,
+  >(options: {
+    data: ExtRelBlogAuthorCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelBlogAuthorPayload<S, I>>;
+
+  updateMany<
+    S extends ExtRelBlogAuthorSelect | undefined = undefined,
+    I extends ExtRelBlogAuthorInclude | undefined = undefined,
+    D extends ExtRelBlogAuthorUpdateInput = ExtRelBlogAuthorUpdateInput,
+  >(options: {
+    where: ExtRelBlogAuthorWhere;
+    data: D;
+    unset?: SafeUnset<ExtRelBlogAuthorUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelBlogAuthorPayload<S, I>[]>;
+
+  updateUnique<
+    S extends ExtRelBlogAuthorSelect | undefined = undefined,
+    I extends ExtRelBlogAuthorInclude | undefined = undefined,
+    D extends ExtRelBlogAuthorUpdateInput = ExtRelBlogAuthorUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ExtRelBlogAuthorFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ExtRelBlogAuthorUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ExtRelBlogAuthor | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetExtRelBlogAuthorPayload<S, I>, R>>;
+
+  upsert<
+    S extends ExtRelBlogAuthorSelect | undefined = undefined,
+    I extends ExtRelBlogAuthorInclude | undefined = undefined,
+    D extends ExtRelBlogAuthorUpdateInput = ExtRelBlogAuthorUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtRelBlogAuthorFindUniqueWhere;
+    create: ExtRelBlogAuthorCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtRelBlogAuthorUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetExtRelBlogAuthorPayload<S, I>, R>>;
+
+  upsert<
+    S extends ExtRelBlogAuthorSelect | undefined = undefined,
+    I extends ExtRelBlogAuthorInclude | undefined = undefined,
+    D extends ExtRelBlogAuthorUpdateInput = ExtRelBlogAuthorUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtRelBlogAuthorWhere;
+    create: ExtRelBlogAuthorCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtRelBlogAuthorUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetExtRelBlogAuthorPayload<S, I>, R>>;
+
+  deleteMany(options: { where: ExtRelBlogAuthorWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ExtRelBlogAuthorFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ExtRelBlogAuthor | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ExtRelBlogAuthor, R>>;
+
+  count(where?: ExtRelBlogAuthorWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ExtRelBlogAuthorWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/extrelblogpost.ts =====
+/**
+ * Generated types for ExtRelBlogPost
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  ExtRelBlogAuthor,
+  ExtRelBlogAuthorWhere,
+  ExtRelBlogAuthorSelect,
+  ExtRelBlogAuthorOrderBy,
+  ExtRelBlogAuthorNestedCreate,
+  ExtRelBlogAuthorInclude,
+  GetExtRelBlogAuthorIncludePayload,
+} from './extrelblogauthor';
+export interface ExtRelBlogPost {
+  id: CerialId<string>;
+  createdAt?: Date;
+  updatedAt?: Date;
+  title: string;
+  content?: string;
+  authorId: CerialId<string>;
+}
+
+export interface ExtRelBlogPostInput {
+  id?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  title: string;
+  content?: string;
+  authorId: RecordIdInput<string>;
+}
+
+export interface ExtRelBlogPostWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  createdAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  updatedAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  title?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  content?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  authorId?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  author?: ExtRelBlogAuthorWhere;
+  AND?: ExtRelBlogPostWhere[];
+  OR?: ExtRelBlogPostWhere[];
+  NOT?: ExtRelBlogPostWhere;
+}
+
+export type ExtRelBlogPostWhereInput = ExtRelBlogPostWhere;
+
+export type ExtRelBlogPostFindUniqueWhere = { id: RecordIdInput<string> } & Omit<ExtRelBlogPostWhere, 'id'>;
+
+export type ExtRelBlogPostCreate = O.Optional<
+  O.Omit<ExtRelBlogPostInput, 'author'>,
+  'id' | 'createdAt' | 'updatedAt' | 'content'
+>;
+
+export type ExtRelBlogPostNestedCreate = O.Optional<
+  O.Omit<ExtRelBlogPostInput, 'author' | 'authorId'>,
+  'id' | 'createdAt' | 'updatedAt' | 'content'
+>;
+
+export type ExtRelBlogPostCreateInput =
+  | ExtRelBlogPostCreate
+  | (O.Omit<ExtRelBlogPostCreate, 'authorId'> & {
+      author: { create: ExtRelBlogAuthorNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type ExtRelBlogPostUpdate = Partial<
+  O.Omit<ExtRelBlogPostInput, 'id' | 'author' | 'createdAt' | 'updatedAt' | 'content'>
+> & {
+  createdAt?: Date | CerialNone;
+  updatedAt?: Date | CerialNone;
+  content?: string | CerialNone;
+};
+
+export type ExtRelBlogPostUpdateInput =
+  | ExtRelBlogPostUpdate
+  | (O.Omit<ExtRelBlogPostUpdate, 'authorId'> & {
+      author?: { create: ExtRelBlogAuthorNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type ExtRelBlogPostUnset = {
+  createdAt?: true;
+  updatedAt?: true;
+  content?: true;
+};
+
+export type ExtRelBlogPostSelect =
+  | ({ id: boolean } & Partial<Record<'createdAt' | 'updatedAt' | 'title' | 'content' | 'authorId', boolean>>)
+  | ({ createdAt: boolean } & Partial<Record<'id' | 'updatedAt' | 'title' | 'content' | 'authorId', boolean>>)
+  | ({ updatedAt: boolean } & Partial<Record<'id' | 'createdAt' | 'title' | 'content' | 'authorId', boolean>>)
+  | ({ title: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'content' | 'authorId', boolean>>)
+  | ({ content: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'title' | 'authorId', boolean>>)
+  | ({ authorId: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'title' | 'content', boolean>>);
+
+export interface ExtRelBlogPostOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  updatedAt?: 'asc' | 'desc';
+  title?: 'asc' | 'desc';
+  content?: 'asc' | 'desc';
+  authorId?: 'asc' | 'desc';
+  author?: ExtRelBlogAuthorOrderBy;
+}
+
+export interface ExtRelBlogPostInclude {
+  author?:
+    | boolean
+    | {
+        select?: ExtRelBlogAuthorSelect;
+        where?: ExtRelBlogAuthorWhere;
+        include?: ExtRelBlogAuthorInclude;
+      };
+}
+
+export type ExtRelBlogPost$Relations = {
+  author: { type: ExtRelBlogAuthor; include: ExtRelBlogAuthorInclude };
+};
+
+export type GetExtRelBlogPostIncludePayload<I extends ExtRelBlogPostInclude | undefined> =
+  I extends ExtRelBlogPostInclude
+    ? Pick<
+        {
+          author: I['author'] extends true
+            ? ExtRelBlogAuthor
+            : I['author'] extends {
+                  select: infer S extends ExtRelBlogAuthorSelect;
+                  include: infer NI extends ExtRelBlogAuthorInclude;
+                }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof ExtRelBlogAuthor
+                    ? ResolveFieldSelect<ExtRelBlogAuthor[P], S[P]>
+                    : never;
+                } & GetExtRelBlogAuthorIncludePayload<NI>
+              : I['author'] extends { select: infer S extends ExtRelBlogAuthorSelect }
+                ? {
+                    [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof ExtRelBlogAuthor
+                      ? ResolveFieldSelect<ExtRelBlogAuthor[P], S[P]>
+                      : never;
+                  }
+                : I['author'] extends { include: infer NI extends ExtRelBlogAuthorInclude }
+                  ? ExtRelBlogAuthor & GetExtRelBlogAuthorIncludePayload<NI>
+                  : ExtRelBlogAuthor;
+        },
+        Extract<keyof I, keyof ExtRelBlogPost$Relations> &
+          { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+      >
+    : {};
+
+export type GetExtRelBlogPostPayload<
+  S extends ExtRelBlogPostSelect | undefined = undefined,
+  I extends ExtRelBlogPostInclude | undefined = undefined,
+> = A.Compute<
+  S extends ExtRelBlogPostSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ExtRelBlogPost
+          ? ResolveFieldSelect<ExtRelBlogPost[K], S[K]>
+          : never;
+      } & GetExtRelBlogPostIncludePayload<I>
+    : I extends ExtRelBlogPostInclude
+      ? ExtRelBlogPost & GetExtRelBlogPostIncludePayload<I>
+      : ExtRelBlogPost,
+  'flat'
+>;
+
+export interface ExtRelBlogPostModel {
+  findOne<
+    S extends ExtRelBlogPostSelect | undefined = undefined,
+    I extends ExtRelBlogPostInclude | undefined = undefined,
+  >(options?: {
+    where?: ExtRelBlogPostWhere;
+    select?: S;
+    include?: I;
+    orderBy?: ExtRelBlogPostOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelBlogPostPayload<S, I> | null>;
+
+  findMany<
+    S extends ExtRelBlogPostSelect | undefined = undefined,
+    I extends ExtRelBlogPostInclude | undefined = undefined,
+  >(options?: {
+    where?: ExtRelBlogPostWhere;
+    select?: S;
+    orderBy?: ExtRelBlogPostOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelBlogPostPayload<S, I>[]>;
+
+  findUnique<
+    S extends ExtRelBlogPostSelect | undefined = undefined,
+    I extends ExtRelBlogPostInclude | undefined = undefined,
+  >(options: {
+    where: ExtRelBlogPostFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelBlogPostPayload<S, I> | null>;
+
+  create<
+    S extends ExtRelBlogPostSelect | undefined = undefined,
+    I extends ExtRelBlogPostInclude | undefined = undefined,
+  >(options: {
+    data: ExtRelBlogPostCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelBlogPostPayload<S, I>>;
+
+  updateMany<
+    S extends ExtRelBlogPostSelect | undefined = undefined,
+    I extends ExtRelBlogPostInclude | undefined = undefined,
+    D extends ExtRelBlogPostUpdateInput = ExtRelBlogPostUpdateInput,
+  >(options: {
+    where: ExtRelBlogPostWhere;
+    data: D;
+    unset?: SafeUnset<ExtRelBlogPostUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelBlogPostPayload<S, I>[]>;
+
+  updateUnique<
+    S extends ExtRelBlogPostSelect | undefined = undefined,
+    I extends ExtRelBlogPostInclude | undefined = undefined,
+    D extends ExtRelBlogPostUpdateInput = ExtRelBlogPostUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ExtRelBlogPostFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ExtRelBlogPostUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ExtRelBlogPost | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetExtRelBlogPostPayload<S, I>, R>>;
+
+  upsert<
+    S extends ExtRelBlogPostSelect | undefined = undefined,
+    I extends ExtRelBlogPostInclude | undefined = undefined,
+    D extends ExtRelBlogPostUpdateInput = ExtRelBlogPostUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtRelBlogPostFindUniqueWhere;
+    create: ExtRelBlogPostCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtRelBlogPostUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetExtRelBlogPostPayload<S, I>, R>>;
+
+  upsert<
+    S extends ExtRelBlogPostSelect | undefined = undefined,
+    I extends ExtRelBlogPostInclude | undefined = undefined,
+    D extends ExtRelBlogPostUpdateInput = ExtRelBlogPostUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtRelBlogPostWhere;
+    create: ExtRelBlogPostCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtRelBlogPostUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetExtRelBlogPostPayload<S, I>, R>>;
+
+  deleteMany(options: { where: ExtRelBlogPostWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ExtRelBlogPostFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ExtRelBlogPost | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ExtRelBlogPost, R>>;
+
+  count(where?: ExtRelBlogPostWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ExtRelBlogPostWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/extrelblogposttag.ts =====
+/**
+ * Generated types for ExtRelBlogPostTag
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  ExtRelBlogPost,
+  ExtRelBlogPostWhere,
+  ExtRelBlogPostSelect,
+  ExtRelBlogPostOrderBy,
+  ExtRelBlogPostNestedCreate,
+  ExtRelBlogPostInclude,
+  GetExtRelBlogPostIncludePayload,
+} from './extrelblogpost';
+import type {
+  ExtRelBlogTag,
+  ExtRelBlogTagWhere,
+  ExtRelBlogTagSelect,
+  ExtRelBlogTagOrderBy,
+  ExtRelBlogTagNestedCreate,
+  ExtRelBlogTagInclude,
+  GetExtRelBlogTagIncludePayload,
+} from './extrelblogtag';
+export interface ExtRelBlogPostTag {
+  id: CerialId<string>;
+  postId?: CerialId<string>;
+  tagId: CerialId<string>;
+}
+
+export interface ExtRelBlogPostTagInput {
+  id?: string;
+  postId?: RecordIdInput<string>;
+  tagId: RecordIdInput<string>;
+}
+
+export interface ExtRelBlogPostTagWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  postId?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  post?: ExtRelBlogPostWhere;
+  tagId?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  tag?: ExtRelBlogTagWhere;
+  AND?: ExtRelBlogPostTagWhere[];
+  OR?: ExtRelBlogPostTagWhere[];
+  NOT?: ExtRelBlogPostTagWhere;
+}
+
+export type ExtRelBlogPostTagWhereInput = ExtRelBlogPostTagWhere;
+
+export type ExtRelBlogPostTagFindUniqueWhere = { id: RecordIdInput<string> } & Omit<ExtRelBlogPostTagWhere, 'id'>;
+
+export type ExtRelBlogPostTagCreate = O.Optional<O.Omit<ExtRelBlogPostTagInput, 'post' | 'tag'>, 'id' | 'postId'>;
+
+export type ExtRelBlogPostTagNestedCreate = O.Optional<
+  O.Omit<ExtRelBlogPostTagInput, 'post' | 'tag' | 'postId' | 'tagId'>,
+  'id'
+>;
+
+export type ExtRelBlogPostTagCreateInput =
+  | ExtRelBlogPostTagCreate
+  | (O.Omit<ExtRelBlogPostTagCreate, 'postId' | 'tagId'> & {
+      post?: { create: ExtRelBlogPostNestedCreate } | { connect: RecordIdInput };
+      tag: { create: ExtRelBlogTagNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type ExtRelBlogPostTagUpdate = Partial<O.Omit<ExtRelBlogPostTagInput, 'id' | 'post' | 'tag' | 'postId'>> & {
+  postId?: RecordIdInput<string> | CerialNone;
+};
+
+export type ExtRelBlogPostTagUpdateInput =
+  | ExtRelBlogPostTagUpdate
+  | (O.Omit<ExtRelBlogPostTagUpdate, 'postId' | 'tagId'> & {
+      post?: { create: ExtRelBlogPostNestedCreate } | { connect: RecordIdInput } | { disconnect: true };
+      tag?: { create: ExtRelBlogTagNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type ExtRelBlogPostTagUnset = {
+  postId?: true;
+};
+
+export type ExtRelBlogPostTagSelect =
+  | ({ id: boolean } & Partial<Record<'postId' | 'tagId', boolean>>)
+  | ({ postId: boolean } & Partial<Record<'id' | 'tagId', boolean>>)
+  | ({ tagId: boolean } & Partial<Record<'id' | 'postId', boolean>>);
+
+export interface ExtRelBlogPostTagOrderBy {
+  id?: 'asc' | 'desc';
+  postId?: 'asc' | 'desc';
+  post?: ExtRelBlogPostOrderBy;
+  tagId?: 'asc' | 'desc';
+  tag?: ExtRelBlogTagOrderBy;
+}
+
+export interface ExtRelBlogPostTagInclude {
+  post?:
+    | boolean
+    | {
+        select?: ExtRelBlogPostSelect;
+        where?: ExtRelBlogPostWhere;
+        include?: ExtRelBlogPostInclude;
+      };
+  tag?:
+    | boolean
+    | {
+        select?: ExtRelBlogTagSelect;
+        where?: ExtRelBlogTagWhere;
+        include?: ExtRelBlogTagInclude;
+      };
+}
+
+export type ExtRelBlogPostTag$Relations = {
+  post: { type: ExtRelBlogPost; include: ExtRelBlogPostInclude };
+  tag: { type: ExtRelBlogTag; include: ExtRelBlogTagInclude };
+};
+
+export type GetExtRelBlogPostTagIncludePayload<I extends ExtRelBlogPostTagInclude | undefined> =
+  I extends ExtRelBlogPostTagInclude
+    ? Pick<
+        {
+          post: I['post'] extends true
+            ? ExtRelBlogPost
+            : I['post'] extends {
+                  select: infer S extends ExtRelBlogPostSelect;
+                  include: infer NI extends ExtRelBlogPostInclude;
+                }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof ExtRelBlogPost
+                    ? ResolveFieldSelect<ExtRelBlogPost[P], S[P]>
+                    : never;
+                } & GetExtRelBlogPostIncludePayload<NI>
+              : I['post'] extends { select: infer S extends ExtRelBlogPostSelect }
+                ? {
+                    [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof ExtRelBlogPost
+                      ? ResolveFieldSelect<ExtRelBlogPost[P], S[P]>
+                      : never;
+                  }
+                : I['post'] extends { include: infer NI extends ExtRelBlogPostInclude }
+                  ? ExtRelBlogPost & GetExtRelBlogPostIncludePayload<NI>
+                  : ExtRelBlogPost;
+          tag: I['tag'] extends true
+            ? ExtRelBlogTag
+            : I['tag'] extends {
+                  select: infer S extends ExtRelBlogTagSelect;
+                  include: infer NI extends ExtRelBlogTagInclude;
+                }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof ExtRelBlogTag
+                    ? ResolveFieldSelect<ExtRelBlogTag[P], S[P]>
+                    : never;
+                } & GetExtRelBlogTagIncludePayload<NI>
+              : I['tag'] extends { select: infer S extends ExtRelBlogTagSelect }
+                ? {
+                    [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof ExtRelBlogTag
+                      ? ResolveFieldSelect<ExtRelBlogTag[P], S[P]>
+                      : never;
+                  }
+                : I['tag'] extends { include: infer NI extends ExtRelBlogTagInclude }
+                  ? ExtRelBlogTag & GetExtRelBlogTagIncludePayload<NI>
+                  : ExtRelBlogTag;
+        },
+        Extract<keyof I, keyof ExtRelBlogPostTag$Relations> &
+          { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+      >
+    : {};
+
+export type GetExtRelBlogPostTagPayload<
+  S extends ExtRelBlogPostTagSelect | undefined = undefined,
+  I extends ExtRelBlogPostTagInclude | undefined = undefined,
+> = A.Compute<
+  S extends ExtRelBlogPostTagSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ExtRelBlogPostTag
+          ? ResolveFieldSelect<ExtRelBlogPostTag[K], S[K]>
+          : never;
+      } & GetExtRelBlogPostTagIncludePayload<I>
+    : I extends ExtRelBlogPostTagInclude
+      ? ExtRelBlogPostTag & GetExtRelBlogPostTagIncludePayload<I>
+      : ExtRelBlogPostTag,
+  'flat'
+>;
+
+export interface ExtRelBlogPostTagModel {
+  findOne<
+    S extends ExtRelBlogPostTagSelect | undefined = undefined,
+    I extends ExtRelBlogPostTagInclude | undefined = undefined,
+  >(options?: {
+    where?: ExtRelBlogPostTagWhere;
+    select?: S;
+    include?: I;
+    orderBy?: ExtRelBlogPostTagOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelBlogPostTagPayload<S, I> | null>;
+
+  findMany<
+    S extends ExtRelBlogPostTagSelect | undefined = undefined,
+    I extends ExtRelBlogPostTagInclude | undefined = undefined,
+  >(options?: {
+    where?: ExtRelBlogPostTagWhere;
+    select?: S;
+    orderBy?: ExtRelBlogPostTagOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelBlogPostTagPayload<S, I>[]>;
+
+  findUnique<
+    S extends ExtRelBlogPostTagSelect | undefined = undefined,
+    I extends ExtRelBlogPostTagInclude | undefined = undefined,
+  >(options: {
+    where: ExtRelBlogPostTagFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelBlogPostTagPayload<S, I> | null>;
+
+  create<
+    S extends ExtRelBlogPostTagSelect | undefined = undefined,
+    I extends ExtRelBlogPostTagInclude | undefined = undefined,
+  >(options: {
+    data: ExtRelBlogPostTagCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelBlogPostTagPayload<S, I>>;
+
+  updateMany<
+    S extends ExtRelBlogPostTagSelect | undefined = undefined,
+    I extends ExtRelBlogPostTagInclude | undefined = undefined,
+    D extends ExtRelBlogPostTagUpdateInput = ExtRelBlogPostTagUpdateInput,
+  >(options: {
+    where: ExtRelBlogPostTagWhere;
+    data: D;
+    unset?: SafeUnset<ExtRelBlogPostTagUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelBlogPostTagPayload<S, I>[]>;
+
+  updateUnique<
+    S extends ExtRelBlogPostTagSelect | undefined = undefined,
+    I extends ExtRelBlogPostTagInclude | undefined = undefined,
+    D extends ExtRelBlogPostTagUpdateInput = ExtRelBlogPostTagUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ExtRelBlogPostTagFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ExtRelBlogPostTagUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ExtRelBlogPostTag | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetExtRelBlogPostTagPayload<S, I>, R>>;
+
+  upsert<
+    S extends ExtRelBlogPostTagSelect | undefined = undefined,
+    I extends ExtRelBlogPostTagInclude | undefined = undefined,
+    D extends ExtRelBlogPostTagUpdateInput = ExtRelBlogPostTagUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtRelBlogPostTagFindUniqueWhere;
+    create: ExtRelBlogPostTagCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtRelBlogPostTagUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetExtRelBlogPostTagPayload<S, I>, R>>;
+
+  upsert<
+    S extends ExtRelBlogPostTagSelect | undefined = undefined,
+    I extends ExtRelBlogPostTagInclude | undefined = undefined,
+    D extends ExtRelBlogPostTagUpdateInput = ExtRelBlogPostTagUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtRelBlogPostTagWhere;
+    create: ExtRelBlogPostTagCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtRelBlogPostTagUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetExtRelBlogPostTagPayload<S, I>, R>>;
+
+  deleteMany(options: { where: ExtRelBlogPostTagWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ExtRelBlogPostTagFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ExtRelBlogPostTag | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ExtRelBlogPostTag, R>>;
+
+  count(where?: ExtRelBlogPostTagWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ExtRelBlogPostTagWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/extrelblogtag.ts =====
+/**
+ * Generated types for ExtRelBlogTag
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  ExtRelBlogPostTag,
+  ExtRelBlogPostTagWhere,
+  ExtRelBlogPostTagSelect,
+  ExtRelBlogPostTagOrderBy,
+  ExtRelBlogPostTagNestedCreate,
+  ExtRelBlogPostTagInclude,
+  GetExtRelBlogPostTagIncludePayload,
+} from './extrelblogposttag';
+export interface ExtRelBlogTag {
+  id: CerialId<string>;
+  createdAt?: Date;
+  updatedAt?: Date;
+  name: string;
+}
+
+export interface ExtRelBlogTagInput {
+  id?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  name: string;
+}
+
+export interface ExtRelBlogTagWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  createdAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  updatedAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  /** @unique — Unique indexed field */
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  postTags?: { some?: ExtRelBlogPostTagWhere; every?: ExtRelBlogPostTagWhere; none?: ExtRelBlogPostTagWhere };
+  AND?: ExtRelBlogTagWhere[];
+  OR?: ExtRelBlogTagWhere[];
+  NOT?: ExtRelBlogTagWhere;
+}
+
+export type ExtRelBlogTagWhereInput = ExtRelBlogTagWhere;
+
+export type ExtRelBlogTagFindUniqueWhere =
+  | ({ id: RecordIdInput<string> } & { name?: string } & Omit<ExtRelBlogTagWhere, 'id' | 'name'>)
+  | ({ name: string } & { id?: RecordIdInput<string> } & Omit<ExtRelBlogTagWhere, 'id' | 'name'>);
+
+export type ExtRelBlogTagCreate = O.Optional<O.Omit<ExtRelBlogTagInput, 'postTags'>, 'id' | 'createdAt' | 'updatedAt'>;
+
+export type ExtRelBlogTagNestedCreate = O.Optional<
+  O.Omit<ExtRelBlogTagInput, 'postTags'>,
+  'id' | 'createdAt' | 'updatedAt'
+>;
+
+export type ExtRelBlogTagCreateInput = ExtRelBlogTagCreate & {
+  postTags?: {
+    create?: ExtRelBlogPostTagNestedCreate | ExtRelBlogPostTagNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+  };
+};
+
+export type ExtRelBlogTagUpdate = Partial<O.Omit<ExtRelBlogTagInput, 'id' | 'postTags' | 'createdAt' | 'updatedAt'>> & {
+  createdAt?: Date | CerialNone;
+  updatedAt?: Date | CerialNone;
+};
+
+export type ExtRelBlogTagUpdateInput = ExtRelBlogTagUpdate & {
+  postTags?: {
+    create?: ExtRelBlogPostTagNestedCreate | ExtRelBlogPostTagNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+    disconnect?: RecordIdInput | RecordIdInput[];
+    set?: RecordIdInput[];
+  };
+};
+
+export type ExtRelBlogTagUnset = {
+  createdAt?: true;
+  updatedAt?: true;
+};
+
+export type ExtRelBlogTagSelect =
+  | ({ id: boolean } & Partial<Record<'createdAt' | 'updatedAt' | 'name', boolean>>)
+  | ({ createdAt: boolean } & Partial<Record<'id' | 'updatedAt' | 'name', boolean>>)
+  | ({ updatedAt: boolean } & Partial<Record<'id' | 'createdAt' | 'name', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt', boolean>>);
+
+export interface ExtRelBlogTagOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  updatedAt?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+}
+
+export interface ExtRelBlogTagInclude {
+  postTags?:
+    | boolean
+    | {
+        select?: ExtRelBlogPostTagSelect;
+        where?: ExtRelBlogPostTagWhere;
+        orderBy?: ExtRelBlogPostTagOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: ExtRelBlogPostTagInclude;
+      };
+}
+
+export type ExtRelBlogTag$Relations = {
+  postTags: { type: ExtRelBlogPostTag[]; include: ExtRelBlogPostTagInclude };
+};
+
+export type GetExtRelBlogTagIncludePayload<I extends ExtRelBlogTagInclude | undefined> = I extends ExtRelBlogTagInclude
+  ? Pick<
+      {
+        postTags: I['postTags'] extends true
+          ? ExtRelBlogPostTag[]
+          : I['postTags'] extends {
+                select: infer S extends ExtRelBlogPostTagSelect;
+                include: infer NI extends ExtRelBlogPostTagInclude;
+              }
+            ? ({
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof ExtRelBlogPostTag
+                  ? ResolveFieldSelect<ExtRelBlogPostTag[P], S[P]>
+                  : never;
+              } & GetExtRelBlogPostTagIncludePayload<NI>)[]
+            : I['postTags'] extends { select: infer S extends ExtRelBlogPostTagSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof ExtRelBlogPostTag
+                    ? ResolveFieldSelect<ExtRelBlogPostTag[P], S[P]>
+                    : never;
+                }[]
+              : I['postTags'] extends { include: infer NI extends ExtRelBlogPostTagInclude }
+                ? (ExtRelBlogPostTag & GetExtRelBlogPostTagIncludePayload<NI>)[]
+                : ExtRelBlogPostTag[];
+      },
+      Extract<keyof I, keyof ExtRelBlogTag$Relations> &
+        { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetExtRelBlogTagPayload<
+  S extends ExtRelBlogTagSelect | undefined = undefined,
+  I extends ExtRelBlogTagInclude | undefined = undefined,
+> = A.Compute<
+  S extends ExtRelBlogTagSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ExtRelBlogTag
+          ? ResolveFieldSelect<ExtRelBlogTag[K], S[K]>
+          : never;
+      } & GetExtRelBlogTagIncludePayload<I>
+    : I extends ExtRelBlogTagInclude
+      ? ExtRelBlogTag & GetExtRelBlogTagIncludePayload<I>
+      : ExtRelBlogTag,
+  'flat'
+>;
+
+export interface ExtRelBlogTagModel {
+  findOne<
+    S extends ExtRelBlogTagSelect | undefined = undefined,
+    I extends ExtRelBlogTagInclude | undefined = undefined,
+  >(options?: {
+    where?: ExtRelBlogTagWhere;
+    select?: S;
+    include?: I;
+    orderBy?: ExtRelBlogTagOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelBlogTagPayload<S, I> | null>;
+
+  findMany<
+    S extends ExtRelBlogTagSelect | undefined = undefined,
+    I extends ExtRelBlogTagInclude | undefined = undefined,
+  >(options?: {
+    where?: ExtRelBlogTagWhere;
+    select?: S;
+    orderBy?: ExtRelBlogTagOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelBlogTagPayload<S, I>[]>;
+
+  findUnique<
+    S extends ExtRelBlogTagSelect | undefined = undefined,
+    I extends ExtRelBlogTagInclude | undefined = undefined,
+  >(options: {
+    where: ExtRelBlogTagFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelBlogTagPayload<S, I> | null>;
+
+  create<
+    S extends ExtRelBlogTagSelect | undefined = undefined,
+    I extends ExtRelBlogTagInclude | undefined = undefined,
+  >(options: {
+    data: ExtRelBlogTagCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelBlogTagPayload<S, I>>;
+
+  updateMany<
+    S extends ExtRelBlogTagSelect | undefined = undefined,
+    I extends ExtRelBlogTagInclude | undefined = undefined,
+    D extends ExtRelBlogTagUpdateInput = ExtRelBlogTagUpdateInput,
+  >(options: {
+    where: ExtRelBlogTagWhere;
+    data: D;
+    unset?: SafeUnset<ExtRelBlogTagUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelBlogTagPayload<S, I>[]>;
+
+  updateUnique<
+    S extends ExtRelBlogTagSelect | undefined = undefined,
+    I extends ExtRelBlogTagInclude | undefined = undefined,
+    D extends ExtRelBlogTagUpdateInput = ExtRelBlogTagUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ExtRelBlogTagFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ExtRelBlogTagUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ExtRelBlogTag | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetExtRelBlogTagPayload<S, I>, R>>;
+
+  upsert<
+    S extends ExtRelBlogTagSelect | undefined = undefined,
+    I extends ExtRelBlogTagInclude | undefined = undefined,
+    D extends ExtRelBlogTagUpdateInput = ExtRelBlogTagUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtRelBlogTagFindUniqueWhere;
+    create: ExtRelBlogTagCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtRelBlogTagUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetExtRelBlogTagPayload<S, I>, R>>;
+
+  upsert<
+    S extends ExtRelBlogTagSelect | undefined = undefined,
+    I extends ExtRelBlogTagInclude | undefined = undefined,
+    D extends ExtRelBlogTagUpdateInput = ExtRelBlogTagUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtRelBlogTagWhere;
+    create: ExtRelBlogTagCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtRelBlogTagUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetExtRelBlogTagPayload<S, I>, R>>;
+
+  deleteMany(options: { where: ExtRelBlogTagWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ExtRelBlogTagFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ExtRelBlogTag | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ExtRelBlogTag, R>>;
+
+  count(where?: ExtRelBlogTagWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ExtRelBlogTagWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/extrelcomment.ts =====
+/**
+ * Generated types for ExtRelComment
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface ExtRelComment {
+  id: CerialId<string>;
+  createdAt?: Date;
+  updatedAt?: Date;
+  content: string;
+  parentCommentId?: CerialId<string>;
+}
+
+export interface ExtRelCommentInput {
+  id?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  content: string;
+  parentCommentId?: RecordIdInput<string>;
+}
+
+export interface ExtRelCommentWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  createdAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  updatedAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  content?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  parentCommentId?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  parentComment?: ExtRelCommentWhere;
+  AND?: ExtRelCommentWhere[];
+  OR?: ExtRelCommentWhere[];
+  NOT?: ExtRelCommentWhere;
+}
+
+export type ExtRelCommentWhereInput = ExtRelCommentWhere;
+
+export type ExtRelCommentFindUniqueWhere = { id: RecordIdInput<string> } & Omit<ExtRelCommentWhere, 'id'>;
+
+export type ExtRelCommentCreate = O.Optional<
+  O.Omit<ExtRelCommentInput, 'parentComment'>,
+  'id' | 'createdAt' | 'updatedAt' | 'parentCommentId'
+>;
+
+export type ExtRelCommentNestedCreate = O.Optional<
+  O.Omit<ExtRelCommentInput, 'parentComment' | 'parentCommentId'>,
+  'id' | 'createdAt' | 'updatedAt'
+>;
+
+export type ExtRelCommentCreateInput =
+  | ExtRelCommentCreate
+  | (O.Omit<ExtRelCommentCreate, 'parentCommentId'> & {
+      parentComment?: { create: ExtRelCommentNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type ExtRelCommentUpdate = Partial<
+  O.Omit<ExtRelCommentInput, 'id' | 'parentComment' | 'createdAt' | 'updatedAt' | 'parentCommentId'>
+> & {
+  createdAt?: Date | CerialNone;
+  updatedAt?: Date | CerialNone;
+  parentCommentId?: RecordIdInput<string> | CerialNone;
+};
+
+export type ExtRelCommentUpdateInput =
+  | ExtRelCommentUpdate
+  | (O.Omit<ExtRelCommentUpdate, 'parentCommentId'> & {
+      parentComment?: { create: ExtRelCommentNestedCreate } | { connect: RecordIdInput } | { disconnect: true };
+    });
+
+export type ExtRelCommentUnset = {
+  createdAt?: true;
+  updatedAt?: true;
+  parentCommentId?: true;
+};
+
+export type ExtRelCommentSelect =
+  | ({ id: boolean } & Partial<Record<'createdAt' | 'updatedAt' | 'content' | 'parentCommentId', boolean>>)
+  | ({ createdAt: boolean } & Partial<Record<'id' | 'updatedAt' | 'content' | 'parentCommentId', boolean>>)
+  | ({ updatedAt: boolean } & Partial<Record<'id' | 'createdAt' | 'content' | 'parentCommentId', boolean>>)
+  | ({ content: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'parentCommentId', boolean>>)
+  | ({ parentCommentId: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'content', boolean>>);
+
+export interface ExtRelCommentOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  updatedAt?: 'asc' | 'desc';
+  content?: 'asc' | 'desc';
+  parentCommentId?: 'asc' | 'desc';
+  parentComment?: ExtRelCommentOrderBy;
+}
+
+export interface ExtRelCommentInclude {
+  parentComment?:
+    | boolean
+    | {
+        select?: ExtRelCommentSelect;
+        where?: ExtRelCommentWhere;
+        include?: ExtRelCommentInclude;
+      };
+}
+
+export type ExtRelComment$Relations = {
+  parentComment: { type: ExtRelComment; include: ExtRelCommentInclude };
+};
+
+export type GetExtRelCommentIncludePayload<I extends ExtRelCommentInclude | undefined> = I extends ExtRelCommentInclude
+  ? Pick<
+      {
+        parentComment: I['parentComment'] extends true
+          ? ExtRelComment
+          : I['parentComment'] extends {
+                select: infer S extends ExtRelCommentSelect;
+                include: infer NI extends ExtRelCommentInclude;
+              }
+            ? {
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof ExtRelComment
+                  ? ResolveFieldSelect<ExtRelComment[P], S[P]>
+                  : never;
+              } & GetExtRelCommentIncludePayload<NI>
+            : I['parentComment'] extends { select: infer S extends ExtRelCommentSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof ExtRelComment
+                    ? ResolveFieldSelect<ExtRelComment[P], S[P]>
+                    : never;
+                }
+              : I['parentComment'] extends { include: infer NI extends ExtRelCommentInclude }
+                ? ExtRelComment & GetExtRelCommentIncludePayload<NI>
+                : ExtRelComment;
+      },
+      Extract<keyof I, keyof ExtRelComment$Relations> &
+        { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetExtRelCommentPayload<
+  S extends ExtRelCommentSelect | undefined = undefined,
+  I extends ExtRelCommentInclude | undefined = undefined,
+> = A.Compute<
+  S extends ExtRelCommentSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ExtRelComment
+          ? ResolveFieldSelect<ExtRelComment[K], S[K]>
+          : never;
+      } & GetExtRelCommentIncludePayload<I>
+    : I extends ExtRelCommentInclude
+      ? ExtRelComment & GetExtRelCommentIncludePayload<I>
+      : ExtRelComment,
+  'flat'
+>;
+
+export interface ExtRelCommentModel {
+  findOne<
+    S extends ExtRelCommentSelect | undefined = undefined,
+    I extends ExtRelCommentInclude | undefined = undefined,
+  >(options?: {
+    where?: ExtRelCommentWhere;
+    select?: S;
+    include?: I;
+    orderBy?: ExtRelCommentOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelCommentPayload<S, I> | null>;
+
+  findMany<
+    S extends ExtRelCommentSelect | undefined = undefined,
+    I extends ExtRelCommentInclude | undefined = undefined,
+  >(options?: {
+    where?: ExtRelCommentWhere;
+    select?: S;
+    orderBy?: ExtRelCommentOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelCommentPayload<S, I>[]>;
+
+  findUnique<
+    S extends ExtRelCommentSelect | undefined = undefined,
+    I extends ExtRelCommentInclude | undefined = undefined,
+  >(options: {
+    where: ExtRelCommentFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelCommentPayload<S, I> | null>;
+
+  create<
+    S extends ExtRelCommentSelect | undefined = undefined,
+    I extends ExtRelCommentInclude | undefined = undefined,
+  >(options: {
+    data: ExtRelCommentCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelCommentPayload<S, I>>;
+
+  updateMany<
+    S extends ExtRelCommentSelect | undefined = undefined,
+    I extends ExtRelCommentInclude | undefined = undefined,
+    D extends ExtRelCommentUpdateInput = ExtRelCommentUpdateInput,
+  >(options: {
+    where: ExtRelCommentWhere;
+    data: D;
+    unset?: SafeUnset<ExtRelCommentUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelCommentPayload<S, I>[]>;
+
+  updateUnique<
+    S extends ExtRelCommentSelect | undefined = undefined,
+    I extends ExtRelCommentInclude | undefined = undefined,
+    D extends ExtRelCommentUpdateInput = ExtRelCommentUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ExtRelCommentFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ExtRelCommentUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ExtRelComment | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetExtRelCommentPayload<S, I>, R>>;
+
+  upsert<
+    S extends ExtRelCommentSelect | undefined = undefined,
+    I extends ExtRelCommentInclude | undefined = undefined,
+    D extends ExtRelCommentUpdateInput = ExtRelCommentUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtRelCommentFindUniqueWhere;
+    create: ExtRelCommentCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtRelCommentUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetExtRelCommentPayload<S, I>, R>>;
+
+  upsert<
+    S extends ExtRelCommentSelect | undefined = undefined,
+    I extends ExtRelCommentInclude | undefined = undefined,
+    D extends ExtRelCommentUpdateInput = ExtRelCommentUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtRelCommentWhere;
+    create: ExtRelCommentCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtRelCommentUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetExtRelCommentPayload<S, I>, R>>;
+
+  deleteMany(options: { where: ExtRelCommentWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ExtRelCommentFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ExtRelComment | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ExtRelComment, R>>;
+
+  count(where?: ExtRelCommentWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ExtRelCommentWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/extrelcommentmoderated.ts =====
+/**
+ * Generated types for ExtRelCommentModerated
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  ExtRelComment,
+  ExtRelCommentWhere,
+  ExtRelCommentSelect,
+  ExtRelCommentOrderBy,
+  ExtRelCommentNestedCreate,
+  ExtRelCommentInclude,
+  GetExtRelCommentIncludePayload,
+} from './extrelcomment';
+import type {
+  ExtRelBlogAuthor,
+  ExtRelBlogAuthorWhere,
+  ExtRelBlogAuthorSelect,
+  ExtRelBlogAuthorOrderBy,
+  ExtRelBlogAuthorNestedCreate,
+  ExtRelBlogAuthorInclude,
+  GetExtRelBlogAuthorIncludePayload,
+} from './extrelblogauthor';
+export interface ExtRelCommentModerated {
+  id: CerialId<string>;
+  createdAt?: Date;
+  updatedAt?: Date;
+  content: string;
+  parentCommentId?: CerialId<string>;
+  isApproved: boolean;
+  approvedBy?: CerialId<string>;
+}
+
+export interface ExtRelCommentModeratedInput {
+  id?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  content: string;
+  parentCommentId?: RecordIdInput<string>;
+  isApproved: boolean;
+  approvedBy?: RecordIdInput<string>;
+}
+
+export interface ExtRelCommentModeratedWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  createdAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  updatedAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  content?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  parentCommentId?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  parentComment?: ExtRelCommentWhere;
+  isApproved?:
+    | boolean
+    | ({
+        eq?: boolean;
+        neq?: boolean;
+      } & {});
+  approvedBy?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  approver?: ExtRelBlogAuthorWhere;
+  AND?: ExtRelCommentModeratedWhere[];
+  OR?: ExtRelCommentModeratedWhere[];
+  NOT?: ExtRelCommentModeratedWhere;
+}
+
+export type ExtRelCommentModeratedWhereInput = ExtRelCommentModeratedWhere;
+
+export type ExtRelCommentModeratedFindUniqueWhere = { id: RecordIdInput<string> } & Omit<
+  ExtRelCommentModeratedWhere,
+  'id'
+>;
+
+export type ExtRelCommentModeratedCreate = O.Optional<
+  O.Omit<ExtRelCommentModeratedInput, 'parentComment' | 'approver'>,
+  'id' | 'createdAt' | 'updatedAt' | 'parentCommentId' | 'isApproved' | 'approvedBy'
+>;
+
+export type ExtRelCommentModeratedNestedCreate = O.Optional<
+  O.Omit<ExtRelCommentModeratedInput, 'parentComment' | 'approver' | 'parentCommentId' | 'approvedBy'>,
+  'id' | 'createdAt' | 'updatedAt' | 'isApproved'
+>;
+
+export type ExtRelCommentModeratedCreateInput =
+  | ExtRelCommentModeratedCreate
+  | (O.Omit<ExtRelCommentModeratedCreate, 'parentCommentId' | 'approvedBy'> & {
+      parentComment?: { create: ExtRelCommentNestedCreate } | { connect: RecordIdInput };
+      approver?: { create: ExtRelBlogAuthorNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type ExtRelCommentModeratedUpdate = Partial<
+  O.Omit<
+    ExtRelCommentModeratedInput,
+    'id' | 'parentComment' | 'approver' | 'createdAt' | 'updatedAt' | 'parentCommentId' | 'approvedBy'
+  >
+> & {
+  createdAt?: Date | CerialNone;
+  updatedAt?: Date | CerialNone;
+  parentCommentId?: RecordIdInput<string> | CerialNone;
+  approvedBy?: RecordIdInput<string> | CerialNone;
+};
+
+export type ExtRelCommentModeratedUpdateInput =
+  | ExtRelCommentModeratedUpdate
+  | (O.Omit<ExtRelCommentModeratedUpdate, 'parentCommentId' | 'approvedBy'> & {
+      parentComment?: { create: ExtRelCommentNestedCreate } | { connect: RecordIdInput } | { disconnect: true };
+      approver?: { create: ExtRelBlogAuthorNestedCreate } | { connect: RecordIdInput } | { disconnect: true };
+    });
+
+export type ExtRelCommentModeratedUnset = {
+  createdAt?: true;
+  updatedAt?: true;
+  parentCommentId?: true;
+  approvedBy?: true;
+};
+
+export type ExtRelCommentModeratedSelect =
+  | ({ id: boolean } & Partial<
+      Record<'createdAt' | 'updatedAt' | 'content' | 'parentCommentId' | 'isApproved' | 'approvedBy', boolean>
+    >)
+  | ({ createdAt: boolean } & Partial<
+      Record<'id' | 'updatedAt' | 'content' | 'parentCommentId' | 'isApproved' | 'approvedBy', boolean>
+    >)
+  | ({ updatedAt: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'content' | 'parentCommentId' | 'isApproved' | 'approvedBy', boolean>
+    >)
+  | ({ content: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'updatedAt' | 'parentCommentId' | 'isApproved' | 'approvedBy', boolean>
+    >)
+  | ({ parentCommentId: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'updatedAt' | 'content' | 'isApproved' | 'approvedBy', boolean>
+    >)
+  | ({ isApproved: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'updatedAt' | 'content' | 'parentCommentId' | 'approvedBy', boolean>
+    >)
+  | ({ approvedBy: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'updatedAt' | 'content' | 'parentCommentId' | 'isApproved', boolean>
+    >);
+
+export interface ExtRelCommentModeratedOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  updatedAt?: 'asc' | 'desc';
+  content?: 'asc' | 'desc';
+  parentCommentId?: 'asc' | 'desc';
+  parentComment?: ExtRelCommentOrderBy;
+  isApproved?: 'asc' | 'desc';
+  approvedBy?: 'asc' | 'desc';
+  approver?: ExtRelBlogAuthorOrderBy;
+}
+
+export interface ExtRelCommentModeratedInclude {
+  parentComment?:
+    | boolean
+    | {
+        select?: ExtRelCommentSelect;
+        where?: ExtRelCommentWhere;
+        include?: ExtRelCommentInclude;
+      };
+  approver?:
+    | boolean
+    | {
+        select?: ExtRelBlogAuthorSelect;
+        where?: ExtRelBlogAuthorWhere;
+        include?: ExtRelBlogAuthorInclude;
+      };
+}
+
+export type ExtRelCommentModerated$Relations = {
+  parentComment: { type: ExtRelComment; include: ExtRelCommentInclude };
+  approver: { type: ExtRelBlogAuthor; include: ExtRelBlogAuthorInclude };
+};
+
+export type GetExtRelCommentModeratedIncludePayload<I extends ExtRelCommentModeratedInclude | undefined> =
+  I extends ExtRelCommentModeratedInclude
+    ? Pick<
+        {
+          parentComment: I['parentComment'] extends true
+            ? ExtRelComment
+            : I['parentComment'] extends {
+                  select: infer S extends ExtRelCommentSelect;
+                  include: infer NI extends ExtRelCommentInclude;
+                }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof ExtRelComment
+                    ? ResolveFieldSelect<ExtRelComment[P], S[P]>
+                    : never;
+                } & GetExtRelCommentIncludePayload<NI>
+              : I['parentComment'] extends { select: infer S extends ExtRelCommentSelect }
+                ? {
+                    [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof ExtRelComment
+                      ? ResolveFieldSelect<ExtRelComment[P], S[P]>
+                      : never;
+                  }
+                : I['parentComment'] extends { include: infer NI extends ExtRelCommentInclude }
+                  ? ExtRelComment & GetExtRelCommentIncludePayload<NI>
+                  : ExtRelComment;
+          approver: I['approver'] extends true
+            ? ExtRelBlogAuthor
+            : I['approver'] extends {
+                  select: infer S extends ExtRelBlogAuthorSelect;
+                  include: infer NI extends ExtRelBlogAuthorInclude;
+                }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof ExtRelBlogAuthor
+                    ? ResolveFieldSelect<ExtRelBlogAuthor[P], S[P]>
+                    : never;
+                } & GetExtRelBlogAuthorIncludePayload<NI>
+              : I['approver'] extends { select: infer S extends ExtRelBlogAuthorSelect }
+                ? {
+                    [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof ExtRelBlogAuthor
+                      ? ResolveFieldSelect<ExtRelBlogAuthor[P], S[P]>
+                      : never;
+                  }
+                : I['approver'] extends { include: infer NI extends ExtRelBlogAuthorInclude }
+                  ? ExtRelBlogAuthor & GetExtRelBlogAuthorIncludePayload<NI>
+                  : ExtRelBlogAuthor;
+        },
+        Extract<keyof I, keyof ExtRelCommentModerated$Relations> &
+          { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+      >
+    : {};
+
+export type GetExtRelCommentModeratedPayload<
+  S extends ExtRelCommentModeratedSelect | undefined = undefined,
+  I extends ExtRelCommentModeratedInclude | undefined = undefined,
+> = A.Compute<
+  S extends ExtRelCommentModeratedSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ExtRelCommentModerated
+          ? ResolveFieldSelect<ExtRelCommentModerated[K], S[K]>
+          : never;
+      } & GetExtRelCommentModeratedIncludePayload<I>
+    : I extends ExtRelCommentModeratedInclude
+      ? ExtRelCommentModerated & GetExtRelCommentModeratedIncludePayload<I>
+      : ExtRelCommentModerated,
+  'flat'
+>;
+
+export interface ExtRelCommentModeratedModel {
+  findOne<
+    S extends ExtRelCommentModeratedSelect | undefined = undefined,
+    I extends ExtRelCommentModeratedInclude | undefined = undefined,
+  >(options?: {
+    where?: ExtRelCommentModeratedWhere;
+    select?: S;
+    include?: I;
+    orderBy?: ExtRelCommentModeratedOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelCommentModeratedPayload<S, I> | null>;
+
+  findMany<
+    S extends ExtRelCommentModeratedSelect | undefined = undefined,
+    I extends ExtRelCommentModeratedInclude | undefined = undefined,
+  >(options?: {
+    where?: ExtRelCommentModeratedWhere;
+    select?: S;
+    orderBy?: ExtRelCommentModeratedOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelCommentModeratedPayload<S, I>[]>;
+
+  findUnique<
+    S extends ExtRelCommentModeratedSelect | undefined = undefined,
+    I extends ExtRelCommentModeratedInclude | undefined = undefined,
+  >(options: {
+    where: ExtRelCommentModeratedFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelCommentModeratedPayload<S, I> | null>;
+
+  create<
+    S extends ExtRelCommentModeratedSelect | undefined = undefined,
+    I extends ExtRelCommentModeratedInclude | undefined = undefined,
+  >(options: {
+    data: ExtRelCommentModeratedCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelCommentModeratedPayload<S, I>>;
+
+  updateMany<
+    S extends ExtRelCommentModeratedSelect | undefined = undefined,
+    I extends ExtRelCommentModeratedInclude | undefined = undefined,
+    D extends ExtRelCommentModeratedUpdateInput = ExtRelCommentModeratedUpdateInput,
+  >(options: {
+    where: ExtRelCommentModeratedWhere;
+    data: D;
+    unset?: SafeUnset<ExtRelCommentModeratedUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelCommentModeratedPayload<S, I>[]>;
+
+  updateUnique<
+    S extends ExtRelCommentModeratedSelect | undefined = undefined,
+    I extends ExtRelCommentModeratedInclude | undefined = undefined,
+    D extends ExtRelCommentModeratedUpdateInput = ExtRelCommentModeratedUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ExtRelCommentModeratedFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ExtRelCommentModeratedUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ExtRelCommentModerated | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetExtRelCommentModeratedPayload<S, I>, R>>;
+
+  upsert<
+    S extends ExtRelCommentModeratedSelect | undefined = undefined,
+    I extends ExtRelCommentModeratedInclude | undefined = undefined,
+    D extends ExtRelCommentModeratedUpdateInput = ExtRelCommentModeratedUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtRelCommentModeratedFindUniqueWhere;
+    create: ExtRelCommentModeratedCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtRelCommentModeratedUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetExtRelCommentModeratedPayload<S, I>, R>>;
+
+  upsert<
+    S extends ExtRelCommentModeratedSelect | undefined = undefined,
+    I extends ExtRelCommentModeratedInclude | undefined = undefined,
+    D extends ExtRelCommentModeratedUpdateInput = ExtRelCommentModeratedUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtRelCommentModeratedWhere;
+    create: ExtRelCommentModeratedCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtRelCommentModeratedUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetExtRelCommentModeratedPayload<S, I>, R>>;
+
+  deleteMany(options: { where: ExtRelCommentModeratedWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ExtRelCommentModeratedFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ExtRelCommentModerated | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ExtRelCommentModerated, R>>;
+
+  count(where?: ExtRelCommentModeratedWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ExtRelCommentModeratedWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/extrelpostarchive.ts =====
+/**
+ * Generated types for ExtRelPostArchive
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface ExtRelPostArchive {
+  id: CerialId<string>;
+  createdAt?: Date;
+  updatedAt?: Date;
+  title: string;
+  archivedAt?: Date;
+  archiveReason?: string;
+}
+
+export interface ExtRelPostArchiveInput {
+  id?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  title: string;
+  archivedAt?: Date;
+  archiveReason?: string;
+}
+
+export interface ExtRelPostArchiveWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  createdAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  updatedAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  title?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  archivedAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  archiveReason?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  AND?: ExtRelPostArchiveWhere[];
+  OR?: ExtRelPostArchiveWhere[];
+  NOT?: ExtRelPostArchiveWhere;
+}
+
+export type ExtRelPostArchiveWhereInput = ExtRelPostArchiveWhere;
+
+export type ExtRelPostArchiveFindUniqueWhere = { id: RecordIdInput<string> } & Omit<ExtRelPostArchiveWhere, 'id'>;
+
+export type ExtRelPostArchiveCreate = O.Optional<
+  ExtRelPostArchiveInput,
+  'id' | 'createdAt' | 'updatedAt' | 'archivedAt' | 'archiveReason'
+>;
+
+export type ExtRelPostArchiveNestedCreate = O.Optional<
+  ExtRelPostArchiveInput,
+  'id' | 'createdAt' | 'updatedAt' | 'archivedAt' | 'archiveReason'
+>;
+
+export type ExtRelPostArchiveCreateInput = ExtRelPostArchiveCreate;
+
+export type ExtRelPostArchiveUpdate = Partial<
+  O.Omit<ExtRelPostArchiveInput, 'id' | 'createdAt' | 'updatedAt' | 'archivedAt' | 'archiveReason'>
+> & {
+  createdAt?: Date | CerialNone;
+  updatedAt?: Date | CerialNone;
+  archivedAt?: Date | CerialNone;
+  archiveReason?: string | CerialNone;
+};
+
+export type ExtRelPostArchiveUpdateInput = ExtRelPostArchiveUpdate;
+
+export type ExtRelPostArchiveUnset = {
+  createdAt?: true;
+  updatedAt?: true;
+  archivedAt?: true;
+  archiveReason?: true;
+};
+
+export type ExtRelPostArchiveSelect =
+  | ({ id: boolean } & Partial<Record<'createdAt' | 'updatedAt' | 'title' | 'archivedAt' | 'archiveReason', boolean>>)
+  | ({ createdAt: boolean } & Partial<Record<'id' | 'updatedAt' | 'title' | 'archivedAt' | 'archiveReason', boolean>>)
+  | ({ updatedAt: boolean } & Partial<Record<'id' | 'createdAt' | 'title' | 'archivedAt' | 'archiveReason', boolean>>)
+  | ({ title: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'archivedAt' | 'archiveReason', boolean>>)
+  | ({ archivedAt: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'title' | 'archiveReason', boolean>>)
+  | ({ archiveReason: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'title' | 'archivedAt', boolean>>);
+
+export interface ExtRelPostArchiveOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  updatedAt?: 'asc' | 'desc';
+  title?: 'asc' | 'desc';
+  archivedAt?: 'asc' | 'desc';
+  archiveReason?: 'asc' | 'desc';
+}
+
+export type ExtRelPostArchive$Relations = {};
+
+export type GetExtRelPostArchivePayload<
+  S extends ExtRelPostArchiveSelect | undefined = undefined,
+  I = undefined,
+> = A.Compute<
+  S extends ExtRelPostArchiveSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ExtRelPostArchive
+          ? ResolveFieldSelect<ExtRelPostArchive[K], S[K]>
+          : never;
+      }
+    : ExtRelPostArchive,
+  'flat'
+>;
+
+export interface ExtRelPostArchiveModel {
+  findOne<S extends ExtRelPostArchiveSelect | undefined = undefined>(options?: {
+    where?: ExtRelPostArchiveWhere;
+    select?: S;
+    orderBy?: ExtRelPostArchiveOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelPostArchivePayload<S> | null>;
+
+  findMany<S extends ExtRelPostArchiveSelect | undefined = undefined>(options?: {
+    where?: ExtRelPostArchiveWhere;
+    select?: S;
+    orderBy?: ExtRelPostArchiveOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelPostArchivePayload<S>[]>;
+
+  findUnique<S extends ExtRelPostArchiveSelect | undefined = undefined>(options: {
+    where: ExtRelPostArchiveFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelPostArchivePayload<S> | null>;
+
+  create<S extends ExtRelPostArchiveSelect | undefined = undefined>(options: {
+    data: ExtRelPostArchiveCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelPostArchivePayload<S>>;
+
+  updateMany<
+    S extends ExtRelPostArchiveSelect | undefined = undefined,
+    D extends ExtRelPostArchiveUpdateInput = ExtRelPostArchiveUpdateInput,
+  >(options: {
+    where: ExtRelPostArchiveWhere;
+    data: D;
+    unset?: SafeUnset<ExtRelPostArchiveUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelPostArchivePayload<S>[]>;
+
+  updateUnique<
+    S extends ExtRelPostArchiveSelect | undefined = undefined,
+    D extends ExtRelPostArchiveUpdateInput = ExtRelPostArchiveUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ExtRelPostArchiveFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ExtRelPostArchiveUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ExtRelPostArchive | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetExtRelPostArchivePayload<S>, R>>;
+
+  upsert<
+    S extends ExtRelPostArchiveSelect | undefined = undefined,
+    D extends ExtRelPostArchiveUpdateInput = ExtRelPostArchiveUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtRelPostArchiveFindUniqueWhere;
+    create: ExtRelPostArchiveCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtRelPostArchiveUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetExtRelPostArchivePayload<S>, R>>;
+
+  upsert<
+    S extends ExtRelPostArchiveSelect | undefined = undefined,
+    D extends ExtRelPostArchiveUpdateInput = ExtRelPostArchiveUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtRelPostArchiveWhere;
+    create: ExtRelPostArchiveCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtRelPostArchiveUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetExtRelPostArchivePayload<S>, R>>;
+
+  deleteMany(options: { where: ExtRelPostArchiveWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ExtRelPostArchiveFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ExtRelPostArchive | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ExtRelPostArchive, R>>;
+
+  count(where?: ExtRelPostArchiveWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ExtRelPostArchiveWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/extrelpostsummary.ts =====
+/**
+ * Generated types for ExtRelPostSummary
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface ExtRelPostSummary {
+  id: CerialId<string>;
+  createdAt?: Date;
+  updatedAt?: Date;
+  title: string;
+  content?: string;
+  summary?: string;
+  wordCount?: number;
+}
+
+export interface ExtRelPostSummaryInput {
+  id?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  title: string;
+  content?: string;
+  summary?: string;
+  wordCount?: number;
+}
+
+export interface ExtRelPostSummaryWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  createdAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  updatedAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  title?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  content?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  summary?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  wordCount?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  AND?: ExtRelPostSummaryWhere[];
+  OR?: ExtRelPostSummaryWhere[];
+  NOT?: ExtRelPostSummaryWhere;
+}
+
+export type ExtRelPostSummaryWhereInput = ExtRelPostSummaryWhere;
+
+export type ExtRelPostSummaryFindUniqueWhere = { id: RecordIdInput<string> } & Omit<ExtRelPostSummaryWhere, 'id'>;
+
+export type ExtRelPostSummaryCreate = O.Optional<
+  ExtRelPostSummaryInput,
+  'id' | 'createdAt' | 'updatedAt' | 'content' | 'summary' | 'wordCount'
+>;
+
+export type ExtRelPostSummaryNestedCreate = O.Optional<
+  ExtRelPostSummaryInput,
+  'id' | 'createdAt' | 'updatedAt' | 'content' | 'summary' | 'wordCount'
+>;
+
+export type ExtRelPostSummaryCreateInput = ExtRelPostSummaryCreate;
+
+export type ExtRelPostSummaryUpdate = Partial<
+  O.Omit<ExtRelPostSummaryInput, 'id' | 'createdAt' | 'updatedAt' | 'content' | 'summary' | 'wordCount'>
+> & {
+  createdAt?: Date | CerialNone;
+  updatedAt?: Date | CerialNone;
+  content?: string | CerialNone;
+  summary?: string | CerialNone;
+  wordCount?: number | CerialNone;
+};
+
+export type ExtRelPostSummaryUpdateInput = ExtRelPostSummaryUpdate;
+
+export type ExtRelPostSummaryUnset = {
+  createdAt?: true;
+  updatedAt?: true;
+  content?: true;
+  summary?: true;
+  wordCount?: true;
+};
+
+export type ExtRelPostSummarySelect =
+  | ({ id: boolean } & Partial<
+      Record<'createdAt' | 'updatedAt' | 'title' | 'content' | 'summary' | 'wordCount', boolean>
+    >)
+  | ({ createdAt: boolean } & Partial<
+      Record<'id' | 'updatedAt' | 'title' | 'content' | 'summary' | 'wordCount', boolean>
+    >)
+  | ({ updatedAt: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'title' | 'content' | 'summary' | 'wordCount', boolean>
+    >)
+  | ({ title: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'updatedAt' | 'content' | 'summary' | 'wordCount', boolean>
+    >)
+  | ({ content: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'updatedAt' | 'title' | 'summary' | 'wordCount', boolean>
+    >)
+  | ({ summary: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'updatedAt' | 'title' | 'content' | 'wordCount', boolean>
+    >)
+  | ({ wordCount: boolean } & Partial<
+      Record<'id' | 'createdAt' | 'updatedAt' | 'title' | 'content' | 'summary', boolean>
+    >);
+
+export interface ExtRelPostSummaryOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  updatedAt?: 'asc' | 'desc';
+  title?: 'asc' | 'desc';
+  content?: 'asc' | 'desc';
+  summary?: 'asc' | 'desc';
+  wordCount?: 'asc' | 'desc';
+}
+
+export type ExtRelPostSummary$Relations = {};
+
+export type GetExtRelPostSummaryPayload<
+  S extends ExtRelPostSummarySelect | undefined = undefined,
+  I = undefined,
+> = A.Compute<
+  S extends ExtRelPostSummarySelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ExtRelPostSummary
+          ? ResolveFieldSelect<ExtRelPostSummary[K], S[K]>
+          : never;
+      }
+    : ExtRelPostSummary,
+  'flat'
+>;
+
+export interface ExtRelPostSummaryModel {
+  findOne<S extends ExtRelPostSummarySelect | undefined = undefined>(options?: {
+    where?: ExtRelPostSummaryWhere;
+    select?: S;
+    orderBy?: ExtRelPostSummaryOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelPostSummaryPayload<S> | null>;
+
+  findMany<S extends ExtRelPostSummarySelect | undefined = undefined>(options?: {
+    where?: ExtRelPostSummaryWhere;
+    select?: S;
+    orderBy?: ExtRelPostSummaryOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelPostSummaryPayload<S>[]>;
+
+  findUnique<S extends ExtRelPostSummarySelect | undefined = undefined>(options: {
+    where: ExtRelPostSummaryFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelPostSummaryPayload<S> | null>;
+
+  create<S extends ExtRelPostSummarySelect | undefined = undefined>(options: {
+    data: ExtRelPostSummaryCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelPostSummaryPayload<S>>;
+
+  updateMany<
+    S extends ExtRelPostSummarySelect | undefined = undefined,
+    D extends ExtRelPostSummaryUpdateInput = ExtRelPostSummaryUpdateInput,
+  >(options: {
+    where: ExtRelPostSummaryWhere;
+    data: D;
+    unset?: SafeUnset<ExtRelPostSummaryUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelPostSummaryPayload<S>[]>;
+
+  updateUnique<
+    S extends ExtRelPostSummarySelect | undefined = undefined,
+    D extends ExtRelPostSummaryUpdateInput = ExtRelPostSummaryUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ExtRelPostSummaryFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ExtRelPostSummaryUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ExtRelPostSummary | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetExtRelPostSummaryPayload<S>, R>>;
+
+  upsert<
+    S extends ExtRelPostSummarySelect | undefined = undefined,
+    D extends ExtRelPostSummaryUpdateInput = ExtRelPostSummaryUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtRelPostSummaryFindUniqueWhere;
+    create: ExtRelPostSummaryCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtRelPostSummaryUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetExtRelPostSummaryPayload<S>, R>>;
+
+  upsert<
+    S extends ExtRelPostSummarySelect | undefined = undefined,
+    D extends ExtRelPostSummaryUpdateInput = ExtRelPostSummaryUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtRelPostSummaryWhere;
+    create: ExtRelPostSummaryCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtRelPostSummaryUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetExtRelPostSummaryPayload<S>, R>>;
+
+  deleteMany(options: { where: ExtRelPostSummaryWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ExtRelPostSummaryFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ExtRelPostSummary | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ExtRelPostSummary, R>>;
+
+  count(where?: ExtRelPostSummaryWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ExtRelPostSummaryWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/extrelproject.ts =====
+/**
+ * Generated types for ExtRelProject
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  ExtRelBlogAuthor,
+  ExtRelBlogAuthorWhere,
+  ExtRelBlogAuthorSelect,
+  ExtRelBlogAuthorOrderBy,
+  ExtRelBlogAuthorNestedCreate,
+  ExtRelBlogAuthorInclude,
+  GetExtRelBlogAuthorIncludePayload,
+} from './extrelblogauthor';
+export interface ExtRelProject {
+  id: CerialId<string>;
+  createdAt?: Date;
+  updatedAt?: Date;
+  name: string;
+  description?: string;
+  ownerId?: CerialId<string>;
+}
+
+export interface ExtRelProjectInput {
+  id?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  name: string;
+  description?: string;
+  ownerId?: RecordIdInput<string>;
+}
+
+export interface ExtRelProjectWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  createdAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  updatedAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  description?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  ownerId?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  owner?: ExtRelBlogAuthorWhere;
+  AND?: ExtRelProjectWhere[];
+  OR?: ExtRelProjectWhere[];
+  NOT?: ExtRelProjectWhere;
+}
+
+export type ExtRelProjectWhereInput = ExtRelProjectWhere;
+
+export type ExtRelProjectFindUniqueWhere = { id: RecordIdInput<string> } & Omit<ExtRelProjectWhere, 'id'>;
+
+export type ExtRelProjectCreate = O.Optional<
+  O.Omit<ExtRelProjectInput, 'owner'>,
+  'id' | 'createdAt' | 'updatedAt' | 'description' | 'ownerId'
+>;
+
+export type ExtRelProjectNestedCreate = O.Optional<
+  O.Omit<ExtRelProjectInput, 'owner' | 'ownerId'>,
+  'id' | 'createdAt' | 'updatedAt' | 'description'
+>;
+
+export type ExtRelProjectCreateInput =
+  | ExtRelProjectCreate
+  | (O.Omit<ExtRelProjectCreate, 'ownerId'> & {
+      owner?: { create: ExtRelBlogAuthorNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type ExtRelProjectUpdate = Partial<
+  O.Omit<ExtRelProjectInput, 'id' | 'owner' | 'createdAt' | 'updatedAt' | 'description' | 'ownerId'>
+> & {
+  createdAt?: Date | CerialNone;
+  updatedAt?: Date | CerialNone;
+  description?: string | CerialNone;
+  ownerId?: RecordIdInput<string> | CerialNone;
+};
+
+export type ExtRelProjectUpdateInput =
+  | ExtRelProjectUpdate
+  | (O.Omit<ExtRelProjectUpdate, 'ownerId'> & {
+      owner?: { create: ExtRelBlogAuthorNestedCreate } | { connect: RecordIdInput } | { disconnect: true };
+    });
+
+export type ExtRelProjectUnset = {
+  createdAt?: true;
+  updatedAt?: true;
+  description?: true;
+  ownerId?: true;
+};
+
+export type ExtRelProjectSelect =
+  | ({ id: boolean } & Partial<Record<'createdAt' | 'updatedAt' | 'name' | 'description' | 'ownerId', boolean>>)
+  | ({ createdAt: boolean } & Partial<Record<'id' | 'updatedAt' | 'name' | 'description' | 'ownerId', boolean>>)
+  | ({ updatedAt: boolean } & Partial<Record<'id' | 'createdAt' | 'name' | 'description' | 'ownerId', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'description' | 'ownerId', boolean>>)
+  | ({ description: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'name' | 'ownerId', boolean>>)
+  | ({ ownerId: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'name' | 'description', boolean>>);
+
+export interface ExtRelProjectOrderBy {
+  id?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  updatedAt?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  description?: 'asc' | 'desc';
+  ownerId?: 'asc' | 'desc';
+  owner?: ExtRelBlogAuthorOrderBy;
+}
+
+export interface ExtRelProjectInclude {
+  owner?:
+    | boolean
+    | {
+        select?: ExtRelBlogAuthorSelect;
+        where?: ExtRelBlogAuthorWhere;
+        include?: ExtRelBlogAuthorInclude;
+      };
+}
+
+export type ExtRelProject$Relations = {
+  owner: { type: ExtRelBlogAuthor; include: ExtRelBlogAuthorInclude };
+};
+
+export type GetExtRelProjectIncludePayload<I extends ExtRelProjectInclude | undefined> = I extends ExtRelProjectInclude
+  ? Pick<
+      {
+        owner: I['owner'] extends true
+          ? ExtRelBlogAuthor
+          : I['owner'] extends {
+                select: infer S extends ExtRelBlogAuthorSelect;
+                include: infer NI extends ExtRelBlogAuthorInclude;
+              }
+            ? {
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof ExtRelBlogAuthor
+                  ? ResolveFieldSelect<ExtRelBlogAuthor[P], S[P]>
+                  : never;
+              } & GetExtRelBlogAuthorIncludePayload<NI>
+            : I['owner'] extends { select: infer S extends ExtRelBlogAuthorSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof ExtRelBlogAuthor
+                    ? ResolveFieldSelect<ExtRelBlogAuthor[P], S[P]>
+                    : never;
+                }
+              : I['owner'] extends { include: infer NI extends ExtRelBlogAuthorInclude }
+                ? ExtRelBlogAuthor & GetExtRelBlogAuthorIncludePayload<NI>
+                : ExtRelBlogAuthor;
+      },
+      Extract<keyof I, keyof ExtRelProject$Relations> &
+        { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetExtRelProjectPayload<
+  S extends ExtRelProjectSelect | undefined = undefined,
+  I extends ExtRelProjectInclude | undefined = undefined,
+> = A.Compute<
+  S extends ExtRelProjectSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ExtRelProject
+          ? ResolveFieldSelect<ExtRelProject[K], S[K]>
+          : never;
+      } & GetExtRelProjectIncludePayload<I>
+    : I extends ExtRelProjectInclude
+      ? ExtRelProject & GetExtRelProjectIncludePayload<I>
+      : ExtRelProject,
+  'flat'
+>;
+
+export interface ExtRelProjectModel {
+  findOne<
+    S extends ExtRelProjectSelect | undefined = undefined,
+    I extends ExtRelProjectInclude | undefined = undefined,
+  >(options?: {
+    where?: ExtRelProjectWhere;
+    select?: S;
+    include?: I;
+    orderBy?: ExtRelProjectOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelProjectPayload<S, I> | null>;
+
+  findMany<
+    S extends ExtRelProjectSelect | undefined = undefined,
+    I extends ExtRelProjectInclude | undefined = undefined,
+  >(options?: {
+    where?: ExtRelProjectWhere;
+    select?: S;
+    orderBy?: ExtRelProjectOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelProjectPayload<S, I>[]>;
+
+  findUnique<
+    S extends ExtRelProjectSelect | undefined = undefined,
+    I extends ExtRelProjectInclude | undefined = undefined,
+  >(options: {
+    where: ExtRelProjectFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelProjectPayload<S, I> | null>;
+
+  create<
+    S extends ExtRelProjectSelect | undefined = undefined,
+    I extends ExtRelProjectInclude | undefined = undefined,
+  >(options: {
+    data: ExtRelProjectCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelProjectPayload<S, I>>;
+
+  updateMany<
+    S extends ExtRelProjectSelect | undefined = undefined,
+    I extends ExtRelProjectInclude | undefined = undefined,
+    D extends ExtRelProjectUpdateInput = ExtRelProjectUpdateInput,
+  >(options: {
+    where: ExtRelProjectWhere;
+    data: D;
+    unset?: SafeUnset<ExtRelProjectUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtRelProjectPayload<S, I>[]>;
+
+  updateUnique<
+    S extends ExtRelProjectSelect | undefined = undefined,
+    I extends ExtRelProjectInclude | undefined = undefined,
+    D extends ExtRelProjectUpdateInput = ExtRelProjectUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ExtRelProjectFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ExtRelProjectUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ExtRelProject | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetExtRelProjectPayload<S, I>, R>>;
+
+  upsert<
+    S extends ExtRelProjectSelect | undefined = undefined,
+    I extends ExtRelProjectInclude | undefined = undefined,
+    D extends ExtRelProjectUpdateInput = ExtRelProjectUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtRelProjectFindUniqueWhere;
+    create: ExtRelProjectCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtRelProjectUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetExtRelProjectPayload<S, I>, R>>;
+
+  upsert<
+    S extends ExtRelProjectSelect | undefined = undefined,
+    I extends ExtRelProjectInclude | undefined = undefined,
+    D extends ExtRelProjectUpdateInput = ExtRelProjectUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtRelProjectWhere;
+    create: ExtRelProjectCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtRelProjectUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetExtRelProjectPayload<S, I>, R>>;
+
+  deleteMany(options: { where: ExtRelProjectWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ExtRelProjectFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ExtRelProject | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ExtRelProject, R>>;
+
+  count(where?: ExtRelProjectWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ExtRelProjectWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}

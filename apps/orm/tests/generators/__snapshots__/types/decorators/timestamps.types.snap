@@ -1,0 +1,428 @@
+// ===== models/timestamptest.ts =====
+/**
+ * Generated types for TimestampTest
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  TimestampInfo,
+  TimestampInfoInput,
+  TimestampInfoWhere,
+  TimestampInfoSelect,
+  TimestampInfoOrderBy,
+  TimestampInfoCreateInput,
+} from '../objects/timestampinfo';
+export interface TimestampTest {
+  id: CerialId<string>;
+  name: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  accessedAt?: Date;
+  meta?: TimestampInfo;
+}
+
+export interface TimestampTestInput {
+  id?: string;
+  name: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  accessedAt?: Date;
+  meta?: TimestampInfoInput;
+}
+
+export interface TimestampTestWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  createdAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  updatedAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  meta?: TimestampInfoWhere;
+  AND?: TimestampTestWhere[];
+  OR?: TimestampTestWhere[];
+  NOT?: TimestampTestWhere;
+}
+
+export type TimestampTestWhereInput = TimestampTestWhere;
+
+export type TimestampTestFindUniqueWhere = { id: RecordIdInput<string> } & Omit<TimestampTestWhere, 'id'>;
+
+export type TimestampTestCreate = O.Optional<
+  O.Omit<TimestampTestInput, 'accessedAt' | 'meta'>,
+  'id' | 'createdAt' | 'updatedAt'
+> & {
+  meta?: TimestampInfoCreateInput;
+};
+
+export type TimestampTestNestedCreate = O.Optional<
+  O.Omit<TimestampTestInput, 'accessedAt'>,
+  'id' | 'createdAt' | 'updatedAt' | 'meta'
+>;
+
+export type TimestampTestCreateInput = TimestampTestCreate;
+
+export type TimestampTestUpdate = Partial<
+  O.Omit<TimestampTestInput, 'id' | 'accessedAt' | 'meta' | 'createdAt' | 'updatedAt'>
+> & {
+  meta?: Partial<TimestampInfoInput> | { set: TimestampInfoInput } | CerialNone;
+  createdAt?: Date | CerialNone;
+  updatedAt?: Date | CerialNone;
+};
+
+export type TimestampTestUpdateInput = TimestampTestUpdate;
+
+export type TimestampTestUnset = {
+  createdAt?: true;
+  updatedAt?: true;
+  meta?:
+    | true
+    | {
+        createdAt?: true;
+        updatedAt?: true;
+      };
+};
+
+export type TimestampTestSelect =
+  | ({ id: boolean } & {
+      name?: boolean;
+      createdAt?: boolean;
+      updatedAt?: boolean;
+      accessedAt?: boolean;
+      meta?: boolean | TimestampInfoSelect;
+    })
+  | ({ name: boolean } & {
+      id?: boolean;
+      createdAt?: boolean;
+      updatedAt?: boolean;
+      accessedAt?: boolean;
+      meta?: boolean | TimestampInfoSelect;
+    })
+  | ({ createdAt: boolean } & {
+      id?: boolean;
+      name?: boolean;
+      updatedAt?: boolean;
+      accessedAt?: boolean;
+      meta?: boolean | TimestampInfoSelect;
+    })
+  | ({ updatedAt: boolean } & {
+      id?: boolean;
+      name?: boolean;
+      createdAt?: boolean;
+      accessedAt?: boolean;
+      meta?: boolean | TimestampInfoSelect;
+    })
+  | ({ accessedAt: boolean } & {
+      id?: boolean;
+      name?: boolean;
+      createdAt?: boolean;
+      updatedAt?: boolean;
+      meta?: boolean | TimestampInfoSelect;
+    })
+  | ({ meta: boolean | TimestampInfoSelect } & Partial<
+      Record<'id' | 'name' | 'createdAt' | 'updatedAt' | 'accessedAt', boolean>
+    >);
+
+export interface TimestampTestOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  updatedAt?: 'asc' | 'desc';
+  accessedAt?: 'asc' | 'desc';
+  meta?: TimestampInfoOrderBy;
+}
+
+export type TimestampTest$Relations = {};
+
+export type GetTimestampTestPayload<S extends TimestampTestSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends TimestampTestSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof TimestampTest
+          ? ResolveFieldSelect<TimestampTest[K], S[K]>
+          : never;
+      }
+    : TimestampTest,
+  'flat'
+>;
+
+export interface TimestampTestModel {
+  findOne<S extends TimestampTestSelect | undefined = undefined>(options?: {
+    where?: TimestampTestWhere;
+    select?: S;
+    orderBy?: TimestampTestOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTimestampTestPayload<S> | null>;
+
+  findMany<S extends TimestampTestSelect | undefined = undefined>(options?: {
+    where?: TimestampTestWhere;
+    select?: S;
+    orderBy?: TimestampTestOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTimestampTestPayload<S>[]>;
+
+  findUnique<S extends TimestampTestSelect | undefined = undefined>(options: {
+    where: TimestampTestFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTimestampTestPayload<S> | null>;
+
+  create<S extends TimestampTestSelect | undefined = undefined>(options: {
+    data: TimestampTestCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTimestampTestPayload<S>>;
+
+  updateMany<
+    S extends TimestampTestSelect | undefined = undefined,
+    D extends TimestampTestUpdateInput = TimestampTestUpdateInput,
+  >(options: {
+    where: TimestampTestWhere;
+    data: D;
+    unset?: SafeUnset<TimestampTestUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTimestampTestPayload<S>[]>;
+
+  updateUnique<
+    S extends TimestampTestSelect | undefined = undefined,
+    D extends TimestampTestUpdateInput = TimestampTestUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: TimestampTestFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<TimestampTestUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns TimestampTest | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetTimestampTestPayload<S>, R>>;
+
+  upsert<
+    S extends TimestampTestSelect | undefined = undefined,
+    D extends TimestampTestUpdateInput = TimestampTestUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: TimestampTestFindUniqueWhere;
+    create: TimestampTestCreateInput;
+    update?: D;
+    unset?: SafeUnset<TimestampTestUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetTimestampTestPayload<S>, R>>;
+
+  upsert<
+    S extends TimestampTestSelect | undefined = undefined,
+    D extends TimestampTestUpdateInput = TimestampTestUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: TimestampTestWhere;
+    create: TimestampTestCreateInput;
+    update?: D;
+    unset?: SafeUnset<TimestampTestUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetTimestampTestPayload<S>, R>>;
+
+  deleteMany(options: { where: TimestampTestWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: TimestampTestFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns TimestampTest | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<TimestampTest, R>>;
+
+  count(where?: TimestampTestWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: TimestampTestWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== objects/timestampinfo.ts =====
+/**
+ * Generated types for TimestampInfo
+ * Do not edit manually
+ */
+
+export interface TimestampInfo {
+  label: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface TimestampInfoInput {
+  label: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface TimestampInfoCreateInput {
+  label: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface TimestampInfoWhere {
+  label?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  createdAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  updatedAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  AND?: TimestampInfoWhere[];
+  OR?: TimestampInfoWhere[];
+  NOT?: TimestampInfoWhere;
+}
+
+export type TimestampInfoSelect =
+  | ({ label: boolean } & Partial<Record<'createdAt' | 'updatedAt', boolean>>)
+  | ({ createdAt: boolean } & Partial<Record<'label' | 'updatedAt', boolean>>)
+  | ({ updatedAt: boolean } & Partial<Record<'label' | 'createdAt', boolean>>);
+
+export interface TimestampInfoOrderBy {
+  label?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  updatedAt?: 'asc' | 'desc';
+}

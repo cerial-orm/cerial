@@ -1,0 +1,73 @@
+-- LiteralBasic
+DEFINE TABLE OVERWRITE literal_basic SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE literal_basic TYPE string;
+DEFINE FIELD OVERWRITE status ON TABLE literal_basic TYPE 'active' | 'inactive' | 'pending';
+DEFINE FIELD OVERWRITE priority ON TABLE literal_basic TYPE 1 | 2 | 3;
+DEFINE FIELD OVERWRITE optStatus ON TABLE literal_basic TYPE option<'active' | 'inactive' | 'pending'>;
+DEFINE FIELD OVERWRITE nullStatus ON TABLE literal_basic TYPE option<'active' | 'inactive' | 'pending' | null>;
+DEFINE FIELD OVERWRITE statuses ON TABLE literal_basic TYPE array<'active' | 'inactive' | 'pending'>;
+DEFINE FIELD OVERWRITE mixed ON TABLE literal_basic TYPE 'low' | 'high' | 1 | 2 | true;
+
+-- LiteralBroad
+DEFINE TABLE OVERWRITE literal_broad SCHEMAFULL;
+DEFINE FIELD OVERWRITE value ON TABLE literal_broad TYPE string | int;
+DEFINE FIELD OVERWRITE values ON TABLE literal_broad TYPE array<string | int>;
+
+-- LiteralDefaults
+DEFINE TABLE OVERWRITE literal_defaults SCHEMAFULL;
+DEFINE FIELD OVERWRITE label ON TABLE literal_defaults TYPE string;
+DEFINE FIELD OVERWRITE status ON TABLE literal_defaults TYPE 'active' | 'inactive' | 'pending' DEFAULT 'active';
+DEFINE FIELD OVERWRITE priority ON TABLE literal_defaults TYPE 1 | 2 | 3 DEFAULT 1;
+
+-- LiteralExtended
+DEFINE TABLE OVERWRITE literal_extended SCHEMAFULL;
+DEFINE FIELD OVERWRITE status ON TABLE literal_extended TYPE 'active' | 'inactive' | 'pending' | 'archived' | 'deleted';
+
+-- LiteralNumberKinds
+DEFINE TABLE OVERWRITE literal_number_kinds SCHEMAFULL;
+DEFINE FIELD OVERWRITE ratio ON TABLE literal_number_kinds TYPE 0.5 | 1.5 | 2.5;
+DEFINE FIELD OVERWRITE amount ON TABLE literal_number_kinds TYPE float | string;
+DEFINE FIELD OVERWRITE moment ON TABLE literal_number_kinds TYPE datetime | bool;
+
+-- LiteralNumeric
+DEFINE TABLE OVERWRITE literal_numeric SCHEMAFULL;
+DEFINE FIELD OVERWRITE rank ON TABLE literal_numeric TYPE 1 | 2 | 3 | 4 | 5;
+DEFINE FIELD OVERWRITE optRank ON TABLE literal_numeric TYPE option<1 | 2 | 3 | 4 | 5>;
+
+-- LiteralObjectArray
+DEFINE TABLE OVERWRITE literal_object_array SCHEMAFULL;
+DEFINE FIELD OVERWRITE tagged ON TABLE literal_object_array TYPE object;
+DEFINE FIELD OVERWRITE tagged.states ON TABLE literal_object_array TYPE array<'active' | 'inactive' | 'pending'>;
+DEFINE FIELD OVERWRITE tagged.label ON TABLE literal_object_array TYPE string;
+
+-- LiteralWithBoth
+DEFINE TABLE OVERWRITE literal_with_both SCHEMAFULL;
+DEFINE FIELD OVERWRITE data ON TABLE literal_with_both TYPE 'none' | 'empty' | [float, float] | { label: string, value: int };
+DEFINE FIELD OVERWRITE optData ON TABLE literal_with_both TYPE option<'none' | 'empty' | [float, float] | { label: string, value: int }>;
+
+-- LiteralWithObject
+DEFINE TABLE OVERWRITE literal_with_object SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE literal_with_object TYPE string;
+DEFINE FIELD OVERWRITE address ON TABLE literal_with_object TYPE object;
+DEFINE FIELD OVERWRITE address.city ON TABLE literal_with_object TYPE string;
+DEFINE FIELD OVERWRITE address.status ON TABLE literal_with_object TYPE 'active' | 'inactive' | 'pending';
+DEFINE FIELD OVERWRITE optAddress ON TABLE literal_with_object TYPE option<object>;
+DEFINE FIELD OVERWRITE optAddress.city ON TABLE literal_with_object TYPE string;
+DEFINE FIELD OVERWRITE optAddress.status ON TABLE literal_with_object TYPE 'active' | 'inactive' | 'pending';
+
+-- LiteralWithObjectOpt
+DEFINE TABLE OVERWRITE literal_with_object_opt SCHEMAFULL;
+DEFINE FIELD OVERWRITE payload ON TABLE literal_with_object_opt TYPE 'empty' | { label: string, count: option<int>, tag: option<string | null> };
+DEFINE FIELD OVERWRITE optPayload ON TABLE literal_with_object_opt TYPE option<'empty' | { label: string, count: option<int>, tag: option<string | null> }>;
+
+-- LiteralWithObjectVariant
+DEFINE TABLE OVERWRITE literal_with_object_variant SCHEMAFULL;
+DEFINE FIELD OVERWRITE payload ON TABLE literal_with_object_variant TYPE 'empty' | { label: string, value: int };
+DEFINE FIELD OVERWRITE optPayload ON TABLE literal_with_object_variant TYPE option<'empty' | { label: string, value: int }>;
+DEFINE FIELD OVERWRITE payloads ON TABLE literal_with_object_variant TYPE array<'empty' | { label: string, value: int }>;
+
+-- LiteralWithTuple
+DEFINE TABLE OVERWRITE literal_with_tuple SCHEMAFULL;
+DEFINE FIELD OVERWRITE payload ON TABLE literal_with_tuple TYPE 'none' | [float, float];
+DEFINE FIELD OVERWRITE optPayload ON TABLE literal_with_tuple TYPE option<'none' | [float, float]>;
+DEFINE FIELD OVERWRITE payloads ON TABLE literal_with_tuple TYPE array<'none' | [float, float]>;

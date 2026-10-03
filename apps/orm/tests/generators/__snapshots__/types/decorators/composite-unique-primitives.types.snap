@@ -1,0 +1,311 @@
+// ===== models/staff.ts =====
+/**
+ * Generated types for Staff
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface Staff {
+  id: CerialId<string>;
+  firstName: string;
+  lastName: string;
+  department: string;
+  email: string;
+  age?: number;
+}
+
+export interface StaffInput {
+  id?: string;
+  firstName: string;
+  lastName: string;
+  department: string;
+  email: string;
+  age?: number;
+}
+
+export interface StaffWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  /**
+   * @@unique("staffFullName") — Part of composite unique (with: lastName)
+   * @@index("staffDeptName") — Part of composite index (with: department)
+   */
+  firstName?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  /** @@unique("staffFullName") — Part of composite unique (with: firstName) */
+  lastName?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  /** @@index("staffDeptName") — Part of composite index (with: firstName) */
+  department?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  /** @unique — Unique indexed field */
+  email?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  age?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  AND?: StaffWhere[];
+  OR?: StaffWhere[];
+  NOT?: StaffWhere;
+}
+
+export type StaffWhereInput = StaffWhere;
+
+export type StaffFindUniqueWhere =
+  | ({ id: RecordIdInput<string> } & { email?: string } & Omit<StaffWhere, 'id' | 'email' | 'staffFullName'>)
+  | ({ email: string } & { id?: RecordIdInput<string> } & Omit<StaffWhere, 'id' | 'email' | 'staffFullName'>) /**
+     * Composite unique index on fields: firstName, lastName
+     */
+  | ({ staffFullName: { firstName: string; lastName: string } } & Omit<StaffWhere, 'id' | 'email' | 'staffFullName'>);
+
+export type StaffCreate = O.Optional<StaffInput, 'id' | 'age'>;
+
+export type StaffNestedCreate = O.Optional<StaffInput, 'id' | 'age'>;
+
+export type StaffCreateInput = StaffCreate;
+
+export type StaffUpdate = Partial<O.Omit<StaffInput, 'id' | 'age'>> & {
+  age?: number | CerialNone;
+};
+
+export type StaffUpdateInput = StaffUpdate;
+
+export type StaffUnset = {
+  age?: true;
+};
+
+export type StaffSelect =
+  | ({ id: boolean } & Partial<Record<'firstName' | 'lastName' | 'department' | 'email' | 'age', boolean>>)
+  | ({ firstName: boolean } & Partial<Record<'id' | 'lastName' | 'department' | 'email' | 'age', boolean>>)
+  | ({ lastName: boolean } & Partial<Record<'id' | 'firstName' | 'department' | 'email' | 'age', boolean>>)
+  | ({ department: boolean } & Partial<Record<'id' | 'firstName' | 'lastName' | 'email' | 'age', boolean>>)
+  | ({ email: boolean } & Partial<Record<'id' | 'firstName' | 'lastName' | 'department' | 'age', boolean>>)
+  | ({ age: boolean } & Partial<Record<'id' | 'firstName' | 'lastName' | 'department' | 'email', boolean>>);
+
+export interface StaffOrderBy {
+  id?: 'asc' | 'desc';
+  firstName?: 'asc' | 'desc';
+  lastName?: 'asc' | 'desc';
+  department?: 'asc' | 'desc';
+  email?: 'asc' | 'desc';
+  age?: 'asc' | 'desc';
+}
+
+export type Staff$Relations = {};
+
+export type GetStaffPayload<S extends StaffSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends StaffSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof Staff
+          ? ResolveFieldSelect<Staff[K], S[K]>
+          : never;
+      }
+    : Staff,
+  'flat'
+>;
+
+export interface StaffModel {
+  findOne<S extends StaffSelect | undefined = undefined>(options?: {
+    where?: StaffWhere;
+    select?: S;
+    orderBy?: StaffOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetStaffPayload<S> | null>;
+
+  findMany<S extends StaffSelect | undefined = undefined>(options?: {
+    where?: StaffWhere;
+    select?: S;
+    orderBy?: StaffOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetStaffPayload<S>[]>;
+
+  findUnique<S extends StaffSelect | undefined = undefined>(options: {
+    where: StaffFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetStaffPayload<S> | null>;
+
+  create<S extends StaffSelect | undefined = undefined>(options: {
+    data: StaffCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetStaffPayload<S>>;
+
+  updateMany<S extends StaffSelect | undefined = undefined, D extends StaffUpdateInput = StaffUpdateInput>(options: {
+    where: StaffWhere;
+    data: D;
+    unset?: SafeUnset<StaffUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetStaffPayload<S>[]>;
+
+  updateUnique<
+    S extends StaffSelect | undefined = undefined,
+    D extends StaffUpdateInput = StaffUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: StaffFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<StaffUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns Staff | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetStaffPayload<S>, R>>;
+
+  upsert<
+    S extends StaffSelect | undefined = undefined,
+    D extends StaffUpdateInput = StaffUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: StaffFindUniqueWhere;
+    create: StaffCreateInput;
+    update?: D;
+    unset?: SafeUnset<StaffUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetStaffPayload<S>, R>>;
+
+  upsert<
+    S extends StaffSelect | undefined = undefined,
+    D extends StaffUpdateInput = StaffUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: StaffWhere;
+    create: StaffCreateInput;
+    update?: D;
+    unset?: SafeUnset<StaffUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetStaffPayload<S>, R>>;
+
+  deleteMany(options: { where: StaffWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: StaffFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns Staff | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<Staff, R>>;
+
+  count(where?: StaffWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: StaffWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}

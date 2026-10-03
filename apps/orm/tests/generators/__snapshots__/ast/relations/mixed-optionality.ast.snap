@@ -1,0 +1,145 @@
+{
+  "models": [
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "model",
+              "value": "Order"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "orders",
+          "type": "relation"
+        }
+      ],
+      "name": "Customer"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "model",
+              "value": "Order"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "assignedOrders",
+          "type": "relation"
+        }
+      ],
+      "name": "Agent"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "unique"
+            }
+          ],
+          "isOptional": false,
+          "name": "orderNumber",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "customerId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "customerId"
+            },
+            {
+              "type": "model",
+              "value": "Customer"
+            }
+          ],
+          "isOptional": false,
+          "name": "customer",
+          "type": "relation"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": true,
+          "name": "assigneeId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "assigneeId"
+            },
+            {
+              "type": "model",
+              "value": "Agent"
+            }
+          ],
+          "isOptional": true,
+          "name": "assignee",
+          "type": "relation"
+        }
+      ],
+      "name": "Order"
+    }
+  ]
+}

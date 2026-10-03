@@ -1,0 +1,1264 @@
+// ===== models/numberbasic.ts =====
+/**
+ * Generated types for NumberBasic
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface NumberBasic {
+  id: CerialId<string>;
+  name: string;
+  price: number;
+  rating?: number;
+  weight: number | null;
+  scores: number[];
+}
+
+export interface NumberBasicInput {
+  id?: string;
+  name: string;
+  price: number;
+  rating?: number;
+  weight: number | null;
+  scores: number[];
+}
+
+export interface NumberBasicWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  price?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  rating?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  weight?:
+    | null
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number | null;
+        isNull?: boolean;
+        between?: [number, number];
+      });
+  scores?:
+    | number[]
+    | {
+        has?: number;
+        hasAll?: number[];
+        hasAny?: number[];
+        isEmpty?: boolean;
+      };
+  AND?: NumberBasicWhere[];
+  OR?: NumberBasicWhere[];
+  NOT?: NumberBasicWhere;
+}
+
+export type NumberBasicWhereInput = NumberBasicWhere;
+
+export type NumberBasicFindUniqueWhere = { id: RecordIdInput<string> } & Omit<NumberBasicWhere, 'id'>;
+
+export type NumberBasicCreate = O.Optional<NumberBasicInput, 'id' | 'rating' | 'scores'>;
+
+export type NumberBasicNestedCreate = O.Optional<NumberBasicInput, 'id' | 'rating' | 'scores'>;
+
+export type NumberBasicCreateInput = NumberBasicCreate;
+
+export type NumberBasicUpdate = Partial<O.Omit<NumberBasicInput, 'id' | 'scores' | 'rating' | 'weight'>> & {
+  scores?:
+    | unknown[]
+    | {
+        push?: unknown | unknown[];
+        unset?: unknown | unknown[];
+      };
+  rating?: number | CerialNone;
+  weight?: number | null;
+};
+
+export type NumberBasicUpdateInput = NumberBasicUpdate;
+
+export type NumberBasicUnset = {
+  rating?: true;
+};
+
+export type NumberBasicSelect =
+  | ({ id: boolean } & Partial<Record<'name' | 'price' | 'rating' | 'weight' | 'scores', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'price' | 'rating' | 'weight' | 'scores', boolean>>)
+  | ({ price: boolean } & Partial<Record<'id' | 'name' | 'rating' | 'weight' | 'scores', boolean>>)
+  | ({ rating: boolean } & Partial<Record<'id' | 'name' | 'price' | 'weight' | 'scores', boolean>>)
+  | ({ weight: boolean } & Partial<Record<'id' | 'name' | 'price' | 'rating' | 'scores', boolean>>)
+  | ({ scores: boolean } & Partial<Record<'id' | 'name' | 'price' | 'rating' | 'weight', boolean>>);
+
+export interface NumberBasicOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  price?: 'asc' | 'desc';
+  rating?: 'asc' | 'desc';
+  weight?: 'asc' | 'desc';
+  scores?: 'asc' | 'desc';
+}
+
+export type NumberBasic$Relations = {};
+
+export type GetNumberBasicPayload<S extends NumberBasicSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends NumberBasicSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof NumberBasic
+          ? ResolveFieldSelect<NumberBasic[K], S[K]>
+          : never;
+      }
+    : NumberBasic,
+  'flat'
+>;
+
+export interface NumberBasicModel {
+  findOne<S extends NumberBasicSelect | undefined = undefined>(options?: {
+    where?: NumberBasicWhere;
+    select?: S;
+    orderBy?: NumberBasicOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNumberBasicPayload<S> | null>;
+
+  findMany<S extends NumberBasicSelect | undefined = undefined>(options?: {
+    where?: NumberBasicWhere;
+    select?: S;
+    orderBy?: NumberBasicOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNumberBasicPayload<S>[]>;
+
+  findUnique<S extends NumberBasicSelect | undefined = undefined>(options: {
+    where: NumberBasicFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNumberBasicPayload<S> | null>;
+
+  create<S extends NumberBasicSelect | undefined = undefined>(options: {
+    data: NumberBasicCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNumberBasicPayload<S>>;
+
+  updateMany<
+    S extends NumberBasicSelect | undefined = undefined,
+    D extends NumberBasicUpdateInput = NumberBasicUpdateInput,
+  >(options: {
+    where: NumberBasicWhere;
+    data: D;
+    unset?: SafeUnset<NumberBasicUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNumberBasicPayload<S>[]>;
+
+  updateUnique<
+    S extends NumberBasicSelect | undefined = undefined,
+    D extends NumberBasicUpdateInput = NumberBasicUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: NumberBasicFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<NumberBasicUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns NumberBasic | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetNumberBasicPayload<S>, R>>;
+
+  upsert<
+    S extends NumberBasicSelect | undefined = undefined,
+    D extends NumberBasicUpdateInput = NumberBasicUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: NumberBasicFindUniqueWhere;
+    create: NumberBasicCreateInput;
+    update?: D;
+    unset?: SafeUnset<NumberBasicUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetNumberBasicPayload<S>, R>>;
+
+  upsert<
+    S extends NumberBasicSelect | undefined = undefined,
+    D extends NumberBasicUpdateInput = NumberBasicUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: NumberBasicWhere;
+    create: NumberBasicCreateInput;
+    update?: D;
+    unset?: SafeUnset<NumberBasicUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetNumberBasicPayload<S>, R>>;
+
+  deleteMany(options: { where: NumberBasicWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: NumberBasicFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns NumberBasic | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<NumberBasic, R>>;
+
+  count(where?: NumberBasicWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: NumberBasicWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/numberdecorated.ts =====
+/**
+ * Generated types for NumberDecorated
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+export interface NumberDecorated {
+  id: CerialId<string>;
+  name: string;
+  score: number;
+  multiplier?: number;
+}
+
+export interface NumberDecoratedInput {
+  id?: string;
+  name: string;
+  score: number;
+  multiplier?: number;
+}
+
+export interface NumberDecoratedWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  score?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  multiplier?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  AND?: NumberDecoratedWhere[];
+  OR?: NumberDecoratedWhere[];
+  NOT?: NumberDecoratedWhere;
+}
+
+export type NumberDecoratedWhereInput = NumberDecoratedWhere;
+
+export type NumberDecoratedFindUniqueWhere = { id: RecordIdInput<string> } & Omit<NumberDecoratedWhere, 'id'>;
+
+export type NumberDecoratedCreate = O.Optional<NumberDecoratedInput, 'id' | 'score' | 'multiplier'>;
+
+export type NumberDecoratedNestedCreate = O.Optional<NumberDecoratedInput, 'id' | 'score' | 'multiplier'>;
+
+export type NumberDecoratedCreateInput = NumberDecoratedCreate;
+
+export type NumberDecoratedUpdate = Partial<O.Omit<NumberDecoratedInput, 'id' | 'multiplier'>> & {
+  multiplier?: number | CerialNone;
+};
+
+export type NumberDecoratedUpdateInput = NumberDecoratedUpdate;
+
+export type NumberDecoratedUnset = {
+  multiplier?: true;
+};
+
+export type NumberDecoratedSelect =
+  | ({ id: boolean } & Partial<Record<'name' | 'score' | 'multiplier', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'score' | 'multiplier', boolean>>)
+  | ({ score: boolean } & Partial<Record<'id' | 'name' | 'multiplier', boolean>>)
+  | ({ multiplier: boolean } & Partial<Record<'id' | 'name' | 'score', boolean>>);
+
+export interface NumberDecoratedOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  score?: 'asc' | 'desc';
+  multiplier?: 'asc' | 'desc';
+}
+
+export type NumberDecorated$Relations = {};
+
+export type GetNumberDecoratedPayload<
+  S extends NumberDecoratedSelect | undefined = undefined,
+  I = undefined,
+> = A.Compute<
+  S extends NumberDecoratedSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof NumberDecorated
+          ? ResolveFieldSelect<NumberDecorated[K], S[K]>
+          : never;
+      }
+    : NumberDecorated,
+  'flat'
+>;
+
+export interface NumberDecoratedModel {
+  findOne<S extends NumberDecoratedSelect | undefined = undefined>(options?: {
+    where?: NumberDecoratedWhere;
+    select?: S;
+    orderBy?: NumberDecoratedOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNumberDecoratedPayload<S> | null>;
+
+  findMany<S extends NumberDecoratedSelect | undefined = undefined>(options?: {
+    where?: NumberDecoratedWhere;
+    select?: S;
+    orderBy?: NumberDecoratedOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNumberDecoratedPayload<S>[]>;
+
+  findUnique<S extends NumberDecoratedSelect | undefined = undefined>(options: {
+    where: NumberDecoratedFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNumberDecoratedPayload<S> | null>;
+
+  create<S extends NumberDecoratedSelect | undefined = undefined>(options: {
+    data: NumberDecoratedCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNumberDecoratedPayload<S>>;
+
+  updateMany<
+    S extends NumberDecoratedSelect | undefined = undefined,
+    D extends NumberDecoratedUpdateInput = NumberDecoratedUpdateInput,
+  >(options: {
+    where: NumberDecoratedWhere;
+    data: D;
+    unset?: SafeUnset<NumberDecoratedUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNumberDecoratedPayload<S>[]>;
+
+  updateUnique<
+    S extends NumberDecoratedSelect | undefined = undefined,
+    D extends NumberDecoratedUpdateInput = NumberDecoratedUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: NumberDecoratedFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<NumberDecoratedUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns NumberDecorated | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetNumberDecoratedPayload<S>, R>>;
+
+  upsert<
+    S extends NumberDecoratedSelect | undefined = undefined,
+    D extends NumberDecoratedUpdateInput = NumberDecoratedUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: NumberDecoratedFindUniqueWhere;
+    create: NumberDecoratedCreateInput;
+    update?: D;
+    unset?: SafeUnset<NumberDecoratedUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetNumberDecoratedPayload<S>, R>>;
+
+  upsert<
+    S extends NumberDecoratedSelect | undefined = undefined,
+    D extends NumberDecoratedUpdateInput = NumberDecoratedUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: NumberDecoratedWhere;
+    create: NumberDecoratedCreateInput;
+    update?: D;
+    unset?: SafeUnset<NumberDecoratedUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetNumberDecoratedPayload<S>, R>>;
+
+  deleteMany(options: { where: NumberDecoratedWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: NumberDecoratedFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns NumberDecorated | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<NumberDecorated, R>>;
+
+  count(where?: NumberDecoratedWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: NumberDecoratedWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/numberwithobject.ts =====
+/**
+ * Generated types for NumberWithObject
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  NumberInfo,
+  NumberInfoInput,
+  NumberInfoWhere,
+  NumberInfoSelect,
+  NumberInfoOrderBy,
+  NumberInfoCreateInput,
+} from '../objects/numberinfo';
+export interface NumberWithObject {
+  id: CerialId<string>;
+  name: string;
+  stats: NumberInfo;
+  optStats?: NumberInfo;
+}
+
+export interface NumberWithObjectInput {
+  id?: string;
+  name: string;
+  stats: NumberInfoInput;
+  optStats?: NumberInfoInput;
+}
+
+export interface NumberWithObjectWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  stats?: NumberInfoWhere;
+  optStats?: NumberInfoWhere;
+  AND?: NumberWithObjectWhere[];
+  OR?: NumberWithObjectWhere[];
+  NOT?: NumberWithObjectWhere;
+}
+
+export type NumberWithObjectWhereInput = NumberWithObjectWhere;
+
+export type NumberWithObjectFindUniqueWhere = { id: RecordIdInput<string> } & Omit<NumberWithObjectWhere, 'id'>;
+
+export type NumberWithObjectCreate = O.Optional<O.Omit<NumberWithObjectInput, 'stats' | 'optStats'>, 'id'> & {
+  stats: NumberInfoCreateInput;
+  optStats?: NumberInfoCreateInput;
+};
+
+export type NumberWithObjectNestedCreate = O.Optional<NumberWithObjectInput, 'id' | 'optStats'>;
+
+export type NumberWithObjectCreateInput = NumberWithObjectCreate;
+
+export type NumberWithObjectUpdate = Partial<O.Omit<NumberWithObjectInput, 'id' | 'stats' | 'optStats'>> & {
+  stats?: Partial<NumberInfoInput> | { set: NumberInfoInput };
+  optStats?: Partial<NumberInfoInput> | { set: NumberInfoInput } | CerialNone;
+};
+
+export type NumberWithObjectUpdateInput = NumberWithObjectUpdate;
+
+export type NumberWithObjectUnset = {
+  stats?: {
+    downloads?: true;
+  };
+  optStats?:
+    | true
+    | {
+        downloads?: true;
+      };
+};
+
+export type NumberWithObjectSelect =
+  | ({ id: boolean } & { name?: boolean; stats?: boolean | NumberInfoSelect; optStats?: boolean | NumberInfoSelect })
+  | ({ name: boolean } & { id?: boolean; stats?: boolean | NumberInfoSelect; optStats?: boolean | NumberInfoSelect })
+  | ({ stats: boolean | NumberInfoSelect } & { id?: boolean; name?: boolean; optStats?: boolean | NumberInfoSelect })
+  | ({ optStats: boolean | NumberInfoSelect } & { id?: boolean; name?: boolean; stats?: boolean | NumberInfoSelect });
+
+export interface NumberWithObjectOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  stats?: NumberInfoOrderBy;
+  optStats?: NumberInfoOrderBy;
+}
+
+export type NumberWithObject$Relations = {};
+
+export type GetNumberWithObjectPayload<
+  S extends NumberWithObjectSelect | undefined = undefined,
+  I = undefined,
+> = A.Compute<
+  S extends NumberWithObjectSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof NumberWithObject
+          ? ResolveFieldSelect<NumberWithObject[K], S[K]>
+          : never;
+      }
+    : NumberWithObject,
+  'flat'
+>;
+
+export interface NumberWithObjectModel {
+  findOne<S extends NumberWithObjectSelect | undefined = undefined>(options?: {
+    where?: NumberWithObjectWhere;
+    select?: S;
+    orderBy?: NumberWithObjectOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNumberWithObjectPayload<S> | null>;
+
+  findMany<S extends NumberWithObjectSelect | undefined = undefined>(options?: {
+    where?: NumberWithObjectWhere;
+    select?: S;
+    orderBy?: NumberWithObjectOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNumberWithObjectPayload<S>[]>;
+
+  findUnique<S extends NumberWithObjectSelect | undefined = undefined>(options: {
+    where: NumberWithObjectFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNumberWithObjectPayload<S> | null>;
+
+  create<S extends NumberWithObjectSelect | undefined = undefined>(options: {
+    data: NumberWithObjectCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNumberWithObjectPayload<S>>;
+
+  updateMany<
+    S extends NumberWithObjectSelect | undefined = undefined,
+    D extends NumberWithObjectUpdateInput = NumberWithObjectUpdateInput,
+  >(options: {
+    where: NumberWithObjectWhere;
+    data: D;
+    unset?: SafeUnset<NumberWithObjectUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNumberWithObjectPayload<S>[]>;
+
+  updateUnique<
+    S extends NumberWithObjectSelect | undefined = undefined,
+    D extends NumberWithObjectUpdateInput = NumberWithObjectUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: NumberWithObjectFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<NumberWithObjectUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns NumberWithObject | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetNumberWithObjectPayload<S>, R>>;
+
+  upsert<
+    S extends NumberWithObjectSelect | undefined = undefined,
+    D extends NumberWithObjectUpdateInput = NumberWithObjectUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: NumberWithObjectFindUniqueWhere;
+    create: NumberWithObjectCreateInput;
+    update?: D;
+    unset?: SafeUnset<NumberWithObjectUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetNumberWithObjectPayload<S>, R>>;
+
+  upsert<
+    S extends NumberWithObjectSelect | undefined = undefined,
+    D extends NumberWithObjectUpdateInput = NumberWithObjectUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: NumberWithObjectWhere;
+    create: NumberWithObjectCreateInput;
+    update?: D;
+    unset?: SafeUnset<NumberWithObjectUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetNumberWithObjectPayload<S>, R>>;
+
+  deleteMany(options: { where: NumberWithObjectWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: NumberWithObjectFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns NumberWithObject | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<NumberWithObject, R>>;
+
+  count(where?: NumberWithObjectWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: NumberWithObjectWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/numberwithtuple.ts =====
+/**
+ * Generated types for NumberWithTuple
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  NumberCoord,
+  NumberCoordInput,
+  NumberCoordWhere,
+  NumberCoordUpdate,
+  NumberCoordUnset,
+} from '../tuples/numbercoord';
+export interface NumberWithTuple {
+  id: CerialId<string>;
+  name: string;
+  coord: NumberCoord;
+  optCoord?: NumberCoord;
+}
+
+export interface NumberWithTupleInput {
+  id?: string;
+  name: string;
+  coord: NumberCoordInput;
+  optCoord?: NumberCoordInput;
+}
+
+export interface NumberWithTupleWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  coord?: NumberCoordWhere;
+  optCoord?: NumberCoordWhere;
+  AND?: NumberWithTupleWhere[];
+  OR?: NumberWithTupleWhere[];
+  NOT?: NumberWithTupleWhere;
+}
+
+export type NumberWithTupleWhereInput = NumberWithTupleWhere;
+
+export type NumberWithTupleFindUniqueWhere = { id: RecordIdInput<string> } & Omit<NumberWithTupleWhere, 'id'>;
+
+export type NumberWithTupleCreate = O.Optional<NumberWithTupleInput, 'id' | 'optCoord'>;
+
+export type NumberWithTupleNestedCreate = O.Optional<NumberWithTupleInput, 'id' | 'optCoord'>;
+
+export type NumberWithTupleCreateInput = NumberWithTupleCreate;
+
+export type NumberWithTupleUpdate = Partial<O.Omit<NumberWithTupleInput, 'id' | 'coord' | 'optCoord'>> & {
+  coord?: [number, number, number | null] | NumberCoordUpdate;
+  optCoord?: [number, number, number | null] | NumberCoordUpdate | CerialNone;
+};
+
+export type NumberWithTupleUpdateInput = NumberWithTupleUpdate;
+
+export type NumberWithTupleUnset = {
+  coord?: NumberCoordUnset;
+  optCoord?: true | NumberCoordUnset;
+};
+
+export type NumberWithTupleSelect =
+  | ({ id: boolean } & Partial<Record<'name' | 'coord' | 'optCoord', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'coord' | 'optCoord', boolean>>)
+  | ({ coord: boolean } & Partial<Record<'id' | 'name' | 'optCoord', boolean>>)
+  | ({ optCoord: boolean } & Partial<Record<'id' | 'name' | 'coord', boolean>>);
+
+export interface NumberWithTupleOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+}
+
+export type NumberWithTuple$Relations = {};
+
+export type GetNumberWithTuplePayload<
+  S extends NumberWithTupleSelect | undefined = undefined,
+  I = undefined,
+> = A.Compute<
+  S extends NumberWithTupleSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof NumberWithTuple
+          ? ResolveFieldSelect<NumberWithTuple[K], S[K]>
+          : never;
+      }
+    : NumberWithTuple,
+  'flat'
+>;
+
+export interface NumberWithTupleModel {
+  findOne<S extends NumberWithTupleSelect | undefined = undefined>(options?: {
+    where?: NumberWithTupleWhere;
+    select?: S;
+    orderBy?: NumberWithTupleOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNumberWithTuplePayload<S> | null>;
+
+  findMany<S extends NumberWithTupleSelect | undefined = undefined>(options?: {
+    where?: NumberWithTupleWhere;
+    select?: S;
+    orderBy?: NumberWithTupleOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNumberWithTuplePayload<S>[]>;
+
+  findUnique<S extends NumberWithTupleSelect | undefined = undefined>(options: {
+    where: NumberWithTupleFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNumberWithTuplePayload<S> | null>;
+
+  create<S extends NumberWithTupleSelect | undefined = undefined>(options: {
+    data: NumberWithTupleCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNumberWithTuplePayload<S>>;
+
+  updateMany<
+    S extends NumberWithTupleSelect | undefined = undefined,
+    D extends NumberWithTupleUpdateInput = NumberWithTupleUpdateInput,
+  >(options: {
+    where: NumberWithTupleWhere;
+    data: D;
+    unset?: SafeUnset<NumberWithTupleUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNumberWithTuplePayload<S>[]>;
+
+  updateUnique<
+    S extends NumberWithTupleSelect | undefined = undefined,
+    D extends NumberWithTupleUpdateInput = NumberWithTupleUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: NumberWithTupleFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<NumberWithTupleUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns NumberWithTuple | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetNumberWithTuplePayload<S>, R>>;
+
+  upsert<
+    S extends NumberWithTupleSelect | undefined = undefined,
+    D extends NumberWithTupleUpdateInput = NumberWithTupleUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: NumberWithTupleFindUniqueWhere;
+    create: NumberWithTupleCreateInput;
+    update?: D;
+    unset?: SafeUnset<NumberWithTupleUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetNumberWithTuplePayload<S>, R>>;
+
+  upsert<
+    S extends NumberWithTupleSelect | undefined = undefined,
+    D extends NumberWithTupleUpdateInput = NumberWithTupleUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: NumberWithTupleWhere;
+    create: NumberWithTupleCreateInput;
+    update?: D;
+    unset?: SafeUnset<NumberWithTupleUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetNumberWithTuplePayload<S>, R>>;
+
+  deleteMany(options: { where: NumberWithTupleWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: NumberWithTupleFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns NumberWithTuple | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<NumberWithTuple, R>>;
+
+  count(where?: NumberWithTupleWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: NumberWithTupleWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== objects/numberinfo.ts =====
+/**
+ * Generated types for NumberInfo
+ * Do not edit manually
+ */
+
+export interface NumberInfo {
+  views: number;
+  downloads?: number;
+  rating: number;
+}
+
+export interface NumberInfoInput {
+  views: number;
+  downloads?: number;
+  rating: number;
+}
+
+export interface NumberInfoCreateInput {
+  views: number;
+  downloads?: number;
+  rating?: number;
+}
+
+export interface NumberInfoWhere {
+  views?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  downloads?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  rating?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  AND?: NumberInfoWhere[];
+  OR?: NumberInfoWhere[];
+  NOT?: NumberInfoWhere;
+}
+
+export type NumberInfoSelect =
+  | ({ views: boolean } & Partial<Record<'downloads' | 'rating', boolean>>)
+  | ({ downloads: boolean } & Partial<Record<'views' | 'rating', boolean>>)
+  | ({ rating: boolean } & Partial<Record<'views' | 'downloads', boolean>>);
+
+export interface NumberInfoOrderBy {
+  views?: 'asc' | 'desc';
+  downloads?: 'asc' | 'desc';
+  rating?: 'asc' | 'desc';
+}
+
+// ===== tuples/numbercoord.ts =====
+/**
+ * Generated types for NumberCoord
+ * Do not edit manually
+ */
+
+export type NumberCoord = [number, number, number | null];
+
+export type NumberCoordInput =
+  | [number, number, number | null]
+  | {
+      0?: number;
+      1?: number;
+      2?: number | null;
+    };
+
+export interface NumberCoordWhere {
+  0?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  1?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  2?:
+    | null
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number | null;
+        isNull?: boolean;
+        between?: [number, number];
+      });
+}
+
+export type NumberCoordUpdate = {
+  0?: number;
+  1?: number;
+  2?: number | null;
+};
+
+export type NumberCoordUnset = {
+  2?: true;
+};

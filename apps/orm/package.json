@@ -151,6 +151,7 @@
     "test:integration": "bun test tests/integration/",
     "test:e2e": "bun test tests/e2e/ --preload ./tests/e2e/preload.ts",
     "test:full": "bun run generate:test-client && bun run typecheck && bun run test && bun run test:integration && bun run test:e2e",
+    "snapshot:update": "UPDATE_GOLDEN=1 bun test tests/generators/golden-snapshot.test.ts",
     "format": "oxfmt --write . && oxlint --fix --deny-warnings .",
     "format:check": "oxfmt --check . && oxlint --deny-warnings .",
     "publish:npm": "npm publish --access public"

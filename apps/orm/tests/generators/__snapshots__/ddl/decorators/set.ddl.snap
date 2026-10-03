@@ -1,0 +1,6 @@
+-- SetBasic
+DEFINE TABLE OVERWRITE set_basic SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE set_basic TYPE string;
+DEFINE FIELD OVERWRITE tags ON TABLE set_basic TYPE set<string>;
+DEFINE FIELD OVERWRITE numbers ON TABLE set_basic TYPE set<int>;
+DEFINE FIELD OVERWRITE uuids ON TABLE set_basic TYPE set<uuid>;

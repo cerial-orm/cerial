@@ -1,0 +1,293 @@
+{
+  "enums": [
+    {
+      "name": "NmGrade",
+      "values": [
+        "LOW",
+        "MID",
+        "HIGH"
+      ]
+    }
+  ],
+  "literals": [
+    {
+      "name": "NmCode",
+      "variants": [
+        {
+          "kind": "string",
+          "value": "a1"
+        },
+        {
+          "kind": "string",
+          "value": "b2"
+        },
+        {
+          "kind": "int",
+          "value": 7
+        }
+      ]
+    }
+  ],
+  "models": [
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "leaf",
+          "objectName": "NmLeaf",
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "mid",
+          "objectName": "NmMid",
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "top",
+          "objectName": "NmTop",
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "leaves",
+          "objectName": "NmLeaf",
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "tops",
+          "objectName": "NmTop",
+          "type": "object"
+        }
+      ],
+      "name": "NmObjectDoc"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "withLeaf",
+          "tupleName": "NmWithLeaf",
+          "type": "tuple"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "named",
+          "tupleName": "NmNamedLeaf",
+          "type": "tuple"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "outer",
+          "tupleName": "NmOuter",
+          "type": "tuple"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "holds",
+          "objectName": "NmHoldsTuple",
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "deepHolds",
+          "objectName": "NmHoldsHolder",
+          "type": "object"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "withLeaves",
+          "tupleName": "NmWithLeaf",
+          "type": "tuple"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "nameds",
+          "tupleName": "NmNamedLeaf",
+          "type": "tuple"
+        }
+      ],
+      "name": "NmTupleDoc"
+    }
+  ],
+  "objects": [
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "literalName": "NmGrade",
+          "name": "grade",
+          "type": "literal"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "literalName": "NmCode",
+          "name": "code",
+          "type": "literal"
+        }
+      ],
+      "name": "NmLeaf"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "leaf",
+          "objectName": "NmLeaf",
+          "type": "object"
+        }
+      ],
+      "name": "NmMid"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "mid",
+          "objectName": "NmMid",
+          "type": "object"
+        }
+      ],
+      "name": "NmTop"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "entry",
+          "tupleName": "NmWithLeaf",
+          "type": "tuple"
+        }
+      ],
+      "name": "NmHoldsTuple"
+    },
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "holder",
+          "objectName": "NmHoldsTuple",
+          "type": "object"
+        }
+      ],
+      "name": "NmHoldsHolder"
+    }
+  ],
+  "tuples": [
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "isOptional": false,
+          "objectName": "NmLeaf",
+          "type": "object"
+        }
+      ],
+      "name": "NmWithLeaf"
+    },
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "name": "tag",
+          "type": "string"
+        },
+        {
+          "isOptional": false,
+          "name": "leaf",
+          "objectName": "NmLeaf",
+          "type": "object"
+        }
+      ],
+      "name": "NmNamedLeaf"
+    },
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "tupleName": "NmWithLeaf",
+          "type": "tuple"
+        },
+        {
+          "isOptional": false,
+          "type": "int"
+        }
+      ],
+      "name": "NmOuter"
+    }
+  ]
+}

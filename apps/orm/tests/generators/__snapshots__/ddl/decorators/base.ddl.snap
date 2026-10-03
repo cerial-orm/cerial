@@ -1,0 +1,14 @@
+-- ArrayDecoratorTest
+DEFINE TABLE OVERWRITE array_decorator_test SCHEMAFULL;
+DEFINE FIELD OVERWRITE uniqueTags ON TABLE array_decorator_test TYPE array<string> VALUE IF $value THEN $value.distinct() ELSE [] END;
+DEFINE FIELD OVERWRITE sortedScores ON TABLE array_decorator_test TYPE array<int> VALUE IF $value THEN $value.sort(true) ELSE [] END;
+DEFINE FIELD OVERWRITE recentDates ON TABLE array_decorator_test TYPE array<datetime> VALUE IF $value THEN $value.sort(false) ELSE [] END;
+DEFINE FIELD OVERWRITE uniqueSortedCategories ON TABLE array_decorator_test TYPE array<string> VALUE IF $value THEN $value.distinct().sort(true) ELSE [] END;
+DEFINE FIELD OVERWRITE uniqueSortedPriorities ON TABLE array_decorator_test TYPE array<int> VALUE IF $value THEN $value.distinct().sort(false) ELSE [] END;
+DEFINE FIELD OVERWRITE normalTags ON TABLE array_decorator_test TYPE array<string>;
+DEFINE FIELD OVERWRITE normalScores ON TABLE array_decorator_test TYPE array<int>;
+
+-- ScalarArrays
+DEFINE TABLE OVERWRITE scalar_arrays SCHEMAFULL;
+DEFINE FIELD OVERWRITE emails ON TABLE scalar_arrays TYPE array<string> ASSERT $value.all(|$v| string::is_email($v));
+DEFINE FIELD OVERWRITE flags ON TABLE scalar_arrays TYPE array<bool>;

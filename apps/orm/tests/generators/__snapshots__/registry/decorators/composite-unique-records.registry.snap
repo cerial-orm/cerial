@@ -1,0 +1,378 @@
+{
+  "models": {
+    "Attendee": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "registrations",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "Registration",
+            "targetTable": "registration"
+          },
+          "type": "relation"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "tickets",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "Ticket",
+            "targetTable": "ticket"
+          },
+          "type": "relation"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "bookings",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "Booking",
+            "targetTable": "booking"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "Attendee",
+      "tableName": "attendee"
+    },
+    "Booking": {
+      "compositeDirectives": [
+        {
+          "fields": [
+            "attendeeId",
+            "slot.row"
+          ],
+          "kind": "index",
+          "name": "bookingAttendeeRow"
+        },
+        {
+          "fields": [
+            "attendeeId",
+            "slot.row"
+          ],
+          "kind": "unique",
+          "name": "bookingAttendeeRowUnique"
+        }
+      ],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "attendeeId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "attendee",
+          "relationInfo": {
+            "fieldRef": "attendeeId",
+            "isReverse": false,
+            "targetModel": "Attendee",
+            "targetTable": "attendee"
+          },
+          "type": "relation"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "slot",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "row",
+                "type": "string"
+              }
+            ],
+            "objectName": "Slot"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "Booking",
+      "tableName": "booking"
+    },
+    "Registration": {
+      "compositeDirectives": [
+        {
+          "fields": [
+            "attendeeId",
+            "workshopId"
+          ],
+          "kind": "unique",
+          "name": "attendeeWorkshop"
+        }
+      ],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "attendeeId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "workshopId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "attendee",
+          "relationInfo": {
+            "fieldRef": "attendeeId",
+            "isReverse": false,
+            "targetModel": "Attendee",
+            "targetTable": "attendee"
+          },
+          "type": "relation"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "workshop",
+          "relationInfo": {
+            "fieldRef": "workshopId",
+            "isReverse": false,
+            "targetModel": "Workshop",
+            "targetTable": "workshop"
+          },
+          "type": "relation"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "role",
+          "type": "string"
+        }
+      ],
+      "name": "Registration",
+      "tableName": "registration"
+    },
+    "Ticket": {
+      "compositeDirectives": [
+        {
+          "fields": [
+            "attendeeId",
+            "workshopId"
+          ],
+          "kind": "index",
+          "name": "ticketAttendeeWorkshop"
+        },
+        {
+          "fields": [
+            "attendeeId",
+            "seat"
+          ],
+          "kind": "index",
+          "name": "ticketAttendeeSeat"
+        },
+        {
+          "fields": [
+            "workshopId",
+            "seat"
+          ],
+          "kind": "unique",
+          "name": "ticketWorkshopSeat"
+        }
+      ],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "attendeeId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "workshopId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "attendee",
+          "relationInfo": {
+            "fieldRef": "attendeeId",
+            "isReverse": false,
+            "targetModel": "Attendee",
+            "targetTable": "attendee"
+          },
+          "type": "relation"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "workshop",
+          "relationInfo": {
+            "fieldRef": "workshopId",
+            "isReverse": false,
+            "targetModel": "Workshop",
+            "targetTable": "workshop"
+          },
+          "type": "relation"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "seat",
+          "type": "string"
+        }
+      ],
+      "name": "Ticket",
+      "tableName": "ticket"
+    },
+    "Workshop": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "registrations",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "Registration",
+            "targetTable": "registration"
+          },
+          "type": "relation"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "tickets",
+          "relationInfo": {
+            "isReverse": true,
+            "targetModel": "Ticket",
+            "targetTable": "ticket"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "Workshop",
+      "tableName": "workshop"
+    }
+  },
+  "objects": {
+    "Slot": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "row",
+          "type": "string"
+        }
+      ],
+      "name": "Slot"
+    }
+  }
+}

@@ -1,0 +1,803 @@
+// ===== models/extenumcontainer.ts =====
+/**
+ * Generated types for ExtEnumContainer
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  ExtEnumInfo,
+  ExtEnumInfoInput,
+  ExtEnumInfoWhere,
+  ExtEnumInfoSelect,
+  ExtEnumInfoOrderBy,
+} from '../objects/extenuminfo';
+export interface ExtEnumContainer {
+  id: CerialId<string>;
+  name: string;
+  details: ExtEnumInfo;
+  detailsList: ExtEnumInfo[];
+}
+
+export interface ExtEnumContainerInput {
+  id?: string;
+  name: string;
+  details: ExtEnumInfoInput;
+  detailsList: ExtEnumInfoInput[];
+}
+
+export interface ExtEnumContainerWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  details?: ExtEnumInfoWhere;
+  detailsList?: { some?: ExtEnumInfoWhere; every?: ExtEnumInfoWhere; none?: ExtEnumInfoWhere };
+  AND?: ExtEnumContainerWhere[];
+  OR?: ExtEnumContainerWhere[];
+  NOT?: ExtEnumContainerWhere;
+}
+
+export type ExtEnumContainerWhereInput = ExtEnumContainerWhere;
+
+export type ExtEnumContainerFindUniqueWhere = { id: RecordIdInput<string> } & Omit<ExtEnumContainerWhere, 'id'>;
+
+export type ExtEnumContainerCreate = O.Optional<ExtEnumContainerInput, 'id' | 'detailsList'>;
+
+export type ExtEnumContainerNestedCreate = O.Optional<ExtEnumContainerInput, 'id' | 'detailsList'>;
+
+export type ExtEnumContainerCreateInput = ExtEnumContainerCreate;
+
+export type ExtEnumContainerUpdate = Partial<O.Omit<ExtEnumContainerInput, 'id' | 'details' | 'detailsList'>> & {
+  details?: Partial<ExtEnumInfoInput> | { set: ExtEnumInfoInput };
+  detailsList?:
+    | ExtEnumInfoInput[]
+    | {
+        push?: ExtEnumInfoInput | ExtEnumInfoInput[];
+        set?: ExtEnumInfoInput[];
+        updateWhere?: {
+          where: ExtEnumInfoWhere;
+          data: Partial<ExtEnumInfoInput>;
+        };
+        unset?: { where: ExtEnumInfoWhere };
+      };
+};
+
+export type ExtEnumContainerUpdateInput = ExtEnumContainerUpdate;
+
+export type ExtEnumContainerUnset = {
+  details?: {
+    backupRole?: true;
+  };
+};
+
+export type ExtEnumContainerSelect =
+  | ({ id: boolean } & {
+      name?: boolean;
+      details?: boolean | ExtEnumInfoSelect;
+      detailsList?: boolean | ExtEnumInfoSelect;
+    })
+  | ({ name: boolean } & {
+      id?: boolean;
+      details?: boolean | ExtEnumInfoSelect;
+      detailsList?: boolean | ExtEnumInfoSelect;
+    })
+  | ({ details: boolean | ExtEnumInfoSelect } & {
+      id?: boolean;
+      name?: boolean;
+      detailsList?: boolean | ExtEnumInfoSelect;
+    })
+  | ({ detailsList: boolean | ExtEnumInfoSelect } & {
+      id?: boolean;
+      name?: boolean;
+      details?: boolean | ExtEnumInfoSelect;
+    });
+
+export interface ExtEnumContainerOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  details?: ExtEnumInfoOrderBy;
+  detailsList?: ExtEnumInfoOrderBy;
+}
+
+export type ExtEnumContainer$Relations = {};
+
+export type GetExtEnumContainerPayload<
+  S extends ExtEnumContainerSelect | undefined = undefined,
+  I = undefined,
+> = A.Compute<
+  S extends ExtEnumContainerSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ExtEnumContainer
+          ? ResolveFieldSelect<ExtEnumContainer[K], S[K]>
+          : never;
+      }
+    : ExtEnumContainer,
+  'flat'
+>;
+
+export interface ExtEnumContainerModel {
+  findOne<S extends ExtEnumContainerSelect | undefined = undefined>(options?: {
+    where?: ExtEnumContainerWhere;
+    select?: S;
+    orderBy?: ExtEnumContainerOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtEnumContainerPayload<S> | null>;
+
+  findMany<S extends ExtEnumContainerSelect | undefined = undefined>(options?: {
+    where?: ExtEnumContainerWhere;
+    select?: S;
+    orderBy?: ExtEnumContainerOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtEnumContainerPayload<S>[]>;
+
+  findUnique<S extends ExtEnumContainerSelect | undefined = undefined>(options: {
+    where: ExtEnumContainerFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtEnumContainerPayload<S> | null>;
+
+  create<S extends ExtEnumContainerSelect | undefined = undefined>(options: {
+    data: ExtEnumContainerCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtEnumContainerPayload<S>>;
+
+  updateMany<
+    S extends ExtEnumContainerSelect | undefined = undefined,
+    D extends ExtEnumContainerUpdateInput = ExtEnumContainerUpdateInput,
+  >(options: {
+    where: ExtEnumContainerWhere;
+    data: D;
+    unset?: SafeUnset<ExtEnumContainerUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtEnumContainerPayload<S>[]>;
+
+  updateUnique<
+    S extends ExtEnumContainerSelect | undefined = undefined,
+    D extends ExtEnumContainerUpdateInput = ExtEnumContainerUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ExtEnumContainerFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ExtEnumContainerUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ExtEnumContainer | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetExtEnumContainerPayload<S>, R>>;
+
+  upsert<
+    S extends ExtEnumContainerSelect | undefined = undefined,
+    D extends ExtEnumContainerUpdateInput = ExtEnumContainerUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtEnumContainerFindUniqueWhere;
+    create: ExtEnumContainerCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtEnumContainerUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetExtEnumContainerPayload<S>, R>>;
+
+  upsert<
+    S extends ExtEnumContainerSelect | undefined = undefined,
+    D extends ExtEnumContainerUpdateInput = ExtEnumContainerUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtEnumContainerWhere;
+    create: ExtEnumContainerCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtEnumContainerUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetExtEnumContainerPayload<S>, R>>;
+
+  deleteMany(options: { where: ExtEnumContainerWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ExtEnumContainerFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ExtEnumContainer | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ExtEnumContainer, R>>;
+
+  count(where?: ExtEnumContainerWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ExtEnumContainerWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/extenummodel.ts =====
+/**
+ * Generated types for ExtEnumModel
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import { ExtExtendedRoleEnum } from '../enums/extextendedrole';
+import type { ExtExtendedRoleEnumType, ExtExtendedRoleEnumWhere } from '../enums/extextendedrole';
+import { ExtDetailedStatusEnum } from '../enums/extdetailedstatus';
+import type { ExtDetailedStatusEnumType, ExtDetailedStatusEnumWhere } from '../enums/extdetailedstatus';
+import { ExtCoreRoleEnum } from '../enums/extcorerole';
+import type { ExtCoreRoleEnumType, ExtCoreRoleEnumWhere } from '../enums/extcorerole';
+import { ExtNonAdminRoleEnum } from '../enums/extnonadminrole';
+import type { ExtNonAdminRoleEnumType, ExtNonAdminRoleEnumWhere } from '../enums/extnonadminrole';
+export interface ExtEnumModel {
+  id: CerialId<string>;
+  role: ExtExtendedRoleEnumType;
+  status: ExtDetailedStatusEnumType;
+  coreRole?: ExtCoreRoleEnumType;
+  nonAdminRole?: ExtNonAdminRoleEnumType;
+  roles: ExtExtendedRoleEnumType[];
+  statuses: ExtDetailedStatusEnumType[];
+}
+
+export interface ExtEnumModelInput {
+  id?: string;
+  role: ExtExtendedRoleEnumType;
+  status: ExtDetailedStatusEnumType;
+  coreRole?: ExtCoreRoleEnumType;
+  nonAdminRole?: ExtNonAdminRoleEnumType;
+  roles: ExtExtendedRoleEnumType[];
+  statuses: ExtDetailedStatusEnumType[];
+}
+
+export interface ExtEnumModelWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  role?: ExtExtendedRoleEnumType | ExtExtendedRoleEnumWhere;
+  status?: ExtDetailedStatusEnumType | ExtDetailedStatusEnumWhere;
+  coreRole?: ExtCoreRoleEnumType | ExtCoreRoleEnumWhere;
+  nonAdminRole?: ExtNonAdminRoleEnumType | ExtNonAdminRoleEnumWhere;
+  roles?: {
+    has?: ExtExtendedRoleEnumType;
+    hasAll?: ExtExtendedRoleEnumType[];
+    hasAny?: ExtExtendedRoleEnumType[];
+    isEmpty?: boolean;
+  };
+  statuses?: {
+    has?: ExtDetailedStatusEnumType;
+    hasAll?: ExtDetailedStatusEnumType[];
+    hasAny?: ExtDetailedStatusEnumType[];
+    isEmpty?: boolean;
+  };
+  AND?: ExtEnumModelWhere[];
+  OR?: ExtEnumModelWhere[];
+  NOT?: ExtEnumModelWhere;
+}
+
+export type ExtEnumModelWhereInput = ExtEnumModelWhere;
+
+export type ExtEnumModelFindUniqueWhere = { id: RecordIdInput<string> } & Omit<ExtEnumModelWhere, 'id'>;
+
+export type ExtEnumModelCreate = O.Optional<
+  ExtEnumModelInput,
+  'id' | 'coreRole' | 'nonAdminRole' | 'roles' | 'statuses'
+>;
+
+export type ExtEnumModelNestedCreate = O.Optional<
+  ExtEnumModelInput,
+  'id' | 'coreRole' | 'nonAdminRole' | 'roles' | 'statuses'
+>;
+
+export type ExtEnumModelCreateInput = ExtEnumModelCreate;
+
+export type ExtEnumModelUpdate = Partial<
+  O.Omit<ExtEnumModelInput, 'id' | 'roles' | 'statuses' | 'coreRole' | 'nonAdminRole'>
+> & {
+  roles?:
+    | ExtExtendedRoleEnumType[]
+    | {
+        push?: ExtExtendedRoleEnumType | ExtExtendedRoleEnumType[];
+        unset?: ExtExtendedRoleEnumType | ExtExtendedRoleEnumType[];
+      };
+  statuses?:
+    | ExtDetailedStatusEnumType[]
+    | {
+        push?: ExtDetailedStatusEnumType | ExtDetailedStatusEnumType[];
+        unset?: ExtDetailedStatusEnumType | ExtDetailedStatusEnumType[];
+      };
+  coreRole?: ExtCoreRoleEnumType | CerialNone;
+  nonAdminRole?: ExtNonAdminRoleEnumType | CerialNone;
+};
+
+export type ExtEnumModelUpdateInput = ExtEnumModelUpdate;
+
+export type ExtEnumModelUnset = {
+  coreRole?: true;
+  nonAdminRole?: true;
+};
+
+export type ExtEnumModelSelect =
+  | ({ id: boolean } & Partial<Record<'role' | 'status' | 'coreRole' | 'nonAdminRole' | 'roles' | 'statuses', boolean>>)
+  | ({ role: boolean } & Partial<Record<'id' | 'status' | 'coreRole' | 'nonAdminRole' | 'roles' | 'statuses', boolean>>)
+  | ({ status: boolean } & Partial<Record<'id' | 'role' | 'coreRole' | 'nonAdminRole' | 'roles' | 'statuses', boolean>>)
+  | ({ coreRole: boolean } & Partial<Record<'id' | 'role' | 'status' | 'nonAdminRole' | 'roles' | 'statuses', boolean>>)
+  | ({ nonAdminRole: boolean } & Partial<Record<'id' | 'role' | 'status' | 'coreRole' | 'roles' | 'statuses', boolean>>)
+  | ({ roles: boolean } & Partial<Record<'id' | 'role' | 'status' | 'coreRole' | 'nonAdminRole' | 'statuses', boolean>>)
+  | ({ statuses: boolean } & Partial<
+      Record<'id' | 'role' | 'status' | 'coreRole' | 'nonAdminRole' | 'roles', boolean>
+    >);
+
+export interface ExtEnumModelOrderBy {
+  id?: 'asc' | 'desc';
+  role?: 'asc' | 'desc';
+  status?: 'asc' | 'desc';
+  coreRole?: 'asc' | 'desc';
+  nonAdminRole?: 'asc' | 'desc';
+  roles?: 'asc' | 'desc';
+  statuses?: 'asc' | 'desc';
+}
+
+export type ExtEnumModel$Relations = {};
+
+export type GetExtEnumModelPayload<S extends ExtEnumModelSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends ExtEnumModelSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ExtEnumModel
+          ? ResolveFieldSelect<ExtEnumModel[K], S[K]>
+          : never;
+      }
+    : ExtEnumModel,
+  'flat'
+>;
+
+export interface ExtEnumModelModel {
+  findOne<S extends ExtEnumModelSelect | undefined = undefined>(options?: {
+    where?: ExtEnumModelWhere;
+    select?: S;
+    orderBy?: ExtEnumModelOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtEnumModelPayload<S> | null>;
+
+  findMany<S extends ExtEnumModelSelect | undefined = undefined>(options?: {
+    where?: ExtEnumModelWhere;
+    select?: S;
+    orderBy?: ExtEnumModelOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtEnumModelPayload<S>[]>;
+
+  findUnique<S extends ExtEnumModelSelect | undefined = undefined>(options: {
+    where: ExtEnumModelFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtEnumModelPayload<S> | null>;
+
+  create<S extends ExtEnumModelSelect | undefined = undefined>(options: {
+    data: ExtEnumModelCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtEnumModelPayload<S>>;
+
+  updateMany<
+    S extends ExtEnumModelSelect | undefined = undefined,
+    D extends ExtEnumModelUpdateInput = ExtEnumModelUpdateInput,
+  >(options: {
+    where: ExtEnumModelWhere;
+    data: D;
+    unset?: SafeUnset<ExtEnumModelUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetExtEnumModelPayload<S>[]>;
+
+  updateUnique<
+    S extends ExtEnumModelSelect | undefined = undefined,
+    D extends ExtEnumModelUpdateInput = ExtEnumModelUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ExtEnumModelFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ExtEnumModelUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ExtEnumModel | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetExtEnumModelPayload<S>, R>>;
+
+  upsert<
+    S extends ExtEnumModelSelect | undefined = undefined,
+    D extends ExtEnumModelUpdateInput = ExtEnumModelUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtEnumModelFindUniqueWhere;
+    create: ExtEnumModelCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtEnumModelUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetExtEnumModelPayload<S>, R>>;
+
+  upsert<
+    S extends ExtEnumModelSelect | undefined = undefined,
+    D extends ExtEnumModelUpdateInput = ExtEnumModelUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ExtEnumModelWhere;
+    create: ExtEnumModelCreateInput;
+    update?: D;
+    unset?: SafeUnset<ExtEnumModelUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetExtEnumModelPayload<S>, R>>;
+
+  deleteMany(options: { where: ExtEnumModelWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ExtEnumModelFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ExtEnumModel | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ExtEnumModel, R>>;
+
+  count(where?: ExtEnumModelWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ExtEnumModelWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== objects/extenuminfo.ts =====
+/**
+ * Generated types for ExtEnumInfo
+ * Do not edit manually
+ */
+
+import { ExtExtendedRoleEnum } from '../enums/extextendedrole';
+import type { ExtExtendedRoleEnumType, ExtExtendedRoleEnumWhere } from '../enums/extextendedrole';
+import { ExtDetailedStatusEnum } from '../enums/extdetailedstatus';
+import type { ExtDetailedStatusEnumType, ExtDetailedStatusEnumWhere } from '../enums/extdetailedstatus';
+import { ExtCoreRoleEnum } from '../enums/extcorerole';
+import type { ExtCoreRoleEnumType, ExtCoreRoleEnumWhere } from '../enums/extcorerole';
+export interface ExtEnumInfo {
+  role: ExtExtendedRoleEnumType;
+  status: ExtDetailedStatusEnumType;
+  backupRole?: ExtCoreRoleEnumType;
+}
+
+export interface ExtEnumInfoInput {
+  role: ExtExtendedRoleEnumType;
+  status: ExtDetailedStatusEnumType;
+  backupRole?: ExtCoreRoleEnumType;
+}
+
+export interface ExtEnumInfoWhere {
+  role?: ExtExtendedRoleEnumType | ExtExtendedRoleEnumWhere;
+  status?: ExtDetailedStatusEnumType | ExtDetailedStatusEnumWhere;
+  backupRole?: ExtCoreRoleEnumType | ExtCoreRoleEnumWhere;
+  AND?: ExtEnumInfoWhere[];
+  OR?: ExtEnumInfoWhere[];
+  NOT?: ExtEnumInfoWhere;
+}
+
+export type ExtEnumInfoSelect =
+  | ({ role: boolean } & Partial<Record<'status' | 'backupRole', boolean>>)
+  | ({ status: boolean } & Partial<Record<'role' | 'backupRole', boolean>>)
+  | ({ backupRole: boolean } & Partial<Record<'role' | 'status', boolean>>);
+
+export interface ExtEnumInfoOrderBy {
+  role?: 'asc' | 'desc';
+  status?: 'asc' | 'desc';
+  backupRole?: 'asc' | 'desc';
+}
+
+// ===== enums/extbaserole.ts =====
+/**
+ * Generated types for ExtBaseRole enum
+ * Do not edit manually
+ */
+
+export const ExtBaseRoleEnum = {
+  ADMIN: 'ADMIN',
+  USER: 'USER',
+  MODERATOR: 'MODERATOR',
+} as const;
+
+export type ExtBaseRoleEnumType = (typeof ExtBaseRoleEnum)[keyof typeof ExtBaseRoleEnum];
+
+export interface ExtBaseRoleEnumWhere {
+  eq?: ExtBaseRoleEnumType;
+  neq?: ExtBaseRoleEnumType;
+  in?: ExtBaseRoleEnumType[];
+  notIn?: ExtBaseRoleEnumType[];
+  contains?: string;
+  startsWith?: string;
+  endsWith?: string;
+}
+
+// ===== enums/extbasestatus.ts =====
+/**
+ * Generated types for ExtBaseStatus enum
+ * Do not edit manually
+ */
+
+export const ExtBaseStatusEnum = {
+  ACTIVE: 'ACTIVE',
+  INACTIVE: 'INACTIVE',
+  PENDING: 'PENDING',
+} as const;
+
+export type ExtBaseStatusEnumType = (typeof ExtBaseStatusEnum)[keyof typeof ExtBaseStatusEnum];
+
+export interface ExtBaseStatusEnumWhere {
+  eq?: ExtBaseStatusEnumType;
+  neq?: ExtBaseStatusEnumType;
+  in?: ExtBaseStatusEnumType[];
+  notIn?: ExtBaseStatusEnumType[];
+  contains?: string;
+  startsWith?: string;
+  endsWith?: string;
+}
+
+// ===== enums/extcorerole.ts =====
+/**
+ * Generated types for ExtCoreRole enum
+ * Do not edit manually
+ */
+
+export const ExtCoreRoleEnum = {
+  ADMIN: 'ADMIN',
+  USER: 'USER',
+} as const;
+
+export type ExtCoreRoleEnumType = (typeof ExtCoreRoleEnum)[keyof typeof ExtCoreRoleEnum];
+
+export interface ExtCoreRoleEnumWhere {
+  eq?: ExtCoreRoleEnumType;
+  neq?: ExtCoreRoleEnumType;
+  in?: ExtCoreRoleEnumType[];
+  notIn?: ExtCoreRoleEnumType[];
+  contains?: string;
+  startsWith?: string;
+  endsWith?: string;
+}
+
+// ===== enums/extcustomrole.ts =====
+/**
+ * Generated types for ExtCustomRole enum
+ * Do not edit manually
+ */
+
+export const ExtCustomRoleEnum = {
+  ADMIN: 'ADMIN',
+  USER: 'USER',
+  MODERATOR: 'MODERATOR',
+  CUSTOM: 'CUSTOM',
+} as const;
+
+export type ExtCustomRoleEnumType = (typeof ExtCustomRoleEnum)[keyof typeof ExtCustomRoleEnum];
+
+export interface ExtCustomRoleEnumWhere {
+  eq?: ExtCustomRoleEnumType;
+  neq?: ExtCustomRoleEnumType;
+  in?: ExtCustomRoleEnumType[];
+  notIn?: ExtCustomRoleEnumType[];
+  contains?: string;
+  startsWith?: string;
+  endsWith?: string;
+}
+
+// ===== enums/extdetailedstatus.ts =====
+/**
+ * Generated types for ExtDetailedStatus enum
+ * Do not edit manually
+ */
+
+export const ExtDetailedStatusEnum = {
+  ACTIVE: 'ACTIVE',
+  INACTIVE: 'INACTIVE',
+  PENDING: 'PENDING',
+  ARCHIVED: 'ARCHIVED',
+  DELETED: 'DELETED',
+  SUSPENDED: 'SUSPENDED',
+} as const;
+
+export type ExtDetailedStatusEnumType = (typeof ExtDetailedStatusEnum)[keyof typeof ExtDetailedStatusEnum];
+
+export interface ExtDetailedStatusEnumWhere {
+  eq?: ExtDetailedStatusEnumType;
+  neq?: ExtDetailedStatusEnumType;
+  in?: ExtDetailedStatusEnumType[];
+  notIn?: ExtDetailedStatusEnumType[];
+  contains?: string;
+  startsWith?: string;
+  endsWith?: string;
+}
+
+// ===== enums/extextendedrole.ts =====
+/**
+ * Generated types for ExtExtendedRole enum
+ * Do not edit manually
+ */
+
+export const ExtExtendedRoleEnum = {
+  ADMIN: 'ADMIN',
+  USER: 'USER',
+  MODERATOR: 'MODERATOR',
+  SUPERADMIN: 'SUPERADMIN',
+  GUEST: 'GUEST',
+} as const;
+
+export type ExtExtendedRoleEnumType = (typeof ExtExtendedRoleEnum)[keyof typeof ExtExtendedRoleEnum];
+
+export interface ExtExtendedRoleEnumWhere {
+  eq?: ExtExtendedRoleEnumType;
+  neq?: ExtExtendedRoleEnumType;
+  in?: ExtExtendedRoleEnumType[];
+  notIn?: ExtExtendedRoleEnumType[];
+  contains?: string;
+  startsWith?: string;
+  endsWith?: string;
+}
+
+// ===== enums/extnonadminrole.ts =====
+/**
+ * Generated types for ExtNonAdminRole enum
+ * Do not edit manually
+ */
+
+export const ExtNonAdminRoleEnum = {
+  USER: 'USER',
+  MODERATOR: 'MODERATOR',
+} as const;
+
+export type ExtNonAdminRoleEnumType = (typeof ExtNonAdminRoleEnum)[keyof typeof ExtNonAdminRoleEnum];
+
+export interface ExtNonAdminRoleEnumWhere {
+  eq?: ExtNonAdminRoleEnumType;
+  neq?: ExtNonAdminRoleEnumType;
+  in?: ExtNonAdminRoleEnumType[];
+  notIn?: ExtNonAdminRoleEnumType[];
+  contains?: string;
+  startsWith?: string;
+  endsWith?: string;
+}
+
+// ===== enums/extsimplestatus.ts =====
+/**
+ * Generated types for ExtSimpleStatus enum
+ * Do not edit manually
+ */
+
+export const ExtSimpleStatusEnum = {
+  ACTIVE: 'ACTIVE',
+  INACTIVE: 'INACTIVE',
+} as const;
+
+export type ExtSimpleStatusEnumType = (typeof ExtSimpleStatusEnum)[keyof typeof ExtSimpleStatusEnum];
+
+export interface ExtSimpleStatusEnumWhere {
+  eq?: ExtSimpleStatusEnumType;
+  neq?: ExtSimpleStatusEnumType;
+  in?: ExtSimpleStatusEnumType[];
+  notIn?: ExtSimpleStatusEnumType[];
+  contains?: string;
+  startsWith?: string;
+  endsWith?: string;
+}

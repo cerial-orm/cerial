@@ -1,0 +1,19 @@
+-- BytesBasic
+DEFINE TABLE OVERWRITE bytes_basic SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE bytes_basic TYPE string;
+DEFINE FIELD OVERWRITE payload ON TABLE bytes_basic TYPE bytes;
+DEFINE FIELD OVERWRITE metadata ON TABLE bytes_basic TYPE option<bytes>;
+DEFINE FIELD OVERWRITE tag ON TABLE bytes_basic TYPE bytes | null;
+DEFINE FIELD OVERWRITE chunks ON TABLE bytes_basic TYPE array<bytes>;
+
+-- BytesWithObject
+DEFINE TABLE OVERWRITE bytes_with_object SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE bytes_with_object TYPE string;
+DEFINE FIELD OVERWRITE details ON TABLE bytes_with_object TYPE object;
+DEFINE FIELD OVERWRITE details.content ON TABLE bytes_with_object TYPE bytes;
+DEFINE FIELD OVERWRITE details.extra ON TABLE bytes_with_object TYPE option<bytes>;
+
+-- BytesWithTuple
+DEFINE TABLE OVERWRITE bytes_with_tuple SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE bytes_with_tuple TYPE string;
+DEFINE FIELD OVERWRITE pair ON TABLE bytes_with_tuple TYPE [bytes, bytes | null];

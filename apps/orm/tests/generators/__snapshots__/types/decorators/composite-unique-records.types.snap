@@ -1,0 +1,1944 @@
+// ===== models/attendee.ts =====
+/**
+ * Generated types for Attendee
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  Registration,
+  RegistrationWhere,
+  RegistrationSelect,
+  RegistrationOrderBy,
+  RegistrationNestedCreate,
+  RegistrationInclude,
+  GetRegistrationIncludePayload,
+} from './registration';
+import type {
+  Ticket,
+  TicketWhere,
+  TicketSelect,
+  TicketOrderBy,
+  TicketNestedCreate,
+  TicketInclude,
+  GetTicketIncludePayload,
+} from './ticket';
+import type {
+  Booking,
+  BookingWhere,
+  BookingSelect,
+  BookingOrderBy,
+  BookingNestedCreate,
+  BookingInclude,
+  GetBookingIncludePayload,
+} from './booking';
+export interface Attendee {
+  id: CerialId<string>;
+  name: string;
+}
+
+export interface AttendeeInput {
+  id?: string;
+  name: string;
+}
+
+export interface AttendeeWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  registrations?: { some?: RegistrationWhere; every?: RegistrationWhere; none?: RegistrationWhere };
+  tickets?: { some?: TicketWhere; every?: TicketWhere; none?: TicketWhere };
+  bookings?: { some?: BookingWhere; every?: BookingWhere; none?: BookingWhere };
+  AND?: AttendeeWhere[];
+  OR?: AttendeeWhere[];
+  NOT?: AttendeeWhere;
+}
+
+export type AttendeeWhereInput = AttendeeWhere;
+
+export type AttendeeFindUniqueWhere = { id: RecordIdInput<string> } & Omit<AttendeeWhere, 'id'>;
+
+export type AttendeeCreate = O.Optional<O.Omit<AttendeeInput, 'registrations' | 'tickets' | 'bookings'>, 'id'>;
+
+export type AttendeeNestedCreate = O.Optional<O.Omit<AttendeeInput, 'registrations' | 'tickets' | 'bookings'>, 'id'>;
+
+export type AttendeeCreateInput = AttendeeCreate & {
+  registrations?: {
+    create?: RegistrationNestedCreate | RegistrationNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+  };
+  tickets?: {
+    create?: TicketNestedCreate | TicketNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+  };
+  bookings?: {
+    create?: BookingNestedCreate | BookingNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+  };
+};
+
+export type AttendeeUpdate = Partial<O.Omit<AttendeeInput, 'id' | 'registrations' | 'tickets' | 'bookings'>>;
+
+export type AttendeeUpdateInput = AttendeeUpdate & {
+  registrations?: {
+    create?: RegistrationNestedCreate | RegistrationNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+    disconnect?: RecordIdInput | RecordIdInput[];
+    set?: RecordIdInput[];
+  };
+  tickets?: {
+    create?: TicketNestedCreate | TicketNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+    disconnect?: RecordIdInput | RecordIdInput[];
+    set?: RecordIdInput[];
+  };
+  bookings?: {
+    create?: BookingNestedCreate | BookingNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+    disconnect?: RecordIdInput | RecordIdInput[];
+    set?: RecordIdInput[];
+  };
+};
+
+export type AttendeeUnset = {};
+
+export type AttendeeSelect =
+  | ({ id: boolean } & Partial<Record<'name', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id', boolean>>);
+
+export interface AttendeeOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+}
+
+export interface AttendeeInclude {
+  registrations?:
+    | boolean
+    | {
+        select?: RegistrationSelect;
+        where?: RegistrationWhere;
+        orderBy?: RegistrationOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: RegistrationInclude;
+      };
+  tickets?:
+    | boolean
+    | {
+        select?: TicketSelect;
+        where?: TicketWhere;
+        orderBy?: TicketOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: TicketInclude;
+      };
+  bookings?:
+    | boolean
+    | {
+        select?: BookingSelect;
+        where?: BookingWhere;
+        orderBy?: BookingOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: BookingInclude;
+      };
+}
+
+export type Attendee$Relations = {
+  registrations: { type: Registration[]; include: RegistrationInclude };
+  tickets: { type: Ticket[]; include: TicketInclude };
+  bookings: { type: Booking[]; include: BookingInclude };
+};
+
+export type GetAttendeeIncludePayload<I extends AttendeeInclude | undefined> = I extends AttendeeInclude
+  ? Pick<
+      {
+        registrations: I['registrations'] extends true
+          ? Registration[]
+          : I['registrations'] extends {
+                select: infer S extends RegistrationSelect;
+                include: infer NI extends RegistrationInclude;
+              }
+            ? ({
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Registration
+                  ? ResolveFieldSelect<Registration[P], S[P]>
+                  : never;
+              } & GetRegistrationIncludePayload<NI>)[]
+            : I['registrations'] extends { select: infer S extends RegistrationSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Registration
+                    ? ResolveFieldSelect<Registration[P], S[P]>
+                    : never;
+                }[]
+              : I['registrations'] extends { include: infer NI extends RegistrationInclude }
+                ? (Registration & GetRegistrationIncludePayload<NI>)[]
+                : Registration[];
+        tickets: I['tickets'] extends true
+          ? Ticket[]
+          : I['tickets'] extends { select: infer S extends TicketSelect; include: infer NI extends TicketInclude }
+            ? ({
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Ticket
+                  ? ResolveFieldSelect<Ticket[P], S[P]>
+                  : never;
+              } & GetTicketIncludePayload<NI>)[]
+            : I['tickets'] extends { select: infer S extends TicketSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Ticket
+                    ? ResolveFieldSelect<Ticket[P], S[P]>
+                    : never;
+                }[]
+              : I['tickets'] extends { include: infer NI extends TicketInclude }
+                ? (Ticket & GetTicketIncludePayload<NI>)[]
+                : Ticket[];
+        bookings: I['bookings'] extends true
+          ? Booking[]
+          : I['bookings'] extends { select: infer S extends BookingSelect; include: infer NI extends BookingInclude }
+            ? ({
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Booking
+                  ? ResolveFieldSelect<Booking[P], S[P]>
+                  : never;
+              } & GetBookingIncludePayload<NI>)[]
+            : I['bookings'] extends { select: infer S extends BookingSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Booking
+                    ? ResolveFieldSelect<Booking[P], S[P]>
+                    : never;
+                }[]
+              : I['bookings'] extends { include: infer NI extends BookingInclude }
+                ? (Booking & GetBookingIncludePayload<NI>)[]
+                : Booking[];
+      },
+      Extract<keyof I, keyof Attendee$Relations> &
+        { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetAttendeePayload<
+  S extends AttendeeSelect | undefined = undefined,
+  I extends AttendeeInclude | undefined = undefined,
+> = A.Compute<
+  S extends AttendeeSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof Attendee
+          ? ResolveFieldSelect<Attendee[K], S[K]>
+          : never;
+      } & GetAttendeeIncludePayload<I>
+    : I extends AttendeeInclude
+      ? Attendee & GetAttendeeIncludePayload<I>
+      : Attendee,
+  'flat'
+>;
+
+export interface AttendeeModel {
+  findOne<
+    S extends AttendeeSelect | undefined = undefined,
+    I extends AttendeeInclude | undefined = undefined,
+  >(options?: {
+    where?: AttendeeWhere;
+    select?: S;
+    include?: I;
+    orderBy?: AttendeeOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetAttendeePayload<S, I> | null>;
+
+  findMany<
+    S extends AttendeeSelect | undefined = undefined,
+    I extends AttendeeInclude | undefined = undefined,
+  >(options?: {
+    where?: AttendeeWhere;
+    select?: S;
+    orderBy?: AttendeeOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetAttendeePayload<S, I>[]>;
+
+  findUnique<
+    S extends AttendeeSelect | undefined = undefined,
+    I extends AttendeeInclude | undefined = undefined,
+  >(options: {
+    where: AttendeeFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetAttendeePayload<S, I> | null>;
+
+  create<S extends AttendeeSelect | undefined = undefined, I extends AttendeeInclude | undefined = undefined>(options: {
+    data: AttendeeCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetAttendeePayload<S, I>>;
+
+  updateMany<
+    S extends AttendeeSelect | undefined = undefined,
+    I extends AttendeeInclude | undefined = undefined,
+    D extends AttendeeUpdateInput = AttendeeUpdateInput,
+  >(options: {
+    where: AttendeeWhere;
+    data: D;
+    unset?: SafeUnset<AttendeeUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetAttendeePayload<S, I>[]>;
+
+  updateUnique<
+    S extends AttendeeSelect | undefined = undefined,
+    I extends AttendeeInclude | undefined = undefined,
+    D extends AttendeeUpdateInput = AttendeeUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: AttendeeFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<AttendeeUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns Attendee | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetAttendeePayload<S, I>, R>>;
+
+  upsert<
+    S extends AttendeeSelect | undefined = undefined,
+    I extends AttendeeInclude | undefined = undefined,
+    D extends AttendeeUpdateInput = AttendeeUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: AttendeeFindUniqueWhere;
+    create: AttendeeCreateInput;
+    update?: D;
+    unset?: SafeUnset<AttendeeUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetAttendeePayload<S, I>, R>>;
+
+  upsert<
+    S extends AttendeeSelect | undefined = undefined,
+    I extends AttendeeInclude | undefined = undefined,
+    D extends AttendeeUpdateInput = AttendeeUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: AttendeeWhere;
+    create: AttendeeCreateInput;
+    update?: D;
+    unset?: SafeUnset<AttendeeUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetAttendeePayload<S, I>, R>>;
+
+  deleteMany(options: { where: AttendeeWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: AttendeeFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns Attendee | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<Attendee, R>>;
+
+  count(where?: AttendeeWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: AttendeeWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/booking.ts =====
+/**
+ * Generated types for Booking
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  Attendee,
+  AttendeeWhere,
+  AttendeeSelect,
+  AttendeeOrderBy,
+  AttendeeNestedCreate,
+  AttendeeInclude,
+  GetAttendeeIncludePayload,
+} from './attendee';
+import type { Slot, SlotInput, SlotWhere, SlotSelect, SlotOrderBy } from '../objects/slot';
+export interface Booking {
+  id: CerialId<string>;
+  attendeeId: CerialId<string>;
+  slot: Slot;
+}
+
+export interface BookingInput {
+  id?: string;
+  attendeeId: RecordIdInput<string>;
+  slot: SlotInput;
+}
+
+export interface BookingWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  /**
+   * @@index("bookingAttendeeRow") — Part of composite index (with: slot.row)
+   * @@unique("bookingAttendeeRowUnique") — Part of composite unique (with: slot.row)
+   */
+  attendeeId?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  attendee?: AttendeeWhere;
+  /**
+   * @@index("bookingAttendeeRow") — Part of composite index (with: attendeeId)
+   * @@unique("bookingAttendeeRowUnique") — Part of composite unique (with: attendeeId)
+   */
+  slot?: SlotWhere;
+  AND?: BookingWhere[];
+  OR?: BookingWhere[];
+  NOT?: BookingWhere;
+}
+
+export type BookingWhereInput = BookingWhere;
+
+export type BookingFindUniqueWhere =
+  | ({ id: RecordIdInput<string> } & Omit<BookingWhere, 'id' | 'bookingAttendeeRowUnique'>) /**
+     * Composite unique index on fields: attendeeId, slot.row
+     */
+  | ({ bookingAttendeeRowUnique: { attendeeId: RecordIdInput<string>; slot: { row: string } } } & Omit<
+      BookingWhere,
+      'id' | 'bookingAttendeeRowUnique'
+    >);
+
+export type BookingCreate = O.Optional<O.Omit<BookingInput, 'attendee'>, 'id'>;
+
+export type BookingNestedCreate = O.Optional<O.Omit<BookingInput, 'attendee' | 'attendeeId'>, 'id'>;
+
+export type BookingCreateInput =
+  | BookingCreate
+  | (O.Omit<BookingCreate, 'attendeeId'> & {
+      attendee: { create: AttendeeNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type BookingUpdate = Partial<O.Omit<BookingInput, 'id' | 'attendee' | 'slot'>> & {
+  slot?: Partial<SlotInput> | { set: SlotInput };
+};
+
+export type BookingUpdateInput =
+  | BookingUpdate
+  | (O.Omit<BookingUpdate, 'attendeeId'> & {
+      attendee?: { create: AttendeeNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type BookingUnset = {};
+
+export type BookingSelect =
+  | ({ id: boolean } & { attendeeId?: boolean; slot?: boolean | SlotSelect })
+  | ({ attendeeId: boolean } & { id?: boolean; slot?: boolean | SlotSelect })
+  | ({ slot: boolean | SlotSelect } & Partial<Record<'id' | 'attendeeId', boolean>>);
+
+export interface BookingOrderBy {
+  id?: 'asc' | 'desc';
+  attendeeId?: 'asc' | 'desc';
+  attendee?: AttendeeOrderBy;
+  slot?: SlotOrderBy;
+}
+
+export interface BookingInclude {
+  attendee?:
+    | boolean
+    | {
+        select?: AttendeeSelect;
+        where?: AttendeeWhere;
+        include?: AttendeeInclude;
+      };
+}
+
+export type Booking$Relations = {
+  attendee: { type: Attendee; include: AttendeeInclude };
+};
+
+export type GetBookingIncludePayload<I extends BookingInclude | undefined> = I extends BookingInclude
+  ? Pick<
+      {
+        attendee: I['attendee'] extends true
+          ? Attendee
+          : I['attendee'] extends { select: infer S extends AttendeeSelect; include: infer NI extends AttendeeInclude }
+            ? {
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Attendee
+                  ? ResolveFieldSelect<Attendee[P], S[P]>
+                  : never;
+              } & GetAttendeeIncludePayload<NI>
+            : I['attendee'] extends { select: infer S extends AttendeeSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Attendee
+                    ? ResolveFieldSelect<Attendee[P], S[P]>
+                    : never;
+                }
+              : I['attendee'] extends { include: infer NI extends AttendeeInclude }
+                ? Attendee & GetAttendeeIncludePayload<NI>
+                : Attendee;
+      },
+      Extract<keyof I, keyof Booking$Relations> &
+        { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetBookingPayload<
+  S extends BookingSelect | undefined = undefined,
+  I extends BookingInclude | undefined = undefined,
+> = A.Compute<
+  S extends BookingSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof Booking
+          ? ResolveFieldSelect<Booking[K], S[K]>
+          : never;
+      } & GetBookingIncludePayload<I>
+    : I extends BookingInclude
+      ? Booking & GetBookingIncludePayload<I>
+      : Booking,
+  'flat'
+>;
+
+export interface BookingModel {
+  findOne<S extends BookingSelect | undefined = undefined, I extends BookingInclude | undefined = undefined>(options?: {
+    where?: BookingWhere;
+    select?: S;
+    include?: I;
+    orderBy?: BookingOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetBookingPayload<S, I> | null>;
+
+  findMany<
+    S extends BookingSelect | undefined = undefined,
+    I extends BookingInclude | undefined = undefined,
+  >(options?: {
+    where?: BookingWhere;
+    select?: S;
+    orderBy?: BookingOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetBookingPayload<S, I>[]>;
+
+  findUnique<
+    S extends BookingSelect | undefined = undefined,
+    I extends BookingInclude | undefined = undefined,
+  >(options: {
+    where: BookingFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetBookingPayload<S, I> | null>;
+
+  create<S extends BookingSelect | undefined = undefined, I extends BookingInclude | undefined = undefined>(options: {
+    data: BookingCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetBookingPayload<S, I>>;
+
+  updateMany<
+    S extends BookingSelect | undefined = undefined,
+    I extends BookingInclude | undefined = undefined,
+    D extends BookingUpdateInput = BookingUpdateInput,
+  >(options: {
+    where: BookingWhere;
+    data: D;
+    unset?: SafeUnset<BookingUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetBookingPayload<S, I>[]>;
+
+  updateUnique<
+    S extends BookingSelect | undefined = undefined,
+    I extends BookingInclude | undefined = undefined,
+    D extends BookingUpdateInput = BookingUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: BookingFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<BookingUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns Booking | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetBookingPayload<S, I>, R>>;
+
+  upsert<
+    S extends BookingSelect | undefined = undefined,
+    I extends BookingInclude | undefined = undefined,
+    D extends BookingUpdateInput = BookingUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: BookingFindUniqueWhere;
+    create: BookingCreateInput;
+    update?: D;
+    unset?: SafeUnset<BookingUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetBookingPayload<S, I>, R>>;
+
+  upsert<
+    S extends BookingSelect | undefined = undefined,
+    I extends BookingInclude | undefined = undefined,
+    D extends BookingUpdateInput = BookingUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: BookingWhere;
+    create: BookingCreateInput;
+    update?: D;
+    unset?: SafeUnset<BookingUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetBookingPayload<S, I>, R>>;
+
+  deleteMany(options: { where: BookingWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: BookingFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns Booking | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<Booking, R>>;
+
+  count(where?: BookingWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: BookingWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/registration.ts =====
+/**
+ * Generated types for Registration
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  Attendee,
+  AttendeeWhere,
+  AttendeeSelect,
+  AttendeeOrderBy,
+  AttendeeNestedCreate,
+  AttendeeInclude,
+  GetAttendeeIncludePayload,
+} from './attendee';
+import type {
+  Workshop,
+  WorkshopWhere,
+  WorkshopSelect,
+  WorkshopOrderBy,
+  WorkshopNestedCreate,
+  WorkshopInclude,
+  GetWorkshopIncludePayload,
+} from './workshop';
+export interface Registration {
+  id: CerialId<string>;
+  attendeeId: CerialId<string>;
+  workshopId: CerialId<string>;
+  role?: string;
+}
+
+export interface RegistrationInput {
+  id?: string;
+  attendeeId: RecordIdInput<string>;
+  workshopId: RecordIdInput<string>;
+  role?: string;
+}
+
+export interface RegistrationWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  /** @@unique("attendeeWorkshop") — Part of composite unique (with: workshopId) */
+  attendeeId?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  /** @@unique("attendeeWorkshop") — Part of composite unique (with: attendeeId) */
+  workshopId?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  attendee?: AttendeeWhere;
+  workshop?: WorkshopWhere;
+  role?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  AND?: RegistrationWhere[];
+  OR?: RegistrationWhere[];
+  NOT?: RegistrationWhere;
+}
+
+export type RegistrationWhereInput = RegistrationWhere;
+
+export type RegistrationFindUniqueWhere =
+  | ({ id: RecordIdInput<string> } & Omit<RegistrationWhere, 'id' | 'attendeeWorkshop'>) /**
+     * Composite unique index on fields: attendeeId, workshopId
+     */
+  | ({ attendeeWorkshop: { attendeeId: RecordIdInput<string>; workshopId: RecordIdInput<string> } } & Omit<
+      RegistrationWhere,
+      'id' | 'attendeeWorkshop'
+    >);
+
+export type RegistrationCreate = O.Optional<O.Omit<RegistrationInput, 'attendee' | 'workshop'>, 'id' | 'role'>;
+
+export type RegistrationNestedCreate = O.Optional<
+  O.Omit<RegistrationInput, 'attendee' | 'workshop' | 'attendeeId' | 'workshopId'>,
+  'id' | 'role'
+>;
+
+export type RegistrationCreateInput =
+  | RegistrationCreate
+  | (O.Omit<RegistrationCreate, 'attendeeId' | 'workshopId'> & {
+      attendee: { create: AttendeeNestedCreate } | { connect: RecordIdInput };
+      workshop: { create: WorkshopNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type RegistrationUpdate = Partial<O.Omit<RegistrationInput, 'id' | 'attendee' | 'workshop' | 'role'>> & {
+  role?: string | CerialNone;
+};
+
+export type RegistrationUpdateInput =
+  | RegistrationUpdate
+  | (O.Omit<RegistrationUpdate, 'attendeeId' | 'workshopId'> & {
+      attendee?: { create: AttendeeNestedCreate } | { connect: RecordIdInput };
+      workshop?: { create: WorkshopNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type RegistrationUnset = {
+  role?: true;
+};
+
+export type RegistrationSelect =
+  | ({ id: boolean } & Partial<Record<'attendeeId' | 'workshopId' | 'role', boolean>>)
+  | ({ attendeeId: boolean } & Partial<Record<'id' | 'workshopId' | 'role', boolean>>)
+  | ({ workshopId: boolean } & Partial<Record<'id' | 'attendeeId' | 'role', boolean>>)
+  | ({ role: boolean } & Partial<Record<'id' | 'attendeeId' | 'workshopId', boolean>>);
+
+export interface RegistrationOrderBy {
+  id?: 'asc' | 'desc';
+  attendeeId?: 'asc' | 'desc';
+  workshopId?: 'asc' | 'desc';
+  attendee?: AttendeeOrderBy;
+  workshop?: WorkshopOrderBy;
+  role?: 'asc' | 'desc';
+}
+
+export interface RegistrationInclude {
+  attendee?:
+    | boolean
+    | {
+        select?: AttendeeSelect;
+        where?: AttendeeWhere;
+        include?: AttendeeInclude;
+      };
+  workshop?:
+    | boolean
+    | {
+        select?: WorkshopSelect;
+        where?: WorkshopWhere;
+        include?: WorkshopInclude;
+      };
+}
+
+export type Registration$Relations = {
+  attendee: { type: Attendee; include: AttendeeInclude };
+  workshop: { type: Workshop; include: WorkshopInclude };
+};
+
+export type GetRegistrationIncludePayload<I extends RegistrationInclude | undefined> = I extends RegistrationInclude
+  ? Pick<
+      {
+        attendee: I['attendee'] extends true
+          ? Attendee
+          : I['attendee'] extends { select: infer S extends AttendeeSelect; include: infer NI extends AttendeeInclude }
+            ? {
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Attendee
+                  ? ResolveFieldSelect<Attendee[P], S[P]>
+                  : never;
+              } & GetAttendeeIncludePayload<NI>
+            : I['attendee'] extends { select: infer S extends AttendeeSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Attendee
+                    ? ResolveFieldSelect<Attendee[P], S[P]>
+                    : never;
+                }
+              : I['attendee'] extends { include: infer NI extends AttendeeInclude }
+                ? Attendee & GetAttendeeIncludePayload<NI>
+                : Attendee;
+        workshop: I['workshop'] extends true
+          ? Workshop
+          : I['workshop'] extends { select: infer S extends WorkshopSelect; include: infer NI extends WorkshopInclude }
+            ? {
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Workshop
+                  ? ResolveFieldSelect<Workshop[P], S[P]>
+                  : never;
+              } & GetWorkshopIncludePayload<NI>
+            : I['workshop'] extends { select: infer S extends WorkshopSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Workshop
+                    ? ResolveFieldSelect<Workshop[P], S[P]>
+                    : never;
+                }
+              : I['workshop'] extends { include: infer NI extends WorkshopInclude }
+                ? Workshop & GetWorkshopIncludePayload<NI>
+                : Workshop;
+      },
+      Extract<keyof I, keyof Registration$Relations> &
+        { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetRegistrationPayload<
+  S extends RegistrationSelect | undefined = undefined,
+  I extends RegistrationInclude | undefined = undefined,
+> = A.Compute<
+  S extends RegistrationSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof Registration
+          ? ResolveFieldSelect<Registration[K], S[K]>
+          : never;
+      } & GetRegistrationIncludePayload<I>
+    : I extends RegistrationInclude
+      ? Registration & GetRegistrationIncludePayload<I>
+      : Registration,
+  'flat'
+>;
+
+export interface RegistrationModel {
+  findOne<
+    S extends RegistrationSelect | undefined = undefined,
+    I extends RegistrationInclude | undefined = undefined,
+  >(options?: {
+    where?: RegistrationWhere;
+    select?: S;
+    include?: I;
+    orderBy?: RegistrationOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetRegistrationPayload<S, I> | null>;
+
+  findMany<
+    S extends RegistrationSelect | undefined = undefined,
+    I extends RegistrationInclude | undefined = undefined,
+  >(options?: {
+    where?: RegistrationWhere;
+    select?: S;
+    orderBy?: RegistrationOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetRegistrationPayload<S, I>[]>;
+
+  findUnique<
+    S extends RegistrationSelect | undefined = undefined,
+    I extends RegistrationInclude | undefined = undefined,
+  >(options: {
+    where: RegistrationFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetRegistrationPayload<S, I> | null>;
+
+  create<
+    S extends RegistrationSelect | undefined = undefined,
+    I extends RegistrationInclude | undefined = undefined,
+  >(options: {
+    data: RegistrationCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetRegistrationPayload<S, I>>;
+
+  updateMany<
+    S extends RegistrationSelect | undefined = undefined,
+    I extends RegistrationInclude | undefined = undefined,
+    D extends RegistrationUpdateInput = RegistrationUpdateInput,
+  >(options: {
+    where: RegistrationWhere;
+    data: D;
+    unset?: SafeUnset<RegistrationUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetRegistrationPayload<S, I>[]>;
+
+  updateUnique<
+    S extends RegistrationSelect | undefined = undefined,
+    I extends RegistrationInclude | undefined = undefined,
+    D extends RegistrationUpdateInput = RegistrationUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: RegistrationFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<RegistrationUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns Registration | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetRegistrationPayload<S, I>, R>>;
+
+  upsert<
+    S extends RegistrationSelect | undefined = undefined,
+    I extends RegistrationInclude | undefined = undefined,
+    D extends RegistrationUpdateInput = RegistrationUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: RegistrationFindUniqueWhere;
+    create: RegistrationCreateInput;
+    update?: D;
+    unset?: SafeUnset<RegistrationUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetRegistrationPayload<S, I>, R>>;
+
+  upsert<
+    S extends RegistrationSelect | undefined = undefined,
+    I extends RegistrationInclude | undefined = undefined,
+    D extends RegistrationUpdateInput = RegistrationUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: RegistrationWhere;
+    create: RegistrationCreateInput;
+    update?: D;
+    unset?: SafeUnset<RegistrationUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetRegistrationPayload<S, I>, R>>;
+
+  deleteMany(options: { where: RegistrationWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: RegistrationFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns Registration | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<Registration, R>>;
+
+  count(where?: RegistrationWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: RegistrationWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/ticket.ts =====
+/**
+ * Generated types for Ticket
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  Attendee,
+  AttendeeWhere,
+  AttendeeSelect,
+  AttendeeOrderBy,
+  AttendeeNestedCreate,
+  AttendeeInclude,
+  GetAttendeeIncludePayload,
+} from './attendee';
+import type {
+  Workshop,
+  WorkshopWhere,
+  WorkshopSelect,
+  WorkshopOrderBy,
+  WorkshopNestedCreate,
+  WorkshopInclude,
+  GetWorkshopIncludePayload,
+} from './workshop';
+export interface Ticket {
+  id: CerialId<string>;
+  attendeeId: CerialId<string>;
+  workshopId: CerialId<string>;
+  seat: string;
+}
+
+export interface TicketInput {
+  id?: string;
+  attendeeId: RecordIdInput<string>;
+  workshopId: RecordIdInput<string>;
+  seat: string;
+}
+
+export interface TicketWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  /**
+   * @@index("ticketAttendeeWorkshop") — Part of composite index (with: workshopId)
+   * @@index("ticketAttendeeSeat") — Part of composite index (with: seat)
+   */
+  attendeeId?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  /**
+   * @@index("ticketAttendeeWorkshop") — Part of composite index (with: attendeeId)
+   * @@unique("ticketWorkshopSeat") — Part of composite unique (with: seat)
+   */
+  workshopId?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  attendee?: AttendeeWhere;
+  workshop?: WorkshopWhere;
+  /**
+   * @@index("ticketAttendeeSeat") — Part of composite index (with: attendeeId)
+   * @@unique("ticketWorkshopSeat") — Part of composite unique (with: workshopId)
+   */
+  seat?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  AND?: TicketWhere[];
+  OR?: TicketWhere[];
+  NOT?: TicketWhere;
+}
+
+export type TicketWhereInput = TicketWhere;
+
+export type TicketFindUniqueWhere =
+  | ({ id: RecordIdInput<string> } & Omit<TicketWhere, 'id' | 'ticketWorkshopSeat'>) /**
+     * Composite unique index on fields: workshopId, seat
+     */
+  | ({ ticketWorkshopSeat: { workshopId: RecordIdInput<string>; seat: string } } & Omit<
+      TicketWhere,
+      'id' | 'ticketWorkshopSeat'
+    >);
+
+export type TicketCreate = O.Optional<O.Omit<TicketInput, 'attendee' | 'workshop'>, 'id'>;
+
+export type TicketNestedCreate = O.Optional<
+  O.Omit<TicketInput, 'attendee' | 'workshop' | 'attendeeId' | 'workshopId'>,
+  'id'
+>;
+
+export type TicketCreateInput =
+  | TicketCreate
+  | (O.Omit<TicketCreate, 'attendeeId' | 'workshopId'> & {
+      attendee: { create: AttendeeNestedCreate } | { connect: RecordIdInput };
+      workshop: { create: WorkshopNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type TicketUpdate = Partial<O.Omit<TicketInput, 'id' | 'attendee' | 'workshop'>>;
+
+export type TicketUpdateInput =
+  | TicketUpdate
+  | (O.Omit<TicketUpdate, 'attendeeId' | 'workshopId'> & {
+      attendee?: { create: AttendeeNestedCreate } | { connect: RecordIdInput };
+      workshop?: { create: WorkshopNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type TicketUnset = {};
+
+export type TicketSelect =
+  | ({ id: boolean } & Partial<Record<'attendeeId' | 'workshopId' | 'seat', boolean>>)
+  | ({ attendeeId: boolean } & Partial<Record<'id' | 'workshopId' | 'seat', boolean>>)
+  | ({ workshopId: boolean } & Partial<Record<'id' | 'attendeeId' | 'seat', boolean>>)
+  | ({ seat: boolean } & Partial<Record<'id' | 'attendeeId' | 'workshopId', boolean>>);
+
+export interface TicketOrderBy {
+  id?: 'asc' | 'desc';
+  attendeeId?: 'asc' | 'desc';
+  workshopId?: 'asc' | 'desc';
+  attendee?: AttendeeOrderBy;
+  workshop?: WorkshopOrderBy;
+  seat?: 'asc' | 'desc';
+}
+
+export interface TicketInclude {
+  attendee?:
+    | boolean
+    | {
+        select?: AttendeeSelect;
+        where?: AttendeeWhere;
+        include?: AttendeeInclude;
+      };
+  workshop?:
+    | boolean
+    | {
+        select?: WorkshopSelect;
+        where?: WorkshopWhere;
+        include?: WorkshopInclude;
+      };
+}
+
+export type Ticket$Relations = {
+  attendee: { type: Attendee; include: AttendeeInclude };
+  workshop: { type: Workshop; include: WorkshopInclude };
+};
+
+export type GetTicketIncludePayload<I extends TicketInclude | undefined> = I extends TicketInclude
+  ? Pick<
+      {
+        attendee: I['attendee'] extends true
+          ? Attendee
+          : I['attendee'] extends { select: infer S extends AttendeeSelect; include: infer NI extends AttendeeInclude }
+            ? {
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Attendee
+                  ? ResolveFieldSelect<Attendee[P], S[P]>
+                  : never;
+              } & GetAttendeeIncludePayload<NI>
+            : I['attendee'] extends { select: infer S extends AttendeeSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Attendee
+                    ? ResolveFieldSelect<Attendee[P], S[P]>
+                    : never;
+                }
+              : I['attendee'] extends { include: infer NI extends AttendeeInclude }
+                ? Attendee & GetAttendeeIncludePayload<NI>
+                : Attendee;
+        workshop: I['workshop'] extends true
+          ? Workshop
+          : I['workshop'] extends { select: infer S extends WorkshopSelect; include: infer NI extends WorkshopInclude }
+            ? {
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Workshop
+                  ? ResolveFieldSelect<Workshop[P], S[P]>
+                  : never;
+              } & GetWorkshopIncludePayload<NI>
+            : I['workshop'] extends { select: infer S extends WorkshopSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Workshop
+                    ? ResolveFieldSelect<Workshop[P], S[P]>
+                    : never;
+                }
+              : I['workshop'] extends { include: infer NI extends WorkshopInclude }
+                ? Workshop & GetWorkshopIncludePayload<NI>
+                : Workshop;
+      },
+      Extract<keyof I, keyof Ticket$Relations> & { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetTicketPayload<
+  S extends TicketSelect | undefined = undefined,
+  I extends TicketInclude | undefined = undefined,
+> = A.Compute<
+  S extends TicketSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof Ticket
+          ? ResolveFieldSelect<Ticket[K], S[K]>
+          : never;
+      } & GetTicketIncludePayload<I>
+    : I extends TicketInclude
+      ? Ticket & GetTicketIncludePayload<I>
+      : Ticket,
+  'flat'
+>;
+
+export interface TicketModel {
+  findOne<S extends TicketSelect | undefined = undefined, I extends TicketInclude | undefined = undefined>(options?: {
+    where?: TicketWhere;
+    select?: S;
+    include?: I;
+    orderBy?: TicketOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTicketPayload<S, I> | null>;
+
+  findMany<S extends TicketSelect | undefined = undefined, I extends TicketInclude | undefined = undefined>(options?: {
+    where?: TicketWhere;
+    select?: S;
+    orderBy?: TicketOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTicketPayload<S, I>[]>;
+
+  findUnique<S extends TicketSelect | undefined = undefined, I extends TicketInclude | undefined = undefined>(options: {
+    where: TicketFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTicketPayload<S, I> | null>;
+
+  create<S extends TicketSelect | undefined = undefined, I extends TicketInclude | undefined = undefined>(options: {
+    data: TicketCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTicketPayload<S, I>>;
+
+  updateMany<
+    S extends TicketSelect | undefined = undefined,
+    I extends TicketInclude | undefined = undefined,
+    D extends TicketUpdateInput = TicketUpdateInput,
+  >(options: {
+    where: TicketWhere;
+    data: D;
+    unset?: SafeUnset<TicketUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTicketPayload<S, I>[]>;
+
+  updateUnique<
+    S extends TicketSelect | undefined = undefined,
+    I extends TicketInclude | undefined = undefined,
+    D extends TicketUpdateInput = TicketUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: TicketFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<TicketUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns Ticket | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetTicketPayload<S, I>, R>>;
+
+  upsert<
+    S extends TicketSelect | undefined = undefined,
+    I extends TicketInclude | undefined = undefined,
+    D extends TicketUpdateInput = TicketUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: TicketFindUniqueWhere;
+    create: TicketCreateInput;
+    update?: D;
+    unset?: SafeUnset<TicketUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetTicketPayload<S, I>, R>>;
+
+  upsert<
+    S extends TicketSelect | undefined = undefined,
+    I extends TicketInclude | undefined = undefined,
+    D extends TicketUpdateInput = TicketUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: TicketWhere;
+    create: TicketCreateInput;
+    update?: D;
+    unset?: SafeUnset<TicketUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetTicketPayload<S, I>, R>>;
+
+  deleteMany(options: { where: TicketWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: TicketFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns Ticket | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<Ticket, R>>;
+
+  count(where?: TicketWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: TicketWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/workshop.ts =====
+/**
+ * Generated types for Workshop
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  Registration,
+  RegistrationWhere,
+  RegistrationSelect,
+  RegistrationOrderBy,
+  RegistrationNestedCreate,
+  RegistrationInclude,
+  GetRegistrationIncludePayload,
+} from './registration';
+import type {
+  Ticket,
+  TicketWhere,
+  TicketSelect,
+  TicketOrderBy,
+  TicketNestedCreate,
+  TicketInclude,
+  GetTicketIncludePayload,
+} from './ticket';
+export interface Workshop {
+  id: CerialId<string>;
+  title: string;
+}
+
+export interface WorkshopInput {
+  id?: string;
+  title: string;
+}
+
+export interface WorkshopWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  title?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  registrations?: { some?: RegistrationWhere; every?: RegistrationWhere; none?: RegistrationWhere };
+  tickets?: { some?: TicketWhere; every?: TicketWhere; none?: TicketWhere };
+  AND?: WorkshopWhere[];
+  OR?: WorkshopWhere[];
+  NOT?: WorkshopWhere;
+}
+
+export type WorkshopWhereInput = WorkshopWhere;
+
+export type WorkshopFindUniqueWhere = { id: RecordIdInput<string> } & Omit<WorkshopWhere, 'id'>;
+
+export type WorkshopCreate = O.Optional<O.Omit<WorkshopInput, 'registrations' | 'tickets'>, 'id'>;
+
+export type WorkshopNestedCreate = O.Optional<O.Omit<WorkshopInput, 'registrations' | 'tickets'>, 'id'>;
+
+export type WorkshopCreateInput = WorkshopCreate & {
+  registrations?: {
+    create?: RegistrationNestedCreate | RegistrationNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+  };
+  tickets?: {
+    create?: TicketNestedCreate | TicketNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+  };
+};
+
+export type WorkshopUpdate = Partial<O.Omit<WorkshopInput, 'id' | 'registrations' | 'tickets'>>;
+
+export type WorkshopUpdateInput = WorkshopUpdate & {
+  registrations?: {
+    create?: RegistrationNestedCreate | RegistrationNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+    disconnect?: RecordIdInput | RecordIdInput[];
+    set?: RecordIdInput[];
+  };
+  tickets?: {
+    create?: TicketNestedCreate | TicketNestedCreate[];
+    connect?: RecordIdInput | RecordIdInput[];
+    disconnect?: RecordIdInput | RecordIdInput[];
+    set?: RecordIdInput[];
+  };
+};
+
+export type WorkshopUnset = {};
+
+export type WorkshopSelect =
+  | ({ id: boolean } & Partial<Record<'title', boolean>>)
+  | ({ title: boolean } & Partial<Record<'id', boolean>>);
+
+export interface WorkshopOrderBy {
+  id?: 'asc' | 'desc';
+  title?: 'asc' | 'desc';
+}
+
+export interface WorkshopInclude {
+  registrations?:
+    | boolean
+    | {
+        select?: RegistrationSelect;
+        where?: RegistrationWhere;
+        orderBy?: RegistrationOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: RegistrationInclude;
+      };
+  tickets?:
+    | boolean
+    | {
+        select?: TicketSelect;
+        where?: TicketWhere;
+        orderBy?: TicketOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: TicketInclude;
+      };
+}
+
+export type Workshop$Relations = {
+  registrations: { type: Registration[]; include: RegistrationInclude };
+  tickets: { type: Ticket[]; include: TicketInclude };
+};
+
+export type GetWorkshopIncludePayload<I extends WorkshopInclude | undefined> = I extends WorkshopInclude
+  ? Pick<
+      {
+        registrations: I['registrations'] extends true
+          ? Registration[]
+          : I['registrations'] extends {
+                select: infer S extends RegistrationSelect;
+                include: infer NI extends RegistrationInclude;
+              }
+            ? ({
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Registration
+                  ? ResolveFieldSelect<Registration[P], S[P]>
+                  : never;
+              } & GetRegistrationIncludePayload<NI>)[]
+            : I['registrations'] extends { select: infer S extends RegistrationSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Registration
+                    ? ResolveFieldSelect<Registration[P], S[P]>
+                    : never;
+                }[]
+              : I['registrations'] extends { include: infer NI extends RegistrationInclude }
+                ? (Registration & GetRegistrationIncludePayload<NI>)[]
+                : Registration[];
+        tickets: I['tickets'] extends true
+          ? Ticket[]
+          : I['tickets'] extends { select: infer S extends TicketSelect; include: infer NI extends TicketInclude }
+            ? ({
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Ticket
+                  ? ResolveFieldSelect<Ticket[P], S[P]>
+                  : never;
+              } & GetTicketIncludePayload<NI>)[]
+            : I['tickets'] extends { select: infer S extends TicketSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof Ticket
+                    ? ResolveFieldSelect<Ticket[P], S[P]>
+                    : never;
+                }[]
+              : I['tickets'] extends { include: infer NI extends TicketInclude }
+                ? (Ticket & GetTicketIncludePayload<NI>)[]
+                : Ticket[];
+      },
+      Extract<keyof I, keyof Workshop$Relations> &
+        { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetWorkshopPayload<
+  S extends WorkshopSelect | undefined = undefined,
+  I extends WorkshopInclude | undefined = undefined,
+> = A.Compute<
+  S extends WorkshopSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof Workshop
+          ? ResolveFieldSelect<Workshop[K], S[K]>
+          : never;
+      } & GetWorkshopIncludePayload<I>
+    : I extends WorkshopInclude
+      ? Workshop & GetWorkshopIncludePayload<I>
+      : Workshop,
+  'flat'
+>;
+
+export interface WorkshopModel {
+  findOne<
+    S extends WorkshopSelect | undefined = undefined,
+    I extends WorkshopInclude | undefined = undefined,
+  >(options?: {
+    where?: WorkshopWhere;
+    select?: S;
+    include?: I;
+    orderBy?: WorkshopOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetWorkshopPayload<S, I> | null>;
+
+  findMany<
+    S extends WorkshopSelect | undefined = undefined,
+    I extends WorkshopInclude | undefined = undefined,
+  >(options?: {
+    where?: WorkshopWhere;
+    select?: S;
+    orderBy?: WorkshopOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetWorkshopPayload<S, I>[]>;
+
+  findUnique<
+    S extends WorkshopSelect | undefined = undefined,
+    I extends WorkshopInclude | undefined = undefined,
+  >(options: {
+    where: WorkshopFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetWorkshopPayload<S, I> | null>;
+
+  create<S extends WorkshopSelect | undefined = undefined, I extends WorkshopInclude | undefined = undefined>(options: {
+    data: WorkshopCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetWorkshopPayload<S, I>>;
+
+  updateMany<
+    S extends WorkshopSelect | undefined = undefined,
+    I extends WorkshopInclude | undefined = undefined,
+    D extends WorkshopUpdateInput = WorkshopUpdateInput,
+  >(options: {
+    where: WorkshopWhere;
+    data: D;
+    unset?: SafeUnset<WorkshopUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetWorkshopPayload<S, I>[]>;
+
+  updateUnique<
+    S extends WorkshopSelect | undefined = undefined,
+    I extends WorkshopInclude | undefined = undefined,
+    D extends WorkshopUpdateInput = WorkshopUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: WorkshopFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<WorkshopUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns Workshop | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetWorkshopPayload<S, I>, R>>;
+
+  upsert<
+    S extends WorkshopSelect | undefined = undefined,
+    I extends WorkshopInclude | undefined = undefined,
+    D extends WorkshopUpdateInput = WorkshopUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: WorkshopFindUniqueWhere;
+    create: WorkshopCreateInput;
+    update?: D;
+    unset?: SafeUnset<WorkshopUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetWorkshopPayload<S, I>, R>>;
+
+  upsert<
+    S extends WorkshopSelect | undefined = undefined,
+    I extends WorkshopInclude | undefined = undefined,
+    D extends WorkshopUpdateInput = WorkshopUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: WorkshopWhere;
+    create: WorkshopCreateInput;
+    update?: D;
+    unset?: SafeUnset<WorkshopUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetWorkshopPayload<S, I>, R>>;
+
+  deleteMany(options: { where: WorkshopWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: WorkshopFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns Workshop | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<Workshop, R>>;
+
+  count(where?: WorkshopWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: WorkshopWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== objects/slot.ts =====
+/**
+ * Generated types for Slot
+ * Do not edit manually
+ */
+
+export interface Slot {
+  row: string;
+}
+
+export interface SlotInput {
+  row: string;
+}
+
+export interface SlotWhere {
+  row?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  AND?: SlotWhere[];
+  OR?: SlotWhere[];
+  NOT?: SlotWhere;
+}
+
+export type SlotSelect = { row: boolean };
+
+export interface SlotOrderBy {
+  row?: 'asc' | 'desc';
+}

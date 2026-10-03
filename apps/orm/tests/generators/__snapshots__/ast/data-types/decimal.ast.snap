@@ -1,0 +1,198 @@
+{
+  "models": [
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "price",
+          "type": "decimal"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "discount",
+          "type": "decimal"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": false,
+          "name": "tax",
+          "type": "decimal"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "amounts",
+          "type": "decimal"
+        }
+      ],
+      "name": "DecimalBasic"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": 99.99
+            }
+          ],
+          "isOptional": false,
+          "name": "defaultPrice",
+          "type": "decimal"
+        },
+        {
+          "decorators": [
+            {
+              "type": "defaultAlways",
+              "value": 0
+            }
+          ],
+          "isOptional": false,
+          "name": "alwaysPrice",
+          "type": "decimal"
+        }
+      ],
+      "name": "DecimalDecorated"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "pricing",
+          "objectName": "DecimalInfo",
+          "type": "object"
+        }
+      ],
+      "name": "DecimalWithObject"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "pair",
+          "tupleName": "DecimalPair",
+          "type": "tuple"
+        }
+      ],
+      "name": "DecimalWithTuple"
+    }
+  ],
+  "objects": [
+    {
+      "fields": [
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "amount",
+          "type": "decimal"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "fee",
+          "type": "decimal"
+        }
+      ],
+      "name": "DecimalInfo"
+    }
+  ],
+  "tuples": [
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "type": "decimal"
+        },
+        {
+          "decorators": [
+            {
+              "type": "nullable"
+            }
+          ],
+          "isNullable": true,
+          "isOptional": false,
+          "type": "decimal"
+        }
+      ],
+      "name": "DecimalPair"
+    }
+  ]
+}

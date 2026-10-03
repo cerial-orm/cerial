@@ -1,0 +1,30 @@
+-- GeometryBasic
+DEFINE TABLE OVERWRITE geometry_basic SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE geometry_basic TYPE string;
+DEFINE FIELD OVERWRITE location ON TABLE geometry_basic TYPE geometry<point>;
+DEFINE FIELD OVERWRITE area ON TABLE geometry_basic TYPE geometry<polygon>;
+DEFINE FIELD OVERWRITE shape ON TABLE geometry_basic TYPE geometry<point | line | polygon | multipoint | multiline | multipolygon | collection>;
+DEFINE FIELD OVERWRITE route ON TABLE geometry_basic TYPE geometry<line>;
+DEFINE FIELD OVERWRITE multi ON TABLE geometry_basic TYPE geometry<point | polygon>;
+DEFINE FIELD OVERWRITE optionalGeo ON TABLE geometry_basic TYPE option<geometry<point>>;
+DEFINE FIELD OVERWRITE geoArray ON TABLE geometry_basic TYPE array<geometry<point>>;
+
+-- GeometryMulti
+DEFINE TABLE OVERWRITE geometry_multi SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE geometry_multi TYPE string;
+DEFINE FIELD OVERWRITE points ON TABLE geometry_multi TYPE geometry<multipoint>;
+DEFINE FIELD OVERWRITE lines ON TABLE geometry_multi TYPE geometry<multiline>;
+DEFINE FIELD OVERWRITE polygons ON TABLE geometry_multi TYPE geometry<multipolygon>;
+DEFINE FIELD OVERWRITE collection ON TABLE geometry_multi TYPE geometry<collection>;
+
+-- GeometryWithObject
+DEFINE TABLE OVERWRITE geometry_with_object SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE geometry_with_object TYPE string;
+DEFINE FIELD OVERWRITE geo ON TABLE geometry_with_object TYPE object;
+DEFINE FIELD OVERWRITE geo.position ON TABLE geometry_with_object TYPE geometry<point>;
+DEFINE FIELD OVERWRITE geo.boundary ON TABLE geometry_with_object TYPE option<geometry<point | line | polygon | multipoint | multiline | multipolygon | collection>>;
+
+-- GeometryWithTuple
+DEFINE TABLE OVERWRITE geometry_with_tuple SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE geometry_with_tuple TYPE string;
+DEFINE FIELD OVERWRITE pair ON TABLE geometry_with_tuple TYPE [geometry, geometry | null];

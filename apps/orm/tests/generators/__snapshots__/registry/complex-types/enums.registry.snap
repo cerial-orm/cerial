@@ -1,0 +1,601 @@
+{
+  "enums": {
+    "Color": {
+      "name": "Color",
+      "variants": [
+        {
+          "kind": "string",
+          "value": "RED"
+        },
+        {
+          "kind": "string",
+          "value": "GREEN"
+        },
+        {
+          "kind": "string",
+          "value": "BLUE"
+        }
+      ]
+    },
+    "Role": {
+      "name": "Role",
+      "variants": [
+        {
+          "kind": "string",
+          "value": "ADMIN"
+        },
+        {
+          "kind": "string",
+          "value": "USER"
+        },
+        {
+          "kind": "string",
+          "value": "MODERATOR"
+        }
+      ]
+    },
+    "Severity": {
+      "name": "Severity",
+      "variants": [
+        {
+          "kind": "string",
+          "value": "LOW"
+        },
+        {
+          "kind": "string",
+          "value": "MEDIUM"
+        },
+        {
+          "kind": "string",
+          "value": "HIGH"
+        },
+        {
+          "kind": "string",
+          "value": "CRITICAL"
+        }
+      ]
+    }
+  },
+  "literals": {
+    "RoleOrCustom": {
+      "name": "RoleOrCustom",
+      "variants": [
+        {
+          "kind": "string",
+          "value": "ADMIN"
+        },
+        {
+          "kind": "string",
+          "value": "USER"
+        },
+        {
+          "kind": "string",
+          "value": "MODERATOR"
+        },
+        {
+          "kind": "string",
+          "value": "custom"
+        }
+      ]
+    }
+  },
+  "models": {
+    "EnumBasic": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "Role",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "ADMIN"
+              },
+              {
+                "kind": "string",
+                "value": "USER"
+              },
+              {
+                "kind": "string",
+                "value": "MODERATOR"
+              }
+            ]
+          },
+          "name": "role",
+          "type": "literal"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "Role",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "ADMIN"
+              },
+              {
+                "kind": "string",
+                "value": "USER"
+              },
+              {
+                "kind": "string",
+                "value": "MODERATOR"
+              }
+            ]
+          },
+          "name": "optRole",
+          "type": "literal"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isNullable": true,
+          "isRequired": false,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "Role",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "ADMIN"
+              },
+              {
+                "kind": "string",
+                "value": "USER"
+              },
+              {
+                "kind": "string",
+                "value": "MODERATOR"
+              }
+            ]
+          },
+          "name": "nullRole",
+          "type": "literal"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "Role",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "ADMIN"
+              },
+              {
+                "kind": "string",
+                "value": "USER"
+              },
+              {
+                "kind": "string",
+                "value": "MODERATOR"
+              }
+            ]
+          },
+          "name": "roles",
+          "type": "literal"
+        }
+      ],
+      "name": "EnumBasic",
+      "tableName": "enum_basic"
+    },
+    "EnumDefaults": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "defaultValue": "ADMIN",
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "Role",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "ADMIN"
+              },
+              {
+                "kind": "string",
+                "value": "USER"
+              },
+              {
+                "kind": "string",
+                "value": "MODERATOR"
+              }
+            ]
+          },
+          "name": "role",
+          "type": "literal"
+        },
+        {
+          "defaultValue": "LOW",
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "Severity",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "LOW"
+              },
+              {
+                "kind": "string",
+                "value": "MEDIUM"
+              },
+              {
+                "kind": "string",
+                "value": "HIGH"
+              },
+              {
+                "kind": "string",
+                "value": "CRITICAL"
+              }
+            ]
+          },
+          "name": "severity",
+          "type": "literal"
+        }
+      ],
+      "name": "EnumDefaults",
+      "tableName": "enum_defaults"
+    },
+    "EnumLiteralRef": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "RoleOrCustom",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "ADMIN"
+              },
+              {
+                "kind": "string",
+                "value": "USER"
+              },
+              {
+                "kind": "string",
+                "value": "MODERATOR"
+              },
+              {
+                "kind": "string",
+                "value": "custom"
+              }
+            ]
+          },
+          "name": "access",
+          "type": "literal"
+        }
+      ],
+      "name": "EnumLiteralRef",
+      "tableName": "enum_literal_ref"
+    },
+    "EnumMultiple": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "Role",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "ADMIN"
+              },
+              {
+                "kind": "string",
+                "value": "USER"
+              },
+              {
+                "kind": "string",
+                "value": "MODERATOR"
+              }
+            ]
+          },
+          "name": "role",
+          "type": "literal"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "Color",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "RED"
+              },
+              {
+                "kind": "string",
+                "value": "GREEN"
+              },
+              {
+                "kind": "string",
+                "value": "BLUE"
+              }
+            ]
+          },
+          "name": "color",
+          "type": "literal"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "Severity",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "LOW"
+              },
+              {
+                "kind": "string",
+                "value": "MEDIUM"
+              },
+              {
+                "kind": "string",
+                "value": "HIGH"
+              },
+              {
+                "kind": "string",
+                "value": "CRITICAL"
+              }
+            ]
+          },
+          "name": "severity",
+          "type": "literal"
+        }
+      ],
+      "name": "EnumMultiple",
+      "tableName": "enum_multiple"
+    },
+    "EnumWithObject": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "address",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "city",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "literalInfo": {
+                  "literalName": "Severity",
+                  "variants": [
+                    {
+                      "kind": "string",
+                      "value": "LOW"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "MEDIUM"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "HIGH"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "CRITICAL"
+                    }
+                  ]
+                },
+                "name": "severity",
+                "type": "literal"
+              }
+            ],
+            "objectName": "EnumAddress"
+          },
+          "type": "object"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "optAddress",
+          "objectInfo": {
+            "fields": [
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "name": "city",
+                "type": "string"
+              },
+              {
+                "isId": false,
+                "isIndexed": false,
+                "isRequired": true,
+                "isUnique": false,
+                "literalInfo": {
+                  "literalName": "Severity",
+                  "variants": [
+                    {
+                      "kind": "string",
+                      "value": "LOW"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "MEDIUM"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "HIGH"
+                    },
+                    {
+                      "kind": "string",
+                      "value": "CRITICAL"
+                    }
+                  ]
+                },
+                "name": "severity",
+                "type": "literal"
+              }
+            ],
+            "objectName": "EnumAddress"
+          },
+          "type": "object"
+        }
+      ],
+      "name": "EnumWithObject",
+      "tableName": "enum_with_object"
+    }
+  },
+  "objects": {
+    "EnumAddress": {
+      "fields": [
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "city",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "literalInfo": {
+            "literalName": "Severity",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "LOW"
+              },
+              {
+                "kind": "string",
+                "value": "MEDIUM"
+              },
+              {
+                "kind": "string",
+                "value": "HIGH"
+              },
+              {
+                "kind": "string",
+                "value": "CRITICAL"
+              }
+            ]
+          },
+          "name": "severity",
+          "type": "literal"
+        }
+      ],
+      "name": "EnumAddress"
+    }
+  }
+}

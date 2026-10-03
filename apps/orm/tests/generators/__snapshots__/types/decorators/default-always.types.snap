@@ -1,0 +1,477 @@
+// ===== models/contentitem.ts =====
+/**
+ * Generated types for ContentItem
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  ReviewMeta,
+  ReviewMetaInput,
+  ReviewMetaWhere,
+  ReviewMetaSelect,
+  ReviewMetaOrderBy,
+  ReviewMetaCreateInput,
+} from '../objects/reviewmeta';
+export interface ContentItem {
+  id: CerialId<string>;
+  title: string;
+  body: string;
+  reviewed?: boolean;
+  syncStatus?: string;
+  retryCount?: number;
+  score?: number;
+  meta?: ReviewMeta;
+}
+
+export interface ContentItemInput {
+  id?: string;
+  title: string;
+  body: string;
+  reviewed?: boolean;
+  syncStatus?: string;
+  retryCount?: number;
+  score?: number;
+  meta?: ReviewMetaInput;
+}
+
+export interface ContentItemWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  title?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  body?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  reviewed?:
+    | boolean
+    | ({
+        eq?: boolean;
+        neq?: boolean;
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  syncStatus?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  retryCount?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  score?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        not?: number;
+        isNone?: boolean;
+        between?: [number, number];
+      });
+  meta?: ReviewMetaWhere;
+  AND?: ContentItemWhere[];
+  OR?: ContentItemWhere[];
+  NOT?: ContentItemWhere;
+}
+
+export type ContentItemWhereInput = ContentItemWhere;
+
+export type ContentItemFindUniqueWhere = { id: RecordIdInput<string> } & Omit<ContentItemWhere, 'id'>;
+
+export type ContentItemCreate = O.Optional<
+  O.Omit<ContentItemInput, 'meta'>,
+  'id' | 'reviewed' | 'syncStatus' | 'retryCount' | 'score'
+> & {
+  meta?: ReviewMetaCreateInput;
+};
+
+export type ContentItemNestedCreate = O.Optional<
+  ContentItemInput,
+  'id' | 'reviewed' | 'syncStatus' | 'retryCount' | 'score' | 'meta'
+>;
+
+export type ContentItemCreateInput = ContentItemCreate;
+
+export type ContentItemUpdate = Partial<
+  O.Omit<ContentItemInput, 'id' | 'meta' | 'reviewed' | 'syncStatus' | 'retryCount' | 'score'>
+> & {
+  meta?: Partial<ReviewMetaInput> | { set: ReviewMetaInput } | CerialNone;
+  reviewed?: boolean | CerialNone;
+  syncStatus?: string | CerialNone;
+  retryCount?: number | CerialNone;
+  score?: number | CerialNone;
+};
+
+export type ContentItemUpdateInput = ContentItemUpdate;
+
+export type ContentItemUnset = {
+  reviewed?: true;
+  syncStatus?: true;
+  retryCount?: true;
+  score?: true;
+  meta?:
+    | true
+    | {
+        note?: true;
+        flagged?: true;
+      };
+};
+
+export type ContentItemSelect =
+  | ({ id: boolean } & {
+      title?: boolean;
+      body?: boolean;
+      reviewed?: boolean;
+      syncStatus?: boolean;
+      retryCount?: boolean;
+      score?: boolean;
+      meta?: boolean | ReviewMetaSelect;
+    })
+  | ({ title: boolean } & {
+      id?: boolean;
+      body?: boolean;
+      reviewed?: boolean;
+      syncStatus?: boolean;
+      retryCount?: boolean;
+      score?: boolean;
+      meta?: boolean | ReviewMetaSelect;
+    })
+  | ({ body: boolean } & {
+      id?: boolean;
+      title?: boolean;
+      reviewed?: boolean;
+      syncStatus?: boolean;
+      retryCount?: boolean;
+      score?: boolean;
+      meta?: boolean | ReviewMetaSelect;
+    })
+  | ({ reviewed: boolean } & {
+      id?: boolean;
+      title?: boolean;
+      body?: boolean;
+      syncStatus?: boolean;
+      retryCount?: boolean;
+      score?: boolean;
+      meta?: boolean | ReviewMetaSelect;
+    })
+  | ({ syncStatus: boolean } & {
+      id?: boolean;
+      title?: boolean;
+      body?: boolean;
+      reviewed?: boolean;
+      retryCount?: boolean;
+      score?: boolean;
+      meta?: boolean | ReviewMetaSelect;
+    })
+  | ({ retryCount: boolean } & {
+      id?: boolean;
+      title?: boolean;
+      body?: boolean;
+      reviewed?: boolean;
+      syncStatus?: boolean;
+      score?: boolean;
+      meta?: boolean | ReviewMetaSelect;
+    })
+  | ({ score: boolean } & {
+      id?: boolean;
+      title?: boolean;
+      body?: boolean;
+      reviewed?: boolean;
+      syncStatus?: boolean;
+      retryCount?: boolean;
+      meta?: boolean | ReviewMetaSelect;
+    })
+  | ({ meta: boolean | ReviewMetaSelect } & Partial<
+      Record<'id' | 'title' | 'body' | 'reviewed' | 'syncStatus' | 'retryCount' | 'score', boolean>
+    >);
+
+export interface ContentItemOrderBy {
+  id?: 'asc' | 'desc';
+  title?: 'asc' | 'desc';
+  body?: 'asc' | 'desc';
+  reviewed?: 'asc' | 'desc';
+  syncStatus?: 'asc' | 'desc';
+  retryCount?: 'asc' | 'desc';
+  score?: 'asc' | 'desc';
+  meta?: ReviewMetaOrderBy;
+}
+
+export type ContentItem$Relations = {};
+
+export type GetContentItemPayload<S extends ContentItemSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends ContentItemSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof ContentItem
+          ? ResolveFieldSelect<ContentItem[K], S[K]>
+          : never;
+      }
+    : ContentItem,
+  'flat'
+>;
+
+export interface ContentItemModel {
+  findOne<S extends ContentItemSelect | undefined = undefined>(options?: {
+    where?: ContentItemWhere;
+    select?: S;
+    orderBy?: ContentItemOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetContentItemPayload<S> | null>;
+
+  findMany<S extends ContentItemSelect | undefined = undefined>(options?: {
+    where?: ContentItemWhere;
+    select?: S;
+    orderBy?: ContentItemOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetContentItemPayload<S>[]>;
+
+  findUnique<S extends ContentItemSelect | undefined = undefined>(options: {
+    where: ContentItemFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetContentItemPayload<S> | null>;
+
+  create<S extends ContentItemSelect | undefined = undefined>(options: {
+    data: ContentItemCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetContentItemPayload<S>>;
+
+  updateMany<
+    S extends ContentItemSelect | undefined = undefined,
+    D extends ContentItemUpdateInput = ContentItemUpdateInput,
+  >(options: {
+    where: ContentItemWhere;
+    data: D;
+    unset?: SafeUnset<ContentItemUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetContentItemPayload<S>[]>;
+
+  updateUnique<
+    S extends ContentItemSelect | undefined = undefined,
+    D extends ContentItemUpdateInput = ContentItemUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: ContentItemFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<ContentItemUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns ContentItem | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetContentItemPayload<S>, R>>;
+
+  upsert<
+    S extends ContentItemSelect | undefined = undefined,
+    D extends ContentItemUpdateInput = ContentItemUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ContentItemFindUniqueWhere;
+    create: ContentItemCreateInput;
+    update?: D;
+    unset?: SafeUnset<ContentItemUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetContentItemPayload<S>, R>>;
+
+  upsert<
+    S extends ContentItemSelect | undefined = undefined,
+    D extends ContentItemUpdateInput = ContentItemUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: ContentItemWhere;
+    create: ContentItemCreateInput;
+    update?: D;
+    unset?: SafeUnset<ContentItemUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetContentItemPayload<S>, R>>;
+
+  deleteMany(options: { where: ContentItemWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: ContentItemFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns ContentItem | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<ContentItem, R>>;
+
+  count(where?: ContentItemWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: ContentItemWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== objects/reviewmeta.ts =====
+/**
+ * Generated types for ReviewMeta
+ * Do not edit manually
+ */
+
+export interface ReviewMeta {
+  note?: string;
+  flagged?: boolean;
+}
+
+export interface ReviewMetaInput {
+  note?: string;
+  flagged?: boolean;
+}
+
+export interface ReviewMetaCreateInput {
+  note?: string;
+  flagged?: boolean;
+}
+
+export interface ReviewMetaWhere {
+  note?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  flagged?:
+    | boolean
+    | ({
+        eq?: boolean;
+        neq?: boolean;
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  AND?: ReviewMetaWhere[];
+  OR?: ReviewMetaWhere[];
+  NOT?: ReviewMetaWhere;
+}
+
+export type ReviewMetaSelect =
+  | ({ note: boolean } & Partial<Record<'flagged', boolean>>)
+  | ({ flagged: boolean } & Partial<Record<'note', boolean>>);
+
+export interface ReviewMetaOrderBy {
+  note?: 'asc' | 'desc';
+  flagged?: 'asc' | 'desc';
+}
