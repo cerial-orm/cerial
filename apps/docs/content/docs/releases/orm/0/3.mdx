@@ -102,6 +102,20 @@ development branch and is not available on npm.
   rather than refusing keeps a malformed default from becoming a new generate-
   time failure for a schema that already migrates.
 
+- `cerial generate` and `cerial format` imported a `cerial.config.ts` found anywhere
+  beneath the working directory, and importing a TypeScript config executes it.
+  Discovery globbed `**/cerial.config.{ts,json}` with no depth bound, skipping only
+  `node_modules/` and the working directory itself, so running either command inside
+  a project containing an untrusted `cerial.config.ts` ran that file. Present in
+  0.1.0 and 0.2.0.
+
+  Folder configs are now discovered only as direct children of the working directory
+  or under `schemas/` and `schema/`. Multi-schema projects laid out the documented way
+  are unaffected. Separately, a folder config that fails validation now stops the
+  command with an `Invalid folder config` error instead of being skipped silently: the
+  handler caught every error while claiming to catch only the root-style-config case,
+  so a malformed config read as absent.
+
 ### Added
 
 - `orderBy` now accepts a relation field, so you can sort by a value on the
@@ -351,6 +365,24 @@ development branch and is not available on npm.
   `$transaction([...])` the update half still throws the database's own error
   rather than a `CerialValidationError`, and the transaction rolls back either way.
 
+- The 0.1.0 release notes listed the geometry collection decorator as
+  `@collection`. The decorator is `@geoCollection`; `@collection` has never been
+  accepted in a schema.
+
+- `@sort(desc)` and `@sort(asc)` are now supported, and `@sort(desc)` sorts descending.
+  Any unrecognised `@sort` argument, `desc` among them, was silently treated as
+  ascending, so a field written as descending was sorted ascending with no error. An
+  argument other than `true`, `false`, `asc` or `desc` is now a schema error naming the
+  field. `@sort`, `@sort(true)` and `@sort(false)` are unchanged.
+- An `Email[]` field could never be written. The migration emitted
+  `ASSERT string::is_email($value)` against the whole array rather than its elements, so
+  every write failed, including an empty array. The assert is now applied per element.
+  The same fix covers the other validated string types on array fields.
+- An enum or literal used as a direct tuple element, or a literal array inside an object
+  field, emitted DDL the database refuses: `literal` is not a kind name in a SurrealDB
+  type position, so migration failed with `expected a kind name`. Both now emit the
+  declared variants, for example `['A' | 'B', int]` and `array<'A' | 'B'>`.
+
 ### Changed
 
 - Transaction conflict retries (`TransactionOptions.retries`) now recognise a
@@ -543,3 +575,9 @@ development branch and is not available on npm.
   escaping work above would have had to be done twice to keep it. Use
   `generateMigrationQuery` from `cerial/generators`, which takes the same
   arguments and quotes what it emits.
+- `validateSchema` is no longer exported from the package root or from `cerial/parser`.
+  That export was a second copy of the schema validator that returned `ParseError[]` and
+  that nothing in `cerial generate` ever called, so roughly forty-five of its checks
+  never ran against a real schema. The checks now run on the path `cerial generate` uses.
+  If you called the exported copy directly, use the CLI schema validator, which returns
+  `{ valid, errors }`.
