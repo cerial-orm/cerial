@@ -113,7 +113,7 @@ export type DeleteUniqueReturnType<T, R extends DeleteUniqueReturn> = R extends 
  * UpdateUnique return option
  * - undefined/null/'after': returns updated record (supports select/include)
  * - true: returns boolean (true if found and updated, false if not)
- * - 'before': returns pre-update record (no select/include support)
+ * - 'before': returns pre-update record (select and include read before the write)
  */
 export type UpdateUniqueReturn = null | undefined | true | 'before' | 'after';
 
@@ -128,7 +128,7 @@ export type UpdateUniqueReturnType<T, R extends UpdateUniqueReturn> = R extends 
  * Upsert return option
  * - undefined/null/'after': returns upserted record (supports select/include)
  * - true: returns boolean (true if record was created or updated)
- * - 'before': returns pre-upsert record state (null for new records, no select/include support)
+ * - 'before': returns pre-upsert record state (null for new records, select and include read before the write)
  */
 export type UpsertReturn = null | undefined | true | 'before' | 'after';
 

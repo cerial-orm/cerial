@@ -487,7 +487,7 @@ export function generateUpdateUniqueMethod(model: ModelMetadata): string {
      * Return option for the updated record
      * - undefined/null/'after': returns updated record (supports select)
      * - true: returns boolean (true if found and updated, false if not)
-     * - 'before': returns ${model.name} | null (pre-update state, no select support)
+     * - 'before': returns ${model.name} | null (pre-update state, select reads before the write)
      */
     return?: R;
     txn?: CerialTransaction;
@@ -510,7 +510,7 @@ export function generateUpdateUniqueMethod(model: ModelMetadata): string {
       * Return option for the updated record
       * - undefined/null/'after': returns updated record (supports select/include)
       * - true: returns boolean (true if found and updated, false if not)
-      * - 'before': returns ${model.name} | null (pre-update state, no select/include support)
+      * - 'before': returns ${model.name} | null (pre-update state, select and include read before the write)
       */
     return?: R;
     txn?: CerialTransaction;

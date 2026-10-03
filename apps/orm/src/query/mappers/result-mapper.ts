@@ -415,17 +415,3 @@ export function mapSingleResult<T>(result: unknown, model: ModelMetadata, select
   const mapped = mapResult<T>(result, model, select);
   return mapped[0] ?? null;
 }
-
-/**
- * Keep only the keys a select asked for. RETURN BEFORE hands back the whole stored row whatever the
- * statement projects, so a narrowed select has to be applied to it after the fact.
- */
-export function pickSelected(record: unknown, select?: SelectClause): unknown {
-  if (!select || !record || typeof record !== 'object' || Array.isArray(record)) return record;
-  const keys = Object.keys(select).filter((key) => select[key]);
-  if (!keys.length) return record;
-
-  return Object.fromEntries(
-    keys.filter((key) => key in record).map((key) => [key, (record as Record<string, unknown>)[key]]),
-  );
-}

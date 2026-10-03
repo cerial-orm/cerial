@@ -293,7 +293,7 @@ function findReverseRecordField(sourceModel: ModelMetadata, targetModel: ModelMe
 export interface NestedWriteOptions {
   /** Inside an outer transaction: emit no BEGIN/COMMIT */
   transactionMode?: boolean;
-  /** Update only: return the row as it was before the write; `select` and `include` do not apply */
+  /** Update only: return the row as it was before the write, projected through `select` and `include` */
   returnBefore?: boolean;
   select?: SelectClause;
   include?: IncludeClause;
@@ -957,7 +957,10 @@ export function buildUpdateWithNestedTransaction(
 
   // `return: 'before'` needs the row as it was, so it is read before the update and the relation
   // statements that follow; the transaction stays one round trip
-  if (returnBefore) statements.push(`LET $before = (SELECT * FROM ${model.tableName} ${whereClause.text});`);
+  if (returnBefore) {
+    const fields = buildSelectFields(options.select, model, options.include, registry);
+    statements.push(`LET $before = (SELECT ${fields} FROM ${model.tableName} ${whereClause.text});`);
+  }
 
   // Build the main update
   if (fieldUpdates.length > 0) {

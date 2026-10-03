@@ -238,7 +238,7 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
    * @returns Depends on return option:
    *   - undefined/null/'after': Model | null (updated record with select/include support)
    *   - true: boolean (true if record found and updated, false if not)
-   *   - 'before': Model | null (pre-update record, no select/include support)
+   *   - 'before': Model | null (pre-update record, select and include read before the write)
    */
   updateUnique<R extends UpdateUniqueReturn = undefined>(options: {
     where: WhereClause;

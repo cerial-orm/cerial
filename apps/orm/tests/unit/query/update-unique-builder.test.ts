@@ -205,15 +205,33 @@ describe('update-unique-builder', () => {
       expect(query.text).toContain('RETURN id, name, profileId.* AS profile');
     });
 
-    test('ignores include for RETURN BEFORE mode', () => {
+    test('reads the row through the include before the write for RETURN BEFORE mode', () => {
       const where = { id: 'abc123' };
       const data = { name: 'John' };
       const include = { profile: true };
       const query = buildUpdateUniqueQuery(userModel, where, data, 'before', undefined, include, registry);
 
-      // 'before' mode ignores include
+      expect(query.text.split('\n')).toEqual([
+        'BEGIN TRANSACTION;',
+        'LET $before = (SELECT *, profileId.* AS profile FROM user:abc123);',
+        'UPDATE ONLY user:abc123 SET name = $name_set_0 RETURN NONE;',
+        'COMMIT TRANSACTION;',
+        'RETURN $before;',
+      ]);
+    });
+
+    test('reads the row through the select for RETURN BEFORE mode', () => {
+      const query = buildUpdateUniqueQuery(userModel, { id: 'abc123' }, { name: 'John' }, 'before', { name: true });
+
+      expect(query.text).toContain('LET $before = (SELECT name FROM user:abc123);');
+      expect(query.text).not.toContain('RETURN BEFORE');
+    });
+
+    test('keeps plain RETURN BEFORE when there is no select or include', () => {
+      const query = buildUpdateUniqueQuery(userModel, { id: 'abc123' }, { name: 'John' }, 'before');
+
       expect(query.text).toContain('RETURN BEFORE');
-      expect(query.text).not.toContain('profileId');
+      expect(query.text).not.toContain('$before');
     });
   });
 

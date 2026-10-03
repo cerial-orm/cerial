@@ -244,6 +244,33 @@ export function buildSelectFields(
   return baseSelect;
 }
 
+/**
+ * `return: 'before'` with a select or include. RETURN BEFORE hands back every stored field and cannot
+ * resolve a relation, so the row is read through the caller's projection ahead of the write instead.
+ * Runs before the write, so relations resolve as they stood then.
+ */
+export function needsBeforeSnapshot(
+  returnOption: unknown,
+  select: SelectClause | undefined,
+  include: IncludeClause | undefined,
+): boolean {
+  return returnOption === 'before' && !!(select || include);
+}
+
+/** `LET $before = (...)` over `from` (a table or record id) and an already-built WHERE clause. */
+export function buildBeforeSnapshot(
+  from: string,
+  whereText: string,
+  select: SelectClause | undefined,
+  model: ModelMetadata,
+  include: IncludeClause | undefined,
+  registry?: ModelRegistry,
+): string {
+  const fields = buildSelectFields(select, model, include, registry);
+
+  return `LET $before = (${['SELECT', fields, 'FROM', from, whereText].filter(Boolean).join(' ')});`;
+}
+
 /** Alias prefix for projected relation sort keys; OMITted again by the outer query. */
 const ORDER_ALIAS_PREFIX = '__cerial_ord_';
 

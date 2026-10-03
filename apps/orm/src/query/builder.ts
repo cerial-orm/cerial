@@ -53,7 +53,7 @@ import type { QueryResultType } from './cerial-query-promise';
 import type { CompiledQuery } from './compile/types';
 import { executeQuery, executeQuerySingle } from './executor';
 import { transformWhereClause } from './filters';
-import { mapResult, mapSingleResult, pickSelected } from './mappers';
+import { mapResult, mapSingleResult } from './mappers';
 import { applyFieldDefaults, transformData, transformOrValidateRecordId } from './transformers';
 import {
   validateCreateData,
@@ -247,7 +247,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
    * @returns Depends on return option:
    *   - undefined/null/'after': Model | null (updated record with select/include support)
    *   - true: boolean (true if record found and updated, false if not)
-   *   - 'before': Model | null (pre-update record, no select/include support)
+   *   - 'before': Model | null (pre-update record, select and include read before the write)
    */
   async updateUnique<R extends UpdateUniqueReturn = undefined>(options: {
     where: WhereClause;
@@ -581,13 +581,6 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     const result = await executeQuery(this.db, query);
 
     if (returnOption === true) return Array.isArray(result) && result.length > 0;
-    if (returnOption === 'before' && Array.isArray(result))
-      return mapResult<T>(
-        result.map((row) => pickSelected(row, select)),
-        this.model,
-        select,
-      );
-
     return mapResult<T>(result, this.model, select);
   }
 
@@ -596,7 +589,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     if (returnOption === true) return result !== null;
     if (result === null) return null;
 
-    return mapSingleResult<T>(returnOption === 'before' ? pickSelected(result, select) : result, this.model, select);
+    return mapSingleResult<T>(result, this.model, select);
   }
 
   /** Read the row an upsert's where matches, or null; `select` and `include` shape the projection. */
@@ -640,8 +633,11 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     select?: SelectClause,
     include?: IncludeClause,
   ): Promise<unknown> {
-    // First check if record exists
-    const existingRecord = await this.readExisting(where, hasId);
+    // First check if record exists; for 'before' this read is also the answer, so it carries the projection
+    const existingRecord =
+      returnOption === 'before'
+        ? await this.readExisting(where, hasId, select, include)
+        : await this.readExisting(where, hasId);
 
     if (existingRecord === null || existingRecord === undefined) {
       // Record doesn't exist - use create path
@@ -664,8 +660,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     if (Object.keys(updateData).length === 0 && (updateNestedOps as Map<string, any>).size === 0) {
       // No update data or nested ops, return existing
       if (returnOption === true) return true;
-      if (returnOption === 'before')
-        return mapSingleResult<T>(pickSelected(existingRecord, select), this.model, select);
+      if (returnOption === 'before') return mapSingleResult<T>(existingRecord, this.model, select);
       if (!select && !include) return mapSingleResult<T>(existingRecord, this.model);
 
       // The existence check read every field; re-read with the caller's select and include
@@ -686,7 +681,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     );
     const result = await executeQuery(this.db, query);
 
-    if (returnOption === 'before') return mapSingleResult<T>(pickSelected(existingRecord, select), this.model, select);
+    if (returnOption === 'before') return mapSingleResult<T>(existingRecord, this.model, select);
     if (returnOption === true) return true;
 
     const record = Array.isArray(result) && result.length > 0 ? result[0] : null;

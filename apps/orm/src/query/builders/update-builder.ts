@@ -22,7 +22,7 @@ import { transformOrValidateRecordId } from '../transformers';
 import { buildArrayUpdateClause, isArrayField, isArrayUpdateOps } from './array-update-builder';
 import { getRecordIdFromWhere } from './delete-builder';
 import { combineSelectWithIncludes, type IncludeClause } from './relation-builder';
-import { buildSelectFields } from './select-builder';
+import { buildBeforeSnapshot, buildSelectFields, needsBeforeSnapshot } from './select-builder';
 
 /**
  * Merge unset fields into data as NONE values.
@@ -637,7 +637,7 @@ function buildUpdateUniqueReturnClause(
   model: ModelMetadata,
   registry?: ModelRegistry,
 ): string {
-  // 'before' - return pre-update state (no select/include support)
+  // 'before' - return pre-update state (select and include read before the write)
   if (returnOption === 'before') {
     return 'RETURN BEFORE';
   }
@@ -679,7 +679,22 @@ export function buildUpdateUniqueQuery(
   const { setParts, setVars } = buildSetClause(data, model, unset);
 
   // Build RETURN clause
-  const returnClause = buildUpdateUniqueReturnClause(returnOption, select, include, model, registry);
+  const snapshot = needsBeforeSnapshot(returnOption, select, include);
+  const returnClause = snapshot
+    ? 'RETURN NONE'
+    : buildUpdateUniqueReturnClause(returnOption, select, include, model, registry);
+
+  // The row is read through the projection first; the write itself returns nothing
+  const wrap = (from: string, whereText: string, statement: string): CompiledQuery['text'] =>
+    snapshot
+      ? [
+          'BEGIN TRANSACTION;',
+          buildBeforeSnapshot(from, whereText, select, model, include, registry),
+          `${statement};`,
+          'COMMIT TRANSACTION;',
+          'RETURN $before;',
+        ].join('\n')
+      : statement;
 
   if (hasId) {
     // ID-based: UPDATE ONLY table:id SET ... [WHERE other fields] [RETURN ...]
@@ -694,7 +709,7 @@ export function buildUpdateUniqueQuery(
     ].filter((p) => p);
 
     return {
-      text: parts.join(' '),
+      text: wrap(recordId.toString(), whereClause.text, parts.join(' ')),
       vars: { ...setVars, ...whereClause.vars },
     };
   }
@@ -710,7 +725,7 @@ export function buildUpdateUniqueQuery(
   ].filter((p) => p);
 
   return {
-    text: parts.join(' '),
+    text: wrap(model.tableName, whereClause.text, parts.join(' ')),
     vars: { ...setVars, ...whereClause.vars },
   };
 }

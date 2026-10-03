@@ -34,11 +34,13 @@ import {
 } from './nested-builder';
 import { combineSelectWithIncludes, type IncludeClause } from './relation-builder';
 import {
+  buildBeforeSnapshot,
   buildSelectFields,
   expandCompositeKey,
   expandObjectUniqueKey,
   findCompositeUniqueKey,
   findObjectUniqueKey,
+  needsBeforeSnapshot,
 } from './select-builder';
 import { buildUpdateSetClauses, mergeUnsetIntoData } from './update-builder';
 
@@ -218,7 +220,10 @@ export function buildUpsertWhereQuery(
   const whereClause = transformDestructiveWhere(where, model, 'upsert', registry);
 
   // Build RETURN clause
-  const returnClause = buildUpsertReturnClause(returnOption, select, include, model, registry);
+  const snapshot = needsBeforeSnapshot(returnOption, select, include);
+  const returnClause = snapshot
+    ? 'RETURN NONE'
+    : buildUpsertReturnClause(returnOption, select, include, model, registry);
 
   const onlyKeyword = useOnly ? ' ONLY' : '';
   const parts = [
@@ -227,6 +232,20 @@ export function buildUpsertWhereQuery(
     whereClause.text,
     returnClause,
   ].filter((p) => p);
+
+  // The matched rows are read through the projection first; the upsert itself returns nothing
+  if (snapshot) {
+    return {
+      text: [
+        'BEGIN TRANSACTION;',
+        buildBeforeSnapshot(model.tableName, whereClause.text, select, model, include, registry),
+        `${parts.join(' ')};`,
+        'COMMIT TRANSACTION;',
+        'RETURN $before;',
+      ].join('\n'),
+      vars: { ...setVars, ...whereClause.vars },
+    };
+  }
 
   return {
     text: parts.join(' '),
@@ -326,6 +345,13 @@ export function buildUpsertIdQuery(
 
   const statements: string[] = ['BEGIN TRANSACTION;'];
   statements.push(`LET $exists = (SELECT * FROM ONLY ${recordId.toString()});`);
+  // With a projection the row handed back is this one, read before either branch writes
+  const snapshot = needsBeforeSnapshot(returnOption, select, include);
+  if (snapshot) {
+    statements.push(
+      `LET $before = (SELECT ${buildSelectFields(select, model, include, registry)} FROM ONLY ${recordId.toString()});`,
+    );
+  }
 
   let createQuery: string;
   if (hasSetFields && createSetParts) {
@@ -355,7 +381,12 @@ export function buildUpsertIdQuery(
     // RETURN BEFORE: on create return null, on update return the BEFORE record
     statements.push(`LET $result = IF $exists == NONE THEN (${createQuery}) ELSE (${updateQuery}) END;`);
     statements.push('COMMIT TRANSACTION;');
-    statements.push('RETURN IF $exists == NONE THEN null ELSE $result END;');
+    // $result is NONE when the update's extra WHERE matched nothing, so it still gates the snapshot
+    statements.push(
+      snapshot
+        ? 'RETURN IF $exists == NONE OR $result == NONE THEN null ELSE $before END;'
+        : 'RETURN IF $exists == NONE THEN null ELSE $result END;',
+    );
   } else {
     statements.push(`LET $result = IF $exists == NONE THEN (${createQuery}) ELSE (${updateQuery}) END;`);
     statements.push('COMMIT TRANSACTION;');
