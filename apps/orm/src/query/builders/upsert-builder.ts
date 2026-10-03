@@ -23,7 +23,8 @@ import type { FieldMetadata, ModelMetadata, ModelRegistry, SelectClause, UpsertR
 import { isNone } from '../../utils/none';
 import type { CompiledQuery } from '../compile/types';
 import { createCompileContext, type FilterCompileContext } from '../compile/var-allocator';
-import { transformDestructiveWhere } from '../filters/transformer';
+import { prefixQueryVars } from '../executor';
+import { transformDestructiveWhere, transformWhereClause } from '../filters/transformer';
 import { transformOrValidateRecordId } from '../transformers';
 import { getRecordIdFromWhere } from './delete-builder';
 import { buildCreateSetClauses } from './insert-builder';
@@ -482,13 +483,34 @@ export function buildUpsertQuery(
   );
 }
 
+/** Options of the single-statement nested upsert */
+export interface UpsertNestedOptions {
+  /** The record the where names through its id field; it is created as that record when absent */
+  recordId?: string;
+  returnOption?: UpsertReturn;
+  select?: SelectClause;
+  include?: IncludeClause;
+}
+
 /**
- * Build upsert with nested relation operations using a transaction.
+ * Turn the trailing `RETURN x;` of a nested builder's statements into the bare `x;` a block yields.
+ * A `RETURN` inside an `IF` block leaves the whole statement it sits in, so the `LET` around the `IF`
+ * would never be assigned and the row would surface as that statement's own result instead.
+ */
+function asBlockValue(text: string): string {
+  const at = text.lastIndexOf('\nRETURN ');
+  if (at === -1) throw new Error('nested upsert: the branch statements end without a RETURN');
+
+  return `${text.slice(0, at + 1)}${text.slice(at + '\nRETURN '.length)}`;
+}
+
+/**
+ * Build a nested-operation upsert as ONE transaction that reads, then branches in the database.
  *
- * For unique-field/ID-based upsert with nested ops:
- * 1. Check if record exists
- * 2. If not exists: delegate to buildCreateWithNestedTransaction for create path
- * 3. If exists: delegate to buildUpdateWithNestedTransaction for update path
+ * `$transaction` array mode runs a compiled query and can perform no read of its own, so the choice
+ * between the create and the update half is made by an `IF` on an existence `LET`, the same shape the
+ * nested update uses to gate a forward create. Each half is the nested builder's own output, with its
+ * variables prefixed so the two cannot collide. Only for a where that names one row.
  */
 export function buildUpsertWithNestedTransaction(
   model: ModelMetadata,
@@ -497,21 +519,62 @@ export function buildUpsertWithNestedTransaction(
   updateData: Record<string, unknown>,
   createNestedOps: Map<string, NestedOperation>,
   updateNestedOps: Map<string, NestedOperation>,
-  select: SelectClause | undefined,
-  include: IncludeClause | undefined,
+  options: UpsertNestedOptions,
   registry: ModelRegistry,
-): { createQuery: CompiledQuery; updateQuery: CompiledQuery } {
-  // Build the create path transaction
-  const createQuery = buildCreateWithNestedTransaction(model, createData, createNestedOps, registry, {
-    select,
-    include,
-  });
+): CompiledQuery {
+  const { recordId, returnOption, select, include } = options;
+  const isBefore = returnOption === 'before';
 
-  // Build the update path transaction (if update data provided)
-  const updateQuery =
-    Object.keys(updateData).length > 0 || updateNestedOps.size > 0
-      ? buildUpdateWithNestedTransaction(model, where, updateData, updateNestedOps, registry, { select, include })
-      : { text: `SELECT * FROM ${model.tableName} WHERE ${Object.keys(where)[0]} = NONE;`, vars: {} };
+  const whereClause = recordId ? undefined : transformWhereClause(where, model, registry);
+  const exists = recordId
+    ? `(SELECT id FROM ONLY ${recordId})`
+    : `(SELECT id FROM ${model.tableName} ${whereClause?.text} LIMIT 1)[0]`;
 
-  return { createQuery, updateQuery };
+  const createQuery = prefixQueryVars(
+    buildCreateWithNestedTransaction(model, createData, createNestedOps, registry, {
+      transactionMode: true,
+      recordId,
+      select,
+      include,
+    }),
+    'c_',
+  );
+  const create = asBlockValue(createQuery.text);
+
+  // Nothing to write to an existing row: hand it back, projected the way the writes project theirs
+  const hasUpdate = Object.keys(updateData).length > 0 || updateNestedOps.size > 0;
+  const updateQuery = hasUpdate
+    ? prefixQueryVars(
+        buildUpdateWithNestedTransaction(model, where, updateData, updateNestedOps, registry, {
+          transactionMode: true,
+          returnBefore: isBefore,
+          select,
+          include,
+        }),
+        'u_',
+      )
+    : {
+        text: `(SELECT ${buildSelectFields(select, model, include, registry)} FROM ONLY $up_exists.id);`,
+        vars: {},
+      };
+  const update = hasUpdate ? asBlockValue(updateQuery.text) : updateQuery.text;
+
+  // A created row has no before state; `return: true` is a flag, which the boolean mapper reads only as a
+  // boolean or an array, never as the single row a created half yields
+  const result = isBefore
+    ? 'IF $up_exists { $up_result }'
+    : returnOption === true
+      ? '$up_result != NONE'
+      : '$up_result';
+
+  return {
+    text: [
+      'BEGIN TRANSACTION;',
+      `LET $up_exists = ${exists};`,
+      `LET $up_result = IF $up_exists { ${update} } ELSE { ${create} };`,
+      'COMMIT TRANSACTION;',
+      `RETURN ${result};`,
+    ].join('\n'),
+    vars: { ...whereClause?.vars, ...createQuery.vars, ...updateQuery.vars },
+  };
 }

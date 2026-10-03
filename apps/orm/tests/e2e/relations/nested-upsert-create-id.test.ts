@@ -203,10 +203,8 @@ describe('E2E Nested upsert create id', () => {
   });
 
   describe('inside $transaction', () => {
-    test('array mode: the row lands on the named id', async () => {
+    test('array mode: the row lands on the named id with the relation linked', async () => {
       const t = await tag();
-      // Array mode runs the compiled query, which is built without the nested ops — the relation link
-      // is a separate open defect, so only the record identity is asserted here
       const [returned] = await client.$transaction([
         client.db.User.upsert({
           where: { id: 'txnarray' },
@@ -218,6 +216,7 @@ describe('E2E Nested upsert create id', () => {
       expect(String((returned as { id: unknown }).id)).toBe('user:txnarray');
       const row = await client.db.User.findOne({ where: { id: 'txnarray' } });
       expect(row?.name).toBe('n');
+      expect(row?.tagIds.map(String)).toEqual([String(t.id)]);
     });
 
     test('callback mode: the row lands on the named id with the relation linked', async () => {

@@ -243,6 +243,21 @@ development branch and is not available on npm.
   been written. The row is now created as the record the `where` names, as it is
   without the relation op.
 
+- An `upsert` with a `connect`, `disconnect`, `set` or nested `create` on a
+  relation field, run inside `$transaction([...])`, wrote the row and dropped
+  the relation without an error: the row existed and nothing linked to it. The
+  relation operation is now applied in array mode too, on whichever half runs,
+  and the reverse side is kept in step. An operation on the half that does not
+  run is ignored, as it is outside a transaction.
+
+- An `upsert` with a relation operation in `create` or `update` and a `where`
+  that is neither an `id` nor a `@unique` field silently dropped the operation.
+  It now throws a `CerialValidationError` (`C3000`) naming the model and the
+  operation. Such a `where` can match no row or several, so there is no single
+  row to attach a relation to. Upsert on an `id` or a unique field, or write the
+  relation with a separate `update`. The same `where` with no relation
+  operation is unchanged.
+
 ### Changed
 
 - Transaction conflict retries (`TransactionOptions.retries`) now recognise a

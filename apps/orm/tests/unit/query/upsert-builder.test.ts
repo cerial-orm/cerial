@@ -721,39 +721,62 @@ describe('upsert-builder', () => {
     const registry = registryFor(schemaWithRelation);
     const authorModel = registry.Author!;
 
-    test('returns separate create and update queries', () => {
-      const result = buildUpsertWithNestedTransaction(
+    const nested = (
+      where: Record<string, unknown>,
+      updateData: Record<string, unknown>,
+      options: Parameters<typeof buildUpsertWithNestedTransaction>[6] = {},
+    ) =>
+      buildUpsertWithNestedTransaction(
         authorModel,
-        { email: 'author@test.com' },
+        where,
         { name: 'Author', email: 'author@test.com' },
-        { name: 'Updated Author' },
+        updateData,
         new Map(),
         new Map(),
-        undefined,
-        undefined,
+        options,
         registry,
       );
 
-      expect(result.createQuery).toBeDefined();
-      expect(result.createQuery.text).toBeDefined();
-      expect(result.updateQuery).toBeDefined();
-      expect(result.updateQuery.text).toBeDefined();
+    test('is one transaction that reads once and branches on the read', () => {
+      const query = nested({ email: 'author@test.com' }, { name: 'Updated Author' });
+
+      expect(query.text).toMatch(/^BEGIN TRANSACTION;/);
+      expect(query.text).toContain('LET $up_exists = (SELECT id FROM author WHERE');
+      expect(query.text).toContain('LET $up_result = IF $up_exists {');
+      expect(query.text).toContain('} ELSE {');
+      expect(query.text).toContain('CREATE ONLY author');
+      expect(query.text).toContain('UPDATE author SET');
+      expect(query.text.trim()).toEndWith('RETURN $up_result;');
     });
 
-    test('uses SELECT fallback for update when no update data or nested ops', () => {
-      const result = buildUpsertWithNestedTransaction(
-        authorModel,
-        { email: 'author@test.com' },
-        { name: 'Author', email: 'author@test.com' },
-        {},
-        new Map(),
-        new Map(),
-        undefined,
-        undefined,
-        registry,
-      );
+    test('an id in the where reads that record and creates it by name', () => {
+      const query = nested({ id: 'a1' }, { name: 'Updated Author' }, { recordId: 'author:a1' });
 
-      expect(result.updateQuery.text).toContain('SELECT');
+      expect(query.text).toContain('LET $up_exists = (SELECT id FROM ONLY author:a1);');
+      expect(query.text).toContain('CREATE ONLY author:a1 CONTENT');
+    });
+
+    test('keeps the variables of the two halves apart', () => {
+      const query = nested({ email: 'author@test.com' }, { name: 'Updated Author' });
+      const names = Object.keys(query.vars);
+
+      expect(names.some((n) => n.startsWith('c_'))).toBe(true);
+      expect(names.some((n) => n.startsWith('u_'))).toBe(true);
+      expect(new Set(names).size).toBe(names.length);
+    });
+
+    test('return before answers nothing for a created row', () => {
+      const query = nested({ email: 'author@test.com' }, { name: 'Updated Author' }, { returnOption: 'before' });
+
+      expect(query.text.trim()).toEndWith('RETURN IF $up_exists { $up_result };');
+      expect(query.text).toContain('LET $u_before');
+    });
+
+    test('with nothing to write to an existing row it reads the row back', () => {
+      const query = nested({ email: 'author@test.com' }, {});
+
+      expect(query.text).toContain('FROM ONLY $up_exists.id');
+      expect(query.text).not.toContain('UPDATE author SET');
     });
   });
 

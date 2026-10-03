@@ -7,6 +7,7 @@
  */
 
 import type { RecordId, Surreal } from 'surrealdb';
+import { CerialValidationError } from '../errors';
 import type {
   CreateOptions,
   DeleteManyOptions,
@@ -40,6 +41,7 @@ import {
   buildUpdateUniqueQuery,
   buildUpdateWithNestedTransaction,
   buildUpsertQuery,
+  buildUpsertWithNestedTransaction,
   extractNestedOperations,
   type FindOptionsWithInclude,
   type FindUniqueOptionsWithInclude,
@@ -48,6 +50,7 @@ import {
   getRecordIdFromWhere,
   type IncludeClause,
   mergeUnsetIntoData,
+  type NestedOperation,
 } from './builders';
 import type { QueryResultType } from './cerial-query-promise';
 import type { CompiledQuery } from './compile/types';
@@ -535,8 +538,9 @@ export class QueryBuilder<T extends Record<string, unknown>> {
 
     // Check for nested operations that need transaction handling
     const hasNestedOps = createNestedOps.size > 0 || updateNestedOps.size > 0;
+    if (hasNestedOps) assertNestedUpsertNamesOneRow(this.model, isSingle);
 
-    if (hasNestedOps && isSingle && this.registry) {
+    if (hasNestedOps && this.registry) {
       return this.executeUpsertWithNested(
         where,
         transformedCreateData,
@@ -592,16 +596,6 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     return mapSingleResult<T>(result, this.model, select);
   }
 
-  /** The record an upsert's where names through its id field, or undefined when the where has none. */
-  private recordIdFromWhere(where: WhereClause): RecordId | undefined {
-    const idField = this.model.fields.find((f) => f.isId);
-    if (!idField) return undefined;
-    const id = where[idField.name];
-    if (id === undefined || id === null) return undefined;
-
-    return transformOrValidateRecordId(this.model.tableName, id as string);
-  }
-
   /** Read the row an upsert's where matches, or null; `select` and `include` shape the projection. */
   private async readExisting(
     where: WhereClause,
@@ -610,7 +604,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     include?: IncludeClause,
   ): Promise<unknown> {
     const fields = buildSelectFields(select, this.model, include, this.registry);
-    const recordId = hasId ? this.recordIdFromWhere(where) : undefined;
+    const recordId = hasId ? recordIdFromWhere(this.model, where) : undefined;
 
     if (recordId) {
       return executeQuerySingle(this.db, { text: `SELECT ${fields} FROM ONLY ${recordId.toString()};`, vars: {} });
@@ -657,7 +651,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
         include,
         // An id in the where names the record to create, exactly as the plain upsert's CREATE does;
         // without it the nested create lands on a server-generated id the caller never asked for
-        recordId: hasId ? this.recordIdFromWhere(where)?.toString() : undefined,
+        recordId: hasId ? recordIdFromWhere(this.model, where)?.toString() : undefined,
       });
       const result = await executeQuerySingle(this.db, query);
 
@@ -1002,6 +996,32 @@ export function compileExists(
   };
 }
 
+/** The record an upsert's where names through its id field, or undefined when the where has none. */
+function recordIdFromWhere(model: ModelMetadata, where: WhereClause): RecordId | undefined {
+  const idField = model.fields.find((f) => f.isId);
+  if (!idField) return undefined;
+  const id = where[idField.name];
+  if (id === undefined || id === null) return undefined;
+
+  return transformOrValidateRecordId(model.tableName, id as string);
+}
+
+/**
+ * A relation op in an upsert needs one row to attach to. A where that is not an id or a @unique field can
+ * match none (the upsert creates one row) or several (no row to pick), so there is no defined target and
+ * the op would be lost; rejecting is the only answer that cannot silently drop a link.
+ */
+function assertNestedUpsertNamesOneRow(model: ModelMetadata, isSingle: boolean): void {
+  if (isSingle) return;
+
+  throw new CerialValidationError(
+    `upsert on ${model.name}: a relation operation in create or update needs a where that names exactly one row, ` +
+      'by id or by a @unique field. This where can match several rows, so there is no single row to attach the ' +
+      'relation to. Upsert on a unique field, or write the relation with a separate update.',
+    { model: model.name, operation: 'upsert' },
+  );
+}
+
 /** Compile an upsert query without executing */
 export function compileUpsert(
   model: ModelMetadata,
@@ -1030,8 +1050,10 @@ export function compileUpsert(
   const transformedCreateData = transformData(createWithDefaults, model);
 
   let transformedUpdateData: Record<string, unknown> = {};
+  let updateNestedOps = new Map<string, unknown>();
   if (updateData) {
-    const { cleanData: cleanUpdateData } = extractNestedOperations(updateData, model);
+    const { cleanData: cleanUpdateData, nestedOps } = extractNestedOperations(updateData, model);
+    updateNestedOps = nestedOps;
     transformedUpdateData = transformData(cleanUpdateData, model, 'update');
     const updateValidation = validateUpdateData(transformedUpdateData, model);
     if (!updateValidation.valid) throw validationFailure('data', updateValidation.errors, model, 'upsert');
@@ -1059,17 +1081,33 @@ export function compileUpsert(
     !!findObjectUniqueKey(where, model);
   const isSingle = hasId || hasUniqueField;
 
-  const query = buildUpsertQuery(
-    model,
-    where,
-    transformedCreateData,
-    transformedUpdateData,
-    returnOption ?? undefined,
-    select,
-    include,
-    registry,
-    unset,
-  );
+  // Array mode runs this compiled query, so a nested op has to be in it: the plain upsert would drop it
+  const hasNestedOps = createNestedOps.size > 0 || updateNestedOps.size > 0;
+  if (hasNestedOps) assertNestedUpsertNamesOneRow(model, isSingle);
+
+  const query =
+    hasNestedOps && registry
+      ? buildUpsertWithNestedTransaction(
+          model,
+          where,
+          transformedCreateData,
+          unset ? mergeUnsetIntoData(transformedUpdateData, unset) : transformedUpdateData,
+          createNestedOps,
+          updateNestedOps as Map<string, NestedOperation>,
+          { recordId: hasId ? recordIdFromWhere(model, where)?.toString() : undefined, returnOption, select, include },
+          registry,
+        )
+      : buildUpsertQuery(
+          model,
+          where,
+          transformedCreateData,
+          transformedUpdateData,
+          returnOption ?? undefined,
+          select,
+          include,
+          registry,
+          unset,
+        );
 
   // Determine result type
   let resultType: QueryResultType;
