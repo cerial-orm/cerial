@@ -10,92 +10,137 @@
  * - @updatedAt: optional in Create/Update, present in Where
  * - TimestampInfo object: @createdAt/@updatedAt optional in CreateInput
  *   Note: @now is NOT allowed on object fields (COMPUTED must be top-level)
+ *
+ * Every shape is compared with `Test.check`, which fails on a wider or a
+ * narrower type.
  */
 
+import type { CerialId, CerialNone } from 'cerial';
 import { Test } from 'ts-toolbelt';
 import type {
+  TimestampInfo,
   TimestampInfoCreateInput,
+  TimestampInfoInput,
   TimestampTest,
   TimestampTestCreate,
   TimestampTestSelect,
   TimestampTestUpdate,
   TimestampTestWhere,
 } from '../../generated';
+import type { Flat, IsOptional } from '../helpers';
 
 const { checks, check } = Test;
 
-// Helper: 1 if K is a key of T (required OR optional), 0 otherwise
-type HasKey<T, K extends string> = K extends keyof T ? 1 : 0;
-
-// Helper: 1 if A extends B
-type Extends<A, B> = A extends B ? 1 : 0;
-
 // =============================================================================
-// TimestampTest Output Type — all timestamp fields present
+// TimestampTest output: every timestamp field is present
 // =============================================================================
 
-// accessedAt (@now) exists in output type
-checks([check<HasKey<TimestampTest, 'accessedAt'>, 1, Test.Pass>()]);
-
-// createdAt (@createdAt) exists in output type
-checks([check<HasKey<TimestampTest, 'createdAt'>, 1, Test.Pass>()]);
-
-// updatedAt (@updatedAt) exists in output type
-checks([check<HasKey<TimestampTest, 'updatedAt'>, 1, Test.Pass>()]);
-
-// =============================================================================
-// TimestampTestCreate — @now omitted, @createdAt/@updatedAt optional
-// =============================================================================
-
-// accessedAt (@now) does NOT exist in Create type (computed, omitted)
-checks([check<HasKey<TimestampTestCreate, 'accessedAt'>, 0, Test.Pass>()]);
-
-// createdAt (@createdAt) exists in Create type (optional)
-checks([check<HasKey<TimestampTestCreate, 'createdAt'>, 1, Test.Pass>()]);
-
-// updatedAt (@updatedAt) exists in Create type (optional)
-checks([check<HasKey<TimestampTestCreate, 'updatedAt'>, 1, Test.Pass>()]);
+checks([
+  check<
+    Flat<TimestampTest>,
+    {
+      id: CerialId<string>;
+      name: string;
+      createdAt?: Date;
+      updatedAt?: Date;
+      accessedAt?: Date;
+      meta?: Flat<TimestampInfo>;
+    },
+    Test.Pass
+  >(),
+]);
 
 // =============================================================================
-// TimestampTestUpdate — @now omitted, @createdAt/@updatedAt optional
+// TimestampTestCreate: @now omitted, @createdAt and @updatedAt optional
 // =============================================================================
 
-// accessedAt (@now) does NOT exist in Update type (computed, omitted)
-checks([check<HasKey<TimestampTestUpdate, 'accessedAt'>, 0, Test.Pass>()]);
-
-// createdAt (@createdAt) exists in Update type (optional via Partial)
-checks([check<HasKey<TimestampTestUpdate, 'createdAt'>, 1, Test.Pass>()]);
-
-// updatedAt (@updatedAt) exists in Update type (optional via Partial)
-checks([check<HasKey<TimestampTestUpdate, 'updatedAt'>, 1, Test.Pass>()]);
-
-// =============================================================================
-// TimestampTestWhere — @now excluded, @createdAt/@updatedAt present
-// =============================================================================
-
-// accessedAt (@now) does NOT exist in Where type (excluded from filtering)
-checks([check<HasKey<TimestampTestWhere, 'accessedAt'>, 0, Test.Pass>()]);
-
-// createdAt (@createdAt) exists in Where type
-checks([check<HasKey<TimestampTestWhere, 'createdAt'>, 1, Test.Pass>()]);
-
-// updatedAt (@updatedAt) exists in Where type
-checks([check<HasKey<TimestampTestWhere, 'updatedAt'>, 1, Test.Pass>()]);
+checks([
+  check<
+    Flat<TimestampTestCreate>,
+    {
+      id?: string;
+      name: string;
+      createdAt?: Date;
+      updatedAt?: Date;
+      meta?: TimestampInfoCreateInput;
+    },
+    Test.Pass
+  >(),
+  check<'accessedAt' extends keyof TimestampTestCreate ? 1 : 0, 0, Test.Pass>(),
+  check<IsOptional<TimestampTestCreate, 'createdAt'>, 1, Test.Pass>(),
+  check<IsOptional<TimestampTestCreate, 'updatedAt'>, 1, Test.Pass>(),
+  check<IsOptional<TimestampTestCreate, 'name'>, 0, Test.Pass>(),
+]);
 
 // =============================================================================
-// TimestampTestSelect — @now field IS selectable
+// TimestampTestUpdate: @now omitted, @createdAt and @updatedAt optional and clearable
 // =============================================================================
 
-// accessedAt can appear in select (it's readable, just not writable/filterable)
-checks([check<Extends<{ accessedAt: true }, TimestampTestSelect>, 1, Test.Pass>()]);
+checks([
+  check<
+    Flat<TimestampTestUpdate>,
+    {
+      name?: string;
+      meta?: Flat<Partial<TimestampInfoInput>> | { set: Flat<TimestampInfoInput> } | CerialNone;
+      createdAt?: Date | CerialNone;
+      updatedAt?: Date | CerialNone;
+    },
+    Test.Pass
+  >(),
+  check<'accessedAt' extends keyof TimestampTestUpdate ? 1 : 0, 0, Test.Pass>(),
+]);
 
 // =============================================================================
-// TimestampInfoCreateInput — @createdAt/@updatedAt optional
+// TimestampTestWhere: @now excluded, @createdAt and @updatedAt filterable
+// =============================================================================
+
+checks([
+  check<
+    keyof TimestampTestWhere,
+    'id' | 'name' | 'createdAt' | 'updatedAt' | 'meta' | 'AND' | 'OR' | 'NOT',
+    Test.Pass
+  >(),
+  check<
+    NonNullable<TimestampTestWhere['createdAt']> extends infer W ? (Date extends W ? 1 : 0) : never,
+    1,
+    Test.Pass
+  >(),
+]);
+
+// =============================================================================
+// TimestampTestSelect: the @now field is selectable (readable, not writable or filterable)
+// =============================================================================
+
+type SelectedKeys = TimestampTestSelect extends infer S ? (S extends unknown ? keyof S : never) : never;
+
+checks([check<SelectedKeys, 'id' | 'name' | 'createdAt' | 'updatedAt' | 'accessedAt' | 'meta', Test.Pass>()]);
+
+// =============================================================================
+// TimestampInfoCreateInput: @createdAt and @updatedAt optional
 // (no @now on objects — COMPUTED must be top-level)
 // =============================================================================
 
-// createdAt (@createdAt) exists in TimestampInfoCreateInput (optional)
-checks([check<HasKey<TimestampInfoCreateInput, 'createdAt'>, 1, Test.Pass>()]);
+checks([
+  check<TimestampInfoCreateInput, { label: string; createdAt?: Date; updatedAt?: Date }, Test.Pass>(),
+  check<IsOptional<TimestampInfoCreateInput, 'createdAt'>, 1, Test.Pass>(),
+  check<IsOptional<TimestampInfoCreateInput, 'updatedAt'>, 1, Test.Pass>(),
+  check<IsOptional<TimestampInfoCreateInput, 'label'>, 0, Test.Pass>(),
+]);
 
-// updatedAt (@updatedAt) exists in TimestampInfoCreateInput (optional)
-checks([check<HasKey<TimestampInfoCreateInput, 'updatedAt'>, 1, Test.Pass>()]);
+// =============================================================================
+// Negative
+// =============================================================================
+
+export const nameOnly: TimestampTestCreate = { name: 'x' };
+
+// @ts-expect-error - a computed @now field cannot be written on create
+export const writeNow: TimestampTestCreate = { name: 'x', accessedAt: new Date() };
+
+// @ts-expect-error - a computed @now field cannot be written on update
+export const updateNow: TimestampTestUpdate = { accessedAt: new Date() };
+
+// @ts-expect-error - a computed @now field cannot be filtered
+export const filterNow: TimestampTestWhere = { accessedAt: new Date() };
+
+// @ts-expect-error - a timestamp takes a Date, not a string
+export const stringTimestamp: TimestampTestCreate = { name: 'x', createdAt: '2026-01-01' };

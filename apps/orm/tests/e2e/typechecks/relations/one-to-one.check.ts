@@ -121,3 +121,22 @@ Test.checks([
   Test.check<Extends<IncludeProfile, UserRequiredInclude>, 1, Test.Pass>(),
   Test.check<Extends<IncludeProfileWithOptions, UserRequiredInclude>, 1, Test.Pass>(),
 ]);
+
+// =============================================================================
+// Negative
+// =============================================================================
+
+// @ts-expect-error - a required relation cannot be detached
+export const disconnectRequired: ProfileRequiredUpdateInput = { user: { disconnect: true } };
+
+// An optional relation can be detached
+export const disconnectOptional: ProfileOptionalUpdateInput = { user: { disconnect: true } };
+
+// @ts-expect-error - disconnect takes true, not an id
+export const disconnectById: ProfileOptionalUpdateInput = { user: { disconnect: 'user:1' } };
+
+// @ts-expect-error - connect takes a record id, not a boolean
+export const connectBoolean: UserOptionalCreateInput = { email: 'e', name: 'n', profile: { connect: true } };
+
+// @ts-expect-error - UserRequired has no relation named account
+export const unknownRelation: UserRequiredInclude = { account: true };

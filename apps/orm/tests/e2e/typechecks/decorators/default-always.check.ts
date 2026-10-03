@@ -7,8 +7,12 @@
  * Tests types generated for:
  * - @defaultAlways(value): optional in Create, present in Update (Partial), present in Where
  * - ReviewMetaCreateInput: @defaultAlways fields optional in object CreateInput
+ *
+ * Every shape is compared with `Test.check`, which fails on a wider or a
+ * narrower type.
  */
 
+import type { CerialId, CerialNone } from 'cerial';
 import { Test } from 'ts-toolbelt';
 import type {
   ContentItem,
@@ -16,95 +20,140 @@ import type {
   ContentItemSelect,
   ContentItemUpdate,
   ContentItemWhere,
+  ReviewMeta,
   ReviewMetaCreateInput,
+  ReviewMetaInput,
 } from '../../generated';
+import type { Flat, IsOptional } from '../helpers';
 
 const { checks, check } = Test;
 
-// Helper: 1 if K is a key of T (required OR optional), 0 otherwise
-type HasKey<T, K extends string> = K extends keyof T ? 1 : 0;
-
-// Helper: 1 if A extends B
-type Extends<A, B> = A extends B ? 1 : 0;
-
 // =============================================================================
-// ContentItem Output Type — all @defaultAlways fields present
+// ContentItem output: the @defaultAlways fields are optional values of their own type
 // =============================================================================
 
-// reviewed (@defaultAlways(false)) exists in output type
-checks([check<HasKey<ContentItem, 'reviewed'>, 1, Test.Pass>()]);
-
-// syncStatus (@defaultAlways("dirty")) exists in output type
-checks([check<HasKey<ContentItem, 'syncStatus'>, 1, Test.Pass>()]);
-
-// retryCount (@defaultAlways(0)) exists in output type
-checks([check<HasKey<ContentItem, 'retryCount'>, 1, Test.Pass>()]);
-
-// score (@defaultAlways(1.0)) exists in output type
-checks([check<HasKey<ContentItem, 'score'>, 1, Test.Pass>()]);
-
-// non-defaultAlways fields also present
-checks([check<HasKey<ContentItem, 'title'>, 1, Test.Pass>()]);
-checks([check<HasKey<ContentItem, 'body'>, 1, Test.Pass>()]);
-
-// =============================================================================
-// ContentItemCreate — @defaultAlways fields are optional
-// =============================================================================
-
-// reviewed is optional in Create (can be omitted, DB fills via DEFAULT ALWAYS)
-checks([check<HasKey<ContentItemCreate, 'reviewed'>, 1, Test.Pass>()]);
-checks([check<Extends<{ title: 'a'; body: 'b' }, ContentItemCreate>, 1, Test.Pass>()]);
-
-// syncStatus is optional in Create
-checks([check<HasKey<ContentItemCreate, 'syncStatus'>, 1, Test.Pass>()]);
-
-// retryCount is optional in Create
-checks([check<HasKey<ContentItemCreate, 'retryCount'>, 1, Test.Pass>()]);
-
-// score is optional in Create
-checks([check<HasKey<ContentItemCreate, 'score'>, 1, Test.Pass>()]);
-
-// title and body are required (no @defaultAlways)
-// Creating with only title and body should be valid
-checks([check<Extends<{ title: 'x'; body: 'y' }, ContentItemCreate>, 1, Test.Pass>()]);
+checks([
+  check<
+    Flat<ContentItem>,
+    {
+      id: CerialId<string>;
+      title: string;
+      body: string;
+      reviewed?: boolean;
+      syncStatus?: string;
+      retryCount?: number;
+      score?: number;
+      meta?: Flat<ReviewMeta>;
+    },
+    Test.Pass
+  >(),
+]);
 
 // =============================================================================
-// ContentItemUpdate — @defaultAlways fields present (via Partial)
+// ContentItemCreate: @defaultAlways fields may be omitted, the rest may not
 // =============================================================================
 
-checks([check<HasKey<ContentItemUpdate, 'reviewed'>, 1, Test.Pass>()]);
-checks([check<HasKey<ContentItemUpdate, 'syncStatus'>, 1, Test.Pass>()]);
-checks([check<HasKey<ContentItemUpdate, 'retryCount'>, 1, Test.Pass>()]);
-checks([check<HasKey<ContentItemUpdate, 'score'>, 1, Test.Pass>()]);
+checks([
+  check<
+    Flat<ContentItemCreate>,
+    {
+      id?: string;
+      title: string;
+      body: string;
+      reviewed?: boolean;
+      syncStatus?: string;
+      retryCount?: number;
+      score?: number;
+      meta?: ReviewMetaCreateInput;
+    },
+    Test.Pass
+  >(),
+  check<IsOptional<ContentItemCreate, 'reviewed'>, 1, Test.Pass>(),
+  check<IsOptional<ContentItemCreate, 'syncStatus'>, 1, Test.Pass>(),
+  check<IsOptional<ContentItemCreate, 'retryCount'>, 1, Test.Pass>(),
+  check<IsOptional<ContentItemCreate, 'score'>, 1, Test.Pass>(),
+  check<IsOptional<ContentItemCreate, 'title'>, 0, Test.Pass>(),
+  check<IsOptional<ContentItemCreate, 'body'>, 0, Test.Pass>(),
+]);
 
 // =============================================================================
-// ContentItemWhere — @defaultAlways fields present for filtering
+// ContentItemUpdate: every field optional, and each @defaultAlways field can be cleared
 // =============================================================================
 
-checks([check<HasKey<ContentItemWhere, 'reviewed'>, 1, Test.Pass>()]);
-checks([check<HasKey<ContentItemWhere, 'syncStatus'>, 1, Test.Pass>()]);
-checks([check<HasKey<ContentItemWhere, 'retryCount'>, 1, Test.Pass>()]);
-checks([check<HasKey<ContentItemWhere, 'score'>, 1, Test.Pass>()]);
+checks([
+  check<
+    Flat<ContentItemUpdate>,
+    {
+      title?: string;
+      body?: string;
+      meta?: Flat<Partial<ReviewMetaInput>> | { set: Flat<ReviewMetaInput> } | CerialNone;
+      reviewed?: boolean | CerialNone;
+      syncStatus?: string | CerialNone;
+      retryCount?: number | CerialNone;
+      score?: number | CerialNone;
+    },
+    Test.Pass
+  >(),
+  // The id is never updatable
+  check<'id' extends keyof ContentItemUpdate ? 1 : 0, 0, Test.Pass>(),
+]);
 
 // =============================================================================
-// ContentItemSelect — @defaultAlways fields selectable
+// ContentItemWhere: every field filterable
 // =============================================================================
 
-checks([check<Extends<{ reviewed: true }, ContentItemSelect>, 1, Test.Pass>()]);
-checks([check<Extends<{ syncStatus: true }, ContentItemSelect>, 1, Test.Pass>()]);
-checks([check<Extends<{ retryCount: true }, ContentItemSelect>, 1, Test.Pass>()]);
-checks([check<Extends<{ score: true }, ContentItemSelect>, 1, Test.Pass>()]);
+checks([
+  check<
+    keyof ContentItemWhere,
+    'id' | 'title' | 'body' | 'reviewed' | 'syncStatus' | 'retryCount' | 'score' | 'meta' | 'AND' | 'OR' | 'NOT',
+    Test.Pass
+  >(),
+  // A @defaultAlways field filters by the type of its value
+  check<NonNullable<ContentItemWhere['reviewed']> extends infer W ? (true extends W ? 1 : 0) : never, 1, Test.Pass>(),
+  check<NonNullable<ContentItemWhere['retryCount']> extends infer W ? (3 extends W ? 1 : 0) : never, 1, Test.Pass>(),
+  check<
+    NonNullable<ContentItemWhere['syncStatus']> extends infer W ? ('dirty' extends W ? 1 : 0) : never,
+    1,
+    Test.Pass
+  >(),
+]);
 
 // =============================================================================
-// ReviewMetaCreateInput — @defaultAlways fields optional in object CreateInput
+// ContentItemSelect: a select names any one field as the required one
 // =============================================================================
 
-// note (@defaultAlways("pending review")) is optional
-checks([check<HasKey<ReviewMetaCreateInput, 'note'>, 1, Test.Pass>()]);
+type SelectedKeys = ContentItemSelect extends infer S ? (S extends unknown ? keyof S : never) : never;
 
-// flagged (@defaultAlways(false)) is optional
-checks([check<HasKey<ReviewMetaCreateInput, 'flagged'>, 1, Test.Pass>()]);
+checks([
+  check<
+    SelectedKeys,
+    'id' | 'title' | 'body' | 'reviewed' | 'syncStatus' | 'retryCount' | 'score' | 'meta',
+    Test.Pass
+  >(),
+]);
 
-// Can create ReviewMetaCreateInput with empty object (all fields have defaults)
-// oxlint-disable-next-line typescript/no-empty-object-type -- {} intentionally tests empty object assignability
-checks([check<Extends<{}, ReviewMetaCreateInput>, 1, Test.Pass>()]);
+// =============================================================================
+// ReviewMetaCreateInput: all fields have defaults, so all are optional
+// =============================================================================
+
+checks([
+  check<ReviewMetaCreateInput, { note?: string; flagged?: boolean }, Test.Pass>(),
+  check<IsOptional<ReviewMetaCreateInput, 'note'>, 1, Test.Pass>(),
+  check<IsOptional<ReviewMetaCreateInput, 'flagged'>, 1, Test.Pass>(),
+]);
+
+// =============================================================================
+// Negative
+// =============================================================================
+
+export const onlyRequired: ContentItemCreate = { title: 'x', body: 'y' };
+export const emptyMeta: ContentItemCreate = { title: 'x', body: 'y', meta: {} };
+
+// @ts-expect-error - title has no default, so it is required
+export const missingTitle: ContentItemCreate = { body: 'y' };
+
+// @ts-expect-error - a @defaultAlways value keeps its declared type
+export const wrongType: ContentItemCreate = { title: 'x', body: 'y', retryCount: 'many' };
+
+// @ts-expect-error - a @defaultAlways boolean is not a string
+export const wrongBoolean: ContentItemUpdate = { reviewed: 'yes' };

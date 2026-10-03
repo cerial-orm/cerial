@@ -8,10 +8,18 @@
  * - @readonly fields: present in output, Create, Where, Select — excluded from Update
  * - @readonly object sub-fields: excluded from object update Partial types
  * - @readonly PK Record: relation excluded from UpdateInput nested ops
+ *
+ * Every shape is compared with `Test.check`, which fails on a wider or a
+ * narrower type.
  */
 
+import type { CerialId, CerialNone, RecordIdInput } from 'cerial';
 import { Test } from 'ts-toolbelt';
 import type {
+  ReadonlyAddress,
+  ReadonlyAddressInput,
+  ReadonlyMeta,
+  ReadonlyMetaInput,
   ReadonlyRecord,
   ReadonlyRecordCreate,
   ReadonlyRecordUpdate,
@@ -22,85 +30,116 @@ import type {
   ReadonlyTestUpdate,
   ReadonlyTestWhere,
 } from '../../generated';
+import type { Flat, IsOptional } from '../helpers';
 
 const { checks, check } = Test;
 
-// Helper: 1 if K is a key of T (required OR optional), 0 otherwise
-type HasKey<T, K extends string> = K extends keyof T ? 1 : 0;
-
-// Helper: 1 if A extends B
-type Extends<A, B> = A extends B ? 1 : 0;
-
 // =============================================================================
-// ReadonlyTest Output Type — all fields present (including @readonly)
+// ReadonlyTest output: every field present, @readonly included
 // =============================================================================
 
-checks([check<HasKey<ReadonlyTest, 'id'>, 1, Test.Pass>()]);
-checks([check<HasKey<ReadonlyTest, 'name'>, 1, Test.Pass>()]);
-checks([check<HasKey<ReadonlyTest, 'code'>, 1, Test.Pass>()]);
-checks([check<HasKey<ReadonlyTest, 'score'>, 1, Test.Pass>()]);
-checks([check<HasKey<ReadonlyTest, 'tags'>, 1, Test.Pass>()]);
-checks([check<HasKey<ReadonlyTest, 'createdBy'>, 1, Test.Pass>()]);
-checks([check<HasKey<ReadonlyTest, 'address'>, 1, Test.Pass>()]);
-checks([check<HasKey<ReadonlyTest, 'meta'>, 1, Test.Pass>()]);
+checks([
+  check<
+    Flat<ReadonlyTest>,
+    {
+      id: CerialId<string>;
+      name: string;
+      code: string;
+      score?: number;
+      tags: string[];
+      createdBy: string;
+      address: Flat<ReadonlyAddress>;
+      meta?: Flat<ReadonlyMeta>;
+    },
+    Test.Pass
+  >(),
+]);
 
 // =============================================================================
-// ReadonlyTestCreate — @readonly fields ARE present (writable on create)
+// ReadonlyTestCreate: @readonly fields are writable on create
 // =============================================================================
 
-checks([check<HasKey<ReadonlyTestCreate, 'name'>, 1, Test.Pass>()]);
-checks([check<HasKey<ReadonlyTestCreate, 'code'>, 1, Test.Pass>()]);
-checks([check<HasKey<ReadonlyTestCreate, 'score'>, 1, Test.Pass>()]);
-checks([check<HasKey<ReadonlyTestCreate, 'tags'>, 1, Test.Pass>()]);
-checks([check<HasKey<ReadonlyTestCreate, 'createdBy'>, 1, Test.Pass>()]);
-checks([check<HasKey<ReadonlyTestCreate, 'address'>, 1, Test.Pass>()]);
+checks([
+  check<
+    Flat<ReadonlyTestCreate>,
+    {
+      id?: string;
+      name: string;
+      code: string;
+      score?: number;
+      tags?: string[];
+      createdBy?: string;
+      address: Flat<ReadonlyAddressInput>;
+      meta?: Flat<ReadonlyMetaInput>;
+    },
+    Test.Pass
+  >(),
+  // @readonly without a default stays required; with a default it turns optional
+  check<IsOptional<ReadonlyTestCreate, 'code'>, 0, Test.Pass>(),
+  check<IsOptional<ReadonlyTestCreate, 'createdBy'>, 1, Test.Pass>(),
+]);
 
 // =============================================================================
-// ReadonlyTestUpdate — @readonly fields NOT present (excluded from update)
+// ReadonlyTestUpdate: @readonly fields are excluded, including inside objects
 // =============================================================================
 
-// @readonly fields should NOT be in Update type
-checks([check<HasKey<ReadonlyTestUpdate, 'code'>, 0, Test.Pass>()]);
-checks([check<HasKey<ReadonlyTestUpdate, 'score'>, 0, Test.Pass>()]);
-checks([check<HasKey<ReadonlyTestUpdate, 'createdBy'>, 0, Test.Pass>()]);
-
-// Non-readonly fields SHOULD be in Update type
-checks([check<HasKey<ReadonlyTestUpdate, 'name'>, 1, Test.Pass>()]);
-checks([check<HasKey<ReadonlyTestUpdate, 'tags'>, 1, Test.Pass>()]);
-checks([check<HasKey<ReadonlyTestUpdate, 'address'>, 1, Test.Pass>()]);
-
-// =============================================================================
-// ReadonlyTestWhere — @readonly fields ARE present (can filter by them)
-// =============================================================================
-
-checks([check<HasKey<ReadonlyTestWhere, 'code'>, 1, Test.Pass>()]);
-checks([check<HasKey<ReadonlyTestWhere, 'score'>, 1, Test.Pass>()]);
-checks([check<HasKey<ReadonlyTestWhere, 'createdBy'>, 1, Test.Pass>()]);
-checks([check<HasKey<ReadonlyTestWhere, 'name'>, 1, Test.Pass>()]);
+checks([
+  check<
+    Flat<ReadonlyTestUpdate>,
+    {
+      name?: string;
+      tags?: string[] | { push?: string | string[]; unset?: string | string[] };
+      // A @readonly sub-field (`city`) is dropped from the partial update, but not from a full `set`
+      address?: Flat<Partial<Omit<ReadonlyAddressInput, 'city'>>> | { set: Flat<ReadonlyAddressInput> };
+      meta?: Flat<Partial<Omit<ReadonlyMetaInput, 'label'>>> | { set: Flat<ReadonlyMetaInput> } | CerialNone;
+    },
+    Test.Pass
+  >(),
+  check<keyof ReadonlyTestUpdate & ('code' | 'score' | 'createdBy' | 'id'), never, Test.Pass>(),
+]);
 
 // =============================================================================
-// ReadonlyTestSelect — @readonly fields ARE selectable
+// ReadonlyTestWhere and ReadonlyTestSelect: @readonly fields stay filterable and selectable
 // =============================================================================
 
-checks([check<Extends<{ code: true }, ReadonlyTestSelect>, 1, Test.Pass>()]);
-checks([check<Extends<{ score: true }, ReadonlyTestSelect>, 1, Test.Pass>()]);
-checks([check<Extends<{ createdBy: true }, ReadonlyTestSelect>, 1, Test.Pass>()]);
+type SelectedKeys = ReadonlyTestSelect extends infer S ? (S extends unknown ? keyof S : never) : never;
+
+checks([
+  check<
+    keyof ReadonlyTestWhere,
+    'id' | 'name' | 'code' | 'score' | 'tags' | 'createdBy' | 'address' | 'meta' | 'AND' | 'OR' | 'NOT',
+    Test.Pass
+  >(),
+  check<SelectedKeys, 'id' | 'name' | 'code' | 'score' | 'tags' | 'createdBy' | 'address' | 'meta', Test.Pass>(),
+]);
 
 // =============================================================================
-// ReadonlyRecord — @readonly PK Record field
+// ReadonlyRecord: a @readonly foreign key
 // =============================================================================
 
-// Output type: all fields present
-checks([check<HasKey<ReadonlyRecord, 'authorId'>, 1, Test.Pass>()]);
-checks([check<HasKey<ReadonlyRecord, 'name'>, 1, Test.Pass>()]);
+checks([
+  check<Flat<ReadonlyRecord>, { id: CerialId<string>; name: string; authorId?: CerialId<string> }, Test.Pass>(),
+  // Writable on create
+  check<Flat<ReadonlyRecordCreate>, Flat<{ id?: string; name: string; authorId?: RecordIdInput<string> }>, Test.Pass>(),
+  // Excluded from update, so the relation also loses its nested operations
+  check<Flat<ReadonlyRecordUpdate>, { name?: string }, Test.Pass>(),
+  check<ReadonlyRecordUpdateInput, ReadonlyRecordUpdate, Test.Pass>(),
+]);
 
-// Create type: authorId is present (writable on create)
-checks([check<HasKey<ReadonlyRecordCreate, 'authorId'>, 1, Test.Pass>()]);
+// =============================================================================
+// Negative
+// =============================================================================
 
-// Update type: authorId is NOT present (readonly)
-checks([check<HasKey<ReadonlyRecordUpdate, 'authorId'>, 0, Test.Pass>()]);
-checks([check<HasKey<ReadonlyRecordUpdate, 'name'>, 1, Test.Pass>()]);
+export const renameOnly: ReadonlyTestUpdate = { name: 'x' };
 
-// UpdateInput should NOT have nested author connect/disconnect ops
-// (It should be just ReadonlyRecordUpdate since the only relation has a @readonly PK)
-checks([check<Extends<ReadonlyRecordUpdateInput, ReadonlyRecordUpdate>, 1, Test.Pass>()]);
+// @ts-expect-error - a @readonly field cannot be updated
+export const updateCode: ReadonlyTestUpdate = { code: 'new' };
+
+// @ts-expect-error - a @readonly sub-field cannot be partially updated
+export const updateCity: ReadonlyTestUpdate = { address: { city: 'new' } };
+
+// @ts-expect-error - a @readonly foreign key cannot be updated
+export const updateAuthor: ReadonlyRecordUpdate = { authorId: 'author:1' };
+
+// @ts-expect-error - the nested relation operations are gone with the @readonly key
+export const nestedAuthor: ReadonlyRecordUpdateInput = { author: { connect: 'author:1' } };

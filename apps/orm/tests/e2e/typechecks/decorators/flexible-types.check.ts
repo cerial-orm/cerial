@@ -392,3 +392,44 @@ Test.checks([
   Test.check<MixedSelect['strictAddress']['street'], string, Test.Pass>(),
   Test.check<MixedSelect['strictAddress']['city'], string, Test.Pass>(),
 ]);
+
+// =============================================================================
+// Negative: flexibility belongs to the field, not to the object type
+// =============================================================================
+
+// FlexAddress is flexible on `address` and strict on `strictAddress`
+export const flexibleAccepts: FlexUserCreate = {
+  name: 'n',
+  address: { street: 's', city: 'c', anything: 1 },
+  profile: { bio: 'b', metadata: { label: 'l' } },
+  strictAddress: { street: 's', city: 'c' },
+};
+
+export const strictRejects: FlexUserCreate = {
+  name: 'n',
+  address: { street: 's', city: 'c' },
+  profile: { bio: 'b', metadata: { label: 'l' } },
+  // @ts-expect-error - strictAddress is not flexible, so an undeclared key is refused
+  strictAddress: { street: 's', city: 'c', extra: 1 },
+};
+
+// The object type itself carries no index signature
+Test.checks([Test.check<string extends keyof FlexAddressInput ? 1 : 0, 0, Test.Pass>()]);
+
+// A flexible field keeps its declared keys typed
+export const flexibleDeclaredKey: FlexUserCreate = {
+  name: 'n',
+  // @ts-expect-error - street is declared as a string even on a flexible field
+  address: { street: 1, city: 'c' },
+  profile: { bio: 'b', metadata: { label: 'l' } },
+  strictAddress: { street: 's', city: 'c' },
+};
+
+// A flexible field inside an object does not make the parent flexible
+export const nestedFlexibleParent: FlexUserCreate = {
+  name: 'n',
+  address: { street: 's', city: 'c' },
+  // @ts-expect-error - profile is strict; only profile.metadata is flexible
+  profile: { bio: 'b', metadata: { label: 'l' }, extra: 1 },
+  strictAddress: { street: 's', city: 'c' },
+};

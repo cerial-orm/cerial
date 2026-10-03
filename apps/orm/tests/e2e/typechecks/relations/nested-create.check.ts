@@ -3,135 +3,138 @@
  *
  * This file is verified with `tsc --noEmit`, NOT executed at runtime.
  * Run: bun run typecheck
+ *
+ * Each relation operation is compared with `Test.check`, which fails on a
+ * wider or a narrower type, and then exercised with concrete values.
  */
 
+import type { RecordIdInput } from 'cerial';
 import { Test } from 'ts-toolbelt';
 import type {
   AuthorCreateInput,
+  AuthorNestedCreate,
+  CourseNestedCreate,
+  KitchenSinkBadgeNestedCreate,
+  KitchenSinkPostNestedCreate,
+  KitchenSinkProfileNestedCreate,
+  KitchenSinkSettingsNestedCreate,
+  KitchenSinkTagNestedCreate,
   KitchenSinkUserCreateInput,
   PostRequiredCreateInput,
+  PostRequiredNestedCreate,
   ProfileRequiredCreateInput,
+  ProfileRequiredNestedCreate,
   StudentCreateInput,
   UserRequiredCreateInput,
+  UserRequiredNestedCreate,
 } from '../../generated';
+import type { IsOptional } from '../helpers';
 
-// Helper for extension checks
-type Extends<A, B> = A extends B ? 1 : 0;
+const { checks, check } = Test;
+
+type ManyOp<N> = { create?: N | N[]; connect?: RecordIdInput | RecordIdInput[] };
+type OneOp<N> = { create: N } | { connect: RecordIdInput };
 
 // =============================================================================
-// Nested Create vs Connect (Mutually Exclusive for Single Relations)
+// Single relations: create or connect
 // =============================================================================
 
-// For 1-1: create XOR connect - both should be valid input types
-type ProfileWithCreate = { bio: string; user: { create: { email: string; name: string } } };
-type ProfileWithConnect = { bio: string; user: { connect: string } };
+// For 1-1: create XOR connect
+type ProfileUserBranch = Exclude<ProfileRequiredCreateInput, { userId: unknown }>;
+checks([check<ProfileUserBranch['user'], OneOp<UserRequiredNestedCreate>, Test.Pass>()]);
 
-Test.checks([
-  Test.check<Extends<ProfileWithCreate, ProfileRequiredCreateInput>, 1, Test.Pass>(),
-  Test.check<Extends<ProfileWithConnect, ProfileRequiredCreateInput>, 1, Test.Pass>(),
+export const profileWithCreate: ProfileRequiredCreateInput = {
+  bio: 'b',
+  user: { create: { email: 'e', name: 'n' } },
+};
+export const profileWithConnect: ProfileRequiredCreateInput = { bio: 'b', user: { connect: 'user:1' } };
+
+// =============================================================================
+// Required relations must provide nested, connect or the key directly
+// =============================================================================
+
+type PostAuthorBranch = Extract<PostRequiredCreateInput, { author: unknown }>;
+checks([
+  check<PostAuthorBranch['author'], OneOp<AuthorNestedCreate>, Test.Pass>(),
+  check<IsOptional<PostAuthorBranch, 'author'>, 0, Test.Pass>(),
 ]);
 
+export const postWithAuthorCreate: PostRequiredCreateInput = {
+  title: 't',
+  author: { create: { name: 'n', email: 'e' } },
+};
+export const postWithAuthorConnect: PostRequiredCreateInput = { title: 't', author: { connect: 'author:1' } };
+export const postWithAuthorKey: PostRequiredCreateInput = { title: 't', authorId: 'author:1' };
+
+// @ts-expect-error - a required relation needs the nested operation or the key
+export const postWithoutAuthor: PostRequiredCreateInput = { title: 't' };
+
 // =============================================================================
-// Required Relations Must Provide Nested or Connect
+// Optional relations can be omitted
 // =============================================================================
 
-// PostRequired.author is required - must provide via nested create or connect
-type PostWithAuthorCreate = {
-  title: string;
-  author: { create: { name: string; email: string } };
-};
-type PostWithAuthorConnect = {
-  title: string;
-  author: { connect: string };
-};
-type PostWithAuthorIdDirect = {
-  title: string;
-  authorId: string;
-};
-
-Test.checks([
-  Test.check<Extends<PostWithAuthorCreate, PostRequiredCreateInput>, 1, Test.Pass>(),
-  Test.check<Extends<PostWithAuthorConnect, PostRequiredCreateInput>, 1, Test.Pass>(),
-  Test.check<Extends<PostWithAuthorIdDirect, PostRequiredCreateInput>, 1, Test.Pass>(),
+checks([
+  check<IsOptional<UserRequiredCreateInput, 'profile'>, 1, Test.Pass>(),
+  check<NonNullable<UserRequiredCreateInput['profile']>, OneOp<ProfileRequiredNestedCreate>, Test.Pass>(),
 ]);
 
-// =============================================================================
-// Optional Relations Can Be Omitted
-// =============================================================================
-
-// UserRequired.profile is optional in schema (non-PK side)
-type UserWithoutProfile = { email: string; name: string };
-Test.checks([Test.check<Extends<UserWithoutProfile, UserRequiredCreateInput>, 1, Test.Pass>()]);
+export const userWithoutProfile: UserRequiredCreateInput = { email: 'e', name: 'n' };
 
 // =============================================================================
-// Array Relations - Create and Connect Arrays
+// To-many relations: create and connect take one or many
 // =============================================================================
 
-// Student.courses allows create array
-type StudentWithCoursesCreateArray = {
-  name: string;
-  email: string;
-  courses: { create: [{ name: string; code: string }, { name: string; code: string }] };
-};
+type StudentCoursesBranch = Extract<StudentCreateInput, { courses?: unknown }>;
+checks([check<NonNullable<StudentCoursesBranch['courses']>, ManyOp<CourseNestedCreate>, Test.Pass>()]);
 
-// Student.courses allows connect array
-type StudentWithCoursesConnectArray = {
-  name: string;
-  email: string;
-  courses: { connect: ['course1', 'course2'] };
+export const studentCreateArray: StudentCreateInput = {
+  name: 'n',
+  email: 'e',
+  courses: {
+    create: [
+      { name: 'a', code: 'c' },
+      { name: 'b', code: 'd' },
+    ],
+  },
 };
-
-// Student.courses allows single create
-type StudentWithSingleCourseCreate = {
-  name: string;
-  email: string;
-  courses: { create: { name: string; code: string } };
+export const studentConnectArray: StudentCreateInput = { name: 'n', email: 'e', courses: { connect: ['c1', 'c2'] } };
+export const studentCreateOne: StudentCreateInput = {
+  name: 'n',
+  email: 'e',
+  courses: { create: { name: 'a', code: 'c' } },
 };
+export const studentConnectOne: StudentCreateInput = { name: 'n', email: 'e', courses: { connect: 'c1' } };
 
-// Student.courses allows single connect
-type StudentWithSingleCourseConnect = {
-  name: string;
-  email: string;
-  courses: { connect: string };
+// =============================================================================
+// Non-owning side: creating children points their key back at the parent
+// =============================================================================
+
+checks([check<NonNullable<AuthorCreateInput['posts']>, ManyOp<PostRequiredNestedCreate>, Test.Pass>()]);
+
+export const authorCreatePosts: AuthorCreateInput = {
+  name: 'n',
+  email: 'e',
+  posts: { create: [{ title: 'a' }, { title: 'b', content: 'c' }] },
 };
+export const authorConnectPosts: AuthorCreateInput = { name: 'n', email: 'e', posts: { connect: ['p1', 'p2'] } };
 
-Test.checks([
-  Test.check<Extends<StudentWithCoursesCreateArray, StudentCreateInput>, 1, Test.Pass>(),
-  Test.check<Extends<StudentWithCoursesConnectArray, StudentCreateInput>, 1, Test.Pass>(),
-  Test.check<Extends<StudentWithSingleCourseCreate, StudentCreateInput>, 1, Test.Pass>(),
-  Test.check<Extends<StudentWithSingleCourseConnect, StudentCreateInput>, 1, Test.Pass>(),
+// =============================================================================
+// Mixed relations in one create
+// =============================================================================
+
+type KitchenSinkBranch = Extract<KitchenSinkUserCreateInput, { profile?: unknown }>;
+checks([
+  check<NonNullable<KitchenSinkBranch['profile']>, OneOp<KitchenSinkProfileNestedCreate>, Test.Pass>(),
+  check<NonNullable<KitchenSinkBranch['posts']>, ManyOp<KitchenSinkPostNestedCreate>, Test.Pass>(),
+  check<NonNullable<KitchenSinkBranch['tags']>, ManyOp<KitchenSinkTagNestedCreate>, Test.Pass>(),
+  check<NonNullable<KitchenSinkBranch['settings']>, OneOp<KitchenSinkSettingsNestedCreate>, Test.Pass>(),
+  check<NonNullable<KitchenSinkBranch['badges']>, ManyOp<KitchenSinkBadgeNestedCreate>, Test.Pass>(),
 ]);
 
-// =============================================================================
-// From Non-PK Side - Create Children with FK Back to Parent
-// =============================================================================
-
-// Author.posts is non-PK side - creates posts with authorId pointing back
-type AuthorWithPostsCreate = {
-  name: string;
-  email: string;
-  posts: { create: [{ title: string }, { title: string; content: string }] };
+export const kitchenSinkComplex: KitchenSinkUserCreateInput = {
+  email: 'e',
+  name: 'n',
+  profile: { create: { bio: 'b' } },
+  tags: { connect: ['t1', 't2'] },
+  settings: { create: { theme: 't' } },
 };
-Test.checks([Test.check<Extends<AuthorWithPostsCreate, AuthorCreateInput>, 1, Test.Pass>()]);
-
-// Author can also connect to existing posts
-type AuthorWithPostsConnect = {
-  name: string;
-  email: string;
-  posts: { connect: string[] };
-};
-Test.checks([Test.check<Extends<AuthorWithPostsConnect, AuthorCreateInput>, 1, Test.Pass>()]);
-
-// =============================================================================
-// Mixed Relations in Same Create
-// =============================================================================
-
-// KitchenSinkUser has multiple relation types
-type KitchenSinkComplex = {
-  email: string;
-  name: string;
-  profile: { create: { bio: string } }; // 1-1 required
-  tags: { connect: string[] }; // n-n
-  settings: { create: { theme: string } }; // 1-1 optional
-};
-Test.checks([Test.check<Extends<KitchenSinkComplex, KitchenSinkUserCreateInput>, 1, Test.Pass>()]);

@@ -8,12 +8,18 @@
  * - {Model}Unset type shape (correct fields, correct types)
  * - {Tuple}Unset type shape (index + name keys for optional elements)
  * - SafeUnset cross-exclusion (prevents leaf-level data/unset conflicts)
- * - Method signatures accept unset parameter
+ *
+ * Every shape is compared with `Test.check`, which fails on a wider or a
+ * narrower type, so a key that gains or loses a variant is caught.
  */
 
 import { Test } from 'ts-toolbelt';
+import type { Empty } from '../helpers';
 import type {
+  BookUnset,
+  PublisherUnset,
   SafeUnset,
+  UnsetDeepTupleUnset,
   UnsetObjTupleUnset,
   UnsetOptTupleUnset,
   UnsetRecursiveUnset,
@@ -22,113 +28,118 @@ import type {
 
 const { checks, check } = Test;
 
-// Helper: 1 if K is a key of T (required OR optional), 0 otherwise
-type HasKey<T, K extends string | number> = K extends keyof T ? 1 : 0;
-
-// Helper: check if types are equal
-type _IsEqual<A, B> = [A] extends [B] ? ([B] extends [A] ? 1 : 0) : 0;
-
 // =============================================================================
-// UnsetTestUnset Type Shape
+// UnsetTestUnset: the full shape
 // =============================================================================
 
-// Optional primitive fields → true
-checks([check<HasKey<UnsetTestUnset, 'bio'>, 1, Test.Pass>()]);
-checks([check<HasKey<UnsetTestUnset, 'age'>, 1, Test.Pass>()]);
+type NestedUnset = {
+  mid?: {
+    score?: true;
+    deep?: {
+      note?: true;
+    };
+  };
+  desc?: true;
+};
 
-// Required fields → not present
-checks([check<HasKey<UnsetTestUnset, 'name'>, 0, Test.Pass>()]);
-checks([check<HasKey<UnsetTestUnset, 'id'>, 0, Test.Pass>()]);
+type ExpectedUnsetTestUnset = {
+  bio?: true;
+  age?: true;
+  address?: { zip?: true };
+  shipping?: true | { zip?: true };
+  backup?: true;
+  opt?: true | UnsetOptTupleUnset;
+  tagged?: true | UnsetObjTupleUnset;
+  nested?: NestedUnset;
+  optNested?: true | NestedUnset;
+  deepTuple?: true | UnsetDeepTupleUnset;
+  tree?: true | { extra?: true; child?: true };
+  recursive?: true | UnsetRecursiveUnset;
+};
 
-// Required object with optional children → sub-field object only (no true)
-checks([check<HasKey<UnsetTestUnset, 'address'>, 1, Test.Pass>()]);
+checks([check<UnsetTestUnset, ExpectedUnsetTestUnset, Test.Pass>()]);
 
-// Optional object → true | sub-field object
-checks([check<HasKey<UnsetTestUnset, 'shipping'>, 1, Test.Pass>()]);
+// Required fields (name, id) and required tuples without optional elements (pos) are not unsettable
+checks([check<keyof UnsetTestUnset & ('name' | 'id' | 'pos'), never, Test.Pass>()]);
 
-// Required tuple (no optional elements) → not present
-checks([check<HasKey<UnsetTestUnset, 'pos'>, 0, Test.Pass>()]);
-
-// Optional tuple (no optional elements) → true only
-checks([check<HasKey<UnsetTestUnset, 'backup'>, 1, Test.Pass>()]);
-
-// Optional tuple with @nullable element → true | UnsetOptTupleUnset
-checks([check<HasKey<UnsetTestUnset, 'opt'>, 1, Test.Pass>()]);
-
-// Optional tuple with object element (optional sub-fields) → true | TupleUnset
-checks([check<HasKey<UnsetTestUnset, 'tagged'>, 1, Test.Pass>()]);
-
-// Optional recursive tuple with @nullable element → true | UnsetRecursiveUnset
-checks([check<HasKey<UnsetTestUnset, 'recursive'>, 1, Test.Pass>()]);
-
-// =============================================================================
-// UnsetOptTupleUnset Type Shape (tuple with @nullable element)
-// =============================================================================
-
-// Element 1 (Float @nullable) → unsetable (sets to null)
-checks([check<HasKey<UnsetOptTupleUnset, 1>, 1, Test.Pass>()]);
-
-// Element 0 (String, required) → not present
-checks([check<HasKey<UnsetOptTupleUnset, 0>, 0, Test.Pass>()]);
-
-// =============================================================================
-// UnsetRecursiveUnset Type Shape (self-referencing tuple with @nullable element)
-// =============================================================================
-
-// Element 1 (UnsetRecursive @nullable) → unsetable (sets to null)
-checks([check<HasKey<UnsetRecursiveUnset, 1>, 1, Test.Pass>()]);
-
-// Element 0 (String, required) → not present
-checks([check<HasKey<UnsetRecursiveUnset, 0>, 0, Test.Pass>()]);
+// Optional primitives accept `true` only; a required object offers its optional children only
+checks([
+  check<UnsetTestUnset['bio'], true | undefined, Test.Pass>(),
+  check<UnsetTestUnset['age'], true | undefined, Test.Pass>(),
+  check<UnsetTestUnset['address'], { zip?: true } | undefined, Test.Pass>(),
+  // An optional object additionally accepts `true` for the whole field
+  check<UnsetTestUnset['shipping'], true | { zip?: true } | undefined, Test.Pass>(),
+  check<UnsetTestUnset['backup'], true | undefined, Test.Pass>(),
+]);
 
 // =============================================================================
-// UnsetObjTupleUnset Type Shape (tuple with object element having optional sub-fields)
+// Tuple unset shapes
 // =============================================================================
 
-// Element 1 (InnerObj with extra?) → has sub-field unset (numeric key, matching keyof behavior)
-checks([check<HasKey<UnsetObjTupleUnset, 1>, 1, Test.Pass>()]);
-
-// Element 0 (String, required) → not present
-checks([check<HasKey<UnsetObjTupleUnset, 0>, 0, Test.Pass>()]);
+checks([
+  // Only the @nullable element 1 is unsettable (to null); element 0 is required
+  check<UnsetOptTupleUnset, { 1?: true }, Test.Pass>(),
+  // Self-referencing tuple: element 1 takes `true` or the same shape again
+  check<UnsetRecursiveUnset, { 1?: true | UnsetRecursiveUnset }, Test.Pass>(),
+  // Object element: sub-field unset, keyed by index
+  check<UnsetObjTupleUnset, { 1?: { extra?: true } }, Test.Pass>(),
+  check<UnsetDeepTupleUnset, { 1?: { score?: true; deep?: { note?: true } } }, Test.Pass>(),
+]);
 
 // =============================================================================
-// SafeUnset Cross-Exclusion
+// Models whose only unsettable field is an optional foreign key
 // =============================================================================
 
-// When data has a field at top-level, unset excludes that field (leaf conflict)
+checks([
+  check<BookUnset, { publisherId?: true }, Test.Pass>(),
+  // A model with nothing optional has an empty unset
+  check<keyof PublisherUnset, never, Test.Pass>(),
+]);
+
+// =============================================================================
+// SafeUnset cross-exclusion
+// =============================================================================
+
+// A leaf in data removes that key from unset; every other key is untouched
 type DataWithBio = { bio: string };
-type Excluded1 = SafeUnset<UnsetTestUnset, DataWithBio>;
-checks([check<HasKey<Excluded1, 'bio'>, 0, Test.Pass>()]);
-// Other fields still available
-checks([check<HasKey<Excluded1, 'age'>, 1, Test.Pass>()]);
-checks([check<HasKey<Excluded1, 'address'>, 1, Test.Pass>()]);
+checks([check<SafeUnset<UnsetTestUnset, DataWithBio>, Omit<ExpectedUnsetTestUnset, 'bio'>, Test.Pass>()]);
 
-// When data has same object field but different sub-fields, unset keeps it
+// Same object field in data with different sub-fields: the key stays, with the shared leaves removed
 type DataWithAddress = { address: { city: string } };
-type Kept1 = SafeUnset<UnsetTestUnset, DataWithAddress>;
-checks([check<HasKey<Kept1, 'address'>, 1, Test.Pass>()]);
+checks([check<SafeUnset<UnsetTestUnset, DataWithAddress>['address'], { zip?: true } | undefined, Test.Pass>()]);
 
-// When data has no overlapping fields, all unset fields available
+// A sub-field that data also sets is removed from the nested unset
+type DataWithAddressZip = { address: { zip: string } };
+checks([check<SafeUnset<UnsetTestUnset, DataWithAddressZip>['address'], Empty | undefined, Test.Pass>()]);
+
+// No overlap: unset is unchanged
 // oxlint-disable-next-line typescript/no-empty-object-type -- {} intentionally tests empty object assignability
 type DataEmpty = {};
-type AllAvailable = SafeUnset<UnsetTestUnset, DataEmpty>;
-checks([check<HasKey<AllAvailable, 'bio'>, 1, Test.Pass>()]);
-checks([check<HasKey<AllAvailable, 'age'>, 1, Test.Pass>()]);
-checks([check<HasKey<AllAvailable, 'address'>, 1, Test.Pass>()]);
-checks([check<HasKey<AllAvailable, 'shipping'>, 1, Test.Pass>()]);
-checks([check<HasKey<AllAvailable, 'backup'>, 1, Test.Pass>()]);
-checks([check<HasKey<AllAvailable, 'opt'>, 1, Test.Pass>()]);
-checks([check<HasKey<AllAvailable, 'tagged'>, 1, Test.Pass>()]);
+checks([check<SafeUnset<UnsetTestUnset, DataEmpty>, ExpectedUnsetTestUnset, Test.Pass>()]);
 
-// Array field in data → excluded from unset (array replace semantics)
-// (pos is a required tuple without optional elements, so it's not in Unset anyway)
-// Test with a hypothetical array field:
+// An array in data removes the key (array replace semantics)
 type ArrayData = { bio: string[] };
-type ArrayExcluded = SafeUnset<{ bio?: true }, ArrayData>;
-checks([check<HasKey<ArrayExcluded, 'bio'>, 0, Test.Pass>()]);
+checks([check<SafeUnset<{ bio?: true }, ArrayData>, Empty, Test.Pass>()]);
 
-// Multiple fields: data has some, unset has others
+// Several overlapping leaves
 type DataPartial = { bio: string; name: string };
-type PartialExcluded = SafeUnset<UnsetTestUnset, DataPartial>;
-checks([check<HasKey<PartialExcluded, 'bio'>, 0, Test.Pass>()]);
-checks([check<HasKey<PartialExcluded, 'age'>, 1, Test.Pass>()]);
+checks([check<SafeUnset<UnsetTestUnset, DataPartial>, Omit<ExpectedUnsetTestUnset, 'bio'>, Test.Pass>()]);
+
+// =============================================================================
+// Negative: values the unset types refuse
+// =============================================================================
+
+// @ts-expect-error - unset takes `true`, not `false`
+export const falseUnset: UnsetTestUnset = { bio: false };
+
+// @ts-expect-error - a required field cannot be unset
+export const requiredUnset: UnsetTestUnset = { name: true };
+
+// @ts-expect-error - a required object offers its children, not the whole field
+export const wholeRequiredObject: UnsetTestUnset = { address: true };
+
+// @ts-expect-error - tuple element 0 is required
+export const requiredElement: UnsetOptTupleUnset = { 0: true };
+
+// @ts-expect-error - an object has no sub-field named 'bogus'
+export const unknownSubField: UnsetTestUnset = { address: { bogus: true } };

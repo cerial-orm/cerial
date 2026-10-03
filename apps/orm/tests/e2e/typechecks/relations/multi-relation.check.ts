@@ -168,3 +168,20 @@ Test.checks([
   Test.check<Extends<IncludeOrders, CustomerInclude>, 1, Test.Pass>(),
   Test.check<Extends<{ assignedOrders: true }, AgentInclude>, 1, Test.Pass>(),
 ]);
+
+// =============================================================================
+// Negative
+// =============================================================================
+
+// @ts-expect-error - Writer has authoredDocs and reviewedDocs, not docs
+export const unknownRelation: WriterInclude = { docs: true };
+
+// @ts-expect-error - authorId is the required one; a document without an author is not valid
+export const noAuthor: DocumentCreateInput = { title: 't' };
+
+export const badReviewerOp: DocumentCreateInput = {
+  title: 't',
+  author: { connect: 'writer:1' },
+  // @ts-expect-error - the reviewer takes create or connect, not an unknown operation
+  reviewer: { link: 'writer:2' },
+};

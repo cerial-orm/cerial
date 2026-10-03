@@ -86,3 +86,19 @@ Test.checks([
 Test.checks([
   Test.check<Extends<{ staffFullName: { firstName: number; lastName: string } }, StaffFindUniqueWhere>, 0, Test.Pass>(),
 ]);
+
+// =============================================================================
+// Negative
+// =============================================================================
+
+// @ts-expect-error - every field of a composite key is required
+export const partialCompositeKey: StaffFindUniqueWhere = { staffFullName: { firstName: 'a' } };
+
+// @ts-expect-error - a composite key names its fields, not a single string
+export const stringCompositeKey: StaffFindUniqueWhere = { staffFullName: 'a b' };
+
+// @ts-expect-error - a field of the key has the declared type
+export const wrongKeyFieldType: StaffFindUniqueWhere = { staffFullName: { firstName: 'a', lastName: 1 } };
+
+// @ts-expect-error - a non-unique field is not a unique lookup
+export const notUnique: StaffFindUniqueWhere = { firstName: 'a' };

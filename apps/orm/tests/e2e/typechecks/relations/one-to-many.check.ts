@@ -133,3 +133,19 @@ Test.checks([
 // PublisherInclude should support books include
 type IncludeBooks = { books: true };
 Test.checks([Test.check<Extends<IncludeBooks, PublisherInclude>, 1, Test.Pass>()]);
+
+// =============================================================================
+// Negative
+// =============================================================================
+
+// @ts-expect-error - a required relation cannot be detached
+export const disconnectRequired: PostRequiredUpdateInput = { author: { disconnect: true } };
+
+// @ts-expect-error - a nested create still needs the child's required fields (isbn is missing)
+export const nestedMissingField: PublisherCreateInput = { name: 'p', books: { create: { title: 't' } } };
+
+// @ts-expect-error - Author has no relation named articles
+export const unknownInclude: AuthorInclude = { articles: true };
+
+// @ts-expect-error - include takes a boolean or an options object, not a string
+export const stringInclude: AuthorInclude = { posts: 'all' };

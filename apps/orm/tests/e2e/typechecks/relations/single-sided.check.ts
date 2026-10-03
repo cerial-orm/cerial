@@ -131,3 +131,21 @@ Test.checks([
 // SocialUserInclude should support following
 type IncludeFollowing = { following: true };
 Test.checks([Test.check<Extends<IncludeFollowing, SocialUserInclude>, 1, Test.Pass>()]);
+
+// =============================================================================
+// Negative
+// =============================================================================
+
+// The side without the relation declaration gets no nested operations
+// @ts-expect-error - UserSingleSided does not declare a profile relation
+export const noReverseOperation: UserSingleSidedUpdateInput = { profile: { connect: 'profile:1' } };
+
+// @ts-expect-error - the declaring side only knows the relation it declares
+export const unknownInclude: ProfileSingleSidedInclude = { posts: true };
+
+export const unknownReverse: SocialUserCreateInput = {
+  name: 'n',
+  following: { connect: 'a' },
+  // @ts-expect-error - SocialUser declares following only; there is no followers relation to write
+  followers: { connect: 'b' },
+};

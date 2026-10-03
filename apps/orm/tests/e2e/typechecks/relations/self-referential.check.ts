@@ -171,3 +171,22 @@ type IncludeNestedTree = {
   };
 };
 Test.checks([Test.check<Extends<IncludeNestedTree, CategoryTreeInclude>, 1, Test.Pass>()]);
+
+// =============================================================================
+// Negative
+// =============================================================================
+
+export const childWithKey: CategoryTreeCreateInput = {
+  name: 'n',
+  // @ts-expect-error - a nested child create must not carry the key that points back at the parent
+  children: { create: { name: 'c', parentId: 'category:1' } },
+};
+
+// @ts-expect-error - connect takes a record id, not a boolean
+export const booleanMentor: PersonCreateInput = { name: 'n', mentor: { connect: true } };
+
+// @ts-expect-error - Person has no relation named boss
+export const unknownRelation: PersonInclude = { boss: true };
+
+// @ts-expect-error - the unset key of a self-relation is still only a flag
+export const nestedUnknownInclude: CategoryTreeInclude = { parent: { include: { grandparent: true } } };

@@ -69,3 +69,26 @@ Test.checks([
   Test.check<HasKey<SetBasicUpdate, 'tags'>, 1, Test.Pass>(),
   Test.check<HasKey<SetBasicUpdate, 'numbers'>, 1, Test.Pass>(),
 ]);
+
+// =============================================================================
+// Negative
+// =============================================================================
+
+// A set is a branded array: it reads as an array, but a plain array is not a set
+Test.checks([
+  Test.check<CerialSet<string> extends string[] ? 1 : 0, 1, Test.Pass>(),
+  Test.check<string[] extends CerialSet<string> ? 1 : 0, 0, Test.Pass>(),
+  Test.check<CerialSet<string> extends Set<string> ? 1 : 0, 0, Test.Pass>(),
+]);
+
+// @ts-expect-error - a plain array is not a CerialSet
+export const plainArrayAsSet: SetBasic['tags'] = ['a'];
+
+// @ts-expect-error - a set takes push and unset on update; replacement is a plain array
+export const setOperation: SetBasicUpdate = { tags: { set: ['a'] } };
+
+// @ts-expect-error - a number set takes numbers
+export const wrongElement: SetBasicUpdate = { numbers: { push: 'one' } };
+
+// @ts-expect-error - the elements of a string set are strings
+export const wrongCreateElement: SetBasicCreate = { name: 'n', tags: [1] };

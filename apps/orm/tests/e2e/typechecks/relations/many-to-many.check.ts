@@ -143,3 +143,20 @@ Test.checks([Test.check<Extends<IncludeLabels, BloggerInclude>, 1, Test.Pass>()]
 // LabelCreate should NOT have bloggers field (one-directional)
 type LabelBasic = { name: string };
 Test.checks([Test.check<Extends<LabelBasic, LabelCreate>, 1, Test.Pass>()]);
+
+// =============================================================================
+// Negative
+// =============================================================================
+
+// The relation is virtual: only the key array is stored on the model
+// @ts-expect-error - Student has courseIds, not courses
+export type StoredCourses = Student['courses'];
+
+// @ts-expect-error - push belongs to the key array, not to the relation operation
+export const pushOnRelation: StudentUpdateInput = { courses: { push: 'course:1' } };
+
+// @ts-expect-error - a relation operation takes ids or records, not a bare string
+export const bareRelation: StudentUpdateInput = { courses: 'course:1' };
+
+// @ts-expect-error - disconnect is an update operation, not a create one
+export const disconnectOnCreate: StudentCreateInput = { name: 'n', email: 'e', courses: { disconnect: 'course:1' } };
