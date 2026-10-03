@@ -323,6 +323,34 @@ function buildNestedReturn(
   return `RETURN (SELECT ${fields} FROM ${single ? 'ONLY ' : ''}${rows});`;
 }
 
+interface TargetCheck {
+  targetModel: ModelMetadata;
+  targetIds: RecordIdInput[];
+  fieldName: string;
+}
+
+/**
+ * Statements that abort the transaction when a linked record is missing. The runtime check in
+ * assertNestedTargetsExist gives the caller a typed error first; this is the backstop for the paths that
+ * run a compiled query without it ($transaction array mode) and for a record deleted in between.
+ */
+function buildTargetCheckStatements(checks: TargetCheck[], vars: Record<string, unknown>): string[] {
+  const statements: string[] = [];
+  checks.forEach((check, idx) => {
+    check.targetIds.forEach((targetId, idIdx) => {
+      const varName = `validate_${idx}_${idIdx}`;
+      vars[varName] = transformOrValidateRecordId(check.targetModel.tableName, targetId);
+      const checkVarName = `$exists_${idx}_${idIdx}`;
+      statements.push(`LET ${checkVarName} = (SELECT id FROM ONLY $${varName});`);
+      statements.push(
+        `IF ${checkVarName} IS NONE { THROW "Cannot connect to non-existent ${check.targetModel.name} record" };`,
+      );
+    });
+  });
+
+  return statements;
+}
+
 /**
  * Build complete transaction for create with nested operations
  */
@@ -339,11 +367,7 @@ export function buildCreateWithNestedTransaction(
   const vars: Record<string, unknown> = {};
 
   // Track connected IDs that need existence validation
-  const connectValidations: Array<{
-    targetModel: ModelMetadata;
-    targetIds: RecordIdInput[];
-    fieldName: string;
-  }> = [];
+  const connectValidations: TargetCheck[] = [];
 
   // Track the Record field updates we need to make
   const fieldUpdates: Record<string, string> = {};
@@ -534,17 +558,7 @@ export function buildCreateWithNestedTransaction(
   }
 
   // Add validation for connected records (verify they exist before creating)
-  connectValidations.forEach((cv, idx) => {
-    cv.targetIds.forEach((targetId, idIdx) => {
-      const varName = `validate_${idx}_${idIdx}`;
-      vars[varName] = transformOrValidateRecordId(cv.targetModel.tableName, targetId);
-      const checkVarName = `$exists_${idx}_${idIdx}`;
-      statements.push(`LET ${checkVarName} = (SELECT id FROM ONLY $${varName});`);
-      statements.push(
-        `IF ${checkVarName} IS NONE { THROW "Cannot connect to non-existent ${cv.targetModel.name} record" };`,
-      );
-    });
-  });
+  statements.push(...buildTargetCheckStatements(connectValidations, vars));
 
   // Build the main create with field updates
   const finalData = { ...data };
@@ -730,6 +744,7 @@ export function buildUpdateWithNestedTransaction(
     return `LET ${varName} = IF $nested_match[0] { CREATE ONLY ${tableName} CONTENT ${contentVarName} };`;
   };
   const matchInsertAt = statements.length;
+  const targetChecks: TargetCheck[] = [];
 
   const reverseConnects: Array<{
     targetModel: ModelMetadata;
@@ -789,6 +804,7 @@ export function buildUpdateWithNestedTransaction(
         });
       } else if (isNestedConnect(op)) {
         const connectIds = (Array.isArray(op.connect) ? op.connect : [op.connect]) as RecordIdInput[];
+        targetChecks.push({ targetModel, targetIds: connectIds, fieldName });
         reverseConnects.push({
           targetModel,
           targetIds: connectIds,
@@ -859,6 +875,7 @@ export function buildUpdateWithNestedTransaction(
         const varName = `$${fieldName}_connect`;
         const transformedIds = connectIds.map((id) => transformOrValidateRecordId(targetModel.tableName, id));
         vars[`${fieldName}_connect`] = transformedIds;
+        targetChecks.push({ targetModel, targetIds: connectIds, fieldName });
 
         if (isArrayField) {
           // Array connect - add to array using var
@@ -926,6 +943,7 @@ export function buildUpdateWithNestedTransaction(
             // Transform set IDs to RecordId objects
             const transformedIds = setIds.map((id) => transformOrValidateRecordId(targetModel.tableName, id));
             vars[`${fieldName}_set`] = transformedIds;
+            targetChecks.push({ targetModel, targetIds: setIds, fieldName });
             fieldUpdates.push(`${recordFieldName} = ${varName}`);
           }
 
@@ -978,6 +996,10 @@ export function buildUpdateWithNestedTransaction(
   } else {
     statements.push(`LET $result = (SELECT * FROM ${model.tableName} ${whereClause.text});`);
   }
+
+  // After the update rather than before it: a statement ahead of a failing UPDATE makes the driver report
+  // "failed transaction" in place of the database's own reason. The THROW still rolls everything back
+  statements.push(...buildTargetCheckStatements(targetChecks, vars));
 
   // Statements that act on the matched row only run when the where matched something, so a
   // non-matching where writes nothing, as on the plain path

@@ -25,6 +25,7 @@ import type {
   WhereClause,
 } from '../types';
 import {
+  assertNestedTargetsExist,
   buildCountQuery,
   buildCreateQuery,
   buildCreateWithNestedTransaction,
@@ -180,6 +181,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
 
     // If there are nested operations, use the transaction builder
     if (nestedOps.size > 0 && this.registry) {
+      await assertNestedTargetsExist(this.db, this.model, nestedOps, this.registry, 'create');
       const query = buildCreateWithNestedTransaction(this.model, transformedData, nestedOps, this.registry, { select });
       const result = await executeQuerySingle(this.db, query);
 
@@ -224,6 +226,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
 
     // If there are nested operations, use the transaction builder
     if (nestedOps.size > 0 && this.registry) {
+      await assertNestedTargetsExist(this.db, this.model, nestedOps, this.registry, 'updateMany');
       const query = buildUpdateWithNestedTransaction(
         this.model,
         where,
@@ -295,6 +298,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     // to updateMany on the same where clause and takes the first result.
     if (nestedOps.size > 0 && this.registry) {
       // For now, use updateMany with the same where clause and return first result
+      await assertNestedTargetsExist(this.db, this.model, nestedOps, this.registry, 'updateUnique');
       const query = buildUpdateWithNestedTransaction(
         this.model,
         expandedWhere,
@@ -645,6 +649,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
       // Record doesn't exist - use create path
       if (Object.keys(createData).length === 0) return null; // No create data, nothing to do
 
+      await assertNestedTargetsExist(this.db, this.model, createNestedOps, this.registry!, 'upsert');
       const { buildCreateWithNestedTransaction: buildCreateNested } = await import('./builders/nested-builder');
       const query = buildCreateNested(this.model, createData, createNestedOps as Map<string, any>, this.registry!, {
         select,
@@ -672,6 +677,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
       return mapSingleResult<T>(await this.readExisting(where, hasId, select, include), this.model, select);
     }
 
+    await assertNestedTargetsExist(this.db, this.model, updateNestedOps, this.registry!, 'upsert');
     const { buildUpdateWithNestedTransaction: buildUpdateNested } = await import('./builders/nested-builder');
     const query = buildUpdateNested(
       this.model,

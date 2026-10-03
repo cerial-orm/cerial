@@ -258,6 +258,16 @@ development branch and is not available on npm.
   relation with a separate `update`. The same `where` with no relation
   operation is unchanged.
 
+- A `connect` or `set` on a relation, in `updateMany`, `updateUnique` or `upsert`,
+  that named a record which does not exist stored the id anyway. The link pointed
+  at nothing and `include` later resolved it to nothing. `create` refused the same
+  input with a raw database error. Both now throw a `CerialValidationError`
+  (`C3000`) naming the model, the field and the missing id, before anything is
+  written, and the call changes nothing, including its other fields. `disconnect`
+  of an id that is not linked is unchanged: it does nothing. Inside
+  `$transaction([...])` the update half still throws the database's own error
+  rather than a `CerialValidationError`, and the transaction rolls back either way.
+
 ### Changed
 
 - Transaction conflict retries (`TransactionOptions.retries`) now recognise a
