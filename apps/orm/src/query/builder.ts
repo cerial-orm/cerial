@@ -53,7 +53,7 @@ import type { QueryResultType } from './cerial-query-promise';
 import type { CompiledQuery } from './compile/types';
 import { executeQuery, executeQuerySingle } from './executor';
 import { transformWhereClause } from './filters';
-import { mapResult, mapSingleResult } from './mappers';
+import { mapResult, mapSingleResult, pickSelected } from './mappers';
 import { applyFieldDefaults, transformData, transformOrValidateRecordId } from './transformers';
 import {
   validateCreateData,
@@ -540,7 +540,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
       return this.executeUpsertWithNested(
         where,
         transformedCreateData,
-        transformedUpdateData,
+        unset ? mergeUnsetIntoData(transformedUpdateData, unset) : transformedUpdateData,
         createNestedOps,
         updateNestedOps,
         returnOption,
@@ -581,6 +581,12 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     const result = await executeQuery(this.db, query);
 
     if (returnOption === true) return Array.isArray(result) && result.length > 0;
+    if (returnOption === 'before' && Array.isArray(result))
+      return mapResult<T>(
+        result.map((row) => pickSelected(row, select)),
+        this.model,
+        select,
+      );
 
     return mapResult<T>(result, this.model, select);
   }
@@ -590,7 +596,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     if (returnOption === true) return result !== null;
     if (result === null) return null;
 
-    return mapSingleResult<T>(result, this.model, select);
+    return mapSingleResult<T>(returnOption === 'before' ? pickSelected(result, select) : result, this.model, select);
   }
 
   /** Read the row an upsert's where matches, or null; `select` and `include` shape the projection. */
@@ -658,7 +664,8 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     if (Object.keys(updateData).length === 0 && (updateNestedOps as Map<string, any>).size === 0) {
       // No update data or nested ops, return existing
       if (returnOption === true) return true;
-      if (returnOption === 'before') return mapSingleResult<T>(existingRecord, this.model);
+      if (returnOption === 'before')
+        return mapSingleResult<T>(pickSelected(existingRecord, select), this.model, select);
       if (!select && !include) return mapSingleResult<T>(existingRecord, this.model);
 
       // The existence check read every field; re-read with the caller's select and include
@@ -679,7 +686,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     );
     const result = await executeQuery(this.db, query);
 
-    if (returnOption === 'before') return mapSingleResult<T>(existingRecord, this.model);
+    if (returnOption === 'before') return mapSingleResult<T>(pickSelected(existingRecord, select), this.model, select);
     if (returnOption === true) return true;
 
     const record = Array.isArray(result) && result.length > 0 ? result[0] : null;
