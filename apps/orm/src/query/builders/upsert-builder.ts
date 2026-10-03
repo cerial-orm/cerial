@@ -511,6 +511,9 @@ function asBlockValue(text: string): string {
  * between the create and the update half is made by an `IF` on an existence `LET`, the same shape the
  * nested update uses to gate a forward create. Each half is the nested builder's own output, with its
  * variables prefixed so the two cannot collide. Only for a where that names one row.
+ *
+ * `QueryBuilder.executeUpsertWithNested` does the same create-or-update choice with reads from the client,
+ * for the direct and callback modes. Keep the two in step.
  */
 export function buildUpsertWithNestedTransaction(
   model: ModelMetadata,

@@ -659,6 +659,11 @@ export class QueryBuilder<T extends Record<string, unknown>> {
   /**
    * Execute upsert with nested relation operations.
    * Checks existence first, then delegates to create or update nested transaction builders.
+   *
+   * Array-mode transactions run `buildUpsertWithNestedTransaction` instead (via compileUpsert), which makes
+   * the same create-or-update choice inside one statement. The two are not interchangeable: this path adds
+   * the typed missing-target errors, returns null for an empty create and maps the update row itself. A
+   * change to what an upsert with relation operations does has to be made in both.
    */
   private async executeUpsertWithNested(
     where: WhereClause,
