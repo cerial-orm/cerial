@@ -731,7 +731,6 @@ describe('upsert-builder', () => {
         new Map(),
         undefined,
         undefined,
-        undefined,
         registry,
       );
 
@@ -749,7 +748,6 @@ describe('upsert-builder', () => {
         {},
         new Map(),
         new Map(),
-        undefined,
         undefined,
         undefined,
         registry,

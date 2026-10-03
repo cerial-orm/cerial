@@ -35,6 +35,7 @@ import {
   buildFindManyQuery,
   buildFindOneQuery,
   buildFindUniqueQuery,
+  buildSelectFields,
   buildUpdateManyQuery,
   buildUpdateUniqueQuery,
   buildUpdateWithNestedTransaction,
@@ -176,7 +177,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
 
     // If there are nested operations, use the transaction builder
     if (nestedOps.size > 0 && this.registry) {
-      const query = buildCreateWithNestedTransaction(this.model, transformedData, nestedOps, this.registry);
+      const query = buildCreateWithNestedTransaction(this.model, transformedData, nestedOps, this.registry, { select });
       const result = await executeQuerySingle(this.db, query);
 
       return mapSingleResult<T>(result, this.model);
@@ -226,6 +227,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
         unset ? mergeUnsetIntoData(transformedData, unset) : transformedData,
         nestedOps,
         this.registry,
+        { select },
       );
       const result = await executeQuery(this.db, query);
 
@@ -296,8 +298,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
         unset ? mergeUnsetIntoData(transformedData, unset) : transformedData,
         nestedOps,
         this.registry,
-        false,
-        returnOption === 'before',
+        { returnBefore: returnOption === 'before', select, include },
       );
       const result = await executeQuery(this.db, query);
       // A non-matching where returns no row; handleUpdateUniqueResult tells null from undefined
@@ -543,6 +544,8 @@ export class QueryBuilder<T extends Record<string, unknown>> {
         updateNestedOps,
         returnOption,
         hasId,
+        select,
+        include,
       );
     }
 
@@ -589,6 +592,32 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     return mapSingleResult<T>(result, this.model);
   }
 
+  /** Read the row an upsert's where matches, or null; `select` and `include` shape the projection. */
+  private async readExisting(
+    where: WhereClause,
+    hasId: boolean,
+    select?: SelectClause,
+    include?: IncludeClause,
+  ): Promise<unknown> {
+    const fields = buildSelectFields(select, this.model, include, this.registry);
+    const idField = this.model.fields.find((f) => f.isId);
+
+    if (hasId && idField) {
+      const recordId = transformOrValidateRecordId(this.model.tableName, where[idField.name] as string);
+
+      return executeQuerySingle(this.db, { text: `SELECT ${fields} FROM ONLY ${recordId.toString()};`, vars: {} });
+    }
+
+    // Unique field lookup
+    const whereClause = transformWhereClause(where, this.model, this.registry);
+    const checkResult = await executeQuery(this.db, {
+      text: `SELECT ${fields} FROM ${this.model.tableName} ${whereClause.text};`,
+      vars: whereClause.vars,
+    });
+
+    return Array.isArray(checkResult) && checkResult.length > 0 ? checkResult[0] : null;
+  }
+
   /**
    * Execute upsert with nested relation operations.
    * Checks existence first, then delegates to create or update nested transaction builders.
@@ -601,34 +630,21 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     updateNestedOps: Map<string, unknown>,
     returnOption: UpsertReturn,
     hasId: boolean,
+    select?: SelectClause,
+    include?: IncludeClause,
   ): Promise<unknown> {
     // First check if record exists
-    const idField = this.model.fields.find((f) => f.isId);
-    let existingRecord: unknown = null;
-
-    if (hasId && idField) {
-      const recordId = transformOrValidateRecordId(this.model.tableName, where[idField.name] as string);
-      const checkResult = await executeQuerySingle(this.db, {
-        text: `SELECT * FROM ONLY ${recordId.toString()};`,
-        vars: {},
-      });
-      existingRecord = checkResult;
-    } else {
-      // Unique field lookup
-      const whereClause = transformWhereClause(where, this.model, this.registry);
-      const checkResult = await executeQuery(this.db, {
-        text: `SELECT * FROM ${this.model.tableName} ${whereClause.text};`,
-        vars: whereClause.vars,
-      });
-      existingRecord = Array.isArray(checkResult) && checkResult.length > 0 ? checkResult[0] : null;
-    }
+    const existingRecord = await this.readExisting(where, hasId);
 
     if (existingRecord === null || existingRecord === undefined) {
       // Record doesn't exist - use create path
       if (Object.keys(createData).length === 0) return null; // No create data, nothing to do
 
       const { buildCreateWithNestedTransaction: buildCreateNested } = await import('./builders/nested-builder');
-      const query = buildCreateNested(this.model, createData, createNestedOps as Map<string, any>, this.registry!);
+      const query = buildCreateNested(this.model, createData, createNestedOps as Map<string, any>, this.registry!, {
+        select,
+        include,
+      });
       const result = await executeQuerySingle(this.db, query);
 
       if (returnOption === 'before') return null; // No before state for new records
@@ -642,12 +658,24 @@ export class QueryBuilder<T extends Record<string, unknown>> {
       // No update data or nested ops, return existing
       if (returnOption === true) return true;
       if (returnOption === 'before') return mapSingleResult<T>(existingRecord, this.model);
+      if (!select && !include) return mapSingleResult<T>(existingRecord, this.model);
 
-      return mapSingleResult<T>(existingRecord, this.model);
+      // The existence check read every field; re-read with the caller's select and include
+      return mapSingleResult<T>(await this.readExisting(where, hasId, select, include), this.model);
     }
 
     const { buildUpdateWithNestedTransaction: buildUpdateNested } = await import('./builders/nested-builder');
-    const query = buildUpdateNested(this.model, where, updateData, updateNestedOps as Map<string, any>, this.registry!);
+    const query = buildUpdateNested(
+      this.model,
+      where,
+      updateData,
+      updateNestedOps as Map<string, any>,
+      this.registry!,
+      {
+        select,
+        include,
+      },
+    );
     const result = await executeQuery(this.db, query);
 
     if (returnOption === 'before') return mapSingleResult<T>(existingRecord, this.model);
@@ -729,7 +757,7 @@ export function compileCreate(
 
   if (nestedOps.size > 0 && registry) {
     return {
-      query: buildCreateWithNestedTransaction(model, transformedData, nestedOps, registry),
+      query: buildCreateWithNestedTransaction(model, transformedData, nestedOps, registry, { select }),
       resultType: 'single',
     };
   }
@@ -775,6 +803,7 @@ export function compileUpdateMany(
         unset ? mergeUnsetIntoData(transformedData, unset) : transformedData,
         nestedOps,
         registry,
+        { select },
       ),
       resultType: 'array',
     };
@@ -830,6 +859,7 @@ export function compileUpdateUnique(
         unset ? mergeUnsetIntoData(transformedData, unset) : transformedData,
         nestedOps,
         registry,
+        { returnBefore: returnOption === 'before', select, include },
       ),
       resultType: 'array',
       hasId,

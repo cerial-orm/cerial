@@ -10,12 +10,14 @@
  */
 
 import { CerialValidationError } from '../../errors';
-import type { ModelMetadata, ModelRegistry } from '../../types';
+import type { ModelMetadata, ModelRegistry, SelectClause } from '../../types';
 import type { RecordIdInput } from '../../utils/cerial-id';
 import type { CompiledQuery } from '../compile/types';
 import { createCompileContext } from '../compile/var-allocator';
 import { transformDestructiveWhere } from '../filters/transformer';
 import { transformOrValidateRecordId } from '../transformers';
+import type { IncludeClause } from './relation-builder';
+import { buildSelectFields } from './select-builder';
 import { buildUpdateSetClauses } from './update-builder';
 
 /**
@@ -287,6 +289,35 @@ function findReverseRecordField(sourceModel: ModelMetadata, targetModel: ModelMe
   return undefined;
 }
 
+/** Options shared by the nested create and update builders */
+export interface NestedWriteOptions {
+  /** Inside an outer transaction: emit no BEGIN/COMMIT */
+  transactionMode?: boolean;
+  /** Update only: return the row as it was before the write; `select` and `include` do not apply */
+  returnBefore?: boolean;
+  select?: SelectClause;
+  include?: IncludeClause;
+}
+
+/**
+ * The statement that returns the written row(s). With `select` or `include` the stored result is
+ * projected through the same field list the plain write RETURNs, so the relation subqueries are the
+ * plain path's own and an unknown include is rejected the same way.
+ */
+function buildNestedReturn(
+  rows: string,
+  single: boolean,
+  model: ModelMetadata,
+  registry: ModelRegistry,
+  { select, include }: NestedWriteOptions,
+): string {
+  if (!select && !include) return `RETURN ${rows};`;
+
+  const fields = buildSelectFields(select, model, include, registry);
+
+  return `RETURN (SELECT ${fields} FROM ${single ? 'ONLY ' : ''}${rows});`;
+}
+
 /**
  * Build complete transaction for create with nested operations
  */
@@ -295,8 +326,9 @@ export function buildCreateWithNestedTransaction(
   data: Record<string, unknown>,
   nestedOps: Map<string, NestedOperation>,
   registry: ModelRegistry,
-  transactionMode?: boolean,
+  options: NestedWriteOptions = {},
 ): CompiledQuery {
+  const { transactionMode } = options;
   const ctx = createCompileContext();
   const statements: string[] = transactionMode ? [] : ['BEGIN TRANSACTION;'];
   const vars: Record<string, unknown> = {};
@@ -621,8 +653,7 @@ export function buildCreateWithNestedTransaction(
   });
 
   if (!transactionMode) statements.push('COMMIT TRANSACTION;');
-  // Return the final record - SELECT from the stored id to get updated fields
-  statements.push('RETURN $result;');
+  statements.push(buildNestedReturn('$result', true, model, registry, options));
 
   return {
     text: statements.join('\n'),
@@ -639,9 +670,9 @@ export function buildUpdateWithNestedTransaction(
   data: Record<string, unknown>,
   nestedOps: Map<string, NestedOperation>,
   registry: ModelRegistry,
-  transactionMode?: boolean,
-  returnBefore?: boolean,
+  options: NestedWriteOptions = {},
 ): CompiledQuery {
+  const { transactionMode, returnBefore } = options;
   const ctx = createCompileContext();
   const statements: string[] = transactionMode ? [] : ['BEGIN TRANSACTION;'];
   const vars: Record<string, unknown> = {};
@@ -993,7 +1024,7 @@ export function buildUpdateWithNestedTransaction(
   if (postStatements.length) statements.push(`IF $result[0] {\n${postStatements.join('\n')}\n};`);
 
   if (!transactionMode) statements.push('COMMIT TRANSACTION;');
-  statements.push(returnBefore ? 'RETURN $before;' : 'RETURN $result;');
+  statements.push(returnBefore ? 'RETURN $before;' : buildNestedReturn('$result', false, model, registry, options));
 
   return {
     text: statements.join('\n'),

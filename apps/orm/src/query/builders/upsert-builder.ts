@@ -466,18 +466,20 @@ export function buildUpsertWithNestedTransaction(
   updateData: Record<string, unknown>,
   createNestedOps: Map<string, NestedOperation>,
   updateNestedOps: Map<string, NestedOperation>,
-  _returnOption: UpsertReturn,
-  _select: SelectClause | undefined,
-  _include: IncludeClause | undefined,
+  select: SelectClause | undefined,
+  include: IncludeClause | undefined,
   registry: ModelRegistry,
 ): { createQuery: CompiledQuery; updateQuery: CompiledQuery } {
   // Build the create path transaction
-  const createQuery = buildCreateWithNestedTransaction(model, createData, createNestedOps, registry);
+  const createQuery = buildCreateWithNestedTransaction(model, createData, createNestedOps, registry, {
+    select,
+    include,
+  });
 
   // Build the update path transaction (if update data provided)
   const updateQuery =
     Object.keys(updateData).length > 0 || updateNestedOps.size > 0
-      ? buildUpdateWithNestedTransaction(model, where, updateData, updateNestedOps, registry)
+      ? buildUpdateWithNestedTransaction(model, where, updateData, updateNestedOps, registry, { select, include })
       : { text: `SELECT * FROM ${model.tableName} WHERE ${Object.keys(where)[0]} = NONE;`, vars: {} };
 
   return { createQuery, updateQuery };

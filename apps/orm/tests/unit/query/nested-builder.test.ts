@@ -310,7 +310,9 @@ describe('nested-builder', () => {
         const data = { email: 'test@example.com', name: 'Test' };
         const nestedOps = new Map([['profile', { create: { bio: 'Test bio' } }]]);
 
-        const query = buildCreateWithNestedTransaction(userModel, data, nestedOps, registry, false);
+        const query = buildCreateWithNestedTransaction(userModel, data, nestedOps, registry, {
+          transactionMode: false,
+        });
 
         expect(query.text).toContain('BEGIN TRANSACTION');
         expect(query.text).toContain('COMMIT TRANSACTION');
@@ -320,7 +322,7 @@ describe('nested-builder', () => {
         const data = { email: 'test@example.com', name: 'Test' };
         const nestedOps = new Map([['profile', { create: { bio: 'Test bio' } }]]);
 
-        const query = buildCreateWithNestedTransaction(userModel, data, nestedOps, registry, true);
+        const query = buildCreateWithNestedTransaction(userModel, data, nestedOps, registry, { transactionMode: true });
 
         expect(query.text).not.toContain('BEGIN TRANSACTION');
         expect(query.text).not.toContain('COMMIT TRANSACTION');
@@ -335,7 +337,7 @@ describe('nested-builder', () => {
         const data = { email: 'test@example.com', name: 'Test' };
         const nestedOps = new Map([['tags', { connect: ['tag:1', 'tag:2'] }]]);
 
-        const query = buildCreateWithNestedTransaction(userModel, data, nestedOps, registry, true);
+        const query = buildCreateWithNestedTransaction(userModel, data, nestedOps, registry, { transactionMode: true });
 
         expect(query.text).not.toContain('BEGIN TRANSACTION');
         expect(query.text).not.toContain('COMMIT TRANSACTION');
@@ -353,7 +355,9 @@ describe('nested-builder', () => {
         const data = {};
         const nestedOps = new Map([['profile', { connect: 'profile:456' }]]);
 
-        const query = buildUpdateWithNestedTransaction(userModel, where, data, nestedOps, registry, true);
+        const query = buildUpdateWithNestedTransaction(userModel, where, data, nestedOps, registry, {
+          transactionMode: true,
+        });
 
         expect(query.text).not.toContain('BEGIN TRANSACTION');
         expect(query.text).not.toContain('COMMIT TRANSACTION');
@@ -367,7 +371,9 @@ describe('nested-builder', () => {
         const data = {};
         const nestedOps = new Map([['profile', { disconnect: true }]]);
 
-        const query = buildUpdateWithNestedTransaction(userModel, where, data, nestedOps, registry, true);
+        const query = buildUpdateWithNestedTransaction(userModel, where, data, nestedOps, registry, {
+          transactionMode: true,
+        });
 
         expect(query.text).not.toContain('BEGIN TRANSACTION');
         expect(query.text).not.toContain('COMMIT TRANSACTION');
@@ -380,7 +386,9 @@ describe('nested-builder', () => {
         const data = {};
         const nestedOps = new Map([['tags', { connect: ['tag:new'] }]]);
 
-        const query = buildUpdateWithNestedTransaction(userModel, where, data, nestedOps, registry, true);
+        const query = buildUpdateWithNestedTransaction(userModel, where, data, nestedOps, registry, {
+          transactionMode: true,
+        });
 
         expect(query.text).not.toContain('BEGIN TRANSACTION');
         expect(query.text).not.toContain('COMMIT TRANSACTION');
@@ -388,6 +396,52 @@ describe('nested-builder', () => {
         expect(query.text).toContain('UPDATE tag SET userIds += $result[0].id WHERE id INSIDE $sync_connect_ids_0');
         expect(query.text).toContain('RETURN $result;');
       });
+    });
+  });
+
+  describe('select and include', () => {
+    const tagOps = new Map([['tags', { connect: ['tag:1'] }]]);
+
+    test('create projects the stored row through select', () => {
+      const query = buildCreateWithNestedTransaction(userModel, { name: 'T' }, tagOps, registry, {
+        select: { name: true },
+      });
+
+      expect(query.text).toContain('RETURN (SELECT name FROM ONLY $result);');
+    });
+
+    test('create without select or include returns the stored row as before', () => {
+      const query = buildCreateWithNestedTransaction(userModel, { name: 'T' }, tagOps, registry);
+
+      expect(query.text).toContain('RETURN $result;');
+      expect(query.text).not.toContain('SELECT name');
+    });
+
+    test('update projects the stored rows through select and include', () => {
+      const query = buildUpdateWithNestedTransaction(userModel, { id: 'user:1' }, {}, tagOps, registry, {
+        select: { name: true },
+        include: { tags: true },
+      });
+
+      expect(query.text).toContain('RETURN (SELECT name, tagIds.* AS tags FROM $result);');
+    });
+
+    test('update rejects an unknown include relation', () => {
+      expect(() =>
+        buildUpdateWithNestedTransaction(userModel, { id: 'user:1' }, {}, tagOps, registry, {
+          include: { nope: true },
+        }),
+      ).toThrow(/Unknown field 'nope'/);
+    });
+
+    test('returnBefore ignores select and include, as the plain return before does', () => {
+      const query = buildUpdateWithNestedTransaction(userModel, { id: 'user:1' }, {}, tagOps, registry, {
+        returnBefore: true,
+        select: { name: true },
+        include: { tags: true },
+      });
+
+      expect(query.text).toContain('RETURN $before;');
     });
   });
 });
