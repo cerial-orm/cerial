@@ -4,8 +4,10 @@
  * Supports:
  * - @sort - ascending (default)
  * - @sort() - ascending (default)
- * - @sort(true) - ascending
- * - @sort(false) - descending
+ * - @sort(true) / @sort(asc) - ascending
+ * - @sort(false) / @sort(desc) - descending
+ *
+ * Any other argument is invalid and never resolves to a direction.
  */
 
 import type { ASTDecorator, SourceRange } from '../../../types';
@@ -16,19 +18,21 @@ export function isSortDecorator(token: string): boolean {
   return token === '@sort' || token.startsWith('@sort(');
 }
 
+/** Check that a @sort token carries no argument or one of true / false / asc / desc */
+export function hasValidSortArgument(token: string): boolean {
+  return token === '@sort' || /^@sort\(\s*(true|false|asc|desc)?\s*\)$/.test(token);
+}
+
 /**
  * Extract sort direction from @sort decorator
- * Returns true for ascending, false for descending
+ * Returns true for ascending, false for descending.
+ * Throws on an argument hasValidSortArgument would refuse, so a typo can never become a direction.
  */
 export function extractSortValue(token: string): boolean {
-  if (token === '@sort') return true;
+  if (!hasValidSortArgument(token)) throw new Error(`Invalid @sort argument in '${token}'`);
 
-  const match = token.match(/^@sort\((\w*)\)$/);
-  if (!match) return true;
-
-  const value = match[1]?.trim();
-  if (value === '' || value === 'true') return true;
-  if (value === 'false') return false;
+  const value = token.match(/^@sort\(\s*(\w*)\s*\)$/)?.[1];
+  if (value === 'false' || value === 'desc') return false;
 
   return true;
 }

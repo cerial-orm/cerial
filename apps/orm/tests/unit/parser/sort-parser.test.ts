@@ -2,15 +2,19 @@
  * Unit Tests: Sort Parser
  *
  * Tests parsing of @sort decorator.
- * Supports: @sort, @sort(), @sort(true), @sort(false)
+ * Supports: @sort, @sort(), @sort(true), @sort(false), @sort(asc), @sort(desc)
  */
 
 import { describe, expect, test } from 'bun:test';
+import { generateModelDefineStatements } from '../../../src/generators/migrations/define-generator';
+import { parse } from '../../../src/parser/parser';
 import {
   extractSortValue,
+  hasValidSortArgument,
   isSortDecorator,
   parseSortDecorator,
 } from '../../../src/parser/types/field-decorators/sort-parser';
+import { parseModelRegistry } from '../../test-helpers';
 
 describe('Sort Parser', () => {
   describe('isSortDecorator', () => {
@@ -61,10 +65,18 @@ describe('Sort Parser', () => {
       expect(extractSortValue('@sort(false)')).toBe(false);
     });
 
-    test('should return true for invalid values (default to ascending)', () => {
-      expect(extractSortValue('@sort(invalid)')).toBe(true);
+    test('should return true for @sort(asc)', () => {
       expect(extractSortValue('@sort(asc)')).toBe(true);
-      expect(extractSortValue('@sort(desc)')).toBe(true);
+    });
+
+    test('should return false for @sort(desc)', () => {
+      expect(extractSortValue('@sort(desc)')).toBe(false);
+    });
+
+    test('should throw on an unrecognised argument instead of defaulting to ascending', () => {
+      for (const token of ['@sort(invalid)', '@sort(DESC)', '@sort(1)', '@sort(true, false)']) {
+        expect(() => extractSortValue(token)).toThrow('Invalid @sort argument');
+      }
     });
   });
 
@@ -102,5 +114,81 @@ describe('Sort Parser', () => {
       expect(result.type).toBe('sort');
       expect(result.value).toBe(false);
     });
+  });
+
+  describe('hasValidSortArgument', () => {
+    test('should accept no argument, empty parentheses, true, false, asc and desc', () => {
+      for (const token of [
+        '@sort',
+        '@sort()',
+        '@sort(true)',
+        '@sort(false)',
+        '@sort( false )',
+        '@sort(asc)',
+        '@sort(desc)',
+      ]) {
+        expect(hasValidSortArgument(token)).toBe(true);
+      }
+    });
+
+    test('should reject any other argument', () => {
+      for (const token of ['@sort(invalid)', '@sort(DESC)', '@sort(1)', '@sort(true, false)']) {
+        expect(hasValidSortArgument(token)).toBe(false);
+      }
+    });
+  });
+
+  describe('parsing a schema', () => {
+    const modelWith = (decorator: string) => `
+model Test {
+  id Record @id
+  scores Int[] ${decorator}
+}`;
+
+    test.each(['@sort(bogus)', '@sort(1)', '@sort(true, false)'])('should report a parse error for %s', (decorator) => {
+      const { errors, ast } = parse(modelWith(decorator));
+
+      expect(errors.some((e) => e.message.includes(decorator) && e.message.includes('invalid argument'))).toBe(true);
+      expect(ast.models[0]?.fields.find((f) => f.name === 'scores')?.decorators.some((d) => d.type === 'sort')).toBe(
+        false,
+      );
+    });
+
+    test.each([
+      '@sort',
+      '@sort()',
+      '@sort(true)',
+      '@sort(false)',
+      '@sort(asc)',
+      '@sort(desc)',
+    ])('should accept %s without errors', (decorator) => {
+      const { errors, ast } = parse(modelWith(decorator));
+
+      expect(errors).toEqual([]);
+      expect(ast.models[0]?.fields.find((f) => f.name === 'scores')?.decorators.some((d) => d.type === 'sort')).toBe(
+        true,
+      );
+    });
+  });
+});
+
+describe('@sort direction reaches the emitted DDL', () => {
+  const ddl = (decorator: string) =>
+    generateModelDefineStatements(
+      parseModelRegistry(`model Test {\n  id Record @id\n  scores Int[] ${decorator}\n}`).Test!,
+    ).join('\n');
+
+  test.each([
+    ['@sort(desc)', '.sort(false)'],
+    ['@sort(false)', '.sort(false)'],
+    ['@sort(asc)', '.sort(true)'],
+    ['@sort(true)', '.sort(true)'],
+    ['@sort', '.sort(true)'],
+  ])('%s emits %s', (decorator, expected) => {
+    expect(ddl(decorator)).toContain(expected);
+  });
+
+  test('@sort(desc) does not emit an ascending sort', () => {
+    expect(ddl('@sort(desc)')).not.toContain('.sort(true)');
   });
 });

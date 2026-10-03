@@ -27,7 +27,7 @@ export {
 } from './ondelete-parser';
 export { isReadonlyDecorator, parseReadonlyDecorator } from './readonly-parser';
 export { isSetDecorator, parseSetDecorator } from './set-parser';
-export { extractSortValue, isSortDecorator, parseSortDecorator } from './sort-parser';
+export { extractSortValue, hasValidSortArgument, isSortDecorator, parseSortDecorator } from './sort-parser';
 export { isUniqueDecorator, parseUniqueDecorator } from './unique-parser';
 export { isUpdatedAtDecorator, parseUpdatedAtDecorator } from './updated-at-parser';
 export {

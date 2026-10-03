@@ -12,6 +12,7 @@ import type { ASTDecorator, ASTField } from '../../../types';
 import { isValidFieldName } from '../../../utils/validation-utils';
 import { createField, createPosition, createRange } from '../ast';
 import {
+  hasValidSortArgument,
   isCreatedAtDecorator,
   isDefaultAlwaysDecorator,
   isDefaultDecorator,
@@ -179,7 +180,11 @@ export function parseDecorators(line: string, lineNumber: number, errors?: strin
     } else if (isSetDecorator(token)) {
       decorators.push(parseSetDecorator(range));
     } else if (isSortDecorator(token)) {
-      decorators.push(parseSortDecorator(token, range));
+      if (hasValidSortArgument(token)) decorators.push(parseSortDecorator(token, range));
+      else
+        errors?.push(
+          `Decorator '${token}' has an invalid argument. Use @sort, @sort(true), @sort(false), @sort(asc) or @sort(desc)`,
+        );
     } else if (isFlexibleDecorator(token)) {
       decorators.push(parseFlexibleDecorator(range));
     } else if (isNullableDecorator(token)) {
