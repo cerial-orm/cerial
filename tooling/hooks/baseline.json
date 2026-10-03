@@ -4,7 +4,7 @@
     "apps/orm/tests/unit": 31,
     "apps/orm/tests/e2e": 9,
     "apps/orm/tests/integration": 3,
-    "apps/orm/src": 8,
+    "apps/orm/src": 5,
     "apps/vscode-extension": 1
   }
 }

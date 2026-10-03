@@ -105,6 +105,54 @@ function pathsOverlap(path1: string, path2: string): boolean {
   return p1.startsWith(p2) || p2.startsWith(p1);
 }
 
+// Mapped over every FormatConfig key, so adding a property or widening a union there fails to compile until this table follows.
+type FormatEntry = Required<FormatConfig>;
+
+const FORMAT_VALID_VALUES: { readonly [K in keyof FormatEntry]: ReadonlySet<FormatEntry[K]> } = {
+  alignmentScope: new Set(['group', 'block']),
+  fieldGroupBlankLines: new Set(['single', 'honor', 'collapse']),
+  blockSeparation: new Set([1, 2, 'honor']),
+  indentSize: new Set([2, 4, 'tab']),
+  inlineConstructStyle: new Set(['single', 'multi', 'honor']),
+  decoratorAlignment: new Set(['aligned', 'compact']),
+  trailingComma: new Set([true, false]),
+  commentStyle: new Set(['honor', 'hash', 'slash']),
+  blankLineBeforeDirectives: new Set(['always', 'honor']),
+};
+
+// Writable counterpart of the table, so a value narrowed for key K can be stored under K.
+type FormatEntries = { -readonly [K in keyof FormatEntry]?: FormatEntry[K] };
+
+function isFormatKey(key: string): key is keyof FormatConfig {
+  return Object.hasOwn(FORMAT_VALID_VALUES, key);
+}
+
+function isOneOf<T>(valid: ReadonlySet<T>, value: unknown): value is T {
+  return valid.has(value as T);
+}
+
+function normalizeFormatEntry<K extends keyof FormatConfig>(
+  key: K,
+  value: unknown,
+  fieldPath: string,
+  normalized: FormatEntries,
+  warnings: ConfigValidationError[],
+): void {
+  if (isOneOf<FormatEntry[K]>(FORMAT_VALID_VALUES[key], value)) {
+    normalized[key] = value;
+
+    return;
+  }
+
+  // Invalid value — emit warning and use default
+  const defaultValue = FORMAT_DEFAULTS[key];
+  warnings.push({
+    field: `${fieldPath}.${key}`,
+    message: `Invalid value "${String(value)}" for format.${key}. Using default: ${String(defaultValue)}`,
+  });
+  normalized[key] = defaultValue;
+}
+
 /**
  * Validate and normalize format config, emitting warnings for invalid values
  * and falling back to defaults
@@ -116,41 +164,16 @@ function _validateFormatConfig(
 ): FormatConfig | undefined {
   if (!format) return undefined;
 
-  const normalized: Partial<FormatConfig> = {};
-  const validValues: Record<string, Set<unknown>> = {
-    alignmentScope: new Set(['group', 'block']),
-    fieldGroupBlankLines: new Set(['single', 'honor', 'collapse']),
-    blockSeparation: new Set([1, 2, 'honor']),
-    indentSize: new Set([2, 4, 'tab']),
-    inlineConstructStyle: new Set(['single', 'multi', 'honor']),
-    decoratorAlignment: new Set(['aligned', 'compact']),
-    trailingComma: new Set([true, false]),
-    commentStyle: new Set(['honor', 'hash', 'slash']),
-    blankLineBeforeDirectives: new Set(['always', 'honor']),
-  };
+  const normalized: FormatEntries = {};
 
   for (const [key, value] of Object.entries(format)) {
-    const validSet = validValues[key];
+    // Unknown format key — skip it
+    if (!isFormatKey(key)) continue;
 
-    if (!validSet) {
-      // Unknown format key — skip it
-      continue;
-    }
-
-    if (validSet.has(value)) {
-      normalized[key as keyof FormatConfig] = value as any;
-    } else {
-      // Invalid value — emit warning and use default
-      const defaultValue = FORMAT_DEFAULTS[key as keyof typeof FORMAT_DEFAULTS];
-      warnings.push({
-        field: `${fieldPath}.${key}`,
-        message: `Invalid value "${String(value)}" for format.${key}. Using default: ${String(defaultValue)}`,
-      });
-      normalized[key as keyof FormatConfig] = defaultValue as any;
-    }
+    normalizeFormatEntry(key, value, fieldPath, normalized, warnings);
   }
 
-  return Object.keys(normalized).length > 0 ? (normalized as FormatConfig) : undefined;
+  return Object.keys(normalized).length > 0 ? normalized : undefined;
 }
 
 export function validateFolderConfig(config: Record<string, unknown>): ConfigValidationResult {

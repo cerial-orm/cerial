@@ -383,6 +383,11 @@ development branch and is not available on npm.
   type position, so migration failed with `expected a kind name`. Both now emit the
   declared variants, for example `['A' | 'B', int]` and `array<'A' | 'B'>`.
 
+- A `format` key in a config file that shadowed a built-in object property, such as
+  `toString` or `valueOf`, crashed the config validator with a `TypeError` instead of
+  being skipped as an unknown key. Unknown format keys are now skipped whatever they
+  are called.
+
 ### Changed
 
 - Transaction conflict retries (`TransactionOptions.retries`) now recognise a

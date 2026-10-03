@@ -3,6 +3,7 @@
  */
 
 import { dirname, resolve } from 'node:path';
+import type { FormatConfig } from '../../formatter/types';
 import { toClientClassName } from './name-utils';
 import type { CerialConfig, ResolvedSchemaEntry } from './types';
 
@@ -57,7 +58,7 @@ function resolveMultiSchema(config: CerialConfig, cwd: string): ResolvedSchemaEn
         : getDefaultOutput(absolutePath);
 
     // Merge format config: schema.format overrides root.format
-    let format: Record<string, unknown> | undefined;
+    let format: FormatConfig | undefined;
     if (entry.format || config.format) {
       const merged = { ...config.format, ...entry.format };
       format = Object.keys(merged).length > 0 ? merged : undefined;
@@ -69,7 +70,7 @@ function resolveMultiSchema(config: CerialConfig, cwd: string): ResolvedSchemaEn
       output,
       clientClassName: toClientClassName(name),
       connection: entry.connection ?? config.connection,
-      format: format as any,
+      format,
     };
   });
 }
