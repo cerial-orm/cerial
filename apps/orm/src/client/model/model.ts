@@ -36,7 +36,9 @@ import type {
   UpdateOptions,
   UpdateUniqueResult,
   UpdateUniqueReturn,
+  UpsertArrayReturnType,
   UpsertReturn,
+  UpsertReturnType,
   WhereClause,
 } from '../../types';
 import type { CerialTransaction } from '../cerial-transaction';
@@ -381,20 +383,21 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
   /**
    * Upsert a record - create if it doesn't exist, update if it does
    * @param options - Upsert options with where, create data, update data, and return configuration
-   * @returns Depends on where clause and return option:
-   *   - ID or unique field: single result (Model | null or boolean)
-   *   - Non-unique where: array result (Model[])
+   * @returns The runtime class cannot tell a unique `where` from a non-unique one, so the
+   *   result is the union of both generated overloads:
+   *   - true: boolean
+   *   - otherwise: Model | null for an id or unique field, Model[] for a non-unique where
    */
   upsert<R extends UpsertReturn = undefined>(options: {
-    where: Record<string, unknown>;
+    where: WhereClause;
     create: Record<string, unknown>;
     update?: Record<string, unknown>;
     unset?: Record<string, unknown>;
-    select?: Record<string, boolean>;
-    include?: Record<string, boolean | object>;
+    select?: SelectClause;
+    include?: IncludeClause;
     return?: R;
     txn?: CerialTransaction;
-  }): CerialQueryPromise<unknown> {
+  }): CerialQueryPromise<UpsertReturnType<T, R> | UpsertArrayReturnType<T, R>> {
     const { txn, ...queryOptions } = options;
     const modelNames = collectRelatedModelNames(this.metadata, this.registry, {
       data: [queryOptions.create, queryOptions.update],
@@ -414,12 +417,15 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
       this.registry,
     );
 
-    return new CerialQueryPromise<unknown>(
+    return new CerialQueryPromise<UpsertReturnType<T, R> | UpsertArrayReturnType<T, R>>(
       async () => {
         await this.beforeQuery(modelNames);
         const db = this.resolveDb(txn);
 
-        return QueryBuilderStatic.upsert(db, this.metadata, queryOptions, this.registry);
+        // The builder returns unknown because the shape depends on the where clause
+        const result = await QueryBuilderStatic.upsert<T, R>(db, this.metadata, queryOptions, this.registry);
+
+        return result as UpsertReturnType<T, R> | UpsertArrayReturnType<T, R>;
       },
       compiled.query,
       this.metadata,

@@ -6,6 +6,8 @@
  */
 
 import { Test } from 'ts-toolbelt';
+import type { Model } from '../../../../src/client/model';
+import type { CerialQueryPromise } from '../../../../src/query';
 import type {
   GetUserPayload,
   UpsertArrayReturnType,
@@ -124,4 +126,47 @@ Test.checks([
 
   // UserUpdateInput is assignable as update data
   Test.check<Extends<UserUpdateInput, Record<string, unknown>>, 1, Test.Pass>(),
+]);
+
+// =============================================================================
+// Runtime Model class (client.db.<Model> for dynamic callers)
+// =============================================================================
+// The runtime class cannot tell a unique where from a non-unique one, so each
+// return option resolves to the union of the two generated overloads.
+
+// Model requires an index-signature-compatible T; a mapped alias of the interface provides one
+type UserRecord = { [K in keyof User]: User[K] };
+
+declare const runtimeUser: Model<UserRecord>;
+
+type Resolved<P> = P extends CerialQueryPromise<infer V> ? V : never;
+
+type RuntimeDefault = Resolved<ReturnType<typeof runtimeUser.upsert<undefined>>>;
+type RuntimeAfter = Resolved<ReturnType<typeof runtimeUser.upsert<'after'>>>;
+type RuntimeNull = Resolved<ReturnType<typeof runtimeUser.upsert<null>>>;
+type RuntimeTrue = Resolved<ReturnType<typeof runtimeUser.upsert<true>>>;
+type RuntimeBefore = Resolved<ReturnType<typeof runtimeUser.upsert<'before'>>>;
+
+Test.checks([
+  // undefined (default), null and 'after': record, null or array, never unknown
+  Test.check<RuntimeDefault, UserRecord | null | UserRecord[], Test.Pass>(),
+  Test.check<RuntimeNull, UserRecord | null | UserRecord[], Test.Pass>(),
+  Test.check<RuntimeAfter, UserRecord | null | UserRecord[], Test.Pass>(),
+
+  // 'before' has the same shape
+  Test.check<RuntimeBefore, UserRecord | null | UserRecord[], Test.Pass>(),
+
+  // true collapses both variants to boolean
+  Test.check<RuntimeTrue, boolean, Test.Pass>(),
+
+  // Not unknown: a caller must not need to narrow by hand
+  Test.check<Extends<unknown, RuntimeDefault>, 0, Test.Pass>(),
+
+  // Agrees with the generated overloads
+  Test.check<
+    RuntimeDefault,
+    UpsertReturnType<UserRecord, undefined> | UpsertArrayReturnType<UserRecord, undefined>,
+    Test.Pass
+  >(),
+  Test.check<RuntimeTrue, UpsertReturnType<UserRecord, true> | UpsertArrayReturnType<UserRecord, true>, Test.Pass>(),
 ]);
