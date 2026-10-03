@@ -296,9 +296,12 @@ export class QueryBuilder<T extends Record<string, unknown>> {
         unset ? mergeUnsetIntoData(transformedData, unset) : transformedData,
         nestedOps,
         this.registry,
+        false,
+        returnOption === 'before',
       );
       const result = await executeQuery(this.db, query);
-      const record = Array.isArray(result) ? result[0] : result;
+      // A non-matching where returns no row; handleUpdateUniqueResult tells null from undefined
+      const record = (Array.isArray(result) ? result[0] : result) ?? null;
 
       return this.handleUpdateUniqueResult<R>(record, returnOption);
     }

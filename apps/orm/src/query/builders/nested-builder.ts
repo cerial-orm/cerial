@@ -640,6 +640,7 @@ export function buildUpdateWithNestedTransaction(
   nestedOps: Map<string, NestedOperation>,
   registry: ModelRegistry,
   transactionMode?: boolean,
+  returnBefore?: boolean,
 ): CompiledQuery {
   const ctx = createCompileContext();
   const statements: string[] = transactionMode ? [] : ['BEGIN TRANSACTION;'];
@@ -908,6 +909,10 @@ export function buildUpdateWithNestedTransaction(
     statements.push(`LET $old = (SELECT * FROM ${model.tableName} ${whereClause.text});`);
   }
 
+  // `return: 'before'` needs the row as it was, so it is read before the update and the relation
+  // statements that follow; the transaction stays one round trip
+  if (returnBefore) statements.push(`LET $before = (SELECT * FROM ${model.tableName} ${whereClause.text});`);
+
   // Build the main update
   if (fieldUpdates.length > 0) {
     statements.push(
@@ -988,7 +993,7 @@ export function buildUpdateWithNestedTransaction(
   if (postStatements.length) statements.push(`IF $result[0] {\n${postStatements.join('\n')}\n};`);
 
   if (!transactionMode) statements.push('COMMIT TRANSACTION;');
-  statements.push('RETURN $result;');
+  statements.push(returnBefore ? 'RETURN $before;' : 'RETURN $result;');
 
   return {
     text: statements.join('\n'),
