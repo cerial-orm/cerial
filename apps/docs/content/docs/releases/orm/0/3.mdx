@@ -205,6 +205,37 @@ development branch and is not available on npm.
   `AND`/`OR`/`NOT`. An array relation filter accepts only `some`, `every` and
   `none` as keys.
 
+- A write whose `data` touched a relation, with a `create`, `connect`,
+  `disconnect` or `set` on a relation field, behaved differently from the same
+  write without it. `updateMany`, `updateUnique`, `upsert` and `create` now treat
+  the two the same. If a call that attaches or detaches a relation alongside
+  ordinary fields ever returned something odd, this is the cause. Seven things
+  were wrong:
+
+  - `where` was cut down to its first key. With `updateUnique({ where: { id,
+    version }, data })` the `version` guard was dropped, so the update was
+    written even when the guard did not match and the row came back as if it had.
+    `updateMany` updated every row matching only the first key. A first key that
+    was a filter object such as `{ age: { gt: 5 } }`, or `OR` or `NOT`, matched
+    nothing. The whole `where` is now applied, and a `where` that matches no row
+    writes nothing, links nothing and returns `null` (or `false` for
+    `return: true`).
+  - `unset` was ignored, so a field you asked to clear stayed set.
+  - `@updatedAt` was not bumped.
+  - A partial object update replaced the whole object. Updating
+    `meta: { industry }` dropped the object's other keys, and a partial update of
+    a required object failed with a coercion error. It now merges, as it does
+    without a relation in the call.
+  - `return: 'before'` returned the row as it was after the update, and
+    `return: true` reported `true` for an update that matched nothing. `'before'`
+    now returns the prior row, including its relations as they were before any
+    `connect` or `disconnect` in the same call, and `true` is `false` when nothing
+    matched.
+  - `select` was ignored and the full row came back.
+  - `include` returned no relation. Both now behave as they do on a plain write,
+    including on both halves of `upsert`, and an unknown or non-relation `include`
+    key throws before anything is written.
+
 ### Changed
 
 - Transaction conflict retries (`TransactionOptions.retries`) now recognise a
@@ -304,3 +335,11 @@ development branch and is not available on npm.
   `update` payload as `Invalid data`, since a caller does not know which half
   would have run. Code that matched on the old wording needs updating; branch on
   the error class or `code` instead.
+- **Breaking.** A write that touches a relation now returns what the same write
+  without a relation returns, and applies the whole `where`, `unset`, `@updatedAt`,
+  object merging, `return`, `select` and `include`; see the matching entry under
+  Fixed. Code that depended on the old results needs updating: a guarded
+  `updateUnique` now yields `null` when its guard does not match, `updateMany`
+  touches fewer rows, `return: 'before'` no longer holds the new values, and a
+  response you trimmed with `select` carries the fields a plain write returns
+  rather than the whole row.
