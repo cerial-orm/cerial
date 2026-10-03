@@ -563,14 +563,6 @@ describe('mixed pick/omit diagnostic', () => {
     // This error will surface through validateSchema
     const result = validateSchema(ast);
 
-    // Look for an error mentioning mixed pick/omit or similar
-    const mixedErrors = result.errors.filter(
-      (e) =>
-        e.message.toLowerCase().includes('mix') ||
-        e.message.toLowerCase().includes('pick') ||
-        e.message.toLowerCase().includes('omit'),
-    );
-
     // Should have at least one error about mixing
     // Note: Task 2 (ORM parser fix) will emit the error. For now, test that no false positives occur.
     // Once Task 2 is done, this test will verify the error is emitted.
@@ -622,6 +614,14 @@ describe('valid pick/omit no false positives', () => {
 
     // Should not have any mixing errors
     const mixedErrors = result.errors.filter(
+      (e) =>
+        e.message.toLowerCase().includes('mix') &&
+        (e.message.toLowerCase().includes('pick') || e.message.toLowerCase().includes('omit')),
+    );
+
+    expect(mixedErrors.length).toBe(0);
+  });
+});
 
 describe('duplicate declaration diagnostics', () => {
   const HOST = 'model Host {\n  id Record @id\n}';
@@ -662,13 +662,5 @@ describe('duplicate declaration diagnostics', () => {
     const { ast } = parse(`${HOST}\n\nenum Role { A, B }`);
 
     expect(getDuplicateNameErrors(ast, [ast])).toEqual([]);
-  });
-});
-      (e) =>
-        e.message.toLowerCase().includes('mix') &&
-        (e.message.toLowerCase().includes('pick') || e.message.toLowerCase().includes('omit')),
-    );
-
-    expect(mixedErrors.length).toBe(0);
   });
 });

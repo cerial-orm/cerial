@@ -201,24 +201,22 @@ describe('Hostile and invalid include orderBy', () => {
       );
     });
 
-    test.each([
-      [null],
-      [5],
-      [true],
-      [['asc']],
-    ])('a non-string direction %p is rejected, not a TypeError', async (bad) => {
-      const run = () =>
-        client.db.Author.findMany({
-          // @ts-expect-error — not a direction, testing runtime guard
-          include: { posts: { orderBy: { title: bad } } },
-        });
+    test.each([[null], [5], [true], [['asc']]])(
+      'a non-string direction %p is rejected, not a TypeError',
+      async (bad) => {
+        const run = () =>
+          client.db.Author.findMany({
+            // @ts-expect-error — not a direction, testing runtime guard
+            include: { posts: { orderBy: { title: bad } } },
+          });
 
-      await expect(
-        (async () => {
-          await run();
-        })(),
-      ).rejects.toThrow('Order direction');
-    });
+        await expect(
+          (async () => {
+            await run();
+          })(),
+        ).rejects.toThrow('Order direction');
+      },
+    );
 
     test('an object field with an unknown sub-key under include names the path', async () => {
       await rejects(

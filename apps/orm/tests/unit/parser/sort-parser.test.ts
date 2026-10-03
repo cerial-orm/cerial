@@ -154,21 +154,17 @@ model Test {
       );
     });
 
-    test.each([
-      '@sort',
-      '@sort()',
-      '@sort(true)',
-      '@sort(false)',
-      '@sort(asc)',
-      '@sort(desc)',
-    ])('should accept %s without errors', (decorator) => {
-      const { errors, ast } = parse(modelWith(decorator));
+    test.each(['@sort', '@sort()', '@sort(true)', '@sort(false)', '@sort(asc)', '@sort(desc)'])(
+      'should accept %s without errors',
+      (decorator) => {
+        const { errors, ast } = parse(modelWith(decorator));
 
-      expect(errors).toEqual([]);
-      expect(ast.models[0]?.fields.find((f) => f.name === 'scores')?.decorators.some((d) => d.type === 'sort')).toBe(
-        true,
-      );
-    });
+        expect(errors).toEqual([]);
+        expect(ast.models[0]?.fields.find((f) => f.name === 'scores')?.decorators.some((d) => d.type === 'sort')).toBe(
+          true,
+        );
+      },
+    );
   });
 });
 

@@ -4,7 +4,7 @@
  * Activates on `.cerial` files and connects to the language server via IPC.
  */
 
-import * as path from 'path';
+import * as path from 'node:path';
 import type { ExtensionContext } from 'vscode';
 import {
   LanguageClient,

@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { findTypeDefinition, getWordRangeAtPosition } from '../../server/src/utils/ast-location';
-import { createIndexerWithContent, loadFixture, parseFixture, testPath } from './helpers';
+import { createIndexerWithContent, testPath } from './helpers';
 
 describe('Rename Logic', () => {
   describe('rename validation', () => {

@@ -95,7 +95,7 @@ Test.checks([
 
 Test.checks([
   Test.check<Extends<{ timeout: number }, TransactionOptions>, 1, Test.Pass>(),
-  // biome-ignore lint/complexity/noBannedTypes: {} intentionally tests empty object assignability
+  // oxlint-disable-next-line typescript/no-empty-object-type -- {} intentionally tests empty object assignability
   Test.check<Extends<{}, TransactionOptions>, 1, Test.Pass>(),
   Test.check<Extends<{ retries: number }, TransactionOptions>, 1, Test.Pass>(),
   Test.check<Extends<{ backoff: (attempt: number) => number }, TransactionOptions>, 1, Test.Pass>(),

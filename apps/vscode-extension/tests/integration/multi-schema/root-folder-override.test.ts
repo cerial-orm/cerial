@@ -7,7 +7,7 @@
  *        internal-utils.cerial (folder-excluded)
  */
 
-import * as assert from 'assert';
+import * as assert from 'node:assert';
 import * as vscode from 'vscode';
 import {
   closeAllEditors,

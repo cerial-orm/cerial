@@ -206,9 +206,11 @@ describe('CerialId', () => {
 
       test('enables == comparison with string', () => {
         const id = new CerialId('user:abc');
+        /* oxlint-disable eslint/eqeqeq */
+        // Testing valueOf() enables == comparison with strings at runtime
         // @ts-expect-error
-        // biome-ignore lint/suspicious/noDoubleEquals: Testing valueOf() enables == comparison with strings at runtime
         expect(id == 'user:abc').toBe(true);
+        /* oxlint-enable eslint/eqeqeq */
       });
     });
 

@@ -75,20 +75,23 @@ export type GetRelationPayload<RelationType, RelationInclude, IncludeValue> = In
         ? RelationType & GetIncludePayload<RelationType, RelationInclude, I>
         : RelationType;
 
+/* oxlint-disable typescript/no-empty-object-type */
+// {} is intentional — represents empty object intersection in type-level conditional
 /**
  * Get the payload for all included relations
  * Maps each included relation key to its resolved type
  */
 export type GetIncludePayload<_Model, ModelRelations, Include> = Include extends undefined
-  ? // biome-ignore lint/complexity/noBannedTypes: {} is intentional — represents empty object intersection in type-level conditional
-    {}
+  ? {}
   : Include extends Record<string, unknown>
     ? {
-        [K in keyof Include as Include[K] extends false | undefined
-          ? never
-          : K extends keyof ModelRelations
-            ? K
-            : never]: K extends keyof ModelRelations
+        [
+          K in keyof Include as Include[K] extends false | undefined
+            ? never
+            : K extends keyof ModelRelations
+              ? K
+              : never
+        ]: K extends keyof ModelRelations
           ? ModelRelations[K] extends { type: infer R; include: infer RI }
             ? R extends unknown[]
               ? GetRelationPayload<R[number], RI, Include[K]>[]
@@ -96,8 +99,8 @@ export type GetIncludePayload<_Model, ModelRelations, Include> = Include extends
             : never
           : never;
       }
-    : // biome-ignore lint/complexity/noBannedTypes: {} is intentional — represents empty object intersection in type-level conditional
-      {};
+    : {};
+/* oxlint-enable typescript/no-empty-object-type */
 
 /**
  * Main result type resolver

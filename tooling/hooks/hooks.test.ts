@@ -179,6 +179,17 @@ describe('verify', () => {
     expect(first?.command.slice(-2)).toEqual(['a.ts', 'b.ts']);
   });
 
+  test('neither file step fails a commit that stages nothing it can read', () => {
+    // A commit of only a manifest or a lockfile stages no source. Both tools exit non-zero on an
+    // unmatched pattern, which would refuse such a commit for having nothing to check.
+    for (const step of verifySteps(['package.json', 'bun.lock'], 'bun')) {
+      const text = step.command.join(' ');
+      if (text.includes('oxfmt') || text.includes('oxlint')) {
+        expect(step.command).toContain('--no-error-on-unmatched-pattern');
+      }
+    }
+  });
+
   test('no step starts a suite that needs a database or a second editor instance', () => {
     for (const step of verifySteps(['a.ts'])) {
       const text = step.command.join(' ');
@@ -219,8 +230,7 @@ function setup(scratch: Scratch): Ran {
 function gatedRepository(): Scratch {
   const scratch = newScratch();
   installHooksCopy(scratch);
-  cpSync(join(REPO_ROOT, 'biome.json'), join(scratch.dir, 'biome.json'));
-  // The formatter's configuration asks for the repository's ignore file and stops without one.
+  for (const config of ['.oxfmtrc.json', '.oxlintrc.json']) cpSync(join(REPO_ROOT, config), join(scratch.dir, config));
   write(scratch, '.gitignore', 'node_modules\n');
   symlinkSync(join(REPO_ROOT, 'node_modules'), join(scratch.dir, 'node_modules'));
   seed(scratch, {

@@ -35,10 +35,10 @@ does not run until the scans pass.
 |---|---|---|---|
 | planning identifier | `tracker.decision-record`, `tracker.specification`, `tracker.plan-item`, `tracker.task-row`, `tracker.ledger-id` | A decision-record id, a specification id, a numbered plan item, a numbered plan row or a capability ledger id | Every committed text file except the planning tree |
 | planning cross-reference | `tracker.section-reference` | The section sign | Same |
-| planning path | `tracker.planning-path` | A path into the planning tree, which is not shipped and resolves to nothing | Same, except `.gitignore` and `biome.json`, whose job is to exclude it |
+| planning path | `tracker.planning-path` | A path into the planning tree, which is not shipped and resolves to nothing | Same, except `.gitignore`, whose job is to exclude it |
 | stub marker | `stub.come-back-to-it`, `stub.fix-it-later`, `stub.bare-alarm`, `stub.admitted-workaround`, `stub.unfinished-marker`, `stub.unfinished-phrase`, `stub.partial-work`, `stub.stand-in-value` | Text that admits the code is unfinished | Shipping paths only: `apps/orm/src/`, `apps/orm/bin/`, `apps/vscode-extension/client/`, `apps/vscode-extension/server/src/` and `tooling/`. Test trees and docs are out of scope |
 | tombstone without a reason | `stub.tombstone-without-a-reason` | A tombstone marker with no reason after it. See the next section | Shipping paths |
-| unexplained suppression | `suppression.bare` | A Biome suppression comment with no rule and no reason | Code files (`.ts`, `.tsx`, `.js`, `.jsx`, `.mjs`, `.cjs`) |
+| unexplained suppression | `suppression.bare` | An oxlint disable directive with no rule, or with no reason on its line (after `--`) or the line after it | Code files (`.ts`, `.tsx`, `.js`, `.jsx`, `.mjs`, `.cjs`) |
 | e2e schema setup | `e2e-setup.remove-table`, `e2e-setup.reset-migration-state`, `e2e-setup.migrate` | `REMOVE TABLE`, `resetMigrationState(` or `client.migrate(` in an e2e file | Code files under `apps/orm/tests/e2e/`, except `preload.ts`, `test-helper.ts`, `generated/` and the one flexible-key injection test that owns a private table |
 | cast to any | `ratchet.as-any` | A new line containing a cast to `any`. See the ratchet section | Code files under the paths listed in `baseline.json` |
 | ignored path | `paths.ignored` | A newly added file that matches an ignore pattern, which a forced add slips past. Rename it or change the pattern | Added files |
@@ -116,13 +116,14 @@ live count, put that number in `baseline.json` and commit both together.
 
 ## The local verify
 
-After the scans pass, `pre-commit` runs three steps in order and stops at the first that
+After the scans pass, `pre-commit` runs four steps in order and stops at the first that
 fails. A step that cannot start counts as failed. The refusal reads
 `This commit is refused by the verify.` and names the step and its exit code.
 
 | Step | Where | Command |
 |---|---|---|
-| biome check on the staged files | repo root | `bun x biome check` over the staged paths |
+| oxfmt check on the staged files | repo root | `bun x oxfmt --check` over the staged paths |
+| oxlint on the staged files | repo root | `bun x oxlint --deny-warnings` over the staged paths |
 | ORM unit and generator suites | `apps/orm` | `bun test tests/unit tests/generators` |
 | extension unit and grammar suites | `apps/vscode-extension` | `bun test tests/unit tests/grammar` |
 

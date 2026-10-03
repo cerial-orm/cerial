@@ -5,7 +5,7 @@
  * and contributes the expected language configuration.
  */
 
-import * as assert from 'assert';
+import * as assert from 'node:assert';
 import * as vscode from 'vscode';
 import { openDocument, waitForExtensionActivation } from './helpers';
 

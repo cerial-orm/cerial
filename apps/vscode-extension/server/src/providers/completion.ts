@@ -11,6 +11,8 @@
  * - Decorator position: context-filtered decorators with conflict exclusion and snippets
  */
 
+/* oxlint-disable eslint/no-template-curly-in-string -- every `${1:name}` here is LSP snippet syntax, meant to stay a plain string */
+
 import * as path from 'node:path';
 
 import {
@@ -1565,3 +1567,5 @@ export function registerCompletionProvider(
     return [];
   });
 }
+
+/* oxlint-enable eslint/no-template-curly-in-string */

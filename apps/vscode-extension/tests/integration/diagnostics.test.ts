@@ -5,7 +5,7 @@
  * errors as VS Code diagnostics with correct severity, source, and ranges.
  */
 
-import * as assert from 'assert';
+import * as assert from 'node:assert';
 import * as vscode from 'vscode';
 import {
   closeAllEditors,

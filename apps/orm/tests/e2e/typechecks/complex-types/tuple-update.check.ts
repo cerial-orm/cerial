@@ -49,7 +49,7 @@ Test.checks([
   Test.check<Extends<{ lng: 10 }, CoordinateUpdate>, 1, Test.Pass>(),
   Test.check<Extends<{ lat: 5; lng: 10 }, CoordinateUpdate>, 1, Test.Pass>(),
   Test.check<Extends<{ '0': 5 }, CoordinateUpdate>, 1, Test.Pass>(),
-  // biome-ignore lint/complexity/noBannedTypes: {} intentionally tests empty object assignability
+  // oxlint-disable-next-line typescript/no-empty-object-type -- {} intentionally tests empty object assignability
   Test.check<Extends<{}, CoordinateUpdate>, 1, Test.Pass>(),
 ]);
 

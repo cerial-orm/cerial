@@ -6,7 +6,7 @@
  * files. The extension must remain active and functional throughout.
  */
 
-import * as assert from 'assert';
+import * as assert from 'node:assert';
 import * as vscode from 'vscode';
 import {
   closeAllEditors,
@@ -77,7 +77,7 @@ suite('Error Recovery E2E', () => {
     test('empty model body produces diagnostics or is valid', async function () {
       this.timeout(15000);
 
-      const doc = await createTempDocument('model Empty {\n}\n');
+      await createTempDocument('model Empty {\n}\n');
 
       // An empty model might be valid or produce a warning — either is fine
       // The key is that the extension doesn't crash
@@ -105,7 +105,7 @@ suite('Error Recovery E2E', () => {
     test('empty file produces no crash', async function () {
       this.timeout(15000);
 
-      const doc = await createTempDocument('');
+      await createTempDocument('');
 
       // Empty file should either have no diagnostics or a warning
       await sleep(2000);
@@ -132,7 +132,7 @@ suite('Error Recovery E2E', () => {
       this.timeout(15000);
 
       // Simulate binary-like content (control characters mixed with text)
-      const doc = await createTempDocument('\x00\x01\x02model Binary\x03 {\n  id Record\x04 @id\n}\n');
+      await createTempDocument('\x00\x01\x02model Binary\x03 {\n  id Record\x04 @id\n}\n');
 
       // Should produce errors or be handled gracefully
       await sleep(2000);

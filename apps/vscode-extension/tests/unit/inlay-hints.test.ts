@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { parse } from '../../../orm/src/parser/parser';
 import type { ASTModel } from '../../../orm/src/types';
-import { cerialToLsp } from '../../server/src/utils/position';
 import { createIndexerWithContent, testPath } from './helpers';
 
 /**

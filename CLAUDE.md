@@ -20,8 +20,8 @@ bun run generate:test-client           # regenerate the e2e client from tests/e2
 bun run typecheck                      # tsc over tests/e2e/typechecks/*.check.ts
 bunx tsc --noEmit                      # whole project
 bun run build                          # required before test:e2e after changing src/
-bun run format                         # biome check --write
-bun run format:check                   # biome ci, what CI runs
+bun run format                         # oxfmt --write, then oxlint --fix
+bun run format:check                   # oxfmt --check, then oxlint; what CI runs
 
 bunx cerial init | generate | format    # the CLI; --help for flags
 ```
@@ -136,7 +136,7 @@ Use the `surreal-ns` and `surreal-db` headers. The short `NS`/`DB` forms are rej
 
 ## Code Style
 
-- **Single quotes** - Biome formatter enforces single quotes for all string literals. Always use `'single quotes'` in TypeScript/JavaScript code, never `"double quotes"`
+- **Single quotes** - oxfmt enforces single quotes for all string literals. Always use `'single quotes'` in TypeScript/JavaScript code, never `"double quotes"`
 - **Newline before return** - Always add a blank line before `return` statements
 - **Inline single-statement if** - No braces for single-line `if`:
 
@@ -152,13 +152,20 @@ Use the `surreal-ns` and `surreal-db` headers. The short `NS`/`DB` forms are rej
   if (results.length) process(results);
   ```
 
-- **Biome unused prefix** - Biome auto-prefixes unused variables/params with `_` (e.g., `x` → `_x`). When you later use that variable, remove the `_` prefix first (`_x` → `x`), unless `_` has a separate meaning in that context (e.g., lodash import)
-- **Import ordering when editing** - When adding new imports to a file, always add the **usage code first**, then add the `import` statement. Biome removes imports it considers unused, so if you add an import before the code that uses it (e.g., across separate edit operations), `bun run format` will strip it. Write the call/reference first, then add the import — this guarantees Biome sees it as used
+- **Unused bindings** - oxlint's `no-unused-vars` reports unused imports, variables and parameters, and ignores names that start with `_`. `bun run format` does not rename or delete them for you: prefix an intentionally unused parameter with `_` yourself, and remove the `_` again when you start using it, unless `_` has a separate meaning in that context (e.g., lodash import)
+- **Imports when editing** - An unused import is a lint error that fails `bun run format`, and nothing removes it for you. Add the import together with the code that uses it
 - **Module exports** - Each module has `index.ts` that re-exports its public API
-- **Generated files** - Formatted with Biome
-- **Biome-ignore for intentional patterns** - Use `// biome-ignore <rule>: <explanation>` when code intentionally triggers a biome warning. Common cases: `{}` type in type-level tests (noBannedTypes), test values like `2.718` that aren't Math.E (noApproximativeNumericConstant), intentionally unused type aliases in typechecks. Always include a clear explanation after the colon
-- **Biome must pass in CI** - `bun run format` must exit with zero errors before committing. Fix warnings proactively — don't let them accumulate. The ORM CI workflow runs `bun run format` and fails on any diagnostic
-- **Intentionally invalid test fixtures** - Files like `tests/fixtures/config/invalid-json/cerial.config.json` are excluded from biome via `biome.json`. When adding new intentionally malformed fixtures, add them to the biome excludes
+- **Generated files** - Formatted with oxfmt, using the same options as `.oxfmtrc.json`
+- **Suppressing a lint rule** - Use `/* oxlint-disable <rule> */` with the reason on the line after it, and `/* oxlint-enable <rule> */` after the code it covers, so the suppression keeps the narrow scope. `// oxlint-disable-next-line <rule> -- <reason>` is the one-line form. The commit hook refuses a directive with no rule or no reason. Common cases: `{}` type in type-level tests (`typescript/no-empty-object-type`), test values like `2.718` that aren't Math.E (`oxc/approx-constant`), intentionally unused type aliases in typechecks. Example:
+
+  ```typescript
+  /* oxlint-disable typescript/no-empty-object-type */
+  // {} intentionally tests empty object assignability
+  type DataEmpty = {};
+  /* oxlint-enable typescript/no-empty-object-type */
+  ```
+- **oxfmt and oxlint must pass in CI** - `bun run format` must exit with zero errors before committing. Warnings fail it too (`--deny-warnings`), so don't let them accumulate. The ORM CI workflow runs `bun run format:check` and fails on any diagnostic
+- **Intentionally invalid test fixtures** - Files like `tests/fixtures/config/invalid-json/cerial.config.json` are excluded from oxfmt and oxlint through `ignorePatterns` in `.oxfmtrc.json` and `.oxlintrc.json`. When adding new intentionally malformed fixtures, add them to both
 
 ### File & Folder Organization
 
@@ -198,7 +205,7 @@ Use the `surreal-ns` and `surreal-db` headers. The short `NS`/`DB` forms are rej
   sub-key sites as a theoretical identifier exposure; nobody ran it, so a live
   injection sat unfixed in two published versions.
 - **Validate test expectations before modifying source** - If a test fails, understand why before changing the test vs. the source
-- **Always run `bun run format` before committing** - Run Biome formatter on new/changed files before every git commit. This ensures consistent formatting and catches lint issues early. Never commit unformatted code. After running, check the output for any warnings or errors — if any are reported, fix them before proceeding. Do not ignore Biome diagnostics
+- **Always run `bun run format` before committing** - Run the formatter and linter on new/changed files before every git commit. This ensures consistent formatting and catches lint issues early. Never commit unformatted code. After running, check the output for any warnings or errors — if any are reported, fix them before proceeding. Do not ignore oxlint diagnostics
 - **Never create files or folders matching `.gitignore` patterns** - Before creating any new file or directory, check if its name matches a pattern in the repository's `.gitignore` (e.g., `logs`, `dist`, `node_modules`, `*.log`). Files matching `.gitignore` patterns are invisible to git and will silently fail to be committed. If a needed name collides with a `.gitignore` pattern, choose a different name
 
 ### Documentation Sync
@@ -270,7 +277,7 @@ The pipeline shape is the same each time:
 - **Always run relevant tests** after making changes: `bun test` for full suite, or targeted test paths
 - **Run `bunx tsc --noEmit`** after modifying types or generators to catch type errors
 - **Bug fixes must include tests** - When fixing a bug that was not caught by existing tests, add a test that covers the specific bug being fixed. The test should fail without the fix and pass with it. This prevents regressions and ensures test coverage grows with each fix.
-- **Run `bun run format` before running full tests** - This formats, checks linting errors & tries to fix safely the codebase with Biome. Always run before `test:full` to ensure formatting is consistent.
+- **Run `bun run format` before running full tests** - This formats, checks linting errors & applies the safe lint fixes with oxfmt and oxlint. Always run before `test:full` to ensure formatting is consistent.
 - **Run `bun run test:full` after all tasks are complete** - This regenerates the test client, runs typechecks, and runs all tests (unit, integration, client, parser, E2E). This is the final validation step before considering work done.
 - **Exhaustive edge-case coverage (CRITICAL)** - Every new feature must have tests that cover every small edge case, not just the happy path. Shallow tests that only verify "it works" miss logical flaws. Specifically:
   - **E2E tests must be exhaustive** — For each feature, enumerate every meaningful combination of inputs, options, and code paths, then write a dedicated test for each. Think: "what are all the ways a user could call this, and what should happen in each case?" This includes:

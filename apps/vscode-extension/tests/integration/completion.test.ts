@@ -6,7 +6,7 @@
  * cross-file type references.
  */
 
-import * as assert from 'assert';
+import * as assert from 'node:assert';
 import { suite, suiteSetup, teardown, test } from 'mocha';
 import * as vscode from 'vscode';
 import {

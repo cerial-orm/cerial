@@ -161,7 +161,7 @@ describe('Hover Logic', () => {
 
   describe('decorator doc fields', () => {
     test('decorator docs with examples have non-empty example', () => {
-      for (const [key, doc] of Object.entries(DECORATOR_DOCS)) {
+      for (const doc of Object.values(DECORATOR_DOCS)) {
         if (doc.example) {
           expect(doc.example.length).toBeGreaterThan(0);
         }
@@ -169,7 +169,7 @@ describe('Hover Logic', () => {
     });
 
     test('decorator docs with constraints have non-empty constraints', () => {
-      for (const [key, doc] of Object.entries(DECORATOR_DOCS)) {
+      for (const doc of Object.values(DECORATOR_DOCS)) {
         if (doc.constraints) {
           expect(doc.constraints.length).toBeGreaterThan(0);
         }

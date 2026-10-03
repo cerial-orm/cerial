@@ -27,7 +27,7 @@
  *  85: model EmptyFieldModel {
  */
 
-import * as assert from 'assert';
+import * as assert from 'node:assert';
 import * as vscode from 'vscode';
 import {
   closeAllEditors,
@@ -667,7 +667,6 @@ suite('Completion Contexts E2E', () => {
         }, 10000);
 
         assert.ok(completions, 'Should return completions inside model block');
-        const labels = completions.items.map(getCompletionLabel);
 
         // Block keywords should NOT appear inside model block
         // Filter out VS Code's word-based completions (kind = Text) which inject document words

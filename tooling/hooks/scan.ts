@@ -9,6 +9,9 @@ import {
   type Rule,
   STUB_PATTERNS,
   SUPPRESSION,
+  SUPPRESSION_DIRECTIVE,
+  SUPPRESSION_INLINE_REASON,
+  SUPPRESSION_NEXT_LINE_REASON,
   TOMBSTONE_MARKER,
   TOMBSTONE_MIN_REASON,
   TRACKER_EXEMPT_PATHS,
@@ -238,14 +241,16 @@ export function scanStubs(path: string, content: string): Refusal[] {
   return refusals;
 }
 
-/** A lint suppression with no rule and reason after it. */
+/** A lint suppression with no rule, or with no reason on its line or the next one. */
 export function scanSuppressions(path: string, content: string): Refusal[] {
   if (!isCodePath(path)) return [];
   const refusals: Refusal[] = [];
   const lines = content.split('\n');
   for (let index = 0; index < lines.length; index += 1) {
     const line = lines[index] as string;
-    if (SUPPRESSION.regex.test(line)) refusals.push(report(SUPPRESSION, path, index, line));
+    if (!SUPPRESSION_DIRECTIVE.test(line)) continue;
+    const explained = SUPPRESSION_INLINE_REASON.test(line) || SUPPRESSION_NEXT_LINE_REASON.test(lines[index + 1] ?? '');
+    if (SUPPRESSION.regex.test(line) || !explained) refusals.push(report(SUPPRESSION, path, index, line));
   }
 
   return refusals;
@@ -281,11 +286,7 @@ const E2E_SETUP_EXEMPT_PATHS: readonly string[] = [
   'apps/orm/tests/e2e/complex-types/objects/flexible-key-injection.test.ts',
   'apps/orm/tests/e2e/negative/hostile-keys.test.ts',
   'apps/orm/tests/e2e/negative/identifier-sites.test.ts',
-];
-
-/** Schema setup in an end-to-end file, for the lines the caller names (every line when none). */
-export function scanE2eSetup(path: string, content: string, only?: ReadonlySet<number>): Refusal[] {
-  if (!isE2eSpecPath(path)) return [];
+  'apps/orm/tests/e2e/negative/include-order-by.test.ts',
   // The multi-schema specs build their own generated clients from their own fixtures and migrate
   // each one themselves, because migration sequencing across two clients is the behaviour under
   // test: you cannot assert "the first client re-runs its migration" without clearing that
@@ -295,6 +296,11 @@ export function scanE2eSetup(path: string, content: string, only?: ReadonlySet<n
   'apps/orm/tests/e2e/multi-schema/runtime-helpers.ts',
   'apps/orm/tests/e2e/multi-schema/runtime.test.ts',
   'apps/orm/tests/e2e/multi-schema/same-model-name.test.ts',
+];
+
+/** Schema setup in an end-to-end file, for the lines the caller names (every line when none). */
+export function scanE2eSetup(path: string, content: string, only?: ReadonlySet<number>): Refusal[] {
+  if (!isE2eSpecPath(path)) return [];
   const refusals: Refusal[] = [];
   const lines = content.split('\n');
   for (let index = 0; index < lines.length; index += 1) {

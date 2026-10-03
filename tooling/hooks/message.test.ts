@@ -101,14 +101,12 @@ describe('subject shape', () => {
     expect(rulesOf(withBody('feat(orm): add typed ids.'))).toEqual([SHAPE_RULES.subjectTrailingPeriod]);
   });
 
-  test.each([
-    'add typed ids',
-    'feat add typed ids',
-    'feat(orm):add typed ids',
-    'feat(): add typed ids',
-  ])('%s is not conventional', (subject) => {
-    expect(rulesOf(withBody(subject))).toEqual([SHAPE_RULES.subjectNotConventional]);
-  });
+  test.each(['add typed ids', 'feat add typed ids', 'feat(orm):add typed ids', 'feat(): add typed ids'])(
+    '%s is not conventional',
+    (subject) => {
+      expect(rulesOf(withBody(subject))).toEqual([SHAPE_RULES.subjectNotConventional]);
+    },
+  );
 });
 
 describe('imperative mood is read from the description, not the subject', () => {
@@ -128,13 +126,12 @@ describe('imperative mood is read from the description, not the subject', () => 
     expect(looksImperative('added typed ids')).toBe(false);
   });
 
-  test.each([
-    'fix(orm): fixed the join',
-    'fix(orm): fixes the join',
-    'fix(orm): fixing the join',
-  ])('%s is refused', (subject) => {
-    expect(rulesOf(withBody(subject))).toEqual([SHAPE_RULES.subjectNotImperative]);
-  });
+  test.each(['fix(orm): fixed the join', 'fix(orm): fixes the join', 'fix(orm): fixing the join'])(
+    '%s is refused',
+    (subject) => {
+      expect(rulesOf(withBody(subject))).toEqual([SHAPE_RULES.subjectNotImperative]);
+    },
+  );
 
   test.each(['add', 'reject', 'pass', 'focus', 'read', 'need', 'bring', 'Add'])('the verb %s is accepted', (verb) => {
     expect(rulesOf(withBody(`fix(orm): ${verb} the registry`))).toEqual([]);
@@ -416,12 +413,12 @@ describe('release subjects are matched without regard to the leading letter', ()
     expect(rulesOf(withBody(subject), declares)).toEqual([SHAPE_RULES.releaseVersion]);
   });
 
-  test.each([
-    'chore(orm): release v0.3.0',
-    'chore(orm): Release v0.3.0',
-  ])('%s with the declared version is accepted', (subject) => {
-    expect(rulesOf(withBody(subject), declares)).toEqual([]);
-  });
+  test.each(['chore(orm): release v0.3.0', 'chore(orm): Release v0.3.0'])(
+    '%s with the declared version is accepted',
+    (subject) => {
+      expect(rulesOf(withBody(subject), declares)).toEqual([]);
+    },
+  );
 
   test('a capitalised release of the wrong form is refused for the form', () => {
     expect(rulesOf(withBody('feat(orm): Release v0.3.0'), declares)).toEqual([SHAPE_RULES.releaseForm]);
@@ -437,20 +434,12 @@ describe('verbs that end in the letters a past tense or plural ends in', () => {
   // differ only by spelling, and `has` must stay refused while `bias` must not, so a rule that
   // generalised would have to be wrong one way. The list is short, auditable, and a missing verb
   // fails visibly as a false refusal that is fixed by adding one word.
-  test.each([
-    'ping',
-    'sling',
-    'fling',
-    'sting',
-    'wing',
-    'bias',
-    'canvas',
-    'alias',
-    'atlas',
-    'Ping',
-  ])('the verb %s is accepted', (verb) => {
-    expect(rulesOf(withBody(`fix(orm): ${verb} the health endpoint`))).toEqual([]);
-  });
+  test.each(['ping', 'sling', 'fling', 'sting', 'wing', 'bias', 'canvas', 'alias', 'atlas', 'Ping'])(
+    'the verb %s is accepted',
+    (verb) => {
+      expect(rulesOf(withBody(`fix(orm): ${verb} the health endpoint`))).toEqual([]);
+    },
+  );
 
   test.each([
     'fixed',

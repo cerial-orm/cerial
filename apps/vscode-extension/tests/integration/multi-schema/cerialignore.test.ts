@@ -7,7 +7,7 @@
  * Files: db/schema.cerial, db/post.cerial (included), db/legacy/old-model.cerial (ignored)
  */
 
-import * as assert from 'assert';
+import * as assert from 'node:assert';
 import * as vscode from 'vscode';
 import {
   closeAllEditors,

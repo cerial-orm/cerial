@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { loadFixture, parseFixture } from './helpers';
+import { parseFixture } from './helpers';
 
 describe('Folding Logic', () => {
   describe('block folding ranges', () => {

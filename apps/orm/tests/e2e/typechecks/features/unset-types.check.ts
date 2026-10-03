@@ -109,7 +109,7 @@ type Kept1 = SafeUnset<UnsetTestUnset, DataWithAddress>;
 checks([check<HasKey<Kept1, 'address'>, 1, Test.Pass>()]);
 
 // When data has no overlapping fields, all unset fields available
-// biome-ignore lint/complexity/noBannedTypes: {} intentionally tests empty object assignability
+// oxlint-disable-next-line typescript/no-empty-object-type -- {} intentionally tests empty object assignability
 type DataEmpty = {};
 type AllAvailable = SafeUnset<UnsetTestUnset, DataEmpty>;
 checks([check<HasKey<AllAvailable, 'bio'>, 1, Test.Pass>()]);

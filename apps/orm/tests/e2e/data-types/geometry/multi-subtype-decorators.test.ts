@@ -65,7 +65,8 @@ describe('E2E Geometry: @multipoint, @multiline, @multipolygon and @geoCollectio
     const found = await client.db.GeometryMulti.findOne({ where: { id: created.id } });
 
     expect(found?.points).toBeInstanceOf(CerialMultiPoint);
-    expect((found?.lines as CerialMultiLineString).coordinates).toEqual(lines);
+    expect(found).not.toBeNull();
+    expect((found!.lines as CerialMultiLineString).coordinates).toEqual(lines);
   });
 
   test('rejects a geometry of another subtype on a narrowed field', async () => {

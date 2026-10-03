@@ -1,5 +1,5 @@
 {
-  "editor.defaultFormatter": "biomejs.biome",
+  "editor.defaultFormatter": "oxc.oxc-vscode",
   "[cerial]": {
     "editor.defaultFormatter": "cerial.cerial-vscode"
   }

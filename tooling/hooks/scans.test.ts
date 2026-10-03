@@ -44,12 +44,11 @@ describe('planning identifiers', () => {
     expect(scanTracker(join('.o', 'mc/plans/a.md'), line)).toEqual([]);
   });
 
-  test('the two files whose job is to keep the planning tree out may name it, and only that', () => {
+  test('the file whose job is to keep the planning tree out may name it, and only that', () => {
     const path = TRACKER_FIXTURES['tracker.planning-path']?.refused as string;
     const other = TRACKER_FIXTURES['tracker.plan-item']?.refused as string;
 
     expect(scanTracker('.gitignore', path)).toEqual([]);
-    expect(scanTracker('biome.json', path)).toEqual([]);
     expect(rules(scanTracker('.gitignore', other))).toEqual(['tracker.plan-item']);
     expect(rules(scanTracker('apps/orm/.gitignore', path))).toEqual(['tracker.planning-path']);
   });
@@ -78,16 +77,14 @@ describe('stub markers', () => {
     });
   }
 
-  test.each([
-    'apps/orm/src/a.ts',
-    'apps/orm/bin/a.ts',
-    'apps/vscode-extension/server/src/a.ts',
-    'tooling/hooks/a.ts',
-  ])('a shipping path, %s, is read', (path) => {
-    expect(rules(scanStubs(path, STUB_FIXTURES['stub.fix-it-later']?.refused as string))).toEqual([
-      'stub.fix-it-later',
-    ]);
-  });
+  test.each(['apps/orm/src/a.ts', 'apps/orm/bin/a.ts', 'apps/vscode-extension/server/src/a.ts', 'tooling/hooks/a.ts'])(
+    'a shipping path, %s, is read',
+    (path) => {
+      expect(rules(scanStubs(path, STUB_FIXTURES['stub.fix-it-later']?.refused as string))).toEqual([
+        'stub.fix-it-later',
+      ]);
+    },
+  );
 
   test.each([
     'apps/orm/tests/unit/a.test.ts',
@@ -125,45 +122,41 @@ describe('stub markers', () => {
 });
 
 describe('lint suppressions', () => {
-  const marker = join('biome-ign', 'ore');
+  const marker = join('oxlin', 't-disable');
+  const PATH = 'apps/orm/src/a.ts';
+  const RULE = 'typescript/no-empty-object-type';
 
-  test('a rule, a colon and a reason are accepted', () => {
+  test('a block directive with the reason on the next line is accepted', () => {
     expect(
-      scanSuppressions(
-        'apps/orm/src/a.ts',
-        `// ${marker} lint/suspicious/noExplicitAny: the registry holds every model`,
-      ),
+      scanSuppressions(PATH, `/* ${marker} ${RULE} */\n// {} is the empty intersection here\nexport type A = {};`),
     ).toEqual([]);
   });
 
-  test.each([
-    `// ${marker}`,
-    `// ${marker} lint/suspicious/noExplicitAny`,
-    `// ${marker} lint/suspicious/noExplicitAny:`,
-    `// ${marker} lint/suspicious/noExplicitAny: ok`,
-  ])('%s is refused as unexplained', (line) => {
-    expect(rules(scanSuppressions('apps/orm/src/a.ts', line))).toEqual(['suppression.bare']);
+  test('a next-line directive with the reason after a double dash is accepted', () => {
+    expect(scanSuppressions(PATH, `// ${marker}-next-line ${RULE} -- {} is the empty intersection here`)).toEqual([]);
   });
 
-  describe('the -all, -start and -end forms', () => {
-    const forms = ['', '-all', '-start', '-end'];
+  test.each([`// ${marker}`, `/* ${marker} */`, `// ${marker}-next-line`, `/* ${marker}-line */`])(
+    '%s names no rule and is refused',
+    (line) => {
+      expect(rules(scanSuppressions(PATH, `${line}\n// a perfectly good reason`))).toEqual(['suppression.bare']);
+    },
+  );
 
-    test.each(forms)('the %s form with a rule and a reason is accepted', (suffix) => {
-      expect(
-        scanSuppressions(
-          'apps/orm/src/a.ts',
-          `// ${marker}${suffix} lint/suspicious/noExplicitAny: the registry is untyped`,
-        ),
-      ).toEqual([]);
-    });
+  test.each([
+    ['no line follows', `/* ${marker} ${RULE} */`],
+    ['the next line is code', `/* ${marker} ${RULE} */\nexport type A = {};`],
+    ['the next line is blank', `/* ${marker} ${RULE} */\n\nexport type A = {};`],
+    ['the next line is a comment too short to be a reason', `/* ${marker} ${RULE} */\n// ok\nexport type A = {};`],
+    ['the next line is another directive', `/* ${marker} ${RULE} */\n/* ${marker} ${RULE} */`],
+    ['the double dash has no text after it', `// ${marker}-next-line ${RULE} --`],
+    ['the double dash reason is too short', `// ${marker}-next-line ${RULE} -- ok`],
+  ])('a directive is refused when %s', (_case, content) => {
+    expect(rules(scanSuppressions(PATH, content))).toContain('suppression.bare');
+  });
 
-    test.each(forms)('the %s form with no reason is refused', (suffix) => {
-      for (const tail of ['', ' lint/suspicious/noExplicitAny', ' lint/suspicious/noExplicitAny: ok']) {
-        expect(rules(scanSuppressions('apps/orm/src/a.ts', `// ${marker}${suffix}${tail}`))).toEqual([
-          'suppression.bare',
-        ]);
-      }
-    });
+  test('re-enabling a rule needs no reason', () => {
+    expect(scanSuppressions(PATH, `/* ${join('oxlin', 't-enable')} ${RULE} */`)).toEqual([]);
   });
 
   test('a path that is not code is not read', () => {
@@ -171,7 +164,7 @@ describe('lint suppressions', () => {
   });
 
   test('the line number of the hit is reported', () => {
-    const [found] = scanSuppressions('apps/orm/src/a.ts', `a\nb\n// ${marker} lint/x\nd`);
+    const [found] = scanSuppressions(PATH, `a\nb\n// ${marker} ${RULE}\nd`);
 
     expect(found?.where).toBe('apps/orm/src/a.ts:3');
   });

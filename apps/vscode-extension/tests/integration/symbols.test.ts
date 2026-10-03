@@ -5,7 +5,7 @@
  * the VS Code API, showing model/object/enum hierarchy.
  */
 
-import * as assert from 'assert';
+import * as assert from 'node:assert';
 import * as vscode from 'vscode';
 import { closeAllEditors, openDocument, waitForExtensionActivation, waitForServerReady } from './helpers';
 

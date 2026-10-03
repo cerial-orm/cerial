@@ -21,11 +21,6 @@ beforeAll(async () => {
 // Helpers
 // ---------------------------------------------------------------------------
 
-/** Find the first non-whitespace token matching exact text on a tokenized line */
-function tok(lineTokens: LineTokens[], lineIdx: number, text: string): TokenInfo | undefined {
-  return findToken(lineTokens[lineIdx].tokens, text);
-}
-
 /** Assert token text has a scope fragment */
 function assertScope(token: TokenInfo | undefined, fragment: string): void {
   expect(token).toBeDefined();
@@ -837,7 +832,6 @@ describe('Fixture: decorators.cerial', () => {
 
   it('@createdAt timestamp decorator', () => {
     // Line 32: createdAt Date @createdAt
-    const decTok = findToken(lines[31].tokens, 'createdAt');
     // There are two 'createdAt' tokens — the field name and the decorator
     // We want the decorator one
     const decoratorTokens = lines[31].tokens.filter(

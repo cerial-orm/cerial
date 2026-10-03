@@ -288,7 +288,7 @@ describe('Completion Logic', () => {
       const defaultItem = items.find((i) => i.label === '@default()');
 
       expect(defaultItem).toBeDefined();
-      // biome-ignore lint/suspicious/noTemplateCurlyInString: VS Code snippet syntax
+      // oxlint-disable-next-line eslint/no-template-curly-in-string -- VS Code snippet syntax
       expect(defaultItem!.insertText).toBe('@default(${1|ACTIVE,INACTIVE|})');
     });
 
@@ -307,7 +307,7 @@ describe('Completion Logic', () => {
       const defaultAlwaysItem = items.find((i) => i.label === '@defaultAlways()');
 
       expect(defaultAlwaysItem).toBeDefined();
-      // biome-ignore lint/suspicious/noTemplateCurlyInString: VS Code snippet syntax
+      // oxlint-disable-next-line eslint/no-template-curly-in-string -- VS Code snippet syntax
       expect(defaultAlwaysItem!.insertText).toBe('@defaultAlways(${1|ACTIVE,INACTIVE|})');
     });
 
@@ -327,7 +327,7 @@ describe('Completion Logic', () => {
       const defaultItem = items.find((i) => i.label === '@default()');
 
       expect(defaultItem).toBeDefined();
-      // biome-ignore lint/suspicious/noTemplateCurlyInString: VS Code snippet syntax
+      // oxlint-disable-next-line eslint/no-template-curly-in-string -- VS Code snippet syntax
       expect(defaultItem!.insertText).toBe('@default(${1:value})');
     });
   });

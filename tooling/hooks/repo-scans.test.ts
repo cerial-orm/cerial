@@ -58,17 +58,16 @@ describe('a cast to any on an added line', () => {
     expect(judged(scratch)).toEqual([]);
   });
 
-  test.each([
-    '// @ts-expect-error',
-    '// @ts-expect-error: nope',
-    '// an ordinary comment',
-  ])('is still refused when the line before is %s', (before) => {
-    const scratch = newScratch();
-    write(scratch, UNIT, `${before}\n${castLine}`);
-    stage(scratch, UNIT);
+  test.each(['// @ts-expect-error', '// @ts-expect-error: nope', '// an ordinary comment'])(
+    'is still refused when the line before is %s',
+    (before) => {
+      const scratch = newScratch();
+      write(scratch, UNIT, `${before}\n${castLine}`);
+      stage(scratch, UNIT);
 
-    expect(judged(scratch)).toEqual(['ratchet.as-any']);
-  });
+      expect(judged(scratch)).toEqual(['ratchet.as-any']);
+    },
+  );
 
   test('is accepted when it was already in the file, and only the new one is refused', () => {
     const scratch = newScratch();

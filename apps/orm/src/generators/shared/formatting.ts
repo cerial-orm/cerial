@@ -3,60 +3,35 @@
  */
 
 import { mkdir } from 'node:fs/promises';
-import { Biome } from '@biomejs/js-api/nodejs';
+import { format, type FormatOptions } from 'oxfmt';
 
-/** Biome instance cache */
-let biomeInstance: Biome | null = null;
-let biomeProjectKey: number | null = null;
+/** Every option is written down: oxfmt defaults to a 100 column width and double quotes. */
+const FORMAT_OPTIONS: FormatOptions = {
+  useTabs: false,
+  tabWidth: 2,
+  printWidth: 120,
+  endOfLine: 'lf',
+  singleQuote: true,
+  trailingComma: 'all',
+  semi: true,
+  arrowParens: 'always',
+  bracketSpacing: true,
+};
 
 /** Ensure directory exists */
 export async function ensureDir(dir: string): Promise<void> {
   await mkdir(dir, { recursive: true });
 }
 
-/** Get or create Biome instance with config */
-function getBiome(): { biome: Biome; projectKey: number } {
-  if (biomeInstance && biomeProjectKey) {
-    return { biome: biomeInstance, projectKey: biomeProjectKey };
-  }
-
-  biomeInstance = new Biome();
-  const { projectKey } = biomeInstance.openProject();
-
-  biomeInstance.applyConfiguration(projectKey, {
-    formatter: {
-      indentStyle: 'space',
-      indentWidth: 2,
-      lineWidth: 120,
-      lineEnding: 'lf',
-    },
-    javascript: {
-      formatter: {
-        quoteStyle: 'single',
-        trailingCommas: 'all',
-        semicolons: 'always',
-        arrowParentheses: 'always',
-        bracketSpacing: true,
-      },
-    },
-  });
-
-  biomeProjectKey = projectKey;
-
-  return { biome: biomeInstance, projectKey };
-}
-
-/** Format TypeScript code with Biome */
+/** Format TypeScript code with oxfmt */
 export async function formatCode(code: string, _outputDir: string): Promise<string> {
   try {
-    const { biome, projectKey } = getBiome();
-    const result = biome.formatContent(projectKey, code, {
-      filePath: 'generated.ts',
-    });
+    const result = await format('generated.ts', code, FORMAT_OPTIONS);
+    if (result.errors.length) return code;
 
-    return result.content;
+    return result.code;
   } catch {
-    // If Biome fails, return the original code
+    // If oxfmt fails, return the original code
     return code;
   }
 }

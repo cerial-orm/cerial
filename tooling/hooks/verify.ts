@@ -48,8 +48,13 @@ const REAL: VerifyParts = {
 export function verifySteps(paths: readonly string[], bun: string = process.execPath): Step[] {
   return [
     {
-      name: 'biome check on the staged files',
-      command: [bun, 'x', 'biome', 'check', '--no-errors-on-unmatched', '--files-ignore-unknown=true', ...paths],
+      name: 'oxfmt check on the staged files',
+      command: [bun, 'x', 'oxfmt', '--check', '--no-error-on-unmatched-pattern', ...paths],
+      cwd: ROOT,
+    },
+    {
+      name: 'oxlint on the staged files',
+      command: [bun, 'x', 'oxlint', '--deny-warnings', '--no-error-on-unmatched-pattern', ...paths],
       cwd: ROOT,
     },
     {

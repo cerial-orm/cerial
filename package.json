@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "setup": "bun run tooling/hooks/install.ts",
-    "format": "biome check --write .",
+    "format": "oxfmt --write . && oxlint --fix --deny-warnings .",
     "orm:build": "bun run --filter cerial build",
     "orm:generate": "bun run --filter cerial generate:test-client",
     "orm:typecheck": "bun run --filter cerial typecheck",
@@ -39,8 +39,9 @@
     "docs:preview": "bun run --filter cerial-docs preview"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.4",
     "@types/bun": "^1.3.9",
-    "cerial": "workspace:*"
+    "cerial": "workspace:*",
+    "oxfmt": "0.71.0",
+    "oxlint": "^1.86.0"
   }
 }

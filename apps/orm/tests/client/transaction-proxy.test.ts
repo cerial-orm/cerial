@@ -157,7 +157,7 @@ describe('createCerialTransactionProxy', () => {
       const descriptor = Object.getOwnPropertyDescriptor(proxy, 'User');
       expect(descriptor?.enumerable).toBe(true);
       expect(descriptor?.configurable).toBe(true);
-      expect((descriptor?.value as { getName(): string }).getName()).toBe('User');
+      expect((descriptor!.value as { getName(): string }).getName()).toBe('User');
       expect(Object.getOwnPropertyDescriptor(proxy, 'Uesr')).toBeUndefined();
     });
 

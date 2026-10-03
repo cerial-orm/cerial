@@ -9,7 +9,7 @@
  *        experimental/new.cerial (excluded), experimental/keep.cerial (include overrides exclude)
  */
 
-import * as assert from 'assert';
+import * as assert from 'node:assert';
 import * as vscode from 'vscode';
 import {
   closeAllEditors,

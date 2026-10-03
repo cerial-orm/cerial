@@ -101,10 +101,10 @@ export const PLANNING_PATH = /^\.o[m]c(?:[/\\]|$)/i;
 /**
  * Files allowed to name the planning tree, because their whole job is to keep
  * it out. A tool cannot exclude a directory without writing the directory's
- * name down, so these two are exempt from the planning-path pattern and from
+ * name down, so this file is exempt from the planning-path pattern and from
  * nothing else.
  */
-export const TRACKER_EXEMPT_PATHS: readonly string[] = ['.gitignore', 'biome.json'];
+export const TRACKER_EXEMPT_PATHS: readonly string[] = ['.gitignore'];
 
 /**
  * Markers that admit the code is unfinished. Refused in production paths; test
@@ -219,13 +219,22 @@ export const AS_ANY: Pattern = {
 /** The sanctioned exemption: an expectation with an explanation, on the preceding line. */
 export const SANCTIONED_TYPE_ERROR = /@ts-expect-error\b[:\s-]*\S.{9,}/;
 
-/** Any lint-suppression comment, and the form that carries a rule and a reason. */
+/** Any lint-suppression directive, with or without its scope suffix. */
+export const SUPPRESSION_DIRECTIVE = /oxlin[t]-disable(?:-next-line|-line)?(?!-\w)\b/;
+
+/** A reason written after the directive on the same line, the form a next-line directive can carry. */
+export const SUPPRESSION_INLINE_REASON = /\s--\s+\S.{3,}/;
+
+/** A reason written as a comment on the line after the directive. */
+export const SUPPRESSION_NEXT_LINE_REASON = /^\s*(?:\/\/|\*)\s*(?!oxlin[t]-)\S.{3,}/;
+
+/** A suppression that names no rule. The reason is checked separately, because it may sit on the next line. */
 export const SUPPRESSION: Pattern = {
   rule: 'suppression.bare',
   gate: 'unexplained suppression',
-  // `(?!-\w)` stops the optional suffix being skipped by backtracking, which would test the reason against `-all ...`.
-  regex: /biome-ign[o]re(?:-\w+)?(?!-\w)\b(?!\s+\S+\s*:\s*\S.{3,})/,
-  hint: 'Write the rule, a colon and the reason the code is shaped this way.',
+  // `(?!-\w)` stops the optional suffix being skipped by backtracking, which would test the rule against `-all ...`.
+  regex: /oxlin[t]-disable(?:-next-line|-line)?(?!-\w)\b(?!\s+[\w/-]+)/,
+  hint: 'Name the rule, and give the reason the code is shaped this way on the next line or after ` -- `.',
 };
 
 /**

@@ -125,22 +125,21 @@
     }
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.4",
     "@types/bun": "1.3.9",
+    "oxlint": "^1.86.0",
     "tsdown": "^0.21.0-beta.2"
   },
   "peerDependencies": {
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "@biomejs/js-api": "^4.0.0",
-    "@biomejs/wasm-nodejs": "^2.4.4",
     "citty": "^0.2.1",
+    "fast-glob": "^3.3.3",
     "ignore": "^7.0.5",
+    "oxfmt": "0.71.0",
     "surrealdb": "2.0.9",
     "ts-toolbelt": "^9.6.0",
-    "valibot": "^1.2.0",
-    "fast-glob": "^3.3.3"
+    "valibot": "^1.2.0"
   },
   "scripts": {
     "build": "tsdown",
@@ -152,8 +151,8 @@
     "test:integration": "bun test tests/integration/",
     "test:e2e": "bun test tests/e2e/ --preload ./tests/e2e/preload.ts",
     "test:full": "bun run generate:test-client && bun run typecheck && bun run test && bun run test:integration && bun run test:e2e",
-    "format": "biome check --write .",
-    "format:check": "biome ci .",
+    "format": "oxfmt --write . && oxlint --fix --deny-warnings .",
+    "format:check": "oxfmt --check . && oxlint --deny-warnings .",
     "publish:npm": "npm publish --access public"
   }
 }

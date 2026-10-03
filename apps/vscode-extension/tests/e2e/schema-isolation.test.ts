@@ -49,15 +49,13 @@
  * on Address in group-a should NOT navigate to group-b's Address.
  */
 
-import * as assert from 'assert';
+import * as assert from 'node:assert';
 import * as vscode from 'vscode';
 import {
   closeAllEditors,
   getCompletionLabel,
   getDefinitionUri,
-  getWorkspaceIsolatedUri,
   openIsolatedDocument,
-  waitForDiagnostics,
   waitForExtensionActivation,
   waitForNoDiagnostics,
   waitForServerReady,

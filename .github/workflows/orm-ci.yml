@@ -7,7 +7,8 @@ on:
       - 'apps/orm/**'
       - 'package.json'
       - 'tsconfig.json'
-      - 'biome.json'
+      - '.oxfmtrc.json'
+      - '.oxlintrc.json'
       - 'tooling/**'
       - '.github/workflows/orm-ci.yml'
   pull_request:
@@ -16,7 +17,8 @@ on:
       - 'apps/orm/**'
       - 'package.json'
       - 'tsconfig.json'
-      - 'biome.json'
+      - '.oxfmtrc.json'
+      - '.oxlintrc.json'
       - 'tooling/**'
       - '.github/workflows/orm-ci.yml'
 
