@@ -712,6 +712,17 @@ export function buildUpdateWithNestedTransaction(
 
   const reverseCreates: string[] = [];
 
+  // A forward create must run before the update, which stores the new id, so it cannot wait for
+  // $result like the reverse create. It is gated on a pre-read of the where instead: a non-matching
+  // where creates nothing, rather than leaving a row nothing links to
+  let hasForwardCreate = false;
+  const guardedCreate = (varName: string, tableName: string, contentVarName: string): string => {
+    hasForwardCreate = true;
+
+    return `LET ${varName} = IF $nested_match[0] { CREATE ONLY ${tableName} CONTENT ${contentVarName} };`;
+  };
+  const matchInsertAt = statements.length;
+
   const reverseConnects: Array<{
     targetModel: ModelMetadata;
     targetIds: RecordIdInput[];
@@ -797,7 +808,7 @@ export function buildUpdateWithNestedTransaction(
           const contentVarName = `${varName}_content`;
           vars[`${fieldName}${idx}_content`] = item;
           // CREATE ONLY returns { id: ... }, access .id to get the RecordId
-          statements.push(`LET ${varName} = CREATE ONLY ${targetModel.tableName} CONTENT ${contentVarName};`);
+          statements.push(guardedCreate(varName, targetModel.tableName, contentVarName));
           createdVars.push(`${varName}.id`);
         });
 
@@ -823,7 +834,7 @@ export function buildUpdateWithNestedTransaction(
         const contentVarName = `${varName}_content`;
         vars[`${fieldName}_content`] = createData;
         // CREATE ONLY returns { id: ... }, access .id to get the RecordId
-        statements.push(`LET ${varName} = CREATE ONLY ${targetModel.tableName} CONTENT ${contentVarName};`);
+        statements.push(guardedCreate(varName, targetModel.tableName, contentVarName));
 
         if (isArrayField) {
           fieldUpdates.push(`${recordFieldName} += ${varName}.id`);
@@ -934,6 +945,10 @@ export function buildUpdateWithNestedTransaction(
   const { setParts, setVars } = buildUpdateSetClauses(ctx, data, model);
   fieldUpdates.push(...setParts);
   Object.assign(vars, setVars);
+
+  if (hasForwardCreate) {
+    statements.splice(matchInsertAt, 0, `LET $nested_match = (SELECT id FROM ${model.tableName} ${whereClause.text});`);
+  }
 
   // For bidirectional set sync, fetch old values first
   if (arraySets.length > 0) {
