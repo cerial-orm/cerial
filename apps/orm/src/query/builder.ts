@@ -71,6 +71,16 @@ import {
   validationFailure,
 } from './validators';
 
+/**
+ * Options a find method's type omits. The builders would read them anyway (findOne forces its own limit
+ * but still honours an offset; findUnique validates an orderBy it never emits), so a JavaScript or
+ * dynamic caller is told rather than silently ignored.
+ */
+const UNSUPPORTED_READ_OPTIONS: Record<string, readonly ('orderBy' | 'limit' | 'offset')[]> = {
+  findOne: ['limit', 'offset'],
+  findUnique: ['orderBy', 'limit', 'offset'],
+};
+
 /** Throw on select/orderBy/limit/offset values the model cannot honour, so a typo is not silently dropped. */
 function assertValidReadOptions(
   model: ModelMetadata,
@@ -78,6 +88,17 @@ function assertValidReadOptions(
   options: { select?: object; orderBy?: object; limit?: number; offset?: number },
   registry?: ModelRegistry,
 ): void {
+  for (const option of UNSUPPORTED_READ_OPTIONS[operation] ?? []) {
+    if (options[option] === undefined) continue;
+
+    throw validationFailure(
+      option,
+      [{ message: `${operation} does not accept ${option}`, field: option }],
+      model,
+      operation,
+    );
+  }
+
   const checks = [
     ['select', validateSelect(options.select, model)],
     ['orderBy', validateOrderBy(options.orderBy, model, registry)],
@@ -164,7 +185,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
 
   /** Create a new record */
   async create(options: CreateOptions<Partial<T>>): Promise<T | null> {
-    const { data, select } = options;
+    const { data, select, include } = options;
     assertValidReadOptions(this.model, 'create', { select });
 
     // Extract nested operations from the data
@@ -182,14 +203,17 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     // If there are nested operations, use the transaction builder
     if (nestedOps.size > 0 && this.registry) {
       await assertNestedTargetsExist(this.db, this.model, nestedOps, this.registry, 'create');
-      const query = buildCreateWithNestedTransaction(this.model, transformedData, nestedOps, this.registry, { select });
+      const query = buildCreateWithNestedTransaction(this.model, transformedData, nestedOps, this.registry, {
+        select,
+        include,
+      });
       const result = await executeQuerySingle(this.db, query);
 
       return mapSingleResult<T>(result, this.model, select);
     }
 
     // Simple create without nested operations
-    const query = buildCreateQuery(this.model, transformedData, select);
+    const query = buildCreateQuery(this.model, transformedData, select, include as IncludeClause, this.registry);
     const result = await executeQuerySingle(this.db, query);
 
     return mapSingleResult<T>(result, this.model, select);
@@ -197,7 +221,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
 
   /** Update records matching where clause */
   async updateMany(options: UpdateOptions<Partial<T>>): Promise<T[]> {
-    const { where, data, select, unset } = options;
+    const { where, data, select, include, unset } = options;
     assertValidReadOptions(this.model, 'updateMany', { select });
 
     // Validate where clause
@@ -233,7 +257,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
         unset ? mergeUnsetIntoData(transformedData, unset) : transformedData,
         nestedOps,
         this.registry,
-        { select },
+        { select, include },
       );
       const result = await executeQuery(this.db, query);
 
@@ -241,7 +265,15 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     }
 
     // Simple update without nested operations
-    const query = buildUpdateManyQuery(this.model, where, transformedData, select, unset, this.registry);
+    const query = buildUpdateManyQuery(
+      this.model,
+      where,
+      transformedData,
+      select,
+      unset,
+      this.registry,
+      include as IncludeClause,
+    );
     const result = await executeQuery(this.db, query);
 
     return mapResult<T>(result, this.model, select);
@@ -759,7 +791,7 @@ export function compileCreate(
   options: CreateOptions<Record<string, unknown>>,
   registry?: ModelRegistry,
 ): CompiledQueryDescriptor {
-  const { data, select } = options;
+  const { data, select, include } = options;
   assertValidReadOptions(model, 'create', { select });
 
   const { cleanData, nestedOps } = extractNestedOperations(data, model);
@@ -771,13 +803,13 @@ export function compileCreate(
 
   if (nestedOps.size > 0 && registry) {
     return {
-      query: buildCreateWithNestedTransaction(model, transformedData, nestedOps, registry, { select }),
+      query: buildCreateWithNestedTransaction(model, transformedData, nestedOps, registry, { select, include }),
       resultType: 'single',
     };
   }
 
   return {
-    query: buildCreateQuery(model, transformedData, select),
+    query: buildCreateQuery(model, transformedData, select, include as IncludeClause, registry),
     resultType: 'single',
   };
 }
@@ -788,7 +820,7 @@ export function compileUpdateMany(
   options: UpdateOptions<Record<string, unknown>>,
   registry?: ModelRegistry,
 ): CompiledQueryDescriptor {
-  const { where, data, select, unset } = options;
+  const { where, data, select, include, unset } = options;
   assertValidReadOptions(model, 'updateMany', { select });
 
   const whereValidation = validateWhere(where, model, registry);
@@ -817,14 +849,14 @@ export function compileUpdateMany(
         unset ? mergeUnsetIntoData(transformedData, unset) : transformedData,
         nestedOps,
         registry,
-        { select },
+        { select, include },
       ),
       resultType: 'array',
     };
   }
 
   return {
-    query: buildUpdateManyQuery(model, where, transformedData, select, unset, registry),
+    query: buildUpdateManyQuery(model, where, transformedData, select, unset, registry, include as IncludeClause),
     resultType: 'array',
   };
 }

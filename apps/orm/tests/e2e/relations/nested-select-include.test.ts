@@ -3,7 +3,7 @@
  *
  * A write that carries a nested relation op must project its result the way the same write without
  * it does. Every case runs the nested call and a plain control on a fresh seed and asserts they
- * agree. `create` and `updateMany` accept `select` only; `updateUnique` and `upsert` accept both.
+ * agree. All four writes accept `select` and `include`.
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';

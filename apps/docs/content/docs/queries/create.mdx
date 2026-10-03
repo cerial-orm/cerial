@@ -24,6 +24,7 @@ const user = await client.db.User.create({
 | --- | --- | --- | --- |
 | `data` | `UserCreateInput` | Yes | The record data to insert |
 | `select` | `UserSelect` | No | Narrow which fields are returned |
+| `include` | `UserInclude` | No | Include related records in the result (models with relations) |
 
 ## Basic Usage
 
@@ -53,6 +54,20 @@ const user = await client.db.User.create({
 });
 // user: { id: CerialId; email: string }
 ```
+
+## With Include
+
+Return related records alongside the new one. `include` takes the same values as on `findMany`, including filtering, ordering and limiting of the related records, and it combines with `select`, which then narrows the base fields only:
+
+```typescript
+const user = await client.db.User.create({
+  data: { email: 'jane@example.com', name: 'Jane', isActive: true, tagIds: [tag.id] },
+  include: { tags: true, posts: { limit: 5 } },
+});
+// user: User & { tags: Tag[]; posts: Post[] }
+```
+
+A name that is not a relation on the model throws before anything is written. Models without relations do not accept `include`.
 
 ## Auto-Populated Fields
 
@@ -193,4 +208,5 @@ Passing `null` to a field that isn't decorated with `@nullable` is a validation 
 | --- | --- |
 | No select | `User` |
 | With select | `{ ...selected fields }` |
+| With include | `User & { ...included relations }` |
 | Creation fails | `null` |

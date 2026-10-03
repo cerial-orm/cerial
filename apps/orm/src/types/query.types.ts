@@ -84,6 +84,7 @@ export interface FindUniqueOptions extends Omit<FindOneOptions, 'orderBy'> {
 export interface CreateOptions<T> {
   data: T;
   select?: SelectClause;
+  include?: Record<string, boolean | object>;
 }
 
 /** Update options */
@@ -92,6 +93,7 @@ export interface UpdateOptions<T> {
   data: Partial<T>;
   unset?: Record<string, unknown>;
   select?: SelectClause;
+  include?: Record<string, boolean | object>;
 }
 
 /** DeleteMany options */

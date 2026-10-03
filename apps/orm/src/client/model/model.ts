@@ -179,6 +179,7 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
     const { txn, ...queryOptions } = options;
     const modelNames = collectRelatedModelNames(this.metadata, this.registry, {
       data: [queryOptions.data as Record<string, unknown>],
+      include: queryOptions.include as IncludeClause,
     });
     const compiled = compileCreate(
       this.metadata,
@@ -209,6 +210,7 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
     const { txn, ...queryOptions } = options;
     const modelNames = collectRelatedModelNames(this.metadata, this.registry, {
       data: [queryOptions.data as Record<string, unknown>],
+      include: queryOptions.include as IncludeClause,
     });
     const compiled = compileUpdateMany(
       this.metadata,

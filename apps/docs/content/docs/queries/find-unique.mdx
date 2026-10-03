@@ -22,6 +22,8 @@ const user = await client.db.User.findUnique({
 | `select` | `UserSelect` | No | Narrow which fields are returned |
 | `include` | `UserInclude` | No | Include related records |
 
+`findUnique` addresses one record, so it takes no `orderBy`, `limit` or `offset`. Passing any of them from untyped code throws a `CerialValidationError`.
+
 ## Find by ID
 
 Every model has an `id` field that is inherently unique:

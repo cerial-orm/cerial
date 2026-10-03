@@ -137,7 +137,27 @@ development branch and is not available on npm.
   be caught with `instanceof CerialUniqueConstraintError` without matching on
   prose. See the Errors page for the full list and the code each carries.
 
+- `create` and `updateMany` now accept `include`, on any model that has
+  relations, returning the related records with the written ones:
+
+  ```typescript
+  const user = await client.db.User.create({
+    data: { email: 'jane@example.com', name: 'Jane', isActive: true },
+    include: { posts: true },
+  });
+  // user: User & { posts: Post[] }
+  ```
+
+  It takes the same values as `include` on `findMany` and combines with
+  `select`, which narrows the base fields only. It works with nested relation
+  operations in the same call. An unknown relation name throws before anything is
+  written. `updateUnique` and `upsert` already accepted `include`.
+
 ### Fixed
+
+- `findOne` now accepts `orderBy` in its generated type. The runtime and the
+  documentation always supported it, and it is how you choose which record is
+  "first", but the type omitted it, so a correct call needed a `@ts-expect-error`.
 
 - Deleting a record now prepares its dependent models first. A `deleteMany` or
   `deleteUnique` that cascades to a model nothing had touched yet failed with an
@@ -321,6 +341,13 @@ development branch and is not available on npm.
   Unaffected: `@flexible` object fields still accept undeclared sub-keys,
   ordering by a sub-field of a declared object still works, and `0` remains a
   valid `limit` and `offset`.
+- **Breaking.** `findOne` now rejects `limit` and `offset`, and `findUnique`
+  rejects `orderBy`, `limit` and `offset`, with a `CerialValidationError` naming
+  the option. The generated types already leave these out, so typed code cannot
+  reach this. From JavaScript or a cast they used to be accepted without effect:
+  `findOne` forced its own `limit` of 1 but still applied an `offset`, so
+  `findOne({ offset: 1 })` returned the second row, and `findUnique` validated an
+  `orderBy` it never used. Use `findMany` to page.
 - **Breaking.** A key that does not exist is now rejected in `select`, `orderBy`
   and `include` whatever its value, so `{ psots: false }` is an error rather than
   being read as opting out of a relation that was never there. Setting a key that

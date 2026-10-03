@@ -150,12 +150,10 @@ describe('E2E orderBy on a relation field', () => {
   test('findOne returns the first row of the sorted result', async () => {
     const first = await client.db.Book.findOne({
       where: { publisherId: { not: null } },
-      // @ts-expect-error — findOne's generated type omits orderBy although the runtime honours it
       orderBy: { publisher: { name: 'asc' }, title: 'asc' },
     });
     const last = await client.db.Book.findOne({
       where: { publisherId: { not: null } },
-      // @ts-expect-error — findOne's generated type omits orderBy although the runtime honours it
       orderBy: { publisher: { name: 'desc' } },
     });
 
@@ -165,7 +163,6 @@ describe('E2E orderBy on a relation field', () => {
   });
 
   test('findOne returns null when nothing matches', async () => {
-    // @ts-expect-error — findOne's generated type omits orderBy although the runtime honours it
     const none = await client.db.Book.findOne({ where: { title: 'nope' }, orderBy: { publisher: { name: 'asc' } } });
 
     expect(none).toBeNull();
@@ -175,7 +172,6 @@ describe('E2E orderBy on a relation field', () => {
     const row = await client.db.Book.findOne({
       select: { title: true },
       where: { publisherId: { not: null } },
-      // @ts-expect-error — findOne's generated type omits orderBy although the runtime honours it
       orderBy: { publisher: { name: 'asc' }, title: 'desc' },
     });
 

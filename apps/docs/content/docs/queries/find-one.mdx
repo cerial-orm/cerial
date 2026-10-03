@@ -119,6 +119,8 @@ const youngest = await client.db.User.findOne({
 ```
 
 :::tip
+`findOne` returns one record, so it does not take `limit` or `offset`; passing either from untyped code throws a `CerialValidationError`. Use `findMany` to page.
+
 Always use `orderBy` when you care about *which* record is returned from multiple matches. Without it, the result depends on SurrealDB's internal ordering, which may not be deterministic.
 :::
 

@@ -239,6 +239,7 @@ export function buildUpdateManyQuery(
   select?: SelectClause,
   unset?: Record<string, unknown>,
   registry?: ModelRegistry,
+  include?: IncludeClause,
 ): CompiledQuery {
   const ctx = createCompileContext();
 
@@ -252,7 +253,7 @@ export function buildUpdateManyQuery(
   const whereClause = transformDestructiveWhere(where, model, 'updateMany', registry);
 
   // Build select fields for RETURN
-  const fields = buildSelectFields(select, model);
+  const fields = buildSelectFields(select, model, include, registry);
 
   // Build query
   const parts = [

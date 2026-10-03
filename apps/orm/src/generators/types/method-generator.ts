@@ -26,6 +26,7 @@ export function generateFindOneMethod(model: ModelMetadata): string {
     return `findOne<S extends ${model.name}Select | undefined = undefined>(options?: {
     where?: ${model.name}Where;
     select?: S;
+    orderBy?: ${model.name}OrderBy;
     txn?: CerialTransaction;
   }): CerialQueryPromise<Get${model.name}Payload<S> | null>;`;
   }
@@ -38,6 +39,7 @@ export function generateFindOneMethod(model: ModelMetadata): string {
     where?: ${model.name}Where;
     select?: S;
     include?: I;
+    orderBy?: ${model.name}OrderBy;
     txn?: CerialTransaction;
   }): CerialQueryPromise<Get${model.name}Payload<S, I> | null>;`;
 }
@@ -414,21 +416,32 @@ export function generateFindUniqueMethod(model: ModelMetadata): string {
 
 /** Generate create method signature with full type inference */
 export function generateCreateMethod(model: ModelMetadata): string {
-  // Create doesn't support include, only select
   // Use CreateInput to support both raw fields and nested relations
-  return `create<S extends ${model.name}Select | undefined = undefined>(options: {
+  if (!hasRelations(model)) {
+    return `create<S extends ${model.name}Select | undefined = undefined>(options: {
     data: ${model.name}CreateInput;
     select?: S;
     txn?: CerialTransaction;
   }): CerialQueryPromise<Get${model.name}Payload<S>>;`;
+  }
+
+  return `create<
+    S extends ${model.name}Select | undefined = undefined,
+    I extends ${model.name}Include | undefined = undefined
+  >(options: {
+    data: ${model.name}CreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<Get${model.name}Payload<S, I>>;`;
 }
 
 /** Generate updateMany method signature with full type inference */
 export function generateUpdateMethod(model: ModelMetadata): string {
-  // UpdateMany doesn't support include, only select
   // Use UpdateInput to support both raw fields and nested relations
   // Generic D enables SafeUnset to cross-exclude fields that appear in data
-  return `updateMany<
+  if (!hasRelations(model)) {
+    return `updateMany<
     S extends ${model.name}Select | undefined = undefined,
     D extends ${model.name}UpdateInput = ${model.name}UpdateInput
   >(options: {
@@ -438,6 +451,20 @@ export function generateUpdateMethod(model: ModelMetadata): string {
     select?: S;
     txn?: CerialTransaction;
   }): CerialQueryPromise<Get${model.name}Payload<S>[]>;`;
+  }
+
+  return `updateMany<
+    S extends ${model.name}Select | undefined = undefined,
+    I extends ${model.name}Include | undefined = undefined,
+    D extends ${model.name}UpdateInput = ${model.name}UpdateInput
+  >(options: {
+    where: ${model.name}Where;
+    data: D;
+    unset?: SafeUnset<${model.name}Unset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<Get${model.name}Payload<S, I>[]>;`;
 }
 
 /** Generate deleteMany method signature */

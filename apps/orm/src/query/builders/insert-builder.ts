@@ -2,10 +2,11 @@
  * INSERT query builder
  */
 
-import type { ModelMetadata, SelectClause } from '../../types';
+import type { ModelMetadata, ModelRegistry, SelectClause } from '../../types';
 import type { CompiledQuery } from '../compile/types';
 import { createCompileContext, type FilterCompileContext } from '../compile/var-allocator';
 import { transformValue } from '../transformers/data-transformer';
+import type { IncludeClause } from './relation-builder';
 import { buildSelectFields } from './select-builder';
 
 /**
@@ -68,6 +69,8 @@ export function buildCreateQuery(
   model: ModelMetadata,
   data: Record<string, unknown>,
   select?: SelectClause,
+  include?: IncludeClause,
+  registry?: ModelRegistry,
 ): CompiledQuery {
   const ctx = createCompileContext();
 
@@ -75,7 +78,7 @@ export function buildCreateQuery(
   const withDefaults = applyDefaultValues(stripComputedFields(data, model), model);
 
   // Build select fields for RETURN
-  const fields = buildSelectFields(select, model);
+  const fields = buildSelectFields(select, model, include, registry);
 
   // Models with @set fields must use SET syntax (CONTENT sends raw arrays, SurrealDB rejects them for set<T> fields)
   const hasSetFields = model.fields.some((f) => f.isSet);

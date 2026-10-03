@@ -21,6 +21,7 @@ const updated = await client.db.User.updateMany({
 | `data` | `UserUpdateInput` | Yes | The fields and values to update |
 | `unset` | `UserUnsetInput` | No | Fields to remove (set to NONE) in bulk |
 | `select` | `UserSelect` | No | Narrow which fields are returned |
+| `include` | `UserInclude` | No | Include related records on each updated row (models with relations) |
 
 ## Basic Usage
 
@@ -60,6 +61,21 @@ const updated = await client.db.User.updateMany({
 });
 // updated: { id: CerialId; isActive: boolean }[]
 ```
+
+## With Include
+
+Return related records on each updated row. The relations are read after the update, so they reflect what the same call wrote. `include` combines with `select`, which narrows the base fields only:
+
+```typescript
+const updated = await client.db.User.updateMany({
+  where: { isActive: false },
+  data: { isActive: true },
+  include: { tags: true },
+});
+// updated: (User & { tags: Tag[] })[]
+```
+
+A name that is not a relation on the model throws before anything is updated. Models without relations do not accept `include`.
 
 ## Scalar Field Updates
 
@@ -228,4 +244,5 @@ Fields not included in `data` or `unset` are left unchanged. Only the fields you
 | --- | --- |
 | Records matched, no select | `User[]` |
 | Records matched, with select | `{ ...selected fields }[]` |
+| Records matched, with include | `(User & { ...included relations })[]` |
 | No match | `[]` (empty array) |
