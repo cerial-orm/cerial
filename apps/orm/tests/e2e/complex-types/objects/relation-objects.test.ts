@@ -239,10 +239,9 @@ describe('E2E Relations + Objects', () => {
       expect(result!.company.headquarters.city).toBe('Chicago');
       // Note: object sub-field narrowing within includes returns full objects at runtime
       // because SurrealDB's SELECT within relation includes selects whole fields
-      expect((result!.company.headquarters as any).street).toBe('80 Include St');
+      expect(result!.company.headquarters).toMatchObject({ street: '80 Include St' });
       // Include select returns full related model at runtime (narrowing is type-level only)
-      expect((result!.company as any).meta).toBeDefined();
-      expect((result!.company as any).meta.industry).toBe('Manufacturing');
+      expect(result!.company).toMatchObject({ meta: { industry: 'Manufacturing' } });
     });
 
     test('should include company with boolean true returning full object', async () => {
@@ -325,7 +324,7 @@ describe('E2E Relations + Objects', () => {
       // Object sub-field narrowing within includes returns full objects at runtime
       for (const emp of result!.employees) {
         expect(emp.homeAddress.city).toBeDefined();
-        expect((emp.homeAddress as any).street).toBeDefined();
+        expect(emp.homeAddress).toHaveProperty('street');
       }
     });
   });
@@ -376,7 +375,7 @@ describe('E2E Relations + Objects', () => {
       expect(result!.company.name).toBe('CombinedCo');
       expect(result!.company.headquarters.city).toBe('Phoenix');
       expect(result!.company.headquarters.state).toBe('AZ');
-      expect((result!.company.headquarters as any).street).toBe('110 Combined Way');
+      expect(result!.company.headquarters).toMatchObject({ street: '110 Combined Way' });
     });
   });
 
@@ -421,9 +420,9 @@ describe('E2E Relations + Objects', () => {
       for (const emp of results) {
         expect(emp.company.headquarters.city).toBe('Atlanta');
         // Object sub-fields within includes return full objects at runtime
-        expect((emp.company.headquarters as any).street).toBe('120 Many Rd');
+        expect(emp.company.headquarters).toMatchObject({ street: '120 Many Rd' });
         // Include select returns full related model at runtime
-        expect((emp.company as any).name).toBe('FindManyCo');
+        expect(emp.company).toMatchObject({ name: 'FindManyCo' });
       }
     });
   });
