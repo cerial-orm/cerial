@@ -37,7 +37,6 @@ export {
   generateDefineField,
   generateDefineIndex,
   generateDefineTable,
-  generateMigrationCode,
   generateMigrationQuery,
   generateModelDefineStatements,
   generateRegistryDefineStatements,

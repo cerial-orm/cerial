@@ -780,29 +780,6 @@ export function generateMigrationQuery(
   return statements.join('\n');
 }
 
-/** Generate TypeScript code for migration function */
-export function generateMigrationCode(models: ModelMetadata[]): string {
-  const registry: ModelRegistry = {};
-  for (const model of models) {
-    registry[model.name] = model;
-  }
-
-  const statements = generateRegistryDefineStatements(registry);
-  const statementsStr = statements.map((s) => `    '${s}'`).join(',\n');
-
-  return `
-/** Migration statements for all models */
-export const migrationStatements: string[] = [
-${statementsStr}
-];
-
-/** Get migration query string */
-export function getMigrationQuery(): string {
-  return migrationStatements.join('\\n');
-}
-`;
-}
-
 /** Map of model name to migration statements */
 export interface ModelMigrationMap {
   [modelName: string]: string[];

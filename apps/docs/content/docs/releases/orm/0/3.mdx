@@ -479,11 +479,11 @@ development branch and is not available on npm.
 
   ```ts
   // before
-  import { chunk, generateMigrationCode } from 'cerial';
+  import { chunk, generateMigrationQuery } from 'cerial';
 
   // after
   import { chunk } from 'cerial/utils';
-  import { generateMigrationCode } from 'cerial/generators';
+  import { generateMigrationQuery } from 'cerial/generators';
   ```
 
   The root still exports every error class, every `Cerial*` value wrapper with
@@ -535,3 +535,11 @@ development branch and is not available on npm.
   must read `error.cause` instead. An error Cerial already classifies, such as
   `CerialValidationError`, is unchanged. Failures of the `$transaction([...])`
   array form are not wrapped yet.
+
+### Removed
+
+- `generateMigrationCode` is no longer exported. Nothing in Cerial called it, it
+  duplicated `generateMigrationQuery` without escaping its output, and the
+  escaping work above would have had to be done twice to keep it. Use
+  `generateMigrationQuery` from `cerial/generators`, which takes the same
+  arguments and quotes what it emits.
