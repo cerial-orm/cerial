@@ -39,10 +39,7 @@ function getOrCreateModel(db: Surreal, modelName: string, registry: ModelRegistr
   // Get metadata from registry
   const metadata = registry[modelName];
   if (!metadata) {
-    throw new CerialUnknownModelError(
-      `Unknown model "${modelName}". Valid models: ${Object.keys(registry).join(', ')}`,
-      { model: modelName },
-    );
+    throw CerialUnknownModelError.forModel(modelName, Object.keys(registry));
   }
 
   // Create and cache model (pass registry for relation queries)

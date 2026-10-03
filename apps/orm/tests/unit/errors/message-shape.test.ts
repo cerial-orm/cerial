@@ -160,7 +160,7 @@ describe('connection, transaction and build-time messages', () => {
   test('an unknown model is quoted by name', () => {
     const tx = new CerialTransaction({} as never, {});
 
-    expect(messageOf(() => tx._getModel('Uesr'))).toBe('Model "Uesr" not found in registry');
+    expect(messageOf(() => tx._getModel('Uesr'))).toBe('Unknown model "Uesr". No models are registered.');
   });
 
   test('an ended transaction says so', async () => {

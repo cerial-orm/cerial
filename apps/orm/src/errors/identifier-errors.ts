@@ -7,6 +7,16 @@ export class CerialUnknownModelError extends CerialError {
     super(CERIAL_ERROR_CODES.UNKNOWN_MODEL, message, options);
     this.name = 'CerialUnknownModelError';
   }
+
+  /**
+   * The one message shape every model accessor uses, so `client.db`, a transaction client and the
+   * generated client cannot drift apart.
+   */
+  static forModel(name: string, validModels: readonly string[]): CerialUnknownModelError {
+    const valid = validModels.length ? `Valid models: ${validModels.join(', ')}.` : 'No models are registered.';
+
+    return new CerialUnknownModelError(`Unknown model "${name}". ${valid}`, { model: name });
+  }
 }
 
 /** A field name that the model does not have was used in `where`, `select`, `orderBy`, `include` or `data`. */

@@ -89,7 +89,7 @@ export class CerialTransaction {
 
     const metadata = this._registry[name];
     if (!metadata) {
-      throw new CerialUnknownModelError(`Model "${name}" not found in registry`, { model: name });
+      throw CerialUnknownModelError.forModel(name, Object.keys(this._registry));
     }
 
     // SurrealTransaction extends SurrealQueryable which has query() —
@@ -146,11 +146,9 @@ export function createCerialTransactionProxy(txn: SurrealTransaction, registry: 
 
       if (IGNORED_PROPERTIES.has(prop)) return undefined;
 
-      if (prop in target._registryRef) {
-        return target._getModel(prop);
-      }
-
-      return undefined;
+      // Must stay below the symbol, KNOWN_PROPERTIES and IGNORED_PROPERTIES checks, or every `await`
+      // on the transaction client throws. An unknown model falls through to _getModel, which names it.
+      return target._getModel(prop);
     },
 
     has(target, prop) {

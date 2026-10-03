@@ -73,7 +73,7 @@ describe('Proxy Handler', () => {
       const error = caught as CerialUnknownModelError;
       expect(error.code).toBe('C2000');
       expect(error.model).toBe('InvalidModel');
-      expect(error.message).toBe('Unknown model "InvalidModel". Valid models: User, Post');
+      expect(error.message).toBe('Unknown model "InvalidModel". Valid models: User, Post.');
     });
 
     test('a typo on a model access throws before any method is reached', () => {
