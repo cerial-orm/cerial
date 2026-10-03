@@ -135,3 +135,34 @@ model TupleNullable {
   optNull OptNullPair
   mixed MixedNullability
 }
+
+tuple Stamped {
+  label String,
+  born Date @createdAt,
+  touched Date @updatedAt,
+  hits Int @defaultAlways(7)
+}
+
+model TupleStamped {
+  id Record @id
+  name String
+  stamp Stamped
+}
+
+tuple StatusPair {
+  state Status,
+  count Int
+}
+
+tuple RolePair {
+  Role,
+  Int
+}
+
+model TupleLiteralElement {
+  id Record @id
+  name String
+  status StatusPair
+  role RolePair
+  history StatusPair[]
+}

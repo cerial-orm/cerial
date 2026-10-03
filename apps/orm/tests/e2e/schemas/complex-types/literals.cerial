@@ -113,3 +113,26 @@ model LiteralWithObjectOpt {
   payload WithObjectOpt
   optPayload WithObjectOpt?
 }
+
+literal Ratio { 0.5, 1.5, 2.5 }
+
+literal FloatOrText { Float, String }
+
+literal DateOrFlag { Date, Bool }
+
+model LiteralNumberKinds {
+  id Record @id
+  ratio Ratio
+  amount FloatOrText
+  moment DateOrFlag
+}
+
+object LiteralTagged {
+  states Status[]
+  label String
+}
+
+model LiteralObjectArray {
+  id Record @id
+  tagged LiteralTagged
+}

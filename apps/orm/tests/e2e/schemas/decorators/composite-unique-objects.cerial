@@ -13,3 +13,17 @@ model Warehouse {
   @@unique(cityZip, [location.city, location.zip])
   @@unique(nameCity, [name, location.city])
 }
+
+# @@index and @@unique shapes that mix object sub-fields with other kinds
+object Dock {
+  bay String
+  level Int
+}
+
+model Depot {
+  id Record @id
+  label String
+  dock Dock
+  @@index(dockBayLevel, [dock.bay, dock.level])
+  @@index(labelDockBay, [label, dock.bay])
+}

@@ -9,6 +9,7 @@ import {
   generateAssertClause,
   generateComputedClause,
   generateDefaultClause,
+  generateTupleSurrealTypeLiteral,
   generateTypeClause,
   generateValueClause,
   getTypeAssertion,
@@ -269,6 +270,46 @@ describe('Type Mapper', () => {
 
     test('should return undefined for string', () => {
       expect(generateAssertClause('string')).toBeUndefined();
+    });
+
+    test('should assert each element of an array, not the array', () => {
+      expect(generateAssertClause('email', true)).toBe('ASSERT $value.all(|$v| string::is_email($v))');
+    });
+
+    test('should return undefined for an array of a type with no assertion', () => {
+      expect(generateAssertClause('string', true)).toBeUndefined();
+    });
+  });
+
+  describe('generateTupleSurrealTypeLiteral with literal elements', () => {
+    const literalInfo = {
+      literalName: 'Status',
+      variants: [
+        { kind: 'string' as const, value: 'on' },
+        { kind: 'string' as const, value: 'off' },
+      ],
+    } as unknown as import('../../../src/types').LiteralFieldMetadata;
+
+    test('inlines the variant union instead of the internal type name', () => {
+      const literal = generateTupleSurrealTypeLiteral({
+        tupleName: 'Pair',
+        elements: [
+          { index: 0, type: 'literal', isOptional: false, literalInfo },
+          { index: 1, type: 'int', isOptional: false },
+        ],
+      } as unknown as import('../../../src/types').TupleFieldMetadata);
+
+      expect(literal).toBe("['on' | 'off', int]");
+      expect(literal).not.toContain('literal');
+    });
+
+    test('applies @nullable around the union', () => {
+      const literal = generateTupleSurrealTypeLiteral({
+        tupleName: 'Pair',
+        elements: [{ index: 0, type: 'literal', isOptional: false, isNullable: true, literalInfo }],
+      } as unknown as import('../../../src/types').TupleFieldMetadata);
+
+      expect(literal).toBe("['on' | 'off' | null]");
     });
   });
 

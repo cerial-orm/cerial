@@ -386,6 +386,9 @@ function generateTupleElementSurrealType(element: TupleElementMetadata, tupleReg
   if (element.type === 'tuple' && element.tupleInfo && tupleRegistry) {
     // Nested tuple: recurse to build [type1, type2, ...]
     baseType = generateTupleSurrealTypeLiteral(element.tupleInfo, tupleRegistry);
+  } else if (element.type === 'literal' && element.literalInfo) {
+    // `literal` is not a kind name in a type position, so inline the variant union
+    baseType = generateLiteralSurrealType(element.literalInfo, tupleRegistry);
   } else if (element.type === 'object') {
     baseType = 'object';
   } else {
@@ -405,10 +408,15 @@ export function generateTupleSurrealTypeLiteral(tupleInfo: TupleFieldMetadata, t
   return `[${elementTypes.join(', ')}]`;
 }
 
-/** Generate the ASSERT clause for a field, if any */
-export function generateAssertClause(schemaType: SchemaFieldType): string | undefined {
+/**
+ * Generate the ASSERT clause for a field, if any.
+ * On an array field the assertion runs against the whole array, so it is applied per element instead.
+ */
+export function generateAssertClause(schemaType: SchemaFieldType, isArray?: boolean): string | undefined {
   const assertion = getTypeAssertion(schemaType);
   if (!assertion) return undefined;
+  if (isArray) return `ASSERT $value.all(|$v| ${assertion.replaceAll('$value', '$v')})`;
+
   return `ASSERT ${assertion}`;
 }
 

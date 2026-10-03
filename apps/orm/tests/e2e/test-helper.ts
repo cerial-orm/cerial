@@ -161,13 +161,19 @@ export const tables = {
   oneToOneRestrict: ['user_restrict', 'profile_restrict'],
   oneToOneNoAction: ['user_no_action', 'profile_no_action'],
   oneToOneSetNull: ['user_set_null', 'profile_set_null'],
+  oneToOneSetNone: ['user_set_none', 'profile_set_none'],
   oneToManyCascade: ['team', 'member'],
   oneToManyRestrict: ['department', 'employee'],
+  oneToManyNoAction: ['team_no_action', 'member_no_action'],
+  oneToManySetNull: ['team_set_null', 'member_set_null'],
+  onDeleteSelfRef: ['od_folder'],
+  onDeleteChain: ['od_grandparent', 'od_parent', 'od_child'],
   readonly: ['readonly_test', 'readonly_record'],
   timestamps: ['timestamp_test'],
   defaultAlways: ['content_item'],
   set: ['set_basic'],
-  indexes: ['staff', 'warehouse', 'registration', 'attendee', 'workshop'],
+  indexes: ['staff', 'warehouse', 'registration', 'attendee', 'workshop', 'depot', 'ticket', 'booking'],
+  scalarArrays: ['scalar_arrays'],
   flexible: ['flex_user'],
 
   // ── Complex Types ──
@@ -182,6 +188,8 @@ export const tables = {
     'tuple_related_post',
     'tuple_deep_nest',
     'tuple_nullable',
+    'tuple_stamped',
+    'tuple_literal_element',
   ],
   literals: [
     'literal_basic',
@@ -194,6 +202,8 @@ export const tables = {
     'literal_with_object_variant',
     'literal_with_both',
     'literal_with_object_opt',
+    'literal_number_kinds',
+    'literal_object_array',
   ],
   enums: ['enum_basic', 'enum_defaults', 'enum_multiple', 'enum_with_object', 'enum_literal_ref'],
   nestedMembership: ['nm_object_doc', 'nm_tuple_doc'],
@@ -204,7 +214,7 @@ export const tables = {
   duration: ['duration_basic', 'duration_decorated', 'duration_with_object', 'duration_with_tuple'],
   decimal: ['decimal_basic', 'decimal_decorated', 'decimal_with_object', 'decimal_with_tuple'],
   bytes: ['bytes_basic', 'bytes_with_object', 'bytes_with_tuple'],
-  geometry: ['geometry_basic', 'geometry_with_object', 'geometry_with_tuple'],
+  geometry: ['geometry_basic', 'geometry_with_object', 'geometry_with_tuple', 'geometry_multi'],
   any: ['any_basic', 'any_with_object', 'any_decorated', 'any_unique'],
 
   // ── Extends (Features) ──
@@ -219,8 +229,8 @@ export const tables = {
     'ext_profile',
     'ext_empty_child',
   ],
-  extendsObject: ['ext_address_user'],
-  extendsTuple: ['ext_tuple_model'],
+  extendsObject: ['ext_address_user', 'ext_chain_model'],
+  extendsTuple: ['ext_tuple_model', 'ext_tuple_by_name'],
   extendsEnum: ['ext_enum_model', 'ext_enum_container'],
   extendsLiteral: ['ext_literal_model', 'ext_literal_container'],
   extendsCrossFile: [
@@ -238,6 +248,7 @@ export const tables = {
     'ext_l4_omit_concrete',
     'ext_l5_very_deep',
     'ext_l6_ultra_deep',
+    'ext_p4_concrete',
   ],
   extendsRelations: [
     'ext_rel_blog_author',

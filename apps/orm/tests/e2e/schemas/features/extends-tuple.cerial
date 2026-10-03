@@ -52,3 +52,14 @@ model ExtTupleModel {
   coordPair ExtCoordPair
   optionalTriple ExtOptionalTriple?
 }
+
+// Tuple pick and omit by element name
+tuple ExtPickedName extends ExtNamedPair[name] { }
+
+tuple ExtOmittedAge extends ExtNamedPair[!age] { }
+
+model ExtTupleByName {
+  id Record @id
+  picked ExtPickedName
+  omitted ExtOmittedAge
+}

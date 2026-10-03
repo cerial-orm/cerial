@@ -3,12 +3,15 @@ model Attendee {
   id Record @id
   name String
   registrations Relation[] @model(Registration)
+  tickets Relation[] @model(Ticket)
+  bookings Relation[] @model(Booking)
 }
 
 model Workshop {
   id Record @id
   title String
   registrations Relation[] @model(Registration)
+  tickets Relation[] @model(Ticket)
 }
 
 model Registration {
@@ -19,4 +22,30 @@ model Registration {
   workshop Relation @field(workshopId) @model(Workshop)
   role String?
   @@unique(attendeeWorkshop, [attendeeId, workshopId])
+}
+
+# @@index and @@unique shapes that mix record fields with other kinds
+model Ticket {
+  id Record @id
+  attendeeId Record
+  workshopId Record
+  attendee Relation @field(attendeeId) @model(Attendee)
+  workshop Relation @field(workshopId) @model(Workshop)
+  seat String
+  @@index(ticketAttendeeWorkshop, [attendeeId, workshopId])
+  @@index(ticketAttendeeSeat, [attendeeId, seat])
+  @@unique(ticketWorkshopSeat, [workshopId, seat])
+}
+
+object Slot {
+  row String
+}
+
+model Booking {
+  id Record @id
+  attendeeId Record
+  attendee Relation @field(attendeeId) @model(Attendee)
+  slot Slot
+  @@index(bookingAttendeeRow, [attendeeId, slot.row])
+  @@unique(bookingAttendeeRowUnique, [attendeeId, slot.row])
 }

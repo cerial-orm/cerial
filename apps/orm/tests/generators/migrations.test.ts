@@ -7,6 +7,7 @@ import { describe, expect, test } from 'bun:test';
 import {
   generateModelDefineStatements,
   generateModelMigrationMap,
+  generateObjectFieldDefines,
   generatePerModelMigrationCode,
 } from '../../src/generators/migrations/define-generator';
 import { parseModelRegistry } from '../test-helpers';
@@ -232,6 +233,55 @@ model User {
 
       const ratingsStmt = statements.find((s) => s.includes('ratings'));
       expect(ratingsStmt).toContain('TYPE array<float>');
+    });
+  });
+
+  describe('Array element assertions and literal arrays inside objects', () => {
+    const base = { isId: false, isUnique: false, isIndexed: false, isRequired: true, isArray: true };
+    const literalInfo = {
+      literalName: 'Code',
+      variants: [
+        { kind: 'string', value: 'A' },
+        { kind: 'string', value: 'B' },
+      ],
+    } as unknown as import('../../src/types').LiteralFieldMetadata;
+    const holder = {
+      name: 'Holder',
+      fields: [
+        { ...base, name: 'codes', type: 'literal' as const, literalInfo },
+        { ...base, name: 'emails', type: 'email' as const },
+      ],
+    };
+
+    test('an object literal array lists the variants, not the internal type name', () => {
+      const statements = generateObjectFieldDefines('h', 'doc', holder, { Holder: holder });
+      const codes = statements.find((st) => st.includes('h.codes'));
+
+      expect(codes).toContain("TYPE array<'A' | 'B'>");
+      expect(codes).not.toContain('literal');
+    });
+
+    test('an object email array asserts each element', () => {
+      const statements = generateObjectFieldDefines('h', 'doc', holder, { Holder: holder });
+      const emails = statements.find((st) => st.includes('h.emails'));
+
+      expect(emails).toContain('TYPE array<string>');
+      expect(emails).toContain('ASSERT $value.all(|$v| string::is_email($v))');
+    });
+
+    test('a model email array asserts each element', () => {
+      const model = {
+        name: 'Doc',
+        tableName: 'doc',
+        fields: [
+          { name: 'id', type: 'record' as const, isId: true, isUnique: true, isRequired: true },
+          { ...base, name: 'emails', type: 'email' as const },
+        ],
+      };
+      const statements = generateModelDefineStatements(model);
+
+      expect(statements.some((st) => st.includes('ASSERT $value.all(|$v| string::is_email($v))'))).toBe(true);
+      expect(statements.some((st) => st.includes('ASSERT string::is_email($value)'))).toBe(false);
     });
   });
 

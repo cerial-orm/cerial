@@ -60,3 +60,35 @@ model ExtAddressUser {
   workAddress ExtDetailedAddress?
   previousAddresses ExtGeoAddress[]
 }
+
+// Two-level chains: a filter on a parent that is itself filtered the other way.
+// A filter names the parent's own fields, so each link in the chain declares its own.
+object ExtChainBase {
+  a String
+  b String
+  c String
+}
+
+object ExtChainPicked extends ExtChainBase[a, b] {
+  p String
+  q String
+}
+
+object ExtChainPickedThenOmitted extends ExtChainPicked[!p] {
+  r String?
+}
+
+object ExtChainOmitted extends ExtChainBase[!c] {
+  p String
+  q String
+}
+
+object ExtChainOmittedThenPicked extends ExtChainOmitted[q] {
+  r String?
+}
+
+model ExtChainModel {
+  id Record @id
+  pickThenOmit ExtChainPickedThenOmitted
+  omitThenPick ExtChainOmittedThenPicked
+}

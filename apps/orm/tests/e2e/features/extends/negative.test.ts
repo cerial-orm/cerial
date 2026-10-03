@@ -467,6 +467,37 @@ model PrivChild extends PrivBase {
       expect(stderr).toContain('secret');
     });
 
+    // The resolver strips !!private from each resolved parent, so a leaf three levels below the
+    // declaring model overrides the field without an error. Enable once the marker survives
+    // inheritance; until then this documents the gap.
+    test.todo('a !!private field cannot be overridden three levels down', () => {
+      const { schemaDir, outputDir } = setupTmpDir('private-override-deep');
+      writeSchema(
+        schemaDir,
+        `abstract model DeepPrivBase {
+  id Record @id !!private
+  secret String !!private
+}
+
+abstract model DeepPrivMid extends DeepPrivBase {
+  name String
+}
+
+abstract model DeepPrivLow extends DeepPrivMid {
+  age Int?
+}
+
+model DeepPrivLeaf extends DeepPrivLow {
+  secret String @default('overridden')
+}`,
+      );
+
+      const { exitCode, stderr } = runGenerate(schemaDir, outputDir);
+      expect(exitCode).not.toBe(0);
+      expect(stderr.toLowerCase()).toContain('private');
+      expect(stderr).toContain('secret');
+    });
+
     test('child object overrides !!private field → error', () => {
       const { schemaDir, outputDir } = setupTmpDir('private-override-object');
       writeSchema(

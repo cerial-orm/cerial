@@ -78,3 +78,26 @@ model ExtL6UltraDeep extends ExtL5Base {
   archivedAt Date?
 }
 
+
+// Four-level chain that alternates pick and omit. A filter names the parent's own fields,
+// and !!private on the root travels to every level below it.
+abstract model ExtP1 {
+  id Record @id !!private
+  secret String !!private
+  name String
+  note String?
+  tag String
+}
+
+abstract model ExtP2 extends ExtP1[id, secret, name, tag] {
+  extra String?
+  spare String?
+}
+
+abstract model ExtP3 extends ExtP2[!spare] {
+  level Int @default(1)
+}
+
+model ExtP4Concrete extends ExtP3 {
+  final String?
+}

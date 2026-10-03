@@ -71,3 +71,68 @@ model Employee {
   departmentId Record? @nullable
   department Relation? @field(departmentId) @model(Department) @onDelete(Restrict)
 }
+
+# 1-1 Optional with @onDelete SetNone (backing Record is optional, not nullable)
+model UserSetNone extends OnDeleteParent {
+  profile Relation? @model(ProfileSetNone)
+}
+
+model ProfileSetNone {
+  id Record @id
+  bio String?
+  userId Record?
+  user Relation? @field(userId) @model(UserSetNone) @onDelete(SetNone)
+}
+
+# 1-n Optional with @onDelete NoAction
+model TeamNoAction extends OnDeleteParent {
+  members Relation[] @model(MemberNoAction)
+}
+
+model MemberNoAction {
+  id Record @id
+  name String
+  teamId Record? @nullable
+  team Relation? @field(teamId) @model(TeamNoAction) @onDelete(NoAction)
+}
+
+# 1-n Optional with @onDelete SetNull (explicit)
+model TeamSetNull extends OnDeleteParent {
+  members Relation[] @model(MemberSetNull)
+}
+
+model MemberSetNull {
+  id Record @id
+  name String
+  teamId Record? @nullable
+  team Relation? @field(teamId) @model(TeamSetNull) @onDelete(SetNull)
+}
+
+# Self-referential with @onDelete SetNull: children survive their parent
+model OdFolder {
+  id Record @id
+  name String
+  parentId Record? @nullable
+  parent Relation? @field(parentId) @model(OdFolder) @onDelete(SetNull) @key(tree)
+  children Relation[] @model(OdFolder) @key(tree)
+}
+
+# Three-model Cascade chain: Grandparent -> Parent -> Child
+model OdGrandparent extends OnDeleteParent {
+  parents Relation[] @model(OdParent)
+}
+
+model OdParent {
+  id Record @id
+  name String
+  grandparentId Record? @nullable
+  grandparent Relation? @field(grandparentId) @model(OdGrandparent) @onDelete(Cascade)
+  children Relation[] @model(OdChild)
+}
+
+model OdChild {
+  id Record @id
+  name String
+  parentId Record? @nullable
+  parent Relation? @field(parentId) @model(OdParent) @onDelete(Cascade)
+}

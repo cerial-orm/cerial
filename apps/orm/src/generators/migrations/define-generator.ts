@@ -19,6 +19,7 @@ import {
   generateComputedClause,
   generateDefaultClause,
   generateIdTypeClause,
+  generateLiteralSurrealType,
   generateTupleSurrealTypeLiteral,
   generateTypeClause,
   generateValueClause,
@@ -129,7 +130,7 @@ export function generateDefineField(
   if (valueClause) parts.push(valueClause);
 
   // Add ASSERT clause if needed (e.g., for email validation)
-  const assertClause = generateAssertClause(field.type);
+  const assertClause = generateAssertClause(field.type, field.isArray);
   if (assertClause) parts.push(assertClause);
 
   // Add DEFAULT clause if needed (@createdAt, @updatedAt, @default, or @defaultAlways)
@@ -312,6 +313,8 @@ export function generateObjectFieldDefines(
       if (subField.isArray) {
         if (subField.type === 'any') {
           parts.push('TYPE array');
+        } else if (subField.type === 'literal' && subField.literalInfo) {
+          parts.push(`TYPE array<${generateLiteralSurrealType(subField.literalInfo)}>`);
         } else {
           const surrealType = mapToSurrealType(subField.type);
           parts.push(`TYPE array<${surrealType}>`);
@@ -332,7 +335,7 @@ export function generateObjectFieldDefines(
       }
 
       // Add ASSERT clause if needed
-      const assertClause = generateAssertClause(subField.type);
+      const assertClause = generateAssertClause(subField.type, subField.isArray);
       if (assertClause) parts.push(assertClause);
 
       const defaultClause = generateDefaultClause(

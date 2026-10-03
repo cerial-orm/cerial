@@ -9,3 +9,9 @@ model ArrayDecoratorTest {
   normalTags String[]
   normalScores Int[]
 }
+
+model ScalarArrays {
+  id Record @id
+  emails Email[]
+  flags Bool[]
+}

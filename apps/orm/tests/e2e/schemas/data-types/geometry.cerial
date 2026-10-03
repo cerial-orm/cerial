@@ -31,3 +31,12 @@ model GeometryWithTuple {
   name String
   pair GeoPair
 }
+
+model GeometryMulti {
+  id Record @id
+  name String
+  points Geometry @multipoint
+  lines Geometry @multiline
+  polygons Geometry @multipolygon
+  collection Geometry @geoCollection
+}
