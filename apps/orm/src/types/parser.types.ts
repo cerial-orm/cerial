@@ -73,7 +73,7 @@ export type TokenType =
   | 'eof'; // end of file
 
 /** Single token from tokenizer */
-export interface Token {
+export interface CerialToken {
   type: TokenType;
   value: string;
   position: SourcePosition;

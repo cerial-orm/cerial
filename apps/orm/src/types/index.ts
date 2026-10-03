@@ -48,6 +48,7 @@ export type {
   ASTObject,
   ASTTuple,
   ASTTupleElement,
+  CerialToken,
   ExtendsFilter,
   Lexeme,
   LexemeType,
@@ -55,7 +56,6 @@ export type {
   ParseResult,
   SchemaAST,
   SchemaFile,
-  Token,
   TokenType,
 } from './parser.types';
 // Query types

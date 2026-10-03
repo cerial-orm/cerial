@@ -10,13 +10,13 @@ import type {
   ASTDecorator,
   ASTField,
   ASTModel,
+  CerialToken,
   OnDeleteAction,
   SchemaAST,
   SchemaDecorator,
   SchemaFieldType,
   SourcePosition,
   SourceRange,
-  Token,
   TokenType,
 } from '../../../src/types';
 
@@ -67,9 +67,9 @@ Test.checks([Test.check<TokenType, ExpectedTokenTypes, Test.Pass>()]);
 // =============================================================================
 
 Test.checks([
-  Test.check<Token['type'], TokenType, Test.Pass>(),
-  Test.check<Token['value'], string, Test.Pass>(),
-  Test.check<Token['position'], SourcePosition, Test.Pass>(),
+  Test.check<CerialToken['type'], TokenType, Test.Pass>(),
+  Test.check<CerialToken['value'], string, Test.Pass>(),
+  Test.check<CerialToken['position'], SourcePosition, Test.Pass>(),
 ]);
 
 // =============================================================================

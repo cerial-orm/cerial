@@ -3,7 +3,7 @@
  * Validates tokens and converts to typed lexemes
  */
 
-import type { Lexeme, LexemeType, ParseError, SourcePosition, Token } from '../types';
+import type { CerialToken, Lexeme, LexemeType, ParseError, SourcePosition } from '../types';
 import { filterTokens } from './tokenizer';
 
 /** Lexer result */
@@ -24,14 +24,14 @@ function createError(message: string, position: SourcePosition): ParseError {
 
 /** Lexer state */
 interface LexerState {
-  tokens: Token[];
+  tokens: CerialToken[];
   position: number;
   lexemes: Lexeme[];
   errors: ParseError[];
 }
 
 /** Create initial lexer state */
-function createState(tokens: Token[]): LexerState {
+function createState(tokens: CerialToken[]): LexerState {
   return {
     tokens: filterTokens(tokens),
     position: 0,
@@ -41,12 +41,12 @@ function createState(tokens: Token[]): LexerState {
 }
 
 /** Get current token */
-function current(state: LexerState): Token | undefined {
+function current(state: LexerState): CerialToken | undefined {
   return state.tokens[state.position];
 }
 
 /** Peek ahead */
-function _peek(state: LexerState, offset: number = 1): Token | undefined {
+function _peek(state: LexerState, offset: number = 1): CerialToken | undefined {
   return state.tokens[state.position + offset];
 }
 
@@ -72,7 +72,7 @@ function addError(state: LexerState, error: ParseError): void {
 }
 
 /** Expect a specific token type */
-function expect(state: LexerState, type: string, value?: string): Token | null {
+function expect(state: LexerState, type: string, value?: string): CerialToken | null {
   const token = current(state);
   if (!token) {
     addError(state, createError(`Unexpected end of input, expected ${type}`, { line: 0, column: 0, offset: 0 }));
@@ -194,7 +194,7 @@ function lexField(state: LexerState): void {
 }
 
 /** Lex all tokens */
-export function lex(tokens: Token[]): LexerResult {
+export function lex(tokens: CerialToken[]): LexerResult {
   const state = createState(tokens);
 
   while (!isEnd(state)) {

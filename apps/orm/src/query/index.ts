@@ -109,6 +109,11 @@ export {
   transformData,
   transformValue,
 } from './transformers';
-export type { DataValidationError, DataValidationResult, ValidationError, WhereValidationResult } from './validators';
+export type {
+  CerialValidationIssue,
+  DataValidationError,
+  DataValidationResult,
+  WhereValidationResult,
+} from './validators';
 // Validators
 export { validateCreateData, validateUpdateData, validateWhere, validateWhereClause } from './validators';

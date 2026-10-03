@@ -7,7 +7,7 @@ import type { CommentMap } from '../../../src/formatter/comment-attacher';
 import { attachComments, detectCommentStyle } from '../../../src/formatter/comment-attacher';
 import { parse } from '../../../src/parser/parser';
 import { tokenize } from '../../../src/parser/tokenizer';
-import type { Token } from '../../../src/types';
+import type { CerialToken } from '../../../src/types';
 
 /** Helper to get leading comment values for a key */
 function getLeading(map: CommentMap, key: string): string[] {
@@ -330,7 +330,7 @@ describe('detectCommentStyle', () => {
   });
 
   it('should return hash for empty token stream', () => {
-    const tokens: Token[] = [];
+    const tokens: CerialToken[] = [];
 
     expect(detectCommentStyle(tokens)).toBe('hash');
   });

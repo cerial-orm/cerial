@@ -3,7 +3,7 @@
  * Converts raw text into tokens
  */
 
-import type { SourcePosition, Token, TokenType } from '../types';
+import type { CerialToken, SourcePosition, TokenType } from '../types';
 
 /** Keywords in the schema language */
 const KEYWORDS = new Set(['model', 'object', 'tuple', 'literal', 'enum']);
@@ -15,7 +15,7 @@ const PUNCTUATION = new Set(['{', '}', ':', '?', '(', ')', '[', ']', ',']);
 const TYPES = new Set(['String', 'Email', 'Int', 'Float', 'Bool', 'Date', 'Record', 'Relation']);
 
 /** Create a token */
-function createToken(type: TokenType, value: string, position: SourcePosition): Token {
+function createToken(type: TokenType, value: string, position: SourcePosition): CerialToken {
   return { type, value, position };
 }
 
@@ -64,7 +64,7 @@ function getPosition(state: TokenizerState): SourcePosition {
 }
 
 /** Read whitespace */
-function readWhitespace(state: TokenizerState): Token {
+function readWhitespace(state: TokenizerState): CerialToken {
   const pos = getPosition(state);
   let value = '';
 
@@ -77,7 +77,7 @@ function readWhitespace(state: TokenizerState): Token {
 }
 
 /** Read newline */
-function readNewline(state: TokenizerState): Token {
+function readNewline(state: TokenizerState): CerialToken {
   const pos = getPosition(state);
   const value = current(state);
   advance(state);
@@ -85,7 +85,7 @@ function readNewline(state: TokenizerState): Token {
 }
 
 /** Read single-line comment */
-function readSingleLineComment(state: TokenizerState): Token {
+function readSingleLineComment(state: TokenizerState): CerialToken {
   const pos = getPosition(state);
   let value = '';
 
@@ -98,7 +98,7 @@ function readSingleLineComment(state: TokenizerState): Token {
 }
 
 /** Read multi-line comment */
-function readMultiLineComment(state: TokenizerState): Token {
+function readMultiLineComment(state: TokenizerState): CerialToken {
   const pos = getPosition(state);
   let value = '/*';
   advance(state); // skip /
@@ -119,7 +119,7 @@ function readMultiLineComment(state: TokenizerState): Token {
 }
 
 /** Read string literal */
-function readString(state: TokenizerState): Token {
+function readString(state: TokenizerState): CerialToken {
   const pos = getPosition(state);
   const quote = current(state);
   let value = quote;
@@ -143,7 +143,7 @@ function readString(state: TokenizerState): Token {
 }
 
 /** Read number */
-function readNumber(state: TokenizerState): Token {
+function readNumber(state: TokenizerState): CerialToken {
   const pos = getPosition(state);
   let value = '';
 
@@ -170,7 +170,7 @@ function readNumber(state: TokenizerState): Token {
 }
 
 /** Read identifier or keyword */
-function readIdentifier(state: TokenizerState): Token {
+function readIdentifier(state: TokenizerState): CerialToken {
   const pos = getPosition(state);
   let value = '';
 
@@ -193,7 +193,7 @@ function readIdentifier(state: TokenizerState): Token {
 }
 
 /** Read decorator (@name or @name(value)) */
-function readDecorator(state: TokenizerState): Token {
+function readDecorator(state: TokenizerState): CerialToken {
   const pos = getPosition(state);
   let value = '@';
   advance(state); // skip @
@@ -223,7 +223,7 @@ function readDecorator(state: TokenizerState): Token {
 }
 
 /** Read punctuation */
-function readPunctuation(state: TokenizerState): Token {
+function readPunctuation(state: TokenizerState): CerialToken {
   const pos = getPosition(state);
   const value = current(state);
   advance(state);
@@ -231,9 +231,9 @@ function readPunctuation(state: TokenizerState): Token {
 }
 
 /** Tokenize a schema source string */
-export function tokenize(source: string): Token[] {
+export function tokenize(source: string): CerialToken[] {
   const state = createState(source);
-  const tokens: Token[] = [];
+  const tokens: CerialToken[] = [];
 
   while (!isEnd(state)) {
     const char = current(state);
@@ -305,6 +305,6 @@ export function tokenize(source: string): Token[] {
 }
 
 /** Filter out whitespace and comment tokens */
-export function filterTokens(tokens: Token[]): Token[] {
+export function filterTokens(tokens: CerialToken[]): CerialToken[] {
   return tokens.filter((t) => t.type !== 'whitespace' && t.type !== 'comment' && t.type !== 'newline');
 }

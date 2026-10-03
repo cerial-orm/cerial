@@ -36,8 +36,8 @@ function isDirectValue(value: unknown): boolean {
   );
 }
 
-/** Validation error */
-export interface ValidationError {
+/** One problem found by the where validator */
+export interface CerialValidationIssue {
   path: string;
   message: string;
   kind?: 'unknownField';
@@ -46,7 +46,7 @@ export interface ValidationError {
 /** Validation result */
 export interface WhereValidationResult {
   valid: boolean;
-  errors: ValidationError[];
+  errors: CerialValidationIssue[];
 }
 
 /** Find the @@unique directive a where key names, if any */
@@ -64,9 +64,9 @@ function validateCompositeValue(
   value: unknown,
   model: ModelMetadata,
   path: string,
-): ValidationError[] {
+): CerialValidationIssue[] {
   const required = `@@unique(${directive.name}, [${directive.fields.join(', ')}])`;
-  const fail = (problem: string): ValidationError[] => [
+  const fail = (problem: string): CerialValidationIssue[] => [
     {
       path,
       message: `Invalid composite key '${directive.name}' on model ${model.name} — it must name every field of ${required} as a plain value; ${problem}`,
@@ -110,7 +110,7 @@ function validateCompositeValue(
 const QUANTIFIERS = ['some', 'every', 'none'];
 const LOGICAL_KEYS = ['AND', 'OR', 'NOT'];
 
-function unknownSubField(path: string, fieldPath: string, model: ModelMetadata): ValidationError {
+function unknownSubField(path: string, fieldPath: string, model: ModelMetadata): CerialValidationIssue {
   return {
     path,
     kind: 'unknownField',
@@ -127,8 +127,8 @@ function validateObjectFilter(
   model: ModelMetadata,
   path: string,
   fieldPath: string,
-): ValidationError[] {
-  const errors: ValidationError[] = [];
+): CerialValidationIssue[] {
+  const errors: CerialValidationIssue[] = [];
 
   for (const [key, value] of Object.entries(filter)) {
     if (value === undefined) continue;
@@ -186,8 +186,8 @@ function validateTupleFilter(
   model: ModelMetadata,
   path: string,
   fieldPath: string,
-): ValidationError[] {
-  const errors: ValidationError[] = [];
+): CerialValidationIssue[] {
+  const errors: CerialValidationIssue[] = [];
 
   for (const [key, value] of Object.entries(filter)) {
     if (value === undefined) continue;
@@ -235,13 +235,13 @@ function validateRelationFilter(
   registry: ModelRegistry,
   path: string,
   fieldPath: string,
-): ValidationError[] {
+): CerialValidationIssue[] {
   const target = field.relationInfo ? registry[field.relationInfo.targetModel] : undefined;
   if (!target) return [];
 
   if (!field.isArray) return validateTargetWhere(filter, target, registry, path, fieldPath);
 
-  const errors: ValidationError[] = [];
+  const errors: CerialValidationIssue[] = [];
 
   for (const [key, value] of Object.entries(filter)) {
     if (value === undefined) continue;
@@ -266,8 +266,8 @@ function validateTargetWhere(
   registry: ModelRegistry,
   path: string,
   fieldPath: string,
-): ValidationError[] {
-  const errors: ValidationError[] = [];
+): CerialValidationIssue[] {
+  const errors: CerialValidationIssue[] = [];
 
   for (const [key, value] of Object.entries(where)) {
     if (value === undefined) continue;
@@ -293,8 +293,8 @@ export function validateFieldFilter(
   model: ModelMetadata,
   path: string,
   registry?: ModelRegistry,
-): ValidationError[] {
-  const errors: ValidationError[] = [];
+): CerialValidationIssue[] {
+  const errors: CerialValidationIssue[] = [];
 
   // Composite unique keys are expanded later by the query builder, which cannot tell a missing part from
   // an absent one, so the value is checked here against the directive
@@ -379,8 +379,8 @@ export function validateWhereClause(
   model: ModelMetadata,
   path: string = 'where',
   registry?: ModelRegistry,
-): ValidationError[] {
-  const errors: ValidationError[] = [];
+): CerialValidationIssue[] {
+  const errors: CerialValidationIssue[] = [];
 
   for (const [key, value] of Object.entries(where)) {
     if (value === undefined) continue;

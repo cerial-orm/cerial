@@ -8,7 +8,7 @@
 
 import { parse } from '../../../../orm/src/parser/parser';
 import { tokenize } from '../../../../orm/src/parser/tokenizer';
-import type { ParseResult, SchemaAST, Token } from '../../../../orm/src/types';
+import type { CerialToken, ParseResult, SchemaAST } from '../../../../orm/src/types';
 
 const EMPTY_AST: SchemaAST = {
   models: [],
@@ -62,7 +62,7 @@ export function safeParse(
  * For string inputs, `tokenize()` already handles all edge cases gracefully.
  * This wrapper adds defense against non-string inputs and any future regressions.
  */
-export function safeTokenize(source: string): Token[] {
+export function safeTokenize(source: string): CerialToken[] {
   if (typeof source !== 'string') {
     return [];
   }

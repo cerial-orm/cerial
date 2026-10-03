@@ -19,7 +19,7 @@ This runs `tsc --noEmit` on all `.check.ts` files. If any type assertions fail, 
 ## Files
 
 - `metadata-types.check.ts` - Verifies ModelMetadata, FieldMetadata, RelationFieldMetadata types
-- `common-types.check.ts` - Verifies Token, Lexeme, AST, and other common types
+- `common-types.check.ts` - Verifies CerialToken, Lexeme, AST, and other common types
 
 ## Pattern
 

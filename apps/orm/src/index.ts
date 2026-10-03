@@ -253,6 +253,7 @@ export {
   validateSchema,
 } from './parser';
 export type {
+  CerialValidationIssue,
   CompiledQuery,
   CompiledQueryDescriptor,
   DataValidationError,
@@ -264,7 +265,6 @@ export type {
   TransactionArrayItem,
   TransactionExecutionItem,
   TransactionItem,
-  ValidationError,
   VarBinding,
   WhereValidationResult,
 } from './query';
@@ -358,6 +358,7 @@ export type {
   ASTEnum,
   ASTField,
   ASTModel,
+  CerialToken,
   ComparisonOperators,
   ConnectionConfig,
   CreateOptions,
@@ -398,7 +399,6 @@ export type {
   SpecialOperators,
   StringOperators,
   SurrealTypeMapping,
-  Token,
   TokenType,
   TransactionCallbackFn,
   TransactionClient,

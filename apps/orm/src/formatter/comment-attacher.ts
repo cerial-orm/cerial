@@ -4,7 +4,7 @@
  * returns a map of comments attached to their nearest AST nodes by position.
  */
 
-import type { SchemaAST, Token } from '../types';
+import type { CerialToken, SchemaAST } from '../types';
 
 /**
  * Map of comment attachments.
@@ -20,7 +20,7 @@ import type { SchemaAST, Token } from '../types';
  * - `'directive:ModelName.@@name'` — directive-level comments
  * - `'between:N'` — orphan comments that can't be attached to any node
  */
-export type CommentMap = Map<string, { leading: Token[]; trailing: Token[] }>;
+export type CommentMap = Map<string, { leading: CerialToken[]; trailing: CerialToken[] }>;
 
 /** A block-level AST node with position info for attachment */
 interface BlockNode {
@@ -32,7 +32,7 @@ interface BlockNode {
 }
 
 /** Get or create a comment entry in the map */
-function getOrCreate(map: CommentMap, key: string): { leading: Token[]; trailing: Token[] } {
+function getOrCreate(map: CommentMap, key: string): { leading: CerialToken[]; trailing: CerialToken[] } {
   let entry = map.get(key);
   if (!entry) {
     entry = { leading: [], trailing: [] };
@@ -150,7 +150,7 @@ function findAttachedLines(blockStartLine: number, commentLineNums: Set<number>,
  *    - After last block → `'bottom'`
  *    - No attachment target → `'between:N'`
  */
-export function attachComments(tokens: Token[], ast: SchemaAST): CommentMap {
+export function attachComments(tokens: CerialToken[], ast: SchemaAST): CommentMap {
   const map: CommentMap = new Map();
   const comments = tokens.filter((t) => t.type === 'comment');
 
@@ -224,7 +224,7 @@ function findContainingBlock(blocks: BlockNode[], line: number): BlockNode | und
 }
 
 /** Attach a comment to a node within or on a block */
-function attachToBlock(map: CommentMap, block: BlockNode, comment: Token, commentLine: number): void {
+function attachToBlock(map: CommentMap, block: BlockNode, comment: CerialToken, commentLine: number): void {
   if (block.children?.length) {
     // Block has field/directive children — try to attach to nearest child
 
@@ -273,7 +273,7 @@ function attachToBlock(map: CommentMap, block: BlockNode, comment: Token, commen
  * - Mixed → `'mixed'`
  * - No comments → `'hash'` (default)
  */
-export function detectCommentStyle(tokens: Token[]): 'hash' | 'slash' | 'mixed' {
+export function detectCommentStyle(tokens: CerialToken[]): 'hash' | 'slash' | 'mixed' {
   const comments = tokens.filter((t) => t.type === 'comment');
   if (!comments.length) return 'hash';
 
