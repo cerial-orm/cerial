@@ -12,6 +12,7 @@ import { ConnectionManager } from '../../../src/client/connection';
 import {
   CerialConnectionError,
   type CerialError,
+  type CerialErrorCode,
   CerialGenerationError,
   CerialNotConnectedError,
   CerialTransactionError,
@@ -25,7 +26,7 @@ import { thrown, wrongClasses } from './helpers';
 
 type Ctor = new (...args: never[]) => Error;
 
-function expectClass(fn: () => unknown, ctor: Ctor, code: string): CerialError {
+function expectClass(fn: () => unknown, ctor: Ctor, code: CerialErrorCode): CerialError {
   const error = thrown(fn);
 
   expect(error).toBeInstanceOf(ctor);
