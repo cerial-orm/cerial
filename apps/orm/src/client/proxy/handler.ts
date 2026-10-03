@@ -22,21 +22,37 @@ export interface ProxyOptions {
   includeStatementInErrors?: boolean;
 }
 
-/** Cache for model instances */
-const modelCache = new WeakMap<Surreal, Map<string, Model>>();
+/** Stands in for the options of a client built without any, so those clients still share instances */
+const NO_OPTIONS: ProxyOptions = {};
+
+/**
+ * Cache for model instances. Clients on one URL share a pooled connection, so the connection alone cannot
+ * be the key: the ProxyOptions object each client owns is the second level. Keying on that object (not on
+ * individual options) means an option added later is covered without touching the key.
+ */
+const modelCache = new WeakMap<Surreal, WeakMap<ProxyOptions, Map<string, Model>>>();
 
 /** Get or create model instance */
-function getOrCreateModel(db: Surreal, modelName: string, registry: ModelRegistry, options?: ModelOptions): Model {
-  // Get or create cache for this db instance
-  let cache = modelCache.get(db);
+function getOrCreateModel(
+  db: Surreal,
+  modelName: string,
+  registry: ModelRegistry,
+  proxyOptions: ProxyOptions | undefined,
+  options?: ModelOptions,
+): Model {
+  let byOptions = modelCache.get(db);
+  if (!byOptions) {
+    byOptions = new WeakMap();
+    modelCache.set(db, byOptions);
+  }
+  const optionsKey = proxyOptions ?? NO_OPTIONS;
+  let cache = byOptions.get(optionsKey);
   if (!cache) {
     cache = new Map();
-    modelCache.set(db, cache);
+    byOptions.set(optionsKey, cache);
   }
 
-  // Clients that share a pooled connection share this cache, so the error option is part of the key
-  const cacheKey = options?.includeStatementInErrors ? `${modelName}:statement` : modelName;
-  let model = cache.get(cacheKey);
+  let model = cache.get(modelName);
   if (model) return model;
 
   // Get metadata from registry
@@ -47,7 +63,7 @@ function getOrCreateModel(db: Surreal, modelName: string, registry: ModelRegistr
 
   // Create and cache model (pass registry for relation queries)
   model = new Model(db, metadata, registry, options);
-  cache.set(cacheKey, model);
+  cache.set(modelName, model);
 
   return model;
 }
@@ -103,7 +119,7 @@ export function createProxyHandler(
       const modelOptions = buildModelOptions(prop, options);
 
       // Return model for this property name
-      return getOrCreateModel(db, prop, registry, modelOptions);
+      return getOrCreateModel(db, prop, registry, options, modelOptions);
     },
 
     has(_target, prop: string | symbol) {
@@ -125,7 +141,7 @@ export function createProxyHandler(
       return {
         configurable: true,
         enumerable: true,
-        value: getOrCreateModel(db, prop, registry, modelOptions),
+        value: getOrCreateModel(db, prop, registry, options, modelOptions),
       };
     },
   };
