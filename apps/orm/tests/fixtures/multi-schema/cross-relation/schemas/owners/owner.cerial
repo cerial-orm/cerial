@@ -1,0 +1,5 @@
+# Owner lives in the owners entry only
+model MsRtXOwner {
+  id Record @id
+  name String
+}

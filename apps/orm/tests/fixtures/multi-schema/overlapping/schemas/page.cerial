@@ -1,0 +1,5 @@
+# Lives directly under the broader entry's path
+model MsRtOverlapPage {
+  id Record @id
+  title String
+}

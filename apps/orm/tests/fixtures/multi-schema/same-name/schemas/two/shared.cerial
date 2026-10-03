@@ -1,0 +1,6 @@
+# Same model name as in the sibling schema entry, one extra required field
+model MsRtShared {
+  id Record @id
+  label String
+  extra Int
+}

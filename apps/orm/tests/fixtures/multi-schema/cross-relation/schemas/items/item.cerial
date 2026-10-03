@@ -1,0 +1,7 @@
+# Points at a model that only the owners entry defines
+model MsRtXItem {
+  id Record @id
+  title String
+  ownerId Record
+  owner Relation @field(ownerId) @model(MsRtXOwner)
+}

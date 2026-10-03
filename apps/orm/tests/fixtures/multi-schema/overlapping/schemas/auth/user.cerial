@@ -1,0 +1,5 @@
+# Nested inside the sibling entry's path, which is what makes the entries overlap
+model MsRtOverlapUser {
+  id Record @id
+  name String
+}

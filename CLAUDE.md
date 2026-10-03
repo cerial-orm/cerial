@@ -94,6 +94,10 @@ test file, removing all tables and running `migrate()`. Test files must not redo
 - `beforeAll`: `cleanupTables(client, YOUR_TABLES)` — `DELETE FROM` only
 - `beforeEach`: `truncateTables(client, YOUR_TABLES)` — same
 - Never `REMOVE TABLE`, `resetMigrationState()` or `client.migrate()` in a test file
+- The exception is a spec that owns everything it touches: the multi-schema specs build their own
+  clients from their own fixtures and migrate each themselves, because migration sequencing across
+  two clients is what they test. The commit gate lists them by name; add to that list only when a
+  spec's tables are invisible to the registry and to every other file
 - Never hand-write `DEFINE TABLE` or other DDL; `migrate()` owns the schema
 
 Concurrent `REMOVE TABLE` plus a full `migrate()` across files causes races: tables

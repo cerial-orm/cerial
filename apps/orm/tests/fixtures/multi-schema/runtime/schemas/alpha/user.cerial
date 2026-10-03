@@ -1,0 +1,8 @@
+# Runtime multi-schema: alpha client user
+model MsRtAlphaUser {
+  id Record @id
+  email Email @unique
+  name String
+  tags String[]
+  notes Relation[] @model(MsRtAlphaNote)
+}

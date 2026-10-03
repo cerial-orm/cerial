@@ -286,6 +286,15 @@ const E2E_SETUP_EXEMPT_PATHS: readonly string[] = [
 /** Schema setup in an end-to-end file, for the lines the caller names (every line when none). */
 export function scanE2eSetup(path: string, content: string, only?: ReadonlySet<number>): Refusal[] {
   if (!isE2eSpecPath(path)) return [];
+  // The multi-schema specs build their own generated clients from their own fixtures and migrate
+  // each one themselves, because migration sequencing across two clients is the behaviour under
+  // test: you cannot assert "the first client re-runs its migration" without clearing that
+  // client's own migration memo. Their tables are `ms_rt_*`, declared in fixtures no registry
+  // knows, and they run against a database of their own that they remove afterwards. They race
+  // nothing, because nothing else can see any of it.
+  'apps/orm/tests/e2e/multi-schema/runtime-helpers.ts',
+  'apps/orm/tests/e2e/multi-schema/runtime.test.ts',
+  'apps/orm/tests/e2e/multi-schema/same-model-name.test.ts',
   const refusals: Refusal[] = [];
   const lines = content.split('\n');
   for (let index = 0; index < lines.length; index += 1) {

@@ -1,0 +1,7 @@
+# Runtime multi-schema: alpha client note, related to its own user
+model MsRtAlphaNote {
+  id Record @id
+  body String
+  authorId Record
+  author Relation @field(authorId) @model(MsRtAlphaUser)
+}

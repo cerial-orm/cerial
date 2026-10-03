@@ -1,0 +1,6 @@
+# Runtime multi-schema: beta client account
+model MsRtBetaAccount {
+  id Record @id
+  handle String @unique
+  balance Int @default(0)
+}
