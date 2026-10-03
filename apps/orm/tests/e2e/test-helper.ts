@@ -126,7 +126,7 @@ export function uniqueEmail(prefix = 'test'): string {
 export const tables = {
   // ── Core ──
   core: ['user', 'profile', 'post', 'tag', 'array_decorator_test'],
-  basics: ['user', 'profile', 'post', 'tag'],
+  basics: ['basics_user', 'basics_profile', 'basics_post', 'basics_tag'],
 
   // ── Relations ──
   oneToOneRequired: ['user_required', 'profile_required'],

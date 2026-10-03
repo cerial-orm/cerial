@@ -1,0 +1,43 @@
+# Same shape as test-basics.cerial, under its own names so the files that
+# exercise transactions, error classes and nested upserts never share a table
+# with the core CRUD files.
+
+model BasicsUser {
+  id Record @id
+  email Email @unique
+  name String
+  age Int? @nullable
+  isActive Bool
+  createdAt Date @createdAt
+  nicknames String[]
+  scores Int[]
+  loginDates Date[]
+  profileId Record? @nullable
+  profile Relation? @field(profileId) @model(BasicsProfile)
+  tagIds Record[]
+  tags Relation[] @field(tagIds) @model(BasicsTag)
+  posts Relation[] @model(BasicsPost)
+}
+
+model BasicsProfile {
+  id Record @id
+  bio String? @nullable
+  avatarUrl String?
+  userId Record? @nullable
+  user Relation? @field(userId) @model(BasicsUser)
+}
+
+model BasicsPost {
+  id Record @id
+  title String
+  content String?
+  authorId Record
+  author Relation @field(authorId) @model(BasicsUser)
+}
+
+model BasicsTag {
+  id Record @id
+  name String @unique
+  userIds Record[]
+  users Relation[] @field(userIds) @model(BasicsUser)
+}

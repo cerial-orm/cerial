@@ -39,12 +39,12 @@ describe('E2E Transactions: Select and Include', () => {
     const email = uniqueEmail('select');
     const name = `User ${uniqueId()}`;
 
-    const created = await client.db.User.create({
+    const created = await client.db.BasicsUser.create({
       data: { email, name, isActive: true },
     });
 
     const [user] = await client.$transaction([
-      client.db.User.findOne({
+      client.db.BasicsUser.findOne({
         where: { id: created.id },
         select: { id: true, name: true },
       }),
@@ -61,15 +61,15 @@ describe('E2E Transactions: Select and Include', () => {
     const email1 = uniqueEmail('select');
     const email2 = uniqueEmail('select');
 
-    await client.db.User.create({
+    await client.db.BasicsUser.create({
       data: { email: email1, name: `User ${uniqueId()}`, isActive: true },
     });
-    await client.db.User.create({
+    await client.db.BasicsUser.create({
       data: { email: email2, name: `User ${uniqueId()}`, isActive: false },
     });
 
     const [users] = await client.$transaction([
-      client.db.User.findMany({
+      client.db.BasicsUser.findMany({
         select: { id: true, email: true, isActive: true },
       }),
     ]);
@@ -87,11 +87,11 @@ describe('E2E Transactions: Select and Include', () => {
   test('findOne with include inside transaction', async () => {
     const email = uniqueEmail('include');
 
-    const profile = await client.db.Profile.create({
-      data: { bio: 'Test bio', userId: 'user:temp' },
+    const profile = await client.db.BasicsProfile.create({
+      data: { bio: 'Test bio', userId: 'basics_user:temp' },
     });
 
-    const created = await client.db.User.create({
+    const created = await client.db.BasicsUser.create({
       data: {
         email,
         name: `User ${uniqueId()}`,
@@ -101,7 +101,7 @@ describe('E2E Transactions: Select and Include', () => {
     });
 
     const [user] = await client.$transaction([
-      client.db.User.findOne({
+      client.db.BasicsUser.findOne({
         where: { id: created.id },
         include: { profile: true },
       }),
@@ -117,7 +117,7 @@ describe('E2E Transactions: Select and Include', () => {
     const name = `User ${uniqueId()}`;
 
     const [user] = await client.$transaction([
-      client.db.User.create({
+      client.db.BasicsUser.create({
         data: { email, name, isActive: true },
         select: { id: true, name: true },
       }),

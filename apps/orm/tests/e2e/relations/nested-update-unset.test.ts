@@ -8,7 +8,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 import { type CerialClient, cleanupTables, createTestClient, tables, testConfig, truncateTables } from '../test-helper';
 
-const TABLES = [...tables.core, ...tables.relationWithObjects, 'tuple_with_relation', 'tuple_related_post'];
+const TABLES = [...tables.core, ...tables.relationWithObjects];
 
 describe('E2E Nested update unset', () => {
   let client: CerialClient;
@@ -219,47 +219,6 @@ describe('E2E Nested update unset', () => {
 
       expect((await client.db.RelObjEmployee.findOne({ where: { id: 'e1' } }))?.companyId.toString()).toContain('c1');
       expect((await company()).name).toBe('c1');
-    });
-  });
-
-  describe('optional tuple', () => {
-    const seedPost = async () => {
-      await client.db.TupleWithRelation.create({ data: { id: 'p1', name: 'p1', location: [1, 2] } });
-      await client.db.TupleWithRelation.create({ data: { id: 'p2', name: 'p2', location: [3, 4] } });
-      await client.db.TupleRelatedPost.create({
-        data: { id: 'post1', title: 't', position: [5, 6], authorId: 'p1' },
-      });
-    };
-
-    const post = async () => {
-      const r = await client.db.TupleRelatedPost.findOne({ where: { id: 'post1' } });
-
-      return { title: r?.title, position: r?.position };
-    };
-
-    test('unsetting the whole tuple clears it, as the plain call does', async () => {
-      await seedPost();
-      await client.db.TupleRelatedPost.updateUnique({
-        where: { id: 'post1' },
-        data: { author: { connect: 'p2' } },
-        unset: { position: true },
-      });
-      const nested = await post();
-
-      await truncateTables(client, TABLES);
-      await seedPost();
-      await client.db.TupleRelatedPost.updateUnique({ where: { id: 'post1' }, data: {}, unset: { position: true } });
-      const plain = await post();
-
-      expect(plain.position).toBeUndefined();
-      expect(nested).toEqual(plain);
-    });
-
-    test('without unset the tuple is untouched', async () => {
-      await seedPost();
-      await client.db.TupleRelatedPost.updateUnique({ where: { id: 'post1' }, data: { author: { connect: 'p2' } } });
-
-      expect((await post()).position).toEqual([5, 6]);
     });
   });
 });

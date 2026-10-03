@@ -99,8 +99,10 @@ test file, removing all tables and running `migrate()`. Test files must not redo
 Concurrent `REMOVE TABLE` plus a full `migrate()` across files causes races: tables
 vanish while another file queries them.
 
-**No parallelism.** Many e2e files share tables through the `tables` registry in
-`tests/e2e/test-helper.ts`, so `--parallel` is unsafe. Never rely on file order.
+**No parallelism.** No table is written by two registry groups, but `--parallel` is
+still unsafe: every worker runs the preload, so they regenerate the client and run
+`migrate()` against each other (tried once, 270 failures), and files inside one group
+still share that group's tables. Never rely on file order.
 When adding a schema under `tests/e2e/schemas/`, register its tables in that
 registry, and in the matching `*_TABLES` constant if it belongs to a group.
 

@@ -47,10 +47,10 @@ describe('Hostile identifiers at the remaining key-path sites', () => {
 
   beforeEach(async () => {
     await truncateTables(client, ALL_TABLES);
-    await client.db.User.create({ data: { email: 'v@b.co', name: 'V', isActive: true } });
+    await client.db.BasicsUser.create({ data: { email: 'v@b.co', name: 'V', isActive: true } });
   });
 
-  const expectVictimSurvived = async () => expect(await client.db.User.count()).toBe(1);
+  const expectVictimSurvived = async () => expect(await client.db.BasicsUser.count()).toBe(1);
 
   test('where on a strict object array closure rejects the key and names it', async () => {
     await rejects(

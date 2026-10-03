@@ -31,11 +31,11 @@ describe('E2E Transactions: Array Mode Function Items', () => {
     const email = uniqueEmail();
 
     const [user, post] = await client.$transaction([
-      client.db.User.create({ data: { email, name: 'FnUser', isActive: true } }),
+      client.db.BasicsUser.create({ data: { email, name: 'FnUser', isActive: true } }),
       (prev) => {
         const created = prev[0];
 
-        return client.db.Post.create({ data: { title: 'FnPost', authorId: created.id } });
+        return client.db.BasicsPost.create({ data: { title: 'FnPost', authorId: created.id } });
       },
     ]);
 
@@ -44,9 +44,9 @@ describe('E2E Transactions: Array Mode Function Items', () => {
     expect(post).toBeDefined();
     expect(post).toHaveProperty('title', 'FnPost');
 
-    const users = await client.db.User.findMany();
+    const users = await client.db.BasicsUser.findMany();
     expect(users.length).toBe(1);
-    const posts = await client.db.Post.findMany();
+    const posts = await client.db.BasicsPost.findMany();
     expect(posts.length).toBe(1);
   });
 
@@ -54,7 +54,7 @@ describe('E2E Transactions: Array Mode Function Items', () => {
     const email = uniqueEmail();
 
     const results = await client.$transaction([
-      client.db.User.create({ data: { email, name: 'PlainVal', isActive: true } }),
+      client.db.BasicsUser.create({ data: { email, name: 'PlainVal', isActive: true } }),
       (prev) => {
         const created = prev[0];
 
@@ -72,7 +72,7 @@ describe('E2E Transactions: Array Mode Function Items', () => {
     let sideEffectRan = false;
 
     const results = await client.$transaction([
-      client.db.User.create({ data: { email, name: 'Void', isActive: true } }),
+      client.db.BasicsUser.create({ data: { email, name: 'Void', isActive: true } }),
       () => {
         sideEffectRan = true;
       },
@@ -87,11 +87,11 @@ describe('E2E Transactions: Array Mode Function Items', () => {
     const email = uniqueEmail();
 
     const results = await client.$transaction([
-      client.db.User.create({ data: { email, name: 'AsyncFn', isActive: true } }),
+      client.db.BasicsUser.create({ data: { email, name: 'AsyncFn', isActive: true } }),
       async (prev) => {
         const created = prev[0];
 
-        return client.db.Post.create({ data: { title: 'AsyncPost', authorId: created.id } });
+        return client.db.BasicsPost.create({ data: { title: 'AsyncPost', authorId: created.id } });
       },
     ]);
 
@@ -105,8 +105,8 @@ describe('E2E Transactions: Array Mode Function Items', () => {
     const email = uniqueEmail();
 
     const results = await client.$transaction([
-      client.db.User.create({ data: { email, name: 'SyncFn', isActive: true } }),
-      () => client.db.Post.findMany(),
+      client.db.BasicsUser.create({ data: { email, name: 'SyncFn', isActive: true } }),
+      () => client.db.BasicsPost.findMany(),
     ]);
 
     expect(results[0]).toBeDefined();
@@ -119,7 +119,7 @@ describe('E2E Transactions: Array Mode Function Items', () => {
     let receivedPrev: unknown[] = [];
 
     const results = await client.$transaction([
-      client.db.User.create({ data: { email, name: 'PrevCheck', isActive: true } }),
+      client.db.BasicsUser.create({ data: { email, name: 'PrevCheck', isActive: true } }),
       (prev) => {
         receivedPrev = [...prev];
         const created = prev[0];
@@ -143,7 +143,7 @@ describe('E2E Transactions: Array Mode Function Items', () => {
     await expect(
       (async () => {
         await client.$transaction([
-          client.db.User.create({ data: { email, name: 'Rollback', isActive: true } }),
+          client.db.BasicsUser.create({ data: { email, name: 'Rollback', isActive: true } }),
           () => {
             throw new Error('abort');
           },
@@ -151,7 +151,7 @@ describe('E2E Transactions: Array Mode Function Items', () => {
       })(),
     ).rejects.toThrow();
 
-    const users = await client.db.User.findMany({ where: { email } });
+    const users = await client.db.BasicsUser.findMany({ where: { email } });
     expect(users.length).toBe(0);
   });
 
@@ -160,13 +160,13 @@ describe('E2E Transactions: Array Mode Function Items', () => {
     const email2 = uniqueEmail();
 
     const results = await client.$transaction([
-      client.db.User.create({ data: { email: email1, name: 'Mix1', isActive: true } }),
+      client.db.BasicsUser.create({ data: { email: email1, name: 'Mix1', isActive: true } }),
       (prev) => {
         const user = prev[0];
 
-        return client.db.Post.create({ data: { title: 'MixPost', authorId: user.id } });
+        return client.db.BasicsPost.create({ data: { title: 'MixPost', authorId: user.id } });
       },
-      client.db.User.create({ data: { email: email2, name: 'Mix2', isActive: false } }),
+      client.db.BasicsUser.create({ data: { email: email2, name: 'Mix2', isActive: false } }),
       (prev) => prev.length,
     ]);
 
@@ -186,7 +186,7 @@ describe('E2E Transactions: Array Mode Function Items', () => {
       (prev) => {
         expect(prev).toEqual([]);
 
-        return client.db.User.create({ data: { email, name: 'First', isActive: true } });
+        return client.db.BasicsUser.create({ data: { email, name: 'First', isActive: true } });
       },
     ]);
 
@@ -222,7 +222,7 @@ describe('E2E Transactions: Array Mode Function Items', () => {
     const email = uniqueEmail();
 
     const results = await client.$transaction([
-      client.db.User.create({ data: { email, name: 'Accumulate', isActive: true } }),
+      client.db.BasicsUser.create({ data: { email, name: 'Accumulate', isActive: true } }),
       (_prev) => 42,
       (prev) => {
         const num = prev[1];
@@ -241,7 +241,7 @@ describe('E2E Transactions: Array Mode Function Items', () => {
     const email = uniqueEmail();
 
     const results = await client.$transaction([
-      client.db.User.create({ data: { email, name: 'Delayed', isActive: true } }),
+      client.db.BasicsUser.create({ data: { email, name: 'Delayed', isActive: true } }),
       async (prev) => {
         await new Promise((resolve) => setTimeout(resolve, 10));
         const user = prev[0];

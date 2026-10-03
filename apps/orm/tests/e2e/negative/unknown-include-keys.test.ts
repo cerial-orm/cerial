@@ -29,55 +29,55 @@ describe('Unknown include keys — negative cases', () => {
 
   test('findMany throws on a typo key and names key and model', () => {
     expect(() => {
-      client.db.User.findMany({
+      client.db.BasicsUser.findMany({
         // @ts-expect-error — 'psots' is not a field, testing runtime guard
         include: { psots: true },
       });
-    }).toThrow("Invalid include: Unknown field 'psots' on model User");
+    }).toThrow("Invalid include: Unknown field 'psots' on model BasicsUser");
   });
 
   test('findUnique throws on a typo key', () => {
     expect(() => {
-      client.db.User.findUnique({
-        where: { id: 'user:1' },
+      client.db.BasicsUser.findUnique({
+        where: { id: 'basics_user:1' },
         // @ts-expect-error — 'psots' is not a field, testing runtime guard
         include: { psots: true },
       });
-    }).toThrow("Invalid include: Unknown field 'psots' on model User");
+    }).toThrow("Invalid include: Unknown field 'psots' on model BasicsUser");
   });
 
   test('findMany throws when the key is a scalar field', () => {
     expect(() => {
-      client.db.User.findMany({
+      client.db.BasicsUser.findMany({
         // @ts-expect-error — 'name' is not a relation, testing runtime guard
         include: { name: true },
       });
-    }).toThrow("'name' on model User is a string field, not a relation");
+    }).toThrow("'name' on model BasicsUser is a string field, not a relation");
   });
 
   test('a bad key nested one level deep throws and names the nested model', () => {
     expect(() => {
-      client.db.User.findMany({
+      client.db.BasicsUser.findMany({
         // @ts-expect-error — 'athor' is not a field of Post, testing runtime guard
         include: { posts: { include: { athor: true } } },
       });
-    }).toThrow("Unknown field 'athor' on model Post");
+    }).toThrow("Unknown field 'athor' on model BasicsPost");
   });
 
   test('false and undefined values still opt out and the query runs', async () => {
-    const user = await client.db.User.create({ data: { email: 'a@b.co', name: 'A', isActive: true } });
-    await client.db.Post.create({ data: { title: 'T', authorId: user.id } });
+    const user = await client.db.BasicsUser.create({ data: { email: 'a@b.co', name: 'A', isActive: true } });
+    await client.db.BasicsPost.create({ data: { title: 'T', authorId: user.id } });
 
-    const result = await client.db.User.findMany({ include: { posts: false, profile: undefined } });
+    const result = await client.db.BasicsUser.findMany({ include: { posts: false, profile: undefined } });
     expect(result).toHaveLength(1);
     expect(result[0]).not.toHaveProperty('posts');
   });
 
   test('a valid include still returns the relation', async () => {
-    const user = await client.db.User.create({ data: { email: 'a@b.co', name: 'A', isActive: true } });
-    await client.db.Post.create({ data: { title: 'T', authorId: user.id } });
+    const user = await client.db.BasicsUser.create({ data: { email: 'a@b.co', name: 'A', isActive: true } });
+    await client.db.BasicsPost.create({ data: { title: 'T', authorId: user.id } });
 
-    const result = await client.db.User.findUnique({ where: { id: user.id }, include: { posts: true } });
+    const result = await client.db.BasicsUser.findUnique({ where: { id: user.id }, include: { posts: true } });
     expect(result!.posts).toHaveLength(1);
   });
 });

@@ -28,9 +28,9 @@ describe('Unsupported read options — negative cases', () => {
   });
 
   const seed = async () => {
-    await client.db.User.create({ data: { email: 'a@x.io', name: 'a', isActive: true } });
+    await client.db.BasicsUser.create({ data: { email: 'a@x.io', name: 'a', isActive: true } });
 
-    return client.db.User.create({ data: { email: 'b@x.io', name: 'b', isActive: true } });
+    return client.db.BasicsUser.create({ data: { email: 'b@x.io', name: 'b', isActive: true } });
   };
 
   const rejection = (run: () => unknown) => {
@@ -45,9 +45,9 @@ describe('Unsupported read options — negative cases', () => {
 
   const findOneCalls: Array<[string, () => unknown]> = [
     // @ts-expect-error negative test: findOne has no limit
-    ['limit', () => client.db.User.findOne({ limit: 1 })],
+    ['limit', () => client.db.BasicsUser.findOne({ limit: 1 })],
     // @ts-expect-error negative test: findOne has no offset
-    ['offset', () => client.db.User.findOne({ offset: 1 })],
+    ['offset', () => client.db.BasicsUser.findOne({ offset: 1 })],
   ];
 
   test.each(findOneCalls)('findOne rejects %s with a validation error naming it', (option, call) => {
@@ -61,11 +61,11 @@ describe('Unsupported read options — negative cases', () => {
 
   const findUniqueCalls: Array<[string, () => unknown]> = [
     // @ts-expect-error negative test: findUnique has no orderBy
-    ['orderBy', () => client.db.User.findUnique({ where: { email: 'a@x.io' }, orderBy: { name: 'asc' } })],
+    ['orderBy', () => client.db.BasicsUser.findUnique({ where: { email: 'a@x.io' }, orderBy: { name: 'asc' } })],
     // @ts-expect-error negative test: findUnique has no limit
-    ['limit', () => client.db.User.findUnique({ where: { email: 'a@x.io' }, limit: 1 })],
+    ['limit', () => client.db.BasicsUser.findUnique({ where: { email: 'a@x.io' }, limit: 1 })],
     // @ts-expect-error negative test: findUnique has no offset
-    ['offset', () => client.db.User.findUnique({ where: { email: 'a@x.io' }, offset: 1 })],
+    ['offset', () => client.db.BasicsUser.findUnique({ where: { email: 'a@x.io' }, offset: 1 })],
   ];
 
   test.each(findUniqueCalls)('findUnique rejects %s with a validation error naming it', (option, call) => {
@@ -80,15 +80,15 @@ describe('Unsupported read options — negative cases', () => {
   test('findOne still sorts and filters, and findUnique still finds', async () => {
     const b = await seed();
 
-    expect((await client.db.User.findOne({ orderBy: { name: 'desc' } }))?.name).toBe('b');
-    expect((await client.db.User.findOne({ where: { name: 'a' } }))?.name).toBe('a');
-    expect((await client.db.User.findUnique({ where: { id: b.id } }))?.name).toBe('b');
-    expect((await client.db.User.findUnique({ where: { email: 'a@x.io' } }))?.name).toBe('a');
+    expect((await client.db.BasicsUser.findOne({ orderBy: { name: 'desc' } }))?.name).toBe('b');
+    expect((await client.db.BasicsUser.findOne({ where: { name: 'a' } }))?.name).toBe('a');
+    expect((await client.db.BasicsUser.findUnique({ where: { id: b.id } }))?.name).toBe('b');
+    expect((await client.db.BasicsUser.findUnique({ where: { email: 'a@x.io' } }))?.name).toBe('a');
   });
 
   test('findMany keeps limit, offset and orderBy', async () => {
     await seed();
-    const rows = await client.db.User.findMany({ orderBy: { name: 'asc' }, limit: 1, offset: 1 });
+    const rows = await client.db.BasicsUser.findMany({ orderBy: { name: 'asc' }, limit: 1, offset: 1 });
 
     expect(rows.map((r) => r.name)).toEqual(['b']);
   });

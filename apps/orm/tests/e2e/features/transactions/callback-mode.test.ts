@@ -31,7 +31,7 @@ describe('E2E Transactions: Callback Mode', () => {
     const email = uniqueEmail();
 
     const user = await client.$transaction(async (tx) => {
-      return await tx.User.create({ data: { email, name: 'Alice', isActive: true } });
+      return await tx.BasicsUser.create({ data: { email, name: 'Alice', isActive: true } });
     });
 
     expect(user).toBeDefined();
@@ -40,7 +40,7 @@ describe('E2E Transactions: Callback Mode', () => {
     expect(user.isActive).toBe(true);
     expect(isCerialId(user.id)).toBe(true);
 
-    const found = await client.db.User.findOne({ where: { email } });
+    const found = await client.db.BasicsUser.findOne({ where: { email } });
     expect(found).toBeDefined();
     expect(found!.email).toBe(email);
   });
@@ -49,8 +49,8 @@ describe('E2E Transactions: Callback Mode', () => {
     const email = uniqueEmail();
 
     const result = await client.$transaction(async (tx) => {
-      const user = await tx.User.create({ data: { email, name: 'Bob', isActive: true } });
-      const post = await tx.Post.create({ data: { title: 'Hello World', authorId: user.id } });
+      const user = await tx.BasicsUser.create({ data: { email, name: 'Bob', isActive: true } });
+      const post = await tx.BasicsPost.create({ data: { title: 'Hello World', authorId: user.id } });
 
       return { user, post };
     });
@@ -60,15 +60,15 @@ describe('E2E Transactions: Callback Mode', () => {
     expect(result.post).toBeDefined();
     expect(result.post.title).toBe('Hello World');
 
-    const users = await client.db.User.findMany();
+    const users = await client.db.BasicsUser.findMany();
     expect(users.length).toBe(1);
-    const posts = await client.db.Post.findMany();
+    const posts = await client.db.BasicsPost.findMany();
     expect(posts.length).toBe(1);
   });
 
   test('callback return value is the $transaction result', async () => {
     const result = await client.$transaction(async (tx) => {
-      await tx.User.create({ data: { email: uniqueEmail(), name: 'Return Test', isActive: true } });
+      await tx.BasicsUser.create({ data: { email: uniqueEmail(), name: 'Return Test', isActive: true } });
 
       return 42;
     });
@@ -78,7 +78,7 @@ describe('E2E Transactions: Callback Mode', () => {
 
   test('callback can return complex objects', async () => {
     const result = await client.$transaction(async (tx) => {
-      const user = await tx.User.create({
+      const user = await tx.BasicsUser.create({
         data: { email: uniqueEmail(), name: 'Complex', isActive: true },
       });
 
@@ -95,12 +95,12 @@ describe('E2E Transactions: Callback Mode', () => {
 
     await expect(
       client.$transaction(async (tx) => {
-        await tx.User.create({ data: { email, name: 'Rollback Test', isActive: true } });
+        await tx.BasicsUser.create({ data: { email, name: 'Rollback Test', isActive: true } });
         throw new Error('Intentional rollback');
       }),
     ).rejects.toThrow('Intentional rollback');
 
-    const users = await client.db.User.findMany({ where: { email } });
+    const users = await client.db.BasicsUser.findMany({ where: { email } });
     expect(users.length).toBe(0);
   });
 
@@ -110,7 +110,7 @@ describe('E2E Transactions: Callback Mode', () => {
     await expect(
       client.$transaction(
         async (tx) => {
-          await tx.User.create({ data: { email, name: 'Timeout Test', isActive: true } });
+          await tx.BasicsUser.create({ data: { email, name: 'Timeout Test', isActive: true } });
           await new Promise((resolve) => setTimeout(resolve, 300));
 
           return 'should not reach';
@@ -119,7 +119,7 @@ describe('E2E Transactions: Callback Mode', () => {
       ),
     ).rejects.toThrow('Transaction timeout');
 
-    const users = await client.db.User.findMany({ where: { email } });
+    const users = await client.db.BasicsUser.findMany({ where: { email } });
     expect(users.length).toBe(0);
   });
 
@@ -128,13 +128,13 @@ describe('E2E Transactions: Callback Mode', () => {
     const email2 = uniqueEmail();
 
     const result = await client.$transaction(async (tx) => {
-      const user1 = await tx.User.create({ data: { email: email1, name: 'User One', isActive: true } });
-      const user2 = await tx.User.create({ data: { email: email2, name: 'User Two', isActive: false } });
-      const updated = await tx.User.updateMany({
+      const user1 = await tx.BasicsUser.create({ data: { email: email1, name: 'User One', isActive: true } });
+      const user2 = await tx.BasicsUser.create({ data: { email: email2, name: 'User Two', isActive: false } });
+      const updated = await tx.BasicsUser.updateMany({
         where: { email: email1 },
         data: { name: 'Updated User One' },
       });
-      const posts = await tx.Post.findMany();
+      const posts = await tx.BasicsPost.findMany();
 
       return { user1, user2, updated, posts };
     });
@@ -150,7 +150,7 @@ describe('E2E Transactions: Callback Mode', () => {
     const email = uniqueEmail();
 
     const user = await client.$transaction(async (tx) => {
-      return await tx.User.create({
+      return await tx.BasicsUser.create({
         data: {
           email,
           name: 'With Posts',
@@ -165,7 +165,7 @@ describe('E2E Transactions: Callback Mode', () => {
     expect(user).toBeDefined();
     expect(user.email).toBe(email);
 
-    const posts = await client.db.Post.findMany({ where: { authorId: user.id } });
+    const posts = await client.db.BasicsPost.findMany({ where: { authorId: user.id } });
     expect(posts.length).toBe(2);
     const titles = posts.map((p: { title: string }) => p.title).sort();
     expect(titles).toEqual(['Post 1', 'Post 2']);
@@ -175,7 +175,7 @@ describe('E2E Transactions: Callback Mode', () => {
     const email = uniqueEmail();
 
     const user = await client.$transaction(async (tx) => {
-      return await tx.User.create({
+      return await tx.BasicsUser.create({
         data: { email, name: 'Select Test', isActive: true },
         select: { name: true, email: true },
       });
@@ -191,14 +191,14 @@ describe('E2E Transactions: Callback Mode', () => {
   });
 
   test('count and exists inside callback', async () => {
-    await client.db.User.create({
+    await client.db.BasicsUser.create({
       data: { email: uniqueEmail(), name: 'Existing', isActive: true },
     });
 
     const result = await client.$transaction(async (tx) => {
-      const count = await tx.User.count();
-      const exists = await tx.User.exists();
-      const notExists = await tx.User.exists({ email: 'nonexistent@test.com' });
+      const count = await tx.BasicsUser.count();
+      const exists = await tx.BasicsUser.exists();
+      const notExists = await tx.BasicsUser.exists({ email: 'nonexistent@test.com' });
 
       return { count, exists, notExists };
     });
@@ -227,7 +227,7 @@ describe('E2E Transactions: Callback Mode', () => {
     const email = uniqueEmail();
 
     const user = await client.$transaction(async (tx) => {
-      const created = await tx.User.create({
+      const created = await tx.BasicsUser.create({
         data: { email, name: 'Async Test', isActive: true },
       });
       await new Promise((resolve) => setTimeout(resolve, 10));
@@ -238,7 +238,7 @@ describe('E2E Transactions: Callback Mode', () => {
     expect(user).toBeDefined();
     expect(user.email).toBe(email);
 
-    const found = await client.db.User.findMany();
+    const found = await client.db.BasicsUser.findMany();
     expect(found.length).toBe(1);
   });
 });

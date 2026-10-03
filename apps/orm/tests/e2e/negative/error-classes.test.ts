@@ -50,11 +50,11 @@ describe('E2E typed errors: generated client', () => {
 
   test('an unknown where field is an unknown-field error naming model, operation and field', async () => {
     // @ts-expect-error — unknown field, testing the runtime guard
-    const error = await caught(() => client.db.User.findMany({ where: { nmae: 'x' } }));
+    const error = await caught(() => client.db.BasicsUser.findMany({ where: { nmae: 'x' } }));
 
     expect(error).toBeInstanceOf(CerialUnknownFieldError);
     expect((error as CerialError).code).toBe('C2001');
-    expect((error as CerialError).model).toBe('User');
+    expect((error as CerialError).model).toBe('BasicsUser');
     expect((error as CerialError).operation).toBe('findMany');
     expect((error as CerialError).field).toBe('nmae');
     expect(error).not.toBeInstanceOf(CerialValidationError);
@@ -62,11 +62,11 @@ describe('E2E typed errors: generated client', () => {
 
   test('a missing required field is a validation error naming the field', async () => {
     // @ts-expect-error — required field omitted, testing the runtime guard
-    const error = await caught(() => client.db.User.create({ data: { isActive: true } }));
+    const error = await caught(() => client.db.BasicsUser.create({ data: { isActive: true } }));
 
     expect(error).toBeInstanceOf(CerialValidationError);
     expect((error as CerialError).code).toBe('C3000');
-    expect((error as CerialError).model).toBe('User');
+    expect((error as CerialError).model).toBe('BasicsUser');
     expect((error as CerialError).operation).toBe('create');
     expect(error).not.toBeInstanceOf(CerialUnknownFieldError);
   });
@@ -99,7 +99,7 @@ describe('E2E typed errors: generated client', () => {
 
     let error: unknown;
     try {
-      txn.User.findMany();
+      txn.BasicsUser.findMany();
     } catch (e) {
       error = e;
     }

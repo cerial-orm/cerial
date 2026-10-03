@@ -30,10 +30,10 @@ describe('E2E Transactions: Manual Mode', () => {
     const txn = await client.$transaction();
     const email = uniqueEmail();
 
-    await txn.User.create({ data: { email, name: 'Commit Test', isActive: true } });
+    await txn.BasicsUser.create({ data: { email, name: 'Commit Test', isActive: true } });
     await txn.commit();
 
-    const found = await client.db.User.findMany();
+    const found = await client.db.BasicsUser.findMany();
     expect(found.length).toBe(1);
     expect(found[0]?.email).toBe(email);
   });
@@ -42,10 +42,10 @@ describe('E2E Transactions: Manual Mode', () => {
     const txn = await client.$transaction();
     const email = uniqueEmail();
 
-    await txn.User.create({ data: { email, name: 'Cancel Test', isActive: true } });
+    await txn.BasicsUser.create({ data: { email, name: 'Cancel Test', isActive: true } });
     await txn.cancel();
 
-    const found = await client.db.User.findMany();
+    const found = await client.db.BasicsUser.findMany();
     expect(found.length).toBe(0);
   });
 
@@ -53,13 +53,13 @@ describe('E2E Transactions: Manual Mode', () => {
     const txn = await client.$transaction();
     const email = uniqueEmail();
 
-    const user = await txn.User.create({ data: { email, name: 'Author', isActive: true } });
-    await txn.Post.create({ data: { title: 'My Post', authorId: user.id } });
+    const user = await txn.BasicsUser.create({ data: { email, name: 'Author', isActive: true } });
+    await txn.BasicsPost.create({ data: { title: 'My Post', authorId: user.id } });
     await txn.commit();
 
-    const users = await client.db.User.findMany();
+    const users = await client.db.BasicsUser.findMany();
     expect(users.length).toBe(1);
-    const posts = await client.db.Post.findMany();
+    const posts = await client.db.BasicsPost.findMany();
     expect(posts.length).toBe(1);
     expect(posts[0]?.title).toBe('My Post');
   });
@@ -69,35 +69,35 @@ describe('E2E Transactions: Manual Mode', () => {
     const email1 = uniqueEmail();
     const email2 = uniqueEmail();
 
-    const _user1 = await txn.User.create({ data: { email: email1, name: 'User A', isActive: true } });
-    const _user2 = await txn.User.create({ data: { email: email2, name: 'User B', isActive: false } });
+    const _user1 = await txn.BasicsUser.create({ data: { email: email1, name: 'User A', isActive: true } });
+    const _user2 = await txn.BasicsUser.create({ data: { email: email2, name: 'User B', isActive: false } });
 
-    const found = await txn.User.findOne({ where: { email: email1 } });
+    const found = await txn.BasicsUser.findOne({ where: { email: email1 } });
     expect(found).toBeDefined();
     expect(found!.email).toBe(email1);
 
-    const all = await txn.User.findMany();
+    const all = await txn.BasicsUser.findMany();
     expect(all.length).toBe(2);
 
-    const updated = await txn.User.updateMany({
+    const updated = await txn.BasicsUser.updateMany({
       where: { email: email1 },
       data: { name: 'Updated A' },
     });
     expect(updated.length).toBe(1);
     expect(updated[0]!.name).toBe('Updated A');
 
-    const count = await txn.User.count();
+    const count = await txn.BasicsUser.count();
     expect(count).toBe(2);
 
-    const exists = await txn.User.exists({ email: email2 });
+    const exists = await txn.BasicsUser.exists({ email: email2 });
     expect(exists).toBe(true);
 
-    const deleted = await txn.User.deleteMany({ where: { email: email1 } });
+    const deleted = await txn.BasicsUser.deleteMany({ where: { email: email1 } });
     expect(deleted).toBe(1);
 
     await txn.commit();
 
-    const remaining = await client.db.User.findMany();
+    const remaining = await client.db.BasicsUser.findMany();
     expect(remaining.length).toBe(1);
     expect(remaining[0]?.email).toBe(email2);
   });
@@ -106,10 +106,10 @@ describe('E2E Transactions: Manual Mode', () => {
     const txn = await client.$transaction();
     const email = uniqueEmail();
 
-    await client.db.User.create({ data: { email, name: 'Txn Option', isActive: true }, txn });
+    await client.db.BasicsUser.create({ data: { email, name: 'Txn Option', isActive: true }, txn });
     await txn.commit();
 
-    const found = await client.db.User.findMany();
+    const found = await client.db.BasicsUser.findMany();
     expect(found.length).toBe(1);
     expect(found[0]?.email).toBe(email);
   });
@@ -118,29 +118,29 @@ describe('E2E Transactions: Manual Mode', () => {
     const txn = await client.$transaction();
     const email = uniqueEmail();
 
-    await client.db.User.create({ data: { email, name: 'Option User', isActive: true }, txn });
+    await client.db.BasicsUser.create({ data: { email, name: 'Option User', isActive: true }, txn });
 
-    const all = await client.db.User.findMany({ txn });
+    const all = await client.db.BasicsUser.findMany({ txn });
     expect(all.length).toBe(1);
 
-    await client.db.User.updateMany({
+    await client.db.BasicsUser.updateMany({
       where: { email },
       data: { name: 'Updated Option' },
       txn,
     });
 
-    const count = await client.db.User.count(undefined, txn);
+    const count = await client.db.BasicsUser.count(undefined, txn);
     expect(count).toBe(1);
 
-    const exists = await client.db.User.exists({ email }, txn);
+    const exists = await client.db.BasicsUser.exists({ email }, txn);
     expect(exists).toBe(true);
 
-    const deleted = await client.db.User.deleteMany({ where: { email }, txn });
+    const deleted = await client.db.BasicsUser.deleteMany({ where: { email }, txn });
     expect(deleted).toBe(1);
 
     await txn.commit();
 
-    const remaining = await client.db.User.findMany();
+    const remaining = await client.db.BasicsUser.findMany();
     expect(remaining.length).toBe(0);
   });
 
@@ -149,22 +149,22 @@ describe('E2E Transactions: Manual Mode', () => {
     const email1 = uniqueEmail();
     const email2 = uniqueEmail();
 
-    await txn.User.create({ data: { email: email1, name: 'Proxy User', isActive: true } });
-    await client.db.User.create({ data: { email: email2, name: 'Option User', isActive: true }, txn });
+    await txn.BasicsUser.create({ data: { email: email1, name: 'Proxy User', isActive: true } });
+    await client.db.BasicsUser.create({ data: { email: email2, name: 'Option User', isActive: true }, txn });
     await txn.commit();
 
-    const all = await client.db.User.findMany();
+    const all = await client.db.BasicsUser.findMany();
     expect(all.length).toBe(2);
   });
 
   test('mixed: both patterns cancel — both rolled back', async () => {
     const txn = await client.$transaction();
 
-    await txn.User.create({ data: { email: uniqueEmail(), name: 'Proxy', isActive: true } });
-    await client.db.User.create({ data: { email: uniqueEmail(), name: 'Option', isActive: true }, txn });
+    await txn.BasicsUser.create({ data: { email: uniqueEmail(), name: 'Proxy', isActive: true } });
+    await client.db.BasicsUser.create({ data: { email: uniqueEmail(), name: 'Option', isActive: true }, txn });
     await txn.cancel();
 
-    const all = await client.db.User.findMany();
+    const all = await client.db.BasicsUser.findMany();
     expect(all.length).toBe(0);
   });
 
@@ -173,7 +173,7 @@ describe('E2E Transactions: Manual Mode', () => {
     await txn.commit();
 
     expect(() => {
-      txn.User.create({ data: { email: uniqueEmail(), name: 'Stale', isActive: true } });
+      txn.BasicsUser.create({ data: { email: uniqueEmail(), name: 'Stale', isActive: true } });
     }).toThrow('Transaction already ended');
   });
 
@@ -182,7 +182,7 @@ describe('E2E Transactions: Manual Mode', () => {
     await txn.cancel();
 
     expect(() => {
-      txn.User.create({ data: { email: uniqueEmail(), name: 'Stale', isActive: true } });
+      txn.BasicsUser.create({ data: { email: uniqueEmail(), name: 'Stale', isActive: true } });
     }).toThrow('Transaction already ended');
   });
 
@@ -192,7 +192,7 @@ describe('E2E Transactions: Manual Mode', () => {
 
     await expect(
       (async () => {
-        await client.db.User.create({
+        await client.db.BasicsUser.create({
           data: { email: uniqueEmail(), name: 'Stale', isActive: true },
           txn,
         });
@@ -204,14 +204,14 @@ describe('E2E Transactions: Manual Mode', () => {
     const txn = await client.$transaction();
     const email = uniqueEmail();
 
-    await txn.User.create({ data: { email, name: 'Isolated', isActive: true } });
+    await txn.BasicsUser.create({ data: { email, name: 'Isolated', isActive: true } });
 
-    const outsideView = await client.db.User.findMany({ where: { email } });
+    const outsideView = await client.db.BasicsUser.findMany({ where: { email } });
     expect(outsideView.length).toBe(0);
 
     await txn.commit();
 
-    const afterCommit = await client.db.User.findMany({ where: { email } });
+    const afterCommit = await client.db.BasicsUser.findMany({ where: { email } });
     expect(afterCommit.length).toBe(1);
     expect(afterCommit[0]?.email).toBe(email);
   });
@@ -220,7 +220,7 @@ describe('E2E Transactions: Manual Mode', () => {
     const txn = await client.$transaction();
     const email = uniqueEmail();
 
-    await client.db.User.create({
+    await client.db.BasicsUser.create({
       data: {
         email,
         name: 'Nested Author',
@@ -233,9 +233,9 @@ describe('E2E Transactions: Manual Mode', () => {
     });
     await txn.commit();
 
-    const users = await client.db.User.findMany({ where: { email } });
+    const users = await client.db.BasicsUser.findMany({ where: { email } });
     expect(users.length).toBe(1);
-    const posts = await client.db.Post.findMany({ where: { authorId: users[0]!.id } });
+    const posts = await client.db.BasicsPost.findMany({ where: { authorId: users[0]!.id } });
     expect(posts.length).toBe(2);
   });
 
@@ -243,7 +243,7 @@ describe('E2E Transactions: Manual Mode', () => {
     const txn = await client.$transaction();
     const email = uniqueEmail();
 
-    const user = await txn.User.create({
+    const user = await txn.BasicsUser.create({
       data: { email, name: 'Select Proxy', isActive: true },
       select: { name: true, email: true },
     });
@@ -260,7 +260,7 @@ describe('E2E Transactions: Manual Mode', () => {
     const txn = await client.$transaction();
     const email = uniqueEmail();
 
-    const user = await client.db.User.create({
+    const user = await client.db.BasicsUser.create({
       data: { email, name: 'Select Option', isActive: true },
       select: { name: true, email: true },
       txn,
@@ -278,16 +278,16 @@ describe('E2E Transactions: Manual Mode', () => {
     const txn = await client.$transaction();
     const email = uniqueEmail();
 
-    const user = await txn.User.create({ data: { email, name: 'Multi', isActive: true } });
-    await txn.Post.create({ data: { title: 'Post A', authorId: user.id } });
-    await txn.Tag.create({ data: { name: `tag-${email}` } });
+    const user = await txn.BasicsUser.create({ data: { email, name: 'Multi', isActive: true } });
+    await txn.BasicsPost.create({ data: { title: 'Post A', authorId: user.id } });
+    await txn.BasicsTag.create({ data: { name: `tag-${email}` } });
     await txn.commit();
 
-    const users = await client.db.User.findMany();
+    const users = await client.db.BasicsUser.findMany();
     expect(users.length).toBe(1);
-    const posts = await client.db.Post.findMany();
+    const posts = await client.db.BasicsPost.findMany();
     expect(posts.length).toBe(1);
-    const tags = await client.db.Tag.findMany({ where: { name: `tag-${email}` } });
+    const tags = await client.db.BasicsTag.findMany({ where: { name: `tag-${email}` } });
     expect(tags.length).toBe(1);
   });
 

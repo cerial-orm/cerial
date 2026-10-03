@@ -31,44 +31,44 @@ describe('E2E Nested upsert in $transaction array mode', () => {
 
   const createData = { name: 'n', email: 'n@x.io', isActive: true };
 
-  const tag = (name = 't1') => client.db.Tag.create({ data: { name } });
+  const tag = (name = 't1') => client.db.BasicsTag.create({ data: { name } });
 
   describe('create half', () => {
     test('id in where: creates the named record and links the relation', async () => {
       const t = await tag();
       const [returned] = await client.$transaction([
-        client.db.User.upsert({
+        client.db.BasicsUser.upsert({
           where: { id: 'arrcreate' },
           create: { ...createData, tags: { connect: [t.id] } },
           update: { name: 'u' },
         }),
       ]);
 
-      expect(String(returned?.id)).toBe('user:arrcreate');
-      const row = await client.db.User.findOne({ where: { id: 'arrcreate' } });
+      expect(String(returned?.id)).toBe('basics_user:arrcreate');
+      const row = await client.db.BasicsUser.findOne({ where: { id: 'arrcreate' } });
       expect(row?.name).toBe('n');
       expect(row?.tagIds.map(String)).toEqual([String(t.id)]);
-      expect((await client.db.User.findMany()).length).toBe(1);
+      expect((await client.db.BasicsUser.findMany()).length).toBe(1);
     });
 
     test('id in where: syncs the reverse side of the n-n relation', async () => {
       const t = await tag();
       await client.$transaction([
-        client.db.User.upsert({
+        client.db.BasicsUser.upsert({
           where: { id: 'arrsync' },
           create: { ...createData, tags: { connect: [t.id] } },
           update: { name: 'u' },
         }),
       ]);
 
-      const reloaded = await client.db.Tag.findOne({ where: { id: t.id } });
-      expect(reloaded?.userIds.map(String)).toEqual(['user:arrsync']);
+      const reloaded = await client.db.BasicsTag.findOne({ where: { id: t.id } });
+      expect(reloaded?.userIds.map(String)).toEqual(['basics_user:arrsync']);
     });
 
     test('unique field in where: creates the row and links the relation', async () => {
       const t = await tag();
       const [returned] = await client.$transaction([
-        client.db.User.upsert({
+        client.db.BasicsUser.upsert({
           where: { email: 'n@x.io' },
           create: { ...createData, tags: { connect: [t.id] } },
           update: { name: 'u' },
@@ -76,45 +76,45 @@ describe('E2E Nested upsert in $transaction array mode', () => {
       ]);
 
       expect(returned?.email).toBe('n@x.io');
-      const row = await client.db.User.findOne({ where: { email: 'n@x.io' } });
+      const row = await client.db.BasicsUser.findOne({ where: { email: 'n@x.io' } });
       expect(String(row?.id)).toBe(String(returned?.id));
       expect(row?.tagIds.map(String)).toEqual([String(t.id)]);
     });
 
     test('a forward nested create makes the related row and stores its FK', async () => {
       const [returned] = await client.$transaction([
-        client.db.User.upsert({
+        client.db.BasicsUser.upsert({
           where: { id: 'arrfk' },
           create: { ...createData, profile: { create: { bio: 'b' } } },
           update: { name: 'u' },
         }),
       ]);
 
-      expect(String(returned?.id)).toBe('user:arrfk');
-      const row = await client.db.User.findOne({ where: { id: 'arrfk' } });
-      const profile = await client.db.Profile.findOne({ where: { bio: 'b' } });
+      expect(String(returned?.id)).toBe('basics_user:arrfk');
+      const row = await client.db.BasicsUser.findOne({ where: { id: 'arrfk' } });
+      const profile = await client.db.BasicsProfile.findOne({ where: { bio: 'b' } });
       expect(profile).not.toBeNull();
       expect(String(row?.profileId)).toBe(String(profile?.id));
     });
 
     test('a nested create on an array relation makes the tag and links both sides', async () => {
       await client.$transaction([
-        client.db.User.upsert({
+        client.db.BasicsUser.upsert({
           where: { id: 'arrtagcreate' },
           create: { ...createData, tags: { create: [{ name: 'fresh' }] } },
           update: { name: 'u' },
         }),
       ]);
 
-      const fresh = await client.db.Tag.findOne({ where: { name: 'fresh' } });
-      const row = await client.db.User.findOne({ where: { id: 'arrtagcreate' } });
+      const fresh = await client.db.BasicsTag.findOne({ where: { name: 'fresh' } });
+      const row = await client.db.BasicsUser.findOne({ where: { id: 'arrtagcreate' } });
       expect(row?.tagIds.map(String)).toEqual([String(fresh?.id)]);
-      expect(fresh?.userIds.map(String)).toEqual(['user:arrtagcreate']);
+      expect(fresh?.userIds.map(String)).toEqual(['basics_user:arrtagcreate']);
     });
 
     test('matches the same call outside a transaction', async () => {
       const t = await tag();
-      const outside = await client.db.User.upsert({
+      const outside = await client.db.BasicsUser.upsert({
         where: { id: 'arrsame' },
         create: { ...createData, tags: { connect: [t.id] } },
         update: { name: 'u' },
@@ -122,7 +122,7 @@ describe('E2E Nested upsert in $transaction array mode', () => {
       await truncateTables(client, TABLES);
       const t2 = await tag();
       const [inside] = await client.$transaction([
-        client.db.User.upsert({
+        client.db.BasicsUser.upsert({
           where: { id: 'arrsame' },
           create: { ...createData, tags: { connect: [t2.id] } },
           update: { name: 'u' },
@@ -139,38 +139,38 @@ describe('E2E Nested upsert in $transaction array mode', () => {
   describe('update half', () => {
     test('id in where: writes to the existing record, links the relation, creates no second row', async () => {
       const t = await tag();
-      await client.db.User.create({ data: { ...createData, id: 'arrexisting' } });
+      await client.db.BasicsUser.create({ data: { ...createData, id: 'arrexisting' } });
 
       const [returned] = await client.$transaction([
-        client.db.User.upsert({
+        client.db.BasicsUser.upsert({
           where: { id: 'arrexisting' },
           create: { ...createData, name: 'should-not-be-used' },
           update: { name: 'u', tags: { connect: [t.id] } },
         }),
       ]);
 
-      expect(String(returned?.id)).toBe('user:arrexisting');
-      const all = await client.db.User.findMany();
+      expect(String(returned?.id)).toBe('basics_user:arrexisting');
+      const all = await client.db.BasicsUser.findMany();
       expect(all.length).toBe(1);
       expect(all[0]?.name).toBe('u');
       expect(all[0]?.tagIds.map(String)).toEqual([String(t.id)]);
-      const reloaded = await client.db.Tag.findOne({ where: { id: t.id } });
-      expect(reloaded?.userIds.map(String)).toEqual(['user:arrexisting']);
+      const reloaded = await client.db.BasicsTag.findOne({ where: { id: t.id } });
+      expect(reloaded?.userIds.map(String)).toEqual(['basics_user:arrexisting']);
     });
 
     test('unique field in where: updates the matching row and links the relation', async () => {
       const t = await tag();
-      await client.db.User.create({ data: createData });
+      await client.db.BasicsUser.create({ data: createData });
 
       await client.$transaction([
-        client.db.User.upsert({
+        client.db.BasicsUser.upsert({
           where: { email: 'n@x.io' },
           create: { ...createData, name: 'should-not-be-used' },
           update: { name: 'u', tags: { connect: [t.id] } },
         }),
       ]);
 
-      const all = await client.db.User.findMany();
+      const all = await client.db.BasicsUser.findMany();
       expect(all.length).toBe(1);
       expect(all[0]?.name).toBe('u');
       expect(all[0]?.tagIds.map(String)).toEqual([String(t.id)]);
@@ -178,35 +178,35 @@ describe('E2E Nested upsert in $transaction array mode', () => {
 
     test('a disconnect removes the link on both sides', async () => {
       const t = await tag();
-      await client.db.User.create({ data: { ...createData, id: 'arrdisc', tags: { connect: [t.id] } } });
+      await client.db.BasicsUser.create({ data: { ...createData, id: 'arrdisc', tags: { connect: [t.id] } } });
 
       await client.$transaction([
-        client.db.User.upsert({
+        client.db.BasicsUser.upsert({
           where: { id: 'arrdisc' },
           create: createData,
           update: { tags: { disconnect: [t.id] } },
         }),
       ]);
 
-      const row = await client.db.User.findOne({ where: { id: 'arrdisc' } });
+      const row = await client.db.BasicsUser.findOne({ where: { id: 'arrdisc' } });
       expect(row?.tagIds).toEqual([]);
-      const reloaded = await client.db.Tag.findOne({ where: { id: t.id } });
+      const reloaded = await client.db.BasicsTag.findOne({ where: { id: t.id } });
       expect(reloaded?.userIds).toEqual([]);
     });
 
     test('a nested op in the create half is not applied when the record exists', async () => {
       const t = await tag();
-      await client.db.User.create({ data: { ...createData, id: 'arrskip' } });
+      await client.db.BasicsUser.create({ data: { ...createData, id: 'arrskip' } });
 
       await client.$transaction([
-        client.db.User.upsert({
+        client.db.BasicsUser.upsert({
           where: { id: 'arrskip' },
           create: { ...createData, tags: { connect: [t.id] } },
           update: { name: 'u' },
         }),
       ]);
 
-      const row = await client.db.User.findOne({ where: { id: 'arrskip' } });
+      const row = await client.db.BasicsUser.findOne({ where: { id: 'arrskip' } });
       expect(row?.name).toBe('u');
       expect(row?.tagIds).toEqual([]);
     });
@@ -215,24 +215,24 @@ describe('E2E Nested upsert in $transaction array mode', () => {
       const t = await tag();
 
       await client.$transaction([
-        client.db.User.upsert({
+        client.db.BasicsUser.upsert({
           where: { id: 'arrnoupdate' },
           create: createData,
           update: { name: 'u', tags: { connect: [t.id] } },
         }),
       ]);
 
-      const row = await client.db.User.findOne({ where: { id: 'arrnoupdate' } });
+      const row = await client.db.BasicsUser.findOne({ where: { id: 'arrnoupdate' } });
       expect(row?.name).toBe('n');
       expect(row?.tagIds).toEqual([]);
     });
 
     test('an existing row with no update is returned unchanged', async () => {
       const t = await tag();
-      await client.db.User.create({ data: { ...createData, id: 'arrnoop' } });
+      await client.db.BasicsUser.create({ data: { ...createData, id: 'arrnoop' } });
 
       const [returned] = await client.$transaction([
-        client.db.User.upsert({
+        client.db.BasicsUser.upsert({
           where: { id: 'arrnoop' },
           create: { ...createData, tags: { connect: [t.id] } },
         }),
@@ -247,7 +247,7 @@ describe('E2E Nested upsert in $transaction array mode', () => {
     test('return: before is null for a created row, and the row is still created', async () => {
       const t = await tag();
       const [returned] = await client.$transaction([
-        client.db.User.upsert({
+        client.db.BasicsUser.upsert({
           where: { id: 'arrbeforenew' },
           create: { ...createData, tags: { connect: [t.id] } },
           update: { name: 'u' },
@@ -256,16 +256,16 @@ describe('E2E Nested upsert in $transaction array mode', () => {
       ]);
 
       expect(returned).toBeNull();
-      const row = await client.db.User.findOne({ where: { id: 'arrbeforenew' } });
+      const row = await client.db.BasicsUser.findOne({ where: { id: 'arrbeforenew' } });
       expect(row?.tagIds.map(String)).toEqual([String(t.id)]);
     });
 
     test('return: before is the old row for an existing one, and the write still lands', async () => {
       const t = await tag();
-      await client.db.User.create({ data: { ...createData, id: 'arrbeforeold' } });
+      await client.db.BasicsUser.create({ data: { ...createData, id: 'arrbeforeold' } });
 
       const [returned] = await client.$transaction([
-        client.db.User.upsert({
+        client.db.BasicsUser.upsert({
           where: { id: 'arrbeforeold' },
           create: createData,
           update: { name: 'u', tags: { connect: [t.id] } },
@@ -275,7 +275,7 @@ describe('E2E Nested upsert in $transaction array mode', () => {
 
       expect(returned?.name).toBe('n');
       expect(returned?.tagIds).toEqual([]);
-      const row = await client.db.User.findOne({ where: { id: 'arrbeforeold' } });
+      const row = await client.db.BasicsUser.findOne({ where: { id: 'arrbeforeold' } });
       expect(row?.name).toBe('u');
       expect(row?.tagIds.map(String)).toEqual([String(t.id)]);
     });
@@ -283,7 +283,7 @@ describe('E2E Nested upsert in $transaction array mode', () => {
     test('return: true is true for both halves', async () => {
       const t = await tag();
       const [created] = await client.$transaction([
-        client.db.User.upsert({
+        client.db.BasicsUser.upsert({
           where: { id: 'arrtrue' },
           create: { ...createData, tags: { connect: [t.id] } },
           update: { name: 'u' },
@@ -291,7 +291,7 @@ describe('E2E Nested upsert in $transaction array mode', () => {
         }),
       ]);
       const [updated] = await client.$transaction([
-        client.db.User.upsert({
+        client.db.BasicsUser.upsert({
           where: { id: 'arrtrue' },
           create: createData,
           update: { tags: { disconnect: [t.id] } },
@@ -307,7 +307,7 @@ describe('E2E Nested upsert in $transaction array mode', () => {
       const t = await tag();
       const run = () =>
         client.$transaction([
-          client.db.User.upsert({
+          client.db.BasicsUser.upsert({
             where: { id: 'arrselect' },
             create: { ...createData, tags: { connect: [t.id] } },
             update: { name: 'u', tags: { disconnect: [t.id] } },
@@ -326,7 +326,7 @@ describe('E2E Nested upsert in $transaction array mode', () => {
     test('include loads the linked relation on the created row', async () => {
       const t = await tag();
       const [returned] = await client.$transaction([
-        client.db.User.upsert({
+        client.db.BasicsUser.upsert({
           where: { id: 'arrinclude' },
           create: { ...createData, tags: { connect: [t.id] } },
           update: { name: 'u' },
@@ -342,17 +342,17 @@ describe('E2E Nested upsert in $transaction array mode', () => {
     test('two items both commit', async () => {
       const t = await tag();
       const [upserted, created] = await client.$transaction([
-        client.db.User.upsert({
+        client.db.BasicsUser.upsert({
           where: { id: 'arrpair' },
           create: { ...createData, tags: { connect: [t.id] } },
           update: { name: 'u' },
         }),
-        client.db.Tag.create({ data: { name: 'second' } }),
+        client.db.BasicsTag.create({ data: { name: 'second' } }),
       ]);
 
-      expect(String(upserted?.id)).toBe('user:arrpair');
+      expect(String(upserted?.id)).toBe('basics_user:arrpair');
       expect(created?.name).toBe('second');
-      const row = await client.db.User.findOne({ where: { id: 'arrpair' } });
+      const row = await client.db.BasicsUser.findOne({ where: { id: 'arrpair' } });
       expect(row?.tagIds.map(String)).toEqual([String(t.id)]);
     });
 
@@ -360,20 +360,20 @@ describe('E2E Nested upsert in $transaction array mode', () => {
       const a = await tag('a');
       const b = await tag('b');
       await client.$transaction([
-        client.db.User.upsert({
+        client.db.BasicsUser.upsert({
           where: { id: 'arrone' },
           create: { ...createData, email: 'one@x.io', tags: { connect: [a.id] } },
           update: { name: 'u' },
         }),
-        client.db.User.upsert({
+        client.db.BasicsUser.upsert({
           where: { id: 'arrtwo' },
           create: { ...createData, email: 'two@x.io', tags: { connect: [b.id] } },
           update: { name: 'u' },
         }),
       ]);
 
-      const one = await client.db.User.findOne({ where: { id: 'arrone' } });
-      const two = await client.db.User.findOne({ where: { id: 'arrtwo' } });
+      const one = await client.db.BasicsUser.findOne({ where: { id: 'arrone' } });
+      const two = await client.db.BasicsUser.findOne({ where: { id: 'arrtwo' } });
       expect(one?.tagIds.map(String)).toEqual([String(a.id)]);
       expect(two?.tagIds.map(String)).toEqual([String(b.id)]);
     });
@@ -383,46 +383,46 @@ describe('E2E Nested upsert in $transaction array mode', () => {
     test('callback mode: create half links, update half links', async () => {
       const t = await tag();
       await client.$transaction(async (tx) => {
-        await tx.User.upsert({
+        await tx.BasicsUser.upsert({
           where: { id: 'cbboth' },
           create: { ...createData, tags: { connect: [t.id] } },
           update: { name: 'u' },
         });
       });
       await client.$transaction(async (tx) => {
-        await tx.User.upsert({
+        await tx.BasicsUser.upsert({
           where: { id: 'cbboth' },
           create: createData,
           update: { tags: { disconnect: [t.id] } },
         });
       });
 
-      const row = await client.db.User.findOne({ where: { id: 'cbboth' } });
+      const row = await client.db.BasicsUser.findOne({ where: { id: 'cbboth' } });
       expect(row?.name).toBe('n');
       expect(row?.tagIds).toEqual([]);
     });
 
     test('manual mode: update half links on commit and not on cancel', async () => {
       const t = await tag();
-      await client.db.User.create({ data: { ...createData, id: 'manualupd' } });
+      await client.db.BasicsUser.create({ data: { ...createData, id: 'manualupd' } });
 
       const cancelled = await client.$transaction();
-      await cancelled.User.upsert({
+      await cancelled.BasicsUser.upsert({
         where: { id: 'manualupd' },
         create: createData,
         update: { tags: { connect: [t.id] } },
       });
       await cancelled.cancel();
-      expect((await client.db.User.findOne({ where: { id: 'manualupd' } }))?.tagIds).toEqual([]);
+      expect((await client.db.BasicsUser.findOne({ where: { id: 'manualupd' } }))?.tagIds).toEqual([]);
 
       const committed = await client.$transaction();
-      await committed.User.upsert({
+      await committed.BasicsUser.upsert({
         where: { id: 'manualupd' },
         create: createData,
         update: { tags: { connect: [t.id] } },
       });
       await committed.commit();
-      expect((await client.db.User.findOne({ where: { id: 'manualupd' } }))?.tagIds.map(String)).toEqual([
+      expect((await client.db.BasicsUser.findOne({ where: { id: 'manualupd' } }))?.tagIds.map(String)).toEqual([
         String(t.id),
       ]);
     });
@@ -433,17 +433,17 @@ describe('E2E Nested upsert in $transaction array mode', () => {
       await expect(
         (async () => {
           await client.$transaction([
-            client.db.User.upsert({
+            client.db.BasicsUser.upsert({
               where: { id: 'arrmissing' },
-              create: { ...createData, tags: { connect: ['tag:nope'] } },
+              create: { ...createData, tags: { connect: ['basics_tag:nope'] } },
               update: { name: 'u' },
             }),
           ]);
         })(),
       ).rejects.toThrow();
 
-      expect(await client.db.User.findOne({ where: { id: 'arrmissing' } })).toBeNull();
-      expect((await client.db.User.findMany()).length).toBe(0);
+      expect(await client.db.BasicsUser.findOne({ where: { id: 'arrmissing' } })).toBeNull();
+      expect((await client.db.BasicsUser.findMany()).length).toBe(0);
     });
 
     test('a failing later item rolls back the nested upsert before it', async () => {
@@ -451,18 +451,18 @@ describe('E2E Nested upsert in $transaction array mode', () => {
       await expect(
         (async () => {
           await client.$transaction([
-            client.db.User.upsert({
+            client.db.BasicsUser.upsert({
               where: { id: 'arrrollback' },
               create: { ...createData, tags: { connect: [t.id] } },
               update: { name: 'u' },
             }),
-            client.db.Tag.create({ data: { name: 't1' } }),
+            client.db.BasicsTag.create({ data: { name: 't1' } }),
           ]);
         })(),
       ).rejects.toThrow();
 
-      expect(await client.db.User.findOne({ where: { id: 'arrrollback' } })).toBeNull();
-      const reloaded = await client.db.Tag.findOne({ where: { id: t.id } });
+      expect(await client.db.BasicsUser.findOne({ where: { id: 'arrrollback' } })).toBeNull();
+      const reloaded = await client.db.BasicsTag.findOne({ where: { id: t.id } });
       expect(reloaded?.userIds).toEqual([]);
     });
   });

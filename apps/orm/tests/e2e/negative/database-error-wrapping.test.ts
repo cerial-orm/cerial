@@ -63,7 +63,7 @@ describe('Database error wrapping', () => {
   const malformedModel = (db: Client) => {
     const surreal = db.getSurreal();
     if (!surreal) throw new Error('client is not connected');
-    const metadata = client.db.User.getMetadata();
+    const metadata = client.db.BasicsUser.getMetadata();
 
     return new Model(surreal, { ...metadata, tableName: 'not a table!' }, undefined, {
       includeStatementInErrors: db === verbose,
@@ -75,34 +75,34 @@ describe('Database error wrapping', () => {
 
     expect(error).toBeInstanceOf(CerialDatabaseError);
     const wrapped = error as CerialDatabaseError;
-    expect(wrapped.model).toBe('User');
+    expect(wrapped.model).toBe('BasicsUser');
     expect(wrapped.operation).toBe('findMany');
-    expect(wrapped.message).toContain('findMany on User');
+    expect(wrapped.message).toContain('findMany on BasicsUser');
     expect(wrapped.cause).toBeInstanceOf(Error);
     expect(wrapped.cause).not.toBeInstanceOf(CerialDatabaseError);
   });
 
   test('a constraint violation from a write is wrapped with its operation', async () => {
-    await client.db.User.create({ data });
-    const error = await caught(() => client.db.User.create({ data }));
+    await client.db.BasicsUser.create({ data });
+    const error = await caught(() => client.db.BasicsUser.create({ data }));
 
     expect(error).toBeInstanceOf(CerialUniqueConstraintError);
-    expect((error as CerialUniqueConstraintError).model).toBe('User');
+    expect((error as CerialUniqueConstraintError).model).toBe('BasicsUser');
     expect((error as CerialUniqueConstraintError).operation).toBe('create');
     expect(((error as CerialUniqueConstraintError).cause as Error).message).toContain('already contains');
   });
 
   test('the statement is absent by default', async () => {
-    await client.db.User.create({ data });
-    const error = (await caught(() => client.db.User.create({ data }))) as CerialUniqueConstraintError;
+    await client.db.BasicsUser.create({ data });
+    const error = (await caught(() => client.db.BasicsUser.create({ data }))) as CerialUniqueConstraintError;
 
     expect(error.statement).toBeUndefined();
     expect(JSON.stringify(error.message)).not.toContain('CREATE');
   });
 
   test('the statement and its bound values are attached when the client opts in', async () => {
-    await verbose.db.User.create({ data });
-    const error = (await caught(() => verbose.db.User.create({ data }))) as CerialUniqueConstraintError;
+    await verbose.db.BasicsUser.create({ data });
+    const error = (await caught(() => verbose.db.BasicsUser.create({ data }))) as CerialUniqueConstraintError;
 
     expect(error).toBeInstanceOf(CerialUniqueConstraintError);
     expect(error.statement?.text).toContain('CREATE');
@@ -116,10 +116,10 @@ describe('Database error wrapping', () => {
   });
 
   test('the option applies inside a callback transaction, and is off there by default', async () => {
-    await client.db.User.create({ data });
+    await client.db.BasicsUser.create({ data });
 
-    const withOption = await caught(() => verbose.$transaction(async (tx) => tx.User.create({ data })));
-    const without = await caught(() => client.$transaction(async (tx) => tx.User.create({ data })));
+    const withOption = await caught(() => verbose.$transaction(async (tx) => tx.BasicsUser.create({ data })));
+    const without = await caught(() => client.$transaction(async (tx) => tx.BasicsUser.create({ data })));
 
     expect(withOption).toBeInstanceOf(CerialUniqueConstraintError);
     expect((withOption as CerialUniqueConstraintError).statement?.text).toContain('CREATE');
@@ -128,8 +128,8 @@ describe('Database error wrapping', () => {
   });
 
   test('a successful query is not wrapped and keeps its shape', async () => {
-    const created = await client.db.User.create({ data });
-    const found = await client.db.User.findMany({ where: { email: 'dup@x.io' } });
+    const created = await client.db.BasicsUser.create({ data });
+    const found = await client.db.BasicsUser.findMany({ where: { email: 'dup@x.io' } });
 
     expect(created?.email).toBe('dup@x.io');
     expect(found).toHaveLength(1);
@@ -137,9 +137,9 @@ describe('Database error wrapping', () => {
   });
 
   test('an error Cerial raised while the call ran keeps its own class', async () => {
-    await client.db.User.create({ data: { ...data, id: 'u1' } });
+    await client.db.BasicsUser.create({ data: { ...data, id: 'u1' } });
     const error = await caught(() =>
-      client.db.User.updateUnique({ where: { id: 'u1' }, data: { tags: { connect: ['nosuchtag'] } } }),
+      client.db.BasicsUser.updateUnique({ where: { id: 'u1' }, data: { tags: { connect: ['nosuchtag'] } } }),
     );
 
     expect(error).toBeInstanceOf(CerialValidationError);
@@ -148,7 +148,7 @@ describe('Database error wrapping', () => {
 
   test('a validation error raised before the query keeps its own class', async () => {
     // @ts-expect-error negative test: nope is not a field of User
-    const error = await caught(() => client.db.User.findMany({ where: { nope: 1 } }));
+    const error = await caught(() => client.db.BasicsUser.findMany({ where: { nope: 1 } }));
 
     expect(error).toBeInstanceOf(CerialError);
     expect(error).not.toBeInstanceOf(CerialDatabaseError);
@@ -167,10 +167,10 @@ describe('Database error wrapping', () => {
     }) as typeof surreal.query;
 
     try {
-      const error = await caught(() => fresh.migrateModel('User'));
+      const error = await caught(() => fresh.migrateModel('BasicsUser'));
 
       expect(error).toBeInstanceOf(CerialMigrationError);
-      expect((error as CerialMigrationError).model).toBe('User');
+      expect((error as CerialMigrationError).model).toBe('BasicsUser');
       expect((error as CerialMigrationError).operation).toBe('migrate');
       expect((error as CerialMigrationError).cause).toBe(raw);
     } finally {

@@ -40,7 +40,7 @@ describe('Transaction-state errors', () => {
       test('a model call on the transaction throws the class', async () => {
         const txn = await client.$transaction();
         await txn[end]();
-        const error = await caught(() => txn.User.findMany());
+        const error = await caught(() => txn.BasicsUser.findMany());
 
         expect(error).toBeInstanceOf(CerialTransactionError);
         expect((error as CerialTransactionError).code).toBe('C5000');
@@ -66,17 +66,17 @@ describe('Transaction-state errors', () => {
       test('passing it as txn to a model call throws the class and writes nothing', async () => {
         const txn = await client.$transaction();
         await txn[end]();
-        const error = await caught(() => client.db.User.create({ data, txn }));
+        const error = await caught(() => client.db.BasicsUser.create({ data, txn }));
 
         expect(error).toBeInstanceOf(CerialTransactionError);
-        expect(await client.db.User.findMany({ where: { email: data.email } })).toHaveLength(0);
+        expect(await client.db.BasicsUser.findMany({ where: { email: data.email } })).toHaveLength(0);
       });
     });
   }
 
   test('control: an active transaction works and ends cleanly', async () => {
     const txn = await client.$transaction();
-    await txn.User.findMany();
+    await txn.BasicsUser.findMany();
 
     expect(await caught(() => txn.commit())).toBeUndefined();
   });
@@ -84,7 +84,7 @@ describe('Transaction-state errors', () => {
   test('control: the state error is not a connection or database error', async () => {
     const txn = await client.$transaction();
     await txn.cancel();
-    const error = await caught(() => txn.User.findMany());
+    const error = await caught(() => txn.BasicsUser.findMany());
 
     expect(error).not.toBeInstanceOf(CerialConnectionError);
     expect(error).not.toBeInstanceOf(CerialDatabaseError);

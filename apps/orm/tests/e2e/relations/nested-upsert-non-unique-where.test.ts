@@ -46,23 +46,23 @@ describe('E2E Nested upsert on a non-unique where', () => {
   function expectRejection(error: unknown): void {
     expect(error).toBeInstanceOf(CerialValidationError);
     expect((error as CerialError).code).toBe('C3000');
-    expect((error as CerialError).model).toBe('User');
+    expect((error as CerialError).model).toBe('BasicsUser');
     expect((error as CerialError).operation).toBe('upsert');
-    expect((error as Error).message).toContain('upsert on User');
+    expect((error as Error).message).toContain('upsert on BasicsUser');
     expect((error as Error).message).toContain('names exactly one row');
   }
 
   async function expectNothingWritten(tagId: unknown): Promise<void> {
-    expect((await client.db.User.findMany()).length).toBe(0);
-    const reloaded = await client.db.Tag.findOne({ where: { id: tagId as string } });
+    expect((await client.db.BasicsUser.findMany()).length).toBe(0);
+    const reloaded = await client.db.BasicsTag.findOne({ where: { id: tagId as string } });
     expect(reloaded?.userIds).toEqual([]);
   }
 
   describe('negative: the relation op is rejected, not dropped', () => {
     test('connect in create', async () => {
-      const t = await client.db.Tag.create({ data: { name: 't1' } });
+      const t = await client.db.BasicsTag.create({ data: { name: 't1' } });
       const error = await caught(() =>
-        client.db.User.upsert({
+        client.db.BasicsUser.upsert({
           where: { name: 'nope' },
           create: { ...createData, tags: { connect: [t.id] } },
           update: { name: 'u' },
@@ -75,7 +75,7 @@ describe('E2E Nested upsert on a non-unique where', () => {
 
     test('a nested create in create', async () => {
       const error = await caught(() =>
-        client.db.User.upsert({
+        client.db.BasicsUser.upsert({
           where: { name: 'nope' },
           create: { ...createData, profile: { create: { bio: 'b' } } },
           update: { name: 'u' },
@@ -83,15 +83,15 @@ describe('E2E Nested upsert on a non-unique where', () => {
       );
 
       expectRejection(error);
-      expect(await client.db.Profile.findMany()).toEqual([]);
-      expect((await client.db.User.findMany()).length).toBe(0);
+      expect(await client.db.BasicsProfile.findMany()).toEqual([]);
+      expect((await client.db.BasicsUser.findMany()).length).toBe(0);
     });
 
     test('connect in update only', async () => {
-      const t = await client.db.Tag.create({ data: { name: 't1' } });
-      await client.db.User.create({ data: createData });
+      const t = await client.db.BasicsTag.create({ data: { name: 't1' } });
+      await client.db.BasicsUser.create({ data: createData });
       const error = await caught(() =>
-        client.db.User.upsert({
+        client.db.BasicsUser.upsert({
           where: { name: 'n' },
           create: { ...createData, email: 'other@x.io' },
           update: { tags: { connect: [t.id] } },
@@ -99,14 +99,14 @@ describe('E2E Nested upsert on a non-unique where', () => {
       );
 
       expectRejection(error);
-      const row = await client.db.User.findOne({ where: { email: 'n@x.io' } });
+      const row = await client.db.BasicsUser.findOne({ where: { email: 'n@x.io' } });
       expect(row?.tagIds).toEqual([]);
     });
 
     test('a where with only a logical operator', async () => {
-      const t = await client.db.Tag.create({ data: { name: 't1' } });
+      const t = await client.db.BasicsTag.create({ data: { name: 't1' } });
       const error = await caught(() =>
-        client.db.User.upsert({
+        client.db.BasicsUser.upsert({
           where: { OR: [{ name: 'a' }, { name: 'b' }] },
           create: { ...createData, tags: { connect: [t.id] } },
           update: { name: 'u' },
@@ -118,9 +118,9 @@ describe('E2E Nested upsert on a non-unique where', () => {
     });
 
     test('where with a filter object on a non-unique field', async () => {
-      const t = await client.db.Tag.create({ data: { name: 't1' } });
+      const t = await client.db.BasicsTag.create({ data: { name: 't1' } });
       const error = await caught(() =>
-        client.db.User.upsert({
+        client.db.BasicsUser.upsert({
           where: { age: { gt: 3 } },
           create: { ...createData, tags: { connect: [t.id] } },
           update: { name: 'u' },
@@ -131,10 +131,10 @@ describe('E2E Nested upsert on a non-unique where', () => {
     });
 
     test('$transaction array mode', async () => {
-      const t = await client.db.Tag.create({ data: { name: 't1' } });
+      const t = await client.db.BasicsTag.create({ data: { name: 't1' } });
       const error = await caught(() =>
         client.$transaction([
-          client.db.User.upsert({
+          client.db.BasicsUser.upsert({
             where: { name: 'nope' },
             create: { ...createData, tags: { connect: [t.id] } },
             update: { name: 'u' },
@@ -147,11 +147,11 @@ describe('E2E Nested upsert on a non-unique where', () => {
     });
 
     test('$transaction callback mode, and nothing from the callback commits', async () => {
-      const t = await client.db.Tag.create({ data: { name: 't1' } });
+      const t = await client.db.BasicsTag.create({ data: { name: 't1' } });
       const error = await caught(() =>
         client.$transaction(async (tx) => {
-          await tx.User.create({ data: { ...createData, email: 'before@x.io' } });
-          await tx.User.upsert({
+          await tx.BasicsUser.create({ data: { ...createData, email: 'before@x.io' } });
+          await tx.BasicsUser.upsert({
             where: { name: 'nope' },
             create: { ...createData, tags: { connect: [t.id] } },
             update: { name: 'u' },
@@ -164,10 +164,10 @@ describe('E2E Nested upsert on a non-unique where', () => {
     });
 
     test('$transaction manual mode, and the cancel leaves nothing', async () => {
-      const t = await client.db.Tag.create({ data: { name: 't1' } });
+      const t = await client.db.BasicsTag.create({ data: { name: 't1' } });
       const txn = await client.$transaction();
       const error = await caught(() =>
-        txn.User.upsert({
+        txn.BasicsUser.upsert({
           where: { name: 'nope' },
           create: { ...createData, tags: { connect: [t.id] } },
           update: { name: 'u' },
@@ -182,51 +182,51 @@ describe('E2E Nested upsert on a non-unique where', () => {
 
   describe('positive controls', () => {
     test('the same non-unique where without a relation op still creates one row', async () => {
-      const returned = await client.db.User.upsert({
+      const returned = await client.db.BasicsUser.upsert({
         where: { name: 'nope' },
         create: createData,
         update: { age: 1 },
       });
 
       expect(returned.length).toBe(1);
-      expect((await client.db.User.findMany()).length).toBe(1);
+      expect((await client.db.BasicsUser.findMany()).length).toBe(1);
     });
 
     test('the same non-unique where without a relation op still updates every match', async () => {
-      await client.db.User.create({ data: { ...createData, email: 'a@x.io' } });
-      await client.db.User.create({ data: { ...createData, email: 'b@x.io' } });
+      await client.db.BasicsUser.create({ data: { ...createData, email: 'a@x.io' } });
+      await client.db.BasicsUser.create({ data: { ...createData, email: 'b@x.io' } });
 
-      const returned = await client.db.User.upsert({
+      const returned = await client.db.BasicsUser.upsert({
         where: { name: 'n' },
         create: createData,
         update: { age: 7 },
       });
 
       expect(returned.length).toBe(2);
-      expect((await client.db.User.findMany()).every((u) => u.age === 7)).toBe(true);
+      expect((await client.db.BasicsUser.findMany()).every((u) => u.age === 7)).toBe(true);
     });
 
     test('a unique field in where takes the relation op', async () => {
-      const t = await client.db.Tag.create({ data: { name: 't1' } });
-      await client.db.User.upsert({
+      const t = await client.db.BasicsTag.create({ data: { name: 't1' } });
+      await client.db.BasicsUser.upsert({
         where: { email: 'n@x.io' },
         create: { ...createData, tags: { connect: [t.id] } },
         update: { name: 'u' },
       });
 
-      const row = await client.db.User.findOne({ where: { email: 'n@x.io' } });
+      const row = await client.db.BasicsUser.findOne({ where: { email: 'n@x.io' } });
       expect(row?.tagIds.map(String)).toEqual([String(t.id)]);
     });
 
     test('an id in where plus a non-unique key takes the relation op', async () => {
-      const t = await client.db.Tag.create({ data: { name: 't1' } });
-      await client.db.User.upsert({
+      const t = await client.db.BasicsTag.create({ data: { name: 't1' } });
+      await client.db.BasicsUser.upsert({
         where: { id: 'withid', name: 'n' },
         create: { ...createData, tags: { connect: [t.id] } },
         update: { name: 'u' },
       });
 
-      const row = await client.db.User.findOne({ where: { id: 'withid' } });
+      const row = await client.db.BasicsUser.findOne({ where: { id: 'withid' } });
       expect(row?.tagIds.map(String)).toEqual([String(t.id)]);
     });
   });

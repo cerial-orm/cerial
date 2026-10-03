@@ -39,17 +39,17 @@ describe('E2E Transactions: Count and Exists', () => {
     const email2 = uniqueEmail('count');
     const email3 = uniqueEmail('count');
 
-    await client.db.User.create({
+    await client.db.BasicsUser.create({
       data: { email: email1, name: `User ${uniqueId()}`, isActive: true },
     });
-    await client.db.User.create({
+    await client.db.BasicsUser.create({
       data: { email: email2, name: `User ${uniqueId()}`, isActive: true },
     });
-    await client.db.User.create({
+    await client.db.BasicsUser.create({
       data: { email: email3, name: `User ${uniqueId()}`, isActive: false },
     });
 
-    const [count] = await client.$transaction([client.db.User.count()]);
+    const [count] = await client.$transaction([client.db.BasicsUser.count()]);
 
     expect(count).toBe(3);
   });
@@ -57,11 +57,11 @@ describe('E2E Transactions: Count and Exists', () => {
   test('exists inside transaction', async () => {
     const email = uniqueEmail('exists');
 
-    await client.db.User.create({
+    await client.db.BasicsUser.create({
       data: { email, name: `User ${uniqueId()}`, isActive: true },
     });
 
-    const [exists] = await client.$transaction([client.db.User.exists({ email })]);
+    const [exists] = await client.$transaction([client.db.BasicsUser.exists({ email })]);
 
     expect(exists).toBe(true);
   });
@@ -70,17 +70,17 @@ describe('E2E Transactions: Count and Exists', () => {
     const email1 = uniqueEmail('combo');
     const email2 = uniqueEmail('combo');
 
-    await client.db.User.create({
+    await client.db.BasicsUser.create({
       data: { email: email1, name: `User ${uniqueId()}`, isActive: true },
     });
-    await client.db.User.create({
+    await client.db.BasicsUser.create({
       data: { email: email2, name: `User ${uniqueId()}`, isActive: false },
     });
 
     const [count, exists, users] = await client.$transaction([
-      client.db.User.count(),
-      client.db.User.exists({ email: email1 }),
-      client.db.User.findMany({ where: { isActive: true } }),
+      client.db.BasicsUser.count(),
+      client.db.BasicsUser.exists({ email: email1 }),
+      client.db.BasicsUser.findMany({ where: { isActive: true } }),
     ]);
 
     expect(count).toBe(2);
@@ -90,7 +90,7 @@ describe('E2E Transactions: Count and Exists', () => {
   });
 
   test('count returns 0 for empty table', async () => {
-    const [count] = await client.$transaction([client.db.User.count()]);
+    const [count] = await client.$transaction([client.db.BasicsUser.count()]);
 
     expect(count).toBe(0);
   });
@@ -98,7 +98,7 @@ describe('E2E Transactions: Count and Exists', () => {
   test('exists returns false for no match', async () => {
     const nonExistentEmail = uniqueEmail('ghost');
 
-    const [exists] = await client.$transaction([client.db.User.exists({ email: nonExistentEmail })]);
+    const [exists] = await client.$transaction([client.db.BasicsUser.exists({ email: nonExistentEmail })]);
 
     expect(exists).toBe(false);
   });

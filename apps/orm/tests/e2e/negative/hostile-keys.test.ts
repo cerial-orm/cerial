@@ -15,7 +15,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:tes
 import { type CerialClient, cleanupTables, createTestClient, tables, testConfig, truncateTables } from '../test-helper';
 
 const HOSTILE_KEYS = [
-  'name; DROP TABLE user; --',
+  'name; DROP TABLE basics_user; --',
   "name' OR '1'='1",
   '`name`',
   'name[0]',
@@ -54,38 +54,38 @@ describe('Hostile keys — negative cases', () => {
   });
 
   describe.each(HOSTILE_KEYS)('key %j', (key) => {
-    const unknown = (prefix: string, path = key, model = 'User') =>
+    const unknown = (prefix: string, path = key, model = 'BasicsUser') =>
       `${prefix}: Unknown field '${path}' on model ${model}`;
 
     test('create data', () =>
       rejects(
-        () => client.db.User.create({ data: { email: 'a@b.co', name: 'A', isActive: true, [key]: 'x' } }),
+        () => client.db.BasicsUser.create({ data: { email: 'a@b.co', name: 'A', isActive: true, [key]: 'x' } }),
         unknown('Invalid data'),
       ));
 
     test('updateMany data', () =>
       rejects(
-        () => client.db.User.updateMany({ where: { name: 'A' }, data: { [key]: 'x' } }),
+        () => client.db.BasicsUser.updateMany({ where: { name: 'A' }, data: { [key]: 'x' } }),
         unknown('Invalid data'),
       ));
 
     test('select', () =>
       rejects(
         // @ts-expect-error — hostile key is not a field, testing runtime guard
-        () => client.db.User.findMany({ select: { [key]: true } }),
+        () => client.db.BasicsUser.findMany({ select: { [key]: true } }),
         unknown('Invalid select'),
       ));
 
     test('orderBy', () =>
-      rejects(() => client.db.User.findMany({ orderBy: { [key]: 'asc' } }), unknown('Invalid orderBy')));
+      rejects(() => client.db.BasicsUser.findMany({ orderBy: { [key]: 'asc' } }), unknown('Invalid orderBy')));
 
     test('include', () =>
-      rejects(() => client.db.User.findMany({ include: { [key]: true } }), unknown('Invalid include')));
+      rejects(() => client.db.BasicsUser.findMany({ include: { [key]: true } }), unknown('Invalid include')));
 
     test('where at top level', () =>
       rejects(
-        () => client.db.User.findMany({ where: { [key]: 'x' } }),
-        `Invalid where clause: Unknown field '${key}' on model User`,
+        () => client.db.BasicsUser.findMany({ where: { [key]: 'x' } }),
+        `Invalid where clause: Unknown field '${key}' on model BasicsUser`,
       ));
 
     test('where object sub-key', () =>
@@ -110,12 +110,15 @@ describe('Hostile keys — negative cases', () => {
 
   test('a hostile key writes nothing', async () => {
     await rejects(
-      // @ts-expect-error — hostile key is not a field, testing runtime guard
-      () => client.db.User.create({ data: { email: 'a@b.co', name: 'A', isActive: true, 'x; DROP TABLE user': 1 } }),
-      "Unknown field 'x; DROP TABLE user'",
+      () =>
+        client.db.BasicsUser.create({
+          // @ts-expect-error — hostile key is not a field, testing runtime guard
+          data: { email: 'a@b.co', name: 'A', isActive: true, 'x; DROP TABLE basics_user': 1 },
+        }),
+      "Unknown field 'x; DROP TABLE basics_user'",
     );
 
-    expect(await client.db.User.count()).toBe(0);
+    expect(await client.db.BasicsUser.count()).toBe(0);
   });
 
   test('a declared field name containing a digit works at every surface', async () => {
@@ -147,9 +150,9 @@ describe('Hostile keys — negative cases', () => {
       });
 
     /** The victim is the `user` table that the hostile payload tries to remove. */
-    const seedVictim = () => client.db.User.create({ data: { email: 'v@b.co', name: 'V', isActive: true } });
+    const seedVictim = () => client.db.BasicsUser.create({ data: { email: 'v@b.co', name: 'V', isActive: true } });
 
-    const expectVictimSurvived = async () => expect(await client.db.User.count()).toBe(1);
+    const expectVictimSurvived = async () => expect(await client.db.BasicsUser.count()).toBe(1);
 
     const unknown = (path: string) => `Unknown field '${path}' on model FlexUser`;
 

@@ -12,7 +12,7 @@ import { type CerialClient, cleanupTables, createTestClient, tables, testConfig,
 
 describe('Unknown select keys — negative cases', () => {
   let client: CerialClient;
-  const unknown = "Invalid select: Unknown field 'nmae' on model User";
+  const unknown = "Invalid select: Unknown field 'nmae' on model BasicsUser";
 
   beforeAll(async () => {
     client = createTestClient();
@@ -30,40 +30,42 @@ describe('Unknown select keys — negative cases', () => {
 
   test('findMany throws on a typo key and names key and model', () => {
     // @ts-expect-error — 'nmae' is not a field, testing runtime guard
-    expect(() => client.db.User.findMany({ select: { nmae: true } })).toThrow(unknown);
+    expect(() => client.db.BasicsUser.findMany({ select: { nmae: true } })).toThrow(unknown);
   });
 
   test('findMany throws on a typo key set to false', () => {
-    expect(() => client.db.User.findMany({ select: { name: true, nmae: false } })).toThrow(unknown);
+    expect(() => client.db.BasicsUser.findMany({ select: { name: true, nmae: false } })).toThrow(unknown);
   });
 
   test('findOne throws on a typo key', () => {
     // @ts-expect-error — 'nmae' is not a field, testing runtime guard
-    expect(() => client.db.User.findOne({ select: { nmae: true } })).toThrow(unknown);
+    expect(() => client.db.BasicsUser.findOne({ select: { nmae: true } })).toThrow(unknown);
   });
 
   test('findUnique throws on a typo key', () => {
     // @ts-expect-error — 'nmae' is not a field, testing runtime guard
-    expect(() => client.db.User.findUnique({ where: { id: 'user:1' }, select: { nmae: true } })).toThrow(unknown);
+    expect(() => client.db.BasicsUser.findUnique({ where: { id: 'basics_user:1' }, select: { nmae: true } })).toThrow(
+      unknown,
+    );
   });
 
   test('create throws on a typo key and writes nothing', async () => {
     expect(() =>
-      client.db.User.create({
+      client.db.BasicsUser.create({
         data: { email: 'a@b.co', name: 'A', isActive: true },
         // @ts-expect-error — 'nmae' is not a field, testing runtime guard
         select: { nmae: true },
       }),
     ).toThrow(unknown);
 
-    expect(await client.db.User.count()).toBe(0);
+    expect(await client.db.BasicsUser.count()).toBe(0);
   });
 
   test('updateMany throws on a typo key and leaves the record untouched', async () => {
-    const user = await client.db.User.create({ data: { email: 'a@b.co', name: 'Before', isActive: true } });
+    const user = await client.db.BasicsUser.create({ data: { email: 'a@b.co', name: 'Before', isActive: true } });
 
     expect(() =>
-      client.db.User.updateMany({
+      client.db.BasicsUser.updateMany({
         where: { id: user.id },
         data: { name: 'After' },
         // @ts-expect-error — 'nmae' is not a field, testing runtime guard
@@ -71,14 +73,14 @@ describe('Unknown select keys — negative cases', () => {
       }),
     ).toThrow(unknown);
 
-    expect((await client.db.User.findOne({ where: { id: user.id } }))!.name).toBe('Before');
+    expect((await client.db.BasicsUser.findOne({ where: { id: user.id } }))!.name).toBe('Before');
   });
 
   test('updateUnique throws on a typo key', async () => {
-    const user = await client.db.User.create({ data: { email: 'a@b.co', name: 'Before', isActive: true } });
+    const user = await client.db.BasicsUser.create({ data: { email: 'a@b.co', name: 'Before', isActive: true } });
 
     expect(() =>
-      client.db.User.updateUnique({
+      client.db.BasicsUser.updateUnique({
         where: { id: user.id },
         data: { name: 'After' },
         // @ts-expect-error — 'nmae' is not a field, testing runtime guard
@@ -86,12 +88,12 @@ describe('Unknown select keys — negative cases', () => {
       }),
     ).toThrow(unknown);
 
-    expect((await client.db.User.findOne({ where: { id: user.id } }))!.name).toBe('Before');
+    expect((await client.db.BasicsUser.findOne({ where: { id: user.id } }))!.name).toBe('Before');
   });
 
   test('upsert throws on a typo key', () => {
     expect(() =>
-      client.db.User.upsert({
+      client.db.BasicsUser.upsert({
         where: { email: 'a@b.co' },
         create: { email: 'a@b.co', name: 'A', isActive: true },
         update: { name: 'B' },
@@ -127,9 +129,9 @@ describe('Unknown select keys — negative cases', () => {
   });
 
   test('valid select still returns only the selected field', async () => {
-    await client.db.User.create({ data: { email: 'a@b.co', name: 'A', isActive: true } });
+    await client.db.BasicsUser.create({ data: { email: 'a@b.co', name: 'A', isActive: true } });
 
-    const rows = await client.db.User.findMany({ select: { name: true } });
+    const rows = await client.db.BasicsUser.findMany({ select: { name: true } });
 
     expect(rows.map((r) => r.name)).toEqual(['A']);
     expect(rows[0]).not.toHaveProperty('email');

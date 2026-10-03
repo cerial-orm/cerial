@@ -1,7 +1,7 @@
 /**
  * E2E Tests: $transaction Results
  *
- * Schema: test-basics.cerial
+ * Schema: test-basics-isolated.cerial
  * Tests result ordering, typing, and mapping in $transaction.
  */
 
@@ -36,13 +36,13 @@ describe('E2E Transactions: Results', () => {
   });
 
   test('results match input order', async () => {
-    const tag = await client.db.Tag.create({ data: { name: `tag-${uniqueId()}` } });
+    const tag = await client.db.BasicsTag.create({ data: { name: `tag-${uniqueId()}` } });
 
     const [user, tagResult] = await client.$transaction([
-      client.db.User.create({
+      client.db.BasicsUser.create({
         data: { email: uniqueEmail(), name: 'Alice', isActive: true },
       }),
-      client.db.Tag.findOne({ where: { id: tag.id } }),
+      client.db.BasicsTag.findOne({ where: { id: tag.id } }),
     ]);
 
     // First result should be the created User
@@ -57,10 +57,10 @@ describe('E2E Transactions: Results', () => {
 
   test('CerialId mapping works for all results', async () => {
     const [user1, user2] = await client.$transaction([
-      client.db.User.create({
+      client.db.BasicsUser.create({
         data: { email: uniqueEmail('u1'), name: 'User 1', isActive: true },
       }),
-      client.db.User.create({
+      client.db.BasicsUser.create({
         data: { email: uniqueEmail('u2'), name: 'User 2', isActive: false },
       }),
     ]);
@@ -71,7 +71,7 @@ describe('E2E Transactions: Results', () => {
 
   test('Date fields are mapped to Date objects', async () => {
     const [user] = await client.$transaction([
-      client.db.User.create({
+      client.db.BasicsUser.create({
         data: { email: uniqueEmail(), name: 'DateUser', isActive: true },
       }),
     ]);
@@ -81,21 +81,21 @@ describe('E2E Transactions: Results', () => {
 
   test('null result for findOne with no match', async () => {
     const [result] = await client.$transaction([
-      client.db.User.findOne({ where: { email: 'nonexistent@example.com' } }),
+      client.db.BasicsUser.findOne({ where: { email: 'nonexistent@example.com' } }),
     ]);
 
     expect(result).toBeNull();
   });
 
   test('count returns number', async () => {
-    await client.db.User.create({
+    await client.db.BasicsUser.create({
       data: { email: uniqueEmail('c1'), name: 'Count1', isActive: true },
     });
-    await client.db.User.create({
+    await client.db.BasicsUser.create({
       data: { email: uniqueEmail('c2'), name: 'Count2', isActive: true },
     });
 
-    const [count] = await client.$transaction([client.db.User.count()]);
+    const [count] = await client.$transaction([client.db.BasicsUser.count()]);
 
     expect(typeof count).toBe('number');
     expect(count).toBe(2);
@@ -103,25 +103,25 @@ describe('E2E Transactions: Results', () => {
 
   test('exists returns boolean', async () => {
     const email = uniqueEmail();
-    await client.db.User.create({
+    await client.db.BasicsUser.create({
       data: { email, name: 'ExistsUser', isActive: true },
     });
 
-    const [exists] = await client.$transaction([client.db.User.exists({ email })]);
+    const [exists] = await client.$transaction([client.db.BasicsUser.exists({ email })]);
 
     expect(typeof exists).toBe('boolean');
     expect(exists).toBe(true);
   });
 
   test('deleteMany returns count', async () => {
-    await client.db.User.create({
+    await client.db.BasicsUser.create({
       data: { email: uniqueEmail('d1'), name: 'Del1', isActive: true },
     });
-    await client.db.User.create({
+    await client.db.BasicsUser.create({
       data: { email: uniqueEmail('d2'), name: 'Del2', isActive: true },
     });
 
-    const [deleted] = await client.$transaction([client.db.User.deleteMany({ where: { isActive: true } })]);
+    const [deleted] = await client.$transaction([client.db.BasicsUser.deleteMany({ where: { isActive: true } })]);
 
     expect(typeof deleted).toBe('number');
     expect(deleted).toBe(2);
@@ -129,17 +129,17 @@ describe('E2E Transactions: Results', () => {
 
   test('mixed result types in same transaction', async () => {
     const email = uniqueEmail();
-    await client.db.User.create({
+    await client.db.BasicsUser.create({
       data: { email, name: 'Mixed', isActive: true },
     });
 
     const [created, found, count, exists] = await client.$transaction([
-      client.db.User.create({
+      client.db.BasicsUser.create({
         data: { email: uniqueEmail('mix'), name: 'NewUser', isActive: true },
       }),
-      client.db.User.findMany(),
-      client.db.User.count(),
-      client.db.User.exists({ email }),
+      client.db.BasicsUser.findMany(),
+      client.db.BasicsUser.count(),
+      client.db.BasicsUser.exists({ email }),
     ]);
 
     // create returns a single object (T)

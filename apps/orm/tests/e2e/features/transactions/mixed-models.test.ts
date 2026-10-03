@@ -1,7 +1,7 @@
 /**
  * E2E Tests: Transactions - Mixed Models
  *
- * Schema: test-basics.cerial
+ * Schema: test-basics-isolated.cerial
  * Tests transactions spanning different models (User, Post, Profile, Tag).
  */
 
@@ -37,14 +37,14 @@ describe('E2E Transactions: Mixed Models', () => {
 
   test('create User and Post in one transaction', async () => {
     // Create a user outside the transaction to use as author
-    const author = await client.db.User.create({
+    const author = await client.db.BasicsUser.create({
       data: { email: uniqueEmail(), name: 'Author', isActive: true },
     });
 
     const email = uniqueEmail();
     const [newUser, post] = await client.$transaction([
-      client.db.User.create({ data: { email, name: 'New User', isActive: true } }),
-      client.db.Post.create({ data: { title: 'Test Post', authorId: author.id } }),
+      client.db.BasicsUser.create({ data: { email, name: 'New User', isActive: true } }),
+      client.db.BasicsPost.create({ data: { title: 'Test Post', authorId: author.id } }),
     ]);
 
     expect(newUser).toBeDefined();
@@ -57,44 +57,47 @@ describe('E2E Transactions: Mixed Models', () => {
     expect(isCerialId(post.id)).toBe(true);
 
     // Verify both exist in DB
-    const users = await client.db.User.findMany();
+    const users = await client.db.BasicsUser.findMany();
     expect(users.length).toBe(2);
 
-    const posts = await client.db.Post.findMany();
+    const posts = await client.db.BasicsPost.findMany();
     expect(posts.length).toBe(1);
   });
 
   test('findMany across different models', async () => {
     // Insert data outside transaction
-    const author = await client.db.User.create({
+    const author = await client.db.BasicsUser.create({
       data: { email: uniqueEmail(), name: 'Author', isActive: true },
     });
-    await client.db.User.create({
+    await client.db.BasicsUser.create({
       data: { email: uniqueEmail(), name: 'Reader', isActive: false },
     });
-    await client.db.Post.create({ data: { title: 'Post A', authorId: author.id } });
-    await client.db.Post.create({ data: { title: 'Post B', authorId: author.id } });
+    await client.db.BasicsPost.create({ data: { title: 'Post A', authorId: author.id } });
+    await client.db.BasicsPost.create({ data: { title: 'Post B', authorId: author.id } });
 
-    const [users, posts] = await client.$transaction([client.db.User.findMany(), client.db.Post.findMany()]);
+    const [users, posts] = await client.$transaction([
+      client.db.BasicsUser.findMany(),
+      client.db.BasicsPost.findMany(),
+    ]);
 
     expect(users.length).toBe(2);
     expect(posts.length).toBe(2);
   });
 
   test('update and delete across models in same transaction', async () => {
-    const user = await client.db.User.create({
+    const user = await client.db.BasicsUser.create({
       data: { email: uniqueEmail(), name: 'Original', isActive: true },
     });
-    const post = await client.db.Post.create({
+    const post = await client.db.BasicsPost.create({
       data: { title: 'To Remove', authorId: user.id },
     });
 
     const [updatedUser, deleteResult] = await client.$transaction([
-      client.db.User.updateUnique({
+      client.db.BasicsUser.updateUnique({
         where: { id: user.id },
         data: { name: 'Updated' },
       }),
-      client.db.Post.deleteUnique({ where: { id: post.id } }),
+      client.db.BasicsPost.deleteUnique({ where: { id: post.id } }),
     ]);
 
     expect(updatedUser).toBeDefined();
@@ -103,10 +106,10 @@ describe('E2E Transactions: Mixed Models', () => {
     expect(deleteResult).toBe(true);
 
     // Verify in DB
-    const foundUser = await client.db.User.findUnique({ where: { id: user.id } });
+    const foundUser = await client.db.BasicsUser.findUnique({ where: { id: user.id } });
     expect(foundUser?.name).toBe('Updated');
 
-    const foundPost = await client.db.Post.findUnique({ where: { id: post.id } });
+    const foundPost = await client.db.BasicsPost.findUnique({ where: { id: post.id } });
     expect(foundPost).toBeNull();
   });
 
@@ -114,9 +117,9 @@ describe('E2E Transactions: Mixed Models', () => {
     const tagName = uniqueId();
 
     const [user, profile, tag] = await client.$transaction([
-      client.db.User.create({ data: { email: uniqueEmail(), name: 'Tri User', isActive: true } }),
-      client.db.Profile.create({ data: { bio: 'test bio' } }),
-      client.db.Tag.create({ data: { name: tagName } }),
+      client.db.BasicsUser.create({ data: { email: uniqueEmail(), name: 'Tri User', isActive: true } }),
+      client.db.BasicsProfile.create({ data: { bio: 'test bio' } }),
+      client.db.BasicsTag.create({ data: { name: tagName } }),
     ]);
 
     expect(user).toBeDefined();
@@ -132,13 +135,13 @@ describe('E2E Transactions: Mixed Models', () => {
     expect(tag.name).toBe(tagName);
 
     // Verify all exist in DB
-    const users = await client.db.User.findMany();
+    const users = await client.db.BasicsUser.findMany();
     expect(users.length).toBe(1);
 
-    const profiles = await client.db.Profile.findMany();
+    const profiles = await client.db.BasicsProfile.findMany();
     expect(profiles.length).toBe(1);
 
-    const tags = await client.db.Tag.findMany();
+    const tags = await client.db.BasicsTag.findMany();
     expect(tags.length).toBe(1);
   });
 });
