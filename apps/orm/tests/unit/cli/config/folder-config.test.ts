@@ -279,8 +279,8 @@ describe('findFolderConfigs', () => {
 
   it('should detect nested configs and throw', async () => {
     const root = resolve(TMP_ROOT, 'nested');
-    await Bun.write(resolve(root, 'parent/cerial.config.ts'), 'export default { output: "./gen" };\n');
-    await Bun.write(resolve(root, 'parent/child/cerial.config.ts'), 'export default { output: "./gen" };\n');
+    await Bun.write(resolve(root, 'schemas/parent/cerial.config.ts'), 'export default { output: "./gen" };\n');
+    await Bun.write(resolve(root, 'schemas/parent/child/cerial.config.ts'), 'export default { output: "./gen" };\n');
 
     await expect(async () => {
       await findFolderConfigs(root);

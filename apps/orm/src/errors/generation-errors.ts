@@ -8,3 +8,11 @@ export class CerialGenerationError extends CerialError {
     this.name = 'CerialGenerationError';
   }
 }
+
+/** A config found while searching subdirectories declares `schema` or `schemas`, so it is a root config, not a folder config. */
+export class CerialConfigNotFolderConfigError extends CerialGenerationError {
+  constructor(message: string, options?: CerialErrorOptions) {
+    super(message, options);
+    this.name = 'CerialConfigNotFolderConfigError';
+  }
+}

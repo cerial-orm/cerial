@@ -6,11 +6,13 @@ import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import fg from 'fast-glob';
-import { CerialGenerationError } from '../../errors';
+import { CerialConfigNotFolderConfigError, CerialGenerationError } from '../../errors';
 import { toFilterPath } from '../filters/path-utils';
 import type { PathFilter } from '../filters/types';
 import type { CerialConfig, FolderConfig } from './types';
 import { detectNestedConfigs, validateConfig, validateFolderConfig } from './validator';
+
+const DEFAULT_SCHEMA_DIRS = ['schemas', 'schema'];
 
 /**
  * Load configuration from cerial.config.ts or cerial.config.json
@@ -121,7 +123,10 @@ export async function loadFolderConfig(dir: string): Promise<FolderConfig | null
   const validation = validateFolderConfig(raw);
   if (!validation.valid) {
     const errors = validation.errors.map((e) => `${e.field}: ${e.message}`).join('\n');
-    throw new CerialGenerationError(`Invalid folder config in ${dir}:\n${errors}`);
+    const message = `Invalid folder config in ${dir}:\n${errors}`;
+    if ('schema' in raw || 'schemas' in raw) throw new CerialConfigNotFolderConfigError(message);
+
+    throw new CerialGenerationError(message);
   }
 
   return raw as FolderConfig;
@@ -132,27 +137,16 @@ export async function findFolderConfigs(
   filter?: PathFilter,
 ): Promise<Array<{ dir: string; config: FolderConfig }>> {
   const results: Array<{ dir: string; config: FolderConfig }> = [];
-  const configDirs: string[] = [];
+  // Loading a config executes it, so only look where a schema folder is expected:
+  // direct children of the working directory and the default schema directories.
+  if (!existsSync(cwd)) return [];
 
-  for (const pattern of ['**/cerial.config.ts', '**/cerial.config.json']) {
-    try {
-      const matches = await fg(pattern, { cwd, onlyFiles: true });
-      for (const match of matches) {
-        if (match.includes('node_modules/')) continue;
+  const matches = await fg(
+    ['*/cerial.config.{ts,json}', `{${DEFAULT_SCHEMA_DIRS.join(',')}}/**/cerial.config.{ts,json}`],
+    { cwd, onlyFiles: true, ignore: ['**/node_modules/**'] },
+  );
 
-        const fullPath = resolve(cwd, match);
-        const configDir = dirname(fullPath);
-
-        if (configDir === resolve(cwd)) continue;
-
-        configDirs.push(configDir);
-      }
-    } catch {
-      // Directory might not exist
-    }
-  }
-
-  const uniqueDirs = [...new Set(configDirs)];
+  const uniqueDirs = [...new Set(matches.map((match) => dirname(resolve(cwd, match))))];
   if (!uniqueDirs.length) return [];
 
   // Apply path filter to exclude directories
@@ -171,8 +165,9 @@ export async function findFolderConfigs(
     try {
       const config = await loadFolderConfig(dir);
       if (config) results.push({ dir, config });
-    } catch {
-      // Config has schema/schemas keys — not a folder config, skip it
+    } catch (error) {
+      // A root-style config in a subdirectory is not a folder config; anything else is a real error.
+      if (!(error instanceof CerialConfigNotFolderConfigError)) throw error;
     }
   }
 

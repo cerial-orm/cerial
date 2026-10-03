@@ -5,7 +5,7 @@ export { CERIAL_ERROR_CODES } from './codes';
 export { CerialConnectionError, CerialNotConnectedError } from './connection-errors';
 export type { CerialStatement, CerialUniqueConflict, CerialUniqueConstraintErrorOptions } from './database-errors';
 export { CerialDatabaseError, CerialMigrationError, CerialUniqueConstraintError } from './database-errors';
-export { CerialGenerationError } from './generation-errors';
+export { CerialConfigNotFolderConfigError, CerialGenerationError } from './generation-errors';
 export { CerialUnknownFieldError, CerialUnknownModelError } from './identifier-errors';
 export { CerialTransactionError } from './transaction-errors';
 export { CerialValidationError } from './validation-errors';
