@@ -6,7 +6,7 @@
  * The execute methods run the compiled queries and map results.
  */
 
-import type { Surreal } from 'surrealdb';
+import type { RecordId, Surreal } from 'surrealdb';
 import type {
   CreateOptions,
   DeleteManyOptions,
@@ -592,6 +592,16 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     return mapSingleResult<T>(result, this.model, select);
   }
 
+  /** The record an upsert's where names through its id field, or undefined when the where has none. */
+  private recordIdFromWhere(where: WhereClause): RecordId | undefined {
+    const idField = this.model.fields.find((f) => f.isId);
+    if (!idField) return undefined;
+    const id = where[idField.name];
+    if (id === undefined || id === null) return undefined;
+
+    return transformOrValidateRecordId(this.model.tableName, id as string);
+  }
+
   /** Read the row an upsert's where matches, or null; `select` and `include` shape the projection. */
   private async readExisting(
     where: WhereClause,
@@ -600,11 +610,9 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     include?: IncludeClause,
   ): Promise<unknown> {
     const fields = buildSelectFields(select, this.model, include, this.registry);
-    const idField = this.model.fields.find((f) => f.isId);
+    const recordId = hasId ? this.recordIdFromWhere(where) : undefined;
 
-    if (hasId && idField) {
-      const recordId = transformOrValidateRecordId(this.model.tableName, where[idField.name] as string);
-
+    if (recordId) {
       return executeQuerySingle(this.db, { text: `SELECT ${fields} FROM ONLY ${recordId.toString()};`, vars: {} });
     }
 
@@ -647,6 +655,9 @@ export class QueryBuilder<T extends Record<string, unknown>> {
       const query = buildCreateNested(this.model, createData, createNestedOps as Map<string, any>, this.registry!, {
         select,
         include,
+        // An id in the where names the record to create, exactly as the plain upsert's CREATE does;
+        // without it the nested create lands on a server-generated id the caller never asked for
+        recordId: hasId ? this.recordIdFromWhere(where)?.toString() : undefined,
       });
       const result = await executeQuerySingle(this.db, query);
 

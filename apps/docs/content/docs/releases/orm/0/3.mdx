@@ -236,6 +236,13 @@ development branch and is not available on npm.
     including on both halves of `upsert`, and an unknown or non-relation `include`
     key throws before anything is written.
 
+- An `upsert` that created its row, with a `create`, `connect`, `disconnect` or
+  `set` on a relation field in its `create` payload, ignored the id in its
+  `where` and stored the row under a generated id instead. Reading it back by the
+  id you upserted on returned `null`, so the row looked as though it had never
+  been written. The row is now created as the record the `where` names, as it is
+  without the relation op.
+
 ### Changed
 
 - Transaction conflict retries (`TransactionOptions.retries`) now recognise a

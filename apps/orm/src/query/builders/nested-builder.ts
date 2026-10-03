@@ -293,6 +293,11 @@ function findReverseRecordField(sourceModel: ModelMetadata, targetModel: ModelMe
 export interface NestedWriteOptions {
   /** Inside an outer transaction: emit no BEGIN/COMMIT */
   transactionMode?: boolean;
+  /**
+   * Create only: the record the row must be created as, in place of a server-generated id. Upsert's
+   * create half passes the id from its `where`, the same record the plain upsert's CREATE targets
+   */
+  recordId?: string;
   /** Update only: return the row as it was before the write, projected through `select` and `include` */
   returnBefore?: boolean;
   select?: SelectClause;
@@ -328,7 +333,7 @@ export function buildCreateWithNestedTransaction(
   registry: ModelRegistry,
   options: NestedWriteOptions = {},
 ): CompiledQuery {
-  const { transactionMode } = options;
+  const { transactionMode, recordId } = options;
   const ctx = createCompileContext();
   const statements: string[] = transactionMode ? [] : ['BEGIN TRANSACTION;'];
   const vars: Record<string, unknown> = {};
@@ -550,6 +555,9 @@ export function buildCreateWithNestedTransaction(
   // Build field updates (for relation fields from nested creates)
   const fieldUpdateEntries = Object.entries(fieldUpdates);
 
+  // A caller-supplied record id makes this an upsert's create half: the row must land on that record
+  const createTarget = recordId ?? model.tableName;
+
   // Create the main record
   if (fieldUpdateEntries.length > 0) {
     // Use SET syntax when we have dynamic relation fields
@@ -567,12 +575,12 @@ export function buildCreateWithNestedTransaction(
       setFields.push(`${field} = ${value}`);
     }
 
-    statements.push(`LET $result = CREATE ONLY ${model.tableName} SET ${setFields.join(', ')};`);
+    statements.push(`LET $result = CREATE ONLY ${createTarget} SET ${setFields.join(', ')};`);
   } else {
     // No dynamic fields, use CONTENT for simplicity
     const contentVar = ctx.bind('content', 'main', finalData, 'string');
     Object.assign(vars, contentVar.vars);
-    statements.push(`LET $result = CREATE ONLY ${model.tableName} CONTENT ${contentVar.placeholder};`);
+    statements.push(`LET $result = CREATE ONLY ${createTarget} CONTENT ${contentVar.placeholder};`);
   }
 
   // Store the id in a separate variable for use throughout the transaction
