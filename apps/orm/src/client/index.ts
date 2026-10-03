@@ -13,3 +13,5 @@ export { createModel, Model } from './model';
 export type { DatabaseProxy, PerModelCallbacks, ProxyOptions } from './proxy';
 // Proxy
 export { clearModelCache, createModelProxy, createProxyHandler } from './proxy';
+// Unknown-model guard
+export { guardUnknownModels } from './unknown-model-guard';

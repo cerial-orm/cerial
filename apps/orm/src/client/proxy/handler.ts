@@ -50,7 +50,7 @@ function getOrCreateModel(db: Surreal, modelName: string, registry: ModelRegistr
 }
 
 /** Properties to ignore (used by Promise checks, JSON serialization, etc.) */
-const IGNORED_PROPERTIES = new Set([
+export const IGNORED_PROPERTIES = new Set([
   'then',
   'catch',
   'finally',

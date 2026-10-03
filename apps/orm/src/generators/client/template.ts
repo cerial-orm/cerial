@@ -9,7 +9,7 @@ export function generateImports(models: ModelMetadata[]): string {
   const modelImports = models.map((m) => m.name).join(', ');
   const modelTypeImports = models.map((m) => `${m.name}Model`).join(', ');
 
-  return `import { CerialNotConnectedError, CerialTransactionError, CerialValidationError, ConnectionManager, CerialQueryPromise, executeClientTransaction, createCerialTransactionProxy, isTransactionConflict, type CerialTransaction, type DatabaseProxy, type ModelRegistry, type BeforeQueryCallback, type PerModelCallbacks, type TransactionItem, type TransactionExecutionItem, type TransactionItemResult, type TransactionOptions, type TransactionClient } from 'cerial';
+  return `import { CerialNotConnectedError, CerialTransactionError, CerialValidationError, ConnectionManager, CerialQueryPromise, executeClientTransaction, createCerialTransactionProxy, guardUnknownModels, isTransactionConflict, type CerialTransaction, type DatabaseProxy, type ModelRegistry, type BeforeQueryCallback, type PerModelCallbacks, type TransactionItem, type TransactionExecutionItem, type TransactionItemResult, type TransactionOptions, type TransactionClient } from 'cerial';
 import type { ConnectionConfig } from 'cerial';
 import { modelRegistry } from './internal/model-registry';
 import { migrationsByModel, getModelMigrationQuery, getMigrationModelNames, type ModelName } from './internal/migrations';
@@ -114,7 +114,8 @@ export class ${clientClassName} {
   private _migrationPromises: Map<ModelName, Promise<void>> = new Map();
   private _onMigrationEvent?: MigrationEventCallback;
   private _userCallbacks: BeforeQueryCallback[] = [];
-  private _perModelCallbacks?: PerModelCallbacks;
+  // Initialised explicitly so the guard proxy finds it on the instance rather than treating it as an unknown name.
+  private _perModelCallbacks?: PerModelCallbacks = undefined;
 
   constructor(options?: ClientOptions) {
     // Store user callbacks (normalized to array)
@@ -139,6 +140,8 @@ export class ${clientClassName} {
         onBeforeQuery: allCallbacks,
       },
     });
+
+    return guardUnknownModels(this, modelRegistry);
   }
 
   /** @internal */
