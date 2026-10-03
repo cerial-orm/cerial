@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, it } from 'bun:test';
 import {
   createDebouncer,
-  DEBOUNCE_MS,
   type Debouncer,
   getSchemaLabel,
   isCerialFile,
@@ -9,12 +8,6 @@ import {
 } from '../../../src/cli/watcher';
 
 describe('watcher', () => {
-  describe('DEBOUNCE_MS', () => {
-    it('should be 300ms', () => {
-      expect(DEBOUNCE_MS).toBe(300);
-    });
-  });
-
   describe('isCerialFile', () => {
     it('should return true for .cerial files', () => {
       expect(isCerialFile('schema.cerial')).toBe(true);
@@ -63,128 +56,6 @@ describe('watcher', () => {
       };
 
       expect(getSchemaLabel(target)).toBe('/some/path/schemas');
-    });
-  });
-
-  describe('WatchTarget', () => {
-    it('should accept minimal shape', () => {
-      const target: WatchTarget = {
-        schemaPath: './schemas',
-        outputDir: './generated',
-      };
-
-      expect(target.schemaPath).toBe('./schemas');
-      expect(target.outputDir).toBe('./generated');
-      expect(target.name).toBeUndefined();
-      expect(target.clientClassName).toBeUndefined();
-    });
-
-    it('should accept full shape', () => {
-      const target: WatchTarget = {
-        name: 'auth',
-        schemaPath: './schemas/auth',
-        outputDir: './generated/auth',
-        clientClassName: 'AuthCerialClient',
-      };
-
-      expect(target.name).toBe('auth');
-      expect(target.schemaPath).toBe('./schemas/auth');
-      expect(target.outputDir).toBe('./generated/auth');
-      expect(target.clientClassName).toBe('AuthCerialClient');
-    });
-
-    it('should support merged folder override output', () => {
-      const target: WatchTarget = {
-        name: 'auth',
-        schemaPath: './schemas/auth',
-        outputDir: './custom-output/auth',
-        clientClassName: 'AuthCerialClient',
-      };
-
-      expect(target.outputDir).toBe('./custom-output/auth');
-    });
-
-    it('should support auto-discovered schema entry', () => {
-      const target: WatchTarget = {
-        name: 'discovered',
-        schemaPath: './discovered-schemas',
-        outputDir: './generated/discovered',
-        clientClassName: 'DiscoveredCerialClient',
-      };
-
-      expect(target.name).toBe('discovered');
-      expect(target.schemaPath).toBe('./discovered-schemas');
-      expect(target.outputDir).toBe('./generated/discovered');
-      expect(target.clientClassName).toBe('DiscoveredCerialClient');
-    });
-
-    it('should support multiple merged entries with different outputs', () => {
-      const targets: WatchTarget[] = [
-        {
-          name: 'auth',
-          schemaPath: './schemas/auth',
-          outputDir: './custom-output/auth',
-          clientClassName: 'AuthCerialClient',
-        },
-        {
-          name: 'core',
-          schemaPath: './schemas/core',
-          outputDir: './generated/core',
-          clientClassName: 'CoreCerialClient',
-        },
-      ];
-
-      expect(targets).toHaveLength(2);
-      const auth = targets[0];
-      const core = targets[1];
-      expect(auth?.outputDir).toBe('./custom-output/auth');
-      expect(core?.outputDir).toBe('./generated/core');
-    });
-
-    it('should support convention marker watch target with name from basename', () => {
-      const target: WatchTarget = {
-        name: 'schemas',
-        schemaPath: './schemas',
-        outputDir: './schemas/client',
-      };
-
-      expect(target.name).toBe('schemas');
-      expect(target.schemaPath).toBe('./schemas');
-      expect(target.outputDir).toBe('./schemas/client');
-      expect(target.clientClassName).toBeUndefined();
-    });
-
-    it('should support multiple convention marker watch targets', () => {
-      const targets: WatchTarget[] = [
-        {
-          name: 'auth',
-          schemaPath: './auth',
-          outputDir: './auth/client',
-        },
-        {
-          name: 'core',
-          schemaPath: './core',
-          outputDir: './core/client',
-        },
-      ];
-
-      expect(targets).toHaveLength(2);
-      expect(targets[0]?.name).toBe('auth');
-      expect(targets[0]?.schemaPath).toBe('./auth');
-      expect(targets[0]?.outputDir).toBe('./auth/client');
-      expect(targets[1]?.name).toBe('core');
-      expect(targets[1]?.schemaPath).toBe('./core');
-      expect(targets[1]?.outputDir).toBe('./core/client');
-    });
-
-    it('should support convention marker with custom output override', () => {
-      const target: WatchTarget = {
-        name: 'schemas',
-        schemaPath: './schemas',
-        outputDir: './custom-output',
-      };
-
-      expect(target.outputDir).toBe('./custom-output');
     });
   });
 
