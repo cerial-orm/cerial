@@ -43,13 +43,13 @@ try {
 | Class | Code | Thrown when |
 | --- | --- | --- |
 | `CerialNotConnectedError` | `C1000` | A query is issued before `connect()`, after `disconnect()`, or on a named connection that is not connected |
-| `CerialConnectionError` | `C1001` | A connection cannot be found, configured, opened or kept |
+| `CerialConnectionError` | `C1001` | A connection cannot be found, configured, opened or kept, or drops while a call is running. `cause` holds the driver error |
 | `CerialUnknownModelError` | `C2000` | A model name is not in the schema, such as `client.db.Uesr` |
 | `CerialUnknownFieldError` | `C2001` | A field name is not on the model, in `where`, `select`, `orderBy`, `include` or `data` |
 | `CerialMigrationError` | `C2002` | A model's lazy migration fails. `model` names it and `cause` holds the database error |
 | `CerialValidationError` | `C3000` | Input is rejected before a query is sent: wrong type, missing value, bad shape, or a rule the schema forbids |
 | `CerialTransactionError` | `C5000` | A transaction is used after it ended, nested, or times out |
-| `CerialUniqueConstraintError` | `C6000` | A write violates a unique constraint |
+| `CerialUniqueConstraintError` | `C6000` | A write violates a unique index, or creates a record whose id is taken. `conflict` is `'index'` or `'record'`. For an index, `index` names it and `value` is the conflicting value as the database prints it. `record` is the id of the record involved in both cases |
 | `CerialDatabaseError` | `C6001` | The database rejects a call in a way Cerial does not classify further. `model` and `operation` name the call, `cause` holds the raw error, and `statement` is set only with the `includeStatementInErrors` client option |
 | `CerialGenerationError` | `C7000` | The schema or project configuration is rejected while generating the client |
 

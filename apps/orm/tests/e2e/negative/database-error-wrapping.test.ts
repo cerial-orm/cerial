@@ -7,7 +7,14 @@
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import { CerialDatabaseError, CerialError, CerialMigrationError, CerialValidationError, Model } from 'cerial';
+import {
+  CerialDatabaseError,
+  CerialError,
+  CerialMigrationError,
+  CerialUniqueConstraintError,
+  CerialValidationError,
+  Model,
+} from 'cerial';
 import { SurrealError } from 'surrealdb';
 import {
   CerialClient,
@@ -79,15 +86,15 @@ describe('Database error wrapping', () => {
     await client.db.User.create({ data });
     const error = await caught(() => client.db.User.create({ data }));
 
-    expect(error).toBeInstanceOf(CerialDatabaseError);
-    expect((error as CerialDatabaseError).model).toBe('User');
-    expect((error as CerialDatabaseError).operation).toBe('create');
-    expect(((error as CerialDatabaseError).cause as Error).message).toContain('already contains');
+    expect(error).toBeInstanceOf(CerialUniqueConstraintError);
+    expect((error as CerialUniqueConstraintError).model).toBe('User');
+    expect((error as CerialUniqueConstraintError).operation).toBe('create');
+    expect(((error as CerialUniqueConstraintError).cause as Error).message).toContain('already contains');
   });
 
   test('the statement is absent by default', async () => {
     await client.db.User.create({ data });
-    const error = (await caught(() => client.db.User.create({ data }))) as CerialDatabaseError;
+    const error = (await caught(() => client.db.User.create({ data }))) as CerialUniqueConstraintError;
 
     expect(error.statement).toBeUndefined();
     expect(JSON.stringify(error.message)).not.toContain('CREATE');
@@ -95,9 +102,9 @@ describe('Database error wrapping', () => {
 
   test('the statement and its bound values are attached when the client opts in', async () => {
     await verbose.db.User.create({ data });
-    const error = (await caught(() => verbose.db.User.create({ data }))) as CerialDatabaseError;
+    const error = (await caught(() => verbose.db.User.create({ data }))) as CerialUniqueConstraintError;
 
-    expect(error).toBeInstanceOf(CerialDatabaseError);
+    expect(error).toBeInstanceOf(CerialUniqueConstraintError);
     expect(error.statement?.text).toContain('CREATE');
     expect(Object.values(error.statement?.vars ?? {}).some((v) => JSON.stringify(v).includes('dup@x.io'))).toBe(true);
   });
@@ -114,10 +121,10 @@ describe('Database error wrapping', () => {
     const withOption = await caught(() => verbose.$transaction(async (tx) => tx.User.create({ data })));
     const without = await caught(() => client.$transaction(async (tx) => tx.User.create({ data })));
 
-    expect(withOption).toBeInstanceOf(CerialDatabaseError);
-    expect((withOption as CerialDatabaseError).statement?.text).toContain('CREATE');
-    expect(without).toBeInstanceOf(CerialDatabaseError);
-    expect((without as CerialDatabaseError).statement).toBeUndefined();
+    expect(withOption).toBeInstanceOf(CerialUniqueConstraintError);
+    expect((withOption as CerialUniqueConstraintError).statement?.text).toContain('CREATE');
+    expect(without).toBeInstanceOf(CerialUniqueConstraintError);
+    expect((without as CerialUniqueConstraintError).statement).toBeUndefined();
   });
 
   test('a successful query is not wrapped and keeps its shape', async () => {

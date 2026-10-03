@@ -2,6 +2,7 @@ import type { Surreal, SurrealTransaction } from 'surrealdb';
 import { CerialTransactionError, CerialUnknownModelError } from '../errors';
 import type { ModelRegistry } from '../types';
 import { Model } from './model/model';
+import { wrapDatabaseError } from './model/wrap-database-error';
 
 export type TransactionState = 'active' | 'committed' | 'cancelled';
 
@@ -37,13 +38,21 @@ export class CerialTransaction {
 
   async commit(): Promise<void> {
     this._ensureActive();
-    await this._txn.commit();
+    try {
+      await this._txn.commit();
+    } catch (error) {
+      throw wrapDatabaseError(error, undefined, 'commit');
+    }
     this._state = 'committed';
   }
 
   async cancel(): Promise<void> {
     this._ensureActive();
-    await this._txn.cancel();
+    try {
+      await this._txn.cancel();
+    } catch (error) {
+      throw wrapDatabaseError(error, undefined, 'cancel');
+    }
     this._state = 'cancelled';
   }
 

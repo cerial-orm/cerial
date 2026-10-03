@@ -1,24 +1,77 @@
-import { SurrealError } from 'surrealdb';
-import { CerialDatabaseError, CerialError } from '../../errors';
+import {
+  AlreadyExistsError,
+  CallTerminatedError,
+  ConnectionUnavailableError,
+  HttpConnectionError,
+  InternalError,
+  ReconnectExhaustionError,
+  ReconnectIterationError,
+  SurrealError,
+  UnexpectedConnectionError,
+} from 'surrealdb';
+import { CerialConnectionError, CerialDatabaseError, CerialError, CerialUniqueConstraintError } from '../../errors';
 import type { CompiledQuery } from '../../query/compile/types';
+
+/**
+ * SurrealDB reports a unique-index violation as prose with no structured field (kind `Internal`):
+ * "Database index `uq` already contains 'x@y.z', with record `t:a`". The text is the only signal there
+ * is, so it is read here and nowhere else. A duplicate record id is a different signal: the driver's `AlreadyExistsError` with a record detail.
+ * The record may itself hold backticks (``user:`u-a` ``), so it runs to the closing one at the end.
+ */
+const UNIQUE_VIOLATION = /^Database index `([^`]+)` already contains ([\s\S]+), with record `(.+)`$/;
+
+/** What the driver throws when the socket is gone, being re-opened, or never opened. */
+const CONNECTION_LOSS = [
+  CallTerminatedError,
+  ConnectionUnavailableError,
+  HttpConnectionError,
+  ReconnectExhaustionError,
+  ReconnectIterationError,
+  UnexpectedConnectionError,
+];
 
 /**
  * The one place a driver error becomes a Cerial error. An error Cerial already classified passes
  * through untouched so its specific class is not buried, and so does anything that is not a driver
  * error (a bug should surface as itself). Classifying by database message belongs here and only here.
+ * `model` is absent for a call that belongs to no model, such as committing a transaction.
  */
 export function wrapDatabaseError(
   error: unknown,
-  model: string,
+  model: string | undefined,
   operation: string,
   statement?: CompiledQuery,
 ): unknown {
   if (error instanceof CerialError || !(error instanceof SurrealError)) return error;
 
-  return new CerialDatabaseError(`${operation} on ${model} failed: ${error.message}`, {
-    model,
-    operation,
-    cause: error,
-    statement,
-  });
+  const call = model ? `${operation} on ${model}` : operation;
+  const context = { model, operation, cause: error, statement };
+
+  if (CONNECTION_LOSS.some((type) => error instanceof type)) {
+    return new CerialConnectionError(
+      `${call} failed, the database connection is unavailable: ${error.message}`,
+      context,
+    );
+  }
+
+  const unique = error instanceof InternalError ? UNIQUE_VIOLATION.exec(error.message) : null;
+  if (unique) {
+    const [, index, value, record] = unique;
+
+    return new CerialUniqueConstraintError(
+      `${call} failed: unique index \`${index}\` already contains ${value} (record \`${record}\`)`,
+      { ...context, conflict: 'index', index, value, record },
+    );
+  }
+
+  // Only a record that exists is a unique conflict; a table or namespace that exists is not.
+  if (error instanceof AlreadyExistsError && error.recordId) {
+    return new CerialUniqueConstraintError(`${call} failed: record \`${error.recordId}\` already exists`, {
+      ...context,
+      conflict: 'record',
+      record: error.recordId,
+    });
+  }
+
+  return new CerialDatabaseError(`${call} failed: ${error.message}`, context);
 }

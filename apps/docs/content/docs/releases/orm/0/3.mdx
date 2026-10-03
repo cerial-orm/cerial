@@ -137,6 +137,38 @@ development branch and is not available on npm.
   be caught with `instanceof CerialUniqueConstraintError` without matching on
   prose. See the Errors page for the full list and the code each carries.
 
+- A write that violates a unique index now throws `CerialUniqueConstraintError`
+  instead of an unclassified database error. It names the index and the
+  conflicting value, so a caller can branch without reading the message:
+
+  ```typescript
+  try {
+    await client.db.User.create({ data: { email: 'ada@example.com', name: 'Ada', isActive: true } });
+  } catch (e) {
+    if (e instanceof CerialUniqueConstraintError) {
+      console.log(e.index, e.value, e.record); // the index, 'ada@example.com', the record that holds it
+    }
+  }
+  ```
+
+  `value` is the conflicting value as the database prints it (`'ada@example.com'`,
+  `5`, `['a', 1]`), not a parsed JavaScript value.
+
+  Creating a record whose `id` is already taken throws the same class, so one
+  `catch` covers both. `e.conflict` tells them apart: `'index'` for a unique
+  index (`index` and `value` are set) and `'record'` for a taken id (they are
+  `undefined`). `record` is set in both cases.
+
+  A unique violation raised by an `upsert` that matches by `id` is not classified
+  yet: the driver reports it as a failed transaction without the index.
+
+- A query made on a connection that has dropped, or whose reconnect attempts ran
+  out, now throws `CerialConnectionError` with the driver error as `cause`,
+  instead of the driver's own error. `commit()` and `cancel()` on a manual
+  transaction are classified the same way, and any other database failure on
+  them is now a `CerialDatabaseError` (no `model`). Using a transaction after it
+  was committed or cancelled already threw `CerialTransactionError`.
+
 - `create` and `updateMany` now accept `include`, on any model that has
   relations, returning the related records with the written ones:
 
