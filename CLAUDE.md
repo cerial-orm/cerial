@@ -239,6 +239,12 @@ The pipeline shape is the same each time:
    needs a handler under `query/filters/<category>/` registered in
    `query/filters/registry.ts` and a Where-type update in
    `generators/types/where-generator.ts`.
+   Declare every new construct (decorator, field type, directive, extends form,
+   literal variant, tuple element shape) in `apps/orm/src/parity/parity-manifest.ts`
+   first. It is the one place a construct is declared, and
+   `bun test tests/generators/parity-manifest.test.ts` reports it as a gap until a
+   schema under `tests/e2e/schemas/` exercises it. Widening an AST union is a compile
+   error until `src/parity/ast-cross-check.ts` and the manifest follow.
 2. Unit tests, then an e2e schema under `tests/e2e/schemas/` if the syntax changed,
    then e2e tests. Register new tables in `test-helper.ts`.
 3. `bun run generate:test-client`, `bun run typecheck`, `bunx tsc --noEmit`, then the
