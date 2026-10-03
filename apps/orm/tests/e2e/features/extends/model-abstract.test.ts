@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import { CerialId } from 'cerial';
+import { CerialId, CerialUnknownModelError } from 'cerial';
 import {
   type CerialClient,
   cleanupTables,
@@ -30,12 +30,14 @@ describe('E2E Extends: Abstract Model Behavior', () => {
   describe('abstract model has no client accessor', () => {
     test('ExtBaseEntity is not accessible on client.db', () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any -- checking abstract model absence
-      expect((client.db as unknown as Record<string, unknown>).ExtBaseEntity).toBeUndefined();
+      expect(() => (client.db as unknown as Record<string, unknown>).ExtBaseEntity).toThrow(CerialUnknownModelError);
+      expect('ExtBaseEntity' in client.db).toBe(false);
     });
 
     test('ExtBaseUser is not accessible on client.db', () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any -- checking abstract model absence
-      expect((client.db as unknown as Record<string, unknown>).ExtBaseUser).toBeUndefined();
+      expect(() => (client.db as unknown as Record<string, unknown>).ExtBaseUser).toThrow(CerialUnknownModelError);
+      expect('ExtBaseUser' in client.db).toBe(false);
     });
   });
 

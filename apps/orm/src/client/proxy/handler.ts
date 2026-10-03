@@ -39,7 +39,10 @@ function getOrCreateModel(db: Surreal, modelName: string, registry: ModelRegistr
   // Get metadata from registry
   const metadata = registry[modelName];
   if (!metadata) {
-    throw new CerialUnknownModelError(`Model "${modelName}" not found in registry`, { model: modelName });
+    throw new CerialUnknownModelError(
+      `Unknown model "${modelName}". Valid models: ${Object.keys(registry).join(', ')}`,
+      { model: modelName },
+    );
   }
 
   // Create and cache model (pass registry for relation queries)
@@ -94,9 +97,8 @@ export function createProxyHandler(
       // Ignore special properties (Promise checks, JSON serialization, etc.)
       if (IGNORED_PROPERTIES.has(prop)) return undefined;
 
-      // Only return model if it exists in registry
-      if (!(prop in registry)) return undefined;
-
+      // Must stay below the symbol and IGNORED_PROPERTIES checks, or every `await` on the client
+      // throws. An unknown model falls through to getOrCreateModel, which names it.
       // Build model-specific options combining global and per-model callbacks
       const modelOptions = buildModelOptions(prop, options);
 
