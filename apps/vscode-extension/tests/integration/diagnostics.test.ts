@@ -119,4 +119,15 @@ suite('Diagnostics', () => {
     const idError = errors.find((d) => d.message.includes('@id'));
     assert.ok(idError, `Should have diagnostic about missing @id, got: ${errors.map((d) => d.message).join('; ')}`);
   });
+
+  test('a model declared twice reports a diagnostic on the second declaration', async function () {
+    this.timeout(15000);
+
+    const doc = await openDocument('duplicate-declarations.cerial');
+    const diagnostics = await waitForDiagnostics(doc.uri);
+
+    const duplicate = diagnostics.find((d) => d.message.includes('Duplicate model name: DuplicateProbe'));
+    assert.ok(duplicate, `Should report the duplicate, got: ${diagnostics.map((d) => d.message).join('; ')}`);
+    assert.strictEqual(duplicate.range.start.line, 5, 'Should land on the second declaration (0-indexed line 5)');
+  });
 });

@@ -13,7 +13,11 @@ import {
   validateUuidFields,
 } from '../../../orm/src/cli/validators';
 import { parse } from '../../../orm/src/parser/parser';
-import { getDefaultTypeMismatchDiagnostics, getInvalidTokenDiagnostics } from '../../server/src/providers/diagnostics';
+import {
+  getDefaultTypeMismatchDiagnostics,
+  getDuplicateNameErrors,
+  getInvalidTokenDiagnostics,
+} from '../../server/src/providers/diagnostics';
 import { loadFixture, parseFixture, testPath } from './helpers';
 
 describe('Diagnostics Logic', () => {
@@ -618,6 +622,48 @@ describe('valid pick/omit no false positives', () => {
 
     // Should not have any mixing errors
     const mixedErrors = result.errors.filter(
+
+describe('duplicate declaration diagnostics', () => {
+  const HOST = 'model Host {\n  id Record @id\n}';
+
+  test.each([
+    ['model', 'model Host {\n  id Record @id\n}\n\nmodel Host {\n  id Record @id\n}', 'Duplicate model name: Host'],
+    ['enum', 'enum Role { A, B }\n\nenum Role { C }', 'Duplicate enum name: Role'],
+    ['tuple', 'tuple P {\n  Int,\n  Int\n}\n\ntuple P {\n  Int,\n  Int\n}', 'Duplicate tuple name: P'],
+    ['literal', "literal L { 'a', 'b' }\n\nliteral L { 'c' }", 'Duplicate literal name: L'],
+    ['object', 'object G {\n  lat Float\n}\n\nobject G {\n  lng Float\n}', 'Duplicate object name: G'],
+  ])('a %s declared twice in one file is reported on the second declaration', (_kind, source, message) => {
+    const { ast } = parse(source);
+    const errors = getDuplicateNameErrors(ast, [ast]);
+
+    expect(errors.map((e) => e.message)).toEqual([message]);
+    expect(errors[0]!.line).toBeGreaterThan(1);
+  });
+
+  test('a model declared in two files is reported on the later file only', () => {
+    const first = parse(HOST).ast;
+    const second = parse(HOST).ast;
+
+    expect(getDuplicateNameErrors(first, [first, second])).toEqual([]);
+    expect(getDuplicateNameErrors(second, [first, second]).map((e) => e.message)).toEqual([
+      'Duplicate model name: Host',
+    ]);
+  });
+
+  test('a duplicate on the same line number in another file is not attributed to this file', () => {
+    const first = parse(HOST).ast;
+    const second = parse(HOST).ast;
+    const unrelated = parse('model Other {\n  id Record @id\n}').ast;
+
+    expect(getDuplicateNameErrors(unrelated, [first, second, unrelated])).toEqual([]);
+  });
+
+  test('unique names produce no errors', () => {
+    const { ast } = parse(`${HOST}\n\nenum Role { A, B }`);
+
+    expect(getDuplicateNameErrors(ast, [ast])).toEqual([]);
+  });
+});
       (e) =>
         e.message.toLowerCase().includes('mix') &&
         (e.message.toLowerCase().includes('pick') || e.message.toLowerCase().includes('omit')),

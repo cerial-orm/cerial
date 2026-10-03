@@ -1,0 +1,9 @@
+model DuplicateProbe {
+  id Record @id
+  name String
+}
+
+model DuplicateProbe {
+  id Record @id
+  label String
+}

@@ -23,6 +23,7 @@ import {
 import type { TextDocument } from 'vscode-languageserver-textdocument';
 import {
   type SchemaValidationError,
+  validateDuplicateNames,
   validateExtends,
   validateResolvedTypes,
   validateSchema,
@@ -78,6 +79,39 @@ function findBlockByName(ast: SchemaAST, name: string): SourceRange | null {
   for (const l of ast.literals) if (l.name === name) return l.range;
 
   return null;
+}
+
+/**
+ * Duplicate declarations of one name, reported on the file that holds the later declaration.
+ *
+ * Runs on the merged AST before inheritance resolution: the resolver keys types by name, so a
+ * duplicate is gone by the time the resolved AST is validated. Only the files up to and including
+ * this one are merged, so the earlier file is never flagged. The validator reports a line and no
+ * model, and lines are only unique within one file, so each error is matched to a declaration in
+ * this file by its start line and name before it is kept.
+ */
+export function getDuplicateNameErrors(fileAST: SchemaAST, groupASTs: Iterable<SchemaAST>): SchemaValidationError[] {
+  const merged: SchemaAST = { models: [], objects: [], tuples: [], literals: [], enums: [], source: '' };
+  for (const ast of groupASTs) {
+    merged.models.push(...ast.models);
+    merged.objects.push(...ast.objects);
+    merged.tuples.push(...ast.tuples);
+    merged.literals.push(...ast.literals);
+    merged.enums.push(...ast.enums);
+    if (ast === fileAST) break;
+  }
+
+  const declarations = [
+    ...fileAST.models,
+    ...fileAST.objects,
+    ...fileAST.tuples,
+    ...fileAST.enums,
+    ...fileAST.literals,
+  ];
+
+  return validateDuplicateNames(merged).filter((error) =>
+    declarations.some((d) => d.range.start.line === error.line && error.message.endsWith(`: ${d.name}`)),
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -714,6 +748,9 @@ export function registerDiagnosticsProvider(
 
     validationErrors.push(...validateExtends(validationAST));
     validationErrors.push(...validateResolvedTypes(validationAST));
+    validationErrors.push(
+      ...getDuplicateNameErrors(fileAST, group ? indexer.getAllASTsInGroup(group.name).values() : [fileAST]),
+    );
 
     // Step 5: Filter to current file
     const fileErrors = filterErrorsToFile(validationErrors, fileAST);
