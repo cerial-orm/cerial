@@ -18,6 +18,8 @@ export interface ProxyOptions {
   onBeforeQuery?: BeforeQueryCallback | BeforeQueryCallback[];
   /** Per-model callbacks to run before queries to specific models */
   perModelCallbacks?: PerModelCallbacks;
+  /** Attach the generated statement and its bound values to a wrapped database error (default: false) */
+  includeStatementInErrors?: boolean;
 }
 
 /** Cache for model instances */
@@ -32,8 +34,9 @@ function getOrCreateModel(db: Surreal, modelName: string, registry: ModelRegistr
     modelCache.set(db, cache);
   }
 
-  // Check cache
-  let model = cache.get(modelName);
+  // Clients that share a pooled connection share this cache, so the error option is part of the key
+  const cacheKey = options?.includeStatementInErrors ? `${modelName}:statement` : modelName;
+  let model = cache.get(cacheKey);
   if (model) return model;
 
   // Get metadata from registry
@@ -44,7 +47,7 @@ function getOrCreateModel(db: Surreal, modelName: string, registry: ModelRegistr
 
   // Create and cache model (pass registry for relation queries)
   model = new Model(db, metadata, registry, options);
-  cache.set(modelName, model);
+  cache.set(cacheKey, model);
 
   return model;
 }
@@ -77,8 +80,8 @@ function buildModelOptions(modelName: string, options?: ProxyOptions): ModelOpti
 
   const allCallbacks = [...globalCallbacks, ...perModelCallbacks];
 
-  if (allCallbacks.length === 0) return undefined;
-  return { onBeforeQuery: allCallbacks };
+  if (allCallbacks.length === 0 && !options?.includeStatementInErrors) return undefined;
+  return { onBeforeQuery: allCallbacks, includeStatementInErrors: options?.includeStatementInErrors };
 }
 
 /** Create proxy handler for model access */

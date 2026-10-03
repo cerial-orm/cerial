@@ -50,7 +50,7 @@ try {
 | `CerialValidationError` | `C3000` | Input is rejected before a query is sent: wrong type, missing value, bad shape, or a rule the schema forbids |
 | `CerialTransactionError` | `C5000` | A transaction is used after it ended, nested, or times out |
 | `CerialUniqueConstraintError` | `C6000` | A write violates a unique constraint |
-| `CerialDatabaseError` | `C6001` | The database fails in a way Cerial does not classify further. `cause` holds the raw error |
+| `CerialDatabaseError` | `C6001` | The database rejects a call in a way Cerial does not classify further. `model` and `operation` name the call, `cause` holds the raw error, and `statement` is set only with the `includeStatementInErrors` client option |
 | `CerialGenerationError` | `C7000` | The schema or project configuration is rejected while generating the client |
 
 Codes never change and are never reused. A new kind of error gets a new code.

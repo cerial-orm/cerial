@@ -153,6 +153,20 @@ development branch and is not available on npm.
   operations in the same call. An unknown relation name throws before anything is
   written. `updateUnique` and `upsert` already accepted `include`.
 
+- `includeStatementInErrors` is a new client option. A database error carries
+  the model and the operation that produced it either way; with the option on,
+  `error.statement` also holds the generated statement:
+
+  ```typescript
+  const client = new CerialClient({ includeStatementInErrors: true });
+  ```
+
+  It is off by default. The statement includes the bound parameter values
+  (`error.statement.vars`), which are your data, so an error that reaches a log
+  or an error tracker would carry them. Turn it on in development, not where
+  errors are shipped elsewhere. The `statement` is the call's main statement; a
+  nested write may run others.
+
 ### Fixed
 
 - `findOne` now accepts `orderBy` in its generated type. The runtime and the
@@ -464,3 +478,11 @@ development branch and is not available on npm.
   and `deleteMany` does not accept `select` or `include`. The database has no
   ordering or paging on a bulk update or delete. To touch a limited set, read
   the ids with `findMany` first and pass them in `where`.
+- **Breaking.** An error from the database now arrives as a `CerialDatabaseError`
+  (`C6001`) naming the `model` and `operation`, with the driver's error as
+  `cause`. A failed migration arrives as a `CerialMigrationError` (`C2002`).
+  Before, both reached your code as the raw driver error with no sign of which
+  call produced it. Code that matched the driver's error class on a caught error
+  must read `error.cause` instead. An error Cerial already classifies, such as
+  `CerialValidationError`, is unchanged. Failures of the `$transaction([...])`
+  array form are not wrapped yet.

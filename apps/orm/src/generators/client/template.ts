@@ -9,7 +9,7 @@ export function generateImports(models: ModelMetadata[]): string {
   const modelImports = models.map((m) => m.name).join(', ');
   const modelTypeImports = models.map((m) => `${m.name}Model`).join(', ');
 
-  return `import { CerialNotConnectedError, CerialTransactionError, CerialValidationError, ConnectionManager, CerialQueryPromise, executeClientTransaction, createCerialTransactionProxy, guardUnknownModels, isTransactionConflict, type CerialTransaction, type DatabaseProxy, type ModelRegistry, type BeforeQueryCallback, type PerModelCallbacks, type TransactionItem, type TransactionExecutionItem, type TransactionItemResult, type TransactionOptions, type TransactionClient } from 'cerial';
+  return `import { CerialError, CerialMigrationError, CerialNotConnectedError, CerialTransactionError, CerialValidationError, ConnectionManager, CerialQueryPromise, executeClientTransaction, createCerialTransactionProxy, guardUnknownModels, isTransactionConflict, type CerialTransaction, type DatabaseProxy, type ModelRegistry, type BeforeQueryCallback, type PerModelCallbacks, type TransactionItem, type TransactionExecutionItem, type TransactionItemResult, type TransactionOptions, type TransactionClient } from 'cerial';
 import type { ConnectionConfig } from 'cerial';
 import { modelRegistry } from './internal/model-registry';
 import { migrationsByModel, getModelMigrationQuery, getMigrationModelNames, type ModelName } from './internal/migrations';
@@ -93,6 +93,11 @@ export interface ClientOptions {
   onBeforeQuery?: BeforeQueryCallback | BeforeQueryCallback[];
   /** Callback for migration events (start, complete, error) */
   onMigrationEvent?: MigrationEventCallback;
+  /**
+   * Attach the generated statement and its bound parameter values to a database error (default: false).
+   * The values are your data: turn this on in development, not where errors reach a shared log or tracker.
+   */
+  includeStatementInErrors?: boolean;
 }
 
 /**
@@ -114,6 +119,7 @@ export class ${clientClassName} {
   private _migrationPromises: Map<ModelName, Promise<void>> = new Map();
   private _onMigrationEvent?: MigrationEventCallback;
   private _userCallbacks: BeforeQueryCallback[] = [];
+  private _includeStatementInErrors = false;
   // Initialised explicitly so the guard proxy finds it on the instance rather than treating it as an unknown name.
   private _perModelCallbacks?: PerModelCallbacks = undefined;
 
@@ -126,6 +132,7 @@ export class ${clientClassName} {
     }
 
     this._onMigrationEvent = options?.onMigrationEvent;
+    this._includeStatementInErrors = options?.includeStatementInErrors ?? false;
 
     // Combine migration callback with user callbacks
     const allCallbacks: BeforeQueryCallback[] = [
@@ -138,6 +145,7 @@ export class ${clientClassName} {
     this.connectionManager = new ConnectionManager(modelRegistry, {
       proxyOptions: {
         onBeforeQuery: allCallbacks,
+        includeStatementInErrors: this._includeStatementInErrors,
       },
     });
 
@@ -219,6 +227,7 @@ ${modelAccessors}
       this.connectionManager.setProxyOptions({
         onBeforeQuery: allCallbacks,
         perModelCallbacks: this._perModelCallbacks,
+        includeStatementInErrors: this._includeStatementInErrors,
       });
     }
 
@@ -296,7 +305,12 @@ ${modelAccessors}
       this._onMigrationEvent?.({ type: 'complete', modelName });
     } catch (error) {
       this._onMigrationEvent?.({ type: 'error', modelName, error: error as Error });
-      throw error; // Fail fast - don't retry
+      if (error instanceof CerialError) throw error; // Fail fast - don't retry
+      throw new CerialMigrationError(\`Migration of \${modelName} failed: \${error instanceof Error ? error.message : String(error)}\`, {
+        model: modelName,
+        operation: 'migrate',
+        cause: error,
+      });
     }
   }
 
@@ -442,7 +456,7 @@ ${_generateTransactionOverloads()}
       await this.ensureMigrated();
       const sdkTxn = await surreal.beginTransaction();
 
-      return createCerialTransactionProxy(sdkTxn, modelRegistry);
+      return createCerialTransactionProxy(sdkTxn, modelRegistry, this._includeStatementInErrors);
     }
 
     // Callback mode: function argument
@@ -458,7 +472,7 @@ ${_generateTransactionOverloads()}
       for (let attempt = 0; attempt <= maxRetries; attempt++) {
         try {
           const sdkTxn = await surreal.beginTransaction();
-          const tx = createCerialTransactionProxy(sdkTxn, modelRegistry);
+          const tx = createCerialTransactionProxy(sdkTxn, modelRegistry, this._includeStatementInErrors);
 
           let timeoutId: ReturnType<typeof setTimeout> | undefined;
           try {

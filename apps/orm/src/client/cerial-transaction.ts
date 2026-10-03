@@ -28,6 +28,7 @@ export class CerialTransaction {
   constructor(
     private readonly _txn: SurrealTransaction,
     private readonly _registry: ModelRegistry,
+    private readonly _includeStatementInErrors = false,
   ) {}
 
   get state(): TransactionState {
@@ -95,7 +96,9 @@ export class CerialTransaction {
     // SurrealTransaction extends SurrealQueryable which has query() —
     // same interface as Surreal for our query execution purposes
     const dbLike = this._txn as unknown as Surreal;
-    const model = new Model(dbLike, metadata, this._registry);
+    const model = new Model(dbLike, metadata, this._registry, {
+      includeStatementInErrors: this._includeStatementInErrors,
+    });
 
     wrapped = createTransactionModelProxy(model, () => this._ensureActive());
     this._modelCache.set(name, wrapped);
@@ -126,8 +129,12 @@ function createTransactionModelProxy(model: Model, ensureActive: () => void): un
   });
 }
 
-export function createCerialTransactionProxy(txn: SurrealTransaction, registry: ModelRegistry): CerialTransaction {
-  const cerialTxn = new CerialTransaction(txn, registry);
+export function createCerialTransactionProxy(
+  txn: SurrealTransaction,
+  registry: ModelRegistry,
+  includeStatementInErrors = false,
+): CerialTransaction {
+  const cerialTxn = new CerialTransaction(txn, registry, includeStatementInErrors);
 
   return new Proxy(cerialTxn, {
     get(target, prop) {

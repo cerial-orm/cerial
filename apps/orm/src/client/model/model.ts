@@ -25,6 +25,7 @@ import {
 } from '../../query/builder';
 import { collectRelatedModelNames, type IncludeClause } from '../../query/builders';
 import { CerialQueryPromise } from '../../query/cerial-query-promise';
+import type { CompiledQuery } from '../../query/compile/types';
 import type {
   CreateOptions,
   DeleteManyOptions,
@@ -42,6 +43,7 @@ import type {
   WhereClause,
 } from '../../types';
 import type { CerialTransaction } from '../cerial-transaction';
+import { wrapDatabaseError } from './wrap-database-error';
 
 /** Extended find unique options with include support */
 export interface FindUniqueOptionsWithInclude {
@@ -57,11 +59,14 @@ export type BeforeQueryCallback = (modelNames: string[]) => Promise<void>;
 export interface ModelOptions {
   /** Callback(s) to run before each query - can be single function or array (e.g., for lazy migrations, logging) */
   onBeforeQuery?: BeforeQueryCallback | BeforeQueryCallback[];
+  /** Attach the generated statement and its bound values to a wrapped database error (default: false) */
+  includeStatementInErrors?: boolean;
 }
 
 /** Model class that wraps query builder methods */
 export class Model<T extends Record<string, unknown> = Record<string, unknown>> {
   private onBeforeQueryCallbacks: BeforeQueryCallback[] = [];
+  private readonly includeStatement: boolean;
 
   constructor(
     private db: Surreal,
@@ -69,6 +74,7 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
     private registry?: ModelRegistry,
     options?: ModelOptions,
   ) {
+    this.includeStatement = options?.includeStatementInErrors ?? false;
     // Normalize to array for consistent handling
     if (options?.onBeforeQuery) {
       this.onBeforeQueryCallbacks = Array.isArray(options.onBeforeQuery)
@@ -81,6 +87,15 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
   private async beforeQuery(modelNames: string[]): Promise<void> {
     for (const callback of this.onBeforeQueryCallbacks) {
       await callback(modelNames);
+    }
+  }
+
+  /** Run a builder call, wrapping a database error in the Cerial call that produced it */
+  private async run<R>(operation: string, compiled: CompiledQuery, call: () => Promise<R>): Promise<R> {
+    try {
+      return await call();
+    } catch (error) {
+      throw wrapDatabaseError(error, this.metadata.name, operation, this.includeStatement ? compiled : undefined);
     }
   }
 
@@ -121,7 +136,9 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
         await this.beforeQuery(modelNames);
         const db = this.resolveDb(txn);
 
-        return QueryBuilderStatic.findOne<T>(db, this.metadata, queryOptions, this.registry);
+        return this.run('findOne', compiled.query, () =>
+          QueryBuilderStatic.findOne<T>(db, this.metadata, queryOptions, this.registry),
+        );
       },
       compiled.query,
       this.metadata,
@@ -143,7 +160,9 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
         await this.beforeQuery(modelNames);
         const db = this.resolveDb(txn);
 
-        return QueryBuilderStatic.findUnique<T>(db, this.metadata, queryOptions, this.registry);
+        return this.run('findUnique', compiled.query, () =>
+          QueryBuilderStatic.findUnique<T>(db, this.metadata, queryOptions, this.registry),
+        );
       },
       compiled.query,
       this.metadata,
@@ -165,7 +184,9 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
         await this.beforeQuery(modelNames);
         const db = this.resolveDb(txn);
 
-        return QueryBuilderStatic.findMany<T>(db, this.metadata, queryOptions, this.registry);
+        return this.run('findMany', compiled.query, () =>
+          QueryBuilderStatic.findMany<T>(db, this.metadata, queryOptions, this.registry),
+        );
       },
       compiled.query,
       this.metadata,
@@ -194,7 +215,9 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
         await this.beforeQuery(modelNames);
         const db = this.resolveDb(txn);
 
-        return QueryBuilderStatic.create<T>(db, this.metadata, queryOptions, this.registry);
+        return this.run('create', compiled.query, () =>
+          QueryBuilderStatic.create<T>(db, this.metadata, queryOptions, this.registry),
+        );
       },
       compiled.query,
       this.metadata,
@@ -225,7 +248,9 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
         await this.beforeQuery(modelNames);
         const db = this.resolveDb(txn);
 
-        return QueryBuilderStatic.updateMany<T>(db, this.metadata, queryOptions, this.registry);
+        return this.run('updateMany', compiled.query, () =>
+          QueryBuilderStatic.updateMany<T>(db, this.metadata, queryOptions, this.registry),
+        );
       },
       compiled.query,
       this.metadata,
@@ -276,7 +301,9 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
         await this.beforeQuery(modelNames);
         const db = this.resolveDb(txn);
 
-        return QueryBuilderStatic.updateUnique<T, R>(db, this.metadata, queryOptions, this.registry);
+        return this.run('updateUnique', compiled.query, () =>
+          QueryBuilderStatic.updateUnique<T, R>(db, this.metadata, queryOptions, this.registry),
+        );
       },
       compiled.query,
       this.metadata,
@@ -298,7 +325,9 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
         await this.beforeQuery(modelNames);
         const db = this.resolveDb(txn);
 
-        return QueryBuilderStatic.deleteMany(db, this.metadata, queryOptions, this.registry);
+        return this.run('deleteMany', compiled.query, () =>
+          QueryBuilderStatic.deleteMany(db, this.metadata, queryOptions, this.registry),
+        );
       },
       compiled.query,
       this.metadata,
@@ -330,7 +359,9 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
         await this.beforeQuery(modelNames);
         const db = this.resolveDb(txn);
 
-        return QueryBuilderStatic.deleteUnique<T, R>(db, this.metadata, queryOptions, this.registry);
+        return this.run('deleteUnique', compiled.query, () =>
+          QueryBuilderStatic.deleteUnique<T, R>(db, this.metadata, queryOptions, this.registry),
+        );
       },
       compiled.query,
       this.metadata,
@@ -350,7 +381,9 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
         await this.beforeQuery(modelNames);
         const db = this.resolveDb(txn);
 
-        return QueryBuilderStatic.count(db, this.metadata, where, this.registry);
+        return this.run('count', compiled.query, () =>
+          QueryBuilderStatic.count(db, this.metadata, where, this.registry),
+        );
       },
       compiled.query,
       this.metadata,
@@ -370,7 +403,9 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
         await this.beforeQuery(modelNames);
         const db = this.resolveDb(txn);
 
-        return QueryBuilderStatic.exists(db, this.metadata, where, this.registry);
+        return this.run('exists', compiled.query, () =>
+          QueryBuilderStatic.exists(db, this.metadata, where, this.registry),
+        );
       },
       compiled.query,
       this.metadata,
@@ -423,7 +458,9 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
         const db = this.resolveDb(txn);
 
         // The builder returns unknown because the shape depends on the where clause
-        const result = await QueryBuilderStatic.upsert<T, R>(db, this.metadata, queryOptions, this.registry);
+        const result = await this.run('upsert', compiled.query, () =>
+          QueryBuilderStatic.upsert<T, R>(db, this.metadata, queryOptions, this.registry),
+        );
 
         return result as UpsertReturnType<T, R> | UpsertArrayReturnType<T, R>;
       },
