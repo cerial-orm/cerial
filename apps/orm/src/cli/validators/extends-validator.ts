@@ -23,6 +23,7 @@ import {
   isPrivateField,
   isPrivateTupleElement,
 } from '../../parser/types/ast';
+import { getVariantIdentity } from '../../resolver';
 import type { SchemaAST } from '../../types';
 import type { SchemaValidationError } from './schema-validator';
 
@@ -422,34 +423,7 @@ function getParentIdentifiers(
       if (!parent) return null;
 
       const names = new Set<string>();
-      for (const v of parent.variants) {
-        // Use a string representation of each variant as its identifier
-        switch (v.kind) {
-          case 'string':
-            // Quoted, matching how the resolver identifies string variants in a pick/omit list
-            names.add(`'${v.value}'`);
-            break;
-          case 'int':
-          case 'float':
-            names.add(String(v.value));
-            break;
-          case 'bool':
-            names.add(String(v.value));
-            break;
-          case 'broadType':
-            names.add(v.typeName);
-            break;
-          case 'tupleRef':
-            names.add(v.tupleName);
-            break;
-          case 'objectRef':
-            names.add(v.objectName);
-            break;
-          case 'literalRef':
-            names.add(v.literalName);
-            break;
-        }
-      }
+      for (const v of parent.variants) names.add(getVariantIdentity(v));
 
       return { names };
     }

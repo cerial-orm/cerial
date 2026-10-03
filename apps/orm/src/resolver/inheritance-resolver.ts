@@ -12,42 +12,23 @@ import type {
   ASTEnum,
   ASTField,
   ASTLiteral,
-  ASTLiteralVariant,
   ASTModel,
   ASTObject,
   ASTTuple,
   ASTTupleElement,
   SchemaAST,
 } from '../types';
-import { applyElementFilter, applyFieldFilter, applyValueFilter, applyVariantFilter } from './filter';
+import {
+  applyElementFilter,
+  applyFieldFilter,
+  applyValueFilter,
+  applyVariantFilter,
+  getVariantIdentity,
+} from './filter';
 
 // ──────────────────────────────────────────────
 // Helpers
 // ──────────────────────────────────────────────
-
-/**
- * Get the string identity of a literal variant for deduplication.
- * Must match the identity logic in filter.ts.
- */
-function getVariantIdentity(variant: ASTLiteralVariant): string {
-  switch (variant.kind) {
-    case 'string':
-      return `'${variant.value}'`;
-    case 'int':
-    case 'float':
-      return String(variant.value);
-    case 'bool':
-      return String(variant.value);
-    case 'broadType':
-      return variant.typeName;
-    case 'objectRef':
-      return variant.objectName;
-    case 'tupleRef':
-      return variant.tupleName;
-    case 'literalRef':
-      return variant.literalName;
-  }
-}
 
 /**
  * Topological sort for types with extends chains.

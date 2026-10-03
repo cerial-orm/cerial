@@ -29,7 +29,7 @@ literal ExtBroadType { String, Int }
 // Literal extending broad type
 literal ExtExtendedBroad extends ExtBroadType { Bool }
 
-// Literal with pick from mixed (bool values — string pick/omit not yet supported)
+// Literal with pick from mixed (bool values; string variants are picked by their quoted form, see ExtQuotedPick)
 literal ExtStringOnly extends ExtBaseMixed[true, false] { }
 
 // Literal with omit from mixed

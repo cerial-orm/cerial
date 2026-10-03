@@ -17,7 +17,7 @@ import type { ASTField, ASTLiteralVariant, ASTTupleElement, ExtendsFilter } from
  * - Broad types: typeName (e.g., `'Int'`, `'String'`)
  * - Object/tuple/literal refs: the ref name
  */
-function getVariantIdentity(variant: ASTLiteralVariant): string {
+export function getVariantIdentity(variant: ASTLiteralVariant): string {
   switch (variant.kind) {
     case 'string':
       return `'${variant.value}'`;
