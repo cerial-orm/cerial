@@ -232,7 +232,7 @@ export const tables = {
   extendsObject: ['ext_address_user', 'ext_chain_model'],
   extendsTuple: ['ext_tuple_model', 'ext_tuple_by_name'],
   extendsEnum: ['ext_enum_model', 'ext_enum_container'],
-  extendsLiteral: ['ext_literal_model', 'ext_literal_container'],
+  extendsLiteral: ['ext_literal_model', 'ext_literal_container', 'ext_literal_quoted'],
   extendsCrossFile: [
     'ext_cross_user',
     'ext_cross_admin',

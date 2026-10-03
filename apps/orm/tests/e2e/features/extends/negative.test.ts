@@ -443,6 +443,38 @@ model Holder {
     });
   });
 
+  // ── Literal filters on string variants ───────────────────────────────
+
+  describe('literal pick/omit naming string variants', () => {
+    const base = `literal QBase { 'low', 'medium', 'high' }\n\n`;
+
+    test('a quoted name that matches no variant is refused', () => {
+      const { schemaDir, outputDir } = setupTmpDir('literal-quoted-unknown');
+      writeSchema(schemaDir, `${base}literal QChild extends QBase['nope'] { }`);
+
+      const { exitCode, stderr } = runGenerate(schemaDir, outputDir);
+      expect(exitCode).not.toBe(0);
+      expect(stderr).toContain('nope');
+    });
+
+    test('a bare string name is refused', () => {
+      const { schemaDir, outputDir } = setupTmpDir('literal-bare-string');
+      writeSchema(schemaDir, `${base}literal QChild extends QBase[low] { }`);
+
+      const { exitCode, stderr } = runGenerate(schemaDir, outputDir);
+      expect(exitCode).not.toBe(0);
+      expect(stderr).toContain('low');
+    });
+
+    test('a quoted omit that matches no variant is refused', () => {
+      const { schemaDir, outputDir } = setupTmpDir('literal-quoted-omit-unknown');
+      writeSchema(schemaDir, `${base}literal QChild extends QBase[!'nope'] { }`);
+
+      const { exitCode } = runGenerate(schemaDir, outputDir);
+      expect(exitCode).not.toBe(0);
+    });
+  });
+
   // ── Private field override ────────────────────────────────────────────
 
   describe('private field override', () => {

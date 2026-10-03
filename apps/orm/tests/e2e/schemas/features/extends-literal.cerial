@@ -60,3 +60,14 @@ model ExtLiteralContainer {
   details ExtLiteralInfo
   detailsList ExtLiteralInfo[]
 }
+
+// Literal filters naming string variants by their quoted form
+literal ExtQuotedPick extends ExtBasePriority['low', 'high'] { }
+
+literal ExtQuotedOmit extends ExtBasePriority[!'medium'] { }
+
+model ExtLiteralQuoted {
+  id Record @id
+  picked ExtQuotedPick
+  omitted ExtQuotedOmit
+}

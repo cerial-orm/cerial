@@ -6,13 +6,10 @@
  * empty, delete this file and the ledger test, and the strict test becomes the only gate.
  *
  * Where the obvious schema will not just work:
- * - extends.literal.identity-quoted: a literal filter naming a string variant is rejected by the
- *   pick/omit validator, which compares against the bare value while the resolver matches the
- *   quoted form. No schema can use the construct until the two agree.
  * - A construct on the e2e corpus that needs a new schema file also needs its tables registered in
  *   tests/e2e/test-helper.ts.
  */
 
 import type { CorpusConstructId } from '../../src/parity';
 
-export const KNOWN_GAPS: readonly CorpusConstructId[] = ['extends.literal.identity-quoted'];
+export const KNOWN_GAPS: readonly CorpusConstructId[] = [];
