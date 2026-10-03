@@ -13,6 +13,7 @@ import type {
   TupleFieldMetadata,
   TupleRegistry,
 } from '../../types';
+import { escapeTsString } from '../shared';
 import {
   generateAssertClause,
   generateComputedClause,
@@ -834,11 +835,6 @@ export function generateModelMigrationMap(
   return map;
 }
 
-/** Escape single quotes in SurrealQL statements for TypeScript string literals */
-function escapeSingleQuotes(surql: string): string {
-  return surql.replace(/'/g, "\\'");
-}
-
 /** Generate TypeScript code for per-model migrations */
 export function generatePerModelMigrationCode(
   models: ModelMetadata[],
@@ -862,7 +858,7 @@ export function generatePerModelMigrationCode(
   );
   const mapEntries = Object.entries(migrationMap)
     .map(([modelName, modelStatements]) => {
-      const modelStatementsStr = modelStatements.map((s) => `    '${escapeSingleQuotes(s)}'`).join(',\n');
+      const modelStatementsStr = modelStatements.map((s) => `    '${escapeTsString(s)}'`).join(',\n');
       return `  ${modelName}: [\n${modelStatementsStr}\n  ]`;
     })
     .join(',\n');

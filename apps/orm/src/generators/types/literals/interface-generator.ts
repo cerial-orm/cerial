@@ -7,6 +7,7 @@
  */
 
 import type { LiteralMetadata, ResolvedLiteralVariant } from '../../../types';
+import { escapeTsString } from '../../shared';
 
 /** Map a broad type name to its TypeScript equivalent */
 function broadTypeToTs(typeName: string): string {
@@ -25,7 +26,7 @@ function broadTypeToTs(typeName: string): string {
 function variantToOutputType(variant: ResolvedLiteralVariant): string {
   switch (variant.kind) {
     case 'string':
-      return `'${variant.value}'`;
+      return `'${escapeTsString(variant.value)}'`;
     case 'int':
     case 'float':
       return `${variant.value}`;
@@ -44,7 +45,7 @@ function variantToOutputType(variant: ResolvedLiteralVariant): string {
 function variantToInputType(variant: ResolvedLiteralVariant): string {
   switch (variant.kind) {
     case 'string':
-      return `'${variant.value}'`;
+      return `'${escapeTsString(variant.value)}'`;
     case 'int':
     case 'float':
       return `${variant.value}`;

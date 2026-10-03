@@ -13,6 +13,7 @@ import type {
   TupleElementMetadata,
   TupleMetadata,
 } from '../../types';
+import { escapeTsString } from '../shared';
 
 /** Generate FieldMetadata as TypeScript code */
 function generateFieldMetadata(field: FieldMetadata): string {
@@ -28,14 +29,16 @@ function generateFieldMetadata(field: FieldMetadata): string {
 
   if (field.defaultValue !== undefined) {
     const value =
-      typeof field.defaultValue === 'string' ? `'${field.defaultValue}'` : JSON.stringify(field.defaultValue);
+      typeof field.defaultValue === 'string'
+        ? `'${escapeTsString(field.defaultValue)}'`
+        : JSON.stringify(field.defaultValue);
     parts.push(`defaultValue: ${value}`);
   }
 
   if (field.defaultAlwaysValue !== undefined) {
     const value =
       typeof field.defaultAlwaysValue === 'string'
-        ? `'${field.defaultAlwaysValue}'`
+        ? `'${escapeTsString(field.defaultAlwaysValue)}'`
         : JSON.stringify(field.defaultAlwaysValue);
     parts.push(`defaultAlwaysValue: ${value}`);
   }
@@ -161,7 +164,7 @@ ${fields}
 export function generateLiteralVariantCode(variant: ResolvedLiteralVariant): string {
   switch (variant.kind) {
     case 'string':
-      return `{ kind: 'string', value: '${variant.value}' }`;
+      return `{ kind: 'string', value: '${escapeTsString(variant.value)}' }`;
     case 'int':
       return `{ kind: 'int', value: ${variant.value} }`;
     case 'float':
@@ -377,6 +380,7 @@ export function generateFullRegistryCode(
  */
 
 import type { ${importTypes.join(', ')} } from 'cerial';
+
 
 export const modelRegistry: ModelRegistry = {
 ${modelEntries}

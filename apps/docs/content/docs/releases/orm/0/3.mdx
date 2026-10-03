@@ -85,6 +85,23 @@ development branch and is not available on npm.
   match no rows, in reads and writes alike; and a relation filter in
   `deleteMany` and `updateMany` now matches the rows it names instead of none.
 
+- A `@default` value on a `Duration` field was written into the migration DDL
+  unquoted whenever it merely *began* with a duration, so a crafted default
+  could append statements of its own. `@default("1h; REMOVE TABLE victim")`
+  emitted `DEFAULT 1h; REMOVE TABLE victim;` and dropped the table when the
+  migration ran. Duration defaults are emitted unquoted by design, because
+  SurrealDB needs `DEFAULT 1h30m` rather than a string, and the check that
+  decided "this is a duration" matched a prefix instead of the whole value. It
+  is reachable by anyone who can author or edit a `.cerial` schema, and it runs
+  with whatever rights the migration runs with. Present in 0.1.0 and 0.2.0.
+
+  A value is now emitted unquoted only when the whole of it is a duration, and
+  anything else is emitted as a quoted string. `@default(1h30m)` is unchanged.
+  A value that was never a valid duration, such as `@default("5 apples")`, used
+  to produce DDL the database refused and is now a string default. Quoting
+  rather than refusing keeps a malformed default from becoming a new generate-
+  time failure for a schema that already migrates.
+
 ### Added
 
 - `orderBy` now accepts a relation field, so you can sort by a value on the

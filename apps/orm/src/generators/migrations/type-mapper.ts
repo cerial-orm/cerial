@@ -15,6 +15,7 @@ import type {
   TupleFieldMetadata,
   TupleRegistry,
 } from '../../types';
+import { escapeSurqlString } from '../shared';
 
 /** SurrealQL type string */
 export type SurrealQLType =
@@ -125,7 +126,7 @@ function broadTypeToSurreal(typeName: string): string {
 function variantToSurrealType(variant: ResolvedLiteralVariant, tupleRegistry?: TupleRegistry): string {
   switch (variant.kind) {
     case 'string':
-      return `'${variant.value}'`;
+      return `'${escapeSurqlString(variant.value)}'`;
     case 'int':
     case 'float':
       return `${variant.value}`;
@@ -411,13 +412,15 @@ export function generateAssertClause(schemaType: SchemaFieldType): string | unde
   return `ASSERT ${assertion}`;
 }
 
+const DURATION_LITERAL = /^(\d+(ns|us|µs|ms|[smhdwy]))+$/;
+
 /** Format a value for a DEFAULT clause */
 function formatDefaultValue(value: unknown): string {
   if (typeof value === 'string') {
-    // Duration literal pattern: digits followed by duration unit(s)
-    if (/^\d+[smhdwy]/.test(value)) return value;
+    // Duration literal: one or more digit+unit pairs, matched in full because the value is emitted unquoted
+    if (DURATION_LITERAL.test(value)) return value;
 
-    return `'${value}'`;
+    return `'${escapeSurqlString(value)}'`;
   }
   if (typeof value === 'boolean') return `${value}`;
   if (typeof value === 'number') return `${value}`;
