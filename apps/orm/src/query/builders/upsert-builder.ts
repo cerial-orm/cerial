@@ -499,6 +499,8 @@ export interface UpsertNestedOptions {
  */
 function asBlockValue(text: string): string {
   const at = text.lastIndexOf('\nRETURN ');
+  // Not a Cerial error class on purpose: no input reaches this, it fires only if this builder emits a
+  // branch without a RETURN, which is a bug here rather than anything a caller can cause or recover from
   if (at === -1) throw new Error('nested upsert: the branch statements end without a RETURN');
 
   return `${text.slice(0, at + 1)}${text.slice(at + '\nRETURN '.length)}`;
