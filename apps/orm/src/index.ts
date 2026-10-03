@@ -156,12 +156,58 @@ export {
   writeFile,
   writeFiles,
 } from './cli';
-// Export client
-export * from './client';
+// Export client (explicit; the model/proxy factories stay internal)
+export type {
+  BeforeQueryCallback,
+  ConnectionManagerOptions,
+  DatabaseProxy,
+  ModelOptions,
+  PerModelCallbacks,
+  ProxyOptions,
+  TransactionState,
+} from './client';
+export {
+  CerialTransaction,
+  ConnectionManager,
+  createCerialTransactionProxy,
+  createConnectionManager,
+  guardUnknownModels,
+  Model,
+  resetConnectionPool,
+} from './client';
 // Export errors
-export * from './errors';
-// Export generators
-export * from './generators';
+export type { CerialErrorCode, CerialErrorOptions } from './errors';
+export {
+  CERIAL_ERROR_CODES,
+  CerialConnectionError,
+  CerialDatabaseError,
+  CerialError,
+  CerialGenerationError,
+  CerialMigrationError,
+  CerialNotConnectedError,
+  CerialTransactionError,
+  CerialUniqueConstraintError,
+  CerialUnknownFieldError,
+  CerialUnknownModelError,
+  CerialValidationError,
+} from './errors';
+// Export generators (explicit; the per-statement emitters live on `cerial/generators`)
+export {
+  convertField,
+  convertFields,
+  convertModel,
+  convertModels,
+  createRegistry,
+  formatCode,
+  writeClient,
+  writeClientIndexFile,
+  writeClientMain,
+  writeInternalIndex,
+  writeMigrationFile,
+  writeModelRegistry,
+  writeModelsIndex,
+  writeModelTypes,
+} from './generators';
 export type { FindSchemasOptions, LexerResult } from './parser';
 // Export parser (explicit to avoid conflicts)
 export {
@@ -365,5 +411,47 @@ export type {
   UpdateOptions,
   WhereClause,
 } from './types';
-// Export utils
-export * from './utils';
+// Export utils (explicit; the plain array/string/type/validation helpers live on `cerial/utils`)
+export type {
+  CerialAny,
+  CerialBytesInput,
+  CerialDecimalInput,
+  CerialDurationInput,
+  CerialGeometryCollectionInput,
+  CerialGeometryInput,
+  CerialGeometryType,
+  CerialLineStringInput,
+  CerialMultiLineStringInput,
+  CerialMultiPointInput,
+  CerialMultiPolygonInput,
+  CerialNone,
+  CerialPointInput,
+  CerialPolygonInput,
+  CerialSet,
+  CerialUuidInput,
+  RecordIdInput,
+} from './utils';
+export {
+  CerialBytes,
+  CerialDecimal,
+  CerialDuration,
+  CerialGeometry,
+  CerialGeometryCollection,
+  CerialId,
+  CerialLineString,
+  CerialMultiLineString,
+  CerialMultiPoint,
+  CerialMultiPolygon,
+  CerialPoint,
+  CerialPolygon,
+  CerialUuid,
+  isCerialBytes,
+  isCerialDecimal,
+  isCerialDuration,
+  isCerialGeometry,
+  isCerialId,
+  isCerialUuid,
+  isNone,
+  isRecordIdInput,
+  NONE,
+} from './utils';
