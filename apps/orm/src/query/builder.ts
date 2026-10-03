@@ -46,6 +46,7 @@ import {
   findObjectUniqueKey,
   getRecordIdFromWhere,
   type IncludeClause,
+  mergeUnsetIntoData,
 } from './builders';
 import type { QueryResultType } from './cerial-query-promise';
 import type { CompiledQuery } from './compile/types';
@@ -219,7 +220,13 @@ export class QueryBuilder<T extends Record<string, unknown>> {
 
     // If there are nested operations, use the transaction builder
     if (nestedOps.size > 0 && this.registry) {
-      const query = buildUpdateWithNestedTransaction(this.model, where, transformedData, nestedOps, this.registry);
+      const query = buildUpdateWithNestedTransaction(
+        this.model,
+        where,
+        unset ? mergeUnsetIntoData(transformedData, unset) : transformedData,
+        nestedOps,
+        this.registry,
+      );
       const result = await executeQuery(this.db, query);
 
       return mapResult<T>(result, this.model);
@@ -286,7 +293,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
       const query = buildUpdateWithNestedTransaction(
         this.model,
         expandedWhere,
-        transformedData,
+        unset ? mergeUnsetIntoData(transformedData, unset) : transformedData,
         nestedOps,
         this.registry,
       );
@@ -759,7 +766,13 @@ export function compileUpdateMany(
 
   if (nestedOps.size > 0 && registry) {
     return {
-      query: buildUpdateWithNestedTransaction(model, where, transformedData, nestedOps, registry),
+      query: buildUpdateWithNestedTransaction(
+        model,
+        where,
+        unset ? mergeUnsetIntoData(transformedData, unset) : transformedData,
+        nestedOps,
+        registry,
+      ),
       resultType: 'array',
     };
   }
@@ -808,7 +821,13 @@ export function compileUpdateUnique(
 
   if (nestedOps.size > 0 && registry) {
     return {
-      query: buildUpdateWithNestedTransaction(model, expandedWhere, transformedData, nestedOps, registry),
+      query: buildUpdateWithNestedTransaction(
+        model,
+        expandedWhere,
+        unset ? mergeUnsetIntoData(transformedData, unset) : transformedData,
+        nestedOps,
+        registry,
+      ),
       resultType: 'array',
       hasId,
       returnOption,

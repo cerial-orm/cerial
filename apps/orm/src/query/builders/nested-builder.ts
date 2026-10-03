@@ -16,6 +16,7 @@ import type { CompiledQuery } from '../compile/types';
 import { createCompileContext } from '../compile/var-allocator';
 import { transformDestructiveWhere } from '../filters/transformer';
 import { transformOrValidateRecordId } from '../transformers';
+import { buildUpdateSetClauses } from './update-builder';
 
 /**
  * Apply defaults for nested create data
@@ -896,12 +897,11 @@ export function buildUpdateWithNestedTransaction(
     }
   }
 
-  // Add regular data updates
-  for (const [key, value] of Object.entries(data)) {
-    const varBinding = ctx.bind(key, 'set', value, 'string');
-    fieldUpdates.push(`${key} = ${varBinding.placeholder}`);
-    Object.assign(vars, varBinding.vars);
-  }
+  // Same SET builder as the plain path, so NONE from `unset`, object sub-fields and tuple elements
+  // are written the way the plain update writes them
+  const { setParts, setVars } = buildUpdateSetClauses(ctx, data, model);
+  fieldUpdates.push(...setParts);
+  Object.assign(vars, setVars);
 
   // For bidirectional set sync, fetch old values first
   if (arraySets.length > 0) {

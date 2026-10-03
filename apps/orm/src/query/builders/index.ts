@@ -60,7 +60,7 @@ export {
   findObjectUniqueKey,
   validateUniqueField,
 } from './select-builder';
-export { buildUpdateManyQuery, buildUpdateUniqueQuery } from './update-builder';
+export { buildUpdateManyQuery, buildUpdateUniqueQuery, mergeUnsetIntoData } from './update-builder';
 export {
   buildUpsertIdQuery,
   buildUpsertQuery,
