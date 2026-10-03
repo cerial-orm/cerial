@@ -402,3 +402,65 @@ development branch and is not available on npm.
   touches fewer rows, `return: 'before'` no longer holds the new values, and a
   response you trimmed with `select` carries the fields a plain write returns
   rather than the whole row.
+- **Breaking.** The root `cerial` entry now names every export instead of
+  re-exporting whole modules, which takes it from 288 runtime exports to 201.
+  Nothing was deleted: each name that left the root still resolves from the
+  subpath that already held it, so an import from `'cerial'` that no longer
+  resolves needs only a new module specifier.
+
+  | Name | Import it from |
+  |---|---|
+  | `createModel`, `createModelProxy`, `createProxyHandler`, `clearModelCache` | `cerial/client` |
+  | Code generation and migration emitters: every `generate*` function, `mapToSurrealType`, `getTypeAssertion`, `hasTypeAssertion`, and the types `DefineFieldOptions`, `DefineTableOptions`, `SurrealQLType` | `cerial/generators` |
+  | Array helpers (`chunk`, `first`, `flatten`, `groupBy`, `unique`, `zip` and the rest), string helpers (`capitalize`, `toCamelCase`, `toPascalCase`, `escapeString`, `quoteSubKey` and the rest), type guards (`isArray`, `isString`, `isNumber`, `isObject`, `isNullish` and the rest), and the validators (`validateFieldType`, `validateTypedRecordId`, `isValidFieldName`, `isValidModelName`, `validResult`, `invalidResult`, the `is*Operator` guards, `ValidationResult`) | `cerial/utils` |
+
+  ```ts
+  // before
+  import { chunk, generateMigrationCode } from 'cerial';
+
+  // after
+  import { chunk } from 'cerial/utils';
+  import { generateMigrationCode } from 'cerial/generators';
+  ```
+
+  The root still exports every error class, every `Cerial*` value wrapper with
+  its `*Input` type and `isCerialX` guard, `NONE`, `isNone`, `CerialNone`,
+  `CerialAny`, `CerialSet`, `RecordIdInput`, `isRecordIdInput`, and the client
+  names the generated code imports. Generated clients are unaffected. Separately,
+  `cerial/cli` now has a `require` condition, so CommonJS code can load it.
+- **Breaking.** Two exported type names changed because `surrealdb` exports the
+  same names, which made an import from both packages collide. `Token` is now
+  `CerialToken`, and the `ValidationError` interface (the result of validating a
+  `where` filter) is now `CerialValidationIssue`. No alias is kept, since an
+  alias would bring the collision back. The `CerialValidationError` class is
+  unchanged. Rename the import if you used either type.
+- **Breaking.** The `Cerial` class is created with `await Cerial.create(options)`.
+  The constructor is private, so `new Cerial(...)` no longer compiles, and
+  `create` is async because it may need to close a connection first.
+
+  ```ts
+  // before
+  const cerial = new Cerial({ url, namespace, database, auth });
+
+  // after
+  const cerial = await Cerial.create({ url, namespace, database, auth });
+  ```
+
+  The three `onDuplicateConnection` modes now behave differently when a
+  connection with the same `name` is already registered. They used to behave
+  the same, and every construction opened a new client. `use_existing` (the
+  default) returns the registered instance and opens nothing. `overwrite`
+  disconnects the registered instance, then registers a new one. `throw`
+  rejects with a `CerialConnectionError`, as before. If you relied on a second
+  `use_existing` call replacing the first instance, pass `overwrite`.
+- **Breaking.** `Model.upsert` now returns a typed result instead of `unknown`.
+  Its return type is the union of the two generated overloads, `Model | null` or
+  `Model[]` depending on the `where`, and `boolean` for `return: true`, so casts
+  on the result can be removed. Anything was castable from `unknown`, so a cast
+  to an unrelated type that used to compile is now an error: remove it, or
+  narrow the union instead. Calls through the generated `client.db.<Model>`
+  accessor already had these types and are unchanged.
+- `updateMany` and `deleteMany` do not accept `orderBy`, `limit` or `offset`,
+  and `deleteMany` does not accept `select` or `include`. The database has no
+  ordering or paging on a bulk update or delete. To touch a limited set, read
+  the ids with `findMany` first and pass them in `where`.
