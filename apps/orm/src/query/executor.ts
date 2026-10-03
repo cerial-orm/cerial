@@ -3,7 +3,7 @@
  */
 
 import { BoundQuery, isRetryableConflict, type Surreal, SurrealTransaction } from 'surrealdb';
-import type { ModelMetadata, ModelRegistry, TransactionOptions } from '../types';
+import type { ModelMetadata, ModelRegistry, SelectClause, TransactionOptions } from '../types';
 import { CerialQueryPromise, type QueryResultType } from './cerial-query-promise';
 import type { CompiledQuery } from './compile/types';
 import { mapResult, mapSingleResult } from './mappers';
@@ -22,6 +22,7 @@ export interface TransactionItem {
   metadata: ModelMetadata;
   resultType: QueryResultType;
   registry?: ModelRegistry;
+  select?: SelectClause;
 }
 
 /**
@@ -277,22 +278,27 @@ function extractAndStripReturn(text: string): { text: string; returnExpr: string
   return { text: stripped.trim(), returnExpr };
 }
 
-function mapTransactionResult(rawResult: unknown, resultType: QueryResultType, metadata: ModelMetadata): unknown {
+function mapTransactionResult(
+  rawResult: unknown,
+  resultType: QueryResultType,
+  metadata: ModelMetadata,
+  select?: SelectClause,
+): unknown {
   switch (resultType) {
     case 'single': {
       if (rawResult === null || rawResult === undefined) return null;
       if (Array.isArray(rawResult)) {
         if (!rawResult.length) return null;
 
-        return mapSingleResult(rawResult[0], metadata);
+        return mapSingleResult(rawResult[0], metadata, select);
       }
 
-      return mapSingleResult(rawResult, metadata);
+      return mapSingleResult(rawResult, metadata, select);
     }
     case 'array': {
       if (!rawResult || !Array.isArray(rawResult)) return [];
 
-      return mapResult(rawResult, metadata);
+      return mapResult(rawResult, metadata, select);
     }
     case 'count': {
       if (rawResult === null || rawResult === undefined) return 0;
@@ -367,7 +373,7 @@ async function executeItemInTransaction(
   const results = await db.query(boundQuery).collect();
   const rawResult = extractRawResult(results);
 
-  return mapTransactionResult(rawResult, item.resultType, item.metadata);
+  return mapTransactionResult(rawResult, item.resultType, item.metadata, item.select);
 }
 
 async function executeMultiStatementInTransaction(
@@ -380,7 +386,7 @@ async function executeMultiStatementInTransaction(
   const results = await db.query(boundQuery).collect();
   const rawResult = extractRawResult(results);
 
-  return mapTransactionResult(rawResult, item.resultType, item.metadata);
+  return mapTransactionResult(rawResult, item.resultType, item.metadata, item.select);
 }
 
 /**
@@ -434,6 +440,7 @@ export async function executeClientTransaction(
                 metadata: fnResult.metadata,
                 resultType: fnResult.resultType,
                 registry: fnResult.registry,
+                select: fnResult.select,
               };
               const prefix = `tx${i}_`;
               const prefixed = prefixQueryVars(txItem.compiledQuery, prefix);
@@ -600,7 +607,7 @@ export async function executeClientTransactionLegacy(db: Surreal, items: Transac
       for (let i = 0; i < items.length; i++) {
         const rawResult = i < resultArray.length ? resultArray[i] : null;
         const txItem = items[i]!;
-        mapped.push(mapTransactionResult(rawResult, txItem.resultType, txItem.metadata));
+        mapped.push(mapTransactionResult(rawResult, txItem.resultType, txItem.metadata, txItem.select));
       }
 
       return mapped;

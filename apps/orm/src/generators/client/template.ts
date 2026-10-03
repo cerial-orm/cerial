@@ -537,6 +537,7 @@ ${_generateTransactionOverloads()}
         metadata: (q as CerialQueryPromise<any>).metadata,
         resultType: (q as CerialQueryPromise<any>).resultType,
         registry: (q as CerialQueryPromise<any>).registry,
+        select: (q as CerialQueryPromise<any>).select,
       };
     });
 

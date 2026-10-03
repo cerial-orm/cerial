@@ -124,7 +124,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     const query = buildFindOneQuery(this.model, options as FindOptionsWithInclude, this.registry);
     const result = await executeQuerySingle(this.db, query);
 
-    return mapSingleResult<T>(result, this.model);
+    return mapSingleResult<T>(result, this.model, options.select);
   }
 
   /** Find a unique record by id or unique field */
@@ -141,7 +141,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     const query = buildFindUniqueQuery(this.model, options as FindUniqueOptionsWithInclude, this.registry);
     const result = await executeQuerySingle(this.db, query);
 
-    return mapSingleResult<T>(result, this.model);
+    return mapSingleResult<T>(result, this.model, options.select);
   }
 
   /** Find multiple records */
@@ -155,7 +155,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     const query = buildFindManyQuery(this.model, options as FindOptionsWithInclude, this.registry);
     const result = await executeQuery(this.db, query);
 
-    return mapResult<T>(result, this.model);
+    return mapResult<T>(result, this.model, options.select);
   }
 
   /** Create a new record */
@@ -180,14 +180,14 @@ export class QueryBuilder<T extends Record<string, unknown>> {
       const query = buildCreateWithNestedTransaction(this.model, transformedData, nestedOps, this.registry, { select });
       const result = await executeQuerySingle(this.db, query);
 
-      return mapSingleResult<T>(result, this.model);
+      return mapSingleResult<T>(result, this.model, select);
     }
 
     // Simple create without nested operations
     const query = buildCreateQuery(this.model, transformedData, select);
     const result = await executeQuerySingle(this.db, query);
 
-    return mapSingleResult<T>(result, this.model);
+    return mapSingleResult<T>(result, this.model, select);
   }
 
   /** Update records matching where clause */
@@ -231,14 +231,14 @@ export class QueryBuilder<T extends Record<string, unknown>> {
       );
       const result = await executeQuery(this.db, query);
 
-      return mapResult<T>(result, this.model);
+      return mapResult<T>(result, this.model, select);
     }
 
     // Simple update without nested operations
     const query = buildUpdateManyQuery(this.model, where, transformedData, select, unset, this.registry);
     const result = await executeQuery(this.db, query);
 
-    return mapResult<T>(result, this.model);
+    return mapResult<T>(result, this.model, select);
   }
 
   /**
@@ -304,7 +304,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
       // A non-matching where returns no row; handleUpdateUniqueResult tells null from undefined
       const record = (Array.isArray(result) ? result[0] : result) ?? null;
 
-      return this.handleUpdateUniqueResult<R>(record, returnOption);
+      return this.handleUpdateUniqueResult<R>(record, returnOption, select);
     }
 
     // Build and execute the update query
@@ -324,20 +324,21 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     if (hasId) {
       const result = await executeQuerySingle(this.db, query);
 
-      return this.handleUpdateUniqueResult<R>(result, returnOption);
+      return this.handleUpdateUniqueResult<R>(result, returnOption, select);
     }
 
     // Non-ID unique field: UPDATE returns array, take first result
     const result = await executeQuery(this.db, query);
     const record = Array.isArray(result) && result.length > 0 ? result[0] : null;
 
-    return this.handleUpdateUniqueResult<R>(record, returnOption);
+    return this.handleUpdateUniqueResult<R>(record, returnOption, select);
   }
 
   /** Handle updateUnique result based on return option */
   private handleUpdateUniqueResult<R extends UpdateUniqueReturn>(
     result: unknown,
     returnOption: R | undefined,
+    select?: SelectClause,
   ): UpdateUniqueResult<T, R> {
     // true: return whether record was found and updated
     if (returnOption === true) {
@@ -349,7 +350,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
       return null as UpdateUniqueResult<T, R>;
     }
 
-    return mapSingleResult<T>(result, this.model) as UpdateUniqueResult<T, R>;
+    return mapSingleResult<T>(result, this.model, select) as UpdateUniqueResult<T, R>;
   }
 
   /** Delete records matching where clause */
@@ -566,14 +567,14 @@ export class QueryBuilder<T extends Record<string, unknown>> {
       // ID-based: transaction returns single result
       const result = await executeQuerySingle(this.db, query);
 
-      return this.handleUpsertResult(result, returnOption);
+      return this.handleUpsertResult(result, returnOption, select);
     }
 
     if (isSingle) {
       // Unique field: UPSERT ONLY returns single result
       const result = await executeQuerySingle(this.db, query);
 
-      return this.handleUpsertResult(result, returnOption);
+      return this.handleUpsertResult(result, returnOption, select);
     }
 
     // Non-unique: UPSERT/UPDATE returns array
@@ -581,15 +582,15 @@ export class QueryBuilder<T extends Record<string, unknown>> {
 
     if (returnOption === true) return Array.isArray(result) && result.length > 0;
 
-    return mapResult<T>(result, this.model);
+    return mapResult<T>(result, this.model, select);
   }
 
   /** Handle upsert result based on return option */
-  private handleUpsertResult(result: unknown, returnOption: UpsertReturn): unknown {
+  private handleUpsertResult(result: unknown, returnOption: UpsertReturn, select?: SelectClause): unknown {
     if (returnOption === true) return result !== null;
     if (result === null) return null;
 
-    return mapSingleResult<T>(result, this.model);
+    return mapSingleResult<T>(result, this.model, select);
   }
 
   /** Read the row an upsert's where matches, or null; `select` and `include` shape the projection. */
@@ -650,7 +651,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
       if (returnOption === 'before') return null; // No before state for new records
       if (returnOption === true) return result !== null;
 
-      return mapSingleResult<T>(result, this.model);
+      return mapSingleResult<T>(result, this.model, select);
     }
 
     // Record exists - use update path
@@ -661,7 +662,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
       if (!select && !include) return mapSingleResult<T>(existingRecord, this.model);
 
       // The existence check read every field; re-read with the caller's select and include
-      return mapSingleResult<T>(await this.readExisting(where, hasId, select, include), this.model);
+      return mapSingleResult<T>(await this.readExisting(where, hasId, select, include), this.model, select);
     }
 
     const { buildUpdateWithNestedTransaction: buildUpdateNested } = await import('./builders/nested-builder');
@@ -683,7 +684,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
 
     const record = Array.isArray(result) && result.length > 0 ? result[0] : null;
 
-    return mapSingleResult<T>(record, this.model);
+    return mapSingleResult<T>(record, this.model, select);
   }
 }
 

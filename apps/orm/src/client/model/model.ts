@@ -126,6 +126,7 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
       compiled.resultType,
       this.registry,
       modelNames,
+      queryOptions.select,
     );
   }
 
@@ -147,6 +148,7 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
       compiled.resultType,
       this.registry,
       modelNames,
+      queryOptions.select,
     );
   }
 
@@ -168,6 +170,7 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
       compiled.resultType,
       this.registry,
       modelNames,
+      queryOptions.select,
     );
   }
 
@@ -195,6 +198,7 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
       compiled.resultType,
       this.registry,
       modelNames,
+      queryOptions.select,
     );
   }
 
@@ -224,6 +228,7 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
       compiled.resultType,
       this.registry,
       modelNames,
+      queryOptions.select,
     );
   }
 
@@ -274,6 +279,7 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
       compiled.resultType,
       this.registry,
       modelNames,
+      queryOptions.select,
     );
   }
 
@@ -418,6 +424,7 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
       compiled.resultType,
       this.registry,
       modelNames,
+      queryOptions.select,
     );
   }
 }

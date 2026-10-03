@@ -12,7 +12,7 @@
  *   await expect(async () => { await query; }).rejects.toThrow()
  */
 
-import type { ModelMetadata, ModelRegistry } from '../types';
+import type { ModelMetadata, ModelRegistry, SelectClause } from '../types';
 import type { CompiledQuery } from './compile/types';
 
 /** Result type classification for transaction result mapping */
@@ -48,6 +48,7 @@ export class CerialQueryPromise<T> implements PromiseLike<T> {
     private readonly _resultType: QueryResultType,
     private readonly _registry?: ModelRegistry,
     private readonly _modelNames: string[] = [_metadata.name],
+    private readonly _select?: SelectClause,
   ) {}
 
   /**
@@ -105,6 +106,11 @@ export class CerialQueryPromise<T> implements PromiseLike<T> {
   /** Get the model registry (used by $transaction for result mapping) */
   get registry(): ModelRegistry | undefined {
     return this._registry;
+  }
+
+  /** The select the query was built with (used by $transaction to map only the requested keys) */
+  get select(): SelectClause | undefined {
+    return this._select;
   }
 
   /** Every model the query touches, including relation targets (used by $transaction to migrate them) */

@@ -3,7 +3,13 @@
  */
 
 import { Decimal, Duration, Geometry, RecordId, Uuid } from 'surrealdb';
-import type { ModelMetadata, ObjectFieldMetadata, SchemaFieldType, TupleFieldMetadata } from '../../types';
+import type {
+  ModelMetadata,
+  ObjectFieldMetadata,
+  SchemaFieldType,
+  SelectClause,
+  TupleFieldMetadata,
+} from '../../types';
 import { CerialBytes } from '../../utils/cerial-bytes';
 import { CerialDecimal } from '../../utils/cerial-decimal';
 import { CerialDuration } from '../../utils/cerial-duration';
@@ -284,7 +290,11 @@ function mapTupleRecord(arr: unknown[], tupleInfo: TupleFieldMetadata): unknown[
 }
 
 /** Map a single record from SurrealDB result */
-export function mapRecord(record: Record<string, unknown>, model: ModelMetadata): Record<string, unknown> {
+export function mapRecord(
+  record: Record<string, unknown>,
+  model: ModelMetadata,
+  select?: SelectClause,
+): Record<string, unknown> {
   const result: Record<string, unknown> = {};
 
   // First, map fields that are present in the record
@@ -368,7 +378,10 @@ export function mapRecord(record: Record<string, unknown>, model: ModelMetadata)
   // Then, ensure optional Record fields not in the result are set correctly:
   // @nullable fields → null (absent = stored null for queryability)
   // Non-@nullable fields → leave absent (undefined — field doesn't exist in result object)
+  // A select narrows the row to the requested keys, so only those may be backfilled
+  const narrowed = select && Object.values(select).some(Boolean);
   for (const field of model.fields) {
+    if (narrowed && !select[field.name]) continue;
     if (field.type === 'record' && !field.isRequired && !(field.name in result)) {
       if (field.isNullable) {
         result[field.name] = null;
@@ -381,24 +394,24 @@ export function mapRecord(record: Record<string, unknown>, model: ModelMetadata)
 }
 
 /** Map query result to typed response */
-export function mapResult<T>(result: unknown, model: ModelMetadata): T[] {
+export function mapResult<T>(result: unknown, model: ModelMetadata, select?: SelectClause): T[] {
   if (!result) return [];
 
   // SurrealDB returns arrays
   if (!Array.isArray(result)) {
-    return [mapRecord(result as Record<string, unknown>, model)] as T[];
+    return [mapRecord(result as Record<string, unknown>, model, select)] as T[];
   }
 
   return result
     .map((record) => {
       if (!record || typeof record !== 'object') return null;
-      return mapRecord(record as Record<string, unknown>, model);
+      return mapRecord(record as Record<string, unknown>, model, select);
     })
     .filter(Boolean) as T[];
 }
 
 /** Map single record result */
-export function mapSingleResult<T>(result: unknown, model: ModelMetadata): T | null {
-  const mapped = mapResult<T>(result, model);
+export function mapSingleResult<T>(result: unknown, model: ModelMetadata, select?: SelectClause): T | null {
+  const mapped = mapResult<T>(result, model, select);
   return mapped[0] ?? null;
 }
