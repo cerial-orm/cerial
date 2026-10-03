@@ -30,7 +30,7 @@ export {
   modelToMetadata,
 } from './model-metadata';
 // Main parser
-export { collectObjectNames, parse, parseWithLexer, validateSchema } from './parser';
+export { collectObjectNames, parse, parseWithLexer } from './parser';
 // Tokenizer
 export { filterTokens, tokenize } from './tokenizer';
 

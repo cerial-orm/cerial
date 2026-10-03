@@ -86,6 +86,26 @@ describe('Diagnostics Logic', () => {
 
       expect(result.errors.length).toBeGreaterThan(0);
     });
+
+    // The diagnostics provider attaches an error to a file by its model or its line, so a restored
+    // check that carried neither would be computed and then silently dropped from the editor.
+    test.each([
+      ['two @id fields', 'model Bad {\n  id Record @id\n  other String @id\n}', 'Multiple @id decorators'],
+      ['a self-referencing tuple', 'tuple Node {\n  Int,\n  Node\n}', 'Self-referencing tuple element'],
+      ['a duplicate enum value', 'enum Role { A, B, A }', "Duplicate value 'A'"],
+      ['a literal cycle', "literal A { B, 'x' }\nliteral B { A, 'y' }", 'Circular literal reference'],
+      [
+        'a tuple named like a model',
+        'model T {\n  id Record @id\n}\ntuple T {\n  Int,\n  Int\n}',
+        'conflicts with model name',
+      ],
+    ])('restored check for %s carries a location', (_name, source, message) => {
+      const { ast } = parse(source);
+      const found = validateSchema(ast).errors.filter((e) => e.message.includes(message));
+
+      expect(found.length).toBeGreaterThan(0);
+      for (const error of found) expect(error.model !== undefined || error.line !== undefined).toBe(true);
+    });
   });
 
   describe('validateFieldNames', () => {

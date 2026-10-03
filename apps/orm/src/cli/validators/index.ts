@@ -2,6 +2,8 @@
  * Validators barrel export
  */
 
+export { validateCompositeDirectives } from './composite-directive-validator';
+export { validateEnums } from './enum-validator';
 export {
   validateAbstractRules,
   validateEmptyTypes,
@@ -14,6 +16,8 @@ export {
   validatePrivateOverride,
   validateResolvedTypes,
 } from './extends-validator';
+export { validateLiteralFieldReferences, validateLiterals } from './literal-validator';
+export { validateDuplicateNames } from './name-validator';
 export {
   validateNullableDecorator,
   validateNullableOnObjectFields,
@@ -35,4 +39,11 @@ export {
   validateSingleSidedOptional,
 } from './relation-validator';
 export type { SchemaValidationError, SchemaValidationResult } from './schema-validator';
-export { validateFieldNames, validateModelNames, validateSchema, validateUuidFields } from './schema-validator';
+export {
+  validateFieldNames,
+  validateModelFieldIndexes,
+  validateModelNames,
+  validateSchema,
+  validateUuidFields,
+} from './schema-validator';
+export { validateTuples } from './tuple-validator';

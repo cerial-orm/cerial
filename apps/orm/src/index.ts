@@ -265,7 +265,6 @@ export {
   readSchemaFiles,
   resolveSchemaPath,
   tokenize,
-  validateSchema,
 } from './parser';
 export type {
   CerialValidationIssue,

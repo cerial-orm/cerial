@@ -5,6 +5,9 @@
 import { getDecorator, getTuple, hasDecorator } from '../../parser/types/ast';
 import type { ASTTuple, SchemaAST } from '../../types';
 import { isValidFieldName, isValidModelName, isValidObjectName } from '../../utils/validation-utils';
+import { validateCompositeDirectives } from './composite-directive-validator';
+import { validateEnums } from './enum-validator';
+import { validateLiteralFieldReferences, validateLiterals } from './literal-validator';
 import {
   validateNoOptionalAnyFields,
   validateNoOptionalTupleElements,
@@ -15,6 +18,7 @@ import {
 } from './nullable-validator';
 import { validateRecordIdTypes } from './record-type-validator';
 import { validateRelationRules } from './relation-validator';
+import { validateTuples } from './tuple-validator';
 
 /** Validation error */
 export interface SchemaValidationError {
@@ -28,6 +32,46 @@ export interface SchemaValidationError {
 export interface SchemaValidationResult {
   valid: boolean;
   errors: SchemaValidationError[];
+}
+
+/** Validate @id multiplicity and @index/@unique usage on model fields */
+export function validateModelFieldIndexes(ast: SchemaAST): SchemaValidationError[] {
+  const errors: SchemaValidationError[] = [];
+
+  for (const model of ast.models) {
+    const idFields = model.fields.filter((f) => hasDecorator(f, 'id'));
+    for (const field of idFields.slice(1)) {
+      errors.push({
+        message: `Multiple @id decorators in model ${model.name}. Only one @id field is allowed per model.`,
+        model: model.name,
+        field: field.name,
+        line: field.range.start.line,
+      });
+    }
+
+    for (const field of model.fields) {
+      const hasIndex = hasDecorator(field, 'index');
+      const hasUnique = hasDecorator(field, 'unique');
+      const where = { model: model.name, field: field.name, line: field.range.start.line };
+
+      if (hasIndex && hasUnique) {
+        errors.push({
+          message: `Field '${field.name}' in model ${model.name} cannot have both @index and @unique. Use one or the other.`,
+          ...where,
+        });
+      }
+
+      // SurrealDB indexes array elements individually, so UNIQUE means "no two records share any element"
+      if (hasUnique && field.isArray) {
+        errors.push({
+          message: `Field '${field.name}' in model ${model.name} is an array field and cannot have @unique. SurrealDB enforces uniqueness per element, not per array — use @index for per-element lookups instead.`,
+          ...where,
+        });
+      }
+    }
+  }
+
+  return errors;
 }
 
 /** Validate model names */
@@ -1001,6 +1045,12 @@ export function validateSchema(ast: SchemaAST): SchemaValidationResult {
     ...validateUuidFields(ast),
     ...validateSetDecorator(ast),
     ...validateRecordIdTypes(ast),
+    ...validateModelFieldIndexes(ast),
+    ...validateCompositeDirectives(ast),
+    ...validateTuples(ast),
+    ...validateLiterals(ast),
+    ...validateLiteralFieldReferences(ast),
+    ...validateEnums(ast),
   ];
 
   return {

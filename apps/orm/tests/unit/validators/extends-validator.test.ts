@@ -1381,13 +1381,42 @@ describe('validatePickOmitFields', () => {
         literal({
           name: 'ChildLit',
           extends: 'BaseLit',
-          extendsFilter: { mode: 'pick', fields: ['active', 'missing'] },
+          extendsFilter: { mode: 'pick', fields: ["'active'", "'missing'"] },
         }),
       ],
     });
     const errors = validatePickOmitFields(a);
     expect(errors.length).toBe(1);
     expect(errors[0]!.message).toContain('missing');
+  });
+
+  describe('quoted string variants', () => {
+    const base = literal({
+      name: 'BaseLit',
+      variants: [
+        { kind: 'string', value: 'active' },
+        { kind: 'string', value: 'inactive' },
+      ],
+    });
+    const child = (mode: 'pick' | 'omit', fields: string[]) =>
+      ast({ literals: [base, literal({ name: 'ChildLit', extends: 'BaseLit', extendsFilter: { mode, fields } })] });
+
+    test('quoted pick is accepted', () => {
+      expect(validatePickOmitFields(child('pick', ["'active'"]))).toHaveLength(0);
+    });
+
+    test('quoted omit is accepted', () => {
+      expect(validatePickOmitFields(child('omit', ["'inactive'"]))).toHaveLength(0);
+    });
+
+    test('bare string is refused, since the resolver would match no variant', () => {
+      expect(validatePickOmitFields(child('pick', ['active']))).toHaveLength(1);
+      expect(validatePickOmitFields(child('omit', ['active']))).toHaveLength(1);
+    });
+
+    test('a quoted string naming no variant is refused', () => {
+      expect(validatePickOmitFields(child('pick', ["'archived'"]))).toHaveLength(1);
+    });
   });
 
   test('should validate tuple pick/omit by named elements', () => {
@@ -1722,7 +1751,7 @@ describe('validatePickOmitFields', () => {
           literal({
             name: 'ChildLit',
             extends: 'BaseLit',
-            extendsFilter: { mode: 'pick', fields: ['a', 'nonexistent'] },
+            extendsFilter: { mode: 'pick', fields: ["'a'", "'nonexistent'"] },
           }),
         ],
       });

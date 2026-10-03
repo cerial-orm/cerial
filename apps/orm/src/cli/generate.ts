@@ -46,7 +46,13 @@ import { loadCerialIgnore, resolvePathFilter } from './filters';
 import { findSchemaRoots, resolveSchemas, resolveSinglePath } from './resolvers';
 import { logger } from './utils';
 import type { CLIOptions, LogOutputLevel } from './validators';
-import { validateExtends, validateOptions, validateResolvedTypes, validateSchema } from './validators';
+import {
+  validateDuplicateNames,
+  validateExtends,
+  validateOptions,
+  validateResolvedTypes,
+  validateSchema,
+} from './validators';
 
 /** Generation result */
 export interface GenerateResult {
@@ -322,8 +328,9 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
       source: '',
     };
 
-    // Validate extends on the RAW AST (catches cycles, missing targets, private violations, abstract rules)
-    const extendsErrors = validateExtends(combinedAST);
+    // Validate extends and name uniqueness on the RAW AST: resolution keys types by name, so a duplicate
+    // declaration (including one in another file) would be silently dropped before any later check saw it
+    const extendsErrors = [...validateDuplicateNames(combinedAST), ...validateExtends(combinedAST)];
     if (extendsErrors.length) {
       for (const error of extendsErrors) {
         const modelFile = schemaContents.find((s) =>

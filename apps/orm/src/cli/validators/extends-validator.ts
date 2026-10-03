@@ -426,7 +426,8 @@ function getParentIdentifiers(
         // Use a string representation of each variant as its identifier
         switch (v.kind) {
           case 'string':
-            names.add(v.value);
+            // Quoted, matching how the resolver identifies string variants in a pick/omit list
+            names.add(`'${v.value}'`);
             break;
           case 'int':
           case 'float':

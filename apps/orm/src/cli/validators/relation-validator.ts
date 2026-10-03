@@ -15,7 +15,7 @@
  */
 
 import { getDecorator, hasDecorator } from '../../parser/types/ast';
-import type { ASTField, ASTModel, SchemaAST } from '../../types';
+import type { ASTField, ASTModel, SchemaAST, SchemaDecorator } from '../../types';
 import type { SchemaValidationError } from './schema-validator';
 
 /** Get relation info from a field */
@@ -606,14 +606,14 @@ export function validateKeyPairing(ast: SchemaAST): SchemaValidationError[] {
  */
 export function validateRecordDecorators(ast: SchemaAST): SchemaValidationError[] {
   const errors: SchemaValidationError[] = [];
-  const relationDecorators = ['field', 'model', 'onDelete', 'key'];
+  const relationDecorators: SchemaDecorator[] = ['field', 'model', 'onDelete', 'key'];
 
   for (const model of ast.models) {
     for (const field of model.fields) {
       if (field.type !== 'record') continue;
 
       for (const decoratorType of relationDecorators) {
-        if (hasDecorator(field, decoratorType as any)) {
+        if (hasDecorator(field, decoratorType)) {
           errors.push({
             message: `Record field "${field.name}" cannot have @${decoratorType} decorator. Only Relation fields can have relation decorators.`,
             model: model.name,
