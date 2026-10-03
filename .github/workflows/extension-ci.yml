@@ -38,6 +38,8 @@ jobs:
         working-directory: apps/vscode-extension
       - run: bun run build
         working-directory: apps/vscode-extension
+      - run: bun run compile:tests
+        working-directory: apps/vscode-extension
       - run: bun test tests/unit/
         working-directory: apps/vscode-extension
       - run: bun test tests/grammar/
