@@ -134,22 +134,35 @@ async function acquireSurreal(config: ConnectionConfig): Promise<Surreal> {
 }
 
 /**
- * Release a Surreal instance back to the pool.
- * The WebSocket stays alive (idle) so the next acquirer can reuse it
- * without opening a new socket. Sockets are only closed via resetConnectionPool().
+ * Close a pooled connection and drop its pool entry.
+ * Close errors are ignored: the entry must go regardless.
  */
-function releaseSurreal(config: ConnectionConfig): void {
+async function closePooledSurreal(key: string, entry: PoolEntry): Promise<void> {
+  // Clear model cache so the next acquirer creates fresh Model instances
+  // with its own beforeQuery callbacks (each CerialClient has its own)
+  clearModelCache(entry.surreal);
+  // Delete before awaiting the close so a concurrent acquire cannot be handed a closing socket
+  surrealPool.delete(key);
+  try {
+    await entry.surreal.close();
+  } catch {
+    // Ignore close errors
+  }
+}
+
+/**
+ * Release a Surreal instance back to the pool.
+ * While other holders remain the socket stays open. The last release closes
+ * the socket and removes the pool entry, so the next acquirer opens a new one.
+ */
+async function releaseSurreal(config: ConnectionConfig): Promise<void> {
   const key = poolKey(config);
   const entry = surrealPool.get(key);
   if (!entry) return;
 
   entry.refCount--;
 
-  if (entry.refCount <= 0) {
-    // Clear model cache so the next acquirer creates fresh Model instances
-    // with its own beforeQuery callbacks (each CerialClient has its own)
-    clearModelCache(entry.surreal);
-  }
+  if (entry.refCount <= 0) await closePooledSurreal(key, entry);
 }
 
 /**
@@ -158,13 +171,7 @@ function releaseSurreal(config: ConnectionConfig): void {
  */
 export async function resetConnectionPool(): Promise<void> {
   for (const [key, entry] of surrealPool) {
-    clearModelCache(entry.surreal);
-    try {
-      await entry.surreal.close();
-    } catch {
-      // Ignore close errors
-    }
-    surrealPool.delete(key);
+    await closePooledSurreal(key, entry);
   }
   pendingConnections.clear();
 }
@@ -276,12 +283,12 @@ export class ConnectionManager<R extends ModelRegistry = ModelRegistry> {
 
     // Release HTTP from pool (if not already closed via closeHttp)
     if (!connection.httpClosed) {
-      releaseSurreal(connection.config);
+      await releaseSurreal(connection.config);
     }
 
     // Release WS from pool (dual mode only)
     if (connection.wsConfig) {
-      releaseSurreal(connection.wsConfig);
+      await releaseSurreal(connection.wsConfig);
     }
   }
 
@@ -320,7 +327,7 @@ export class ConnectionManager<R extends ModelRegistry = ModelRegistry> {
     if (connection.httpClosed) return;
 
     connection.httpClosed = true;
-    releaseSurreal(connection.config);
+    await releaseSurreal(connection.config);
   }
 
   /** Reopen the HTTP connection after closeHttp(). No-op if WS-only. */
