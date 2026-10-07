@@ -276,8 +276,8 @@ The pipeline shape is the same each time:
    error until `src/parity/ast-cross-check.ts` and the manifest follow.
 2. Unit tests, then an e2e schema under `tests/e2e/schemas/` if the syntax changed,
    then e2e tests. Register new tables in `test-helper.ts`.
-3. `bun run generate:test-client`, `bun run typecheck`, `bunx tsc --noEmit`, then the
-   suites.
+3. `bun run generate:test-client`, `bun run typecheck`, `bunx tsc --noEmit` (from
+   `apps/orm`), then the suites.
 4. Teach the formatter the new construct (`formatter/printer.ts` or
    `inline-printer.ts`) and prove it is idempotent.
 5. Document it (see above).
@@ -293,7 +293,7 @@ The pipeline shape is the same each time:
 - **No `as any` or blanket type casting in tests** - If types don't match runtime behavior, fix the type generators or source types. Use specific type assertions (`as User`, `as { id: string }`) ONLY when narrowing `unknown` (e.g., `prevResults[0] as { id: CerialId }`) — never `as any`. This applies to ALL tests (unit, integration, E2E)
   - Exception: `@ts-expect-error` with an explanation comment is allowed ONLY for negative tests — testing runtime error handling for operations the type system correctly prevents
 - **Always run relevant tests** after making changes: `bun test` for full suite, or targeted test paths
-- **Run `bunx tsc --noEmit`** after modifying types or generators to catch type errors
+- **Run `bunx tsc --noEmit` from `apps/orm`** after modifying types or generators to catch type errors. It covers `apps/orm` only; the other scopes have their own commands, listed under Commands. Run from the repo root it reports a large count that is mostly artefact
 - **Bug fixes must include tests** - When fixing a bug that was not caught by existing tests, add a test that covers the specific bug being fixed. The test should fail without the fix and pass with it. This prevents regressions and ensures test coverage grows with each fix.
 - **Run `bun run format` before running full tests** - This formats, checks linting errors & applies the safe lint fixes with oxfmt and oxlint. Always run before `test:full` to ensure formatting is consistent.
 - **Run `bun run test:full` after all tasks are complete** - This regenerates the test client, runs typechecks, and runs all tests (unit, integration, client, parser, E2E). This is the final validation step before considering work done.
