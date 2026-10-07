@@ -160,6 +160,25 @@ describe('verify', () => {
     }
   });
 
+  test('an empty index is refused and nothing is spawned', () => {
+    const { parts, calls } = fake([]);
+    const result = runVerify({ ...parts, paths: () => [] });
+
+    expect(result.ok).toBe(false);
+    expect(result.detail).toContain('No files are staged');
+    expect(calls.length).toBe(0);
+  });
+
+  test('a failed git call is refused in its own words and nothing is spawned', () => {
+    const { parts, calls } = fake([]);
+    const result = runVerify({ ...parts, paths: () => null });
+
+    expect(result.ok).toBe(false);
+    expect(result.detail).toContain('git could not list');
+    expect(result.detail).not.toContain('No files are staged');
+    expect(calls.length).toBe(0);
+  });
+
   test('stops at the first step that fails', () => {
     const { parts, calls } = fake([1]);
 

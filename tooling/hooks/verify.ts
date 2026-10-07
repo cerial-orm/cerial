@@ -26,7 +26,7 @@ export interface Step {
 /** What running the verify reaches for: the environment it inherits and the spawn that runs a step. */
 export interface VerifyParts {
   readonly env: Readonly<Record<string, string | undefined>>;
-  readonly paths: () => string[];
+  readonly paths: () => string[] | null;
   readonly spawn: (
     command: string[],
     options: {
@@ -83,12 +83,23 @@ export function verifySteps(paths: readonly string[], bun: string = process.exec
  * being committed rather than the one it meant, which is how a suite once wrote
  * a bare flag and its own identity into the real configuration.
  *
+ * A verify with no staged path is refused before any step is spawned. The file
+ * steps take their paths as arguments, and oxfmt and oxlint given none check the
+ * whole project, so the gate would refuse a commit over files it does not contain.
+ * A failed git call is refused apart from an empty index, so a broken git is not
+ * reported as nothing staged.
+ *
  * The parts are handed in so a suite can see what each spawn is given without
  * running a verify. The hook passes none and gets the real ones.
  */
 export function runVerify(parts: VerifyParts = REAL): VerifyResult {
+  const paths = parts.paths();
+  if (paths === null)
+    return { ok: false, detail: 'git could not list the staged files, so there is nothing to verify.' };
+  if (!paths.length) return { ok: false, detail: 'No files are staged, so there is nothing to verify.' };
+
   const env = { ...withoutGit(parts.env) };
-  for (const step of verifySteps(parts.paths())) {
+  for (const step of verifySteps(paths)) {
     const run = parts.spawn([...step.command], { cwd: step.cwd, env, stdout: 'inherit', stderr: 'inherit' });
     if (run.exitCode !== 0) return { ok: false, detail: `${step.name} exited ${run.exitCode}.` };
   }

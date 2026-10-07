@@ -50,10 +50,14 @@ export function gitText(args: string[]): string | null {
   return out === null ? null : new TextDecoder().decode(out);
 }
 
-/** Paths added, copied, modified or renamed in the index. */
-export function stagedPaths(): string[] {
+/**
+ * Paths added, copied, modified or renamed in the index, or null when git refused
+ * the request. An empty list means nothing is staged; null means nobody knows, and
+ * the two must not be read as the same answer.
+ */
+export function stagedPaths(): string[] | null {
   const out = git(['diff', '--cached', '--name-only', '-z', '--diff-filter=ACMR']);
-  if (out === null) return [];
+  if (out === null) return null;
   return new TextDecoder()
     .decode(out)
     .split('\0')
@@ -114,7 +118,7 @@ export interface Staged {
 export function readStaged(): Staged {
   const files: StagedFile[] = [];
   const refusals: Refusal[] = [];
-  for (const path of stagedPaths()) {
+  for (const path of stagedPaths() ?? []) {
     const content = stagedContent(path);
     if (content !== null) {
       files.push({ path, content });
