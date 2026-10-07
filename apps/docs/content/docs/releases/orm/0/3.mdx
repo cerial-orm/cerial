@@ -393,6 +393,20 @@ development branch and is not available on npm.
   and the model registry came out in a different order on each run, and a regenerated client
   showed changes in seven files even when no schema had changed. Discovery is now sorted, so
   the same schemas always produce the same bytes.
+- A pooled connection whose session the server had already dropped was handed to the next
+  caller. `connect()` reused a pooled connection on its reference count alone, and after a
+  server restart the driver still reports such a connection as connected while the session
+  behind it is gone. The first query then failed with a permissions error about anonymous
+  access, which reads as a credentials problem rather than as a dropped connection. A pooled
+  connection is now checked with a round trip before it is handed out, and one that does not
+  answer is closed and replaced. A connection that answers is reused as before, so sharing
+  one socket between clients is unaffected.
+- Watch mode regenerated only one of two targets that watched the same directory. The change
+  debounce was keyed on the schema path, so two targets sharing a path but writing to
+  different output directories cancelled each other and whichever fired second won. Each
+  target now has its own key. Watch mode also registered a signal handler on every call and
+  never removed it, so the handlers accumulated across runs. Both `generate --watch` and
+  `format --watch` are affected.
 
 ### Changed
 
@@ -578,6 +592,14 @@ development branch and is not available on npm.
   must read `error.cause` instead. An error Cerial already classifies, such as
   `CerialValidationError`, is unchanged. Failures of the `$transaction([...])`
   array form are not wrapped yet.
+- **Breaking.** `disconnect()` now closes the connection it releases. Releasing a pooled
+  connection decremented a reference count and cleared the model cache, but never closed the
+  socket or removed the pool entry, so a disconnected client kept its connection open for the
+  life of the process and only `resetConnectionPool()` freed anything. The last release now
+  closes the socket and drops the entry, and a later `connect()` to the same URL opens a new
+  one. While another client still holds the connection it stays open, so sharing is unchanged.
+  If you called `disconnect()` and relied on the next `connect()` returning the same live
+  socket, you now get a fresh connection instead.
 
 ### Removed
 
