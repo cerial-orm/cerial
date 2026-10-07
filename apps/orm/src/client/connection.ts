@@ -84,6 +84,41 @@ async function connectSurreal(config: ConnectionConfig): Promise<Surreal> {
 }
 
 /**
+ * Probe a socket with a round-trip. `status` stays `connected` after the server
+ * drops the session, so only a query tells a live socket from a dead one.
+ */
+async function isUsable(surreal: Surreal): Promise<boolean> {
+  try {
+    await surreal.query('RETURN 1;');
+
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Hand out the pooled socket for a key if it answers a probe.
+ * A dead socket is dead for every holder, so its entry is dropped and the caller opens a new one.
+ */
+async function takeIfUsable(key: string): Promise<Surreal | null> {
+  const entry = surrealPool.get(key);
+  if (!entry) return null;
+
+  if (await isUsable(entry.surreal)) {
+    // The entry may have been dropped by another acquirer while the probe was in flight
+    if (surrealPool.get(key) !== entry) return null;
+    entry.refCount++;
+
+    return entry.surreal;
+  }
+
+  if (surrealPool.get(key) === entry) await closePooledSurreal(key, entry);
+
+  return null;
+}
+
+/**
  * Acquire a Surreal instance from the pool.
  * Returns an existing connection if one matches the config, otherwise creates a new one.
  * Concurrent callers with the same config wait for the first connection attempt
@@ -93,12 +128,8 @@ async function acquireSurreal(config: ConnectionConfig): Promise<Surreal> {
   const key = poolKey(config);
 
   // Reuse existing active connection
-  const existing = surrealPool.get(key);
-  if (existing) {
-    existing.refCount++;
-
-    return existing.surreal;
-  }
+  const existing = await takeIfUsable(key);
+  if (existing) return existing;
 
   // Wait for an in-flight connection attempt instead of creating a duplicate
   const pending = pendingConnections.get(key);
@@ -110,13 +141,9 @@ async function acquireSurreal(config: ConnectionConfig): Promise<Surreal> {
     }
 
     // Re-check pool after pending resolved/rejected
-    const entry = surrealPool.get(key);
-    if (entry) {
-      entry.refCount++;
-
-      return entry.surreal;
-    }
-    // Entry wasn't created (failed or was disconnected) — fall through
+    const entry = await takeIfUsable(key);
+    if (entry) return entry;
+    // Entry wasn't created (failed, disconnected or dead) — fall through
   }
 
   // Create a new connection
@@ -155,10 +182,11 @@ async function closePooledSurreal(key: string, entry: PoolEntry): Promise<void> 
  * While other holders remain the socket stays open. The last release closes
  * the socket and removes the pool entry, so the next acquirer opens a new one.
  */
-async function releaseSurreal(config: ConnectionConfig): Promise<void> {
+async function releaseSurreal(config: ConnectionConfig, surreal: Surreal): Promise<void> {
   const key = poolKey(config);
   const entry = surrealPool.get(key);
-  if (!entry) return;
+  // A holder of a socket that was discarded as dead must not release its replacement
+  if (!entry || entry.surreal !== surreal) return;
 
   entry.refCount--;
 
@@ -283,12 +311,12 @@ export class ConnectionManager<R extends ModelRegistry = ModelRegistry> {
 
     // Release HTTP from pool (if not already closed via closeHttp)
     if (!connection.httpClosed) {
-      await releaseSurreal(connection.config);
+      await releaseSurreal(connection.config, connection.surreal);
     }
 
     // Release WS from pool (dual mode only)
-    if (connection.wsConfig) {
-      await releaseSurreal(connection.wsConfig);
+    if (connection.wsConfig && connection.wsSurreal) {
+      await releaseSurreal(connection.wsConfig, connection.wsSurreal);
     }
   }
 
@@ -327,7 +355,7 @@ export class ConnectionManager<R extends ModelRegistry = ModelRegistry> {
     if (connection.httpClosed) return;
 
     connection.httpClosed = true;
-    await releaseSurreal(connection.config);
+    await releaseSurreal(connection.config, connection.surreal);
   }
 
   /** Reopen the HTTP connection after closeHttp(). No-op if WS-only. */
