@@ -18,7 +18,12 @@ bun run test:e2e                       # database needed; preloads the generated
 bun run test:full                      # regenerate client, typecheck, then every suite
 bun run generate:test-client           # regenerate the e2e client from tests/e2e/schemas
 bun run typecheck                      # tsc over tests/e2e/typechecks/*.check.ts
-bunx tsc --noEmit                      # whole project
+bunx tsc --noEmit                      # apps/orm only
+# Other scopes, each with its own gate; a repo-root `tsc` mixes every workspace's
+# globals and reaches apps/docs virtual modules, so its error count is mostly artefact:
+#   apps/vscode-extension: bunx tsc --noEmit -p .
+#   tooling/ (repo root):  bunx tsc --noEmit -p tooling
+#   apps/docs:             next build
 bun run build                          # required before test:e2e after changing src/
 bun run format                         # oxfmt --write, then oxlint --fix
 bun run format:check                   # oxfmt --check, then oxlint; what CI runs

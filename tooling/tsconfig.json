@@ -1,0 +1,12 @@
+{
+  // Own scope for the commit hooks and scripts. A repo-root `tsc` also loads
+  // apps/docs, whose global NodeJS.ProcessEnv augmentation makes NODE_ENV required
+  // and breaks every spawnSync({ env }) call here. Naming the typings keeps other
+  // workspaces' globals out of this program.
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "types": ["bun"],
+    "noEmit": true
+  },
+  "include": ["**/*.ts"]
+}
