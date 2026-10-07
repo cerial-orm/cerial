@@ -625,7 +625,7 @@ export function getDefaultTypeMismatchDiagnostics(
  *
  * Returns diagnostics for any extends line with mixed pick/omit.
  */
-export function getExtendsPickOmitMixingDiagnostics(fileAST: SchemaAST, sourceLines: string[]): Diagnostic[] {
+export function getExtendsPickOmitMixingDiagnostics(sourceLines: string[]): Diagnostic[] {
   const diagnostics: Diagnostic[] = [];
 
   for (let lineIdx = 0; lineIdx < sourceLines.length; lineIdx++) {
@@ -770,7 +770,7 @@ export function registerDiagnosticsProvider(
     diagnostics.push(...getDefaultTypeMismatchDiagnostics(fileAST, uri, indexer));
     if (document) {
       const sourceLines = document.getText().split('\n');
-      diagnostics.push(...getExtendsPickOmitMixingDiagnostics(fileAST, sourceLines));
+      diagnostics.push(...getExtendsPickOmitMixingDiagnostics(sourceLines));
     }
     return {
       kind: DocumentDiagnosticReportKind.Full,

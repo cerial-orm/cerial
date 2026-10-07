@@ -20,8 +20,10 @@
     "strictPropertyInitialization": true,
     "noImplicitThis": true,
     "alwaysStrict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    // Unused bindings are oxlint's job repo-wide (eslint/no-unused-vars, --deny-warnings in CI). oxlint honours
+    // the `_` prefix; TypeScript does not for locals, and this project compiles apps/orm/src through relative imports.
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true
   },

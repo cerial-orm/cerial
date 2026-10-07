@@ -308,7 +308,7 @@ export function registerReferencesProvider(
 
     // ── Case 1: Cursor is on a decorator — check if its value is a type reference ──
     if (nodeInfo.kind === 'decorator') {
-      const decorator = nodeInfo.node as import('../../../../src/types').ASTDecorator;
+      const decorator = nodeInfo.node as import('../../../../orm/src/types').ASTDecorator;
 
       // @model(TypeName) — find all references to that model/type
       if (decorator.type === 'model' && typeof decorator.value === 'string') {
