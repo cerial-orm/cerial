@@ -1,9 +1,14 @@
-import { afterEach, describe, expect, it } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, it } from 'bun:test';
+import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import {
   createDebouncer,
+  DEBOUNCE_MS,
   type Debouncer,
   getSchemaLabel,
   isCerialFile,
+  startWatcherWithCallback,
   type WatchTarget,
 } from '../../../src/cli/watcher';
 
@@ -193,6 +198,65 @@ describe('watcher', () => {
 
       await Bun.sleep(40);
       expect(value).toBe('second');
+    });
+  });
+
+  describe('startWatcherWithCallback', () => {
+    let dir: string;
+
+    beforeEach(async () => {
+      dir = await mkdtemp(join(tmpdir(), 'cerial-watcher-'));
+    });
+
+    afterEach(async () => {
+      await rm(dir, { recursive: true, force: true });
+    });
+
+    it('should invoke the callback for each target sharing one schemaPath', async () => {
+      const targets: WatchTarget[] = [
+        { name: 'first', schemaPath: dir, outputDir: '/out/first' },
+        { name: 'second', schemaPath: dir, outputDir: '/out/second' },
+      ];
+      const seen: string[] = [];
+
+      const stopped = startWatcherWithCallback(targets, async (target) => {
+        seen.push(target.outputDir);
+      });
+
+      try {
+        await Bun.sleep(50);
+        await writeFile(join(dir, 'user.cerial'), 'model User {}');
+        await Bun.sleep(DEBOUNCE_MS + 200);
+
+        expect([...new Set(seen)].sort()).toEqual(['/out/first', '/out/second']);
+      } finally {
+        process.emit('SIGINT');
+        await stopped;
+      }
+    });
+
+    it('should remove its SIGINT listener when stopped', async () => {
+      const before = process.listenerCount('SIGINT');
+      const stopped = startWatcherWithCallback([{ schemaPath: dir }], async () => {});
+
+      expect(process.listenerCount('SIGINT')).toBe(before + 1);
+
+      process.emit('SIGINT');
+      await stopped;
+
+      expect(process.listenerCount('SIGINT')).toBe(before);
+    });
+
+    it('should not accumulate SIGINT listeners across repeated runs', async () => {
+      const before = process.listenerCount('SIGINT');
+
+      for (let run = 0; run < 3; run++) {
+        const stopped = startWatcherWithCallback([{ schemaPath: dir }], async () => {});
+        process.emit('SIGINT');
+        await stopped;
+      }
+
+      expect(process.listenerCount('SIGINT')).toBe(before);
     });
   });
 });

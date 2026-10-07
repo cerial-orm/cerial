@@ -126,14 +126,23 @@ export async function startWatcherWithCallback<T extends WatchTargetBase>(
       watcher.close();
     }
     debouncer.cancelAll();
+    process.off('SIGINT', onSigint);
   }
 
-  for (const target of targets) {
+  let resolveStopped: () => void = () => {};
+  const onSigint = (): void => {
+    console.log(`\n[${label}] Stopping watchers...`);
+    cleanup();
+    resolveStopped();
+  };
+
+  // Targets can share a schemaPath, so the index is the only key unique to each target
+  for (const [index, target] of targets.entries()) {
     try {
       const watcher = watch(target.schemaPath, { recursive: true }, (_event, filename) => {
         if (!shouldTriggerRegeneration(filename, target.filter)) return;
 
-        debouncer.schedule(target.schemaPath, () => {
+        debouncer.schedule(String(index), () => {
           void onFileChange(target, filename!);
         });
       });
@@ -154,11 +163,8 @@ export async function startWatcherWithCallback<T extends WatchTargetBase>(
   console.log(`[${label}] Watching ${targets.length} schema(s) for changes...`);
 
   return new Promise<void>((resolvePromise) => {
-    process.on('SIGINT', () => {
-      console.log(`\n[${label}] Stopping watchers...`);
-      cleanup();
-      resolvePromise();
-    });
+    resolveStopped = resolvePromise;
+    process.once('SIGINT', onSigint);
   });
 }
 
