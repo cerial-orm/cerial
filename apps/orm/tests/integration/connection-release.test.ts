@@ -67,7 +67,7 @@ describe('releasing pooled connections', () => {
     await manager.connect({ ...wsConfig, url: 'http://127.0.0.1:8000' });
     const connection = manager.getConnection();
     const http = connection?.surreal;
-    const ws = connection?.wsSurreal;
+    const ws = connection?.wsSurreal ?? undefined;
 
     await manager.closeHttp();
 
