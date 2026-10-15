@@ -228,6 +228,19 @@ describe('Decorators', () => {
       assertScope(boolTok, 'constant.language.boolean.cerial');
     });
 
+    for (const [arg, scope] of [
+      ['true', 'constant.language.boolean.cerial'],
+      ['false', 'constant.language.boolean.cerial'],
+      ['asc', 'constant.language.sort-direction.cerial'],
+      ['desc', 'constant.language.sort-direction.cerial'],
+    ] as const) {
+      it(`@sort(${arg}) — argument scopes as a constant`, async () => {
+        const lines = await tokenizeFixtureLines(`model T {\n  f Int @sort(${arg})\n}`);
+        assertScope(findToken(lines[1].tokens, arg), scope);
+        expect(hasScope([findToken(lines[1].tokens, arg)!], 'variable.parameter')).toBe(false);
+      });
+    }
+
     it("@default('user') — string argument", async () => {
       const lines = await tokenizeFixtureLines("model T {\n  f String @default('user')\n}");
       const fieldLine = lines[1];

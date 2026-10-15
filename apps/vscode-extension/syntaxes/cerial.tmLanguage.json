@@ -158,6 +158,7 @@
         { "include": "#booleans" },
         { "include": "#null_literal" },
         { "include": "#comma" },
+        { "match": "\\b(asc|desc)\\b", "name": "constant.language.sort-direction.cerial" },
         {
           "match": "\\b[A-Za-z]\\w*\\b",
           "name": "variable.parameter.cerial"
