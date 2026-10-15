@@ -9,6 +9,7 @@
  */
 
 import { describe, expect, test } from 'bun:test';
+import { CerialValidationError } from '../../../src/errors';
 import { createCompileContext } from '../../../src/query/compile/var-allocator';
 import {
   buildForwardNestedCondition,
@@ -29,6 +30,12 @@ const fieldOf = (model: ModelMetadata, name: string): FieldMetadata => {
 const ownerField = fieldOf(place, 'owner');
 const placesField = fieldOf(owner, 'places');
 const EMPTY = { text: '', vars: {} };
+
+// A non-empty filter that compiles to nothing must raise: an empty fragment makes the caller drop its WHERE
+const throwsNoConditions = (run: () => unknown, relation: string, keys: string) => {
+  expect(run).toThrow(CerialValidationError);
+  expect(run).toThrow(`Relation filter on ${relation} produced no conditions from ${keys}.`);
+};
 
 const forward = (where: WhereClause, registry: ModelRegistry = placeRegistry, field: FieldMetadata = ownerField) =>
   buildForwardNestedCondition(createCompileContext(), field, where, place, registry);
@@ -93,8 +100,8 @@ describe('buildReverseNestedCondition — quantifiers', () => {
     );
   });
 
-  test.each(['some', 'every', 'none'])('%s with an empty inner where adds no condition', (quantifier) => {
-    expect(reverse({ [quantifier]: {} })).toEqual(EMPTY);
+  test.each(['some', 'every', 'none'])('%s with an empty inner where, alone, raises', (quantifier) => {
+    throwsNoConditions(() => reverse({ [quantifier]: {} }), 'Owner.places', `'${quantifier}'`);
   });
 
   test.each(['some', 'every', 'none'])('%s with an undefined value is skipped', (quantifier) => {
@@ -108,14 +115,14 @@ describe('buildReverseNestedCondition — quantifiers', () => {
     });
   });
 
-  test('keys that are not quantifiers are ignored', () => {
-    expect(reverse({ name: 'x' })).toEqual(EMPTY);
+  test('keys that are not quantifiers cannot compile and raise', () => {
+    throwsNoConditions(() => reverse({ name: 'x' }), 'Owner.places', `'name'`);
     expect(reverse({ name: 'x', some: { name: 'y' } }).text).toBe(`id IN (${SUB} WHERE name = $name_eq_0)`);
   });
 
   test('inner fields missing from the target model and undefined inner values are skipped', () => {
-    expect(reverse({ some: { nope: 'x' } })).toEqual(EMPTY);
-    expect(reverse({ some: { name: undefined } })).toEqual(EMPTY);
+    throwsNoConditions(() => reverse({ some: { nope: 'x' } }), 'Owner.places', `'some'`);
+    throwsNoConditions(() => reverse({ some: { name: undefined } }), 'Owner.places', `'some'`);
     expect(reverse({ some: { nope: 'x', name: 'y' } }).text).toBe(`id IN (${SUB} WHERE name = $name_eq_0)`);
   });
 
@@ -126,8 +133,8 @@ describe('buildReverseNestedCondition — quantifiers', () => {
     });
   });
 
-  test('an operator object with only undefined values adds no condition', () => {
-    expect(reverse({ some: { name: { eq: undefined } } })).toEqual(EMPTY);
+  test('an operator object with only undefined values raises', () => {
+    throwsNoConditions(() => reverse({ some: { name: { eq: undefined } } }), 'Owner.places', `'some'`);
   });
 
   test('a direct value is shorthand for eq', () => {
@@ -137,21 +144,29 @@ describe('buildReverseNestedCondition — quantifiers', () => {
 
 describe('buildReverseNestedCondition — unusable metadata', () => {
   test('a forward relation field yields no condition', () => {
-    expect(reverse({ some: { name: 'x' } }, placeRegistry, ownerField)).toEqual(EMPTY);
+    throwsNoConditions(() => reverse({ some: { name: 'x' } }, placeRegistry, ownerField), 'Owner.owner', `'some'`);
   });
 
   test('a field without relationInfo yields no condition', () => {
-    expect(reverse({ some: { name: 'x' } }, placeRegistry, { ...placesField, relationInfo: undefined })).toEqual(EMPTY);
+    throwsNoConditions(
+      () => reverse({ some: { name: 'x' } }, placeRegistry, { ...placesField, relationInfo: undefined }),
+      'Owner.places',
+      `'some'`,
+    );
   });
 
   test('a target model missing from the registry yields no condition', () => {
-    expect(reverse({ some: { name: 'x' } }, { Owner: owner })).toEqual(EMPTY);
+    throwsNoConditions(() => reverse({ some: { name: 'x' } }, { Owner: owner }), 'Owner.places', `'some'`);
   });
 
   test('a target with no forward relation back to the source yields no condition', () => {
     const detached: ModelMetadata = { ...place, fields: place.fields.filter((f) => f.name !== 'owner') };
 
-    expect(reverse({ some: { name: 'x' } }, { ...placeRegistry, Place: detached })).toEqual(EMPTY);
+    throwsNoConditions(
+      () => reverse({ some: { name: 'x' } }, { ...placeRegistry, Place: detached }),
+      'Owner.places',
+      `'some'`,
+    );
   });
 
   test('a back relation without a fieldRef yields no condition', () => {
@@ -161,7 +176,11 @@ describe('buildReverseNestedCondition — unusable metadata', () => {
     };
     const target: ModelMetadata = { ...place, fields: place.fields.map((f) => (f.name === 'owner' ? noRef : f)) };
 
-    expect(reverse({ some: { name: 'x' } }, { ...placeRegistry, Place: target })).toEqual(EMPTY);
+    throwsNoConditions(
+      () => reverse({ some: { name: 'x' } }, { ...placeRegistry, Place: target }),
+      'Owner.places',
+      `'some'`,
+    );
   });
 
   test('a reverse-flagged relation in the target is not taken as the foreign key', () => {
@@ -171,7 +190,11 @@ describe('buildReverseNestedCondition — unusable metadata', () => {
     };
     const target: ModelMetadata = { ...place, fields: place.fields.map((f) => (f.name === 'owner' ? flipped : f)) };
 
-    expect(reverse({ some: { name: 'x' } }, { ...placeRegistry, Place: target })).toEqual(EMPTY);
+    throwsNoConditions(
+      () => reverse({ some: { name: 'x' } }, { ...placeRegistry, Place: target }),
+      'Owner.places',
+      `'some'`,
+    );
   });
 });
 
@@ -204,9 +227,9 @@ describe('buildForwardNestedCondition', () => {
     });
   });
 
-  test('undefined values and fields missing from the target are skipped', () => {
+  test('undefined values are skipped; a filter left with nothing raises', () => {
     expect(forward({ name: undefined })).toEqual(EMPTY);
-    expect(forward({ nope: 'x' })).toEqual(EMPTY);
+    throwsNoConditions(() => forward({ nope: 'x' }), 'Place.owner', `'nope'`);
     expect(forward({ nope: 'x', name: 'A' }).text).toBe('ownerId.name = $ownerId_name_eq_0');
   });
 
@@ -215,7 +238,7 @@ describe('buildForwardNestedCondition', () => {
   });
 
   test('an operator object with only undefined values adds no condition', () => {
-    expect(forward({ name: { eq: undefined } })).toEqual(EMPTY);
+    throwsNoConditions(() => forward({ name: { eq: undefined } }), 'Place.owner', `'name'`);
   });
 
   // This case was pinned as current behavior when the file was written, and it was pinning a defect:
@@ -281,7 +304,7 @@ describe('buildForwardNestedCondition', () => {
 
   test('empty and unusable logical branches follow the top-level handlers', () => {
     // handleAnd of nothing is empty; handleOr of nothing is false, which matches no row
-    expect(forward({ AND: [] })).toEqual(EMPTY);
+    throwsNoConditions(() => forward({ AND: [] }), 'Place.owner', `'AND'`);
     expect(forward({ OR: [] })).toEqual({ text: 'false', vars: {} });
     expect(forward({ NOT: {} })).toEqual({ text: 'false', vars: {} });
     // a branch naming only unknown fields contributes nothing, as it does at the top level
@@ -292,29 +315,62 @@ describe('buildForwardNestedCondition', () => {
     // Negative: the generated Where type already forbids these shapes, so this pins the runtime
     // behaviour for an untyped caller — the key must never fall through and be read as a field name
     // @ts-expect-error AND takes an array of where clauses, not a single one
-    expect(forward({ AND: { name: 'A' } })).toEqual(EMPTY);
+    throwsNoConditions(() => forward({ AND: { name: 'A' } }), 'Place.owner', `'AND'`);
     // @ts-expect-error OR takes an array of where clauses, not a single one
-    expect(forward({ OR: { name: 'A' } })).toEqual(EMPTY);
+    throwsNoConditions(() => forward({ OR: { name: 'A' } }), 'Place.owner', `'OR'`);
     // @ts-expect-error NOT takes a single where clause, not an array
-    expect(forward({ NOT: [{ name: 'A' }] })).toEqual(EMPTY);
+    throwsNoConditions(() => forward({ NOT: [{ name: 'A' }] }), 'Place.owner', `'NOT'`);
   });
 
   test('a reverse relation field yields no condition', () => {
-    expect(forward({ name: 'A' }, placeRegistry, placesField)).toEqual(EMPTY);
+    throwsNoConditions(() => forward({ name: 'A' }, placeRegistry, placesField), 'Place.places', `'name'`);
   });
 
   test('a field without relationInfo yields no condition', () => {
-    expect(forward({ name: 'A' }, placeRegistry, { ...ownerField, relationInfo: undefined })).toEqual(EMPTY);
+    throwsNoConditions(
+      () => forward({ name: 'A' }, placeRegistry, { ...ownerField, relationInfo: undefined }),
+      'Place.owner',
+      `'name'`,
+    );
   });
 
   test('a relation without a fieldRef yields no condition', () => {
     const noRef: FieldMetadata = { ...ownerField, relationInfo: { ...ownerField.relationInfo!, fieldRef: undefined } };
 
-    expect(forward({ name: 'A' }, placeRegistry, noRef)).toEqual(EMPTY);
+    throwsNoConditions(() => forward({ name: 'A' }, placeRegistry, noRef), 'Place.owner', `'name'`);
   });
 
   test('a target model missing from the registry yields no condition', () => {
-    expect(forward({ name: 'A' }, { Place: place })).toEqual(EMPTY);
+    throwsNoConditions(() => forward({ name: 'A' }, { Place: place }), 'Place.owner', `'name'`);
+  });
+});
+
+describe('buildNestedCondition — empty versus unusable filters', () => {
+  // Established before the guard: `{ owner: {} }` compiled to an empty fragment and the caller
+  // (condition-builder.ts) skipped it, so the clause added no condition and the query was unfiltered.
+  // That is unchanged: an empty filter asked for nothing, so nothing is added and nothing throws.
+  test('a genuinely empty relation filter still returns the empty fragment', () => {
+    expect(buildNestedCondition(createCompileContext(), ownerField, {}, place, placeRegistry)).toEqual(EMPTY);
+    expect(buildNestedCondition(createCompileContext(), placesField, {}, owner, placeRegistry)).toEqual(EMPTY);
+    expect(forward({})).toEqual(EMPTY);
+    expect(reverse({})).toEqual(EMPTY);
+  });
+
+  test('a filter of only undefined values counts as empty', () => {
+    expect(forward({ name: undefined })).toEqual(EMPTY);
+    expect(reverse({ some: undefined })).toEqual(EMPTY);
+  });
+
+  test('the error names the model, the relation and every key it could not compile', () => {
+    throwsNoConditions(
+      () => buildNestedCondition(createCompileContext(), ownerField, { nope: 'x', alsoNope: 1 }, place, placeRegistry),
+      'Place.owner',
+      `'nope', 'alsoNope'`,
+    );
+  });
+
+  test('a key that compiles keeps the filter, so a lone unknown sibling does not raise', () => {
+    expect(forward({ nope: 'x', name: 'A' }).text).toBe('ownerId.name = $ownerId_name_eq_0');
   });
 });
 
@@ -331,7 +387,11 @@ describe('buildNestedCondition — dispatch', () => {
   });
 
   test('a field without relationInfo yields no condition', () => {
-    expect(dispatch({ ...ownerField, relationInfo: undefined }, place, { name: 'A' })).toEqual(EMPTY);
+    throwsNoConditions(
+      () => dispatch({ ...ownerField, relationInfo: undefined }, place, { name: 'A' }),
+      'Place.owner',
+      `'name'`,
+    );
   });
 });
 

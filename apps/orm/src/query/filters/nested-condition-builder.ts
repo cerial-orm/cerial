@@ -6,6 +6,7 @@ import type { FieldMetadata, ModelMetadata, ModelRegistry, WhereClause } from '.
 import { joinFragments } from '../compile/fragment';
 import type { QueryFragment } from '../compile/types';
 import type { FilterCompileContext } from '../compile/var-allocator';
+import { CerialValidationError } from '../../errors';
 import { isObject } from '../../utils/type-utils';
 import { isOperatorObject } from './condition-builder';
 import { handleAnd, handleNot, handleOr } from './logical-operators';
@@ -99,7 +100,7 @@ function buildSubqueryConditions(
  * @param model - Current model metadata
  * @param registry - Full model registry
  */
-export function buildForwardNestedCondition(
+function compileForwardNested(
   ctx: FilterCompileContext,
   relationField: FieldMetadata,
   nestedWhere: WhereClause,
@@ -132,20 +133,20 @@ export function buildForwardNestedCondition(
     // Branch shapes match the top level (condition-builder.ts): AND/OR take an array, NOT an object.
     if (nestedField === 'AND' && Array.isArray(value)) {
       conditions.push(
-        handleAnd(value.map((w) => buildForwardNestedCondition(ctx, relationField, w as WhereClause, model, registry))),
+        handleAnd(value.map((w) => compileForwardNested(ctx, relationField, w as WhereClause, model, registry))),
       );
       continue;
     }
 
     if (nestedField === 'OR' && Array.isArray(value)) {
       conditions.push(
-        handleOr(value.map((w) => buildForwardNestedCondition(ctx, relationField, w as WhereClause, model, registry))),
+        handleOr(value.map((w) => compileForwardNested(ctx, relationField, w as WhereClause, model, registry))),
       );
       continue;
     }
 
     if (nestedField === 'NOT' && isObject(value)) {
-      conditions.push(handleNot(buildForwardNestedCondition(ctx, relationField, value, model, registry)));
+      conditions.push(handleNot(compileForwardNested(ctx, relationField, value, model, registry)));
       continue;
     }
 
@@ -206,7 +207,7 @@ export function buildForwardNestedCondition(
  * @param model - Current model metadata
  * @param registry - Full model registry
  */
-export function buildReverseNestedCondition(
+function compileReverseNested(
   ctx: FilterCompileContext,
   relationField: FieldMetadata,
   nestedWhere: WhereClause,
@@ -287,6 +288,61 @@ export function buildReverseNestedCondition(
 }
 
 /**
+ * An empty fragment reads to every caller as "no filter was asked for", so the WHERE it belonged to
+ * is dropped and the query scans the table. That is right for `{}` and wrong for a filter that had
+ * keys but compiled to nothing (unknown fields, unusable relation metadata, a lone empty quantifier).
+ * Every exported builder passes through here, so no entry point can return the silent empty case.
+ */
+function requireCompiled(
+  fragment: QueryFragment,
+  relationField: FieldMetadata,
+  nestedWhere: WhereClause,
+  model: ModelMetadata,
+): QueryFragment {
+  if (fragment.text) return fragment;
+
+  const keys = Object.keys(nestedWhere).filter((k) => nestedWhere[k] !== undefined);
+  if (!keys.length) return fragment;
+
+  throw new CerialValidationError(
+    `Relation filter on ${model.name}.${relationField.name} produced no conditions from ` +
+      `${keys.map((k) => `'${k}'`).join(', ')}. Compiling it would drop the filter and match every row.`,
+  );
+}
+
+/** Forward relation filter; throws when a non-empty filter compiles to nothing. */
+export function buildForwardNestedCondition(
+  ctx: FilterCompileContext,
+  relationField: FieldMetadata,
+  nestedWhere: WhereClause,
+  model: ModelMetadata,
+  registry: ModelRegistry,
+): QueryFragment {
+  return requireCompiled(
+    compileForwardNested(ctx, relationField, nestedWhere, model, registry),
+    relationField,
+    nestedWhere,
+    model,
+  );
+}
+
+/** Reverse relation filter; throws when a non-empty filter compiles to nothing. */
+export function buildReverseNestedCondition(
+  ctx: FilterCompileContext,
+  relationField: FieldMetadata,
+  nestedWhere: WhereClause,
+  model: ModelMetadata,
+  registry: ModelRegistry,
+): QueryFragment {
+  return requireCompiled(
+    compileReverseNested(ctx, relationField, nestedWhere, model, registry),
+    relationField,
+    nestedWhere,
+    model,
+  );
+}
+
+/**
  * Build nested condition for a relation field
  *
  * @param ctx - Compile context for variable binding
@@ -303,7 +359,7 @@ export function buildNestedCondition(
   registry: ModelRegistry,
 ): QueryFragment {
   if (!relationField.relationInfo) {
-    return { text: '', vars: {} };
+    return requireCompiled({ text: '', vars: {} }, relationField, nestedWhere, model);
   }
 
   if (relationField.relationInfo.isReverse) {
