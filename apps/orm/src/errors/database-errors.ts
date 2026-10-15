@@ -50,9 +50,16 @@ export class CerialUniqueConstraintError extends CerialError {
 
 /** A model's lazy migration failed. `model` names the model; the database error is the `cause`. */
 export class CerialMigrationError extends CerialError {
-  constructor(message: string, options?: CerialErrorOptions) {
+  /**
+   * The DDL that failed. Always present for a failed migration, unlike a query's statement: it is
+   * generated from the schema and holds no bound user values.
+   */
+  readonly statement?: CerialStatement;
+
+  constructor(message: string, options: CerialDatabaseErrorOptions = {}) {
     super(CERIAL_ERROR_CODES.MIGRATION, message, options);
     this.name = 'CerialMigrationError';
+    this.statement = options.statement;
   }
 }
 

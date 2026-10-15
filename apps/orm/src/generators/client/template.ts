@@ -298,12 +298,12 @@ ${modelAccessors}
 
     this._onMigrationEvent?.({ type: 'start', modelName });
 
+    // Outside the try so a failure can name the DDL it came from.
+    const query = getModelMigrationQuery(modelName);
     try {
       const surreal = this.connectionManager.getSurreal();
       if (!surreal) throw new CerialNotConnectedError('No active connection.', { model: modelName, operation: 'migrate' });
 
-      // Get migration statements for this specific model
-      const query = getModelMigrationQuery(modelName);
       await surreal.query(query);
 
       // Mark as migrated
@@ -316,6 +316,7 @@ ${modelAccessors}
         : new CerialMigrationError(\`Migration of \${modelName} failed: \${error instanceof Error ? error.message : String(error)}\`, {
           model: modelName,
           operation: 'migrate',
+          statement: { text: query, vars: {} },
           cause: error,
         });
       // Not being connected is a state, not a DDL verdict: the next query may succeed.

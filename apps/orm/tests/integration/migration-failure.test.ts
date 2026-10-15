@@ -8,6 +8,7 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { join } from 'node:path';
+import { CerialMigrationError } from 'cerial';
 import { generateSingleSchema } from '../../src/cli/generate';
 import type { ConnectionConfig } from '../../src/types';
 
@@ -30,7 +31,7 @@ interface ProbeClient {
   resetMigrationState(): void;
   isModelMigrated(name: string): boolean;
   getSurreal(): { query: (...args: unknown[]) => Promise<unknown> } | null;
-  MigFailProbe: { findMany(args?: object): Promise<unknown[]> };
+  MigFailProbe: { findMany(args?: object): Promise<unknown[]>; create(args: object): Promise<unknown> };
 }
 
 let base: string;
@@ -129,6 +130,45 @@ describe('migration failure handling', () => {
     } finally {
       await raw(client, `REMOVE TABLE IF EXISTS ${TABLE};`);
       await client.disconnect();
+    }
+  });
+
+  test('a failed migration reaches the caller as a migration error, a failed query does not', async () => {
+    const client = new Client();
+    await client.connect(config);
+    await raw(
+      client,
+      `REMOVE TABLE IF EXISTS ${TABLE}; CREATE ${TABLE}:a SET email = 'dup'; CREATE ${TABLE}:b SET email = 'dup';`,
+    );
+    try {
+      const error = await client.MigFailProbe.findMany().catch((e: unknown) => e);
+
+      expect(error).toBeInstanceOf(CerialMigrationError);
+      const migration = error as CerialMigrationError;
+      expect(migration.model).toBe('MigFailProbe');
+      expect(migration.operation).toBe('migrate');
+      expect(migration.statement?.text).toContain(`DEFINE INDEX`);
+      expect(migration.statement?.text).toContain(TABLE);
+      expect(migration.cause).toBeInstanceOf(Error);
+    } finally {
+      await raw(client, `REMOVE TABLE IF EXISTS ${TABLE};`);
+      await client.disconnect();
+    }
+
+    // Negative half: once the table migrates cleanly, a query failure is not a migration error.
+    const healthy = new Client();
+    await healthy.connect(config);
+    await raw(healthy, `REMOVE TABLE IF EXISTS ${TABLE};`);
+    try {
+      await healthy.MigFailProbe.findMany();
+      await healthy.MigFailProbe.create({ data: { email: 'dup' } });
+      const queryError = await healthy.MigFailProbe.create({ data: { email: 'dup' } }).catch((e: unknown) => e);
+
+      expect(queryError).toBeInstanceOf(Error);
+      expect(queryError).not.toBeInstanceOf(CerialMigrationError);
+    } finally {
+      await raw(healthy, `REMOVE TABLE IF EXISTS ${TABLE};`);
+      await healthy.disconnect();
     }
   });
 });
