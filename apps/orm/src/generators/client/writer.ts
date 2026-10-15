@@ -5,6 +5,7 @@
 import { writeFile } from 'node:fs/promises';
 
 import type {
+  ConnectionConfig,
   LiteralMetadata,
   LiteralRegistry,
   ModelMetadata,
@@ -35,6 +36,8 @@ export async function writeClientMain(
   outputDir: string,
   models: ModelMetadata[],
   clientClassName: string = 'CerialClient',
+  // Threaded for the template to embed; unused until it takes a connection
+  _connection?: ConnectionConfig,
 ): Promise<string> {
   await ensureDir(outputDir);
 
@@ -67,11 +70,12 @@ export async function writeClient(
   literalRegistry?: LiteralRegistry,
   enums: LiteralMetadata[] = [],
   clientClassName: string = 'CerialClient',
+  connection?: ConnectionConfig,
 ): Promise<string[]> {
   const files: string[] = [];
 
   // Write client main
-  files.push(await writeClientMain(outputDir, models, clientClassName));
+  files.push(await writeClientMain(outputDir, models, clientClassName, connection));
 
   // Write enum types first (string-only, no dependencies)
   for (const enumMeta of enums) {

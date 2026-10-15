@@ -21,7 +21,7 @@ import {
 import { writeInternalIndex } from '../generators/metadata/internal-writer';
 import { writeModelRegistry } from '../generators/metadata/registry-writer';
 import { writeMigrationFile } from '../generators/migrations/writer';
-import type { ASTLiteral, LiteralMetadata, ObjectRegistry, SchemaAST, TupleRegistry } from '../types';
+import type { ASTLiteral, ConnectionConfig, LiteralMetadata, ObjectRegistry, SchemaAST, TupleRegistry } from '../types';
 import type { CerialConfig, ResolvedSchemaEntry } from './config';
 import {
   detectNestedSchemaRoots,
@@ -55,6 +55,8 @@ export interface SingleSchemaOptions {
   clean?: boolean;
   clientClassName?: string;
   filter?: PathFilter;
+  /** Resolved connection of the config entry; absent for -s, folder discovery and conventions */
+  connection?: ConnectionConfig;
 }
 
 /** Options for generating multiple schemas */
@@ -212,7 +214,7 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
     errors: [],
   };
 
-  const { outputDir, logLevel = 'minimal', clientClassName } = options;
+  const { outputDir, logLevel = 'minimal', clientClassName, connection } = options;
   logger.setOutputLevel(logLevel);
 
   try {
@@ -409,6 +411,7 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
         literalRegistry,
         enumLiterals,
         clientClassName,
+        connection,
       );
       result.files.push(...clientFiles);
       if (logLevel === 'full') clientFiles.forEach((f) => logger.fileCreated(toFinal(f)));
@@ -482,6 +485,7 @@ export async function generateMultiSchema(
       verbose: options.verbose,
       clean: options.clean,
       filter: filters?.get(entry.name),
+      connection: entry.connection,
     });
 
     result.results[entry.name] = singleResult;
