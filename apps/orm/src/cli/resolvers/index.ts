@@ -8,3 +8,5 @@ export {
   resolveSchemas,
   resolveSinglePath,
 } from './schema-resolver';
+export type { SchemaAstOptions, SchemaAstResult } from './schema-ast';
+export { buildResolvedSchemaAst } from './schema-ast';

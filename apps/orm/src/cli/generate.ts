@@ -2,7 +2,7 @@
  * Generate command - orchestrates the generation process
  */
 
-import { cp, mkdtemp, readdir, readFile, rm } from 'node:fs/promises';
+import { cp, mkdtemp, readdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { basename, dirname, resolve } from 'node:path';
 import { writeClient } from '../generators/client/writer';
@@ -21,18 +21,7 @@ import {
 import { writeInternalIndex } from '../generators/metadata/internal-writer';
 import { writeModelRegistry } from '../generators/metadata/registry-writer';
 import { writeMigrationFile } from '../generators/migrations/writer';
-import { collectEnumNames, collectLiteralNames, collectObjectNames, collectTupleNames, parse } from '../parser/parser';
-import { resolveInheritance } from '../resolver';
-import type {
-  ASTEnum,
-  ASTLiteral,
-  ASTModel,
-  ASTObject,
-  ASTTuple,
-  LiteralMetadata,
-  ObjectRegistry,
-  TupleRegistry,
-} from '../types';
+import type { ASTLiteral, LiteralMetadata, ObjectRegistry, SchemaAST, TupleRegistry } from '../types';
 import type { CerialConfig, ResolvedSchemaEntry } from './config';
 import {
   detectNestedSchemaRoots,
@@ -44,16 +33,10 @@ import {
 } from './config';
 import type { FilterConfig, PathFilter } from './filters';
 import { loadCerialIgnore, resolvePathFilter } from './filters';
-import { findSchemaRoots, resolveSchemas, resolveSinglePath } from './resolvers';
+import { buildResolvedSchemaAst, findSchemaRoots } from './resolvers';
 import { logger } from './utils';
 import type { CLIOptions, LogOutputLevel } from './validators';
-import {
-  validateDuplicateNames,
-  validateExtends,
-  validateOptions,
-  validateResolvedTypes,
-  validateSchema,
-} from './validators';
+import { validateOptions, validateResolvedTypes, validateSchema } from './validators';
 
 /** Generation result */
 export interface GenerateResult {
@@ -232,82 +215,23 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
   logger.setOutputLevel(logLevel);
 
   try {
-    // Resolve schema files
-    logger.progress('Finding schema files...');
-
-    const schemaFiles: string[] = options.schemaPath
-      ? await resolveSinglePath(options.schemaPath, process.cwd(), options.filter)
-      : await resolveSchemas({ filter: options.filter });
+    const {
+      schemaFiles,
+      schemaContents,
+      parseErrors,
+      combinedAST,
+      extendsErrors,
+      resolvedAST: resolved,
+    } = await buildResolvedSchemaAst({
+      schemaPath: options.schemaPath,
+      filter: options.filter,
+      verbose: options.verbose,
+    });
 
     if (!schemaFiles.length) {
       result.errors.push('No schema files found');
 
       return result;
-    }
-
-    logger.info(`Found ${schemaFiles.length} schema file(s)`);
-    if (options.verbose) {
-      schemaFiles.forEach((f) => logger.debug(`  - ${f}`));
-    }
-
-    // Load and parse schemas
-    logger.progress('Parsing schemas...');
-
-    const schemaContents = await Promise.all(
-      schemaFiles.map(async (path) => {
-        const content = await readFile(path, 'utf-8');
-
-        return { path, content };
-      }),
-    );
-
-    // Two-pass parsing: first collect all object, tuple, literal, and enum names across all files
-    const allObjectNames = new Set<string>();
-    const allTupleNames = new Set<string>();
-    const allLiteralNames = new Set<string>();
-    const allEnumNames = new Set<string>();
-    for (const { content } of schemaContents) {
-      const objNames = collectObjectNames(content);
-      for (const name of objNames) {
-        allObjectNames.add(name);
-      }
-      const tupNames = collectTupleNames(content);
-      for (const name of tupNames) {
-        allTupleNames.add(name);
-      }
-      const litNames = collectLiteralNames(content);
-      for (const name of litNames) {
-        allLiteralNames.add(name);
-      }
-      const enumNms = collectEnumNames(content);
-      for (const name of enumNms) {
-        allEnumNames.add(name);
-      }
-    }
-
-    // Second pass: parse each schema with full object, tuple, literal, and enum name context
-    const allModels: ASTModel[] = [];
-    const allObjects: ASTObject[] = [];
-    const allTuples: ASTTuple[] = [];
-    const allLiterals: ASTLiteral[] = [];
-    const allEnums: ASTEnum[] = [];
-    const parseErrors: string[] = [];
-
-    for (const { path, content } of schemaContents) {
-      const parseResult = parse(content, allObjectNames, allTupleNames, allLiteralNames, allEnumNames);
-
-      if (parseResult.errors.length) {
-        for (const error of parseResult.errors) {
-          parseErrors.push(`${path}:${error.position.line}: ${error.message}`);
-        }
-        continue;
-      }
-
-      allModels.push(...parseResult.ast.models);
-      allObjects.push(...parseResult.ast.objects);
-      allTuples.push(...parseResult.ast.tuples);
-      allLiterals.push(...parseResult.ast.literals);
-      allEnums.push(...parseResult.ast.enums);
     }
 
     // Check for parse errors before validation
@@ -319,19 +243,8 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
       return result;
     }
 
-    // Build combined AST from all parsed files
-    const combinedAST: import('../types').SchemaAST = {
-      models: allModels,
-      objects: allObjects,
-      tuples: allTuples,
-      literals: allLiterals,
-      enums: allEnums,
-      source: '',
-    };
+    const allModels = combinedAST.models;
 
-    // Validate extends and name uniqueness on the RAW AST: resolution keys types by name, so a duplicate
-    // declaration (including one in another file) would be silently dropped before any later check saw it
-    const extendsErrors = [...validateDuplicateNames(combinedAST), ...validateExtends(combinedAST)];
     if (extendsErrors.length) {
       for (const error of extendsErrors) {
         const modelFile = schemaContents.find((s) =>
@@ -346,8 +259,7 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
       return result;
     }
 
-    // Resolve inheritance — flatten extends chains, apply pick/omit, strip private markers
-    const resolvedAST = resolveInheritance(combinedAST);
+    const resolvedAST = resolved as SchemaAST;
 
     // Validate resolved types — no empty types after resolution (includes abstract models)
     const resolvedErrors = validateResolvedTypes(resolvedAST);
