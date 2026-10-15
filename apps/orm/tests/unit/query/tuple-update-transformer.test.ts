@@ -8,6 +8,7 @@
  */
 
 import { describe, expect, test } from 'bun:test';
+import { TIME_NOW } from '../../../src/query/compile/inline-expression';
 import { transformData } from '../../../src/query/transformers/data-transformer';
 import type { FieldMetadata, ModelMetadata, TupleElementMetadata, TupleFieldMetadata } from '../../../src/types';
 import { NONE } from '../../../src/utils/none';
@@ -242,6 +243,31 @@ describe('Per-Element Tuple Update Transformer', () => {
 
       expect(result.name).toBe('Alice');
       expect(result.location).toEqual({ lat: 5 });
+    });
+  });
+  describe('element decorator defaults', () => {
+    const stampInfo = tupleInfo('Stamped', [
+      elem({ index: 0, type: 'string', name: 'label' }),
+      elem({ index: 1, type: 'date', name: 'touched', timestampDecorator: 'updatedAt' }),
+      elem({ index: 2, type: 'int', name: 'hits', defaultAlwaysValue: 7 }),
+    ]);
+    const stampModel = model('Stamped', [
+      field({ name: 'id', type: 'record', isId: true }),
+      field({ name: 'stamp', type: 'tuple', isRequired: true, tupleInfo: stampInfo }),
+    ]);
+
+    test('should not fill omitted keys in the per-element object form', () => {
+      // The per-element form preserves untouched positions through $this, so the refresh
+      // decision belongs to the update builder, not here.
+      const result = transformData({ stamp: { label: 'b' } }, stampModel, 'update');
+
+      expect(result.stamp).toEqual({ label: 'b' });
+    });
+
+    test('should fill omitted positions in the full-replace array form', () => {
+      const result = transformData({ stamp: ['b'] }, stampModel, 'update');
+
+      expect(result.stamp).toEqual(['b', TIME_NOW, 7]);
     });
   });
 });

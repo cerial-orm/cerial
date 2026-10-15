@@ -6,6 +6,7 @@
  */
 
 import { describe, expect, test } from 'bun:test';
+import { TIME_NOW } from '../../../src/query/compile/inline-expression';
 import { transformData } from '../../../src/query/transformers/data-transformer';
 import type { FieldMetadata, ModelMetadata, TupleElementMetadata, TupleFieldMetadata } from '../../../src/types';
 
@@ -274,6 +275,144 @@ describe('Tuple Data Transformer', () => {
 
       expect(result.name).toBe('Alice');
       expect(result.location).toEqual([40, -74]);
+    });
+  });
+  describe('element decorator defaults', () => {
+    // [label, born @createdAt, touched @updatedAt, hits @defaultAlways(7), tag @default('x')]
+    const stampInfo = tupleInfo('Stamped', [
+      elem({ index: 0, type: 'string', name: 'label' }),
+      elem({ index: 1, type: 'date', name: 'born', timestampDecorator: 'createdAt' }),
+      elem({ index: 2, type: 'date', name: 'touched', timestampDecorator: 'updatedAt' }),
+      elem({ index: 3, type: 'int', name: 'hits', defaultAlwaysValue: 7 }),
+      elem({ index: 4, type: 'string', name: 'tag', defaultValue: 'x' }),
+    ]);
+    const stampModel = model('Stamped', [
+      field({ name: 'id', type: 'record', isId: true }),
+      field({ name: 'stamp', type: 'tuple', isRequired: true, tupleInfo: stampInfo }),
+    ]);
+
+    test('should fill every omitted decorated position', () => {
+      const result = transformData({ stamp: ['a'] }, stampModel);
+
+      expect(result.stamp).toEqual(['a', TIME_NOW, TIME_NOW, 7, 'x']);
+    });
+
+    test('should fill omitted positions from object input form', () => {
+      const result = transformData({ stamp: { label: 'a' } }, stampModel);
+
+      expect(result.stamp).toEqual(['a', TIME_NOW, TIME_NOW, 7, 'x']);
+    });
+
+    test('should never overwrite a supplied value', () => {
+      const born = new Date('2020-01-01T00:00:00Z');
+      const touched = new Date('2021-01-01T00:00:00Z');
+      const result = transformData({ stamp: ['a', born, touched, 99, 'own'] }, stampModel);
+
+      expect(result.stamp).toEqual(['a', born, touched, 99, 'own']);
+    });
+
+    test('should leave an omitted position with no decorator untouched', () => {
+      const plainInfo = tupleInfo('Plain', [
+        elem({ index: 0, type: 'string' }),
+        elem({ index: 1, type: 'int', isOptional: true }),
+      ]);
+      const m = model('Plain', [
+        field({ name: 'id', type: 'record', isId: true }),
+        field({ name: 'plain', type: 'tuple', isRequired: true, tupleInfo: plainInfo }),
+      ]);
+
+      const result = transformData({ plain: ['a'] }, m);
+
+      expect(result.plain).toEqual(['a', undefined]);
+    });
+
+    test('should prefer the timestamp over @defaultAlways and @default on one element', () => {
+      const mixedInfo = tupleInfo('Mixed', [
+        elem({ index: 0, type: 'date', timestampDecorator: 'createdAt', defaultAlwaysValue: 1, defaultValue: 2 }),
+      ]);
+      const m = model('Mixed', [
+        field({ name: 'id', type: 'record', isId: true }),
+        field({ name: 'mixed', type: 'tuple', isRequired: true, tupleInfo: mixedInfo }),
+      ]);
+
+      const result = transformData({ mixed: [] }, m);
+
+      expect(result.mixed).toEqual([TIME_NOW]);
+    });
+
+    test('should prefer @defaultAlways over @default on one element', () => {
+      const mixedInfo = tupleInfo('Mixed', [elem({ index: 0, type: 'int', defaultAlwaysValue: 1, defaultValue: 2 })]);
+      const m = model('Mixed', [
+        field({ name: 'id', type: 'record', isId: true }),
+        field({ name: 'mixed', type: 'tuple', isRequired: true, tupleInfo: mixedInfo }),
+      ]);
+
+      const result = transformData({ mixed: [] }, m);
+
+      expect(result.mixed).toEqual([1]);
+    });
+
+    test('should fill a @nullable element with its default, not null', () => {
+      const nullableInfo = tupleInfo('Nullable', [
+        elem({ index: 0, type: 'string' }),
+        elem({ index: 1, type: 'int', isNullable: true, defaultValue: 5 }),
+      ]);
+      const m = model('Nullable', [
+        field({ name: 'id', type: 'record', isId: true }),
+        field({ name: 'n', type: 'tuple', isRequired: true, tupleInfo: nullableInfo }),
+      ]);
+
+      const result = transformData({ n: ['a'] }, m);
+
+      expect(result.n).toEqual(['a', 5]);
+    });
+
+    test('should keep the null fill for a @nullable element with no default', () => {
+      const nullableInfo = tupleInfo('Nullable', [
+        elem({ index: 0, type: 'string' }),
+        elem({ index: 1, type: 'int', isNullable: true }),
+      ]);
+      const m = model('Nullable', [
+        field({ name: 'id', type: 'record', isId: true }),
+        field({ name: 'n', type: 'tuple', isRequired: true, tupleInfo: nullableInfo }),
+      ]);
+
+      const result = transformData({ n: ['a'] }, m);
+
+      expect(result.n).toEqual(['a', null]);
+    });
+
+    test('should fill a decorated element of a nested tuple', () => {
+      const innerStamp = tupleInfo('InnerStamp', [
+        elem({ index: 0, type: 'int' }),
+        elem({ index: 1, type: 'date', timestampDecorator: 'createdAt' }),
+      ]);
+      const outer = tupleInfo('OuterStamp', [
+        elem({ index: 0, type: 'string' }),
+        elem({ index: 1, type: 'tuple', tupleInfo: innerStamp }),
+      ]);
+      const m = model('Outer', [
+        field({ name: 'id', type: 'record', isId: true }),
+        field({ name: 'outer', type: 'tuple', isRequired: true, tupleInfo: outer }),
+      ]);
+
+      const result = transformData({ outer: ['a', [1]] }, m);
+
+      expect(result.outer).toEqual(['a', [1, TIME_NOW]]);
+    });
+
+    test('should fill each tuple of a tuple array independently', () => {
+      const stampArrayModel = model('Stamped', [
+        field({ name: 'id', type: 'record', isId: true }),
+        field({ name: 'stamps', type: 'tuple', isRequired: true, isArray: true, tupleInfo: stampInfo }),
+      ]);
+
+      const result = transformData({ stamps: [['a'], ['b', undefined, undefined, 3]] }, stampArrayModel);
+
+      expect(result.stamps).toEqual([
+        ['a', TIME_NOW, TIME_NOW, 7, 'x'],
+        ['b', TIME_NOW, TIME_NOW, 3, 'x'],
+      ]);
     });
   });
 });

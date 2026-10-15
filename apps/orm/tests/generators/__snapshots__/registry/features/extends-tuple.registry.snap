@@ -379,16 +379,19 @@
     "ExtDecoratedTriple": {
       "elements": [
         {
+          "defaultValue": "test",
           "index": 0,
           "isOptional": false,
           "type": "string"
         },
         {
+          "defaultValue": 0,
           "index": 1,
           "isOptional": false,
           "type": "int"
         },
         {
+          "defaultValue": false,
           "index": 2,
           "isOptional": false,
           "type": "bool"

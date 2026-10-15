@@ -21,6 +21,7 @@
 
 import type { FieldMetadata, ModelMetadata, ModelRegistry, SelectClause, UpsertReturn, WhereClause } from '../../types';
 import { isNone } from '../../utils/none';
+import { bindWithInlineExpressions, containsInlineExpression } from '../compile/inline-expression';
 import type { CompiledQuery } from '../compile/types';
 import { createCompileContext, type FilterCompileContext } from '../compile/var-allocator';
 import { prefixQueryVars } from '../executor';
@@ -89,10 +90,10 @@ function buildUpsertFieldClause(
     if (isNone(value)) return 'NONE';
     if (value === null && fieldMetadata?.type === 'record' && !fieldMetadata.isRequired) return 'NONE';
 
-    const binding = ctx.bind(fieldName, prefix, value, fieldMetadata?.type || 'string');
-    Object.assign(vars, binding.vars);
+    const rendered = bindWithInlineExpressions(ctx, fieldName, prefix, value, fieldMetadata?.type || 'string');
+    Object.assign(vars, rendered.vars);
 
-    return fieldMetadata?.isSet ? `<set>${binding.placeholder}` : binding.placeholder;
+    return fieldMetadata?.isSet ? `<set>${rendered.text}` : rendered.text;
   };
 
   if (inCreate && inUpdate) {
@@ -322,12 +323,15 @@ export function buildUpsertIdQuery(
 
   const hasUpdate = Object.keys(updateData).length > 0;
 
-  const hasSetFields = model.fields.some((f) => f.isSet);
+  // SET syntax for models with @set fields, and for a create payload holding an inline
+  // time::now() — CONTENT binds the whole payload as one parameter, which cannot carry an
+  // expression. CONTENT otherwise.
+  const useCreateSet = model.fields.some((f) => f.isSet) || containsInlineExpression(createData);
 
-  // Build CREATE — use SET syntax for models with @set fields, CONTENT otherwise
+  // Build CREATE
   let createSetParts: string[] | undefined;
   let createBinding: { placeholder: string; vars: Record<string, unknown> } | undefined;
-  if (hasSetFields) {
+  if (useCreateSet) {
     const result = buildCreateSetClauses(ctx, createData, model);
     createSetParts = result.setParts;
     Object.assign(vars, result.setVars);
@@ -355,7 +359,7 @@ export function buildUpsertIdQuery(
   }
 
   let createQuery: string;
-  if (hasSetFields && createSetParts) {
+  if (useCreateSet && createSetParts) {
     createQuery = `CREATE ONLY ${recordId.toString()} SET ${createSetParts.join(', ')}${createReturn ? ` ${createReturn}` : ''}`;
   } else {
     createQuery = `CREATE ONLY ${recordId.toString()} CONTENT ${createBinding!.placeholder}${createReturn ? ` ${createReturn}` : ''}`;

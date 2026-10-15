@@ -3,6 +3,7 @@
  */
 
 import type { ModelMetadata, ModelRegistry, SelectClause } from '../../types';
+import { bindWithInlineExpressions, containsInlineExpression } from '../compile/inline-expression';
 import type { CompiledQuery } from '../compile/types';
 import { createCompileContext, type FilterCompileContext } from '../compile/var-allocator';
 import { transformValue } from '../transformers/data-transformer';
@@ -55,10 +56,10 @@ export function buildCreateSetClauses(
     if (value === undefined) continue;
 
     const fieldMetadata = model.fields.find((f) => f.name === field);
-    const varBinding = ctx.bind(field, 'create', value, fieldMetadata?.type || 'string');
-    const placeholder = fieldMetadata?.isSet ? `<set>${varBinding.placeholder}` : varBinding.placeholder;
+    const rendered = bindWithInlineExpressions(ctx, field, 'create', value, fieldMetadata?.type || 'string');
+    const placeholder = fieldMetadata?.isSet ? `<set>${rendered.text}` : rendered.text;
     setParts.push(`${field} = ${placeholder}`);
-    Object.assign(setVars, varBinding.vars);
+    Object.assign(setVars, rendered.vars);
   }
 
   return { setParts, setVars };
@@ -80,9 +81,11 @@ export function buildCreateQuery(
   // Build select fields for RETURN
   const fields = buildSelectFields(select, model, include, registry);
 
-  // Models with @set fields must use SET syntax (CONTENT sends raw arrays, SurrealDB rejects them for set<T> fields)
+  // Models with @set fields must use SET syntax (CONTENT sends raw arrays, SurrealDB rejects them for set<T> fields).
+  // A tuple element filled with time::now() needs it too: the expression is query text, and
+  // CONTENT binds the whole payload as one parameter.
   const hasSetFields = model.fields.some((f) => f.isSet);
-  if (hasSetFields) {
+  if (hasSetFields || containsInlineExpression(withDefaults)) {
     const { setParts, setVars } = buildCreateSetClauses(ctx, withDefaults, model);
     const query = `CREATE ONLY ${model.tableName} SET ${setParts.join(', ')} RETURN ${fields}`;
 

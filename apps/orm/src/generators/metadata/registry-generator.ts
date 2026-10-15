@@ -15,6 +15,11 @@ import type {
 } from '../../types';
 import { escapeTsString } from '../shared';
 
+/** Serialize a default value as a TypeScript literal */
+function serializeMetadataValue(value: unknown): string {
+  return typeof value === 'string' ? `'${escapeTsString(value)}'` : JSON.stringify(value);
+}
+
 /** Generate FieldMetadata as TypeScript code */
 function generateFieldMetadata(field: FieldMetadata): string {
   const parts = [
@@ -28,19 +33,11 @@ function generateFieldMetadata(field: FieldMetadata): string {
   ];
 
   if (field.defaultValue !== undefined) {
-    const value =
-      typeof field.defaultValue === 'string'
-        ? `'${escapeTsString(field.defaultValue)}'`
-        : JSON.stringify(field.defaultValue);
-    parts.push(`defaultValue: ${value}`);
+    parts.push(`defaultValue: ${serializeMetadataValue(field.defaultValue)}`);
   }
 
   if (field.defaultAlwaysValue !== undefined) {
-    const value =
-      typeof field.defaultAlwaysValue === 'string'
-        ? `'${escapeTsString(field.defaultAlwaysValue)}'`
-        : JSON.stringify(field.defaultAlwaysValue);
-    parts.push(`defaultAlwaysValue: ${value}`);
+    parts.push(`defaultAlwaysValue: ${serializeMetadataValue(field.defaultAlwaysValue)}`);
   }
 
   // Include isArray when true
@@ -309,6 +306,20 @@ function generateTupleElementMetadata(element: TupleElementMetadata): string {
 
   if (element.isNullable) {
     parts.push(`isNullable: true`);
+  }
+
+  // The runtime fills an omitted tuple position from these three, so they have to reach
+  // the registry — the server's DEFINE FIELD DEFAULT cannot fire for a tuple element.
+  if (element.timestampDecorator) {
+    parts.push(`timestampDecorator: '${element.timestampDecorator}'`);
+  }
+
+  if (element.defaultValue !== undefined) {
+    parts.push(`defaultValue: ${serializeMetadataValue(element.defaultValue)}`);
+  }
+
+  if (element.defaultAlwaysValue !== undefined) {
+    parts.push(`defaultAlwaysValue: ${serializeMetadataValue(element.defaultAlwaysValue)}`);
   }
 
   if (element.objectInfo) {

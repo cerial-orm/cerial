@@ -870,15 +870,18 @@
                 "index": 1,
                 "isOptional": false,
                 "name": "born",
+                "timestampDecorator": "createdAt",
                 "type": "date"
               },
               {
                 "index": 2,
                 "isOptional": false,
                 "name": "touched",
+                "timestampDecorator": "updatedAt",
                 "type": "date"
               },
               {
+                "defaultAlwaysValue": 7,
                 "index": 3,
                 "isOptional": false,
                 "name": "hits",
@@ -1560,15 +1563,18 @@
           "index": 1,
           "isOptional": false,
           "name": "born",
+          "timestampDecorator": "createdAt",
           "type": "date"
         },
         {
           "index": 2,
           "isOptional": false,
           "name": "touched",
+          "timestampDecorator": "updatedAt",
           "type": "date"
         },
         {
+          "defaultAlwaysValue": 7,
           "index": 3,
           "isOptional": false,
           "name": "hits",

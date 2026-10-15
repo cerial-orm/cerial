@@ -19,6 +19,7 @@ import { CerialGeometry } from '../../utils/cerial-geometry';
 import { CerialId, type RecordIdInput } from '../../utils/cerial-id';
 import { CerialUuid } from '../../utils/cerial-uuid';
 import { isNone, NONE } from '../../utils/none';
+import { TIME_NOW } from '../compile/inline-expression';
 
 /** Transform a value based on field type */
 export function transformValue(value: unknown, fieldType: SchemaFieldType): unknown {
@@ -309,6 +310,46 @@ export function isSingleTupleInput(value: unknown, tupleInfo: TupleFieldMetadata
   return value.length === tupleInfo.elements.length;
 }
 
+/** True when the element carries a decorator that can supply a value for an omitted position */
+function hasElementDefault(element: TupleElementMetadata): boolean {
+  return (
+    element.timestampDecorator !== undefined ||
+    element.defaultAlwaysValue !== undefined ||
+    element.defaultValue !== undefined
+  );
+}
+
+/**
+ * The value an omitted tuple position takes on a write, or undefined when the element
+ * carries no decorator.
+ *
+ * A fixed-length tuple literal refuses NONE in a position, so `DEFINE FIELD t[N] ... DEFAULT`
+ * never fires for a tuple element and the fill has to happen here. Precedence mirrors
+ * `generators/migrations/define-generator.ts`'s `generateDefaultClause`: timestamp first,
+ * then `@defaultAlways`, then `@default`.
+ */
+export function tupleElementDefault(element: TupleElementMetadata): unknown {
+  if (element.timestampDecorator === 'createdAt' || element.timestampDecorator === 'updatedAt') return TIME_NOW;
+  if (element.defaultAlwaysValue !== undefined) return transformValue(element.defaultAlwaysValue, element.type);
+  if (element.defaultValue !== undefined) return transformValue(element.defaultValue, element.type);
+
+  return undefined;
+}
+
+/**
+ * The value an omitted tuple position takes on a per-element update, or undefined when the
+ * position keeps whatever is stored.
+ *
+ * `@updatedAt` and `@defaultAlways` re-fire on every write; `@createdAt` and `@default` do
+ * not, so those positions are preserved through `$this` by the update builder.
+ */
+export function tupleElementUpdateRefresh(element: TupleElementMetadata): unknown {
+  if (element.timestampDecorator === 'updatedAt') return TIME_NOW;
+  if (element.defaultAlwaysValue !== undefined) return transformValue(element.defaultAlwaysValue, element.type);
+
+  return undefined;
+}
+
 /**
  * Transform tuple data based on tupleInfo element definitions.
  * Handles object elements, nested tuple elements, record elements, and primitive elements.
@@ -336,9 +377,10 @@ function transformTupleData(data: unknown, tupleInfo: TupleFieldMetadata): unkno
     return data as unknown[];
   }
 
-  // Fill absent @nullable elements with null (SurrealDB rejects NONE for `T | null` fields)
+  // Fill absent @nullable elements with null (SurrealDB rejects NONE for `T | null` fields).
+  // An element that also carries a default takes the default instead, filled below.
   for (const element of tupleInfo.elements) {
-    if (arr[element.index] === undefined && element.isNullable) {
+    if (arr[element.index] === undefined && element.isNullable && !hasElementDefault(element)) {
       arr[element.index] = null;
     }
   }
@@ -359,6 +401,15 @@ function transformTupleData(data: unknown, tupleInfo: TupleFieldMetadata): unkno
     } else {
       arr[element.index] = transformValue(value, element.type);
     }
+  }
+
+  // Fill an omitted position from its element decorators. The value is already transformed,
+  // so this runs after the per-element transform loop. A position the caller supplied is
+  // never touched, so an explicit value always wins over @default and @createdAt.
+  for (const element of tupleInfo.elements) {
+    if (arr[element.index] !== undefined) continue;
+    const filled = tupleElementDefault(element);
+    if (filled !== undefined) arr[element.index] = filled;
   }
 
   // SurrealDB CBOR bug: CBOR null in the same array as a Geometry tag prevents

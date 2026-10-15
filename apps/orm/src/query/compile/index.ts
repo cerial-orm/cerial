@@ -11,6 +11,8 @@ export {
   prependText,
   wrapParens,
 } from './fragment';
+export type { InlineExpression } from './inline-expression';
+export { bindWithInlineExpressions, containsInlineExpression, isInlineExpression, TIME_NOW } from './inline-expression';
 export type { CompiledQuery, QueryFragment, QueryVars, VarBinding } from './types';
 export { createEmptyQuery, EMPTY_FRAGMENT, isEmptyFragment } from './types';
 export type { FilterCompileContext, VarAllocator } from './var-allocator';

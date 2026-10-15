@@ -15,10 +15,11 @@ import type {
 } from '../../types';
 import { isNone, NONE } from '../../utils/none';
 import { quoteSubKey } from '../../utils/string-utils';
+import { bindWithInlineExpressions, isInlineExpression } from '../compile/inline-expression';
 import type { CompiledQuery } from '../compile/types';
 import { createCompileContext, type FilterCompileContext } from '../compile/var-allocator';
 import { transformDestructiveWhere } from '../filters/transformer';
-import { transformOrValidateRecordId } from '../transformers';
+import { transformOrValidateRecordId, tupleElementUpdateRefresh } from '../transformers';
 import { buildArrayUpdateClause, isArrayField, isArrayUpdateOps } from './array-update-builder';
 import { getRecordIdFromWhere } from './delete-builder';
 import { combineSelectWithIncludes, type IncludeClause } from './relation-builder';
@@ -204,9 +205,9 @@ export function buildUpdateSetClauses(
         );
       } else {
         // Array form = full tuple replace
-        const varBinding = ctx.bind(field, varPrefix, value, fieldMetadata.type);
-        setParts.push(`${field} = ${varBinding.placeholder}`);
-        Object.assign(setVars, varBinding.vars);
+        const rendered = bindWithInlineExpressions(ctx, field, varPrefix, value, fieldMetadata.type);
+        setParts.push(`${field} = ${rendered.text}`);
+        Object.assign(setVars, rendered.vars);
       }
       continue;
     }
@@ -342,9 +343,21 @@ function buildTupleUpdateClauses(
   for (const element of tupleInfo.elements) {
     const value = resolveElementValue(element, data);
 
-    // Not provided — use $this reference to preserve current value
+    // Not provided — @updatedAt and @defaultAlways re-fire on every write, and the server's
+    // DEFAULT ALWAYS cannot fire for a tuple element, so the refresh is written here.
+    // Every other element keeps its stored value through a $this reference.
     if (value === undefined) {
-      reconstructionParts.push(`$this.${fieldPath}[${element.index}]`);
+      const refresh = tupleElementUpdateRefresh(element);
+      if (refresh === undefined) {
+        reconstructionParts.push(`$this.${fieldPath}[${element.index}]`);
+      } else if (isInlineExpression(refresh)) {
+        reconstructionParts.push(refresh.text);
+      } else {
+        const varName = `${fieldPath}_${element.index}`.replace(/[^a-zA-Z0-9_]/g, '_');
+        const varBinding = ctx.bind(varName, 'set', refresh, element.type);
+        reconstructionParts.push(varBinding.placeholder);
+        Object.assign(setVars, varBinding.vars);
+      }
       continue;
     }
 
@@ -367,9 +380,9 @@ function buildTupleUpdateClauses(
       if (isSetWrapper(value)) {
         // Full replace: bind the entire object as a parameter
         const varName = `${fieldPath}_${element.index}`.replace(/[^a-zA-Z0-9_]/g, '_');
-        const varBinding = ctx.bind(varName, 'set', (value as { set: unknown }).set, element.type);
-        reconstructionParts.push(varBinding.placeholder);
-        Object.assign(setVars, varBinding.vars);
+        const rendered = bindWithInlineExpressions(ctx, varName, 'set', (value as { set: unknown }).set, element.type);
+        reconstructionParts.push(rendered.text);
+        Object.assign(setVars, rendered.vars);
       } else {
         // Partial merge: use $this to preserve, then dot-notation in phase 2
         reconstructionParts.push(`$this.${fieldPath}[${element.index}]`);
@@ -383,9 +396,9 @@ function buildTupleUpdateClauses(
       if (Array.isArray(value)) {
         // Full replace (array form): bind the entire tuple as a parameter
         const varName = `${fieldPath}_${element.index}`.replace(/[^a-zA-Z0-9_]/g, '_');
-        const varBinding = ctx.bind(varName, 'set', value, element.type);
-        reconstructionParts.push(varBinding.placeholder);
-        Object.assign(setVars, varBinding.vars);
+        const rendered = bindWithInlineExpressions(ctx, varName, 'set', value, element.type);
+        reconstructionParts.push(rendered.text);
+        Object.assign(setVars, rendered.vars);
       } else {
         // Per-element update (object form): use $this to preserve, then recurse in phase 2
         reconstructionParts.push(`$this.${fieldPath}[${element.index}]`);
@@ -506,9 +519,15 @@ function buildObjectMergeClauses(
         );
       } else {
         // Array form = full tuple replace via dot-notation
-        const varBinding = ctx.bind(subPath.replace(/[.[\]]/g, '_'), 'set', subValue, subField.type);
-        setParts.push(`${subPath} = ${varBinding.placeholder}`);
-        Object.assign(setVars, varBinding.vars);
+        const rendered = bindWithInlineExpressions(
+          ctx,
+          subPath.replace(/[.[\]]/g, '_'),
+          'set',
+          subValue,
+          subField.type,
+        );
+        setParts.push(`${subPath} = ${rendered.text}`);
+        Object.assign(setVars, rendered.vars);
       }
       continue;
     }
@@ -592,9 +611,9 @@ function buildObjectUpdateClauses(
 
   // Single object: { set: ... } → full replace
   if (isSetWrapper(value)) {
-    const varBinding = ctx.bind(field, 'set', (value as { set: unknown }).set, 'object');
-    setParts.push(`${field} = ${varBinding.placeholder}`);
-    Object.assign(setVars, varBinding.vars);
+    const rendered = bindWithInlineExpressions(ctx, field, 'set', (value as { set: unknown }).set, 'object');
+    setParts.push(`${field} = ${rendered.text}`);
+    Object.assign(setVars, rendered.vars);
 
     return;
   }

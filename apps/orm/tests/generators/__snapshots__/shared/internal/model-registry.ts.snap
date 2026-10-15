@@ -3731,9 +3731,9 @@ export const modelRegistry: ModelRegistry = {
           tupleName: 'Stamped',
           elements: [
             { index: 0, type: 'string', isOptional: false, name: 'label' },
-            { index: 1, type: 'date', isOptional: false, name: 'born' },
-            { index: 2, type: 'date', isOptional: false, name: 'touched' },
-            { index: 3, type: 'int', isOptional: false, name: 'hits' },
+            { index: 1, type: 'date', isOptional: false, name: 'born', timestampDecorator: 'createdAt' },
+            { index: 2, type: 'date', isOptional: false, name: 'touched', timestampDecorator: 'updatedAt' },
+            { index: 3, type: 'int', isOptional: false, name: 'hits', defaultAlwaysValue: 7 },
           ],
         },
       },
@@ -18038,9 +18038,9 @@ export const tupleRegistry: TupleRegistry = {
     name: 'Stamped',
     elements: [
       { index: 0, type: 'string', isOptional: false, name: 'label' },
-      { index: 1, type: 'date', isOptional: false, name: 'born' },
-      { index: 2, type: 'date', isOptional: false, name: 'touched' },
-      { index: 3, type: 'int', isOptional: false, name: 'hits' },
+      { index: 1, type: 'date', isOptional: false, name: 'born', timestampDecorator: 'createdAt' },
+      { index: 2, type: 'date', isOptional: false, name: 'touched', timestampDecorator: 'updatedAt' },
+      { index: 3, type: 'int', isOptional: false, name: 'hits', defaultAlwaysValue: 7 },
     ],
   },
   StatusPair: {
@@ -18174,9 +18174,9 @@ export const tupleRegistry: TupleRegistry = {
   ExtDecoratedTriple: {
     name: 'ExtDecoratedTriple',
     elements: [
-      { index: 0, type: 'string', isOptional: false },
-      { index: 1, type: 'int', isOptional: false },
-      { index: 2, type: 'bool', isOptional: false },
+      { index: 0, type: 'string', isOptional: false, defaultValue: 'test' },
+      { index: 1, type: 'int', isOptional: false, defaultValue: 0 },
+      { index: 2, type: 'bool', isOptional: false, defaultValue: false },
     ],
   },
   ExtQuad: {

@@ -3,6 +3,7 @@
  */
 
 import type { FieldMetadata } from '../../types';
+import { bindWithInlineExpressions } from '../compile/inline-expression';
 import type { FilterCompileContext } from '../compile/var-allocator';
 
 /** Array update operations */
@@ -38,11 +39,11 @@ export function buildPushOperation(
     };
   }
 
-  const varBinding = ctx.bind(field, 'push', value, fieldMetadata.type);
+  const rendered = bindWithInlineExpressions(ctx, field, 'push', value, fieldMetadata.type);
 
   return {
-    clause: `${field} += ${varBinding.placeholder}`,
-    vars: varBinding.vars,
+    clause: `${field} += ${rendered.text}`,
+    vars: rendered.vars,
   };
 }
 
@@ -83,12 +84,12 @@ export function buildArrayUpdateClause(
 ): { clause: string; vars: Record<string, unknown> } {
   // Direct array assignment (overwrite)
   if (Array.isArray(value)) {
-    const varBinding = ctx.bind(field, 'set', value, fieldMetadata.type);
-    const placeholder = fieldMetadata.isSet ? `<set>${varBinding.placeholder}` : varBinding.placeholder;
+    const rendered = bindWithInlineExpressions(ctx, field, 'set', value, fieldMetadata.type);
+    const placeholder = fieldMetadata.isSet ? `<set>${rendered.text}` : rendered.text;
 
     return {
       clause: `${field} = ${placeholder}`,
-      vars: varBinding.vars,
+      vars: rendered.vars,
     };
   }
 

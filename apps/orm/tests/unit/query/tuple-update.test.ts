@@ -7,6 +7,7 @@
 
 import { describe, expect, test } from 'bun:test';
 import { buildUpdateManyQuery } from '../../../src/query/builders/update-builder';
+import { transformData } from '../../../src/query/transformers/data-transformer';
 import type { FieldMetadata, ModelMetadata, TupleElementMetadata, TupleFieldMetadata } from '../../../src/types';
 
 function field(overrides: Partial<FieldMetadata>): FieldMetadata {
@@ -227,6 +228,87 @@ describe('Tuple Update Builder', () => {
 
       expect(result.text).toContain('location =');
       expect(result.text).not.toContain('backup');
+    });
+  });
+  describe('element decorator defaults', () => {
+    // [label, born @createdAt, touched @updatedAt, hits @defaultAlways(7), tag @default('x')]
+    const stampInfo = tupleInfo('Stamped', [
+      elem({ index: 0, type: 'string', name: 'label' }),
+      elem({ index: 1, type: 'date', name: 'born', timestampDecorator: 'createdAt' }),
+      elem({ index: 2, type: 'date', name: 'touched', timestampDecorator: 'updatedAt' }),
+      elem({ index: 3, type: 'int', name: 'hits', defaultAlwaysValue: 7 }),
+      elem({ index: 4, type: 'string', name: 'tag', defaultValue: 'x' }),
+    ]);
+    const stampModel: ModelMetadata = {
+      name: 'Stamped',
+      tableName: 'stamped',
+      fields: [
+        field({ name: 'id', type: 'record', isId: true }),
+        field({ name: 'name', type: 'string', isRequired: true }),
+        field({ name: 'stamp', type: 'tuple', isRequired: true, tupleInfo: stampInfo }),
+      ],
+    };
+
+    describe('per-element object form', () => {
+      test('should refresh @updatedAt and @defaultAlways and preserve the rest', () => {
+        const data = transformData({ stamp: { label: 'b' } }, stampModel, 'update');
+        const result = buildUpdateManyQuery(stampModel, { name: 'Alice' }, data);
+
+        expect(result.text).toContain(
+          'stamp = [$stamp_0_set_0, $this.stamp[1], time::now(), $stamp_3_set_1, $this.stamp[4]]',
+        );
+        expect(result.vars.stamp_0_set_0).toBe('b');
+        expect(result.vars.stamp_3_set_1).toBe(7);
+      });
+
+      test('should write a supplied @updatedAt value instead of time::now()', () => {
+        const touched = new Date('2021-01-01T00:00:00Z');
+        const data = transformData({ stamp: { touched } }, stampModel, 'update');
+        const result = buildUpdateManyQuery(stampModel, { name: 'Alice' }, data);
+
+        expect(result.text).not.toContain('time::now()');
+        expect(Object.values(result.vars)).toContainEqual(touched);
+      });
+
+      test('should write a supplied @defaultAlways value instead of the declared default', () => {
+        const data = transformData({ stamp: { hits: 99 } }, stampModel, 'update');
+        const result = buildUpdateManyQuery(stampModel, { name: 'Alice' }, data);
+
+        expect(Object.values(result.vars)).toContain(99);
+        expect(Object.values(result.vars)).not.toContain(7);
+      });
+    });
+
+    describe('full-replace array form', () => {
+      test('should fill every omitted decorated position', () => {
+        const data = transformData({ stamp: ['b'] }, stampModel, 'update');
+        const result = buildUpdateManyQuery(stampModel, { name: 'Alice' }, data);
+
+        expect(result.text).toContain(
+          'stamp = [$stamp_0_set_0, time::now(), time::now(), $stamp_3_set_1, $stamp_4_set_2]',
+        );
+        expect(result.vars.stamp_0_set_0).toBe('b');
+        expect(result.vars.stamp_3_set_1).toBe(7);
+        expect(result.vars.stamp_4_set_2).toBe('x');
+      });
+
+      test('should bind the whole tuple as one parameter when no position needs an expression', () => {
+        const born = new Date('2020-01-01T00:00:00Z');
+        const touched = new Date('2021-01-01T00:00:00Z');
+        const data = transformData({ stamp: ['b', born, touched, 99, 'own'] }, stampModel, 'update');
+        const result = buildUpdateManyQuery(stampModel, { name: 'Alice' }, data);
+
+        expect(result.text).toMatch(/stamp = \$\w+/);
+        expect(result.text).not.toContain('time::now()');
+        expect(Object.values(result.vars)).toContainEqual(['b', born, touched, 99, 'own']);
+      });
+
+      test('should leave an undecorated tuple bound as one parameter', () => {
+        const result = buildUpdateManyQuery(userModel, { name: 'Alice' }, { location: [1.5, 2.5] });
+
+        expect(result.text).toMatch(/location = \$\w+/);
+        expect(result.text).not.toContain('time::now()');
+      });
     });
   });
 });
