@@ -609,6 +609,24 @@ development branch and is not available on npm.
   one. While another client still holds the connection it stays open, so sharing is unchanged.
   If you called `disconnect()` and relied on the next `connect()` returning the same live
   socket, you now get a fresh connection instead.
+- **Breaking.** A model, object, tuple or enum name, or a field name on a model or object,
+  that is one of SurrealDB's reserved words is now refused by `cerial generate`. The error
+  names the keyword and the declaration carrying it. Matching is case-insensitive and exact,
+  so a name that merely contains a keyword, such as `ordering` or `contentType`, is still
+  accepted.
+
+  The names most likely to affect an existing schema are `type`, `content`, `order`, `group`,
+  `table`, `value`, `timeout` and `access`, along with a model named `Order` or `Group` or an
+  object named `Info`. The remedy is to rename the declaration: Cerial writes table and field
+  names into the query text as they are, so there is no way to keep a reserved name by
+  quoting it. Renaming a field changes the column SurrealDB stores, so an existing database
+  needs the data moved across before the new schema is applied.
+
+  Some of these words do work in SurrealDB today and are refused anyway, because the set it
+  reserves has changed between versions and a name that parses now may stop parsing after an
+  upgrade. One of them was already failing: a `select` on a field named `value` produced
+  `SELECT value FROM ...`, which SurrealDB rejects outright, so that query had no working
+  form. The list is pinned to SurrealDB 3.3.0.
 
 ### Removed
 
