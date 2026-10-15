@@ -6,8 +6,9 @@ import type { FieldMetadata, ModelMetadata, ModelRegistry, WhereClause } from '.
 import { joinFragments } from '../compile/fragment';
 import type { QueryFragment } from '../compile/types';
 import type { FilterCompileContext } from '../compile/var-allocator';
+import { isObject } from '../../utils/type-utils';
 import { isOperatorObject } from './condition-builder';
-import { handleAnd } from './logical-operators';
+import { handleAnd, handleNot, handleOr } from './logical-operators';
 import { getOperatorHandler } from './registry';
 
 /** Relation filter operators for array relations */
@@ -102,7 +103,7 @@ export function buildForwardNestedCondition(
   ctx: FilterCompileContext,
   relationField: FieldMetadata,
   nestedWhere: WhereClause,
-  _model: ModelMetadata,
+  model: ModelMetadata,
   registry: ModelRegistry,
 ): QueryFragment {
   if (!relationField.relationInfo || relationField.relationInfo.isReverse) {
@@ -126,8 +127,25 @@ export function buildForwardNestedCondition(
   for (const [nestedField, value] of Object.entries(nestedWhere)) {
     if (value === undefined) continue;
 
-    // Skip logical operators for now (AND, OR, NOT)
-    if (nestedField === 'AND' || nestedField === 'OR' || nestedField === 'NOT') {
+    // Logical operators compose branches that are themselves relation filters, so each branch
+    // recurses through this builder and comes back already prefixed with the foreign key path.
+    // Branch shapes match the top level (condition-builder.ts): AND/OR take an array, NOT an object.
+    if (nestedField === 'AND' && Array.isArray(value)) {
+      conditions.push(
+        handleAnd(value.map((w) => buildForwardNestedCondition(ctx, relationField, w as WhereClause, model, registry))),
+      );
+      continue;
+    }
+
+    if (nestedField === 'OR' && Array.isArray(value)) {
+      conditions.push(
+        handleOr(value.map((w) => buildForwardNestedCondition(ctx, relationField, w as WhereClause, model, registry))),
+      );
+      continue;
+    }
+
+    if (nestedField === 'NOT' && isObject(value)) {
+      conditions.push(handleNot(buildForwardNestedCondition(ctx, relationField, value, model, registry)));
       continue;
     }
 

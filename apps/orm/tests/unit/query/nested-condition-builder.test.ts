@@ -218,11 +218,85 @@ describe('buildForwardNestedCondition', () => {
     expect(forward({ name: { eq: undefined } })).toEqual(EMPTY);
   });
 
-  // The forward path drops AND, OR and NOT without a trace, so a filter that relies on them
-  // matches more rows than written. Pinned as current behavior; see the report on this task.
-  test.each(['AND', 'OR', 'NOT'])('%s inside a forward relation filter is currently dropped', (key) => {
-    expect(forward({ [key]: [{ name: 'A' }] })).toEqual(EMPTY);
-    expect(forward({ [key]: [{ name: 'A' }], name: 'B' }).text).toBe('ownerId.name = $ownerId_name_eq_0');
+  // This case was pinned as current behavior when the file was written, and it was pinning a defect:
+  // the three operators were skipped, so a filter naming only one of them produced an empty fragment
+  // and the caller's whole WHERE vanished (`SELECT * FROM place`, every row, no error). Now inverted.
+  test.each([
+    ['AND', { AND: [{ name: 'A' }] } as WhereClause, 'ownerId.name = $ownerId_name_eq_0'],
+    ['OR', { OR: [{ name: 'A' }] } as WhereClause, 'ownerId.name = $ownerId_name_eq_0'],
+    ['NOT', { NOT: { name: 'A' } } as WhereClause, 'NOT (ownerId.name = $ownerId_name_eq_0)'],
+  ])('%s inside a forward relation filter compiles over the dotted path', (_key, where, text) => {
+    // A single surviving branch needs no parentheses, which is what the top-level handlers do too
+    expect(forward(where)).toEqual({ text, vars: { ownerId_name_eq_0: 'A' } });
+  });
+
+  test('AND over several branches is parenthesised and bound in order', () => {
+    expect(forward({ AND: [{ name: 'A' }, { id: 1 }] })).toEqual({
+      text: '(ownerId.name = $ownerId_name_eq_0 AND ownerId.id = $ownerId_id_eq_1)',
+      vars: { ownerId_name_eq_0: 'A', ownerId_id_eq_1: 1 },
+    });
+  });
+
+  test('OR over several branches is parenthesised and bound in order', () => {
+    expect(forward({ OR: [{ name: 'A' }, { name: 'B' }] })).toEqual({
+      text: '(ownerId.name = $ownerId_name_eq_0 OR ownerId.name = $ownerId_name_eq_1)',
+      vars: { ownerId_name_eq_0: 'A', ownerId_name_eq_1: 'B' },
+    });
+  });
+
+  test('a branch may use operator objects, not only direct values', () => {
+    expect(forward({ OR: [{ name: { contains: 'A' } }, { id: { gt: 2 } }] })).toEqual({
+      text: '(string::contains(ownerId.name, $ownerId_name_contains_0) OR ownerId.id > $ownerId_id_gt_1)',
+      vars: { ownerId_name_contains_0: 'A', ownerId_id_gt_1: 2 },
+    });
+  });
+
+  test('an OR containing an AND nests two levels deep', () => {
+    expect(forward({ OR: [{ AND: [{ name: 'A' }, { id: 1 }] }, { name: 'B' }] })).toEqual({
+      text: '((ownerId.name = $ownerId_name_eq_0 AND ownerId.id = $ownerId_id_eq_1) OR ownerId.name = $ownerId_name_eq_2)',
+      vars: { ownerId_name_eq_0: 'A', ownerId_id_eq_1: 1, ownerId_name_eq_2: 'B' },
+    });
+  });
+
+  test('NOT wrapping an OR negates the whole disjunction', () => {
+    expect(forward({ NOT: { OR: [{ name: 'A' }, { name: 'B' }] } })).toEqual({
+      text: 'NOT ((ownerId.name = $ownerId_name_eq_0 OR ownerId.name = $ownerId_name_eq_1))',
+      vars: { ownerId_name_eq_0: 'A', ownerId_name_eq_1: 'B' },
+    });
+  });
+
+  test('a logical operator beside a plain field key composes with AND, as the top level does', () => {
+    expect(forward({ name: 'Z', OR: [{ id: 1 }, { id: 2 }] })).toEqual({
+      text: 'ownerId.name = $ownerId_name_eq_0 AND (ownerId.id = $ownerId_id_eq_1 OR ownerId.id = $ownerId_id_eq_2)',
+      vars: { ownerId_name_eq_0: 'Z', ownerId_id_eq_1: 1, ownerId_id_eq_2: 2 },
+    });
+  });
+
+  test('no caller string reaches the query text — every branch value is bound', () => {
+    const result = forward({ OR: [{ name: "x' OR 1=1 --" }, { name: 'b' }] });
+
+    expect(result.text).toBe('(ownerId.name = $ownerId_name_eq_0 OR ownerId.name = $ownerId_name_eq_1)');
+    expect(result.vars).toEqual({ ownerId_name_eq_0: "x' OR 1=1 --", ownerId_name_eq_1: 'b' });
+  });
+
+  test('empty and unusable logical branches follow the top-level handlers', () => {
+    // handleAnd of nothing is empty; handleOr of nothing is false, which matches no row
+    expect(forward({ AND: [] })).toEqual(EMPTY);
+    expect(forward({ OR: [] })).toEqual({ text: 'false', vars: {} });
+    expect(forward({ NOT: {} })).toEqual({ text: 'false', vars: {} });
+    // a branch naming only unknown fields contributes nothing, as it does at the top level
+    expect(forward({ OR: [{ nope: 'x' }, { name: 'A' }] }).text).toBe('(ownerId.name = $ownerId_name_eq_0)');
+  });
+
+  test('a logical operator given the wrong container is not taken as a field', () => {
+    // Negative: the generated Where type already forbids these shapes, so this pins the runtime
+    // behaviour for an untyped caller — the key must never fall through and be read as a field name
+    // @ts-expect-error AND takes an array of where clauses, not a single one
+    expect(forward({ AND: { name: 'A' } })).toEqual(EMPTY);
+    // @ts-expect-error OR takes an array of where clauses, not a single one
+    expect(forward({ OR: { name: 'A' } })).toEqual(EMPTY);
+    // @ts-expect-error NOT takes a single where clause, not an array
+    expect(forward({ NOT: [{ name: 'A' }] })).toEqual(EMPTY);
   });
 
   test('a reverse relation field yields no condition', () => {
