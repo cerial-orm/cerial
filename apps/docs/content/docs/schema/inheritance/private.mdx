@@ -63,6 +63,59 @@ model WithPrivate extends Base[!email] {
 }
 ```
 
+## Holds Across the Whole Chain
+
+`!!private` applies to every level below the type that declares it, not only the direct child. With `A extends B extends C`, a member marked private in `C` cannot be redeclared in `A`, even though `B` never mentions it. The same holds for model fields, object fields and tuple elements.
+
+:::caution
+This feature is not yet available in the current release. It will ship in an upcoming version.
+:::
+
+```cerial
+abstract model Base {
+  id Record @id !!private
+  secret String !!private
+}
+
+abstract model Middle extends Base {
+  label String
+}
+
+// ERROR: overrides a private field from parent "Base"
+model Leaf extends Middle {
+  secret Int
+}
+```
+
+The error names the type that declared the member private (`Base`), not the intermediate it was inherited through (`Middle`). An abstract model is the usual declarer, as above.
+
+If the leaf does not redeclare the member, it inherits it as normal and generation succeeds.
+
+### Pick and Omit Do Not Detach a Private Member
+
+Dropping a private member with `pick` or `omit` removes it from that branch's fields, but it does not release the name. The name stays reserved for everything further down the chain, including branches that no longer carry the field.
+
+:::caution
+This feature is not yet available in the current release. It will ship in an upcoming version.
+:::
+
+```cerial
+abstract model Base {
+  secret String !!private
+}
+
+abstract model Middle extends Base[!secret] {
+  label String
+}
+
+// ERROR: overrides a private field from parent "Base"
+model Leaf extends Middle {
+  secret Int
+}
+```
+
+`Middle` has no `secret`, and `Leaf` is still refused. This is deliberate: a pick or omit list cannot be used to get around `!!private`. To use the name for something else, remove `!!private` from the declaring type, or choose a different field name in the leaf.
+
 ## Where Allowed
 
 | Location         | Allowed |

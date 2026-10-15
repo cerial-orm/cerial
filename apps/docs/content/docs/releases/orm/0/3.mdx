@@ -634,6 +634,15 @@ development branch and is not available on npm.
   upgrade. One of them was already failing: a `select` on a field named `value` produced
   `SELECT value FROM ...`, which SurrealDB rejects outright, so that query had no working
   form. The list is pinned to SurrealDB 3.3.0.
+- **Breaking.** `!!private` now holds across the whole `extends` chain. With
+  `A extends B extends C`, a field marked `!!private` in `C` could be redeclared in `A`
+  and `cerial generate` accepted it, so the modifier only protected a member from the
+  direct child. It is now refused for model fields, object fields and tuple elements,
+  and the error names the type that declared the member private rather than the one it
+  was inherited through. `pick` and `omit` do not release the name: if `B` drops the
+  member with `B extends C[!secret]`, `A extends B` still cannot declare `secret`. A
+  schema that redeclared a grandparent's private member stops generating. Remove
+  `!!private` from the declaring type, or rename the field in the child.
 
 ### Removed
 
