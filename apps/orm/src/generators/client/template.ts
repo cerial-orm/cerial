@@ -117,6 +117,8 @@ export class ${clientClassName} {
   private _migratedModels: Set<ModelName> = new Set();
   private _pendingMigrations: Set<ModelName> = new Set();
   private _migrationPromises: Map<ModelName, Promise<void>> = new Map();
+  // A DDL failure (e.g. a UNIQUE index over duplicate data) will not fix itself, so it is kept and rethrown instead of re-running the DDL on every query.
+  private _failedMigrations: Map<ModelName, Error> = new Map();
   private _onMigrationEvent?: MigrationEventCallback;
   private _userCallbacks: BeforeQueryCallback[] = [];
   private _includeStatementInErrors = false;
@@ -251,6 +253,7 @@ ${modelAccessors}
     this._migratedModels.clear();
     this._pendingMigrations.clear();
     this._migrationPromises.clear();
+    this._failedMigrations.clear();
   }
 
   /**
@@ -260,6 +263,9 @@ ${modelAccessors}
   async migrateModel(modelName: ModelName): Promise<void> {
     // Check if already migrated
     if (this._migratedModels.has(modelName)) return;
+
+    const failure = this._failedMigrations.get(modelName);
+    if (failure) throw failure;
 
     // Thread safety: wait for in-progress migration
     if (this._pendingMigrations.has(modelName)) {
@@ -305,12 +311,16 @@ ${modelAccessors}
       this._onMigrationEvent?.({ type: 'complete', modelName });
     } catch (error) {
       this._onMigrationEvent?.({ type: 'error', modelName, error: error as Error });
-      if (error instanceof CerialError) throw error; // Fail fast - don't retry
-      throw new CerialMigrationError(\`Migration of \${modelName} failed: \${error instanceof Error ? error.message : String(error)}\`, {
-        model: modelName,
-        operation: 'migrate',
-        cause: error,
-      });
+      const failure = error instanceof CerialError
+        ? error
+        : new CerialMigrationError(\`Migration of \${modelName} failed: \${error instanceof Error ? error.message : String(error)}\`, {
+          model: modelName,
+          operation: 'migrate',
+          cause: error,
+        });
+      // Not being connected is a state, not a DDL verdict: the next query may succeed.
+      if (!(failure instanceof CerialNotConnectedError)) this._failedMigrations.set(modelName, failure);
+      throw failure;
     }
   }
 
