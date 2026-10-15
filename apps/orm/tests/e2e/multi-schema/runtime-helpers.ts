@@ -33,7 +33,7 @@ export interface ModelDelegate {
 /** The slice of a generated client class these tests use. */
 export interface RuntimeClient {
   db: Record<string, ModelDelegate>;
-  connect(config: ConnectionConfig): Promise<void>;
+  connect(config?: ConnectionConfig): Promise<void>;
   disconnect(): Promise<void>;
   migrate(): Promise<void>;
   resetMigrationState(): void;

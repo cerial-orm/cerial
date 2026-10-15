@@ -36,8 +36,7 @@ export async function writeClientMain(
   outputDir: string,
   models: ModelMetadata[],
   clientClassName: string = 'CerialClient',
-  // Threaded for the template to embed; unused until it takes a connection
-  _connection?: ConnectionConfig,
+  connection?: ConnectionConfig,
 ): Promise<string> {
   await ensureDir(outputDir);
 
@@ -47,7 +46,7 @@ export async function writeClientMain(
   * Do not edit manually
   */
 
-${generateClientTemplate(models, clientClassName)}
+${generateClientTemplate(models, clientClassName, connection)}
 
 ${generateConnectionExports()}
 `;

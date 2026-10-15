@@ -24,10 +24,22 @@ async function emit(conn?: ConnectionConfig): Promise<string> {
 }
 
 describe('writeClient connection threading', () => {
-  test('a supplied connection leaves client.ts byte-identical to none', async () => {
-    const without = await emit();
+  // Until the connection was emitted these two were byte-identical, which is what this test used to
+  // assert. Now a supplied connection reaches the template, so the right property is that it reaches
+  // it in full and that no connection still emits nothing.
+  test('a supplied connection reaches the emitted client', async () => {
     const withConn = await emit(connection);
 
-    expect(withConn).toBe(without);
+    expect(withConn).toContain('EMBEDDED_CONNECTION');
+    expect(withConn).toContain(connection.url);
+    expect(withConn).toContain(`namespace: '${connection.namespace}'`);
+    expect(withConn).toContain(`database: '${connection.database}'`);
+  });
+
+  test('no connection emits an undefined embedded constant', async () => {
+    const without = await emit();
+
+    expect(without).toContain('EMBEDDED_CONNECTION');
+    expect(without).not.toContain(connection.url);
   });
 });

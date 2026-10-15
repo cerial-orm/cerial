@@ -36,7 +36,7 @@ describe('Client Naming', () => {
     test('should parameterize connect method signature with custom clientClassName', () => {
       const template = generateClientTemplate(mockModels, 'CmsCerialClient');
 
-      expect(template).toContain('async connect(config: CmsCerialClientConnectConfig)');
+      expect(template).toContain('async connect(config?: CmsCerialClientConnectConfig)');
     });
 
     test('should handle various custom client names', () => {
@@ -47,7 +47,7 @@ describe('Client Naming', () => {
 
         expect(template).toContain(`export class ${name} {`);
         expect(template).toContain(`export interface ${name}ConnectConfig`);
-        expect(template).toContain(`async connect(config: ${name}ConnectConfig)`);
+        expect(template).toContain(`async connect(config?: ${name}ConnectConfig)`);
       }
     });
 
