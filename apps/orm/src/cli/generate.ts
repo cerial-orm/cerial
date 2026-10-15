@@ -36,7 +36,8 @@ import { loadCerialIgnore, resolvePathFilter } from './filters';
 import { buildResolvedSchemaAst, findSchemaRoots } from './resolvers';
 import { logger } from './utils';
 import type { CLIOptions, LogOutputLevel } from './validators';
-import { validateOptions, validateResolvedTypes, validateSchema } from './validators';
+import type { EntryModels } from './validators';
+import { validateEntryTableNames, validateOptions, validateResolvedTypes, validateSchema } from './validators';
 
 /** Generation result */
 export interface GenerateResult {
@@ -459,6 +460,15 @@ export async function generateMultiSchema(
   filters?: Map<string, PathFilter>,
 ): Promise<MultiGenerateResult> {
   const result: MultiGenerateResult = { success: true, results: {}, errors: [] };
+
+  // Compare every entry's tables before the first one is written. An entry that fails to parse or
+  // resolve is skipped here and reports its own error from the generation loop.
+  const entryModels: EntryModels[] = [];
+  for (const entry of entries) {
+    const { resolvedAST } = await buildResolvedSchemaAst({ schemaPath: entry.path, filter: filters?.get(entry.name) });
+    if (resolvedAST) entryModels.push({ name: entry.name, models: resolvedAST.models });
+  }
+  validateEntryTableNames(entryModels);
 
   for (let i = 0; i < entries.length; i++) {
     const entry = entries[i]!;
