@@ -24,7 +24,7 @@ import {
   isPrivateTupleElement,
 } from '../../parser/types/ast';
 import { getVariantIdentity } from '../../resolver';
-import type { SchemaAST } from '../../types';
+import type { ASTModel, ASTObject, ASTTuple, SchemaAST } from '../../types';
 import type { SchemaValidationError } from './schema-validator';
 
 // ── Type kind helpers ────────────────────────────────────────────────────
@@ -295,25 +295,30 @@ export function validateAbstractRules(ast: SchemaAST): SchemaValidationError[] {
 // ── Validator 5: Private override ───────────────────────────────────────
 
 /**
- * Map each private field name to the model that declared it, across every
- * ancestor of `modelName`. Raw AST, so a name an intermediate dropped with
- * pick/omit stays reserved. The visited set ends the walk on a cycle.
+ * Map each private member key to the type that declared it, across every
+ * ancestor of `start`. Raw AST, so a name an intermediate dropped with
+ * pick/omit stays reserved. The visited set ends the walk on a cycle, and a
+ * missing ancestor ends it quietly.
  */
-function collectPrivateModelFields(ast: SchemaAST, modelName: string): Map<string, string> {
+function collectPrivateMembers<N extends ASTModel | ASTObject | ASTTuple>(
+  start: N,
+  lookup: (name: string) => N | undefined,
+  privateKeys: (node: N) => string[],
+): Map<string, string> {
   const owners = new Map<string, string>();
-  const visited = new Set<string>([modelName]);
-  let current = getModel(ast, modelName);
+  const visited = new Set<string>([start.name]);
+  let current: N | undefined = start;
 
   while (current) {
     const target = getExtendsTarget(current);
     if (!target || visited.has(target)) break;
     visited.add(target);
 
-    const parent = getModel(ast, target);
+    const parent = lookup(target);
     if (!parent) break;
 
-    for (const f of parent.fields) {
-      if (isPrivateField(f) && !owners.has(f.name)) owners.set(f.name, parent.name);
+    for (const key of privateKeys(parent)) {
+      if (!owners.has(key)) owners.set(key, parent.name);
     }
     current = parent;
   }
@@ -336,7 +341,11 @@ export function validatePrivateOverride(ast: SchemaAST): SchemaValidationError[]
 
     if (!getModel(ast, target)) continue;
 
-    const privateFieldOwners = collectPrivateModelFields(ast, m.name);
+    const privateFieldOwners = collectPrivateMembers(
+      m,
+      (n) => getModel(ast, n),
+      (p) => p.fields.filter((f) => isPrivateField(f)).map((f) => f.name),
+    );
 
     for (const childField of m.fields) {
       const owner = privateFieldOwners.get(childField.name);
@@ -356,15 +365,19 @@ export function validatePrivateOverride(ast: SchemaAST): SchemaValidationError[]
     const target = getExtendsTarget(o);
     if (!target) continue;
 
-    const parent = getObject(ast, target);
-    if (!parent) continue;
+    if (!getObject(ast, target)) continue;
 
-    const privateFieldNames = new Set(parent.fields.filter((f) => isPrivateField(f)).map((f) => f.name));
+    const privateFieldOwners = collectPrivateMembers(
+      o,
+      (n) => getObject(ast, n),
+      (p) => p.fields.filter((f) => isPrivateField(f)).map((f) => f.name),
+    );
 
     for (const childField of o.fields) {
-      if (privateFieldNames.has(childField.name)) {
+      const owner = privateFieldOwners.get(childField.name);
+      if (owner) {
         errors.push({
-          message: `Field "${childField.name}" in object "${o.name}" overrides a private field from parent "${target}". Private fields cannot be overridden.`,
+          message: `Field "${childField.name}" in object "${o.name}" overrides a private field from parent "${owner}". Private fields cannot be overridden.`,
           field: childField.name,
           line: childField.range.start.line,
         });
@@ -377,25 +390,22 @@ export function validatePrivateOverride(ast: SchemaAST): SchemaValidationError[]
     const target = getExtendsTarget(t);
     if (!target) continue;
 
-    const parent = getTuple(ast, target);
-    if (!parent) continue;
+    if (!getTuple(ast, target)) continue;
 
-    // Build set of private element identifiers (name or index)
-    const privateElements = new Map<string, true>();
-    for (let i = 0; i < parent.elements.length; i++) {
-      const el = parent.elements[i]!;
-      if (isPrivateTupleElement(el)) {
-        const key = el.name ?? String(i);
-        privateElements.set(key, true);
-      }
-    }
+    // Elements are keyed by name, or by position when unnamed
+    const privateElementOwners = collectPrivateMembers(
+      t,
+      (n) => getTuple(ast, n),
+      (p) => p.elements.flatMap((el, i) => (isPrivateTupleElement(el) ? [el.name ?? String(i)] : [])),
+    );
 
     for (let i = 0; i < t.elements.length; i++) {
       const childEl = t.elements[i]!;
       const key = childEl.name ?? String(i);
-      if (privateElements.has(key)) {
+      const owner = privateElementOwners.get(key);
+      if (owner) {
         errors.push({
-          message: `Element "${key}" in tuple "${t.name}" overrides a private element from parent "${target}". Private elements cannot be overridden.`,
+          message: `Element "${key}" in tuple "${t.name}" overrides a private element from parent "${owner}". Private elements cannot be overridden.`,
           line: t.range.start.line,
         });
       }

@@ -1101,6 +1101,103 @@ describe('validatePrivateOverride', () => {
     expect(errors[0]!.message).toContain('private');
   });
 
+  test('should fail when a leaf overrides an object field made private two levels up, naming the declarer', () => {
+    const a = ast({
+      objects: [
+        obj({ name: 'ObjBase', fields: [field({ name: 'secret', isPrivate: true })] }),
+        obj({ name: 'ObjMid', extends: 'ObjBase', fields: [field({ name: 'age', type: 'int' })] }),
+        obj({ name: 'ObjLeaf', extends: 'ObjMid', fields: [field({ name: 'secret', type: 'int' })] }),
+      ],
+    });
+    const errors = validatePrivateOverride(a);
+    expect(errors.length).toBe(1);
+    expect(errors[0]!.field).toBe('secret');
+    expect(errors[0]!.message).toContain('"ObjBase"');
+    expect(errors[0]!.message).not.toContain('"ObjMid"');
+  });
+
+  test('should pass when an object leaf redeclares a NON-private field from two levels up', () => {
+    const a = ast({
+      objects: [
+        obj({ name: 'ObjBase', fields: [field({ name: 'name' })] }),
+        obj({ name: 'ObjMid', extends: 'ObjBase' }),
+        obj({ name: 'ObjLeaf', extends: 'ObjMid', fields: [field({ name: 'name' })] }),
+      ],
+    });
+    expect(validatePrivateOverride(a)).toHaveLength(0);
+  });
+
+  test('should keep an object field private when an intermediate omitted it', () => {
+    const a = ast({
+      objects: [
+        obj({ name: 'ObjBase', fields: [field({ name: 'secret', isPrivate: true })] }),
+        obj({ name: 'ObjMid', extends: 'ObjBase', extendsFilter: { mode: 'omit', fields: ['secret'] } }),
+        obj({ name: 'ObjLeaf', extends: 'ObjMid', fields: [field({ name: 'secret' })] }),
+      ],
+    });
+    const errors = validatePrivateOverride(a);
+    expect(errors.length).toBe(1);
+    expect(errors[0]!.message).toContain('"ObjBase"');
+  });
+
+  test('should terminate on object and tuple extends cycles and missing ancestors', () => {
+    const cyclic = ast({
+      objects: [
+        obj({ name: 'OX', extends: 'OY', fields: [field({ name: 'secret', isPrivate: true })] }),
+        obj({ name: 'OY', extends: 'OX' }),
+      ],
+      tuples: [
+        tuple({ name: 'TX', extends: 'TY', elements: [tupleElement({ name: 'secret', isPrivate: true })] }),
+        tuple({ name: 'TY', extends: 'TX' }),
+      ],
+    });
+    expect(() => validatePrivateOverride(cyclic)).not.toThrow();
+
+    const missing = ast({
+      objects: [obj({ name: 'OMid', extends: 'Gone' }), obj({ name: 'OLeaf', extends: 'OMid' })],
+      tuples: [tuple({ name: 'TMid', extends: 'Gone' }), tuple({ name: 'TLeaf', extends: 'TMid' })],
+    });
+    expect(validatePrivateOverride(missing)).toHaveLength(0);
+  });
+
+  test('should fail when a leaf overrides a tuple element made private two levels up, by name', () => {
+    const a = ast({
+      tuples: [
+        tuple({ name: 'TupBase', elements: [tupleElement({ name: 'secret', isPrivate: true })] }),
+        tuple({ name: 'TupMid', extends: 'TupBase', elements: [tupleElement({ name: 'extra' })] }),
+        tuple({ name: 'TupLeaf', extends: 'TupMid', elements: [tupleElement({ name: 'secret', type: 'int' })] }),
+      ],
+    });
+    const errors = validatePrivateOverride(a);
+    expect(errors.length).toBe(1);
+    expect(errors[0]!.message).toContain('"TupBase"');
+    expect(errors[0]!.message).not.toContain('"TupMid"');
+  });
+
+  test('should fail when a leaf overrides a tuple element made private two levels up, by index', () => {
+    const a = ast({
+      tuples: [
+        tuple({ name: 'TupBase', elements: [tupleElement({ isPrivate: true })] }),
+        tuple({ name: 'TupMid', extends: 'TupBase' }),
+        tuple({ name: 'TupLeaf', extends: 'TupMid', elements: [tupleElement({ type: 'int' })] }),
+      ],
+    });
+    const errors = validatePrivateOverride(a);
+    expect(errors.length).toBe(1);
+    expect(errors[0]!.message).toContain('"TupBase"');
+  });
+
+  test('should pass when a tuple leaf redeclares a NON-private element from two levels up', () => {
+    const a = ast({
+      tuples: [
+        tuple({ name: 'TupBase', elements: [tupleElement({ name: 'x' })] }),
+        tuple({ name: 'TupMid', extends: 'TupBase' }),
+        tuple({ name: 'TupLeaf', extends: 'TupMid', elements: [tupleElement({ name: 'x' })] }),
+      ],
+    });
+    expect(validatePrivateOverride(a)).toHaveLength(0);
+  });
+
   test('should check private override in tuples (by element name)', () => {
     const a = ast({
       tuples: [
