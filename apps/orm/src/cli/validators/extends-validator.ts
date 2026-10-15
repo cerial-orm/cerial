@@ -295,6 +295,33 @@ export function validateAbstractRules(ast: SchemaAST): SchemaValidationError[] {
 // ── Validator 5: Private override ───────────────────────────────────────
 
 /**
+ * Map each private field name to the model that declared it, across every
+ * ancestor of `modelName`. Raw AST, so a name an intermediate dropped with
+ * pick/omit stays reserved. The visited set ends the walk on a cycle.
+ */
+function collectPrivateModelFields(ast: SchemaAST, modelName: string): Map<string, string> {
+  const owners = new Map<string, string>();
+  const visited = new Set<string>([modelName]);
+  let current = getModel(ast, modelName);
+
+  while (current) {
+    const target = getExtendsTarget(current);
+    if (!target || visited.has(target)) break;
+    visited.add(target);
+
+    const parent = getModel(ast, target);
+    if (!parent) break;
+
+    for (const f of parent.fields) {
+      if (isPrivateField(f) && !owners.has(f.name)) owners.set(f.name, parent.name);
+    }
+    current = parent;
+  }
+
+  return owners;
+}
+
+/**
  * Validate that child body does NOT redefine fields marked as !!private in parent.
  * Private ONLY prevents override in the child's body — NOT omit/pick exclusion.
  * Works on raw AST (before resolution).
@@ -307,15 +334,15 @@ export function validatePrivateOverride(ast: SchemaAST): SchemaValidationError[]
     const target = getExtendsTarget(m);
     if (!target) continue;
 
-    const parent = getModel(ast, target);
-    if (!parent) continue;
+    if (!getModel(ast, target)) continue;
 
-    const privateFieldNames = new Set(parent.fields.filter((f) => isPrivateField(f)).map((f) => f.name));
+    const privateFieldOwners = collectPrivateModelFields(ast, m.name);
 
     for (const childField of m.fields) {
-      if (privateFieldNames.has(childField.name)) {
+      const owner = privateFieldOwners.get(childField.name);
+      if (owner) {
         errors.push({
-          message: `Field "${childField.name}" in model "${m.name}" overrides a private field from parent "${target}". Private fields cannot be overridden.`,
+          message: `Field "${childField.name}" in model "${m.name}" overrides a private field from parent "${owner}". Private fields cannot be overridden.`,
           model: m.name,
           field: childField.name,
           line: childField.range.start.line,

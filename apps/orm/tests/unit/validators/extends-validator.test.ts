@@ -957,6 +957,63 @@ describe('validatePrivateOverride', () => {
     expect(errors[0]!.message).toContain('secret');
   });
 
+  test('should fail when a leaf overrides a field made private two levels up, naming the declarer', () => {
+    const a = ast({
+      models: [
+        model({ name: 'DeepBase', fields: [field({ name: 'secret', isPrivate: true })] }),
+        model({ name: 'DeepLow', extends: 'DeepBase', fields: [field({ name: 'age', type: 'int' })] }),
+        model({ name: 'DeepLeaf', extends: 'DeepLow', fields: [field({ name: 'secret', type: 'int' })] }),
+      ],
+    });
+    const errors = validatePrivateOverride(a);
+    expect(errors.length).toBe(1);
+    expect(errors[0]!.model).toBe('DeepLeaf');
+    expect(errors[0]!.field).toBe('secret');
+    expect(errors[0]!.message).toContain('"DeepBase"');
+    expect(errors[0]!.message).not.toContain('"DeepLow"');
+  });
+
+  test('should fail when a leaf overrides a field made private three levels up', () => {
+    const a = ast({
+      models: [
+        model({ name: 'L0', fields: [field({ name: 'secret', isPrivate: true })] }),
+        model({ name: 'L1', extends: 'L0' }),
+        model({ name: 'L2', extends: 'L1' }),
+        model({ name: 'L3', extends: 'L2', fields: [field({ name: 'secret', type: 'int' })] }),
+      ],
+    });
+    const errors = validatePrivateOverride(a);
+    expect(errors.length).toBe(1);
+    expect(errors[0]!.message).toContain('"L0"');
+  });
+
+  test('should pass when a leaf redeclares a NON-private field from three levels up', () => {
+    const a = ast({
+      models: [
+        model({ name: 'L0', fields: [field({ name: 'name' })] }),
+        model({ name: 'L1', extends: 'L0' }),
+        model({ name: 'L2', extends: 'L1' }),
+        model({ name: 'L3', extends: 'L2', fields: [field({ name: 'name' })] }),
+      ],
+    });
+    expect(validatePrivateOverride(a)).toHaveLength(0);
+  });
+
+  test('should terminate on an extends cycle and on a missing ancestor', () => {
+    const cyclic = ast({
+      models: [
+        model({ name: 'X', extends: 'Y', fields: [field({ name: 'secret', isPrivate: true })] }),
+        model({ name: 'Y', extends: 'X', fields: [field({ name: 'other' })] }),
+      ],
+    });
+    expect(() => validatePrivateOverride(cyclic)).not.toThrow();
+
+    const missing = ast({
+      models: [model({ name: 'Mid', extends: 'Gone' }), model({ name: 'Leaf', extends: 'Mid' })],
+    });
+    expect(validatePrivateOverride(missing)).toHaveLength(0);
+  });
+
   test('should pass when child does NOT redefine private field', () => {
     const a = ast({
       models: [
@@ -1139,7 +1196,7 @@ describe('validatePrivateOverride', () => {
       expect(validatePrivateOverride(a)).toHaveLength(0);
     });
 
-    test('grandparent private field, grandchild overrides → no error (raw AST only checks direct parent)', () => {
+    test('grandparent private field, grandchild overrides → error naming the grandparent', () => {
       const a = ast({
         models: [
           model({ name: 'GrandParent', fields: [field({ name: 'secret', isPrivate: true })] }),
@@ -1147,8 +1204,9 @@ describe('validatePrivateOverride', () => {
           model({ name: 'Child', extends: 'Parent', fields: [field({ name: 'secret' })] }),
         ],
       });
-      // Parent has no fields in raw AST → no private field found → no error
-      expect(validatePrivateOverride(a)).toHaveLength(0);
+      const errors = validatePrivateOverride(a);
+      expect(errors).toHaveLength(1);
+      expect(errors[0]!.message).toContain('"GrandParent"');
     });
 
     test('multiple private fields, only one overridden → exactly one error', () => {
