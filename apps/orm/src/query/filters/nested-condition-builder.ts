@@ -48,6 +48,24 @@ function buildSubqueryConditions(
   for (const [fieldName, value] of Object.entries(nestedWhere)) {
     if (value === undefined) continue;
 
+    // A logical operator inside a quantifier body composes sibling conditions on the same target
+    // row, so each branch recurses here. Without this the key was skipped as an unknown field and
+    // the quantifier silently matched more rows than asked for.
+    if (fieldName === 'AND' && Array.isArray(value)) {
+      conditions.push(handleAnd(value.map((w) => buildSubqueryConditions(ctx, w as WhereClause, targetModel))));
+      continue;
+    }
+
+    if (fieldName === 'OR' && Array.isArray(value)) {
+      conditions.push(handleOr(value.map((w) => buildSubqueryConditions(ctx, w as WhereClause, targetModel))));
+      continue;
+    }
+
+    if (fieldName === 'NOT' && isObject(value)) {
+      conditions.push(handleNot(buildSubqueryConditions(ctx, value, targetModel)));
+      continue;
+    }
+
     // Find field metadata
     const fieldMetadata = targetModel.fields.find((f) => f.name === fieldName);
     if (!fieldMetadata) continue;
