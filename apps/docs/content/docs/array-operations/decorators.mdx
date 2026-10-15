@@ -69,8 +69,14 @@ model Student {
 | Syntax | Direction |
 |---|---|
 | `@sort` | Ascending (default) |
-| `@sort(true)` | Ascending (explicit) |
-| `@sort(false)` | Descending |
+| `@sort(true)` or `@sort(asc)` | Ascending (explicit) |
+| `@sort(false)` or `@sort(desc)` | Descending |
+
+:::caution
+This feature is not yet available in the current release. It will ship in an upcoming version.
+:::
+
+Any other argument is an error when you run `cerial generate`. See [`@sort`](/schema/decorators/arrays/sort).
 
 ### Behavior
 

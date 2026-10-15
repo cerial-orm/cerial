@@ -10,12 +10,22 @@ Maintains ordering within an array field at the database level. SurrealDB automa
 ```cerial
 @sort          # ascending order (default)
 @sort(true)    # ascending order (explicit)
+@sort(asc)     # ascending order (same as @sort(true))
 @sort(false)   # descending order
+@sort(desc)    # descending order (same as @sort(false))
 ```
+
+`asc` and `desc` are the same two directions as `true` and `false`, spelled two ways. Use whichever reads better; the schema formatter keeps the spelling you wrote.
+
+:::caution
+This feature is not yet available in the current release. It will ship in an upcoming version.
+:::
+
+Any other argument, such as `@sort(up)` or `@sort(ASC)`, is an error when you run `cerial generate`. The message names the field.
 
 ## Ascending Order
 
-`@sort` or `@sort(true)` sorts values in ascending order (A–Z, 0–9, earliest–latest):
+`@sort`, `@sort(true)` or `@sort(asc)` sorts values in ascending order (A–Z, 0–9, earliest–latest):
 
 ```cerial
 model Student {
@@ -40,7 +50,7 @@ await db.Student.updateMany({
 
 ## Descending Order
 
-`@sort(false)` sorts values in descending order (Z–A, 9–0, latest–earliest):
+`@sort(false)` or `@sort(desc)` sorts values in descending order (Z–A, 9–0, latest–earliest):
 
 ```cerial
 model Feed {

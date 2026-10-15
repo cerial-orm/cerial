@@ -151,7 +151,7 @@ await client.db.Article.updateMany({
 Three decorators are available for array fields:
 
 - **`@distinct`** — Automatically deduplicates values at the database level
-- **`@sort` / `@sort(false)`** — Maintains ascending or descending order at the database level
+- **`@sort` / `@sort(asc)` / `@sort(desc)`** — Maintains ascending or descending order at the database level (`true` and `false` are accepted as the same two directions)
 - **`@set`** — Generates a SurrealDB `set` type instead of an `array` (see below)
 
 ```cerial
