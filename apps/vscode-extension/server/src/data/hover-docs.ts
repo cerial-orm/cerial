@@ -165,10 +165,11 @@ export const DECORATOR_DOCS: Record<string, DecoratorDoc> = {
     constraints: 'Array fields only. Mutually exclusive with @set.',
   },
   sort: {
-    signature: '@sort',
-    description: 'Sorts array field values.',
-    example: 'scores Int[] @sort',
-    constraints: 'Array fields only. Mutually exclusive with @set.',
+    signature: '@sort | @sort(true | asc | false | desc)',
+    description:
+      'Sorts array field values. With no argument, `true` or `asc` it sorts ascending; `false` or `desc` sorts descending.',
+    example: 'scores Int[] @sort(desc)',
+    constraints: 'Array fields only. Mutually exclusive with @set. Any other argument is a generation error.',
   },
   createdAt: {
     signature: '@createdAt',
