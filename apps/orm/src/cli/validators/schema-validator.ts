@@ -17,6 +17,7 @@ import {
   validateTupleElementDecorators,
 } from './nullable-validator';
 import { validateRecordIdTypes } from './record-type-validator';
+import { validateReservedKeywords } from './reserved-keyword-validator';
 import { validateRelationRules } from './relation-validator';
 import { validateTuples } from './tuple-validator';
 
@@ -1024,6 +1025,7 @@ export function validateSchema(ast: SchemaAST): SchemaValidationResult {
   const errors: SchemaValidationError[] = [
     ...validateModelNames(ast),
     ...validateFieldNames(ast),
+    ...validateReservedKeywords(ast),
     ...validateRelations(ast),
     ...validateRecordFields(ast),
     ...validateRelationRules(ast),

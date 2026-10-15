@@ -325,7 +325,9 @@ The pipeline shape is the same each time:
 
 ### SurrealDB Reserved Keywords
 
-Do NOT use SurrealDB reserved keywords as field names, model names, or object names in `.cerial` schema files. SurrealDB's parser will misinterpret them, causing migration failures. Known reserved keywords that cause issues: `info`, `select`, `create`, `update`, `delete`, `from`, `where`, `table`, `field`, `type`, `value`, `index`, `for`, `on`, `set`, `define`, `remove`, `begin`, `commit`, `cancel`, `return`, `limit`, `start`, `order`, `group`, `fetch`, `timeout`, `parallel`, `content`, `merge`, `patch`, `let`, `if`, `else`, `then`, `end`, `throw`, `break`, `continue`, `none`, `null`, `true`, `false`, `and`, `or`, `not`, `is`, `in`, `contains`, `inside`, `outside`, `intersects`, `only`, `full`, `as`. When in doubt, avoid common SQL/SurrealQL keywords as identifiers.
+Do NOT use SurrealDB reserved keywords as field names, model names, object names, tuple names or enum names in `.cerial` schema files. SurrealDB's parser will misinterpret them, causing migration failures. `cerial generate` refuses them, case-insensitively.
+
+The list is not kept here. `RESERVED_KEYWORDS` in `apps/orm/src/cli/validators/reserved-keyword-validator.ts` is the one source: it is pinned to SurrealDB 3.3.0 and must be re-diffed against the parser on every SurrealDB bump. Read it there rather than copying it back into this file.
 
 ## Gotchas
 

@@ -27,6 +27,7 @@ export {
 export type { CLIOptions, LogOutputLevel, OptionsValidationError, OptionsValidationResult } from './options-validator';
 export { getDefaultOptions, validateOptions } from './options-validator';
 export { validateRecordIdTypes } from './record-type-validator';
+export { isReservedKeyword, RESERVED_KEYWORDS, validateReservedKeywords } from './reserved-keyword-validator';
 export {
   validateCardinalityMatch,
   validateKeyPairing,
