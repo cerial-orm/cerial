@@ -20,7 +20,7 @@ model Drafting {
 model WithDecorator {
   id Record @id
   name String @
-  value Int @default(
+  payload Int @default(
 }
 
 // Unclosed object

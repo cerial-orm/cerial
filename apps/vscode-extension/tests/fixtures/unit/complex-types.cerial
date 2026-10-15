@@ -20,7 +20,7 @@ tuple Point3D {
 
 tuple NamedEntry {
   label String,
-  value Int,
+  payload Int,
   active Bool
 }
 

@@ -89,12 +89,12 @@ model SetNonArray {
 
 # DIAG:invalid-object-name
 object invalidObjectName {
-  value String
+  payload String
 }
 
 # DIAG:object-name-collision
 object DuplicateModel {
-  field String
+  attribute String
 }
 
 # DIAG:readonly-default-conflict

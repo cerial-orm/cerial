@@ -143,10 +143,7 @@ suite('Completion Contexts E2E', () => {
 
         // Non-Record fields should NOT be present
         assert.ok(!labels.includes('title'), `Should NOT include non-Record field "title", got: ${labels.join(', ')}`);
-        assert.ok(
-          !labels.includes('content'),
-          `Should NOT include non-Record field "content", got: ${labels.join(', ')}`,
-        );
+        assert.ok(!labels.includes('body'), `Should NOT include non-Record field "body", got: ${labels.join(', ')}`);
       } finally {
         await replaceDocument(doc, originalContent);
         await vscode.window.showTextDocument(doc);
@@ -591,10 +588,7 @@ suite('Completion Contexts E2E', () => {
 
         // Non-Record fields should NOT appear
         assert.ok(!labels.includes('title'), `Should NOT include non-Record field "title", got: ${labels.join(', ')}`);
-        assert.ok(
-          !labels.includes('content'),
-          `Should NOT include non-Record field "content", got: ${labels.join(', ')}`,
-        );
+        assert.ok(!labels.includes('body'), `Should NOT include non-Record field "body", got: ${labels.join(', ')}`);
       } finally {
         await replaceDocument(doc, originalContent);
         await vscode.window.showTextDocument(doc);

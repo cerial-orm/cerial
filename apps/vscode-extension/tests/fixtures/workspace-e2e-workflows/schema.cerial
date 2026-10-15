@@ -19,5 +19,5 @@ model WfPost {
 model RenameTarget {
   id Record @id
   label String
-  value Int
+  payload Int
 }

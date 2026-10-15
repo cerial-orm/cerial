@@ -1,6 +1,6 @@
 # Orders schema convention marker
 
-model Order {
+model PurchaseOrder {
   id Record @id
   total Float
   customerName String

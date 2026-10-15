@@ -30,7 +30,7 @@
  *  18: model RenameTarget {
  *  19:   id Record @id
  *  20:   label String
- *  21:   value Int
+ *  21:   payload Int
  *  22: }
  */
 

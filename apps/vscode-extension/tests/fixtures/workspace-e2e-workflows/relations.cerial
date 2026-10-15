@@ -1,6 +1,6 @@
 model WfComment {
   id Record @id
-  content String
+  body String
   authorId Record @field(authorId)
   author Relation @model(WfUser)
   postId Record @field(postId)

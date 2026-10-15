@@ -63,7 +63,7 @@ model Author {
 model Post {
   id Record @id
   title String
-  content String?
+  body String?
   authorId Record
   # COMP:field-arg-2
   author Relation @field(authorId) @model(Author)

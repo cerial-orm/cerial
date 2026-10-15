@@ -2,7 +2,7 @@
 
 object FlexMeta {
   key String
-  value String
+  payload String
 }
 
 model DecoratorShowcase {
