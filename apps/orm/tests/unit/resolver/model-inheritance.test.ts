@@ -353,6 +353,38 @@ describe('resolveInheritance - models', () => {
     expect(l3.fields.every((f) => f.isPrivate === undefined)).toBe(true);
   });
 
+  test('should resolve a chain whose abstract declarer holds a private field and strip the marker at every level', () => {
+    const input = ast({
+      models: [
+        model('AbsBase', [field('secret', { isPrivate: true })], { abstract: true }),
+        model('AbsMid', [field('mid')], { extends: 'AbsBase', abstract: true }),
+        model('Concrete', [field('c')], { extends: 'AbsMid' }),
+        model('Leaf', [field('leaf')], { extends: 'Concrete' }),
+      ],
+    });
+    const result = resolveInheritance(input);
+
+    const leaf = result.models.find((m) => m.name === 'Leaf')!;
+    expect(leaf.fields.map((f) => f.name)).toEqual(['secret', 'mid', 'c', 'leaf']);
+    expect(leaf.fields.every((f) => f.isPrivate === undefined)).toBe(true);
+    expect(leaf.abstract).toBeUndefined();
+  });
+
+  test('should drop a private field through omit in the middle of a chain without erroring', () => {
+    // Resolution does not enforce the private-override rule; validatePrivateOverride does, on the raw AST.
+    const input = ast({
+      models: [
+        model('C', [field('secret', { isPrivate: true }), field('name')]),
+        model('B', [], { extends: 'C', extendsFilter: omit(['secret']) }),
+        model('A', [field('age')], { extends: 'B' }),
+      ],
+    });
+    const result = resolveInheritance(input);
+
+    const a = result.models.find((m) => m.name === 'A')!;
+    expect(a.fields.map((f) => f.name)).toEqual(['name', 'age']);
+  });
+
   test('should handle empty child model (inherits everything)', () => {
     const input = ast({
       models: [model('Base', [field('id'), field('name'), field('email')]), model('Clone', [], { extends: 'Base' })],

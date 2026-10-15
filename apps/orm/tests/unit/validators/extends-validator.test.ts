@@ -1140,6 +1140,87 @@ describe('validatePrivateOverride', () => {
     expect(errors[0]!.message).toContain('"ObjBase"');
   });
 
+  test('should keep a model field private when an intermediate omitted it, naming the declarer', () => {
+    const a = ast({
+      models: [
+        model({ name: 'C', fields: [field({ name: 'secret', isPrivate: true })] }),
+        model({ name: 'B', extends: 'C', extendsFilter: { mode: 'omit', fields: ['secret'] } }),
+        model({ name: 'A', extends: 'B', fields: [field({ name: 'secret', type: 'int' })] }),
+      ],
+    });
+    const errors = validatePrivateOverride(a);
+    expect(errors.length).toBe(1);
+    expect(errors[0]!.model).toBe('A');
+    expect(errors[0]!.message).toContain('"C"');
+    expect(errors[0]!.message).not.toContain('"B"');
+  });
+
+  test('should keep a model field private when an intermediate picked around it', () => {
+    const a = ast({
+      models: [
+        model({ name: 'C', fields: [field({ name: 'secret', isPrivate: true }), field({ name: 'name' })] }),
+        model({ name: 'B', extends: 'C', extendsFilter: { mode: 'pick', fields: ['name'] } }),
+        model({ name: 'A', extends: 'B', fields: [field({ name: 'secret', type: 'int' })] }),
+      ],
+    });
+    const errors = validatePrivateOverride(a);
+    expect(errors.length).toBe(1);
+    expect(errors[0]!.message).toContain('"C"');
+  });
+
+  test('should accept a leaf redeclaring a non-private field that an intermediate omitted', () => {
+    const a = ast({
+      models: [
+        model({ name: 'C', fields: [field({ name: 'name' })] }),
+        model({ name: 'B', extends: 'C', extendsFilter: { mode: 'omit', fields: ['name'] } }),
+        model({ name: 'A', extends: 'B', fields: [field({ name: 'name', type: 'int' })] }),
+      ],
+    });
+    expect(validatePrivateOverride(a)).toHaveLength(0);
+  });
+
+  test('should fail when the declaring model is abstract, three levels up, naming it', () => {
+    const a = ast({
+      models: [
+        model({ name: 'AbsBase', abstract: true, fields: [field({ name: 'secret', isPrivate: true })] }),
+        model({ name: 'AbsMid', abstract: true, extends: 'AbsBase' }),
+        model({ name: 'Concrete', extends: 'AbsMid' }),
+        model({ name: 'Leaf', extends: 'Concrete', fields: [field({ name: 'secret', type: 'int' })] }),
+      ],
+    });
+    const errors = validatePrivateOverride(a);
+    expect(errors.length).toBe(1);
+    expect(errors[0]!.model).toBe('Leaf');
+    expect(errors[0]!.message).toContain('"AbsBase"');
+    expect(errors[0]!.message).not.toContain('"AbsMid"');
+    expect(errors[0]!.message).not.toContain('"Concrete"');
+  });
+
+  test('should accept an abstract chain whose leaf does not redeclare the private field', () => {
+    const a = ast({
+      models: [
+        model({ name: 'AbsBase', abstract: true, fields: [field({ name: 'secret', isPrivate: true })] }),
+        model({ name: 'AbsMid', abstract: true, extends: 'AbsBase' }),
+        model({ name: 'Leaf', extends: 'AbsMid', fields: [field({ name: 'other' })] }),
+      ],
+    });
+    expect(validatePrivateOverride(a)).toHaveLength(0);
+  });
+
+  test('should fail when the declaring object is abstract, two levels up, naming it', () => {
+    const a = ast({
+      objects: [
+        obj({ name: 'AbsObj', abstract: true, fields: [field({ name: 'secret', isPrivate: true })] }),
+        obj({ name: 'MidObj', extends: 'AbsObj' }),
+        obj({ name: 'LeafObj', extends: 'MidObj', fields: [field({ name: 'secret' })] }),
+      ],
+    });
+    const errors = validatePrivateOverride(a);
+    expect(errors.length).toBe(1);
+    expect(errors[0]!.message).toContain('"AbsObj"');
+    expect(errors[0]!.message).not.toContain('"MidObj"');
+  });
+
   test('should terminate on object and tuple extends cycles and missing ancestors', () => {
     const cyclic = ast({
       objects: [
