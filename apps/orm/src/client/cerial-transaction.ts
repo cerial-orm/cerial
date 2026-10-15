@@ -41,6 +41,8 @@ export class CerialTransaction {
     try {
       await this._txn.commit();
     } catch (error) {
+      // A commit that threw leaves nothing live on the server, so the handle must not look usable.
+      this._state = 'cancelled';
       throw wrapDatabaseError(error, undefined, 'commit');
     }
     this._state = 'committed';
@@ -51,6 +53,8 @@ export class CerialTransaction {
     try {
       await this._txn.cancel();
     } catch (error) {
+      // A cancel that threw leaves nothing live on the server, so the handle must not look usable.
+      this._state = 'cancelled';
       throw wrapDatabaseError(error, undefined, 'cancel');
     }
     this._state = 'cancelled';

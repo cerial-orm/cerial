@@ -101,4 +101,98 @@ describe('E2E Transactions: Disposal', () => {
     await expect((async () => txnRef.commit())()).rejects.toThrow('Transaction already ended');
     expect(await client.db.BasicsUser.findMany()).toHaveLength(0);
   });
+
+  // Cancelling the driver transaction underneath makes the next Cerial commit or cancel reject for
+  // a real reason, which is the only way to reach the catch branches without a stub.
+  describe('a commit or cancel that throws', () => {
+    // The return type is inferred so the generated model accessors survive; annotating it as
+    // CerialTransaction narrows to the base class and loses them.
+    async function brokenTransaction() {
+      const txn = await client.$transaction();
+      await txn._raw.cancel();
+
+      return txn;
+    }
+
+    test('commit: the error is the wrapped database error and the state is cancelled', async () => {
+      const txn = await brokenTransaction();
+
+      const error = await (async () => txn.commit())().then(
+        () => undefined,
+        (e: unknown) => e,
+      );
+
+      expect(error).toBeInstanceOf(Error);
+      expect((error as Error).message).not.toContain('Transaction already ended');
+      expect(txn.state).toBe('cancelled');
+    });
+
+    test('cancel: the state is cancelled', async () => {
+      const txn = await brokenTransaction();
+
+      await expect((async () => txn.cancel())()).rejects.toThrow();
+      expect(txn.state).toBe('cancelled');
+    });
+
+    test('a second commit reports the transaction as ended', async () => {
+      const txn = await brokenTransaction();
+      await expect((async () => txn.commit())()).rejects.toThrow();
+
+      await expect((async () => txn.commit())()).rejects.toThrow('Transaction already ended');
+    });
+
+    test('a second cancel reports the transaction as ended', async () => {
+      const txn = await brokenTransaction();
+      await expect((async () => txn.commit())()).rejects.toThrow();
+
+      await expect((async () => txn.cancel())()).rejects.toThrow('Transaction already ended');
+    });
+
+    test('a second commit after a throwing cancel reports the transaction as ended', async () => {
+      const txn = await brokenTransaction();
+      await expect((async () => txn.cancel())()).rejects.toThrow();
+
+      await expect((async () => txn.commit())()).rejects.toThrow('Transaction already ended');
+    });
+
+    test('a query through the transaction reports it as ended', async () => {
+      const txn = await brokenTransaction();
+      await expect((async () => txn.commit())()).rejects.toThrow();
+
+      await expect(
+        (async () => {
+          await txn.BasicsUser.findMany();
+        })(),
+      ).rejects.toThrow('Transaction already ended');
+    });
+
+    test('await using exits cleanly without a second cancel', async () => {
+      let txnRef!: CerialTransaction;
+
+      await (async () => {
+        await using txn = await client.$transaction();
+        txnRef = txn;
+        await txn._raw.cancel();
+        await expect((async () => txn.commit())()).rejects.toThrow();
+      })();
+
+      expect(txnRef.state).toBe('cancelled');
+    });
+  });
+
+  describe('a commit or cancel that succeeds', () => {
+    test('commit ends committed', async () => {
+      const txn = await client.$transaction();
+      await txn.commit();
+
+      expect(txn.state).toBe('committed');
+    });
+
+    test('cancel ends cancelled', async () => {
+      const txn = await client.$transaction();
+      await txn.cancel();
+
+      expect(txn.state).toBe('cancelled');
+    });
+  });
 });
