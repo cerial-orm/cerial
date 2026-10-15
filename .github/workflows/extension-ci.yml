@@ -46,3 +46,21 @@ jobs:
         working-directory: apps/vscode-extension
       - run: bun test tests/grammar/
         working-directory: apps/vscode-extension
+
+  vscode-suites:
+    # vscode-test launches a real VS Code, and two instances on one machine make the first fail with
+    # cryptic errors. So: ubuntu only, one job, and the labels run in sequence inside it. There is no
+    # headless mode in @vscode/test-cli, so xvfb-run supplies a virtual display instead.
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.3.0
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.0.2
+      - run: sudo apt-get update && sudo apt-get install -y xvfb
+      - run: bun install --frozen-lockfile
+        working-directory: apps/vscode-extension
+      # Both scripts run build and compile:tests themselves, then their labels one after another.
+      - run: xvfb-run -a bun run test:integration:full
+        working-directory: apps/vscode-extension
+      - run: xvfb-run -a bun run test:e2e:full
+        working-directory: apps/vscode-extension
