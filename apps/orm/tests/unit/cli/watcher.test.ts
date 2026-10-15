@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, it, spyOn } from 'bun:test';
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -257,6 +257,162 @@ describe('watcher', () => {
       }
 
       expect(process.listenerCount('SIGINT')).toBe(before);
+    });
+  });
+
+  describe('startWatcherWithCallback behaviour', () => {
+    const roots: string[] = [];
+    const stoppers: Array<() => Promise<void>> = [];
+
+    interface Call {
+      readonly target: string;
+      readonly filename: string;
+    }
+
+    async function makeDir(): Promise<string> {
+      const created = await mkdtemp(join(tmpdir(), 'cerial-watcher-live-'));
+      roots.push(created);
+
+      return created;
+    }
+
+    // Polls a condition on real fs events; bounded so a missed event fails instead of hanging
+    async function waitFor(condition: () => boolean, timeoutMs = 5000): Promise<void> {
+      const deadline = Date.now() + timeoutMs;
+      while (!condition()) {
+        if (Date.now() > deadline) throw new Error(`waitFor timed out after ${timeoutMs}ms`);
+        await Bun.sleep(10);
+      }
+    }
+
+    function start(targets: WatchTarget[], calls: Call[]): void {
+      const stopped = startWatcherWithCallback(targets, async (target, filename) => {
+        calls.push({ target: target.name ?? target.schemaPath, filename });
+      });
+
+      stoppers.push(async () => {
+        process.emit('SIGINT');
+        await stopped;
+      });
+    }
+
+    // fs.watch has no ready signal: write one probe per attempt (rewrites inside the window would keep
+    // resetting the debounce), retry until a callback lands, let the debounce drain, then reset
+    async function primed(dir: string, calls: Call[]): Promise<void> {
+      for (let attempt = 0; !calls.length; attempt++) {
+        if (attempt > 10) throw new Error('watcher never became ready');
+        await writeFile(join(dir, 'probe.cerial'), `model Probe${attempt} {}`);
+        await waitFor(() => calls.length > 0, DEBOUNCE_MS + 500).catch(() => {});
+      }
+      await Bun.sleep(DEBOUNCE_MS + 150);
+      calls.length = 0;
+    }
+
+    afterEach(async () => {
+      for (const stop of stoppers.splice(0)) await stop();
+      for (const root of roots.splice(0)) await rm(root, { recursive: true, force: true });
+    });
+
+    it('should fire only the callback of the target whose directory changed', async () => {
+      const dirA = await makeDir();
+      const dirB = await makeDir();
+      const callsA: Call[] = [];
+      const callsB: Call[] = [];
+      const log: Call[] = [];
+      start(
+        [
+          { name: 'a', schemaPath: dirA, outputDir: '/out/a' },
+          { name: 'b', schemaPath: dirB, outputDir: '/out/b' },
+        ],
+        log,
+      );
+      const split = (): void => {
+        for (const call of log.splice(0)) (call.target === 'a' ? callsA : callsB).push(call);
+      };
+
+      await primed(dirA, log);
+      await primed(dirB, log);
+
+      await writeFile(join(dirA, 'only-a.cerial'), 'model A {}');
+      await waitFor(() => log.length > 0);
+      // A negative needs a window: outlast one full debounce so a wrongly scheduled B callback would have fired
+      await Bun.sleep(DEBOUNCE_MS + 150);
+      split();
+
+      expect(callsA.map((c) => c.filename)).toEqual(['only-a.cerial']);
+      expect(callsB).toEqual([]);
+
+      await writeFile(join(dirB, 'only-b.cerial'), 'model B {}');
+      await waitFor(() => log.length > 0);
+      split();
+
+      expect(callsB.map((c) => c.filename)).toEqual(['only-b.cerial']);
+      expect(callsA).toHaveLength(1);
+    });
+
+    it('should coalesce several writes inside the debounce window into one callback', async () => {
+      const dir = await makeDir();
+      const calls: Call[] = [];
+      start([{ name: 'a', schemaPath: dir, outputDir: '/out/a' }], calls);
+      await primed(dir, calls);
+
+      for (let i = 0; i < 5; i++) {
+        await writeFile(join(dir, 'burst.cerial'), `model Burst${i} {}`);
+        await Bun.sleep(10);
+      }
+      await waitFor(() => calls.length > 0);
+      // Outlast another debounce window so a second, uncoalesced callback would be seen
+      await Bun.sleep(DEBOUNCE_MS + 150);
+
+      expect(calls).toEqual([{ target: 'a', filename: 'burst.cerial' }]);
+    });
+
+    it('should keep watching the remaining targets when one path cannot be watched', async () => {
+      const dir = await makeDir();
+      const missing = join(await makeDir(), 'does-not-exist');
+      const calls: Call[] = [];
+      const errors = spyOn(console, 'error').mockImplementation(() => {});
+
+      try {
+        start(
+          [
+            { name: 'broken', schemaPath: missing, outputDir: '/out/broken' },
+            { name: 'good', schemaPath: dir, outputDir: '/out/good' },
+          ],
+          calls,
+        );
+        await primed(dir, calls);
+        await writeFile(join(dir, 'after.cerial'), 'model After {}');
+        await waitFor(() => calls.length > 0);
+
+        expect(calls).toEqual([{ target: 'good', filename: 'after.cerial' }]);
+        expect(errors.mock.calls.map((args) => String(args[0]))).toEqual([
+          expect.stringContaining("Failed to watch 'broken'"),
+        ]);
+      } finally {
+        errors.mockRestore();
+      }
+    });
+
+    it('should resolve without calling back when no target can be watched', async () => {
+      const missing = join(await makeDir(), 'does-not-exist');
+      const calls: Call[] = [];
+      const before = process.listenerCount('SIGINT');
+      const errors = spyOn(console, 'error').mockImplementation(() => {});
+
+      try {
+        await startWatcherWithCallback([{ name: 'broken', schemaPath: missing }], async (target, filename) => {
+          calls.push({ target: target.name ?? '', filename });
+        });
+
+        expect(calls).toEqual([]);
+        expect(process.listenerCount('SIGINT')).toBe(before);
+        expect(
+          errors.mock.calls.map((args) => String(args[0])).some((m) => m.includes('No watchers could be started')),
+        ).toBe(true);
+      } finally {
+        errors.mockRestore();
+      }
     });
   });
 });
