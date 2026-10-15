@@ -160,6 +160,23 @@ model TupleDefaulted {
   meta Defaulted
 }
 
+tuple StampedInner {
+  count Int,
+  at Date @createdAt
+}
+
+tuple StampedOuter {
+  label String,
+  StampedInner
+}
+
+model TupleDecoratedNest {
+  id Record @id
+  name String
+  outer StampedOuter
+  maybe Stamped?
+}
+
 tuple StatusPair {
   state Status,
   count Int

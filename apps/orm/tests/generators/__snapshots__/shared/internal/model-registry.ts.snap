@@ -3781,6 +3781,76 @@ export const modelRegistry: ModelRegistry = {
     ],
     compositeDirectives: [],
   },
+  TupleDecoratedNest: {
+    name: 'TupleDecoratedNest',
+    tableName: 'tuple_decorated_nest',
+    fields: [
+      {
+        name: 'id',
+        type: 'record',
+        isId: true,
+        isUnique: true,
+        isIndexed: false,
+        timestampDecorator: undefined,
+        isRequired: false,
+      },
+      {
+        name: 'name',
+        type: 'string',
+        isId: false,
+        isUnique: false,
+        isIndexed: false,
+        timestampDecorator: undefined,
+        isRequired: true,
+      },
+      {
+        name: 'outer',
+        type: 'tuple',
+        isId: false,
+        isUnique: false,
+        isIndexed: false,
+        timestampDecorator: undefined,
+        isRequired: true,
+        tupleInfo: {
+          tupleName: 'StampedOuter',
+          elements: [
+            { index: 0, type: 'string', isOptional: false, name: 'label' },
+            {
+              index: 1,
+              type: 'tuple',
+              isOptional: false,
+              tupleInfo: {
+                tupleName: 'StampedInner',
+                elements: [
+                  { index: 0, type: 'int', isOptional: false, name: 'count' },
+                  { index: 1, type: 'date', isOptional: false, name: 'at', timestampDecorator: 'createdAt' },
+                ],
+              },
+            },
+          ],
+        },
+      },
+      {
+        name: 'maybe',
+        type: 'tuple',
+        isId: false,
+        isUnique: false,
+        isIndexed: false,
+        timestampDecorator: undefined,
+        isRequired: false,
+        tupleInfo: {
+          tupleName: 'Stamped',
+          elements: [
+            { index: 0, type: 'string', isOptional: false, name: 'label' },
+            { index: 1, type: 'date', isOptional: false, name: 'born', timestampDecorator: 'createdAt' },
+            { index: 2, type: 'date', isOptional: false, name: 'touched', timestampDecorator: 'updatedAt' },
+            { index: 3, type: 'int', isOptional: false, name: 'hits', defaultAlwaysValue: 7 },
+          ],
+        },
+      },
+    ],
+    compositeDirectives: [],
+  },
   TupleLiteralElement: {
     name: 'TupleLiteralElement',
     tableName: 'tuple_literal_element',
@@ -18089,6 +18159,31 @@ export const tupleRegistry: TupleRegistry = {
     elements: [
       { index: 0, type: 'string', isOptional: false, name: 'label' },
       { index: 1, type: 'int', isOptional: false, name: 'tier', defaultValue: 1 },
+    ],
+  },
+  StampedInner: {
+    name: 'StampedInner',
+    elements: [
+      { index: 0, type: 'int', isOptional: false, name: 'count' },
+      { index: 1, type: 'date', isOptional: false, name: 'at', timestampDecorator: 'createdAt' },
+    ],
+  },
+  StampedOuter: {
+    name: 'StampedOuter',
+    elements: [
+      { index: 0, type: 'string', isOptional: false, name: 'label' },
+      {
+        index: 1,
+        type: 'tuple',
+        isOptional: false,
+        tupleInfo: {
+          tupleName: 'StampedInner',
+          elements: [
+            { index: 0, type: 'int', isOptional: false, name: 'count' },
+            { index: 1, type: 'date', isOptional: false, name: 'at', timestampDecorator: 'createdAt' },
+          ],
+        },
+      },
     ],
   },
   StatusPair: {

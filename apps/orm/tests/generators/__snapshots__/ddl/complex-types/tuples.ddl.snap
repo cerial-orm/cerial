@@ -6,6 +6,17 @@ DEFINE FIELD OVERWRITE backup ON TABLE tuple_basic TYPE option<[float, float]>;
 DEFINE FIELD OVERWRITE history ON TABLE tuple_basic TYPE array<[float, float]>;
 DEFINE FIELD OVERWRITE entry ON TABLE tuple_basic TYPE option<[string, int, bool]>;
 
+-- TupleDecoratedNest
+DEFINE TABLE OVERWRITE tuple_decorated_nest SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE tuple_decorated_nest TYPE string;
+DEFINE FIELD OVERWRITE outer ON TABLE tuple_decorated_nest TYPE [string, [int, datetime]];
+DEFINE FIELD OVERWRITE outer[1] ON TABLE tuple_decorated_nest TYPE [int, datetime];
+DEFINE FIELD OVERWRITE outer[1][1] ON TABLE tuple_decorated_nest TYPE datetime DEFAULT time::now();
+DEFINE FIELD OVERWRITE maybe ON TABLE tuple_decorated_nest TYPE option<[string, datetime, datetime, int]>;
+DEFINE FIELD OVERWRITE maybe[1] ON TABLE tuple_decorated_nest TYPE datetime DEFAULT time::now();
+DEFINE FIELD OVERWRITE maybe[2] ON TABLE tuple_decorated_nest TYPE datetime DEFAULT ALWAYS time::now();
+DEFINE FIELD OVERWRITE maybe[3] ON TABLE tuple_decorated_nest TYPE int DEFAULT ALWAYS 7;
+
 -- TupleDeepNest
 DEFINE TABLE OVERWRITE tuple_deep_nest SCHEMAFULL;
 DEFINE FIELD OVERWRITE deep ON TABLE tuple_deep_nest TYPE [string, [string, object]];

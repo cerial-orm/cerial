@@ -69,6 +69,7 @@ import type {
   TupleNullable,
   TupleStamped,
   TupleDefaulted,
+  TupleDecoratedNest,
   TupleLiteralElement,
   BasicsUser,
   BasicsProfile,
@@ -268,6 +269,7 @@ import type {
   TupleNullableModel,
   TupleStampedModel,
   TupleDefaultedModel,
+  TupleDecoratedNestModel,
   TupleLiteralElementModel,
   BasicsUserModel,
   BasicsProfileModel,
@@ -473,6 +475,7 @@ export interface TypedDb {
   TupleNullable: TupleNullableModel;
   TupleStamped: TupleStampedModel;
   TupleDefaulted: TupleDefaultedModel;
+  TupleDecoratedNest: TupleDecoratedNestModel;
   TupleLiteralElement: TupleLiteralElementModel;
   BasicsUser: BasicsUserModel;
   BasicsProfile: BasicsProfileModel;
@@ -866,6 +869,10 @@ export class CerialClient {
 
   get TupleDefaulted(): TupleDefaultedModel {
     return this._ensureDb().TupleDefaulted;
+  }
+
+  get TupleDecoratedNest(): TupleDecoratedNestModel {
+    return this._ensureDb().TupleDecoratedNest;
   }
 
   get TupleLiteralElement(): TupleLiteralElementModel {

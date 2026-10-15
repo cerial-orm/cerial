@@ -39,6 +39,7 @@ export type ModelName =
   | 'TupleNullable'
   | 'TupleStamped'
   | 'TupleDefaulted'
+  | 'TupleDecoratedNest'
   | 'TupleLiteralElement'
   | 'BasicsUser'
   | 'BasicsProfile'
@@ -241,6 +242,7 @@ export const modelNames = [
   'TupleNullable',
   'TupleStamped',
   'TupleDefaulted',
+  'TupleDecoratedNest',
   'TupleLiteralElement',
   'BasicsUser',
   'BasicsProfile',
@@ -732,6 +734,17 @@ export const migrationsByModel: Record<ModelName, string[]> = {
     'DEFINE FIELD OVERWRITE name ON TABLE tuple_defaulted TYPE string;',
     'DEFINE FIELD OVERWRITE meta ON TABLE tuple_defaulted TYPE [string, int];',
     'DEFINE FIELD OVERWRITE meta[1] ON TABLE tuple_defaulted TYPE int DEFAULT 1;',
+  ],
+  TupleDecoratedNest: [
+    'DEFINE TABLE OVERWRITE tuple_decorated_nest SCHEMAFULL;',
+    'DEFINE FIELD OVERWRITE name ON TABLE tuple_decorated_nest TYPE string;',
+    'DEFINE FIELD OVERWRITE outer ON TABLE tuple_decorated_nest TYPE [string, [int, datetime]];',
+    'DEFINE FIELD OVERWRITE outer[1] ON TABLE tuple_decorated_nest TYPE [int, datetime];',
+    'DEFINE FIELD OVERWRITE outer[1][1] ON TABLE tuple_decorated_nest TYPE datetime DEFAULT time::now();',
+    'DEFINE FIELD OVERWRITE maybe ON TABLE tuple_decorated_nest TYPE option<[string, datetime, datetime, int]>;',
+    'DEFINE FIELD OVERWRITE maybe[1] ON TABLE tuple_decorated_nest TYPE datetime DEFAULT time::now();',
+    'DEFINE FIELD OVERWRITE maybe[2] ON TABLE tuple_decorated_nest TYPE datetime DEFAULT ALWAYS time::now();',
+    'DEFINE FIELD OVERWRITE maybe[3] ON TABLE tuple_decorated_nest TYPE int DEFAULT ALWAYS 7;',
   ],
   TupleLiteralElement: [
     'DEFINE TABLE OVERWRITE tuple_literal_element SCHEMAFULL;',

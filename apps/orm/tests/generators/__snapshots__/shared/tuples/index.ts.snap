@@ -21,6 +21,8 @@ export * from './optnullpair';
 export * from './mixednullability';
 export * from './stamped';
 export * from './defaulted';
+export * from './stampedinner';
+export * from './stampedouter';
 export * from './statuspair';
 export * from './rolepair';
 export * from './bytespair';

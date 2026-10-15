@@ -191,6 +191,7 @@ export const tables = {
     'tuple_nullable',
     'tuple_stamped',
     'tuple_defaulted',
+    'tuple_decorated_nest',
     'tuple_literal_element',
   ],
   literals: [

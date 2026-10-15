@@ -37,6 +37,7 @@ export * from './tupledeepnest';
 export * from './tuplenullable';
 export * from './tuplestamped';
 export * from './tupledefaulted';
+export * from './tupledecoratednest';
 export * from './tupleliteralelement';
 export * from './basicsuser';
 export * from './basicsprofile';

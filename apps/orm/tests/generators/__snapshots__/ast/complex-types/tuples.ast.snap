@@ -364,6 +364,42 @@
         {
           "decorators": [],
           "isOptional": false,
+          "name": "outer",
+          "tupleName": "StampedOuter",
+          "type": "tuple"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "maybe",
+          "tupleName": "Stamped",
+          "type": "tuple"
+        }
+      ],
+      "name": "TupleDecoratedNest"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
           "name": "status",
           "tupleName": "StatusPair",
           "type": "tuple"
@@ -759,6 +795,41 @@
         }
       ],
       "name": "Defaulted"
+    },
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "name": "count",
+          "type": "int"
+        },
+        {
+          "decorators": [
+            {
+              "type": "createdAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "at",
+          "type": "date"
+        }
+      ],
+      "name": "StampedInner"
+    },
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "isOptional": false,
+          "tupleName": "StampedInner",
+          "type": "tuple"
+        }
+      ],
+      "name": "StampedOuter"
     },
     {
       "elements": [

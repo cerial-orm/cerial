@@ -256,6 +256,252 @@ export interface TupleBasicModel {
   getTableName(): string;
 }
 
+// ===== models/tupledecoratednest.ts =====
+/**
+ * Generated types for TupleDecoratedNest
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { StampedOuter, StampedOuterInput, StampedOuterWhere, StampedOuterUpdate } from '../tuples/stampedouter';
+import type { Stamped, StampedInput, StampedWhere, StampedUpdate } from '../tuples/stamped';
+import type { StampedInner, StampedInnerInput, StampedInnerWhere, StampedInnerUpdate } from '../tuples/stampedinner';
+export interface TupleDecoratedNest {
+  id: CerialId<string>;
+  name: string;
+  outer: StampedOuter;
+  maybe?: Stamped;
+}
+
+export interface TupleDecoratedNestInput {
+  id?: string;
+  name: string;
+  outer: StampedOuterInput;
+  maybe?: StampedInput;
+}
+
+export interface TupleDecoratedNestWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  outer?: StampedOuterWhere;
+  maybe?: StampedWhere;
+  AND?: TupleDecoratedNestWhere[];
+  OR?: TupleDecoratedNestWhere[];
+  NOT?: TupleDecoratedNestWhere;
+}
+
+export type TupleDecoratedNestWhereInput = TupleDecoratedNestWhere;
+
+export type TupleDecoratedNestFindUniqueWhere = { id: RecordIdInput<string> } & Omit<TupleDecoratedNestWhere, 'id'>;
+
+export type TupleDecoratedNestCreate = O.Optional<TupleDecoratedNestInput, 'id' | 'maybe'>;
+
+export type TupleDecoratedNestNestedCreate = O.Optional<TupleDecoratedNestInput, 'id' | 'maybe'>;
+
+export type TupleDecoratedNestCreateInput = TupleDecoratedNestCreate;
+
+export type TupleDecoratedNestUpdate = Partial<O.Omit<TupleDecoratedNestInput, 'id' | 'outer' | 'maybe'>> & {
+  outer?: [string, StampedInnerInput] | StampedOuterUpdate;
+  maybe?: [string, Date, Date, number] | StampedUpdate | CerialNone;
+};
+
+export type TupleDecoratedNestUpdateInput = TupleDecoratedNestUpdate;
+
+export type TupleDecoratedNestUnset = {
+  maybe?: true;
+};
+
+export type TupleDecoratedNestSelect =
+  | ({ id: boolean } & Partial<Record<'name' | 'outer' | 'maybe', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'outer' | 'maybe', boolean>>)
+  | ({ outer: boolean } & Partial<Record<'id' | 'name' | 'maybe', boolean>>)
+  | ({ maybe: boolean } & Partial<Record<'id' | 'name' | 'outer', boolean>>);
+
+export interface TupleDecoratedNestOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+}
+
+export type TupleDecoratedNest$Relations = {};
+
+export type GetTupleDecoratedNestPayload<
+  S extends TupleDecoratedNestSelect | undefined = undefined,
+  I = undefined,
+> = A.Compute<
+  S extends TupleDecoratedNestSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof TupleDecoratedNest
+          ? ResolveFieldSelect<TupleDecoratedNest[K], S[K]>
+          : never;
+      }
+    : TupleDecoratedNest,
+  'flat'
+>;
+
+export interface TupleDecoratedNestModel {
+  findOne<S extends TupleDecoratedNestSelect | undefined = undefined>(options?: {
+    where?: TupleDecoratedNestWhere;
+    select?: S;
+    orderBy?: TupleDecoratedNestOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleDecoratedNestPayload<S> | null>;
+
+  findMany<S extends TupleDecoratedNestSelect | undefined = undefined>(options?: {
+    where?: TupleDecoratedNestWhere;
+    select?: S;
+    orderBy?: TupleDecoratedNestOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleDecoratedNestPayload<S>[]>;
+
+  findUnique<S extends TupleDecoratedNestSelect | undefined = undefined>(options: {
+    where: TupleDecoratedNestFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleDecoratedNestPayload<S> | null>;
+
+  create<S extends TupleDecoratedNestSelect | undefined = undefined>(options: {
+    data: TupleDecoratedNestCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleDecoratedNestPayload<S>>;
+
+  updateMany<
+    S extends TupleDecoratedNestSelect | undefined = undefined,
+    D extends TupleDecoratedNestUpdateInput = TupleDecoratedNestUpdateInput,
+  >(options: {
+    where: TupleDecoratedNestWhere;
+    data: D;
+    unset?: SafeUnset<TupleDecoratedNestUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetTupleDecoratedNestPayload<S>[]>;
+
+  updateUnique<
+    S extends TupleDecoratedNestSelect | undefined = undefined,
+    D extends TupleDecoratedNestUpdateInput = TupleDecoratedNestUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: TupleDecoratedNestFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<TupleDecoratedNestUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns TupleDecoratedNest | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetTupleDecoratedNestPayload<S>, R>>;
+
+  upsert<
+    S extends TupleDecoratedNestSelect | undefined = undefined,
+    D extends TupleDecoratedNestUpdateInput = TupleDecoratedNestUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: TupleDecoratedNestFindUniqueWhere;
+    create: TupleDecoratedNestCreateInput;
+    update?: D;
+    unset?: SafeUnset<TupleDecoratedNestUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetTupleDecoratedNestPayload<S>, R>>;
+
+  upsert<
+    S extends TupleDecoratedNestSelect | undefined = undefined,
+    D extends TupleDecoratedNestUpdateInput = TupleDecoratedNestUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: TupleDecoratedNestWhere;
+    create: TupleDecoratedNestCreateInput;
+    update?: D;
+    unset?: SafeUnset<TupleDecoratedNestUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetTupleDecoratedNestPayload<S>, R>>;
+
+  deleteMany(options: { where: TupleDecoratedNestWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: TupleDecoratedNestFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns TupleDecoratedNest | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<TupleDecoratedNest, R>>;
+
+  count(where?: TupleDecoratedNestWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: TupleDecoratedNestWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
 // ===== models/tupledeepnest.ts =====
 /**
  * Generated types for TupleDeepNest
@@ -4221,6 +4467,146 @@ export type StampedUpdate = {
   touched?: Date;
   3?: number;
   hits?: number;
+};
+
+// ===== tuples/stampedinner.ts =====
+/**
+ * Generated types for StampedInner
+ * Do not edit manually
+ */
+
+export type StampedInner = [number, Date];
+
+export type StampedInnerInput =
+  | [number, Date]
+  | {
+      0?: number;
+      count?: number;
+      1?: Date;
+      at?: Date;
+    };
+
+export interface StampedInnerWhere {
+  0?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  count?:
+    | number
+    | ({
+        eq?: number;
+        neq?: number;
+        gt?: number;
+        gte?: number;
+        lt?: number;
+        lte?: number;
+      } & {
+        in?: number[];
+        notIn?: number[];
+      } & {
+        between?: [number, number];
+      });
+  1?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        between?: [Date, Date];
+      });
+  at?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        between?: [Date, Date];
+      });
+}
+
+export type StampedInnerUpdate = {
+  0?: number;
+  count?: number;
+  1?: Date;
+  at?: Date;
+};
+
+// ===== tuples/stampedouter.ts =====
+/**
+ * Generated types for StampedOuter
+ * Do not edit manually
+ */
+
+import type { StampedInner, StampedInnerInput, StampedInnerWhere, StampedInnerUpdate } from './stampedinner';
+export type StampedOuter = [string, StampedInner];
+
+export type StampedOuterInput =
+  | [string, StampedInnerInput]
+  | {
+      0?: string;
+      label?: string;
+      1?: StampedInnerInput;
+    };
+
+export interface StampedOuterWhere {
+  0?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  label?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  1?: StampedInnerWhere;
+}
+
+export type StampedOuterUpdate = {
+  0?: string;
+  label?: string;
+  1?: [number, Date] | StampedInnerUpdate;
 };
 
 // ===== tuples/statuspair.ts =====

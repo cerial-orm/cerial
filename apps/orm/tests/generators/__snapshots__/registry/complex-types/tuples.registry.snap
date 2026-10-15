@@ -128,6 +128,111 @@
       "name": "TupleBasic",
       "tableName": "tuple_basic"
     },
+    "TupleDecoratedNest": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "outer",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "name": "label",
+                "type": "string"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "tupleInfo": {
+                  "elements": [
+                    {
+                      "index": 0,
+                      "isOptional": false,
+                      "name": "count",
+                      "type": "int"
+                    },
+                    {
+                      "index": 1,
+                      "isOptional": false,
+                      "name": "at",
+                      "timestampDecorator": "createdAt",
+                      "type": "date"
+                    }
+                  ],
+                  "tupleName": "StampedInner"
+                },
+                "type": "tuple"
+              }
+            ],
+            "tupleName": "StampedOuter"
+          },
+          "type": "tuple"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "maybe",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "name": "label",
+                "type": "string"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "name": "born",
+                "timestampDecorator": "createdAt",
+                "type": "date"
+              },
+              {
+                "index": 2,
+                "isOptional": false,
+                "name": "touched",
+                "timestampDecorator": "updatedAt",
+                "type": "date"
+              },
+              {
+                "defaultAlwaysValue": 7,
+                "index": 3,
+                "isOptional": false,
+                "name": "hits",
+                "type": "int"
+              }
+            ],
+            "tupleName": "Stamped"
+          },
+          "type": "tuple"
+        }
+      ],
+      "name": "TupleDecoratedNest",
+      "tableName": "tuple_decorated_nest"
+    },
     "TupleDeepNest": {
       "compositeDirectives": [],
       "fields": [
@@ -1649,6 +1754,58 @@
         }
       ],
       "name": "Stamped"
+    },
+    "StampedInner": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "name": "count",
+          "type": "int"
+        },
+        {
+          "index": 1,
+          "isOptional": false,
+          "name": "at",
+          "timestampDecorator": "createdAt",
+          "type": "date"
+        }
+      ],
+      "name": "StampedInner"
+    },
+    "StampedOuter": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "index": 1,
+          "isOptional": false,
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "name": "count",
+                "type": "int"
+              },
+              {
+                "index": 1,
+                "isOptional": false,
+                "name": "at",
+                "timestampDecorator": "createdAt",
+                "type": "date"
+              }
+            ],
+            "tupleName": "StampedInner"
+          },
+          "type": "tuple"
+        }
+      ],
+      "name": "StampedOuter"
     },
     "StatusPair": {
       "elements": [
