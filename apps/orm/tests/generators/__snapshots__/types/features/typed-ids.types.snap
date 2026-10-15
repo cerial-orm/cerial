@@ -1363,12 +1363,12 @@ import type {
 } from '../objects/idmetrickey';
 export interface ObjectIdModel {
   id: CerialId<{ service: string; timestamp: number }>;
-  value: number;
+  payload: number;
 }
 
 export interface ObjectIdModelInput {
   id: { service: string; timestamp: number };
-  value: number;
+  payload: number;
 }
 
 export interface ObjectIdModelWhere {
@@ -1385,7 +1385,7 @@ export interface ObjectIdModelWhere {
         in?: RecordIdInput<IdMetricKey>[];
         notIn?: RecordIdInput<IdMetricKey>[];
       } & {});
-  value?:
+  payload?:
     | number
     | ({
         eq?: number;
@@ -1425,12 +1425,12 @@ export type ObjectIdModelUpdateInput = ObjectIdModelUpdate;
 export type ObjectIdModelUnset = {};
 
 export type ObjectIdModelSelect =
-  | ({ id: boolean } & Partial<Record<'value', boolean>>)
-  | ({ value: boolean } & Partial<Record<'id', boolean>>);
+  | ({ id: boolean } & Partial<Record<'payload', boolean>>)
+  | ({ payload: boolean } & Partial<Record<'id', boolean>>);
 
 export interface ObjectIdModelOrderBy {
   id?: 'asc' | 'desc';
-  value?: 'asc' | 'desc';
+  payload?: 'asc' | 'desc';
 }
 
 export type ObjectIdModel$Relations = {};
@@ -1859,12 +1859,12 @@ import type { CerialQueryPromise } from '..';
 import type { CerialTransaction, ModelMetadata } from 'cerial';
 export interface StringIdModel {
   id: CerialId<string>;
-  value: string;
+  payload: string;
 }
 
 export interface StringIdModelInput {
   id?: string;
-  value: string;
+  payload: string;
 }
 
 export interface StringIdModelWhere {
@@ -1881,7 +1881,7 @@ export interface StringIdModelWhere {
         in?: RecordIdInput<string>[];
         notIn?: RecordIdInput<string>[];
       } & {});
-  value?:
+  payload?:
     | string
     | ({
         eq?: string;
@@ -1916,12 +1916,12 @@ export type StringIdModelUpdateInput = StringIdModelUpdate;
 export type StringIdModelUnset = {};
 
 export type StringIdModelSelect =
-  | ({ id: boolean } & Partial<Record<'value', boolean>>)
-  | ({ value: boolean } & Partial<Record<'id', boolean>>);
+  | ({ id: boolean } & Partial<Record<'payload', boolean>>)
+  | ({ payload: boolean } & Partial<Record<'id', boolean>>);
 
 export interface StringIdModelOrderBy {
   id?: 'asc' | 'desc';
-  value?: 'asc' | 'desc';
+  payload?: 'asc' | 'desc';
 }
 
 export type StringIdModel$Relations = {};

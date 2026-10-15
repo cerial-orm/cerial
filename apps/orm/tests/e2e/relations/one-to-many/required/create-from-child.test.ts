@@ -38,7 +38,7 @@ describe('E2E One-to-Many Required: Create from Child', () => {
       const post = await client.db.PostRequired.create({
         data: {
           title: 'New Post',
-          content: 'Content',
+          body: 'Content',
           author: {
             create: {
               name: 'New Author',

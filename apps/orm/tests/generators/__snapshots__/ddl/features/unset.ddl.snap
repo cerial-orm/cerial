@@ -16,7 +16,7 @@ DEFINE FIELD OVERWRITE backup ON TABLE unset_test TYPE option<[float, float]>;
 DEFINE FIELD OVERWRITE opt ON TABLE unset_test TYPE option<[string, float | null]>;
 DEFINE FIELD OVERWRITE tagged ON TABLE unset_test TYPE option<[string, object]>;
 DEFINE FIELD OVERWRITE tagged[1] ON TABLE unset_test TYPE object;
-DEFINE FIELD OVERWRITE tagged[1].value ON TABLE unset_test TYPE string;
+DEFINE FIELD OVERWRITE tagged[1].payload ON TABLE unset_test TYPE string;
 DEFINE FIELD OVERWRITE tagged[1].extra ON TABLE unset_test TYPE option<string>;
 DEFINE FIELD OVERWRITE nested ON TABLE unset_test TYPE object;
 DEFINE FIELD OVERWRITE nested.title ON TABLE unset_test TYPE string;

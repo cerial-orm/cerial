@@ -2,7 +2,7 @@
 model MsCmsBlock {
   id Record @id
   name String
-  type String
+  kind String
   data String?
-  order Int @default(0)
+  position Int @default(0)
 }

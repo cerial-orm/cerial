@@ -2609,17 +2609,17 @@ export interface TupleWithRelationModel {
  */
 
 export interface DeepInnerObj {
-  value: string;
+  payload: string;
   extra: string;
 }
 
 export interface DeepInnerObjInput {
-  value: string;
+  payload: string;
   extra: string;
 }
 
 export interface DeepInnerObjWhere {
-  value?:
+  payload?:
     | string
     | ({
         eq?: string;
@@ -2651,11 +2651,11 @@ export interface DeepInnerObjWhere {
 }
 
 export type DeepInnerObjSelect =
-  | ({ value: boolean } & Partial<Record<'extra', boolean>>)
-  | ({ extra: boolean } & Partial<Record<'value', boolean>>);
+  | ({ payload: boolean } & Partial<Record<'extra', boolean>>)
+  | ({ extra: boolean } & Partial<Record<'payload', boolean>>);
 
 export interface DeepInnerObjOrderBy {
-  value?: 'asc' | 'desc';
+  payload?: 'asc' | 'desc';
   extra?: 'asc' | 'desc';
 }
 

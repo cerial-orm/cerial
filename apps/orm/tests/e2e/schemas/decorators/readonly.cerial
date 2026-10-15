@@ -8,7 +8,7 @@ object ReadonlyAddress {
 
 object ReadonlyMeta {
   label String @readonly
-  value Int
+  payload Int
 }
 
 model ReadonlyTest {

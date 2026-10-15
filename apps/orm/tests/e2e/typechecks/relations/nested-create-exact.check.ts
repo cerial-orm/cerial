@@ -34,9 +34,9 @@ checks([
   // Book: no `publisher`, no `publisherId`
   check<keyof BookNestedCreate, 'id' | 'title' | 'isbn', Test.Pass>(),
   // Required relation: the key is dropped, the id and defaulted fields turn optional
-  check<keyof PostRequiredNestedCreate, 'id' | 'title' | 'content' | 'createdAt', Test.Pass>(),
+  check<keyof PostRequiredNestedCreate, 'id' | 'title' | 'body' | 'createdAt', Test.Pass>(),
   check<IsOptional<PostRequiredNestedCreate, 'id'>, 1, Test.Pass>(),
-  check<IsOptional<PostRequiredNestedCreate, 'content'>, 1, Test.Pass>(),
+  check<IsOptional<PostRequiredNestedCreate, 'body'>, 1, Test.Pass>(),
   check<IsOptional<PostRequiredNestedCreate, 'createdAt'>, 1, Test.Pass>(),
   check<IsOptional<PostRequiredNestedCreate, 'title'>, 0, Test.Pass>(),
   // Array foreign key: `courseIds` and `courses` both dropped
@@ -54,7 +54,7 @@ checks([
 // Field types carried into the nested create are the model's own input types
 checks([
   check<BookNestedCreate['title'], string, Test.Pass>(),
-  check<PostRequiredNestedCreate['content'], string | null | undefined, Test.Pass>(),
+  check<PostRequiredNestedCreate['body'], string | null | undefined, Test.Pass>(),
   check<PostRequiredNestedCreate['createdAt'], Date | undefined, Test.Pass>(),
 ]);
 

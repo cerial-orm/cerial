@@ -22,7 +22,7 @@ model ExtRelBlogAuthor extends ExtRelAuthor {
 // Abstract intermediary for blog post fields — enables multi-level inheritance
 abstract model ExtRelBaseBlogPost extends ExtRelBase {
   title String
-  content String?
+  body String?
   authorId Record
   author Relation @field(authorId) @model(ExtRelBlogAuthor)
 }
@@ -69,14 +69,14 @@ model ExtRelPostSummary extends ExtRelBaseBlogPost[!author, !authorId] {
 }
 
 // Extends with omit — exclude content and relation fields (extends abstract parent)
-model ExtRelPostArchive extends ExtRelBaseBlogPost[!content, !author, !authorId] {
+model ExtRelPostArchive extends ExtRelBaseBlogPost[!body, !author, !authorId] {
   archivedAt Date @createdAt
   archiveReason String?
 }
 
 // Abstract intermediary for comment fields — enables multi-level inheritance
 abstract model ExtRelBaseComment extends ExtRelBase {
-  content String
+  body String
   parentCommentId Record?
   parentComment Relation? @field(parentCommentId) @model(ExtRelComment)
 }

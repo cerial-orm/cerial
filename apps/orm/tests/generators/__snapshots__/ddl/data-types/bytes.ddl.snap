@@ -10,7 +10,7 @@ DEFINE FIELD OVERWRITE chunks ON TABLE bytes_basic TYPE array<bytes>;
 DEFINE TABLE OVERWRITE bytes_with_object SCHEMAFULL;
 DEFINE FIELD OVERWRITE name ON TABLE bytes_with_object TYPE string;
 DEFINE FIELD OVERWRITE details ON TABLE bytes_with_object TYPE object;
-DEFINE FIELD OVERWRITE details.content ON TABLE bytes_with_object TYPE bytes;
+DEFINE FIELD OVERWRITE details.body ON TABLE bytes_with_object TYPE bytes;
 DEFINE FIELD OVERWRITE details.extra ON TABLE bytes_with_object TYPE option<bytes>;
 
 -- BytesWithTuple

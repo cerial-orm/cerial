@@ -28,7 +28,7 @@ describe('E2E Typed IDs: String ID', () => {
 
   test('create with explicit string id', async () => {
     const result = await client.db.StringIdModel.create({
-      data: { id: 'custom-id', value: 'hello' },
+      data: { id: 'custom-id', payload: 'hello' },
     });
 
     expect(result.id).toBeInstanceOf(CerialId);
@@ -38,7 +38,7 @@ describe('E2E Typed IDs: String ID', () => {
 
   test('create without id auto-generates', async () => {
     const result = await client.db.StringIdModel.create({
-      data: { value: 'auto' },
+      data: { payload: 'auto' },
     });
 
     expect(result.id).toBeInstanceOf(CerialId);
@@ -48,7 +48,7 @@ describe('E2E Typed IDs: String ID', () => {
 
   test('findOne by string id', async () => {
     await client.db.StringIdModel.create({
-      data: { id: 'findme', value: 'found' },
+      data: { id: 'findme', payload: 'found' },
     });
 
     const found = await client.db.StringIdModel.findOne({
@@ -57,26 +57,26 @@ describe('E2E Typed IDs: String ID', () => {
 
     expect(found).not.toBeNull();
     expect(found!.id.id).toBe('findme');
-    expect(found!.value).toBe('found');
+    expect(found!.payload).toBe('found');
   });
 
   test('updateMany by string id', async () => {
     await client.db.StringIdModel.create({
-      data: { id: 'update-me', value: 'before' },
+      data: { id: 'update-me', payload: 'before' },
     });
 
     const updated = await client.db.StringIdModel.updateMany({
       where: { id: 'update-me' },
-      data: { value: 'after' },
+      data: { payload: 'after' },
     });
 
     expect(updated).toHaveLength(1);
-    expect(updated[0]!.value).toBe('after');
+    expect(updated[0]!.payload).toBe('after');
   });
 
   test('deleteMany by string id', async () => {
     await client.db.StringIdModel.create({
-      data: { id: 'delete-me', value: 'bye' },
+      data: { id: 'delete-me', payload: 'bye' },
     });
 
     const count = await client.db.StringIdModel.deleteMany({

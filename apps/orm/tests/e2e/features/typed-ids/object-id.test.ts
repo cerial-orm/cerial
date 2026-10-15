@@ -28,7 +28,7 @@ describe('E2E Typed IDs: Object ID', () => {
 
   test('create with object id', async () => {
     const result = await client.db.ObjectIdModel.create({
-      data: { id: { service: 'api', timestamp: 123 }, value: 9.5 },
+      data: { id: { service: 'api', timestamp: 123 }, payload: 9.5 },
     });
 
     expect(result.id).toBeInstanceOf(CerialId);
@@ -36,12 +36,12 @@ describe('E2E Typed IDs: Object ID', () => {
     const idObj = result.id.id;
     expect(idObj.service).toBe('api');
     expect(idObj.timestamp).toBe(123);
-    expect(result.value).toBe(9.5);
+    expect(result.payload).toBe(9.5);
   });
 
   test('findOne by object id using CerialId', async () => {
     const created = await client.db.ObjectIdModel.create({
-      data: { id: { service: 'api', timestamp: 123 }, value: 9.5 },
+      data: { id: { service: 'api', timestamp: 123 }, payload: 9.5 },
     });
 
     const found = await client.db.ObjectIdModel.findOne({
@@ -49,17 +49,17 @@ describe('E2E Typed IDs: Object ID', () => {
     });
 
     expect(found).not.toBeNull();
-    expect(found!.value).toBe(9.5);
+    expect(found!.payload).toBe(9.5);
     const idObj = found!.id.id;
     expect(idObj.service).toBe('api');
   });
 
   test('findMany returns object ids', async () => {
     await client.db.ObjectIdModel.create({
-      data: { id: { service: 'web', timestamp: 1 }, value: 1.0 },
+      data: { id: { service: 'web', timestamp: 1 }, payload: 1.0 },
     });
     await client.db.ObjectIdModel.create({
-      data: { id: { service: 'mobile', timestamp: 2 }, value: 2.0 },
+      data: { id: { service: 'mobile', timestamp: 2 }, payload: 2.0 },
     });
 
     const results = await client.db.ObjectIdModel.findMany();
@@ -73,7 +73,7 @@ describe('E2E Typed IDs: Object ID', () => {
 
   test('deleteMany by object id using CerialId', async () => {
     const created = await client.db.ObjectIdModel.create({
-      data: { id: { service: 'del', timestamp: 999 }, value: 0 },
+      data: { id: { service: 'del', timestamp: 999 }, payload: 0 },
     });
 
     const count = await client.db.ObjectIdModel.deleteMany({

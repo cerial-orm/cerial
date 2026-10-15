@@ -31,12 +31,12 @@ literal WithObj { 'none', Point }
       const schema = `
 literal Status { 'active', 'inactive' }
 
-object Info {
+object Details {
   name String
   status Status
 }
 
-literal WithInfo { 'empty', Info }
+literal WithDetails { 'empty', Details }
 `;
       const { ast, errors } = parse(schema);
       expect(errors).toHaveLength(0);

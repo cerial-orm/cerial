@@ -32,7 +32,7 @@
           "isIndexed": false,
           "isRequired": false,
           "isUnique": false,
-          "name": "timeout",
+          "name": "expiry",
           "type": "duration"
         },
         {

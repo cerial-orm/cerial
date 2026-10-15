@@ -33,14 +33,14 @@ import type {
 export interface BasicsPost {
   id: CerialId<string>;
   title: string;
-  content?: string;
+  body?: string;
   authorId: CerialId<string>;
 }
 
 export interface BasicsPostInput {
   id?: string;
   title: string;
-  content?: string;
+  body?: string;
   authorId: RecordIdInput<string>;
 }
 
@@ -71,7 +71,7 @@ export interface BasicsPostWhere {
         in?: string[];
         notIn?: string[];
       } & {});
-  content?:
+  body?:
     | string
     | ({
         eq?: string;
@@ -110,9 +110,9 @@ export type BasicsPostWhereInput = BasicsPostWhere;
 
 export type BasicsPostFindUniqueWhere = { id: RecordIdInput<string> } & Omit<BasicsPostWhere, 'id'>;
 
-export type BasicsPostCreate = O.Optional<O.Omit<BasicsPostInput, 'author'>, 'id' | 'content'>;
+export type BasicsPostCreate = O.Optional<O.Omit<BasicsPostInput, 'author'>, 'id' | 'body'>;
 
-export type BasicsPostNestedCreate = O.Optional<O.Omit<BasicsPostInput, 'author' | 'authorId'>, 'id' | 'content'>;
+export type BasicsPostNestedCreate = O.Optional<O.Omit<BasicsPostInput, 'author' | 'authorId'>, 'id' | 'body'>;
 
 export type BasicsPostCreateInput =
   | BasicsPostCreate
@@ -120,8 +120,8 @@ export type BasicsPostCreateInput =
       author: { create: BasicsUserNestedCreate } | { connect: RecordIdInput };
     });
 
-export type BasicsPostUpdate = Partial<O.Omit<BasicsPostInput, 'id' | 'author' | 'content'>> & {
-  content?: string | CerialNone;
+export type BasicsPostUpdate = Partial<O.Omit<BasicsPostInput, 'id' | 'author' | 'body'>> & {
+  body?: string | CerialNone;
 };
 
 export type BasicsPostUpdateInput =
@@ -131,19 +131,19 @@ export type BasicsPostUpdateInput =
     });
 
 export type BasicsPostUnset = {
-  content?: true;
+  body?: true;
 };
 
 export type BasicsPostSelect =
-  | ({ id: boolean } & Partial<Record<'title' | 'content' | 'authorId', boolean>>)
-  | ({ title: boolean } & Partial<Record<'id' | 'content' | 'authorId', boolean>>)
-  | ({ content: boolean } & Partial<Record<'id' | 'title' | 'authorId', boolean>>)
-  | ({ authorId: boolean } & Partial<Record<'id' | 'title' | 'content', boolean>>);
+  | ({ id: boolean } & Partial<Record<'title' | 'body' | 'authorId', boolean>>)
+  | ({ title: boolean } & Partial<Record<'id' | 'body' | 'authorId', boolean>>)
+  | ({ body: boolean } & Partial<Record<'id' | 'title' | 'authorId', boolean>>)
+  | ({ authorId: boolean } & Partial<Record<'id' | 'title' | 'body', boolean>>);
 
 export interface BasicsPostOrderBy {
   id?: 'asc' | 'desc';
   title?: 'asc' | 'desc';
-  content?: 'asc' | 'desc';
+  body?: 'asc' | 'desc';
   authorId?: 'asc' | 'desc';
   author?: BasicsUserOrderBy;
 }

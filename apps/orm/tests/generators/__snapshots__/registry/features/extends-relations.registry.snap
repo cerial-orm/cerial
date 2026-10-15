@@ -113,7 +113,7 @@
           "isIndexed": false,
           "isRequired": false,
           "isUnique": false,
-          "name": "content",
+          "name": "body",
           "type": "string"
         },
         {
@@ -290,7 +290,7 @@
           "isIndexed": false,
           "isRequired": true,
           "isUnique": false,
-          "name": "content",
+          "name": "body",
           "type": "string"
         },
         {
@@ -353,7 +353,7 @@
           "isIndexed": false,
           "isRequired": true,
           "isUnique": false,
-          "name": "content",
+          "name": "body",
           "type": "string"
         },
         {
@@ -513,7 +513,7 @@
           "isIndexed": false,
           "isRequired": false,
           "isUnique": false,
-          "name": "content",
+          "name": "body",
           "type": "string"
         },
         {

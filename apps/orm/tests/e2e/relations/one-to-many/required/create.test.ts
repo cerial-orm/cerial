@@ -44,8 +44,8 @@ describe('E2E One-to-Many Required: Create', () => {
           email: uniqueEmail(),
           posts: {
             create: [
-              { title: 'Post 1', content: 'Content 1' },
-              { title: 'Post 2', content: 'Content 2' },
+              { title: 'Post 1', body: 'Content 1' },
+              { title: 'Post 2', body: 'Content 2' },
             ],
           },
         },

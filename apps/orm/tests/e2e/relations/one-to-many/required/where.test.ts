@@ -208,8 +208,8 @@ describe('E2E One-to-Many Required: Where', () => {
           email: uniqueEmail(),
           posts: {
             create: [
-              { title: 'Match', content: 'Has content' },
-              { title: 'No Match', content: null }, // explicit null stored
+              { title: 'Match', body: 'Has content' },
+              { title: 'No Match', body: null }, // explicit null stored
             ],
           },
         },
@@ -218,7 +218,7 @@ describe('E2E One-to-Many Required: Where', () => {
       const posts = await client.db.PostRequired.findMany({
         where: {
           authorId: author.id,
-          content: { not: null },
+          body: { not: null },
         },
       });
 

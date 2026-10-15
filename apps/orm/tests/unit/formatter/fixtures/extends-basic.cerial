@@ -25,7 +25,7 @@ object ShippingAddress extends BaseAddress {
 }
 
 
-model Order extends Entity {
+model PurchaseOrder extends Entity {
   total   Float
   address ShippingAddress
 }

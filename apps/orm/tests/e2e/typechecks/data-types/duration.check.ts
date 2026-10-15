@@ -28,7 +28,7 @@ Test.checks([
 ]);
 
 // Optional Duration → CerialDuration | undefined
-const _optTimeout: DurationBasic['timeout'] = undefined;
+const _optTimeout: DurationBasic['expiry'] = undefined;
 
 // Nullable Duration (required) → CerialDuration | null
 const _nullCooldown: DurationBasic['cooldown'] = null;
@@ -49,7 +49,7 @@ Test.checks([
 Test.checks([
   Test.check<HasKey<DurationBasicCreate, 'ttl'>, 1, Test.Pass>(),
   Test.check<HasKey<DurationBasicCreate, 'intervals'>, 1, Test.Pass>(),
-  Test.check<HasKey<DurationBasicCreate, 'timeout'>, 1, Test.Pass>(),
+  Test.check<HasKey<DurationBasicCreate, 'expiry'>, 1, Test.Pass>(),
   Test.check<HasKey<DurationBasicCreate, 'cooldown'>, 1, Test.Pass>(),
 ]);
 
@@ -72,7 +72,7 @@ Test.checks([
 
 Test.checks([
   Test.check<HasKey<DurationBasicWhere, 'ttl'>, 1, Test.Pass>(),
-  Test.check<HasKey<DurationBasicWhere, 'timeout'>, 1, Test.Pass>(),
+  Test.check<HasKey<DurationBasicWhere, 'expiry'>, 1, Test.Pass>(),
   Test.check<HasKey<DurationBasicWhere, 'cooldown'>, 1, Test.Pass>(),
   Test.check<HasKey<DurationBasicWhere, 'intervals'>, 1, Test.Pass>(),
   Test.check<HasKey<DurationBasicWhere, 'AND'>, 1, Test.Pass>(),

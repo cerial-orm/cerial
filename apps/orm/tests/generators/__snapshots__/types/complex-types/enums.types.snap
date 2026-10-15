@@ -524,12 +524,12 @@ import type { CerialTransaction, ModelMetadata } from 'cerial';
 import type { RoleOrCustom, RoleOrCustomWhere } from '../literals/roleorcustom';
 export interface EnumLiteralRef {
   id: CerialId<string>;
-  access: RoleOrCustom;
+  visibility: RoleOrCustom;
 }
 
 export interface EnumLiteralRefInput {
   id?: string;
-  access: RoleOrCustom;
+  visibility: RoleOrCustom;
 }
 
 export interface EnumLiteralRefWhere {
@@ -546,7 +546,7 @@ export interface EnumLiteralRefWhere {
         in?: RecordIdInput<string>[];
         notIn?: RecordIdInput<string>[];
       } & {});
-  access?: RoleOrCustom | RoleOrCustomWhere;
+  visibility?: RoleOrCustom | RoleOrCustomWhere;
   AND?: EnumLiteralRefWhere[];
   OR?: EnumLiteralRefWhere[];
   NOT?: EnumLiteralRefWhere;
@@ -569,8 +569,8 @@ export type EnumLiteralRefUpdateInput = EnumLiteralRefUpdate;
 export type EnumLiteralRefUnset = {};
 
 export type EnumLiteralRefSelect =
-  | ({ id: boolean } & Partial<Record<'access', boolean>>)
-  | ({ access: boolean } & Partial<Record<'id', boolean>>);
+  | ({ id: boolean } & Partial<Record<'visibility', boolean>>)
+  | ({ visibility: boolean } & Partial<Record<'id', boolean>>);
 
 export interface EnumLiteralRefOrderBy {
   id?: 'asc' | 'desc';

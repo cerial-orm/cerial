@@ -76,12 +76,12 @@ Test.checks([
 
 // TreeNode has value and recursive children
 Test.checks([
-  Test.check<TreeNode['value'], number, Test.Pass>(),
+  Test.check<TreeNode['payload'], number, Test.Pass>(),
   Test.check<TreeNode['children'], TreeNode[], Test.Pass>(),
 ]);
 
 // TreeNode recursive type compiles
-Test.checks([Test.check<Extends<{ value: 1; children: [{ value: 2; children: [] }] }, TreeNode>, 1, Test.Pass>()]);
+Test.checks([Test.check<Extends<{ payload: 1; children: [{ payload: 2; children: [] }] }, TreeNode>, 1, Test.Pass>()]);
 
 // OrderItem has all fields
 Test.checks([
@@ -287,16 +287,16 @@ Test.checks([
 // =============================================================================
 
 // TreeNode type compiles without infinite type error
-const _treeNode: TreeNode = { value: 1, children: [{ value: 2, children: [] }] };
+const _treeNode: TreeNode = { payload: 1, children: [{ payload: 2, children: [] }] };
 
 // TreeNodeWhere compiles without infinite type error
-const _treeWhere: TreeNodeWhere = { children: { some: { value: { gt: 0 } } } };
+const _treeWhere: TreeNodeWhere = { children: { some: { payload: { gt: 0 } } } };
 
 // TreeNodeSelect compiles
-const _treeSelect: TreeNodeSelect = { value: true, children: { value: true } };
+const _treeSelect: TreeNodeSelect = { payload: true, children: { payload: true } };
 
 // TreeNodeOrderBy compiles
-const _treeOrderBy: TreeNodeOrderBy = { children: { value: 'asc' } };
+const _treeOrderBy: TreeNodeOrderBy = { children: { payload: 'asc' } };
 
 // =============================================================================
 // GetPayload Type Inference — Object Sub-Field Select

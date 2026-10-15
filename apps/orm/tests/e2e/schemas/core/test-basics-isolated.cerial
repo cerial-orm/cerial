@@ -30,7 +30,7 @@ model BasicsProfile {
 model BasicsPost {
   id Record @id
   title String
-  content String?
+  body String?
   authorId Record
   author Relation @field(authorId) @model(BasicsUser)
 }

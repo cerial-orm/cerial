@@ -117,7 +117,7 @@
         {
           "decorators": [],
           "isOptional": false,
-          "name": "content",
+          "name": "body",
           "type": "bytes"
         },
         {

@@ -799,12 +799,12 @@ export interface ReadonlyAddressOrderBy {
 
 export interface ReadonlyMeta {
   label: string;
-  value: number;
+  payload: number;
 }
 
 export interface ReadonlyMetaInput {
   label: string;
-  value: number;
+  payload: number;
 }
 
 export interface ReadonlyMetaWhere {
@@ -821,7 +821,7 @@ export interface ReadonlyMetaWhere {
         in?: string[];
         notIn?: string[];
       } & {});
-  value?:
+  payload?:
     | number
     | ({
         eq?: number;
@@ -842,10 +842,10 @@ export interface ReadonlyMetaWhere {
 }
 
 export type ReadonlyMetaSelect =
-  | ({ label: boolean } & Partial<Record<'value', boolean>>)
-  | ({ value: boolean } & Partial<Record<'label', boolean>>);
+  | ({ label: boolean } & Partial<Record<'payload', boolean>>)
+  | ({ payload: boolean } & Partial<Record<'label', boolean>>);
 
 export interface ReadonlyMetaOrderBy {
   label?: 'asc' | 'desc';
-  value?: 'asc' | 'desc';
+  payload?: 'asc' | 'desc';
 }

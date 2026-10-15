@@ -204,7 +204,7 @@ object Route {
     test('should parse self-referencing object with array', () => {
       const schema = `
 object TreeNode {
-  value Int
+  payload Int
   children TreeNode[]
 }
 `;
@@ -220,7 +220,7 @@ object TreeNode {
     test('should parse self-referencing object with optional field', () => {
       const schema = `
 object TreeNode {
-  value Int
+  payload Int
   parent TreeNode?
 }
 `;
@@ -350,7 +350,7 @@ model User {
   address Address
 }
 
-model Order {
+model PurchaseOrder {
   id Record @id
   billingAddress Address
 }

@@ -1,7 +1,7 @@
 -- BasicsPost
 DEFINE TABLE OVERWRITE basics_post SCHEMAFULL;
 DEFINE FIELD OVERWRITE title ON TABLE basics_post TYPE string;
-DEFINE FIELD OVERWRITE content ON TABLE basics_post TYPE option<string>;
+DEFINE FIELD OVERWRITE body ON TABLE basics_post TYPE option<string>;
 DEFINE FIELD OVERWRITE authorId ON TABLE basics_post TYPE record<basics_user>;
 
 -- BasicsProfile

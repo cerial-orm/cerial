@@ -16,7 +16,7 @@ tuple Named extends Pair {
 
 tuple PrivTuple {
   secret Float !!private,
-  value Float
+  payload Float
 }
 
 

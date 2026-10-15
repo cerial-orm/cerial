@@ -127,7 +127,7 @@ Test.checks([
 
 // Select deepest object field
 type DeepPayloadDeep = GetTupleDeepNestPayload<{
-  deep: { 1: { 1: { pos: { 1: { value: true } } } } };
+  deep: { 1: { 1: { pos: { 1: { payload: true } } } } };
 }>;
 Test.checks([
   Test.check<DeepPayloadDeep['deep'][0], string, Test.Pass>(),
@@ -136,6 +136,6 @@ Test.checks([
   Test.check<HasKey<DeepPayloadDeep['deep'][1][1], 'pos'>, 1, Test.Pass>(),
   // Inner tuple element 0 preserved as number
   Test.check<DeepPayloadDeep['deep'][1][1]['pos'][0], number, Test.Pass>(),
-  // Deepest object narrowed to { value: string }
-  Test.check<DeepPayloadDeep['deep'][1][1]['pos'][1], { value: string }, Test.Pass>(),
+  // Deepest object narrowed to { payload: string }
+  Test.check<DeepPayloadDeep['deep'][1][1]['pos'][1], { payload: string }, Test.Pass>(),
 ]);

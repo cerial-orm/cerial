@@ -99,12 +99,12 @@ Test.checks([Test.check<Extends<{ payload: true }, BytesBasicSelect>, 1, Test.Pa
 // =============================================================================
 
 Test.checks([
-  Test.check<HasKey<BytesInfoCreateInput, 'content'>, 1, Test.Pass>(),
+  Test.check<HasKey<BytesInfoCreateInput, 'body'>, 1, Test.Pass>(),
   Test.check<HasKey<BytesInfoCreateInput, 'extra'>, 1, Test.Pass>(),
 ]);
 
 // content is required, extra is optional
-const _minObjCreate: BytesInfoCreateInput = { content: new Uint8Array([1]) };
+const _minObjCreate: BytesInfoCreateInput = { body: new Uint8Array([1]) };
 
 // =============================================================================
 // BytesPair Tuple — output is [CerialBytes, CerialBytes | null]

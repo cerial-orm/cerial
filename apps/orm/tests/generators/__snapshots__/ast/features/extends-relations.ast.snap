@@ -200,7 +200,7 @@
         {
           "decorators": [],
           "isOptional": true,
-          "name": "content",
+          "name": "body",
           "type": "string"
         },
         {
@@ -268,7 +268,7 @@
         {
           "decorators": [],
           "isOptional": true,
-          "name": "content",
+          "name": "body",
           "type": "string"
         },
         {
@@ -607,7 +607,7 @@
         {
           "decorators": [],
           "isOptional": true,
-          "name": "content",
+          "name": "body",
           "type": "string"
         },
         {
@@ -718,7 +718,7 @@
         {
           "decorators": [],
           "isOptional": false,
-          "name": "content",
+          "name": "body",
           "type": "string"
         },
         {
@@ -780,7 +780,7 @@
         {
           "decorators": [],
           "isOptional": false,
-          "name": "content",
+          "name": "body",
           "type": "string"
         },
         {
@@ -842,7 +842,7 @@
         {
           "decorators": [],
           "isOptional": false,
-          "name": "content",
+          "name": "body",
           "type": "string"
         },
         {

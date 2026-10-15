@@ -12,7 +12,7 @@ object GeoPoint {
 }
 
 object TreeNode {
-  value Int
+  payload Int
   children TreeNode[]
 }
 

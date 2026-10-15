@@ -36,50 +36,50 @@ describe('E2E Literals: Broad Types', () => {
   describe('create with broad literal', () => {
     test('should create with string value', async () => {
       const result = await client.db.LiteralBroad.create({
-        data: { value: 'hello' },
+        data: { payload: 'hello' },
       });
 
       expect(isCerialId(result.id)).toBe(true);
-      expect(result.value).toBe('hello');
+      expect(result.payload).toBe('hello');
     });
 
     test('should create with int value', async () => {
       const result = await client.db.LiteralBroad.create({
-        data: { value: 42 },
+        data: { payload: 42 },
       });
 
-      expect(result.value).toBe(42);
+      expect(result.payload).toBe(42);
     });
 
     test('should create with empty string', async () => {
       const result = await client.db.LiteralBroad.create({
-        data: { value: '' },
+        data: { payload: '' },
       });
 
-      expect(result.value).toBe('');
+      expect(result.payload).toBe('');
     });
 
     test('should create with zero', async () => {
       const result = await client.db.LiteralBroad.create({
-        data: { value: 0 },
+        data: { payload: 0 },
       });
 
-      expect(result.value).toBe(0);
+      expect(result.payload).toBe(0);
     });
 
     test('should create with negative int', async () => {
       const result = await client.db.LiteralBroad.create({
-        data: { value: -10 },
+        data: { payload: -10 },
       });
 
-      expect(result.value).toBe(-10);
+      expect(result.payload).toBe(-10);
     });
   });
 
   describe('array of broad literal', () => {
     test('should create with array of mixed broad types', async () => {
       const result = await client.db.LiteralBroad.create({
-        data: { value: 'x', values: ['hello', 42, 'world', 0] },
+        data: { payload: 'x', values: ['hello', 42, 'world', 0] },
       });
 
       expect(result.values).toEqual(['hello', 42, 'world', 0]);
@@ -87,7 +87,7 @@ describe('E2E Literals: Broad Types', () => {
 
     test('should create with empty array', async () => {
       const result = await client.db.LiteralBroad.create({
-        data: { value: 'x', values: [] },
+        data: { payload: 'x', values: [] },
       });
 
       expect(result.values).toEqual([]);
@@ -95,7 +95,7 @@ describe('E2E Literals: Broad Types', () => {
 
     test('should default array to empty when omitted', async () => {
       const result = await client.db.LiteralBroad.create({
-        data: { value: 'x' },
+        data: { payload: 'x' },
       });
 
       expect(result.values).toEqual([]);
@@ -103,7 +103,7 @@ describe('E2E Literals: Broad Types', () => {
 
     test('should create with all string values', async () => {
       const result = await client.db.LiteralBroad.create({
-        data: { value: 'x', values: ['a', 'b', 'c'] },
+        data: { payload: 'x', values: ['a', 'b', 'c'] },
       });
 
       expect(result.values).toEqual(['a', 'b', 'c']);
@@ -111,7 +111,7 @@ describe('E2E Literals: Broad Types', () => {
 
     test('should create with all int values', async () => {
       const result = await client.db.LiteralBroad.create({
-        data: { value: 'x', values: [1, 2, 3] },
+        data: { payload: 'x', values: [1, 2, 3] },
       });
 
       expect(result.values).toEqual([1, 2, 3]);
@@ -121,33 +121,33 @@ describe('E2E Literals: Broad Types', () => {
   describe('update broad literal', () => {
     test('should update from string to int', async () => {
       const created = await client.db.LiteralBroad.create({
-        data: { value: 'hello' },
+        data: { payload: 'hello' },
       });
 
       const updated = await client.db.LiteralBroad.updateUnique({
         where: { id: created.id },
-        data: { value: 99 },
+        data: { payload: 99 },
       });
 
-      expect(updated!.value).toBe(99);
+      expect(updated!.payload).toBe(99);
     });
 
     test('should update from int to string', async () => {
       const created = await client.db.LiteralBroad.create({
-        data: { value: 42 },
+        data: { payload: 42 },
       });
 
       const updated = await client.db.LiteralBroad.updateUnique({
         where: { id: created.id },
-        data: { value: 'changed' },
+        data: { payload: 'changed' },
       });
 
-      expect(updated!.value).toBe('changed');
+      expect(updated!.payload).toBe('changed');
     });
 
     test('should update array with direct assignment', async () => {
       const created = await client.db.LiteralBroad.create({
-        data: { value: 'x', values: ['a', 1] },
+        data: { payload: 'x', values: ['a', 1] },
       });
 
       const updated = await client.db.LiteralBroad.updateUnique({
@@ -160,7 +160,7 @@ describe('E2E Literals: Broad Types', () => {
 
     test('should push to array of broad literals', async () => {
       const created = await client.db.LiteralBroad.create({
-        data: { value: 'x', values: ['a'] },
+        data: { payload: 'x', values: ['a'] },
       });
 
       const updated = await client.db.LiteralBroad.updateUnique({
@@ -175,8 +175,8 @@ describe('E2E Literals: Broad Types', () => {
 
   describe('findMany broad literal', () => {
     test('should find all records', async () => {
-      await client.db.LiteralBroad.create({ data: { value: 'hello' } });
-      await client.db.LiteralBroad.create({ data: { value: 42 } });
+      await client.db.LiteralBroad.create({ data: { payload: 'hello' } });
+      await client.db.LiteralBroad.create({ data: { payload: 42 } });
 
       const results = await client.db.LiteralBroad.findMany();
 

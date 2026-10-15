@@ -22,7 +22,7 @@ DEFINE FIELD OVERWRITE priority ON TABLE ext_l4_concrete TYPE int DEFAULT 0;
 DEFINE TABLE OVERWRITE ext_l4_omit_concrete SCHEMAFULL;
 DEFINE FIELD OVERWRITE createdAt ON TABLE ext_l4_omit_concrete TYPE option<datetime> DEFAULT time::now();
 DEFINE FIELD OVERWRITE name ON TABLE ext_l4_omit_concrete TYPE string;
-DEFINE FIELD OVERWRITE type ON TABLE ext_l4_omit_concrete TYPE string;
+DEFINE FIELD OVERWRITE kind ON TABLE ext_l4_omit_concrete TYPE string;
 DEFINE FIELD OVERWRITE subtype ON TABLE ext_l4_omit_concrete TYPE option<string>;
 DEFINE FIELD OVERWRITE version ON TABLE ext_l4_omit_concrete TYPE int DEFAULT 1;
 

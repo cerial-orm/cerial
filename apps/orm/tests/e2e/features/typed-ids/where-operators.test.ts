@@ -124,8 +124,8 @@ describe('E2E Typed IDs: WHERE Operators', () => {
 
   describe('StringIdModel WHERE operators', () => {
     test('eq operator on string id', async () => {
-      await client.db.StringIdModel.create({ data: { id: 'abc', value: 'found' } });
-      await client.db.StringIdModel.create({ data: { id: 'xyz', value: 'other' } });
+      await client.db.StringIdModel.create({ data: { id: 'abc', payload: 'found' } });
+      await client.db.StringIdModel.create({ data: { id: 'xyz', payload: 'other' } });
 
       const results = await client.db.StringIdModel.findMany({
         where: { id: { eq: 'abc' } },
@@ -136,9 +136,9 @@ describe('E2E Typed IDs: WHERE Operators', () => {
     });
 
     test('in operator on string id', async () => {
-      await client.db.StringIdModel.create({ data: { id: 'a', value: 'v1' } });
-      await client.db.StringIdModel.create({ data: { id: 'b', value: 'v2' } });
-      await client.db.StringIdModel.create({ data: { id: 'c', value: 'v3' } });
+      await client.db.StringIdModel.create({ data: { id: 'a', payload: 'v1' } });
+      await client.db.StringIdModel.create({ data: { id: 'b', payload: 'v2' } });
+      await client.db.StringIdModel.create({ data: { id: 'c', payload: 'v3' } });
 
       const results = await client.db.StringIdModel.findMany({
         where: { id: { in: ['a', 'b'] } },
@@ -150,8 +150,8 @@ describe('E2E Typed IDs: WHERE Operators', () => {
     });
 
     test('neq operator on string id', async () => {
-      await client.db.StringIdModel.create({ data: { id: 'keep', value: 'v1' } });
-      await client.db.StringIdModel.create({ data: { id: 'remove', value: 'v2' } });
+      await client.db.StringIdModel.create({ data: { id: 'keep', payload: 'v1' } });
+      await client.db.StringIdModel.create({ data: { id: 'remove', payload: 'v2' } });
 
       const results = await client.db.StringIdModel.findMany({
         where: { id: { neq: 'remove' } },

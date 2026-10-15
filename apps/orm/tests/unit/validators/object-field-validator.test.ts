@@ -252,7 +252,7 @@ object User {
     test('should error on required self-referencing field', () => {
       const schema = `
 object TreeNode {
-  value Int
+  payload Int
   self TreeNode
 }
 `;

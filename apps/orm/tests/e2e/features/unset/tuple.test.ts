@@ -93,7 +93,7 @@ describe('Unset: Tuple Fields', () => {
         name: 'T3',
         address: { street: 'C', city: 'NYC' },
         pos: [40.0, -74.0],
-        tagged: ['my-tag', { value: 'hello', extra: 'world' }],
+        tagged: ['my-tag', { payload: 'hello', extra: 'world' }],
         nested: NESTED,
       },
     });
@@ -107,7 +107,7 @@ describe('Unset: Tuple Fields', () => {
     expect(updated!.tagged).toBeDefined();
     expect(updated!.tagged![0]).toBe('my-tag');
     const inner = updated!.tagged![1] as unknown as Record<string, unknown>;
-    expect(inner.value).toBe('hello');
+    expect(inner.payload).toBe('hello');
     expect(inner.extra).toBeUndefined();
   });
 

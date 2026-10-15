@@ -213,16 +213,16 @@ describe('E2E Extends: Multi-Level Chains', () => {
 
   describe('Omit at intermediate level', () => {
     // ExtL4OmitConcrete: L3Omit extends L2Mid[!description]
-    // Fields: id, createdAt, name, type, subtype?, version
+    // Fields: id, createdAt, name, kind, subtype?, version
 
     test('omitted field (description) is absent', async () => {
       const result = await client.db.ExtL4OmitConcrete.create({
-        data: { name: 'OmitTest', type: 'typeA' },
+        data: { name: 'OmitTest', kind: 'typeA' },
       });
 
       expect(result.id).toBeInstanceOf(CerialId);
       expect(result.name).toBe('OmitTest'); // name from L2 (not omitted)
-      expect(result.type).toBe('typeA'); // from L3Omit
+      expect(result.kind).toBe('typeA'); // from L3Omit
       expect(result.version).toBe(1); // @default(1) from L4
       expect('description' in result).toBe(false); // omitted at L3
     });
@@ -235,14 +235,14 @@ describe('E2E Extends: Multi-Level Chains', () => {
       expect(fieldNames).toContain('createdAt');
       expect(fieldNames).toContain('name');
       expect(fieldNames).not.toContain('description'); // omitted
-      expect(fieldNames).toContain('type');
+      expect(fieldNames).toContain('kind');
       expect(fieldNames).toContain('subtype');
       expect(fieldNames).toContain('version');
     });
 
     test('CRUD without description field', async () => {
       const created = await client.db.ExtL4OmitConcrete.create({
-        data: { name: 'Crud', type: 'test', subtype: 'sub' },
+        data: { name: 'Crud', kind: 'test', subtype: 'sub' },
       });
 
       const found = await client.db.ExtL4OmitConcrete.findOne({
@@ -254,9 +254,9 @@ describe('E2E Extends: Multi-Level Chains', () => {
 
       const updated = await client.db.ExtL4OmitConcrete.updateMany({
         where: { id: created.id },
-        data: { type: 'updated-type' },
+        data: { kind: 'updated-type' },
       });
-      expect(updated[0]!.type).toBe('updated-type');
+      expect(updated[0]!.kind).toBe('updated-type');
     });
   });
 
@@ -313,7 +313,7 @@ describe('E2E Extends: Multi-Level Chains', () => {
         data: { name: 'BranchC', category: 'cat' },
       });
       await client.db.ExtL4OmitConcrete.create({
-        data: { name: 'BranchD', type: 'omit' },
+        data: { name: 'BranchD', kind: 'omit' },
       });
 
       const concretes = await client.db.ExtL4Concrete.findMany();

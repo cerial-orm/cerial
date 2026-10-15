@@ -206,7 +206,7 @@ describe('Literal Decorator Validator', () => {
     test('should fail for @onDelete on literal model field (relation decorator)', () => {
       const ast = createAST([
         createModel({
-          name: 'Order',
+          name: 'PurchaseOrder',
           fields: [
             createField({
               name: 'status',

@@ -361,7 +361,7 @@ export const modelRegistry: ModelRegistry = {
         isRequired: false,
       },
       {
-        name: 'access',
+        name: 'visibility',
         type: 'literal',
         isId: false,
         isUnique: false,
@@ -587,7 +587,7 @@ export const modelRegistry: ModelRegistry = {
         isRequired: false,
       },
       {
-        name: 'value',
+        name: 'payload',
         type: 'literal',
         isId: false,
         isUnique: false,
@@ -952,7 +952,7 @@ export const modelRegistry: ModelRegistry = {
                     isRequired: true,
                   },
                   {
-                    name: 'value',
+                    name: 'payload',
                     type: 'int',
                     isId: false,
                     isUnique: false,
@@ -994,7 +994,7 @@ export const modelRegistry: ModelRegistry = {
                     isRequired: true,
                   },
                   {
-                    name: 'value',
+                    name: 'payload',
                     type: 'int',
                     isId: false,
                     isUnique: false,
@@ -1037,7 +1037,7 @@ export const modelRegistry: ModelRegistry = {
                     isRequired: true,
                   },
                   {
-                    name: 'value',
+                    name: 'payload',
                     type: 'int',
                     isId: false,
                     isUnique: false,
@@ -1107,7 +1107,7 @@ export const modelRegistry: ModelRegistry = {
                     isRequired: true,
                   },
                   {
-                    name: 'value',
+                    name: 'payload',
                     type: 'int',
                     isId: false,
                     isUnique: false,
@@ -1161,7 +1161,7 @@ export const modelRegistry: ModelRegistry = {
                     isRequired: true,
                   },
                   {
-                    name: 'value',
+                    name: 'payload',
                     type: 'int',
                     isId: false,
                     isUnique: false,
@@ -2940,7 +2940,7 @@ export const modelRegistry: ModelRegistry = {
           objectName: 'TreeNode',
           fields: [
             {
-              name: 'value',
+              name: 'payload',
               type: 'int',
               isId: false,
               isUnique: false,
@@ -3424,7 +3424,7 @@ export const modelRegistry: ModelRegistry = {
                                   objectName: 'DeepInnerObj',
                                   fields: [
                                     {
-                                      name: 'value',
+                                      name: 'payload',
                                       type: 'string',
                                       isId: false,
                                       isUnique: false,
@@ -3521,7 +3521,7 @@ export const modelRegistry: ModelRegistry = {
                                   objectName: 'DeepInnerObj',
                                   fields: [
                                     {
-                                      name: 'value',
+                                      name: 'payload',
                                       type: 'string',
                                       isId: false,
                                       isUnique: false,
@@ -3975,7 +3975,7 @@ export const modelRegistry: ModelRegistry = {
         isRequired: true,
       },
       {
-        name: 'content',
+        name: 'body',
         type: 'string',
         isId: false,
         isUnique: false,
@@ -4273,7 +4273,7 @@ export const modelRegistry: ModelRegistry = {
         isRequired: true,
       },
       {
-        name: 'content',
+        name: 'body',
         type: 'string',
         isId: false,
         isUnique: false,
@@ -4649,7 +4649,7 @@ export const modelRegistry: ModelRegistry = {
           objectName: 'BytesInfo',
           fields: [
             {
-              name: 'content',
+              name: 'body',
               type: 'bytes',
               isId: false,
               isUnique: false,
@@ -4951,7 +4951,7 @@ export const modelRegistry: ModelRegistry = {
         isRequired: true,
       },
       {
-        name: 'timeout',
+        name: 'expiry',
         type: 'duration',
         isId: false,
         isUnique: false,
@@ -8059,7 +8059,7 @@ export const modelRegistry: ModelRegistry = {
               isReadonly: true,
             },
             {
-              name: 'value',
+              name: 'payload',
               type: 'int',
               isId: false,
               isUnique: false,
@@ -10353,7 +10353,7 @@ export const modelRegistry: ModelRegistry = {
         isRequired: true,
       },
       {
-        name: 'type',
+        name: 'kind',
         type: 'string',
         isId: false,
         isUnique: false,
@@ -11130,7 +11130,7 @@ export const modelRegistry: ModelRegistry = {
         isRequired: true,
       },
       {
-        name: 'content',
+        name: 'body',
         type: 'string',
         isId: false,
         isUnique: false,
@@ -11400,7 +11400,7 @@ export const modelRegistry: ModelRegistry = {
         isRequired: true,
       },
       {
-        name: 'content',
+        name: 'body',
         type: 'string',
         isId: false,
         isUnique: false,
@@ -11522,7 +11522,7 @@ export const modelRegistry: ModelRegistry = {
         isRequired: false,
       },
       {
-        name: 'content',
+        name: 'body',
         type: 'string',
         isId: false,
         isUnique: false,
@@ -11589,7 +11589,7 @@ export const modelRegistry: ModelRegistry = {
         isRequired: false,
       },
       {
-        name: 'content',
+        name: 'body',
         type: 'string',
         isId: false,
         isUnique: false,
@@ -11938,7 +11938,7 @@ export const modelRegistry: ModelRegistry = {
         recordIdTypes: ['string'],
       },
       {
-        name: 'value',
+        name: 'payload',
         type: 'string',
         isId: false,
         isUnique: false,
@@ -12016,7 +12016,7 @@ export const modelRegistry: ModelRegistry = {
         recordIdTypes: ['IdMetricKey'],
       },
       {
-        name: 'value',
+        name: 'payload',
         type: 'float',
         isId: false,
         isUnique: false,
@@ -12402,7 +12402,7 @@ export const modelRegistry: ModelRegistry = {
                 objectName: 'UnsetInner',
                 fields: [
                   {
-                    name: 'value',
+                    name: 'payload',
                     type: 'string',
                     isId: false,
                     isUnique: false,
@@ -12704,7 +12704,7 @@ export const modelRegistry: ModelRegistry = {
           objectName: 'UnsetTreeNode',
           fields: [
             {
-              name: 'value',
+              name: 'payload',
               type: 'string',
               isId: false,
               isUnique: false,
@@ -13328,7 +13328,7 @@ export const modelRegistry: ModelRegistry = {
         timestampDecorator: undefined,
         isRequired: true,
         isArray: true,
-        relationInfo: { targetModel: 'Order', targetTable: 'order', isReverse: true },
+        relationInfo: { targetModel: 'PurchaseOrder', targetTable: 'purchase_order', isReverse: true },
       },
     ],
     compositeDirectives: [],
@@ -13364,14 +13364,14 @@ export const modelRegistry: ModelRegistry = {
         timestampDecorator: undefined,
         isRequired: true,
         isArray: true,
-        relationInfo: { targetModel: 'Order', targetTable: 'order', isReverse: true },
+        relationInfo: { targetModel: 'PurchaseOrder', targetTable: 'purchase_order', isReverse: true },
       },
     ],
     compositeDirectives: [],
   },
-  Order: {
-    name: 'Order',
-    tableName: 'order',
+  PurchaseOrder: {
+    name: 'PurchaseOrder',
+    tableName: 'purchase_order',
     fields: [
       {
         name: 'id',
@@ -13714,7 +13714,7 @@ export const modelRegistry: ModelRegistry = {
         isRequired: true,
       },
       {
-        name: 'content',
+        name: 'body',
         type: 'string',
         isId: false,
         isUnique: false,
@@ -14777,7 +14777,7 @@ export const objectRegistry: ObjectRegistry = {
         isRequired: true,
       },
       {
-        name: 'value',
+        name: 'payload',
         type: 'int',
         isId: false,
         isUnique: false,
@@ -15386,7 +15386,7 @@ export const objectRegistry: ObjectRegistry = {
     name: 'TreeNode',
     fields: [
       {
-        name: 'value',
+        name: 'payload',
         type: 'int',
         isId: false,
         isUnique: false,
@@ -15407,7 +15407,7 @@ export const objectRegistry: ObjectRegistry = {
           objectName: 'TreeNode',
           fields: [
             {
-              name: 'value',
+              name: 'payload',
               type: 'int',
               isId: false,
               isUnique: false,
@@ -15546,7 +15546,7 @@ export const objectRegistry: ObjectRegistry = {
     name: 'DeepInnerObj',
     fields: [
       {
-        name: 'value',
+        name: 'payload',
         type: 'string',
         isId: false,
         isUnique: false,
@@ -15606,7 +15606,7 @@ export const objectRegistry: ObjectRegistry = {
                 objectName: 'DeepInnerObj',
                 fields: [
                   {
-                    name: 'value',
+                    name: 'payload',
                     type: 'string',
                     isId: false,
                     isUnique: false,
@@ -15658,7 +15658,7 @@ export const objectRegistry: ObjectRegistry = {
     name: 'BytesInfo',
     fields: [
       {
-        name: 'content',
+        name: 'body',
         type: 'bytes',
         isId: false,
         isUnique: false,
@@ -16046,7 +16046,7 @@ export const objectRegistry: ObjectRegistry = {
         isReadonly: true,
       },
       {
-        name: 'value',
+        name: 'payload',
         type: 'int',
         isId: false,
         isUnique: false,
@@ -16928,7 +16928,7 @@ export const objectRegistry: ObjectRegistry = {
     name: 'UnsetInner',
     fields: [
       {
-        name: 'value',
+        name: 'payload',
         type: 'string',
         isId: false,
         isUnique: false,
@@ -17116,7 +17116,7 @@ export const objectRegistry: ObjectRegistry = {
     name: 'UnsetTreeNode',
     fields: [
       {
-        name: 'value',
+        name: 'payload',
         type: 'string',
         isId: false,
         isUnique: false,
@@ -17145,7 +17145,7 @@ export const objectRegistry: ObjectRegistry = {
           objectName: 'UnsetTreeNode',
           fields: [
             {
-              name: 'value',
+              name: 'payload',
               type: 'string',
               isId: false,
               isUnique: false,
@@ -17467,7 +17467,7 @@ export const tupleRegistry: TupleRegistry = {
           objectName: 'DeepInnerObj',
           fields: [
             {
-              name: 'value',
+              name: 'payload',
               type: 'string',
               isId: false,
               isUnique: false,
@@ -17538,7 +17538,7 @@ export const tupleRegistry: TupleRegistry = {
                       objectName: 'DeepInnerObj',
                       fields: [
                         {
-                          name: 'value',
+                          name: 'payload',
                           type: 'string',
                           isId: false,
                           isUnique: false,
@@ -17623,7 +17623,7 @@ export const tupleRegistry: TupleRegistry = {
                             objectName: 'DeepInnerObj',
                             fields: [
                               {
-                                name: 'value',
+                                name: 'payload',
                                 type: 'string',
                                 isId: false,
                                 isUnique: false,
@@ -17933,7 +17933,7 @@ export const tupleRegistry: TupleRegistry = {
           objectName: 'UnsetInner',
           fields: [
             {
-              name: 'value',
+              name: 'payload',
               type: 'string',
               isId: false,
               isUnique: false,
@@ -18150,7 +18150,7 @@ export const literalRegistry: LiteralRegistry = {
               isRequired: true,
             },
             {
-              name: 'value',
+              name: 'payload',
               type: 'int',
               isId: false,
               isUnique: false,
@@ -18195,7 +18195,7 @@ export const literalRegistry: LiteralRegistry = {
               isRequired: true,
             },
             {
-              name: 'value',
+              name: 'payload',
               type: 'int',
               isId: false,
               isUnique: false,

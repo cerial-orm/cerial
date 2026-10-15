@@ -33,14 +33,14 @@ import type {
 export interface Post {
   id: CerialId<string>;
   title: string;
-  content?: string;
+  body?: string;
   authorId: CerialId<string>;
 }
 
 export interface PostInput {
   id?: string;
   title: string;
-  content?: string;
+  body?: string;
   authorId: RecordIdInput<string>;
 }
 
@@ -71,7 +71,7 @@ export interface PostWhere {
         in?: string[];
         notIn?: string[];
       } & {});
-  content?:
+  body?:
     | string
     | ({
         eq?: string;
@@ -110,9 +110,9 @@ export type PostWhereInput = PostWhere;
 
 export type PostFindUniqueWhere = { id: RecordIdInput<string> } & Omit<PostWhere, 'id'>;
 
-export type PostCreate = O.Optional<O.Omit<PostInput, 'author'>, 'id' | 'content'>;
+export type PostCreate = O.Optional<O.Omit<PostInput, 'author'>, 'id' | 'body'>;
 
-export type PostNestedCreate = O.Optional<O.Omit<PostInput, 'author' | 'authorId'>, 'id' | 'content'>;
+export type PostNestedCreate = O.Optional<O.Omit<PostInput, 'author' | 'authorId'>, 'id' | 'body'>;
 
 export type PostCreateInput =
   | PostCreate
@@ -120,8 +120,8 @@ export type PostCreateInput =
       author: { create: UserNestedCreate } | { connect: RecordIdInput };
     });
 
-export type PostUpdate = Partial<O.Omit<PostInput, 'id' | 'author' | 'content'>> & {
-  content?: string | CerialNone;
+export type PostUpdate = Partial<O.Omit<PostInput, 'id' | 'author' | 'body'>> & {
+  body?: string | CerialNone;
 };
 
 export type PostUpdateInput =
@@ -131,19 +131,19 @@ export type PostUpdateInput =
     });
 
 export type PostUnset = {
-  content?: true;
+  body?: true;
 };
 
 export type PostSelect =
-  | ({ id: boolean } & Partial<Record<'title' | 'content' | 'authorId', boolean>>)
-  | ({ title: boolean } & Partial<Record<'id' | 'content' | 'authorId', boolean>>)
-  | ({ content: boolean } & Partial<Record<'id' | 'title' | 'authorId', boolean>>)
-  | ({ authorId: boolean } & Partial<Record<'id' | 'title' | 'content', boolean>>);
+  | ({ id: boolean } & Partial<Record<'title' | 'body' | 'authorId', boolean>>)
+  | ({ title: boolean } & Partial<Record<'id' | 'body' | 'authorId', boolean>>)
+  | ({ body: boolean } & Partial<Record<'id' | 'title' | 'authorId', boolean>>)
+  | ({ authorId: boolean } & Partial<Record<'id' | 'title' | 'body', boolean>>);
 
 export interface PostOrderBy {
   id?: 'asc' | 'desc';
   title?: 'asc' | 'desc';
-  content?: 'asc' | 'desc';
+  body?: 'asc' | 'desc';
   authorId?: 'asc' | 'desc';
   author?: UserOrderBy;
 }

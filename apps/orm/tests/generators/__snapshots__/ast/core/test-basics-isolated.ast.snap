@@ -222,7 +222,7 @@
         {
           "decorators": [],
           "isOptional": true,
-          "name": "content",
+          "name": "body",
           "type": "string"
         },
         {

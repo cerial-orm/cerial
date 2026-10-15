@@ -285,7 +285,7 @@ describe('Unset: Upsert', () => {
           address: { street: 'A', city: 'NYC' },
           pos: [40.0, -74.0],
           nested: NESTED,
-          tree: { value: 'root', extra: 'note' },
+          tree: { payload: 'root', extra: 'note' },
         },
       });
 
@@ -296,14 +296,14 @@ describe('Unset: Upsert', () => {
         unset: { tree: { extra: true } },
       });
 
-      expect(result!.tree!.value).toBe('root');
+      expect(result!.tree!.payload).toBe('root');
       expect(result!.tree!.extra).toBeUndefined();
     });
 
     test('create branch ignores self-referencing unset', async () => {
       const result = await client.db.UnsetTest.upsert({
         where: { id: 'upsert-sr-new' },
-        create: { ...CREATE_BASE, tree: { value: 'root', extra: 'keep' } },
+        create: { ...CREATE_BASE, tree: { payload: 'root', extra: 'keep' } },
         update: {},
         unset: { tree: { extra: true } },
       });

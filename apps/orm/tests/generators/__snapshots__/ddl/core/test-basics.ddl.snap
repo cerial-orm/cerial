@@ -1,7 +1,7 @@
 -- Post
 DEFINE TABLE OVERWRITE post SCHEMAFULL;
 DEFINE FIELD OVERWRITE title ON TABLE post TYPE string;
-DEFINE FIELD OVERWRITE content ON TABLE post TYPE option<string>;
+DEFINE FIELD OVERWRITE body ON TABLE post TYPE option<string>;
 DEFINE FIELD OVERWRITE authorId ON TABLE post TYPE record<user>;
 
 -- Profile

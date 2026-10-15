@@ -237,7 +237,7 @@ describe('E2E Relations', () => {
       const post1 = await client.db.Post.create({
         data: {
           title: 'First Post',
-          content: 'Content 1',
+          body: 'Content 1',
           authorId: user.id,
         },
       });
@@ -245,7 +245,7 @@ describe('E2E Relations', () => {
       const post2 = await client.db.Post.create({
         data: {
           title: 'Second Post',
-          content: 'Content 2',
+          body: 'Content 2',
           authorId: user.id,
         },
       });

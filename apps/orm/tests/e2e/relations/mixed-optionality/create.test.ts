@@ -4,7 +4,7 @@
  * Schema: mixed-optionality.cerial
  * - Customer: id, name, orders (Relation[])
  * - Agent: id, name, assignedOrders (Relation[])
- * - Order: id, orderNumber, customerId (Record), customer (Relation @field),
+ * - PurchaseOrder: id, orderNumber, customerId (Record), customer (Relation @field),
  *          assigneeId? (Record?), assignee (Relation? @field)
  *
  * Tests order with required customer and optional assignee.
@@ -43,7 +43,7 @@ describe('E2E Mixed Optionality: Create', () => {
         data: { name: 'Customer' },
       });
 
-      const order = await client.db.Order.create({
+      const order = await client.db.PurchaseOrder.create({
         data: {
           orderNumber: 'ORD-001',
           customer: { connect: customer.id },
@@ -55,7 +55,7 @@ describe('E2E Mixed Optionality: Create', () => {
     });
 
     test('should create order with nested customer create', async () => {
-      const order = await client.db.Order.create({
+      const order = await client.db.PurchaseOrder.create({
         data: {
           orderNumber: 'ORD-002',
           customer: {
@@ -82,7 +82,7 @@ describe('E2E Mixed Optionality: Create', () => {
         data: { name: 'Agent' },
       });
 
-      const order = await client.db.Order.create({
+      const order = await client.db.PurchaseOrder.create({
         data: {
           orderNumber: 'ORD-003',
           customer: { connect: customer.id },
@@ -99,7 +99,7 @@ describe('E2E Mixed Optionality: Create', () => {
         data: { name: 'Customer' },
       });
 
-      const order = await client.db.Order.create({
+      const order = await client.db.PurchaseOrder.create({
         data: {
           orderNumber: 'ORD-004',
           customer: { connect: customer.id },
@@ -124,14 +124,14 @@ describe('E2E Mixed Optionality: Create', () => {
         data: { name: 'Repeat Customer' },
       });
 
-      await client.db.Order.create({
+      await client.db.PurchaseOrder.create({
         data: { orderNumber: 'ORD-A', customer: { connect: customer.id } },
       });
-      await client.db.Order.create({
+      await client.db.PurchaseOrder.create({
         data: { orderNumber: 'ORD-B', customer: { connect: customer.id } },
       });
 
-      const orders = await client.db.Order.findMany({
+      const orders = await client.db.PurchaseOrder.findMany({
         where: { customerId: customer.id },
       });
 
@@ -146,14 +146,14 @@ describe('E2E Mixed Optionality: Create', () => {
         data: { name: 'Busy Agent' },
       });
 
-      await client.db.Order.create({
+      await client.db.PurchaseOrder.create({
         data: {
           orderNumber: 'ORD-X',
           customer: { connect: customer.id },
           assignee: { connect: agent.id },
         },
       });
-      await client.db.Order.create({
+      await client.db.PurchaseOrder.create({
         data: {
           orderNumber: 'ORD-Y',
           customer: { connect: customer.id },
@@ -161,7 +161,7 @@ describe('E2E Mixed Optionality: Create', () => {
         },
       });
 
-      const orders = await client.db.Order.findMany({
+      const orders = await client.db.PurchaseOrder.findMany({
         where: { assigneeId: agent.id },
       });
 

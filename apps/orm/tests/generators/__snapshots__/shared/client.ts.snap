@@ -204,7 +204,7 @@ import type {
   Label,
   Customer,
   Agent,
-  Order,
+  PurchaseOrder,
   Writer,
   Document,
   Publisher,
@@ -397,7 +397,7 @@ import type {
   LabelModel,
   CustomerModel,
   AgentModel,
-  OrderModel,
+  PurchaseOrderModel,
   WriterModel,
   DocumentModel,
   PublisherModel,
@@ -596,7 +596,7 @@ export interface TypedDb {
   Label: LabelModel;
   Customer: CustomerModel;
   Agent: AgentModel;
-  Order: OrderModel;
+  PurchaseOrder: PurchaseOrderModel;
   Writer: WriterModel;
   Document: DocumentModel;
   Publisher: PublisherModel;
@@ -1388,8 +1388,8 @@ export class CerialClient {
     return this._ensureDb().Agent;
   }
 
-  get Order(): OrderModel {
-    return this._ensureDb().Order;
+  get PurchaseOrder(): PurchaseOrderModel {
+    return this._ensureDb().PurchaseOrder;
   }
 
   get Writer(): WriterModel {

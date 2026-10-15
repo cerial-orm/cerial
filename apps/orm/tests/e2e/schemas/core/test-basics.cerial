@@ -29,7 +29,7 @@ model Profile {
 model Post {
   id Record @id
   title String
-  content String?
+  body String?
   authorId Record
   author Relation @field(authorId) @model(User)
 }

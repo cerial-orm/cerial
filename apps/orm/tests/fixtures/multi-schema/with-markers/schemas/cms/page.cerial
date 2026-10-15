@@ -2,5 +2,5 @@
 model MsMarkerCmsBlock {
   id Record @id
   name String
-  type String
+  kind String
 }

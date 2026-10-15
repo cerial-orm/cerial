@@ -186,7 +186,7 @@
           "isIndexed": false,
           "isRequired": true,
           "isUnique": false,
-          "name": "value",
+          "name": "payload",
           "type": "float"
         }
       ],
@@ -258,7 +258,7 @@
           "isIndexed": false,
           "isRequired": true,
           "isUnique": false,
-          "name": "value",
+          "name": "payload",
           "type": "string"
         }
       ],

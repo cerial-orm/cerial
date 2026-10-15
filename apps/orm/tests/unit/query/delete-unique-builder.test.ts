@@ -62,7 +62,7 @@ model User {
   name String
 }
 
-model Order {
+model PurchaseOrder {
   id Record @id
   total Float
   userId Record?
@@ -223,9 +223,9 @@ describe('delete-unique-builder', () => {
         const query = buildDeleteUniqueWithCascade(userModel, where, registry, false);
 
         expect(query.text).toContain('BEGIN TRANSACTION');
-        expect(query.text).toContain('LET $has_order_deps');
-        expect(query.text).toContain('SELECT count() as cnt FROM order WHERE userId IN $to_delete');
-        expect(query.text).toContain('IF $has_order_deps > 0 { THROW');
+        expect(query.text).toContain('LET $has_purchase_order_deps');
+        expect(query.text).toContain('SELECT count() as cnt FROM purchase_order WHERE userId IN $to_delete');
+        expect(query.text).toContain('IF $has_purchase_order_deps > 0 { THROW');
         expect(query.text).toContain('@onDelete(Restrict)');
         expect(query.text).toContain('DELETE $deleteId');
         expect(query.text).toContain('COMMIT TRANSACTION');

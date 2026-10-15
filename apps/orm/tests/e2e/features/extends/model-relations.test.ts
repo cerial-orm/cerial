@@ -41,12 +41,12 @@ describe('E2E Extends: Relations with Inheritance', () => {
       expect(author.bio).toBe('Writer');
 
       const post = await client.db.ExtRelBlogPost.create({
-        data: { title: 'First Post', content: 'Hello', authorId: author.id },
+        data: { title: 'First Post', body: 'Hello', authorId: author.id },
       });
 
       expect(post.id).toBeInstanceOf(CerialId);
       expect(post.title).toBe('First Post');
-      expect(post.content).toBe('Hello');
+      expect(post.body).toBe('Hello');
       expect(post.authorId).toBeInstanceOf(CerialId);
     });
 
@@ -103,7 +103,7 @@ describe('E2E Extends: Relations with Inheritance', () => {
           name: 'NestedAuthor',
           email,
           posts: {
-            create: [{ title: 'Nested 1' }, { title: 'Nested 2', content: 'Body' }],
+            create: [{ title: 'Nested 1' }, { title: 'Nested 2', body: 'Body' }],
           },
         },
       });
@@ -254,7 +254,7 @@ describe('E2E Extends: Relations with Inheritance', () => {
       const summary = await client.db.ExtRelPostSummary.create({
         data: {
           title: 'Summary Post',
-          content: 'Full content',
+          body: 'Full content',
           summary: 'Short',
           wordCount: 100,
         },
@@ -262,7 +262,7 @@ describe('E2E Extends: Relations with Inheritance', () => {
 
       expect(summary.id).toBeInstanceOf(CerialId);
       expect(summary.title).toBe('Summary Post');
-      expect(summary.content).toBe('Full content');
+      expect(summary.body).toBe('Full content');
       expect(summary.summary).toBe('Short');
       expect(summary.wordCount).toBe(100);
       // No authorId or author fields
@@ -276,7 +276,7 @@ describe('E2E Extends: Relations with Inheritance', () => {
 
       expect(fieldNames).toContain('id');
       expect(fieldNames).toContain('title');
-      expect(fieldNames).toContain('content');
+      expect(fieldNames).toContain('body');
       expect(fieldNames).toContain('summary');
       expect(fieldNames).toContain('wordCount');
       expect(fieldNames).not.toContain('authorId');
@@ -302,7 +302,7 @@ describe('E2E Extends: Relations with Inheritance', () => {
     });
   });
 
-  describe('ExtRelPostArchive (omits content, author, authorId)', () => {
+  describe('ExtRelPostArchive (omits body, author, authorId)', () => {
     // Fields: id, createdAt, updatedAt, title, archivedAt?, archiveReason?
 
     test('create with own + inherited fields', async () => {
@@ -317,7 +317,7 @@ describe('E2E Extends: Relations with Inheritance', () => {
       expect(archive.title).toBe('Archived Post');
       expect(archive.archiveReason).toBe('Outdated');
       // content, authorId, author omitted
-      expect('content' in archive).toBe(false);
+      expect('body' in archive).toBe(false);
       expect('authorId' in archive).toBe(false);
     });
 
@@ -328,7 +328,7 @@ describe('E2E Extends: Relations with Inheritance', () => {
       expect(fieldNames).toContain('title');
       expect(fieldNames).toContain('archivedAt');
       expect(fieldNames).toContain('archiveReason');
-      expect(fieldNames).not.toContain('content');
+      expect(fieldNames).not.toContain('body');
       expect(fieldNames).not.toContain('authorId');
     });
   });
@@ -338,21 +338,21 @@ describe('E2E Extends: Relations with Inheritance', () => {
 
     test('create top-level comment', async () => {
       const comment = await client.db.ExtRelComment.create({
-        data: { content: 'Top comment' },
+        data: { body: 'Top comment' },
       });
 
       expect(comment.id).toBeInstanceOf(CerialId);
-      expect(comment.content).toBe('Top comment');
+      expect(comment.body).toBe('Top comment');
       expect(comment.parentCommentId).toBeUndefined();
     });
 
     test('create reply to comment', async () => {
       const parent = await client.db.ExtRelComment.create({
-        data: { content: 'Parent' },
+        data: { body: 'Parent' },
       });
 
       const reply = await client.db.ExtRelComment.create({
-        data: { content: 'Reply', parentCommentId: parent.id },
+        data: { body: 'Reply', parentCommentId: parent.id },
       });
 
       expect(reply.parentCommentId).toBeInstanceOf(CerialId);
@@ -361,11 +361,11 @@ describe('E2E Extends: Relations with Inheritance', () => {
 
     test('include parentComment', async () => {
       const parent = await client.db.ExtRelComment.create({
-        data: { content: 'Parent Comment' },
+        data: { body: 'Parent Comment' },
       });
 
       const child = await client.db.ExtRelComment.create({
-        data: { content: 'Child Comment', parentCommentId: parent.id },
+        data: { body: 'Child Comment', parentCommentId: parent.id },
       });
 
       const result = await client.db.ExtRelComment.findOne({
@@ -374,17 +374,17 @@ describe('E2E Extends: Relations with Inheritance', () => {
       });
 
       expect(result).not.toBeNull();
-      expect(result!.content).toBe('Child Comment');
+      expect(result!.body).toBe('Child Comment');
       expect(result!.parentComment).toBeDefined();
-      expect(result!.parentComment!.content).toBe('Parent Comment');
+      expect(result!.parentComment!.body).toBe('Parent Comment');
     });
 
     test('nested create via parentComment', async () => {
       const comment = await client.db.ExtRelComment.create({
         data: {
-          content: 'Reply',
+          body: 'Reply',
           parentComment: {
-            create: { content: 'Auto Parent' },
+            create: { body: 'Auto Parent' },
           },
         },
       });
@@ -396,7 +396,7 @@ describe('E2E Extends: Relations with Inheritance', () => {
 
       expect(found).not.toBeNull();
       expect(found!.parentComment).not.toBeNull();
-      expect(found!.parentComment!.content).toBe('Auto Parent');
+      expect(found!.parentComment!.body).toBe('Auto Parent');
     });
   });
 
@@ -405,11 +405,11 @@ describe('E2E Extends: Relations with Inheritance', () => {
 
     test('create moderated comment', async () => {
       const comment = await client.db.ExtRelCommentModerated.create({
-        data: { content: 'Moderated comment', isApproved: false },
+        data: { body: 'Moderated comment', isApproved: false },
       });
 
       expect(comment.id).toBeInstanceOf(CerialId);
-      expect(comment.content).toBe('Moderated comment');
+      expect(comment.body).toBe('Moderated comment');
       expect(comment.isApproved).toBe(false);
       expect(comment.parentCommentId).toBeUndefined();
       expect(comment.approvedBy).toBeUndefined();
@@ -423,7 +423,7 @@ describe('E2E Extends: Relations with Inheritance', () => {
 
       const comment = await client.db.ExtRelCommentModerated.create({
         data: {
-          content: 'Approved comment',
+          body: 'Approved comment',
           isApproved: true,
           approvedBy: approver.id,
         },
@@ -441,7 +441,7 @@ describe('E2E Extends: Relations with Inheritance', () => {
 
       const comment = await client.db.ExtRelCommentModerated.create({
         data: {
-          content: 'To include',
+          body: 'To include',
           isApproved: true,
           approvedBy: approver.id,
         },
@@ -464,12 +464,12 @@ describe('E2E Extends: Relations with Inheritance', () => {
       });
 
       const parentComment = await client.db.ExtRelComment.create({
-        data: { content: 'Parent For Mod' },
+        data: { body: 'Parent For Mod' },
       });
 
       const comment = await client.db.ExtRelCommentModerated.create({
         data: {
-          content: 'Moderated reply',
+          body: 'Moderated reply',
           parentCommentId: parentComment.id,
           isApproved: true,
           approvedBy: approver.id,
@@ -483,14 +483,14 @@ describe('E2E Extends: Relations with Inheritance', () => {
 
       expect(result).not.toBeNull();
       expect(result!.parentComment).not.toBeNull();
-      expect(result!.parentComment!.content).toBe('Parent For Mod');
+      expect(result!.parentComment!.body).toBe('Parent For Mod');
       expect(result!.approver).not.toBeNull();
       expect(result!.approver!.name).toBe('BothApprover');
     });
 
     test('default isApproved is false', async () => {
       const comment = await client.db.ExtRelCommentModerated.create({
-        data: { content: 'Default check' },
+        data: { body: 'Default check' },
       });
 
       expect(comment.isApproved).toBe(false);

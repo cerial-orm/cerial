@@ -114,7 +114,7 @@ tuple Bad {
     test('should error on required self-referencing tuple element', () => {
       const schema = `
 tuple Bad {
-  value Int,
+  payload Int,
   next Bad
 }
 `;
@@ -126,7 +126,7 @@ tuple Bad {
     test('should NOT error on @nullable self-referencing tuple element', () => {
       const schema = `
 tuple Good {
-  value Int,
+  payload Int,
   next Good @nullable
 }
 `;
@@ -138,7 +138,7 @@ tuple Good {
     test('should NOT error on optional self-referencing tuple element', () => {
       const schema = `
 tuple Good {
-  value Int,
+  payload Int,
   next Good?
 }
 `;

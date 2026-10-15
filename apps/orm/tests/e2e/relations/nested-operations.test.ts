@@ -54,7 +54,7 @@ describe('E2E Nested Operations', () => {
       const post = await client.db.Post.create({
         data: {
           title: 'Test Post',
-          content: 'Content',
+          body: 'Content',
           author: {
             create: {
               email: 'author@example.com',
@@ -112,7 +112,7 @@ describe('E2E Nested Operations', () => {
       const post = await client.db.Post.create({
         data: {
           title: 'Test Post',
-          content: 'Content',
+          body: 'Content',
           author: { connect: author.id },
         },
       });

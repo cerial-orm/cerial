@@ -71,7 +71,7 @@
           ],
           "isNullable": true,
           "isOptional": true,
-          "name": "content",
+          "name": "body",
           "type": "string"
         },
         {

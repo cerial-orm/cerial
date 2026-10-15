@@ -26,7 +26,7 @@ DEFINE FIELD OVERWRITE label ON TABLE number_id_model TYPE string;
 -- ObjectIdModel
 DEFINE TABLE OVERWRITE object_id_model SCHEMAFULL;
 DEFINE FIELD OVERWRITE id ON TABLE object_id_model TYPE { service: string, timestamp: int };
-DEFINE FIELD OVERWRITE value ON TABLE object_id_model TYPE float;
+DEFINE FIELD OVERWRITE payload ON TABLE object_id_model TYPE float;
 
 -- StandaloneRefModel
 DEFINE TABLE OVERWRITE standalone_ref_model SCHEMAFULL;
@@ -37,7 +37,7 @@ DEFINE FIELD OVERWRITE label ON TABLE standalone_ref_model TYPE string;
 -- StringIdModel
 DEFINE TABLE OVERWRITE string_id_model SCHEMAFULL;
 DEFINE FIELD OVERWRITE id ON TABLE string_id_model TYPE string;
-DEFINE FIELD OVERWRITE value ON TABLE string_id_model TYPE string;
+DEFINE FIELD OVERWRITE payload ON TABLE string_id_model TYPE string;
 
 -- TupleIdModel
 DEFINE TABLE OVERWRITE tuple_id_model SCHEMAFULL;

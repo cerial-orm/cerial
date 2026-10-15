@@ -116,11 +116,11 @@ describe('E2E Objects: Nested & Self-Referencing', () => {
       const order = await client.db.ObjectTestOrder.create({
         data: {
           billingAddress: { street: '10 Main', city: 'NYC', state: 'NY' },
-          metadata: { value: 1, children: [] },
+          metadata: { payload: 1, children: [] },
         },
       });
 
-      expect(order.metadata!.value).toBe(1);
+      expect(order.metadata!.payload).toBe(1);
       expect(order.metadata!.children).toEqual([]);
     });
 
@@ -129,17 +129,17 @@ describe('E2E Objects: Nested & Self-Referencing', () => {
         data: {
           billingAddress: { street: '11 Main', city: 'NYC', state: 'NY' },
           metadata: {
-            value: 1,
+            payload: 1,
             children: [
-              { value: 2, children: [] },
-              { value: 3, children: [] },
+              { payload: 2, children: [] },
+              { payload: 3, children: [] },
             ],
           },
         },
       });
 
       expect(order.metadata!.children).toHaveLength(2);
-      expect(order.metadata!.children[0]!.value).toBe(2);
+      expect(order.metadata!.children[0]!.payload).toBe(2);
     });
 
     test('should create TreeNode with 2 levels of children', async () => {
@@ -147,23 +147,23 @@ describe('E2E Objects: Nested & Self-Referencing', () => {
         data: {
           billingAddress: { street: '12 Main', city: 'NYC', state: 'NY' },
           metadata: {
-            value: 1,
+            payload: 1,
             children: [
               {
-                value: 2,
+                payload: 2,
                 children: [
-                  { value: 4, children: [] },
-                  { value: 5, children: [] },
+                  { payload: 4, children: [] },
+                  { payload: 5, children: [] },
                 ],
               },
-              { value: 3, children: [] },
+              { payload: 3, children: [] },
             ],
           },
         },
       });
 
       expect(order.metadata!.children[0]!.children).toHaveLength(2);
-      expect(order.metadata!.children[0]!.children[0]!.value).toBe(4);
+      expect(order.metadata!.children[0]!.children[0]!.payload).toBe(4);
     });
 
     test('should create TreeNode with 3+ levels', async () => {
@@ -171,14 +171,14 @@ describe('E2E Objects: Nested & Self-Referencing', () => {
         data: {
           billingAddress: { street: '13 Main', city: 'NYC', state: 'NY' },
           metadata: {
-            value: 1,
+            payload: 1,
             children: [
               {
-                value: 2,
+                payload: 2,
                 children: [
                   {
-                    value: 4,
-                    children: [{ value: 8, children: [] }],
+                    payload: 4,
+                    children: [{ payload: 8, children: [] }],
                   },
                 ],
               },
@@ -187,7 +187,7 @@ describe('E2E Objects: Nested & Self-Referencing', () => {
         },
       });
 
-      expect(order.metadata!.children[0]!.children[0]!.children[0]!.value).toBe(8);
+      expect(order.metadata!.children[0]!.children[0]!.children[0]!.payload).toBe(8);
     });
 
     test('should read back self-referencing structure', async () => {
@@ -195,16 +195,16 @@ describe('E2E Objects: Nested & Self-Referencing', () => {
         data: {
           billingAddress: { street: '14 Main', city: 'NYC', state: 'NY' },
           metadata: {
-            value: 10,
-            children: [{ value: 20, children: [{ value: 30, children: [] }] }],
+            payload: 10,
+            children: [{ payload: 20, children: [{ payload: 30, children: [] }] }],
           },
         },
       });
 
       const read = await client.db.ObjectTestOrder.findUnique({ where: { id: order.id } });
-      expect(read!.metadata!.value).toBe(10);
-      expect(read!.metadata!.children[0]!.value).toBe(20);
-      expect(read!.metadata!.children[0]!.children[0]!.value).toBe(30);
+      expect(read!.metadata!.payload).toBe(10);
+      expect(read!.metadata!.children[0]!.payload).toBe(20);
+      expect(read!.metadata!.children[0]!.children[0]!.payload).toBe(30);
     });
 
     test('should handle metadata omitted (optional self-ref)', async () => {

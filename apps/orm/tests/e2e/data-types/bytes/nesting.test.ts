@@ -10,11 +10,11 @@ describe('E2E Bytes: Object Nesting', () => {
     const client = getClient();
     const content = new Uint8Array([1, 2, 3]);
     const result = await client.db.BytesWithObject.create({
-      data: { name: 'obj-test', details: { content } },
+      data: { name: 'obj-test', details: { body: content } },
     });
 
-    expect(CerialBytes.is(result.details.content)).toBe(true);
-    expect(result.details.content.toUint8Array()).toEqual(content);
+    expect(CerialBytes.is(result.details.body)).toBe(true);
+    expect(result.details.body.toUint8Array()).toEqual(content);
     expect(result.details.extra).toBeUndefined();
   });
 
@@ -23,7 +23,7 @@ describe('E2E Bytes: Object Nesting', () => {
     const content = new Uint8Array([1]);
     const extra = new Uint8Array([2, 3]);
     const result = await client.db.BytesWithObject.create({
-      data: { name: 'obj-extra', details: { content, extra } },
+      data: { name: 'obj-extra', details: { body: content, extra } },
     });
 
     expect(CerialBytes.is(result.details.extra!)).toBe(true);
@@ -33,24 +33,24 @@ describe('E2E Bytes: Object Nesting', () => {
   test('update bytes in object', async () => {
     const client = getClient();
     const result = await client.db.BytesWithObject.create({
-      data: { name: 'upd', details: { content: new Uint8Array([1]) } },
+      data: { name: 'upd', details: { body: new Uint8Array([1]) } },
     });
 
     const newContent = new Uint8Array([10, 20, 30]);
     const updated = await client.db.BytesWithObject.updateUnique({
       where: { id: result.id },
-      data: { details: { content: newContent } },
+      data: { details: { body: newContent } },
     });
 
     expect(updated).not.toBeNull();
-    expect(updated!.details.content.toUint8Array()).toEqual(newContent);
+    expect(updated!.details.body.toUint8Array()).toEqual(newContent);
   });
 
   test('findMany with bytes in object roundtrip', async () => {
     const client = getClient();
     const content = new Uint8Array([77, 88, 99]);
     await client.db.BytesWithObject.create({
-      data: { name: 'find-obj', details: { content } },
+      data: { name: 'find-obj', details: { body: content } },
     });
 
     const found = await client.db.BytesWithObject.findMany({
@@ -58,8 +58,8 @@ describe('E2E Bytes: Object Nesting', () => {
     });
 
     expect(found).toHaveLength(1);
-    expect(CerialBytes.is(found[0]!.details.content)).toBe(true);
-    expect(found[0]!.details.content.toUint8Array()).toEqual(content);
+    expect(CerialBytes.is(found[0]!.details.body)).toBe(true);
+    expect(found[0]!.details.body.toUint8Array()).toEqual(content);
   });
 });
 

@@ -975,17 +975,17 @@ export interface UnsetDeepOuterOrderBy {
  */
 
 export interface UnsetInner {
-  value: string;
+  payload: string;
   extra?: string;
 }
 
 export interface UnsetInnerInput {
-  value: string;
+  payload: string;
   extra?: string;
 }
 
 export interface UnsetInnerWhere {
-  value?:
+  payload?:
     | string
     | ({
         eq?: string;
@@ -1020,11 +1020,11 @@ export interface UnsetInnerWhere {
 }
 
 export type UnsetInnerSelect =
-  | ({ value: boolean } & Partial<Record<'extra', boolean>>)
-  | ({ extra: boolean } & Partial<Record<'value', boolean>>);
+  | ({ payload: boolean } & Partial<Record<'extra', boolean>>)
+  | ({ extra: boolean } & Partial<Record<'payload', boolean>>);
 
 export interface UnsetInnerOrderBy {
-  value?: 'asc' | 'desc';
+  payload?: 'asc' | 'desc';
   extra?: 'asc' | 'desc';
 }
 
@@ -1035,19 +1035,19 @@ export interface UnsetInnerOrderBy {
  */
 
 export interface UnsetTreeNode {
-  value: string;
+  payload: string;
   extra?: string;
   child?: UnsetTreeNode;
 }
 
 export interface UnsetTreeNodeInput {
-  value: string;
+  payload: string;
   extra?: string;
   child?: UnsetTreeNodeInput;
 }
 
 export interface UnsetTreeNodeWhere {
-  value?:
+  payload?:
     | string
     | ({
         eq?: string;
@@ -1083,12 +1083,12 @@ export interface UnsetTreeNodeWhere {
 }
 
 export type UnsetTreeNodeSelect =
-  | ({ value: boolean } & { extra?: boolean; child?: boolean | UnsetTreeNodeSelect })
-  | ({ extra: boolean } & { value?: boolean; child?: boolean | UnsetTreeNodeSelect })
-  | ({ child: boolean | UnsetTreeNodeSelect } & Partial<Record<'value' | 'extra', boolean>>);
+  | ({ payload: boolean } & { extra?: boolean; child?: boolean | UnsetTreeNodeSelect })
+  | ({ extra: boolean } & { payload?: boolean; child?: boolean | UnsetTreeNodeSelect })
+  | ({ child: boolean | UnsetTreeNodeSelect } & Partial<Record<'payload' | 'extra', boolean>>);
 
 export interface UnsetTreeNodeOrderBy {
-  value?: 'asc' | 'desc';
+  payload?: 'asc' | 'desc';
   extra?: 'asc' | 'desc';
   child?: UnsetTreeNodeOrderBy;
 }

@@ -2,16 +2,16 @@
 model Customer {
   id Record @id
   name String
-  orders Relation[] @model(Order)
+  orders Relation[] @model(PurchaseOrder)
 }
 
 model Agent {
   id Record @id
   name String
-  assignedOrders Relation[] @model(Order)
+  assignedOrders Relation[] @model(PurchaseOrder)
 }
 
-model Order {
+model PurchaseOrder {
   id Record @id
   orderNumber String @unique
   customerId Record

@@ -114,7 +114,7 @@ checks([check<NonNullable<AuthorCreateInput['posts']>, ManyOp<PostRequiredNested
 export const authorCreatePosts: AuthorCreateInput = {
   name: 'n',
   email: 'e',
-  posts: { create: [{ title: 'a' }, { title: 'b', content: 'c' }] },
+  posts: { create: [{ title: 'a' }, { title: 'b', body: 'c' }] },
 };
 export const authorConnectPosts: AuthorCreateInput = { name: 'n', email: 'e', posts: { connect: ['p1', 'p2'] } };
 

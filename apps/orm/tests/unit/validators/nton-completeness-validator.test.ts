@@ -111,12 +111,12 @@ describe('validateNToNCompleteness', () => {
               name: 'groups',
               type: 'relation',
               isArray: true,
-              decorators: [createDecorator('field', 'groupIds'), createDecorator('model', 'Group')],
+              decorators: [createDecorator('field', 'groupIds'), createDecorator('model', 'ItemGroup')],
             }),
           ],
         }),
         createASTModel({
-          name: 'Group',
+          name: 'ItemGroup',
           fields: [
             createASTField({ name: 'id', type: 'record' }),
             createASTField({
@@ -163,12 +163,12 @@ describe('validateNToNCompleteness', () => {
               name: 'groups',
               type: 'relation',
               isArray: true,
-              decorators: [createDecorator('field', 'groupIds'), createDecorator('model', 'Group')],
+              decorators: [createDecorator('field', 'groupIds'), createDecorator('model', 'ItemGroup')],
             }),
           ],
         }),
         createASTModel({
-          name: 'Group',
+          name: 'ItemGroup',
           fields: [
             createASTField({ name: 'id', type: 'record' }),
             createASTField({
@@ -239,7 +239,7 @@ describe('validateNToNCompleteness', () => {
           ],
         }),
         createASTModel({
-          name: 'Group',
+          name: 'ItemGroup',
           fields: [createASTField({ name: 'id', type: 'record' }), createASTField({ name: 'name', type: 'string' })],
         }),
       ],

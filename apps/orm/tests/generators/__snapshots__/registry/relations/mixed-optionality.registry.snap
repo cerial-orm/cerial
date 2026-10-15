@@ -28,8 +28,8 @@
           "name": "assignedOrders",
           "relationInfo": {
             "isReverse": true,
-            "targetModel": "Order",
-            "targetTable": "order"
+            "targetModel": "PurchaseOrder",
+            "targetTable": "purchase_order"
           },
           "type": "relation"
         }
@@ -65,8 +65,8 @@
           "name": "orders",
           "relationInfo": {
             "isReverse": true,
-            "targetModel": "Order",
-            "targetTable": "order"
+            "targetModel": "PurchaseOrder",
+            "targetTable": "purchase_order"
           },
           "type": "relation"
         }
@@ -74,7 +74,7 @@
       "name": "Customer",
       "tableName": "customer"
     },
-    "Order": {
+    "PurchaseOrder": {
       "compositeDirectives": [],
       "fields": [
         {
@@ -139,8 +139,8 @@
           "type": "relation"
         }
       ],
-      "name": "Order",
-      "tableName": "order"
+      "name": "PurchaseOrder",
+      "tableName": "purchase_order"
     }
   }
 }

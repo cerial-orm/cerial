@@ -287,7 +287,7 @@ tuple Inner {
     test('should parse self-referencing tuple with optional element', () => {
       const schema = `
 tuple Recursive {
-  value Int,
+  payload Int,
   next Recursive?
 }
 `;

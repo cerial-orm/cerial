@@ -174,7 +174,7 @@ export type ModelName =
   | 'Label'
   | 'Customer'
   | 'Agent'
-  | 'Order'
+  | 'PurchaseOrder'
   | 'Writer'
   | 'Document'
   | 'Publisher'
@@ -370,7 +370,7 @@ export const modelNames = [
   'Label',
   'Customer',
   'Agent',
-  'Order',
+  'PurchaseOrder',
   'Writer',
   'Document',
   'Publisher',
@@ -431,7 +431,7 @@ export const migrationsByModel: Record<ModelName, string[]> = {
   ],
   EnumLiteralRef: [
     'DEFINE TABLE OVERWRITE enum_literal_ref SCHEMAFULL;',
-    "DEFINE FIELD OVERWRITE access ON TABLE enum_literal_ref TYPE 'ADMIN' | 'USER' | 'MODERATOR' | 'custom';",
+    "DEFINE FIELD OVERWRITE visibility ON TABLE enum_literal_ref TYPE 'ADMIN' | 'USER' | 'MODERATOR' | 'custom';",
   ],
   LiteralBasic: [
     'DEFINE TABLE OVERWRITE literal_basic SCHEMAFULL;',
@@ -451,7 +451,7 @@ export const migrationsByModel: Record<ModelName, string[]> = {
   ],
   LiteralBroad: [
     'DEFINE TABLE OVERWRITE literal_broad SCHEMAFULL;',
-    'DEFINE FIELD OVERWRITE value ON TABLE literal_broad TYPE string | int;',
+    'DEFINE FIELD OVERWRITE payload ON TABLE literal_broad TYPE string | int;',
     'DEFINE FIELD OVERWRITE values ON TABLE literal_broad TYPE array<string | int>;',
   ],
   LiteralExtended: [
@@ -481,14 +481,14 @@ export const migrationsByModel: Record<ModelName, string[]> = {
   ],
   LiteralWithObjectVariant: [
     'DEFINE TABLE OVERWRITE literal_with_object_variant SCHEMAFULL;',
-    "DEFINE FIELD OVERWRITE payload ON TABLE literal_with_object_variant TYPE 'empty' | { label: string, value: int };",
-    "DEFINE FIELD OVERWRITE optPayload ON TABLE literal_with_object_variant TYPE option<'empty' | { label: string, value: int }>;",
-    "DEFINE FIELD OVERWRITE payloads ON TABLE literal_with_object_variant TYPE array<'empty' | { label: string, value: int }>;",
+    "DEFINE FIELD OVERWRITE payload ON TABLE literal_with_object_variant TYPE 'empty' | { label: string, payload: int };",
+    "DEFINE FIELD OVERWRITE optPayload ON TABLE literal_with_object_variant TYPE option<'empty' | { label: string, payload: int }>;",
+    "DEFINE FIELD OVERWRITE payloads ON TABLE literal_with_object_variant TYPE array<'empty' | { label: string, payload: int }>;",
   ],
   LiteralWithBoth: [
     'DEFINE TABLE OVERWRITE literal_with_both SCHEMAFULL;',
-    "DEFINE FIELD OVERWRITE data ON TABLE literal_with_both TYPE 'none' | 'empty' | [float, float] | { label: string, value: int };",
-    "DEFINE FIELD OVERWRITE optData ON TABLE literal_with_both TYPE option<'none' | 'empty' | [float, float] | { label: string, value: int }>;",
+    "DEFINE FIELD OVERWRITE data ON TABLE literal_with_both TYPE 'none' | 'empty' | [float, float] | { label: string, payload: int };",
+    "DEFINE FIELD OVERWRITE optData ON TABLE literal_with_both TYPE option<'none' | 'empty' | [float, float] | { label: string, payload: int }>;",
   ],
   LiteralWithObjectOpt: [
     'DEFINE TABLE OVERWRITE literal_with_object_opt SCHEMAFULL;',
@@ -735,7 +735,7 @@ export const migrationsByModel: Record<ModelName, string[]> = {
   BasicsPost: [
     'DEFINE TABLE OVERWRITE basics_post SCHEMAFULL;',
     'DEFINE FIELD OVERWRITE title ON TABLE basics_post TYPE string;',
-    'DEFINE FIELD OVERWRITE content ON TABLE basics_post TYPE option<string>;',
+    'DEFINE FIELD OVERWRITE body ON TABLE basics_post TYPE option<string>;',
     'DEFINE FIELD OVERWRITE authorId ON TABLE basics_post TYPE record<basics_user>;',
   ],
   BasicsTag: [
@@ -767,7 +767,7 @@ export const migrationsByModel: Record<ModelName, string[]> = {
   Post: [
     'DEFINE TABLE OVERWRITE post SCHEMAFULL;',
     'DEFINE FIELD OVERWRITE title ON TABLE post TYPE string;',
-    'DEFINE FIELD OVERWRITE content ON TABLE post TYPE option<string>;',
+    'DEFINE FIELD OVERWRITE body ON TABLE post TYPE option<string>;',
     'DEFINE FIELD OVERWRITE authorId ON TABLE post TYPE record<user>;',
   ],
   Tag: [
@@ -816,7 +816,7 @@ export const migrationsByModel: Record<ModelName, string[]> = {
     'DEFINE TABLE OVERWRITE bytes_with_object SCHEMAFULL;',
     'DEFINE FIELD OVERWRITE name ON TABLE bytes_with_object TYPE string;',
     'DEFINE FIELD OVERWRITE details ON TABLE bytes_with_object TYPE object;',
-    'DEFINE FIELD OVERWRITE details.content ON TABLE bytes_with_object TYPE bytes;',
+    'DEFINE FIELD OVERWRITE details.body ON TABLE bytes_with_object TYPE bytes;',
     'DEFINE FIELD OVERWRITE details.extra ON TABLE bytes_with_object TYPE option<bytes>;',
   ],
   BytesWithTuple: [
@@ -854,7 +854,7 @@ export const migrationsByModel: Record<ModelName, string[]> = {
     'DEFINE TABLE OVERWRITE duration_basic SCHEMAFULL;',
     'DEFINE FIELD OVERWRITE name ON TABLE duration_basic TYPE string;',
     'DEFINE FIELD OVERWRITE ttl ON TABLE duration_basic TYPE duration;',
-    'DEFINE FIELD OVERWRITE timeout ON TABLE duration_basic TYPE option<duration>;',
+    'DEFINE FIELD OVERWRITE expiry ON TABLE duration_basic TYPE option<duration>;',
     'DEFINE FIELD OVERWRITE cooldown ON TABLE duration_basic TYPE duration | null;',
     'DEFINE FIELD OVERWRITE intervals ON TABLE duration_basic TYPE array<duration>;',
   ],
@@ -1202,7 +1202,7 @@ export const migrationsByModel: Record<ModelName, string[]> = {
     'DEFINE FIELD OVERWRITE address.zip ON TABLE readonly_test TYPE option<string>;',
     'DEFINE FIELD OVERWRITE meta ON TABLE readonly_test TYPE option<object>;',
     'DEFINE FIELD OVERWRITE meta.label ON TABLE readonly_test TYPE string READONLY;',
-    'DEFINE FIELD OVERWRITE meta.value ON TABLE readonly_test TYPE int;',
+    'DEFINE FIELD OVERWRITE meta.payload ON TABLE readonly_test TYPE int;',
   ],
   ReadonlyRecord: [
     'DEFINE TABLE OVERWRITE readonly_record SCHEMAFULL;',
@@ -1466,7 +1466,7 @@ export const migrationsByModel: Record<ModelName, string[]> = {
     'DEFINE TABLE OVERWRITE ext_l4_omit_concrete SCHEMAFULL;',
     'DEFINE FIELD OVERWRITE createdAt ON TABLE ext_l4_omit_concrete TYPE option<datetime> DEFAULT time::now();',
     'DEFINE FIELD OVERWRITE name ON TABLE ext_l4_omit_concrete TYPE string;',
-    'DEFINE FIELD OVERWRITE type ON TABLE ext_l4_omit_concrete TYPE string;',
+    'DEFINE FIELD OVERWRITE kind ON TABLE ext_l4_omit_concrete TYPE string;',
     'DEFINE FIELD OVERWRITE subtype ON TABLE ext_l4_omit_concrete TYPE option<string>;',
     'DEFINE FIELD OVERWRITE version ON TABLE ext_l4_omit_concrete TYPE int DEFAULT 1;',
   ],
@@ -1556,7 +1556,7 @@ export const migrationsByModel: Record<ModelName, string[]> = {
     'DEFINE FIELD OVERWRITE createdAt ON TABLE ext_rel_blog_post TYPE option<datetime> DEFAULT time::now();',
     'DEFINE FIELD OVERWRITE updatedAt ON TABLE ext_rel_blog_post TYPE option<datetime> DEFAULT ALWAYS time::now();',
     'DEFINE FIELD OVERWRITE title ON TABLE ext_rel_blog_post TYPE string;',
-    'DEFINE FIELD OVERWRITE content ON TABLE ext_rel_blog_post TYPE option<string>;',
+    'DEFINE FIELD OVERWRITE body ON TABLE ext_rel_blog_post TYPE option<string>;',
     'DEFINE FIELD OVERWRITE authorId ON TABLE ext_rel_blog_post TYPE record<ext_rel_blog_author>;',
   ],
   ExtRelProject: [
@@ -1584,7 +1584,7 @@ export const migrationsByModel: Record<ModelName, string[]> = {
     'DEFINE FIELD OVERWRITE createdAt ON TABLE ext_rel_post_summary TYPE option<datetime> DEFAULT time::now();',
     'DEFINE FIELD OVERWRITE updatedAt ON TABLE ext_rel_post_summary TYPE option<datetime> DEFAULT ALWAYS time::now();',
     'DEFINE FIELD OVERWRITE title ON TABLE ext_rel_post_summary TYPE string;',
-    'DEFINE FIELD OVERWRITE content ON TABLE ext_rel_post_summary TYPE option<string>;',
+    'DEFINE FIELD OVERWRITE body ON TABLE ext_rel_post_summary TYPE option<string>;',
     'DEFINE FIELD OVERWRITE summary ON TABLE ext_rel_post_summary TYPE option<string>;',
     'DEFINE FIELD OVERWRITE wordCount ON TABLE ext_rel_post_summary TYPE option<int>;',
   ],
@@ -1600,14 +1600,14 @@ export const migrationsByModel: Record<ModelName, string[]> = {
     'DEFINE TABLE OVERWRITE ext_rel_comment SCHEMAFULL;',
     'DEFINE FIELD OVERWRITE createdAt ON TABLE ext_rel_comment TYPE option<datetime> DEFAULT time::now();',
     'DEFINE FIELD OVERWRITE updatedAt ON TABLE ext_rel_comment TYPE option<datetime> DEFAULT ALWAYS time::now();',
-    'DEFINE FIELD OVERWRITE content ON TABLE ext_rel_comment TYPE string;',
+    'DEFINE FIELD OVERWRITE body ON TABLE ext_rel_comment TYPE string;',
     'DEFINE FIELD OVERWRITE parentCommentId ON TABLE ext_rel_comment TYPE option<record<ext_rel_comment>>;',
   ],
   ExtRelCommentModerated: [
     'DEFINE TABLE OVERWRITE ext_rel_comment_moderated SCHEMAFULL;',
     'DEFINE FIELD OVERWRITE createdAt ON TABLE ext_rel_comment_moderated TYPE option<datetime> DEFAULT time::now();',
     'DEFINE FIELD OVERWRITE updatedAt ON TABLE ext_rel_comment_moderated TYPE option<datetime> DEFAULT ALWAYS time::now();',
-    'DEFINE FIELD OVERWRITE content ON TABLE ext_rel_comment_moderated TYPE string;',
+    'DEFINE FIELD OVERWRITE body ON TABLE ext_rel_comment_moderated TYPE string;',
     'DEFINE FIELD OVERWRITE parentCommentId ON TABLE ext_rel_comment_moderated TYPE option<record<ext_rel_comment>>;',
     'DEFINE FIELD OVERWRITE isApproved ON TABLE ext_rel_comment_moderated TYPE bool DEFAULT false;',
     'DEFINE FIELD OVERWRITE approvedBy ON TABLE ext_rel_comment_moderated TYPE option<record<ext_rel_blog_author>>;',
@@ -1645,7 +1645,7 @@ export const migrationsByModel: Record<ModelName, string[]> = {
   StringIdModel: [
     'DEFINE TABLE OVERWRITE string_id_model SCHEMAFULL;',
     'DEFINE FIELD OVERWRITE id ON TABLE string_id_model TYPE string;',
-    'DEFINE FIELD OVERWRITE value ON TABLE string_id_model TYPE string;',
+    'DEFINE FIELD OVERWRITE payload ON TABLE string_id_model TYPE string;',
   ],
   UuidIdModel: [
     'DEFINE TABLE OVERWRITE uuid_id_model SCHEMAFULL;',
@@ -1660,7 +1660,7 @@ export const migrationsByModel: Record<ModelName, string[]> = {
   ObjectIdModel: [
     'DEFINE TABLE OVERWRITE object_id_model SCHEMAFULL;',
     'DEFINE FIELD OVERWRITE id ON TABLE object_id_model TYPE { service: string, timestamp: int };',
-    'DEFINE FIELD OVERWRITE value ON TABLE object_id_model TYPE float;',
+    'DEFINE FIELD OVERWRITE payload ON TABLE object_id_model TYPE float;',
   ],
   UnionIdModel: [
     'DEFINE TABLE OVERWRITE union_id_model SCHEMAFULL;',
@@ -1706,7 +1706,7 @@ export const migrationsByModel: Record<ModelName, string[]> = {
     'DEFINE FIELD OVERWRITE opt ON TABLE unset_test TYPE option<[string, float | null]>;',
     'DEFINE FIELD OVERWRITE tagged ON TABLE unset_test TYPE option<[string, object]>;',
     'DEFINE FIELD OVERWRITE tagged[1] ON TABLE unset_test TYPE object;',
-    'DEFINE FIELD OVERWRITE tagged[1].value ON TABLE unset_test TYPE string;',
+    'DEFINE FIELD OVERWRITE tagged[1].payload ON TABLE unset_test TYPE string;',
     'DEFINE FIELD OVERWRITE tagged[1].extra ON TABLE unset_test TYPE option<string>;',
     'DEFINE FIELD OVERWRITE nested ON TABLE unset_test TYPE object;',
     'DEFINE FIELD OVERWRITE nested.title ON TABLE unset_test TYPE string;',
@@ -1800,12 +1800,12 @@ export const migrationsByModel: Record<ModelName, string[]> = {
     'DEFINE FIELD OVERWRITE name ON TABLE customer TYPE string;',
   ],
   Agent: ['DEFINE TABLE OVERWRITE agent SCHEMAFULL;', 'DEFINE FIELD OVERWRITE name ON TABLE agent TYPE string;'],
-  Order: [
-    'DEFINE TABLE OVERWRITE order SCHEMAFULL;',
-    'DEFINE FIELD OVERWRITE orderNumber ON TABLE order TYPE string;',
-    'DEFINE FIELD OVERWRITE customerId ON TABLE order TYPE record<customer>;',
-    'DEFINE FIELD OVERWRITE assigneeId ON TABLE order TYPE option<record<agent> | null>;',
-    'DEFINE INDEX OVERWRITE order_orderNumber_unique ON TABLE order COLUMNS orderNumber UNIQUE;',
+  PurchaseOrder: [
+    'DEFINE TABLE OVERWRITE purchase_order SCHEMAFULL;',
+    'DEFINE FIELD OVERWRITE orderNumber ON TABLE purchase_order TYPE string;',
+    'DEFINE FIELD OVERWRITE customerId ON TABLE purchase_order TYPE record<customer>;',
+    'DEFINE FIELD OVERWRITE assigneeId ON TABLE purchase_order TYPE option<record<agent> | null>;',
+    'DEFINE INDEX OVERWRITE purchase_order_orderNumber_unique ON TABLE purchase_order COLUMNS orderNumber UNIQUE;',
   ],
   Writer: ['DEFINE TABLE OVERWRITE writer SCHEMAFULL;', 'DEFINE FIELD OVERWRITE name ON TABLE writer TYPE string;'],
   Document: [
@@ -1834,7 +1834,7 @@ export const migrationsByModel: Record<ModelName, string[]> = {
   PostRequired: [
     'DEFINE TABLE OVERWRITE post_required SCHEMAFULL;',
     'DEFINE FIELD OVERWRITE title ON TABLE post_required TYPE string;',
-    'DEFINE FIELD OVERWRITE content ON TABLE post_required TYPE option<string | null>;',
+    'DEFINE FIELD OVERWRITE body ON TABLE post_required TYPE option<string | null>;',
     'DEFINE FIELD OVERWRITE authorId ON TABLE post_required TYPE record<author>;',
     'DEFINE FIELD OVERWRITE createdAt ON TABLE post_required TYPE option<datetime> DEFAULT time::now();',
   ],

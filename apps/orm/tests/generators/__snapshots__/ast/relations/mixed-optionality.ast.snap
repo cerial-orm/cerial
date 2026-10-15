@@ -23,7 +23,7 @@
           "decorators": [
             {
               "type": "model",
-              "value": "Order"
+              "value": "PurchaseOrder"
             }
           ],
           "isArray": true,
@@ -57,7 +57,7 @@
           "decorators": [
             {
               "type": "model",
-              "value": "Order"
+              "value": "PurchaseOrder"
             }
           ],
           "isArray": true,
@@ -139,7 +139,7 @@
           "type": "relation"
         }
       ],
-      "name": "Order"
+      "name": "PurchaseOrder"
     }
   ]
 }

@@ -208,7 +208,7 @@
                       "isIndexed": false,
                       "isRequired": true,
                       "isUnique": false,
-                      "name": "value",
+                      "name": "payload",
                       "type": "string"
                     },
                     {
@@ -490,7 +490,7 @@
                 "isIndexed": false,
                 "isRequired": true,
                 "isUnique": false,
-                "name": "value",
+                "name": "payload",
                 "type": "string"
               },
               {
@@ -739,7 +739,7 @@
           "isIndexed": false,
           "isRequired": true,
           "isUnique": false,
-          "name": "value",
+          "name": "payload",
           "type": "string"
         },
         {
@@ -760,7 +760,7 @@
           "isIndexed": false,
           "isRequired": true,
           "isUnique": false,
-          "name": "value",
+          "name": "payload",
           "type": "string"
         },
         {
@@ -784,7 +784,7 @@
                 "isIndexed": false,
                 "isRequired": true,
                 "isUnique": false,
-                "name": "value",
+                "name": "payload",
                 "type": "string"
               },
               {
@@ -918,7 +918,7 @@
                 "isIndexed": false,
                 "isRequired": true,
                 "isUnique": false,
-                "name": "value",
+                "name": "payload",
                 "type": "string"
               },
               {

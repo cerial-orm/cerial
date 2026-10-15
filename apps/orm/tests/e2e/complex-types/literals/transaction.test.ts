@@ -82,13 +82,13 @@ describe('E2E Literals: Transactions', () => {
         data: { label: 'mixed-tx' },
       }),
       client.db.LiteralBroad.create({
-        data: { value: 'hello' },
+        data: { payload: 'hello' },
       }),
     ]);
 
     expect(basic.status).toBe('active');
     expect(defaults.status).toBe('active');
-    expect(broad.value).toBe('hello');
+    expect(broad.payload).toBe('hello');
   });
 
   test('should handle literal with object in transaction', async () => {

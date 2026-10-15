@@ -2,7 +2,7 @@ model DurationBasic {
   id Record @id
   name String
   ttl Duration
-  timeout Duration?
+  expiry Duration?
   cooldown Duration @nullable
   intervals Duration[]
 }

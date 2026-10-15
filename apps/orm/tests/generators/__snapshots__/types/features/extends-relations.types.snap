@@ -456,7 +456,7 @@ export interface ExtRelBlogPost {
   createdAt?: Date;
   updatedAt?: Date;
   title: string;
-  content?: string;
+  body?: string;
   authorId: CerialId<string>;
 }
 
@@ -465,7 +465,7 @@ export interface ExtRelBlogPostInput {
   createdAt?: Date;
   updatedAt?: Date;
   title: string;
-  content?: string;
+  body?: string;
   authorId: RecordIdInput<string>;
 }
 
@@ -530,7 +530,7 @@ export interface ExtRelBlogPostWhere {
         in?: string[];
         notIn?: string[];
       } & {});
-  content?:
+  body?:
     | string
     | ({
         eq?: string;
@@ -571,12 +571,12 @@ export type ExtRelBlogPostFindUniqueWhere = { id: RecordIdInput<string> } & Omit
 
 export type ExtRelBlogPostCreate = O.Optional<
   O.Omit<ExtRelBlogPostInput, 'author'>,
-  'id' | 'createdAt' | 'updatedAt' | 'content'
+  'id' | 'createdAt' | 'updatedAt' | 'body'
 >;
 
 export type ExtRelBlogPostNestedCreate = O.Optional<
   O.Omit<ExtRelBlogPostInput, 'author' | 'authorId'>,
-  'id' | 'createdAt' | 'updatedAt' | 'content'
+  'id' | 'createdAt' | 'updatedAt' | 'body'
 >;
 
 export type ExtRelBlogPostCreateInput =
@@ -586,11 +586,11 @@ export type ExtRelBlogPostCreateInput =
     });
 
 export type ExtRelBlogPostUpdate = Partial<
-  O.Omit<ExtRelBlogPostInput, 'id' | 'author' | 'createdAt' | 'updatedAt' | 'content'>
+  O.Omit<ExtRelBlogPostInput, 'id' | 'author' | 'createdAt' | 'updatedAt' | 'body'>
 > & {
   createdAt?: Date | CerialNone;
   updatedAt?: Date | CerialNone;
-  content?: string | CerialNone;
+  body?: string | CerialNone;
 };
 
 export type ExtRelBlogPostUpdateInput =
@@ -602,23 +602,23 @@ export type ExtRelBlogPostUpdateInput =
 export type ExtRelBlogPostUnset = {
   createdAt?: true;
   updatedAt?: true;
-  content?: true;
+  body?: true;
 };
 
 export type ExtRelBlogPostSelect =
-  | ({ id: boolean } & Partial<Record<'createdAt' | 'updatedAt' | 'title' | 'content' | 'authorId', boolean>>)
-  | ({ createdAt: boolean } & Partial<Record<'id' | 'updatedAt' | 'title' | 'content' | 'authorId', boolean>>)
-  | ({ updatedAt: boolean } & Partial<Record<'id' | 'createdAt' | 'title' | 'content' | 'authorId', boolean>>)
-  | ({ title: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'content' | 'authorId', boolean>>)
-  | ({ content: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'title' | 'authorId', boolean>>)
-  | ({ authorId: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'title' | 'content', boolean>>);
+  | ({ id: boolean } & Partial<Record<'createdAt' | 'updatedAt' | 'title' | 'body' | 'authorId', boolean>>)
+  | ({ createdAt: boolean } & Partial<Record<'id' | 'updatedAt' | 'title' | 'body' | 'authorId', boolean>>)
+  | ({ updatedAt: boolean } & Partial<Record<'id' | 'createdAt' | 'title' | 'body' | 'authorId', boolean>>)
+  | ({ title: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'body' | 'authorId', boolean>>)
+  | ({ body: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'title' | 'authorId', boolean>>)
+  | ({ authorId: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'title' | 'body', boolean>>);
 
 export interface ExtRelBlogPostOrderBy {
   id?: 'asc' | 'desc';
   createdAt?: 'asc' | 'desc';
   updatedAt?: 'asc' | 'desc';
   title?: 'asc' | 'desc';
-  content?: 'asc' | 'desc';
+  body?: 'asc' | 'desc';
   authorId?: 'asc' | 'desc';
   author?: ExtRelBlogAuthorOrderBy;
 }
@@ -1619,7 +1619,7 @@ export interface ExtRelComment {
   id: CerialId<string>;
   createdAt?: Date;
   updatedAt?: Date;
-  content: string;
+  body: string;
   parentCommentId?: CerialId<string>;
 }
 
@@ -1627,7 +1627,7 @@ export interface ExtRelCommentInput {
   id?: string;
   createdAt?: Date;
   updatedAt?: Date;
-  content: string;
+  body: string;
   parentCommentId?: RecordIdInput<string>;
 }
 
@@ -1679,7 +1679,7 @@ export interface ExtRelCommentWhere {
         isNone?: boolean;
         between?: [Date, Date];
       });
-  content?:
+  body?:
     | string
     | ({
         eq?: string;
@@ -1755,17 +1755,17 @@ export type ExtRelCommentUnset = {
 };
 
 export type ExtRelCommentSelect =
-  | ({ id: boolean } & Partial<Record<'createdAt' | 'updatedAt' | 'content' | 'parentCommentId', boolean>>)
-  | ({ createdAt: boolean } & Partial<Record<'id' | 'updatedAt' | 'content' | 'parentCommentId', boolean>>)
-  | ({ updatedAt: boolean } & Partial<Record<'id' | 'createdAt' | 'content' | 'parentCommentId', boolean>>)
-  | ({ content: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'parentCommentId', boolean>>)
-  | ({ parentCommentId: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'content', boolean>>);
+  | ({ id: boolean } & Partial<Record<'createdAt' | 'updatedAt' | 'body' | 'parentCommentId', boolean>>)
+  | ({ createdAt: boolean } & Partial<Record<'id' | 'updatedAt' | 'body' | 'parentCommentId', boolean>>)
+  | ({ updatedAt: boolean } & Partial<Record<'id' | 'createdAt' | 'body' | 'parentCommentId', boolean>>)
+  | ({ body: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'parentCommentId', boolean>>)
+  | ({ parentCommentId: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'body', boolean>>);
 
 export interface ExtRelCommentOrderBy {
   id?: 'asc' | 'desc';
   createdAt?: 'asc' | 'desc';
   updatedAt?: 'asc' | 'desc';
-  content?: 'asc' | 'desc';
+  body?: 'asc' | 'desc';
   parentCommentId?: 'asc' | 'desc';
   parentComment?: ExtRelCommentOrderBy;
 }
@@ -2022,7 +2022,7 @@ export interface ExtRelCommentModerated {
   id: CerialId<string>;
   createdAt?: Date;
   updatedAt?: Date;
-  content: string;
+  body: string;
   parentCommentId?: CerialId<string>;
   isApproved: boolean;
   approvedBy?: CerialId<string>;
@@ -2032,7 +2032,7 @@ export interface ExtRelCommentModeratedInput {
   id?: string;
   createdAt?: Date;
   updatedAt?: Date;
-  content: string;
+  body: string;
   parentCommentId?: RecordIdInput<string>;
   isApproved: boolean;
   approvedBy?: RecordIdInput<string>;
@@ -2086,7 +2086,7 @@ export interface ExtRelCommentModeratedWhere {
         isNone?: boolean;
         between?: [Date, Date];
       });
-  content?:
+  body?:
     | string
     | ({
         eq?: string;
@@ -2196,32 +2196,32 @@ export type ExtRelCommentModeratedUnset = {
 
 export type ExtRelCommentModeratedSelect =
   | ({ id: boolean } & Partial<
-      Record<'createdAt' | 'updatedAt' | 'content' | 'parentCommentId' | 'isApproved' | 'approvedBy', boolean>
+      Record<'createdAt' | 'updatedAt' | 'body' | 'parentCommentId' | 'isApproved' | 'approvedBy', boolean>
     >)
   | ({ createdAt: boolean } & Partial<
-      Record<'id' | 'updatedAt' | 'content' | 'parentCommentId' | 'isApproved' | 'approvedBy', boolean>
+      Record<'id' | 'updatedAt' | 'body' | 'parentCommentId' | 'isApproved' | 'approvedBy', boolean>
     >)
   | ({ updatedAt: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'content' | 'parentCommentId' | 'isApproved' | 'approvedBy', boolean>
+      Record<'id' | 'createdAt' | 'body' | 'parentCommentId' | 'isApproved' | 'approvedBy', boolean>
     >)
-  | ({ content: boolean } & Partial<
+  | ({ body: boolean } & Partial<
       Record<'id' | 'createdAt' | 'updatedAt' | 'parentCommentId' | 'isApproved' | 'approvedBy', boolean>
     >)
   | ({ parentCommentId: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'updatedAt' | 'content' | 'isApproved' | 'approvedBy', boolean>
+      Record<'id' | 'createdAt' | 'updatedAt' | 'body' | 'isApproved' | 'approvedBy', boolean>
     >)
   | ({ isApproved: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'updatedAt' | 'content' | 'parentCommentId' | 'approvedBy', boolean>
+      Record<'id' | 'createdAt' | 'updatedAt' | 'body' | 'parentCommentId' | 'approvedBy', boolean>
     >)
   | ({ approvedBy: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'updatedAt' | 'content' | 'parentCommentId' | 'isApproved', boolean>
+      Record<'id' | 'createdAt' | 'updatedAt' | 'body' | 'parentCommentId' | 'isApproved', boolean>
     >);
 
 export interface ExtRelCommentModeratedOrderBy {
   id?: 'asc' | 'desc';
   createdAt?: 'asc' | 'desc';
   updatedAt?: 'asc' | 'desc';
-  content?: 'asc' | 'desc';
+  body?: 'asc' | 'desc';
   parentCommentId?: 'asc' | 'desc';
   parentComment?: ExtRelCommentOrderBy;
   isApproved?: 'asc' | 'desc';
@@ -2824,7 +2824,7 @@ export interface ExtRelPostSummary {
   createdAt?: Date;
   updatedAt?: Date;
   title: string;
-  content?: string;
+  body?: string;
   summary?: string;
   wordCount?: number;
 }
@@ -2834,7 +2834,7 @@ export interface ExtRelPostSummaryInput {
   createdAt?: Date;
   updatedAt?: Date;
   title: string;
-  content?: string;
+  body?: string;
   summary?: string;
   wordCount?: number;
 }
@@ -2900,7 +2900,7 @@ export interface ExtRelPostSummaryWhere {
         in?: string[];
         notIn?: string[];
       } & {});
-  content?:
+  body?:
     | string
     | ({
         eq?: string;
@@ -2960,22 +2960,22 @@ export type ExtRelPostSummaryFindUniqueWhere = { id: RecordIdInput<string> } & O
 
 export type ExtRelPostSummaryCreate = O.Optional<
   ExtRelPostSummaryInput,
-  'id' | 'createdAt' | 'updatedAt' | 'content' | 'summary' | 'wordCount'
+  'id' | 'createdAt' | 'updatedAt' | 'body' | 'summary' | 'wordCount'
 >;
 
 export type ExtRelPostSummaryNestedCreate = O.Optional<
   ExtRelPostSummaryInput,
-  'id' | 'createdAt' | 'updatedAt' | 'content' | 'summary' | 'wordCount'
+  'id' | 'createdAt' | 'updatedAt' | 'body' | 'summary' | 'wordCount'
 >;
 
 export type ExtRelPostSummaryCreateInput = ExtRelPostSummaryCreate;
 
 export type ExtRelPostSummaryUpdate = Partial<
-  O.Omit<ExtRelPostSummaryInput, 'id' | 'createdAt' | 'updatedAt' | 'content' | 'summary' | 'wordCount'>
+  O.Omit<ExtRelPostSummaryInput, 'id' | 'createdAt' | 'updatedAt' | 'body' | 'summary' | 'wordCount'>
 > & {
   createdAt?: Date | CerialNone;
   updatedAt?: Date | CerialNone;
-  content?: string | CerialNone;
+  body?: string | CerialNone;
   summary?: string | CerialNone;
   wordCount?: number | CerialNone;
 };
@@ -2985,32 +2985,20 @@ export type ExtRelPostSummaryUpdateInput = ExtRelPostSummaryUpdate;
 export type ExtRelPostSummaryUnset = {
   createdAt?: true;
   updatedAt?: true;
-  content?: true;
+  body?: true;
   summary?: true;
   wordCount?: true;
 };
 
 export type ExtRelPostSummarySelect =
-  | ({ id: boolean } & Partial<
-      Record<'createdAt' | 'updatedAt' | 'title' | 'content' | 'summary' | 'wordCount', boolean>
-    >)
-  | ({ createdAt: boolean } & Partial<
-      Record<'id' | 'updatedAt' | 'title' | 'content' | 'summary' | 'wordCount', boolean>
-    >)
-  | ({ updatedAt: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'title' | 'content' | 'summary' | 'wordCount', boolean>
-    >)
-  | ({ title: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'updatedAt' | 'content' | 'summary' | 'wordCount', boolean>
-    >)
-  | ({ content: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'updatedAt' | 'title' | 'summary' | 'wordCount', boolean>
-    >)
-  | ({ summary: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'updatedAt' | 'title' | 'content' | 'wordCount', boolean>
-    >)
+  | ({ id: boolean } & Partial<Record<'createdAt' | 'updatedAt' | 'title' | 'body' | 'summary' | 'wordCount', boolean>>)
+  | ({ createdAt: boolean } & Partial<Record<'id' | 'updatedAt' | 'title' | 'body' | 'summary' | 'wordCount', boolean>>)
+  | ({ updatedAt: boolean } & Partial<Record<'id' | 'createdAt' | 'title' | 'body' | 'summary' | 'wordCount', boolean>>)
+  | ({ title: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'body' | 'summary' | 'wordCount', boolean>>)
+  | ({ body: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'title' | 'summary' | 'wordCount', boolean>>)
+  | ({ summary: boolean } & Partial<Record<'id' | 'createdAt' | 'updatedAt' | 'title' | 'body' | 'wordCount', boolean>>)
   | ({ wordCount: boolean } & Partial<
-      Record<'id' | 'createdAt' | 'updatedAt' | 'title' | 'content' | 'summary', boolean>
+      Record<'id' | 'createdAt' | 'updatedAt' | 'title' | 'body' | 'summary', boolean>
     >);
 
 export interface ExtRelPostSummaryOrderBy {
@@ -3018,7 +3006,7 @@ export interface ExtRelPostSummaryOrderBy {
   createdAt?: 'asc' | 'desc';
   updatedAt?: 'asc' | 'desc';
   title?: 'asc' | 'desc';
-  content?: 'asc' | 'desc';
+  body?: 'asc' | 'desc';
   summary?: 'asc' | 'desc';
   wordCount?: 'asc' | 'desc';
 }

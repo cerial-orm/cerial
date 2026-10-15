@@ -145,7 +145,7 @@ export const tables = {
   selfRefManyToManySymmetric: ['friend'],
   selfRefSingleSidedArray: ['social_user'],
   multiRelation: ['writer', 'document'],
-  mixedOptionality: ['customer', 'agent', 'order'],
+  mixedOptionality: ['customer', 'agent', 'purchase_order'],
   kitchenSink: [
     'kitchen_sink_user',
     'kitchen_sink_profile',

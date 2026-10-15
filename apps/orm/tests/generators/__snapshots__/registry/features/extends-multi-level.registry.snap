@@ -182,7 +182,7 @@
           "isIndexed": false,
           "isRequired": true,
           "isUnique": false,
-          "name": "type",
+          "name": "kind",
           "type": "string"
         },
         {

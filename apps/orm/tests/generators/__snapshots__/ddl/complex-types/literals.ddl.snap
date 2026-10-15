@@ -10,7 +10,7 @@ DEFINE FIELD OVERWRITE mixed ON TABLE literal_basic TYPE 'low' | 'high' | 1 | 2 
 
 -- LiteralBroad
 DEFINE TABLE OVERWRITE literal_broad SCHEMAFULL;
-DEFINE FIELD OVERWRITE value ON TABLE literal_broad TYPE string | int;
+DEFINE FIELD OVERWRITE payload ON TABLE literal_broad TYPE string | int;
 DEFINE FIELD OVERWRITE values ON TABLE literal_broad TYPE array<string | int>;
 
 -- LiteralDefaults
@@ -42,8 +42,8 @@ DEFINE FIELD OVERWRITE tagged.label ON TABLE literal_object_array TYPE string;
 
 -- LiteralWithBoth
 DEFINE TABLE OVERWRITE literal_with_both SCHEMAFULL;
-DEFINE FIELD OVERWRITE data ON TABLE literal_with_both TYPE 'none' | 'empty' | [float, float] | { label: string, value: int };
-DEFINE FIELD OVERWRITE optData ON TABLE literal_with_both TYPE option<'none' | 'empty' | [float, float] | { label: string, value: int }>;
+DEFINE FIELD OVERWRITE data ON TABLE literal_with_both TYPE 'none' | 'empty' | [float, float] | { label: string, payload: int };
+DEFINE FIELD OVERWRITE optData ON TABLE literal_with_both TYPE option<'none' | 'empty' | [float, float] | { label: string, payload: int }>;
 
 -- LiteralWithObject
 DEFINE TABLE OVERWRITE literal_with_object SCHEMAFULL;
@@ -62,9 +62,9 @@ DEFINE FIELD OVERWRITE optPayload ON TABLE literal_with_object_opt TYPE option<'
 
 -- LiteralWithObjectVariant
 DEFINE TABLE OVERWRITE literal_with_object_variant SCHEMAFULL;
-DEFINE FIELD OVERWRITE payload ON TABLE literal_with_object_variant TYPE 'empty' | { label: string, value: int };
-DEFINE FIELD OVERWRITE optPayload ON TABLE literal_with_object_variant TYPE option<'empty' | { label: string, value: int }>;
-DEFINE FIELD OVERWRITE payloads ON TABLE literal_with_object_variant TYPE array<'empty' | { label: string, value: int }>;
+DEFINE FIELD OVERWRITE payload ON TABLE literal_with_object_variant TYPE 'empty' | { label: string, payload: int };
+DEFINE FIELD OVERWRITE optPayload ON TABLE literal_with_object_variant TYPE option<'empty' | { label: string, payload: int }>;
+DEFINE FIELD OVERWRITE payloads ON TABLE literal_with_object_variant TYPE array<'empty' | { label: string, payload: int }>;
 
 -- LiteralWithTuple
 DEFINE TABLE OVERWRITE literal_with_tuple SCHEMAFULL;

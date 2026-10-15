@@ -38,11 +38,11 @@ describe('E2E Mixed Optionality: Include', () => {
         data: { name: 'Customer' },
       });
 
-      const order = await client.db.Order.create({
+      const order = await client.db.PurchaseOrder.create({
         data: { orderNumber: 'ORD-001', customer: { connect: customer.id } },
       });
 
-      const result = await client.db.Order.findOne({
+      const result = await client.db.PurchaseOrder.findOne({
         where: { id: order.id },
         include: { customer: true },
       });
@@ -58,11 +58,11 @@ describe('E2E Mixed Optionality: Include', () => {
         data: { name: 'Customer' },
       });
 
-      const order = await client.db.Order.create({
+      const order = await client.db.PurchaseOrder.create({
         data: { orderNumber: 'ORD-002', customer: { connect: customer.id } },
       });
 
-      const result = await client.db.Order.findOne({
+      const result = await client.db.PurchaseOrder.findOne({
         where: { id: order.id },
         include: { assignee: true },
       });
@@ -78,7 +78,7 @@ describe('E2E Mixed Optionality: Include', () => {
         data: { name: 'Agent' },
       });
 
-      const order = await client.db.Order.create({
+      const order = await client.db.PurchaseOrder.create({
         data: {
           orderNumber: 'ORD-003',
           customer: { connect: customer.id },
@@ -86,7 +86,7 @@ describe('E2E Mixed Optionality: Include', () => {
         },
       });
 
-      const result = await client.db.Order.findOne({
+      const result = await client.db.PurchaseOrder.findOne({
         where: { id: order.id },
         include: { assignee: true },
       });
@@ -104,7 +104,7 @@ describe('E2E Mixed Optionality: Include', () => {
         data: { name: 'Agent' },
       });
 
-      const order = await client.db.Order.create({
+      const order = await client.db.PurchaseOrder.create({
         data: {
           orderNumber: 'ORD-004',
           customer: { connect: customer.id },
@@ -112,7 +112,7 @@ describe('E2E Mixed Optionality: Include', () => {
         },
       });
 
-      const result = await client.db.Order.findOne({
+      const result = await client.db.PurchaseOrder.findOne({
         where: { id: order.id },
         include: { customer: true, assignee: true },
       });
@@ -128,10 +128,10 @@ describe('E2E Mixed Optionality: Include', () => {
         data: { name: 'Customer' },
       });
 
-      await client.db.Order.create({
+      await client.db.PurchaseOrder.create({
         data: { orderNumber: 'ORD-A', customer: { connect: customer.id } },
       });
-      await client.db.Order.create({
+      await client.db.PurchaseOrder.create({
         data: { orderNumber: 'ORD-B', customer: { connect: customer.id } },
       });
 
@@ -153,14 +153,14 @@ describe('E2E Mixed Optionality: Include', () => {
         data: { name: 'Agent' },
       });
 
-      await client.db.Order.create({
+      await client.db.PurchaseOrder.create({
         data: {
           orderNumber: 'ORD-X',
           customer: { connect: customer.id },
           assignee: { connect: agent.id },
         },
       });
-      await client.db.Order.create({
+      await client.db.PurchaseOrder.create({
         data: {
           orderNumber: 'ORD-Y',
           customer: { connect: customer.id },

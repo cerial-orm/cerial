@@ -97,7 +97,7 @@ describe('E2E Include', () => {
       await client.db.Post.create({
         data: {
           title: 'First Post',
-          content: 'Content of first post',
+          body: 'Content of first post',
           authorId: user.id,
         },
       });
@@ -105,7 +105,7 @@ describe('E2E Include', () => {
       await client.db.Post.create({
         data: {
           title: 'Second Post',
-          content: 'Content of second post',
+          body: 'Content of second post',
           authorId: user.id,
         },
       });
@@ -135,7 +135,7 @@ describe('E2E Include', () => {
       await client.db.Post.create({
         data: {
           title: 'Published Post',
-          content: 'Published content',
+          body: 'Published content',
           authorId: user.id,
         },
       });
@@ -143,7 +143,7 @@ describe('E2E Include', () => {
       await client.db.Post.create({
         data: {
           title: 'Draft Post',
-          content: 'Draft content',
+          body: 'Draft content',
           authorId: user.id,
         },
       });
@@ -176,7 +176,7 @@ describe('E2E Include', () => {
         await client.db.Post.create({
           data: {
             title: `Post ${i}`,
-            content: `Content ${i}`,
+            body: `Content ${i}`,
             authorId: user.id,
           },
         });
@@ -207,7 +207,7 @@ describe('E2E Include', () => {
       await client.db.Post.create({
         data: {
           title: 'A Post',
-          content: 'Content A',
+          body: 'Content A',
           authorId: user.id,
         },
       });
@@ -215,7 +215,7 @@ describe('E2E Include', () => {
       await client.db.Post.create({
         data: {
           title: 'Z Post',
-          content: 'Content Z',
+          body: 'Content Z',
           authorId: user.id,
         },
       });
@@ -259,7 +259,7 @@ describe('E2E Include', () => {
       await client.db.Post.create({
         data: {
           title: 'User Post',
-          content: 'Post content',
+          body: 'Post content',
           authorId: user.id,
         },
       });

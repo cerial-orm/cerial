@@ -24,7 +24,7 @@
           "isIndexed": false,
           "isRequired": false,
           "isUnique": false,
-          "name": "content",
+          "name": "body",
           "type": "string"
         },
         {

@@ -62,7 +62,7 @@ Test.checks([
   // WithTuple = 'none' | LiteralCoord (i.e. 'none' | [number, number])
   Test.check<WithTuple, 'none' | LiteralCoord, Test.Pass>(),
 
-  // WithObject = 'empty' | LiteralPoint (i.e. 'empty' | { label: string; value: number })
+  // WithObject = 'empty' | LiteralPoint (i.e. 'empty' | { label: string; payload: number })
   Test.check<WithObject, 'empty' | LiteralPoint, Test.Pass>(),
 
   // WithBoth = 'none' | 'empty' | LiteralCoord | LiteralPoint

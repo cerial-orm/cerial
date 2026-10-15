@@ -903,7 +903,7 @@ import type {
 export interface PostRequired {
   id: CerialId<string>;
   title: string;
-  content?: string | null;
+  body?: string | null;
   authorId: CerialId<string>;
   createdAt?: Date;
 }
@@ -911,7 +911,7 @@ export interface PostRequired {
 export interface PostRequiredInput {
   id?: string;
   title: string;
-  content?: string | null;
+  body?: string | null;
   authorId: RecordIdInput<string>;
   createdAt?: Date;
 }
@@ -943,7 +943,7 @@ export interface PostRequiredWhere {
         in?: string[];
         notIn?: string[];
       } & {});
-  content?:
+  body?:
     | null
     | string
     | ({
@@ -1001,11 +1001,11 @@ export type PostRequiredWhereInput = PostRequiredWhere;
 
 export type PostRequiredFindUniqueWhere = { id: RecordIdInput<string> } & Omit<PostRequiredWhere, 'id'>;
 
-export type PostRequiredCreate = O.Optional<O.Omit<PostRequiredInput, 'author'>, 'id' | 'content' | 'createdAt'>;
+export type PostRequiredCreate = O.Optional<O.Omit<PostRequiredInput, 'author'>, 'id' | 'body' | 'createdAt'>;
 
 export type PostRequiredNestedCreate = O.Optional<
   O.Omit<PostRequiredInput, 'author' | 'authorId'>,
-  'id' | 'content' | 'createdAt'
+  'id' | 'body' | 'createdAt'
 >;
 
 export type PostRequiredCreateInput =
@@ -1014,8 +1014,8 @@ export type PostRequiredCreateInput =
       author: { create: AuthorNestedCreate } | { connect: RecordIdInput };
     });
 
-export type PostRequiredUpdate = Partial<O.Omit<PostRequiredInput, 'id' | 'author' | 'content' | 'createdAt'>> & {
-  content?: string | null | CerialNone;
+export type PostRequiredUpdate = Partial<O.Omit<PostRequiredInput, 'id' | 'author' | 'body' | 'createdAt'>> & {
+  body?: string | null | CerialNone;
   createdAt?: Date | CerialNone;
 };
 
@@ -1026,21 +1026,21 @@ export type PostRequiredUpdateInput =
     });
 
 export type PostRequiredUnset = {
-  content?: true;
+  body?: true;
   createdAt?: true;
 };
 
 export type PostRequiredSelect =
-  | ({ id: boolean } & Partial<Record<'title' | 'content' | 'authorId' | 'createdAt', boolean>>)
-  | ({ title: boolean } & Partial<Record<'id' | 'content' | 'authorId' | 'createdAt', boolean>>)
-  | ({ content: boolean } & Partial<Record<'id' | 'title' | 'authorId' | 'createdAt', boolean>>)
-  | ({ authorId: boolean } & Partial<Record<'id' | 'title' | 'content' | 'createdAt', boolean>>)
-  | ({ createdAt: boolean } & Partial<Record<'id' | 'title' | 'content' | 'authorId', boolean>>);
+  | ({ id: boolean } & Partial<Record<'title' | 'body' | 'authorId' | 'createdAt', boolean>>)
+  | ({ title: boolean } & Partial<Record<'id' | 'body' | 'authorId' | 'createdAt', boolean>>)
+  | ({ body: boolean } & Partial<Record<'id' | 'title' | 'authorId' | 'createdAt', boolean>>)
+  | ({ authorId: boolean } & Partial<Record<'id' | 'title' | 'body' | 'createdAt', boolean>>)
+  | ({ createdAt: boolean } & Partial<Record<'id' | 'title' | 'body' | 'authorId', boolean>>);
 
 export interface PostRequiredOrderBy {
   id?: 'asc' | 'desc';
   title?: 'asc' | 'desc';
-  content?: 'asc' | 'desc';
+  body?: 'asc' | 'desc';
   authorId?: 'asc' | 'desc';
   author?: AuthorOrderBy;
   createdAt?: 'asc' | 'desc';

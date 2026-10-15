@@ -22,7 +22,7 @@ model BlogProfile {
 model Article {
   id         Record    @id
   title      String
-  content    String?
+  body       String?
   authorId   Record
   author     Relation  @field(authorId) @model(Blogger)
   categoryId Record?   @nullable

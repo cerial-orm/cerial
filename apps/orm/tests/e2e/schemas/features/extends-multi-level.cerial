@@ -54,7 +54,7 @@ model ExtL4PickConcrete extends ExtL3Pick {
 
 // Deep chain with omit at level 3
 abstract model ExtL3Omit extends ExtL2Mid[!description] {
-  type String
+  kind String
 }
 
 // Level 4 from L3Omit

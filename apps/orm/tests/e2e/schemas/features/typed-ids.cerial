@@ -17,7 +17,7 @@ model NumberIdModel {
 
 model StringIdModel {
   id Record(string) @id
-  value String
+  payload String
 }
 
 model UuidIdModel {
@@ -32,7 +32,7 @@ model TupleIdModel {
 
 model ObjectIdModel {
   id Record(IdMetricKey) @id
-  value Float
+  payload Float
 }
 
 model UnionIdModel {

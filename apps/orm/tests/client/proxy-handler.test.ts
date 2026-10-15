@@ -35,7 +35,7 @@ model User {
 model Post {
   id Record @id
   title String
-  content String?
+  body String?
 }
 `;
 

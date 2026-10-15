@@ -74,7 +74,7 @@ describe('Composite Directive Validator', () => {
 
     test('should reject @unique on array field (Record[])', () => {
       const { validationErrors } = parseAndValidate(`
-        model Group {
+        model ItemGroup {
           id Record @id
           memberIds Record[] @unique
         }

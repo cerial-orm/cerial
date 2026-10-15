@@ -878,17 +878,17 @@ export interface OrderItemOrderBy {
  */
 
 export interface TreeNode {
-  value: number;
+  payload: number;
   children: TreeNode[];
 }
 
 export interface TreeNodeInput {
-  value: number;
+  payload: number;
   children: TreeNodeInput[];
 }
 
 export interface TreeNodeWhere {
-  value?:
+  payload?:
     | number
     | ({
         eq?: number;
@@ -910,10 +910,10 @@ export interface TreeNodeWhere {
 }
 
 export type TreeNodeSelect =
-  | ({ value: boolean } & { children?: boolean | TreeNodeSelect })
-  | ({ children: boolean | TreeNodeSelect } & Partial<Record<'value', boolean>>);
+  | ({ payload: boolean } & { children?: boolean | TreeNodeSelect })
+  | ({ children: boolean | TreeNodeSelect } & Partial<Record<'payload', boolean>>);
 
 export interface TreeNodeOrderBy {
-  value?: 'asc' | 'desc';
+  payload?: 'asc' | 'desc';
   children?: TreeNodeOrderBy;
 }

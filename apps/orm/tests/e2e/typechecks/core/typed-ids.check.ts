@@ -116,7 +116,7 @@ export const stringForIntId: IntIdModelCreate = { id: 'a', name: 'x' };
 export const shortTupleId: TupleIdModelCreate = { id: [1], city: 'x' };
 
 // @ts-expect-error - an object id needs every key
-export const partialObjectId: ObjectIdModelCreate = { id: { service: 'a' }, value: 1 };
+export const partialObjectId: ObjectIdModelCreate = { id: { service: 'a' }, payload: 1 };
 
 // @ts-expect-error - a union id of string | number rejects a boolean
 export const booleanForUnionId: UnionIdModelCreate = { id: true, label: 'x' };

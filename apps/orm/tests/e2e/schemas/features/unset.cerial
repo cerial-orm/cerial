@@ -20,7 +20,7 @@ tuple UnsetOptTuple {
 }
 
 object UnsetInner {
-  value String
+  payload String
   extra String?
 }
 
@@ -55,7 +55,7 @@ tuple UnsetDeepTuple {
 
 # Self-referencing object (recursive tree)
 object UnsetTreeNode {
-  value String
+  payload String
   extra String?
   child UnsetTreeNode?
 }

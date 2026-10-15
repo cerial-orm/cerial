@@ -252,12 +252,12 @@ describe('E2E Objects: Create', () => {
       const order = await client.db.ObjectTestOrder.create({
         data: {
           billingAddress: { street: '30 Main', city: 'NYC', state: 'NY' },
-          metadata: { value: 1, children: [] },
+          metadata: { payload: 1, children: [] },
         },
       });
 
       expect(order.metadata).toBeDefined();
-      expect(order.metadata!.value).toBe(1);
+      expect(order.metadata!.payload).toBe(1);
       expect(order.metadata!.children).toEqual([]);
     });
 
@@ -266,18 +266,18 @@ describe('E2E Objects: Create', () => {
         data: {
           billingAddress: { street: '31 Main', city: 'NYC', state: 'NY' },
           metadata: {
-            value: 1,
+            payload: 1,
             children: [
-              { value: 2, children: [] },
-              { value: 3, children: [] },
+              { payload: 2, children: [] },
+              { payload: 3, children: [] },
             ],
           },
         },
       });
 
       expect(order.metadata!.children).toHaveLength(2);
-      expect(order.metadata!.children[0]!.value).toBe(2);
-      expect(order.metadata!.children[1]!.value).toBe(3);
+      expect(order.metadata!.children[0]!.payload).toBe(2);
+      expect(order.metadata!.children[1]!.payload).toBe(3);
     });
 
     test('should create with two levels of children', async () => {
@@ -285,13 +285,13 @@ describe('E2E Objects: Create', () => {
         data: {
           billingAddress: { street: '32 Main', city: 'NYC', state: 'NY' },
           metadata: {
-            value: 1,
+            payload: 1,
             children: [
               {
-                value: 2,
+                payload: 2,
                 children: [
-                  { value: 4, children: [] },
-                  { value: 5, children: [] },
+                  { payload: 4, children: [] },
+                  { payload: 5, children: [] },
                 ],
               },
             ],
@@ -300,7 +300,7 @@ describe('E2E Objects: Create', () => {
       });
 
       expect(order.metadata!.children[0]!.children).toHaveLength(2);
-      expect(order.metadata!.children[0]!.children[0]!.value).toBe(4);
+      expect(order.metadata!.children[0]!.children[0]!.payload).toBe(4);
     });
 
     test('should create with metadata omitted (optional self-ref)', async () => {

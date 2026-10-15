@@ -128,11 +128,11 @@ describe('E2E One-to-Many Required: Update', () => {
 
       const updated = await client.db.PostRequired.updateMany({
         where: { id: post.id },
-        data: { title: 'Updated', content: 'New content' },
+        data: { title: 'Updated', body: 'New content' },
       });
 
       expect(updated[0]?.title).toBe('Updated');
-      expect(updated[0]?.content).toBe('New content');
+      expect(updated[0]?.body).toBe('New content');
       expect(updated[0]?.authorId?.equals(author.id)).toBe(true);
     });
   });

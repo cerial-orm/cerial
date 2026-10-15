@@ -352,7 +352,7 @@
           "decorators": [],
           "isOptional": false,
           "literalName": "Broad",
-          "name": "value",
+          "name": "payload",
           "type": "literal"
         },
         {
@@ -682,7 +682,7 @@
         {
           "decorators": [],
           "isOptional": false,
-          "name": "value",
+          "name": "payload",
           "type": "int"
         }
       ],

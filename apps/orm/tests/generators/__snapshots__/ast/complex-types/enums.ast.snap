@@ -240,7 +240,7 @@
           "decorators": [],
           "isOptional": false,
           "literalName": "RoleOrCustom",
-          "name": "access",
+          "name": "visibility",
           "type": "literal"
         }
       ],

@@ -208,29 +208,29 @@ describe('E2E Literals: Filtering', () => {
 
   describe('broad literal filters (Broad = String | Int)', () => {
     beforeEach(async () => {
-      await client.db.LiteralBroad.create({ data: { value: 'hello world' } });
-      await client.db.LiteralBroad.create({ data: { value: 42 } });
-      await client.db.LiteralBroad.create({ data: { value: 'test string' } });
+      await client.db.LiteralBroad.create({ data: { payload: 'hello world' } });
+      await client.db.LiteralBroad.create({ data: { payload: 42 } });
+      await client.db.LiteralBroad.create({ data: { payload: 'test string' } });
     });
 
     test('should filter broad literal by direct string value', async () => {
       const results = await client.db.LiteralBroad.findMany({
-        where: { value: 'hello world' },
+        where: { payload: 'hello world' },
       });
 
       expect(results.length).toBe(1);
       expect(results[0]).toBeDefined();
-      expect(results[0]!.value).toBe('hello world');
+      expect(results[0]!.payload).toBe('hello world');
     });
 
     test('should filter broad literal by direct int value', async () => {
       const results = await client.db.LiteralBroad.findMany({
-        where: { value: 42 },
+        where: { payload: 42 },
       });
 
       expect(results.length).toBe(1);
       expect(results[0]).toBeDefined();
-      expect(results[0]!.value).toBe(42);
+      expect(results[0]!.payload).toBe(42);
     });
 
     // String operators (contains/startsWith/endsWith) on broad literals (String | Int)
@@ -239,7 +239,7 @@ describe('E2E Literals: Filtering', () => {
 
     test('should fail broad literal contains when non-string values exist', async () => {
       const query = client.db.LiteralBroad.findMany({
-        where: { value: { contains: 'world' } },
+        where: { payload: { contains: 'world' } },
       });
 
       await expect(
@@ -251,7 +251,7 @@ describe('E2E Literals: Filtering', () => {
 
     test('should fail broad literal startsWith when non-string values exist', async () => {
       const query = client.db.LiteralBroad.findMany({
-        where: { value: { startsWith: 'test' } },
+        where: { payload: { startsWith: 'test' } },
       });
 
       await expect(
@@ -263,7 +263,7 @@ describe('E2E Literals: Filtering', () => {
 
     test('should fail broad literal endsWith when non-string values exist', async () => {
       const query = client.db.LiteralBroad.findMany({
-        where: { value: { endsWith: 'string' } },
+        where: { payload: { endsWith: 'string' } },
       });
 
       await expect(
@@ -275,7 +275,7 @@ describe('E2E Literals: Filtering', () => {
 
     test('should filter broad literal by in with mixed types', async () => {
       const results = await client.db.LiteralBroad.findMany({
-        where: { value: { in: ['hello world', 42] } },
+        where: { payload: { in: ['hello world', 42] } },
       });
 
       expect(results.length).toBe(2);
@@ -345,13 +345,13 @@ describe('E2E Literals: Filtering', () => {
   describe('broad array literal filters', () => {
     beforeEach(async () => {
       await client.db.LiteralBroad.create({
-        data: { value: 'x', values: ['hello', 42, 'world'] },
+        data: { payload: 'x', values: ['hello', 42, 'world'] },
       });
       await client.db.LiteralBroad.create({
-        data: { value: 'y', values: [1, 2, 3] },
+        data: { payload: 'y', values: [1, 2, 3] },
       });
       await client.db.LiteralBroad.create({
-        data: { value: 'z', values: [] },
+        data: { payload: 'z', values: [] },
       });
     });
 

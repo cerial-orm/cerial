@@ -16,9 +16,9 @@ import type {
   DocumentCreateInput,
   DocumentInclude,
   DocumentUpdateInput,
-  Order,
-  OrderCreateInput,
-  OrderUpdateInput,
+  PurchaseOrder,
+  PurchaseOrderCreateInput,
+  PurchaseOrderUpdateInput,
   Writer,
   WriterCreateInput,
   WriterInclude,
@@ -132,35 +132,35 @@ Test.checks([
 ]);
 
 // =============================================================================
-// Mixed Optionality: Order with Customer (required) and Agent (optional)
+// Mixed Optionality: PurchaseOrder with Customer (required) and Agent (optional)
 // =============================================================================
 
-// Order should have customerId (required) and assigneeId (optional)
+// PurchaseOrder should have customerId (required) and assigneeId (optional)
 Test.checks([
-  Test.check<Order['id'], CerialId<string>, Test.Pass>(),
-  Test.check<Order['orderNumber'], string, Test.Pass>(),
-  Test.check<Order['customerId'], CerialId<string>, Test.Pass>(),
-  Test.check<Extends<Order['assigneeId'], CerialId | null | undefined>, 1, Test.Pass>(),
+  Test.check<PurchaseOrder['id'], CerialId<string>, Test.Pass>(),
+  Test.check<PurchaseOrder['orderNumber'], string, Test.Pass>(),
+  Test.check<PurchaseOrder['customerId'], CerialId<string>, Test.Pass>(),
+  Test.check<Extends<PurchaseOrder['assigneeId'], CerialId | null | undefined>, 1, Test.Pass>(),
 ]);
 
-// Order must have customer
+// PurchaseOrder must have customer
 type OrderWithCustomer = {
   orderNumber: string;
   customer: { connect: string };
 };
-Test.checks([Test.check<Extends<OrderWithCustomer, OrderCreateInput>, 1, Test.Pass>()]);
+Test.checks([Test.check<Extends<OrderWithCustomer, PurchaseOrderCreateInput>, 1, Test.Pass>()]);
 
-// Order with both customer and assignee
+// PurchaseOrder with both customer and assignee
 type OrderWithBoth = {
   orderNumber: string;
   customer: { connect: string };
   assignee: { connect: string };
 };
-Test.checks([Test.check<Extends<OrderWithBoth, OrderCreateInput>, 1, Test.Pass>()]);
+Test.checks([Test.check<Extends<OrderWithBoth, PurchaseOrderCreateInput>, 1, Test.Pass>()]);
 
-// Order can disconnect assignee (optional) but not customer (required)
+// PurchaseOrder can disconnect assignee (optional) but not customer (required)
 type OrderDisconnectAssignee = { assignee: { disconnect: true } };
-Test.checks([Test.check<Extends<OrderDisconnectAssignee, OrderUpdateInput>, 1, Test.Pass>()]);
+Test.checks([Test.check<Extends<OrderDisconnectAssignee, PurchaseOrderUpdateInput>, 1, Test.Pass>()]);
 
 // Customer and Agent Include
 type IncludeOrders = { orders: true };

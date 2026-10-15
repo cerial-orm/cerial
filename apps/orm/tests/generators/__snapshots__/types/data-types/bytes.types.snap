@@ -787,17 +787,17 @@ export interface BytesWithTupleModel {
 import { CerialBytes } from 'cerial';
 import type { CerialBytesInput } from 'cerial';
 export interface BytesInfo {
-  content: CerialBytes;
+  body: CerialBytes;
   extra?: CerialBytes;
 }
 
 export interface BytesInfoInput {
-  content: CerialBytesInput;
+  body: CerialBytesInput;
   extra?: CerialBytesInput;
 }
 
 export interface BytesInfoWhere {
-  content?:
+  body?:
     | CerialBytesInput
     | ({
         eq?: CerialBytesInput;
@@ -824,11 +824,11 @@ export interface BytesInfoWhere {
 }
 
 export type BytesInfoSelect =
-  | ({ content: boolean } & Partial<Record<'extra', boolean>>)
-  | ({ extra: boolean } & Partial<Record<'content', boolean>>);
+  | ({ body: boolean } & Partial<Record<'extra', boolean>>)
+  | ({ extra: boolean } & Partial<Record<'body', boolean>>);
 
 export interface BytesInfoOrderBy {
-  content?: 'asc' | 'desc';
+  body?: 'asc' | 'desc';
   extra?: 'asc' | 'desc';
 }
 

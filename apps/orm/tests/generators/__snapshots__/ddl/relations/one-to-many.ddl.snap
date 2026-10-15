@@ -16,6 +16,6 @@ DEFINE FIELD OVERWRITE articleId ON TABLE comment TYPE option<record<article> | 
 -- PostRequired
 DEFINE TABLE OVERWRITE post_required SCHEMAFULL;
 DEFINE FIELD OVERWRITE title ON TABLE post_required TYPE string;
-DEFINE FIELD OVERWRITE content ON TABLE post_required TYPE option<string | null>;
+DEFINE FIELD OVERWRITE body ON TABLE post_required TYPE option<string | null>;
 DEFINE FIELD OVERWRITE authorId ON TABLE post_required TYPE record<author>;
 DEFINE FIELD OVERWRITE createdAt ON TABLE post_required TYPE option<datetime> DEFAULT time::now();

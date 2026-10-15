@@ -46,7 +46,7 @@ describe('Unset: Self-Referencing Types', () => {
           address: { street: 'A', city: 'NYC' },
           pos: [40.0, -74.0],
           nested: NESTED,
-          tree: { value: 'root', extra: 'note', child: { value: 'leaf' } },
+          tree: { payload: 'root', extra: 'note', child: { payload: 'leaf' } },
         },
       });
       expect(record.tree).toBeDefined();
@@ -67,7 +67,7 @@ describe('Unset: Self-Referencing Types', () => {
           address: { street: 'B', city: 'NYC' },
           pos: [40.0, -74.0],
           nested: NESTED,
-          tree: { value: 'root', extra: 'to-remove' },
+          tree: { payload: 'root', extra: 'to-remove' },
         },
       });
 
@@ -78,7 +78,7 @@ describe('Unset: Self-Referencing Types', () => {
       });
 
       expect(updated!.tree).toBeDefined();
-      expect(updated!.tree!.value).toBe('root');
+      expect(updated!.tree!.payload).toBe('root');
       expect(updated!.tree!.extra).toBeUndefined();
     });
 
@@ -89,7 +89,7 @@ describe('Unset: Self-Referencing Types', () => {
           address: { street: 'C', city: 'NYC' },
           pos: [40.0, -74.0],
           nested: NESTED,
-          tree: { value: 'root', child: { value: 'leaf', extra: 'child-note' } },
+          tree: { payload: 'root', child: { payload: 'leaf', extra: 'child-note' } },
         },
       });
 
@@ -100,7 +100,7 @@ describe('Unset: Self-Referencing Types', () => {
       });
 
       expect(updated!.tree).toBeDefined();
-      expect(updated!.tree!.value).toBe('root');
+      expect(updated!.tree!.payload).toBe('root');
       expect(updated!.tree!.child).toBeUndefined();
     });
 
@@ -111,7 +111,7 @@ describe('Unset: Self-Referencing Types', () => {
           address: { street: 'D', city: 'NYC' },
           pos: [40.0, -74.0],
           nested: NESTED,
-          tree: { value: 'root', extra: 'note', child: { value: 'leaf' } },
+          tree: { payload: 'root', extra: 'note', child: { payload: 'leaf' } },
         },
       });
 
@@ -121,7 +121,7 @@ describe('Unset: Self-Referencing Types', () => {
         unset: { tree: { extra: true, child: true } },
       });
 
-      expect(updated!.tree!.value).toBe('root');
+      expect(updated!.tree!.payload).toBe('root');
       expect(updated!.tree!.extra).toBeUndefined();
       expect(updated!.tree!.child).toBeUndefined();
     });

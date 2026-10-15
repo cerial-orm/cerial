@@ -770,7 +770,7 @@ export interface ExtL4OmitConcrete {
   id: CerialId<string>;
   createdAt?: Date;
   name: string;
-  type: string;
+  kind: string;
   subtype?: string;
   version: number;
 }
@@ -779,7 +779,7 @@ export interface ExtL4OmitConcreteInput {
   id?: string;
   createdAt?: Date;
   name: string;
-  type: string;
+  kind: string;
   subtype?: string;
   version: number;
 }
@@ -828,7 +828,7 @@ export interface ExtL4OmitConcreteWhere {
         in?: string[];
         notIn?: string[];
       } & {});
-  type?:
+  kind?:
     | string
     | ({
         eq?: string;
@@ -903,18 +903,18 @@ export type ExtL4OmitConcreteUnset = {
 };
 
 export type ExtL4OmitConcreteSelect =
-  | ({ id: boolean } & Partial<Record<'createdAt' | 'name' | 'type' | 'subtype' | 'version', boolean>>)
-  | ({ createdAt: boolean } & Partial<Record<'id' | 'name' | 'type' | 'subtype' | 'version', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'createdAt' | 'type' | 'subtype' | 'version', boolean>>)
-  | ({ type: boolean } & Partial<Record<'id' | 'createdAt' | 'name' | 'subtype' | 'version', boolean>>)
-  | ({ subtype: boolean } & Partial<Record<'id' | 'createdAt' | 'name' | 'type' | 'version', boolean>>)
-  | ({ version: boolean } & Partial<Record<'id' | 'createdAt' | 'name' | 'type' | 'subtype', boolean>>);
+  | ({ id: boolean } & Partial<Record<'createdAt' | 'name' | 'kind' | 'subtype' | 'version', boolean>>)
+  | ({ createdAt: boolean } & Partial<Record<'id' | 'name' | 'kind' | 'subtype' | 'version', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'createdAt' | 'kind' | 'subtype' | 'version', boolean>>)
+  | ({ kind: boolean } & Partial<Record<'id' | 'createdAt' | 'name' | 'subtype' | 'version', boolean>>)
+  | ({ subtype: boolean } & Partial<Record<'id' | 'createdAt' | 'name' | 'kind' | 'version', boolean>>)
+  | ({ version: boolean } & Partial<Record<'id' | 'createdAt' | 'name' | 'kind' | 'subtype', boolean>>);
 
 export interface ExtL4OmitConcreteOrderBy {
   id?: 'asc' | 'desc';
   createdAt?: 'asc' | 'desc';
   name?: 'asc' | 'desc';
-  type?: 'asc' | 'desc';
+  kind?: 'asc' | 'desc';
   subtype?: 'asc' | 'desc';
   version?: 'asc' | 'desc';
 }

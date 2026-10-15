@@ -162,7 +162,7 @@
                 "isIndexed": false,
                 "isRequired": true,
                 "isUnique": false,
-                "name": "value",
+                "name": "payload",
                 "type": "int"
               }
             ],
@@ -222,7 +222,7 @@
           "isIndexed": false,
           "isRequired": true,
           "isUnique": false,
-          "name": "value",
+          "name": "payload",
           "type": "int"
         }
       ],

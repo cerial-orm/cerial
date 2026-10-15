@@ -136,7 +136,7 @@ describe('E2E Tuples: Sub-Field Select', () => {
   describe('depth-5 nested tuple select', () => {
     const deepData: DeepOuterTupleInput = [
       'outer-label',
-      ['mid-label', { name: 'John', age: 30, pos: [1.5, { value: 'a', extra: 'b' }] }],
+      ['mid-label', { name: 'John', age: 30, pos: [1.5, { payload: 'a', extra: 'b' }] }],
     ];
 
     test('should narrow deepest object through multiple nesting levels', async () => {
@@ -145,7 +145,7 @@ describe('E2E Tuples: Sub-Field Select', () => {
       });
 
       // Select only value from DeepInnerObj through the full depth:
-      // deep → DeepOuterTuple[1] → DeepMidTuple[1] → DeepMidObj.pos → DeepInnerTuple[1] → { value }
+      // deep → DeepOuterTuple[1] → DeepMidTuple[1] → DeepMidObj.pos → DeepInnerTuple[1] → { payload }
       const result = await client.db.TupleDeepNest.findUnique({
         where: { id: created.id },
         select: {
@@ -153,7 +153,7 @@ describe('E2E Tuples: Sub-Field Select', () => {
             1: {
               1: {
                 pos: {
-                  1: { value: true },
+                  1: { payload: true },
                 },
               },
             },
@@ -171,7 +171,7 @@ describe('E2E Tuples: Sub-Field Select', () => {
       // Inner tuple structure preserved
       expect(result!.deep[1][1].pos[0]).toBe(1.5);
       // Deepest object narrowed to just value
-      expect(result!.deep[1][1].pos[1]).toEqual({ value: 'a' });
+      expect(result!.deep[1][1].pos[1]).toEqual({ payload: 'a' });
     });
 
     test('should select mid-level object field only', async () => {

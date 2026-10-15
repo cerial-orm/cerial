@@ -39,50 +39,50 @@ describe('E2E Enums: Literal Ref', () => {
   describe('create with literal referencing enum', () => {
     test('should create with enum value ADMIN', async () => {
       const result = await client.db.EnumLiteralRef.create({
-        data: { access: 'ADMIN' },
+        data: { visibility: 'ADMIN' },
       });
 
       expect(isCerialId(result.id)).toBe(true);
-      expect(result.access).toBe('ADMIN');
+      expect(result.visibility).toBe('ADMIN');
     });
 
     test('should create with enum value USER', async () => {
       const result = await client.db.EnumLiteralRef.create({
-        data: { access: 'USER' },
+        data: { visibility: 'USER' },
       });
 
-      expect(result.access).toBe('USER');
+      expect(result.visibility).toBe('USER');
     });
 
     test('should create with enum value MODERATOR', async () => {
       const result = await client.db.EnumLiteralRef.create({
-        data: { access: 'MODERATOR' },
+        data: { visibility: 'MODERATOR' },
       });
 
-      expect(result.access).toBe('MODERATOR');
+      expect(result.visibility).toBe('MODERATOR');
     });
 
     test('should create with literal-only value custom', async () => {
       const result = await client.db.EnumLiteralRef.create({
-        data: { access: 'custom' },
+        data: { visibility: 'custom' },
       });
 
-      expect(result.access).toBe('custom');
+      expect(result.visibility).toBe('custom');
     });
 
     test('should create with enum const value', async () => {
       const result = await client.db.EnumLiteralRef.create({
-        data: { access: RoleEnum.ADMIN },
+        data: { visibility: RoleEnum.ADMIN },
       });
 
-      expect(result.access).toBe('ADMIN');
+      expect(result.visibility).toBe('ADMIN');
     });
   });
 
   describe('read back', () => {
     test('should read back enum-sourced value', async () => {
       const created = await client.db.EnumLiteralRef.create({
-        data: { access: 'MODERATOR' },
+        data: { visibility: 'MODERATOR' },
       });
 
       const found = await client.db.EnumLiteralRef.findUnique({
@@ -90,12 +90,12 @@ describe('E2E Enums: Literal Ref', () => {
       });
 
       expect(found).not.toBeNull();
-      expect(found!.access).toBe('MODERATOR');
+      expect(found!.visibility).toBe('MODERATOR');
     });
 
     test('should read back literal-only value', async () => {
       const created = await client.db.EnumLiteralRef.create({
-        data: { access: 'custom' },
+        data: { visibility: 'custom' },
       });
 
       const found = await client.db.EnumLiteralRef.findUnique({
@@ -103,79 +103,79 @@ describe('E2E Enums: Literal Ref', () => {
       });
 
       expect(found).not.toBeNull();
-      expect(found!.access).toBe('custom');
+      expect(found!.visibility).toBe('custom');
     });
   });
 
   describe('update', () => {
     test('should update from enum value to another enum value', async () => {
       const created = await client.db.EnumLiteralRef.create({
-        data: { access: 'ADMIN' },
+        data: { visibility: 'ADMIN' },
       });
 
       const updated = await client.db.EnumLiteralRef.updateUnique({
         where: { id: created.id },
-        data: { access: 'USER' },
+        data: { visibility: 'USER' },
       });
 
-      expect(updated!.access).toBe('USER');
+      expect(updated!.visibility).toBe('USER');
     });
 
     test('should update from enum value to literal-only value', async () => {
       const created = await client.db.EnumLiteralRef.create({
-        data: { access: 'ADMIN' },
+        data: { visibility: 'ADMIN' },
       });
 
       const updated = await client.db.EnumLiteralRef.updateUnique({
         where: { id: created.id },
-        data: { access: 'custom' },
+        data: { visibility: 'custom' },
       });
 
-      expect(updated!.access).toBe('custom');
+      expect(updated!.visibility).toBe('custom');
     });
 
     test('should update from literal-only value to enum value', async () => {
       const created = await client.db.EnumLiteralRef.create({
-        data: { access: 'custom' },
+        data: { visibility: 'custom' },
       });
 
       const updated = await client.db.EnumLiteralRef.updateUnique({
         where: { id: created.id },
-        data: { access: 'MODERATOR' },
+        data: { visibility: 'MODERATOR' },
       });
 
-      expect(updated!.access).toBe('MODERATOR');
+      expect(updated!.visibility).toBe('MODERATOR');
     });
   });
 
   describe('filter', () => {
     beforeEach(async () => {
-      await client.db.EnumLiteralRef.create({ data: { access: 'ADMIN' } });
-      await client.db.EnumLiteralRef.create({ data: { access: 'USER' } });
-      await client.db.EnumLiteralRef.create({ data: { access: 'custom' } });
+      await client.db.EnumLiteralRef.create({ data: { visibility: 'ADMIN' } });
+      await client.db.EnumLiteralRef.create({ data: { visibility: 'USER' } });
+      await client.db.EnumLiteralRef.create({ data: { visibility: 'custom' } });
     });
 
     test('should filter by enum value', async () => {
       const results = await client.db.EnumLiteralRef.findMany({
-        where: { access: 'ADMIN' },
+        where: { visibility: 'ADMIN' },
       });
 
       expect(results.length).toBe(1);
-      expect(results[0]!.access).toBe('ADMIN');
+      expect(results[0]!.visibility).toBe('ADMIN');
     });
 
     test('should filter by literal-only value', async () => {
       const results = await client.db.EnumLiteralRef.findMany({
-        where: { access: 'custom' },
+        where: { visibility: 'custom' },
       });
 
       expect(results.length).toBe(1);
-      expect(results[0]!.access).toBe('custom');
+      expect(results[0]!.visibility).toBe('custom');
     });
 
     test('should filter by eq operator', async () => {
       const results = await client.db.EnumLiteralRef.findMany({
-        where: { access: { eq: 'USER' } },
+        where: { visibility: { eq: 'USER' } },
       });
 
       expect(results.length).toBe(1);
@@ -183,7 +183,7 @@ describe('E2E Enums: Literal Ref', () => {
 
     test('should filter by neq operator', async () => {
       const results = await client.db.EnumLiteralRef.findMany({
-        where: { access: { neq: 'custom' } },
+        where: { visibility: { neq: 'custom' } },
       });
 
       expect(results.length).toBe(2);
@@ -191,7 +191,7 @@ describe('E2E Enums: Literal Ref', () => {
 
     test('should filter by in with mixed enum and literal values', async () => {
       const results = await client.db.EnumLiteralRef.findMany({
-        where: { access: { in: ['ADMIN', 'custom'] } },
+        where: { visibility: { in: ['ADMIN', 'custom'] } },
       });
 
       expect(results.length).toBe(2);
@@ -199,16 +199,16 @@ describe('E2E Enums: Literal Ref', () => {
 
     test('should filter by notIn', async () => {
       const results = await client.db.EnumLiteralRef.findMany({
-        where: { access: { notIn: ['ADMIN', 'USER'] } },
+        where: { visibility: { notIn: ['ADMIN', 'USER'] } },
       });
 
       expect(results.length).toBe(1);
-      expect(results[0]!.access).toBe('custom');
+      expect(results[0]!.visibility).toBe('custom');
     });
 
     test('should filter with const enum value', async () => {
       const results = await client.db.EnumLiteralRef.findMany({
-        where: { access: RoleEnum.ADMIN },
+        where: { visibility: RoleEnum.ADMIN },
       });
 
       expect(results.length).toBe(1);
@@ -218,7 +218,7 @@ describe('E2E Enums: Literal Ref', () => {
   describe('delete', () => {
     test('should delete by literal ref value', async () => {
       const created = await client.db.EnumLiteralRef.create({
-        data: { access: 'custom' },
+        data: { visibility: 'custom' },
       });
 
       await client.db.EnumLiteralRef.deleteUnique({
@@ -232,12 +232,12 @@ describe('E2E Enums: Literal Ref', () => {
     });
 
     test('should deleteMany by literal ref filter', async () => {
-      await client.db.EnumLiteralRef.create({ data: { access: 'ADMIN' } });
-      await client.db.EnumLiteralRef.create({ data: { access: 'ADMIN' } });
-      await client.db.EnumLiteralRef.create({ data: { access: 'custom' } });
+      await client.db.EnumLiteralRef.create({ data: { visibility: 'ADMIN' } });
+      await client.db.EnumLiteralRef.create({ data: { visibility: 'ADMIN' } });
+      await client.db.EnumLiteralRef.create({ data: { visibility: 'custom' } });
 
       const count = await client.db.EnumLiteralRef.deleteMany({
-        where: { access: 'ADMIN' },
+        where: { visibility: 'ADMIN' },
       });
 
       expect(count).toBe(2);
@@ -246,30 +246,30 @@ describe('E2E Enums: Literal Ref', () => {
 
   describe('count and exists', () => {
     beforeEach(async () => {
-      await client.db.EnumLiteralRef.create({ data: { access: 'ADMIN' } });
-      await client.db.EnumLiteralRef.create({ data: { access: 'custom' } });
+      await client.db.EnumLiteralRef.create({ data: { visibility: 'ADMIN' } });
+      await client.db.EnumLiteralRef.create({ data: { visibility: 'custom' } });
     });
 
     test('should count by enum-sourced value', async () => {
-      const count = await client.db.EnumLiteralRef.count({ access: 'ADMIN' });
+      const count = await client.db.EnumLiteralRef.count({ visibility: 'ADMIN' });
 
       expect(count).toBe(1);
     });
 
     test('should count by literal-only value', async () => {
-      const count = await client.db.EnumLiteralRef.count({ access: 'custom' });
+      const count = await client.db.EnumLiteralRef.count({ visibility: 'custom' });
 
       expect(count).toBe(1);
     });
 
     test('should check exists with enum value', async () => {
-      const exists = await client.db.EnumLiteralRef.exists({ access: 'ADMIN' });
+      const exists = await client.db.EnumLiteralRef.exists({ visibility: 'ADMIN' });
 
       expect(exists).toBe(true);
     });
 
     test('should check exists with non-existent value', async () => {
-      const exists = await client.db.EnumLiteralRef.exists({ access: 'MODERATOR' });
+      const exists = await client.db.EnumLiteralRef.exists({ visibility: 'MODERATOR' });
 
       expect(exists).toBe(false);
     });

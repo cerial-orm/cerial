@@ -219,12 +219,12 @@ describe('Unbounded destructive statements — negative and positive cases', () 
     test('updateMany with a forward relation filter updates the rows it names', async () => {
       const updated = await client.db.PostRequired.updateMany({
         where: { author: { name: 'Ada' } },
-        data: { content: 'edited' },
+        data: { body: 'edited' },
       });
 
       expect(updated.map((p) => p.title).sort()).toEqual(['A1', 'A2']);
       const all = await client.db.PostRequired.findMany({ orderBy: { title: 'asc' } });
-      expect(all.map((p) => [p.title, p.content])).toEqual([
+      expect(all.map((p) => [p.title, p.body])).toEqual([
         ['A1', 'edited'],
         ['A2', 'edited'],
         ['B1', undefined],

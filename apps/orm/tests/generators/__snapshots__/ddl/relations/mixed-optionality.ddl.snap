@@ -6,9 +6,9 @@ DEFINE FIELD OVERWRITE name ON TABLE agent TYPE string;
 DEFINE TABLE OVERWRITE customer SCHEMAFULL;
 DEFINE FIELD OVERWRITE name ON TABLE customer TYPE string;
 
--- Order
-DEFINE TABLE OVERWRITE order SCHEMAFULL;
-DEFINE FIELD OVERWRITE orderNumber ON TABLE order TYPE string;
-DEFINE FIELD OVERWRITE customerId ON TABLE order TYPE record<customer>;
-DEFINE FIELD OVERWRITE assigneeId ON TABLE order TYPE option<record<agent> | null>;
-DEFINE INDEX OVERWRITE order_orderNumber_unique ON TABLE order COLUMNS orderNumber UNIQUE;
+-- PurchaseOrder
+DEFINE TABLE OVERWRITE purchase_order SCHEMAFULL;
+DEFINE FIELD OVERWRITE orderNumber ON TABLE purchase_order TYPE string;
+DEFINE FIELD OVERWRITE customerId ON TABLE purchase_order TYPE record<customer>;
+DEFINE FIELD OVERWRITE assigneeId ON TABLE purchase_order TYPE option<record<agent> | null>;
+DEFINE INDEX OVERWRITE purchase_order_orderNumber_unique ON TABLE purchase_order COLUMNS orderNumber UNIQUE;

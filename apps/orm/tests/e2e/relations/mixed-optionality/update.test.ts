@@ -41,16 +41,16 @@ describe('E2E Mixed Optionality: Update', () => {
         data: { name: 'New Customer' },
       });
 
-      const order = await client.db.Order.create({
+      const order = await client.db.PurchaseOrder.create({
         data: { orderNumber: 'ORD-001', customer: { connect: oldCustomer.id } },
       });
 
-      await client.db.Order.updateMany({
+      await client.db.PurchaseOrder.updateMany({
         where: { id: order.id },
         data: { customer: { connect: newCustomer.id } },
       });
 
-      const result = await client.db.Order.findOne({
+      const result = await client.db.PurchaseOrder.findOne({
         where: { id: order.id },
       });
 
@@ -67,17 +67,17 @@ describe('E2E Mixed Optionality: Update', () => {
         data: { name: 'Agent' },
       });
 
-      const order = await client.db.Order.create({
+      const order = await client.db.PurchaseOrder.create({
         data: { orderNumber: 'ORD-002', customer: { connect: customer.id } },
       });
       expect(order.assigneeId).toBeNull();
 
-      await client.db.Order.updateMany({
+      await client.db.PurchaseOrder.updateMany({
         where: { id: order.id },
         data: { assignee: { connect: agent.id } },
       });
 
-      const result = await client.db.Order.findOne({
+      const result = await client.db.PurchaseOrder.findOne({
         where: { id: order.id },
       });
 
@@ -95,7 +95,7 @@ describe('E2E Mixed Optionality: Update', () => {
         data: { name: 'New Agent' },
       });
 
-      const order = await client.db.Order.create({
+      const order = await client.db.PurchaseOrder.create({
         data: {
           orderNumber: 'ORD-003',
           customer: { connect: customer.id },
@@ -103,12 +103,12 @@ describe('E2E Mixed Optionality: Update', () => {
         },
       });
 
-      await client.db.Order.updateMany({
+      await client.db.PurchaseOrder.updateMany({
         where: { id: order.id },
         data: { assignee: { connect: newAgent.id } },
       });
 
-      const result = await client.db.Order.findOne({
+      const result = await client.db.PurchaseOrder.findOne({
         where: { id: order.id },
       });
 
@@ -123,7 +123,7 @@ describe('E2E Mixed Optionality: Update', () => {
         data: { name: 'Agent' },
       });
 
-      const order = await client.db.Order.create({
+      const order = await client.db.PurchaseOrder.create({
         data: {
           orderNumber: 'ORD-004',
           customer: { connect: customer.id },
@@ -131,12 +131,12 @@ describe('E2E Mixed Optionality: Update', () => {
         },
       });
 
-      await client.db.Order.updateMany({
+      await client.db.PurchaseOrder.updateMany({
         where: { id: order.id },
         data: { assignee: { disconnect: true } },
       });
 
-      const result = await client.db.Order.findOne({
+      const result = await client.db.PurchaseOrder.findOne({
         where: { id: order.id },
       });
 
@@ -156,14 +156,14 @@ describe('E2E Mixed Optionality: Update', () => {
         data: { name: 'New Agent' },
       });
 
-      await client.db.Order.create({
+      await client.db.PurchaseOrder.create({
         data: {
           orderNumber: 'ORD-A',
           customer: { connect: customer.id },
           assignee: { connect: oldAgent.id },
         },
       });
-      await client.db.Order.create({
+      await client.db.PurchaseOrder.create({
         data: {
           orderNumber: 'ORD-B',
           customer: { connect: customer.id },
@@ -171,15 +171,15 @@ describe('E2E Mixed Optionality: Update', () => {
         },
       });
 
-      await client.db.Order.updateMany({
+      await client.db.PurchaseOrder.updateMany({
         where: { assigneeId: oldAgent.id },
         data: { assignee: { connect: newAgent.id } },
       });
 
-      const oldAgentOrders = await client.db.Order.findMany({
+      const oldAgentOrders = await client.db.PurchaseOrder.findMany({
         where: { assigneeId: oldAgent.id },
       });
-      const newAgentOrders = await client.db.Order.findMany({
+      const newAgentOrders = await client.db.PurchaseOrder.findMany({
         where: { assigneeId: newAgent.id },
       });
 

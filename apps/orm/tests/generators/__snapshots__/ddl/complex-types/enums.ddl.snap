@@ -14,7 +14,7 @@ DEFINE FIELD OVERWRITE severity ON TABLE enum_defaults TYPE 'LOW' | 'MEDIUM' | '
 
 -- EnumLiteralRef
 DEFINE TABLE OVERWRITE enum_literal_ref SCHEMAFULL;
-DEFINE FIELD OVERWRITE access ON TABLE enum_literal_ref TYPE 'ADMIN' | 'USER' | 'MODERATOR' | 'custom';
+DEFINE FIELD OVERWRITE visibility ON TABLE enum_literal_ref TYPE 'ADMIN' | 'USER' | 'MODERATOR' | 'custom';
 
 -- EnumMultiple
 DEFINE TABLE OVERWRITE enum_multiple SCHEMAFULL;

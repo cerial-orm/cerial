@@ -155,7 +155,7 @@ Test.checks([
   Test.check<RoleOrCustom, 'ADMIN' | 'USER' | 'MODERATOR' | 'custom', Test.Pass>(),
 
   // Model using literal that references enum
-  Test.check<EnumLiteralRef['access'], RoleOrCustom, Test.Pass>(),
+  Test.check<EnumLiteralRef['visibility'], RoleOrCustom, Test.Pass>(),
 ]);
 
 // =============================================================================

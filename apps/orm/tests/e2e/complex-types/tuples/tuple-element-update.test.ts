@@ -167,7 +167,7 @@ describe('E2E Tuples: Per-Element Update', () => {
   describe('updateUnique - depth-5 nested tuple', () => {
     const deepData: DeepOuterTupleInput = [
       'outer-label',
-      ['mid-label', { name: 'John', age: 30, pos: [1.5, { value: 'a', extra: 'b' }] }],
+      ['mid-label', { name: 'John', age: 30, pos: [1.5, { payload: 'a', extra: 'b' }] }],
     ];
 
     test('should update primitive at outermost level', async () => {
@@ -215,7 +215,7 @@ describe('E2E Tuples: Per-Element Update', () => {
       expect(updated).not.toBeNull();
       expect(updated!.deep[1][1].name).toBe('Jane');
       expect(updated!.deep[1][1].age).toBe(30); // preserved
-      expect(updated!.deep[1][1].pos).toEqual([1.5, { value: 'a', extra: 'b' }]); // preserved
+      expect(updated!.deep[1][1].pos).toEqual([1.5, { payload: 'a', extra: 'b' }]); // preserved
     });
 
     test('should update deepest object via recursive updates', async () => {
@@ -224,7 +224,7 @@ describe('E2E Tuples: Per-Element Update', () => {
       });
 
       // Update the DeepInnerObj's value field:
-      // deep = [string, [string, { name, age, pos: [float, { value, extra }] }]]
+      // deep = [string, [string, { name, age, pos: [float, { payload, extra }] }]]
       // Object form = per-element update, array form = full replace.
       // Element 1 of outer tuple is DeepMidTuple (object = per-element update).
       // Element 1 of mid tuple is DeepMidObj (object = partial merge).
@@ -235,7 +235,7 @@ describe('E2E Tuples: Per-Element Update', () => {
         data: {
           deep: {
             1: {
-              1: { pos: [2.5, { value: 'z', extra: 'w' }] },
+              1: { pos: [2.5, { payload: 'z', extra: 'w' }] },
             },
           },
         },
@@ -243,7 +243,7 @@ describe('E2E Tuples: Per-Element Update', () => {
 
       expect(updated).not.toBeNull();
       expect(updated!.deep[1][1].name).toBe('John'); // preserved
-      expect(updated!.deep[1][1].pos).toEqual([2.5, { value: 'z', extra: 'w' }]);
+      expect(updated!.deep[1][1].pos).toEqual([2.5, { payload: 'z', extra: 'w' }]);
     });
   });
 

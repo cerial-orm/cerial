@@ -45,5 +45,5 @@ literal RoleOrCustom { Role, 'custom' }
 
 model EnumLiteralRef {
   id Record @id
-  access RoleOrCustom
+  visibility RoleOrCustom
 }

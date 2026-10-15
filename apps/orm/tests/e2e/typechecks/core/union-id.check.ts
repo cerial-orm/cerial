@@ -20,12 +20,12 @@ Test.checks([
   Test.check<IsOptional<UnionIdModelCreate, 'id'>, 0, Test.Pass>(),
   Test.check<IsOptional<IntUnionIdModelCreate, 'id'>, 0, Test.Pass>(),
   // A single-type string id can still be generated, so it stays optional
-  Test.check<Flat<StringIdModelCreate>, { id?: string; value: string }, Test.Pass>(),
+  Test.check<Flat<StringIdModelCreate>, { id?: string; payload: string }, Test.Pass>(),
 ]);
 
 export const stringUnionId: UnionIdModelCreate = { id: 'a', label: 'x' };
 export const numberUnionId: UnionIdModelCreate = { id: 1, label: 'x' };
-export const generatedStringId: StringIdModelCreate = { value: 'x' };
+export const generatedStringId: StringIdModelCreate = { payload: 'x' };
 
 // @ts-expect-error - id is required when the id type is a union
 export const missingUnionId: UnionIdModelCreate = { label: 'no-id' };

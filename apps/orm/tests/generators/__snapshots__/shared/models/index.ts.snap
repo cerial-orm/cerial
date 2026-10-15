@@ -172,7 +172,7 @@ export * from './blogger';
 export * from './label';
 export * from './customer';
 export * from './agent';
-export * from './order';
+export * from './purchaseorder';
 export * from './writer';
 export * from './document';
 export * from './publisher';

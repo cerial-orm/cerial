@@ -16,4 +16,4 @@ DEFINE FIELD OVERWRITE address.city ON TABLE readonly_test TYPE string READONLY;
 DEFINE FIELD OVERWRITE address.zip ON TABLE readonly_test TYPE option<string>;
 DEFINE FIELD OVERWRITE meta ON TABLE readonly_test TYPE option<object>;
 DEFINE FIELD OVERWRITE meta.label ON TABLE readonly_test TYPE string READONLY;
-DEFINE FIELD OVERWRITE meta.value ON TABLE readonly_test TYPE int;
+DEFINE FIELD OVERWRITE meta.payload ON TABLE readonly_test TYPE int;

@@ -386,7 +386,7 @@ describe('Object Interface Generator', () => {
     });
 
     test('should make array fields optional in create (default to [])', () => {
-      const o = obj('Order', [
+      const o = obj('PurchaseOrder', [
         field({ name: 'name', type: 'string', isRequired: true }),
         field({ name: 'tags', type: 'string', isRequired: true, isArray: true }),
       ]);

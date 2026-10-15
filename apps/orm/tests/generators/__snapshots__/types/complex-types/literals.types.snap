@@ -305,13 +305,13 @@ import type { CerialTransaction, ModelMetadata } from 'cerial';
 import type { Broad, BroadWhere } from '../literals/broad';
 export interface LiteralBroad {
   id: CerialId<string>;
-  value: Broad;
+  payload: Broad;
   values: Broad[];
 }
 
 export interface LiteralBroadInput {
   id?: string;
-  value: Broad;
+  payload: Broad;
   values: Broad[];
 }
 
@@ -329,7 +329,7 @@ export interface LiteralBroadWhere {
         in?: RecordIdInput<string>[];
         notIn?: RecordIdInput<string>[];
       } & {});
-  value?: Broad | BroadWhere;
+  payload?: Broad | BroadWhere;
   values?: { has?: Broad; hasAll?: Broad[]; hasAny?: Broad[]; isEmpty?: boolean };
   AND?: LiteralBroadWhere[];
   OR?: LiteralBroadWhere[];
@@ -360,9 +360,9 @@ export type LiteralBroadUpdateInput = LiteralBroadUpdate;
 export type LiteralBroadUnset = {};
 
 export type LiteralBroadSelect =
-  | ({ id: boolean } & Partial<Record<'value' | 'values', boolean>>)
-  | ({ value: boolean } & Partial<Record<'id' | 'values', boolean>>)
-  | ({ values: boolean } & Partial<Record<'id' | 'value', boolean>>);
+  | ({ id: boolean } & Partial<Record<'payload' | 'values', boolean>>)
+  | ({ payload: boolean } & Partial<Record<'id' | 'values', boolean>>)
+  | ({ values: boolean } & Partial<Record<'id' | 'payload', boolean>>);
 
 export interface LiteralBroadOrderBy {
   id?: 'asc' | 'desc';
@@ -2893,12 +2893,12 @@ export interface LiteralAddressOrderBy {
 
 export interface LiteralPoint {
   label: string;
-  value: number;
+  payload: number;
 }
 
 export interface LiteralPointInput {
   label: string;
-  value: number;
+  payload: number;
 }
 
 export interface LiteralPointWhere {
@@ -2915,7 +2915,7 @@ export interface LiteralPointWhere {
         in?: string[];
         notIn?: string[];
       } & {});
-  value?:
+  payload?:
     | number
     | ({
         eq?: number;
@@ -2936,12 +2936,12 @@ export interface LiteralPointWhere {
 }
 
 export type LiteralPointSelect =
-  | ({ label: boolean } & Partial<Record<'value', boolean>>)
-  | ({ value: boolean } & Partial<Record<'label', boolean>>);
+  | ({ label: boolean } & Partial<Record<'payload', boolean>>)
+  | ({ payload: boolean } & Partial<Record<'label', boolean>>);
 
 export interface LiteralPointOrderBy {
   label?: 'asc' | 'desc';
-  value?: 'asc' | 'desc';
+  payload?: 'asc' | 'desc';
 }
 
 // ===== objects/literalpointopt.ts =====

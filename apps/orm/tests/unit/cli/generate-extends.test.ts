@@ -79,7 +79,7 @@ abstract model BaseEntity {
 
 model Post extends BaseEntity {
   title String
-  content String?
+  body String?
 }
 `,
       });

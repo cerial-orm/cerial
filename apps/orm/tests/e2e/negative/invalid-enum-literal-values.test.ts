@@ -120,17 +120,17 @@ describe('Invalid enum and literal values — negative cases', () => {
   });
 
   test('a broad literal accepts either type and rejects a boolean', async () => {
-    const a = await client.db.LiteralBroad.create({ data: { value: 'text', values: [] } });
-    const b = await client.db.LiteralBroad.create({ data: { value: 5, values: [1, 'x'] } });
-    expect(a.value).toBe('text');
+    const a = await client.db.LiteralBroad.create({ data: { payload: 'text', values: [] } });
+    const b = await client.db.LiteralBroad.create({ data: { payload: 5, values: [1, 'x'] } });
+    expect(a.payload).toBe('text');
     expect(b.values).toEqual([1, 'x']);
 
     expect(() => {
       client.db.LiteralBroad.create({
         // @ts-expect-error — booleans are neither String nor Int
-        data: { value: true, values: [] },
+        data: { payload: true, values: [] },
       });
-    }).toThrow('value must be one of: String, Int (received true)');
+    }).toThrow('payload must be one of: String, Int (received true)');
   });
 
   test('a numeric literal accepts an equal float and rejects others', async () => {
@@ -146,16 +146,16 @@ describe('Invalid enum and literal values — negative cases', () => {
   });
 
   test('an enum-backed literal reference accepts enum and extra values and rejects others', async () => {
-    const a = await client.db.EnumLiteralRef.create({ data: { access: 'custom' } });
-    const b = await client.db.EnumLiteralRef.create({ data: { access: 'ADMIN' } });
-    expect(a.access).toBe('custom');
-    expect(b.access).toBe('ADMIN');
+    const a = await client.db.EnumLiteralRef.create({ data: { visibility: 'custom' } });
+    const b = await client.db.EnumLiteralRef.create({ data: { visibility: 'ADMIN' } });
+    expect(a.visibility).toBe('custom');
+    expect(b.visibility).toBe('ADMIN');
 
     expect(() => {
       client.db.EnumLiteralRef.create({
         // @ts-expect-error — 'guest' is neither a Role nor 'custom'
-        data: { access: 'guest' },
+        data: { visibility: 'guest' },
       });
-    }).toThrow("access must be one of: 'ADMIN', 'USER', 'MODERATOR', 'custom' (received 'guest')");
+    }).toThrow("visibility must be one of: 'ADMIN', 'USER', 'MODERATOR', 'custom' (received 'guest')");
   });
 });

@@ -27,7 +27,7 @@ export interface DurationBasic {
   id: CerialId<string>;
   name: string;
   ttl: CerialDuration;
-  timeout?: CerialDuration;
+  expiry?: CerialDuration;
   cooldown: CerialDuration | null;
   intervals: CerialDuration[];
 }
@@ -36,7 +36,7 @@ export interface DurationBasicInput {
   id?: string;
   name: string;
   ttl: CerialDurationInput;
-  timeout?: CerialDurationInput;
+  expiry?: CerialDurationInput;
   cooldown: CerialDurationInput | null;
   intervals: CerialDurationInput[];
 }
@@ -83,7 +83,7 @@ export interface DurationBasicWhere {
       } & {
         between?: [CerialDurationInput, CerialDurationInput];
       });
-  timeout?:
+  expiry?:
     | CerialDurationInput
     | ({
         eq?: CerialDurationInput;
@@ -135,42 +135,42 @@ export type DurationBasicWhereInput = DurationBasicWhere;
 
 export type DurationBasicFindUniqueWhere = { id: RecordIdInput<string> } & Omit<DurationBasicWhere, 'id'>;
 
-export type DurationBasicCreate = O.Optional<DurationBasicInput, 'id' | 'timeout' | 'intervals'>;
+export type DurationBasicCreate = O.Optional<DurationBasicInput, 'id' | 'expiry' | 'intervals'>;
 
-export type DurationBasicNestedCreate = O.Optional<DurationBasicInput, 'id' | 'timeout' | 'intervals'>;
+export type DurationBasicNestedCreate = O.Optional<DurationBasicInput, 'id' | 'expiry' | 'intervals'>;
 
 export type DurationBasicCreateInput = DurationBasicCreate;
 
-export type DurationBasicUpdate = Partial<O.Omit<DurationBasicInput, 'id' | 'intervals' | 'timeout' | 'cooldown'>> & {
+export type DurationBasicUpdate = Partial<O.Omit<DurationBasicInput, 'id' | 'intervals' | 'expiry' | 'cooldown'>> & {
   intervals?:
     | CerialDurationInput[]
     | {
         push?: CerialDurationInput | CerialDurationInput[];
         unset?: CerialDurationInput | CerialDurationInput[];
       };
-  timeout?: CerialDurationInput | CerialNone;
+  expiry?: CerialDurationInput | CerialNone;
   cooldown?: CerialDurationInput | null;
 };
 
 export type DurationBasicUpdateInput = DurationBasicUpdate;
 
 export type DurationBasicUnset = {
-  timeout?: true;
+  expiry?: true;
 };
 
 export type DurationBasicSelect =
-  | ({ id: boolean } & Partial<Record<'name' | 'ttl' | 'timeout' | 'cooldown' | 'intervals', boolean>>)
-  | ({ name: boolean } & Partial<Record<'id' | 'ttl' | 'timeout' | 'cooldown' | 'intervals', boolean>>)
-  | ({ ttl: boolean } & Partial<Record<'id' | 'name' | 'timeout' | 'cooldown' | 'intervals', boolean>>)
-  | ({ timeout: boolean } & Partial<Record<'id' | 'name' | 'ttl' | 'cooldown' | 'intervals', boolean>>)
-  | ({ cooldown: boolean } & Partial<Record<'id' | 'name' | 'ttl' | 'timeout' | 'intervals', boolean>>)
-  | ({ intervals: boolean } & Partial<Record<'id' | 'name' | 'ttl' | 'timeout' | 'cooldown', boolean>>);
+  | ({ id: boolean } & Partial<Record<'name' | 'ttl' | 'expiry' | 'cooldown' | 'intervals', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'ttl' | 'expiry' | 'cooldown' | 'intervals', boolean>>)
+  | ({ ttl: boolean } & Partial<Record<'id' | 'name' | 'expiry' | 'cooldown' | 'intervals', boolean>>)
+  | ({ expiry: boolean } & Partial<Record<'id' | 'name' | 'ttl' | 'cooldown' | 'intervals', boolean>>)
+  | ({ cooldown: boolean } & Partial<Record<'id' | 'name' | 'ttl' | 'expiry' | 'intervals', boolean>>)
+  | ({ intervals: boolean } & Partial<Record<'id' | 'name' | 'ttl' | 'expiry' | 'cooldown', boolean>>);
 
 export interface DurationBasicOrderBy {
   id?: 'asc' | 'desc';
   name?: 'asc' | 'desc';
   ttl?: 'asc' | 'desc';
-  timeout?: 'asc' | 'desc';
+  expiry?: 'asc' | 'desc';
   cooldown?: 'asc' | 'desc';
   intervals?: 'asc' | 'desc';
 }

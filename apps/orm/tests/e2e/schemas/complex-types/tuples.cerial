@@ -80,7 +80,7 @@ model TupleRelatedPost {
 }
 
 object DeepInnerObj {
-  value String
+  payload String
   extra String
 }
 

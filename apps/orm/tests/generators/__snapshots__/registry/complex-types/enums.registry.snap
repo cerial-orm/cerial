@@ -321,7 +321,7 @@
               }
             ]
           },
-          "name": "access",
+          "name": "visibility",
           "type": "literal"
         }
       ],

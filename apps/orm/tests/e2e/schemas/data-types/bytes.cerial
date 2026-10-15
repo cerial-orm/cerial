@@ -8,7 +8,7 @@ model BytesBasic {
 }
 
 object BytesInfo {
-  content Bytes
+  body Bytes
   extra Bytes?
 }
 

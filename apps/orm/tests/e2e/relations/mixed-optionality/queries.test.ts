@@ -37,17 +37,17 @@ describe('E2E Mixed Optionality: Queries', () => {
       const c1 = await client.db.Customer.create({ data: { name: 'C1' } });
       const c2 = await client.db.Customer.create({ data: { name: 'C2' } });
 
-      await client.db.Order.create({
+      await client.db.PurchaseOrder.create({
         data: { orderNumber: 'ORD-1', customer: { connect: c1.id } },
       });
-      await client.db.Order.create({
+      await client.db.PurchaseOrder.create({
         data: { orderNumber: 'ORD-2', customer: { connect: c1.id } },
       });
-      await client.db.Order.create({
+      await client.db.PurchaseOrder.create({
         data: { orderNumber: 'ORD-3', customer: { connect: c2.id } },
       });
 
-      const c1Orders = await client.db.Order.findMany({
+      const c1Orders = await client.db.PurchaseOrder.findMany({
         where: { customerId: c1.id },
       });
 
@@ -62,18 +62,18 @@ describe('E2E Mixed Optionality: Queries', () => {
       });
       const agent = await client.db.Agent.create({ data: { name: 'Agent' } });
 
-      await client.db.Order.create({
+      await client.db.PurchaseOrder.create({
         data: {
           orderNumber: 'ORD-1',
           customer: { connect: customer.id },
           assignee: { connect: agent.id },
         },
       });
-      await client.db.Order.create({
+      await client.db.PurchaseOrder.create({
         data: { orderNumber: 'ORD-2', customer: { connect: customer.id } },
       });
 
-      const assignedOrders = await client.db.Order.findMany({
+      const assignedOrders = await client.db.PurchaseOrder.findMany({
         where: { assigneeId: agent.id },
       });
 
@@ -87,21 +87,21 @@ describe('E2E Mixed Optionality: Queries', () => {
       });
       const agent = await client.db.Agent.create({ data: { name: 'Agent' } });
 
-      await client.db.Order.create({
+      await client.db.PurchaseOrder.create({
         data: {
           orderNumber: 'ORD-1',
           customer: { connect: customer.id },
           assignee: { connect: agent.id },
         },
       });
-      await client.db.Order.create({
+      await client.db.PurchaseOrder.create({
         data: { orderNumber: 'ORD-2', customer: { connect: customer.id } },
       });
-      await client.db.Order.create({
+      await client.db.PurchaseOrder.create({
         data: { orderNumber: 'ORD-3', customer: { connect: customer.id } },
       });
 
-      const unassignedOrders = await client.db.Order.findMany({
+      const unassignedOrders = await client.db.PurchaseOrder.findMany({
         where: { assigneeId: null },
       });
 
@@ -116,24 +116,24 @@ describe('E2E Mixed Optionality: Queries', () => {
       const agent = await client.db.Agent.create({ data: { name: 'Agent' } });
 
       // C1: 1 assigned, 1 unassigned
-      await client.db.Order.create({
+      await client.db.PurchaseOrder.create({
         data: {
           orderNumber: 'C1-A',
           customer: { connect: c1.id },
           assignee: { connect: agent.id },
         },
       });
-      await client.db.Order.create({
+      await client.db.PurchaseOrder.create({
         data: { orderNumber: 'C1-U', customer: { connect: c1.id } },
       });
 
       // C2: 1 unassigned
-      await client.db.Order.create({
+      await client.db.PurchaseOrder.create({
         data: { orderNumber: 'C2-U', customer: { connect: c2.id } },
       });
 
       // C1's unassigned orders
-      const c1Unassigned = await client.db.Order.findMany({
+      const c1Unassigned = await client.db.PurchaseOrder.findMany({
         where: { customerId: c1.id, assigneeId: null },
       });
 
@@ -148,17 +148,17 @@ describe('E2E Mixed Optionality: Queries', () => {
         data: { name: 'Customer' },
       });
 
-      await client.db.Order.create({
+      await client.db.PurchaseOrder.create({
         data: { orderNumber: 'C', customer: { connect: customer.id } },
       });
-      await client.db.Order.create({
+      await client.db.PurchaseOrder.create({
         data: { orderNumber: 'A', customer: { connect: customer.id } },
       });
-      await client.db.Order.create({
+      await client.db.PurchaseOrder.create({
         data: { orderNumber: 'B', customer: { connect: customer.id } },
       });
 
-      const orders = await client.db.Order.findMany({
+      const orders = await client.db.PurchaseOrder.findMany({
         where: { customerId: customer.id },
         orderBy: { orderNumber: 'asc' },
       });

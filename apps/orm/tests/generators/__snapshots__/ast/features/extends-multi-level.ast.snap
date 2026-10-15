@@ -518,7 +518,7 @@
         {
           "decorators": [],
           "isOptional": false,
-          "name": "type",
+          "name": "kind",
           "type": "string"
         }
       ],
@@ -555,7 +555,7 @@
         {
           "decorators": [],
           "isOptional": false,
-          "name": "type",
+          "name": "kind",
           "type": "string"
         },
         {

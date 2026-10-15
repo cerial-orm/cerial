@@ -28,7 +28,7 @@
         {
           "decorators": [],
           "isOptional": true,
-          "name": "timeout",
+          "name": "expiry",
           "type": "duration"
         },
         {

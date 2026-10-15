@@ -141,7 +141,7 @@
         {
           "decorators": [],
           "isOptional": false,
-          "name": "value",
+          "name": "payload",
           "type": "string"
         },
         {
@@ -223,7 +223,7 @@
         {
           "decorators": [],
           "isOptional": false,
-          "name": "value",
+          "name": "payload",
           "type": "string"
         },
         {

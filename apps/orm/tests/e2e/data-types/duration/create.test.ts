@@ -47,17 +47,17 @@ describe('E2E Duration: Create', () => {
       data: { name: 'test', ttl: '1h', cooldown: null },
     });
 
-    expect(result.timeout).toBeUndefined();
+    expect(result.expiry).toBeUndefined();
   });
 
   test('optional duration field provided', async () => {
     const client = getClient();
     const result = await client.db.DurationBasic.create({
-      data: { name: 'test', ttl: '1h', timeout: '30s', cooldown: null },
+      data: { name: 'test', ttl: '1h', expiry: '30s', cooldown: null },
     });
 
-    expect(CerialDuration.is(result.timeout!)).toBe(true);
-    expect(result.timeout!.toString()).toBe('30s');
+    expect(CerialDuration.is(result.expiry!)).toBe(true);
+    expect(result.expiry!.toString()).toBe('30s');
   });
 
   test('nullable duration field with null', async () => {

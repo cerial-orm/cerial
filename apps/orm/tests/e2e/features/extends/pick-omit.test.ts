@@ -155,18 +155,18 @@ describe('E2E Extends: Pick/Omit Across Type Kinds', () => {
 
     test('creates record without description field', async () => {
       const result = await client.db.ExtL4OmitConcrete.create({
-        data: { name: 'OmitTest', type: 'test' },
+        data: { name: 'OmitTest', kind: 'test' },
       });
 
       expect(result.name).toBe('OmitTest');
-      expect(result.type).toBe('test');
+      expect(result.kind).toBe('test');
       expect(result.version).toBe(1); // own @default
       expect('description' in result).toBe(false);
     });
 
     test('non-omitted inherited fields from L2Mid present', async () => {
       const result = await client.db.ExtL4OmitConcrete.create({
-        data: { name: 'Deep', type: 'inherited' },
+        data: { name: 'Deep', kind: 'inherited' },
       });
 
       // name inherited from L2Mid (not omitted), id/createdAt from L1Base

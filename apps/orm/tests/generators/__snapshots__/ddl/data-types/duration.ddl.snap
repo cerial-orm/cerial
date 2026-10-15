@@ -2,7 +2,7 @@
 DEFINE TABLE OVERWRITE duration_basic SCHEMAFULL;
 DEFINE FIELD OVERWRITE name ON TABLE duration_basic TYPE string;
 DEFINE FIELD OVERWRITE ttl ON TABLE duration_basic TYPE duration;
-DEFINE FIELD OVERWRITE timeout ON TABLE duration_basic TYPE option<duration>;
+DEFINE FIELD OVERWRITE expiry ON TABLE duration_basic TYPE option<duration>;
 DEFINE FIELD OVERWRITE cooldown ON TABLE duration_basic TYPE duration | null;
 DEFINE FIELD OVERWRITE intervals ON TABLE duration_basic TYPE array<duration>;
 

@@ -10,8 +10,8 @@ abstract model Timestamped extends Base {
 
 
 model Document extends Timestamped {
-  title   String
-  content String?
+  title String
+  body  String?
 }
 
 

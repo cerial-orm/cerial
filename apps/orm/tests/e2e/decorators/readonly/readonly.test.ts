@@ -147,13 +147,13 @@ describe('E2E @readonly Decorator', () => {
           name: 'Grace',
           code: 'PQR',
           address: { street: '7 Birch', city: 'Miami' },
-          meta: { label: 'frozen', value: 42 },
+          meta: { label: 'frozen', payload: 42 },
         },
       });
 
       expect(record.meta).toBeDefined();
       expect(record.meta!.label).toBe('frozen');
-      expect(record.meta!.value).toBe(42);
+      expect(record.meta!.payload).toBe(42);
     });
   });
 
@@ -225,17 +225,17 @@ describe('E2E @readonly Decorator', () => {
           name: 'Dave',
           code: 'GHI',
           address: { street: '4 Pine', city: 'LA' },
-          meta: { label: 'original', value: 1 },
+          meta: { label: 'original', payload: 1 },
         },
       });
 
       const updated = await client.db.ReadonlyTest.updateUnique({
         where: { id: record.id },
-        data: { meta: { value: 99 } },
+        data: { meta: { payload: 99 } },
       });
 
       expect(updated).toBeDefined();
-      expect(updated!.meta!.value).toBe(99);
+      expect(updated!.meta!.payload).toBe(99);
       // @readonly sub-field should be preserved
       expect(updated!.meta!.label).toBe('original');
     });

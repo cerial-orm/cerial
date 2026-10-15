@@ -29,7 +29,7 @@ type Dir = 'asc' | 'desc' | undefined;
 
 checks([
   // Required forward relation
-  check<keyof PostRequiredOrderBy, 'id' | 'title' | 'content' | 'authorId' | 'author' | 'createdAt', Test.Pass>(),
+  check<keyof PostRequiredOrderBy, 'id' | 'title' | 'body' | 'authorId' | 'author' | 'createdAt', Test.Pass>(),
   check<PostRequiredOrderBy['author'], AuthorOrderBy | undefined, Test.Pass>(),
   // Optional forward relation
   check<keyof ProfileOrderBy, 'id' | 'bio' | 'avatarUrl' | 'userId' | 'user', Test.Pass>(),

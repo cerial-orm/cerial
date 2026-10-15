@@ -909,7 +909,7 @@ describe('!!private alignment edge cases', () => {
 describe('!!private ordering', () => {
   it('!!private always appears after decorators, never reordered', () => {
     const src = [
-      'model Order {',
+      'model PurchaseOrder {',
       '  id Record @id !!private',
       '  name String @unique @readonly !!private',
       '  email Email @default("a@b.com") !!private',
@@ -1043,7 +1043,7 @@ describe('fixture content preservation', () => {
     expect(result.formatted).toContain('model User extends Entity {');
     expect(result.formatted).toContain('object BaseAddress {');
     expect(result.formatted).toContain('object ShippingAddress extends BaseAddress {');
-    expect(result.formatted).toContain('model Order extends Entity {');
+    expect(result.formatted).toContain('model PurchaseOrder extends Entity {');
   });
 
   it('extends-pick-omit preserves pick and omit syntax', async () => {
