@@ -1,0 +1,37 @@
+# Targets of a nested create that carry every decorator and wrapper a plain create transforms.
+# NcHolder reaches NcDoc by a forward single link and a reverse link; NcGroup by a forward array (n-n) link.
+model NcHolder {
+  id Record @id
+  name String
+  docId Record?
+  doc Relation? @field(docId) @model(NcDoc) @key(single)
+  reverseDocs Relation[] @model(NcDoc) @key(rev)
+}
+
+model NcGroup {
+  id Record @id
+  name String
+  docIds Record[]
+  docs Relation[] @field(docIds) @model(NcDoc)
+}
+
+model NcDoc {
+  id Record @id
+  label String
+  note String @default("fresh")
+  always String @defaultAlways("reset")
+  createdAt Date @createdAt
+  updatedAt Date @updatedAt
+  seenAt Date @now
+  token Uuid @uuid
+  tokenV7 Uuid @uuid7
+  amount Decimal
+  span Duration
+  stamp Date
+  tags String[]
+  groupIds Record[]
+  groups Relation[] @field(groupIds) @model(NcGroup)
+  singleHolders Relation[] @model(NcHolder) @key(single)
+  revHolderId Record?
+  revHolder Relation? @field(revHolderId) @model(NcHolder) @key(rev)
+}

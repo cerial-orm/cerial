@@ -1,0 +1,295 @@
+{
+  "models": [
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "docId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "docId"
+            },
+            {
+              "type": "model",
+              "value": "NcDoc"
+            },
+            {
+              "type": "key",
+              "value": "single"
+            }
+          ],
+          "isOptional": true,
+          "name": "doc",
+          "type": "relation"
+        },
+        {
+          "decorators": [
+            {
+              "type": "model",
+              "value": "NcDoc"
+            },
+            {
+              "type": "key",
+              "value": "rev"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "reverseDocs",
+          "type": "relation"
+        }
+      ],
+      "name": "NcHolder"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "docIds",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "docIds"
+            },
+            {
+              "type": "model",
+              "value": "NcDoc"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "docs",
+          "type": "relation"
+        }
+      ],
+      "name": "NcGroup"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": "fresh"
+            }
+          ],
+          "isOptional": false,
+          "name": "note",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "defaultAlways",
+              "value": "reset"
+            }
+          ],
+          "isOptional": false,
+          "name": "always",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "createdAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "createdAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "updatedAt"
+            }
+          ],
+          "isOptional": false,
+          "name": "updatedAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "now"
+            }
+          ],
+          "isOptional": false,
+          "name": "seenAt",
+          "type": "date"
+        },
+        {
+          "decorators": [
+            {
+              "type": "uuid"
+            }
+          ],
+          "isOptional": false,
+          "name": "token",
+          "type": "uuid"
+        },
+        {
+          "decorators": [
+            {
+              "type": "uuid7"
+            }
+          ],
+          "isOptional": false,
+          "name": "tokenV7",
+          "type": "uuid"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "amount",
+          "type": "decimal"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "span",
+          "type": "duration"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "stamp",
+          "type": "date"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "tags",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isArray": true,
+          "isOptional": false,
+          "name": "groupIds",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "groupIds"
+            },
+            {
+              "type": "model",
+              "value": "NcGroup"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "groups",
+          "type": "relation"
+        },
+        {
+          "decorators": [
+            {
+              "type": "model",
+              "value": "NcHolder"
+            },
+            {
+              "type": "key",
+              "value": "single"
+            }
+          ],
+          "isArray": true,
+          "isOptional": false,
+          "name": "singleHolders",
+          "type": "relation"
+        },
+        {
+          "decorators": [],
+          "isOptional": true,
+          "name": "revHolderId",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "field",
+              "value": "revHolderId"
+            },
+            {
+              "type": "model",
+              "value": "NcHolder"
+            },
+            {
+              "type": "key",
+              "value": "rev"
+            }
+          ],
+          "isOptional": true,
+          "name": "revHolder",
+          "type": "relation"
+        }
+      ],
+      "name": "NcDoc"
+    }
+  ]
+}

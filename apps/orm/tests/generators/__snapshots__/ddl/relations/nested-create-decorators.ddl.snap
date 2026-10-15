@@ -1,0 +1,26 @@
+-- NcDoc
+DEFINE TABLE OVERWRITE nc_doc SCHEMAFULL;
+DEFINE FIELD OVERWRITE label ON TABLE nc_doc TYPE string;
+DEFINE FIELD OVERWRITE note ON TABLE nc_doc TYPE string DEFAULT 'fresh';
+DEFINE FIELD OVERWRITE always ON TABLE nc_doc TYPE option<string> DEFAULT ALWAYS 'reset';
+DEFINE FIELD OVERWRITE createdAt ON TABLE nc_doc TYPE option<datetime> DEFAULT time::now();
+DEFINE FIELD OVERWRITE updatedAt ON TABLE nc_doc TYPE option<datetime> DEFAULT ALWAYS time::now();
+DEFINE FIELD OVERWRITE seenAt ON TABLE nc_doc TYPE datetime COMPUTED time::now();
+DEFINE FIELD OVERWRITE token ON TABLE nc_doc TYPE option<uuid> DEFAULT rand::uuid();
+DEFINE FIELD OVERWRITE tokenV7 ON TABLE nc_doc TYPE option<uuid> DEFAULT rand::uuid::v7();
+DEFINE FIELD OVERWRITE amount ON TABLE nc_doc TYPE decimal;
+DEFINE FIELD OVERWRITE span ON TABLE nc_doc TYPE duration;
+DEFINE FIELD OVERWRITE stamp ON TABLE nc_doc TYPE datetime;
+DEFINE FIELD OVERWRITE tags ON TABLE nc_doc TYPE array<string>;
+DEFINE FIELD OVERWRITE groupIds ON TABLE nc_doc TYPE array<record<nc_group>> VALUE IF $value THEN $value.distinct() ELSE [] END;
+DEFINE FIELD OVERWRITE revHolderId ON TABLE nc_doc TYPE option<record<nc_holder>>;
+
+-- NcGroup
+DEFINE TABLE OVERWRITE nc_group SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE nc_group TYPE string;
+DEFINE FIELD OVERWRITE docIds ON TABLE nc_group TYPE array<record<nc_doc>> VALUE IF $value THEN $value.distinct() ELSE [] END;
+
+-- NcHolder
+DEFINE TABLE OVERWRITE nc_holder SCHEMAFULL;
+DEFINE FIELD OVERWRITE name ON TABLE nc_holder TYPE string;
+DEFINE FIELD OVERWRITE docId ON TABLE nc_holder TYPE option<record<nc_doc>>;

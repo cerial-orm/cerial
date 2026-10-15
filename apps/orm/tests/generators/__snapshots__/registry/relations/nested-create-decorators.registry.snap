@@ -1,0 +1,291 @@
+{
+  "models": {
+    "NcDoc": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "defaultValue": "fresh",
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "note",
+          "type": "string"
+        },
+        {
+          "defaultAlwaysValue": "reset",
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "always",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "createdAt",
+          "timestampDecorator": "createdAt",
+          "type": "date"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "updatedAt",
+          "timestampDecorator": "updatedAt",
+          "type": "date"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "seenAt",
+          "timestampDecorator": "now",
+          "type": "date"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "token",
+          "type": "uuid"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "tokenV7",
+          "type": "uuid"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "amount",
+          "type": "decimal"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "span",
+          "type": "duration"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "stamp",
+          "type": "date"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "tags",
+          "type": "string"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "groupIds",
+          "type": "record"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "groups",
+          "relationInfo": {
+            "fieldRef": "groupIds",
+            "isReverse": false,
+            "targetModel": "NcGroup",
+            "targetTable": "nc_group"
+          },
+          "type": "relation"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "singleHolders",
+          "relationInfo": {
+            "isReverse": true,
+            "key": "single",
+            "targetModel": "NcHolder",
+            "targetTable": "nc_holder"
+          },
+          "type": "relation"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "revHolderId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "revHolder",
+          "relationInfo": {
+            "fieldRef": "revHolderId",
+            "isReverse": false,
+            "key": "rev",
+            "targetModel": "NcHolder",
+            "targetTable": "nc_holder"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "NcDoc",
+      "tableName": "nc_doc"
+    },
+    "NcGroup": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "docIds",
+          "type": "record"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "docs",
+          "relationInfo": {
+            "fieldRef": "docIds",
+            "isReverse": false,
+            "targetModel": "NcDoc",
+            "targetTable": "nc_doc"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "NcGroup",
+      "tableName": "nc_group"
+    },
+    "NcHolder": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "docId",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": false,
+          "name": "doc",
+          "relationInfo": {
+            "fieldRef": "docId",
+            "isReverse": false,
+            "key": "single",
+            "targetModel": "NcDoc",
+            "targetTable": "nc_doc"
+          },
+          "type": "relation"
+        },
+        {
+          "isArray": true,
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "reverseDocs",
+          "relationInfo": {
+            "isReverse": true,
+            "key": "rev",
+            "targetModel": "NcDoc",
+            "targetTable": "nc_doc"
+          },
+          "type": "relation"
+        }
+      ],
+      "name": "NcHolder",
+      "tableName": "nc_holder"
+    }
+  }
+}

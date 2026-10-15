@@ -155,6 +155,7 @@ export const tables = {
     'kitchen_sink_badge',
   ],
   relationWithObjects: ['rel_obj_company', 'rel_obj_employee'],
+  nestedCreateDecorators: ['nc_holder', 'nc_group', 'nc_doc'],
 
   // ── Decorators ──
   oneToOneCascade: ['user_cascade', 'profile_cascade'],

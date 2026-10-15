@@ -207,6 +207,9 @@ import type {
   PurchaseOrder,
   Writer,
   Document,
+  NcHolder,
+  NcGroup,
+  NcDoc,
   Publisher,
   Book,
   Author,
@@ -400,6 +403,9 @@ import type {
   PurchaseOrderModel,
   WriterModel,
   DocumentModel,
+  NcHolderModel,
+  NcGroupModel,
+  NcDocModel,
   PublisherModel,
   BookModel,
   AuthorModel,
@@ -599,6 +605,9 @@ export interface TypedDb {
   PurchaseOrder: PurchaseOrderModel;
   Writer: WriterModel;
   Document: DocumentModel;
+  NcHolder: NcHolderModel;
+  NcGroup: NcGroupModel;
+  NcDoc: NcDocModel;
   Publisher: PublisherModel;
   Book: BookModel;
   Author: AuthorModel;
@@ -1398,6 +1407,18 @@ export class CerialClient {
 
   get Document(): DocumentModel {
     return this._ensureDb().Document;
+  }
+
+  get NcHolder(): NcHolderModel {
+    return this._ensureDb().NcHolder;
+  }
+
+  get NcGroup(): NcGroupModel {
+    return this._ensureDb().NcGroup;
+  }
+
+  get NcDoc(): NcDocModel {
+    return this._ensureDb().NcDoc;
   }
 
   get Publisher(): PublisherModel {

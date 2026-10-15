@@ -15,33 +15,18 @@ import type { RecordIdInput } from '../../utils/cerial-id';
 import type { CompiledQuery } from '../compile/types';
 import { createCompileContext } from '../compile/var-allocator';
 import { transformDestructiveWhere } from '../filters/transformer';
-import { transformOrValidateRecordId } from '../transformers';
+import { applyFieldDefaults, transformData, transformOrValidateRecordId } from '../transformers';
 import type { IncludeClause } from './relation-builder';
 import { buildSelectFields } from './select-builder';
 import { buildUpdateSetClauses } from './update-builder';
 
 /**
- * Apply defaults for nested create data
- * Adds empty arrays for required array fields that are not provided
- * Skips Relation fields (virtual) and Record fields (handled separately)
+ * Run a nested create's data through the same steps as a plain create: field defaults, then wrapper
+ * and RecordId transformation against the target model. Without this the nested row is written from
+ * raw input, so a Date string, a CerialUuid or a Decimal reaches SurrealDB untransformed.
  */
-function applyNestedCreateDefaults(data: Record<string, unknown>, targetModel: ModelMetadata): Record<string, unknown> {
-  const result = { ...data };
-
-  for (const field of targetModel.fields) {
-    // Skip relation fields (virtual, not stored in DB)
-    if (field.type === 'relation') continue;
-
-    // Skip record fields (handled separately in nested operations)
-    if (field.type === 'record') continue;
-
-    // Apply empty array default for required array fields that are not provided
-    if (field.isArray && field.isRequired && !(field.name in result)) {
-      result[field.name] = [];
-    }
-  }
-
-  return result;
+function prepareNestedCreateData(data: Record<string, unknown>, targetModel: ModelMetadata): Record<string, unknown> {
+  return transformData(applyFieldDefaults(data, targetModel), targetModel);
 }
 
 /** Nested create input for a relation */
@@ -427,9 +412,10 @@ export function buildCreateWithNestedTransaction(
           createData.forEach((item, idx) => {
             const varName = `$${fieldName}_create${idx}`;
             const contentVarName = `${varName}_content`;
-            // Apply defaults for required array fields
-            const itemWithDefaults = applyNestedCreateDefaults(item as Record<string, unknown>, targetModel);
-            vars[`${fieldName}_create${idx}_content`] = itemWithDefaults;
+            vars[`${fieldName}_create${idx}_content`] = prepareNestedCreateData(
+              item as Record<string, unknown>,
+              targetModel,
+            );
             statements.push(`LET ${varName} = CREATE ONLY ${targetModel.tableName} CONTENT ${contentVarName};`);
             createdVars.push(`${varName}.id`);
           });
@@ -513,9 +499,7 @@ export function buildCreateWithNestedTransaction(
       } else {
         const varName = `$${fieldName}`;
         const contentVarName = `${varName}_content`;
-        // Apply defaults for required array fields
-        const dataWithDefaults = applyNestedCreateDefaults(createData as Record<string, unknown>, targetModel);
-        vars[`${fieldName}_content`] = dataWithDefaults;
+        vars[`${fieldName}_content`] = prepareNestedCreateData(createData as Record<string, unknown>, targetModel);
         statements.push(`LET ${varName} = CREATE ONLY ${targetModel.tableName} CONTENT ${contentVarName};`);
 
         if (field.relationInfo.fieldRef) {
@@ -603,20 +587,10 @@ export function buildCreateWithNestedTransaction(
   // Handle reverse creates (create nested records that point back to us)
   reverseCreates.forEach((rc, idx) => {
     const dataItems = Array.isArray(rc.createData) ? rc.createData : [rc.createData];
-    dataItems.forEach((item, itemIdx) => {
+    dataItems.forEach((rawItem, itemIdx) => {
       // We need to use SET syntax to include the $resultId reference
       const setFields: string[] = [];
-
-      // First, apply defaults for required array fields that are not provided
-      // Skip relation fields (virtual) and record fields (handled separately)
-      for (const field of rc.targetModel.fields) {
-        if (field.type === 'relation' || field.type === 'record') continue;
-        if (field.isArray && field.isRequired && !(field.name in item)) {
-          const varName = `rev_${idx}_${itemIdx}_${field.name}`;
-          vars[varName] = [];
-          setFields.push(`${field.name} = $${varName}`);
-        }
-      }
+      const item = prepareNestedCreateData(rawItem, rc.targetModel);
 
       for (const [key, value] of Object.entries(item)) {
         // Skip undefined values (NONE semantics - field doesn't exist)
@@ -779,8 +753,9 @@ export function buildUpdateWithNestedTransaction(
         const createData = op.create;
         const items = Array.isArray(createData) ? createData : [createData];
 
-        items.forEach((item, idx) => {
+        items.forEach((rawItem, idx) => {
           const varName = `rev_create_${fieldName}_${idx}`;
+          const item = prepareNestedCreateData(rawItem, targetModel);
           // Filter out undefined and null record fields
           const itemContent: Record<string, unknown> = {};
           for (const [key, value] of Object.entries(item)) {
@@ -830,7 +805,7 @@ export function buildUpdateWithNestedTransaction(
         createData.forEach((item, idx) => {
           const varName = `$${fieldName}${idx}`;
           const contentVarName = `${varName}_content`;
-          vars[`${fieldName}${idx}_content`] = item;
+          vars[`${fieldName}${idx}_content`] = prepareNestedCreateData(item, targetModel);
           // CREATE ONLY returns { id: ... }, access .id to get the RecordId
           statements.push(guardedCreate(varName, targetModel.tableName, contentVarName));
           createdVars.push(`${varName}.id`);
@@ -856,7 +831,7 @@ export function buildUpdateWithNestedTransaction(
         // Single create
         const varName = `$${fieldName}`;
         const contentVarName = `${varName}_content`;
-        vars[`${fieldName}_content`] = createData;
+        vars[`${fieldName}_content`] = prepareNestedCreateData(createData, targetModel);
         // CREATE ONLY returns { id: ... }, access .id to get the RecordId
         statements.push(guardedCreate(varName, targetModel.tableName, contentVarName));
 

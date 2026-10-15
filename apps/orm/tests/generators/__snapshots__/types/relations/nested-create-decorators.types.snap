@@ -1,0 +1,1646 @@
+// ===== models/ncdoc.ts =====
+/**
+ * Generated types for NcDoc
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import { CerialUuid } from 'cerial';
+import type { CerialUuidInput } from 'cerial';
+import { CerialDuration } from 'cerial';
+import type { CerialDurationInput } from 'cerial';
+import { CerialDecimal } from 'cerial';
+import type { CerialDecimalInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  NcGroup,
+  NcGroupWhere,
+  NcGroupSelect,
+  NcGroupOrderBy,
+  NcGroupNestedCreate,
+  NcGroupInclude,
+  GetNcGroupIncludePayload,
+} from './ncgroup';
+import type {
+  NcHolder,
+  NcHolderWhere,
+  NcHolderSelect,
+  NcHolderOrderBy,
+  NcHolderNestedCreate,
+  NcHolderInclude,
+  GetNcHolderIncludePayload,
+} from './ncholder';
+export interface NcDoc {
+  id: CerialId<string>;
+  label: string;
+  note: string;
+  always?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  seenAt?: Date;
+  token?: CerialUuid;
+  tokenV7?: CerialUuid;
+  amount: CerialDecimal;
+  span: CerialDuration;
+  stamp: Date;
+  tags: string[];
+  groupIds: CerialId<string>[];
+  revHolderId?: CerialId<string>;
+}
+
+export interface NcDocInput {
+  id?: string;
+  label: string;
+  note: string;
+  always?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  seenAt?: Date;
+  token?: CerialUuidInput;
+  tokenV7?: CerialUuidInput;
+  amount: CerialDecimalInput;
+  span: CerialDurationInput;
+  stamp: Date;
+  tags: string[];
+  groupIds: RecordIdInput<string>[];
+  revHolderId?: RecordIdInput<string>;
+}
+
+export interface NcDocWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  label?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  note?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  always?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  createdAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  updatedAt?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        not?: Date;
+        isNone?: boolean;
+        between?: [Date, Date];
+      });
+  token?:
+    | CerialUuidInput
+    | ({
+        eq?: CerialUuidInput;
+        neq?: CerialUuidInput;
+        gt?: CerialUuidInput;
+        gte?: CerialUuidInput;
+        lt?: CerialUuidInput;
+        lte?: CerialUuidInput;
+      } & {
+        in?: CerialUuidInput[];
+        notIn?: CerialUuidInput[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  tokenV7?:
+    | CerialUuidInput
+    | ({
+        eq?: CerialUuidInput;
+        neq?: CerialUuidInput;
+        gt?: CerialUuidInput;
+        gte?: CerialUuidInput;
+        lt?: CerialUuidInput;
+        lte?: CerialUuidInput;
+      } & {
+        in?: CerialUuidInput[];
+        notIn?: CerialUuidInput[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  amount?:
+    | CerialDecimalInput
+    | ({
+        eq?: CerialDecimalInput;
+        neq?: CerialDecimalInput;
+        gt?: CerialDecimalInput;
+        gte?: CerialDecimalInput;
+        lt?: CerialDecimalInput;
+        lte?: CerialDecimalInput;
+      } & {
+        in?: CerialDecimalInput[];
+        notIn?: CerialDecimalInput[];
+      } & {
+        between?: [CerialDecimalInput, CerialDecimalInput];
+      });
+  span?:
+    | CerialDurationInput
+    | ({
+        eq?: CerialDurationInput;
+        neq?: CerialDurationInput;
+        gt?: CerialDurationInput;
+        gte?: CerialDurationInput;
+        lt?: CerialDurationInput;
+        lte?: CerialDurationInput;
+      } & {
+        in?: CerialDurationInput[];
+        notIn?: CerialDurationInput[];
+      } & {
+        between?: [CerialDurationInput, CerialDurationInput];
+      });
+  stamp?:
+    | Date
+    | ({
+        eq?: Date;
+        neq?: Date;
+        gt?: Date;
+        gte?: Date;
+        lt?: Date;
+        lte?: Date;
+      } & {
+        in?: Date[];
+        notIn?: Date[];
+      } & {
+        between?: [Date, Date];
+      });
+  tags?:
+    | string[]
+    | {
+        has?: string;
+        hasAll?: string[];
+        hasAny?: string[];
+        isEmpty?: boolean;
+      };
+  groupIds?:
+    | RecordIdInput<string>[]
+    | {
+        has?: RecordIdInput<string>;
+        hasAll?: RecordIdInput<string>[];
+        hasAny?: RecordIdInput<string>[];
+        isEmpty?: boolean;
+      };
+  groups?: { some?: NcGroupWhere; every?: NcGroupWhere; none?: NcGroupWhere };
+  singleHolders?: { some?: NcHolderWhere; every?: NcHolderWhere; none?: NcHolderWhere };
+  revHolderId?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  revHolder?: NcHolderWhere;
+  AND?: NcDocWhere[];
+  OR?: NcDocWhere[];
+  NOT?: NcDocWhere;
+}
+
+export type NcDocWhereInput = NcDocWhere;
+
+export type NcDocFindUniqueWhere = { id: RecordIdInput<string> } & Omit<NcDocWhere, 'id'>;
+
+export type NcDocCreate = O.Optional<
+  O.Omit<NcDocInput, 'seenAt' | 'groups' | 'singleHolders' | 'revHolder'>,
+  'id' | 'note' | 'always' | 'createdAt' | 'updatedAt' | 'token' | 'tokenV7' | 'tags' | 'groupIds' | 'revHolderId'
+>;
+
+export type NcDocNestedCreate = O.Optional<
+  O.Omit<NcDocInput, 'seenAt' | 'groups' | 'singleHolders' | 'revHolder' | 'groupIds' | 'revHolderId'>,
+  'id' | 'note' | 'always' | 'createdAt' | 'updatedAt' | 'token' | 'tokenV7' | 'tags'
+>;
+
+export type NcDocCreateInput =
+  | NcDocCreate
+  | (O.Omit<NcDocCreate, 'groupIds' | 'revHolderId'> & {
+      groups?: {
+        create?: NcGroupNestedCreate | NcGroupNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+      };
+      singleHolders?: {
+        create?: NcHolderNestedCreate | NcHolderNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+      };
+      revHolder?: { create: NcHolderNestedCreate } | { connect: RecordIdInput };
+    });
+
+export type NcDocUpdate = Partial<
+  O.Omit<
+    NcDocInput,
+    | 'id'
+    | 'groups'
+    | 'singleHolders'
+    | 'revHolder'
+    | 'seenAt'
+    | 'tags'
+    | 'groupIds'
+    | 'always'
+    | 'createdAt'
+    | 'updatedAt'
+    | 'token'
+    | 'tokenV7'
+    | 'revHolderId'
+  >
+> & {
+  tags?:
+    | string[]
+    | {
+        push?: string | string[];
+        unset?: string | string[];
+      };
+  groupIds?:
+    | RecordIdInput<string>[]
+    | {
+        push?: RecordIdInput<string> | RecordIdInput<string>[];
+        unset?: RecordIdInput<string> | RecordIdInput<string>[];
+      };
+  always?: string | CerialNone;
+  createdAt?: Date | CerialNone;
+  updatedAt?: Date | CerialNone;
+  token?: CerialUuidInput | CerialNone;
+  tokenV7?: CerialUuidInput | CerialNone;
+  revHolderId?: RecordIdInput<string> | CerialNone;
+};
+
+export type NcDocUpdateInput =
+  | NcDocUpdate
+  | (O.Omit<NcDocUpdate, 'groupIds' | 'revHolderId'> & {
+      groups?: {
+        create?: NcGroupNestedCreate | NcGroupNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+        disconnect?: RecordIdInput | RecordIdInput[];
+        set?: RecordIdInput[];
+      };
+      singleHolders?: {
+        create?: NcHolderNestedCreate | NcHolderNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+        disconnect?: RecordIdInput | RecordIdInput[];
+        set?: RecordIdInput[];
+      };
+      revHolder?: { create: NcHolderNestedCreate } | { connect: RecordIdInput } | { disconnect: true };
+    });
+
+export type NcDocUnset = {
+  always?: true;
+  createdAt?: true;
+  updatedAt?: true;
+  token?: true;
+  tokenV7?: true;
+  revHolderId?: true;
+};
+
+export type NcDocSelect =
+  | ({ id: boolean } & Partial<
+      Record<
+        | 'label'
+        | 'note'
+        | 'always'
+        | 'createdAt'
+        | 'updatedAt'
+        | 'seenAt'
+        | 'token'
+        | 'tokenV7'
+        | 'amount'
+        | 'span'
+        | 'stamp'
+        | 'tags'
+        | 'groupIds'
+        | 'revHolderId',
+        boolean
+      >
+    >)
+  | ({ label: boolean } & Partial<
+      Record<
+        | 'id'
+        | 'note'
+        | 'always'
+        | 'createdAt'
+        | 'updatedAt'
+        | 'seenAt'
+        | 'token'
+        | 'tokenV7'
+        | 'amount'
+        | 'span'
+        | 'stamp'
+        | 'tags'
+        | 'groupIds'
+        | 'revHolderId',
+        boolean
+      >
+    >)
+  | ({ note: boolean } & Partial<
+      Record<
+        | 'id'
+        | 'label'
+        | 'always'
+        | 'createdAt'
+        | 'updatedAt'
+        | 'seenAt'
+        | 'token'
+        | 'tokenV7'
+        | 'amount'
+        | 'span'
+        | 'stamp'
+        | 'tags'
+        | 'groupIds'
+        | 'revHolderId',
+        boolean
+      >
+    >)
+  | ({ always: boolean } & Partial<
+      Record<
+        | 'id'
+        | 'label'
+        | 'note'
+        | 'createdAt'
+        | 'updatedAt'
+        | 'seenAt'
+        | 'token'
+        | 'tokenV7'
+        | 'amount'
+        | 'span'
+        | 'stamp'
+        | 'tags'
+        | 'groupIds'
+        | 'revHolderId',
+        boolean
+      >
+    >)
+  | ({ createdAt: boolean } & Partial<
+      Record<
+        | 'id'
+        | 'label'
+        | 'note'
+        | 'always'
+        | 'updatedAt'
+        | 'seenAt'
+        | 'token'
+        | 'tokenV7'
+        | 'amount'
+        | 'span'
+        | 'stamp'
+        | 'tags'
+        | 'groupIds'
+        | 'revHolderId',
+        boolean
+      >
+    >)
+  | ({ updatedAt: boolean } & Partial<
+      Record<
+        | 'id'
+        | 'label'
+        | 'note'
+        | 'always'
+        | 'createdAt'
+        | 'seenAt'
+        | 'token'
+        | 'tokenV7'
+        | 'amount'
+        | 'span'
+        | 'stamp'
+        | 'tags'
+        | 'groupIds'
+        | 'revHolderId',
+        boolean
+      >
+    >)
+  | ({ seenAt: boolean } & Partial<
+      Record<
+        | 'id'
+        | 'label'
+        | 'note'
+        | 'always'
+        | 'createdAt'
+        | 'updatedAt'
+        | 'token'
+        | 'tokenV7'
+        | 'amount'
+        | 'span'
+        | 'stamp'
+        | 'tags'
+        | 'groupIds'
+        | 'revHolderId',
+        boolean
+      >
+    >)
+  | ({ token: boolean } & Partial<
+      Record<
+        | 'id'
+        | 'label'
+        | 'note'
+        | 'always'
+        | 'createdAt'
+        | 'updatedAt'
+        | 'seenAt'
+        | 'tokenV7'
+        | 'amount'
+        | 'span'
+        | 'stamp'
+        | 'tags'
+        | 'groupIds'
+        | 'revHolderId',
+        boolean
+      >
+    >)
+  | ({ tokenV7: boolean } & Partial<
+      Record<
+        | 'id'
+        | 'label'
+        | 'note'
+        | 'always'
+        | 'createdAt'
+        | 'updatedAt'
+        | 'seenAt'
+        | 'token'
+        | 'amount'
+        | 'span'
+        | 'stamp'
+        | 'tags'
+        | 'groupIds'
+        | 'revHolderId',
+        boolean
+      >
+    >)
+  | ({ amount: boolean } & Partial<
+      Record<
+        | 'id'
+        | 'label'
+        | 'note'
+        | 'always'
+        | 'createdAt'
+        | 'updatedAt'
+        | 'seenAt'
+        | 'token'
+        | 'tokenV7'
+        | 'span'
+        | 'stamp'
+        | 'tags'
+        | 'groupIds'
+        | 'revHolderId',
+        boolean
+      >
+    >)
+  | ({ span: boolean } & Partial<
+      Record<
+        | 'id'
+        | 'label'
+        | 'note'
+        | 'always'
+        | 'createdAt'
+        | 'updatedAt'
+        | 'seenAt'
+        | 'token'
+        | 'tokenV7'
+        | 'amount'
+        | 'stamp'
+        | 'tags'
+        | 'groupIds'
+        | 'revHolderId',
+        boolean
+      >
+    >)
+  | ({ stamp: boolean } & Partial<
+      Record<
+        | 'id'
+        | 'label'
+        | 'note'
+        | 'always'
+        | 'createdAt'
+        | 'updatedAt'
+        | 'seenAt'
+        | 'token'
+        | 'tokenV7'
+        | 'amount'
+        | 'span'
+        | 'tags'
+        | 'groupIds'
+        | 'revHolderId',
+        boolean
+      >
+    >)
+  | ({ tags: boolean } & Partial<
+      Record<
+        | 'id'
+        | 'label'
+        | 'note'
+        | 'always'
+        | 'createdAt'
+        | 'updatedAt'
+        | 'seenAt'
+        | 'token'
+        | 'tokenV7'
+        | 'amount'
+        | 'span'
+        | 'stamp'
+        | 'groupIds'
+        | 'revHolderId',
+        boolean
+      >
+    >)
+  | ({ groupIds: boolean } & Partial<
+      Record<
+        | 'id'
+        | 'label'
+        | 'note'
+        | 'always'
+        | 'createdAt'
+        | 'updatedAt'
+        | 'seenAt'
+        | 'token'
+        | 'tokenV7'
+        | 'amount'
+        | 'span'
+        | 'stamp'
+        | 'tags'
+        | 'revHolderId',
+        boolean
+      >
+    >)
+  | ({ revHolderId: boolean } & Partial<
+      Record<
+        | 'id'
+        | 'label'
+        | 'note'
+        | 'always'
+        | 'createdAt'
+        | 'updatedAt'
+        | 'seenAt'
+        | 'token'
+        | 'tokenV7'
+        | 'amount'
+        | 'span'
+        | 'stamp'
+        | 'tags'
+        | 'groupIds',
+        boolean
+      >
+    >);
+
+export interface NcDocOrderBy {
+  id?: 'asc' | 'desc';
+  label?: 'asc' | 'desc';
+  note?: 'asc' | 'desc';
+  always?: 'asc' | 'desc';
+  createdAt?: 'asc' | 'desc';
+  updatedAt?: 'asc' | 'desc';
+  seenAt?: 'asc' | 'desc';
+  token?: 'asc' | 'desc';
+  tokenV7?: 'asc' | 'desc';
+  amount?: 'asc' | 'desc';
+  span?: 'asc' | 'desc';
+  stamp?: 'asc' | 'desc';
+  tags?: 'asc' | 'desc';
+  groupIds?: 'asc' | 'desc';
+  revHolderId?: 'asc' | 'desc';
+  revHolder?: NcHolderOrderBy;
+}
+
+export interface NcDocInclude {
+  groups?:
+    | boolean
+    | {
+        select?: NcGroupSelect;
+        where?: NcGroupWhere;
+        orderBy?: NcGroupOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: NcGroupInclude;
+      };
+  singleHolders?:
+    | boolean
+    | {
+        select?: NcHolderSelect;
+        where?: NcHolderWhere;
+        orderBy?: NcHolderOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: NcHolderInclude;
+      };
+  revHolder?:
+    | boolean
+    | {
+        select?: NcHolderSelect;
+        where?: NcHolderWhere;
+        include?: NcHolderInclude;
+      };
+}
+
+export type NcDoc$Relations = {
+  groups: { type: NcGroup[]; include: NcGroupInclude };
+  singleHolders: { type: NcHolder[]; include: NcHolderInclude };
+  revHolder: { type: NcHolder; include: NcHolderInclude };
+};
+
+export type GetNcDocIncludePayload<I extends NcDocInclude | undefined> = I extends NcDocInclude
+  ? Pick<
+      {
+        groups: I['groups'] extends true
+          ? NcGroup[]
+          : I['groups'] extends { select: infer S extends NcGroupSelect; include: infer NI extends NcGroupInclude }
+            ? ({
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof NcGroup
+                  ? ResolveFieldSelect<NcGroup[P], S[P]>
+                  : never;
+              } & GetNcGroupIncludePayload<NI>)[]
+            : I['groups'] extends { select: infer S extends NcGroupSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof NcGroup
+                    ? ResolveFieldSelect<NcGroup[P], S[P]>
+                    : never;
+                }[]
+              : I['groups'] extends { include: infer NI extends NcGroupInclude }
+                ? (NcGroup & GetNcGroupIncludePayload<NI>)[]
+                : NcGroup[];
+        singleHolders: I['singleHolders'] extends true
+          ? NcHolder[]
+          : I['singleHolders'] extends {
+                select: infer S extends NcHolderSelect;
+                include: infer NI extends NcHolderInclude;
+              }
+            ? ({
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof NcHolder
+                  ? ResolveFieldSelect<NcHolder[P], S[P]>
+                  : never;
+              } & GetNcHolderIncludePayload<NI>)[]
+            : I['singleHolders'] extends { select: infer S extends NcHolderSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof NcHolder
+                    ? ResolveFieldSelect<NcHolder[P], S[P]>
+                    : never;
+                }[]
+              : I['singleHolders'] extends { include: infer NI extends NcHolderInclude }
+                ? (NcHolder & GetNcHolderIncludePayload<NI>)[]
+                : NcHolder[];
+        revHolder: I['revHolder'] extends true
+          ? NcHolder
+          : I['revHolder'] extends { select: infer S extends NcHolderSelect; include: infer NI extends NcHolderInclude }
+            ? {
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof NcHolder
+                  ? ResolveFieldSelect<NcHolder[P], S[P]>
+                  : never;
+              } & GetNcHolderIncludePayload<NI>
+            : I['revHolder'] extends { select: infer S extends NcHolderSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof NcHolder
+                    ? ResolveFieldSelect<NcHolder[P], S[P]>
+                    : never;
+                }
+              : I['revHolder'] extends { include: infer NI extends NcHolderInclude }
+                ? NcHolder & GetNcHolderIncludePayload<NI>
+                : NcHolder;
+      },
+      Extract<keyof I, keyof NcDoc$Relations> & { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetNcDocPayload<
+  S extends NcDocSelect | undefined = undefined,
+  I extends NcDocInclude | undefined = undefined,
+> = A.Compute<
+  S extends NcDocSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof NcDoc
+          ? ResolveFieldSelect<NcDoc[K], S[K]>
+          : never;
+      } & GetNcDocIncludePayload<I>
+    : I extends NcDocInclude
+      ? NcDoc & GetNcDocIncludePayload<I>
+      : NcDoc,
+  'flat'
+>;
+
+export interface NcDocModel {
+  findOne<S extends NcDocSelect | undefined = undefined, I extends NcDocInclude | undefined = undefined>(options?: {
+    where?: NcDocWhere;
+    select?: S;
+    include?: I;
+    orderBy?: NcDocOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNcDocPayload<S, I> | null>;
+
+  findMany<S extends NcDocSelect | undefined = undefined, I extends NcDocInclude | undefined = undefined>(options?: {
+    where?: NcDocWhere;
+    select?: S;
+    orderBy?: NcDocOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNcDocPayload<S, I>[]>;
+
+  findUnique<S extends NcDocSelect | undefined = undefined, I extends NcDocInclude | undefined = undefined>(options: {
+    where: NcDocFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNcDocPayload<S, I> | null>;
+
+  create<S extends NcDocSelect | undefined = undefined, I extends NcDocInclude | undefined = undefined>(options: {
+    data: NcDocCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNcDocPayload<S, I>>;
+
+  updateMany<
+    S extends NcDocSelect | undefined = undefined,
+    I extends NcDocInclude | undefined = undefined,
+    D extends NcDocUpdateInput = NcDocUpdateInput,
+  >(options: {
+    where: NcDocWhere;
+    data: D;
+    unset?: SafeUnset<NcDocUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNcDocPayload<S, I>[]>;
+
+  updateUnique<
+    S extends NcDocSelect | undefined = undefined,
+    I extends NcDocInclude | undefined = undefined,
+    D extends NcDocUpdateInput = NcDocUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: NcDocFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<NcDocUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns NcDoc | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetNcDocPayload<S, I>, R>>;
+
+  upsert<
+    S extends NcDocSelect | undefined = undefined,
+    I extends NcDocInclude | undefined = undefined,
+    D extends NcDocUpdateInput = NcDocUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: NcDocFindUniqueWhere;
+    create: NcDocCreateInput;
+    update?: D;
+    unset?: SafeUnset<NcDocUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetNcDocPayload<S, I>, R>>;
+
+  upsert<
+    S extends NcDocSelect | undefined = undefined,
+    I extends NcDocInclude | undefined = undefined,
+    D extends NcDocUpdateInput = NcDocUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: NcDocWhere;
+    create: NcDocCreateInput;
+    update?: D;
+    unset?: SafeUnset<NcDocUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetNcDocPayload<S, I>, R>>;
+
+  deleteMany(options: { where: NcDocWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: NcDocFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns NcDoc | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<NcDoc, R>>;
+
+  count(where?: NcDocWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: NcDocWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/ncgroup.ts =====
+/**
+ * Generated types for NcGroup
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  NcDoc,
+  NcDocWhere,
+  NcDocSelect,
+  NcDocOrderBy,
+  NcDocNestedCreate,
+  NcDocInclude,
+  GetNcDocIncludePayload,
+} from './ncdoc';
+export interface NcGroup {
+  id: CerialId<string>;
+  name: string;
+  docIds: CerialId<string>[];
+}
+
+export interface NcGroupInput {
+  id?: string;
+  name: string;
+  docIds: RecordIdInput<string>[];
+}
+
+export interface NcGroupWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  docIds?:
+    | RecordIdInput<string>[]
+    | {
+        has?: RecordIdInput<string>;
+        hasAll?: RecordIdInput<string>[];
+        hasAny?: RecordIdInput<string>[];
+        isEmpty?: boolean;
+      };
+  docs?: { some?: NcDocWhere; every?: NcDocWhere; none?: NcDocWhere };
+  AND?: NcGroupWhere[];
+  OR?: NcGroupWhere[];
+  NOT?: NcGroupWhere;
+}
+
+export type NcGroupWhereInput = NcGroupWhere;
+
+export type NcGroupFindUniqueWhere = { id: RecordIdInput<string> } & Omit<NcGroupWhere, 'id'>;
+
+export type NcGroupCreate = O.Optional<O.Omit<NcGroupInput, 'docs'>, 'id' | 'docIds'>;
+
+export type NcGroupNestedCreate = O.Optional<O.Omit<NcGroupInput, 'docs' | 'docIds'>, 'id'>;
+
+export type NcGroupCreateInput =
+  | NcGroupCreate
+  | (O.Omit<NcGroupCreate, 'docIds'> & {
+      docs?: {
+        create?: NcDocNestedCreate | NcDocNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+      };
+    });
+
+export type NcGroupUpdate = Partial<O.Omit<NcGroupInput, 'id' | 'docs' | 'docIds'>> & {
+  docIds?:
+    | RecordIdInput<string>[]
+    | {
+        push?: RecordIdInput<string> | RecordIdInput<string>[];
+        unset?: RecordIdInput<string> | RecordIdInput<string>[];
+      };
+};
+
+export type NcGroupUpdateInput =
+  | NcGroupUpdate
+  | (O.Omit<NcGroupUpdate, 'docIds'> & {
+      docs?: {
+        create?: NcDocNestedCreate | NcDocNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+        disconnect?: RecordIdInput | RecordIdInput[];
+        set?: RecordIdInput[];
+      };
+    });
+
+export type NcGroupUnset = {};
+
+export type NcGroupSelect =
+  | ({ id: boolean } & Partial<Record<'name' | 'docIds', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'docIds', boolean>>)
+  | ({ docIds: boolean } & Partial<Record<'id' | 'name', boolean>>);
+
+export interface NcGroupOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  docIds?: 'asc' | 'desc';
+}
+
+export interface NcGroupInclude {
+  docs?:
+    | boolean
+    | {
+        select?: NcDocSelect;
+        where?: NcDocWhere;
+        orderBy?: NcDocOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: NcDocInclude;
+      };
+}
+
+export type NcGroup$Relations = {
+  docs: { type: NcDoc[]; include: NcDocInclude };
+};
+
+export type GetNcGroupIncludePayload<I extends NcGroupInclude | undefined> = I extends NcGroupInclude
+  ? Pick<
+      {
+        docs: I['docs'] extends true
+          ? NcDoc[]
+          : I['docs'] extends { select: infer S extends NcDocSelect; include: infer NI extends NcDocInclude }
+            ? ({
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof NcDoc
+                  ? ResolveFieldSelect<NcDoc[P], S[P]>
+                  : never;
+              } & GetNcDocIncludePayload<NI>)[]
+            : I['docs'] extends { select: infer S extends NcDocSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof NcDoc
+                    ? ResolveFieldSelect<NcDoc[P], S[P]>
+                    : never;
+                }[]
+              : I['docs'] extends { include: infer NI extends NcDocInclude }
+                ? (NcDoc & GetNcDocIncludePayload<NI>)[]
+                : NcDoc[];
+      },
+      Extract<keyof I, keyof NcGroup$Relations> &
+        { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetNcGroupPayload<
+  S extends NcGroupSelect | undefined = undefined,
+  I extends NcGroupInclude | undefined = undefined,
+> = A.Compute<
+  S extends NcGroupSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof NcGroup
+          ? ResolveFieldSelect<NcGroup[K], S[K]>
+          : never;
+      } & GetNcGroupIncludePayload<I>
+    : I extends NcGroupInclude
+      ? NcGroup & GetNcGroupIncludePayload<I>
+      : NcGroup,
+  'flat'
+>;
+
+export interface NcGroupModel {
+  findOne<S extends NcGroupSelect | undefined = undefined, I extends NcGroupInclude | undefined = undefined>(options?: {
+    where?: NcGroupWhere;
+    select?: S;
+    include?: I;
+    orderBy?: NcGroupOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNcGroupPayload<S, I> | null>;
+
+  findMany<
+    S extends NcGroupSelect | undefined = undefined,
+    I extends NcGroupInclude | undefined = undefined,
+  >(options?: {
+    where?: NcGroupWhere;
+    select?: S;
+    orderBy?: NcGroupOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNcGroupPayload<S, I>[]>;
+
+  findUnique<
+    S extends NcGroupSelect | undefined = undefined,
+    I extends NcGroupInclude | undefined = undefined,
+  >(options: {
+    where: NcGroupFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNcGroupPayload<S, I> | null>;
+
+  create<S extends NcGroupSelect | undefined = undefined, I extends NcGroupInclude | undefined = undefined>(options: {
+    data: NcGroupCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNcGroupPayload<S, I>>;
+
+  updateMany<
+    S extends NcGroupSelect | undefined = undefined,
+    I extends NcGroupInclude | undefined = undefined,
+    D extends NcGroupUpdateInput = NcGroupUpdateInput,
+  >(options: {
+    where: NcGroupWhere;
+    data: D;
+    unset?: SafeUnset<NcGroupUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNcGroupPayload<S, I>[]>;
+
+  updateUnique<
+    S extends NcGroupSelect | undefined = undefined,
+    I extends NcGroupInclude | undefined = undefined,
+    D extends NcGroupUpdateInput = NcGroupUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: NcGroupFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<NcGroupUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns NcGroup | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetNcGroupPayload<S, I>, R>>;
+
+  upsert<
+    S extends NcGroupSelect | undefined = undefined,
+    I extends NcGroupInclude | undefined = undefined,
+    D extends NcGroupUpdateInput = NcGroupUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: NcGroupFindUniqueWhere;
+    create: NcGroupCreateInput;
+    update?: D;
+    unset?: SafeUnset<NcGroupUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetNcGroupPayload<S, I>, R>>;
+
+  upsert<
+    S extends NcGroupSelect | undefined = undefined,
+    I extends NcGroupInclude | undefined = undefined,
+    D extends NcGroupUpdateInput = NcGroupUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: NcGroupWhere;
+    create: NcGroupCreateInput;
+    update?: D;
+    unset?: SafeUnset<NcGroupUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetNcGroupPayload<S, I>, R>>;
+
+  deleteMany(options: { where: NcGroupWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: NcGroupFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns NcGroup | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<NcGroup, R>>;
+
+  count(where?: NcGroupWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: NcGroupWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
+// ===== models/ncholder.ts =====
+/**
+ * Generated types for NcHolder
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type { CerialNone } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type {
+  NcDoc,
+  NcDocWhere,
+  NcDocSelect,
+  NcDocOrderBy,
+  NcDocNestedCreate,
+  NcDocInclude,
+  GetNcDocIncludePayload,
+} from './ncdoc';
+export interface NcHolder {
+  id: CerialId<string>;
+  name: string;
+  docId?: CerialId<string>;
+}
+
+export interface NcHolderInput {
+  id?: string;
+  name: string;
+  docId?: RecordIdInput<string>;
+}
+
+export interface NcHolderWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  name?:
+    | string
+    | ({
+        eq?: string;
+        neq?: string;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: string[];
+        notIn?: string[];
+      } & {});
+  docId?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {
+        not?: string;
+        isNone?: boolean;
+      });
+  doc?: NcDocWhere;
+  reverseDocs?: { some?: NcDocWhere; every?: NcDocWhere; none?: NcDocWhere };
+  AND?: NcHolderWhere[];
+  OR?: NcHolderWhere[];
+  NOT?: NcHolderWhere;
+}
+
+export type NcHolderWhereInput = NcHolderWhere;
+
+export type NcHolderFindUniqueWhere = { id: RecordIdInput<string> } & Omit<NcHolderWhere, 'id'>;
+
+export type NcHolderCreate = O.Optional<O.Omit<NcHolderInput, 'doc' | 'reverseDocs'>, 'id' | 'docId'>;
+
+export type NcHolderNestedCreate = O.Optional<O.Omit<NcHolderInput, 'doc' | 'reverseDocs' | 'docId'>, 'id'>;
+
+export type NcHolderCreateInput =
+  | NcHolderCreate
+  | (O.Omit<NcHolderCreate, 'docId'> & {
+      doc?: { create: NcDocNestedCreate } | { connect: RecordIdInput };
+      reverseDocs?: {
+        create?: NcDocNestedCreate | NcDocNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+      };
+    });
+
+export type NcHolderUpdate = Partial<O.Omit<NcHolderInput, 'id' | 'doc' | 'reverseDocs' | 'docId'>> & {
+  docId?: RecordIdInput<string> | CerialNone;
+};
+
+export type NcHolderUpdateInput =
+  | NcHolderUpdate
+  | (O.Omit<NcHolderUpdate, 'docId'> & {
+      doc?: { create: NcDocNestedCreate } | { connect: RecordIdInput } | { disconnect: true };
+      reverseDocs?: {
+        create?: NcDocNestedCreate | NcDocNestedCreate[];
+        connect?: RecordIdInput | RecordIdInput[];
+        disconnect?: RecordIdInput | RecordIdInput[];
+        set?: RecordIdInput[];
+      };
+    });
+
+export type NcHolderUnset = {
+  docId?: true;
+};
+
+export type NcHolderSelect =
+  | ({ id: boolean } & Partial<Record<'name' | 'docId', boolean>>)
+  | ({ name: boolean } & Partial<Record<'id' | 'docId', boolean>>)
+  | ({ docId: boolean } & Partial<Record<'id' | 'name', boolean>>);
+
+export interface NcHolderOrderBy {
+  id?: 'asc' | 'desc';
+  name?: 'asc' | 'desc';
+  docId?: 'asc' | 'desc';
+  doc?: NcDocOrderBy;
+}
+
+export interface NcHolderInclude {
+  doc?:
+    | boolean
+    | {
+        select?: NcDocSelect;
+        where?: NcDocWhere;
+        include?: NcDocInclude;
+      };
+  reverseDocs?:
+    | boolean
+    | {
+        select?: NcDocSelect;
+        where?: NcDocWhere;
+        orderBy?: NcDocOrderBy;
+        limit?: number;
+        offset?: number;
+        include?: NcDocInclude;
+      };
+}
+
+export type NcHolder$Relations = {
+  doc: { type: NcDoc; include: NcDocInclude };
+  reverseDocs: { type: NcDoc[]; include: NcDocInclude };
+};
+
+export type GetNcHolderIncludePayload<I extends NcHolderInclude | undefined> = I extends NcHolderInclude
+  ? Pick<
+      {
+        doc: I['doc'] extends true
+          ? NcDoc
+          : I['doc'] extends { select: infer S extends NcDocSelect; include: infer NI extends NcDocInclude }
+            ? {
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof NcDoc
+                  ? ResolveFieldSelect<NcDoc[P], S[P]>
+                  : never;
+              } & GetNcDocIncludePayload<NI>
+            : I['doc'] extends { select: infer S extends NcDocSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof NcDoc
+                    ? ResolveFieldSelect<NcDoc[P], S[P]>
+                    : never;
+                }
+              : I['doc'] extends { include: infer NI extends NcDocInclude }
+                ? NcDoc & GetNcDocIncludePayload<NI>
+                : NcDoc;
+        reverseDocs: I['reverseDocs'] extends true
+          ? NcDoc[]
+          : I['reverseDocs'] extends { select: infer S extends NcDocSelect; include: infer NI extends NcDocInclude }
+            ? ({
+                [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof NcDoc
+                  ? ResolveFieldSelect<NcDoc[P], S[P]>
+                  : never;
+              } & GetNcDocIncludePayload<NI>)[]
+            : I['reverseDocs'] extends { select: infer S extends NcDocSelect }
+              ? {
+                  [P in keyof S as S[P] extends false | undefined ? never : P]: P extends keyof NcDoc
+                    ? ResolveFieldSelect<NcDoc[P], S[P]>
+                    : never;
+                }[]
+              : I['reverseDocs'] extends { include: infer NI extends NcDocInclude }
+                ? (NcDoc & GetNcDocIncludePayload<NI>)[]
+                : NcDoc[];
+      },
+      Extract<keyof I, keyof NcHolder$Relations> &
+        { [K in keyof I]: I[K] extends false | undefined ? never : K }[keyof I]
+    >
+  : {};
+
+export type GetNcHolderPayload<
+  S extends NcHolderSelect | undefined = undefined,
+  I extends NcHolderInclude | undefined = undefined,
+> = A.Compute<
+  S extends NcHolderSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof NcHolder
+          ? ResolveFieldSelect<NcHolder[K], S[K]>
+          : never;
+      } & GetNcHolderIncludePayload<I>
+    : I extends NcHolderInclude
+      ? NcHolder & GetNcHolderIncludePayload<I>
+      : NcHolder,
+  'flat'
+>;
+
+export interface NcHolderModel {
+  findOne<
+    S extends NcHolderSelect | undefined = undefined,
+    I extends NcHolderInclude | undefined = undefined,
+  >(options?: {
+    where?: NcHolderWhere;
+    select?: S;
+    include?: I;
+    orderBy?: NcHolderOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNcHolderPayload<S, I> | null>;
+
+  findMany<
+    S extends NcHolderSelect | undefined = undefined,
+    I extends NcHolderInclude | undefined = undefined,
+  >(options?: {
+    where?: NcHolderWhere;
+    select?: S;
+    orderBy?: NcHolderOrderBy;
+    limit?: number;
+    offset?: number;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNcHolderPayload<S, I>[]>;
+
+  findUnique<
+    S extends NcHolderSelect | undefined = undefined,
+    I extends NcHolderInclude | undefined = undefined,
+  >(options: {
+    where: NcHolderFindUniqueWhere;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNcHolderPayload<S, I> | null>;
+
+  create<S extends NcHolderSelect | undefined = undefined, I extends NcHolderInclude | undefined = undefined>(options: {
+    data: NcHolderCreateInput;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNcHolderPayload<S, I>>;
+
+  updateMany<
+    S extends NcHolderSelect | undefined = undefined,
+    I extends NcHolderInclude | undefined = undefined,
+    D extends NcHolderUpdateInput = NcHolderUpdateInput,
+  >(options: {
+    where: NcHolderWhere;
+    data: D;
+    unset?: SafeUnset<NcHolderUnset, D>;
+    select?: S;
+    include?: I;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetNcHolderPayload<S, I>[]>;
+
+  updateUnique<
+    S extends NcHolderSelect | undefined = undefined,
+    I extends NcHolderInclude | undefined = undefined,
+    D extends NcHolderUpdateInput = NcHolderUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: NcHolderFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<NcHolderUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select/include)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns NcHolder | null (pre-update state, select and include read before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetNcHolderPayload<S, I>, R>>;
+
+  upsert<
+    S extends NcHolderSelect | undefined = undefined,
+    I extends NcHolderInclude | undefined = undefined,
+    D extends NcHolderUpdateInput = NcHolderUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: NcHolderFindUniqueWhere;
+    create: NcHolderCreateInput;
+    update?: D;
+    unset?: SafeUnset<NcHolderUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select/include)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetNcHolderPayload<S, I>, R>>;
+
+  upsert<
+    S extends NcHolderSelect | undefined = undefined,
+    I extends NcHolderInclude | undefined = undefined,
+    D extends NcHolderUpdateInput = NcHolderUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: NcHolderWhere;
+    create: NcHolderCreateInput;
+    update?: D;
+    unset?: SafeUnset<NcHolderUnset, D>;
+    select?: S;
+    include?: I;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetNcHolderPayload<S, I>, R>>;
+
+  deleteMany(options: { where: NcHolderWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: NcHolderFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns NcHolder | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<NcHolder, R>>;
+
+  count(where?: NcHolderWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: NcHolderWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
