@@ -147,7 +147,13 @@ export function createCerialTransactionProxy(
 
   return new Proxy(cerialTxn, {
     get(target, prop) {
-      if (typeof prop === 'symbol') return Reflect.get(target, prop);
+      if (typeof prop === 'symbol') {
+        // Bound like commit and cancel: dispose reads `this._state`, which through the proxy would
+        // fall into _getModel and throw an unknown-model error instead of cancelling.
+        const value = Reflect.get(target, prop);
+
+        return typeof value === 'function' ? value.bind(target) : value;
+      }
 
       if (prop === '$transaction') {
         throw new CerialTransactionError('Nested transactions are not supported', { operation: '$transaction' });
