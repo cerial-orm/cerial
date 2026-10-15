@@ -416,6 +416,13 @@ development branch and is not available on npm.
   way to avoid a dropped transaction, so the recommended remedy did not work. Only the
   manual form is affected: the array form hands back no transaction to dispose, and the
   callback form ends its own transaction when the callback returns.
+- A transaction whose `commit()` or `cancel()` threw reported `state` as `'active'`, so there
+  was no way to tell the handle apart from a working one. It now reports `'cancelled'`, and a
+  later `commit()`, `cancel()` or query through it throws `CerialTransactionError` with
+  `Transaction already ended` rather than reaching the driver and returning its
+  `Transaction not found`. The error raised by the failing call itself is unchanged. The state
+  is `'cancelled'` rather than a new value because SurrealDB commits atomically: a commit that
+  threw applied nothing and the server has already dropped the transaction.
 
 ### Changed
 
