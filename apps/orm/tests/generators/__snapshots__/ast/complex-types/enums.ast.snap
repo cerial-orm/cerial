@@ -245,6 +245,33 @@
         }
       ],
       "name": "EnumLiteralRef"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [
+            {
+              "type": "unique"
+            }
+          ],
+          "isOptional": false,
+          "literalName": "Role",
+          "name": "role",
+          "type": "literal"
+        }
+      ],
+      "name": "EnumUnique"
     }
   ],
   "objects": [

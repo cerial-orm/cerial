@@ -960,6 +960,225 @@ export interface EnumMultipleModel {
   getTableName(): string;
 }
 
+// ===== models/enumunique.ts =====
+/**
+ * Generated types for EnumUnique
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import { RoleEnum } from '../enums/role';
+import type { RoleEnumType, RoleEnumWhere } from '../enums/role';
+export interface EnumUnique {
+  id: CerialId<string>;
+  role: RoleEnumType;
+}
+
+export interface EnumUniqueInput {
+  id?: string;
+  role: RoleEnumType;
+}
+
+export interface EnumUniqueWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  /** @unique — Unique indexed field */
+  role?: RoleEnumType | RoleEnumWhere;
+  AND?: EnumUniqueWhere[];
+  OR?: EnumUniqueWhere[];
+  NOT?: EnumUniqueWhere;
+}
+
+export type EnumUniqueWhereInput = EnumUniqueWhere;
+
+export type EnumUniqueFindUniqueWhere =
+  | ({ id: RecordIdInput<string> } & { role?: RoleEnumType } & Omit<EnumUniqueWhere, 'id' | 'role'>)
+  | ({ role: RoleEnumType } & { id?: RecordIdInput<string> } & Omit<EnumUniqueWhere, 'id' | 'role'>);
+
+export type EnumUniqueCreate = O.Optional<EnumUniqueInput, 'id'>;
+
+export type EnumUniqueNestedCreate = O.Optional<EnumUniqueInput, 'id'>;
+
+export type EnumUniqueCreateInput = EnumUniqueCreate;
+
+export type EnumUniqueUpdate = Partial<O.Omit<EnumUniqueInput, 'id'>>;
+
+export type EnumUniqueUpdateInput = EnumUniqueUpdate;
+
+export type EnumUniqueUnset = {};
+
+export type EnumUniqueSelect =
+  | ({ id: boolean } & Partial<Record<'role', boolean>>)
+  | ({ role: boolean } & Partial<Record<'id', boolean>>);
+
+export interface EnumUniqueOrderBy {
+  id?: 'asc' | 'desc';
+  role?: 'asc' | 'desc';
+}
+
+export type EnumUnique$Relations = {};
+
+export type GetEnumUniquePayload<S extends EnumUniqueSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends EnumUniqueSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof EnumUnique
+          ? ResolveFieldSelect<EnumUnique[K], S[K]>
+          : never;
+      }
+    : EnumUnique,
+  'flat'
+>;
+
+export interface EnumUniqueModel {
+  findOne<S extends EnumUniqueSelect | undefined = undefined>(options?: {
+    where?: EnumUniqueWhere;
+    select?: S;
+    orderBy?: EnumUniqueOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetEnumUniquePayload<S> | null>;
+
+  findMany<S extends EnumUniqueSelect | undefined = undefined>(options?: {
+    where?: EnumUniqueWhere;
+    select?: S;
+    orderBy?: EnumUniqueOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetEnumUniquePayload<S>[]>;
+
+  findUnique<S extends EnumUniqueSelect | undefined = undefined>(options: {
+    where: EnumUniqueFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetEnumUniquePayload<S> | null>;
+
+  create<S extends EnumUniqueSelect | undefined = undefined>(options: {
+    data: EnumUniqueCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetEnumUniquePayload<S>>;
+
+  updateMany<
+    S extends EnumUniqueSelect | undefined = undefined,
+    D extends EnumUniqueUpdateInput = EnumUniqueUpdateInput,
+  >(options: {
+    where: EnumUniqueWhere;
+    data: D;
+    unset?: SafeUnset<EnumUniqueUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetEnumUniquePayload<S>[]>;
+
+  updateUnique<
+    S extends EnumUniqueSelect | undefined = undefined,
+    D extends EnumUniqueUpdateInput = EnumUniqueUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: EnumUniqueFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<EnumUniqueUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns EnumUnique | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetEnumUniquePayload<S>, R>>;
+
+  upsert<
+    S extends EnumUniqueSelect | undefined = undefined,
+    D extends EnumUniqueUpdateInput = EnumUniqueUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: EnumUniqueFindUniqueWhere;
+    create: EnumUniqueCreateInput;
+    update?: D;
+    unset?: SafeUnset<EnumUniqueUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetEnumUniquePayload<S>, R>>;
+
+  upsert<
+    S extends EnumUniqueSelect | undefined = undefined,
+    D extends EnumUniqueUpdateInput = EnumUniqueUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: EnumUniqueWhere;
+    create: EnumUniqueCreateInput;
+    update?: D;
+    unset?: SafeUnset<EnumUniqueUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetEnumUniquePayload<S>, R>>;
+
+  deleteMany(options: { where: EnumUniqueWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: EnumUniqueFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns EnumUnique | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<EnumUnique, R>>;
+
+  count(where?: EnumUniqueWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: EnumUniqueWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
 // ===== models/enumwithobject.ts =====
 /**
  * Generated types for EnumWithObject

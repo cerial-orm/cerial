@@ -1637,6 +1637,223 @@ export interface LiteralObjectArrayModel {
   getTableName(): string;
 }
 
+// ===== models/literalunique.ts =====
+/**
+ * Generated types for LiteralUnique
+ * Do not edit manually
+ */
+
+import type { Object as O, Any as A } from 'ts-toolbelt';
+import { CerialId } from 'cerial';
+import type { RecordIdInput } from 'cerial';
+import type {
+  DeleteUniqueReturn,
+  DeleteUniqueReturnType,
+  UpdateUniqueReturn,
+  UpdateUniqueReturnType,
+  UpsertReturn,
+  UpsertReturnType,
+  UpsertArrayReturnType,
+  ResolveFieldSelect,
+  SafeUnset,
+} from '..';
+import type { CerialQueryPromise } from '..';
+import type { CerialTransaction, ModelMetadata } from 'cerial';
+import type { Status, StatusWhere } from '../literals/status';
+export interface LiteralUnique {
+  id: CerialId<string>;
+  status: Status;
+}
+
+export interface LiteralUniqueInput {
+  id?: string;
+  status: Status;
+}
+
+export interface LiteralUniqueWhere {
+  id?:
+    | RecordIdInput<string>
+    | ({
+        eq?: RecordIdInput<string>;
+        neq?: RecordIdInput<string>;
+      } & {
+        contains?: string;
+        startsWith?: string;
+        endsWith?: string;
+      } & {
+        in?: RecordIdInput<string>[];
+        notIn?: RecordIdInput<string>[];
+      } & {});
+  /** @unique — Unique indexed field */
+  status?: Status | StatusWhere;
+  AND?: LiteralUniqueWhere[];
+  OR?: LiteralUniqueWhere[];
+  NOT?: LiteralUniqueWhere;
+}
+
+export type LiteralUniqueWhereInput = LiteralUniqueWhere;
+
+export type LiteralUniqueFindUniqueWhere =
+  | ({ id: RecordIdInput<string> } & { status?: Status } & Omit<LiteralUniqueWhere, 'id' | 'status'>)
+  | ({ status: Status } & { id?: RecordIdInput<string> } & Omit<LiteralUniqueWhere, 'id' | 'status'>);
+
+export type LiteralUniqueCreate = O.Optional<LiteralUniqueInput, 'id'>;
+
+export type LiteralUniqueNestedCreate = O.Optional<LiteralUniqueInput, 'id'>;
+
+export type LiteralUniqueCreateInput = LiteralUniqueCreate;
+
+export type LiteralUniqueUpdate = Partial<O.Omit<LiteralUniqueInput, 'id'>>;
+
+export type LiteralUniqueUpdateInput = LiteralUniqueUpdate;
+
+export type LiteralUniqueUnset = {};
+
+export type LiteralUniqueSelect =
+  | ({ id: boolean } & Partial<Record<'status', boolean>>)
+  | ({ status: boolean } & Partial<Record<'id', boolean>>);
+
+export interface LiteralUniqueOrderBy {
+  id?: 'asc' | 'desc';
+}
+
+export type LiteralUnique$Relations = {};
+
+export type GetLiteralUniquePayload<S extends LiteralUniqueSelect | undefined = undefined, I = undefined> = A.Compute<
+  S extends LiteralUniqueSelect
+    ? {
+        [K in keyof S as S[K] extends false | undefined ? never : K]: K extends keyof LiteralUnique
+          ? ResolveFieldSelect<LiteralUnique[K], S[K]>
+          : never;
+      }
+    : LiteralUnique,
+  'flat'
+>;
+
+export interface LiteralUniqueModel {
+  findOne<S extends LiteralUniqueSelect | undefined = undefined>(options?: {
+    where?: LiteralUniqueWhere;
+    select?: S;
+    orderBy?: LiteralUniqueOrderBy;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetLiteralUniquePayload<S> | null>;
+
+  findMany<S extends LiteralUniqueSelect | undefined = undefined>(options?: {
+    where?: LiteralUniqueWhere;
+    select?: S;
+    orderBy?: LiteralUniqueOrderBy;
+    limit?: number;
+    offset?: number;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetLiteralUniquePayload<S>[]>;
+
+  findUnique<S extends LiteralUniqueSelect | undefined = undefined>(options: {
+    where: LiteralUniqueFindUniqueWhere;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetLiteralUniquePayload<S> | null>;
+
+  create<S extends LiteralUniqueSelect | undefined = undefined>(options: {
+    data: LiteralUniqueCreateInput;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetLiteralUniquePayload<S>>;
+
+  updateMany<
+    S extends LiteralUniqueSelect | undefined = undefined,
+    D extends LiteralUniqueUpdateInput = LiteralUniqueUpdateInput,
+  >(options: {
+    where: LiteralUniqueWhere;
+    data: D;
+    unset?: SafeUnset<LiteralUniqueUnset, D>;
+    select?: S;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<GetLiteralUniquePayload<S>[]>;
+
+  updateUnique<
+    S extends LiteralUniqueSelect | undefined = undefined,
+    D extends LiteralUniqueUpdateInput = LiteralUniqueUpdateInput,
+    R extends UpdateUniqueReturn = undefined,
+  >(options: {
+    where: LiteralUniqueFindUniqueWhere;
+    data: D;
+    unset?: SafeUnset<LiteralUniqueUnset, D>;
+    select?: S;
+    /**
+     * Return option for the updated record
+     * - undefined/null/'after': returns updated record (supports select)
+     * - true: returns boolean (true if found and updated, false if not)
+     * - 'before': returns LiteralUnique | null (pre-update state, select reads before the write)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpdateUniqueReturnType<GetLiteralUniquePayload<S>, R>>;
+
+  upsert<
+    S extends LiteralUniqueSelect | undefined = undefined,
+    D extends LiteralUniqueUpdateInput = LiteralUniqueUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: LiteralUniqueFindUniqueWhere;
+    create: LiteralUniqueCreateInput;
+    update?: D;
+    unset?: SafeUnset<LiteralUniqueUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted record (supports select)
+     * - true: returns boolean (true if record was created or updated)
+     * - 'before': returns previous state | null (null for new records)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertReturnType<GetLiteralUniquePayload<S>, R>>;
+
+  upsert<
+    S extends LiteralUniqueSelect | undefined = undefined,
+    D extends LiteralUniqueUpdateInput = LiteralUniqueUpdateInput,
+    R extends UpsertReturn = undefined,
+  >(options: {
+    where: LiteralUniqueWhere;
+    create: LiteralUniqueCreateInput;
+    update?: D;
+    unset?: SafeUnset<LiteralUniqueUnset, D>;
+    select?: S;
+    /**
+     * Return option for the upserted record
+     * - undefined/null/'after': returns upserted records
+     * - true: returns boolean (true if any records were affected)
+     * - 'before': returns previous states of matched records
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<UpsertArrayReturnType<GetLiteralUniquePayload<S>, R>>;
+
+  deleteMany(options: { where: LiteralUniqueWhere; txn?: CerialTransaction }): CerialQueryPromise<number>;
+
+  deleteUnique<R extends DeleteUniqueReturn = undefined>(options: {
+    where: LiteralUniqueFindUniqueWhere;
+    /**
+     * Return option for the deleted record
+     * - undefined/null: returns boolean (always true - operation succeeded)
+     * - true: returns boolean (true if record existed, false if not)
+     * - 'before': returns LiteralUnique | null (deleted data)
+     */
+    return?: R;
+    txn?: CerialTransaction;
+  }): CerialQueryPromise<DeleteUniqueReturnType<LiteralUnique, R>>;
+
+  count(where?: LiteralUniqueWhere, txn?: CerialTransaction): CerialQueryPromise<number>;
+
+  exists(where?: LiteralUniqueWhere, txn?: CerialTransaction): CerialQueryPromise<boolean>;
+
+  getMetadata(): ModelMetadata;
+
+  getName(): string;
+
+  getTableName(): string;
+}
+
 // ===== models/literalwithboth.ts =====
 /**
  * Generated types for LiteralWithBoth

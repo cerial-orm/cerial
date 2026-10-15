@@ -47,3 +47,8 @@ model EnumLiteralRef {
   id Record @id
   visibility RoleOrCustom
 }
+
+model EnumUnique {
+  id Record @id
+  role Role @unique
+}

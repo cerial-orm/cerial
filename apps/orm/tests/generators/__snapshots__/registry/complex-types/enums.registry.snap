@@ -430,6 +430,46 @@
       "name": "EnumMultiple",
       "tableName": "enum_multiple"
     },
+    "EnumUnique": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": true,
+          "literalInfo": {
+            "literalName": "Role",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "ADMIN"
+              },
+              {
+                "kind": "string",
+                "value": "USER"
+              },
+              {
+                "kind": "string",
+                "value": "MODERATOR"
+              }
+            ]
+          },
+          "name": "role",
+          "type": "literal"
+        }
+      ],
+      "name": "EnumUnique",
+      "tableName": "enum_unique"
+    },
     "EnumWithObject": {
       "compositeDirectives": [],
       "fields": [

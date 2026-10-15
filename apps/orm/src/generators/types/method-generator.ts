@@ -12,6 +12,8 @@ import type {
   TupleRegistry,
 } from '../../types';
 import { schemaTypeToTsType } from '../../utils/type-utils';
+import { getLiteralTypeName } from './enums';
+import { literalNeedsInputType } from './literals';
 import { getRecordInputType } from './record-type-helpers';
 
 /** Check if model has relation fields */
@@ -81,6 +83,14 @@ function getFieldInputType(
 ): string {
   if (field.isId || field.type === 'record') return getRecordInputType(field, tupleRegistry, objectRegistry);
   if (field.type === 'object' && field.objectInfo) return field.objectInfo.objectName;
+  if (field.type === 'literal' && field.literalInfo) {
+    const lit = field.literalInfo;
+    // Enums and literals share type: 'literal'; mirrors the model Input type so a lookup accepts what create accepts
+    if (lit.isEnum) return getLiteralTypeName(lit);
+    if (literalNeedsInputType({ name: lit.literalName, variants: lit.variants })) return `${lit.literalName}Input`;
+
+    return lit.literalName;
+  }
 
   return schemaTypeToTsType(field.type as Parameters<typeof schemaTypeToTsType>[0]);
 }

@@ -21,6 +21,11 @@ model LiteralBasic {
   mixed Mixed
 }
 
+model LiteralUnique {
+  id Record @id
+  status Status @unique
+}
+
 model LiteralDefaults {
   id Record @id
   label String

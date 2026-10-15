@@ -922,6 +922,46 @@
       "name": "LiteralObjectArray",
       "tableName": "literal_object_array"
     },
+    "LiteralUnique": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": true,
+          "literalInfo": {
+            "literalName": "Status",
+            "variants": [
+              {
+                "kind": "string",
+                "value": "active"
+              },
+              {
+                "kind": "string",
+                "value": "inactive"
+              },
+              {
+                "kind": "string",
+                "value": "pending"
+              }
+            ]
+          },
+          "name": "status",
+          "type": "literal"
+        }
+      ],
+      "name": "LiteralUnique",
+      "tableName": "literal_unique"
+    },
     "LiteralWithBoth": {
       "compositeDirectives": [],
       "fields": [

@@ -40,6 +40,11 @@ DEFINE FIELD OVERWRITE tagged ON TABLE literal_object_array TYPE object;
 DEFINE FIELD OVERWRITE tagged.states ON TABLE literal_object_array TYPE array<'active' | 'inactive' | 'pending'>;
 DEFINE FIELD OVERWRITE tagged.label ON TABLE literal_object_array TYPE string;
 
+-- LiteralUnique
+DEFINE TABLE OVERWRITE literal_unique SCHEMAFULL;
+DEFINE FIELD OVERWRITE status ON TABLE literal_unique TYPE 'active' | 'inactive' | 'pending';
+DEFINE INDEX OVERWRITE literal_unique_status_unique ON TABLE literal_unique COLUMNS status UNIQUE;
+
 -- LiteralWithBoth
 DEFINE TABLE OVERWRITE literal_with_both SCHEMAFULL;
 DEFINE FIELD OVERWRITE data ON TABLE literal_with_both TYPE 'none' | 'empty' | [float, float] | { label: string, payload: int };

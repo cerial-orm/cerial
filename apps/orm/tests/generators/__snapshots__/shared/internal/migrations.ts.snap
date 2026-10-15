@@ -10,7 +10,9 @@ export type ModelName =
   | 'EnumMultiple'
   | 'EnumWithObject'
   | 'EnumLiteralRef'
+  | 'EnumUnique'
   | 'LiteralBasic'
+  | 'LiteralUnique'
   | 'LiteralDefaults'
   | 'LiteralBroad'
   | 'LiteralExtended'
@@ -209,7 +211,9 @@ export const modelNames = [
   'EnumMultiple',
   'EnumWithObject',
   'EnumLiteralRef',
+  'EnumUnique',
   'LiteralBasic',
+  'LiteralUnique',
   'LiteralDefaults',
   'LiteralBroad',
   'LiteralExtended',
@@ -439,6 +443,11 @@ export const migrationsByModel: Record<ModelName, string[]> = {
     'DEFINE TABLE OVERWRITE enum_literal_ref SCHEMAFULL;',
     "DEFINE FIELD OVERWRITE visibility ON TABLE enum_literal_ref TYPE 'ADMIN' | 'USER' | 'MODERATOR' | 'custom';",
   ],
+  EnumUnique: [
+    'DEFINE TABLE OVERWRITE enum_unique SCHEMAFULL;',
+    "DEFINE FIELD OVERWRITE role ON TABLE enum_unique TYPE 'ADMIN' | 'USER' | 'MODERATOR';",
+    'DEFINE INDEX OVERWRITE enum_unique_role_unique ON TABLE enum_unique COLUMNS role UNIQUE;',
+  ],
   LiteralBasic: [
     'DEFINE TABLE OVERWRITE literal_basic SCHEMAFULL;',
     'DEFINE FIELD OVERWRITE name ON TABLE literal_basic TYPE string;',
@@ -448,6 +457,11 @@ export const migrationsByModel: Record<ModelName, string[]> = {
     "DEFINE FIELD OVERWRITE nullStatus ON TABLE literal_basic TYPE option<'active' | 'inactive' | 'pending' | null>;",
     "DEFINE FIELD OVERWRITE statuses ON TABLE literal_basic TYPE array<'active' | 'inactive' | 'pending'>;",
     "DEFINE FIELD OVERWRITE mixed ON TABLE literal_basic TYPE 'low' | 'high' | 1 | 2 | true;",
+  ],
+  LiteralUnique: [
+    'DEFINE TABLE OVERWRITE literal_unique SCHEMAFULL;',
+    "DEFINE FIELD OVERWRITE status ON TABLE literal_unique TYPE 'active' | 'inactive' | 'pending';",
+    'DEFINE INDEX OVERWRITE literal_unique_status_unique ON TABLE literal_unique COLUMNS status UNIQUE;',
   ],
   LiteralDefaults: [
     'DEFINE TABLE OVERWRITE literal_defaults SCHEMAFULL;',

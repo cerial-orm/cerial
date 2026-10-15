@@ -23,6 +23,11 @@ DEFINE FIELD OVERWRITE role ON TABLE enum_multiple TYPE 'ADMIN' | 'USER' | 'MODE
 DEFINE FIELD OVERWRITE color ON TABLE enum_multiple TYPE 'RED' | 'GREEN' | 'BLUE';
 DEFINE FIELD OVERWRITE severity ON TABLE enum_multiple TYPE 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 
+-- EnumUnique
+DEFINE TABLE OVERWRITE enum_unique SCHEMAFULL;
+DEFINE FIELD OVERWRITE role ON TABLE enum_unique TYPE 'ADMIN' | 'USER' | 'MODERATOR';
+DEFINE INDEX OVERWRITE enum_unique_role_unique ON TABLE enum_unique COLUMNS role UNIQUE;
+
 -- EnumWithObject
 DEFINE TABLE OVERWRITE enum_with_object SCHEMAFULL;
 DEFINE FIELD OVERWRITE name ON TABLE enum_with_object TYPE string;

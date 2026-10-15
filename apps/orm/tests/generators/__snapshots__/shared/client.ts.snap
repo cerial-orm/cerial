@@ -40,7 +40,9 @@ import type {
   EnumMultiple,
   EnumWithObject,
   EnumLiteralRef,
+  EnumUnique,
   LiteralBasic,
+  LiteralUnique,
   LiteralDefaults,
   LiteralBroad,
   LiteralExtended,
@@ -236,7 +238,9 @@ import type {
   EnumMultipleModel,
   EnumWithObjectModel,
   EnumLiteralRefModel,
+  EnumUniqueModel,
   LiteralBasicModel,
+  LiteralUniqueModel,
   LiteralDefaultsModel,
   LiteralBroadModel,
   LiteralExtendedModel,
@@ -438,7 +442,9 @@ export interface TypedDb {
   EnumMultiple: EnumMultipleModel;
   EnumWithObject: EnumWithObjectModel;
   EnumLiteralRef: EnumLiteralRefModel;
+  EnumUnique: EnumUniqueModel;
   LiteralBasic: LiteralBasicModel;
+  LiteralUnique: LiteralUniqueModel;
   LiteralDefaults: LiteralDefaultsModel;
   LiteralBroad: LiteralBroadModel;
   LiteralExtended: LiteralExtendedModel;
@@ -743,8 +749,16 @@ export class CerialClient {
     return this._ensureDb().EnumLiteralRef;
   }
 
+  get EnumUnique(): EnumUniqueModel {
+    return this._ensureDb().EnumUnique;
+  }
+
   get LiteralBasic(): LiteralBasicModel {
     return this._ensureDb().LiteralBasic;
+  }
+
+  get LiteralUnique(): LiteralUniqueModel {
+    return this._ensureDb().LiteralUnique;
   }
 
   get LiteralDefaults(): LiteralDefaultsModel {

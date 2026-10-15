@@ -82,12 +82,14 @@ describe('id and single-field unique variants', () => {
     );
   });
 
-  test('unique literal and enum fields fall back to unknown (no literal-specific input type)', () => {
+  // This test used to pin `unknown` for both kinds, which was a defect (no completion, no error on an
+  // out-of-union value). It now pins the union type names.
+  test('unique literal and enum fields emit their union type, not unknown', () => {
     const lit = literalField('status', literalInfo('Status', [], false));
     const en = literalField('role', literalInfo('Role', [], true));
 
-    expect(where([{ ...lit, isUnique: true }])).toContain('{ status: unknown }');
-    expect(where([{ ...en, isUnique: true }])).toContain('{ role: unknown }');
+    expect(where([{ ...lit, isUnique: true }])).toContain('{ status: Status }');
+    expect(where([{ ...en, isUnique: true }])).toContain('{ role: RoleEnumType }');
   });
 });
 

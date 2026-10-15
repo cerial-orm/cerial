@@ -303,6 +303,33 @@
           "type": "record"
         },
         {
+          "decorators": [
+            {
+              "type": "unique"
+            }
+          ],
+          "isOptional": false,
+          "literalName": "Status",
+          "name": "status",
+          "type": "literal"
+        }
+      ],
+      "name": "LiteralUnique"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
           "decorators": [],
           "isOptional": false,
           "name": "label",

@@ -194,6 +194,7 @@ export const tables = {
   ],
   literals: [
     'literal_basic',
+    'literal_unique',
     'literal_defaults',
     'literal_broad',
     'literal_extended',
@@ -206,7 +207,7 @@ export const tables = {
     'literal_number_kinds',
     'literal_object_array',
   ],
-  enums: ['enum_basic', 'enum_defaults', 'enum_multiple', 'enum_with_object', 'enum_literal_ref'],
+  enums: ['enum_basic', 'enum_unique', 'enum_defaults', 'enum_multiple', 'enum_with_object', 'enum_literal_ref'],
   nestedMembership: ['nm_object_doc', 'nm_tuple_doc'],
 
   // ── Data Types ──
