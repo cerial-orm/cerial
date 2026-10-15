@@ -1,6 +1,6 @@
 {
   "as-any": {
-    "apps/orm/tests/client": 29,
+    "apps/orm/tests/client": 0,
     "apps/orm/tests/unit": 31,
     "apps/orm/tests/e2e": 0,
     "apps/orm/tests/integration": 3,

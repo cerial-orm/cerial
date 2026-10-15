@@ -3,26 +3,12 @@
  * Tests for per-model callbacks and callback array merging
  */
 
-import { describe, expect, mock, test } from 'bun:test';
-import type { Surreal } from 'surrealdb';
-import type { BeforeQueryCallback } from '../../src/client/model/model';
-import {
-  clearModelCache,
-  createProxyHandler,
-  type PerModelCallbacks,
-  type ProxyOptions,
-} from '../../src/client/proxy/handler';
+import { describe, expect, test } from 'bun:test';
+import type { BeforeQueryCallback, Model } from '../../src/client/model/model';
+import { clearModelCache, createModelProxy, type PerModelCallbacks, type ProxyOptions } from '../../src/client/proxy';
 import { CerialUnknownModelError } from '../../src/errors';
 import { parseModelRegistry } from '../test-helpers';
-
-// Mock Surreal instance with proper query().collect() chain. Typed as Surreal so the call sites need
-// no cast; it implements only the members these tests exercise.
-const createMockSurreal = (): Surreal =>
-  ({
-    query: mock(() => ({
-      collect: () => Promise.resolve([[]]),
-    })),
-  }) as unknown as Surreal;
+import { createMockSurreal } from './helpers';
 
 // Parse models using DSL
 const multiModelDsl = `
@@ -47,20 +33,18 @@ describe('Proxy Handler', () => {
       const mockSurreal = createMockSurreal();
       clearModelCache(mockSurreal);
 
-      const handler = createProxyHandler(mockSurreal, registry);
-      const proxy = new Proxy({}, handler);
+      const proxy = createModelProxy(mockSurreal, registry);
 
-      const userModel = (proxy as any).User;
+      const userModel = proxy.User;
       expect(userModel).toBeDefined();
-      expect(userModel.getName()).toBe('User');
+      expect(userModel!.getName()).toBe('User');
     });
 
     test('throws an unknown-model error for an invalid model name', () => {
       const mockSurreal = createMockSurreal();
       clearModelCache(mockSurreal);
 
-      const handler = createProxyHandler(mockSurreal, registry);
-      const proxy = new Proxy({}, handler) as Record<string, unknown>;
+      const proxy = createModelProxy(mockSurreal, registry);
 
       let caught: unknown;
       try {
@@ -80,8 +64,7 @@ describe('Proxy Handler', () => {
       const mockSurreal = createMockSurreal();
       clearModelCache(mockSurreal);
 
-      const handler = createProxyHandler(mockSurreal, registry);
-      const proxy = new Proxy({}, handler) as Record<string, { findMany(): unknown }>;
+      const proxy = createModelProxy(mockSurreal, registry);
 
       expect(() => proxy.Uesr?.findMany()).toThrow(CerialUnknownModelError);
     });
@@ -90,11 +73,10 @@ describe('Proxy Handler', () => {
       const mockSurreal = createMockSurreal();
       clearModelCache(mockSurreal);
 
-      const handler = createProxyHandler(mockSurreal, registry);
-      const proxy = new Proxy({}, handler);
+      const proxy = createModelProxy(mockSurreal, registry);
 
-      const user1 = (proxy as any).User;
-      const user2 = (proxy as any).User;
+      const user1 = proxy.User;
+      const user2 = proxy.User;
 
       expect(user1).toBe(user2); // Same instance
     });
@@ -114,11 +96,10 @@ describe('Proxy Handler', () => {
         onBeforeQuery: globalCallback,
       };
 
-      const handler = createProxyHandler(mockSurreal, registry, options);
-      const proxy = new Proxy({}, handler);
+      const proxy = createModelProxy(mockSurreal, registry, options);
 
-      await (proxy as any).User.findMany();
-      await (proxy as any).Post.findMany();
+      await proxy.User!.findMany();
+      await proxy.Post!.findMany();
 
       expect(calledModels).toContain('User');
       expect(calledModels).toContain('Post');
@@ -142,10 +123,9 @@ describe('Proxy Handler', () => {
         onBeforeQuery: [callback1, callback2],
       };
 
-      const handler = createProxyHandler(mockSurreal, registry, options);
-      const proxy = new Proxy({}, handler);
+      const proxy = createModelProxy(mockSurreal, registry, options);
 
-      await (proxy as any).User.findMany();
+      await proxy.User!.findMany();
 
       expect(callOrder).toEqual(['cb1:User', 'cb2:User']);
     });
@@ -168,11 +148,10 @@ describe('Proxy Handler', () => {
         perModelCallbacks,
       };
 
-      const handler = createProxyHandler(mockSurreal, registry, options);
-      const proxy = new Proxy({}, handler);
+      const proxy = createModelProxy(mockSurreal, registry, options);
 
-      await (proxy as any).User.findMany();
-      await (proxy as any).Post.findMany();
+      await proxy.User!.findMany();
+      await proxy.Post!.findMany();
 
       expect(calledModels).toEqual(['userCallback:User']);
     });
@@ -198,10 +177,9 @@ describe('Proxy Handler', () => {
         perModelCallbacks,
       };
 
-      const handler = createProxyHandler(mockSurreal, registry, options);
-      const proxy = new Proxy({}, handler);
+      const proxy = createModelProxy(mockSurreal, registry, options);
 
-      await (proxy as any).User.findMany();
+      await proxy.User!.findMany();
 
       expect(callOrder).toEqual(['userCb1', 'userCb2']);
     });
@@ -229,10 +207,9 @@ describe('Proxy Handler', () => {
         perModelCallbacks,
       };
 
-      const handler = createProxyHandler(mockSurreal, registry, options);
-      const proxy = new Proxy({}, handler);
+      const proxy = createModelProxy(mockSurreal, registry, options);
 
-      await (proxy as any).User.findMany();
+      await proxy.User!.findMany();
 
       // Global callback should be called first, then per-model
       expect(callOrder).toEqual(['global:User', 'perModel:User']);
@@ -259,11 +236,10 @@ describe('Proxy Handler', () => {
         perModelCallbacks,
       };
 
-      const handler = createProxyHandler(mockSurreal, registry, options);
-      const proxy = new Proxy({}, handler);
+      const proxy = createModelProxy(mockSurreal, registry, options);
 
-      await (proxy as any).User.findMany();
-      await (proxy as any).Post.findMany();
+      await proxy.User!.findMany();
+      await proxy.Post!.findMany();
 
       expect(callOrder).toEqual([
         'global:User',
@@ -300,10 +276,9 @@ describe('Proxy Handler', () => {
         },
       };
 
-      const handler = createProxyHandler(mockSurreal, registry, options);
-      const proxy = new Proxy({}, handler);
+      const proxy = createModelProxy(mockSurreal, registry, options);
 
-      await (proxy as any).User.findMany();
+      await proxy.User!.findMany();
 
       expect(callOrder).toEqual(['global1', 'global2', 'user1', 'user2']);
     });
@@ -314,8 +289,7 @@ describe('Proxy Handler', () => {
       const mockSurreal = createMockSurreal();
       clearModelCache(mockSurreal);
 
-      const handler = createProxyHandler(mockSurreal, registry);
-      const proxy = new Proxy({}, handler);
+      const proxy = createModelProxy(mockSurreal, registry);
 
       expect('User' in proxy).toBe(true);
       expect('Post' in proxy).toBe(true);
@@ -326,8 +300,7 @@ describe('Proxy Handler', () => {
       const mockSurreal = createMockSurreal();
       clearModelCache(mockSurreal);
 
-      const handler = createProxyHandler(mockSurreal, registry);
-      const proxy = new Proxy({}, handler);
+      const proxy = createModelProxy(mockSurreal, registry);
 
       const keys = Object.keys(proxy);
       expect(keys).toContain('User');
@@ -338,22 +311,20 @@ describe('Proxy Handler', () => {
       const mockSurreal = createMockSurreal();
       clearModelCache(mockSurreal);
 
-      const handler = createProxyHandler(mockSurreal, registry);
-      const proxy = new Proxy({}, handler);
+      const proxy = createModelProxy(mockSurreal, registry);
 
       // These should return undefined, not throw
-      expect((proxy as any).then).toBeUndefined();
-      expect((proxy as any).catch).toBeUndefined();
-      expect((proxy as any).toJSON).toBeUndefined();
-      expect((proxy as any).constructor).toBeUndefined();
+      expect(proxy.then).toBeUndefined();
+      expect(proxy.catch).toBeUndefined();
+      expect(proxy.toJSON).toBeUndefined();
+      expect(proxy.constructor).toBeUndefined();
     });
 
     test('symbol access returns undefined without throwing', () => {
       const mockSurreal = createMockSurreal();
       clearModelCache(mockSurreal);
 
-      const handler = createProxyHandler(mockSurreal, registry);
-      const proxy = new Proxy({}, handler) as Record<symbol, unknown>;
+      const proxy = createModelProxy(mockSurreal, registry) as Record<symbol, unknown>;
 
       expect(proxy[Symbol.iterator]).toBeUndefined();
       expect(proxy[Symbol.toPrimitive]).toBeUndefined();
@@ -364,8 +335,7 @@ describe('Proxy Handler', () => {
       const mockSurreal = createMockSurreal();
       clearModelCache(mockSurreal);
 
-      const handler = createProxyHandler(mockSurreal, registry);
-      const proxy = new Proxy({}, handler);
+      const proxy = createModelProxy(mockSurreal, registry);
 
       expect(await proxy).toBe(proxy);
       expect(await Promise.resolve(proxy)).toBe(proxy);
@@ -375,8 +345,7 @@ describe('Proxy Handler', () => {
       const mockSurreal = createMockSurreal();
       clearModelCache(mockSurreal);
 
-      const handler = createProxyHandler(mockSurreal, registry);
-      const proxy = new Proxy({}, handler);
+      const proxy = createModelProxy(mockSurreal, registry);
 
       expect(() => JSON.stringify(proxy)).not.toThrow();
     });
@@ -385,8 +354,7 @@ describe('Proxy Handler', () => {
       const mockSurreal = createMockSurreal();
       clearModelCache(mockSurreal);
 
-      const handler = createProxyHandler(mockSurreal, registry);
-      const proxy = new Proxy({}, handler);
+      const proxy = createModelProxy(mockSurreal, registry);
 
       expect('Uesr' in proxy).toBe(false);
       expect(Symbol.iterator in proxy).toBe(false);
@@ -396,8 +364,7 @@ describe('Proxy Handler', () => {
       const mockSurreal = createMockSurreal();
       clearModelCache(mockSurreal);
 
-      const handler = createProxyHandler(mockSurreal, registry);
-      const proxy = new Proxy({}, handler);
+      const proxy = createModelProxy(mockSurreal, registry);
 
       expect(Reflect.ownKeys(proxy)).toEqual(['User', 'Post']);
     });
@@ -406,13 +373,12 @@ describe('Proxy Handler', () => {
       const mockSurreal = createMockSurreal();
       clearModelCache(mockSurreal);
 
-      const handler = createProxyHandler(mockSurreal, registry);
-      const proxy = new Proxy({}, handler);
+      const proxy = createModelProxy(mockSurreal, registry);
 
       const descriptor = Object.getOwnPropertyDescriptor(proxy, 'User');
       expect(descriptor?.enumerable).toBe(true);
       expect(descriptor?.configurable).toBe(true);
-      expect((descriptor!.value as { getName(): string }).getName()).toBe('User');
+      expect((descriptor!.value as Model).getName()).toBe('User');
       expect(Object.getOwnPropertyDescriptor(proxy, 'Uesr')).toBeUndefined();
     });
 
@@ -420,10 +386,9 @@ describe('Proxy Handler', () => {
       const mockSurreal = createMockSurreal();
       clearModelCache(mockSurreal);
 
-      const handler = createProxyHandler(mockSurreal, registry);
-      const proxy = new Proxy({}, handler);
+      const proxy = createModelProxy(mockSurreal, registry);
 
-      const spread = { ...proxy } as Record<string, { getName(): string }>;
+      const spread = { ...proxy };
       expect(Object.keys(spread)).toEqual(['User', 'Post']);
       expect(spread.User?.getName()).toBe('User');
     });

@@ -2,11 +2,11 @@
  * Two clients on one URL share a pooled Surreal. Each must keep its own callbacks and options.
  */
 
-import { describe, expect, mock, test } from 'bun:test';
-import type { Surreal } from 'surrealdb';
+import { describe, expect, test } from 'bun:test';
 import type { BeforeQueryCallback, Model } from '../../src/client/model/model';
 import { clearModelCache, createModelProxy } from '../../src/client/proxy';
 import { parseModelRegistry } from '../test-helpers';
+import { createMockSurreal } from './helpers';
 
 const registry = parseModelRegistry(`
 model User {
@@ -19,9 +19,6 @@ model Post {
   title String
 }
 `);
-
-const createMockSurreal = (): Surreal =>
-  ({ query: mock(() => ({ collect: () => Promise.resolve([[]]) })) }) as unknown as Surreal;
 
 const recorder = (): { calls: string[]; callback: BeforeQueryCallback } => {
   const calls: string[] = [];

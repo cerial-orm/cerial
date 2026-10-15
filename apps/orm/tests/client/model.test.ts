@@ -3,16 +3,10 @@
  * Tests for callback array functionality and model name parameter
  */
 
-import { describe, expect, mock, test } from 'bun:test';
+import { describe, expect, test } from 'bun:test';
 import { type BeforeQueryCallback, Model } from '../../src/client/model/model';
 import { parseModelRegistry } from '../test-helpers';
-
-// Mock Surreal instance with proper query().collect() chain
-const createMockSurreal = () => ({
-  query: mock(() => ({
-    collect: () => Promise.resolve([[]]),
-  })),
-});
+import { createMockSurreal } from './helpers';
 
 // Parse model using DSL
 const dsl = `
@@ -37,7 +31,7 @@ describe('Model Class', () => {
         receivedModelName = modelNames;
       };
 
-      const model = new Model(mockSurreal as any, userMetadata, undefined, {
+      const model = new Model(mockSurreal, userMetadata, undefined, {
         onBeforeQuery: callback,
       });
 
@@ -54,7 +48,7 @@ describe('Model Class', () => {
         callCount++;
       };
 
-      const model = new Model(mockSurreal as any, userMetadata, undefined, {
+      const model = new Model(mockSurreal, userMetadata, undefined, {
         onBeforeQuery: callback,
       });
 
@@ -81,7 +75,7 @@ describe('Model Class', () => {
         callOrder.push(`callback3:${modelNames.join(',')}`);
       };
 
-      const model = new Model(mockSurreal as any, userMetadata, undefined, {
+      const model = new Model(mockSurreal, userMetadata, undefined, {
         onBeforeQuery: [callback1, callback2, callback3],
       });
 
@@ -103,7 +97,7 @@ describe('Model Class', () => {
         executionOrder.push(2);
       };
 
-      const model = new Model(mockSurreal as any, userMetadata, undefined, {
+      const model = new Model(mockSurreal, userMetadata, undefined, {
         onBeforeQuery: [callback1, callback2],
       });
 
@@ -121,7 +115,7 @@ describe('Model Class', () => {
         queriedMethods.push('called');
       };
 
-      const model = new Model(mockSurreal as any, userMetadata, undefined, {
+      const model = new Model(mockSurreal, userMetadata, undefined, {
         onBeforeQuery: callback,
       });
 
@@ -138,7 +132,7 @@ describe('Model Class', () => {
     test('works without callbacks (undefined)', async () => {
       const mockSurreal = createMockSurreal();
 
-      const model = new Model(mockSurreal as any, userMetadata);
+      const model = new Model(mockSurreal, userMetadata);
 
       // Should not throw
       const result = await model.findMany();
@@ -148,7 +142,7 @@ describe('Model Class', () => {
     test('works with empty callback array', async () => {
       const mockSurreal = createMockSurreal();
 
-      const model = new Model(mockSurreal as any, userMetadata, undefined, {
+      const model = new Model(mockSurreal, userMetadata, undefined, {
         onBeforeQuery: [],
       });
 
@@ -164,7 +158,7 @@ describe('Model Class', () => {
         throw new Error('Migration failed');
       };
 
-      const model = new Model(mockSurreal as any, userMetadata, undefined, {
+      const model = new Model(mockSurreal, userMetadata, undefined, {
         onBeforeQuery: callback,
       });
 
@@ -187,7 +181,7 @@ describe('Model Class', () => {
         secondCallbackCalled = true;
       };
 
-      const model = new Model(mockSurreal as any, userMetadata, undefined, {
+      const model = new Model(mockSurreal, userMetadata, undefined, {
         onBeforeQuery: [callback1, callback2],
       });
 
@@ -203,21 +197,21 @@ describe('Model Class', () => {
   describe('Model metadata access', () => {
     test('getName returns model name', () => {
       const mockSurreal = createMockSurreal();
-      const model = new Model(mockSurreal as any, userMetadata);
+      const model = new Model(mockSurreal, userMetadata);
 
       expect(model.getName()).toBe('User');
     });
 
     test('getTableName returns table name', () => {
       const mockSurreal = createMockSurreal();
-      const model = new Model(mockSurreal as any, userMetadata);
+      const model = new Model(mockSurreal, userMetadata);
 
       expect(model.getTableName()).toBe('user');
     });
 
     test('getMetadata returns full metadata', () => {
       const mockSurreal = createMockSurreal();
-      const model = new Model(mockSurreal as any, userMetadata);
+      const model = new Model(mockSurreal, userMetadata);
 
       const metadata = model.getMetadata();
       expect(metadata.name).toBe('User');
