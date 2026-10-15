@@ -509,6 +509,24 @@ function transformLiteralValue(value: unknown, literalInfo: LiteralFieldMetadata
   return value;
 }
 
+/**
+ * Transform the elements of an array-field operation object ({ push, set, unset }).
+ * One path for every element type, so an operation is never transformed for one
+ * type and bound raw for another. Returns the input untouched when it holds none
+ * of the three operations.
+ */
+function transformArrayOps(ops: Record<string, unknown>, type: SchemaFieldType): Record<string, unknown> {
+  const transformed: Record<string, unknown> = {};
+  const mapElements = (input: unknown): unknown =>
+    Array.isArray(input) ? input.map((el) => transformValue(el, type)) : transformValue(input, type);
+
+  if ('push' in ops && ops.push !== undefined) transformed.push = mapElements(ops.push);
+  if ('set' in ops && ops.set !== undefined) transformed.set = mapElements(ops.set);
+  if ('unset' in ops && ops.unset !== undefined) transformed.unset = mapElements(ops.unset);
+
+  return Object.keys(transformed).length ? transformed : ops;
+}
+
 /** Transform data object based on model fields */
 export function transformData(
   data: Record<string, unknown>,
@@ -664,114 +682,11 @@ export function transformData(
         } else {
           result[key] = transformLiteralValue(value, field.literalInfo!);
         }
-      } else if (field.type === 'uuid' && field.isArray) {
-        if (Array.isArray(value)) {
-          result[key] = value.map((element) => transformValue(element, 'uuid'));
-        } else if (typeof value === 'object' && value !== null) {
-          const ops = value as Record<string, unknown>;
-          const transformed: Record<string, unknown> = {};
-          if ('push' in ops && ops.push !== undefined) {
-            transformed.push = Array.isArray(ops.push)
-              ? ops.push.map((el) => transformValue(el, 'uuid'))
-              : transformValue(ops.push, 'uuid');
-          }
-          if ('set' in ops && ops.set !== undefined) {
-            transformed.set = Array.isArray(ops.set) ? ops.set.map((el) => transformValue(el, 'uuid')) : ops.set;
-          }
-          if ('unset' in ops && ops.unset !== undefined) {
-            transformed.unset = Array.isArray(ops.unset)
-              ? ops.unset.map((el) => transformValue(el, 'uuid'))
-              : transformValue(ops.unset, 'uuid');
-          }
-          result[key] = Object.keys(transformed).length ? transformed : value;
-        } else {
-          result[key] = value;
-        }
-      } else if (field.type === 'duration' && field.isArray) {
-        if (Array.isArray(value)) {
-          result[key] = value.map((element) => transformValue(element, 'duration'));
-        } else if (typeof value === 'object' && value !== null) {
-          const ops = value as Record<string, unknown>;
-          const transformed: Record<string, unknown> = {};
-          if ('push' in ops && ops.push !== undefined) {
-            transformed.push = Array.isArray(ops.push)
-              ? ops.push.map((el) => transformValue(el, 'duration'))
-              : transformValue(ops.push, 'duration');
-          }
-          if ('set' in ops && ops.set !== undefined) {
-            transformed.set = Array.isArray(ops.set) ? ops.set.map((el) => transformValue(el, 'duration')) : ops.set;
-          }
-          if ('unset' in ops && ops.unset !== undefined) {
-            transformed.unset = Array.isArray(ops.unset)
-              ? ops.unset.map((el) => transformValue(el, 'duration'))
-              : transformValue(ops.unset, 'duration');
-          }
-          result[key] = Object.keys(transformed).length ? transformed : value;
-        } else {
-          result[key] = value;
-        }
-      } else if (field.type === 'bytes' && field.isArray) {
-        if (Array.isArray(value)) {
-          result[key] = value.map((element) => transformValue(element, 'bytes'));
-        } else if (typeof value === 'object' && value !== null) {
-          const ops = value as Record<string, unknown>;
-          const transformed: Record<string, unknown> = {};
-          if ('push' in ops && ops.push !== undefined) {
-            transformed.push = Array.isArray(ops.push)
-              ? ops.push.map((el) => transformValue(el, 'bytes'))
-              : transformValue(ops.push, 'bytes');
-          }
-          if ('set' in ops && ops.set !== undefined) {
-            transformed.set = Array.isArray(ops.set) ? ops.set.map((el) => transformValue(el, 'bytes')) : ops.set;
-          }
-          if ('unset' in ops && ops.unset !== undefined) {
-            transformed.unset = Array.isArray(ops.unset)
-              ? ops.unset.map((el) => transformValue(el, 'bytes'))
-              : transformValue(ops.unset, 'bytes');
-          }
-          result[key] = Object.keys(transformed).length ? transformed : value;
-        } else {
-          result[key] = value;
-        }
-      } else if (field.type === 'decimal' && field.isArray) {
-        if (Array.isArray(value)) {
-          result[key] = value.map((element) => transformValue(element, 'decimal'));
-        } else if (typeof value === 'object' && value !== null) {
-          const ops = value as Record<string, unknown>;
-          const transformed: Record<string, unknown> = {};
-          if ('push' in ops && ops.push !== undefined) {
-            transformed.push = Array.isArray(ops.push)
-              ? ops.push.map((el) => transformValue(el, 'decimal'))
-              : transformValue(ops.push, 'decimal');
-          }
-          if ('set' in ops && ops.set !== undefined) {
-            transformed.set = Array.isArray(ops.set) ? ops.set.map((el) => transformValue(el, 'decimal')) : ops.set;
-          }
-          if ('unset' in ops && ops.unset !== undefined) {
-            transformed.unset = Array.isArray(ops.unset)
-              ? ops.unset.map((el) => transformValue(el, 'decimal'))
-              : transformValue(ops.unset, 'decimal');
-          }
-          result[key] = Object.keys(transformed).length ? transformed : value;
-        } else {
-          result[key] = value;
-        }
       } else if (field.isArray) {
-        // Handle array fields - direct assignment or push/unset operations
         if (Array.isArray(value)) {
           result[key] = value.map((element) => transformValue(element, field.type));
         } else if (typeof value === 'object' && value !== null) {
-          const ops = value as Record<string, unknown>;
-          if ('push' in ops && ops.push !== undefined) {
-            const transformed: Record<string, unknown> = {};
-            transformed.push = Array.isArray(ops.push)
-              ? ops.push.map((el) => transformValue(el, field.type))
-              : transformValue(ops.push, field.type);
-            if ('unset' in ops) transformed.unset = ops.unset;
-            result[key] = transformed;
-          } else {
-            result[key] = value;
-          }
+          result[key] = transformArrayOps(value as Record<string, unknown>, field.type);
         } else {
           result[key] = value;
         }
