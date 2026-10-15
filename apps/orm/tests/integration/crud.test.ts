@@ -65,7 +65,7 @@ describe('CRUD Operations', () => {
     }
 
     const statements = generateModelDefineStatements(testRegistry.TestUser!);
-    await connectionManager.migrate(statements);
+    await surreal.query(statements.join('\n'));
 
     // Create model instance
     userModel = new Model<TestUser>(surreal, testRegistry.TestUser!);

@@ -62,14 +62,6 @@ describe('connections', () => {
     expectClass(() => manager.useConnection('nope'), CerialConnectionError, 'C1001');
   });
 
-  test('migrating on an unknown named connection is a connection error carrying the operation', async () => {
-    const error = await manager.migrate([], 'nope').catch((e: unknown) => e);
-
-    expect(error).toBeInstanceOf(CerialConnectionError);
-    expect((error as CerialError).operation).toBe('migrate');
-    expect(error).not.toBeInstanceOf(CerialNotConnectedError);
-  });
-
   test('connecting with no config is a connection error', async () => {
     const error = await manager.connect().catch((e: unknown) => e);
 

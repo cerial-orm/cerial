@@ -110,63 +110,16 @@ describe('Migration', () => {
     expect(uniqueIndex).toContain('UNIQUE');
   });
 
-  test('should execute migration statements', async () => {
+  test('should apply the generated statements against the database', async () => {
     const model = testRegistry.TestUser!;
     const statements = generateModelDefineStatements(model);
 
-    // Execute migration
-    await connectionManager.migrate(statements);
-
-    // Verify migration was tracked
-    expect(connectionManager.isMigrated()).toBe(true);
-
-    // Verify table was created by querying table info
     const surreal = connectionManager.getSurreal();
-    if (surreal) {
-      const result = await surreal.query('INFO FOR TABLE test_user;');
-      expect(result).toBeDefined();
-    }
-  });
+    if (!surreal) throw new Error('No surreal instance');
 
-  test('should skip migration if already migrated', async () => {
-    const model = testRegistry.TestUser!;
-    const statements = generateModelDefineStatements(model);
+    await surreal.query(statements.join('\n'));
 
-    // First migration
-    await connectionManager.migrate(statements);
-    expect(connectionManager.isMigrated()).toBe(true);
-
-    // Second migration should skip
-    await connectionManager.migrate(statements);
-    expect(connectionManager.isMigrated()).toBe(true);
-  });
-
-  test('should track migration status per connection', async () => {
-    const model = testRegistry.TestUser!;
-    const statements = generateModelDefineStatements(model);
-
-    // Create second connection
-    await connectionManager.connect(testConfig, 'secondary');
-
-    // Migrate only default connection
-    await connectionManager.migrate(statements);
-
-    expect(connectionManager.isMigrated()).toBe(true);
-    expect(connectionManager.isMigrated('secondary')).toBe(false);
-  });
-
-  test('should use ensureMigrated for lazy migration', async () => {
-    const model = testRegistry.TestUser!;
-    const statements = generateModelDefineStatements(model);
-
-    expect(connectionManager.isMigrated()).toBe(false);
-
-    // ensureMigrated should run migrations
-    await connectionManager.ensureMigrated(statements);
-    expect(connectionManager.isMigrated()).toBe(true);
-
-    // Second call should skip
-    await connectionManager.ensureMigrated(statements);
-    expect(connectionManager.isMigrated()).toBe(true);
+    const result = await surreal.query('INFO FOR TABLE test_user;');
+    expect(result).toBeDefined();
   });
 });

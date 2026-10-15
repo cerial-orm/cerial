@@ -215,7 +215,6 @@ interface ConnectionInstance<R extends ModelRegistry = ModelRegistry> {
   wsConfig: ConnectionConfig | null;
   config: ConnectionConfig;
   isConnected: boolean;
-  isMigrated: boolean;
   proxy: DatabaseProxy<R>;
   httpClosed: boolean;
 }
@@ -293,7 +292,6 @@ export class ConnectionManager<R extends ModelRegistry = ModelRegistry> {
       wsConfig,
       config: finalConfig,
       isConnected: true,
-      isMigrated: false,
       proxy,
       httpClosed: false,
     });
@@ -400,49 +398,6 @@ export class ConnectionManager<R extends ModelRegistry = ModelRegistry> {
   /** Get the model registry */
   getRegistry(): R {
     return this.registry;
-  }
-
-  /** Check if a connection has been migrated */
-  isMigrated(name: string = DEFAULT_CONNECTION_NAME): boolean {
-    return this.connections.get(name)?.isMigrated ?? false;
-  }
-
-  /**
-   * Run migrations for a connection
-   * @param migrationStatements - Array of DEFINE statements to execute
-   * @param name - Connection name (default: 'default')
-   */
-  async migrate(migrationStatements: string[], name: string = DEFAULT_CONNECTION_NAME): Promise<void> {
-    const connection = this.connections.get(name);
-    if (!connection) throw new CerialConnectionError(`Connection "${name}" not found`, { operation: 'migrate' });
-    if (!connection.isConnected)
-      throw new CerialNotConnectedError(`Connection "${name}" is not connected`, { operation: 'migrate' });
-    if (connection.isMigrated) return;
-
-    // Execute all migration statements
-    const query = migrationStatements.join('\n');
-    await connection.surreal.query(query);
-
-    // Mark as migrated
-    connection.isMigrated = true;
-  }
-
-  /**
-   * Ensure migrations are applied, running them if needed
-   * @param migrationStatements - Array of DEFINE statements to execute
-   * @param name - Connection name (default: 'default')
-   */
-  async ensureMigrated(migrationStatements: string[], name: string = DEFAULT_CONNECTION_NAME): Promise<void> {
-    if (!this.isMigrated(name)) await this.migrate(migrationStatements, name);
-  }
-
-  /**
-   * Set the migrated flag without running migrations
-   * Useful if migrations were run externally
-   */
-  setMigrated(migrated: boolean, name: string = DEFAULT_CONNECTION_NAME): void {
-    const connection = this.connections.get(name);
-    if (connection) connection.isMigrated = migrated;
   }
 }
 
