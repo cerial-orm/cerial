@@ -8,7 +8,7 @@
 
 import { afterAll, describe, expect, test } from 'bun:test';
 import { execSync } from 'node:child_process';
-import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -499,10 +499,7 @@ model PrivChild extends PrivBase {
       expect(stderr).toContain('secret');
     });
 
-    // The resolver strips !!private from each resolved parent, so a leaf three levels below the
-    // declaring model overrides the field without an error. Enable once the marker survives
-    // inheritance; until then this documents the gap.
-    test.todo('a !!private field cannot be overridden three levels down', () => {
+    test('a !!private field cannot be overridden three levels down', () => {
       const { schemaDir, outputDir } = setupTmpDir('private-override-deep');
       writeSchema(
         schemaDir,
@@ -528,6 +525,42 @@ model DeepPrivLeaf extends DeepPrivLow {
       expect(exitCode).not.toBe(0);
       expect(stderr.toLowerCase()).toContain('private');
       expect(stderr).toContain('secret');
+      expect(stderr).toContain('DeepPrivBase');
+    });
+
+    test('the same chain generates when the leaf does not override the !!private field', () => {
+      const { schemaDir, outputDir } = setupTmpDir('private-override-deep-positive');
+      writeSchema(
+        schemaDir,
+        `abstract model DeepPrivBase {
+  id Record @id !!private
+  secret String !!private
+}
+
+abstract model DeepPrivMid extends DeepPrivBase {
+  name String
+}
+
+abstract model DeepPrivLow extends DeepPrivMid {
+  age Int?
+}
+
+model DeepPrivLeaf extends DeepPrivLow {
+  extra String?
+}`,
+      );
+
+      const { exitCode, stderr } = runGenerate(schemaDir, outputDir);
+      expect(exitCode).toBe(0);
+      expect(stderr).not.toContain('private');
+
+      const output = readdirSync(outputDir, { recursive: true, encoding: 'utf-8' })
+        .map((f) => join(outputDir, f))
+        .filter((f) => f.endsWith('.ts') && statSync(f).isFile())
+        .map((f) => readFileSync(f, 'utf-8'))
+        .join('\n');
+      expect(output).toMatch(/secret: string/);
+      expect(output).not.toContain('isPrivate');
     });
 
     test('child object overrides !!private field → error', () => {
