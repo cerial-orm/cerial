@@ -2,7 +2,8 @@
  * Generate command - orchestrates the generation process
  */
 
-import { readdir, readFile, rm } from 'node:fs/promises';
+import { cp, mkdtemp, readdir, readFile, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
 import { basename, dirname, resolve } from 'node:path';
 import { writeClient } from '../generators/client/writer';
 import {
@@ -446,65 +447,84 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
       }
     }
 
-    if (options.clean) {
-      logger.progress('Cleaning output directory...');
-      await cleanOutputDir(outputDir);
-    }
+    // Generators write as they go, so they target a staging directory and the real output is
+    // only touched once every one of them has returned: a throw leaves the previous output intact.
+    const stagingDir = await mkdtemp(`${tmpdir()}/cerial-generate-`);
+    const toFinal = (file: string): string => `${outputDir}${file.slice(stagingDir.length)}`;
 
-    // Generate files
-    logger.progress('Generating files...');
+    try {
+      // Generate files
+      logger.progress('Generating files...');
 
-    const registryPath = await writeModelRegistry(outputDir, models, objects, tuples, literals);
-    result.files.push(registryPath);
-    if (logLevel === 'full') logger.fileCreated(registryPath);
+      const registryPath = await writeModelRegistry(stagingDir, models, objects, tuples, literals);
+      result.files.push(registryPath);
+      if (logLevel === 'full') logger.fileCreated(toFinal(registryPath));
 
-    const objectRegistry = objRegistry;
-    const tupleRegistry = tupRegistry;
-    const literalRegistry = litRegistry;
-    const migrationPath = await writeMigrationFile(outputDir, models, objectRegistry, tupleRegistry, literalRegistry);
-    result.files.push(migrationPath);
-    if (logLevel === 'full') logger.fileCreated(migrationPath);
+      const objectRegistry = objRegistry;
+      const tupleRegistry = tupRegistry;
+      const literalRegistry = litRegistry;
+      const migrationPath = await writeMigrationFile(
+        stagingDir,
+        models,
+        objectRegistry,
+        tupleRegistry,
+        literalRegistry,
+      );
+      result.files.push(migrationPath);
+      if (logLevel === 'full') logger.fileCreated(toFinal(migrationPath));
 
-    const internalIndexPath = await writeInternalIndex(
-      outputDir,
-      objects.length > 0,
-      tuples.length > 0,
-      literals.length > 0,
-    );
-    result.files.push(internalIndexPath);
-    if (logLevel === 'full') logger.fileCreated(internalIndexPath);
+      const internalIndexPath = await writeInternalIndex(
+        stagingDir,
+        objects.length > 0,
+        tuples.length > 0,
+        literals.length > 0,
+      );
+      result.files.push(internalIndexPath);
+      if (logLevel === 'full') logger.fileCreated(toFinal(internalIndexPath));
 
-    const actualLiterals = literals.filter((l) => !l.isEnum);
-    const enumLiterals = literals.filter((l) => l.isEnum);
+      const actualLiterals = literals.filter((l) => !l.isEnum);
+      const enumLiterals = literals.filter((l) => l.isEnum);
 
-    const clientFiles = await writeClient(
-      outputDir,
-      models,
-      objects,
-      tuples,
-      actualLiterals,
-      objectRegistry,
-      tupleRegistry,
-      literalRegistry,
-      enumLiterals,
-      clientClassName,
-    );
-    result.files.push(...clientFiles);
-    if (logLevel === 'full') clientFiles.forEach((f) => logger.fileCreated(f));
+      const clientFiles = await writeClient(
+        stagingDir,
+        models,
+        objects,
+        tuples,
+        actualLiterals,
+        objectRegistry,
+        tupleRegistry,
+        literalRegistry,
+        enumLiterals,
+        clientClassName,
+      );
+      result.files.push(...clientFiles);
+      if (logLevel === 'full') clientFiles.forEach((f) => logger.fileCreated(toFinal(f)));
 
-    if (logLevel === 'medium') {
-      const modelFiles = clientFiles.filter((f) => f.includes('/models/') && !f.endsWith('index.ts'));
-      logger.info(`  ${modelFiles.length} model files`);
-      logger.info(`  3 internal files`);
-      logger.info(`  ${clientFiles.length - modelFiles.length} client files`);
-    }
-
-    if (!options.clean) {
-      const staleFiles = await removeStaleFiles(outputDir, result.files);
-      if (staleFiles.length) {
-        logger.info(`Removed ${staleFiles.length} stale file(s)`);
-        if (logLevel === 'full') staleFiles.forEach((f) => logger.debug(`  removed ${f}`));
+      if (logLevel === 'medium') {
+        const modelFiles = clientFiles.filter((f) => f.includes('/models/') && !f.endsWith('index.ts'));
+        logger.info(`  ${modelFiles.length} model files`);
+        logger.info(`  3 internal files`);
+        logger.info(`  ${clientFiles.length - modelFiles.length} client files`);
       }
+
+      result.files = result.files.map(toFinal);
+
+      if (options.clean) {
+        logger.progress('Cleaning output directory...');
+        await cleanOutputDir(outputDir);
+      }
+
+      await cp(stagingDir, outputDir, { recursive: true });
+
+      if (!options.clean) {
+        const staleFiles = await removeStaleFiles(outputDir, result.files);
+        if (staleFiles.length) {
+          logger.info(`Removed ${staleFiles.length} stale file(s)`);
+          if (logLevel === 'full') staleFiles.forEach((f) => logger.debug(`  removed ${f}`));
+        }
+      }
+    } finally {
+      await rm(stagingDir, { recursive: true, force: true });
     }
 
     result.success = true;
