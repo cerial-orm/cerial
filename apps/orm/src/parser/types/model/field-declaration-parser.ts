@@ -114,6 +114,7 @@ function isEmptyParenDecorator(token: string): string | undefined {
 /** Parse decorators from a field line (at the end) */
 export function parseDecorators(line: string, lineNumber: number, errors?: string[]): ASTDecorator[] {
   const decorators: ASTDecorator[] = [];
+  const declarationName = line.trim().split(/\s+/)[0];
   const decoratorMatches = line.matchAll(/@\w+(?:\([^)]*\))?/g);
 
   for (const match of decoratorMatches) {
@@ -183,7 +184,7 @@ export function parseDecorators(line: string, lineNumber: number, errors?: strin
       if (hasValidSortArgument(token)) decorators.push(parseSortDecorator(token, range));
       else
         errors?.push(
-          `Decorator '${token}' has an invalid argument. Use @sort, @sort(true), @sort(false), @sort(asc) or @sort(desc)`,
+          `Decorator '${token}' on '${declarationName}' has an invalid argument. Use @sort, @sort(true), @sort(false), @sort(asc) or @sort(desc)`,
         );
     } else if (isFlexibleDecorator(token)) {
       decorators.push(parseFlexibleDecorator(range));
