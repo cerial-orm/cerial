@@ -13,6 +13,21 @@ Cerial is published as compiled JavaScript with dual ESM and CJS output, making 
 | Bun | 1.0+ | Full support (ESM) |
 | Deno | Latest | Via `npm:` specifier |
 
+## Supported TypeScript Versions
+
+Cerial declares TypeScript as a peer dependency with the range `>=5.9.3`.
+
+| Version | Support Level |
+|---------|---------------|
+| 5.9.3 | Tested floor. CI compiles the generated types against it on every change |
+| Current release | Tested. CI compiles against whatever `latest` resolves to |
+| Between the two | Supported, not individually tested |
+| Below 5.9.3 | Not supported. Install refuses with a peer-dependency error |
+
+The floor is a tested one rather than a guess: installing below it fails immediately instead of
+producing type errors inside the generated client. The range stays open at the top so a new
+TypeScript release does not require a Cerial release to install cleanly.
+
 ## Module Formats
 
 Cerial ships both ESM (`.mjs`) and CJS (`.cjs`) builds with TypeScript declarations:

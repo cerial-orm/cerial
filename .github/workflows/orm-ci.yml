@@ -43,6 +43,29 @@ jobs:
       - run: bun run test
         working-directory: apps/orm
 
+  typescript-range:
+    # A tested floor, open forward. The peer range is >=5.9.3, so this proves the floor and the
+    # current latest both compile the generated types. A version nobody ran is not promised.
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        typescript: ['5.9.3', 'latest']
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.3.0
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.0.2
+      - run: bun install --frozen-lockfile
+      - run: bun add --dev typescript@${{ matrix.typescript }}
+        working-directory: apps/orm
+      - run: bunx tsc --version
+        working-directory: apps/orm
+      - run: bun run generate:test-client
+        working-directory: apps/orm
+      - run: bunx tsc --noEmit
+        working-directory: apps/orm
+      - run: bun run typecheck
+        working-directory: apps/orm
+
   commit-hooks:
     runs-on: ubuntu-latest
     permissions:

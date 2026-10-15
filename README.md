@@ -79,6 +79,13 @@ A Prisma-like ORM for [SurrealDB](https://surrealdb.com/) with schema-driven cod
 
 ## Installation
 
+### Requirements
+
+- **Node.js** 20 or newer
+- **TypeScript** 5.9.3 or newer. The floor and the current TypeScript release are both covered by CI;
+  anything above the floor is supported but only those two are tested.
+- **SurrealDB** 3.3.0 or compatible
+
 ### ORM
 
 ```bash
