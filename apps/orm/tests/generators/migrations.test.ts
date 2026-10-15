@@ -1261,6 +1261,31 @@ model Tag {
       return { model, tupleRegistry };
     }
 
+    // Pins the skip for the SurrealDB bug where an optional tuple initialises as `{}` instead of
+    // NONE once `DEFINE FIELD t.f[N]` statements exist. Mirrors the corpus tuple `Stamped`.
+    test('emits the parent and only the decorated [N] statements for a mixed tuple', () => {
+      const { model, tupleRegistry } = buildTupleModel('stamp', true, 'Stamped', [
+        { index: 0, type: 'string', isOptional: false },
+        { index: 1, type: 'date', isOptional: false, timestampDecorator: 'createdAt' },
+        { index: 2, type: 'int', isOptional: false },
+        { index: 3, type: 'int', isOptional: false, defaultAlwaysValue: 7 },
+      ]);
+
+      const statements = generateModelDefineStatements(model, undefined, undefined, undefined, tupleRegistry);
+      const stampStatements = statements.filter((s) => /\bstamp\b/.test(s));
+      const subFieldIndexes = stampStatements
+        .map((s) => /\bstamp\[(\d+)\]/.exec(s)?.[1])
+        .filter((i): i is string => i !== undefined);
+
+      expect(stampStatements.filter((s) => !s.includes('stamp[')).length).toBe(1);
+      expect(stampStatements.find((s) => !s.includes('stamp['))).toContain(
+        'stamp ON TABLE test TYPE option<[string, datetime, int, int]>',
+      );
+      expect(subFieldIndexes).toEqual(['1', '3']);
+      expect(stampStatements.some((s) => s.includes('stamp[0]'))).toBe(false);
+      expect(stampStatements.some((s) => s.includes('stamp[2]'))).toBe(false);
+    });
+
     test('skips sub-field for required primitive element without decorators', () => {
       const { model, tupleRegistry } = buildTupleModel('pos', false, 'Coord', [
         { index: 0, type: 'float', isOptional: false },
