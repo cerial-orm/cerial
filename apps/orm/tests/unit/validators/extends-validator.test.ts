@@ -1207,10 +1207,12 @@ describe('validatePrivateOverride', () => {
     expect(validatePrivateOverride(a)).toHaveLength(0);
   });
 
-  test('should fail when the declaring object is abstract, two levels up, naming it', () => {
+  // Objects have no abstract form - the parser sets abstract on models only - so the object
+  // equivalent of the abstract-declarer chain is a plain three-level one.
+  test('should fail when the declaring object is two levels up, naming it', () => {
     const a = ast({
       objects: [
-        obj({ name: 'AbsObj', abstract: true, fields: [field({ name: 'secret', isPrivate: true })] }),
+        obj({ name: 'AbsObj', fields: [field({ name: 'secret', isPrivate: true })] }),
         obj({ name: 'MidObj', extends: 'AbsObj' }),
         obj({ name: 'LeafObj', extends: 'MidObj', fields: [field({ name: 'secret' })] }),
       ],
