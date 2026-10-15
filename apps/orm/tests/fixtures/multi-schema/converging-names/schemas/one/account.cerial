@@ -1,0 +1,5 @@
+# Differs from the sibling entry only in case; both snake_case to user_account
+model UserAccount {
+  id Record @id
+  label String
+}

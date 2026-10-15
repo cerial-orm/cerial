@@ -1,100 +1,49 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'bun:test';
-import { loadConfig } from '../../../src/cli/config';
-import { getFixturePath } from '../../fixtures/multi-schema/helpers';
-import {
-  clearTables,
-  connectionFor,
-  type GeneratedFixture,
-  generateFixture,
-  importClient,
-  type RuntimeClient,
-} from './runtime-helpers';
+import { describe, expect, it } from 'bun:test';
+import { join } from 'node:path';
+import { loadConfig, resolveConfig } from '../../../src/cli/config';
+import { generateMultiSchema } from '../../../src/cli/generate';
+import { cleanupTempDir, createTempOutputDir, getFixturePath } from '../../fixtures/multi-schema/helpers';
 
-const TABLES = ['ms_rt_shared'];
+/** Generate a fixture's entries into a temp directory and return the refusal message. */
+async function refusalOf(fixture: string): Promise<string> {
+  const tempDir = await createTempOutputDir();
+  try {
+    const fixtureDir = getFixturePath(fixture);
+    const config = await loadConfig(join(fixtureDir, 'cerial.config.ts'));
+    const entries = resolveConfig(config!, fixtureDir).map((entry) => ({
+      ...entry,
+      output: join(tempDir, entry.name),
+    }));
+
+    try {
+      await generateMultiSchema(entries, { logLevel: 'minimal' });
+    } catch (error) {
+      return (error as Error).message;
+    }
+    throw new Error(`Expected '${fixture}' to be refused, but it generated`);
+  } finally {
+    await cleanupTempDir(tempDir);
+  }
+}
 
 describe('two schema entries declaring the same model name', () => {
-  let fixture: GeneratedFixture;
-  let one: RuntimeClient;
-  let two: RuntimeClient;
+  // Two clients sharing one table, and every runtime case that depended on it, is unreachable by construction.
+  it('refuses, naming the model, both entries and the table', async () => {
+    const message = await refusalOf('same-name');
 
-  beforeAll(async () => {
-    fixture = await generateFixture('same-name');
-    const OneClient = await importClient(fixture.outputs.one!, 'OneCerialClient');
-    const TwoClient = await importClient(fixture.outputs.two!, 'TwoCerialClient');
-    one = new OneClient();
-    two = new TwoClient();
-    await one.connect(connectionFor('main'));
-    await two.connect(connectionFor('main'));
-    await clearTables(one, TABLES);
+    expect(message).toContain("table 'ms_rt_shared'");
+    expect(message).toContain("model 'MsRtShared' in entry 'one'");
+    expect(message).toContain("model 'MsRtShared' in entry 'two'");
   });
+});
 
-  afterAll(async () => {
-    if (one) await clearTables(one, TABLES);
-    await one?.disconnect();
-    await two?.disconnect();
-    await fixture?.cleanup();
-  });
+describe('two schema entries whose model names converge on one table', () => {
+  it('refuses on the resolved table name, naming each differing model name', async () => {
+    const message = await refusalOf('converging-names');
 
-  it('generates both entries without complaint', () => {
-    expect(fixture.result.success).toBe(true);
-    expect(fixture.result.errors).toEqual([]);
-  });
-
-  it('maps both entries to the same table', async () => {
-    for (const dir of Object.values(fixture.outputs)) {
-      const registry = await Bun.file(`${dir}/internal/model-registry.ts`).text();
-      expect(registry).toContain("'ms_rt_shared'");
-    }
-  });
-
-  describe('sharing the table', () => {
-    beforeEach(async () => {
-      one.resetMigrationState();
-      two.resetMigrationState();
-      await clearTables(one, TABLES);
-    });
-
-    it('serves the first client while only its migration has run', async () => {
-      await one.migrate();
-
-      await one.db.MsRtShared!.create({ data: { label: 'from one' } });
-
-      expect(await one.db.MsRtShared!.findMany()).toEqual([expect.objectContaining({ label: 'from one' })]);
-    });
-
-    it('lets the later migration redefine the table, keeping existing rows', async () => {
-      await one.migrate();
-      await one.db.MsRtShared!.create({ data: { label: 'written by one' } });
-
-      await two.migrate();
-
-      expect(await two.db.MsRtShared!.findMany()).toEqual([expect.objectContaining({ label: 'written by one' })]);
-      const info = (await one.getSurreal()?.query('INFO FOR TABLE ms_rt_shared;')) as [
-        { fields: Record<string, string> },
-      ];
-      expect(Object.keys(info[0].fields).sort()).toEqual(['extra', 'label']);
-    });
-
-    it('rejects a first-client write once the second migration has made extra required', async () => {
-      await one.migrate();
-      await two.migrate();
-
-      await expect(
-        (async () => {
-          await one.db.MsRtShared!.create({ data: { label: 'late from one' } });
-        })(),
-      ).rejects.toThrow(/extra.*ms_rt_shared|ms_rt_shared.*extra/s);
-      expect(await two.db.MsRtShared!.count()).toBe(0);
-    });
-
-    it('accepts the full shape through the second client and exposes it to the first', async () => {
-      await one.migrate();
-      await two.migrate();
-
-      await two.db.MsRtShared!.create({ data: { label: 'from two', extra: 7 } });
-
-      expect(await one.db.MsRtShared!.findMany()).toEqual([expect.objectContaining({ label: 'from two', extra: 7 })]);
-    });
+    expect(message).toContain("table 'user_account'");
+    expect(message).toContain("model 'UserAccount' in entry 'one'");
+    expect(message).toContain("model 'userAccount' in entry 'two'");
   });
 });
 
