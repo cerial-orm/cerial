@@ -407,6 +407,15 @@ development branch and is not available on npm.
   target now has its own key. Watch mode also registered a signal handler on every call and
   never removed it, so the handlers accumulated across runs. Both `generate --watch` and
   `format --watch` are affected.
+- `await using` and `using` on a manual transaction now cancel it when the scope ends, and
+  the transaction cannot be committed afterwards. Both forms used to throw
+  `CerialUnknownModelError` naming a model called `_state`, leave the transaction active and
+  still committable, and replace any error thrown inside the scope with that one. The cause
+  was the transaction proxy handing back symbol-keyed methods unbound, so disposal ran
+  against the proxy rather than the transaction. `CLAUDE.md` recommends `await using` as the
+  way to avoid a dropped transaction, so the recommended remedy did not work. Only the
+  manual form is affected: the array form hands back no transaction to dispose, and the
+  callback form ends its own transaction when the callback returns.
 
 ### Changed
 
