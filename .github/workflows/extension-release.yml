@@ -45,7 +45,7 @@ jobs:
         working-directory: apps/vscode-extension
 
       - name: Package VSIX
-        run: npx @vscode/vsce package --no-dependencies
+        run: bun run package
         working-directory: apps/vscode-extension
 
       - name: Create GitHub Release
