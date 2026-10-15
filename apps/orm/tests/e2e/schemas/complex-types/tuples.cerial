@@ -149,6 +149,17 @@ model TupleStamped {
   stamp Stamped
 }
 
+tuple Defaulted {
+  label String,
+  tier Int @default(1)
+}
+
+model TupleDefaulted {
+  id Record @id
+  name String
+  meta Defaulted
+}
+
 tuple StatusPair {
   state Status,
   count Int

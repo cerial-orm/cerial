@@ -20,6 +20,7 @@ export * from './nullablepair';
 export * from './optnullpair';
 export * from './mixednullability';
 export * from './stamped';
+export * from './defaulted';
 export * from './statuspair';
 export * from './rolepair';
 export * from './bytespair';

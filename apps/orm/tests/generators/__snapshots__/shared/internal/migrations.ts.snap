@@ -38,6 +38,7 @@ export type ModelName =
   | 'TupleDeepNest'
   | 'TupleNullable'
   | 'TupleStamped'
+  | 'TupleDefaulted'
   | 'TupleLiteralElement'
   | 'BasicsUser'
   | 'BasicsProfile'
@@ -239,6 +240,7 @@ export const modelNames = [
   'TupleDeepNest',
   'TupleNullable',
   'TupleStamped',
+  'TupleDefaulted',
   'TupleLiteralElement',
   'BasicsUser',
   'BasicsProfile',
@@ -724,6 +726,12 @@ export const migrationsByModel: Record<ModelName, string[]> = {
     'DEFINE FIELD OVERWRITE stamp[1] ON TABLE tuple_stamped TYPE datetime DEFAULT time::now();',
     'DEFINE FIELD OVERWRITE stamp[2] ON TABLE tuple_stamped TYPE datetime DEFAULT ALWAYS time::now();',
     'DEFINE FIELD OVERWRITE stamp[3] ON TABLE tuple_stamped TYPE int DEFAULT ALWAYS 7;',
+  ],
+  TupleDefaulted: [
+    'DEFINE TABLE OVERWRITE tuple_defaulted SCHEMAFULL;',
+    'DEFINE FIELD OVERWRITE name ON TABLE tuple_defaulted TYPE string;',
+    'DEFINE FIELD OVERWRITE meta ON TABLE tuple_defaulted TYPE [string, int];',
+    'DEFINE FIELD OVERWRITE meta[1] ON TABLE tuple_defaulted TYPE int DEFAULT 1;',
   ],
   TupleLiteralElement: [
     'DEFINE TABLE OVERWRITE tuple_literal_element SCHEMAFULL;',

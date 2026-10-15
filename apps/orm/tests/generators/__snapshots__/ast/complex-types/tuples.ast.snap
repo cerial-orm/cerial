@@ -335,6 +335,35 @@
         {
           "decorators": [],
           "isOptional": false,
+          "name": "meta",
+          "tupleName": "Defaulted",
+          "type": "tuple"
+        }
+      ],
+      "name": "TupleDefaulted"
+    },
+    {
+      "directives": [],
+      "fields": [
+        {
+          "decorators": [
+            {
+              "type": "id"
+            }
+          ],
+          "isOptional": false,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "decorators": [],
+          "isOptional": false,
           "name": "status",
           "tupleName": "StatusPair",
           "type": "tuple"
@@ -709,6 +738,27 @@
         }
       ],
       "name": "Stamped"
+    },
+    {
+      "elements": [
+        {
+          "isOptional": false,
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "decorators": [
+            {
+              "type": "default",
+              "value": 1
+            }
+          ],
+          "isOptional": false,
+          "name": "tier",
+          "type": "int"
+        }
+      ],
+      "name": "Defaulted"
     },
     {
       "elements": [

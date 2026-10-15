@@ -349,6 +349,55 @@
       "name": "TupleDeepNest",
       "tableName": "tuple_deep_nest"
     },
+    "TupleDefaulted": {
+      "compositeDirectives": [],
+      "fields": [
+        {
+          "isId": true,
+          "isIndexed": false,
+          "isRequired": false,
+          "isUnique": true,
+          "name": "id",
+          "type": "record"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "isId": false,
+          "isIndexed": false,
+          "isRequired": true,
+          "isUnique": false,
+          "name": "meta",
+          "tupleInfo": {
+            "elements": [
+              {
+                "index": 0,
+                "isOptional": false,
+                "name": "label",
+                "type": "string"
+              },
+              {
+                "defaultValue": 1,
+                "index": 1,
+                "isOptional": false,
+                "name": "tier",
+                "type": "int"
+              }
+            ],
+            "tupleName": "Defaulted"
+          },
+          "type": "tuple"
+        }
+      ],
+      "name": "TupleDefaulted",
+      "tableName": "tuple_defaulted"
+    },
     "TupleInObj": {
       "compositeDirectives": [],
       "fields": [
@@ -1359,6 +1408,24 @@
         }
       ],
       "name": "DeepOuterTuple"
+    },
+    "Defaulted": {
+      "elements": [
+        {
+          "index": 0,
+          "isOptional": false,
+          "name": "label",
+          "type": "string"
+        },
+        {
+          "defaultValue": 1,
+          "index": 1,
+          "isOptional": false,
+          "name": "tier",
+          "type": "int"
+        }
+      ],
+      "name": "Defaulted"
     },
     "Entry": {
       "elements": [

@@ -36,6 +36,7 @@ export * from './tuplerelatedpost';
 export * from './tupledeepnest';
 export * from './tuplenullable';
 export * from './tuplestamped';
+export * from './tupledefaulted';
 export * from './tupleliteralelement';
 export * from './basicsuser';
 export * from './basicsprofile';
