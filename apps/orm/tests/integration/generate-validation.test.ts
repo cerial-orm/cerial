@@ -6,10 +6,11 @@
  */
 
 import { afterAll, describe, expect, it } from 'bun:test';
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { cp, mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { generateSingleSchema } from '../../src/cli/generate';
+import { generate, generateSingleSchema } from '../../src/cli/generate';
+import { getFixturePath } from '../fixtures/multi-schema/helpers';
 
 const cleanups: Array<() => Promise<void>> = [];
 
@@ -284,4 +285,105 @@ describe('cerial generate still accepts valid neighbours', () => {
       expect(result.success).toBe(true);
     });
   }
+});
+
+/**
+ * Run `generate` (the entry point behind `cerial generate`) on a multi-schema fixture.
+ *
+ * The fixture is copied into a temp directory and the process moves there for the call, because
+ * the config's relative schema and output paths resolve against the working directory. Its
+ * import of the package source is rewritten to an absolute path for the same reason. Nothing is
+ * written inside the repo.
+ */
+async function generateFixture(fixture: string) {
+  const base = await mkdtemp(join(tmpdir(), 'cerial-generate-entries-'));
+  cleanups.push(() => rm(base, { recursive: true, force: true }));
+  await cp(getFixturePath(fixture), base, { recursive: true });
+
+  const configPath = join(base, 'cerial.config.ts');
+  const source = (await readFile(configPath, 'utf8')).replace(
+    /'(\.\.\/)+src\/index'/,
+    `'${join(import.meta.dir, '../../src/index')}'`,
+  );
+  await writeFile(configPath, source, 'utf8');
+
+  const cwd = process.cwd();
+  process.chdir(base);
+  try {
+    const result = await generate({ config: configPath, log: 'minimal' });
+
+    return { result, base };
+  } finally {
+    process.chdir(cwd);
+  }
+}
+
+async function exists(path: string): Promise<boolean> {
+  return stat(path).then(
+    () => true,
+    () => false,
+  );
+}
+
+/**
+ * Before the cross-entry table check existed, `generate` on `same-name` succeeded and wrote two
+ * clients that read and wrote one table. It now fails with a message naming the table, the
+ * entries and the models, and writes nothing.
+ *
+ * The same-name before-state was observed: the last test generates each entry on its own through
+ * generateSingleSchema, the call the loop made before the check existed, and both succeed.
+ * `converging-names` has no such observation. Its `userAccount` entry is rejected as not
+ * PascalCase by the per-entry parse, so generating it without the check fails for a different
+ * reason; the pre-loop check is what turns that into the table message asserted here.
+ */
+describe('cerial generate on a multi-schema config whose entries share a table', () => {
+  it('refuses identical model names, with a non-zero outcome and the message', async () => {
+    const { result, base } = await generateFixture('same-name');
+
+    expect(result.success).toBe(false);
+    const message = result.errors.join('\n');
+    expect(message).toContain("table 'ms_rt_shared'");
+    expect(message).toContain("model 'MsRtShared' in entry 'one'");
+    expect(message).toContain("model 'MsRtShared' in entry 'two'");
+    expect(await exists(join(base, 'generated'))).toBe(false);
+  });
+
+  it('refuses model names that converge on one snake_case table', async () => {
+    const { result, base } = await generateFixture('converging-names');
+
+    expect(result.success).toBe(false);
+    const message = result.errors.join('\n');
+    expect(message).toContain("table 'user_account'");
+    expect(message).toContain("model 'UserAccount' in entry 'one'");
+    expect(message).toContain("model 'userAccount' in entry 'two'");
+    expect(await exists(join(base, 'generated'))).toBe(false);
+  });
+
+  it('accepts entries that share no table and writes both clients', async () => {
+    const { result, base } = await generateFixture('distinct-tables');
+
+    expect(result.errors).toEqual([]);
+    expect(result.success).toBe(true);
+    // Separates "accepted" from "refused for another reason": both output directories hold a client.
+    expect(await exists(join(base, 'generated/one/client.ts'))).toBe(true);
+    expect(await exists(join(base, 'generated/two/client.ts'))).toBe(true);
+  });
+
+  it('would have generated both same-name entries without the table check', async () => {
+    for (const fixture of ['same-name']) {
+      const base = await mkdtemp(join(tmpdir(), 'cerial-generate-bypass-'));
+      cleanups.push(() => rm(base, { recursive: true, force: true }));
+
+      for (const entry of ['one', 'two']) {
+        const result = await generateSingleSchema({
+          schemaPath: join(getFixturePath(fixture), 'schemas', entry),
+          outputDir: join(base, entry),
+          logLevel: 'minimal',
+        });
+
+        expect(result.errors).toEqual([]);
+        expect(result.success).toBe(true);
+      }
+    }
+  });
 });

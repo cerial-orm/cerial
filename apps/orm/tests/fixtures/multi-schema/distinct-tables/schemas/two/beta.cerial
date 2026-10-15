@@ -1,0 +1,5 @@
+# Shares no table with the sibling entry, unlike same-name and converging-names
+model MsDtBeta {
+  id Record @id
+  label String
+}
