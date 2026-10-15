@@ -154,6 +154,50 @@ model Test {
       );
     });
 
+    test.each([
+      '@sort(ASC)',
+      '@sort(Desc)',
+      '@sort("asc")',
+      "@sort('asc')",
+      '@sort(asc, desc)',
+      '@sort(asc extra)',
+      '@sort (asc)',
+      '@sort(asc)(desc)',
+      '@sort(asc) (desc)',
+    ])('should refuse %s and drop the decorator', (decorator) => {
+      const { errors, ast } = parse(modelWith(decorator));
+
+      expect(errors.filter((e) => e.message.includes('invalid argument'))).toHaveLength(1);
+      expect(errors.some((e) => e.message.includes(`'${decorator}'`))).toBe(true);
+      expect(ast.models[0]?.fields.find((f) => f.name === 'scores')?.decorators.some((d) => d.type === 'sort')).toBe(
+        false,
+      );
+    });
+
+    test.each([
+      ['@sort', true],
+      ['@sort()', true],
+      ['@sort(true)', true],
+      ['@sort(asc)', true],
+      ['@sort( asc )', true],
+      ['@sort(false)', false],
+      ['@sort(desc)', false],
+    ])('should accept %s as ascending=%p', (decorator, ascending) => {
+      const { errors, ast } = parse(modelWith(decorator));
+      const sort = ast.models[0]?.fields.find((f) => f.name === 'scores')?.decorators.find((d) => d.type === 'sort');
+
+      expect(errors).toEqual([]);
+      expect(sort?.value).toBe(ascending);
+    });
+
+    test('should keep a following decorator after a valid @sort', () => {
+      const { errors, ast } = parse(modelWith('@sort(desc) @distinct'));
+      const types = ast.models[0]?.fields.find((f) => f.name === 'scores')?.decorators.map((d) => d.type);
+
+      expect(errors).toEqual([]);
+      expect(types).toEqual(expect.arrayContaining(['sort', 'distinct']));
+    });
+
     test.each(['@sort', '@sort()', '@sort(true)', '@sort(false)', '@sort(asc)', '@sort(desc)'])(
       'should accept %s without errors',
       (decorator) => {

@@ -181,10 +181,13 @@ export function parseDecorators(line: string, lineNumber: number, errors?: strin
     } else if (isSetDecorator(token)) {
       decorators.push(parseSetDecorator(range));
     } else if (isSortDecorator(token)) {
-      if (hasValidSortArgument(token)) decorators.push(parseSortDecorator(token, range));
+      // The shared token regex stops at the first ')', so '@sort (asc)' and '@sort(asc)(desc)' would
+      // otherwise drop the trailing group and parse as a valid ascending sort.
+      const stray = line.slice(col + token.length).match(/^\s*(?:\([^)]*\))+/)?.[0] ?? '';
+      if (hasValidSortArgument(token) && !stray) decorators.push(parseSortDecorator(token, range));
       else
         errors?.push(
-          `Decorator '${token}' on '${declarationName}' has an invalid argument. Use @sort, @sort(true), @sort(false), @sort(asc) or @sort(desc)`,
+          `Decorator '${token}${stray}' on '${declarationName}' has an invalid argument. Use @sort, @sort(true), @sort(false), @sort(asc) or @sort(desc)`,
         );
     } else if (isFlexibleDecorator(token)) {
       decorators.push(parseFlexibleDecorator(range));
