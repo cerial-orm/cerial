@@ -475,7 +475,7 @@ describe('Readonly Validator', () => {
             name: 'Config',
             fields: [
               createField({ name: 'key', type: 'string', decorators: [readonlyDecorator()] }),
-              createField({ name: 'value', type: 'string' }),
+              createField({ name: 'payload', type: 'string' }),
             ],
           }),
         ],
