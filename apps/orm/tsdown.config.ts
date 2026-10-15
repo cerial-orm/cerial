@@ -16,7 +16,6 @@ export default defineConfig([
     format: ['esm', 'cjs'],
     dts: true,
     fixedExtension: true,
-    sourcemap: true,
     clean: true,
     outDir: 'dist',
     platform: 'node',
