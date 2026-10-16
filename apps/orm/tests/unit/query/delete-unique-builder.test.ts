@@ -5,6 +5,7 @@
  */
 
 import { describe, expect, test } from 'bun:test';
+import type { RecordId } from 'surrealdb';
 import { astToRegistry } from '../../../src/parser/model-metadata';
 import { parse } from '../../../src/parser/parser';
 import {
@@ -119,21 +120,22 @@ describe('delete-unique-builder', () => {
     test('generates DELETE with RETURN NONE', () => {
       const query = buildDeleteUniqueQuery(userModel, 'abc123', false);
 
-      expect(query.text).toBe('DELETE user:abc123 RETURN NONE');
-      expect(query.vars).toEqual({});
+      expect(query.text).toBe('DELETE $rid_record_id_0 RETURN NONE');
+      expect((query.vars.rid_record_id_0 as RecordId).toString()).toBe('user:abc123');
     });
 
     test('generates DELETE with RETURN BEFORE', () => {
       const query = buildDeleteUniqueQuery(userModel, 'abc123', true);
 
-      expect(query.text).toBe('DELETE user:abc123 RETURN BEFORE');
-      expect(query.vars).toEqual({});
+      expect(query.text).toBe('DELETE $rid_record_id_0 RETURN BEFORE');
+      expect((query.vars.rid_record_id_0 as RecordId).toString()).toBe('user:abc123');
     });
 
     test('handles ID with special characters', () => {
       const query = buildDeleteUniqueQuery(userModel, 'user-with-dashes', false);
 
-      expect(query.text).toContain('user:⟨user-with-dashes⟩');
+      expect(query.text).toBe('DELETE $rid_record_id_0 RETURN NONE');
+      expect((query.vars.rid_record_id_0 as RecordId).id).toBe('user-with-dashes');
     });
   });
 
@@ -148,15 +150,15 @@ describe('delete-unique-builder', () => {
         const query = buildDeleteUniqueWithCascade(userModel, where, registry, false);
 
         // Simple delete without transaction
-        expect(query.text).toBe('DELETE user:abc123 RETURN NONE');
-        expect(query.vars).toEqual({});
+        expect(query.text).toBe('DELETE $rid_record_id_0 RETURN NONE');
+        expect(Object.keys(query.vars)).toEqual(['rid_record_id_0']);
       });
 
       test('uses simple DELETE with RETURN BEFORE (with ID)', () => {
         const where = { id: 'abc123' };
         const query = buildDeleteUniqueWithCascade(userModel, where, registry, true);
 
-        expect(query.text).toBe('DELETE user:abc123 RETURN BEFORE');
+        expect(query.text).toBe('DELETE $rid_record_id_0 RETURN BEFORE');
       });
     });
 

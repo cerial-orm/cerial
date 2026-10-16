@@ -10,6 +10,7 @@
  */
 
 import { describe, expect, test } from 'bun:test';
+import { RecordId } from 'surrealdb';
 import { astToRegistry } from '../../../src/parser/model-metadata';
 import { parse } from '../../../src/parser/parser';
 import {
@@ -337,10 +338,10 @@ describe('upsert-builder', () => {
 
       expect(query.text).toContain('BEGIN TRANSACTION;');
       expect(query.text).toContain('LET $exists');
-      expect(query.text).toContain('SELECT * FROM ONLY user:abc123');
+      expect(query.text).toContain('SELECT * FROM ONLY $record_id_0');
       expect(query.text).toContain('IF $exists == NONE THEN');
-      expect(query.text).toContain('CREATE ONLY user:abc123');
-      expect(query.text).toContain('UPDATE ONLY user:abc123');
+      expect(query.text).toContain('CREATE ONLY $record_id_0');
+      expect(query.text).toContain('UPDATE ONLY $record_id_0');
       expect(query.text).toContain('COMMIT TRANSACTION;');
       expect(query.text).toContain('RETURN $result;');
     });
@@ -380,7 +381,7 @@ describe('upsert-builder', () => {
         undefined,
       );
 
-      expect(query.text).toContain('UPDATE ONLY user:abc123');
+      expect(query.text).toContain('UPDATE ONLY $record_id_0');
       expect(query.text).toContain('WHERE');
       expect(query.text).toContain('email');
     });
@@ -395,9 +396,9 @@ describe('upsert-builder', () => {
       );
 
       // CREATE branch should exist
-      expect(query.text).toContain('CREATE ONLY user:abc123');
+      expect(query.text).toContain('CREATE ONLY $record_id_0');
       // Update branch should be a SELECT (return existing unchanged)
-      expect(query.text).toMatch(/ELSE \(SELECT \* FROM ONLY user:abc123\)/);
+      expect(query.text).toMatch(/ELSE \(SELECT \* FROM ONLY \$record_id_0\)/);
     });
 
     test('return: true generates no explicit RETURN in sub-queries', () => {
@@ -628,8 +629,8 @@ describe('upsert-builder', () => {
         undefined,
       );
 
-      expect(query.text).toContain('CREATE ONLY user:abc123');
-      expect(query.text).toMatch(/ELSE \(SELECT \* FROM ONLY user:abc123\)/);
+      expect(query.text).toContain('CREATE ONLY $record_id_0');
+      expect(query.text).toMatch(/ELSE \(SELECT \* FROM ONLY \$record_id_0\)/);
       expect(query.text).not.toContain('UPDATE');
     });
 
@@ -750,10 +751,10 @@ describe('upsert-builder', () => {
     });
 
     test('an id in the where reads that record and creates it by name', () => {
-      const query = nested({ id: 'a1' }, { name: 'Updated Author' }, { recordId: 'author:a1' });
+      const query = nested({ id: 'a1' }, { name: 'Updated Author' }, { recordId: new RecordId('author', 'a1') });
 
-      expect(query.text).toContain('LET $up_exists = (SELECT id FROM ONLY author:a1);');
-      expect(query.text).toContain('CREATE ONLY author:a1 CONTENT');
+      expect(query.text).toContain('LET $up_exists = (SELECT id FROM ONLY $rid_record_id_0);');
+      expect(query.text).toContain('CREATE ONLY $c_record_id_0 CONTENT');
     });
 
     test('keeps the variables of the two halves apart', () => {

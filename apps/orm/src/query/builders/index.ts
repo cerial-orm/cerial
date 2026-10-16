@@ -20,9 +20,7 @@ export {
 } from './delete-builder';
 export { applyDefaultValues, buildCreateQuery, stripComputedFields } from './insert-builder';
 export {
-  buildBidirectionalSyncStatements,
   buildCreateWithNestedTransaction,
-  buildNestedCreateStatements,
   buildUpdateWithNestedTransaction,
   extractNestedOperations,
   isNestedConnect,

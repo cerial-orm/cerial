@@ -9,6 +9,7 @@
  * For n-n (bidirectional): Updates both sides atomically in a transaction
  */
 
+import type { RecordId } from 'surrealdb';
 import { CerialValidationError } from '../../errors';
 import type { ModelMetadata, ModelRegistry, SelectClause } from '../../types';
 import type { RecordIdInput } from '../../utils/cerial-id';
@@ -16,6 +17,7 @@ import type { CompiledQuery } from '../compile/types';
 import { createCompileContext, type FilterCompileContext } from '../compile/var-allocator';
 import { transformDestructiveWhere } from '../filters/transformer';
 import { applyFieldDefaults, transformData, transformOrValidateRecordId } from '../transformers';
+import { validateKnownKeys } from '../validators/data-validator';
 import type { IncludeClause } from './relation-builder';
 import { buildSelectFields } from './select-builder';
 import { buildUpdateSetClauses } from './update-builder';
@@ -26,6 +28,14 @@ import { buildUpdateSetClauses } from './update-builder';
  * raw input, so a Date string, a CerialUuid or a Decimal reaches SurrealDB untransformed.
  */
 function prepareNestedCreateData(data: Record<string, unknown>, targetModel: ModelMetadata): Record<string, unknown> {
+  // A reverse create writes each key as a column name, so an undeclared key is refused before it can reach query text
+  const unknownKeys = validateKnownKeys(data, targetModel);
+  if (unknownKeys.length)
+    throw new CerialValidationError(`Invalid data: ${unknownKeys.map((e) => e.message).join('; ')}`, {
+      model: targetModel.name,
+      field: unknownKeys[0]!.field,
+    });
+
   return transformData(applyFieldDefaults(data, targetModel), targetModel);
 }
 
@@ -79,52 +89,6 @@ export function isNestedSet(value: unknown): value is NestedSet {
 /** Check if value is any nested operation */
 export function isNestedOperation(value: unknown): value is NestedOperation {
   return isNestedCreate(value) || isNestedConnect(value) || isNestedDisconnect(value) || isNestedSet(value);
-}
-
-/**
- * Build SurrealQL for nested create operation
- * Returns statements to be executed in a transaction
- */
-export function buildNestedCreateStatements(
-  fieldName: string,
-  targetModel: ModelMetadata,
-  createData: Record<string, unknown>,
-  _parentVarName: string,
-): { statements: string[]; varName: string } {
-  const ctx = createCompileContext();
-  const varName = `$${fieldName}`;
-
-  // Build content variable
-  const contentVar = ctx.bind('content', fieldName, createData, 'string');
-
-  // CREATE ONLY returns { id: ... }, access .id to get the RecordId
-  const statements = [`LET ${varName} = CREATE ONLY ${targetModel.tableName} CONTENT ${contentVar.placeholder};`];
-
-  return { statements, varName: `${varName}.id` };
-}
-
-/**
- * Build SurrealQL for n-n bidirectional sync
- * When connecting A to B, also adds A to B's array
- */
-export function buildBidirectionalSyncStatements(
-  _sourceModel: ModelMetadata,
-  _targetModel: ModelMetadata,
-  _sourceFieldName: string,
-  targetFieldName: string,
-  sourceId: string,
-  targetIds: string[],
-  operation: 'add' | 'remove',
-): string[] {
-  const statements: string[] = [];
-  const operator = operation === 'add' ? '+=' : '-=';
-
-  for (const targetId of targetIds) {
-    // Update target's array to include/exclude source
-    statements.push(`UPDATE ${targetId} SET ${targetFieldName} ${operator} ${sourceId};`);
-  }
-
-  return statements;
 }
 
 /**
@@ -282,7 +246,7 @@ export interface NestedWriteOptions {
    * Create only: the record the row must be created as, in place of a server-generated id. Upsert's
    * create half passes the id from its `where`, the same record the plain upsert's CREATE targets
    */
-  recordId?: string;
+  recordId?: RecordId;
   /** Update only: return the row as it was before the write, projected through `select` and `include` */
   returnBefore?: boolean;
   select?: SelectClause;
@@ -556,7 +520,13 @@ export function buildCreateWithNestedTransaction(
   const fieldUpdateEntries = Object.entries(fieldUpdates);
 
   // A caller-supplied record id makes this an upsert's create half: the row must land on that record
-  const createTarget = recordId ?? model.tableName;
+  // The id part is caller text, so it is bound rather than interpolated
+  let createTarget = model.tableName;
+  if (recordId) {
+    const idBinding = ctx.bind('record', 'id', recordId, 'string');
+    Object.assign(vars, idBinding.vars);
+    createTarget = idBinding.placeholder;
+  }
 
   // Create the main record
   if (fieldUpdateEntries.length > 0) {

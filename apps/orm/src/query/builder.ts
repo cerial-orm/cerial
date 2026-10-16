@@ -646,7 +646,12 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     const recordId = hasId ? recordIdFromWhere(this.model, where) : undefined;
 
     if (recordId) {
-      return executeQuerySingle(this.db, { text: `SELECT ${fields} FROM ONLY ${recordId.toString()};`, vars });
+      const idBinding = createCompileContext('rid_').bind('record', 'id', recordId, 'string');
+
+      return executeQuerySingle(this.db, {
+        text: `SELECT ${fields} FROM ONLY ${idBinding.placeholder};`,
+        vars: { ...vars, ...idBinding.vars },
+      });
     }
 
     // Unique field lookup
@@ -696,7 +701,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
         include,
         // An id in the where names the record to create, exactly as the plain upsert's CREATE does;
         // without it the nested create lands on a server-generated id the caller never asked for
-        recordId: hasId ? recordIdFromWhere(this.model, where)?.toString() : undefined,
+        recordId: hasId ? recordIdFromWhere(this.model, where) : undefined,
       });
       const result = await executeQuerySingle(this.db, query);
 
@@ -1140,7 +1145,7 @@ export function compileUpsert(
           unset ? mergeUnsetIntoData(transformedUpdateData, unset) : transformedUpdateData,
           createNestedOps,
           updateNestedOps as Map<string, NestedOperation>,
-          { recordId: hasId ? recordIdFromWhere(model, where)?.toString() : undefined, returnOption, select, include },
+          { recordId: hasId ? recordIdFromWhere(model, where) : undefined, returnOption, select, include },
           registry,
         )
       : buildUpsertQuery(

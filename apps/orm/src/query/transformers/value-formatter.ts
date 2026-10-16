@@ -36,14 +36,25 @@ export function formatValue(value: unknown, fieldType: SchemaFieldType): string 
       if (value instanceof Date) {
         return `d"${value.toISOString()}"`;
       }
-      return `d"${String(value)}"`;
+      // Anything that is not a date has to parse as one, so the text between the quotes is an ISO string
+      return `d"${toIsoDate(value)}"`;
 
     default:
       if (typeof value === 'string') {
         return `"${escapeString(value)}"`;
       }
-      return String(value);
+      // Only scalars print bare; any other value becomes a quoted, escaped string
+      if (typeof value === 'number' || typeof value === 'bigint' || typeof value === 'boolean') return String(value);
+
+      return `"${escapeString(String(value))}"`;
   }
+}
+
+function toIsoDate(value: unknown): string {
+  const date = new Date(String(value));
+  if (Number.isNaN(date.getTime())) throw new TypeError(`Cannot format ${JSON.stringify(String(value))} as a date`);
+
+  return date.toISOString();
 }
 
 /** Format an array of values */

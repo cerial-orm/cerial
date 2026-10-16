@@ -173,7 +173,7 @@ export function validateFieldValue(
 }
 
 /** Reject keys that are not fields of the model. Known-but-excluded fields (computed, readonly) are not unknown. */
-function validateKnownKeys(data: Record<string, unknown>, model: ModelMetadata): DataValidationError[] {
+export function validateKnownKeys(data: Record<string, unknown>, model: ModelMetadata): DataValidationError[] {
   const known = new Set(model.fields.map((f) => f.name));
   return Object.keys(data)
     .filter((key) => !known.has(key))

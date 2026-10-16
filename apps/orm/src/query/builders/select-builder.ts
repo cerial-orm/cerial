@@ -626,11 +626,13 @@ function buildFindUniqueByIdQuery(
   const whereClause = transformWhereClause(Object.keys(whereWithoutId).length ? whereWithoutId : undefined, model);
   const limitClause = buildLimit(1);
 
-  const parts = [`SELECT ${fields} FROM ONLY ${recordId.toString()}`, whereClause.text, limitClause].filter((p) => p);
+  // Bound, never interpolated: the id part is caller text and the driver's escaper leaves a backslash alone
+  const idBinding = createCompileContext('rid_').bind('record', 'id', recordId, 'string');
+  const parts = [`SELECT ${fields} FROM ONLY ${idBinding.placeholder}`, whereClause.text, limitClause].filter((p) => p);
 
   return {
     text: parts.join(' '),
-    vars: { ...whereClause.vars, ...includeCtx.getCollected() },
+    vars: { ...whereClause.vars, ...idBinding.vars, ...includeCtx.getCollected() },
   };
 }
 

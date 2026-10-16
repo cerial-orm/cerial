@@ -28,9 +28,9 @@ export function escapeRegex(str: string): string {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-/** Escape string for SQL/SurrealQL */
+/** Escape string for SQL/SurrealQL; the backslash goes first so the escapes added after it are not themselves escaped */
 export function escapeString(str: string): string {
-  return str.replace(/'/g, "\\'").replace(/"/g, '\\"');
+  return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
 }
 
 /** Backtick-quote a dynamic object key for SurrealQL unless it is a plain identifier */

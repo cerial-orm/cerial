@@ -19,6 +19,7 @@
  * ID-based and unique-field WHERE-based upserts via transaction building.
  */
 
+import type { RecordId } from 'surrealdb';
 import type { FieldMetadata, ModelMetadata, ModelRegistry, SelectClause, UpsertReturn, WhereClause } from '../../types';
 import { isNone } from '../../utils/none';
 import { bindWithInlineExpressions, containsInlineExpression } from '../compile/inline-expression';
@@ -309,6 +310,10 @@ export function buildUpsertIdQuery(
   // Extract ID from where (and expand composite keys)
   const { id, expandedWhere } = getRecordIdFromWhere(where, model, 'upsert');
   const recordId = transformOrValidateRecordId(model.tableName, id!);
+  // Bound, never interpolated: the id part is caller text and the driver's escaper leaves a backslash alone
+  const idBinding = ctx.bind('record', 'id', recordId, 'string');
+  Object.assign(vars, idBinding.vars);
+  const recordRef = idBinding.placeholder;
 
   // Build additional WHERE filters (non-id fields) using expanded where
   const idField = model.fields.find((f) => f.isId);
@@ -360,26 +365,26 @@ export function buildUpsertIdQuery(
   }
 
   const statements: string[] = ['BEGIN TRANSACTION;'];
-  statements.push(`LET $exists = (SELECT * FROM ONLY ${recordId.toString()});`);
+  statements.push(`LET $exists = (SELECT * FROM ONLY ${recordRef});`);
   // With a projection the row handed back is this one, read before either branch writes
   const snapshot = needsBeforeSnapshot(returnOption, select, include);
   if (snapshot) {
     statements.push(
-      `LET $before = (SELECT ${buildSelectFields(select, model, include, registry, includeCtx)} FROM ONLY ${recordId.toString()});`,
+      `LET $before = (SELECT ${buildSelectFields(select, model, include, registry, includeCtx)} FROM ONLY ${recordRef});`,
     );
   }
 
   let createQuery: string;
   if (useCreateSet && createSetParts) {
-    createQuery = `CREATE ONLY ${recordId.toString()} SET ${createSetParts.join(', ')}${createReturn ? ` ${createReturn}` : ''}`;
+    createQuery = `CREATE ONLY ${recordRef} SET ${createSetParts.join(', ')}${createReturn ? ` ${createReturn}` : ''}`;
   } else {
-    createQuery = `CREATE ONLY ${recordId.toString()} CONTENT ${createBinding!.placeholder}${createReturn ? ` ${createReturn}` : ''}`;
+    createQuery = `CREATE ONLY ${recordRef} CONTENT ${createBinding!.placeholder}${createReturn ? ` ${createReturn}` : ''}`;
   }
 
   // Build update branch
   let updateQuery: string;
   if (hasUpdate && updateSetParts.length > 0) {
-    updateQuery = `UPDATE ONLY ${recordId.toString()}`;
+    updateQuery = `UPDATE ONLY ${recordRef}`;
     updateQuery += ` SET ${updateSetParts.join(', ')}`;
     if (additionalWhereClause?.text) {
       updateQuery += ` ${additionalWhereClause.text}`;
@@ -389,7 +394,7 @@ export function buildUpsertIdQuery(
     }
   } else {
     // No update data - just return the existing record
-    updateQuery = `SELECT * FROM ONLY ${recordId.toString()}`;
+    updateQuery = `SELECT * FROM ONLY ${recordRef}`;
   }
 
   // Build IF/ELSE
@@ -501,7 +506,7 @@ export function buildUpsertQuery(
 /** Options of the single-statement nested upsert */
 export interface UpsertNestedOptions {
   /** The record the where names through its id field; it is created as that record when absent */
-  recordId?: string;
+  recordId?: RecordId;
   returnOption?: UpsertReturn;
   select?: SelectClause;
   include?: IncludeClause;
@@ -546,8 +551,9 @@ export function buildUpsertWithNestedTransaction(
   const isBefore = returnOption === 'before';
 
   const whereClause = recordId ? undefined : transformWhereClause(where, model, registry);
-  const exists = recordId
-    ? `(SELECT id FROM ONLY ${recordId})`
+  const existsBinding = recordId ? createCompileContext('rid_').bind('record', 'id', recordId, 'string') : undefined;
+  const exists = existsBinding
+    ? `(SELECT id FROM ONLY ${existsBinding.placeholder})`
     : `(SELECT id FROM ${model.tableName} ${whereClause?.text} LIMIT 1)[0]`;
 
   const createQuery = prefixQueryVars(
@@ -596,6 +602,6 @@ export function buildUpsertWithNestedTransaction(
       'COMMIT TRANSACTION;',
       `RETURN ${result};`,
     ].join('\n'),
-    vars: { ...whereClause?.vars, ...createQuery.vars, ...updateQuery.vars },
+    vars: { ...whereClause?.vars, ...existsBinding?.vars, ...createQuery.vars, ...updateQuery.vars },
   };
 }

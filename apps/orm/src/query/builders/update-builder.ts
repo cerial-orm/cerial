@@ -723,17 +723,19 @@ export function buildUpdateUniqueQuery(
     // ID-based: UPDATE ONLY table:id SET ... [WHERE other fields] [RETURN ...]
     const recordId = transformOrValidateRecordId(model.tableName, id!);
     const whereClause = buildWhereClauseWithoutId(expandedWhere, model, registry);
+    // Bound, never interpolated: the id part is caller text and the driver's escaper leaves a backslash alone
+    const idBinding = createCompileContext('rid_').bind('record', 'id', recordId, 'string');
 
     const parts = [
-      `UPDATE ONLY ${recordId.toString()}`,
+      `UPDATE ONLY ${idBinding.placeholder}`,
       setParts.length > 0 ? `SET ${setParts.join(', ')}` : '',
       whereClause.text,
       returnClause,
     ].filter((p) => p);
 
     return {
-      text: wrap(recordId.toString(), whereClause.text, parts.join(' ')),
-      vars: { ...setVars, ...whereClause.vars, ...includeCtx.getCollected() },
+      text: wrap(idBinding.placeholder, whereClause.text, parts.join(' ')),
+      vars: { ...setVars, ...whereClause.vars, ...idBinding.vars, ...includeCtx.getCollected() },
     };
   }
 

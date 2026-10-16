@@ -104,6 +104,19 @@ export function validateSelect(select: object | undefined, model: ModelMetadata)
   return errors;
 }
 
+/** Direction check for an undeclared key under a @flexible object: any nesting depth, same asc/desc rule as declared keys. */
+function validateFlexibleOrderByValue(value: unknown, path: string, model: ModelMetadata): SelectValidationError[] {
+  if (value === undefined) return [];
+  if (isObject(value)) {
+    return Object.entries(value).flatMap(([key, nested]) =>
+      validateFlexibleOrderByValue(nested, `${path}.${key}`, model),
+    );
+  }
+  if (typeof value === 'string' && ['asc', 'desc'].includes(value.toLowerCase())) return [];
+
+  return [{ path, message: `Order direction for '${path}' must be 'asc' or 'desc', got ${JSON.stringify(value)}` }];
+}
+
 function validateOrderByLevel(
   orderBy: Record<string, unknown>,
   fields: FieldMetadata[],
@@ -119,7 +132,12 @@ function validateOrderByLevel(
     const field = fields.find((f) => f.name === key);
 
     if (!field) {
-      if (!isFlexible) errors.push(unknownField(path, model));
+      if (!isFlexible) {
+        errors.push(unknownField(path, model));
+        continue;
+      }
+      // An undeclared key is legitimate here, but its direction is still caller text that reaches ORDER BY
+      errors.push(...validateFlexibleOrderByValue(value, path, model));
       continue;
     }
 

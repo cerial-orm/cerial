@@ -353,7 +353,7 @@ describe('buildUpdateUniqueQuery with unset', () => {
       { bio: true },
     );
 
-    expect(query.text).toContain('UPDATE ONLY user:abc123');
+    expect(query.text).toContain('UPDATE ONLY $rid_record_id_0');
     expect(query.text).toContain('name = $name_set_0');
     expect(query.text).toContain('bio = NONE');
   });

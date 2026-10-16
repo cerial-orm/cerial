@@ -49,6 +49,12 @@ describe('string-utils', () => {
       expect(escapeString("it's")).toBe("it\\'s");
       expect(escapeString('say "hello"')).toBe('say \\"hello\\"');
     });
+
+    test('escapes the backslash before the quotes, so an added escape is not itself escaped', () => {
+      expect(escapeString('a\\b')).toBe('a\\\\b');
+      expect(escapeString('end\\')).toBe('end\\\\');
+      expect(escapeString('\\"')).toBe('\\\\\\"');
+    });
   });
 
   describe('capitalize', () => {

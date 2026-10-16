@@ -11,6 +11,7 @@
 import { getUniqueFields } from '../../parser/model-metadata';
 import type { ModelMetadata, ModelRegistry, OnDeleteAction, WhereClause } from '../../types';
 import type { CompiledQuery } from '../compile/types';
+import { createCompileContext } from '../compile/var-allocator';
 import { transformDestructiveWhere } from '../filters/transformer';
 import { transformOrValidateRecordId } from '../transformers';
 import { expandCompositeKey, expandObjectUniqueKey, validateUniqueField } from './select-builder';
@@ -293,9 +294,12 @@ export function buildDeleteUniqueQuery(model: ModelMetadata, id: string, returnB
   const recordId = transformOrValidateRecordId(model.tableName, id);
   const returnClause = returnBefore ? 'RETURN BEFORE' : 'RETURN NONE';
 
+  // Bound, never interpolated: the id part is caller text and the driver's escaper leaves a backslash alone
+  const idBinding = createCompileContext('rid_').bind('record', 'id', recordId, 'string');
+
   return {
-    text: `DELETE ${recordId.toString()} ${returnClause}`,
-    vars: {},
+    text: `DELETE ${idBinding.placeholder} ${returnClause}`,
+    vars: idBinding.vars,
   };
 }
 
