@@ -1,5 +1,16 @@
 import { validateDuplicateNames, validateExtends, validateSchema } from '../../../src/cli/validators';
-import type { ASTDecorator, ASTField, ASTModel, ASTObject, SchemaAST, SchemaDecorator } from '../../../src/types';
+import type {
+  ASTDecorator,
+  ASTEnum,
+  ASTField,
+  ASTLiteral,
+  ASTModel,
+  ASTObject,
+  ASTTuple,
+  ASTTupleElement,
+  SchemaAST,
+  SchemaDecorator,
+} from '../../../src/types';
 
 /**
  * Every error `cerial generate` can raise for a parsed schema: the name and extends checks it runs on the
@@ -95,5 +106,58 @@ export function createDecorator(type: SchemaDecorator, value?: unknown): ASTDeco
       start: { line: 1, column: 1, offset: 0 },
       end: { line: 1, column: 1, offset: 0 },
     },
+  };
+}
+
+// Builders shared by the extends-validator specs
+
+export function field(overrides: Partial<ASTField> = {}): ASTField {
+  return {
+    name: 'testField',
+    type: 'string',
+    isOptional: false,
+    decorators: [],
+    range,
+    ...overrides,
+  };
+}
+
+export function _dec(type: SchemaDecorator, value?: unknown): ASTDecorator {
+  return { type, value, range };
+}
+
+export function model(overrides: Partial<ASTModel> = {}): ASTModel {
+  return { name: 'TestModel', fields: [], range, ...overrides };
+}
+
+export function obj(overrides: Partial<ASTObject> = {}): ASTObject {
+  return { name: 'TestObject', fields: [], range, ...overrides };
+}
+
+export function tuple(overrides: Partial<ASTTuple> = {}): ASTTuple {
+  return { name: 'TestTuple', elements: [], range, ...overrides };
+}
+
+export function literal(overrides: Partial<ASTLiteral> = {}): ASTLiteral {
+  return { name: 'TestLiteral', variants: [], range, ...overrides };
+}
+
+export function enumNode(overrides: Partial<ASTEnum> = {}): ASTEnum {
+  return { name: 'TestEnum', values: [], range, ...overrides };
+}
+
+export function tupleElement(overrides: Partial<ASTTupleElement> = {}): ASTTupleElement {
+  return { type: 'string', isOptional: false, ...overrides };
+}
+
+export function ast(overrides: Partial<SchemaAST> = {}): SchemaAST {
+  return {
+    models: [],
+    objects: [],
+    tuples: [],
+    literals: [],
+    enums: [],
+    source: '',
+    ...overrides,
   };
 }
