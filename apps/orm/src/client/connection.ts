@@ -329,7 +329,11 @@ export class ConnectionManager<R extends ModelRegistry = ModelRegistry> {
     return this.connections.get(name);
   }
 
-  /** Get the primary Surreal instance (HTTP or WS). Falls back to WS after closeHttp(). */
+  /**
+   * The primary Surreal instance: the HTTP socket when the URL is `http(s)://`, the single socket
+   * for a `ws(s)://` URL. After `closeHttp()` it falls back to the WS socket. It is not the socket
+   * the model proxy queries on in HTTP mode; use `getDdlSurreal()` or `getQuerySurreal()` for that.
+   */
   getSurreal(name: string = DEFAULT_CONNECTION_NAME): Surreal | undefined {
     const connection = this.connections.get(name);
     if (!connection) return undefined;
@@ -338,12 +342,32 @@ export class ConnectionManager<R extends ModelRegistry = ModelRegistry> {
     return connection.surreal;
   }
 
-  /** Get the WS Surreal instance for transactions. Always returns the WS connection. */
-  getTransactionSurreal(name: string = DEFAULT_CONNECTION_NAME): Surreal | undefined {
+  /**
+   * The socket the model proxy queries on: the derived WS socket in HTTP mode, the single socket
+   * in WS mode. It never changes with `closeHttp()` / `reopenHttp()`. A migration applied on one
+   * session while the queries that depend on it run on another is an ordering callers cannot
+   * reason about, so DDL and DML share this socket.
+   */
+  private getProxySurreal(name: string): Surreal | undefined {
     const connection = this.connections.get(name);
     if (!connection) return undefined;
 
     return connection.wsSurreal ?? connection.surreal;
+  }
+
+  /** The socket migrations run on. Same instance as the model proxy and `getQuerySurreal()`. */
+  getDdlSurreal(name: string = DEFAULT_CONNECTION_NAME): Surreal | undefined {
+    return this.getProxySurreal(name);
+  }
+
+  /** The socket raw queries run on. Same instance as the model proxy and `getDdlSurreal()`. */
+  getQuerySurreal(name: string = DEFAULT_CONNECTION_NAME): Surreal | undefined {
+    return this.getProxySurreal(name);
+  }
+
+  /** The WS socket for transactions: the derived WS socket in HTTP mode, the single socket in WS mode. */
+  getTransactionSurreal(name: string = DEFAULT_CONNECTION_NAME): Surreal | undefined {
+    return this.getProxySurreal(name);
   }
 
   /** Close the HTTP connection, falling back to WS for all operations. No-op if WS-only. */

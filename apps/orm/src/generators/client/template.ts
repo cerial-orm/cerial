@@ -303,7 +303,7 @@ ${generateResolveConnection(connectConfigName)}
     // Outside the try so a failure can name the DDL it came from.
     const query = getModelMigrationQuery(modelName);
     try {
-      const surreal = this.connectionManager.getSurreal();
+      const surreal = this.connectionManager.getDdlSurreal();
       if (!surreal) throw new CerialNotConnectedError('No active connection.', { model: modelName, operation: 'migrate' });
 
       await surreal.query(query);
@@ -356,15 +356,17 @@ ${generateResolveConnection(connectConfigName)}
   }
 
   /**
-   * Get the raw Cerial instance for advanced operations
+   * Get the primary Surreal instance: the HTTP socket for an http(s) URL (WS after closeHttp()),
+   * the single socket for a ws(s) URL. In HTTP mode it is not the socket models, migrations,
+   * raw queries and transactions run on; those share the WebSocket.
    */
   getSurreal() {
     return this.connectionManager.getSurreal();
   }
 
   /**
-   * Get the WebSocket Surreal instance for transactions.
-   * Always returns the WS connection regardless of primary URL scheme.
+   * Get the WebSocket Surreal instance for transactions. It is the same socket models,
+   * migrations and raw queries run on, and it does not change with closeHttp().
    */
   getTransactionSurreal() {
     return this.connectionManager.getTransactionSurreal();
@@ -393,7 +395,7 @@ ${generateResolveConnection(connectConfigName)}
     */
   async query<T = unknown>(query: string, vars?: Record<string, unknown>): Promise<T[]> {
     await this.ensureMigrated();
-    const surreal = this.getSurreal();
+    const surreal = this.connectionManager.getQuerySurreal();
     if (!surreal) throw new CerialNotConnectedError('Not connected.', { operation: 'query' });
     const result = await surreal.query<T[]>(query, vars);
     return result.flat() as T[];

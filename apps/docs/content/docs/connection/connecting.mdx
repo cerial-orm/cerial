@@ -258,4 +258,6 @@ await client.connect(config);
 [Transactions](/transactions) require a WebSocket connection to SurrealDB. If you connect via HTTP, Cerial automatically creates a secondary WebSocket connection for transaction support. No extra configuration needed.
 
 You can control the HTTP connection independently: `closeHttp()` drops the HTTP connection, `reopenHttp()` restores it. The WebSocket connection is always kept alive.
+
+Model queries, migrations, raw `query()` calls and transactions all run on that WebSocket connection, so closing or reopening the HTTP connection never changes where they run. `getSurreal()` returns the HTTP connection while it is open and the WebSocket connection after `closeHttp()`.
 :::
