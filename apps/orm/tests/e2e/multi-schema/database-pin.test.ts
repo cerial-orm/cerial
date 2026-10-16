@@ -14,14 +14,23 @@ const WEST_DB = 'ms_rt_pin_west';
 
 const isConnected = (client: RuntimeClient): boolean => client.getSurreal() !== undefined;
 
-/** The error a client raises when it is connected to a database it was not generated for. */
+/**
+ * The error a client raises when it is connected to a database it was not generated for.
+ *
+ * A generated client resolves its own copy of the error classes, so the thrown error is not an
+ * instance of the class this file imports even though it is the same class by identity of name and
+ * code. The shape is asserted instead, which is what a caller can rely on across that boundary.
+ */
 async function refusalOf(client: RuntimeClient, database: string | undefined): Promise<CerialValidationError> {
   try {
     await client.connect(database === undefined ? { url: connectionFor('x').url } : connectionFor(database));
   } catch (error) {
-    expect(error).toBeInstanceOf(CerialValidationError);
+    const refusal = error as CerialValidationError & { name: string; code: string };
+    expect(refusal.name).toBe(CerialValidationError.name);
+    expect(refusal.code).toBe('C3000');
+    expect(refusal.operation).toBe('connect');
 
-    return error as CerialValidationError;
+    return refusal;
   }
   throw new Error('Expected connect() to be refused');
 }
