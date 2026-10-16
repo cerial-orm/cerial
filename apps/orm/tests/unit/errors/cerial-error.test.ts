@@ -95,7 +95,8 @@ describe.each(ERROR_CLASSES)('$name', ({ name, ctor, code }) => {
     const error = new ctor('msg');
 
     for (const sibling of ERROR_CLASSES) {
-      if (sibling.ctor === ctor) continue;
+      // A subclass is also an instance of the class it extends, which is not a sibling.
+      if (sibling.ctor === ctor || ctor.prototype instanceof sibling.ctor) continue;
       expect(error instanceof sibling.ctor).toBe(false);
     }
   });

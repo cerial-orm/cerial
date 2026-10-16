@@ -4,12 +4,19 @@ import {
   ConnectionUnavailableError,
   HttpConnectionError,
   InternalError,
+  NotAllowedError,
   ReconnectExhaustionError,
   ReconnectIterationError,
   SurrealError,
   UnexpectedConnectionError,
 } from 'surrealdb';
-import { CerialConnectionError, CerialDatabaseError, CerialError, CerialUniqueConstraintError } from '../../errors';
+import {
+  CerialConnectionError,
+  CerialDatabaseError,
+  CerialError,
+  CerialSessionLostError,
+  CerialUniqueConstraintError,
+} from '../../errors';
 import type { CompiledQuery } from '../../query/compile/types';
 
 /**
@@ -31,6 +38,19 @@ const CONNECTION_LOSS = [
 ];
 
 /**
+ * A socket whose session the server dropped answers every query as the anonymous actor. The refusal
+ * carries that actor as structured detail (`Auth` > `NotAllowed` > `actor: 'anonymous'`), so no message
+ * text is read. A genuine refusal names the authenticated actor that was denied, never `anonymous`.
+ */
+function isLostSession(error: unknown): boolean {
+  if (!(error instanceof NotAllowedError)) return false;
+  const auth = error.details;
+  if (auth?.kind !== 'Auth' || auth.details.kind !== 'NotAllowed') return false;
+
+  return auth.details.details.actor === 'anonymous';
+}
+
+/**
  * The one place a driver error becomes a Cerial error. An error Cerial already classified passes
  * through untouched so its specific class is not buried, and so does anything that is not a driver
  * error (a bug should surface as itself). Classifying by database message belongs here and only here.
@@ -46,6 +66,13 @@ export function wrapDatabaseError(
 
   const call = model ? `${operation} on ${model}` : operation;
   const context = { model, operation, cause: error, statement };
+
+  if (isLostSession(error)) {
+    return new CerialSessionLostError(
+      `${call} failed, the database session was lost and the connection is being re-established`,
+      context,
+    );
+  }
 
   if (CONNECTION_LOSS.some((type) => error instanceof type)) {
     return new CerialConnectionError(

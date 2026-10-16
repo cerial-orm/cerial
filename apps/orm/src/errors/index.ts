@@ -2,7 +2,7 @@ export type { CerialErrorOptions } from './cerial-error';
 export { CerialError } from './cerial-error';
 export type { CerialErrorCode } from './codes';
 export { CERIAL_ERROR_CODES } from './codes';
-export { CerialConnectionError, CerialNotConnectedError } from './connection-errors';
+export { CerialConnectionError, CerialNotConnectedError, CerialSessionLostError } from './connection-errors';
 export type { CerialStatement, CerialUniqueConflict, CerialUniqueConstraintErrorOptions } from './database-errors';
 export { CerialDatabaseError, CerialMigrationError, CerialUniqueConstraintError } from './database-errors';
 export { CerialConfigNotFolderConfigError, CerialGenerationError } from './generation-errors';

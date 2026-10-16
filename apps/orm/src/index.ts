@@ -181,6 +181,7 @@ export {
   CerialGenerationError,
   CerialMigrationError,
   CerialNotConnectedError,
+  CerialSessionLostError,
   CerialTransactionError,
   CerialUniqueConstraintError,
   CerialUnknownFieldError,

@@ -5,6 +5,7 @@ import {
   CerialGenerationError,
   CerialMigrationError,
   CerialNotConnectedError,
+  CerialSessionLostError,
   CerialTransactionError,
   CerialUniqueConstraintError,
   CerialUnknownFieldError,
@@ -22,6 +23,7 @@ export interface ErrorClassCase {
 export const ERROR_CLASSES: ErrorClassCase[] = [
   { name: 'CerialNotConnectedError', ctor: CerialNotConnectedError, code: 'C1000' },
   { name: 'CerialConnectionError', ctor: CerialConnectionError, code: 'C1001' },
+  { name: 'CerialSessionLostError', ctor: CerialSessionLostError, code: 'C1002' },
   { name: 'CerialUnknownModelError', ctor: CerialUnknownModelError, code: 'C2000' },
   { name: 'CerialUnknownFieldError', ctor: CerialUnknownFieldError, code: 'C2001' },
   { name: 'CerialMigrationError', ctor: CerialMigrationError, code: 'C2002' },
