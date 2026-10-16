@@ -150,27 +150,8 @@ export type {
   SchemaValidationResult,
   WriteOptions,
 } from './cli';
-// Export CLI (explicit to avoid conflicts)
-export {
-  defineConfig,
-  ensureDir,
-  ensureDirs,
-  ensureParentDir,
-  findSchemasInDir,
-  generate,
-  getDefaultOptions,
-  Logger,
-  logger,
-  parseArgs,
-  printHelp,
-  resolveSchemas,
-  resolveSinglePath,
-  validateFieldNames,
-  validateModelNames,
-  validateOptions,
-  writeFile,
-  writeFiles,
-} from './cli';
+// Only `defineConfig` stays on the runtime entry; the rest of the CLI is on `cerial/cli`, so the entry never reaches the formatter
+export { defineConfig } from './cli/config/define-config';
 // Export client (explicit; the model/proxy factories stay internal)
 export type {
   BeforeQueryCallback,
@@ -206,23 +187,6 @@ export {
   CerialUnknownModelError,
   CerialValidationError,
 } from './errors';
-// Export generators (explicit; the per-statement emitters live on `cerial/generators`)
-export {
-  convertField,
-  convertFields,
-  convertModel,
-  convertModels,
-  createRegistry,
-  formatCode,
-  writeClient,
-  writeClientIndexFile,
-  writeClientMain,
-  writeInternalIndex,
-  writeMigrationFile,
-  writeModelRegistry,
-  writeModelsIndex,
-  writeModelTypes,
-} from './generators';
 export type { FindSchemasOptions, LexerResult } from './parser';
 // Export parser (explicit to avoid conflicts)
 export {
