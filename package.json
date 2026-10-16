@@ -41,7 +41,7 @@
   "devDependencies": {
     "@types/bun": "^1.3.9",
     "cerial": "workspace:*",
-    "oxfmt": "0.71.0",
+    "oxfmt": "0.73.0",
     "oxlint": "^1.86.0"
   }
 }

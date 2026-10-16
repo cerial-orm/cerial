@@ -137,7 +137,7 @@
     "citty": "^0.2.1",
     "fast-glob": "^3.3.3",
     "ignore": "^7.0.5",
-    "oxfmt": "0.71.0",
+    "oxfmt": "0.73.0",
     "surrealdb": "2.0.9",
     "ts-toolbelt": "^9.6.0",
     "valibot": "^1.2.0"
