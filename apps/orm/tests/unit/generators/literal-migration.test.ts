@@ -15,43 +15,12 @@ import {
 import type {
   FieldMetadata,
   LiteralFieldMetadata,
-  ModelMetadata,
   ObjectFieldMetadata,
   ObjectRegistry,
   ResolvedLiteralVariant,
-  TupleElementMetadata,
-  TupleFieldMetadata,
   TupleRegistry,
 } from '../../../src/types';
-
-// Helper to create a minimal FieldMetadata
-function field(overrides: Partial<FieldMetadata>): FieldMetadata {
-  return {
-    name: 'test',
-    type: 'string',
-    isId: false,
-    isUnique: false,
-    isRequired: true,
-    ...overrides,
-  };
-}
-
-function elem(
-  overrides: Partial<TupleElementMetadata> & { index: number; type: TupleElementMetadata['type'] },
-): TupleElementMetadata {
-  return {
-    isOptional: false,
-    ...overrides,
-  };
-}
-
-function ti(tupleName: string, elements: TupleElementMetadata[]): TupleFieldMetadata {
-  return { tupleName, elements };
-}
-
-function mdl(name: string, tableName: string, fields: FieldMetadata[]): ModelMetadata {
-  return { name, tableName, fields };
-}
+import { elem, field, mdl, ti } from './helpers';
 
 function objInfo(objectName: string, fields: FieldMetadata[]): ObjectFieldMetadata {
   return { objectName, fields };

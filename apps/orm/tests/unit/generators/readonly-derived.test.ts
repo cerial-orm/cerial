@@ -12,17 +12,7 @@ import {
   generateUpdateType,
 } from '../../../src/generators/types/derived-generator';
 import type { FieldMetadata, ModelMetadata } from '../../../src/types';
-
-function field(overrides: Partial<FieldMetadata>): FieldMetadata {
-  return {
-    name: 'test',
-    type: 'string',
-    isId: false,
-    isUnique: false,
-    isRequired: true,
-    ...overrides,
-  };
-}
+import { field } from './helpers';
 
 function model(name: string, fields: FieldMetadata[]): ModelMetadata {
   return { name, tableName: name.toLowerCase(), fields };

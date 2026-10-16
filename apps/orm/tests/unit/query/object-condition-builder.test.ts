@@ -13,18 +13,7 @@ import {
   buildObjectCondition,
 } from '../../../src/query/filters/condition-builder';
 import type { FieldMetadata, ModelMetadata, ObjectFieldMetadata } from '../../../src/types';
-
-// Helper to create a minimal FieldMetadata
-function field(overrides: Partial<FieldMetadata>): FieldMetadata {
-  return {
-    name: 'test',
-    type: 'string',
-    isId: false,
-    isUnique: false,
-    isRequired: true,
-    ...overrides,
-  };
-}
+import { field } from './helpers';
 
 // Address object info for tests
 const addressFields: FieldMetadata[] = [

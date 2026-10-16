@@ -16,10 +16,7 @@ import {
 } from '../../../src/query/transformers/data-transformer';
 import type { FieldMetadata, ModelMetadata } from '../../../src/types';
 import { CerialId } from '../../../src/utils/cerial-id';
-
-function createModel(fields: FieldMetadata[], tableName = 'test'): ModelMetadata {
-  return { name: tableName.charAt(0).toUpperCase() + tableName.slice(1), tableName, fields } as ModelMetadata;
-}
+import { createModel } from './helpers';
 
 function createField(overrides: Partial<FieldMetadata> & { name: string; type: string }): FieldMetadata {
   return { isId: false, isUnique: false, isRequired: false, ...overrides } as FieldMetadata;

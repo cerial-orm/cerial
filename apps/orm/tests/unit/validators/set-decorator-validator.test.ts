@@ -6,57 +6,11 @@
 
 import { describe, expect, test } from 'bun:test';
 import { validateSetDecorator } from '../../../src/cli/validators/schema-validator';
-import type { ASTDecorator, ASTField, ASTModel, ASTObject, SchemaAST } from '../../../src/types';
-
-const range = {
-  start: { line: 1, column: 1, offset: 0 },
-  end: { line: 1, column: 1, offset: 0 },
-};
+import type { ASTDecorator } from '../../../src/types';
+import { createAST, createField, createModel, createObject, distinctDecorator, range, sortDecorator } from './helpers';
 
 function setDecorator(): ASTDecorator {
   return { type: 'set', range };
-}
-
-function distinctDecorator(): ASTDecorator {
-  return { type: 'distinct', range };
-}
-
-function sortDecorator(): ASTDecorator {
-  return { type: 'sort', range };
-}
-
-function createField(overrides: Partial<ASTField> = {}): ASTField {
-  return {
-    name: 'testField',
-    type: 'string',
-    isOptional: false,
-    isArray: false,
-    decorators: [],
-    range,
-    ...overrides,
-  };
-}
-
-function createModel(overrides: Partial<ASTModel> = {}): ASTModel {
-  return {
-    name: 'TestModel',
-    fields: [],
-    range,
-    ...overrides,
-  };
-}
-
-function createObject(overrides: Partial<ASTObject> = {}): ASTObject {
-  return {
-    name: 'TestObject',
-    fields: [],
-    range,
-    ...overrides,
-  };
-}
-
-function createAST(models: ASTModel[] = [], objects: ASTObject[] = []): SchemaAST {
-  return { source: '', models, objects, tuples: [], literals: [], enums: [] };
 }
 
 describe('Set Decorator Validator', () => {

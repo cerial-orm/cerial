@@ -14,27 +14,8 @@ import {
   generateObjectInterfaces,
   objectHasDefaultOrTimestamp,
 } from '../../../src/generators/types/interface-generator';
-import type { FieldMetadata, ModelMetadata, ObjectMetadata, ObjectRegistry } from '../../../src/types';
-
-// Helper to create a minimal FieldMetadata
-function field(overrides: Partial<FieldMetadata>): FieldMetadata {
-  return {
-    name: 'test',
-    type: 'string',
-    isId: false,
-    isUnique: false,
-    isRequired: true,
-    ...overrides,
-  };
-}
-
-function obj(name: string, fields: FieldMetadata[]): ObjectMetadata {
-  return { name, fields };
-}
-
-function model(name: string, tableName: string, fields: FieldMetadata[]): ModelMetadata {
-  return { name, tableName, fields };
-}
+import type { ObjectRegistry } from '../../../src/types';
+import { field, model, obj } from './helpers';
 
 describe('Object Interface Generator', () => {
   describe('generateObjectInterface', () => {

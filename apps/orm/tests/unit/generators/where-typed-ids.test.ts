@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { generateFieldWhereType, generateWhereInterface } from '../../../src/generators/types/where-generator';
-import type { FieldMetadata, ModelMetadata } from '../../../src/types';
+import type { FieldMetadata } from '../../../src/types';
+import { model } from './helpers';
 
 function field(overrides: Partial<FieldMetadata>): FieldMetadata {
   return {
@@ -11,10 +12,6 @@ function field(overrides: Partial<FieldMetadata>): FieldMetadata {
     isRequired: true,
     ...overrides,
   };
-}
-
-function model(name: string, tableName: string, fields: FieldMetadata[]): ModelMetadata {
-  return { name, tableName, fields };
 }
 
 describe('Where Generator - Typed Record IDs', () => {

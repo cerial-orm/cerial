@@ -15,27 +15,13 @@ import {
   mergeUnsetIntoData,
 } from '../../../src/query/builders/update-builder';
 import { buildUpsertQuery } from '../../../src/query/builders/upsert-builder';
-import type { FieldMetadata, ModelMetadata, ObjectFieldMetadata, TupleFieldMetadata } from '../../../src/types';
+import type { ObjectFieldMetadata, TupleFieldMetadata } from '../../../src/types';
 import { isNone, NONE } from '../../../src/utils/none';
+import { field, model } from './helpers';
 
 // ============================================================================
 // Helper: construct metadata manually (astToRegistry doesn't populate objectInfo/tupleInfo)
 // ============================================================================
-
-function field(overrides: Partial<FieldMetadata>): FieldMetadata {
-  return {
-    name: 'test',
-    type: 'string',
-    isId: false,
-    isUnique: false,
-    isRequired: true,
-    ...overrides,
-  };
-}
-
-function model(name: string, fields: FieldMetadata[]): ModelMetadata {
-  return { name, tableName: name.toLowerCase(), fields };
-}
 
 // ============================================================================
 // Test Schemas (for flat-field tests via parse)

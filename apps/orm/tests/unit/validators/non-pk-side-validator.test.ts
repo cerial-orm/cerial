@@ -9,36 +9,11 @@
 
 import { describe, expect, test } from 'bun:test';
 import { validateNonPKSide } from '../../../src/cli/validators/relation-validator';
-import type { ASTDecorator, ASTField, ASTModel, SchemaAST, SchemaDecorator } from '../../../src/types';
-
-const range = {
-  start: { line: 1, column: 1, offset: 0 },
-  end: { line: 1, column: 1, offset: 0 },
-};
+import type { ASTDecorator, ASTModel, SchemaAST, SchemaDecorator } from '../../../src/types';
+import { createField, createModel, range } from './helpers';
 
 function createDecorator(type: SchemaDecorator, value?: unknown): ASTDecorator {
   return { type, value, range };
-}
-
-function createField(overrides: Partial<ASTField> = {}): ASTField {
-  return {
-    name: 'testField',
-    type: 'string',
-    isOptional: false,
-    isArray: false,
-    decorators: [],
-    range,
-    ...overrides,
-  };
-}
-
-function createModel(overrides: Partial<ASTModel> = {}): ASTModel {
-  return {
-    name: 'TestModel',
-    fields: [],
-    range,
-    ...overrides,
-  };
 }
 
 function createAST(models: ASTModel[] = []): SchemaAST {

@@ -11,43 +11,8 @@ import {
   generateTupleFieldDefines,
 } from '../../../src/generators/migrations/define-generator';
 import { generateTupleSurrealTypeLiteral, generateTypeClause } from '../../../src/generators/migrations/type-mapper';
-import type {
-  FieldMetadata,
-  ModelMetadata,
-  ObjectRegistry,
-  TupleElementMetadata,
-  TupleFieldMetadata,
-  TupleRegistry,
-} from '../../../src/types';
-
-// Helper to create a minimal FieldMetadata
-function field(overrides: Partial<FieldMetadata>): FieldMetadata {
-  return {
-    name: 'test',
-    type: 'string',
-    isId: false,
-    isUnique: false,
-    isRequired: true,
-    ...overrides,
-  };
-}
-
-function elem(
-  overrides: Partial<TupleElementMetadata> & { index: number; type: TupleElementMetadata['type'] },
-): TupleElementMetadata {
-  return {
-    isOptional: false,
-    ...overrides,
-  };
-}
-
-function ti(tupleName: string, elements: TupleElementMetadata[]): TupleFieldMetadata {
-  return { tupleName, elements };
-}
-
-function mdl(name: string, tableName: string, fields: FieldMetadata[]): ModelMetadata {
-  return { name, tableName, fields };
-}
+import type { ObjectRegistry, TupleRegistry } from '../../../src/types';
+import { elem, field, mdl, ti } from './helpers';
 
 const emptyTupleRegistry: TupleRegistry = {};
 const emptyObjRegistry: ObjectRegistry = {};

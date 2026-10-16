@@ -1,8 +1,9 @@
 import { describe, expect, test } from 'bun:test';
 import { RecordId, Uuid } from 'surrealdb';
 import { mapFieldValue, mapRecord, transformRecordIdToCerialId } from '../../../src/query/mappers/result-mapper';
-import type { FieldMetadata, ModelMetadata } from '../../../src/types';
+import type { FieldMetadata } from '../../../src/types';
 import { CerialId } from '../../../src/utils/cerial-id';
+import { createModel } from './helpers';
 
 function createField(overrides: Partial<FieldMetadata> & { name: string; type: FieldMetadata['type'] }): FieldMetadata {
   return {
@@ -11,10 +12,6 @@ function createField(overrides: Partial<FieldMetadata> & { name: string; type: F
     isRequired: true,
     ...overrides,
   };
-}
-
-function createModel(fields: FieldMetadata[], tableName = 'test'): ModelMetadata {
-  return { name: tableName.charAt(0).toUpperCase() + tableName.slice(1), tableName, fields } as ModelMetadata;
 }
 
 describe('transformRecordIdToCerialId', () => {

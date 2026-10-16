@@ -30,13 +30,9 @@ import type {
   SchemaAST,
   SchemaDecorator,
 } from '../../../src/types';
+import { range } from './helpers';
 
 // ── Helpers ──────────────────────────────────────────────────────────────
-
-const range = {
-  start: { line: 1, column: 1, offset: 0 },
-  end: { line: 1, column: 1, offset: 0 },
-};
 
 function field(overrides: Partial<ASTField> = {}): ASTField {
   return {

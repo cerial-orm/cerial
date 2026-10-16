@@ -15,21 +15,7 @@ import {
   tupleHasObjectElements,
   tupleHasTupleElements,
 } from '../../../src/generators/types/tuples/interface-generator';
-import type { TupleElementMetadata, TupleMetadata } from '../../../src/types';
-
-// Helper to create a minimal TupleElementMetadata
-function elem(
-  overrides: Partial<TupleElementMetadata> & { index: number; type: TupleElementMetadata['type'] },
-): TupleElementMetadata {
-  return {
-    isOptional: false,
-    ...overrides,
-  };
-}
-
-function tuple(name: string, elements: TupleElementMetadata[]): TupleMetadata {
-  return { name, elements };
-}
+import { elem, tuple } from './helpers';
 
 describe('Tuple Interface Generator', () => {
   describe('generateTupleOutputType', () => {

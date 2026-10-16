@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'bun:test';
 import { inferFKTypes } from '../../../src/generators/metadata/fk-type-inference';
 import type { FieldMetadata, ModelMetadata, ModelRegistry } from '../../../src/types/metadata.types';
+import { model } from './helpers';
 
 function field(overrides: Partial<FieldMetadata> & { name: string; type: FieldMetadata['type'] }): FieldMetadata {
   return {
@@ -11,10 +12,6 @@ function field(overrides: Partial<FieldMetadata> & { name: string; type: FieldMe
     timestampDecorator: undefined,
     ...overrides,
   };
-}
-
-function model(name: string, tableName: string, fields: FieldMetadata[]): ModelMetadata {
-  return { name, tableName, fields };
 }
 
 function registry(models: ModelMetadata[]): ModelRegistry {

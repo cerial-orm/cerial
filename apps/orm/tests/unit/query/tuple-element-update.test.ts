@@ -9,31 +9,8 @@
 
 import { describe, expect, test } from 'bun:test';
 import { buildUpdateManyQuery } from '../../../src/query/builders/update-builder';
-import type { FieldMetadata, ModelMetadata, TupleElementMetadata, TupleFieldMetadata } from '../../../src/types';
-
-function field(overrides: Partial<FieldMetadata>): FieldMetadata {
-  return {
-    name: 'test',
-    type: 'string',
-    isId: false,
-    isUnique: false,
-    isRequired: true,
-    ...overrides,
-  };
-}
-
-function elem(
-  overrides: Partial<TupleElementMetadata> & { index: number; type: TupleElementMetadata['type'] },
-): TupleElementMetadata {
-  return {
-    isOptional: false,
-    ...overrides,
-  };
-}
-
-function tupleInfo(tupleName: string, elements: TupleElementMetadata[]): TupleFieldMetadata {
-  return { tupleName, elements };
-}
+import type { FieldMetadata, ModelMetadata } from '../../../src/types';
+import { elem, field, tupleInfo } from './helpers';
 
 // Coordinate: [float, float] with named elements
 const coordInfo = tupleInfo('Coordinate', [

@@ -16,27 +16,7 @@ import {
   generateUpdateType,
 } from '../../../src/generators/types/derived-generator';
 import { buildOrderBy, buildSelectFields } from '../../../src/query/builders/select-builder';
-import type { FieldMetadata, ModelMetadata, ObjectMetadata } from '../../../src/types';
-
-// Helper to create a minimal FieldMetadata
-function field(overrides: Partial<FieldMetadata>): FieldMetadata {
-  return {
-    name: 'test',
-    type: 'string',
-    isId: false,
-    isUnique: false,
-    isRequired: true,
-    ...overrides,
-  };
-}
-
-function obj(name: string, fields: FieldMetadata[]): ObjectMetadata {
-  return { name, fields };
-}
-
-function model(name: string, tableName: string, fields: FieldMetadata[]): ModelMetadata {
-  return { name, tableName, fields };
-}
+import { field, model, obj } from './helpers';
 
 describe('Object Select Type Generator', () => {
   describe('generateObjectSelectType', () => {

@@ -7,20 +7,8 @@
 
 import { describe, expect, test } from 'bun:test';
 import { generateTupleUpdateType } from '../../../src/generators/types/tuples/update-generator';
-import type { FieldMetadata, TupleElementMetadata, TupleMetadata } from '../../../src/types';
-
-function elem(
-  overrides: Partial<TupleElementMetadata> & { index: number; type: TupleElementMetadata['type'] },
-): TupleElementMetadata {
-  return {
-    isOptional: false,
-    ...overrides,
-  };
-}
-
-function tuple(name: string, elements: TupleElementMetadata[]): TupleMetadata {
-  return { name, elements };
-}
+import type { FieldMetadata } from '../../../src/types';
+import { elem, tuple } from './helpers';
 
 const addrFields: FieldMetadata[] = [
   { name: 'street', type: 'string', isId: false, isUnique: false, isRequired: true },

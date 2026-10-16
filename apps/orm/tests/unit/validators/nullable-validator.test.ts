@@ -12,50 +12,8 @@ import {
   validateNullableOnTupleElements,
   validateTupleElementDecorators,
 } from '../../../src/cli/validators/nullable-validator';
-import type {
-  ASTDecorator,
-  ASTField,
-  ASTModel,
-  ASTObject,
-  ASTTuple,
-  ASTTupleElement,
-  SchemaAST,
-} from '../../../src/types';
-
-const range = {
-  start: { line: 1, column: 1, offset: 0 },
-  end: { line: 1, column: 1, offset: 0 },
-};
-
-function createField(overrides: Partial<ASTField> = {}): ASTField {
-  return {
-    name: 'testField',
-    type: 'string',
-    isOptional: false,
-    isArray: false,
-    decorators: [],
-    range,
-    ...overrides,
-  };
-}
-
-function createModel(overrides: Partial<ASTModel> = {}): ASTModel {
-  return {
-    name: 'TestModel',
-    fields: [],
-    range,
-    ...overrides,
-  };
-}
-
-function createObject(overrides: Partial<ASTObject> = {}): ASTObject {
-  return {
-    name: 'TestObject',
-    fields: [],
-    range,
-    ...overrides,
-  };
-}
+import type { ASTDecorator, ASTModel, ASTObject, ASTTuple, ASTTupleElement, SchemaAST } from '../../../src/types';
+import { createField, createModel, createObject, range } from './helpers';
 
 function createTuple(name: string, elements: ASTTupleElement[]): ASTTuple {
   return { name, elements, range };

@@ -7,22 +7,7 @@
 
 import { describe, expect, test } from 'bun:test';
 import { validateDataUnsetOverlap, validateUnset } from '../../../src/query/validators/data-validator';
-import type { FieldMetadata, ModelMetadata } from '../../../src/types';
-
-function field(overrides: Partial<FieldMetadata>): FieldMetadata {
-  return {
-    name: 'test',
-    type: 'string',
-    isId: false,
-    isUnique: false,
-    isRequired: true,
-    ...overrides,
-  };
-}
-
-function model(name: string, fields: FieldMetadata[]): ModelMetadata {
-  return { name, tableName: name.toLowerCase(), fields };
-}
+import { field, model } from './helpers';
 
 // ============================================================================
 // validateUnset

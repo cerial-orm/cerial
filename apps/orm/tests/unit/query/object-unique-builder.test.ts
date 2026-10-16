@@ -11,18 +11,7 @@ import {
   validateUniqueField,
 } from '../../../src/query/builders/select-builder';
 import type { FieldMetadata, ModelMetadata } from '../../../src/types';
-
-// Helper to create field metadata
-function field(overrides: Partial<FieldMetadata>): FieldMetadata {
-  return {
-    name: 'test',
-    type: 'string',
-    isId: false,
-    isUnique: false,
-    isRequired: true,
-    ...overrides,
-  };
-}
+import { field } from './helpers';
 
 // Model with object containing @unique field
 const locationFields: FieldMetadata[] = [

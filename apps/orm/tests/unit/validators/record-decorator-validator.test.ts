@@ -7,48 +7,8 @@
 
 import { describe, expect, test } from 'bun:test';
 import { validateRecordDecorators } from '../../../src/cli/validators/relation-validator';
-import type { ASTDecorator, ASTField, ASTModel, SchemaAST, SchemaDecorator } from '../../../src/types';
-
-// Helper to create a minimal ASTField
-function createASTField(overrides: Partial<ASTField> = {}): ASTField {
-  return {
-    name: 'testField',
-    type: 'string',
-    isOptional: false,
-    isArray: false,
-    decorators: [],
-    range: {
-      start: { line: 1, column: 1, offset: 0 },
-      end: { line: 1, column: 1, offset: 0 },
-    },
-    ...overrides,
-  };
-}
-
-// Helper to create a minimal ASTModel
-function createASTModel(overrides: Partial<ASTModel> = {}): ASTModel {
-  return {
-    name: 'TestModel',
-    fields: [],
-    range: {
-      start: { line: 1, column: 1, offset: 0 },
-      end: { line: 1, column: 1, offset: 0 },
-    },
-    ...overrides,
-  };
-}
-
-// Helper to create a decorator
-function createDecorator(type: SchemaDecorator, value?: unknown): ASTDecorator {
-  return {
-    type,
-    value,
-    range: {
-      start: { line: 1, column: 1, offset: 0 },
-      end: { line: 1, column: 1, offset: 0 },
-    },
-  };
-}
+import type { SchemaAST } from '../../../src/types';
+import { createASTField, createASTModel, createDecorator } from './helpers';
 
 describe('validateRecordDecorators', () => {
   test('should pass for Record without relation decorators', () => {

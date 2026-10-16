@@ -5,13 +5,7 @@
 import { describe, expect, it } from 'bun:test';
 import type { AlignedField } from '../../../src/formatter/aligner';
 import { alignFields, calculateColumnWidths } from '../../../src/formatter/aligner';
-import type { FormatConfig } from '../../../src/formatter/types';
-import { FORMAT_DEFAULTS } from '../../../src/formatter/types';
-
-// Helper to create a resolved config with overrides
-function config(overrides?: FormatConfig): Required<FormatConfig> {
-  return { ...FORMAT_DEFAULTS, ...overrides };
-}
+import { config } from './helpers';
 
 // Helper to create an AlignedField
 function field(

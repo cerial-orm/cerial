@@ -3,43 +3,9 @@
  */
 
 import { describe, expect, it } from 'bun:test';
-import { attachComments } from '../../../src/formatter/comment-attacher';
-import {
-  buildTypeWithModifiers,
-  extractDecoratorText,
-  formatDirective,
-  printModel,
-  printObject,
-} from '../../../src/formatter/printer';
-import type { FormatConfig } from '../../../src/formatter/types';
-import { FORMAT_DEFAULTS } from '../../../src/formatter/types';
+import { buildTypeWithModifiers, extractDecoratorText, formatDirective } from '../../../src/formatter/printer';
 import { parse } from '../../../src/parser/parser';
-import { tokenize } from '../../../src/parser/tokenizer';
-
-// Helper to create a resolved config with overrides
-function config(overrides?: FormatConfig): Required<FormatConfig> {
-  return { ...FORMAT_DEFAULTS, ...overrides };
-}
-
-// Helper: parse + tokenize + attach comments + print model
-function formatModel(source: string, overrides?: FormatConfig): string {
-  const tokens = tokenize(source);
-  const { ast } = parse(source);
-  const comments = attachComments(tokens, ast);
-  const model = ast.models[0]!;
-
-  return printModel(model, comments, config(overrides), source);
-}
-
-// Helper: parse + tokenize + attach comments + print object
-function formatObject(source: string, overrides?: FormatConfig): string {
-  const tokens = tokenize(source);
-  const { ast } = parse(source);
-  const comments = attachComments(tokens, ast);
-  const object = ast.objects[0]!;
-
-  return printObject(object, comments, config(overrides), source);
-}
+import { formatModel, formatObject } from './helpers';
 
 describe('printModel', () => {
   describe('basic alignment', () => {

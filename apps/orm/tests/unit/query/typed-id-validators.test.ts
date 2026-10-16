@@ -2,11 +2,12 @@ import { describe, expect, test } from 'bun:test';
 import { RecordId, StringRecordId, Uuid } from 'surrealdb';
 import { validateCreateData, validateUpdateData } from '../../../src/query/validators/data-validator';
 import { validateFieldFilter, validateWhere } from '../../../src/query/validators/where-validator';
-import type { FieldMetadata, ModelMetadata } from '../../../src/types';
+import type { FieldMetadata } from '../../../src/types';
 import { CerialId } from '../../../src/utils/cerial-id';
 import { CerialUuid } from '../../../src/utils/cerial-uuid';
 import { NONE } from '../../../src/utils/none';
 import { validateTypedRecordId } from '../../../src/utils/validation-utils';
+import { model } from './helpers';
 
 function field(overrides: Partial<FieldMetadata> & { name: string }): FieldMetadata {
   return {
@@ -16,10 +17,6 @@ function field(overrides: Partial<FieldMetadata> & { name: string }): FieldMetad
     isRequired: true,
     ...overrides,
   };
-}
-
-function model(name: string, fields: FieldMetadata[]): ModelMetadata {
-  return { name, tableName: name.toLowerCase(), fields };
 }
 
 describe('validateTypedRecordId', () => {

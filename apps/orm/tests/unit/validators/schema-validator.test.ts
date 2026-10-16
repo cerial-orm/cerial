@@ -13,36 +13,8 @@ import {
   validateSchema,
   validateTupleObjectCombination,
 } from '../../../src/cli/validators/schema-validator';
-import type { ASTField, ASTModel, ASTTuple, ASTTupleElement, SchemaAST } from '../../../src/types';
-
-// Helper to create a minimal ASTField
-function createASTField(overrides: Partial<ASTField> = {}): ASTField {
-  return {
-    name: 'testField',
-    type: 'string',
-    isOptional: false,
-    isArray: false,
-    decorators: [],
-    range: {
-      start: { line: 1, column: 1, offset: 0 },
-      end: { line: 1, column: 1, offset: 0 },
-    },
-    ...overrides,
-  };
-}
-
-// Helper to create a minimal ASTModel
-function createASTModel(overrides: Partial<ASTModel> = {}): ASTModel {
-  return {
-    name: 'TestModel',
-    fields: [],
-    range: {
-      start: { line: 1, column: 1, offset: 0 },
-      end: { line: 1, column: 1, offset: 0 },
-    },
-    ...overrides,
-  };
-}
+import type { ASTTuple, ASTTupleElement, SchemaAST } from '../../../src/types';
+import { createASTField, createASTModel } from './helpers';
 
 describe('Schema Validator', () => {
   describe('validateModelNames', () => {

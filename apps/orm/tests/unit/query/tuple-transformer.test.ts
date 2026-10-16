@@ -8,32 +8,8 @@
 import { describe, expect, test } from 'bun:test';
 import { TIME_NOW } from '../../../src/query/compile/inline-expression';
 import { transformData } from '../../../src/query/transformers/data-transformer';
-import type { FieldMetadata, ModelMetadata, TupleElementMetadata, TupleFieldMetadata } from '../../../src/types';
-
-// Helper to create a minimal FieldMetadata
-function field(overrides: Partial<FieldMetadata>): FieldMetadata {
-  return {
-    name: 'test',
-    type: 'string',
-    isId: false,
-    isUnique: false,
-    isRequired: true,
-    ...overrides,
-  };
-}
-
-function elem(
-  overrides: Partial<TupleElementMetadata> & { index: number; type: TupleElementMetadata['type'] },
-): TupleElementMetadata {
-  return {
-    isOptional: false,
-    ...overrides,
-  };
-}
-
-function tupleInfo(tupleName: string, elements: TupleElementMetadata[]): TupleFieldMetadata {
-  return { tupleName, elements };
-}
+import type { FieldMetadata, ModelMetadata } from '../../../src/types';
+import { elem, field, tupleInfo } from './helpers';
 
 // Coordinate tuple
 const coordInfo = tupleInfo('Coordinate', [

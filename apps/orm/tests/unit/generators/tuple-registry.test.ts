@@ -18,13 +18,13 @@ import {
 import type {
   ASTTuple,
   ASTTupleElement,
-  FieldMetadata,
   ModelMetadata,
   ObjectMetadata,
   ObjectRegistry,
   TupleMetadata,
   TupleRegistry,
 } from '../../../src/types';
+import { field } from './helpers';
 
 // Helper to create AST tuple element
 function astElem(overrides: Partial<ASTTupleElement> & { type: ASTTupleElement['type'] }): ASTTupleElement {
@@ -39,17 +39,6 @@ function astTuple(name: string, elements: ASTTupleElement[]): ASTTuple {
     name,
     elements,
     range: { start: { line: 1, column: 0, offset: 0 }, end: { line: 2, column: 0, offset: 0 } },
-  };
-}
-
-function field(overrides: Partial<FieldMetadata>): FieldMetadata {
-  return {
-    name: 'test',
-    type: 'string',
-    isId: false,
-    isUnique: false,
-    isRequired: true,
-    ...overrides,
   };
 }
 

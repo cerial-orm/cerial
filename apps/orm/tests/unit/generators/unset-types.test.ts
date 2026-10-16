@@ -8,24 +8,8 @@ import {
   generateTupleUnsetType,
   tupleHasUnsetableElements,
 } from '../../../src/generators/types/tuples/unset-generator';
-import type {
-  FieldMetadata,
-  ModelMetadata,
-  TupleElementMetadata,
-  TupleFieldMetadata,
-  TupleMetadata,
-} from '../../../src/types';
-
-function field(overrides: Partial<FieldMetadata>): FieldMetadata {
-  return {
-    name: 'test',
-    type: 'string',
-    isId: false,
-    isUnique: false,
-    isRequired: true,
-    ...overrides,
-  };
-}
+import type { FieldMetadata, ModelMetadata, TupleElementMetadata, TupleMetadata } from '../../../src/types';
+import { field, tupleInfo } from './helpers';
 
 function mdl(name: string, fields: FieldMetadata[]): ModelMetadata {
   return { name, tableName: name.toLowerCase(), fields };
@@ -36,10 +20,6 @@ function elem(overrides: Partial<TupleElementMetadata> & { index: number; type: 
     isOptional: false,
     ...overrides,
   } as TupleElementMetadata;
-}
-
-function tupleInfo(tupleName: string, elements: TupleElementMetadata[]): TupleFieldMetadata {
-  return { tupleName, elements };
 }
 
 function tupleMeta(name: string, elements: TupleElementMetadata[]): TupleMetadata {

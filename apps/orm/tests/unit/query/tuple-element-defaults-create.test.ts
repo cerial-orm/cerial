@@ -9,31 +9,8 @@
 import { describe, expect, test } from 'bun:test';
 import { buildCreateQuery } from '../../../src/query/builders/insert-builder';
 import { transformData } from '../../../src/query/transformers/data-transformer';
-import type { FieldMetadata, ModelMetadata, TupleElementMetadata, TupleFieldMetadata } from '../../../src/types';
-
-function field(overrides: Partial<FieldMetadata>): FieldMetadata {
-  return {
-    name: 'test',
-    type: 'string',
-    isId: false,
-    isUnique: false,
-    isRequired: true,
-    ...overrides,
-  };
-}
-
-function elem(
-  overrides: Partial<TupleElementMetadata> & { index: number; type: TupleElementMetadata['type'] },
-): TupleElementMetadata {
-  return {
-    isOptional: false,
-    ...overrides,
-  };
-}
-
-function tupleInfo(tupleName: string, elements: TupleElementMetadata[]): TupleFieldMetadata {
-  return { tupleName, elements };
-}
+import type { ModelMetadata } from '../../../src/types';
+import { elem, field, tupleInfo } from './helpers';
 
 // [label, born @createdAt, touched @updatedAt, hits @defaultAlways(7), tag @default('x')]
 const stampInfo = tupleInfo('Stamped', [
