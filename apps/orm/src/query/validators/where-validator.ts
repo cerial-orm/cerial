@@ -20,6 +20,7 @@ import { CerialUuid } from '../../utils/cerial-uuid';
 import { isObject } from '../../utils/type-utils';
 import { validateTypedRecordId } from '../../utils/validation-utils';
 import { isOperatorObject, resolveTupleElementKey } from '../filters/condition-builder';
+import { splitArrayRelationFilter } from '../filters/nested-condition-builder';
 import { isRegisteredOperator } from '../filters/registry';
 
 function isDirectValue(value: unknown): boolean {
@@ -242,17 +243,37 @@ function validateRelationFilter(
   if (!field.isArray) return validateTargetWhere(filter, target, registry, path, fieldPath);
 
   const errors: CerialValidationIssue[] = [];
+  // Plain target-field keys (shorthand for `some`) and isEmpty are compiled only on the reverse path
+  const isReverse = !!field.relationInfo?.isReverse;
+  const { hasExplicit, plain } = splitArrayRelationFilter(filter);
+  const plainKeys = Object.keys(plain);
+
+  if (isReverse && hasExplicit && plainKeys.length) {
+    errors.push({
+      path,
+      message: `The filter on relation '${fieldPath}' of model ${model.name} mixes the field keys ${plainKeys.map((k) => `'${k}'`).join(', ')} with some, every, none or isEmpty — move the fields into a 'some' body`,
+    });
+  }
+
+  if (isReverse && plainKeys.length) errors.push(...validateTargetWhere(plain, target, registry, path, fieldPath));
 
   for (const [key, value] of Object.entries(filter)) {
     if (value === undefined) continue;
 
-    if (!QUANTIFIERS.includes(key)) {
+    if (key === 'isEmpty' && isReverse) {
+      if (typeof value !== 'boolean')
+        errors.push({
+          path: `${path}.isEmpty`,
+          message: `isEmpty on relation '${fieldPath}' of model ${model.name} must be a boolean`,
+        });
+    } else if (QUANTIFIERS.includes(key)) {
+      if (isObject(value))
+        errors.push(...validateTargetWhere(value, target, registry, `${path}.${key}`, `${fieldPath}.${key}`));
+    } else if (!isReverse || LOGICAL_KEYS.includes(key)) {
       errors.push({
         path: `${path}.${key}`,
-        message: `Unknown key '${key}' in the filter on relation '${fieldPath}' of model ${model.name} — use some, every or none`,
+        message: `Unknown key '${key}' in the filter on relation '${fieldPath}' of model ${model.name} — use ${isReverse ? 'some, every, none or isEmpty' : 'some, every or none'}`,
       });
-    } else if (isObject(value)) {
-      errors.push(...validateTargetWhere(value, target, registry, `${path}.${key}`, `${fieldPath}.${key}`));
     }
   }
 

@@ -308,7 +308,9 @@ export interface AuthorWhere {
         in?: string[];
         notIn?: string[];
       } & {});
-  posts?: { some?: PostRequiredWhere; every?: PostRequiredWhere; none?: PostRequiredWhere };
+  posts?:
+    | { some?: PostRequiredWhere; every?: PostRequiredWhere; none?: PostRequiredWhere; isEmpty?: boolean }
+    | Omit<PostRequiredWhere, 'AND' | 'OR' | 'NOT'>;
   AND?: AuthorWhere[];
   OR?: AuthorWhere[];
   NOT?: AuthorWhere;

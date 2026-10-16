@@ -1285,7 +1285,9 @@ export interface BasicsUserWhere {
         isEmpty?: boolean;
       };
   tags?: { some?: BasicsTagWhere; every?: BasicsTagWhere; none?: BasicsTagWhere };
-  posts?: { some?: BasicsPostWhere; every?: BasicsPostWhere; none?: BasicsPostWhere };
+  posts?:
+    | { some?: BasicsPostWhere; every?: BasicsPostWhere; none?: BasicsPostWhere; isEmpty?: boolean }
+    | Omit<BasicsPostWhere, 'AND' | 'OR' | 'NOT'>;
   AND?: BasicsUserWhere[];
   OR?: BasicsUserWhere[];
   NOT?: BasicsUserWhere;

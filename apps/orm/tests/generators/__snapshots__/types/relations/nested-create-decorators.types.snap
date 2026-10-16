@@ -265,7 +265,9 @@ export interface NcDocWhere {
         isEmpty?: boolean;
       };
   groups?: { some?: NcGroupWhere; every?: NcGroupWhere; none?: NcGroupWhere };
-  singleHolders?: { some?: NcHolderWhere; every?: NcHolderWhere; none?: NcHolderWhere };
+  singleHolders?:
+    | { some?: NcHolderWhere; every?: NcHolderWhere; none?: NcHolderWhere; isEmpty?: boolean }
+    | Omit<NcHolderWhere, 'AND' | 'OR' | 'NOT'>;
   revHolderId?:
     | RecordIdInput<string>
     | ({
@@ -1360,7 +1362,9 @@ export interface NcHolderWhere {
         isNone?: boolean;
       });
   doc?: NcDocWhere;
-  reverseDocs?: { some?: NcDocWhere; every?: NcDocWhere; none?: NcDocWhere };
+  reverseDocs?:
+    | { some?: NcDocWhere; every?: NcDocWhere; none?: NcDocWhere; isEmpty?: boolean }
+    | Omit<NcDocWhere, 'AND' | 'OR' | 'NOT'>;
   AND?: NcHolderWhere[];
   OR?: NcHolderWhere[];
   NOT?: NcHolderWhere;

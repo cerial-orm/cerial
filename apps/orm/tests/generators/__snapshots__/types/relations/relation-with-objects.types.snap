@@ -81,7 +81,9 @@ export interface RelObjCompanyWhere {
       } & {});
   headquarters?: AddressWhere;
   meta?: CompanyMetaWhere;
-  employees?: { some?: RelObjEmployeeWhere; every?: RelObjEmployeeWhere; none?: RelObjEmployeeWhere };
+  employees?:
+    | { some?: RelObjEmployeeWhere; every?: RelObjEmployeeWhere; none?: RelObjEmployeeWhere; isEmpty?: boolean }
+    | Omit<RelObjEmployeeWhere, 'AND' | 'OR' | 'NOT'>;
   AND?: RelObjCompanyWhere[];
   OR?: RelObjCompanyWhere[];
   NOT?: RelObjCompanyWhere;

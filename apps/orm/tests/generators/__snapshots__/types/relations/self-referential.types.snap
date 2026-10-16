@@ -443,7 +443,9 @@ export interface CategoryTreeWhere {
         isNone?: boolean;
       });
   parent?: null | CategoryTreeWhere;
-  children?: { some?: CategoryTreeWhere; every?: CategoryTreeWhere; none?: CategoryTreeWhere };
+  children?:
+    | { some?: CategoryTreeWhere; every?: CategoryTreeWhere; none?: CategoryTreeWhere; isEmpty?: boolean }
+    | Omit<CategoryTreeWhere, 'AND' | 'OR' | 'NOT'>;
   AND?: CategoryTreeWhere[];
   OR?: CategoryTreeWhere[];
   NOT?: CategoryTreeWhere;
@@ -1155,11 +1157,14 @@ export interface EmployeeWithReportsWhere {
         isNone?: boolean;
       });
   manager?: null | EmployeeWithReportsWhere;
-  directReports?: {
-    some?: EmployeeWithReportsWhere;
-    every?: EmployeeWithReportsWhere;
-    none?: EmployeeWithReportsWhere;
-  };
+  directReports?:
+    | {
+        some?: EmployeeWithReportsWhere;
+        every?: EmployeeWithReportsWhere;
+        none?: EmployeeWithReportsWhere;
+        isEmpty?: boolean;
+      }
+    | Omit<EmployeeWithReportsWhere, 'AND' | 'OR' | 'NOT'>;
   AND?: EmployeeWithReportsWhere[];
   OR?: EmployeeWithReportsWhere[];
   NOT?: EmployeeWithReportsWhere;

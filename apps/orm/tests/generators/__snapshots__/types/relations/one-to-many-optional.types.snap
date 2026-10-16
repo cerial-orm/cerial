@@ -415,7 +415,9 @@ export interface PublisherWhere {
         in?: string[];
         notIn?: string[];
       } & {});
-  books?: { some?: BookWhere; every?: BookWhere; none?: BookWhere };
+  books?:
+    | { some?: BookWhere; every?: BookWhere; none?: BookWhere; isEmpty?: boolean }
+    | Omit<BookWhere, 'AND' | 'OR' | 'NOT'>;
   AND?: PublisherWhere[];
   OR?: PublisherWhere[];
   NOT?: PublisherWhere;

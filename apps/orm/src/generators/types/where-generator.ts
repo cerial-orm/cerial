@@ -344,7 +344,14 @@ export function generateWhereInterface(model: ModelMetadata, registry?: ModelReg
         if (field.isArray) {
           // Array relations support some/every/none operators
           if (jsDoc) fields.push(jsDoc);
-          fields.push(`  ${field.name}?: { some?: ${targetWhere}; every?: ${targetWhere}; none?: ${targetWhere}; };`);
+          if (field.relationInfo.isReverse) {
+            // A plain target filter is shorthand for `some`; a bare AND/OR/NOT stays refused, so it is omitted
+            fields.push(
+              `  ${field.name}?: { some?: ${targetWhere}; every?: ${targetWhere}; none?: ${targetWhere}; isEmpty?: boolean; } | Omit<${targetWhere}, 'AND' | 'OR' | 'NOT'>;`,
+            );
+          } else {
+            fields.push(`  ${field.name}?: { some?: ${targetWhere}; every?: ${targetWhere}; none?: ${targetWhere}; };`);
+          }
         } else {
           // Single relations - @nullable ones accept `null` to filter by null underlying record field
           // Look at the storage field for nullable info

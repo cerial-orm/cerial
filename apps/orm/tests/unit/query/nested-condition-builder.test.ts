@@ -115,9 +115,9 @@ describe('buildReverseNestedCondition — quantifiers', () => {
     });
   });
 
-  test('keys that are not quantifiers cannot compile and raise', () => {
-    throwsNoConditions(() => reverse({ name: 'x' }), 'Owner.places', `'name'`);
-    expect(reverse({ name: 'x', some: { name: 'y' } }).text).toBe(`id IN (${SUB} WHERE name = $name_eq_0)`);
+  test('keys that are neither quantifiers nor target fields cannot compile and raise', () => {
+    throwsNoConditions(() => reverse({ nope: 'x' }), 'Owner.places', `'nope'`);
+    expect(() => reverse({ nope: 'x', some: { name: 'y' } })).toThrow("mixes the field keys 'nope'");
   });
 
   test('inner fields missing from the target model and undefined inner values are skipped', () => {

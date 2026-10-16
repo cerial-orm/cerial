@@ -66,7 +66,9 @@ export interface AgentWhere {
         in?: string[];
         notIn?: string[];
       } & {});
-  assignedOrders?: { some?: PurchaseOrderWhere; every?: PurchaseOrderWhere; none?: PurchaseOrderWhere };
+  assignedOrders?:
+    | { some?: PurchaseOrderWhere; every?: PurchaseOrderWhere; none?: PurchaseOrderWhere; isEmpty?: boolean }
+    | Omit<PurchaseOrderWhere, 'AND' | 'OR' | 'NOT'>;
   AND?: AgentWhere[];
   OR?: AgentWhere[];
   NOT?: AgentWhere;
@@ -374,7 +376,9 @@ export interface CustomerWhere {
         in?: string[];
         notIn?: string[];
       } & {});
-  orders?: { some?: PurchaseOrderWhere; every?: PurchaseOrderWhere; none?: PurchaseOrderWhere };
+  orders?:
+    | { some?: PurchaseOrderWhere; every?: PurchaseOrderWhere; none?: PurchaseOrderWhere; isEmpty?: boolean }
+    | Omit<PurchaseOrderWhere, 'AND' | 'OR' | 'NOT'>;
   AND?: CustomerWhere[];
   OR?: CustomerWhere[];
   NOT?: CustomerWhere;

@@ -451,8 +451,12 @@ export interface WriterWhere {
         in?: string[];
         notIn?: string[];
       } & {});
-  authoredDocs?: { some?: DocumentWhere; every?: DocumentWhere; none?: DocumentWhere };
-  reviewedDocs?: { some?: DocumentWhere; every?: DocumentWhere; none?: DocumentWhere };
+  authoredDocs?:
+    | { some?: DocumentWhere; every?: DocumentWhere; none?: DocumentWhere; isEmpty?: boolean }
+    | Omit<DocumentWhere, 'AND' | 'OR' | 'NOT'>;
+  reviewedDocs?:
+    | { some?: DocumentWhere; every?: DocumentWhere; none?: DocumentWhere; isEmpty?: boolean }
+    | Omit<DocumentWhere, 'AND' | 'OR' | 'NOT'>;
   AND?: WriterWhere[];
   OR?: WriterWhere[];
   NOT?: WriterWhere;

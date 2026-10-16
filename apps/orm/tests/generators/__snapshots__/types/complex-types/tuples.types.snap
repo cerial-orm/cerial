@@ -2824,7 +2824,9 @@ export interface TupleWithRelationWhere {
         notIn?: string[];
       } & {});
   location?: CoordinateWhere;
-  posts?: { some?: TupleRelatedPostWhere; every?: TupleRelatedPostWhere; none?: TupleRelatedPostWhere };
+  posts?:
+    | { some?: TupleRelatedPostWhere; every?: TupleRelatedPostWhere; none?: TupleRelatedPostWhere; isEmpty?: boolean }
+    | Omit<TupleRelatedPostWhere, 'AND' | 'OR' | 'NOT'>;
   AND?: TupleWithRelationWhere[];
   OR?: TupleWithRelationWhere[];
   NOT?: TupleWithRelationWhere;

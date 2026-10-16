@@ -1724,7 +1724,9 @@ export interface KitchenSinkUserWhere {
         notIn?: string[];
       } & {});
   profile?: KitchenSinkProfileWhere;
-  posts?: { some?: KitchenSinkPostWhere; every?: KitchenSinkPostWhere; none?: KitchenSinkPostWhere };
+  posts?:
+    | { some?: KitchenSinkPostWhere; every?: KitchenSinkPostWhere; none?: KitchenSinkPostWhere; isEmpty?: boolean }
+    | Omit<KitchenSinkPostWhere, 'AND' | 'OR' | 'NOT'>;
   tagIds?:
     | RecordIdInput<string>[]
     | {

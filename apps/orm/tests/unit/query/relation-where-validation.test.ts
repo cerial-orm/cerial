@@ -33,10 +33,36 @@ describe('validateWhere — relation filters', () => {
     ]);
   });
 
-  test('rejects a key that is not some, every or none on an array relation', () => {
-    expect(ownerMessages({ places: { name: 'Hub' } })).toEqual([
-      "Unknown key 'name' in the filter on relation 'places' of model Owner — use some, every or none",
+  test('accepts a plain target field on a reverse array relation as shorthand for some', () => {
+    expect(ownerMessages({ places: { name: 'Hub' } })).toEqual([]);
+    expect(ownerMessages({ places: { name: { contains: 'H' } } })).toEqual([]);
+  });
+
+  test('checks the shorthand keys against the target model', () => {
+    expect(ownerMessages({ places: { nmae: 'Hub' } })).toEqual([unknown('places.nmae', 'Place')]);
+  });
+
+  test('rejects shorthand keys beside an explicit key', () => {
+    for (const explicit of [{ some: { name: 'a' } }, { none: { name: 'a' } }, { isEmpty: false }]) {
+      expect(ownerMessages({ places: { name: 'Hub', ...explicit } })).toEqual([
+        "The filter on relation 'places' of model Owner mixes the field keys 'name' with some, every, none or isEmpty — move the fields into a 'some' body",
+      ]);
+    }
+  });
+
+  test('accepts isEmpty with a quantifier and rejects a non-boolean isEmpty', () => {
+    expect(ownerMessages({ places: { isEmpty: false, none: { name: 'a' } } })).toEqual([]);
+    expect(ownerMessages({ places: { isEmpty: 'yes' } } as WhereClause)).toEqual([
+      "isEmpty on relation 'places' of model Owner must be a boolean",
     ]);
+  });
+
+  test.each(['AND', 'OR', 'NOT'])('still rejects a bare %s on an array relation, beside shorthand keys too', (op) => {
+    const value = op === 'NOT' ? { name: 'a' } : [{ name: 'a' }];
+    const message = `Unknown key '${op}' in the filter on relation 'places' of model Owner — use some, every, none or isEmpty`;
+
+    expect(ownerMessages({ places: { [op]: value } })).toEqual([message]);
+    expect(ownerMessages({ places: { [op]: value, name: 'Hub' } })).toEqual([message]);
   });
 
   test('rejects an unknown key whose value is falsy', () => {

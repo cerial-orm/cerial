@@ -139,7 +139,9 @@ export interface ExtRelBlogAuthorWhere {
         not?: string;
         isNone?: boolean;
       });
-  posts?: { some?: ExtRelBlogPostWhere; every?: ExtRelBlogPostWhere; none?: ExtRelBlogPostWhere };
+  posts?:
+    | { some?: ExtRelBlogPostWhere; every?: ExtRelBlogPostWhere; none?: ExtRelBlogPostWhere; isEmpty?: boolean }
+    | Omit<ExtRelBlogPostWhere, 'AND' | 'OR' | 'NOT'>;
   AND?: ExtRelBlogAuthorWhere[];
   OR?: ExtRelBlogAuthorWhere[];
   NOT?: ExtRelBlogAuthorWhere;
@@ -1324,7 +1326,14 @@ export interface ExtRelBlogTagWhere {
         in?: string[];
         notIn?: string[];
       } & {});
-  postTags?: { some?: ExtRelBlogPostTagWhere; every?: ExtRelBlogPostTagWhere; none?: ExtRelBlogPostTagWhere };
+  postTags?:
+    | {
+        some?: ExtRelBlogPostTagWhere;
+        every?: ExtRelBlogPostTagWhere;
+        none?: ExtRelBlogPostTagWhere;
+        isEmpty?: boolean;
+      }
+    | Omit<ExtRelBlogPostTagWhere, 'AND' | 'OR' | 'NOT'>;
   AND?: ExtRelBlogTagWhere[];
   OR?: ExtRelBlogTagWhere[];
   NOT?: ExtRelBlogTagWhere;

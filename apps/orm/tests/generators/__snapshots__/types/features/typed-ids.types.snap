@@ -398,7 +398,9 @@ export interface FkTargetIntIdWhere {
         in?: string[];
         notIn?: string[];
       } & {});
-  children?: { some?: FkChildModelWhere; every?: FkChildModelWhere; none?: FkChildModelWhere };
+  children?:
+    | { some?: FkChildModelWhere; every?: FkChildModelWhere; none?: FkChildModelWhere; isEmpty?: boolean }
+    | Omit<FkChildModelWhere, 'AND' | 'OR' | 'NOT'>;
   AND?: FkTargetIntIdWhere[];
   OR?: FkTargetIntIdWhere[];
   NOT?: FkTargetIntIdWhere;

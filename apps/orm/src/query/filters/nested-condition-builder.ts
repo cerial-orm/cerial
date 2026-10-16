@@ -20,6 +20,32 @@ function isRelationFilterOperator(key: string): key is RelationFilterOperator {
   return key === 'some' || key === 'every' || key === 'none';
 }
 
+/** Keys of an array-relation filter that state their own meaning, so they never fold into the `some` shorthand */
+export function isExplicitArrayRelationKey(key: string): boolean {
+  return isRelationFilterOperator(key) || key === 'isEmpty';
+}
+
+/**
+ * Split an array-relation filter into its explicit keys (some, every, none, isEmpty) and the plain
+ * target-field keys, which are shorthand for `some`. A bare AND, OR or NOT is neither: it stays
+ * refused, because a quantifier decides what the operator ranges over.
+ */
+export function splitArrayRelationFilter(filter: Record<string, unknown>): {
+  hasExplicit: boolean;
+  plain: Record<string, unknown>;
+} {
+  const plain: Record<string, unknown> = {};
+  let hasExplicit = false;
+
+  for (const [key, value] of Object.entries(filter)) {
+    if (value === undefined) continue;
+    if (isExplicitArrayRelationKey(key)) hasExplicit = true;
+    else if (key !== 'AND' && key !== 'OR' && key !== 'NOT') plain[key] = value;
+  }
+
+  return { hasExplicit, plain };
+}
+
 /**
  * Find the foreign key field in the target model that points back to the source model
  */
@@ -248,11 +274,44 @@ function compileReverseNested(
     return { text: '', vars: {} };
   }
 
+  // Plain target-field keys are shorthand for `some`. Mixing them with an explicit key is refused:
+  // whether they join that key's body or stand as a second `some` is a guess, and on deleteMany a
+  // wrong guess deletes the wrong parents.
+  const { hasExplicit, plain } = splitArrayRelationFilter(nestedWhere);
+  if (Object.keys(plain).length) {
+    if (hasExplicit) {
+      throw new CerialValidationError(
+        `Relation filter on ${model.name}.${relationField.name} mixes the field keys ` +
+          `${Object.keys(plain)
+            .map((k) => `'${k}'`)
+            .join(', ')} with some, every, none or isEmpty. ` +
+          `Move the fields into a 'some' body.`,
+      );
+    }
+
+    return compileReverseNested(ctx, relationField, { some: plain } as WhereClause, model, registry);
+  }
+
   const conditions: QueryFragment[] = [];
 
-  // Check for relation filter operators (some, every, none)
+  // Check for relation filter operators (some, every, none) and the existence check isEmpty
   for (const [key, value] of Object.entries(nestedWhere)) {
     if (value === undefined) continue;
+
+    if (key === 'isEmpty') {
+      if (typeof value !== 'boolean') {
+        throw new CerialValidationError(
+          `isEmpty on ${model.name}.${relationField.name} must be a boolean, received ${typeof value}.`,
+        );
+      }
+
+      const membership = value ? 'NOT IN' : 'IN';
+      conditions.push({
+        text: `id ${membership} (SELECT VALUE ${foreignKeyField} FROM ${targetModel.tableName})`,
+        vars: {},
+      });
+      continue;
+    }
 
     if (isRelationFilterOperator(key)) {
       const innerWhere = value as WhereClause;

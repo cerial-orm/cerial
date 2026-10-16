@@ -66,7 +66,9 @@ export interface DepartmentWhere {
         in?: string[];
         notIn?: string[];
       } & {});
-  employees?: { some?: EmployeeWhere; every?: EmployeeWhere; none?: EmployeeWhere };
+  employees?:
+    | { some?: EmployeeWhere; every?: EmployeeWhere; none?: EmployeeWhere; isEmpty?: boolean }
+    | Omit<EmployeeWhere, 'AND' | 'OR' | 'NOT'>;
   AND?: DepartmentWhere[];
   OR?: DepartmentWhere[];
   NOT?: DepartmentWhere;
@@ -2080,7 +2082,9 @@ export interface OdFolderWhere {
         isNone?: boolean;
       });
   parent?: null | OdFolderWhere;
-  children?: { some?: OdFolderWhere; every?: OdFolderWhere; none?: OdFolderWhere };
+  children?:
+    | { some?: OdFolderWhere; every?: OdFolderWhere; none?: OdFolderWhere; isEmpty?: boolean }
+    | Omit<OdFolderWhere, 'AND' | 'OR' | 'NOT'>;
   AND?: OdFolderWhere[];
   OR?: OdFolderWhere[];
   NOT?: OdFolderWhere;
@@ -2433,7 +2437,9 @@ export interface OdGrandparentWhere {
         in?: string[];
         notIn?: string[];
       } & {});
-  parents?: { some?: OdParentWhere; every?: OdParentWhere; none?: OdParentWhere };
+  parents?:
+    | { some?: OdParentWhere; every?: OdParentWhere; none?: OdParentWhere; isEmpty?: boolean }
+    | Omit<OdParentWhere, 'AND' | 'OR' | 'NOT'>;
   AND?: OdGrandparentWhere[];
   OR?: OdGrandparentWhere[];
   NOT?: OdGrandparentWhere;
@@ -2782,7 +2788,9 @@ export interface OdParentWhere {
         isNone?: boolean;
       });
   grandparent?: null | OdGrandparentWhere;
-  children?: { some?: OdChildWhere; every?: OdChildWhere; none?: OdChildWhere };
+  children?:
+    | { some?: OdChildWhere; every?: OdChildWhere; none?: OdChildWhere; isEmpty?: boolean }
+    | Omit<OdChildWhere, 'AND' | 'OR' | 'NOT'>;
   AND?: OdParentWhere[];
   OR?: OdParentWhere[];
   NOT?: OdParentWhere;
@@ -4879,7 +4887,9 @@ export interface TeamWhere {
         in?: string[];
         notIn?: string[];
       } & {});
-  members?: { some?: MemberWhere; every?: MemberWhere; none?: MemberWhere };
+  members?:
+    | { some?: MemberWhere; every?: MemberWhere; none?: MemberWhere; isEmpty?: boolean }
+    | Omit<MemberWhere, 'AND' | 'OR' | 'NOT'>;
   AND?: TeamWhere[];
   OR?: TeamWhere[];
   NOT?: TeamWhere;
@@ -5184,7 +5194,9 @@ export interface TeamNoActionWhere {
         in?: string[];
         notIn?: string[];
       } & {});
-  members?: { some?: MemberNoActionWhere; every?: MemberNoActionWhere; none?: MemberNoActionWhere };
+  members?:
+    | { some?: MemberNoActionWhere; every?: MemberNoActionWhere; none?: MemberNoActionWhere; isEmpty?: boolean }
+    | Omit<MemberNoActionWhere, 'AND' | 'OR' | 'NOT'>;
   AND?: TeamNoActionWhere[];
   OR?: TeamNoActionWhere[];
   NOT?: TeamNoActionWhere;
@@ -5505,7 +5517,9 @@ export interface TeamSetNullWhere {
         in?: string[];
         notIn?: string[];
       } & {});
-  members?: { some?: MemberSetNullWhere; every?: MemberSetNullWhere; none?: MemberSetNullWhere };
+  members?:
+    | { some?: MemberSetNullWhere; every?: MemberSetNullWhere; none?: MemberSetNullWhere; isEmpty?: boolean }
+    | Omit<MemberSetNullWhere, 'AND' | 'OR' | 'NOT'>;
   AND?: TeamSetNullWhere[];
   OR?: TeamSetNullWhere[];
   NOT?: TeamSetNullWhere;

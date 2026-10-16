@@ -58,10 +58,17 @@ describe('Unknown relation where keys — negative and positive cases', () => {
       );
   });
 
-  test('findMany rejects an array relation key that is not some, every or none', async () => {
+  test('findMany rejects a bare logical operator on an array relation', async () => {
     await rejects(
-      () => client.db.Author.findMany({ where: hostile({ posts: { title: 'A1' } }) }),
-      "Unknown key 'title' in the filter on relation 'posts' of model Author",
+      () => client.db.Author.findMany({ where: hostile({ posts: { OR: [{ title: 'A1' }] } }) }),
+      "Unknown key 'OR' in the filter on relation 'posts' of model Author",
+    );
+  });
+
+  test('findMany rejects an unknown shorthand key on an array relation, naming the target model', async () => {
+    await rejects(
+      () => client.db.Author.findMany({ where: hostile({ posts: { titel: 'A1' } }) }),
+      "Unknown field 'posts.titel' on model PostRequired",
     );
   });
 

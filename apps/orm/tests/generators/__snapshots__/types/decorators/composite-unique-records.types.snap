@@ -84,9 +84,15 @@ export interface AttendeeWhere {
         in?: string[];
         notIn?: string[];
       } & {});
-  registrations?: { some?: RegistrationWhere; every?: RegistrationWhere; none?: RegistrationWhere };
-  tickets?: { some?: TicketWhere; every?: TicketWhere; none?: TicketWhere };
-  bookings?: { some?: BookingWhere; every?: BookingWhere; none?: BookingWhere };
+  registrations?:
+    | { some?: RegistrationWhere; every?: RegistrationWhere; none?: RegistrationWhere; isEmpty?: boolean }
+    | Omit<RegistrationWhere, 'AND' | 'OR' | 'NOT'>;
+  tickets?:
+    | { some?: TicketWhere; every?: TicketWhere; none?: TicketWhere; isEmpty?: boolean }
+    | Omit<TicketWhere, 'AND' | 'OR' | 'NOT'>;
+  bookings?:
+    | { some?: BookingWhere; every?: BookingWhere; none?: BookingWhere; isEmpty?: boolean }
+    | Omit<BookingWhere, 'AND' | 'OR' | 'NOT'>;
   AND?: AttendeeWhere[];
   OR?: AttendeeWhere[];
   NOT?: AttendeeWhere;
@@ -1615,8 +1621,12 @@ export interface WorkshopWhere {
         in?: string[];
         notIn?: string[];
       } & {});
-  registrations?: { some?: RegistrationWhere; every?: RegistrationWhere; none?: RegistrationWhere };
-  tickets?: { some?: TicketWhere; every?: TicketWhere; none?: TicketWhere };
+  registrations?:
+    | { some?: RegistrationWhere; every?: RegistrationWhere; none?: RegistrationWhere; isEmpty?: boolean }
+    | Omit<RegistrationWhere, 'AND' | 'OR' | 'NOT'>;
+  tickets?:
+    | { some?: TicketWhere; every?: TicketWhere; none?: TicketWhere; isEmpty?: boolean }
+    | Omit<TicketWhere, 'AND' | 'OR' | 'NOT'>;
   AND?: WorkshopWhere[];
   OR?: WorkshopWhere[];
   NOT?: WorkshopWhere;

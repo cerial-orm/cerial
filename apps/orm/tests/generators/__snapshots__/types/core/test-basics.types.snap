@@ -1237,7 +1237,9 @@ export interface UserWhere {
         isEmpty?: boolean;
       };
   tags?: { some?: TagWhere; every?: TagWhere; none?: TagWhere };
-  posts?: { some?: PostWhere; every?: PostWhere; none?: PostWhere };
+  posts?:
+    | { some?: PostWhere; every?: PostWhere; none?: PostWhere; isEmpty?: boolean }
+    | Omit<PostWhere, 'AND' | 'OR' | 'NOT'>;
   AND?: UserWhere[];
   OR?: UserWhere[];
   NOT?: UserWhere;
