@@ -18,7 +18,7 @@ const users = await client.db.User.findMany({
 });
 ```
 
-The filter is applied as a subquery — it finds records where **at least one** related record matches the criteria.
+A relation to a single record (`Relation`, `Relation?`) takes the related model's filter directly. A relation to many records (`Relation[]`) takes `some`, `every` or `none` around that filter, see [Reverse Relations](#reverse-relations).
 
 ## Forward Relations
 
@@ -41,7 +41,13 @@ const posts = await client.db.Post.findMany({
 
 ## Reverse Relations
 
-Reverse relations are the inverse of forward relations — they represent the "has many" or "has one" side:
+Reverse relations are the inverse of forward relations. They represent the "has many" side. An array relation filter takes one of three quantifiers, each holding a filter on the related model:
+
+| Quantifier | Matches records where |
+|---|---|
+| `some` | at least one related record matches |
+| `every` | every related record matches, and there is at least one |
+| `none` | no related record matches |
 
 ```typescript
 // Schema:
@@ -52,22 +58,26 @@ Reverse relations are the inverse of forward relations — they represent the "h
 // Find users who have at least one published post
 const users = await client.db.User.findMany({
   where: {
-    posts: { status: 'published' },
+    posts: { some: { status: 'published' } },
   },
 });
 ```
 
+Any other key directly under an array relation, such as `posts: { status: 'published' }`, is rejected with an error that says to use `some`, `every` or `none`.
+
 ## Multiple Conditions on Related Fields
 
-You can apply multiple conditions to the related model's fields. All conditions within a nested relation filter are ANDed together — the related record must match all specified conditions:
+You can apply multiple conditions to the related model's fields. All conditions within one relation filter are ANDed together: a single related record must match all of them:
 
 ```typescript
 // Find users who have posts about TypeScript created in 2024
 const users = await client.db.User.findMany({
   where: {
     posts: {
-      title: { contains: 'TypeScript' },
-      createdAt: { gte: new Date('2024-01-01') },
+      some: {
+        title: { contains: 'TypeScript' },
+        createdAt: { gte: new Date('2024-01-01') },
+      },
     },
   },
 });
@@ -95,9 +105,11 @@ const posts = await client.db.Post.findMany({
 const categories = await client.db.Category.findMany({
   where: {
     posts: {
-      author: {
-        isActive: true,
-        role: { in: ['admin', 'editor'] },
+      some: {
+        author: {
+          isActive: true,
+          role: { in: ['admin', 'editor'] },
+        },
       },
     },
   },
@@ -112,14 +124,16 @@ All standard filter operators work inside nested relation filters — [compariso
 const users = await client.db.User.findMany({
   where: {
     posts: {
-      // Comparison
-      viewCount: { gte: 100 },
-      // String
-      title: { startsWith: 'Guide' },
-      // Array
-      tags: { hasAny: ['typescript', 'javascript'] },
-      // Special
-      deletedAt: { isNull: true },
+      some: {
+        // Comparison
+        viewCount: { gte: 100 },
+        // String
+        title: { startsWith: 'Guide' },
+        // Array
+        tags: { hasAny: ['typescript', 'javascript'] },
+        // Special
+        deletedAt: { isNull: true },
+      },
     },
   },
 });
@@ -127,26 +141,64 @@ const users = await client.db.User.findMany({
 
 ### Logical Operators in Nested Filters
 
+:::caution
+`AND`, `OR` and `NOT` in a relation to a single record are not yet available in the current release. They will ship in an upcoming version. Before that, such a filter was ignored and every row came back.
+:::
+
+`AND`, `OR` and `NOT` work inside a relation filter, with the same shapes as at the top level: `AND` and `OR` take an array of filters, `NOT` takes one filter. On a relation to a single record they apply to the related record:
+
 ```typescript
-const users = await client.db.User.findMany({
+// Posts whose author is called Ada or Grace
+const posts = await client.db.Post.findMany({
   where: {
-    posts: {
-      OR: [{ status: 'published' }, { status: 'featured' }],
+    author: {
+      OR: [{ name: 'Ada' }, { name: 'Grace' }],
     },
   },
 });
 ```
 
 ```typescript
-const users = await client.db.User.findMany({
+// Posts by an active author who is not an admin
+const posts = await client.db.Post.findMany({
   where: {
-    posts: {
-      NOT: { status: 'draft' },
-      createdAt: { gte: new Date('2024-01-01') },
+    author: {
+      isActive: true,
+      NOT: { role: 'admin' },
     },
   },
 });
 ```
+
+They nest (`OR` containing `AND`), and a logical operator beside a plain field in the same relation filter is ANDed with it, as at the top level. The same filter behaves the same in `findMany`, `findOne`, `count`, `exists`, `updateMany` and `deleteMany`.
+
+A relation filter that has keys but resolves to no condition throws instead of matching every row, so a tenant-scoped `where` can no longer silently widen.
+
+On a relation to many records, `AND`, `OR` and `NOT` go **inside** a quantifier. Directly under the relation they are rejected with an unknown-key error, the same as any other key that is not `some`, `every` or `none`:
+
+```typescript
+// Users with at least one post that is published or featured
+const users = await client.db.User.findMany({
+  where: {
+    posts: {
+      some: {
+        OR: [{ status: 'published' }, { status: 'featured' }],
+      },
+    },
+  },
+});
+```
+
+```typescript
+// Wrong: rejected, wrap the filter in some, every or none
+const users = await client.db.User.findMany({
+  where: {
+    posts: { OR: [{ status: 'published' }, { status: 'featured' }] },
+  },
+});
+```
+
+Inside a quantifier the operators filter the related records of that one quantifier, so `every: { OR: [...] }` means every post matches at least one branch.
 
 ## Combining Nested and Top-Level Filters
 
@@ -159,7 +211,7 @@ const users = await client.db.User.findMany({
     isActive: true,
     age: { gte: 18 },
     // Nested relation filter
-    posts: { status: 'published' },
+    posts: { some: { status: 'published' } },
     profile: { bio: { isNone: false } },
   },
 });
@@ -172,7 +224,7 @@ Nested relation filters work in `where` clauses for all query methods that suppo
 ```typescript
 // Count users with published posts
 const count = await client.db.User.count({
-  posts: { status: 'published' },
+  posts: { some: { status: 'published' } },
 });
 
 // Check if any user has a verified profile
@@ -183,7 +235,7 @@ const hasVerified = await client.db.User.exists({
 // Update users who have overdue tasks
 await client.db.User.updateMany({
   where: {
-    tasks: { dueDate: { lt: new Date() } },
+    tasks: { some: { dueDate: { lt: new Date() } } },
   },
   data: { hasOverdueTasks: true },
 });

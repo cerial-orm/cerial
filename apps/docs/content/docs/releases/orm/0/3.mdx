@@ -474,6 +474,19 @@ development branch and is not available on npm.
   such as `post.author` is still typed as present. Guard the access when you
   filter a single relation.
 
+- `AND`, `OR` and `NOT` inside a filter on a relation to a single record were
+  dropped, and with them the whole `where`. `findMany({ where: { owner: { OR: [{ name: 'a' }, { name: 'b' }] } } })`
+  returned every row in the table without an error, so a tenant-scoped list
+  returned other tenants' rows. They now filter, nest, and combine with plain
+  fields in the same relation filter. `count`, `exists`, `updateMany` and
+  `deleteMany` accepted or refused this shape differently from `findMany`; all
+  six now compile it the same way, and a relation filter that has keys but
+  resolves to no condition throws rather than matching everything.
+
+  On an array relation (`Relation[]`) the operators go inside `some`, `every` or
+  `none`, where they were also ignored before and now work. Directly under an
+  array relation they are rejected like any other key that is not a quantifier.
+
 ### Changed
 
 - Transaction conflict retries (`TransactionOptions.retries`) now recognise a
