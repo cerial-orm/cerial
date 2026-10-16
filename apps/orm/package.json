@@ -127,7 +127,7 @@
   "devDependencies": {
     "@types/bun": "1.4.3",
     "oxlint": "^1.86.0",
-    "tsdown": "^0.21.0-beta.2"
+    "tsdown": "^0.23.1"
   },
   "peerDependencies": {
     "typescript": ">=5.9.3"
