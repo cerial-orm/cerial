@@ -11,6 +11,9 @@ const ROOT = join(import.meta.dir, '..', '..');
 const BASELINE_FILE = 'tooling/hooks/baseline.json';
 const REGISTRY_FILE = 'apps/orm/tests/e2e/test-helper.ts';
 const SCHEMA_DIR = 'apps/orm/tests/e2e/schemas/';
+const ORM_PREFIX = 'apps/orm/';
+const INTERPOLATION_SCANNER = 'apps/orm/tests/unit/query/interpolation-sites.ts';
+const INTERPOLATION_ALLOWLIST = 'apps/orm/tests/unit/query/interpolation-allowlist.json';
 const RELEASE_NOTES = /^apps\/docs\/content\/docs\/releases\/(orm|extension)\/.+\.mdx$/;
 
 export const PACKAGE_FOR_SCOPE: Readonly<Record<string, string>> = {
@@ -78,6 +81,33 @@ export function scanAddedCasts(
   }
 
   return refusals;
+}
+
+/**
+ * Interpolations in staged query-text sources that the allowlist does not list. The scanner is loaded
+ * only when such a file is staged, because it needs the ORM's compiler dependency, which a commit of
+ * anything else, and the scratch repositories the hook tests build, do not have.
+ */
+export function scanInterpolations(files: readonly StagedFile[]): Refusal[] {
+  type Scanner = typeof import('../../apps/orm/tests/unit/query/interpolation-sites.ts');
+  const scanner = join(ROOT, INTERPOLATION_SCANNER);
+  if (!existsSync(scanner)) return [];
+  const { inScope, unlistedSites } = require(scanner) as Scanner;
+  const staged = files
+    .filter((file) => file.path.startsWith(ORM_PREFIX) && inScope(file.path.slice(ORM_PREFIX.length)))
+    .map((file) => ({ path: file.path.slice(ORM_PREFIX.length), source: file.content }));
+  if (!staged.length) return [];
+  const listed = stagedContent(INTERPOLATION_ALLOWLIST) ?? readFileSync(join(ROOT, INTERPOLATION_ALLOWLIST), 'utf8');
+
+  return unlistedSites(staged, JSON.parse(listed) as Record<string, number>).map((site) =>
+    refusal(
+      'interpolation.unlisted',
+      'raw interpolation',
+      `${ORM_PREFIX}${site.split('  ')[0]}`,
+      site.split('::').slice(1).join('::'),
+      'Query text must take values as bound placeholders. If this is an internal constant, a validated or a quoted identifier, add its key to the allowlist beside the interpolation test; otherwise close it.',
+    ),
+  );
 }
 
 /** Files the index adds under an ignore pattern, which a forced add slips past. */
@@ -323,6 +353,7 @@ export function scanStagedState(files: readonly StagedFile[]): Refusal[] {
     refusals.push(...scanAddedCasts(file.path, file.content, added, baseline));
     refusals.push(...scanE2eSetup(file.path, file.content));
   }
+  refusals.push(...scanInterpolations(files));
   const added = addedPaths();
   refusals.push(...scanIgnoredPaths(added));
   const schemas = files.filter(

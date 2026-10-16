@@ -18,6 +18,8 @@
 import { describe, expect, test } from 'bun:test';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
+import { countSites, findSites, inScope, unlistedSites } from './interpolation-sites';
+import allowlist from './interpolation-allowlist.json';
 
 interface ReviewSite {
   /** Path from apps/orm */
@@ -52,6 +54,101 @@ function recordIdInterpolations(source: string): string[] {
     .filter((line) => !line.startsWith('*') && !line.startsWith('//'))
     .filter((line) => RECORD_ID_TEXT.test(line) && !BOUND_NAMES.test(line));
 }
+
+const ALLOWED: Readonly<Record<string, number>> = allowlist;
+
+function scopedFiles(): Array<{ path: string; source: string }> {
+  return sourceFiles(join(ORM_ROOT, 'src'))
+    .map((file) => relative(ORM_ROOT, file))
+    .filter(inScope)
+    .map((path) => ({ path, source: readFileSync(join(ORM_ROOT, path), 'utf-8') }));
+}
+
+describe('query-text interpolation ratchet', () => {
+  test('every interpolation in the scanned sources is on the allowlist', () => {
+    const files = scopedFiles();
+
+    // A scan over nothing would pass; the scope holds dozens of files
+    expect(files.length).toBeGreaterThan(40);
+    // A failure lists the new site. Classify it as a bound placeholder, an internal constant, a validated
+    // identifier or a quoted identifier, then add its key here. If it is none of those, close it instead.
+    expect(unlistedSites(files, ALLOWED)).toEqual([]);
+  });
+
+  test('the allowlist holds no entry the sources no longer produce', () => {
+    const found = countSites(scopedFiles());
+    const stale = Object.entries(ALLOWED)
+      .filter(([key, count]) => (found[key] ?? 0) < count)
+      .map(([key, count]) => `${key} (listed ${count}, found ${found[key] ?? 0})`);
+
+    expect(stale).toEqual([]);
+  });
+
+  /* oxlint-disable no-template-curly-in-string */
+  // The inputs are source text containing template placeholders, scanned literally
+  describe('the scan', () => {
+    const keysOf = (source: string): string[] => findSites('src/query/x.ts', source).map((site) => site.key);
+
+    test('reports a template placeholder with its file, function and expression', () => {
+      const source = 'function build(key: string) {\n  return `SELECT ${key} FROM t`;\n}';
+
+      expect(keysOf(source)).toEqual(['src/query/x.ts::build::template::key']);
+    });
+
+    test('reports a method under its class and an arrow function under its variable', () => {
+      expect(keysOf('class B { run(k: string) { return `a ${k}`; } }')).toEqual(['src/query/x.ts::B.run::template::k']);
+      expect(keysOf('const make = (k: string) => `a ${k}`;')).toEqual(['src/query/x.ts::make::template::k']);
+    });
+
+    test('reports each operand of a concatenation that holds a string literal, once', () => {
+      expect(keysOf("function f(a: string, b: string) { return 'x ' + a + ' y ' + b; }")).toEqual([
+        'src/query/x.ts::f::concat::a',
+        'src/query/x.ts::f::concat::b',
+      ]);
+    });
+
+    test('ignores arithmetic, bound placeholders written as plain strings, comments and string contents', () => {
+      expect(keysOf('function f(a: number) { return a + 1; }')).toEqual([]);
+      expect(keysOf("const s = 'SELECT ${key} FROM t';")).toEqual([]);
+      expect(keysOf('// `SELECT ${key}`\n/* `${key}` */ const n = 1;')).toEqual([]);
+    });
+
+    test('ignores messages built for errors, throws and the console', () => {
+      expect(keysOf('function f(k: string) { throw new CerialQueryError(`bad ${k}`); }')).toEqual([]);
+      expect(keysOf('function f(k: string) { throw make(`bad ${k}`); }')).toEqual([]);
+      expect(keysOf('function f(k: string) { console.warn(`odd ${k}`); }')).toEqual([]);
+    });
+
+    test('keys do not depend on line position or formatting', () => {
+      const compact = 'function f(k: string) { return `a ${k.trim()}`; }';
+      const moved = '\n\n// moved\nfunction f(k: string) {\n  return `a ${\n    k.trim()\n  }`;\n}';
+
+      expect(keysOf(moved)).toEqual(keysOf(compact));
+    });
+
+    test('a new interpolation, a changed expression and a repeated one are each unlisted', () => {
+      const file = (source: string): Array<{ path: string; source: string }> => [{ path: 'src/query/x.ts', source }];
+      const base = 'function f(a: string) { return `x ${a}`; }';
+      const allowed = countSites(file(base));
+
+      expect(unlistedSites(file(base), allowed)).toEqual([]);
+      expect(unlistedSites(file('function f(a: string) { return `x ${a} ${a}`; }'), allowed)).toHaveLength(1);
+      expect(unlistedSites(file('function f(a: string) { return `x ${a.trim()}`; }'), allowed)).toHaveLength(1);
+      expect(unlistedSites(file('function g(a: string) { return `x ${a}`; }'), allowed)).toHaveLength(1);
+      expect(unlistedSites(file(`${base}\nconst extra = (k: string) => \`y \${k}\`;`), allowed)).toHaveLength(1);
+    });
+
+    test('the scope matches the inventory and leaves out validators and the data transformer', () => {
+      expect(inScope('src/query/builders/select-builder.ts')).toBe(true);
+      expect(inScope('src/generators/migrations/define-generator.ts')).toBe(true);
+      expect(inScope('src/generators/client/template.ts')).toBe(true);
+      expect(inScope('src/query/validators/where-validator.ts')).toBe(false);
+      expect(inScope('src/query/transformers/data-transformer.ts')).toBe(false);
+      expect(inScope('src/generators/types/where-generator.ts')).toBe(false);
+    });
+  });
+  /* oxlint-enable no-template-curly-in-string */
+});
 
 describe('query-text interpolation inventory: class 5 sites', () => {
   test('no site is left unclassified', () => {

@@ -3,6 +3,8 @@
 // is judged is what the commit would carry. Rules are named by identifier.
 
 import { describe, expect, test } from 'bun:test';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import {
   type Baseline,
   checkRatchet,
@@ -12,6 +14,7 @@ import {
   releaseSections,
   scanAddedCasts,
   scanBaselineRaised,
+  scanInterpolations,
   scanReleasedSections,
   scanTableRegistry,
 } from './repo-scans.ts';
@@ -20,6 +23,7 @@ import {
   guardRepositoryConfiguration,
   HOOKS_DIR,
   NOISE,
+  REPO_ROOT,
   newScratch,
   removeScratchesAfterAll,
   ruleNames,
@@ -506,6 +510,35 @@ describe('the added lines of a diff', () => {
   test('several hunks are joined', () => {
     expect(parseAddedLines('@@ -1 +1 @@\n@@ -9,0 +10,2 @@\n')).toEqual([1, 10, 11]);
   });
+});
+
+describe('the interpolation ratchet', () => {
+  const SELECT = 'apps/orm/src/query/builders/select-builder.ts';
+  const staged = (path: string, content: string): [{ path: string; content: string }] => [{ path, content }];
+
+  test('a committed query source passes against the allowlist', () => {
+    const content = readFileSync(join(REPO_ROOT, SELECT), 'utf8');
+
+    expect(scanInterpolations(staged(SELECT, content))).toEqual([]);
+  });
+
+  test('a new raw interpolation in a query source is refused and named', () => {
+    const content = `${readFileSync(join(REPO_ROOT, SELECT), 'utf8')}\nexport const probe = (k: string): string => \`WHERE \${k}\`;\n`;
+    const found = scanInterpolations(staged(SELECT, content));
+
+    expect(ruleNames(found)).toEqual(['interpolation.unlisted']);
+    expect(found[0]?.line).toBe('probe::template::k');
+  });
+
+  /* oxlint-disable no-template-curly-in-string */
+  // The input is source text containing a template placeholder, scanned literally
+  test('files outside the query-text sources are not read', () => {
+    const content = 'export const probe = (k: string): string => `WHERE ${k}`;\n';
+
+    expect(scanInterpolations(staged('apps/orm/src/query/validators/probe.ts', content))).toEqual([]);
+    expect(scanInterpolations(staged('apps/docs/probe.ts', content))).toEqual([]);
+  });
+  /* oxlint-enable no-template-curly-in-string */
 });
 
 guardRepositoryConfiguration();
