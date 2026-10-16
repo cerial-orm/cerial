@@ -107,7 +107,8 @@ describe('CerialId', () => {
     });
 
     test('invalid constructor input throws', () => {
-      // @ts-expect-error -- a boolean is not a valid id input; this asserts the runtime guard the type system already prevents reaching
+      // The id type parameter is inferred, so a boolean satisfies the constructor overloads and the
+      // runtime guard is the only thing rejecting it. No cast or expectation is needed to call this.
       expect(() => new CerialId(true)).toThrow('Invalid input type for CerialId');
     });
 
