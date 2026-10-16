@@ -31,27 +31,40 @@ interface ProbeClient {
   resetMigrationState(): void;
   isModelMigrated(name: string): boolean;
   getSurreal(): { query: (...args: unknown[]) => Promise<unknown> } | null;
+  getTransactionSurreal(): { query: (...args: unknown[]) => Promise<unknown> } | null;
   MigFailProbe: { findMany(args?: object): Promise<unknown[]>; create(args: object): Promise<unknown> };
 }
 
 let base: string;
 let Client: new () => ProbeClient;
 
-/** Counts the DDL statements sent for the probe table while `run` executes. */
+/**
+ * Counts the DDL statements sent for the probe table while `run` executes.
+ *
+ * Both sockets are counted. Over an http url the client holds an HTTP primary and a derived
+ * WebSocket, and migrations run on the one the model proxy uses, so watching a single socket ties
+ * this test to the current transport choice and reads zero if that choice moves.
+ */
 async function countDdl(client: ProbeClient, run: () => Promise<void>): Promise<number> {
-  const surreal = client.getSurreal();
-  if (!surreal) throw new Error('client is not connected');
-  const original = surreal.query;
+  const sockets = [client.getSurreal(), client.getTransactionSurreal()].filter((s): s is NonNullable<typeof s> => !!s);
+  const watched = [...new Set(sockets)];
+  if (!watched.length) throw new Error('client is not connected');
+  const originals = watched.map((s) => s.query);
   let count = 0;
-  surreal.query = ((...args: unknown[]) => {
-    if (typeof args[0] === 'string' && args[0].includes('DEFINE')) count++;
+  watched.forEach((surreal, i) => {
+    const original = originals[i]!;
+    surreal.query = ((...args: unknown[]) => {
+      if (typeof args[0] === 'string' && args[0].includes('DEFINE')) count++;
 
-    return original.apply(surreal, args);
-  }) as typeof surreal.query;
+      return original.apply(surreal, args);
+    }) as typeof surreal.query;
+  });
   try {
     await run();
   } finally {
-    surreal.query = original;
+    watched.forEach((surreal, i) => {
+      surreal.query = originals[i]!;
+    });
   }
 
   return count;
