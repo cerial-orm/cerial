@@ -37,7 +37,13 @@ import { buildResolvedSchemaAst, findSchemaRoots } from './resolvers';
 import { logger } from './utils';
 import type { CLIOptions, LogOutputLevel } from './validators';
 import type { EntryModels } from './validators';
-import { validateEntryTableNames, validateOptions, validateResolvedTypes, validateSchema } from './validators';
+import {
+  validateConnectionUrls,
+  validateEntryTableNames,
+  validateOptions,
+  validateResolvedTypes,
+  validateSchema,
+} from './validators';
 
 /** Generation result */
 export interface GenerateResult {
@@ -227,6 +233,9 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
       resolvedAST: resolved,
     } = await buildResolvedSchemaAst({
       schemaPath: options.schemaPath,
+  // Throws, like the cross-entry check, so no file is written and the caller cannot treat it as a soft failure
+  validateConnectionUrls([{ name: clientClassName ?? 'default', connection }]);
+
       filter: options.filter,
       verbose: options.verbose,
     });
@@ -475,6 +484,8 @@ export async function generateMultiSchema(
   validateEntryTableNames(entryModels);
 
   for (let i = 0; i < entries.length; i++) {
+  validateConnectionUrls(entries);
+
     const entry = entries[i]!;
     logger.progress(`Generating schema '${entry.name}' (${i + 1} of ${entries.length})...`);
 

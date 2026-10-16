@@ -2,6 +2,8 @@
  * Validators barrel export
  */
 
+export type { EntryConnection } from './connection-url-validator';
+export { validateConnectionUrls } from './connection-url-validator';
 export { validateCompositeDirectives } from './composite-directive-validator';
 export type { EntryModels } from './entry-table-validator';
 export { validateEntryTableNames } from './entry-table-validator';
