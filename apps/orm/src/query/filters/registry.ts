@@ -78,12 +78,12 @@ const operatorRegistry: Record<string, OperatorHandler> = {
 
 /** Get an operator handler by name */
 export function getOperatorHandler(operator: string): OperatorHandler | undefined {
-  return operatorRegistry[operator];
+  return Object.hasOwn(operatorRegistry, operator) ? operatorRegistry[operator] : undefined;
 }
 
 /** Check if an operator is registered */
 export function isRegisteredOperator(operator: string): boolean {
-  return operator in operatorRegistry;
+  return Object.hasOwn(operatorRegistry, operator);
 }
 
 /** Get all registered operator names */
