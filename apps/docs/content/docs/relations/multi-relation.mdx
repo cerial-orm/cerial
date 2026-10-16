@@ -130,7 +130,7 @@ const writer = await client.db.Writer.findOne({
 // Find writers who have authored at least one document
 const activeAuthors = await client.db.Writer.findMany({
   where: {
-    authoredDocs: { some: {} },
+    authoredDocs: { isEmpty: false },
   },
 });
 
@@ -151,6 +151,10 @@ const reviewed = await client.db.Document.findMany({
   where: { reviewerId: writerId },
 });
 ```
+
+:::caution
+`isEmpty` on an array relation, as in `authoredDocs: { isEmpty: false }` above, is not yet available in the current release. It will ship in an upcoming version.
+:::
 
 ## More Than Two Relations
 

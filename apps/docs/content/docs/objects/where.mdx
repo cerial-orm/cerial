@@ -390,7 +390,7 @@ const users = await client.db.User.findMany({
 const users = await client.db.User.findMany({
   where: {
     address: { city: 'NYC' },
-    posts: { status: 'published' },
+    posts: { some: { status: 'published' } },
   },
 });
 ```
