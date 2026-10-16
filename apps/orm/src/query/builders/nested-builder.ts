@@ -13,7 +13,7 @@ import { CerialValidationError } from '../../errors';
 import type { ModelMetadata, ModelRegistry, SelectClause } from '../../types';
 import type { RecordIdInput } from '../../utils/cerial-id';
 import type { CompiledQuery } from '../compile/types';
-import { createCompileContext } from '../compile/var-allocator';
+import { createCompileContext, type FilterCompileContext } from '../compile/var-allocator';
 import { transformDestructiveWhere } from '../filters/transformer';
 import { applyFieldDefaults, transformData, transformOrValidateRecordId } from '../transformers';
 import type { IncludeClause } from './relation-builder';
@@ -300,10 +300,11 @@ function buildNestedReturn(
   model: ModelMetadata,
   registry: ModelRegistry,
   { select, include }: NestedWriteOptions,
+  ctx: FilterCompileContext,
 ): string {
   if (!select && !include) return `RETURN ${rows};`;
 
-  const fields = buildSelectFields(select, model, include, registry);
+  const fields = buildSelectFields(select, model, include, registry, ctx);
 
   return `RETURN (SELECT ${fields} FROM ${single ? 'ONLY ' : ''}${rows});`;
 }
@@ -348,6 +349,7 @@ export function buildCreateWithNestedTransaction(
 ): CompiledQuery {
   const { transactionMode, recordId } = options;
   const ctx = createCompileContext();
+  const includeCtx = createCompileContext('inc_');
   const statements: string[] = transactionMode ? [] : ['BEGIN TRANSACTION;'];
   const vars: Record<string, unknown> = {};
 
@@ -649,11 +651,11 @@ export function buildCreateWithNestedTransaction(
   });
 
   if (!transactionMode) statements.push('COMMIT TRANSACTION;');
-  statements.push(buildNestedReturn('$result', true, model, registry, options));
+  statements.push(buildNestedReturn('$result', true, model, registry, options, includeCtx));
 
   return {
     text: statements.join('\n'),
-    vars,
+    vars: { ...vars, ...includeCtx.getCollected() },
   };
 }
 
@@ -670,6 +672,7 @@ export function buildUpdateWithNestedTransaction(
 ): CompiledQuery {
   const { transactionMode, returnBefore } = options;
   const ctx = createCompileContext();
+  const includeCtx = createCompileContext('inc_');
   const statements: string[] = transactionMode ? [] : ['BEGIN TRANSACTION;'];
   const vars: Record<string, unknown> = {};
 
@@ -959,7 +962,7 @@ export function buildUpdateWithNestedTransaction(
   // `return: 'before'` needs the row as it was, so it is read before the update and the relation
   // statements that follow; the transaction stays one round trip
   if (returnBefore) {
-    const fields = buildSelectFields(options.select, model, options.include, registry);
+    const fields = buildSelectFields(options.select, model, options.include, registry, includeCtx);
     statements.push(`LET $before = (SELECT ${fields} FROM ${model.tableName} ${whereClause.text});`);
   }
 
@@ -1047,10 +1050,12 @@ export function buildUpdateWithNestedTransaction(
   if (postStatements.length) statements.push(`IF $result[0] {\n${postStatements.join('\n')}\n};`);
 
   if (!transactionMode) statements.push('COMMIT TRANSACTION;');
-  statements.push(returnBefore ? 'RETURN $before;' : buildNestedReturn('$result', false, model, registry, options));
+  statements.push(
+    returnBefore ? 'RETURN $before;' : buildNestedReturn('$result', false, model, registry, options, includeCtx),
+  );
 
   return {
     text: statements.join('\n'),
-    vars,
+    vars: { ...vars, ...includeCtx.getCollected() },
   };
 }

@@ -55,6 +55,7 @@ import {
 } from './builders';
 import type { QueryResultType } from './cerial-query-promise';
 import type { CompiledQuery } from './compile/types';
+import { createCompileContext } from './compile/var-allocator';
 import { executeQuery, executeQuerySingle } from './executor';
 import { transformWhereClause } from './filters';
 import { mapResult, mapSingleResult } from './mappers';
@@ -639,18 +640,20 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     select?: SelectClause,
     include?: IncludeClause,
   ): Promise<unknown> {
-    const fields = buildSelectFields(select, this.model, include, this.registry);
+    const includeCtx = createCompileContext('inc_');
+    const fields = buildSelectFields(select, this.model, include, this.registry, includeCtx);
+    const vars = includeCtx.getCollected();
     const recordId = hasId ? recordIdFromWhere(this.model, where) : undefined;
 
     if (recordId) {
-      return executeQuerySingle(this.db, { text: `SELECT ${fields} FROM ONLY ${recordId.toString()};`, vars: {} });
+      return executeQuerySingle(this.db, { text: `SELECT ${fields} FROM ONLY ${recordId.toString()};`, vars });
     }
 
     // Unique field lookup
     const whereClause = transformWhereClause(where, this.model, this.registry);
     const checkResult = await executeQuery(this.db, {
       text: `SELECT ${fields} FROM ${this.model.tableName} ${whereClause.text};`,
-      vars: whereClause.vars,
+      vars: { ...whereClause.vars, ...vars },
     });
 
     return Array.isArray(checkResult) && checkResult.length > 0 ? checkResult[0] : null;

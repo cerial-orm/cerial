@@ -44,6 +44,7 @@ export function bindVar(
 /** Create a filter compile context */
 export function createCompileContext(prefix: string = '') {
   const allocator = createVarAllocator(prefix);
+  const collected: QueryVars = {};
 
   return {
     bind(field: string, operator: string, value: unknown, fieldType: SchemaFieldType): VarBinding {
@@ -51,6 +52,13 @@ export function createCompileContext(prefix: string = '') {
     },
     getCounter(): number {
       return allocator.counter;
+    },
+    /** Keep the bindings of a fragment compiled outside the main query text, such as an include `where`. */
+    collect(vars: QueryVars): void {
+      Object.assign(collected, vars);
+    },
+    getCollected(): QueryVars {
+      return collected;
     },
   };
 }

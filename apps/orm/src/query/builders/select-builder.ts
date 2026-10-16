@@ -19,7 +19,7 @@ import type {
 } from '../../types';
 import { quoteSubKey } from '../../utils/string-utils';
 import type { CompiledQuery } from '../compile/types';
-import type { FilterCompileContext } from '../compile/var-allocator';
+import { createCompileContext, type FilterCompileContext } from '../compile/var-allocator';
 import { expandCompositeKey, findCompositeUniqueKey } from '../filters/composite-key';
 import { isOperatorObject } from '../filters/condition-builder';
 import { transformWhereClause } from '../filters/transformer';
@@ -267,8 +267,9 @@ export function buildBeforeSnapshot(
   model: ModelMetadata,
   include: IncludeClause | undefined,
   registry?: ModelRegistry,
+  ctx?: FilterCompileContext,
 ): string {
-  const fields = buildSelectFields(select, model, include, registry);
+  const fields = buildSelectFields(select, model, include, registry, ctx);
 
   return `LET $before = (${['SELECT', fields, 'FROM', from, whereText].filter(Boolean).join(' ')});`;
 }
@@ -392,8 +393,10 @@ export function buildSelectQuery(
 ): CompiledQuery {
   const { where, select, orderBy, limit, offset, include } = options;
 
-  const fields = buildSelectFields(select, model, include, registry);
+  const includeCtx = createCompileContext('inc_');
+  const fields = buildSelectFields(select, model, include, registry, includeCtx);
   const whereClause = transformWhereClause(where, model, registry);
+  const vars = { ...whereClause.vars, ...includeCtx.getCollected() };
   const orderPlan = buildOrderByPlan(orderBy, model, registry);
   const limitClause = buildLimit(limit);
   const offsetClause = buildOffset(offset);
@@ -410,11 +413,11 @@ export function buildSelectQuery(
     offsetClause,
   ].filter((p) => p);
 
-  if (!orderPlan.projections.length) return { text: parts.join(' '), vars: whereClause.vars };
+  if (!orderPlan.projections.length) return { text: parts.join(' '), vars };
 
   return {
     text: `SELECT * OMIT ${orderPlan.aliases.join(', ')} ${source} (${parts.join(' ')})`,
-    vars: whereClause.vars,
+    vars,
   };
 }
 
@@ -618,7 +621,8 @@ function buildFindUniqueByIdQuery(
   const whereWithoutId = { ...where };
   delete whereWithoutId[idField.name];
 
-  const fields = buildSelectFields(select, model, include, registry);
+  const includeCtx = createCompileContext('inc_');
+  const fields = buildSelectFields(select, model, include, registry, includeCtx);
   const whereClause = transformWhereClause(Object.keys(whereWithoutId).length ? whereWithoutId : undefined, model);
   const limitClause = buildLimit(1);
 
@@ -626,7 +630,7 @@ function buildFindUniqueByIdQuery(
 
   return {
     text: parts.join(' '),
-    vars: whereClause.vars,
+    vars: { ...whereClause.vars, ...includeCtx.getCollected() },
   };
 }
 

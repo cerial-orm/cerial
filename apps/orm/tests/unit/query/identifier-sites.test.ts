@@ -31,7 +31,7 @@ const NEEDS_REVIEW: readonly ReviewSite[] = [
   {
     file: 'src/query/builder.ts',
     snippet:
-      'return executeQuerySingle(this.db, { text: `SELECT ${fields} FROM ONLY ${recordId.toString()};`, vars: {} });',
+      'return executeQuerySingle(this.db, { text: `SELECT ${fields} FROM ONLY ${recordId.toString()};`, vars });',
     tag: '5c',
     why: "upsert's existing-row read (readExisting, builder.ts:636) with the same SDK-escaped id as select-builder.ts:623; fields is line 236",
   },
@@ -118,7 +118,7 @@ const NEEDS_REVIEW: readonly ReviewSite[] = [
   {
     file: 'src/query/builders/upsert-builder.ts',
     snippet:
-      '`LET $before = (SELECT ${buildSelectFields(select, model, include, registry)} FROM ONLY ${recordId.toString()});`,',
+      '`LET $before = (SELECT ${buildSelectFields(select, model, include, registry, includeCtx)} FROM ONLY ${recordId.toString()});`,',
     tag: '5c',
     why: 'upsert with an id in where (builder.ts:517, compileUpsert builder.ts:1069); id text is SDK-escaped as at select-builder.ts:623; line 353 also embeds the select list from line 236',
   },

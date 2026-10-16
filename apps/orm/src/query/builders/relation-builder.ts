@@ -6,8 +6,10 @@
 import { CerialUnknownFieldError, CerialValidationError } from '../../errors';
 import type { FieldMetadata, ModelMetadata, ModelRegistry, OrderByClause } from '../../types';
 import type { FilterCompileContext } from '../compile/var-allocator';
+import { buildConditions } from '../filters/condition-builder';
 import { validationFailure } from '../validators/failure';
 import { validateOrderBy, validatePagination } from '../validators/select-validator';
+import { validateWhereClause } from '../validators/where-validator';
 import { buildOrderByPlan } from './select-builder';
 
 /** Include options for a relation */
@@ -63,6 +65,11 @@ function findReverseSourceField(
   return undefined;
 }
 
+/** The include `where`, or undefined when it is absent or empty and so filters nothing. */
+function activeWhere(options: IncludeOptions | undefined): Record<string, unknown> | undefined {
+  return options?.where && Object.keys(options.where).length ? options.where : undefined;
+}
+
 /**
  * Build nested include fields for a subquery
  * Returns the SELECT fields string for nested relations
@@ -84,10 +91,12 @@ function buildNestedSelectFields(
 /**
  * Build the subquery behind an included relation.
  *
- * The include `orderBy`, `limit` and `offset` are checked against the target model first: they come
+ * The include `where`, `orderBy`, `limit` and `offset` are checked against the target model first: they come
  * from the caller and end up in query text, so an unknown key must never get that far. Relation
  * sort keys are projected to an alias on an inner query and dropped again by the outer one, the
- * same shape top-level `orderBy` uses.
+ * same shape top-level `orderBy` uses. The `where` is compiled into the inner query beside the
+ * relation's join condition, with every value bound through `ctx`, so ordering and paging act on
+ * the filtered set. Its bindings are left on `ctx` for the caller to merge into the query's vars.
  */
 function buildIncludeSubquery(
   relationName: string,
@@ -99,7 +108,9 @@ function buildIncludeSubquery(
   registry: ModelRegistry,
   ctx?: FilterCompileContext,
 ): string {
-  if (options?.where && !ctx) {
+  const where = activeWhere(options);
+
+  if (where && !ctx) {
     throw new CerialValidationError(
       `Invalid include: 'where' in include '${relationName}' needs a filter compile context, and none was supplied`,
       { model: targetModel.name, field: relationName, operation: 'include' },
@@ -107,6 +118,7 @@ function buildIncludeSubquery(
   }
 
   const checks = [
+    ['where', validateWhereClause(where ?? {}, targetModel, 'where', registry)],
     ['orderBy', validateOrderBy(options?.orderBy, targetModel, registry)],
     ['limit/offset', validatePagination(options?.limit, options?.offset)],
   ] as const;
@@ -118,8 +130,12 @@ function buildIncludeSubquery(
 
   const plan = buildOrderByPlan(options?.orderBy as OrderByClause | undefined, targetModel, registry);
   const select = plan.projections.length ? `${selectFields}, ${plan.projections.join(', ')}` : selectFields;
+  // buildConditions skips a key the model lacks, which the validation above has already ruled out
+  const filter = where ? buildConditions(ctx!, where, targetModel, registry) : undefined;
+  if (filter) ctx!.collect(filter.vars);
+
   const inner = [
-    `SELECT ${select} FROM ${table} WHERE ${condition}`,
+    `SELECT ${select} FROM ${table} WHERE ${filter?.text ? `${condition} AND (${filter.text})` : condition}`,
     plan.clause,
     buildSubqueryLimit(options?.limit).trim(),
     buildSubqueryOffset(options?.offset).trim(),
@@ -162,9 +178,13 @@ function buildForwardRelationSelectInternal(
   const targetModel = registry[field.relationInfo.targetModel];
   const targetTable = field.relationInfo.targetTable;
 
-  // Check for nested includes, orderBy, limit, or offset
+  // Check for nested includes, where, orderBy, limit, or offset
   const needsSubquery =
-    options?.include || options?.orderBy || options?.limit !== undefined || options?.offset !== undefined;
+    options?.include ||
+    activeWhere(options) ||
+    options?.orderBy ||
+    options?.limit !== undefined ||
+    options?.offset !== undefined;
 
   if (needsSubquery && targetModel) {
     const nestedSelect = options?.include ? buildNestedSelectFields(options.include, targetModel, registry, ctx) : '*';

@@ -254,7 +254,8 @@ export function buildUpdateManyQuery(
   const whereClause = transformDestructiveWhere(where, model, 'updateMany', registry);
 
   // Build select fields for RETURN
-  const fields = buildSelectFields(select, model, include, registry);
+  const includeCtx = createCompileContext('inc_');
+  const fields = buildSelectFields(select, model, include, registry, includeCtx);
 
   // Build query
   const parts = [
@@ -266,7 +267,7 @@ export function buildUpdateManyQuery(
 
   return {
     text: parts.join(' '),
-    vars: { ...setVars, ...whereClause.vars },
+    vars: { ...setVars, ...whereClause.vars, ...includeCtx.getCollected() },
   };
 }
 
@@ -656,6 +657,7 @@ function buildUpdateUniqueReturnClause(
   include: IncludeClause | undefined,
   model: ModelMetadata,
   registry?: ModelRegistry,
+  ctx?: FilterCompileContext,
 ): string {
   // 'before' - return pre-update state (select and include read before the write)
   if (returnOption === 'before') {
@@ -669,7 +671,7 @@ function buildUpdateUniqueReturnClause(
 
   // Default / 'after' - return updated record with select/include support
   const fields = select ? buildSelectFields(select, model) : '*';
-  const fieldsWithIncludes = include ? combineSelectWithIncludes(fields, include, model, registry) : fields;
+  const fieldsWithIncludes = include ? combineSelectWithIncludes(fields, include, model, registry, ctx) : fields;
 
   return `RETURN ${fieldsWithIncludes}`;
 }
@@ -699,17 +701,18 @@ export function buildUpdateUniqueQuery(
   const { setParts, setVars } = buildSetClause(data, model, unset);
 
   // Build RETURN clause
+  const includeCtx = createCompileContext('inc_');
   const snapshot = needsBeforeSnapshot(returnOption, select, include);
   const returnClause = snapshot
     ? 'RETURN NONE'
-    : buildUpdateUniqueReturnClause(returnOption, select, include, model, registry);
+    : buildUpdateUniqueReturnClause(returnOption, select, include, model, registry, includeCtx);
 
   // The row is read through the projection first; the write itself returns nothing
   const wrap = (from: string, whereText: string, statement: string): CompiledQuery['text'] =>
     snapshot
       ? [
           'BEGIN TRANSACTION;',
-          buildBeforeSnapshot(from, whereText, select, model, include, registry),
+          buildBeforeSnapshot(from, whereText, select, model, include, registry, includeCtx),
           `${statement};`,
           'COMMIT TRANSACTION;',
           'RETURN $before;',
@@ -730,7 +733,7 @@ export function buildUpdateUniqueQuery(
 
     return {
       text: wrap(recordId.toString(), whereClause.text, parts.join(' ')),
-      vars: { ...setVars, ...whereClause.vars },
+      vars: { ...setVars, ...whereClause.vars, ...includeCtx.getCollected() },
     };
   }
 
@@ -746,6 +749,6 @@ export function buildUpdateUniqueQuery(
 
   return {
     text: wrap(model.tableName, whereClause.text, parts.join(' ')),
-    vars: { ...setVars, ...whereClause.vars },
+    vars: { ...setVars, ...whereClause.vars, ...includeCtx.getCollected() },
   };
 }

@@ -55,13 +55,14 @@ function buildUpsertReturnClause(
   include: IncludeClause | undefined,
   model: ModelMetadata,
   registry?: ModelRegistry,
+  ctx?: FilterCompileContext,
 ): string {
   if (returnOption === 'before') return 'RETURN BEFORE';
   if (returnOption === true) return '';
 
   // Default / 'after' - return upserted record with select/include support
   const fields = select ? buildSelectFields(select, model) : '*';
-  const fieldsWithIncludes = include ? combineSelectWithIncludes(fields, include, model, registry) : fields;
+  const fieldsWithIncludes = include ? combineSelectWithIncludes(fields, include, model, registry, ctx) : fields;
 
   return `RETURN ${fieldsWithIncludes}`;
 }
@@ -222,10 +223,11 @@ export function buildUpsertWhereQuery(
   const whereClause = transformDestructiveWhere(where, model, 'upsert', registry);
 
   // Build RETURN clause
+  const includeCtx = createCompileContext('inc_');
   const snapshot = needsBeforeSnapshot(returnOption, select, include);
   const returnClause = snapshot
     ? 'RETURN NONE'
-    : buildUpsertReturnClause(returnOption, select, include, model, registry);
+    : buildUpsertReturnClause(returnOption, select, include, model, registry, includeCtx);
 
   const onlyKeyword = useOnly ? ' ONLY' : '';
   const parts = [
@@ -240,18 +242,18 @@ export function buildUpsertWhereQuery(
     return {
       text: [
         'BEGIN TRANSACTION;',
-        buildBeforeSnapshot(model.tableName, whereClause.text, select, model, include, registry),
+        buildBeforeSnapshot(model.tableName, whereClause.text, select, model, include, registry, includeCtx),
         `${parts.join(' ')};`,
         'COMMIT TRANSACTION;',
         'RETURN $before;',
       ].join('\n'),
-      vars: { ...setVars, ...whereClause.vars },
+      vars: { ...setVars, ...whereClause.vars, ...includeCtx.getCollected() },
     };
   }
 
   return {
     text: parts.join(' '),
-    vars: { ...setVars, ...whereClause.vars },
+    vars: { ...setVars, ...whereClause.vars, ...includeCtx.getCollected() },
   };
 }
 
@@ -265,6 +267,7 @@ function buildTransactionReturnClause(
   include: IncludeClause | undefined,
   model: ModelMetadata,
   registry?: ModelRegistry,
+  ctx?: FilterCompileContext,
 ): { createReturn: string; updateReturn: string } {
   if (returnOption === 'before') {
     return { createReturn: '', updateReturn: 'RETURN BEFORE' };
@@ -276,7 +279,7 @@ function buildTransactionReturnClause(
 
   // Default / 'after' - use select/include fields (no explicit RETURN AFTER needed)
   const fields = select ? buildSelectFields(select, model) : '*';
-  const fieldsWithIncludes = include ? combineSelectWithIncludes(fields, include, model, registry) : fields;
+  const fieldsWithIncludes = include ? combineSelectWithIncludes(fields, include, model, registry, ctx) : fields;
   const returnStr = `RETURN ${fieldsWithIncludes}`;
 
   return { createReturn: returnStr, updateReturn: returnStr };
@@ -319,7 +322,15 @@ export function buildUpsertIdQuery(
   }
 
   // Build RETURN clauses
-  const { createReturn, updateReturn } = buildTransactionReturnClause(returnOption, select, include, model, registry);
+  const includeCtx = createCompileContext('inc_');
+  const { createReturn, updateReturn } = buildTransactionReturnClause(
+    returnOption,
+    select,
+    include,
+    model,
+    registry,
+    includeCtx,
+  );
 
   const hasUpdate = Object.keys(updateData).length > 0;
 
@@ -354,7 +365,7 @@ export function buildUpsertIdQuery(
   const snapshot = needsBeforeSnapshot(returnOption, select, include);
   if (snapshot) {
     statements.push(
-      `LET $before = (SELECT ${buildSelectFields(select, model, include, registry)} FROM ONLY ${recordId.toString()});`,
+      `LET $before = (SELECT ${buildSelectFields(select, model, include, registry, includeCtx)} FROM ONLY ${recordId.toString()});`,
     );
   }
 
@@ -400,7 +411,7 @@ export function buildUpsertIdQuery(
 
   return {
     text: statements.join('\n'),
-    vars,
+    vars: { ...vars, ...includeCtx.getCollected() },
   };
 }
 
@@ -552,6 +563,7 @@ export function buildUpsertWithNestedTransaction(
 
   // Nothing to write to an existing row: hand it back, projected the way the writes project theirs
   const hasUpdate = Object.keys(updateData).length > 0 || updateNestedOps.size > 0;
+  const includeCtx = createCompileContext('inc_');
   const updateQuery = hasUpdate
     ? prefixQueryVars(
         buildUpdateWithNestedTransaction(model, where, updateData, updateNestedOps, registry, {
@@ -563,8 +575,8 @@ export function buildUpsertWithNestedTransaction(
         'u_',
       )
     : {
-        text: `(SELECT ${buildSelectFields(select, model, include, registry)} FROM ONLY $up_exists.id);`,
-        vars: {},
+        text: `(SELECT ${buildSelectFields(select, model, include, registry, includeCtx)} FROM ONLY $up_exists.id);`,
+        vars: includeCtx.getCollected(),
       };
   const update = hasUpdate ? asBlockValue(updateQuery.text) : updateQuery.text;
 

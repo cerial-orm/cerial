@@ -79,7 +79,8 @@ export function buildCreateQuery(
   const withDefaults = applyDefaultValues(stripComputedFields(data, model), model);
 
   // Build select fields for RETURN
-  const fields = buildSelectFields(select, model, include, registry);
+  const includeCtx = createCompileContext('inc_');
+  const fields = buildSelectFields(select, model, include, registry, includeCtx);
 
   // Models with @set fields must use SET syntax (CONTENT sends raw arrays, SurrealDB rejects them for set<T> fields).
   // A tuple element filled with time::now() needs it too: the expression is query text, and
@@ -91,7 +92,7 @@ export function buildCreateQuery(
 
     return {
       text: query,
-      vars: setVars,
+      vars: { ...setVars, ...includeCtx.getCollected() },
     };
   }
 
@@ -101,6 +102,6 @@ export function buildCreateQuery(
 
   return {
     text: query,
-    vars: contentVar.vars,
+    vars: { ...contentVar.vars, ...includeCtx.getCollected() },
   };
 }
