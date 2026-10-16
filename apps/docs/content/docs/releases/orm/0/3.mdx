@@ -672,14 +672,6 @@ development branch and is not available on npm.
   member with `B extends C[!secret]`, `A extends B` still cannot declare `secret`. A
   schema that redeclared a grandparent's private member stops generating. Remove
   `!!private` from the declaring type, or rename the field in the child.
-- **Breaking.** `oxfmt`, the formatter that tidies generated files, is no longer
-  installed with `cerial`. It is now an optional peer dependency. `cerial generate`
-  still runs without it, but the files it writes are left unformatted, so install
-  it next to `cerial` to keep the formatted output:
-
-  ```bash
-  npm install --save-dev oxfmt
-  ```
 
 ### Removed
 
