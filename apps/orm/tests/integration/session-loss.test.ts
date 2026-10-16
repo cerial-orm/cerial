@@ -1,9 +1,9 @@
 /**
  * Integration tests: a socket whose session is gone raises CerialSessionLostError
  *
- * The sequence is real. The client connects through a TCP relay owned by this file, the relay drops
- * the transport, and the driver reconnects to a new server-side session that is unauthenticated, so the
- * query is refused as the anonymous actor. The shared database is never stopped.
+ * The sequence is real: the client connects, the server restarts, and the query is refused as the
+ * anonymous actor because the session died with the process. It needs a container this machine may
+ * restart, named by CERIAL_RESTARTABLE_CONTAINER; the relay stays for the control.
  */
 
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
@@ -12,6 +12,7 @@ import { createConnectionManager, resetConnectionPool, type ConnectionManager } 
 import { Model } from '../../src/client/model/model';
 import { CerialDatabaseError, CerialSessionLostError } from '../../src/errors';
 import { parseModelRegistry } from '../test-helpers';
+import { restartContainer, RESTARTABLE_CONTAINER } from './restartable-container';
 import { type Relay, startRelay } from './tcp-relay';
 
 const registry = parseModelRegistry(`
@@ -65,21 +66,26 @@ describe('session loss', () => {
     relay.sever();
   });
 
-  test('a query after the transport drops and reconnects is a CerialSessionLostError', async () => {
-    const reconnecting = statusReaches(surreal, 'reconnecting');
-    relay.drop();
-    await reconnecting;
-    await statusReaches(surreal, 'connected');
+  // A relay drop preserves the session (the server process still remembers it), so a query after it
+  // succeeds. Only a server restart loses the session. The memory backend also loses the table, but the
+  // anonymous refusal is raised before any table lookup, so a missing-table error cannot stand in for it.
+  test.skipIf(!RESTARTABLE_CONTAINER)(
+    'a query after a server restart is a CerialSessionLostError (needs CERIAL_RESTARTABLE_CONTAINER)',
+    async () => {
+      await restartContainer(RESTARTABLE_CONTAINER!);
+      if (surreal.status !== 'connected') await statusReaches(surreal, 'connected');
 
-    const error = await caught(() => model.findMany());
+      const error = await caught(() => model.findMany());
 
-    expect(error).toBeInstanceOf(CerialSessionLostError);
-    const lost = error as CerialSessionLostError;
-    expect(lost.code).toBe('C1002');
-    expect(lost.model).toBe('SessionUser');
-    expect(lost.operation).toBe('findMany');
-    expect(lost.message).not.toMatch(/credential|permission/i);
-  });
+      expect(error).toBeInstanceOf(CerialSessionLostError);
+      const lost = error as CerialSessionLostError;
+      expect(lost.code).toBe('C1002');
+      expect(lost.model).toBe('SessionUser');
+      expect(lost.operation).toBe('findMany');
+      expect(lost.message).not.toMatch(/credential|permission/i);
+    },
+    60_000,
+  );
 
   test('control: an authenticated refusal is not a lost session', async () => {
     // The table was never defined, so the live database refuses the query for a reason of its own.
