@@ -14,12 +14,12 @@
  */
 
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import { type Socket as BunSocket, listen, type TCPSocketListener } from 'bun';
 import { Surreal } from 'surrealdb';
 import { createCerialTransactionProxy } from '../../src/client/cerial-transaction';
 import { Model } from '../../src/client/model/model';
 import { CerialConnectionError, CerialDatabaseError, CerialTransactionError } from '../../src/errors';
 import { parseModelRegistry } from '../test-helpers';
+import { type Relay, startRelay } from './tcp-relay';
 
 const registry = parseModelRegistry(`
 model LossUser {
@@ -28,65 +28,6 @@ model LossUser {
   name String
 }
 `);
-
-interface Relay {
-  readonly port: number;
-  /** Close every open connection and stop accepting new ones. */
-  sever(): void;
-}
-
-/** Relay TCP to the shared database so the test can cut the line without touching the database. */
-async function startRelay(): Promise<Relay> {
-  const pairs = new Set<{ client: BunSocket<unknown>; upstream: BunSocket<unknown> }>();
-  const server: TCPSocketListener<{ peer?: BunSocket<unknown>; queued: Uint8Array[] }> = listen({
-    hostname: '127.0.0.1',
-    port: 0,
-    socket: {
-      async open(client) {
-        client.data = { queued: [] };
-        const upstream = await Bun.connect({
-          hostname: '127.0.0.1',
-          port: 8000,
-          socket: {
-            data: (_s, chunk) => {
-              client.write(chunk);
-            },
-            close: () => {
-              client.end();
-            },
-            error: () => {
-              client.end();
-            },
-          },
-        });
-        client.data.peer = upstream;
-        pairs.add({ client, upstream });
-        for (const chunk of client.data.queued) upstream.write(chunk);
-      },
-      data(client, chunk) {
-        if (client.data.peer) client.data.peer.write(chunk);
-        else client.data.queued.push(new Uint8Array(chunk));
-      },
-      close: (client) => {
-        client.data.peer?.end();
-      },
-      error: (client) => {
-        client.data.peer?.end();
-      },
-    },
-  });
-
-  return {
-    port: server.port,
-    sever() {
-      server.stop(true);
-      for (const { client, upstream } of pairs) {
-        client.terminate();
-        upstream.terminate();
-      }
-    },
-  };
-}
 
 const caught = async (run: () => PromiseLike<unknown>): Promise<unknown> => {
   try {

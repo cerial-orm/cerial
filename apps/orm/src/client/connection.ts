@@ -49,12 +49,28 @@ function deriveWsConfig(httpConfig: ConnectionConfig): ConnectionConfig {
   return { ...httpConfig, url: wsUrl };
 }
 
+/**
+ * Reconnect bounds for a pooled socket. The SDK default waits 2s, 4s, 8s, 16s and 32s, so a call made
+ * while it retries hangs for about a minute before failing. A server that restarts is back within
+ * seconds, so retry five times (0.5s, 1s, then 2s each, about 7.5s in all): a socket that has not
+ * returned by then is not coming back, and the caller gets the connection error instead of a minute of
+ * silence.
+ * A reconnected socket has lost its session, so `isUsable` still decides whether it may be handed out.
+ */
+const RECONNECT_OPTIONS = {
+  attempts: 5,
+  retryDelay: 250,
+  retryDelayMax: 2000,
+  retryDelayMultiplier: 2,
+  retryDelayJitter: 0.1,
+} as const;
+
 /** Create and authenticate a fresh Surreal connection */
 async function connectSurreal(config: ConnectionConfig): Promise<Surreal> {
   const surreal = new Surreal();
 
   try {
-    await surreal.connect(`${config.url}/rpc`);
+    await surreal.connect(`${config.url}/rpc`, { reconnect: { enabled: true, ...RECONNECT_OPTIONS } });
 
     if (config.auth) {
       await surreal.signin({
