@@ -9,13 +9,17 @@ const ENTRY = new URL('../../../src/index.ts', import.meta.url).pathname;
 const GENERATORS_ENTRY = new URL('../../../src/generators/index.ts', import.meta.url).pathname;
 const CODEGEN_NAMES = ['formatCode', 'writeClient', 'writeModelRegistry', 'writeMigrationFile', 'createRegistry'];
 
-/** Bundles the entry's own source graph and returns the bare package specifiers it still imports. */
+/**
+ * Bundles the entry's own source graph and returns the bare package specifiers it still imports.
+ * The optional `(` matches a dynamic `import('pkg')`, which a static-only pattern would miss and
+ * so report a graph as clean while it still reaches the package at runtime.
+ */
 async function externalImports(entry: string): Promise<string[]> {
   const result = await Bun.build({ entrypoints: [entry], packages: 'external', target: 'node' });
   expect(result.success).toBe(true);
   const code = await result.outputs[0]!.text();
 
-  return [...code.matchAll(/(?:from|import)\s*["']([^"'./][^"']*)["']/g)].map((m) => m[1]!);
+  return [...code.matchAll(/(?:from|import)\s*\(?\s*["']([^"'./][^"']*)["']/g)].map((m) => m[1]!);
 }
 
 describe('public API: root barrel excludes the codegen surface', () => {
