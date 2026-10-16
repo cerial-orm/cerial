@@ -118,6 +118,35 @@ development branch and is not available on npm.
 
 ### Added
 
+- `@default`, `@defaultAlways`, `@createdAt` and `@updatedAt` on a tuple element
+  now fill an element you leave out. Before, they were accepted and then did
+  nothing: Cerial left the position empty, SurrealDB refused the fixed-length
+  tuple, and a required `@createdAt` element made the row unwritable unless you
+  supplied the timestamp yourself.
+
+  ```cerial
+  tuple Stamped {
+    label String,
+    born Date @createdAt,
+    touched Date @updatedAt,
+    hits Int @defaultAlways(7)
+  }
+  ```
+
+  ```typescript
+  await client.db.Page.create({ data: { name: 'home', stamp: { label: 'v1' } } });
+  // stamp: ['v1', <now>, <now>, 7]
+  ```
+
+  Leave an element out by passing the tuple in object form without that key.
+  A value you pass is always stored as given. `@updatedAt` and `@defaultAlways`
+  elements are also refreshed by a per-element update that leaves them out;
+  `@default` and `@createdAt` elements keep their stored value. Timestamps come
+  from the database clock, like a model field's. Replacing the whole tuple with
+  array form, and updating a different field, change nothing. `@uuid`, `@uuid4`
+  and `@uuid7` remain unsupported on tuple elements. See
+  [Decorators on Tuple Elements](/schema/tuple#decorators-on-tuple-elements).
+
 - `orderBy` now accepts a relation field, so you can sort by a value on the
   related record:
 

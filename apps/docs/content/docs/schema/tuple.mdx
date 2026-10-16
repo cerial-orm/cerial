@@ -40,7 +40,7 @@ console.log(user.location[1]); // -74.006 (lng)
 3. **Elements can be named or unnamed** — Names are for input convenience only. Output is always a positional array.
 4. **Output is ALWAYS an array** — `[40.7, -74.0]`, never `{ lat: 40.7, lng: -74.0 }`.
 5. **Input accepts both array and object form** — When elements are named, you can use `{ lat: 40.7, lng: -74.0 }` or `[40.7, -74.0]` as input.
-6. **Support a subset of decorators on elements** — `@nullable`, `@default`, `@defaultAlways`, `@createdAt`, and `@updatedAt` are allowed. See [Decorators on Tuple Elements](#decorators-on-tuple-elements) for the full list.
+6. **Support a subset of decorators on elements** — `@nullable`, `@default`, `@defaultAlways`, `@createdAt`, and `@updatedAt` are allowed, and the last four fill an element you omit. See [Decorators on Tuple Elements](#decorators-on-tuple-elements) for the full list.
 7. **No OrderBy on tuple fields** — Mixed element types make ordering ambiguous, so tuples are excluded from OrderBy types.
 8. **Per-element update via object form** — Update individual elements without replacing the entire tuple.
 9. **Sub-field select only for tuples with object elements** — `TupleSelect` is generated only when the tuple contains object elements at any depth.
@@ -139,43 +139,135 @@ const m: MeasurementInput = [3.14, 'cm', null];
 
 ## Decorators on Tuple Elements
 
+:::caution
+Decorators that fill an omitted tuple element are not yet available in the current release. They will ship in an upcoming version.
+:::
+
 Tuple elements support a subset of decorators:
 
 | Decorator | Allowed | Notes |
 |---|---|---|
 | `@nullable` | ✅ | Makes element accept `null` |
-| `@default` | ✅ | Default value on create |
-| `@defaultAlways` | ✅ | Reset-on-write default |
-| `@createdAt` | ✅ | Auto-set on create (Date elements only) |
-| `@updatedAt` | ✅ | Auto-set on update (Date elements only) |
-| `@uuid` / `@uuid4` / `@uuid7` | ❌ | SurrealDB doesn't support DEFAULT on tuple elements |
+| `@default` | ✅ | Fills the element when you omit it on create |
+| `@defaultAlways` | ✅ | Fills the element when you omit it, on create and on every per-element update |
+| `@createdAt` | ✅ | Fills the element with the current time when you omit it on create (Date elements only) |
+| `@updatedAt` | ✅ | Fills the element with the current time when you omit it on create and on every per-element update (Date elements only) |
+| `@uuid` / `@uuid4` / `@uuid7` | ❌ | Not supported on tuple elements |
 | `@readonly` | ❌ | Not supported on tuple elements |
 | `@now` | ❌ | COMPUTED must be top-level (model-only) |
 | `@flexible` | ❌ | Not applicable to tuple elements |
 
-### `@default` on Elements
-
-Use `@default` to provide a value when an element is omitted on create:
+The four filling decorators act on an element you leave out. Leave an element out by passing the tuple in object form, with the named key or the index key missing. Array form is positional and has a fixed length, so it must carry every element.
 
 ```cerial
-tuple Config {
-  label String @default("untitled"),
-  priority Int @default(0)
+tuple Stamped {
+  label String,
+  born Date @createdAt,
+  touched Date @updatedAt,
+  hits Int @defaultAlways(7)
+}
+
+model Page {
+  id Record @id
+  name String
+  stamp Stamped
 }
 ```
 
+```typescript
+const page = await client.db.Page.create({
+  data: { name: 'home', stamp: { label: 'v1' } },
+});
+
+console.log(page.stamp[1]); // Date, the time of the create
+console.log(page.stamp[2]); // Date, the time of the create
+console.log(page.stamp[3]); // 7
+```
+
+An explicit value always wins. If you pass the element, Cerial writes what you passed and never replaces it with the decorator's value:
+
+```typescript
+const page = await client.db.Page.create({
+  data: { name: 'home', stamp: { label: 'v1', hits: 3 } },
+});
+
+console.log(page.stamp[3]); // 3
+```
+
+An explicit `0` counts as supplied and is kept.
+
+### `@default` on Elements
+
+`@default` supplies a value when the element is omitted on create:
+
+```cerial
+tuple Config {
+  label String,
+  priority Int @default(1)
+}
+```
+
+```typescript
+const row = await client.db.Settings.create({
+  data: { name: 'a', config: { label: 'untitled' } },
+});
+
+console.log(row.config); // ['untitled', 1]
+```
+
+A later update does not rewrite it. Updating another field, or another element of the tuple, keeps the stored value.
+
 ### `@createdAt` and `@updatedAt` on Elements
 
-Timestamp decorators work on Date tuple elements the same way they do on model and object fields:
+Both work on Date elements:
 
 ```cerial
 tuple AuditEntry {
   action String,
-  performedAt Date @createdAt
+  performedAt Date @createdAt,
+  touchedAt Date @updatedAt
 }
 ```
 
-`@createdAt` sets the element to the current timestamp when the parent record is created. `@updatedAt` sets it on every create and update.
+- `@createdAt` stores the current time when you omit the element on create. It never moves afterwards, whether you update another field or another element of the tuple.
+- `@updatedAt` stores the current time when you omit the element on create, and again each time you update the tuple per element and leave `touchedAt` out:
+
+  ```typescript
+  await client.db.Log.updateMany({
+    where: { id: entry.id },
+    data: { audit: { action: 'reviewed' } }, // touchedAt is set to now
+  });
+  ```
+
+  To store a specific timestamp instead, pass it: `data: { audit: { touchedAt } }`.
+
+The timestamp is the database's clock, the same clock a model field's `@createdAt` or `@updatedAt` uses, not the application server's.
+
+### `@defaultAlways` on Elements
+
+`@defaultAlways` stores its value when you omit the element on create. On a per-element update that leaves the element out, it is reset to the default, even if the stored value was different. Pass the element to store something else:
+
+```typescript
+// stamp[3] is reset to 7
+await client.db.Page.updateMany({
+  where: { id: page.id },
+  data: { stamp: { label: 'v2' } },
+});
+
+// stamp[3] becomes 9
+await client.db.Page.updateMany({
+  where: { id: page.id },
+  data: { stamp: { hits: 9 } },
+});
+```
+
+### What does not fill an element
+
+- Replacing the whole tuple with array form writes exactly the elements you pass. Nothing is added or refreshed, so the `@updatedAt` element keeps the value you give it.
+- Updating a different field of the model leaves every tuple element as stored, including `@updatedAt` and `@defaultAlways` elements.
+- `@uuid`, `@uuid4` and `@uuid7` cannot be used on a tuple element, so an id cannot be generated for one.
+- The fill is done by Cerial when it builds the write. A record written to the database by another client does not get it, and the database rejects a tuple that is missing an element.
+- Per-element update is not available on array tuple fields (`Coordinate[]`), only push and set, so a decorated element there is filled by what you pass.
 
 ## Nested Tuples
 
