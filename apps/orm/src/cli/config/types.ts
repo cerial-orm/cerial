@@ -82,6 +82,8 @@ export interface ResolvedSchemaEntry {
   clientClassName: string;
   /** Connection config for this schema (optional) */
   connection?: ConnectionConfig;
+  /** Database set on this entry's own `connection`; absent when it is inherited from the root config or unset */
+  explicitDatabase?: string;
   /** Formatting config for this schema (merged from root + per-schema overrides) */
   format?: FormatConfig;
 }

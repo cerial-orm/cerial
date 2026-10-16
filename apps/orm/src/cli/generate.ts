@@ -469,7 +469,8 @@ export async function generateMultiSchema(
   const entryModels: EntryModels[] = [];
   for (const entry of entries) {
     const { resolvedAST } = await buildResolvedSchemaAst({ schemaPath: entry.path, filter: filters?.get(entry.name) });
-    if (resolvedAST) entryModels.push({ name: entry.name, models: resolvedAST.models });
+    if (resolvedAST)
+      entryModels.push({ name: entry.name, models: resolvedAST.models, database: entry.explicitDatabase });
   }
   validateEntryTableNames(entryModels);
 

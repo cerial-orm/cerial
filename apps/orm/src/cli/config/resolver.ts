@@ -70,6 +70,7 @@ function resolveMultiSchema(config: CerialConfig, cwd: string): ResolvedSchemaEn
       output,
       clientClassName: toClientClassName(name),
       connection: entry.connection ?? config.connection,
+      explicitDatabase: entry.connection?.database,
       format,
     };
   });
