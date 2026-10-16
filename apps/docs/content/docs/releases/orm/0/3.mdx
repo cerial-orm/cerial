@@ -672,6 +672,14 @@ development branch and is not available on npm.
   member with `B extends C[!secret]`, `A extends B` still cannot declare `secret`. A
   schema that redeclared a grandparent's private member stops generating. Remove
   `!!private` from the declaring type, or rename the field in the child.
+- **Breaking.** `oxfmt`, the formatter that tidies generated files, is no longer
+  installed with `cerial`. It is now an optional peer dependency. `cerial generate`
+  still runs without it, but the files it writes are left unformatted, so install
+  it next to `cerial` to keep the formatted output:
+
+  ```bash
+  npm install --save-dev oxfmt
+  ```
 
 ### Removed
 
@@ -686,3 +694,26 @@ development branch and is not available on npm.
   never ran against a real schema. The checks now run on the path `cerial generate` uses.
   If you called the exported copy directly, use the CLI schema validator, which returns
   `{ valid, errors }`.
+- **Breaking.** The code generation and CLI runtime exports are no longer exported
+  from the package root, so importing `cerial` no longer loads the formatter or the
+  generators. Each name still exists on the subpath that already held it, so an
+  import that no longer resolves needs only a new module specifier.
+
+  | Name | Import it from |
+  |---|---|
+  | `formatCode`, `createRegistry`, `convertField`, `convertFields`, `convertModel`, `convertModels`, `writeClient`, `writeClientIndexFile`, `writeClientMain`, `writeInternalIndex`, `writeMigrationFile`, `writeModelRegistry`, `writeModelsIndex`, `writeModelTypes` | `cerial/generators` |
+  | `generate`, `Logger`, `logger`, `writeFile`, `writeFiles`, `resolveSchemas`, `resolveSinglePath`, `findSchemasInDir`, `ensureDir`, `ensureDirs`, `ensureParentDir`, `getDefaultOptions`, `parseArgs`, `printHelp`, `validateOptions`, `validateModelNames`, `validateFieldNames` | `cerial/cli` |
+
+  ```ts
+  // before
+  import { generate, writeClient } from 'cerial';
+
+  // after
+  import { generate } from 'cerial/cli';
+  import { writeClient } from 'cerial/generators';
+  ```
+
+  `defineConfig` stays on the root, so `import { defineConfig } from 'cerial'` in
+  `cerial.config.ts` keeps working. The CLI types (`CLIOptions`, `GenerateResult`,
+  `LoggerOptions`, `LogLevel`, `SchemaResolveOptions`, `WriteOptions` and the
+  validation result types) stay on the root too. Generated clients are unaffected.
