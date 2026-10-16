@@ -312,6 +312,7 @@ This is typically the only import you need in your application code.
 The generated output is meant to be regenerated whenever your schema changes. You should:
 
 1. **Add the output directory to `.gitignore`** if you generate at build time, or **commit it** if you want the types available without a build step.
+   A committed client carries the `url`, `namespace` and `database` of its schema's [connection](/cli/multi-schema#per-schema-connections), so check those values before committing. The `auth` value is never written to the output, but the `url` is written as it resolves at generate time, so a `url` that carries userinfo (`user:pass@host`) puts those credentials in the file. Keep them out of the configured `url`; see [credentials](/cli/multi-schema#per-schema-connections).
 2. **Run generation in CI** to ensure the client is always in sync with the schema.
 3. **Use [watch mode](/cli/generate#watch-mode)** during development for instant regeneration.
 

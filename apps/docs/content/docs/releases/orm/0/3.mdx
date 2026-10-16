@@ -453,6 +453,16 @@ development branch and is not available on npm.
   is `'cancelled'` rather than a new value because SurrealDB commits atomically: a commit that
   threw applied nothing and the server has already dropped the transaction.
 
+- A schema's `connection` in `cerial.config` did nothing. The docs described per-schema
+  connections from 0.1.0, and resolution worked, but the value never reached the
+  generated client, so `connect()` always needed an argument. The generated client now
+  embeds the `url`, `namespace` and `database` of its schema, and `connect()` with no
+  argument uses them. An argument still wins and replaces them as a whole. Credentials
+  are not embedded, so the generated directory stays safe to commit: a no-argument
+  `connect()` reads `CERIAL_DB_USER` and `CERIAL_DB_PASS` when it runs, and sends no
+  authentication when both are unset. A committed client now contains the connection
+  `url`, `namespace` and `database`.
+
 ### Changed
 
 - Transaction conflict retries (`TransactionOptions.retries`) now recognise a
@@ -672,6 +682,14 @@ development branch and is not available on npm.
   member with `B extends C[!secret]`, `A extends B` still cannot declare `secret`. A
   schema that redeclared a grandparent's private member stops generating. Remove
   `!!private` from the declaring type, or rename the field in the child.
+- `cerial generate` now refuses a config where two schemas define models that resolve to
+  the same table, before writing any file. A config that generated before can now fail.
+  Table names follow the model name in snake case, so `UserAccount` and `userAccount`
+  collide. Two clients on one table wrote it with different shapes and failed on each
+  other's fields. Rename one of the models, or give each schema its own `database` on its
+  own `connection`: a shared table is allowed when every owner sets a different
+  `database` itself, and is still refused when a database is equal, unset or only
+  inherited from the root `connection`.
 
 ### Removed
 

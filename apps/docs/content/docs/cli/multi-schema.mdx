@@ -203,7 +203,6 @@ export default defineConfig({
         url: 'http://localhost:8000',
         namespace: 'analytics',
         database: 'analytics',
-        auth: { username: 'root', password: 'root' },
       },
     },
   },
@@ -211,12 +210,70 @@ export default defineConfig({
     url: 'http://localhost:8000',
     namespace: 'main',
     database: 'main',
-    auth: { username: 'root', password: 'root' },
   },
 });
 ```
 
 Schemas without their own `connection` inherit from the root config.
+
+:::caution
+Embedding the connection in the generated client is not yet available in the current release. It will ship in an upcoming version.
+:::
+
+Each generated client embeds the `url`, `namespace` and `database` of its schema, and `connect()` with no argument uses them:
+
+```typescript
+import { MainCerialClient } from './schemas/main/client';
+import { AnalyticsCerialClient } from './schemas/analytics/client';
+
+const main = new MainCerialClient();
+const analytics = new AnalyticsCerialClient();
+
+await main.connect();      // main namespace, main database
+await analytics.connect(); // analytics namespace, analytics database
+```
+
+An argument to `connect()` replaces the embedded values as a whole. It is not merged with them, so pass the full `url`, `namespace` and `database` you want:
+
+```typescript
+await analytics.connect({
+  url: 'http://db.internal:8000',
+  namespace: 'analytics',
+  database: 'analytics_staging',
+});
+```
+
+Credentials are never embedded, because the generated directory is meant to be committable and a password written into it would reach your repository. A no-argument `connect()` reads them from the environment when it runs:
+
+```bash
+export CERIAL_DB_USER=root
+export CERIAL_DB_PASS=root
+```
+
+Set both or neither. With neither set, `connect()` sends no authentication, and with only one set it throws. An `auth` value in the config's `connection` is not used by the generated client. To supply credentials another way, pass a full config to `connect()`.
+
+This exclusion covers `auth` only. The `url` is embedded exactly as it resolves when you run `cerial generate`, so a `url` that carries credentials (`ws://user:pass@host:8000/rpc`), or one read from an environment variable that does, writes them into the generated file. Keep userinfo out of the configured `url` and supply credentials through `CERIAL_DB_USER` and `CERIAL_DB_PASS`, or pass a full config to `connect()`.
+
+If a schema has no connection of its own and the root config has none, `connect()` with no argument throws and asks you to pass a config.
+
+### Shared Table Names
+
+Two schemas must not define models that end up as the same table, because two clients would then write one table with different shapes. `cerial generate` refuses such a config before it writes any file, and names the table, both schemas and the model in each.
+
+:::caution
+This refusal is not yet available in the current release. It will ship in an upcoming version.
+:::
+
+Table names come from the model name in snake case, so models with different casing can collide: `UserAccount` and `userAccount` both become `user_account`. Abstract models produce no table and do not count.
+
+A shared table is allowed in one case: every schema that owns it sets its own `database` in its own `connection`, and all of those databases differ. Then the two tables live in separate databases. The refusal still applies when the databases are equal, when either schema sets none, and when a schema only inherits its database from the root `connection`, because an inherited value is not a deliberate separation.
+
+```text
+Schema entries resolve to the same table, so their clients would share it:
+  - table 'user_account': model 'UserAccount' in entry 'auth' (no database set on the entry), model 'userAccount' in entry 'cms' (no database set on the entry)
+```
+
+To resolve it, rename one of the models, or give each schema its own `database`.
 
 ## Convention Markers
 
