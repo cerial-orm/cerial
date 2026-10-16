@@ -463,6 +463,17 @@ development branch and is not available on npm.
   authentication when both are unset. A committed client now contains the connection
   `url`, `namespace` and `database`.
 
+- `where` inside an `include` was ignored. `include: { posts: { where: { published: true } } }`
+  type-checked and ran, and every related record came back. It now filters: the
+  condition is checked against the included model and applied before `orderBy`,
+  `limit` and `offset`, so those act on the filtered set. An unknown field or
+  operator throws. On a relation to a single record, a `where` that excludes the
+  related record returns `null` for that field.
+
+  The generated type does not yet allow for that `null`: a required relation
+  such as `post.author` is still typed as present. Guard the access when you
+  filter a single relation.
+
 ### Changed
 
 - Transaction conflict retries (`TransactionOptions.retries`) now recognise a

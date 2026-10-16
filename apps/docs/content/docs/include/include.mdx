@@ -112,12 +112,53 @@ const user = await client.db.User.findOne({
 
 | Option | Type | Description |
 |---|---|---|
-| `where` | `PostWhere` | Filter which related records to include |
+| `where` | `PostWhere` | Filter which related records to include, see [Filtering Included Records](#filtering-included-records) |
 | `orderBy` | `PostOrderBy` | Sort included records |
 | `limit` | `number` | Maximum number of included records |
 | `offset` | `number` | Skip this many included records |
 | `select` | `PostSelect` | Narrow the return type (type-level only) |
 | `include` | `PostInclude` | Include nested relations (see [Nested Includes](/include/nested-includes)) |
+
+## Filtering Included Records
+
+:::caution
+Filtering with `where` inside `include` is not yet working in the current release: the option was accepted and ignored, and every related record came back. The behaviour below ships in an upcoming version.
+:::
+
+`where` inside an include keeps only the related records that match. `orderBy`, `limit` and `offset` apply to the filtered set, so `limit: 5` is the first five matching records, not the matching records among the first five:
+
+```typescript
+const user = await client.db.User.findOne({
+  where: { name: 'Jane' },
+  include: {
+    posts: {
+      where: { published: true, title: { contains: 'TypeScript' } },
+      orderBy: { createdAt: 'desc' },
+      limit: 5,
+    },
+  },
+});
+```
+
+The filter is written against the included model and takes the same operators as a top-level `where`, including `AND`, `OR` and `NOT`. An unknown field or operator throws instead of being ignored. An empty `where: {}` filters nothing.
+
+A filter on one include does not affect the parent query or sibling includes. Each nested include can carry its own `where`.
+
+### Filtering a single relation
+
+On a relation to one record (`Relation` or `Relation?`), a `where` that excludes the related record returns `null` for that field:
+
+```typescript
+const post = await client.db.Post.findOne({
+  where: { title: 'Hello' },
+  include: { author: { where: { isActive: true } } },
+});
+// post.author is the author when active, null when not
+```
+
+:::caution
+The generated type does **not** reflect this yet. For a required relation such as `Post.author`, TypeScript still types `post.author` as `User`, although a `where` can make it `null` at runtime. Until the type widens, guard the access (`post.author?.name`) whenever you filter a single relation.
+:::
 
 ## Include with Select
 
