@@ -62,13 +62,10 @@ describe('E2E include where: nested includes', () => {
     });
 
     expect(zed?.posts).toHaveLength(3);
-    for (const post of zed?.posts ?? []) expect(post.author).toBeFalsy();
+    for (const post of zed?.posts ?? []) expect(post.author).toBeNull();
   });
 
-  // The top-level include maps an excluded to-one row to null; a to-one include nested inside a
-  // child arrives with the key absent, because the nested subquery result is not null-mapped.
-  // This states the intended behaviour and is expected to fail until the nested path matches.
-  test.failing('a nested excluded to-one row is null, as it is at the top level', async () => {
+  test('a nested excluded to-one row is null, as it is at the top level', async () => {
     const [zed] = await client.db.Author.findMany({
       where: { name: 'Zed' },
       include: {

@@ -188,8 +188,9 @@ function processNestedValue(value: unknown): unknown {
           result.id = val;
         }
       } else {
-        // Recursively process nested values
-        result[key] = processNestedValue(val);
+        // The driver hands back NONE as an explicit undefined for a projected to-one include whose
+        // filter excluded the row; the top level reads that as null, so the nested level must too
+        result[key] = val === undefined ? null : processNestedValue(val);
       }
     }
 
