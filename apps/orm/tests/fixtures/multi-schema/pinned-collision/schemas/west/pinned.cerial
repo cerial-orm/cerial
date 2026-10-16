@@ -1,0 +1,5 @@
+# Same table as the sibling entry, which is deliberate: the entries use different databases
+model MsRtPinned {
+  id Record @id
+  label String
+}

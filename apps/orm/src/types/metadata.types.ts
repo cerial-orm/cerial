@@ -200,6 +200,20 @@ export interface ModelRegistry {
   [modelName: string]: ModelMetadata;
 }
 
+/**
+ * A table that another schema entry also maps to. The client generated for `entry` is only valid on
+ * `database`, so connect() refuses any other one: elsewhere the two clients would share the table.
+ */
+export interface DatabasePin {
+  table: string;
+  /** Entry this client was generated for */
+  entry: string;
+  /** Every other entry resolving a model to `table` */
+  otherEntries: string[];
+  /** Database this client was generated for */
+  database: string;
+}
+
 /** Connection configuration for runtime client */
 export interface ConnectionConfig {
   /** Connection URL */

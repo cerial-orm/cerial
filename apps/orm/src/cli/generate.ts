@@ -21,7 +21,15 @@ import {
 import { writeInternalIndex } from '../generators/metadata/internal-writer';
 import { writeModelRegistry } from '../generators/metadata/registry-writer';
 import { writeMigrationFile } from '../generators/migrations/writer';
-import type { ASTLiteral, ConnectionConfig, LiteralMetadata, ObjectRegistry, SchemaAST, TupleRegistry } from '../types';
+import type {
+  ASTLiteral,
+  ConnectionConfig,
+  DatabasePin,
+  LiteralMetadata,
+  ObjectRegistry,
+  SchemaAST,
+  TupleRegistry,
+} from '../types';
 import type { CerialConfig, ResolvedSchemaEntry } from './config';
 import {
   detectNestedSchemaRoots,
@@ -63,6 +71,8 @@ export interface SingleSchemaOptions {
   filter?: PathFilter;
   /** Resolved connection of the config entry; absent for -s, folder discovery and conventions */
   connection?: ConnectionConfig;
+  /** Tables this entry shares with another entry; the client refuses to connect to any other database */
+  databasePins?: DatabasePin[];
 }
 
 /** Options for generating multiple schemas */
@@ -220,8 +230,11 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
     errors: [],
   };
 
-  const { outputDir, logLevel = 'minimal', clientClassName, connection } = options;
+  const { outputDir, logLevel = 'minimal', clientClassName, connection, databasePins } = options;
   logger.setOutputLevel(logLevel);
+
+  // Throws, like the cross-entry check, so no file is written and the caller cannot treat it as a soft failure
+  validateConnectionUrls([{ name: clientClassName ?? 'default', connection }]);
 
   try {
     const {
@@ -233,9 +246,6 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
       resolvedAST: resolved,
     } = await buildResolvedSchemaAst({
       schemaPath: options.schemaPath,
-  // Throws, like the cross-entry check, so no file is written and the caller cannot treat it as a soft failure
-  validateConnectionUrls([{ name: clientClassName ?? 'default', connection }]);
-
       filter: options.filter,
       verbose: options.verbose,
     });
@@ -421,6 +431,7 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
         enumLiterals,
         clientClassName,
         connection,
+        databasePins,
       );
       result.files.push(...clientFiles);
       if (logLevel === 'full') clientFiles.forEach((f) => logger.fileCreated(toFinal(f)));
@@ -473,6 +484,8 @@ export async function generateMultiSchema(
 ): Promise<MultiGenerateResult> {
   const result: MultiGenerateResult = { success: true, results: {}, errors: [] };
 
+  validateConnectionUrls(entries);
+
   // Compare every entry's tables before the first one is written. An entry that fails to parse or
   // resolve is skipped here and reports its own error from the generation loop.
   const entryModels: EntryModels[] = [];
@@ -481,11 +494,9 @@ export async function generateMultiSchema(
     if (resolvedAST)
       entryModels.push({ name: entry.name, models: resolvedAST.models, database: entry.explicitDatabase });
   }
-  validateEntryTableNames(entryModels);
+  const pins = validateEntryTableNames(entryModels);
 
   for (let i = 0; i < entries.length; i++) {
-  validateConnectionUrls(entries);
-
     const entry = entries[i]!;
     logger.progress(`Generating schema '${entry.name}' (${i + 1} of ${entries.length})...`);
 
@@ -498,6 +509,7 @@ export async function generateMultiSchema(
       clean: options.clean,
       filter: filters?.get(entry.name),
       connection: entry.connection,
+      databasePins: pins.get(entry.name),
     });
 
     result.results[entry.name] = singleResult;

@@ -5,6 +5,7 @@
 export { writeLiteralsIndex, writeModelsIndex, writeObjectsIndex, writeTuplesIndex } from './barrel-writer';
 export { writeClientIndex } from './client-index-writer';
 export { generateConnectionExports } from './connection-template';
+export { generateDatabasePinCheck, generateDatabasePins } from './database-pin-template';
 export {
   CERIAL_DURATION_IMPORT,
   CERIAL_ID_IMPORT,

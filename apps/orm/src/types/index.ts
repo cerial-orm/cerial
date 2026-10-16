@@ -18,6 +18,7 @@ export type {
 export type {
   CompositeIndex,
   ConnectionConfig,
+  DatabasePin,
   FieldMetadata,
   LiteralFieldMetadata,
   LiteralMetadata,

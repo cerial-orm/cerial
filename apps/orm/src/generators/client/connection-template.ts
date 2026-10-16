@@ -1,5 +1,6 @@
-import type { ConnectionConfig } from '../../types';
+import type { ConnectionConfig, DatabasePin } from '../../types';
 import { escapeTsString } from '../shared/escaping';
+import { generateDatabasePinCheck } from './database-pin-template';
 
 /**
  * Connection template - generates connection-related code
@@ -31,7 +32,7 @@ export function generateEmbeddedConnection(connection?: ConnectionConfig): strin
 }
 
 /** Body lines of connect() that pick the connection a no-argument call uses. */
-export function generateResolveConnection(configType: string): string {
+export function generateResolveConnection(configType: string, pins?: DatabasePin[]): string {
   return `    let resolved: ${configType};
     if (config) {
       resolved = config;
@@ -42,5 +43,5 @@ export function generateResolveConnection(configType: string): string {
       const password = env?.CERIAL_DB_PASS;
       if ((username === undefined) !== (password === undefined)) throw new CerialNotConnectedError('Set both CERIAL_DB_USER and CERIAL_DB_PASS, or neither.', { operation: 'connect' });
       resolved = username !== undefined && password !== undefined ? { ...EMBEDDED_CONNECTION, auth: { username, password } } : { ...EMBEDDED_CONNECTION };
-    }`;
+    }${generateDatabasePinCheck(pins)}`;
 }

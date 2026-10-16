@@ -2,8 +2,9 @@
  * Client template - base template for generated client
  */
 
-import type { ConnectionConfig, ModelMetadata } from '../../types';
+import type { ConnectionConfig, DatabasePin, ModelMetadata } from '../../types';
 import { generateEmbeddedConnection, generateResolveConnection } from './connection-template';
+import { generateDatabasePins } from './database-pin-template';
 
 /** Generate imports for client */
 export function generateImports(models: ModelMetadata[]): string {
@@ -61,7 +62,11 @@ function _generateTransactionOverloads(): string {
 }
 
 /** Generate the CerialClient class */
-export function generateClientClass(models: ModelMetadata[], clientClassName: string = 'CerialClient'): string {
+export function generateClientClass(
+  models: ModelMetadata[],
+  clientClassName: string = 'CerialClient',
+  databasePins?: DatabasePin[],
+): string {
   const connectConfigName = `${clientClassName}ConnectConfig`;
 
   const modelAccessors = models
@@ -215,7 +220,7 @@ ${modelAccessors}
     * @param config - Connection configuration with optional per-model callbacks. Replaces the embedded connection entirely; omit it to use the embedded one.
     */
    async connect(config?: ${connectConfigName}): Promise<void> {
-${generateResolveConnection(connectConfigName)}
+${generateResolveConnection(connectConfigName, databasePins)}
     // Store per-model callbacks for proxy creation
     this._perModelCallbacks = resolved.perModelCallbacks;
 
@@ -583,13 +588,16 @@ export function generateClientTemplate(
   models: ModelMetadata[],
   clientClassName: string = 'CerialClient',
   connection?: ConnectionConfig,
+  databasePins?: DatabasePin[],
 ): string {
+  const pinBlock = generateDatabasePins(databasePins);
+
   return `${generateImports(models)}
 
 ${generateEmbeddedConnection(connection)}
 
-${generateTypedDbInterface(models)}
+${pinBlock ? `${pinBlock}\n\n` : ''}${generateTypedDbInterface(models)}
 
-${generateClientClass(models, clientClassName)}
+${generateClientClass(models, clientClassName, databasePins)}
 `;
 }
