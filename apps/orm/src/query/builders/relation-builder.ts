@@ -5,6 +5,7 @@
 
 import { CerialUnknownFieldError, CerialValidationError } from '../../errors';
 import type { FieldMetadata, ModelMetadata, ModelRegistry, OrderByClause } from '../../types';
+import type { FilterCompileContext } from '../compile/var-allocator';
 import { validationFailure } from '../validators/failure';
 import { validateOrderBy, validatePagination } from '../validators/select-validator';
 import { buildOrderByPlan } from './select-builder';
@@ -70,10 +71,11 @@ function buildNestedSelectFields(
   nestedInclude: IncludeClause | undefined,
   targetModel: ModelMetadata,
   registry: ModelRegistry,
+  ctx?: FilterCompileContext,
 ): string {
   if (!nestedInclude) return '*';
 
-  const nestedFields = buildRelationSelectFieldsInternal(nestedInclude, targetModel, registry);
+  const nestedFields = buildRelationSelectFieldsInternal(nestedInclude, targetModel, registry, ctx);
   if (!nestedFields.length) return '*';
 
   return `*, ${nestedFields.join(', ')}`;
@@ -95,7 +97,15 @@ function buildIncludeSubquery(
   options: IncludeOptions | undefined,
   targetModel: ModelMetadata,
   registry: ModelRegistry,
+  ctx?: FilterCompileContext,
 ): string {
+  if (options?.where && !ctx) {
+    throw new CerialValidationError(
+      `Invalid include: 'where' in include '${relationName}' needs a filter compile context, and none was supplied`,
+      { model: targetModel.name, field: relationName, operation: 'include' },
+    );
+  }
+
   const checks = [
     ['orderBy', validateOrderBy(options?.orderBy, targetModel, registry)],
     ['limit/offset', validatePagination(options?.limit, options?.offset)],
@@ -142,6 +152,7 @@ function buildForwardRelationSelectInternal(
   field: FieldMetadata,
   options: IncludeOptions | undefined,
   registry: ModelRegistry,
+  ctx?: FilterCompileContext,
 ): string {
   if (!field.relationInfo || !field.relationInfo.fieldRef) {
     return '';
@@ -156,7 +167,7 @@ function buildForwardRelationSelectInternal(
     options?.include || options?.orderBy || options?.limit !== undefined || options?.offset !== undefined;
 
   if (needsSubquery && targetModel) {
-    const nestedSelect = options?.include ? buildNestedSelectFields(options.include, targetModel, registry) : '*';
+    const nestedSelect = options?.include ? buildNestedSelectFields(options.include, targetModel, registry, ctx) : '*';
 
     // Use subquery to fetch related record with nested includes/ordering/pagination
     if (field.isArray) {
@@ -168,6 +179,7 @@ function buildForwardRelationSelectInternal(
         options,
         targetModel,
         registry,
+        ctx,
       );
 
       return `(${sub}) AS ${field.name}`;
@@ -181,6 +193,7 @@ function buildForwardRelationSelectInternal(
       options,
       targetModel,
       registry,
+      ctx,
     );
 
     return `(${sub})[0] AS ${field.name}`;
@@ -199,6 +212,7 @@ function buildReverseRelationSelectInternal(
   currentModel: ModelMetadata,
   registry: ModelRegistry,
   options?: IncludeOptions,
+  ctx?: FilterCompileContext,
 ): string {
   if (!field.relationInfo || !field.relationInfo.isReverse) {
     return '';
@@ -215,7 +229,7 @@ function buildReverseRelationSelectInternal(
   const targetTable = field.relationInfo.targetTable;
 
   // Build nested select fields if nested includes are present
-  const selectFields = options?.include ? buildNestedSelectFields(options.include, targetModel, registry) : '*';
+  const selectFields = options?.include ? buildNestedSelectFields(options.include, targetModel, registry, ctx) : '*';
 
   // Build subquery using $parent to reference the outer record
   const sub = buildIncludeSubquery(
@@ -226,6 +240,7 @@ function buildReverseRelationSelectInternal(
     options,
     targetModel,
     registry,
+    ctx,
   );
 
   return field.isArray ? `(${sub}) AS ${field.name}` : `(${sub})[0] AS ${field.name}`;
@@ -239,6 +254,7 @@ function buildRelationSelectFieldsInternal(
   include: IncludeClause,
   model: ModelMetadata,
   registry: ModelRegistry,
+  ctx?: FilterCompileContext,
 ): string[] {
   const fields: string[] = [];
 
@@ -266,10 +282,10 @@ function buildRelationSelectFieldsInternal(
     const options = typeof includeValue === 'object' ? includeValue : undefined;
 
     if (relationField.relationInfo!.isReverse) {
-      const selectField = buildReverseRelationSelectInternal(relationField, model, registry, options);
+      const selectField = buildReverseRelationSelectInternal(relationField, model, registry, options, ctx);
       if (selectField) fields.push(selectField);
     } else {
-      const selectField = buildForwardRelationSelectInternal(relationField, options, registry);
+      const selectField = buildForwardRelationSelectInternal(relationField, options, registry, ctx);
       if (selectField) fields.push(selectField);
     }
   }
@@ -301,15 +317,17 @@ export function buildReverseRelationSelect(
  * @param include - Include clause specifying which relations to include
  * @param model - Current model metadata
  * @param registry - Full model registry for reverse relations and nested includes
+ * @param ctx - Compile context for an include `where`; without one, an include `where` throws
  */
 export function buildRelationSelectFields(
   include: IncludeClause | undefined,
   model: ModelMetadata,
   registry?: ModelRegistry,
+  ctx?: FilterCompileContext,
 ): string[] {
   if (!include || !registry) return [];
 
-  return buildRelationSelectFieldsInternal(include, model, registry);
+  return buildRelationSelectFieldsInternal(include, model, registry, ctx);
 }
 
 /** Combine base select fields with relation fields */
@@ -318,6 +336,7 @@ export function combineSelectWithIncludes(
   include: IncludeClause | undefined,
   model: ModelMetadata,
   registry?: ModelRegistry,
+  ctx?: FilterCompileContext,
 ): string {
   if (!registry) {
     if (include && Object.values(include).some(Boolean)) {
@@ -330,7 +349,7 @@ export function combineSelectWithIncludes(
     return baseSelect;
   }
 
-  const relationFields = buildRelationSelectFields(include, model, registry);
+  const relationFields = buildRelationSelectFields(include, model, registry, ctx);
 
   if (!relationFields.length) {
     return baseSelect;

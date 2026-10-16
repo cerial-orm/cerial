@@ -19,6 +19,7 @@ import type {
 } from '../../types';
 import { quoteSubKey } from '../../utils/string-utils';
 import type { CompiledQuery } from '../compile/types';
+import type { FilterCompileContext } from '../compile/var-allocator';
 import { expandCompositeKey, findCompositeUniqueKey } from '../filters/composite-key';
 import { isOperatorObject } from '../filters/condition-builder';
 import { transformWhereClause } from '../filters/transformer';
@@ -210,6 +211,7 @@ export function buildSelectFields(
   model: ModelMetadata,
   include?: IncludeClause,
   registry?: ModelRegistry,
+  ctx?: FilterCompileContext,
 ): string {
   let baseSelect: string;
 
@@ -238,7 +240,7 @@ export function buildSelectFields(
 
   // Add relation fields from include
   if (include) {
-    return combineSelectWithIncludes(baseSelect, include, model, registry);
+    return combineSelectWithIncludes(baseSelect, include, model, registry, ctx);
   }
 
   return baseSelect;
