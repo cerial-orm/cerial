@@ -157,7 +157,9 @@ describe('Database error wrapping', () => {
   test('a failed migration is a CerialMigrationError naming the model, with the raw error as cause', async () => {
     const fresh = new CerialClient();
     await fresh.connect(testConfig);
-    const surreal = fresh.getSurreal();
+    // Migrations run on the socket the model proxy uses, which over an http url is the derived
+    // WebSocket rather than the HTTP primary, so the stub has to sit on that one to be reached.
+    const surreal = fresh.getTransactionSurreal();
     if (!surreal) throw new Error('client is not connected');
     const raw = new SurrealError('migration refused');
     // The pooled connection is shared with the other clients in this file, so the stub is undone at once.
