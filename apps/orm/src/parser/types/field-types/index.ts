@@ -3,21 +3,7 @@
  */
 
 import type { SchemaFieldType } from '../../../types';
-import { getAnyFieldType, isAnyType } from './any-parser';
-import { getBoolFieldType, isBoolType } from './bool-parser';
-import { getBytesFieldType, isBytesType } from './bytes-parser';
-import { getDateFieldType, isDateType } from './date-parser';
-import { getDecimalFieldType, isDecimalType } from './decimal-parser';
-import { getDurationFieldType, isDurationType } from './duration-parser';
-import { getEmailFieldType, isEmailType } from './email-parser';
-import { getFloatFieldType, isFloatType } from './float-parser';
-import { getGeometryFieldType, isGeometryType } from './geometry-parser';
-import { getIntFieldType, isIntType } from './int-parser';
-import { getNumberFieldType, isNumberType } from './number-parser';
-import { getRecordFieldType, isRecordType } from './record-parser';
-import { getRelationFieldType, isRelationType } from './relation-parser';
-import { getStringFieldType, isStringType } from './string-parser';
-import { getUuidFieldType, isUuidType } from './uuid-parser';
+import { matchFieldTypeToken } from '../../registry/field-type-registry';
 
 export { getAnyFieldType, isAnyType } from './any-parser';
 export { getBoolFieldType, isBoolType } from './bool-parser';
@@ -42,24 +28,11 @@ export function parseFieldType(
   tupleNames?: Set<string>,
   literalNames?: Set<string>,
 ): SchemaFieldType | null {
-  // Handle Record[] by checking the base type
+  // Names declared in the schema match on the base type, without a trailing []
   const baseToken = token.replace('[]', '');
 
-  if (isStringType(baseToken)) return getStringFieldType();
-  if (isEmailType(baseToken)) return getEmailFieldType();
-  if (isIntType(baseToken)) return getIntFieldType();
-  if (isDateType(baseToken)) return getDateFieldType();
-  if (isBoolType(baseToken)) return getBoolFieldType();
-  if (isFloatType(baseToken)) return getFloatFieldType();
-  if (isNumberType(baseToken)) return getNumberFieldType();
-  if (isUuidType(baseToken)) return getUuidFieldType();
-  if (isDurationType(baseToken)) return getDurationFieldType();
-  if (isDecimalType(baseToken)) return getDecimalFieldType();
-  if (isBytesType(baseToken)) return getBytesFieldType();
-  if (isGeometryType(baseToken)) return getGeometryFieldType();
-  if (isAnyType(baseToken)) return getAnyFieldType();
-  if (isRecordType(token)) return getRecordFieldType(); // Use original token for Record[]
-  if (isRelationType(token)) return getRelationFieldType(); // Use original token for Relation[]
+  const builtin = matchFieldTypeToken(token);
+  if (builtin) return builtin.fieldType;
 
   // Check if the type is a known literal name
   if (literalNames && isLiteralType(baseToken, literalNames)) return 'literal';

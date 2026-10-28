@@ -9,3 +9,4 @@ export type {
 } from './types';
 
 export { DECORATOR_REGISTRY, getDecoratorEntry, matchDecoratorToken } from './decorator-registry';
+export { FIELD_TYPE_REGISTRY, matchFieldTypeToken } from './field-type-registry';

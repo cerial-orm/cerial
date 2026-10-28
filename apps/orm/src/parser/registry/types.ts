@@ -59,7 +59,7 @@ export interface DecoratorEntry {
   readonly parse: DecoratorHandler;
 }
 
-/** One field type. Kept to what dispatch, completion and hover need. */
+/** One field type: what dispatch, completion and hover need. */
 export interface FieldTypeEntry {
   /** The type as written in a schema, such as `String` or `Record`. */
   readonly name: string;
@@ -67,4 +67,10 @@ export interface FieldTypeEntry {
   readonly fieldType: SchemaFieldType;
   /** The one line the editor shows on hover. */
   readonly description: string;
+  /**
+   * Whether a type token names this type. `token` is the token as written and `base` is the same token
+   * with its first `[]` removed. Most types match on `base`; `Record` and `Relation` read `token`
+   * because their array form is part of what they accept.
+   */
+  readonly match: (token: string, base: string) => boolean;
 }
