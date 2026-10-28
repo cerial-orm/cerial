@@ -8,38 +8,53 @@
  * 3. Using the generated client
  */
 
-import { existsSync, rmSync } from 'node:fs';
+import { existsSync, renameSync, rmSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { generate } from '../../src/cli/generate';
+import { isParallelWorker, resolveRunDir, runOnce } from './run-guard';
 
 const E2E_DIR = resolve(import.meta.dir);
 const SCHEMA_DIR = resolve(E2E_DIR, 'schemas');
 const OUTPUT_DIR = resolve(E2E_DIR, 'generated');
 
 /**
- * Setup function - generates the test client
- * Called before tests run
+ * Setup function - generates the test client and prepares the database.
+ * Under `--parallel` the preload runs once per test file in every worker, so the work is guarded
+ * to run once per run; sequentially it runs directly.
  */
 export async function setup(): Promise<void> {
+  if (!isParallelWorker()) return await prepare();
+
+  const ran = await runOnce('setup', prepare, resolveRunDir(SCHEMA_DIR));
+  if (!ran) console.log('[E2E Setup] Test client prepared by another worker');
+}
+
+async function prepare(): Promise<void> {
   console.log('[E2E Setup] Generating test client...');
 
-  // Clean up previous generated files
-  if (existsSync(OUTPUT_DIR)) {
-    rmSync(OUTPUT_DIR, { recursive: true, force: true });
+  // Generate beside the live directory and swap it in, so a reader never sees it half-written
+  const nextDir = resolve(E2E_DIR, `.generated-next-${process.pid}`);
+  const previousDir = resolve(E2E_DIR, `.generated-prev-${process.pid}`);
+  rmSync(nextDir, { recursive: true, force: true });
+
+  try {
+    const result = await generate({
+      schema: SCHEMA_DIR,
+      output: nextDir,
+      verbose: false,
+    });
+
+    if (!result.success) {
+      throw new Error(`Failed to generate client: ${result.errors.join(', ')}`);
+    }
+
+    if (existsSync(OUTPUT_DIR)) renameSync(OUTPUT_DIR, previousDir);
+    renameSync(nextDir, OUTPUT_DIR);
+    console.log(`[E2E Setup] Generated ${result.files.length} files`);
+  } finally {
+    rmSync(nextDir, { recursive: true, force: true });
+    rmSync(previousDir, { recursive: true, force: true });
   }
-
-  // Generate the client
-  const result = await generate({
-    schema: SCHEMA_DIR,
-    output: OUTPUT_DIR,
-    verbose: false,
-  });
-
-  if (!result.success) {
-    throw new Error(`Failed to generate client: ${result.errors.join(', ')}`);
-  }
-
-  console.log(`[E2E Setup] Generated ${result.files.length} files`);
 
   console.log('[E2E Setup] Running global database cleanup and migration...');
   const { CerialClient, testConfig, globalCleanup } = await import('./test-helper');
