@@ -118,6 +118,13 @@ development branch and is not available on npm.
 
 ### Added
 
+- `parse()` and `parseWithLexer()` take an optional last argument, the path of the
+  schema file being parsed, and every node in the returned AST records it in a new
+  `origin` field (`{ kind: 'dsl', file, range }`). Calls that leave it out keep
+  working and get the file name `<input>`. The `Origin` type and the
+  `createDslOrigin(range?, file?)` helper are exported from `cerial` and
+  `cerial/parser`.
+
 - `@default`, `@defaultAlways`, `@createdAt` and `@updatedAt` on a tuple element
   now fill an element you leave out. Before, they were accepted and then did
   nothing: Cerial left the position empty, SurrealDB refused the fixed-length
@@ -260,6 +267,13 @@ development branch and is not available on npm.
   nested write may run others.
 
 ### Fixed
+
+- `cerial generate` named the wrong schema file in some validation errors. It
+  picked the first file whose text contained `model <Name>`, so an error on
+  `model User` in `b.cerial` was reported against `a.cerial` when that file held
+  `model UserProfile`, and an error on a model that extends a parent in another
+  file could name the parent's file or none. Errors now name the file that
+  declares the model.
 
 - `findOne` now accepts `orderBy` in its generated type. The runtime and the
   documentation always supported it, and it is how you choose which record is
@@ -488,6 +502,12 @@ development branch and is not available on npm.
   array relation they are rejected like any other key that is not a quantifier.
 
 ### Changed
+
+- **Breaking.** The AST node types exported from `cerial` (`ASTModel`, `ASTField`,
+  `ASTDecorator`, `ASTEnum` and the other node types) now require an `origin`.
+  Nodes made with `createModel`, `createField` and the other factories get one
+  automatically. A node written as an object literal needs
+  `origin: createDslOrigin(range, file)`.
 
 - `cerial format` writes decorator arguments in one canonical form instead of
   keeping how each was typed: `@sort`, `@sort()` and `@sort(true)` become
