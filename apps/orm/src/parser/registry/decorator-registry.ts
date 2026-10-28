@@ -1,5 +1,6 @@
 import { arrayDecorators } from './decorators/array';
 import { defaultDecorators } from './decorators/defaults';
+import { geometryDecorators } from './decorators/geometry';
 import { identityDecorators } from './decorators/identity';
 import { modifierDecorators } from './decorators/modifiers';
 import { relationDecorators } from './decorators/relation';
@@ -16,6 +17,7 @@ const DECORATOR_GROUPS: readonly (readonly DecoratorEntry[])[] = [
   uuidDecorators,
   arrayDecorators,
   modifierDecorators,
+  geometryDecorators,
 ];
 
 function buildRegistry(groups: readonly (readonly DecoratorEntry[])[]): ReadonlyMap<DecoratorName, DecoratorEntry> {
