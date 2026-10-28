@@ -193,6 +193,7 @@ export type { FindSchemasOptions, LexerResult } from './parser';
 export {
   astToRegistry,
   createDecorator,
+  createDslOrigin,
   createField,
   createModel,
   createPosition,
@@ -363,6 +364,7 @@ export type {
   OperatorRegistry,
   OrderByClause,
   OrderDirection,
+  Origin,
   ParseError,
   ParseResult,
   QueryResult,
