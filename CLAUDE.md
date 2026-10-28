@@ -283,6 +283,9 @@ The pipeline shape is the same each time:
    `bun test tests/generators/parity-manifest.test.ts` reports it as a gap until a
    schema under `tests/e2e/schemas/` exercises it. Widening an AST union is a compile
    error until `src/parity/ast-cross-check.ts` and the manifest follow.
+   A new decorator or field type is a manifest entry and a registry entry added
+   together, joined by the entry's `constructId`; `tests/generators/registry-cross-check.test.ts`
+   refuses either half on its own.
 2. Unit tests, then an e2e schema under `tests/e2e/schemas/` if the syntax changed,
    then e2e tests. Register new tables in `test-helper.ts`.
 3. `bun run generate:test-client`, `bun run typecheck`, `bunx tsc --noEmit` (from
