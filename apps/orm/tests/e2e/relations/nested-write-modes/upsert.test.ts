@@ -15,7 +15,7 @@ import {
   testConfig,
   truncateTables,
 } from '../../test-helper';
-import { assertCell, type Cell, cell, expectedIn, keysOf, MODES, UNTOUCHED } from './helpers';
+import { assertCell, type Cell, cell, keysOf, MODES, UNTOUCHED } from './helpers';
 
 const connect = { tags: { connect: ['t2'] } };
 const bothTags = ['tag:t1', 'tag:t2'];
@@ -139,7 +139,7 @@ describe('E2E nested-write matrix: upsert', () => {
     test.each(MODES)('%s', async (mode) => {
       const { got, stored } = await assertCell(client, mode, c);
 
-      expect(got).toEqual(expectedIn(mode, c));
+      expect(got).toEqual(c.expected);
       expect(stored).toEqual(c.stored);
     });
   });

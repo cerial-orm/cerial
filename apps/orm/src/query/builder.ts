@@ -920,7 +920,8 @@ export function compileUpdateUnique(
         registry,
         { returnBefore: returnOption === 'before', select, include },
       ),
-      resultType: 'array',
+      // One row or none, read the way the plain nested path reads it
+      resultType: returnOption === true ? 'boolean' : 'single',
       hasId,
       returnOption,
     };

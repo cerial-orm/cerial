@@ -70,8 +70,6 @@ export interface Cell {
   exec: (client: CerialClient, mode: Mode) => Promise<unknown>;
   expected: unknown;
   stored: Stored;
-  /** Array mode legitimately differs for this cell: it returns the row wrapped in an array. */
-  arrayModeWraps: boolean;
 }
 
 export function cell<T>(
@@ -80,25 +78,10 @@ export function cell<T>(
   view: (result: T) => unknown,
   expected: unknown,
   stored: Stored,
-  arrayModeWraps = false,
 ): Cell {
-  const exec = async (client: CerialClient, mode: Mode): Promise<unknown> => {
-    const result = await runIn(client, mode, run);
-    // The wrapped shape is pinned as it is, so the cell fails the day array mode is fixed and the
-    // expectation has to be changed on purpose
-    if (arrayModeWraps && mode === 'array') return Array.isArray(result) ? result.map(view) : { notAnArray: result };
+  const exec = async (client: CerialClient, mode: Mode): Promise<unknown> => view(await runIn(client, mode, run));
 
-    return view(result);
-  };
-
-  return { label, exec, expected, stored, arrayModeWraps };
-}
-
-/** What a cell must return in a mode: the shared expectation, except where a mode is pinned to differ. */
-export function expectedIn(mode: Mode, c: Cell): unknown {
-  if (!(c.arrayModeWraps && mode === 'array')) return c.expected;
-
-  return c.expected === null ? [] : [c.expected];
+  return { label, exec, expected, stored };
 }
 
 /** Seeds, runs the cell through one mode, and asserts the returned view and the stored rows. */

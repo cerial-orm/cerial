@@ -18,7 +18,7 @@ import {
   testConfig,
   truncateTables,
 } from '../../test-helper';
-import { assertCell, type Cell, cell, expectedIn, keysOf, MODES, UNTOUCHED } from './helpers';
+import { assertCell, type Cell, cell, keysOf, MODES, UNTOUCHED } from './helpers';
 
 const connect = { tags: { connect: ['t2'] } };
 const bothTags = ['tag:t1', 'tag:t2'];
@@ -30,7 +30,6 @@ const cells: Cell[] = [
     (r) => keysOf(r),
     ['name'],
     { ...UNTOUCHED, ua: { name: 'a', age: 99, tags: bothTags } },
-    true,
   ),
   cell(
     'include returns the related rows as they stand after the connect',
@@ -38,7 +37,6 @@ const cells: Cell[] = [
     (r) => r?.tags.map((t) => t.name).sort(),
     ['t1', 't2'],
     { ...UNTOUCHED, ua: { name: 'a', age: 99, tags: bothTags } },
-    true,
   ),
   cell(
     'unset clears the field alongside the connect',
@@ -46,7 +44,6 @@ const cells: Cell[] = [
     (r) => r && { name: r.name, age: r.age },
     { name: 'x', age: undefined },
     { ...UNTOUCHED, ua: { name: 'x', age: undefined, tags: bothTags } },
-    true,
   ),
   cell(
     'a non-matching extra where key writes nothing and returns null',
@@ -54,7 +51,6 @@ const cells: Cell[] = [
     (r) => r,
     null,
     UNTOUCHED,
-    true,
   ),
   cell(
     'a matching extra where key applies the write',
@@ -62,7 +58,6 @@ const cells: Cell[] = [
     (r) => r && { name: r.name, age: r.age },
     { name: 'a', age: 99 },
     { ...UNTOUCHED, ua: { name: 'a', age: 99, tags: bothTags } },
-    true,
   ),
   cell(
     "return: 'before' returns the row as it was",
@@ -70,7 +65,6 @@ const cells: Cell[] = [
     (r) => r && { name: r.name, age: r.age, tags: r.tagIds.map(String) },
     { name: 'a', age: 10, tags: ['tag:t1'] },
     { ...UNTOUCHED, ua: { name: 'NEW', age: 99, tags: bothTags } },
-    true,
   ),
   cell(
     "return: 'before' honours select",
@@ -84,7 +78,6 @@ const cells: Cell[] = [
     (r) => r && { keys: keysOf(r), name: r.name },
     { keys: ['name'], name: 'a' },
     { ...UNTOUCHED, ua: { name: 'NEW', age: 10, tags: bothTags } },
-    true,
   ),
   cell(
     "return: 'before' honours include and shows the relations before the connect",
@@ -98,7 +91,6 @@ const cells: Cell[] = [
     (r) => r && { name: r.name, tags: r.tags.map((t) => t.name).sort() },
     { name: 'a', tags: ['t1'] },
     { ...UNTOUCHED, ua: { name: 'NEW', age: 10, tags: bothTags } },
-    true,
   ),
   cell(
     "return: 'before' with a stale where returns null and writes nothing",
@@ -106,7 +98,20 @@ const cells: Cell[] = [
     (r) => r,
     null,
     UNTOUCHED,
+  ),
+  cell(
+    'return: true reports the match and the connect still lands',
+    (m) => m.User.updateUnique({ where: { id: 'ua' }, data: { age: 99, ...connect }, return: true }),
+    (r) => r,
     true,
+    { ...UNTOUCHED, ua: { name: 'a', age: 99, tags: bothTags } },
+  ),
+  cell(
+    'return: true with a stale where reports false and writes nothing',
+    (m) => m.User.updateUnique({ where: { id: 'ua', name: 'WRONG' }, data: { age: 99, ...connect }, return: true }),
+    (r) => r,
+    false,
+    UNTOUCHED,
   ),
   cell(
     'updateMany with two where keys updates only the rows that match both',
@@ -173,7 +178,7 @@ describe('E2E nested-write matrix: update', () => {
     test.each(MODES)('%s', async (mode) => {
       const { got, stored } = await assertCell(client, mode, c);
 
-      expect(got).toEqual(expectedIn(mode, c));
+      expect(got).toEqual(c.expected);
       expect(stored).toEqual(c.stored);
     });
   });

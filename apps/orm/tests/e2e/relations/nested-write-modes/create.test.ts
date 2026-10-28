@@ -14,7 +14,7 @@ import {
   testConfig,
   truncateTables,
 } from '../../test-helper';
-import { assertCell, type Cell, cell, expectedIn, keysOf, MODES, UNTOUCHED } from './helpers';
+import { assertCell, type Cell, cell, keysOf, MODES, UNTOUCHED } from './helpers';
 
 const data = { id: 'uc', email: 'c@x.io', name: 'c', isActive: true, age: 5, tags: { connect: ['t1', 't2'] } };
 const created = { name: 'c', age: 5, tags: ['tag:t1', 'tag:t2'] };
@@ -71,7 +71,7 @@ describe('E2E nested-write matrix: create', () => {
     test.each(MODES)('%s', async (mode) => {
       const { got, stored } = await assertCell(client, mode, c);
 
-      expect(got).toEqual(expectedIn(mode, c));
+      expect(got).toEqual(c.expected);
       expect(stored).toEqual(c.stored);
     });
   });
