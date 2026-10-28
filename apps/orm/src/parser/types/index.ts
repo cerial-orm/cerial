@@ -17,6 +17,7 @@ export {
   createSchemaAST,
   createTuple,
   createTupleElement,
+  withParseFile,
   getDecorator,
   getEnum,
   getEnumNames,

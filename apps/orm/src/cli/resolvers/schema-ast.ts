@@ -84,7 +84,7 @@ export async function buildResolvedSchemaAst(options: SchemaAstOptions): Promise
 
   // Second pass: parse each schema with full object, tuple, literal, and enum name context
   for (const { path, content } of schemaContents) {
-    const parseResult = parse(content, allObjectNames, allTupleNames, allLiteralNames, allEnumNames);
+    const parseResult = parse(content, allObjectNames, allTupleNames, allLiteralNames, allEnumNames, path);
 
     if (parseResult.errors.length) {
       for (const error of parseResult.errors) {

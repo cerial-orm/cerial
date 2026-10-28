@@ -38,8 +38,23 @@ export const UNKNOWN_FILE = '<input>';
 /** Range for a node whose position the parser does not record yet (tuple elements) */
 const NO_RANGE: SourceRange = createRange(createPosition(0, 0, 0), createPosition(0, 0, 0));
 
+// The file of the parse in progress. Node factories are called from registry entries and helpers that
+// carry no parser state, so the path is scoped to the (synchronous) parse instead of threaded through each call
+let parseFile = UNKNOWN_FILE;
+
+/** Run `fn` with every origin built inside it naming `file` */
+export function withParseFile<T>(file: string | undefined, fn: () => T): T {
+  const previous = parseFile;
+  parseFile = file ?? UNKNOWN_FILE;
+  try {
+    return fn();
+  } finally {
+    parseFile = previous;
+  }
+}
+
 /** Build the origin of a node parsed from `.cerial` text */
-export function createDslOrigin(range: SourceRange = NO_RANGE, file: string = UNKNOWN_FILE): Origin {
+export function createDslOrigin(range: SourceRange = NO_RANGE, file: string = parseFile): Origin {
   return { kind: 'dsl', file, range };
 }
 

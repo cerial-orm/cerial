@@ -31,6 +31,7 @@ import {
   createSchemaAST,
   createTuple,
   createTupleElement,
+  withParseFile,
   extractLiteralName,
   extractObjectName,
   extractTupleName,
@@ -1116,6 +1117,19 @@ export function parse(
   externalTupleNames?: Set<string>,
   externalLiteralNames?: Set<string>,
   externalEnumNames?: Set<string>,
+  filePath?: string,
+): ParseResult {
+  return withParseFile(filePath, () =>
+    parseSource(source, externalObjectNames, externalTupleNames, externalLiteralNames, externalEnumNames),
+  );
+}
+
+function parseSource(
+  source: string,
+  externalObjectNames?: Set<string>,
+  externalTupleNames?: Set<string>,
+  externalLiteralNames?: Set<string>,
+  externalEnumNames?: Set<string>,
 ): ParseResult {
   // First pass: collect all object, tuple, literal, and enum names for forward reference resolution
   const {
@@ -1205,7 +1219,11 @@ export function parse(
 }
 
 /** Parse using tokenizer and lexer (alternative method) */
-export function parseWithLexer(source: string): ParseResult {
+export function parseWithLexer(source: string, filePath?: string): ParseResult {
+  return withParseFile(filePath, () => lexSource(source));
+}
+
+function lexSource(source: string): ParseResult {
   const tokens = tokenize(source);
   const lexerResult = lex(tokens);
 
