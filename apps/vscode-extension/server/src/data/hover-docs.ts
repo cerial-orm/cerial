@@ -1,9 +1,13 @@
 /**
- * Static documentation data for hover tooltips in .cerial files.
+ * Hover documentation for .cerial files.
  *
- * Provides rich Markdown content for field types, decorators,
- * and other schema constructs.
+ * The list of decorators and field types, and each entry's one-line description, come from the parser
+ * registry. This file adds only what the registry does not carry: the TypeScript and SurrealDB type of
+ * a field type, and an example and constraints for a decorator. Both maps are keyed by registry name,
+ * and a unit test fails when a key is not a registry entry.
  */
+
+import { DECORATOR_REGISTRY, type DecoratorEntry, FIELD_TYPE_REGISTRY } from '../../../../orm/src/parser/registry';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -24,262 +28,193 @@ export interface DecoratorDoc {
   constraints?: string;
 }
 
+/** Extra hover detail for a decorator that its registry entry does not hold. */
+export interface DecoratorDetail {
+  example?: string;
+  constraints?: string;
+}
+
+/** TypeScript and SurrealDB types shown for a field type; the registry holds neither. */
+export interface FieldTypeDetail {
+  tsType: string;
+  surrealType: string;
+}
+
 // ---------------------------------------------------------------------------
-// Field Type Documentation
+// Detail not held by the registry, keyed by registry name
 // ---------------------------------------------------------------------------
 
-export const FIELD_TYPE_DOCS: Record<string, FieldTypeDoc> = {
-  String: {
-    tsType: 'string',
-    surrealType: 'string',
-    description: 'Text string value',
-  },
-  Int: {
-    tsType: 'number',
-    surrealType: 'int',
-    description: 'Integer number',
-  },
-  Float: {
-    tsType: 'number',
-    surrealType: 'float',
-    description: 'Floating-point number (IEEE 754)',
-  },
-  Bool: {
-    tsType: 'boolean',
-    surrealType: 'bool',
-    description: 'Boolean true/false',
-  },
-  Date: {
-    tsType: 'Date',
-    surrealType: 'datetime',
-    description: 'Date/time value',
-  },
-  Email: {
-    tsType: 'string',
-    surrealType: 'string',
-    description: 'Validated email address',
-  },
-  Record: {
-    tsType: 'CerialId',
-    surrealType: 'record',
-    description: 'Record reference (table:id)',
-  },
-  Relation: {
-    tsType: '(virtual)',
-    surrealType: '(virtual)',
-    description: 'Virtual relation field — not stored in DB',
-  },
-  Uuid: {
-    tsType: 'CerialUuid',
-    surrealType: 'uuid',
-    description: 'UUID identifier',
-  },
-  Duration: {
-    tsType: 'CerialDuration',
-    surrealType: 'duration',
-    description: 'Time duration (e.g. 2h30m15s)',
-  },
-  Decimal: {
-    tsType: 'CerialDecimal',
-    surrealType: 'decimal',
-    description: 'Arbitrary-precision decimal number',
-  },
-  Bytes: {
-    tsType: 'CerialBytes',
-    surrealType: 'bytes',
-    description: 'Binary data',
-  },
-  Geometry: {
-    tsType: 'CerialGeometry',
-    surrealType: 'geometry',
-    description: 'Geospatial data (7 subtypes)',
-  },
-  Any: {
-    tsType: 'CerialAny',
-    surrealType: 'any',
-    description: 'Any SurrealDB value',
-  },
-  Number: {
-    tsType: 'number',
-    surrealType: 'number',
-    description: 'Auto-detect numeric type (int or float)',
-  },
+export const FIELD_TYPE_DETAIL: Readonly<Record<string, FieldTypeDetail>> = {
+  String: { tsType: 'string', surrealType: 'string' },
+  Int: { tsType: 'number', surrealType: 'int' },
+  Float: { tsType: 'number', surrealType: 'float' },
+  Bool: { tsType: 'boolean', surrealType: 'bool' },
+  Date: { tsType: 'Date', surrealType: 'datetime' },
+  Email: { tsType: 'string', surrealType: 'string' },
+  Record: { tsType: 'CerialId', surrealType: 'record' },
+  Relation: { tsType: '(virtual)', surrealType: '(virtual)' },
+  Uuid: { tsType: 'CerialUuid', surrealType: 'uuid' },
+  Duration: { tsType: 'CerialDuration', surrealType: 'duration' },
+  Decimal: { tsType: 'CerialDecimal', surrealType: 'decimal' },
+  Bytes: { tsType: 'CerialBytes', surrealType: 'bytes' },
+  Geometry: { tsType: 'CerialGeometry', surrealType: 'geometry' },
+  Any: { tsType: 'CerialAny', surrealType: 'any' },
+  Number: { tsType: 'number', surrealType: 'number' },
 };
 
-// ---------------------------------------------------------------------------
-// Decorator Documentation
-// ---------------------------------------------------------------------------
-
-export const DECORATOR_DOCS: Record<string, DecoratorDoc> = {
-  id: {
-    signature: '@id',
-    description: 'Marks the primary key field of a model.',
-    example: 'id Record @id',
-    constraints: 'Exactly one per model. Must be a Record field.',
-  },
-  unique: {
-    signature: '@unique',
-    description: 'Creates a unique index on the field. Duplicate values are rejected.',
-    example: 'email Email @unique',
-  },
-  default: {
-    signature: '@default(value)',
-    description: 'Sets a default value when the field is absent on creation.',
+export const DECORATOR_DETAIL: Readonly<Record<string, DecoratorDetail>> = {
+  '@id': { example: 'id Record @id', constraints: 'Exactly one per model. Must be a Record field.' },
+  '@unique': { example: 'email Email @unique' },
+  '@default': {
     example: 'name String @default("anonymous")',
     constraints: 'Mutually exclusive with @defaultAlways, @createdAt, @updatedAt, @now, @uuid/@uuid4/@uuid7.',
   },
-  defaultAlways: {
-    signature: '@defaultAlways(value)',
-    description: 'Resets the field to the given value on every create/update when absent.',
+  '@defaultAlways': {
     example: 'status String @defaultAlways("active")',
     constraints: 'Mutually exclusive with @default, @createdAt, @updatedAt, @now.',
   },
-  nullable: {
-    signature: '@nullable',
-    description: 'Allows the field to hold an explicit `null` value (distinct from absent/NONE).',
+  '@nullable': {
     example: 'bio String? @nullable',
     constraints: 'Not allowed on object/tuple fields. `@default(null)` requires @nullable.',
   },
-  readonly: {
-    signature: '@readonly',
-    description: 'Write-once field — settable on create but excluded from update types.',
+  '@readonly': {
     example: 'creatorId Record @readonly',
     constraints: 'Incompatible with @now, @defaultAlways, and @id.',
   },
-  flexible: {
-    signature: '@flexible',
-    description: 'Allows additional arbitrary keys on an object-typed field beyond the defined schema.',
-    example: 'metadata Metadata @flexible',
-    constraints: 'Only allowed on object-typed fields.',
-  },
-  set: {
-    signature: '@set',
-    description: 'Generates `set<T>` instead of `array<T>` — auto-deduplicates and sorts at DB level.',
+  '@flexible': { example: 'metadata Metadata @flexible', constraints: 'Only allowed on object-typed fields.' },
+  '@set': {
     example: 'tags String[] @set',
     constraints: 'Not allowed on Decimal[], Object[], Tuple[], Record[]. Mutually exclusive with @distinct/@sort.',
   },
-  distinct: {
-    signature: '@distinct',
-    description: 'Removes duplicate values from array fields at the application level.',
+  '@distinct': {
     example: 'categories String[] @distinct',
     constraints: 'Array fields only. Mutually exclusive with @set.',
   },
-  sort: {
-    signature: '@sort | @sort(true | asc | false | desc)',
-    description:
-      'Sorts array field values. With no argument, `true` or `asc` it sorts ascending; `false` or `desc` sorts descending.',
+  '@sort': {
     example: 'scores Int[] @sort(desc)',
-    constraints: 'Array fields only. Mutually exclusive with @set. Any other argument is a generation error.',
+    constraints:
+      'With no argument, true or asc it sorts ascending; false or desc sorts descending. Array fields only. Mutually exclusive with @set. Any other argument is a generation error.',
   },
-  createdAt: {
-    signature: '@createdAt',
-    description: 'Sets the field to `time::now()` on creation when absent. `DEFAULT time::now()`.',
+  '@createdAt': {
     example: 'createdAt Date @createdAt',
     constraints: 'Date fields only. Mutually exclusive with @updatedAt, @now, @default, @defaultAlways.',
   },
-  updatedAt: {
-    signature: '@updatedAt',
-    description: 'Sets the field to `time::now()` on every create/update. `DEFAULT ALWAYS time::now()`.',
+  '@updatedAt': {
     example: 'updatedAt Date @updatedAt',
     constraints: 'Date fields only. Mutually exclusive with @createdAt, @now, @default, @defaultAlways.',
   },
-  now: {
-    signature: '@now',
-    description: 'Computed `time::now()` — not stored, computed at query time. Output-only.',
+  '@now': {
     example: 'currentTime Date @now',
     constraints: 'Date fields only. Model-level only (not objects). Excluded from Create/Update/Where.',
   },
-  field: {
-    signature: '@field(fieldName)',
-    description: 'Specifies the foreign key field for the forward side of a relation.',
+  '@field': {
     example: 'author Relation @field(authorId) @model(User)',
     constraints: 'Required on PK (forward) relations. The referenced field must be a Record type.',
   },
-  model: {
-    signature: '@model(ModelName)',
-    description: 'Specifies the target model for a relation.',
-    example: 'posts Relation[] @model(Post)',
-    constraints: 'Required on all Relation fields.',
-  },
-  onDelete: {
-    signature: '@onDelete(Action)',
-    description:
-      'Specifies the action when the referenced record is deleted. Actions: Cascade, SetNull, SetNone, Restrict, NoAction.',
+  '@model': { example: 'posts Relation[] @model(Post)', constraints: 'Required on all Relation fields.' },
+  '@onDelete': {
     example: 'author Relation? @field(authorId) @model(User) @onDelete(SetNull)',
     constraints: 'Only on optional Relation? fields. Required relations auto-cascade.',
   },
-  key: {
-    signature: '@key',
-    description: 'Marks the foreign key field used for N:N relation matching. Required on one side of N:N relations.',
-    example: 'tagIds Record[] @key',
-    constraints: 'Only on Record[] fields in N:N relations.',
-  },
-  index: {
-    signature: '@index',
-    description: 'Creates a non-unique index on the field for faster lookups.',
-    example: 'name String @index',
-  },
-  uuid: {
-    signature: '@uuid',
-    description: 'Auto-generates a UUID v7 on creation. `DEFAULT rand::uuid::v7()`.',
+  '@key': { example: 'tagIds Record[] @key', constraints: 'Only on Record[] fields in N:N relations.' },
+  '@index': { example: 'name String @index' },
+  '@uuid': {
     example: 'trackingId Uuid @uuid',
     constraints:
       'Uuid fields only. Model + object fields only (not tuples). Mutually exclusive with @uuid4, @uuid7, @default, @defaultAlways.',
   },
-  uuid4: {
-    signature: '@uuid4',
-    description: 'Auto-generates a UUID v4 on creation. `DEFAULT rand::uuid()`.',
+  '@uuid4': {
     example: 'legacyId Uuid @uuid4',
     constraints:
       'Uuid fields only. Model + object fields only (not tuples). Mutually exclusive with @uuid, @uuid7, @default, @defaultAlways.',
   },
-  uuid7: {
-    signature: '@uuid7',
-    description: 'Auto-generates a UUID v7 on creation. `DEFAULT rand::uuid::v7()`.',
+  '@uuid7': {
     example: 'requestId Uuid @uuid7',
     constraints:
       'Uuid fields only. Model + object fields only (not tuples). Mutually exclusive with @uuid, @uuid4, @default, @defaultAlways.',
   },
-  point: {
-    signature: '@point',
-    description: 'Restricts geometry field to Point subtype.',
+  '@point': {
     example: 'location Geometry @point',
     constraints: 'Geometry fields only. Combinable with other geometry subtype decorators.',
   },
-  line: {
-    signature: '@line',
-    description: 'Restricts geometry field to LineString subtype.',
+  '@line': {
     example: 'route Geometry @line',
     constraints: 'Geometry fields only. Combinable with other geometry subtype decorators.',
   },
-  polygon: {
-    signature: '@polygon',
-    description: 'Restricts geometry field to Polygon subtype.',
+  '@polygon': {
     example: 'boundary Geometry @polygon',
     constraints: 'Geometry fields only. Combinable with other geometry subtype decorators.',
   },
-  multipoint: {
-    signature: '@multipoint',
-    description: 'Restricts geometry field to MultiPoint subtype.',
+  '@multipoint': {
     example: 'stops Geometry @multipoint',
     constraints: 'Geometry fields only. Combinable with other geometry subtype decorators.',
   },
-  multiline: {
-    signature: '@multiline',
-    description: 'Restricts geometry field to MultiLineString subtype.',
+  '@multiline': {
     example: 'trails Geometry @multiline',
     constraints: 'Geometry fields only. Combinable with other geometry subtype decorators.',
   },
-  multipolygon: {
-    signature: '@multipolygon',
-    description: 'Restricts geometry field to MultiPolygon subtype.',
+  '@multipolygon': {
     example: 'regions Geometry @multipolygon',
     constraints: 'Geometry fields only. Combinable with other geometry subtype decorators.',
   },
-  geoCollection: {
-    signature: '@geoCollection',
-    description: 'Restricts geometry field to GeometryCollection subtype.',
+  '@geoCollection': {
     example: 'shapes Geometry @geoCollection',
     constraints: 'Geometry fields only. Combinable with other geometry subtype decorators.',
   },
 };
+
+// ---------------------------------------------------------------------------
+// Derived docs
+// ---------------------------------------------------------------------------
+
+/** The signature as written in a schema, derived from the argument shape. */
+function signatureOf(entry: DecoratorEntry): string {
+  const { args, name } = entry;
+  switch (args.kind) {
+    case 'none':
+      return name;
+    case 'choice': {
+      const call = `${name}(${args.choices.join(' | ')})`;
+
+      return args.optional ? `${name} | ${call}` : call;
+    }
+    case 'name':
+      return `${name}(${name.replace(/^@+/, '')}Name)`;
+    case 'literal':
+      return `${name}(value)`;
+    case 'nameAndFields':
+      return `${name}(name, [field1, field2])`;
+  }
+}
+
+/** Field type docs by type name as written in a schema (`String`, `Record`). */
+export const FIELD_TYPE_DOCS: Readonly<Record<string, FieldTypeDoc>> = Object.fromEntries(
+  [...FIELD_TYPE_REGISTRY.values()].map((entry): [string, FieldTypeDoc] => {
+    const detail = FIELD_TYPE_DETAIL[entry.name];
+
+    return [
+      entry.name,
+      { tsType: detail?.tsType ?? '', surrealType: detail?.surrealType ?? '', description: entry.description },
+    ];
+  }),
+);
+
+/**
+ * Decorator docs keyed by the name with its first `@` removed: `unique` for `@unique`, `@unique` for
+ * the model-level `@@unique`. That is the key the hover provider looks up.
+ */
+export const DECORATOR_DOCS: Readonly<Record<string, DecoratorDoc>> = Object.fromEntries(
+  [...DECORATOR_REGISTRY.values()].map((entry): [string, DecoratorDoc] => {
+    const detail = DECORATOR_DETAIL[entry.name];
+
+    return [
+      entry.name.slice(1),
+      {
+        signature: signatureOf(entry),
+        description: entry.description,
+        ...(detail?.example && { example: detail.example }),
+        ...(detail?.constraints && { constraints: detail.constraints }),
+      },
+    ];
+  }),
+);

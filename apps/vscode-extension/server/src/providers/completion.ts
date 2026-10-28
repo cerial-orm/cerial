@@ -23,7 +23,14 @@ import {
   type TextDocuments,
 } from 'vscode-languageserver';
 import type { TextDocument } from 'vscode-languageserver-textdocument';
+import {
+  DECORATOR_REGISTRY,
+  type DecoratorEntry,
+  type DecoratorTarget,
+  FIELD_TYPE_REGISTRY,
+} from '../../../../orm/src/parser/registry';
 import type { ASTField, SchemaAST } from '../../../../orm/src/types';
+import { FIELD_TYPE_DETAIL } from '../data/hover-docs';
 import type { WorkspaceIndexer } from '../indexer';
 import { type BlockContext, findFieldByName, findNodeAtPosition, getBlockContext } from '../utils/ast-location';
 import { lspToCerial } from '../utils/position';
@@ -35,33 +42,6 @@ import { lspToCerial } from '../utils/position';
 /** Callback to retrieve the current AST for a document URI. */
 export type GetASTCallback = (uri: string) => SchemaAST | null;
 
-// ---------------------------------------------------------------------------
-// Primitive type definitions
-// ---------------------------------------------------------------------------
-
-interface PrimitiveTypeInfo {
-  label: string;
-  detail: string;
-}
-
-const PRIMITIVE_TYPES: readonly PrimitiveTypeInfo[] = [
-  { label: 'String', detail: 'string (SurrealDB: string)' },
-  { label: 'Int', detail: 'number (SurrealDB: int)' },
-  { label: 'Float', detail: 'number (SurrealDB: float)' },
-  { label: 'Bool', detail: 'boolean (SurrealDB: bool)' },
-  { label: 'Date', detail: 'Date (SurrealDB: datetime)' },
-  { label: 'Email', detail: 'string (SurrealDB: string, validated)' },
-  { label: 'Record', detail: 'CerialId (SurrealDB: record)' },
-  { label: 'Relation', detail: 'virtual relation field' },
-  { label: 'Uuid', detail: 'CerialUuid (SurrealDB: uuid)' },
-  { label: 'Duration', detail: 'CerialDuration (SurrealDB: duration)' },
-  { label: 'Decimal', detail: 'CerialDecimal (SurrealDB: decimal)' },
-  { label: 'Bytes', detail: 'CerialBytes (SurrealDB: bytes)' },
-  { label: 'Geometry', detail: 'CerialGeometry (SurrealDB: geometry)' },
-  { label: 'Any', detail: 'CerialAny (SurrealDB: any)' },
-  { label: 'Number', detail: 'number (SurrealDB: number, auto-detect)' },
-] as const;
-
 /** ID types valid inside Record() parentheses. */
 const RECORD_ID_TYPES: readonly string[] = ['int', 'float', 'number', 'string', 'uuid'];
 
@@ -69,260 +49,50 @@ const RECORD_ID_TYPES: readonly string[] = ['int', 'float', 'number', 'string', 
 // Decorator definitions
 // ---------------------------------------------------------------------------
 
-/** Definition of a field-level decorator for completion. */
-interface DecoratorDef {
-  /** Decorator type name (matches SchemaDecorator, e.g. 'id', 'default') */
-  type: string;
-  /** Display label in completion list (e.g. '@id', '@default()') */
-  label: string;
-  /** Insert text — includes @ prefix, may use snippet syntax */
-  insertText: string;
-  /** Whether insertText uses snippet format */
-  isSnippet: boolean;
-  /** Short description */
-  detail: string;
-}
-
-const FIELD_DECORATOR_DEFS: readonly DecoratorDef[] = [
-  // Identity & constraints
-  { type: 'id', label: '@id', insertText: '@id', isSnippet: false, detail: 'Primary key field' },
-  { type: 'unique', label: '@unique', insertText: '@unique', isSnippet: false, detail: 'Unique constraint' },
-  { type: 'index', label: '@index', insertText: '@index', isSnippet: false, detail: 'Index on field' },
-  // Defaults & timestamps
-  {
-    type: 'default',
-    label: '@default()',
-    insertText: '@default(${1:value})',
-    isSnippet: true,
-    detail: 'Default value',
-  },
-  {
-    type: 'defaultAlways',
-    label: '@defaultAlways()',
-    insertText: '@defaultAlways(${1:value})',
-    isSnippet: true,
-    detail: 'Default value (reset on every write)',
-  },
-  {
-    type: 'createdAt',
-    label: '@createdAt',
-    insertText: '@createdAt',
-    isSnippet: false,
-    detail: 'Set to current time on creation',
-  },
-  {
-    type: 'updatedAt',
-    label: '@updatedAt',
-    insertText: '@updatedAt',
-    isSnippet: false,
-    detail: 'Set to current time on every update',
-  },
-  {
-    type: 'now',
-    label: '@now',
-    insertText: '@now',
-    isSnippet: false,
-    detail: 'Computed time::now() (model fields only)',
-  },
-  // Modifiers
-  { type: 'nullable', label: '@nullable', insertText: '@nullable', isSnippet: false, detail: 'Field can hold null' },
-  {
-    type: 'readonly',
-    label: '@readonly',
-    insertText: '@readonly',
-    isSnippet: false,
-    detail: 'Write-once (immutable after create)',
-  },
-  {
-    type: 'flexible',
-    label: '@flexible',
-    insertText: '@flexible',
-    isSnippet: false,
-    detail: 'Allow extra keys on object field',
-  },
-  // Array modifiers
-  { type: 'set', label: '@set', insertText: '@set', isSnippet: false, detail: 'Auto-deduplicated sorted array' },
-  {
-    type: 'distinct',
-    label: '@distinct',
-    insertText: '@distinct',
-    isSnippet: false,
-    detail: 'Deduplicate array elements',
-  },
-  {
-    type: 'sort',
-    label: '@sort()',
-    insertText: '@sort(${1|asc,desc|})',
-    isSnippet: true,
-    detail: 'Sort array elements',
-  },
-  // Relations (model fields only)
-  {
-    type: 'field',
-    label: '@field()',
-    insertText: '@field(${1:fieldName})',
-    isSnippet: true,
-    detail: 'FK field name for forward relation',
-  },
-  {
-    type: 'model',
-    label: '@model()',
-    insertText: '@model(${1:ModelName})',
-    isSnippet: true,
-    detail: 'Target model for relation',
-  },
-  {
-    type: 'onDelete',
-    label: '@onDelete()',
-    insertText: '@onDelete(${1|Cascade,SetNull,SetNone,Restrict,NoAction|})',
-    isSnippet: true,
-    detail: 'Delete behavior for optional relation',
-  },
-  {
-    type: 'key',
-    label: '@key()',
-    insertText: '@key(${1:keyName})',
-    isSnippet: true,
-    detail: 'Compound key name for N:N relation',
-  },
-  // UUID auto-generation (model fields only)
-  { type: 'uuid', label: '@uuid', insertText: '@uuid', isSnippet: false, detail: 'Auto-generate UUID (v7 default)' },
-  { type: 'uuid4', label: '@uuid4', insertText: '@uuid4', isSnippet: false, detail: 'Auto-generate UUID v4' },
-  { type: 'uuid7', label: '@uuid7', insertText: '@uuid7', isSnippet: false, detail: 'Auto-generate UUID v7' },
-  // Geometry subtypes
-  { type: 'point', label: '@point', insertText: '@point', isSnippet: false, detail: 'Geometry: point' },
-  { type: 'line', label: '@line', insertText: '@line', isSnippet: false, detail: 'Geometry: line' },
-  { type: 'polygon', label: '@polygon', insertText: '@polygon', isSnippet: false, detail: 'Geometry: polygon' },
-  {
-    type: 'multipoint',
-    label: '@multipoint',
-    insertText: '@multipoint',
-    isSnippet: false,
-    detail: 'Geometry: multipoint',
-  },
-  { type: 'multiline', label: '@multiline', insertText: '@multiline', isSnippet: false, detail: 'Geometry: multiline' },
-  {
-    type: 'multipolygon',
-    label: '@multipolygon',
-    insertText: '@multipolygon',
-    isSnippet: false,
-    detail: 'Geometry: multipolygon',
-  },
-  {
-    type: 'geoCollection',
-    label: '@geoCollection',
-    insertText: '@geoCollection',
-    isSnippet: false,
-    detail: 'Geometry: collection',
-  },
-];
-
-/** Model-level composite directive (@@unique, @@index). */
-interface CompositeDirectiveDef {
-  label: string;
-  insertText: string;
-  detail: string;
-}
-
-const COMPOSITE_DIRECTIVE_DEFS: readonly CompositeDirectiveDef[] = [
-  {
-    label: '@@unique()',
-    insertText: '@@unique(${1:name}, [${2:field1}, ${3:field2}])',
-    detail: 'Composite unique constraint on multiple fields',
-  },
-  {
-    label: '@@index()',
-    insertText: '@@index(${1:name}, [${2:field1}, ${3:field2}])',
-    detail: 'Composite index on multiple fields',
-  },
-];
-
-/** Decorators allowed on model fields (all decorators). */
-const MODEL_FIELD_DECORATORS: ReadonlySet<string> = new Set([
-  'id',
-  'unique',
-  'index',
-  'default',
-  'defaultAlways',
-  'nullable',
-  'readonly',
-  'flexible',
-  'set',
-  'distinct',
-  'sort',
-  'createdAt',
-  'updatedAt',
-  'now',
-  'field',
-  'model',
-  'onDelete',
-  'key',
-  'uuid',
-  'uuid4',
-  'uuid7',
-  'point',
-  'line',
-  'polygon',
-  'multipoint',
-  'multiline',
-  'multipolygon',
-  'geoCollection',
-]);
-
-/** Decorators allowed on object fields (subset — no @id, @now, relation/UUID decorators). */
-const OBJECT_FIELD_DECORATORS: ReadonlySet<string> = new Set([
-  'default',
-  'defaultAlways',
-  'nullable',
-  'readonly',
-  'flexible',
-  'createdAt',
-  'updatedAt',
-  'set',
-  'distinct',
-  'sort',
-  'index',
-  'unique',
-  'point',
-  'line',
-  'polygon',
-  'multipoint',
-  'multiline',
-  'multipolygon',
-  'geoCollection',
-]);
-
-/** Decorators allowed on tuple elements (minimal subset). */
-const TUPLE_ELEMENT_DECORATORS: ReadonlySet<string> = new Set([
-  'nullable',
-  'default',
-  'defaultAlways',
-  'createdAt',
-  'updatedAt',
-]);
-
-/** Mutual exclusivity: if a decorator is present, these cannot be added. */
-const DECORATOR_CONFLICTS: Readonly<Record<string, readonly string[]>> = {
-  default: ['defaultAlways', 'createdAt', 'updatedAt', 'now', 'uuid', 'uuid4', 'uuid7'],
-  defaultAlways: ['default', 'createdAt', 'updatedAt', 'now', 'uuid', 'uuid4', 'uuid7'],
-  createdAt: ['default', 'defaultAlways', 'updatedAt', 'now', 'uuid', 'uuid4', 'uuid7'],
-  updatedAt: ['default', 'defaultAlways', 'createdAt', 'now', 'uuid', 'uuid4', 'uuid7'],
-  now: ['default', 'defaultAlways', 'createdAt', 'updatedAt', 'readonly', 'uuid', 'uuid4', 'uuid7'],
-  uuid: ['default', 'defaultAlways', 'createdAt', 'updatedAt', 'now', 'uuid4', 'uuid7'],
-  uuid4: ['default', 'defaultAlways', 'createdAt', 'updatedAt', 'now', 'uuid', 'uuid7'],
-  uuid7: ['default', 'defaultAlways', 'createdAt', 'updatedAt', 'now', 'uuid', 'uuid4'],
-  id: ['nullable', 'readonly'],
-  set: ['distinct', 'sort'],
-  distinct: ['set'],
-  sort: ['set'],
+/** Registry target for each block kind that holds fields. */
+const BLOCK_TARGETS: Readonly<Record<string, DecoratorTarget>> = {
+  model: 'modelField',
+  object: 'objectField',
+  tuple: 'tupleElement',
 };
+
+/** Label shown in the completion list: `@id` for a bare decorator, `@default()` for one with arguments. */
+function decoratorLabel(entry: DecoratorEntry): string {
+  return entry.args.kind === 'none' ? entry.name : `${entry.name}()`;
+}
+
+/** Insert text derived from the argument shape. The `${n:...}` placeholders are LSP snippet syntax. */
+function decoratorSnippet(entry: DecoratorEntry): string {
+  const { args, name } = entry;
+  switch (args.kind) {
+    case 'none':
+      return name;
+    case 'choice': {
+      // true/false are aliases for asc/desc that the parser accepts; offering them only adds noise
+      const offered = args.choices.filter((choice) => choice !== 'true' && choice !== 'false');
+
+      return `${name}(\${1|${offered.join(',')}|})`;
+    }
+    case 'name': {
+      // Model names are PascalCase; field and key names are camelCase
+      const word = name.replace(/^@+/, '');
+      const placeholder = word === 'model' ? 'ModelName' : `${word}Name`;
+
+      return `${name}(\${1:${placeholder}})`;
+    }
+    case 'literal':
+      return `${name}(\${1:value})`;
+    case 'nameAndFields':
+      return `${name}(\${1:name}, [\${2:field1}, \${3:field2}])`;
+  }
+}
 
 /**
  * Decorators restricted to specific field types.
  * If a decorator type appears here, it is ONLY offered when the field's type matches.
  * Decorators NOT listed here are offered regardless of field type.
  */
-const DECORATOR_TYPE_RESTRICTIONS: Readonly<Record<string, ReadonlySet<string>>> = {
+export const DECORATOR_TYPE_RESTRICTIONS: Readonly<Record<string, ReadonlySet<string>>> = {
   // Timestamp decorators — Date fields only
   createdAt: new Set(['date']),
   updatedAt: new Set(['date']),
@@ -468,30 +238,33 @@ function getCrossFileASTs(uri: string, indexer: WorkspaceIndexer | null): Array<
 // Field type completions
 // ---------------------------------------------------------------------------
 
-function getFieldTypeCompletions(
+export function getFieldTypeCompletions(
   ast: SchemaAST | null,
   uri: string,
   indexer: WorkspaceIndexer | null,
 ): CompletionItem[] {
   const items: CompletionItem[] = [];
 
-  // Primitive types
-  for (const pt of PRIMITIVE_TYPES) {
-    items.push({
-      label: pt.label,
-      kind: CompletionItemKind.TypeParameter,
-      detail: pt.detail,
-    });
-  }
+  // Built-in types from the registry, then their array variants (e.g. String[], Int[]).
+  // Relation[] is valid syntax, so it is kept.
+  const builtIns = [...FIELD_TYPE_REGISTRY.values()].map((entry) => {
+    const detail = FIELD_TYPE_DETAIL[entry.name];
 
-  // Array variants (e.g. String[], Int[])
-  for (const pt of PRIMITIVE_TYPES) {
-    // Skip Relation[] as standalone type suggestion — relations use Relation @model
-    // but Relation[] is valid syntax, so keep it
+    return {
+      label: entry.name,
+      detail: detail ? `${detail.tsType} (SurrealDB: ${detail.surrealType})` : entry.description,
+      documentation: entry.description,
+    };
+  });
+  for (const type of builtIns) {
+    items.push({ ...type, kind: CompletionItemKind.TypeParameter });
+  }
+  for (const type of builtIns) {
     items.push({
-      label: `${pt.label}[]`,
+      ...type,
+      label: `${type.label}[]`,
       kind: CompletionItemKind.TypeParameter,
-      detail: `${pt.detail} (array)`,
+      detail: `${type.detail} (array)`,
     });
   }
 
@@ -1123,23 +896,6 @@ function getFieldArgCompletions(ast: SchemaAST | null, blockContext: BlockContex
 // ---------------------------------------------------------------------------
 
 /**
- * Get the set of allowed decorator type names for a given block kind.
- * Returns null for enum/literal (no decorators allowed).
- */
-function getAllowedDecorators(blockType: BlockContext['blockType']): ReadonlySet<string> | null {
-  switch (blockType) {
-    case 'model':
-      return MODEL_FIELD_DECORATORS;
-    case 'object':
-      return OBJECT_FIELD_DECORATORS;
-    case 'tuple':
-      return TUPLE_ELEMENT_DECORATORS;
-    default:
-      return null;
-  }
-}
-
-/**
  * Check whether the cursor is at a position where decorator completions apply.
  * Combines AST-based detection (fieldContext === 'decorator') with line-text
  * detection (@ character before cursor followed by optional word characters).
@@ -1206,14 +962,17 @@ function parseLineDecorators(lineText: string): string[] {
 }
 
 /**
- * Compute decorator names excluded by mutual-exclusivity rules.
+ * Compute decorator names (with sigil) excluded by the registry's mutual-exclusivity rules. The rules
+ * are read in both directions, so a decorator is hidden when an applied one excludes it or when it
+ * excludes an applied one.
  */
 function getConflictExclusions(existing: readonly string[]): Set<string> {
+  const applied = new Set(existing.map((name) => `@${name}`));
   const excluded = new Set<string>();
-  for (const dec of existing) {
-    const conflicts = DECORATOR_CONFLICTS[dec];
-    if (conflicts) {
-      for (const c of conflicts) excluded.add(c);
+  for (const entry of DECORATOR_REGISTRY.values()) {
+    for (const other of entry.excludes) {
+      if (applied.has(entry.name)) excluded.add(other);
+      if (applied.has(other)) excluded.add(entry.name);
     }
   }
 
@@ -1395,7 +1154,7 @@ export function getDefaultArgCompletions(
 
 /**
  * Build decorator CompletionItems for the current block context.
- * Filters by block type, field type, excludes already-applied, excludes conflicts.
+ * Filters by registry target, field type, excludes already-applied, excludes conflicts.
  * For enum/literal fields, provides smart @default/@defaultAlways snippets with valid values.
  */
 export function getDecoratorCompletions(
@@ -1408,8 +1167,8 @@ export function getDecoratorCompletions(
 ): CompletionItem[] {
   if (!blockContext.blockType) return [];
 
-  const allowed = getAllowedDecorators(blockContext.blockType);
-  if (!allowed) return [];
+  const target = BLOCK_TARGETS[blockContext.blockType];
+  if (!target) return [];
 
   const existing = getExistingDecoratorNames(ast, blockContext, lineText, cerialPos);
   const existingSet = new Set(existing);
@@ -1421,47 +1180,46 @@ export function getDecoratorCompletions(
 
   const items: CompletionItem[] = [];
 
-  for (const def of FIELD_DECORATOR_DEFS) {
-    if (!allowed.has(def.type)) continue;
-    if (existingSet.has(def.type)) continue;
-    if (conflictExclusions.has(def.type)) continue;
-    if (!isDecoratorAllowedForFieldType(def.type, field)) continue;
-
-    // Smart @default/@defaultAlways for enum/literal fields
-    if ((def.type === 'default' || def.type === 'defaultAlways') && enumLiteralValues?.length) {
-      const choiceSnippet = enumLiteralValues.join(',');
-      const label = def.type === 'default' ? '@default()' : '@defaultAlways()';
-      const insertText = `@${def.type}(\${1|${choiceSnippet}|})`;
+  for (const entry of DECORATOR_REGISTRY.values()) {
+    // Model-level directives (@@unique, @@index) are offered in model blocks and skip the per-field filters
+    if (entry.targets.includes('model')) {
+      if (blockContext.blockType !== 'model') continue;
       items.push({
-        label,
+        label: decoratorLabel(entry),
         kind: CompletionItemKind.Property,
-        detail: def.detail,
-        insertText,
+        detail: entry.description,
+        insertText: decoratorSnippet(entry),
         insertTextFormat: InsertTextFormat.Snippet,
       });
       continue;
     }
 
-    items.push({
-      label: def.label,
-      kind: CompletionItemKind.Property,
-      detail: def.detail,
-      insertText: def.insertText,
-      insertTextFormat: def.isSnippet ? InsertTextFormat.Snippet : InsertTextFormat.PlainText,
-    });
-  }
+    const type = entry.name.slice(1);
+    if (!entry.targets.includes(target)) continue;
+    if (existingSet.has(type)) continue;
+    if (conflictExclusions.has(entry.name)) continue;
+    if (!isDecoratorAllowedForFieldType(type, field)) continue;
 
-  // Composite directives (model blocks only)
-  if (blockContext.blockType === 'model') {
-    for (const def of COMPOSITE_DIRECTIVE_DEFS) {
+    // Smart @default/@defaultAlways for enum/literal fields
+    if ((type === 'default' || type === 'defaultAlways') && enumLiteralValues?.length) {
       items.push({
-        label: def.label,
+        label: decoratorLabel(entry),
         kind: CompletionItemKind.Property,
-        detail: def.detail,
-        insertText: def.insertText,
+        detail: entry.description,
+        insertText: `${entry.name}(\${1|${enumLiteralValues.join(',')}|})`,
         insertTextFormat: InsertTextFormat.Snippet,
       });
+      continue;
     }
+
+    const snippet = decoratorSnippet(entry);
+    items.push({
+      label: decoratorLabel(entry),
+      kind: CompletionItemKind.Property,
+      detail: entry.description,
+      insertText: snippet,
+      insertTextFormat: entry.args.kind === 'none' ? InsertTextFormat.PlainText : InsertTextFormat.Snippet,
+    });
   }
 
   return items;
