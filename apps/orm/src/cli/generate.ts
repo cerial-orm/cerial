@@ -27,6 +27,7 @@ import type {
   DatabasePin,
   LiteralMetadata,
   ObjectRegistry,
+  Origin,
   SchemaAST,
   TupleRegistry,
 } from '../types';
@@ -222,6 +223,13 @@ function collectLiteralWarnings(
   return warnings;
 }
 
+/** `path: ` of the file that declares the named model, read from its origin; empty when no model has that name */
+function errorFilePrefix(models: ReadonlyArray<{ name: string; origin: Origin }>, name: string | undefined): string {
+  const model = models.find((m) => m.name === name);
+
+  return model ? `${model.origin.file}: ` : '';
+}
+
 /** Generate a single schema from resolved options */
 export async function generateSingleSchema(options: SingleSchemaOptions): Promise<GenerateResult> {
   const result: GenerateResult = {
@@ -239,7 +247,6 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
   try {
     const {
       schemaFiles,
-      schemaContents,
       parseErrors,
       combinedAST,
       extendsErrors,
@@ -269,10 +276,7 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
 
     if (extendsErrors.length) {
       for (const error of extendsErrors) {
-        const modelFile = schemaContents.find((s) =>
-          allModels.some((m) => m.name === error.model && s.content.includes(`model ${error.model}`)),
-        );
-        const prefix = modelFile ? `${modelFile.path}: ` : '';
+        const prefix = errorFilePrefix(allModels, error.model);
         result.errors.push(`${prefix}${error.message}`);
       }
       logger.error('Extends errors found:');
@@ -287,10 +291,7 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
     const resolvedErrors = validateResolvedTypes(resolvedAST);
     if (resolvedErrors.length) {
       for (const error of resolvedErrors) {
-        const modelFile = schemaContents.find((s) =>
-          allModels.some((m) => m.name === error.model && s.content.includes(`model ${error.model}`)),
-        );
-        const prefix = modelFile ? `${modelFile.path}: ` : '';
+        const prefix = errorFilePrefix(allModels, error.model);
         result.errors.push(`${prefix}${error.message}`);
       }
       logger.error('Resolved type errors found:');
@@ -309,10 +310,7 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
     });
     if (!validation.valid) {
       for (const error of validation.errors) {
-        const modelFile = schemaContents.find((s) =>
-          concreteModels.some((m) => m.name === error.model && s.content.includes(`model ${error.model}`)),
-        );
-        const prefix = modelFile ? `${modelFile.path}: ` : '';
+        const prefix = errorFilePrefix(concreteModels, error.model);
         result.errors.push(`${prefix}${error.message}`);
       }
       logger.error('Schema errors found:');
