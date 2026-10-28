@@ -42,4 +42,23 @@ describe('generate error file attribution', () => {
     expect(errors.length).toBeGreaterThan(0);
     expect(errors.every((e) => e.startsWith(`${join(dir, 'b.cerial')}: `))).toBe(true);
   });
+
+  it('prints a parse error as `<path>:<line>: <message>`', async () => {
+    const { errors, dir } = await run({ 'post.cerial': 'model User {\n  id Record @id\n  name Bogus\n}\n' });
+
+    expect(errors).toEqual([
+      `${join(dir, 'post.cerial')}:3: Invalid field type: Bogus. Use String, Email, Int, Date, Bool, Float, Uuid, Record, Relation, or array types (String[], Int[], Date[], Uuid[], Record[], Relation[]).`,
+    ]);
+  });
+
+  it('prints a validator error as `<path>: <message>` with no line', async () => {
+    const { errors, dir } = await run({
+      'post.cerial':
+        'model Post {\n  id Record @id\n  authorId Record\n  author Relation @field(authorId) @model(Nope)\n}\n',
+    });
+
+    expect(errors).toEqual([
+      `${join(dir, 'post.cerial')}: Relation field "author" references non-existent model "Nope"`,
+    ]);
+  });
 });
