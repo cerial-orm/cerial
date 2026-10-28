@@ -1,7 +1,11 @@
 /**
  * Core formatting orchestrator.
- * Takes raw .cerial source, parses, tokenizes, attaches comments, prints blocks,
- * and assembles the formatted output.
+ * `formatCerialSource` takes raw .cerial source, parses, tokenizes, attaches comments and hands the AST
+ * to `printSchema`, which prints blocks and assembles the output from the AST alone.
+ *
+ * Comments are not stored on AST nodes. `printSchema` keeps them only when the caller
+ * passes the attachments computed from a `.cerial` source text, and drops them for an AST with no source
+ * (one built from TypeScript).
  */
 
 import { parse } from '../parser/parser';
@@ -202,21 +206,46 @@ export function formatCerialSource(source: string, options?: FormatOptions): For
     };
   }
 
-  // 2. Tokenize for comments
+  // 2. Tokenize for comments, attach them to AST nodes and measure layout
   const tokens = tokenize(source);
-
-  // 3. Attach comments to AST nodes
   const comments = attachComments(tokens, ast);
-
-  // 4. Resolve config
-  const config = resolveConfig(options);
-
   const layout = buildSourceLayout(tokens);
 
-  // 5. Collect all top-level blocks in source order
+  // 3. Print
+  const formatted = printSchema(ast, { ...options, comments, layout });
+
+  return { formatted, changed: formatted !== source };
+}
+
+/** Options for `printSchema`: the format config plus the facts only a `.cerial` source text can supply. */
+export interface PrintSchemaOptions extends FormatOptions {
+  /**
+   * Comment attachments from `attachComments(tokens, ast)`, taken from the source text of a `.cerial` input.
+   * Omit it and no comment is printed.
+   */
+  comments?: CommentMap;
+  /** Blank-line facts from `buildSourceLayout(tokens)`. Omit it and the canonical layout is printed. */
+  layout?: SourceLayout;
+}
+
+/**
+ * Print a whole schema AST as `.cerial` text, from the AST alone.
+ *
+ * Comments are not part of the AST (band decision D9). They are kept when the caller passes the
+ * attachments computed from source text (a `.cerial` input), and dropped for an AST with no source
+ * (one built from TypeScript). Likewise only a `.cerial` input has a layout to honor; without one the
+ * output is the canonical form. Pass the AST as parsed, before `resolveInheritance`, or `extends`
+ * is flattened away.
+ */
+export function printSchema(ast: SchemaAST, options?: PrintSchemaOptions): string {
+  const comments: CommentMap = options?.comments ?? new Map();
+  const layout = options?.layout;
+  const config = resolveConfig(options);
+
+  // 1. Collect all top-level blocks in source order
   const blocks = collectTopLevelBlocks(ast);
 
-  // 6. Print each block
+  // 2. Print each block
   const printedBlocks = blocks.map((block) => {
     switch (block.kind) {
       case 'model':
@@ -232,7 +261,7 @@ export function formatCerialSource(source: string, options?: FormatOptions): For
     }
   });
 
-  // 7. Assemble output
+  // 3. Assemble output
   const outputParts: string[] = [];
 
   // Top-level comments (before first declaration)
@@ -246,7 +275,6 @@ export function formatCerialSource(source: string, options?: FormatOptions): For
     const printed = printedBlocks[i]!;
 
     if (i > 0 || outputParts.length > 0) {
-      // Determine separator
       const separator = computeBlockSeparator(config.blockSeparation, blocks, layout, i, outputParts.length > 0);
       outputParts.push(separator);
     }
@@ -257,7 +285,6 @@ export function formatCerialSource(source: string, options?: FormatOptions): For
   // Bottom comments (after last declaration)
   const bottomComments = comments.get('bottom');
   if (bottomComments?.leading.length) {
-    // Separator before bottom comments
     outputParts.push('');
     outputParts.push(bottomComments.leading.map((c) => c.value).join('\n'));
   }
@@ -267,18 +294,12 @@ export function formatCerialSource(source: string, options?: FormatOptions): For
 
   let formatted = outputParts.join('\n');
 
-  // 10. Comment style normalization
+  // Comment style normalization
   if (config.commentStyle !== 'honor') {
     formatted = normalizeBlockCommentStyle(formatted, config.commentStyle);
   }
 
-  // 11. Finalize
-  formatted = finalize(formatted);
-
-  // 12. Compare
-  const changed = formatted !== source;
-
-  return { formatted, changed };
+  return finalize(formatted);
 }
 
 /**
