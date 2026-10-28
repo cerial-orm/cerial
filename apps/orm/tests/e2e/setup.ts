@@ -19,17 +19,27 @@ const OUTPUT_DIR = resolve(E2E_DIR, 'generated');
 
 /**
  * Setup function - generates the test client and prepares the database.
- * Under `--parallel` the preload runs once per test file in every worker, so the work is guarded
- * to run once per run; sequentially it runs directly.
+ * Under `--parallel` the preload runs once per test file in every worker, so generation is guarded
+ * to run once per run and migration once per worker database; sequentially both run directly.
  */
 export async function setup(): Promise<void> {
-  if (!isParallelWorker()) return await prepare();
+  if (!isParallelWorker()) {
+    await generateClient();
+    await prepareDatabase();
 
-  const ran = await runOnce('setup', prepare, resolveRunDir(SCHEMA_DIR));
-  if (!ran) console.log('[E2E Setup] Test client prepared by another worker');
+    return;
+  }
+
+  const runDir = resolveRunDir(SCHEMA_DIR);
+  const generated = await runOnce('generate', generateClient, runDir);
+  if (!generated) console.log('[E2E Setup] Test client prepared by another worker');
+
+  // Keyed by database name: files landing on the same worker share one database, so migrate once
+  const { testConfig } = await import('./test-helper');
+  await runOnce(`database-${testConfig.database}`, prepareDatabase, runDir);
 }
 
-async function prepare(): Promise<void> {
+async function generateClient(): Promise<void> {
   console.log('[E2E Setup] Generating test client...');
 
   // Generate beside the live directory and swap it in, so a reader never sees it half-written
@@ -55,14 +65,32 @@ async function prepare(): Promise<void> {
     rmSync(nextDir, { recursive: true, force: true });
     rmSync(previousDir, { recursive: true, force: true });
   }
+}
 
-  console.log('[E2E Setup] Running global database cleanup and migration...');
+async function prepareDatabase(): Promise<void> {
   const { CerialClient, testConfig, globalCleanup } = await import('./test-helper');
+  const database = testConfig.database;
+
+  // The name can come from CERIAL_E2E_DB, so it is validated before it reaches a statement
+  if (!/^[A-Za-z0-9_]+$/.test(database)) throw new Error(`Invalid e2e database name: ${database}`);
+
+  if (database !== 'main') {
+    // A database is not created lazily: DEFINE TABLE into a missing one fails NotFound
+    const admin = new CerialClient();
+    await admin.connect({ ...testConfig, database: 'main' });
+    try {
+      await admin.getSurreal()?.query(`DEFINE DATABASE IF NOT EXISTS ${database};`);
+    } finally {
+      await admin.disconnect();
+    }
+  }
+
+  console.log(`[E2E Setup] Running global database cleanup and migration on ${database}...`);
   const client = new CerialClient();
   await client.connect(testConfig);
   await globalCleanup(client);
   await client.disconnect();
-  console.log('[E2E Setup] Database ready');
+  console.log(`[E2E Setup] Database ${database} ready`);
 }
 
 /**
