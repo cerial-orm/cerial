@@ -3,6 +3,7 @@
  */
 
 import type { SchemaAST } from '../../types';
+import { originLine } from './origin-location';
 import type { SchemaValidationError } from './schema-validator';
 
 /** Validate tuple definitions */
@@ -14,7 +15,7 @@ export function validateTuples(ast: SchemaAST): SchemaValidationError[] {
   const literalOrEnumNames = new Set([...ast.literals.map((l) => l.name), ...ast.enums.map((e) => e.name)]);
 
   for (const tuple of ast.tuples) {
-    const line = tuple.range.start.line;
+    const line = originLine(tuple.origin);
     const push = (message: string) => errors.push({ message, line });
 
     if (modelNames.has(tuple.name)) push(`Tuple name '${tuple.name}' conflicts with model name`);

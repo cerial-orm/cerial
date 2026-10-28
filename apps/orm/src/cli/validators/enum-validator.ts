@@ -3,6 +3,7 @@
  */
 
 import type { SchemaAST } from '../../types';
+import { originLine } from './origin-location';
 import type { SchemaValidationError } from './schema-validator';
 
 /** Validate enum definitions */
@@ -16,7 +17,7 @@ export function validateEnums(ast: SchemaAST): SchemaValidationError[] {
   ];
 
   for (const enumDef of ast.enums) {
-    const line = enumDef.range.start.line;
+    const line = originLine(enumDef.origin);
 
     for (const [kind, names] of collisions) {
       if (names.has(enumDef.name)) {

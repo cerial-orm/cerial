@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { validateUuidFields } from '../../../src/cli/validators/schema-validator';
+import { createDslOrigin } from '../../../src/parser';
 import type { SchemaAST } from '../../../src/types';
 
 function makeField(overrides: Record<string, unknown> = {}) {
@@ -15,12 +16,15 @@ function makeField(overrides: Record<string, unknown> = {}) {
       end: { line: number; column: number; offset: number };
     }>,
     range: { start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 20, offset: 19 } },
+    origin: createDslOrigin({ start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 20, offset: 19 } }),
     ...overrides,
   };
 }
 
 function makeDec(type: string) {
-  return { type, range: { start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 10, offset: 9 } } };
+  const range = { start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 10, offset: 9 } };
+
+  return { type, range, origin: createDslOrigin(range) };
 }
 
 function makeAST(models: unknown[] = [], objects: unknown[] = []): SchemaAST {

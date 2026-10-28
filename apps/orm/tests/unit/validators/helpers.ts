@@ -43,6 +43,7 @@ export function createField(overrides: Partial<ASTField> = {}): ASTField {
     range,
     origin: createDslOrigin(range),
     ...overrides,
+    ...(overrides.range && !overrides.origin ? { origin: createDslOrigin(overrides.range) } : {}),
   };
 }
 
@@ -53,6 +54,7 @@ export function createModel(overrides: Partial<ASTModel> = {}): ASTModel {
     range,
     origin: createDslOrigin(range),
     ...overrides,
+    ...(overrides.range && !overrides.origin ? { origin: createDslOrigin(overrides.range) } : {}),
   };
 }
 
@@ -72,6 +74,7 @@ export function createObject(overrides: Partial<ASTObject> = {}): ASTObject {
     range,
     origin: createDslOrigin(range),
     ...overrides,
+    ...(overrides.range && !overrides.origin ? { origin: createDslOrigin(overrides.range) } : {}),
   };
 }
 
@@ -91,6 +94,7 @@ export function createASTField(overrides: Partial<ASTField> = {}): ASTField {
       end: { line: 1, column: 1, offset: 0 },
     }),
     ...overrides,
+    ...(overrides.range && !overrides.origin ? { origin: createDslOrigin(overrides.range) } : {}),
   };
 }
 
@@ -107,6 +111,7 @@ export function createASTModel(overrides: Partial<ASTModel> = {}): ASTModel {
       end: { line: 1, column: 1, offset: 0 },
     }),
     ...overrides,
+    ...(overrides.range && !overrides.origin ? { origin: createDslOrigin(overrides.range) } : {}),
   };
 }
 
@@ -136,6 +141,7 @@ export function field(overrides: Partial<ASTField> = {}): ASTField {
     range,
     origin: createDslOrigin(range),
     ...overrides,
+    ...(overrides.range && !overrides.origin ? { origin: createDslOrigin(overrides.range) } : {}),
   };
 }
 
@@ -144,23 +150,58 @@ export function _dec(type: SchemaDecorator, value?: unknown): ASTDecorator {
 }
 
 export function model(overrides: Partial<ASTModel> = {}): ASTModel {
-  return { name: 'TestModel', fields: [], range, origin: createDslOrigin(range), ...overrides };
+  return {
+    name: 'TestModel',
+    fields: [],
+    range,
+    origin: createDslOrigin(range),
+    ...overrides,
+    ...(overrides.range && !overrides.origin ? { origin: createDslOrigin(overrides.range) } : {}),
+  };
 }
 
 export function obj(overrides: Partial<ASTObject> = {}): ASTObject {
-  return { name: 'TestObject', fields: [], range, origin: createDslOrigin(range), ...overrides };
+  return {
+    name: 'TestObject',
+    fields: [],
+    range,
+    origin: createDslOrigin(range),
+    ...overrides,
+    ...(overrides.range && !overrides.origin ? { origin: createDslOrigin(overrides.range) } : {}),
+  };
 }
 
 export function tuple(overrides: Partial<ASTTuple> = {}): ASTTuple {
-  return { name: 'TestTuple', elements: [], range, origin: createDslOrigin(range), ...overrides };
+  return {
+    name: 'TestTuple',
+    elements: [],
+    range,
+    origin: createDslOrigin(range),
+    ...overrides,
+    ...(overrides.range && !overrides.origin ? { origin: createDslOrigin(overrides.range) } : {}),
+  };
 }
 
 export function literal(overrides: Partial<ASTLiteral> = {}): ASTLiteral {
-  return { name: 'TestLiteral', variants: [], range, origin: createDslOrigin(range), ...overrides };
+  return {
+    name: 'TestLiteral',
+    variants: [],
+    range,
+    origin: createDslOrigin(range),
+    ...overrides,
+    ...(overrides.range && !overrides.origin ? { origin: createDslOrigin(overrides.range) } : {}),
+  };
 }
 
 export function enumNode(overrides: Partial<ASTEnum> = {}): ASTEnum {
-  return { name: 'TestEnum', values: [], range, origin: createDslOrigin(range), ...overrides };
+  return {
+    name: 'TestEnum',
+    values: [],
+    range,
+    origin: createDslOrigin(range),
+    ...overrides,
+    ...(overrides.range && !overrides.origin ? { origin: createDslOrigin(overrides.range) } : {}),
+  };
 }
 
 export function tupleElement(overrides: Partial<ASTTupleElement> = {}): ASTTupleElement {

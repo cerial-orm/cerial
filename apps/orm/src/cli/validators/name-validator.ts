@@ -2,12 +2,13 @@
  * Declaration name validator - one name per declaration across the schema
  */
 
-import type { SchemaAST } from '../../types';
+import type { Origin, SchemaAST } from '../../types';
+import { originLine } from './origin-location';
 import type { SchemaValidationError } from './schema-validator';
 
 interface Named {
   name: string;
-  range: { start: { line: number } };
+  origin: Origin;
 }
 
 function findDuplicates(kind: string, items: Named[]): SchemaValidationError[] {
@@ -16,7 +17,7 @@ function findDuplicates(kind: string, items: Named[]): SchemaValidationError[] {
 
   for (const item of items) {
     if (seen.has(item.name)) {
-      errors.push({ message: `Duplicate ${kind} name: ${item.name}`, line: item.range.start.line });
+      errors.push({ message: `Duplicate ${kind} name: ${item.name}`, line: originLine(item.origin) });
     }
     seen.add(item.name);
   }

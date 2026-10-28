@@ -3,6 +3,7 @@
  */
 
 import type { ASTLiteral, ASTLiteralVariant, SchemaAST } from '../../types';
+import { originLine } from './origin-location';
 import type { SchemaValidationError } from './schema-validator';
 
 function variantKey(variant: ASTLiteralVariant): string {
@@ -45,7 +46,7 @@ export function validateLiterals(ast: SchemaAST): SchemaValidationError[] {
   ];
 
   for (const literal of ast.literals) {
-    const line = literal.range.start.line;
+    const line = originLine(literal.origin);
     const push = (message: string) => errors.push({ message, line });
 
     for (const [kind, names] of collisions) {
@@ -137,7 +138,7 @@ export function validateLiteralFieldReferences(ast: SchemaAST): SchemaValidation
           message: `Field '${field.name}' in ${parent} references unknown literal '${field.literalName}'`,
           model: modelName,
           field: field.name,
-          line: field.range.start.line,
+          line: originLine(field.origin),
         });
       }
     }
