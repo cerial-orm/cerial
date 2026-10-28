@@ -98,11 +98,12 @@ Never start a second instance to work around a refused connection: that means th
 wrong port or an unhealthy container, and a duplicate hides it while giving you a
 second copy of the data.
 
-E2E tests must run via `bun run test:e2e`, which supplies
+E2E tests must run via `bun run test:e2e` or `bun run test:e2e:parallel`, which supply
 `--preload ./tests/e2e/preload.ts`. Without it the generated client does not exist.
 
-**E2E global setup (CRITICAL).** The preload runs `globalCleanup()` once, before any
-test file, removing all tables and running `migrate()`. Test files must not redo it:
+**E2E global setup (CRITICAL).** The preload runs `globalCleanup()` once per database
+(the one database, or each parallel worker's own), before any test file, removing all
+tables and running `migrate()`. Test files must not redo it:
 
 - `beforeAll`: `cleanupTables(client, YOUR_TABLES)` — `DELETE FROM` only
 - `beforeEach`: `truncateTables(client, YOUR_TABLES)` — same
@@ -116,10 +117,12 @@ test file, removing all tables and running `migrate()`. Test files must not redo
 Concurrent `REMOVE TABLE` plus a full `migrate()` across files causes races: tables
 vanish while another file queries them.
 
-**No parallelism.** No table is written by two registry groups, but `--parallel` is
-still unsafe: every worker runs the preload, so they regenerate the client and run
-`migrate()` against each other (tried once, 270 failures), and files inside one group
-still share that group's tables. Never rely on file order.
+**Parallelism.** The committed default, `bun run test:e2e`, is sequential. For speed,
+`bun run test:e2e:parallel` is safe: the client is generated once per run, and each worker
+gets its own database `main_w<id>` in the shared instance, migrated once. `CERIAL_E2E_WORKERS`
+sets the worker count (default 4). Files inside one registry group still share that group's
+tables within a worker, so never rely on file order. Never pass `--parallel` by hand without
+the preload, and only one e2e run (sequential or parallel) may exist on the machine at a time.
 When adding a schema under `tests/e2e/schemas/`, register its tables in that
 registry, and in the matching `*_TABLES` constant if it belongs to a group.
 
@@ -313,13 +316,13 @@ The pipeline shape is the same each time:
   - Shared helpers (factories, constants, setup) extracted into a common `helpers.ts` file and imported — do NOT duplicate helpers across test files
   - Each file should be independently runnable (e.g., `bun test apps/orm/tests/unit/resolver/model-inheritance.test.ts`)
   - For E2E tests specifically, use `--preload apps/orm/tests/e2e/preload.ts`
-- **E2E test global setup pattern (CRITICAL)** — The E2E preload (`apps/orm/tests/e2e/preload.ts`) runs `globalCleanup()` ONCE before any test file executes. This removes all tables and runs `migrate()` to establish the correct schema. Individual test files must NOT redo this work:
+- **E2E test global setup pattern (CRITICAL)** — The E2E preload (`apps/orm/tests/e2e/preload.ts`) runs `globalCleanup()` ONCE per database (the single database, or each parallel worker's own) before any test file executes. This removes all tables and runs `migrate()` to establish the correct schema. Individual test files must NOT redo this work:
   - `beforeAll`: Call `cleanupTables(client, YOUR_TABLES)` — this only does `DELETE FROM` (data cleanup, no schema changes)
   - `beforeEach`: Call `truncateTables(client, YOUR_TABLES)` — same lightweight `DELETE FROM` per-test
   - **Do NOT** call `REMOVE TABLE`, `resetMigrationState()`, or `client.migrate()` inside test files — these run once globally in preload
   - **Do NOT** manually execute `DEFINE TABLE` or schema DDL in test files — `migrate()` handles this
   - **Why**: Multiple test files running `REMOVE TABLE + migrate(134 models)` concurrently causes race conditions (tables removed while other tests query them, 134 competing DEFINE statements)
-- **E2E execution order**: Run E2E tests via `bun run test:e2e`. Bun runs test files sequentially in one process unless `--parallel` is passed, and many E2E files share tables through the `tables` registry aliases in `test-helper.ts`, so parallelism is not safe today. Never rely on test file execution order
+- **E2E execution order**: Run E2E tests via `bun run test:e2e` (sequential, the default) or `bun run test:e2e:parallel` (`CERIAL_E2E_WORKERS` workers, each with its own database `main_w<id>`; see Testing). Never pass `--parallel` to a bare `bun test tests/e2e/`, and never rely on test file execution order
  - **VS Code extension test parallelism (CRITICAL)** — VS Code does not reliably support concurrent instances. Only **ONE agent/process may run `vscode-test` (integration or E2E tests) at a time** across the entire machine. When multiple AI agents are delegated tasks in parallel, **do NOT give more than one agent a task that runs `bunx vscode-test`, `bun run test:integration`, or `bun run test:e2e`** — a second VS Code instance will cause the first to fail with cryptic errors, and agents will enter infinite retry loops trying to "fix" phantom failures. **Safe to parallelize**: `bun test` (unit tests), `bun run test:unit`, `bun run test:grammar` — these do NOT launch VS Code. **Must be sequential**: `bunx vscode-test --label integrationTests`, `bunx vscode-test --label e2eTests`, `bun run test:integration`, `bun run test:e2e`. When an orchestrator dispatches parallel task waves, tasks requiring VS Code tests must go in their own sequential wave or be the ONLY task in a wave that runs VS Code tests
 - **New tables in E2E tests** — When adding a new schema file to `apps/orm/tests/e2e/schemas/`, add its table names to the `tables` registry in `apps/orm/tests/e2e/test-helper.ts`. This ensures `globalCleanup()` covers them. Also update the relevant `*_TABLES` constant if the tables belong to root, index, or typed-id groups
 

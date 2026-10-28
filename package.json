@@ -16,6 +16,7 @@
     "orm:typecheck": "bun run --filter cerial typecheck",
     "orm:test": "bun run --filter cerial test",
     "orm:test:e2e": "bun run --filter cerial test:e2e",
+    "orm:test:e2e:parallel": "bun run --filter cerial test:e2e:parallel",
     "orm:test:integration": "bun run --filter cerial test:integration",
     "orm:test:full": "bun run --filter cerial test:full",
     "orm:publish": "bun run --filter cerial publish:npm",
