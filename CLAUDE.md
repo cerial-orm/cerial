@@ -265,10 +265,16 @@ example would otherwise be wrong. Details belong in the docs, not duplicated the
 
 The pipeline shape is the same each time:
 
-1. Implement in `apps/orm/src/` — new field type needs a parser under
-   `parser/types/field-types/` plus `SchemaFieldType` in `types/common.types.ts`;
-   new decorator needs one under `parser/types/field-decorators/`; new operator
-   needs a handler under `query/filters/<category>/` registered in
+1. Implement in `apps/orm/src/`. Decorators and field types are data in the
+   registry under `parser/registry/`, which the parser dispatches through and the
+   extension reads. A new decorator is one entry in a group under
+   `parser/registry/decorators/` (name, argument shape, targets, excludes, one-line
+   description) whose `parse` points at its handler under
+   `parser/types/field-decorators/`. A new field type is one entry in
+   `parser/registry/field-type-registry.ts` plus its parser under
+   `parser/types/field-types/` and `SchemaFieldType` in `types/common.types.ts`.
+   `tests/unit/parser/registry.test.ts` fails until the entry is complete. A new
+   operator needs a handler under `query/filters/<category>/` registered in
    `query/filters/registry.ts` and a Where-type update in
    `generators/types/where-generator.ts`.
    Declare every new construct (decorator, field type, directive, extends form,
@@ -284,12 +290,14 @@ The pipeline shape is the same each time:
 4. Teach the formatter the new construct (`formatter/printer.ts` or
    `inline-printer.ts`) and prove it is idempotent.
 5. Document it (see above).
-6. Update the VS Code extension when schema syntax changed: TextMate grammar
-   (`syntaxes/cerial.tmLanguage.json`), completions
-   (`server/src/providers/completion.ts`), hover docs
-   (`server/src/data/hover-docs.ts`), diagnostics for a new validator, code actions
-   for a decorator with common misuse. Then `bun run test` and `bun run build` in
-   `apps/vscode-extension/`.
+6. The VS Code extension picks up a new decorator or field type from the registry:
+   completion, hover and the grammar need no list edits. Add hover detail (an
+   example, constraints) to the keyed maps in `server/src/data/hover-docs.ts`, and a
+   field-type restriction to `DECORATOR_TYPE_RESTRICTIONS` in
+   `server/src/providers/completion.ts`, when the decorator has one. Other syntax
+   changes still need the grammar (`syntaxes/cerial.tmLanguage.json`), and a new
+   validator needs diagnostics; a decorator with common misuse gets a code action.
+   Then `bun run test` and `bun run build` in `apps/vscode-extension/`.
 
 ### Testing Rules
 
