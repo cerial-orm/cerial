@@ -1,3 +1,4 @@
+import { defaultDecorators } from './decorators/defaults';
 import { identityDecorators } from './decorators/identity';
 import { relationDecorators } from './decorators/relation';
 import { temporalDecorators } from './decorators/temporal';
@@ -8,6 +9,7 @@ const DECORATOR_GROUPS: readonly (readonly DecoratorEntry[])[] = [
   identityDecorators,
   relationDecorators,
   temporalDecorators,
+  defaultDecorators,
 ];
 
 function buildRegistry(groups: readonly (readonly DecoratorEntry[])[]): ReadonlyMap<DecoratorName, DecoratorEntry> {
