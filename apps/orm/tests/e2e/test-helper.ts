@@ -12,21 +12,11 @@
  */
 
 import { CerialClient } from './generated/client';
+import { resolveTestDatabase } from './run-guard';
 
 // Re-export client class and all generated models
 export { CerialClient } from './generated/client';
 export * from './generated/models';
-
-/**
- * The database a process tests against: `main` sequentially, `main_w<id>` inside a `--parallel`
- * worker (each worker gets a database of its own), and `CERIAL_E2E_DB` over both.
- */
-export function resolveTestDatabase(env: Record<string, string | undefined> = process.env): string {
-  if (env.CERIAL_E2E_DB) return env.CERIAL_E2E_DB;
-  if (env.BUN_TEST_WORKER_ID) return `main_w${env.BUN_TEST_WORKER_ID}`;
-
-  return 'main';
-}
 
 /**
  * Test database configuration

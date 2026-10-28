@@ -100,3 +100,14 @@ async function waitForMarker(
 
   throw new Error(`Timed out after ${Date.now() - started}ms waiting for e2e setup marker ${doneFile}`);
 }
+
+/**
+ * The database a process tests against: `main` sequentially, `main_w<id>` inside a `--parallel`
+ * worker (each worker gets a database of its own), and `CERIAL_E2E_DB` over both.
+ */
+export function resolveTestDatabase(env: Record<string, string | undefined> = process.env): string {
+  if (env.CERIAL_E2E_DB) return env.CERIAL_E2E_DB;
+  if (env.BUN_TEST_WORKER_ID) return `main_w${env.BUN_TEST_WORKER_ID}`;
+
+  return 'main';
+}
