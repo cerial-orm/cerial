@@ -42,14 +42,6 @@ function getOrCreate(map: CommentMap, key: string): { leading: CerialToken[]; tr
   return entry;
 }
 
-/** Check if a source line (1-based) is blank */
-function isSourceLineBlank(sourceLines: string[], lineNum: number): boolean {
-  const idx = lineNum - 1;
-  if (idx < 0 || idx >= sourceLines.length) return false;
-
-  return sourceLines[idx]!.trim() === '';
-}
-
 /** Collect all block-level AST nodes sorted by start line */
 function collectBlocks(ast: SchemaAST): BlockNode[] {
   const blocks: BlockNode[] = [];
@@ -118,19 +110,13 @@ function collectBlocks(ast: SchemaAST): BlockNode[] {
 
 /**
  * Determine which comment lines before the first block are "attached" to it.
- * Scans backwards from the block's start line; a blank line breaks attachment.
- * Attached comments become leading of the first block; the rest go to 'top'.
+ * Scans backwards from the block's start line; any line that is not a comment line (a blank
+ * line) breaks attachment. Attached comments become leading of the first block; the rest go to 'top'.
  */
-function findAttachedLines(blockStartLine: number, commentLineNums: Set<number>, sourceLines: string[]): Set<number> {
+function findAttachedLines(blockStartLine: number, commentLineNums: Set<number>): Set<number> {
   const attached = new Set<number>();
-  for (let l = blockStartLine - 1; l >= 1; l--) {
-    if (commentLineNums.has(l)) {
-      attached.add(l);
-    } else if (isSourceLineBlank(sourceLines, l)) {
-      break;
-    } else {
-      break;
-    }
+  for (let l = blockStartLine - 1; l >= 1 && commentLineNums.has(l); l--) {
+    attached.add(l);
   }
 
   return attached;
@@ -173,8 +159,7 @@ export function attachComments(tokens: CerialToken[], ast: SchemaAST): CommentMa
 
   // Determine which pre-first-block comment lines are attached to the first block
   const commentLineNums = new Set(comments.map((c) => c.position.line));
-  const sourceLines = ast.source.split('\n');
-  const attachedToFirst = findAttachedLines(firstBlock.startLine, commentLineNums, sourceLines);
+  const attachedToFirst = findAttachedLines(firstBlock.startLine, commentLineNums);
 
   let betweenIdx = 0;
 

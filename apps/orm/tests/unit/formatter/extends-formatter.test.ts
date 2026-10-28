@@ -16,6 +16,7 @@ import type { AlignedField } from '../../../src/formatter/aligner';
 import { alignFields } from '../../../src/formatter/aligner';
 import { attachComments } from '../../../src/formatter/comment-attacher';
 import { formatCerialSource } from '../../../src/formatter/formatter';
+import { buildSourceLayout } from '../../../src/formatter/layout';
 import { printEnum, printLiteral, printTuple } from '../../../src/formatter/inline-printer';
 import type { FormatConfig } from '../../../src/formatter/types';
 import { parse } from '../../../src/parser/parser';
@@ -31,7 +32,7 @@ function parseEnumNode(src: string) {
   const tokens = tokenize(src);
   const comments = attachComments(tokens, ast);
 
-  return { node: ast.enums[0]!, comments, source: src };
+  return { node: ast.enums[0]!, comments, layout: buildSourceLayout(tokens) };
 }
 
 function parseLiteralNode(src: string) {
@@ -39,7 +40,7 @@ function parseLiteralNode(src: string) {
   const tokens = tokenize(src);
   const comments = attachComments(tokens, ast);
 
-  return { node: ast.literals[0]!, comments, source: src };
+  return { node: ast.literals[0]!, comments, layout: buildSourceLayout(tokens) };
 }
 
 function parseTupleNode(src: string) {
@@ -47,7 +48,7 @@ function parseTupleNode(src: string) {
   const tokens = tokenize(src);
   const comments = attachComments(tokens, ast);
 
-  return { node: ast.tuples[0]!, comments, source: src };
+  return { node: ast.tuples[0]!, comments, layout: buildSourceLayout(tokens) };
 }
 
 function field(
@@ -185,32 +186,32 @@ describe('object extends header', () => {
 describe('enum extends header', () => {
   it('should format enum extends single-line', () => {
     const src = 'enum Extended extends Base { Extra, More }';
-    const { node, comments, source } = parseEnumNode(src);
-    const result = printEnum(node, comments, config({ inlineConstructStyle: 'single' }), source);
+    const { node, comments, layout } = parseEnumNode(src);
+    const result = printEnum(node, comments, config({ inlineConstructStyle: 'single' }), layout);
 
     expect(result).toBe('enum Extended extends Base { Extra, More }');
   });
 
   it('should format enum extends multi-line', () => {
     const src = 'enum Extended extends Base {\n  Extra,\n  More\n}';
-    const { node, comments, source } = parseEnumNode(src);
-    const result = printEnum(node, comments, config({ inlineConstructStyle: 'multi', trailingComma: false }), source);
+    const { node, comments, layout } = parseEnumNode(src);
+    const result = printEnum(node, comments, config({ inlineConstructStyle: 'multi', trailingComma: false }), layout);
 
     expect(result).toBe('enum Extended extends Base {\n  Extra,\n  More\n}');
   });
 
   it('should format enum extends with pick', () => {
     const src = 'enum Core extends Base[Admin, User] { Guest }';
-    const { node, comments, source } = parseEnumNode(src);
-    const result = printEnum(node, comments, config({ inlineConstructStyle: 'single' }), source);
+    const { node, comments, layout } = parseEnumNode(src);
+    const result = printEnum(node, comments, config({ inlineConstructStyle: 'single' }), layout);
 
     expect(result).toBe('enum Core extends Base[Admin, User] { Guest }');
   });
 
   it('should format enum extends with omit', () => {
     const src = 'enum NonAdmin extends Base[!Admin] { Guest }';
-    const { node, comments, source } = parseEnumNode(src);
-    const result = printEnum(node, comments, config({ inlineConstructStyle: 'single' }), source);
+    const { node, comments, layout } = parseEnumNode(src);
+    const result = printEnum(node, comments, config({ inlineConstructStyle: 'single' }), layout);
 
     expect(result).toBe('enum NonAdmin extends Base[!Admin] { Guest }');
   });
@@ -223,20 +224,20 @@ describe('enum extends header', () => {
 describe('literal extends header', () => {
   it('should format literal extends single-line', () => {
     const src = "literal Extended extends Base { 'extra', 'more' }";
-    const { node, comments, source } = parseLiteralNode(src);
-    const result = printLiteral(node, comments, config({ inlineConstructStyle: 'single' }), source);
+    const { node, comments, layout } = parseLiteralNode(src);
+    const result = printLiteral(node, comments, config({ inlineConstructStyle: 'single' }), layout);
 
     expect(result).toBe("literal Extended extends Base { 'extra', 'more' }");
   });
 
   it('should format literal extends multi-line', () => {
     const src = "literal Extended extends Base {\n  'extra',\n  'more'\n}";
-    const { node, comments, source } = parseLiteralNode(src);
+    const { node, comments, layout } = parseLiteralNode(src);
     const result = printLiteral(
       node,
       comments,
       config({ inlineConstructStyle: 'multi', trailingComma: false }),
-      source,
+      layout,
     );
 
     expect(result).toBe("literal Extended extends Base {\n  'extra',\n  'more'\n}");
@@ -244,16 +245,16 @@ describe('literal extends header', () => {
 
   it('should format literal extends with pick', () => {
     const src = "literal High extends Priority['high', 'critical'] { 'urgent' }";
-    const { node, comments, source } = parseLiteralNode(src);
-    const result = printLiteral(node, comments, config({ inlineConstructStyle: 'single' }), source);
+    const { node, comments, layout } = parseLiteralNode(src);
+    const result = printLiteral(node, comments, config({ inlineConstructStyle: 'single' }), layout);
 
     expect(result).toBe("literal High extends Priority['high', 'critical'] { 'urgent' }");
   });
 
   it('should format literal extends with omit', () => {
     const src = "literal NoLow extends Priority[!'low'] { 'urgent' }";
-    const { node, comments, source } = parseLiteralNode(src);
-    const result = printLiteral(node, comments, config({ inlineConstructStyle: 'single' }), source);
+    const { node, comments, layout } = parseLiteralNode(src);
+    const result = printLiteral(node, comments, config({ inlineConstructStyle: 'single' }), layout);
 
     expect(result).toBe("literal NoLow extends Priority[!'low'] { 'urgent' }");
   });
@@ -266,32 +267,32 @@ describe('literal extends header', () => {
 describe('tuple extends header', () => {
   it('should format tuple extends single-line', () => {
     const src = 'tuple Triple extends Pair { z Float }';
-    const { node, comments, source } = parseTupleNode(src);
-    const result = printTuple(node, comments, config({ inlineConstructStyle: 'single' }), source);
+    const { node, comments, layout } = parseTupleNode(src);
+    const result = printTuple(node, comments, config({ inlineConstructStyle: 'single' }), layout);
 
     expect(result).toBe('tuple Triple extends Pair { z Float }');
   });
 
   it('should format tuple extends multi-line', () => {
     const src = 'tuple Triple extends Pair {\n  z Float\n}';
-    const { node, comments, source } = parseTupleNode(src);
-    const result = printTuple(node, comments, config({ inlineConstructStyle: 'multi', trailingComma: false }), source);
+    const { node, comments, layout } = parseTupleNode(src);
+    const result = printTuple(node, comments, config({ inlineConstructStyle: 'multi', trailingComma: false }), layout);
 
     expect(result).toBe('tuple Triple extends Pair {\n  z Float\n}');
   });
 
   it('should format tuple extends with pick', () => {
     const src = 'tuple FirstTwo extends Triple[0, 1] { Bool }';
-    const { node, comments, source } = parseTupleNode(src);
-    const result = printTuple(node, comments, config({ inlineConstructStyle: 'single' }), source);
+    const { node, comments, layout } = parseTupleNode(src);
+    const result = printTuple(node, comments, config({ inlineConstructStyle: 'single' }), layout);
 
     expect(result).toBe('tuple FirstTwo extends Triple[0, 1] { Bool }');
   });
 
   it('should format tuple extends with omit', () => {
     const src = 'tuple NoSecond extends Triple[!1] { Bool }';
-    const { node, comments, source } = parseTupleNode(src);
-    const result = printTuple(node, comments, config({ inlineConstructStyle: 'single' }), source);
+    const { node, comments, layout } = parseTupleNode(src);
+    const result = printTuple(node, comments, config({ inlineConstructStyle: 'single' }), layout);
 
     expect(result).toBe('tuple NoSecond extends Triple[!1] { Bool }');
   });
@@ -386,24 +387,24 @@ describe('!!private field alignment', () => {
 describe('!!private on tuple elements', () => {
   it('should format !!private on tuple element single-line', () => {
     const src = 'tuple Priv {\n  x Float !!private,\n  y Float\n}';
-    const { node, comments, source } = parseTupleNode(src);
-    const result = printTuple(node, comments, config({ inlineConstructStyle: 'single' }), source);
+    const { node, comments, layout } = parseTupleNode(src);
+    const result = printTuple(node, comments, config({ inlineConstructStyle: 'single' }), layout);
 
     expect(result).toBe('tuple Priv { x Float !!private, y Float }');
   });
 
   it('should format !!private on tuple element multi-line', () => {
     const src = 'tuple Priv {\n  x Float !!private,\n  y Float\n}';
-    const { node, comments, source } = parseTupleNode(src);
-    const result = printTuple(node, comments, config({ inlineConstructStyle: 'multi', trailingComma: false }), source);
+    const { node, comments, layout } = parseTupleNode(src);
+    const result = printTuple(node, comments, config({ inlineConstructStyle: 'multi', trailingComma: false }), layout);
 
     expect(result).toBe('tuple Priv {\n  x Float !!private,\n  y Float\n}');
   });
 
   it('should format !!private with decorators on tuple element', () => {
     const src = 'tuple Dec {\n  x Float @default(1.5) !!private,\n  y Float\n}';
-    const { node, comments, source } = parseTupleNode(src);
-    const result = printTuple(node, comments, config({ inlineConstructStyle: 'single' }), source);
+    const { node, comments, layout } = parseTupleNode(src);
+    const result = printTuple(node, comments, config({ inlineConstructStyle: 'single' }), layout);
 
     expect(result).toBe('tuple Dec { x Float @default(1.5) !!private, y Float }');
   });

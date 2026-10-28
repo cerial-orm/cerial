@@ -12,8 +12,10 @@ import type {
   ASTTuple,
   ASTTupleElement,
   ExtendsFilter,
+  Origin,
 } from '../types';
 import type { CommentMap } from './comment-attacher';
+import type { SourceLayout } from './layout';
 import type { FormatConfig } from './types';
 
 /** Display name mapping from SchemaFieldType to schema syntax */
@@ -71,32 +73,17 @@ function formatLeadingComments(comments: CommentMap, key: string): string {
  *
  * - `'single'`: always single-line
  * - `'multi'`: always multi-line
- * - `'honor'`: detect from source — check if the construct was originally on one line
- *   or if the first value is on the same line as `{` (user's preference)
+ * - `'honor'`: single-line if the construct was on one line or its first value shares the `{` line.
+ *   A node without source lines (no layout, or a `ts` origin) prints the default, multi-line
  */
-function shouldBeSingleLine(
-  config: Required<FormatConfig>,
-  source: string,
-  startLine: number,
-  endLine: number,
-): boolean {
+function shouldBeSingleLine(config: Required<FormatConfig>, node: { origin: Origin }, layout?: SourceLayout): boolean {
   if (config.inlineConstructStyle === 'single') return true;
   if (config.inlineConstructStyle === 'multi') return false;
+  if (!layout || node.origin.kind !== 'dsl') return false;
 
-  // Honor mode: detect from source
-  if (startLine === endLine) return true;
+  const { start, end } = node.origin.range;
 
-  // Multi-line range — check if first value is on the same line as {
-  const sourceLines = source.split('\n');
-  const lineText = sourceLines[startLine - 1]; // 1-based to 0-based
-  if (!lineText) return false;
-
-  const braceIdx = lineText.indexOf('{');
-  if (braceIdx === -1) return false;
-
-  const afterBrace = lineText.substring(braceIdx + 1).trim();
-
-  return afterBrace.length > 0 && afterBrace !== '}';
+  return start.line === end.line || layout.hasValueOnOpenLine(start.line);
 }
 
 /** Format a decorator value back to source text */
@@ -219,10 +206,15 @@ function formatMultiLine(
  * Enum values are bare identifiers formatted as comma-separated items.
  * Supports single-line, multi-line, and honor mode with trailing comma.
  */
-export function printEnum(node: ASTEnum, comments: CommentMap, config: Required<FormatConfig>, source: string): string {
+export function printEnum(
+  node: ASTEnum,
+  comments: CommentMap,
+  config: Required<FormatConfig>,
+  layout?: SourceLayout,
+): string {
   const leading = formatLeadingComments(comments, `enum:${node.name}`);
   const items = node.values;
-  const singleLine = shouldBeSingleLine(config, source, node.range.start.line, node.range.end.line);
+  const singleLine = shouldBeSingleLine(config, node, layout);
   const extendsClause = buildInlineExtendsClause(node.extends, node.extendsFilter);
 
   let body: string;
@@ -246,11 +238,11 @@ export function printLiteral(
   node: ASTLiteral,
   comments: CommentMap,
   config: Required<FormatConfig>,
-  source: string,
+  layout?: SourceLayout,
 ): string {
   const leading = formatLeadingComments(comments, `literal:${node.name}`);
   const items = node.variants.map(formatVariant);
-  const singleLine = shouldBeSingleLine(config, source, node.range.start.line, node.range.end.line);
+  const singleLine = shouldBeSingleLine(config, node, layout);
   const extendsClause = buildInlineExtendsClause(node.extends, node.extendsFilter);
 
   let body: string;
@@ -273,11 +265,11 @@ export function printTuple(
   node: ASTTuple,
   comments: CommentMap,
   config: Required<FormatConfig>,
-  source: string,
+  layout?: SourceLayout,
 ): string {
   const leading = formatLeadingComments(comments, `tuple:${node.name}`);
   const items = node.elements.map(formatTupleElement);
-  const singleLine = shouldBeSingleLine(config, source, node.range.start.line, node.range.end.line);
+  const singleLine = shouldBeSingleLine(config, node, layout);
   const extendsClause = buildInlineExtendsClause(node.extends, node.extendsFilter);
 
   let body: string;

@@ -1,4 +1,5 @@
 import { attachComments } from '../../../src/formatter/comment-attacher';
+import { buildSourceLayout } from '../../../src/formatter/layout';
 import { printModel, printObject } from '../../../src/formatter/printer';
 import { FORMAT_DEFAULTS } from '../../../src/formatter/types';
 import type { FormatConfig } from '../../../src/formatter/types';
@@ -15,7 +16,7 @@ export function formatModel(source: string, overrides?: FormatConfig): string {
   const comments = attachComments(tokens, ast);
   const model = ast.models[0]!;
 
-  return printModel(model, comments, config(overrides), source);
+  return printModel(model, comments, config(overrides), buildSourceLayout(tokens));
 }
 
 export function formatObject(source: string, overrides?: FormatConfig): string {
@@ -24,5 +25,5 @@ export function formatObject(source: string, overrides?: FormatConfig): string {
   const comments = attachComments(tokens, ast);
   const object = ast.objects[0]!;
 
-  return printObject(object, comments, config(overrides), source);
+  return printObject(object, comments, config(overrides), buildSourceLayout(tokens));
 }

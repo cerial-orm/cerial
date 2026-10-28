@@ -10,6 +10,8 @@ import type { ASTEnum, ASTLiteral, ASTModel, ASTObject, ASTTuple, SchemaAST, Sou
 import type { CommentMap } from './comment-attacher';
 import { attachComments } from './comment-attacher';
 import { printEnum, printLiteral, printTuple } from './inline-printer';
+import type { SourceLayout } from './layout';
+import { blankLinesBetweenNodes, buildSourceLayout } from './layout';
 import { printModel, printObject } from './printer';
 import { resolveConfig } from './rules';
 import type { FormatOptions, FormatResult } from './types';
@@ -176,21 +178,6 @@ function findTrailingCommentIndex(line: string, marker: string): number {
 }
 
 /**
- * Count blank lines between the end of one block and the start of the next
- * in the original source. Caps at 2.
- */
-function countSourceBlankLinesBetween(sourceLines: string[], endLine: number, startLine: number): number {
-  let count = 0;
-  for (let lineNum = endLine + 1; lineNum < startLine; lineNum++) {
-    if (sourceLines[lineNum - 1]?.trim() === '') {
-      count++;
-    }
-  }
-
-  return Math.min(count, 2);
-}
-
-/**
  * Format a .cerial schema source string.
  *
  * Pipeline: parse → validate → tokenize → attach comments → resolve config → print → assemble
@@ -224,6 +211,8 @@ export function formatCerialSource(source: string, options?: FormatOptions): For
   // 4. Resolve config
   const config = resolveConfig(options);
 
+  const layout = buildSourceLayout(tokens);
+
   // 5. Collect all top-level blocks in source order
   const blocks = collectTopLevelBlocks(ast);
 
@@ -231,15 +220,15 @@ export function formatCerialSource(source: string, options?: FormatOptions): For
   const printedBlocks = blocks.map((block) => {
     switch (block.kind) {
       case 'model':
-        return printModel(block.node as ASTModel, comments, config, source);
+        return printModel(block.node as ASTModel, comments, config, layout);
       case 'object':
-        return printObject(block.node as ASTObject, comments, config, source);
+        return printObject(block.node as ASTObject, comments, config, layout);
       case 'enum':
-        return printEnum(block.node as ASTEnum, comments, config, source);
+        return printEnum(block.node as ASTEnum, comments, config, layout);
       case 'literal':
-        return printLiteral(block.node as ASTLiteral, comments, config, source);
+        return printLiteral(block.node as ASTLiteral, comments, config, layout);
       case 'tuple':
-        return printTuple(block.node as ASTTuple, comments, config, source);
+        return printTuple(block.node as ASTTuple, comments, config, layout);
     }
   });
 
@@ -253,14 +242,12 @@ export function formatCerialSource(source: string, options?: FormatOptions): For
   }
 
   // Block separation
-  const sourceLines = source.split('\n');
-
   for (let i = 0; i < printedBlocks.length; i++) {
     const printed = printedBlocks[i]!;
 
     if (i > 0 || outputParts.length > 0) {
       // Determine separator
-      const separator = computeBlockSeparator(config.blockSeparation, blocks, sourceLines, i, outputParts.length > 0);
+      const separator = computeBlockSeparator(config.blockSeparation, blocks, layout, i, outputParts.length > 0);
       outputParts.push(separator);
     }
 
@@ -300,36 +287,28 @@ export function formatCerialSource(source: string, options?: FormatOptions): For
 function computeBlockSeparator(
   blockSeparation: 1 | 2 | 'honor',
   blocks: TopLevelBlock[],
-  sourceLines: string[],
+  layout: SourceLayout | undefined,
   blockIdx: number,
   hasTopComments: boolean,
 ): string {
   // outputParts.join('\n') contributes 1 newline between each element.
   // For N blank lines between blocks, we need N+1 total newlines.
   // The join adds 2 (one before separator, one after), so separator = '\n'.repeat(N - 1).
-  if (blockSeparation === 'honor') {
-    if (blockIdx === 0 && hasTopComments) {
-      // Between top comments and first block: count blank lines from source start to first block
-      const firstBlockStart = blocks[0]!.range.start.line;
-      const blankCount = countSourceBlankLinesBetween(sourceLines, 0, firstBlockStart);
-      const effective = Math.max(blankCount, 1);
+  if (blockSeparation !== 'honor') return '\n'.repeat(blockSeparation - 1);
+  if (blockIdx === 0 && !hasTopComments) return '';
 
-      return '\n'.repeat(Math.max(effective - 1, 0));
-    }
-    if (blockIdx > 0) {
-      const prevEnd = blocks[blockIdx - 1]!.range.end.line;
-      const currStart = blocks[blockIdx]!.range.start.line;
-      const blankCount = countSourceBlankLinesBetween(sourceLines, prevEnd, currStart);
-      const effective = Math.max(blankCount, 1);
-
-      return '\n'.repeat(Math.max(effective - 1, 0));
-    }
-
-    return '';
+  // Honor: the original blank lines, at least 1 and at most 2. A node without source lines
+  // (no layout, or a `ts` origin) has none to honor, so it gets the 1 minimum
+  let blankCount = 0;
+  if (blockIdx === 0) {
+    // Top comments to the first block: every blank line before it, comments' own gaps included
+    blankCount = layout ? layout.blankLinesBetween(0, blocks[0]!.range.start.line) : 0;
+  } else {
+    blankCount = blankLinesBetweenNodes(layout, blocks[blockIdx - 1]!.node, blocks[blockIdx]!.node, 'end') ?? 0;
   }
+  const effective = Math.min(Math.max(blankCount, 1), 2);
 
-  // Fixed separation: N blank lines → separator = '\n'.repeat(N - 1)
-  return '\n'.repeat(blockSeparation - 1);
+  return '\n'.repeat(effective - 1);
 }
 
 /**

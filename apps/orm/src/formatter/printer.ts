@@ -10,6 +10,8 @@ import type { AlignedField } from './aligner';
 import { alignFields } from './aligner';
 import type { CommentMap } from './comment-attacher';
 import { sortDecorators } from './rules';
+import type { SourceLayout } from './layout';
+import { blankLinesBetweenNodes } from './layout';
 import type { FormatConfig } from './types';
 
 /** Build indent string from config */
@@ -106,58 +108,27 @@ export function formatDirective(directive: ASTCompositeDirective): string {
   return `@@${directive.kind}(${directive.name}, [${directive.fields.join(', ')}])`;
 }
 
-/** Check if any line between two 1-based line numbers is blank in source */
-function hasBlankLineBetween(sourceLines: string[], afterLine: number, beforeLine: number): boolean {
-  for (let lineNum = afterLine + 1; lineNum < beforeLine; lineNum++) {
-    if (sourceLines[lineNum - 1]?.trim() === '') return true;
-  }
-
-  return false;
-}
-
-/**
- * Count blank lines between two 1-based line numbers in source.
- * Returns the number of consecutive blank lines found.
- */
-function countBlankLinesBetween(sourceLines: string[], afterLine: number, beforeLine: number): number {
-  let count = 0;
-  for (let lineNum = afterLine + 1; lineNum < beforeLine; lineNum++) {
-    if (sourceLines[lineNum - 1]?.trim() === '') count++;
-  }
-
-  return count;
-}
-
 /**
  * Compute how many blank lines to emit after a field.
  *
  * - `'single'`: at most 1 blank line — preserves group boundaries from source but collapses multiples to 1
  * - `'collapse'`: 0 — removes all blank lines between fields
  * - `'honor'`: preserves the exact number of blank lines from the original source
+ *
+ * Without source lines to measure (no layout, or a `ts` origin) `'single'` and `'honor'` print 0.
  */
 function computeBlankLinesAfter(
   mode: 'single' | 'honor' | 'collapse',
   fieldIdx: number,
   fields: ASTField[],
-  sourceLines: string[],
+  layout: SourceLayout | undefined,
 ): number {
   // Last field never has blank lines after
-  if (fieldIdx >= fields.length - 1) return 0;
+  if (fieldIdx >= fields.length - 1 || mode === 'collapse') return 0;
 
-  const currentField = fields[fieldIdx]!;
-  const nextField = fields[fieldIdx + 1]!;
+  const count = blankLinesBetweenNodes(layout, fields[fieldIdx]!, fields[fieldIdx + 1]!, 'start') ?? 0;
 
-  switch (mode) {
-    case 'single': {
-      const count = countBlankLinesBetween(sourceLines, currentField.range.start.line, nextField.range.start.line);
-
-      return count > 0 ? 1 : 0;
-    }
-    case 'collapse':
-      return 0;
-    case 'honor':
-      return countBlankLinesBetween(sourceLines, currentField.range.start.line, nextField.range.start.line);
-  }
+  return mode === 'single' ? Math.min(count, 1) : count;
 }
 
 /** Build the extends clause string for a block header */
@@ -190,14 +161,13 @@ function printBlock(
   directives: ASTCompositeDirective[] | undefined,
   comments: CommentMap,
   config: Required<FormatConfig>,
-  source: string,
+  layout: SourceLayout | undefined,
   blockAbstract?: boolean,
   blockExtends?: string,
   blockExtendsFilter?: ExtendsFilter,
 ): string {
   const lines: string[] = [];
   const indent = buildIndent(config.indentSize);
-  const sourceLines = source.split('\n');
   const blockKey = `${keyword}:${name}`;
 
   // 1. Leading comments
@@ -227,7 +197,7 @@ function printBlock(
     const sorted = sortDecorators(field.decorators);
     const decoratorStr = sorted.map(formatDecorator).join(' ');
 
-    const blankLinesAfter = computeBlankLinesAfter(config.fieldGroupBlankLines, i, fields, sourceLines);
+    const blankLinesAfter = computeBlankLinesAfter(config.fieldGroupBlankLines, i, fields, layout);
 
     const fieldKey = `field:${name}.${field.name}`;
     const trailingComment = comments.get(fieldKey)?.trailing[0]?.value;
@@ -277,10 +247,9 @@ function printBlock(
       if (config.blankLineBeforeDirectives === 'always') {
         needBlank = true;
       } else {
-        // 'honor' mode: check source
-        const lastField = fields[fields.length - 1]!;
-        const firstDirective = directives[0]!;
-        needBlank = hasBlankLineBetween(sourceLines, lastField.range.start.line, firstDirective.range.start.line);
+        // 'honor' mode: check source; without source lines print the 'always' form
+        const gap = blankLinesBetweenNodes(layout, fields[fields.length - 1]!, directives[0]!, 'start');
+        needBlank = gap === undefined || gap > 0;
       }
     }
     if (needBlank) lines.push('');
@@ -318,7 +287,7 @@ export function printModel(
   model: ASTModel,
   comments: CommentMap,
   config: Required<FormatConfig>,
-  source: string,
+  layout?: SourceLayout,
 ): string {
   return printBlock(
     'model',
@@ -327,7 +296,7 @@ export function printModel(
     model.directives,
     comments,
     config,
-    source,
+    layout,
     model.abstract,
     model.extends,
     model.extendsFilter,
@@ -341,7 +310,7 @@ export function printObject(
   object: ASTObject,
   comments: CommentMap,
   config: Required<FormatConfig>,
-  source: string,
+  layout?: SourceLayout,
 ): string {
   return printBlock(
     'object',
@@ -350,7 +319,7 @@ export function printObject(
     undefined,
     comments,
     config,
-    source,
+    layout,
     undefined,
     object.extends,
     object.extendsFilter,
