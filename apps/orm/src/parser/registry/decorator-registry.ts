@@ -1,8 +1,9 @@
 import { identityDecorators } from './decorators/identity';
+import { relationDecorators } from './decorators/relation';
 import type { DecoratorEntry, DecoratorName } from './types';
 
 /** Every group of decorator entries, in a fixed order. Adding a decorator is one entry in one group. */
-const DECORATOR_GROUPS: readonly (readonly DecoratorEntry[])[] = [identityDecorators];
+const DECORATOR_GROUPS: readonly (readonly DecoratorEntry[])[] = [identityDecorators, relationDecorators];
 
 function buildRegistry(groups: readonly (readonly DecoratorEntry[])[]): ReadonlyMap<DecoratorName, DecoratorEntry> {
   const entries = new Map<DecoratorName, DecoratorEntry>();
