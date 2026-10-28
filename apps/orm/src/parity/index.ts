@@ -12,4 +12,4 @@ export type {
   CorpusConstructId,
   ParityEntry,
 } from './parity-manifest';
-export { PARITY_MANIFEST } from './parity-manifest';
+export { PARITY_MANIFEST, REGISTRY_FAMILIES } from './parity-manifest';

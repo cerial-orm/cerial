@@ -61,6 +61,7 @@ export const REGISTRY_FAMILIES = [
   'complex-type',
   'array-form',
   'decorator',
+  'composite-directive',
 ] as const satisfies readonly ConstructFamily[];
 
 const row = <const I extends string, const F extends ConstructFamily, const S extends ConstructScope>(
