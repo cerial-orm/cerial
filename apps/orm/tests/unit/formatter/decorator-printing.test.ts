@@ -9,6 +9,7 @@ import { formatCerialSource } from '../../../src/formatter/formatter';
 import { formatDecorator } from '../../../src/formatter/printer';
 import { DECORATOR_REGISTRY, getDecoratorEntry, matchDecoratorToken } from '../../../src/parser/registry';
 import type { ArgumentShape, DecoratorEntry, LiteralForm } from '../../../src/parser/registry';
+import { createDecorator } from '../../../src/parser/types/ast';
 import type { ASTDecorator, SourceRange } from '../../../src/types';
 
 const RANGE: SourceRange = {
@@ -76,13 +77,14 @@ describe('formatDecorator registry sweep', () => {
   }
 
   it('should refuse a decorator with no registry entry', () => {
-    const node = { type: 'bogus', range: RANGE } as unknown as ASTDecorator;
+    // @ts-expect-error 'bogus' is not a SchemaDecorator; this tests the runtime refusal
+    const node = createDecorator('bogus', RANGE);
     expect(() => formatDecorator(node)).toThrow("No registry entry for decorator '@bogus'");
   });
 
   it('should refuse a model directive passed as a field decorator', () => {
     expect(getDecoratorEntry('@@index')).toBeDefined();
-    const node = { type: 'index', value: 'x', range: RANGE } as unknown as ASTDecorator;
+    const node = createDecorator('index', RANGE, 'x');
     // `@index` is the field decorator (shape none); a nameAndFields entry is only reachable through `@@`
     expect(formatDecorator(node)).toBe('@index');
   });
