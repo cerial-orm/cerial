@@ -22,7 +22,6 @@ import { removeComments } from '../utils/string-utils';
 import { lex } from './lexer';
 import { tokenize } from './tokenizer';
 import {
-  createDecorator,
   createEnum,
   createLiteral,
   createModel,
@@ -32,15 +31,14 @@ import {
   createSchemaAST,
   createTuple,
   createTupleElement,
-  extractDefaultValue,
   extractLiteralName,
   extractObjectName,
   extractTupleName,
   parseFieldDeclaration,
   parseFieldType,
 } from './types';
-import { extractDefaultAlwaysValue } from './types/field-decorators';
-import { parseCompositeDirective } from './types/model/composite-directive-parser';
+import { DECORATOR_REGISTRY, matchDecoratorToken } from './registry';
+import type { DecoratorEntry } from './registry';
 import { isMixedPickOmit, parseExtendsBracket } from './types/model/model-declaration-parser';
 
 /** Parser state */
@@ -193,11 +191,11 @@ function isEmptyOrComment(line: string): boolean {
   return trimmed === '';
 }
 
-/** Check if line is a composite directive (@@index or @@unique) */
-function isCompositeDirectiveLine(line: string): boolean {
+/** The model-level directive entry (@@index or @@unique) a line starts with, if any */
+function findDirectiveEntry(line: string): DecoratorEntry | undefined {
   const trimmed = removeComments(line).trim();
 
-  return trimmed.startsWith('@@index') || trimmed.startsWith('@@unique');
+  return [...DECORATOR_REGISTRY.values()].find((e) => e.targets.includes('model') && trimmed.startsWith(e.name));
 }
 
 /** Extract model name from line */
@@ -317,12 +315,14 @@ function parseModel(state: ParserState): ASTModel | null {
     }
 
     // Check for composite directive (@@index or @@unique)
-    if (isCompositeDirectiveLine(fieldLine)) {
-      const result = parseCompositeDirective(fieldLine, state.currentLine + 1);
-      if (result.error) {
-        addError(state, result.error);
-      } else if (result.directive) {
-        directives.push(result.directive);
+    const directiveEntry = findDirectiveEntry(fieldLine);
+    if (directiveEntry) {
+      const line = state.currentLine + 1;
+      const range = createRange(createPosition(line, 0, 0), createPosition(line, fieldLine.length, 0));
+      try {
+        directives.push(directiveEntry.parse(fieldLine, range) as ASTCompositeDirective);
+      } catch (err) {
+        addError(state, (err as Error).message);
       }
       advance(state);
       continue;
@@ -492,19 +492,9 @@ function parseTupleElement(
     const dToken = match[0];
     const range = createRange(createPosition(0, 0, 0), createPosition(0, dToken.length, 0));
 
-    if (dToken === '@nullable') {
-      decorators.push(createDecorator('nullable', range));
-    } else if (dToken === '@createdAt') {
-      decorators.push(createDecorator('createdAt', range));
-    } else if (dToken === '@updatedAt') {
-      decorators.push(createDecorator('updatedAt', range));
-    } else if (dToken.startsWith('@default(')) {
-      const value = extractDefaultValue(dToken);
-      decorators.push(createDecorator('default', range, value));
-    } else if (dToken.startsWith('@defaultAlways(')) {
-      const value = extractDefaultAlwaysValue(dToken);
-      decorators.push(createDecorator('defaultAlways', range, value));
-    }
+    const entry = matchDecoratorToken(dToken, 'tupleElement');
+    // Field entries return a decorator; only the '@@' directive entries return a composite node.
+    if (entry) decorators.push(entry.parse(dToken, range) as ASTDecorator);
   }
 
   // Remove decorators from the token for type parsing

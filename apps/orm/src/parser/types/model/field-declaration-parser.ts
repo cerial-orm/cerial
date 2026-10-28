@@ -11,53 +11,8 @@
 import type { ASTDecorator, ASTField } from '../../../types';
 import { isValidFieldName } from '../../../utils/validation-utils';
 import { createField, createPosition, createRange } from '../ast';
-import {
-  hasValidSortArgument,
-  isCreatedAtDecorator,
-  isDefaultAlwaysDecorator,
-  isDefaultDecorator,
-  isDistinctDecorator,
-  isFieldDecorator,
-  isFlexibleDecorator,
-  isGeometryDecorator,
-  isIdDecorator,
-  isIndexDecorator,
-  isKeyDecorator,
-  isModelDecorator,
-  isNowDecorator,
-  isNullableDecorator,
-  isOnDeleteDecorator,
-  isReadonlyDecorator,
-  isSetDecorator,
-  isSortDecorator,
-  isUniqueDecorator,
-  isUpdatedAtDecorator,
-  isUuid4Decorator,
-  isUuid7Decorator,
-  isUuidDecorator,
-  parseCreatedAtDecorator,
-  parseDefaultAlwaysDecorator,
-  parseDefaultDecorator,
-  parseDistinctDecorator,
-  parseFieldDecorator,
-  parseFlexibleDecorator,
-  parseGeometryDecorator,
-  parseIdDecorator,
-  parseIndexDecorator,
-  parseKeyDecorator,
-  parseModelDecorator,
-  parseNowDecorator,
-  parseNullableDecorator,
-  parseOnDeleteDecorator,
-  parseReadonlyDecorator,
-  parseSetDecorator,
-  parseSortDecorator,
-  parseUniqueDecorator,
-  parseUpdatedAtDecorator,
-  parseUuid4Decorator,
-  parseUuid7Decorator,
-  parseUuidDecorator,
-} from '../field-decorators';
+import { matchDecoratorToken } from '../../registry';
+import { hasValidSortArgument } from '../field-decorators';
 import {
   extractLiteralName,
   extractObjectName,
@@ -122,87 +77,24 @@ export function parseDecorators(line: string, lineNumber: number, errors?: strin
     const col = match.index ?? 0;
     const range = createRange(createPosition(lineNumber, col, 0), createPosition(lineNumber, col + token.length, 0));
 
-    if (isIdDecorator(token)) {
-      decorators.push(parseIdDecorator(range));
-    } else if (isUniqueDecorator(token)) {
-      decorators.push(parseUniqueDecorator(range));
-    } else if (isIndexDecorator(token)) {
-      decorators.push(parseIndexDecorator(range));
-    } else if (isNowDecorator(token)) {
-      decorators.push(parseNowDecorator(range));
-    } else if (isCreatedAtDecorator(token)) {
-      decorators.push(parseCreatedAtDecorator(range));
-    } else if (isUpdatedAtDecorator(token)) {
-      decorators.push(parseUpdatedAtDecorator(range));
-    } else if (isDefaultAlwaysDecorator(token)) {
+    const entry = matchDecoratorToken(token);
+    if (entry) {
       const emptyDec = isEmptyParenDecorator(token);
       if (emptyDec) {
         errors?.push(`Decorator '${emptyDec}' requires a value. Use ${VALUE_REQUIRED_DECORATORS[emptyDec]}`);
+      } else if (entry.name === '@sort') {
+        // The shared token regex stops at the first ')', so '@sort (asc)' and '@sort(asc)(desc)' would
+        // otherwise drop the trailing group and parse as a valid ascending sort. The handler only sees
+        // the token, not the rest of the line, so the stray-group check stays here.
+        const stray = line.slice(col + token.length).match(/^\s*(?:\([^)]*\))+/)?.[0] ?? '';
+        if (hasValidSortArgument(token) && !stray) decorators.push(entry.parse(token, range) as ASTDecorator);
+        else
+          errors?.push(
+            `Decorator '${token}${stray}' on '${declarationName}' has an invalid argument. Use @sort, @sort(true), @sort(false), @sort(asc) or @sort(desc)`,
+          );
       } else {
-        decorators.push(parseDefaultAlwaysDecorator(token, range));
+        decorators.push(entry.parse(token, range) as ASTDecorator);
       }
-    } else if (isDefaultDecorator(token)) {
-      const emptyDec = isEmptyParenDecorator(token);
-      if (emptyDec) {
-        errors?.push(`Decorator '${emptyDec}' requires a value. Use ${VALUE_REQUIRED_DECORATORS[emptyDec]}`);
-      } else {
-        decorators.push(parseDefaultDecorator(token, range));
-      }
-    } else if (isFieldDecorator(token)) {
-      const emptyDec = isEmptyParenDecorator(token);
-      if (emptyDec) {
-        errors?.push(`Decorator '${emptyDec}' requires a value. Use ${VALUE_REQUIRED_DECORATORS[emptyDec]}`);
-      } else {
-        decorators.push(parseFieldDecorator(token, range));
-      }
-    } else if (isModelDecorator(token)) {
-      const emptyDec = isEmptyParenDecorator(token);
-      if (emptyDec) {
-        errors?.push(`Decorator '${emptyDec}' requires a value. Use ${VALUE_REQUIRED_DECORATORS[emptyDec]}`);
-      } else {
-        decorators.push(parseModelDecorator(token, range));
-      }
-    } else if (isOnDeleteDecorator(token)) {
-      const emptyDec = isEmptyParenDecorator(token);
-      if (emptyDec) {
-        errors?.push(`Decorator '${emptyDec}' requires a value. Use ${VALUE_REQUIRED_DECORATORS[emptyDec]}`);
-      } else {
-        decorators.push(parseOnDeleteDecorator(token, range));
-      }
-    } else if (isKeyDecorator(token)) {
-      const emptyDec = isEmptyParenDecorator(token);
-      if (emptyDec) {
-        errors?.push(`Decorator '${emptyDec}' requires a value. Use ${VALUE_REQUIRED_DECORATORS[emptyDec]}`);
-      } else {
-        decorators.push(parseKeyDecorator(token, range));
-      }
-    } else if (isDistinctDecorator(token)) {
-      decorators.push(parseDistinctDecorator(range));
-    } else if (isSetDecorator(token)) {
-      decorators.push(parseSetDecorator(range));
-    } else if (isSortDecorator(token)) {
-      // The shared token regex stops at the first ')', so '@sort (asc)' and '@sort(asc)(desc)' would
-      // otherwise drop the trailing group and parse as a valid ascending sort.
-      const stray = line.slice(col + token.length).match(/^\s*(?:\([^)]*\))+/)?.[0] ?? '';
-      if (hasValidSortArgument(token) && !stray) decorators.push(parseSortDecorator(token, range));
-      else
-        errors?.push(
-          `Decorator '${token}${stray}' on '${declarationName}' has an invalid argument. Use @sort, @sort(true), @sort(false), @sort(asc) or @sort(desc)`,
-        );
-    } else if (isFlexibleDecorator(token)) {
-      decorators.push(parseFlexibleDecorator(range));
-    } else if (isNullableDecorator(token)) {
-      decorators.push(parseNullableDecorator(range));
-    } else if (isReadonlyDecorator(token)) {
-      decorators.push(parseReadonlyDecorator(range));
-    } else if (isUuidDecorator(token)) {
-      decorators.push(parseUuidDecorator(token, range));
-    } else if (isUuid4Decorator(token)) {
-      decorators.push(parseUuid4Decorator(token, range));
-    } else if (isUuid7Decorator(token)) {
-      decorators.push(parseUuid7Decorator(token, range));
-    } else if (isGeometryDecorator(token)) {
-      decorators.push(parseGeometryDecorator(token, range));
     } else if (token in VALUE_REQUIRED_DECORATORS) {
       errors?.push(`Decorator '${token}' requires a value. Use ${VALUE_REQUIRED_DECORATORS[token]}`);
     }

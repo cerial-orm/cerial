@@ -8,4 +8,4 @@ export type {
   LiteralForm,
 } from './types';
 
-export { DECORATOR_REGISTRY, getDecoratorEntry } from './decorator-registry';
+export { DECORATOR_REGISTRY, getDecoratorEntry, matchDecoratorToken } from './decorator-registry';

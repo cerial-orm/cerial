@@ -7,7 +7,7 @@ import { modifierDecorators } from './decorators/modifiers';
 import { relationDecorators } from './decorators/relation';
 import { temporalDecorators } from './decorators/temporal';
 import { uuidDecorators } from './decorators/uuid';
-import type { DecoratorEntry, DecoratorName } from './types';
+import type { DecoratorEntry, DecoratorName, DecoratorTarget } from './types';
 
 /** Every group of decorator entries, in a fixed order. Adding a decorator is one entry in one group. */
 const DECORATOR_GROUPS: readonly (readonly DecoratorEntry[])[] = [
@@ -38,4 +38,27 @@ export const DECORATOR_REGISTRY: ReadonlyMap<DecoratorName, DecoratorEntry> = bu
 /** Look up a decorator by name, such as `@id` or `@@index`. */
 export function getDecoratorEntry(name: string): DecoratorEntry | undefined {
   return DECORATOR_REGISTRY.get(name as DecoratorName);
+}
+
+/**
+ * Resolve a field decorator token such as `@sort(asc)` to its entry, or undefined when the token is
+ * not one the parser accepts. The token must have the shape the entry's `args` allow: a zero-argument
+ * decorator is only the bare name, a value decorator needs its parentheses. With `target`, an entry that
+ * is not legal there does not match.
+ */
+export function matchDecoratorToken(token: string, target?: DecoratorTarget): DecoratorEntry | undefined {
+  const name = token.match(/^@\w+/)?.[0];
+  const entry = name ? getDecoratorEntry(name) : undefined;
+  if (!entry || (target && !entry.targets.includes(target))) return undefined;
+
+  const bare = token === entry.name;
+  const withParens = token.startsWith(`${entry.name}(`);
+  switch (entry.args.kind) {
+    case 'none':
+      return bare ? entry : undefined;
+    case 'choice':
+      return bare ? (entry.args.optional ? entry : undefined) : withParens ? entry : undefined;
+    default:
+      return withParens ? entry : undefined;
+  }
 }
