@@ -2,38 +2,21 @@ import { describe, expect, test } from 'bun:test';
 import type { SchemaFieldType } from '../../../../src/types';
 import { FIELD_TYPE_REGISTRY, matchFieldTypeToken } from '../../../../src/parser/registry';
 import { parseFieldType } from '../../../../src/parser/types/field-types';
-import {
-  getAnyFieldType,
-  getBoolFieldType,
-  getBytesFieldType,
-  getDateFieldType,
-  getDecimalFieldType,
-  getDurationFieldType,
-  getEmailFieldType,
-  getFloatFieldType,
-  getGeometryFieldType,
-  getIntFieldType,
-  getNumberFieldType,
-  getRecordFieldType,
-  getRelationFieldType,
-  getStringFieldType,
-  getUuidFieldType,
-  isAnyType,
-  isBoolType,
-  isBytesType,
-  isDateType,
-  isDecimalType,
-  isDurationType,
-  isEmailType,
-  isFloatType,
-  isGeometryType,
-  isIntType,
-  isNumberType,
-  isRecordType,
-  isRelationType,
-  isStringType,
-  isUuidType,
-} from '../../../../src/parser/types/field-types';
+import { getAnyFieldType, isAnyType } from '../../../../src/parser/types/field-types/any-parser';
+import { getBoolFieldType, isBoolType } from '../../../../src/parser/types/field-types/bool-parser';
+import { getBytesFieldType, isBytesType } from '../../../../src/parser/types/field-types/bytes-parser';
+import { getDateFieldType, isDateType } from '../../../../src/parser/types/field-types/date-parser';
+import { getDecimalFieldType, isDecimalType } from '../../../../src/parser/types/field-types/decimal-parser';
+import { getDurationFieldType, isDurationType } from '../../../../src/parser/types/field-types/duration-parser';
+import { getEmailFieldType, isEmailType } from '../../../../src/parser/types/field-types/email-parser';
+import { getFloatFieldType, isFloatType } from '../../../../src/parser/types/field-types/float-parser';
+import { getGeometryFieldType, isGeometryType } from '../../../../src/parser/types/field-types/geometry-parser';
+import { getIntFieldType, isIntType } from '../../../../src/parser/types/field-types/int-parser';
+import { getNumberFieldType, isNumberType } from '../../../../src/parser/types/field-types/number-parser';
+import { getRecordFieldType, isRecordType } from '../../../../src/parser/types/field-types/record-parser';
+import { getRelationFieldType, isRelationType } from '../../../../src/parser/types/field-types/relation-parser';
+import { getStringFieldType, isStringType } from '../../../../src/parser/types/field-types/string-parser';
+import { getUuidFieldType, isUuidType } from '../../../../src/parser/types/field-types/uuid-parser';
 
 // The original per-type checks, called directly: an independent reference for the registry lookup.
 const REFERENCE: [string, (t: string) => boolean, () => SchemaFieldType, 'base' | 'raw'][] = [

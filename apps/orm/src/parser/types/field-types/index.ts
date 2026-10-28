@@ -5,21 +5,7 @@
 import type { SchemaFieldType } from '../../../types';
 import { matchFieldTypeToken } from '../../registry/field-type-registry';
 
-export { getAnyFieldType, isAnyType } from './any-parser';
-export { getBoolFieldType, isBoolType } from './bool-parser';
-export { getBytesFieldType, isBytesType } from './bytes-parser';
-export { getDateFieldType, isDateType } from './date-parser';
-export { getDecimalFieldType, isDecimalType } from './decimal-parser';
-export { getDurationFieldType, isDurationType } from './duration-parser';
-export { getEmailFieldType, isEmailType } from './email-parser';
-export { getFloatFieldType, isFloatType } from './float-parser';
-export { getGeometryFieldType, isGeometryType } from './geometry-parser';
-export { getIntFieldType, isIntType } from './int-parser';
-export { getNumberFieldType, isNumberType } from './number-parser';
-export { getRecordFieldType, isRecordArray, isRecordType, parseRecordIdTypes } from './record-parser';
-export { getRelationFieldType, isRelationArray, isRelationType } from './relation-parser';
-export { getStringFieldType, isStringType } from './string-parser';
-export { getUuidFieldType, isUuidType } from './uuid-parser';
+export { parseRecordIdTypes } from './record-parser';
 
 /** Parse a type token to SchemaFieldType (handles Record[] by stripping []) */
 export function parseFieldType(

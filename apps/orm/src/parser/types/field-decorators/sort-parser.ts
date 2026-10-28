@@ -13,11 +13,6 @@
 import type { ASTDecorator, SourceRange } from '../../../types';
 import { createDecorator } from '../ast';
 
-/** Check if a token is a @sort decorator */
-export function isSortDecorator(token: string): boolean {
-  return token === '@sort' || token.startsWith('@sort(');
-}
-
 /** Check that a @sort token carries no argument or one of true / false / asc / desc */
 export function hasValidSortArgument(token: string): boolean {
   return token === '@sort' || /^@sort\(\s*(true|false|asc|desc)?\s*\)$/.test(token);

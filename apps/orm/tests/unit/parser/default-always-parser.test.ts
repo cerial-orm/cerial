@@ -6,12 +6,11 @@
  */
 
 import { describe, expect, test } from 'bun:test';
+import { isDecoratorToken } from './registry/helpers';
 import {
   extractDefaultAlwaysValue,
-  isDefaultAlwaysDecorator,
   parseDefaultAlwaysDecorator,
 } from '../../../src/parser/types/field-decorators/default-always-parser';
-import { isDefaultDecorator } from '../../../src/parser/types/field-decorators/default-parser';
 
 const range = {
   start: { line: 1, column: 1, offset: 0 },
@@ -19,57 +18,57 @@ const range = {
 };
 
 describe('@defaultAlways Decorator Parser', () => {
-  describe('isDefaultAlwaysDecorator', () => {
+  describe('matchDecoratorToken @defaultAlways', () => {
     test('should return true for @defaultAlways with string value', () => {
-      expect(isDefaultAlwaysDecorator('@defaultAlways("pending")')).toBe(true);
+      expect(isDecoratorToken('@defaultAlways', '@defaultAlways("pending")')).toBe(true);
     });
 
     test('should return true for @defaultAlways with single-quoted string', () => {
-      expect(isDefaultAlwaysDecorator("@defaultAlways('pending')")).toBe(true);
+      expect(isDecoratorToken('@defaultAlways', "@defaultAlways('pending')")).toBe(true);
     });
 
     test('should return true for @defaultAlways with integer value', () => {
-      expect(isDefaultAlwaysDecorator('@defaultAlways(0)')).toBe(true);
-      expect(isDefaultAlwaysDecorator('@defaultAlways(42)')).toBe(true);
-      expect(isDefaultAlwaysDecorator('@defaultAlways(-1)')).toBe(true);
+      expect(isDecoratorToken('@defaultAlways', '@defaultAlways(0)')).toBe(true);
+      expect(isDecoratorToken('@defaultAlways', '@defaultAlways(42)')).toBe(true);
+      expect(isDecoratorToken('@defaultAlways', '@defaultAlways(-1)')).toBe(true);
     });
 
     test('should return true for @defaultAlways with float value', () => {
-      expect(isDefaultAlwaysDecorator('@defaultAlways(1.5)')).toBe(true);
-      expect(isDefaultAlwaysDecorator('@defaultAlways(-3.14)')).toBe(true);
+      expect(isDecoratorToken('@defaultAlways', '@defaultAlways(1.5)')).toBe(true);
+      expect(isDecoratorToken('@defaultAlways', '@defaultAlways(-3.14)')).toBe(true);
     });
 
     test('should return true for @defaultAlways with boolean value', () => {
-      expect(isDefaultAlwaysDecorator('@defaultAlways(true)')).toBe(true);
-      expect(isDefaultAlwaysDecorator('@defaultAlways(false)')).toBe(true);
+      expect(isDecoratorToken('@defaultAlways', '@defaultAlways(true)')).toBe(true);
+      expect(isDecoratorToken('@defaultAlways', '@defaultAlways(false)')).toBe(true);
     });
 
     test('should return true for @defaultAlways with null value', () => {
-      expect(isDefaultAlwaysDecorator('@defaultAlways(null)')).toBe(true);
+      expect(isDecoratorToken('@defaultAlways', '@defaultAlways(null)')).toBe(true);
     });
 
     test('should return false for @default decorator', () => {
-      expect(isDefaultAlwaysDecorator('@default("pending")')).toBe(false);
-      expect(isDefaultAlwaysDecorator('@default(0)')).toBe(false);
-      expect(isDefaultAlwaysDecorator('@default(true)')).toBe(false);
+      expect(isDecoratorToken('@defaultAlways', '@default("pending")')).toBe(false);
+      expect(isDecoratorToken('@defaultAlways', '@default(0)')).toBe(false);
+      expect(isDecoratorToken('@defaultAlways', '@default(true)')).toBe(false);
     });
 
     test('should return false for @defaultAlways without parentheses', () => {
-      expect(isDefaultAlwaysDecorator('@defaultAlways')).toBe(false);
+      expect(isDecoratorToken('@defaultAlways', '@defaultAlways')).toBe(false);
     });
 
     test('should return false for other decorators', () => {
-      expect(isDefaultAlwaysDecorator('@id')).toBe(false);
-      expect(isDefaultAlwaysDecorator('@unique')).toBe(false);
-      expect(isDefaultAlwaysDecorator('@now')).toBe(false);
-      expect(isDefaultAlwaysDecorator('@createdAt')).toBe(false);
-      expect(isDefaultAlwaysDecorator('@updatedAt')).toBe(false);
+      expect(isDecoratorToken('@defaultAlways', '@id')).toBe(false);
+      expect(isDecoratorToken('@defaultAlways', '@unique')).toBe(false);
+      expect(isDecoratorToken('@defaultAlways', '@now')).toBe(false);
+      expect(isDecoratorToken('@defaultAlways', '@createdAt')).toBe(false);
+      expect(isDecoratorToken('@defaultAlways', '@updatedAt')).toBe(false);
     });
 
     test('should return false for non-decorator strings', () => {
-      expect(isDefaultAlwaysDecorator('defaultAlways')).toBe(false);
-      expect(isDefaultAlwaysDecorator('')).toBe(false);
-      expect(isDefaultAlwaysDecorator(' ')).toBe(false);
+      expect(isDecoratorToken('@defaultAlways', 'defaultAlways')).toBe(false);
+      expect(isDecoratorToken('@defaultAlways', '')).toBe(false);
+      expect(isDecoratorToken('@defaultAlways', ' ')).toBe(false);
     });
   });
 
@@ -152,22 +151,22 @@ describe('@defaultAlways Decorator Parser', () => {
 
   describe('cross-decorator isolation: @default vs @defaultAlways', () => {
     test('@default should NOT match @defaultAlways tokens', () => {
-      expect(isDefaultDecorator('@defaultAlways(0)')).toBe(false);
-      expect(isDefaultDecorator('@defaultAlways("test")')).toBe(false);
-      expect(isDefaultDecorator('@defaultAlways(true)')).toBe(false);
+      expect(isDecoratorToken('@default', '@defaultAlways(0)')).toBe(false);
+      expect(isDecoratorToken('@default', '@defaultAlways("test")')).toBe(false);
+      expect(isDecoratorToken('@default', '@defaultAlways(true)')).toBe(false);
     });
 
     test('@defaultAlways should NOT match @default tokens', () => {
-      expect(isDefaultAlwaysDecorator('@default(0)')).toBe(false);
-      expect(isDefaultAlwaysDecorator('@default("test")')).toBe(false);
-      expect(isDefaultAlwaysDecorator('@default(true)')).toBe(false);
+      expect(isDecoratorToken('@defaultAlways', '@default(0)')).toBe(false);
+      expect(isDecoratorToken('@defaultAlways', '@default("test")')).toBe(false);
+      expect(isDecoratorToken('@defaultAlways', '@default(true)')).toBe(false);
     });
 
     test('@default still matches its own tokens', () => {
-      expect(isDefaultDecorator('@default(0)')).toBe(true);
-      expect(isDefaultDecorator('@default("test")')).toBe(true);
-      expect(isDefaultDecorator('@default(true)')).toBe(true);
-      expect(isDefaultDecorator('@default(null)')).toBe(true);
+      expect(isDecoratorToken('@default', '@default(0)')).toBe(true);
+      expect(isDecoratorToken('@default', '@default("test")')).toBe(true);
+      expect(isDecoratorToken('@default', '@default(true)')).toBe(true);
+      expect(isDecoratorToken('@default', '@default(null)')).toBe(true);
     });
   });
 });

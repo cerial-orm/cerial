@@ -5,33 +5,33 @@
  */
 
 import { describe, expect, test } from 'bun:test';
+import { isDecoratorToken } from './registry/helpers';
 import {
   extractOnDeleteAction,
-  isOnDeleteDecorator,
   isValidOnDeleteAction,
   parseOnDeleteDecorator,
 } from '../../../src/parser/types/field-decorators/ondelete-parser';
 
 describe('OnDelete Parser', () => {
-  describe('isOnDeleteDecorator', () => {
+  describe('matchDecoratorToken @onDelete', () => {
     test('should return true for valid @onDelete decorator', () => {
-      expect(isOnDeleteDecorator('@onDelete(Cascade)')).toBe(true);
+      expect(isDecoratorToken('@onDelete', '@onDelete(Cascade)')).toBe(true);
     });
 
     test('should return true for all valid actions', () => {
-      expect(isOnDeleteDecorator('@onDelete(Cascade)')).toBe(true);
-      expect(isOnDeleteDecorator('@onDelete(SetNull)')).toBe(true);
-      expect(isOnDeleteDecorator('@onDelete(Restrict)')).toBe(true);
-      expect(isOnDeleteDecorator('@onDelete(NoAction)')).toBe(true);
+      expect(isDecoratorToken('@onDelete', '@onDelete(Cascade)')).toBe(true);
+      expect(isDecoratorToken('@onDelete', '@onDelete(SetNull)')).toBe(true);
+      expect(isDecoratorToken('@onDelete', '@onDelete(Restrict)')).toBe(true);
+      expect(isDecoratorToken('@onDelete', '@onDelete(NoAction)')).toBe(true);
     });
 
     test('should return false for @onDelete without parentheses', () => {
-      expect(isOnDeleteDecorator('@onDelete')).toBe(false);
+      expect(isDecoratorToken('@onDelete', '@onDelete')).toBe(false);
     });
 
     test('should return false for other decorators', () => {
-      expect(isOnDeleteDecorator('@id')).toBe(false);
-      expect(isOnDeleteDecorator('@key(author)')).toBe(false);
+      expect(isDecoratorToken('@onDelete', '@id')).toBe(false);
+      expect(isDecoratorToken('@onDelete', '@key(author)')).toBe(false);
     });
   });
 

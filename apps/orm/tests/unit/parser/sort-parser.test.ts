@@ -6,45 +6,45 @@
  */
 
 import { describe, expect, test } from 'bun:test';
+import { isDecoratorToken } from './registry/helpers';
 import { generateModelDefineStatements } from '../../../src/generators/migrations/define-generator';
 import { parse } from '../../../src/parser/parser';
 import {
   extractSortValue,
   hasValidSortArgument,
-  isSortDecorator,
   parseSortDecorator,
 } from '../../../src/parser/types/field-decorators/sort-parser';
 import { parseModelRegistry } from '../../test-helpers';
 
 describe('Sort Parser', () => {
-  describe('isSortDecorator', () => {
+  describe('matchDecoratorToken @sort', () => {
     test('should return true for @sort without parentheses', () => {
-      expect(isSortDecorator('@sort')).toBe(true);
+      expect(isDecoratorToken('@sort', '@sort')).toBe(true);
     });
 
     test('should return true for @sort with empty parentheses', () => {
-      expect(isSortDecorator('@sort()')).toBe(true);
+      expect(isDecoratorToken('@sort', '@sort()')).toBe(true);
     });
 
     test('should return true for @sort(true)', () => {
-      expect(isSortDecorator('@sort(true)')).toBe(true);
+      expect(isDecoratorToken('@sort', '@sort(true)')).toBe(true);
     });
 
     test('should return true for @sort(false)', () => {
-      expect(isSortDecorator('@sort(false)')).toBe(true);
+      expect(isDecoratorToken('@sort', '@sort(false)')).toBe(true);
     });
 
     test('should return false for other decorators', () => {
-      expect(isSortDecorator('@id')).toBe(false);
-      expect(isSortDecorator('@unique')).toBe(false);
-      expect(isSortDecorator('@distinct')).toBe(false);
-      expect(isSortDecorator('@default')).toBe(false);
+      expect(isDecoratorToken('@sort', '@id')).toBe(false);
+      expect(isDecoratorToken('@sort', '@unique')).toBe(false);
+      expect(isDecoratorToken('@sort', '@distinct')).toBe(false);
+      expect(isDecoratorToken('@sort', '@default')).toBe(false);
     });
 
     test('should return false for invalid format', () => {
-      expect(isSortDecorator('sort')).toBe(false);
-      expect(isSortDecorator('@SORT')).toBe(false);
-      expect(isSortDecorator('@Sort')).toBe(false);
+      expect(isDecoratorToken('@sort', 'sort')).toBe(false);
+      expect(isDecoratorToken('@sort', '@SORT')).toBe(false);
+      expect(isDecoratorToken('@sort', '@Sort')).toBe(false);
     });
   });
 

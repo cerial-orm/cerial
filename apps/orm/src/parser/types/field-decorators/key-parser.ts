@@ -7,11 +7,6 @@
 import type { ASTDecorator, SourceRange } from '../../../types';
 import { createDecorator } from '../ast';
 
-/** Check if a token is the @key decorator */
-export function isKeyDecorator(token: string): boolean {
-  return token.startsWith('@key(');
-}
-
 /** Extract key name from @key(name) */
 export function extractKeyName(token: string): string | undefined {
   const match = token.match(/^@key\((\w+)\)$/);

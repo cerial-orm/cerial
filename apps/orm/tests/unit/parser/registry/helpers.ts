@@ -1,5 +1,5 @@
 import { expect } from 'bun:test';
-import { getDecoratorEntry } from '../../../../src/parser/registry';
+import { getDecoratorEntry, matchDecoratorToken } from '../../../../src/parser/registry';
 import type { DecoratorEntry } from '../../../../src/parser/registry';
 import { parse } from '../../../../src/parser/parser';
 import { parseDecorators } from '../../../../src/parser/types/model';
@@ -44,4 +44,9 @@ export function parseDirectiveInModel(line: string) {
   const result = parse(`model M {\n  id Record @id\n  a String\n  b String\n  ${line}\n}`);
 
   return { directive: result.ast.models[0]?.directives?.[0], errors: result.errors };
+}
+
+/** Whether the registry resolves `token` to the decorator `name`, the lookup the parser dispatches through. */
+export function isDecoratorToken(name: string, token: string): boolean {
+  return matchDecoratorToken(token)?.name === name;
 }

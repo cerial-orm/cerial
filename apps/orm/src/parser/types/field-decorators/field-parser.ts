@@ -6,11 +6,6 @@
 import type { ASTDecorator, SourceRange } from '../../../types';
 import { createDecorator } from '../ast';
 
-/** Check if a token is the @field decorator */
-export function isFieldDecorator(token: string): boolean {
-  return token.startsWith('@field(');
-}
-
 /** Extract field name from @field(fieldName) */
 export function extractFieldRef(token: string): string | undefined {
   const match = token.match(/^@field\((\w+)\)$/);

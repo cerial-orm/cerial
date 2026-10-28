@@ -5,11 +5,6 @@
 import type { ASTDecorator, SourceRange } from '../../../types';
 import { createDecorator } from '../ast';
 
-/** Check if a token is a @default(value) decorator (not @defaultAlways) */
-export function isDefaultDecorator(token: string): boolean {
-  return token.startsWith('@default(');
-}
-
 /** Extract value from @default(value) */
 export function extractDefaultValue(token: string): unknown {
   const match = token.match(/^@default\((.+)\)$/);

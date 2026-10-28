@@ -1,29 +1,30 @@
 import { describe, expect, test } from 'bun:test';
-import { isSetDecorator, parseSetDecorator } from '../../../src/parser/types/field-decorators/set-parser';
+import { isDecoratorToken } from './registry/helpers';
+import { parseSetDecorator } from '../../../src/parser/types/field-decorators/set-parser';
 
 describe('Set Parser', () => {
-  describe('isSetDecorator', () => {
+  describe('matchDecoratorToken @set', () => {
     test('should return true for @set', () => {
-      expect(isSetDecorator('@set')).toBe(true);
+      expect(isDecoratorToken('@set', '@set')).toBe(true);
     });
 
     test('should return false for other decorators', () => {
-      expect(isSetDecorator('@id')).toBe(false);
-      expect(isSetDecorator('@unique')).toBe(false);
-      expect(isSetDecorator('@distinct')).toBe(false);
-      expect(isSetDecorator('@sort')).toBe(false);
-      expect(isSetDecorator('@default')).toBe(false);
+      expect(isDecoratorToken('@set', '@id')).toBe(false);
+      expect(isDecoratorToken('@set', '@unique')).toBe(false);
+      expect(isDecoratorToken('@set', '@distinct')).toBe(false);
+      expect(isDecoratorToken('@set', '@sort')).toBe(false);
+      expect(isDecoratorToken('@set', '@default')).toBe(false);
     });
 
     test('should return false for @set with parentheses', () => {
-      expect(isSetDecorator('@set()')).toBe(false);
-      expect(isSetDecorator('@set(true)')).toBe(false);
+      expect(isDecoratorToken('@set', '@set()')).toBe(false);
+      expect(isDecoratorToken('@set', '@set(true)')).toBe(false);
     });
 
     test('should return false for invalid format', () => {
-      expect(isSetDecorator('set')).toBe(false);
-      expect(isSetDecorator('@SET')).toBe(false);
-      expect(isSetDecorator('@Set')).toBe(false);
+      expect(isDecoratorToken('@set', 'set')).toBe(false);
+      expect(isDecoratorToken('@set', '@SET')).toBe(false);
+      expect(isDecoratorToken('@set', '@Set')).toBe(false);
     });
   });
 

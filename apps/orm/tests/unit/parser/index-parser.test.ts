@@ -5,32 +5,33 @@
  */
 
 import { describe, expect, test } from 'bun:test';
-import { isIndexDecorator, parseIndexDecorator } from '../../../src/parser/types/field-decorators/index-parser';
+import { isDecoratorToken } from './registry/helpers';
+import { parseIndexDecorator } from '../../../src/parser/types/field-decorators/index-parser';
 
 describe('Index Parser', () => {
-  describe('isIndexDecorator', () => {
+  describe('matchDecoratorToken @index', () => {
     test('should return true for @index', () => {
-      expect(isIndexDecorator('@index')).toBe(true);
+      expect(isDecoratorToken('@index', '@index')).toBe(true);
     });
 
     test('should return false for other decorators', () => {
-      expect(isIndexDecorator('@id')).toBe(false);
-      expect(isIndexDecorator('@unique')).toBe(false);
-      expect(isIndexDecorator('@sort')).toBe(false);
-      expect(isIndexDecorator('@default')).toBe(false);
-      expect(isIndexDecorator('@distinct')).toBe(false);
+      expect(isDecoratorToken('@index', '@id')).toBe(false);
+      expect(isDecoratorToken('@index', '@unique')).toBe(false);
+      expect(isDecoratorToken('@index', '@sort')).toBe(false);
+      expect(isDecoratorToken('@index', '@default')).toBe(false);
+      expect(isDecoratorToken('@index', '@distinct')).toBe(false);
     });
 
     test('should return false for @index with parentheses', () => {
-      expect(isIndexDecorator('@index()')).toBe(false);
-      expect(isIndexDecorator('@index(true)')).toBe(false);
+      expect(isDecoratorToken('@index', '@index()')).toBe(false);
+      expect(isDecoratorToken('@index', '@index(true)')).toBe(false);
     });
 
     test('should return false for invalid format', () => {
-      expect(isIndexDecorator('index')).toBe(false);
-      expect(isIndexDecorator('@INDEX')).toBe(false);
-      expect(isIndexDecorator('@Index')).toBe(false);
-      expect(isIndexDecorator('@@index')).toBe(false);
+      expect(isDecoratorToken('@index', 'index')).toBe(false);
+      expect(isDecoratorToken('@index', '@INDEX')).toBe(false);
+      expect(isDecoratorToken('@index', '@Index')).toBe(false);
+      expect(isDecoratorToken('@index', '@@index')).toBe(false);
     });
   });
 

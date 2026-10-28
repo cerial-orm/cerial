@@ -1,13 +1,14 @@
 import { describe, expect, test } from 'bun:test';
-import {
-  isGeometryDecorator,
-  parseGeometryDecorator,
-} from '../../../src/parser/types/field-decorators/geometry-decorator-parser';
+import { parseGeometryDecorator } from '../../../src/parser/types/field-decorators/geometry-decorator-parser';
+import { isDecoratorToken } from './registry/helpers';
+
+const GEOMETRY = ['@point', '@line', '@polygon', '@multipoint', '@multiline', '@multipolygon', '@geoCollection'];
+const isGeometryDecorator = (token: string): boolean => GEOMETRY.some((name) => isDecoratorToken(name, token));
 
 const range = { start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 10, offset: 9 } };
 
 describe('geometry-decorator-parser', () => {
-  test('isGeometryDecorator returns true for all 7 geometry decorators', () => {
+  test('the registry resolves true for all 7 geometry decorators', () => {
     expect(isGeometryDecorator('@point')).toBe(true);
     expect(isGeometryDecorator('@line')).toBe(true);
     expect(isGeometryDecorator('@polygon')).toBe(true);
@@ -17,7 +18,7 @@ describe('geometry-decorator-parser', () => {
     expect(isGeometryDecorator('@geoCollection')).toBe(true);
   });
 
-  test('isGeometryDecorator returns false for non-geometry decorators', () => {
+  test('the registry resolves false for non-geometry decorators', () => {
     expect(isGeometryDecorator('@default')).toBe(false);
     expect(isGeometryDecorator('@unique')).toBe(false);
     expect(isGeometryDecorator('@id')).toBe(false);

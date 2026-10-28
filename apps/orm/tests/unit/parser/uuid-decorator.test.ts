@@ -1,8 +1,6 @@
 import { describe, expect, test } from 'bun:test';
+import { isDecoratorToken } from './registry/helpers';
 import {
-  isUuid4Decorator,
-  isUuid7Decorator,
-  isUuidDecorator,
   parseUuid4Decorator,
   parseUuid7Decorator,
   parseUuidDecorator,
@@ -14,43 +12,43 @@ const range = {
 };
 
 describe('UUID Decorator Parsers', () => {
-  describe('isUuidDecorator', () => {
+  describe('matchDecoratorToken @uuid', () => {
     test('should return true for @uuid', () => {
-      expect(isUuidDecorator('@uuid')).toBe(true);
+      expect(isDecoratorToken('@uuid', '@uuid')).toBe(true);
     });
 
     test('should return false for other decorators', () => {
-      expect(isUuidDecorator('@uuid4')).toBe(false);
-      expect(isUuidDecorator('@uuid7')).toBe(false);
-      expect(isUuidDecorator('@id')).toBe(false);
-      expect(isUuidDecorator('@default')).toBe(false);
+      expect(isDecoratorToken('@uuid', '@uuid4')).toBe(false);
+      expect(isDecoratorToken('@uuid', '@uuid7')).toBe(false);
+      expect(isDecoratorToken('@uuid', '@id')).toBe(false);
+      expect(isDecoratorToken('@uuid', '@default')).toBe(false);
     });
 
     test('should return false for invalid format', () => {
-      expect(isUuidDecorator('uuid')).toBe(false);
-      expect(isUuidDecorator('@UUID')).toBe(false);
+      expect(isDecoratorToken('@uuid', 'uuid')).toBe(false);
+      expect(isDecoratorToken('@uuid', '@UUID')).toBe(false);
     });
   });
 
-  describe('isUuid4Decorator', () => {
+  describe('matchDecoratorToken @uuid4', () => {
     test('should return true for @uuid4', () => {
-      expect(isUuid4Decorator('@uuid4')).toBe(true);
+      expect(isDecoratorToken('@uuid4', '@uuid4')).toBe(true);
     });
 
     test('should return false for other decorators', () => {
-      expect(isUuid4Decorator('@uuid')).toBe(false);
-      expect(isUuid4Decorator('@uuid7')).toBe(false);
+      expect(isDecoratorToken('@uuid4', '@uuid')).toBe(false);
+      expect(isDecoratorToken('@uuid4', '@uuid7')).toBe(false);
     });
   });
 
-  describe('isUuid7Decorator', () => {
+  describe('matchDecoratorToken @uuid7', () => {
     test('should return true for @uuid7', () => {
-      expect(isUuid7Decorator('@uuid7')).toBe(true);
+      expect(isDecoratorToken('@uuid7', '@uuid7')).toBe(true);
     });
 
     test('should return false for other decorators', () => {
-      expect(isUuid7Decorator('@uuid')).toBe(false);
-      expect(isUuid7Decorator('@uuid4')).toBe(false);
+      expect(isDecoratorToken('@uuid7', '@uuid')).toBe(false);
+      expect(isDecoratorToken('@uuid7', '@uuid4')).toBe(false);
     });
   });
 

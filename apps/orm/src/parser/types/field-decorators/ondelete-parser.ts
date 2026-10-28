@@ -10,11 +10,6 @@ import { createDecorator } from '../ast';
 /** Valid onDelete actions */
 const VALID_ACTIONS: OnDeleteAction[] = ['Cascade', 'SetNull', 'SetNone', 'Restrict', 'NoAction'];
 
-/** Check if a token is the @onDelete decorator */
-export function isOnDeleteDecorator(token: string): boolean {
-  return token.startsWith('@onDelete(');
-}
-
 /** Extract action from @onDelete(Action) */
 export function extractOnDeleteAction(token: string): OnDeleteAction | undefined {
   const match = token.match(/^@onDelete\((\w+)\)$/);

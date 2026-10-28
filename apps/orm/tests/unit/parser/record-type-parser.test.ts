@@ -1,12 +1,16 @@
 import { describe, expect, test } from 'bun:test';
-import { parseFieldType } from '../../../src/parser/types/field-types';
+import { matchFieldTypeToken } from '../../../src/parser/registry';
+import { isArrayType, parseFieldType } from '../../../src/parser/types/field-types';
 import {
   getRecordFieldType,
-  isRecordArray,
   isRecordType,
   parseRecordIdTypes,
 } from '../../../src/parser/types/field-types/record-parser';
 import { parseFieldDeclaration } from '../../../src/parser/types/model/field-declaration-parser';
+
+// An array of Record: the registry resolves the token to Record and the token ends in [].
+const isRecordArrayToken = (token: string): boolean =>
+  isArrayType(token) && matchFieldTypeToken(token)?.name === 'Record';
 
 describe('Record Type Parser', () => {
   describe('isRecordType', () => {
@@ -66,27 +70,27 @@ describe('Record Type Parser', () => {
     });
   });
 
-  describe('isRecordArray', () => {
+  describe('Record array tokens in the registry', () => {
     test('should return true for Record[]', () => {
-      expect(isRecordArray('Record[]')).toBe(true);
+      expect(isRecordArrayToken('Record[]')).toBe(true);
     });
 
     test('should return true for Record(int)[]', () => {
-      expect(isRecordArray('Record(int)[]')).toBe(true);
+      expect(isRecordArrayToken('Record(int)[]')).toBe(true);
     });
 
     test('should return true for Record(string, int)[]', () => {
-      expect(isRecordArray('Record(string, int)[]')).toBe(true);
+      expect(isRecordArrayToken('Record(string, int)[]')).toBe(true);
     });
 
     test('should return false for non-array Record', () => {
-      expect(isRecordArray('Record')).toBe(false);
-      expect(isRecordArray('Record(int)')).toBe(false);
+      expect(isRecordArrayToken('Record')).toBe(false);
+      expect(isRecordArrayToken('Record(int)')).toBe(false);
     });
 
     test('should return false for non-Record types', () => {
-      expect(isRecordArray('String[]')).toBe(false);
-      expect(isRecordArray('Int')).toBe(false);
+      expect(isRecordArrayToken('String[]')).toBe(false);
+      expect(isRecordArrayToken('Int')).toBe(false);
     });
   });
 

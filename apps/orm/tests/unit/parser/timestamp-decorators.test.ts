@@ -5,15 +5,10 @@
  */
 
 import { describe, expect, test } from 'bun:test';
-import {
-  isCreatedAtDecorator,
-  parseCreatedAtDecorator,
-} from '../../../src/parser/types/field-decorators/created-at-parser';
-import { isNowDecorator, parseNowDecorator } from '../../../src/parser/types/field-decorators/now-parser';
-import {
-  isUpdatedAtDecorator,
-  parseUpdatedAtDecorator,
-} from '../../../src/parser/types/field-decorators/updated-at-parser';
+import { isDecoratorToken } from './registry/helpers';
+import { parseCreatedAtDecorator } from '../../../src/parser/types/field-decorators/created-at-parser';
+import { parseNowDecorator } from '../../../src/parser/types/field-decorators/now-parser';
+import { parseUpdatedAtDecorator } from '../../../src/parser/types/field-decorators/updated-at-parser';
 
 const range = {
   start: { line: 1, column: 1, offset: 0 },
@@ -21,28 +16,28 @@ const range = {
 };
 
 describe('Timestamp Decorator Parsers', () => {
-  describe('isNowDecorator', () => {
+  describe('matchDecoratorToken @now', () => {
     test('should return true for @now', () => {
-      expect(isNowDecorator('@now')).toBe(true);
+      expect(isDecoratorToken('@now', '@now')).toBe(true);
     });
 
     test('should return false for other decorators', () => {
-      expect(isNowDecorator('@id')).toBe(false);
-      expect(isNowDecorator('@unique')).toBe(false);
-      expect(isNowDecorator('@default')).toBe(false);
-      expect(isNowDecorator('@createdAt')).toBe(false);
-      expect(isNowDecorator('@updatedAt')).toBe(false);
+      expect(isDecoratorToken('@now', '@id')).toBe(false);
+      expect(isDecoratorToken('@now', '@unique')).toBe(false);
+      expect(isDecoratorToken('@now', '@default')).toBe(false);
+      expect(isDecoratorToken('@now', '@createdAt')).toBe(false);
+      expect(isDecoratorToken('@now', '@updatedAt')).toBe(false);
     });
 
     test('should return false for @now with parentheses', () => {
-      expect(isNowDecorator('@now()')).toBe(false);
-      expect(isNowDecorator('@now(true)')).toBe(false);
+      expect(isDecoratorToken('@now', '@now()')).toBe(false);
+      expect(isDecoratorToken('@now', '@now(true)')).toBe(false);
     });
 
     test('should return false for invalid format', () => {
-      expect(isNowDecorator('now')).toBe(false);
-      expect(isNowDecorator('@NOW')).toBe(false);
-      expect(isNowDecorator('@Now')).toBe(false);
+      expect(isDecoratorToken('@now', 'now')).toBe(false);
+      expect(isDecoratorToken('@now', '@NOW')).toBe(false);
+      expect(isDecoratorToken('@now', '@Now')).toBe(false);
     });
   });
 
@@ -56,29 +51,29 @@ describe('Timestamp Decorator Parsers', () => {
     });
   });
 
-  describe('isCreatedAtDecorator', () => {
+  describe('matchDecoratorToken @createdAt', () => {
     test('should return true for @createdAt', () => {
-      expect(isCreatedAtDecorator('@createdAt')).toBe(true);
+      expect(isDecoratorToken('@createdAt', '@createdAt')).toBe(true);
     });
 
     test('should return false for other decorators', () => {
-      expect(isCreatedAtDecorator('@id')).toBe(false);
-      expect(isCreatedAtDecorator('@unique')).toBe(false);
-      expect(isCreatedAtDecorator('@default')).toBe(false);
-      expect(isCreatedAtDecorator('@now')).toBe(false);
-      expect(isCreatedAtDecorator('@updatedAt')).toBe(false);
+      expect(isDecoratorToken('@createdAt', '@id')).toBe(false);
+      expect(isDecoratorToken('@createdAt', '@unique')).toBe(false);
+      expect(isDecoratorToken('@createdAt', '@default')).toBe(false);
+      expect(isDecoratorToken('@createdAt', '@now')).toBe(false);
+      expect(isDecoratorToken('@createdAt', '@updatedAt')).toBe(false);
     });
 
     test('should return false for @createdAt with parentheses', () => {
-      expect(isCreatedAtDecorator('@createdAt()')).toBe(false);
-      expect(isCreatedAtDecorator('@createdAt(true)')).toBe(false);
+      expect(isDecoratorToken('@createdAt', '@createdAt()')).toBe(false);
+      expect(isDecoratorToken('@createdAt', '@createdAt(true)')).toBe(false);
     });
 
     test('should return false for invalid format', () => {
-      expect(isCreatedAtDecorator('createdAt')).toBe(false);
-      expect(isCreatedAtDecorator('@CREATEDAT')).toBe(false);
-      expect(isCreatedAtDecorator('@CreatedAt')).toBe(false);
-      expect(isCreatedAtDecorator('@createdat')).toBe(false);
+      expect(isDecoratorToken('@createdAt', 'createdAt')).toBe(false);
+      expect(isDecoratorToken('@createdAt', '@CREATEDAT')).toBe(false);
+      expect(isDecoratorToken('@createdAt', '@CreatedAt')).toBe(false);
+      expect(isDecoratorToken('@createdAt', '@createdat')).toBe(false);
     });
   });
 
@@ -92,29 +87,29 @@ describe('Timestamp Decorator Parsers', () => {
     });
   });
 
-  describe('isUpdatedAtDecorator', () => {
+  describe('matchDecoratorToken @updatedAt', () => {
     test('should return true for @updatedAt', () => {
-      expect(isUpdatedAtDecorator('@updatedAt')).toBe(true);
+      expect(isDecoratorToken('@updatedAt', '@updatedAt')).toBe(true);
     });
 
     test('should return false for other decorators', () => {
-      expect(isUpdatedAtDecorator('@id')).toBe(false);
-      expect(isUpdatedAtDecorator('@unique')).toBe(false);
-      expect(isUpdatedAtDecorator('@default')).toBe(false);
-      expect(isUpdatedAtDecorator('@now')).toBe(false);
-      expect(isUpdatedAtDecorator('@createdAt')).toBe(false);
+      expect(isDecoratorToken('@updatedAt', '@id')).toBe(false);
+      expect(isDecoratorToken('@updatedAt', '@unique')).toBe(false);
+      expect(isDecoratorToken('@updatedAt', '@default')).toBe(false);
+      expect(isDecoratorToken('@updatedAt', '@now')).toBe(false);
+      expect(isDecoratorToken('@updatedAt', '@createdAt')).toBe(false);
     });
 
     test('should return false for @updatedAt with parentheses', () => {
-      expect(isUpdatedAtDecorator('@updatedAt()')).toBe(false);
-      expect(isUpdatedAtDecorator('@updatedAt(true)')).toBe(false);
+      expect(isDecoratorToken('@updatedAt', '@updatedAt()')).toBe(false);
+      expect(isDecoratorToken('@updatedAt', '@updatedAt(true)')).toBe(false);
     });
 
     test('should return false for invalid format', () => {
-      expect(isUpdatedAtDecorator('updatedAt')).toBe(false);
-      expect(isUpdatedAtDecorator('@UPDATEDAT')).toBe(false);
-      expect(isUpdatedAtDecorator('@UpdatedAt')).toBe(false);
-      expect(isUpdatedAtDecorator('@updatedat')).toBe(false);
+      expect(isDecoratorToken('@updatedAt', 'updatedAt')).toBe(false);
+      expect(isDecoratorToken('@updatedAt', '@UPDATEDAT')).toBe(false);
+      expect(isDecoratorToken('@updatedAt', '@UpdatedAt')).toBe(false);
+      expect(isDecoratorToken('@updatedAt', '@updatedat')).toBe(false);
     });
   });
 
@@ -129,9 +124,9 @@ describe('Timestamp Decorator Parsers', () => {
   });
 
   describe('cross-decorator checks', () => {
-    test('each isXDecorator only matches its own token', () => {
+    test('each registry entry only matches its own token', () => {
       const tokens = ['@now', '@createdAt', '@updatedAt'];
-      const checkers = [isNowDecorator, isCreatedAtDecorator, isUpdatedAtDecorator];
+      const checkers = tokens.map((name) => (token: string) => isDecoratorToken(name, token));
 
       for (let i = 0; i < tokens.length; i++) {
         for (let j = 0; j < checkers.length; j++) {
@@ -148,9 +143,9 @@ describe('Timestamp Decorator Parsers', () => {
       const invalid = ['now', 'createdAt', 'updatedAt', '', ' ', '@', '@@now'];
 
       for (const token of invalid) {
-        expect(isNowDecorator(token)).toBe(false);
-        expect(isCreatedAtDecorator(token)).toBe(false);
-        expect(isUpdatedAtDecorator(token)).toBe(false);
+        expect(isDecoratorToken('@now', token)).toBe(false);
+        expect(isDecoratorToken('@createdAt', token)).toBe(false);
+        expect(isDecoratorToken('@updatedAt', token)).toBe(false);
       }
     });
   });

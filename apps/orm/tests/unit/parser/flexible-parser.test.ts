@@ -5,35 +5,33 @@
  */
 
 import { describe, expect, test } from 'bun:test';
-import {
-  isFlexibleDecorator,
-  parseFlexibleDecorator,
-} from '../../../src/parser/types/field-decorators/flexible-parser';
+import { isDecoratorToken } from './registry/helpers';
+import { parseFlexibleDecorator } from '../../../src/parser/types/field-decorators/flexible-parser';
 import { parseDecorators } from '../../../src/parser/types/model/field-declaration-parser';
 
 describe('Flexible Parser', () => {
-  describe('isFlexibleDecorator', () => {
+  describe('matchDecoratorToken @flexible', () => {
     test('should return true for @flexible', () => {
-      expect(isFlexibleDecorator('@flexible')).toBe(true);
+      expect(isDecoratorToken('@flexible', '@flexible')).toBe(true);
     });
 
     test('should return false for other decorators', () => {
-      expect(isFlexibleDecorator('@id')).toBe(false);
-      expect(isFlexibleDecorator('@unique')).toBe(false);
-      expect(isFlexibleDecorator('@default')).toBe(false);
-      expect(isFlexibleDecorator('@distinct')).toBe(false);
-      expect(isFlexibleDecorator('@sort')).toBe(false);
+      expect(isDecoratorToken('@flexible', '@id')).toBe(false);
+      expect(isDecoratorToken('@flexible', '@unique')).toBe(false);
+      expect(isDecoratorToken('@flexible', '@default')).toBe(false);
+      expect(isDecoratorToken('@flexible', '@distinct')).toBe(false);
+      expect(isDecoratorToken('@flexible', '@sort')).toBe(false);
     });
 
     test('should return false for @flexible with parentheses', () => {
-      expect(isFlexibleDecorator('@flexible()')).toBe(false);
-      expect(isFlexibleDecorator('@flexible(true)')).toBe(false);
+      expect(isDecoratorToken('@flexible', '@flexible()')).toBe(false);
+      expect(isDecoratorToken('@flexible', '@flexible(true)')).toBe(false);
     });
 
     test('should return false for invalid format', () => {
-      expect(isFlexibleDecorator('flexible')).toBe(false);
-      expect(isFlexibleDecorator('@FLEXIBLE')).toBe(false);
-      expect(isFlexibleDecorator('@Flexible')).toBe(false);
+      expect(isDecoratorToken('@flexible', 'flexible')).toBe(false);
+      expect(isDecoratorToken('@flexible', '@FLEXIBLE')).toBe(false);
+      expect(isDecoratorToken('@flexible', '@Flexible')).toBe(false);
     });
   });
 

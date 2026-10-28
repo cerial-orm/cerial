@@ -6,11 +6,6 @@
 import type { ASTDecorator, SourceRange } from '../../../types';
 import { createDecorator } from '../ast';
 
-/** Check if a token is the @model decorator */
-export function isModelDecorator(token: string): boolean {
-  return token.startsWith('@model(');
-}
-
 /** Extract model name from @model(ModelName) */
 export function extractModelName(token: string): string | undefined {
   const match = token.match(/^@model\((\w+)\)$/);

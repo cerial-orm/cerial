@@ -5,37 +5,34 @@
  */
 
 import { describe, expect, test } from 'bun:test';
-import {
-  extractKeyName,
-  isKeyDecorator,
-  parseKeyDecorator,
-} from '../../../src/parser/types/field-decorators/key-parser';
+import { isDecoratorToken } from './registry/helpers';
+import { extractKeyName, parseKeyDecorator } from '../../../src/parser/types/field-decorators/key-parser';
 
 describe('Key Parser', () => {
-  describe('isKeyDecorator', () => {
+  describe('matchDecoratorToken @key', () => {
     test('should return true for valid @key decorator', () => {
-      expect(isKeyDecorator('@key(author)')).toBe(true);
+      expect(isDecoratorToken('@key', '@key(author)')).toBe(true);
     });
 
     test('should return true for @key with various names', () => {
-      expect(isKeyDecorator('@key(manages)')).toBe(true);
-      expect(isKeyDecorator('@key(parent)')).toBe(true);
-      expect(isKeyDecorator('@key(reviewer)')).toBe(true);
+      expect(isDecoratorToken('@key', '@key(manages)')).toBe(true);
+      expect(isDecoratorToken('@key', '@key(parent)')).toBe(true);
+      expect(isDecoratorToken('@key', '@key(reviewer)')).toBe(true);
     });
 
     test('should return false for @key without parentheses', () => {
-      expect(isKeyDecorator('@key')).toBe(false);
+      expect(isDecoratorToken('@key', '@key')).toBe(false);
     });
 
     test('should return false for other decorators', () => {
-      expect(isKeyDecorator('@id')).toBe(false);
-      expect(isKeyDecorator('@unique')).toBe(false);
-      expect(isKeyDecorator('@field(userId)')).toBe(false);
+      expect(isDecoratorToken('@key', '@id')).toBe(false);
+      expect(isDecoratorToken('@key', '@unique')).toBe(false);
+      expect(isDecoratorToken('@key', '@field(userId)')).toBe(false);
     });
 
     test('should return false for invalid format', () => {
-      expect(isKeyDecorator('key(author)')).toBe(false);
-      expect(isKeyDecorator('@KEY(author)')).toBe(false);
+      expect(isDecoratorToken('@key', 'key(author)')).toBe(false);
+      expect(isDecoratorToken('@key', '@KEY(author)')).toBe(false);
     });
   });
 

@@ -12,11 +12,6 @@ export function isRelationType(token: string): boolean {
   return token === 'Relation' || token === 'Relation[]';
 }
 
-/** Check if a type token is Relation[] (array type) */
-export function isRelationArray(token: string): boolean {
-  return token === 'Relation[]';
-}
-
 /** Get the schema field type for Relation */
 export function getRelationFieldType(): SchemaFieldType {
   return 'relation';

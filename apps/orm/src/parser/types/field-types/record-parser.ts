@@ -35,11 +35,6 @@ export function isRecordType(token: string): boolean {
   return RECORD_TYPE_REGEX.test(token);
 }
 
-/** Check if a type token is Record[] (array type) */
-export function isRecordArray(token: string): boolean {
-  return token.endsWith('[]') && isRecordType(token);
-}
-
 /** Get the schema field type for Record */
 export function getRecordFieldType(): SchemaFieldType {
   return 'record';

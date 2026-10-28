@@ -5,33 +5,31 @@
  */
 
 import { describe, expect, test } from 'bun:test';
-import {
-  isDistinctDecorator,
-  parseDistinctDecorator,
-} from '../../../src/parser/types/field-decorators/distinct-parser';
+import { isDecoratorToken } from './registry/helpers';
+import { parseDistinctDecorator } from '../../../src/parser/types/field-decorators/distinct-parser';
 
 describe('Distinct Parser', () => {
-  describe('isDistinctDecorator', () => {
+  describe('matchDecoratorToken @distinct', () => {
     test('should return true for @distinct', () => {
-      expect(isDistinctDecorator('@distinct')).toBe(true);
+      expect(isDecoratorToken('@distinct', '@distinct')).toBe(true);
     });
 
     test('should return false for other decorators', () => {
-      expect(isDistinctDecorator('@id')).toBe(false);
-      expect(isDistinctDecorator('@unique')).toBe(false);
-      expect(isDistinctDecorator('@sort')).toBe(false);
-      expect(isDistinctDecorator('@default')).toBe(false);
+      expect(isDecoratorToken('@distinct', '@id')).toBe(false);
+      expect(isDecoratorToken('@distinct', '@unique')).toBe(false);
+      expect(isDecoratorToken('@distinct', '@sort')).toBe(false);
+      expect(isDecoratorToken('@distinct', '@default')).toBe(false);
     });
 
     test('should return false for @distinct with parentheses', () => {
-      expect(isDistinctDecorator('@distinct()')).toBe(false);
-      expect(isDistinctDecorator('@distinct(true)')).toBe(false);
+      expect(isDecoratorToken('@distinct', '@distinct()')).toBe(false);
+      expect(isDecoratorToken('@distinct', '@distinct(true)')).toBe(false);
     });
 
     test('should return false for invalid format', () => {
-      expect(isDistinctDecorator('distinct')).toBe(false);
-      expect(isDistinctDecorator('@DISTINCT')).toBe(false);
-      expect(isDistinctDecorator('@Distinct')).toBe(false);
+      expect(isDecoratorToken('@distinct', 'distinct')).toBe(false);
+      expect(isDecoratorToken('@distinct', '@DISTINCT')).toBe(false);
+      expect(isDecoratorToken('@distinct', '@Distinct')).toBe(false);
     });
   });
 
