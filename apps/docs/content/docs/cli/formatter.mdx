@@ -430,6 +430,7 @@ format: {
 A quick summary of the formatting rules:
 
 - **Decorator ordering** ... decorators are reordered into a canonical sequence (`@id`, `@unique`, `@field()`, `@model()`, `@default()`, `@nullable`, `@readonly`, etc.)
+- **Decorator arguments** ... each argument is written in one canonical form that means the same thing: `@sort`, `@sort()` and `@sort(true)` become `@sort(asc)`, `@sort(false)` becomes `@sort(desc)`, string defaults use single quotes (`@default("x")` and `@default(x)` become `@default('x')`), `@default(1.0)` becomes `@default(1)`, and a quoted duration is written bare (`@default('1h30m')` becomes `@default(1h30m)`). The schema the formatter writes generates exactly what the original did
 - **Column alignment** ... field names, types, and decorators align into a readable three-column layout
 - **Blank line normalization** ... blank lines between fields and blocks follow the configured style
 - **Indentation** ... consistent indent depth across all blocks

@@ -489,6 +489,13 @@ development branch and is not available on npm.
 
 ### Changed
 
+- `cerial format` writes decorator arguments in one canonical form instead of
+  keeping how each was typed: `@sort`, `@sort()` and `@sort(true)` become
+  `@sort(asc)`, `@sort(false)` becomes `@sort(desc)`, string defaults use single
+  quotes, `@default(1.0)` becomes `@default(1)`, and a quoted duration default is
+  written bare. Each form means the same thing and generates the same output, so
+  the first `format` run after upgrading rewrites these spellings once, and
+  `format --check` reports those files until it does.
 - Transaction conflict retries (`TransactionOptions.retries`) now recognise a
   conflict from the structured error the server sends, not from the wording of
   its message. SurrealDB sends that detail from 3.1.0 and this release targets
