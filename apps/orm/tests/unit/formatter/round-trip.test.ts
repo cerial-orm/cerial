@@ -38,7 +38,13 @@ function structure(ast: SchemaAST): unknown {
 
 /** Parses with the name sets the generator collects across every file, so sibling-file refs resolve. */
 function parseWithCorpusNames(source: string): SchemaAST {
-  const { ast, errors } = parse(source, corpus.objectNames, corpus.tupleNames, corpus.literalNames, corpus.enumNames);
+  const { ast, errors } = parse(
+    source,
+    new Set(corpus.objectNames),
+    new Set(corpus.tupleNames),
+    new Set(corpus.literalNames),
+    new Set(corpus.enumNames),
+  );
   if (errors.length) throw new Error(errors.map((e) => e.message).join('; '));
 
   return ast;
