@@ -47,7 +47,7 @@ export interface ConstructEntry {
   /** Critic verdict finding that added this entry. */
   readonly critic?: number;
   /**
-   * Set only on an entry in the decorator or field-type families that no registry entry can hold, with
+   * Set only on an entry in the decorator, composite-directive or field-type families that no registry entry can hold, with
    * the reason. Every other entry in those families is claimed by exactly one registry entry
    * (`constructId`). Read by the registry cross-check; see `REGISTRY_FAMILIES`.
    */
@@ -360,54 +360,93 @@ export const PARITY_MANIFEST = [
   // Model-level composite directives (76-78); the cross-kind rows split by the kinds of field named
   row('directive.index', 'composite-directive', 'corpus', [76], '@@index(name, [fields])'),
   row('directive.unique', 'composite-directive', 'corpus', [77], '@@unique(name, [fields])'),
-  row('directive.dot-notation', 'composite-directive', 'corpus', [78], 'dot notation field reference in a directive'),
-  row('directive.index.primitive', 'composite-directive', 'corpus', [76], '@@index over primitive fields only'),
-  row('directive.index.object', 'composite-directive', 'corpus', [76], '@@index over object sub-fields only'),
-  row('directive.index.record', 'composite-directive', 'corpus', [76], '@@index over record fields only'),
-  row(
-    'directive.index.primitive+object',
-    'composite-directive',
-    'corpus',
-    [76],
-    '@@index mixing primitive and object sub-fields',
+  outOfReach(
+    row('directive.dot-notation', 'composite-directive', 'corpus', [78], 'dot notation field reference in a directive'),
+    'a field-path form inside @@index and @@unique, held by those entries',
   ),
-  row(
-    'directive.index.primitive+record',
-    'composite-directive',
-    'corpus',
-    [76],
-    '@@index mixing primitive and record fields',
+  outOfReach(
+    row('directive.index.primitive', 'composite-directive', 'corpus', [76], '@@index over primitive fields only'),
+    'a field-kind combination of @@index, held by the @@index entry (directive.index)',
   ),
-  row(
-    'directive.index.object+record',
-    'composite-directive',
-    'corpus',
-    [76],
-    '@@index mixing object sub-fields and record fields',
+  outOfReach(
+    row('directive.index.object', 'composite-directive', 'corpus', [76], '@@index over object sub-fields only'),
+    'a field-kind combination of @@index, held by the @@index entry (directive.index)',
   ),
-  row('directive.unique.primitive', 'composite-directive', 'corpus', [77], '@@unique over primitive fields only'),
-  row('directive.unique.object', 'composite-directive', 'corpus', [77], '@@unique over object sub-fields only'),
-  row('directive.unique.record', 'composite-directive', 'corpus', [77], '@@unique over record fields only'),
-  row(
-    'directive.unique.primitive+object',
-    'composite-directive',
-    'corpus',
-    [77],
-    '@@unique mixing primitive and object sub-fields',
+  outOfReach(
+    row('directive.index.record', 'composite-directive', 'corpus', [76], '@@index over record fields only'),
+    'a field-kind combination of @@index, held by the @@index entry (directive.index)',
   ),
-  row(
-    'directive.unique.primitive+record',
-    'composite-directive',
-    'corpus',
-    [77],
-    '@@unique mixing primitive and record fields',
+  outOfReach(
+    row(
+      'directive.index.primitive+object',
+      'composite-directive',
+      'corpus',
+      [76],
+      '@@index mixing primitive and object sub-fields',
+    ),
+    'a field-kind combination of @@index, held by the @@index entry (directive.index)',
   ),
-  row(
-    'directive.unique.object+record',
-    'composite-directive',
-    'corpus',
-    [77],
-    '@@unique mixing object sub-fields and record fields',
+  outOfReach(
+    row(
+      'directive.index.primitive+record',
+      'composite-directive',
+      'corpus',
+      [76],
+      '@@index mixing primitive and record fields',
+    ),
+    'a field-kind combination of @@index, held by the @@index entry (directive.index)',
+  ),
+  outOfReach(
+    row(
+      'directive.index.object+record',
+      'composite-directive',
+      'corpus',
+      [76],
+      '@@index mixing object sub-fields and record fields',
+    ),
+    'a field-kind combination of @@index, held by the @@index entry (directive.index)',
+  ),
+  outOfReach(
+    row('directive.unique.primitive', 'composite-directive', 'corpus', [77], '@@unique over primitive fields only'),
+    'a field-kind combination of @@unique, held by the @@unique entry (directive.unique)',
+  ),
+  outOfReach(
+    row('directive.unique.object', 'composite-directive', 'corpus', [77], '@@unique over object sub-fields only'),
+    'a field-kind combination of @@unique, held by the @@unique entry (directive.unique)',
+  ),
+  outOfReach(
+    row('directive.unique.record', 'composite-directive', 'corpus', [77], '@@unique over record fields only'),
+    'a field-kind combination of @@unique, held by the @@unique entry (directive.unique)',
+  ),
+  outOfReach(
+    row(
+      'directive.unique.primitive+object',
+      'composite-directive',
+      'corpus',
+      [77],
+      '@@unique mixing primitive and object sub-fields',
+    ),
+    'a field-kind combination of @@unique, held by the @@unique entry (directive.unique)',
+  ),
+  outOfReach(
+    row(
+      'directive.unique.primitive+record',
+      'composite-directive',
+      'corpus',
+      [77],
+      '@@unique mixing primitive and record fields',
+    ),
+    'a field-kind combination of @@unique, held by the @@unique entry (directive.unique)',
+  ),
+  outOfReach(
+    row(
+      'directive.unique.object+record',
+      'composite-directive',
+      'corpus',
+      [77],
+      '@@unique mixing object sub-fields and record fields',
+    ),
+    'a field-kind combination of @@unique, held by the @@unique entry (directive.unique)',
   ),
 
   // Modifiers (79-84)
