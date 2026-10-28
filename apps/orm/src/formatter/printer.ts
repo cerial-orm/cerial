@@ -66,8 +66,9 @@ function formatLiteral(value: unknown): string {
   if (typeof value !== 'string') return String(value);
   if (DURATION_PATTERN.test(value) && !AMBIGUOUS_BARE_PATTERN.test(value)) return value;
 
-  // An unterminated quote survives in the value (the parser strips only a matching pair), so it prints back as written
-  if (/^['"]/.test(value) && !(value.length > 1 && value.endsWith(value[0]!))) return value;
+  // An unterminated quote survives in the value (the parser strips only a matching pair), so it prints back as written.
+  // A lone quote character is not that case: bare, it would re-parse as an empty string, so it gets wrapped below.
+  if (value.length > 1 && /^['"]/.test(value) && !value.endsWith(value[0]!)) return value;
 
   // The parser strips the outer quotes and never unescapes, so a value holding a single quote needs double quotes
   return value.includes("'") ? `"${value}"` : `'${value}'`;
