@@ -6,40 +6,68 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "price",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "number"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "rating",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "number"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "nullable"
             }
           ],
           "isNullable": true,
           "isOptional": false,
           "name": "weight",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "number"
         },
         {
@@ -47,10 +75,18 @@
           "isArray": true,
           "isOptional": false,
           "name": "scores",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "number"
         }
       ],
-      "name": "NumberBasic"
+      "name": "NumberBasic",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -58,43 +94,75 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "default",
               "value": 0
             }
           ],
           "isOptional": false,
           "name": "score",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "number"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "defaultAlways",
               "value": 1
             }
           ],
           "isOptional": false,
           "name": "multiplier",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "number"
         }
       ],
-      "name": "NumberDecorated"
+      "name": "NumberDecorated",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -102,17 +170,29 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
@@ -120,6 +200,10 @@
           "isOptional": false,
           "name": "stats",
           "objectName": "NumberInfo",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         },
         {
@@ -127,10 +211,18 @@
           "isOptional": true,
           "name": "optStats",
           "objectName": "NumberInfo",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         }
       ],
-      "name": "NumberWithObject"
+      "name": "NumberWithObject",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -138,23 +230,39 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "coord",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "tupleName": "NumberCoord",
           "type": "tuple"
         },
@@ -162,11 +270,19 @@
           "decorators": [],
           "isOptional": true,
           "name": "optCoord",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "tupleName": "NumberCoord",
           "type": "tuple"
         }
       ],
-      "name": "NumberWithTuple"
+      "name": "NumberWithTuple",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ],
   "objects": [
@@ -176,27 +292,47 @@
           "decorators": [],
           "isOptional": false,
           "name": "views",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "number"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "downloads",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "number"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "default",
               "value": 0
             }
           ],
           "isOptional": false,
           "name": "rating",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "number"
         }
       ],
-      "name": "NumberInfo"
+      "name": "NumberInfo",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ],
   "tuples": [
@@ -204,24 +340,44 @@
       "elements": [
         {
           "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "number"
         },
         {
           "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "number"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "nullable"
             }
           ],
           "isNullable": true,
           "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "number"
         }
       ],
-      "name": "NumberCoord"
+      "name": "NumberCoord",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ]
 }

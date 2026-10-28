@@ -12,6 +12,7 @@ import {
   validateTimestampFields,
 } from '../../../src/cli/validators/schema-validator';
 import type { ASTDecorator, ASTField, ASTModel, ASTObject, SchemaAST } from '../../../src/types';
+import { createDslOrigin } from '../../../src/parser';
 
 const dummyRange = {
   start: { line: 1, column: 1, offset: 0 },
@@ -19,7 +20,7 @@ const dummyRange = {
 };
 
 function makeDecorator(type: string, value?: unknown): ASTDecorator {
-  return { type: type as ASTDecorator['type'], value, range: dummyRange };
+  return { type: type as ASTDecorator['type'], value, range: dummyRange, origin: createDslOrigin(dummyRange) };
 }
 
 function makeField(overrides: Partial<ASTField> = {}): ASTField {
@@ -30,6 +31,7 @@ function makeField(overrides: Partial<ASTField> = {}): ASTField {
     isArray: false,
     decorators: [],
     range: dummyRange,
+    origin: createDslOrigin(dummyRange),
     ...overrides,
   };
 }
@@ -39,6 +41,7 @@ function makeModel(overrides: Partial<ASTModel> = {}): ASTModel {
     name: 'TestModel',
     fields: [],
     range: dummyRange,
+    origin: createDslOrigin(dummyRange),
     ...overrides,
   };
 }
@@ -48,6 +51,7 @@ function makeObject(overrides: Partial<ASTObject> = {}): ASTObject {
     name: 'TestObject',
     fields: [],
     range: dummyRange,
+    origin: createDslOrigin(dummyRange),
     ...overrides,
   };
 }

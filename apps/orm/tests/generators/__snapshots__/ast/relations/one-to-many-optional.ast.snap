@@ -6,22 +6,38 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "model",
               "value": "Book"
             }
@@ -29,10 +45,18 @@
           "isArray": true,
           "isOptional": false,
           "name": "books",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "relation"
         }
       ],
-      "name": "Publisher"
+      "name": "Publisher",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -40,57 +64,101 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "title",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "unique"
             }
           ],
           "isOptional": false,
           "name": "isbn",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "nullable"
             }
           ],
           "isNullable": true,
           "isOptional": true,
           "name": "publisherId",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "field",
               "value": "publisherId"
             },
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "model",
               "value": "Publisher"
             }
           ],
           "isOptional": true,
           "name": "publisher",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "relation"
         }
       ],
-      "name": "Book"
+      "name": "Book",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ]
 }

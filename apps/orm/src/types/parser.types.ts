@@ -2,7 +2,7 @@
  * Parser-specific type definitions for tokenization, lexing, and AST
  */
 
-import type { SchemaDecorator, SchemaFieldType, SourcePosition, SourceRange } from './common.types';
+import type { Origin, SchemaDecorator, SchemaFieldType, SourcePosition, SourceRange } from './common.types';
 
 /** Filter for extends (pick or omit specific fields) */
 export interface ExtendsFilter {
@@ -43,6 +43,7 @@ export interface ASTLiteral {
   /** Filter for extends (pick or omit fields) */
   extendsFilter?: ExtendsFilter;
   range: SourceRange;
+  origin: Origin;
 }
 
 /** AST node for a model-level composite directive (@@index or @@unique) */
@@ -55,6 +56,7 @@ export interface ASTCompositeDirective {
   fields: string[];
   /** Source range for error reporting */
   range: SourceRange;
+  origin: Origin;
 }
 
 /** Token types produced by the tokenizer */
@@ -110,6 +112,7 @@ export interface ASTDecorator {
   type: SchemaDecorator;
   value?: unknown;
   range: SourceRange;
+  origin: Origin;
 }
 
 /** AST node for a field */
@@ -124,6 +127,7 @@ export interface ASTField {
   isPrivate?: boolean;
   decorators: ASTDecorator[];
   range: SourceRange;
+  origin: Origin;
   /** For object-typed fields: the name of the referenced object definition */
   objectName?: string;
   /** For tuple-typed fields: the name of the referenced tuple definition */
@@ -147,6 +151,7 @@ export interface ASTModel {
   /** Filter for extends (pick or omit fields) */
   extendsFilter?: ExtendsFilter;
   range: SourceRange;
+  origin: Origin;
 }
 
 /** AST node for an object definition (embedded data structure) */
@@ -158,6 +163,7 @@ export interface ASTObject {
   /** Filter for extends (pick or omit fields) */
   extendsFilter?: ExtendsFilter;
   range: SourceRange;
+  origin: Origin;
 }
 
 /** AST node for a single element in a tuple definition */
@@ -180,6 +186,8 @@ export interface ASTTupleElement {
   tupleName?: string;
   /** For literal-typed elements: the name of the referenced literal definition */
   literalName?: string;
+  /** Where the element was declared; a dsl origin carries a placeholder range until the parser records element positions */
+  origin: Origin;
 }
 
 /** AST node for a tuple definition (positional typed array) */
@@ -191,6 +199,7 @@ export interface ASTTuple {
   /** Filter for extends (pick or omit fields) */
   extendsFilter?: ExtendsFilter;
   range: SourceRange;
+  origin: Origin;
 }
 
 /** AST node for an enum definition (named string constants) */
@@ -202,6 +211,7 @@ export interface ASTEnum {
   /** Filter for extends (pick or omit fields) */
   extendsFilter?: ExtendsFilter;
   range: SourceRange;
+  origin: Origin;
 }
 
 /** Top-level AST containing all models, objects, tuples, literals, and enums */

@@ -6,22 +6,38 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "model",
               "value": "PurchaseOrder"
             }
@@ -29,10 +45,18 @@
           "isArray": true,
           "isOptional": false,
           "name": "orders",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "relation"
         }
       ],
-      "name": "Customer"
+      "name": "Customer",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -40,22 +64,38 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "model",
               "value": "PurchaseOrder"
             }
@@ -63,10 +103,18 @@
           "isArray": true,
           "isOptional": false,
           "name": "assignedOrders",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "relation"
         }
       ],
-      "name": "Agent"
+      "name": "Agent",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -74,72 +122,128 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "unique"
             }
           ],
           "isOptional": false,
           "name": "orderNumber",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "customerId",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "field",
               "value": "customerId"
             },
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "model",
               "value": "Customer"
             }
           ],
           "isOptional": false,
           "name": "customer",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "relation"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "nullable"
             }
           ],
           "isNullable": true,
           "isOptional": true,
           "name": "assigneeId",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "field",
               "value": "assigneeId"
             },
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "model",
               "value": "Agent"
             }
           ],
           "isOptional": true,
           "name": "assignee",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "relation"
         }
       ],
-      "name": "PurchaseOrder"
+      "name": "PurchaseOrder",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ]
 }

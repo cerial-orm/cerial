@@ -11,6 +11,7 @@ import type {
   SchemaAST,
   SchemaDecorator,
 } from '../../../src/types';
+import { createDslOrigin } from '../../../src/parser';
 
 /**
  * Every error `cerial generate` can raise for a parsed schema: the name and extends checks it runs on the
@@ -21,15 +22,15 @@ export function validateAll(ast: SchemaAST) {
 }
 
 export function distinctDecorator(): ASTDecorator {
-  return { type: 'distinct', range };
+  return { type: 'distinct', range, origin: createDslOrigin(range) };
 }
 
 export function sortDecorator(): ASTDecorator {
-  return { type: 'sort', range };
+  return { type: 'sort', range, origin: createDslOrigin(range) };
 }
 
 export function idDecorator(): ASTDecorator {
-  return { type: 'id', range };
+  return { type: 'id', range, origin: createDslOrigin(range) };
 }
 
 export function createField(overrides: Partial<ASTField> = {}): ASTField {
@@ -40,6 +41,7 @@ export function createField(overrides: Partial<ASTField> = {}): ASTField {
     isArray: false,
     decorators: [],
     range,
+    origin: createDslOrigin(range),
     ...overrides,
   };
 }
@@ -49,6 +51,7 @@ export function createModel(overrides: Partial<ASTModel> = {}): ASTModel {
     name: 'TestModel',
     fields: [],
     range,
+    origin: createDslOrigin(range),
     ...overrides,
   };
 }
@@ -67,6 +70,7 @@ export function createObject(overrides: Partial<ASTObject> = {}): ASTObject {
     name: 'TestObject',
     fields: [],
     range,
+    origin: createDslOrigin(range),
     ...overrides,
   };
 }
@@ -82,6 +86,10 @@ export function createASTField(overrides: Partial<ASTField> = {}): ASTField {
       start: { line: 1, column: 1, offset: 0 },
       end: { line: 1, column: 1, offset: 0 },
     },
+    origin: createDslOrigin({
+      start: { line: 1, column: 1, offset: 0 },
+      end: { line: 1, column: 1, offset: 0 },
+    }),
     ...overrides,
   };
 }
@@ -94,6 +102,10 @@ export function createASTModel(overrides: Partial<ASTModel> = {}): ASTModel {
       start: { line: 1, column: 1, offset: 0 },
       end: { line: 1, column: 1, offset: 0 },
     },
+    origin: createDslOrigin({
+      start: { line: 1, column: 1, offset: 0 },
+      end: { line: 1, column: 1, offset: 0 },
+    }),
     ...overrides,
   };
 }
@@ -106,6 +118,10 @@ export function createDecorator(type: SchemaDecorator, value?: unknown): ASTDeco
       start: { line: 1, column: 1, offset: 0 },
       end: { line: 1, column: 1, offset: 0 },
     },
+    origin: createDslOrigin({
+      start: { line: 1, column: 1, offset: 0 },
+      end: { line: 1, column: 1, offset: 0 },
+    }),
   };
 }
 
@@ -118,36 +134,37 @@ export function field(overrides: Partial<ASTField> = {}): ASTField {
     isOptional: false,
     decorators: [],
     range,
+    origin: createDslOrigin(range),
     ...overrides,
   };
 }
 
 export function _dec(type: SchemaDecorator, value?: unknown): ASTDecorator {
-  return { type, value, range };
+  return { type, value, range, origin: createDslOrigin(range) };
 }
 
 export function model(overrides: Partial<ASTModel> = {}): ASTModel {
-  return { name: 'TestModel', fields: [], range, ...overrides };
+  return { name: 'TestModel', fields: [], range, origin: createDslOrigin(range), ...overrides };
 }
 
 export function obj(overrides: Partial<ASTObject> = {}): ASTObject {
-  return { name: 'TestObject', fields: [], range, ...overrides };
+  return { name: 'TestObject', fields: [], range, origin: createDslOrigin(range), ...overrides };
 }
 
 export function tuple(overrides: Partial<ASTTuple> = {}): ASTTuple {
-  return { name: 'TestTuple', elements: [], range, ...overrides };
+  return { name: 'TestTuple', elements: [], range, origin: createDslOrigin(range), ...overrides };
 }
 
 export function literal(overrides: Partial<ASTLiteral> = {}): ASTLiteral {
-  return { name: 'TestLiteral', variants: [], range, ...overrides };
+  return { name: 'TestLiteral', variants: [], range, origin: createDslOrigin(range), ...overrides };
 }
 
 export function enumNode(overrides: Partial<ASTEnum> = {}): ASTEnum {
-  return { name: 'TestEnum', values: [], range, ...overrides };
+  return { name: 'TestEnum', values: [], range, origin: createDslOrigin(range), ...overrides };
 }
 
 export function tupleElement(overrides: Partial<ASTTupleElement> = {}): ASTTupleElement {
-  return { type: 'string', isOptional: false, ...overrides };
+  return { origin: createDslOrigin(), type: 'string', isOptional: false, ...overrides };
 }
 
 export function ast(overrides: Partial<SchemaAST> = {}): SchemaAST {

@@ -6,37 +6,65 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "readonly"
             }
           ],
           "isOptional": false,
           "name": "code",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "readonly"
             }
           ],
           "isOptional": true,
           "name": "score",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "int"
         },
         {
@@ -44,20 +72,36 @@
           "isArray": true,
           "isOptional": false,
           "name": "tags",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "readonly"
             },
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "default",
               "value": "system"
             }
           ],
           "isOptional": false,
           "name": "createdBy",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
@@ -65,6 +109,10 @@
           "isOptional": false,
           "name": "address",
           "objectName": "ReadonlyAddress",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         },
         {
@@ -72,10 +120,18 @@
           "isOptional": true,
           "name": "meta",
           "objectName": "ReadonlyMeta",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         }
       ],
-      "name": "ReadonlyTest"
+      "name": "ReadonlyTest",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -83,46 +139,82 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "readonly"
             }
           ],
           "isOptional": true,
           "name": "authorId",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "field",
               "value": "authorId"
             },
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "model",
               "value": "ReadonlyTest"
             }
           ],
           "isOptional": true,
           "name": "author",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "relation"
         }
       ],
-      "name": "ReadonlyRecord"
+      "name": "ReadonlyRecord",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ],
   "objects": [
@@ -132,47 +224,83 @@
           "decorators": [],
           "isOptional": false,
           "name": "street",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "readonly"
             }
           ],
           "isOptional": false,
           "name": "city",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "zip",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         }
       ],
-      "name": "ReadonlyAddress"
+      "name": "ReadonlyAddress",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "fields": [
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "readonly"
             }
           ],
           "isOptional": false,
           "name": "label",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "payload",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "int"
         }
       ],
-      "name": "ReadonlyMeta"
+      "name": "ReadonlyMeta",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ]
 }

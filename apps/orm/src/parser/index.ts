@@ -37,6 +37,7 @@ export { filterTokens, tokenize } from './tokenizer';
 // Types and helpers
 export {
   createDecorator,
+  createDslOrigin,
   createField,
   createModel,
   createObject,

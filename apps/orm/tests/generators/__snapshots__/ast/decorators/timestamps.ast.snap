@@ -6,47 +6,83 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "createdAt"
             }
           ],
           "isOptional": false,
           "name": "createdAt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "updatedAt"
             }
           ],
           "isOptional": false,
           "name": "updatedAt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "now"
             }
           ],
           "isOptional": false,
           "name": "accessedAt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         },
         {
@@ -54,10 +90,18 @@
           "isOptional": true,
           "name": "meta",
           "objectName": "TimestampInfo",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         }
       ],
-      "name": "TimestampTest"
+      "name": "TimestampTest",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ],
   "objects": [
@@ -67,30 +111,54 @@
           "decorators": [],
           "isOptional": false,
           "name": "label",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "createdAt"
             }
           ],
           "isOptional": false,
           "name": "createdAt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "updatedAt"
             }
           ],
           "isOptional": false,
           "name": "updatedAt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         }
       ],
-      "name": "TimestampInfo"
+      "name": "TimestampInfo",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ]
 }

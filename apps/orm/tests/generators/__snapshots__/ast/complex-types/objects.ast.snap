@@ -6,17 +6,29 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
@@ -24,6 +36,10 @@
           "isOptional": false,
           "name": "address",
           "objectName": "Address",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         },
         {
@@ -31,6 +47,10 @@
           "isOptional": true,
           "name": "shipping",
           "objectName": "Address",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         },
         {
@@ -39,6 +59,10 @@
           "isOptional": false,
           "name": "locations",
           "objectName": "GeoPoint",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         },
         {
@@ -46,10 +70,18 @@
           "isOptional": true,
           "name": "primaryLocation",
           "objectName": "GeoPoint",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         }
       ],
-      "name": "ObjectTestUser"
+      "name": "ObjectTestUser",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -57,11 +89,19 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
@@ -69,6 +109,10 @@
           "isOptional": false,
           "name": "billingAddress",
           "objectName": "Address",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         },
         {
@@ -76,6 +120,10 @@
           "isOptional": true,
           "name": "shippingAddress",
           "objectName": "Address",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         },
         {
@@ -84,6 +132,10 @@
           "isOptional": false,
           "name": "items",
           "objectName": "OrderItem",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         },
         {
@@ -91,10 +143,18 @@
           "isOptional": true,
           "name": "metadata",
           "objectName": "TreeNode",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         }
       ],
-      "name": "ObjectTestOrder"
+      "name": "ObjectTestOrder",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ],
   "objects": [
@@ -104,33 +164,57 @@
           "decorators": [],
           "isOptional": false,
           "name": "street",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "city",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "state",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "nullable"
             }
           ],
           "isNullable": true,
           "isOptional": true,
           "name": "zipCode",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         }
       ],
-      "name": "Address"
+      "name": "Address",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "fields": [
@@ -138,12 +222,20 @@
           "decorators": [],
           "isOptional": false,
           "name": "lat",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "float"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "lng",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "float"
         },
         {
@@ -151,10 +243,18 @@
           "isOptional": true,
           "name": "label",
           "objectName": "Address",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         }
       ],
-      "name": "GeoPoint"
+      "name": "GeoPoint",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "fields": [
@@ -162,6 +262,10 @@
           "decorators": [],
           "isOptional": false,
           "name": "payload",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "int"
         },
         {
@@ -170,10 +274,18 @@
           "isOptional": false,
           "name": "children",
           "objectName": "TreeNode",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         }
       ],
-      "name": "TreeNode"
+      "name": "TreeNode",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "fields": [
@@ -181,18 +293,30 @@
           "decorators": [],
           "isOptional": false,
           "name": "productName",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "quantity",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "int"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "price",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "float"
         },
         {
@@ -200,10 +324,18 @@
           "isArray": true,
           "isOptional": false,
           "name": "tags",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         }
       ],
-      "name": "OrderItem"
+      "name": "OrderItem",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ]
 }

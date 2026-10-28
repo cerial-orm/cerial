@@ -6,17 +6,29 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
@@ -24,6 +36,10 @@
           "isOptional": false,
           "name": "contact",
           "objectName": "ContactInfo",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         },
         {
@@ -31,6 +47,10 @@
           "isOptional": false,
           "name": "location",
           "objectName": "LocationInfo",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         },
         {
@@ -38,10 +58,18 @@
           "isOptional": true,
           "name": "altLocation",
           "objectName": "LocationInfo",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         }
       ],
-      "name": "ObjDecUser"
+      "name": "ObjDecUser",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ],
   "objects": [
@@ -51,53 +79,93 @@
           "decorators": [],
           "isOptional": false,
           "name": "email",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "email"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "nullable"
             }
           ],
           "isNullable": true,
           "isOptional": true,
           "name": "phone",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "default",
               "value": "Unknown"
             }
           ],
           "isOptional": false,
           "name": "city",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "createdAt"
             }
           ],
           "isOptional": false,
           "name": "createdAt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "distinct"
             }
           ],
           "isArray": true,
           "isOptional": false,
           "name": "tags",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         }
       ],
-      "name": "ContactInfo"
+      "name": "ContactInfo",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "fields": [
@@ -105,30 +173,54 @@
           "decorators": [],
           "isOptional": false,
           "name": "address",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "unique"
             }
           ],
           "isOptional": false,
           "name": "zip",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "index"
             }
           ],
           "isOptional": false,
           "name": "country",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         }
       ],
-      "name": "LocationInfo"
+      "name": "LocationInfo",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ]
 }

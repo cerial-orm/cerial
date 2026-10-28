@@ -9,6 +9,7 @@ import { describe, expect, test } from 'bun:test';
 import { resolveInheritance } from '../../../src/resolver';
 import type { ASTCompositeDirective, ASTDecorator } from '../../../src/types';
 import { ast, dec, field, model, omit, pick, R } from './helpers';
+import { createDslOrigin } from '../../../src/parser';
 
 describe('resolveInheritance - models', () => {
   test('should pass through models with no extends', () => {
@@ -174,7 +175,13 @@ describe('resolveInheritance - models', () => {
   });
 
   test('should NOT inherit directives from parent', () => {
-    const directive: ASTCompositeDirective = { kind: 'index', name: 'idx_email', fields: ['email'], range: R };
+    const directive: ASTCompositeDirective = {
+      kind: 'index',
+      name: 'idx_email',
+      fields: ['email'],
+      range: R,
+      origin: createDslOrigin(R),
+    };
     const input = ast({
       models: [
         model('Base', [field('id'), field('email')], { directives: [directive] }),
@@ -188,7 +195,13 @@ describe('resolveInheritance - models', () => {
   });
 
   test('should preserve child directives', () => {
-    const directive: ASTCompositeDirective = { kind: 'unique', name: 'unq_name', fields: ['name'], range: R };
+    const directive: ASTCompositeDirective = {
+      kind: 'unique',
+      name: 'unq_name',
+      fields: ['name'],
+      range: R,
+      origin: createDslOrigin(R),
+    };
     const input = ast({
       models: [
         model('Base', [field('id')]),
@@ -727,7 +740,7 @@ describe('resolveInheritance - models', () => {
           field('email', { decorators: [dec('unique'), dec('createdAt')] }),
           field('score', {
             type: 'int',
-            decorators: [{ type: 'default' as ASTDecorator['type'], value: 0, range: R }],
+            decorators: [{ type: 'default' as ASTDecorator['type'], value: 0, range: R, origin: createDslOrigin(R) }],
           }),
         ]),
         model('Child', [field('name')], { extends: 'Base' }),

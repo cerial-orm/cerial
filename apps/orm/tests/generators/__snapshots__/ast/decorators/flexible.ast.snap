@@ -6,44 +6,76 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "flexible"
             }
           ],
           "isOptional": false,
           "name": "address",
           "objectName": "FlexAddress",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "flexible"
             }
           ],
           "isOptional": true,
           "name": "shipping",
           "objectName": "FlexAddress",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "flexible"
             }
           ],
@@ -51,6 +83,10 @@
           "isOptional": false,
           "name": "tags",
           "objectName": "FlexAddress",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         },
         {
@@ -58,6 +94,10 @@
           "isOptional": false,
           "name": "profile",
           "objectName": "FlexProfile",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         },
         {
@@ -65,10 +105,18 @@
           "isOptional": false,
           "name": "strictAddress",
           "objectName": "FlexAddress",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         }
       ],
-      "name": "FlexUser"
+      "name": "FlexUser",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ],
   "objects": [
@@ -78,27 +126,47 @@
           "decorators": [],
           "isOptional": false,
           "name": "street",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "city",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "nullable"
             }
           ],
           "isNullable": true,
           "isOptional": true,
           "name": "zip",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         }
       ],
-      "name": "FlexAddress"
+      "name": "FlexAddress",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "fields": [
@@ -106,10 +174,18 @@
           "decorators": [],
           "isOptional": false,
           "name": "label",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         }
       ],
-      "name": "FlexMeta"
+      "name": "FlexMeta",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "fields": [
@@ -117,21 +193,37 @@
           "decorators": [],
           "isOptional": false,
           "name": "bio",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "flexible"
             }
           ],
           "isOptional": false,
           "name": "metadata",
           "objectName": "FlexMeta",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         }
       ],
-      "name": "FlexProfile"
+      "name": "FlexProfile",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ]
 }

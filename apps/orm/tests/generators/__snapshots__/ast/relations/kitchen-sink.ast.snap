@@ -6,43 +6,75 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "unique"
             }
           ],
           "isOptional": false,
           "name": "email",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "email"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "model",
               "value": "KitchenSinkProfile"
             }
           ],
           "isOptional": true,
           "name": "profile",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "relation"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "model",
               "value": "KitchenSinkPost"
             }
@@ -50,6 +82,10 @@
           "isArray": true,
           "isOptional": false,
           "name": "posts",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "relation"
         },
         {
@@ -57,15 +93,27 @@
           "isArray": true,
           "isOptional": false,
           "name": "tagIds",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "field",
               "value": "tagIds"
             },
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "model",
               "value": "KitchenSinkTag"
             }
@@ -73,32 +121,56 @@
           "isArray": true,
           "isOptional": false,
           "name": "tags",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "relation"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "nullable"
             }
           ],
           "isNullable": true,
           "isOptional": true,
           "name": "settingsId",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "field",
               "value": "settingsId"
             },
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "model",
               "value": "KitchenSinkSettings"
             }
           ],
           "isOptional": true,
           "name": "settings",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "relation"
         },
         {
@@ -106,15 +178,27 @@
           "isArray": true,
           "isOptional": false,
           "name": "badgeIds",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "field",
               "value": "badgeIds"
             },
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "model",
               "value": "KitchenSinkBadge"
             }
@@ -122,10 +206,18 @@
           "isArray": true,
           "isOptional": false,
           "name": "badges",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "relation"
         }
       ],
-      "name": "KitchenSinkUser"
+      "name": "KitchenSinkUser",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -133,42 +225,74 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "bio",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "userId",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "field",
               "value": "userId"
             },
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "model",
               "value": "KitchenSinkUser"
             }
           ],
           "isOptional": false,
           "name": "user",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "relation"
         }
       ],
-      "name": "KitchenSinkProfile"
+      "name": "KitchenSinkProfile",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -176,42 +300,74 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "title",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "authorId",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "field",
               "value": "authorId"
             },
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "model",
               "value": "KitchenSinkUser"
             }
           ],
           "isOptional": false,
           "name": "author",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "relation"
         }
       ],
-      "name": "KitchenSinkPost"
+      "name": "KitchenSinkPost",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -219,21 +375,37 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "unique"
             }
           ],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
@@ -241,15 +413,27 @@
           "isArray": true,
           "isOptional": false,
           "name": "userIds",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "field",
               "value": "userIds"
             },
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "model",
               "value": "KitchenSinkUser"
             }
@@ -257,10 +441,18 @@
           "isArray": true,
           "isOptional": false,
           "name": "users",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "relation"
         }
       ],
-      "name": "KitchenSinkTag"
+      "name": "KitchenSinkTag",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -268,51 +460,91 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "theme",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "nullable"
             }
           ],
           "isNullable": true,
           "isOptional": true,
           "name": "userId",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "field",
               "value": "userId"
             },
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "model",
               "value": "KitchenSinkUser"
             },
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "onDelete",
               "value": "Cascade"
             }
           ],
           "isOptional": true,
           "name": "user",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "relation"
         }
       ],
-      "name": "KitchenSinkSettings"
+      "name": "KitchenSinkSettings",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -320,25 +552,45 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "unique"
             }
           ],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         }
       ],
-      "name": "KitchenSinkBadge"
+      "name": "KitchenSinkBadge",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ]
 }

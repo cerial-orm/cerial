@@ -8,9 +8,10 @@ import { describe, expect, test } from 'bun:test';
 import { validateArrayDecorators } from '../../../src/cli/validators/schema-validator';
 import type { ASTDecorator, ASTModel, SchemaAST } from '../../../src/types';
 import { createField, createModel, distinctDecorator, idDecorator, range, sortDecorator } from './helpers';
+import { createDslOrigin } from '../../../src/parser';
 
 function fieldDecorator(value: string): ASTDecorator {
-  return { type: 'field', value, range };
+  return { type: 'field', value, range, origin: createDslOrigin(range) };
 }
 
 function createAST(models: ASTModel[] = []): SchemaAST {
@@ -459,6 +460,7 @@ describe('Array Decorator Validator', () => {
               isArray: false,
               decorators: [distinctDecorator()],
               range: customRange,
+              origin: createDslOrigin(customRange),
             }),
           ],
         }),

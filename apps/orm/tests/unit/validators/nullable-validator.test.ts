@@ -14,9 +14,10 @@ import {
 } from '../../../src/cli/validators/nullable-validator';
 import type { ASTDecorator, ASTModel, ASTObject, ASTTuple, ASTTupleElement, SchemaAST } from '../../../src/types';
 import { createField, createModel, createObject, range } from './helpers';
+import { createDslOrigin } from '../../../src/parser';
 
 function createTuple(name: string, elements: ASTTupleElement[]): ASTTuple {
-  return { name, elements, range };
+  return { name, elements, range, origin: createDslOrigin(range) };
 }
 
 function createAST(models: ASTModel[] = [], objects: ASTObject[] = [], tuples: ASTTuple[] = []): SchemaAST {
@@ -24,7 +25,7 @@ function createAST(models: ASTModel[] = [], objects: ASTObject[] = [], tuples: A
 }
 
 function dec(type: string, value?: unknown): ASTDecorator {
-  return { type: type as ASTDecorator['type'], value, range };
+  return { type: type as ASTDecorator['type'], value, range, origin: createDslOrigin(range) };
 }
 
 describe('Nullable Validator', () => {
@@ -380,8 +381,8 @@ describe('Nullable Validator', () => {
         [],
         [
           createTuple('Coordinate', [
-            { type: 'float', isOptional: false, decorators: [dec('nullable')] },
-            { type: 'float', isOptional: false },
+            { origin: createDslOrigin(), type: 'float', isOptional: false, decorators: [dec('nullable')] },
+            { origin: createDslOrigin(), type: 'float', isOptional: false },
           ]),
         ],
       );
@@ -396,7 +397,13 @@ describe('Nullable Validator', () => {
         [],
         [
           createTuple('Mixed', [
-            { type: 'object', isOptional: false, objectName: 'Addr', decorators: [dec('nullable')] },
+            {
+              origin: createDslOrigin(),
+              type: 'object',
+              isOptional: false,
+              objectName: 'Addr',
+              decorators: [dec('nullable')],
+            },
           ]),
         ],
       );
@@ -412,7 +419,13 @@ describe('Nullable Validator', () => {
         [],
         [
           createTuple('Nested', [
-            { type: 'tuple', isOptional: false, tupleName: 'Inner', decorators: [dec('nullable')] },
+            {
+              origin: createDslOrigin(),
+              type: 'tuple',
+              isOptional: false,
+              tupleName: 'Inner',
+              decorators: [dec('nullable')],
+            },
           ]),
         ],
       );
@@ -425,7 +438,11 @@ describe('Nullable Validator', () => {
       const ast = createAST(
         [],
         [],
-        [createTuple('Point', [{ name: 'x', type: 'object', isOptional: false, decorators: [dec('nullable')] }])],
+        [
+          createTuple('Point', [
+            { origin: createDslOrigin(), name: 'x', type: 'object', isOptional: false, decorators: [dec('nullable')] },
+          ]),
+        ],
       );
 
       const errors = validateNullableOnTupleElements(ast);
@@ -439,8 +456,8 @@ describe('Nullable Validator', () => {
         [],
         [
           createTuple('Point', [
-            { type: 'float', isOptional: false },
-            { type: 'object', isOptional: false, decorators: [dec('nullable')] },
+            { origin: createDslOrigin(), type: 'float', isOptional: false },
+            { origin: createDslOrigin(), type: 'object', isOptional: false, decorators: [dec('nullable')] },
           ]),
         ],
       );
@@ -456,8 +473,8 @@ describe('Nullable Validator', () => {
         [],
         [
           createTuple('Simple', [
-            { type: 'float', isOptional: false },
-            { type: 'float', isOptional: false },
+            { origin: createDslOrigin(), type: 'float', isOptional: false },
+            { origin: createDslOrigin(), type: 'float', isOptional: false },
           ]),
         ],
       );
@@ -474,8 +491,8 @@ describe('Nullable Validator', () => {
         [],
         [
           createTuple('Pair', [
-            { type: 'float', isOptional: false },
-            { type: 'float', isOptional: true },
+            { origin: createDslOrigin(), type: 'float', isOptional: false },
+            { origin: createDslOrigin(), type: 'float', isOptional: true },
           ]),
         ],
       );
@@ -492,8 +509,14 @@ describe('Nullable Validator', () => {
         [],
         [
           createTuple('Pair', [
-            { type: 'float', isOptional: false },
-            { type: 'float', isOptional: false, isNullable: true, decorators: [dec('nullable')] },
+            { origin: createDslOrigin(), type: 'float', isOptional: false },
+            {
+              origin: createDslOrigin(),
+              type: 'float',
+              isOptional: false,
+              isNullable: true,
+              decorators: [dec('nullable')],
+            },
           ]),
         ],
       );
@@ -508,8 +531,8 @@ describe('Nullable Validator', () => {
         [],
         [
           createTuple('Pair', [
-            { type: 'float', isOptional: false },
-            { type: 'float', isOptional: false },
+            { origin: createDslOrigin(), type: 'float', isOptional: false },
+            { origin: createDslOrigin(), type: 'float', isOptional: false },
           ]),
         ],
       );
@@ -519,7 +542,11 @@ describe('Nullable Validator', () => {
     });
 
     test('should include element name in error when available', () => {
-      const ast = createAST([], [], [createTuple('Coord', [{ name: 'lat', type: 'float', isOptional: true }])]);
+      const ast = createAST(
+        [],
+        [],
+        [createTuple('Coord', [{ origin: createDslOrigin(), name: 'lat', type: 'float', isOptional: true }])],
+      );
 
       const errors = validateNoOptionalTupleElements(ast);
       expect(errors).toHaveLength(1);
@@ -533,8 +560,8 @@ describe('Nullable Validator', () => {
         [],
         [
           createTuple('Coord', [
-            { type: 'float', isOptional: false },
-            { type: 'float', isOptional: true },
+            { origin: createDslOrigin(), type: 'float', isOptional: false },
+            { origin: createDslOrigin(), type: 'float', isOptional: true },
           ]),
         ],
       );
@@ -550,9 +577,9 @@ describe('Nullable Validator', () => {
         [],
         [
           createTuple('Multi', [
-            { type: 'string', isOptional: true },
-            { type: 'int', isOptional: true },
-            { type: 'float', isOptional: false },
+            { origin: createDslOrigin(), type: 'string', isOptional: true },
+            { origin: createDslOrigin(), type: 'int', isOptional: true },
+            { origin: createDslOrigin(), type: 'float', isOptional: false },
           ]),
         ],
       );
@@ -566,8 +593,8 @@ describe('Nullable Validator', () => {
         [],
         [],
         [
-          createTuple('A', [{ type: 'float', isOptional: true }]),
-          createTuple('B', [{ type: 'int', isOptional: true }]),
+          createTuple('A', [{ origin: createDslOrigin(), type: 'float', isOptional: true }]),
+          createTuple('B', [{ origin: createDslOrigin(), type: 'int', isOptional: true }]),
         ],
       );
 
@@ -583,11 +610,11 @@ describe('Nullable Validator', () => {
         [],
         [
           createTuple('Timestamped', [
-            { type: 'float', isOptional: false, decorators: [dec('nullable')] },
-            { type: 'string', isOptional: false, decorators: [dec('default', 'x')] },
-            { type: 'string', isOptional: false, decorators: [dec('defaultAlways', 'x')] },
-            { type: 'date', isOptional: false, decorators: [dec('createdAt')] },
-            { type: 'date', isOptional: false, decorators: [dec('updatedAt')] },
+            { origin: createDslOrigin(), type: 'float', isOptional: false, decorators: [dec('nullable')] },
+            { origin: createDslOrigin(), type: 'string', isOptional: false, decorators: [dec('default', 'x')] },
+            { origin: createDslOrigin(), type: 'string', isOptional: false, decorators: [dec('defaultAlways', 'x')] },
+            { origin: createDslOrigin(), type: 'date', isOptional: false, decorators: [dec('createdAt')] },
+            { origin: createDslOrigin(), type: 'date', isOptional: false, decorators: [dec('updatedAt')] },
           ]),
         ],
       );
@@ -600,7 +627,11 @@ describe('Nullable Validator', () => {
       const ast = createAST(
         [],
         [],
-        [createTuple('Bad', [{ type: 'string', isOptional: false, decorators: [dec('unique')] }])],
+        [
+          createTuple('Bad', [
+            { origin: createDslOrigin(), type: 'string', isOptional: false, decorators: [dec('unique')] },
+          ]),
+        ],
       );
 
       const errors = validateTupleElementDecorators(ast);
@@ -612,7 +643,11 @@ describe('Nullable Validator', () => {
       const ast = createAST(
         [],
         [],
-        [createTuple('Bad', [{ type: 'string', isOptional: false, decorators: [dec('createdAt')] }])],
+        [
+          createTuple('Bad', [
+            { origin: createDslOrigin(), type: 'string', isOptional: false, decorators: [dec('createdAt')] },
+          ]),
+        ],
       );
 
       const errors = validateTupleElementDecorators(ast);
@@ -625,7 +660,11 @@ describe('Nullable Validator', () => {
       const ast = createAST(
         [],
         [],
-        [createTuple('Bad', [{ type: 'int', isOptional: false, decorators: [dec('updatedAt')] }])],
+        [
+          createTuple('Bad', [
+            { origin: createDslOrigin(), type: 'int', isOptional: false, decorators: [dec('updatedAt')] },
+          ]),
+        ],
       );
 
       const errors = validateTupleElementDecorators(ast);
@@ -637,7 +676,16 @@ describe('Nullable Validator', () => {
       const ast = createAST(
         [],
         [],
-        [createTuple('Bad', [{ type: 'date', isOptional: false, decorators: [dec('createdAt'), dec('updatedAt')] }])],
+        [
+          createTuple('Bad', [
+            {
+              origin: createDslOrigin(),
+              type: 'date',
+              isOptional: false,
+              decorators: [dec('createdAt'), dec('updatedAt')],
+            },
+          ]),
+        ],
       );
 
       const errors = validateTupleElementDecorators(ast);
@@ -651,7 +699,12 @@ describe('Nullable Validator', () => {
         [],
         [
           createTuple('Bad', [
-            { type: 'date', isOptional: false, decorators: [dec('default', 'now'), dec('createdAt')] },
+            {
+              origin: createDslOrigin(),
+              type: 'date',
+              isOptional: false,
+              decorators: [dec('default', 'now'), dec('createdAt')],
+            },
           ]),
         ],
       );
@@ -667,7 +720,12 @@ describe('Nullable Validator', () => {
         [],
         [
           createTuple('Bad', [
-            { type: 'string', isOptional: false, decorators: [dec('default', 'a'), dec('defaultAlways', 'b')] },
+            {
+              origin: createDslOrigin(),
+              type: 'string',
+              isOptional: false,
+              decorators: [dec('default', 'a'), dec('defaultAlways', 'b')],
+            },
           ]),
         ],
       );
@@ -683,7 +741,13 @@ describe('Nullable Validator', () => {
         [],
         [
           createTuple('Bad', [
-            { type: 'string', isOptional: false, isNullable: false, decorators: [dec('default', null)] },
+            {
+              origin: createDslOrigin(),
+              type: 'string',
+              isOptional: false,
+              isNullable: false,
+              decorators: [dec('default', null)],
+            },
           ]),
         ],
       );
@@ -700,6 +764,7 @@ describe('Nullable Validator', () => {
         [
           createTuple('OK', [
             {
+              origin: createDslOrigin(),
               type: 'string',
               isOptional: false,
               isNullable: true,
@@ -719,8 +784,8 @@ describe('Nullable Validator', () => {
         [],
         [
           createTuple('Simple', [
-            { type: 'float', isOptional: false },
-            { type: 'float', isOptional: false },
+            { origin: createDslOrigin(), type: 'float', isOptional: false },
+            { origin: createDslOrigin(), type: 'float', isOptional: false },
           ]),
         ],
       );
@@ -735,8 +800,8 @@ describe('Nullable Validator', () => {
         [],
         [
           createTuple('Bad', [
-            { type: 'string', isOptional: false, decorators: [dec('unique')] },
-            { type: 'int', isOptional: false, decorators: [dec('createdAt')] },
+            { origin: createDslOrigin(), type: 'string', isOptional: false, decorators: [dec('unique')] },
+            { origin: createDslOrigin(), type: 'int', isOptional: false, decorators: [dec('createdAt')] },
           ]),
         ],
       );

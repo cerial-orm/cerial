@@ -6,6 +6,7 @@
 export type {
   FieldTypeMapping,
   OnDeleteAction,
+  Origin,
   Result,
   SchemaConstraint,
   SchemaDecorator,

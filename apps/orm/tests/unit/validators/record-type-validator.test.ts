@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { validateRecordIdTypes } from '../../../src/cli/validators/record-type-validator';
 import type { ASTField, ASTModel, ASTObject, ASTTuple, ASTTupleElement, SchemaAST } from '../../../src/types';
+import { createDslOrigin } from '../../../src/parser';
 
 const defaultRange = { start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } };
 
@@ -12,6 +13,7 @@ function createASTField(overrides: Partial<ASTField> = {}): ASTField {
     isArray: false,
     decorators: [],
     range: defaultRange,
+    origin: createDslOrigin(defaultRange),
     ...overrides,
   };
 }
@@ -21,20 +23,21 @@ function createASTModel(overrides: Partial<ASTModel> = {}): ASTModel {
     name: 'TestModel',
     fields: [],
     range: defaultRange,
+    origin: createDslOrigin(defaultRange),
     ...overrides,
   };
 }
 
 function createTupleElement(overrides: Partial<ASTTupleElement> = {}): ASTTupleElement {
-  return { type: 'string', isOptional: false, ...overrides };
+  return { origin: createDslOrigin(), type: 'string', isOptional: false, ...overrides };
 }
 
 function createTuple(overrides: Partial<ASTTuple> = {}): ASTTuple {
-  return { name: 'TestTuple', elements: [], range: defaultRange, ...overrides };
+  return { name: 'TestTuple', elements: [], range: defaultRange, origin: createDslOrigin(defaultRange), ...overrides };
 }
 
 function createObject(overrides: Partial<ASTObject> = {}): ASTObject {
-  return { name: 'TestObject', fields: [], range: defaultRange, ...overrides };
+  return { name: 'TestObject', fields: [], range: defaultRange, origin: createDslOrigin(defaultRange), ...overrides };
 }
 
 function createAST(overrides: Partial<SchemaAST> = {}): SchemaAST {
@@ -62,7 +65,7 @@ describe('validateRecordIdTypes', () => {
               createASTField({
                 name: 'id',
                 type: 'record',
-                decorators: [{ type: 'id', range: defaultRange }],
+                decorators: [{ type: 'id', range: defaultRange, origin: createDslOrigin(defaultRange) }],
               }),
             ],
           }),
@@ -124,7 +127,7 @@ describe('validateRecordIdTypes', () => {
                 name: 'id',
                 type: 'record',
                 recordIdTypes: ['int'],
-                decorators: [{ type: 'id', range: defaultRange }],
+                decorators: [{ type: 'id', range: defaultRange, origin: createDslOrigin(defaultRange) }],
               }),
             ],
           }),
@@ -142,7 +145,7 @@ describe('validateRecordIdTypes', () => {
                 name: 'id',
                 type: 'record',
                 recordIdTypes: ['string', 'int'],
-                decorators: [{ type: 'id', range: defaultRange }],
+                decorators: [{ type: 'id', range: defaultRange, origin: createDslOrigin(defaultRange) }],
               }),
             ],
           }),
@@ -198,8 +201,8 @@ describe('validateRecordIdTypes', () => {
                 name: 'author',
                 type: 'relation',
                 decorators: [
-                  { type: 'field', value: 'authorId', range: defaultRange },
-                  { type: 'model', value: 'User', range: defaultRange },
+                  { type: 'field', value: 'authorId', range: defaultRange, origin: createDslOrigin(defaultRange) },
+                  { type: 'model', value: 'User', range: defaultRange, origin: createDslOrigin(defaultRange) },
                 ],
               }),
             ],
@@ -412,8 +415,8 @@ describe('validateRecordIdTypes', () => {
                 name: 'author',
                 type: 'relation',
                 decorators: [
-                  { type: 'field', value: 'authorId', range: defaultRange },
-                  { type: 'model', value: 'User', range: defaultRange },
+                  { type: 'field', value: 'authorId', range: defaultRange, origin: createDslOrigin(defaultRange) },
+                  { type: 'model', value: 'User', range: defaultRange, origin: createDslOrigin(defaultRange) },
                 ],
               }),
             ],
@@ -437,8 +440,8 @@ describe('validateRecordIdTypes', () => {
                 name: 'author',
                 type: 'relation',
                 decorators: [
-                  { type: 'field', value: 'authorId', range: defaultRange },
-                  { type: 'model', value: 'User', range: defaultRange },
+                  { type: 'field', value: 'authorId', range: defaultRange, origin: createDslOrigin(defaultRange) },
+                  { type: 'model', value: 'User', range: defaultRange, origin: createDslOrigin(defaultRange) },
                 ],
               }),
             ],
@@ -461,8 +464,8 @@ describe('validateRecordIdTypes', () => {
                 name: 'author',
                 type: 'relation',
                 decorators: [
-                  { type: 'field', value: 'authorId', range: defaultRange },
-                  { type: 'model', value: 'User', range: defaultRange },
+                  { type: 'field', value: 'authorId', range: defaultRange, origin: createDslOrigin(defaultRange) },
+                  { type: 'model', value: 'User', range: defaultRange, origin: createDslOrigin(defaultRange) },
                 ],
               }),
             ],
@@ -485,8 +488,8 @@ describe('validateRecordIdTypes', () => {
                 name: 'author',
                 type: 'relation',
                 decorators: [
-                  { type: 'field', value: 'authorId', range: defaultRange },
-                  { type: 'model', value: 'User', range: defaultRange },
+                  { type: 'field', value: 'authorId', range: defaultRange, origin: createDslOrigin(defaultRange) },
+                  { type: 'model', value: 'User', range: defaultRange, origin: createDslOrigin(defaultRange) },
                 ],
               }),
             ],
@@ -508,7 +511,9 @@ describe('validateRecordIdTypes', () => {
             elements: [
               createTupleElement({
                 type: 'string',
-                decorators: [{ type: 'default', value: 'hello', range: defaultRange }],
+                decorators: [
+                  { type: 'default', value: 'hello', range: defaultRange, origin: createDslOrigin(defaultRange) },
+                ],
               }),
               createTupleElement({ type: 'int' }),
             ],
@@ -521,7 +526,7 @@ describe('validateRecordIdTypes', () => {
                 name: 'id',
                 type: 'record',
                 recordIdTypes: ['DecoratedTuple'],
-                decorators: [{ type: 'id', range: defaultRange }],
+                decorators: [{ type: 'id', range: defaultRange, origin: createDslOrigin(defaultRange) }],
               }),
             ],
           }),
@@ -543,7 +548,7 @@ describe('validateRecordIdTypes', () => {
               createASTField({
                 name: 'ts',
                 type: 'date',
-                decorators: [{ type: 'createdAt', range: defaultRange }],
+                decorators: [{ type: 'createdAt', range: defaultRange, origin: createDslOrigin(defaultRange) }],
               }),
             ],
           }),
@@ -555,7 +560,7 @@ describe('validateRecordIdTypes', () => {
                 name: 'id',
                 type: 'record',
                 recordIdTypes: ['DecoratedObject'],
-                decorators: [{ type: 'id', range: defaultRange }],
+                decorators: [{ type: 'id', range: defaultRange, origin: createDslOrigin(defaultRange) }],
               }),
             ],
           }),
@@ -582,7 +587,7 @@ describe('validateRecordIdTypes', () => {
                 name: 'id',
                 type: 'record',
                 recordIdTypes: ['CleanTuple'],
-                decorators: [{ type: 'id', range: defaultRange }],
+                decorators: [{ type: 'id', range: defaultRange, origin: createDslOrigin(defaultRange) }],
               }),
             ],
           }),
@@ -606,7 +611,7 @@ describe('validateRecordIdTypes', () => {
                 name: 'id',
                 type: 'record',
                 recordIdTypes: ['CleanObject'],
-                decorators: [{ type: 'id', range: defaultRange }],
+                decorators: [{ type: 'id', range: defaultRange, origin: createDslOrigin(defaultRange) }],
               }),
             ],
           }),
@@ -623,7 +628,7 @@ describe('validateRecordIdTypes', () => {
             elements: [
               createTupleElement({
                 type: 'date',
-                decorators: [{ type: 'updatedAt', range: defaultRange }],
+                decorators: [{ type: 'updatedAt', range: defaultRange, origin: createDslOrigin(defaultRange) }],
               }),
             ],
           }),
@@ -635,7 +640,7 @@ describe('validateRecordIdTypes', () => {
                 name: 'id',
                 type: 'record',
                 recordIdTypes: ['TupleWithUpdatedAt'],
-                decorators: [{ type: 'id', range: defaultRange }],
+                decorators: [{ type: 'id', range: defaultRange, origin: createDslOrigin(defaultRange) }],
               }),
             ],
           }),
@@ -655,7 +660,9 @@ describe('validateRecordIdTypes', () => {
               createASTField({
                 name: 'val',
                 type: 'string',
-                decorators: [{ type: 'defaultAlways', value: 'x', range: defaultRange }],
+                decorators: [
+                  { type: 'defaultAlways', value: 'x', range: defaultRange, origin: createDslOrigin(defaultRange) },
+                ],
               }),
             ],
           }),
@@ -667,7 +674,7 @@ describe('validateRecordIdTypes', () => {
                 name: 'id',
                 type: 'record',
                 recordIdTypes: ['ObjectWithDefaultAlways'],
-                decorators: [{ type: 'id', range: defaultRange }],
+                decorators: [{ type: 'id', range: defaultRange, origin: createDslOrigin(defaultRange) }],
               }),
             ],
           }),
@@ -686,7 +693,9 @@ describe('validateRecordIdTypes', () => {
             elements: [
               createTupleElement({
                 type: 'string',
-                decorators: [{ type: 'default', value: 'x', range: defaultRange }],
+                decorators: [
+                  { type: 'default', value: 'x', range: defaultRange, origin: createDslOrigin(defaultRange) },
+                ],
               }),
             ],
           }),
@@ -709,7 +718,7 @@ describe('validateRecordIdTypes', () => {
               createASTField({
                 name: 'ts',
                 type: 'date',
-                decorators: [{ type: 'createdAt', range: defaultRange }],
+                decorators: [{ type: 'createdAt', range: defaultRange, origin: createDslOrigin(defaultRange) }],
               }),
             ],
           }),
@@ -805,7 +814,7 @@ describe('validateRecordIdTypes', () => {
               createASTField({
                 name: 'code',
                 type: 'string',
-                decorators: [{ type: 'unique', range: defaultRange }],
+                decorators: [{ type: 'unique', range: defaultRange, origin: createDslOrigin(defaultRange) }],
               }),
             ],
           }),
@@ -817,7 +826,7 @@ describe('validateRecordIdTypes', () => {
                 name: 'id',
                 type: 'record',
                 recordIdTypes: ['MyObj'],
-                decorators: [{ type: 'id', range: defaultRange }],
+                decorators: [{ type: 'id', range: defaultRange, origin: createDslOrigin(defaultRange) }],
               }),
             ],
           }),
@@ -834,7 +843,7 @@ describe('validateRecordIdTypes', () => {
             elements: [
               createTupleElement({
                 type: 'string',
-                decorators: [{ type: 'nullable', range: defaultRange }],
+                decorators: [{ type: 'nullable', range: defaultRange, origin: createDslOrigin(defaultRange) }],
               }),
             ],
           }),
@@ -846,7 +855,7 @@ describe('validateRecordIdTypes', () => {
                 name: 'id',
                 type: 'record',
                 recordIdTypes: ['MyTuple'],
-                decorators: [{ type: 'id', range: defaultRange }],
+                decorators: [{ type: 'id', range: defaultRange, origin: createDslOrigin(defaultRange) }],
               }),
             ],
           }),

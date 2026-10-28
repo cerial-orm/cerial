@@ -11,9 +11,10 @@ import { describe, expect, test } from 'bun:test';
 import { validateNonPKSide } from '../../../src/cli/validators/relation-validator';
 import type { ASTDecorator, ASTModel, SchemaAST, SchemaDecorator } from '../../../src/types';
 import { createField, createModel, range } from './helpers';
+import { createDslOrigin } from '../../../src/parser';
 
 function createDecorator(type: SchemaDecorator, value?: unknown): ASTDecorator {
-  return { type, value, range };
+  return { type, value, range, origin: createDslOrigin(range) };
 }
 
 function createAST(models: ASTModel[] = []): SchemaAST {

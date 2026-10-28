@@ -6,22 +6,38 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "model",
               "value": "Registration"
             }
@@ -29,11 +45,19 @@
           "isArray": true,
           "isOptional": false,
           "name": "registrations",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "relation"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "model",
               "value": "Ticket"
             }
@@ -41,11 +65,19 @@
           "isArray": true,
           "isOptional": false,
           "name": "tickets",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "relation"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "model",
               "value": "Booking"
             }
@@ -53,10 +85,18 @@
           "isArray": true,
           "isOptional": false,
           "name": "bookings",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "relation"
         }
       ],
-      "name": "Attendee"
+      "name": "Attendee",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -64,22 +104,38 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "title",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "model",
               "value": "Registration"
             }
@@ -87,11 +143,19 @@
           "isArray": true,
           "isOptional": false,
           "name": "registrations",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "relation"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "model",
               "value": "Ticket"
             }
@@ -99,10 +163,18 @@
           "isArray": true,
           "isOptional": false,
           "name": "tickets",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "relation"
         }
       ],
-      "name": "Workshop"
+      "name": "Workshop",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [
@@ -112,70 +184,122 @@
             "workshopId"
           ],
           "kind": "unique",
-          "name": "attendeeWorkshop"
+          "name": "attendeeWorkshop",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          }
         }
       ],
       "fields": [
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "attendeeId",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "workshopId",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "field",
               "value": "attendeeId"
             },
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "model",
               "value": "Attendee"
             }
           ],
           "isOptional": false,
           "name": "attendee",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "relation"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "field",
               "value": "workshopId"
             },
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "model",
               "value": "Workshop"
             }
           ],
           "isOptional": false,
           "name": "workshop",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "relation"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "role",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         }
       ],
-      "name": "Registration"
+      "name": "Registration",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [
@@ -185,7 +309,11 @@
             "workshopId"
           ],
           "kind": "index",
-          "name": "ticketAttendeeWorkshop"
+          "name": "ticketAttendeeWorkshop",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          }
         },
         {
           "fields": [
@@ -193,7 +321,11 @@
             "seat"
           ],
           "kind": "index",
-          "name": "ticketAttendeeSeat"
+          "name": "ticketAttendeeSeat",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          }
         },
         {
           "fields": [
@@ -201,70 +333,122 @@
             "seat"
           ],
           "kind": "unique",
-          "name": "ticketWorkshopSeat"
+          "name": "ticketWorkshopSeat",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          }
         }
       ],
       "fields": [
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "attendeeId",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "workshopId",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "field",
               "value": "attendeeId"
             },
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "model",
               "value": "Attendee"
             }
           ],
           "isOptional": false,
           "name": "attendee",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "relation"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "field",
               "value": "workshopId"
             },
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "model",
               "value": "Workshop"
             }
           ],
           "isOptional": false,
           "name": "workshop",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "relation"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "seat",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         }
       ],
-      "name": "Ticket"
+      "name": "Ticket",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [
@@ -274,7 +458,11 @@
             "slot.row"
           ],
           "kind": "index",
-          "name": "bookingAttendeeRow"
+          "name": "bookingAttendeeRow",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          }
         },
         {
           "fields": [
@@ -282,39 +470,67 @@
             "slot.row"
           ],
           "kind": "unique",
-          "name": "bookingAttendeeRowUnique"
+          "name": "bookingAttendeeRowUnique",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          }
         }
       ],
       "fields": [
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "attendeeId",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "field",
               "value": "attendeeId"
             },
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "model",
               "value": "Attendee"
             }
           ],
           "isOptional": false,
           "name": "attendee",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "relation"
         },
         {
@@ -322,10 +538,18 @@
           "isOptional": false,
           "name": "slot",
           "objectName": "Slot",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         }
       ],
-      "name": "Booking"
+      "name": "Booking",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ],
   "objects": [
@@ -335,10 +559,18 @@
           "decorators": [],
           "isOptional": false,
           "name": "row",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         }
       ],
-      "name": "Slot"
+      "name": "Slot",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ]
 }

@@ -5,125 +5,221 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "createdAt"
             }
           ],
           "isOptional": false,
           "name": "createdAt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "updatedAt"
             }
           ],
           "isOptional": false,
           "name": "updatedAt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "unique"
             }
           ],
           "isOptional": false,
           "name": "email",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "email"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "unique"
             }
           ],
           "isOptional": false,
           "name": "username",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "displayName",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "bio",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         }
       ],
-      "name": "ExtCrossUser"
+      "name": "ExtCrossUser",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "fields": [
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "createdAt"
             }
           ],
           "isOptional": false,
           "name": "createdAt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "updatedAt"
             }
           ],
           "isOptional": false,
           "name": "updatedAt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "unique"
             }
           ],
           "isOptional": false,
           "name": "email",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "email"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "default",
               "value": 1
             }
           ],
           "isOptional": false,
           "name": "level",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "int"
         },
         {
@@ -131,231 +227,403 @@
           "isArray": true,
           "isOptional": false,
           "name": "permissions",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "department",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "budget",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "float"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "teamSize",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "int"
         }
       ],
-      "name": "ExtCrossAdmin"
+      "name": "ExtCrossAdmin",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "fields": [
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "createdAt"
             }
           ],
           "isOptional": false,
           "name": "createdAt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "unique"
             }
           ],
           "isOptional": false,
           "name": "email",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "email"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "default",
               "value": 0
             }
           ],
           "isOptional": false,
           "name": "warningCount",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "int"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "lastWarning",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         }
       ],
-      "name": "ExtCrossModerator"
+      "name": "ExtCrossModerator",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "fields": [
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "createdAt"
             }
           ],
           "isOptional": false,
           "name": "createdAt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "updatedAt"
             }
           ],
           "isOptional": false,
           "name": "updatedAt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "unique"
             }
           ],
           "isOptional": false,
           "name": "email",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "email"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "default",
               "value": true
             }
           ],
           "isOptional": false,
           "name": "isActive",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "bool"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "age",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "int"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "default",
               "value": "user"
             }
           ],
           "isOptional": false,
           "name": "role",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "default",
               "value": 0
             }
           ],
           "isOptional": false,
           "name": "loyaltyPoints",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "int"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "referralCode",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         }
       ],
-      "name": "ExtCrossPremium"
+      "name": "ExtCrossPremium",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "fields": [
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "createdAt"
             }
           ],
           "isOptional": false,
           "name": "createdAt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "updatedAt"
             }
           ],
           "isOptional": false,
           "name": "updatedAt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "userId",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "bio",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "avatar",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
@@ -363,18 +631,30 @@
           "isArray": true,
           "isOptional": false,
           "name": "tags",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "metadata",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "int"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "owner",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
@@ -382,6 +662,10 @@
           "isArray": true,
           "isOptional": false,
           "name": "followers",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
@@ -389,72 +673,128 @@
           "isArray": true,
           "isOptional": false,
           "name": "following",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         }
       ],
-      "name": "ExtCrossProfile"
+      "name": "ExtCrossProfile",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "fields": [
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "createdAt"
             }
           ],
           "isOptional": false,
           "name": "createdAt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "updatedAt"
             }
           ],
           "isOptional": false,
           "name": "updatedAt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "unique"
             }
           ],
           "isOptional": false,
           "name": "email",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "email"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "default",
               "value": "No bio"
             }
           ],
           "isOptional": false,
           "name": "publicBio",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         }
       ],
-      "name": "ExtCrossPrivate"
+      "name": "ExtCrossPrivate",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ]
 }

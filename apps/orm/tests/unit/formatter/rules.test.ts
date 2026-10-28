@@ -7,6 +7,7 @@ import { DECORATOR_ORDER, resolveConfig, sortDecorators } from '../../../src/for
 import { FORMAT_DEFAULTS } from '../../../src/formatter/types';
 import type { SchemaDecorator } from '../../../src/types/common.types';
 import type { ASTDecorator } from '../../../src/types/parser.types';
+import { createDslOrigin } from '../../../src/parser';
 
 // Helper to create a decorator for testing
 function createDecorator(type: SchemaDecorator, value?: unknown): ASTDecorator {
@@ -17,6 +18,10 @@ function createDecorator(type: SchemaDecorator, value?: unknown): ASTDecorator {
       start: { line: 1, column: 0, offset: 0 },
       end: { line: 1, column: 10, offset: 10 },
     },
+    origin: createDslOrigin({
+      start: { line: 1, column: 0, offset: 0 },
+      end: { line: 1, column: 10, offset: 10 },
+    }),
   };
 }
 
@@ -178,7 +183,7 @@ describe('sortDecorators', () => {
       start: { line: 5, column: 10, offset: 50 },
       end: { line: 5, column: 20, offset: 60 },
     };
-    const decorator = { type: 'default' as const, value: 'x', range };
+    const decorator = { type: 'default' as const, value: 'x', range, origin: createDslOrigin(range) };
     const decorators = [createDecorator('nullable'), decorator, createDecorator('unique')];
     const result = sortDecorators(decorators);
     const sortedDefault = result.find((d) => d.type === 'default');

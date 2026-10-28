@@ -6,23 +6,39 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "data",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "any"
         },
         {
@@ -30,10 +46,18 @@
           "isArray": true,
           "isOptional": false,
           "name": "items",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "any"
         }
       ],
-      "name": "AnyBasic"
+      "name": "AnyBasic",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -41,17 +65,29 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
@@ -59,10 +95,18 @@
           "isOptional": false,
           "name": "meta",
           "objectName": "AnyMeta",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         }
       ],
-      "name": "AnyWithObject"
+      "name": "AnyWithObject",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -70,58 +114,102 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "default",
               "value": "hello"
             }
           ],
           "isOptional": false,
           "name": "defData",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "any"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "defaultAlways",
               "value": 42
             }
           ],
           "isOptional": false,
           "name": "alwaysData",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "any"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "readonly"
             }
           ],
           "isOptional": false,
           "name": "readonlyData",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "any"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "index"
             }
           ],
           "isOptional": false,
           "name": "indexedData",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "any"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "sort",
               "value": true
             }
@@ -129,21 +217,37 @@
           "isArray": true,
           "isOptional": false,
           "name": "sortedItems",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "any"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "distinct"
             }
           ],
           "isArray": true,
           "isOptional": false,
           "name": "distinctItems",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "any"
         }
       ],
-      "name": "AnyDecorated"
+      "name": "AnyDecorated",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -151,25 +255,45 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "unique"
             }
           ],
           "isOptional": false,
           "name": "uniqueData",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "any"
         }
       ],
-      "name": "AnyUnique"
+      "name": "AnyUnique",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ],
   "objects": [
@@ -179,16 +303,28 @@
           "decorators": [],
           "isOptional": false,
           "name": "data",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "any"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "label",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         }
       ],
-      "name": "AnyMeta"
+      "name": "AnyMeta",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ]
 }

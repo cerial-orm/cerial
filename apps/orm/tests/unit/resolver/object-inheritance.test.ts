@@ -8,6 +8,7 @@
 import { describe, expect, test } from 'bun:test';
 import { resolveInheritance } from '../../../src/resolver';
 import { ast, dec, field, obj, omit, pick, R } from './helpers';
+import { createDslOrigin } from '../../../src/parser';
 
 describe('resolveInheritance - objects', () => {
   test('should pass through objects with no extends', () => {
@@ -187,7 +188,7 @@ describe('resolveInheritance - objects', () => {
           field('createdAt', { type: 'date', decorators: [dec('createdAt')] }),
           field('value', {
             type: 'int',
-            decorators: [{ type: 'default' as any, value: 42, range: R }],
+            decorators: [{ type: 'default', value: 42, range: R, origin: createDslOrigin(R) }],
           }),
         ]),
         obj('Child', [field('name')], { extends: 'Base' }),

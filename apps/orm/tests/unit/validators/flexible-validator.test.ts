@@ -12,9 +12,10 @@ import {
 } from '../../../src/cli/validators/schema-validator';
 import type { ASTDecorator } from '../../../src/types';
 import { createAST, createField, createModel, createObject, range } from './helpers';
+import { createDslOrigin } from '../../../src/parser';
 
 function flexDecorator(): ASTDecorator {
-  return { type: 'flexible', range };
+  return { type: 'flexible', range, origin: createDslOrigin(range) };
 }
 
 describe('Flexible Validator', () => {
@@ -236,7 +237,7 @@ describe('Flexible Validator', () => {
               createField({
                 name: 'id',
                 type: 'record',
-                decorators: [{ type: 'id', range }],
+                decorators: [{ type: 'id', range, origin: createDslOrigin(range) }],
               }),
               createField({
                 name: 'address',
@@ -268,7 +269,7 @@ describe('Flexible Validator', () => {
             createField({
               name: 'id',
               type: 'record',
-              decorators: [{ type: 'id', range }],
+              decorators: [{ type: 'id', range, origin: createDslOrigin(range) }],
             }),
             createField({
               name: 'name',

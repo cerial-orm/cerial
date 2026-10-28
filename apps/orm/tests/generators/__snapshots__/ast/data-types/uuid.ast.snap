@@ -6,40 +6,68 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "token",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "uuid"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "optionalToken",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "uuid"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "nullable"
             }
           ],
           "isNullable": true,
           "isOptional": true,
           "name": "nullableToken",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "uuid"
         },
         {
@@ -47,10 +75,18 @@
           "isArray": true,
           "isOptional": false,
           "name": "tags",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "uuid"
         }
       ],
-      "name": "UuidBasic"
+      "name": "UuidBasic",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -58,61 +94,109 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "uuid"
             }
           ],
           "isOptional": false,
           "name": "autoId",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "uuid"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "uuid4"
             }
           ],
           "isOptional": false,
           "name": "autoV4",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "uuid"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "uuid7"
             }
           ],
           "isOptional": false,
           "name": "autoV7",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "uuid"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "uuid"
             }
           ],
           "isOptional": true,
           "name": "optAutoId",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "uuid"
         }
       ],
-      "name": "UuidDecorated"
+      "name": "UuidDecorated",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -120,17 +204,29 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
@@ -138,6 +234,10 @@
           "isOptional": false,
           "name": "meta",
           "objectName": "UuidInfo",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         },
         {
@@ -145,10 +245,18 @@
           "isOptional": true,
           "name": "optMeta",
           "objectName": "UuidInfo",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         }
       ],
-      "name": "UuidWithObject"
+      "name": "UuidWithObject",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -156,23 +264,39 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "pair",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "tupleName": "UuidPair",
           "type": "tuple"
         },
@@ -180,11 +304,19 @@
           "decorators": [],
           "isOptional": true,
           "name": "optPair",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "tupleName": "UuidPair",
           "type": "tuple"
         }
       ],
-      "name": "UuidWithTuple"
+      "name": "UuidWithTuple",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ],
   "objects": [
@@ -194,32 +326,56 @@
           "decorators": [],
           "isOptional": false,
           "name": "label",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "trackingId",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "uuid"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "optionalId",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "uuid"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "uuid"
             }
           ],
           "isOptional": false,
           "name": "autoGenId",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "uuid"
         }
       ],
-      "name": "UuidInfo"
+      "name": "UuidInfo",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ],
   "tuples": [
@@ -227,14 +383,26 @@
       "elements": [
         {
           "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "uuid"
         },
         {
           "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "uuid"
         }
       ],
-      "name": "UuidPair"
+      "name": "UuidPair",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ]
 }

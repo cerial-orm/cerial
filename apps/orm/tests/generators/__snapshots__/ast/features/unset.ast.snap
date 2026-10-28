@@ -6,29 +6,49 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "bio",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "age",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "int"
         },
         {
@@ -36,6 +56,10 @@
           "isOptional": false,
           "name": "address",
           "objectName": "UnsetAddress",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         },
         {
@@ -43,12 +67,20 @@
           "isOptional": true,
           "name": "shipping",
           "objectName": "UnsetAddress",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "pos",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "tupleName": "UnsetCoord",
           "type": "tuple"
         },
@@ -56,6 +88,10 @@
           "decorators": [],
           "isOptional": true,
           "name": "backup",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "tupleName": "UnsetCoord",
           "type": "tuple"
         },
@@ -63,6 +99,10 @@
           "decorators": [],
           "isOptional": true,
           "name": "opt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "tupleName": "UnsetOptTuple",
           "type": "tuple"
         },
@@ -70,6 +110,10 @@
           "decorators": [],
           "isOptional": true,
           "name": "tagged",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "tupleName": "UnsetObjTuple",
           "type": "tuple"
         },
@@ -78,6 +122,10 @@
           "isOptional": false,
           "name": "nested",
           "objectName": "UnsetDeepOuter",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         },
         {
@@ -85,12 +133,20 @@
           "isOptional": true,
           "name": "optNested",
           "objectName": "UnsetDeepOuter",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "deepTuple",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "tupleName": "UnsetDeepTuple",
           "type": "tuple"
         },
@@ -99,17 +155,29 @@
           "isOptional": true,
           "name": "tree",
           "objectName": "UnsetTreeNode",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "recursive",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "tupleName": "UnsetRecursive",
           "type": "tuple"
         }
       ],
-      "name": "UnsetTest"
+      "name": "UnsetTest",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ],
   "objects": [
@@ -119,22 +187,38 @@
           "decorators": [],
           "isOptional": false,
           "name": "street",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "city",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "zip",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         }
       ],
-      "name": "UnsetAddress"
+      "name": "UnsetAddress",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "fields": [
@@ -142,16 +226,28 @@
           "decorators": [],
           "isOptional": false,
           "name": "payload",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "extra",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         }
       ],
-      "name": "UnsetInner"
+      "name": "UnsetInner",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "fields": [
@@ -159,16 +255,28 @@
           "decorators": [],
           "isOptional": false,
           "name": "code",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "note",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         }
       ],
-      "name": "UnsetDeepInner"
+      "name": "UnsetDeepInner",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "fields": [
@@ -176,12 +284,20 @@
           "decorators": [],
           "isOptional": false,
           "name": "label",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "score",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "int"
         },
         {
@@ -189,10 +305,18 @@
           "isOptional": false,
           "name": "deep",
           "objectName": "UnsetDeepInner",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         }
       ],
-      "name": "UnsetDeepMid"
+      "name": "UnsetDeepMid",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "fields": [
@@ -200,6 +324,10 @@
           "decorators": [],
           "isOptional": false,
           "name": "title",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
@@ -207,16 +335,28 @@
           "isOptional": false,
           "name": "mid",
           "objectName": "UnsetDeepMid",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "desc",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         }
       ],
-      "name": "UnsetDeepOuter"
+      "name": "UnsetDeepOuter",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "fields": [
@@ -224,12 +364,20 @@
           "decorators": [],
           "isOptional": false,
           "name": "payload",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "extra",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
@@ -237,10 +385,18 @@
           "isOptional": true,
           "name": "child",
           "objectName": "UnsetTreeNode",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         }
       ],
-      "name": "UnsetTreeNode"
+      "name": "UnsetTreeNode",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ],
   "tuples": [
@@ -249,86 +405,154 @@
         {
           "isOptional": false,
           "name": "lat",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "float"
         },
         {
           "isOptional": false,
           "name": "lng",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "float"
         }
       ],
-      "name": "UnsetCoord"
+      "name": "UnsetCoord",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "elements": [
         {
           "isOptional": false,
           "name": "label",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "nullable"
             }
           ],
           "isNullable": true,
           "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "float"
         }
       ],
-      "name": "UnsetOptTuple"
+      "name": "UnsetOptTuple",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "elements": [
         {
           "isOptional": false,
           "name": "tag",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "isOptional": false,
           "objectName": "UnsetInner",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         }
       ],
-      "name": "UnsetObjTuple"
+      "name": "UnsetObjTuple",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "elements": [
         {
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "isOptional": false,
           "objectName": "UnsetDeepMid",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         }
       ],
-      "name": "UnsetDeepTuple"
+      "name": "UnsetDeepTuple",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "elements": [
         {
           "isOptional": false,
           "name": "label",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "nullable"
             }
           ],
           "isNullable": true,
           "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "tupleName": "UnsetRecursive",
           "type": "tuple"
         }
       ],
-      "name": "UnsetRecursive"
+      "name": "UnsetRecursive",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ]
 }

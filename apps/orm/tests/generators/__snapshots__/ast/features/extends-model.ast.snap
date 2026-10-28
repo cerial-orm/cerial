@@ -7,35 +7,63 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "createdAt"
             }
           ],
           "isOptional": false,
           "name": "createdAt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "updatedAt"
             }
           ],
           "isOptional": false,
           "name": "updatedAt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         }
       ],
-      "name": "ExtBaseEntity"
+      "name": "ExtBaseEntity",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "abstract": true,
@@ -43,199 +71,351 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "createdAt"
             }
           ],
           "isOptional": false,
           "name": "createdAt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "updatedAt"
             }
           ],
           "isOptional": false,
           "name": "updatedAt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "unique"
             }
           ],
           "isOptional": false,
           "name": "email",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "email"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "default",
               "value": true
             }
           ],
           "isOptional": false,
           "name": "isActive",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "bool"
         }
       ],
-      "name": "ExtBaseUser"
+      "name": "ExtBaseUser",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "fields": [
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "createdAt"
             }
           ],
           "isOptional": false,
           "name": "createdAt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "updatedAt"
             }
           ],
           "isOptional": false,
           "name": "updatedAt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "unique"
             }
           ],
           "isOptional": false,
           "name": "email",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "email"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "default",
               "value": true
             }
           ],
           "isOptional": false,
           "name": "isActive",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "bool"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "age",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "int"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "default",
               "value": "user"
             }
           ],
           "isOptional": false,
           "name": "role",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         }
       ],
-      "name": "ExtUser"
+      "name": "ExtUser",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "fields": [
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "createdAt"
             }
           ],
           "isOptional": false,
           "name": "createdAt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "updatedAt"
             }
           ],
           "isOptional": false,
           "name": "updatedAt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "unique"
             }
           ],
           "isOptional": false,
           "name": "email",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "email"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "default",
               "value": 1
             }
           ],
           "isOptional": false,
           "name": "level",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "int"
         },
         {
@@ -243,158 +423,278 @@
           "isArray": true,
           "isOptional": false,
           "name": "permissions",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         }
       ],
-      "name": "ExtAdmin"
+      "name": "ExtAdmin",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "fields": [
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "createdAt"
             }
           ],
           "isOptional": false,
           "name": "createdAt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "unique"
             }
           ],
           "isOptional": false,
           "name": "email",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "email"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "bannedUntil",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "notes",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         }
       ],
-      "name": "ExtModerator"
+      "name": "ExtModerator",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "fields": [
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "createdAt"
             }
           ],
           "isOptional": false,
           "name": "createdAt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "updatedAt"
             }
           ],
           "isOptional": false,
           "name": "updatedAt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "unique"
             }
           ],
           "isOptional": false,
           "name": "email",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "email"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "default",
               "value": true
             }
           ],
           "isOptional": false,
           "name": "isActive",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "bool"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "default",
               "value": "superadmin"
             }
           ],
           "isOptional": false,
           "name": "role",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "default",
               "value": 99
             }
           ],
           "isOptional": false,
           "name": "level",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "int"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "default",
               "value": true
             }
           ],
           "isOptional": false,
           "name": "canDeleteUsers",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "bool"
         }
       ],
-      "name": "ExtSuperAdmin"
+      "name": "ExtSuperAdmin",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "abstract": true,
@@ -402,175 +702,307 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "createdAt"
             }
           ],
           "isOptional": false,
           "name": "createdAt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "updatedAt"
             }
           ],
           "isOptional": false,
           "name": "updatedAt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "unique"
             }
           ],
           "isOptional": false,
           "name": "email",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "email"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "default",
               "value": true
             }
           ],
           "isOptional": false,
           "name": "isActive",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "bool"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "age",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "int"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "default",
               "value": "user"
             }
           ],
           "isOptional": false,
           "name": "role",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         }
       ],
-      "name": "ExtBaseUserFull"
+      "name": "ExtBaseUserFull",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "fields": [
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "createdAt"
             }
           ],
           "isOptional": false,
           "name": "createdAt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "updatedAt"
             }
           ],
           "isOptional": false,
           "name": "updatedAt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "unique"
             }
           ],
           "isOptional": false,
           "name": "email",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "email"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "default",
               "value": true
             }
           ],
           "isOptional": false,
           "name": "isActive",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "bool"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "age",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "int"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "default",
               "value": "user"
             }
           ],
           "isOptional": false,
           "name": "role",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "default",
               "value": "basic"
             }
           ],
           "isOptional": false,
           "name": "subscriptionTier",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "subscriptionEnd",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         }
       ],
-      "name": "ExtPremiumUser"
+      "name": "ExtPremiumUser",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "abstract": true,
@@ -578,58 +1010,102 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "createdAt"
             }
           ],
           "isOptional": false,
           "name": "createdAt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "updatedAt"
             }
           ],
           "isOptional": false,
           "name": "updatedAt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "unique"
             }
           ],
           "isOptional": false,
           "name": "email",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "email"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "default",
               "value": 1
             }
           ],
           "isOptional": false,
           "name": "level",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "int"
         },
         {
@@ -637,68 +1113,120 @@
           "isArray": true,
           "isOptional": false,
           "name": "permissions",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         }
       ],
-      "name": "ExtBaseAdmin"
+      "name": "ExtBaseAdmin",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "fields": [
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "createdAt"
             }
           ],
           "isOptional": false,
           "name": "createdAt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "updatedAt"
             }
           ],
           "isOptional": false,
           "name": "updatedAt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "unique"
             }
           ],
           "isOptional": false,
           "name": "email",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "email"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "default",
               "value": 1
             }
           ],
           "isOptional": false,
           "name": "level",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "int"
         },
         {
@@ -706,17 +1234,29 @@
           "isArray": true,
           "isOptional": false,
           "name": "permissions",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "default",
               "value": false
             }
           ],
           "isOptional": false,
           "name": "systemAccess",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "bool"
         },
         {
@@ -724,116 +1264,204 @@
           "isArray": true,
           "isOptional": false,
           "name": "auditLog",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         }
       ],
-      "name": "ExtSystemAdmin"
+      "name": "ExtSystemAdmin",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "fields": [
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "createdAt"
             }
           ],
           "isOptional": false,
           "name": "createdAt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "updatedAt"
             }
           ],
           "isOptional": false,
           "name": "updatedAt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "unique"
             }
           ],
           "isOptional": false,
           "name": "email",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "email"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "publicBio",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         }
       ],
-      "name": "ExtPrivateUser"
+      "name": "ExtPrivateUser",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "fields": [
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "createdAt"
             }
           ],
           "isOptional": false,
           "name": "createdAt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "updatedAt"
             }
           ],
           "isOptional": false,
           "name": "updatedAt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "userId",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "bio",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "avatar",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
@@ -841,51 +1469,91 @@
           "isArray": true,
           "isOptional": false,
           "name": "tags",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "metadata",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "int"
         }
       ],
-      "name": "ExtProfile"
+      "name": "ExtProfile",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "fields": [
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "createdAt"
             }
           ],
           "isOptional": false,
           "name": "createdAt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "updatedAt"
             }
           ],
           "isOptional": false,
           "name": "updatedAt",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "date"
         }
       ],
-      "name": "ExtEmptyChild"
+      "name": "ExtEmptyChild",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ]
 }

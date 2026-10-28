@@ -2,6 +2,10 @@
   "literals": [
     {
       "name": "ExtBasePriority",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      },
       "variants": [
         {
           "kind": "string",
@@ -19,6 +23,10 @@
     },
     {
       "name": "ExtExtendedPriority",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      },
       "variants": [
         {
           "kind": "string",
@@ -44,6 +52,10 @@
     },
     {
       "name": "ExtHighPriority",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      },
       "variants": [
         {
           "kind": "string",
@@ -65,6 +77,10 @@
     },
     {
       "name": "ExtLowMediumPriority",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      },
       "variants": [
         {
           "kind": "string",
@@ -78,6 +94,10 @@
     },
     {
       "name": "ExtBaseLevel",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      },
       "variants": [
         {
           "kind": "int",
@@ -95,6 +115,10 @@
     },
     {
       "name": "ExtExtendedLevel",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      },
       "variants": [
         {
           "kind": "int",
@@ -120,6 +144,10 @@
     },
     {
       "name": "ExtBaseMixed",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      },
       "variants": [
         {
           "kind": "string",
@@ -141,6 +169,10 @@
     },
     {
       "name": "ExtExtendedMixed",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      },
       "variants": [
         {
           "kind": "string",
@@ -170,6 +202,10 @@
     },
     {
       "name": "ExtBroadType",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      },
       "variants": [
         {
           "kind": "broadType",
@@ -183,6 +219,10 @@
     },
     {
       "name": "ExtExtendedBroad",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      },
       "variants": [
         {
           "kind": "broadType",
@@ -200,6 +240,10 @@
     },
     {
       "name": "ExtStringOnly",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      },
       "variants": [
         {
           "kind": "bool",
@@ -213,6 +257,10 @@
     },
     {
       "name": "ExtNonBoolMixed",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      },
       "variants": [
         {
           "kind": "string",
@@ -226,6 +274,10 @@
     },
     {
       "name": "ExtQuotedPick",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      },
       "variants": [
         {
           "kind": "string",
@@ -239,6 +291,10 @@
     },
     {
       "name": "ExtQuotedOmit",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      },
       "variants": [
         {
           "kind": "string",
@@ -258,11 +314,19 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
@@ -270,6 +334,10 @@
           "isOptional": false,
           "literalName": "ExtExtendedPriority",
           "name": "priority",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         },
         {
@@ -277,6 +345,10 @@
           "isOptional": false,
           "literalName": "ExtExtendedLevel",
           "name": "level",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         },
         {
@@ -284,6 +356,10 @@
           "isOptional": false,
           "literalName": "ExtExtendedMixed",
           "name": "status",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         },
         {
@@ -291,6 +367,10 @@
           "isOptional": false,
           "literalName": "ExtExtendedBroad",
           "name": "broadValue",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         },
         {
@@ -298,6 +378,10 @@
           "isOptional": true,
           "literalName": "ExtHighPriority",
           "name": "highPriority",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         },
         {
@@ -306,10 +390,18 @@
           "isOptional": false,
           "literalName": "ExtExtendedPriority",
           "name": "priorities",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         }
       ],
-      "name": "ExtLiteralModel"
+      "name": "ExtLiteralModel",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -317,17 +409,29 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
@@ -335,6 +439,10 @@
           "isOptional": false,
           "name": "details",
           "objectName": "ExtLiteralInfo",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         },
         {
@@ -343,10 +451,18 @@
           "isOptional": false,
           "name": "detailsList",
           "objectName": "ExtLiteralInfo",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         }
       ],
-      "name": "ExtLiteralContainer"
+      "name": "ExtLiteralContainer",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -354,11 +470,19 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
@@ -366,6 +490,10 @@
           "isOptional": false,
           "literalName": "ExtQuotedPick",
           "name": "picked",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         },
         {
@@ -373,10 +501,18 @@
           "isOptional": false,
           "literalName": "ExtQuotedOmit",
           "name": "omitted",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         }
       ],
-      "name": "ExtLiteralQuoted"
+      "name": "ExtLiteralQuoted",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ],
   "objects": [
@@ -387,6 +523,10 @@
           "isOptional": false,
           "literalName": "ExtExtendedPriority",
           "name": "priority",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         },
         {
@@ -394,6 +534,10 @@
           "isOptional": false,
           "literalName": "ExtExtendedLevel",
           "name": "level",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         },
         {
@@ -401,10 +545,18 @@
           "isOptional": true,
           "literalName": "ExtExtendedMixed",
           "name": "status",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         }
       ],
-      "name": "ExtLiteralInfo"
+      "name": "ExtLiteralInfo",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ]
 }

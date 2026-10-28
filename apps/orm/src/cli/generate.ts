@@ -353,6 +353,7 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
       name: e.name,
       variants: e.values.map((v): import('../types').ASTLiteralVariant => ({ kind: 'string', value: v })),
       range: e.range,
+      origin: e.origin,
     }));
     const allLiteralsForConversion = [...resolvedAST.literals, ...syntheticEnumLiterals];
     const literals = convertLiterals(allLiteralsForConversion);

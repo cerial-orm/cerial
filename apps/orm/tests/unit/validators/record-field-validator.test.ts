@@ -10,13 +10,14 @@ import { describe, expect, test } from 'bun:test';
 import { validateRecordFields } from '../../../src/cli/validators/schema-validator';
 import type { ASTDecorator, ASTModel, SchemaAST } from '../../../src/types';
 import { createField, createModel, idDecorator, range } from './helpers';
+import { createDslOrigin } from '../../../src/parser';
 
 function fieldDecorator(fieldName: string): ASTDecorator {
-  return { type: 'field', value: fieldName, range };
+  return { type: 'field', value: fieldName, range, origin: createDslOrigin(range) };
 }
 
 function modelDecorator(modelName: string): ASTDecorator {
-  return { type: 'model', value: modelName, range };
+  return { type: 'model', value: modelName, range, origin: createDslOrigin(range) };
 }
 
 function createAST(models: ASTModel[] = []): SchemaAST {
@@ -212,8 +213,8 @@ describe('Record Field Validator', () => {
               name: 'authorId',
               type: 'record',
               decorators: [
-                { type: 'unique', range },
-                { type: 'index', range },
+                { type: 'unique', range, origin: createDslOrigin(range) },
+                { type: 'index', range, origin: createDslOrigin(range) },
               ],
             }),
           ],

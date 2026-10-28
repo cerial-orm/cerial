@@ -12,9 +12,10 @@ import {
 } from '../../../src/cli/validators/schema-validator';
 import type { ASTDecorator } from '../../../src/types';
 import { createAST, createField, createModel, createObject, range } from './helpers';
+import { createDslOrigin } from '../../../src/parser';
 
 function readonlyDecorator(): ASTDecorator {
-  return { type: 'readonly', range };
+  return { type: 'readonly', range, origin: createDslOrigin(range) };
 }
 
 describe('Readonly Validator', () => {
@@ -81,7 +82,10 @@ describe('Readonly Validator', () => {
             createField({
               name: 'createdBy',
               type: 'string',
-              decorators: [readonlyDecorator(), { type: 'default', value: 'system', range }],
+              decorators: [
+                readonlyDecorator(),
+                { type: 'default', value: 'system', range, origin: createDslOrigin(range) },
+              ],
             }),
           ],
         }),
@@ -98,7 +102,7 @@ describe('Readonly Validator', () => {
             createField({
               name: 'lockedAt',
               type: 'date',
-              decorators: [readonlyDecorator(), { type: 'createdAt', range }],
+              decorators: [readonlyDecorator(), { type: 'createdAt', range, origin: createDslOrigin(range) }],
             }),
           ],
         }),
@@ -133,7 +137,7 @@ describe('Readonly Validator', () => {
             createField({
               name: 'ts',
               type: 'date',
-              decorators: [readonlyDecorator(), { type: 'now', range }],
+              decorators: [readonlyDecorator(), { type: 'now', range, origin: createDslOrigin(range) }],
             }),
           ],
         }),
@@ -152,7 +156,10 @@ describe('Readonly Validator', () => {
             createField({
               name: 'status',
               type: 'string',
-              decorators: [readonlyDecorator(), { type: 'defaultAlways', value: 'active', range }],
+              decorators: [
+                readonlyDecorator(),
+                { type: 'defaultAlways', value: 'active', range, origin: createDslOrigin(range) },
+              ],
             }),
           ],
         }),
@@ -171,7 +178,7 @@ describe('Readonly Validator', () => {
             createField({
               name: 'id',
               type: 'record',
-              decorators: [readonlyDecorator(), { type: 'id', range }],
+              decorators: [readonlyDecorator(), { type: 'id', range, origin: createDslOrigin(range) }],
             }),
           ],
         }),
@@ -190,7 +197,10 @@ describe('Readonly Validator', () => {
             createField({
               name: 'profile',
               type: 'relation',
-              decorators: [readonlyDecorator(), { type: 'model', value: 'Profile', range }],
+              decorators: [
+                readonlyDecorator(),
+                { type: 'model', value: 'Profile', range, origin: createDslOrigin(range) },
+              ],
             }),
           ],
         }),
@@ -220,12 +230,12 @@ describe('Readonly Validator', () => {
             createField({
               name: 'id',
               type: 'record',
-              decorators: [readonlyDecorator(), { type: 'id', range }],
+              decorators: [readonlyDecorator(), { type: 'id', range, origin: createDslOrigin(range) }],
             }),
             createField({
               name: 'ts',
               type: 'date',
-              decorators: [readonlyDecorator(), { type: 'now', range }],
+              decorators: [readonlyDecorator(), { type: 'now', range, origin: createDslOrigin(range) }],
             }),
           ],
         }),
@@ -279,7 +289,7 @@ describe('Readonly Validator', () => {
               createField({
                 name: 'ts',
                 type: 'date',
-                decorators: [readonlyDecorator(), { type: 'now', range }],
+                decorators: [readonlyDecorator(), { type: 'now', range, origin: createDslOrigin(range) }],
               }),
             ],
           }),
@@ -303,7 +313,10 @@ describe('Readonly Validator', () => {
               createField({
                 name: 'status',
                 type: 'string',
-                decorators: [readonlyDecorator(), { type: 'defaultAlways', value: 'active', range }],
+                decorators: [
+                  readonlyDecorator(),
+                  { type: 'defaultAlways', value: 'active', range, origin: createDslOrigin(range) },
+                ],
               }),
             ],
           }),
@@ -327,7 +340,7 @@ describe('Readonly Validator', () => {
               createField({
                 name: 'version',
                 type: 'int',
-                decorators: [readonlyDecorator(), { type: 'default', value: 1, range }],
+                decorators: [readonlyDecorator(), { type: 'default', value: 1, range, origin: createDslOrigin(range) }],
               }),
             ],
           }),
@@ -349,7 +362,7 @@ describe('Readonly Validator', () => {
               createField({
                 name: 'frozenAt',
                 type: 'date',
-                decorators: [readonlyDecorator(), { type: 'createdAt', range }],
+                decorators: [readonlyDecorator(), { type: 'createdAt', range, origin: createDslOrigin(range) }],
               }),
             ],
           }),
@@ -368,7 +381,11 @@ describe('Readonly Validator', () => {
         createModel({
           name: 'User',
           fields: [
-            createField({ name: 'id', type: 'record', decorators: [{ type: 'id', range }] }),
+            createField({
+              name: 'id',
+              type: 'record',
+              decorators: [{ type: 'id', range, origin: createDslOrigin(range) }],
+            }),
             createField({ name: 'code', type: 'string', decorators: [readonlyDecorator()] }),
           ],
         }),
@@ -384,11 +401,15 @@ describe('Readonly Validator', () => {
         createModel({
           name: 'User',
           fields: [
-            createField({ name: 'id', type: 'record', decorators: [{ type: 'id', range }] }),
+            createField({
+              name: 'id',
+              type: 'record',
+              decorators: [{ type: 'id', range, origin: createDslOrigin(range) }],
+            }),
             createField({
               name: 'ts',
               type: 'date',
-              decorators: [readonlyDecorator(), { type: 'now', range }],
+              decorators: [readonlyDecorator(), { type: 'now', range, origin: createDslOrigin(range) }],
             }),
           ],
         }),
@@ -404,11 +425,18 @@ describe('Readonly Validator', () => {
         createModel({
           name: 'User',
           fields: [
-            createField({ name: 'id', type: 'record', decorators: [{ type: 'id', range }] }),
+            createField({
+              name: 'id',
+              type: 'record',
+              decorators: [{ type: 'id', range, origin: createDslOrigin(range) }],
+            }),
             createField({
               name: 'status',
               type: 'string',
-              decorators: [readonlyDecorator(), { type: 'defaultAlways', value: 'x', range }],
+              decorators: [
+                readonlyDecorator(),
+                { type: 'defaultAlways', value: 'x', range, origin: createDslOrigin(range) },
+              ],
             }),
           ],
         }),
@@ -427,7 +455,11 @@ describe('Readonly Validator', () => {
           createModel({
             name: 'User',
             fields: [
-              createField({ name: 'id', type: 'record', decorators: [{ type: 'id', range }] }),
+              createField({
+                name: 'id',
+                type: 'record',
+                decorators: [{ type: 'id', range, origin: createDslOrigin(range) }],
+              }),
               createField({ name: 'config', type: 'object', objectName: 'Config' }),
             ],
           }),

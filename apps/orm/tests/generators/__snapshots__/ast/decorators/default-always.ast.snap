@@ -6,67 +6,115 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "title",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "body",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "defaultAlways",
               "value": false
             }
           ],
           "isOptional": false,
           "name": "reviewed",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "bool"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "defaultAlways",
               "value": "dirty"
             }
           ],
           "isOptional": false,
           "name": "syncStatus",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "defaultAlways",
               "value": 0
             }
           ],
           "isOptional": false,
           "name": "retryCount",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "int"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "defaultAlways",
               "value": 1
             }
           ],
           "isOptional": false,
           "name": "score",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "float"
         },
         {
@@ -74,10 +122,18 @@
           "isOptional": true,
           "name": "meta",
           "objectName": "ReviewMeta",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         }
       ],
-      "name": "ContentItem"
+      "name": "ContentItem",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ],
   "objects": [
@@ -86,27 +142,47 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "defaultAlways",
               "value": "pending review"
             }
           ],
           "isOptional": false,
           "name": "note",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "defaultAlways",
               "value": false
             }
           ],
           "isOptional": false,
           "name": "flagged",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "bool"
         }
       ],
-      "name": "ReviewMeta"
+      "name": "ReviewMeta",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ]
 }

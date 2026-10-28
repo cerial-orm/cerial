@@ -11,6 +11,7 @@
 import { describe, expect, test } from 'bun:test';
 import { applyElementFilter, applyFieldFilter, applyValueFilter, applyVariantFilter } from '../../../src/resolver';
 import type { ASTField, ASTLiteralVariant, ASTTupleElement, ExtendsFilter } from '../../../src/types';
+import { createDslOrigin } from '../../../src/parser';
 
 // ──────────────────────────────────────────────
 // Helpers: create minimal AST nodes for testing
@@ -25,16 +26,13 @@ function makeField(name: string, opts?: Partial<ASTField>): ASTField {
     isOptional: false,
     decorators: [],
     range: dummyRange,
+    origin: createDslOrigin(dummyRange),
     ...opts,
   };
 }
 
 function makeElement(type: string, opts?: Partial<ASTTupleElement>): ASTTupleElement {
-  return {
-    type: type as ASTTupleElement['type'],
-    isOptional: false,
-    ...opts,
-  };
+  return { origin: createDslOrigin(), type: type as ASTTupleElement['type'], isOptional: false, ...opts };
 }
 
 const pick = (fields: string[]): ExtendsFilter => ({ mode: 'pick', fields });

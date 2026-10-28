@@ -6,6 +6,7 @@
 export {
   createCompositeDirective,
   createDecorator,
+  createDslOrigin,
   createEnum,
   createField,
   createLiteral,

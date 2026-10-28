@@ -2,6 +2,10 @@
   "literals": [
     {
       "name": "Status",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      },
       "variants": [
         {
           "kind": "string",
@@ -19,6 +23,10 @@
     },
     {
       "name": "Priority",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      },
       "variants": [
         {
           "kind": "int",
@@ -36,6 +44,10 @@
     },
     {
       "name": "Mixed",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      },
       "variants": [
         {
           "kind": "string",
@@ -61,6 +73,10 @@
     },
     {
       "name": "ExtendedStatus",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      },
       "variants": [
         {
           "kind": "literalRef",
@@ -78,6 +94,10 @@
     },
     {
       "name": "Broad",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      },
       "variants": [
         {
           "kind": "broadType",
@@ -91,6 +111,10 @@
     },
     {
       "name": "NumericOnly",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      },
       "variants": [
         {
           "kind": "int",
@@ -116,6 +140,10 @@
     },
     {
       "name": "WithTuple",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      },
       "variants": [
         {
           "kind": "string",
@@ -129,6 +157,10 @@
     },
     {
       "name": "WithObject",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      },
       "variants": [
         {
           "kind": "string",
@@ -142,6 +174,10 @@
     },
     {
       "name": "WithBoth",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      },
       "variants": [
         {
           "kind": "string",
@@ -163,6 +199,10 @@
     },
     {
       "name": "WithObjectOpt",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      },
       "variants": [
         {
           "kind": "string",
@@ -176,6 +216,10 @@
     },
     {
       "name": "Ratio",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      },
       "variants": [
         {
           "kind": "float",
@@ -193,6 +237,10 @@
     },
     {
       "name": "FloatOrText",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      },
       "variants": [
         {
           "kind": "broadType",
@@ -206,6 +254,10 @@
     },
     {
       "name": "DateOrFlag",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      },
       "variants": [
         {
           "kind": "broadType",
@@ -225,17 +277,29 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
@@ -243,6 +307,10 @@
           "isOptional": false,
           "literalName": "Status",
           "name": "status",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         },
         {
@@ -250,6 +318,10 @@
           "isOptional": false,
           "literalName": "Priority",
           "name": "priority",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         },
         {
@@ -257,11 +329,19 @@
           "isOptional": true,
           "literalName": "Status",
           "name": "optStatus",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "nullable"
             }
           ],
@@ -269,6 +349,10 @@
           "isOptional": true,
           "literalName": "Status",
           "name": "nullStatus",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         },
         {
@@ -277,6 +361,10 @@
           "isOptional": false,
           "literalName": "Status",
           "name": "statuses",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         },
         {
@@ -284,10 +372,18 @@
           "isOptional": false,
           "literalName": "Mixed",
           "name": "mixed",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         }
       ],
-      "name": "LiteralBasic"
+      "name": "LiteralBasic",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -295,26 +391,46 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "unique"
             }
           ],
           "isOptional": false,
           "literalName": "Status",
           "name": "status",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         }
       ],
-      "name": "LiteralUnique"
+      "name": "LiteralUnique",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -322,22 +438,38 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "label",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "default",
               "value": "active"
             }
@@ -345,11 +477,19 @@
           "isOptional": false,
           "literalName": "Status",
           "name": "status",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "default",
               "value": 1
             }
@@ -357,10 +497,18 @@
           "isOptional": false,
           "literalName": "Priority",
           "name": "priority",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         }
       ],
-      "name": "LiteralDefaults"
+      "name": "LiteralDefaults",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -368,11 +516,19 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
@@ -380,6 +536,10 @@
           "isOptional": false,
           "literalName": "Broad",
           "name": "payload",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         },
         {
@@ -388,10 +548,18 @@
           "isOptional": false,
           "literalName": "Broad",
           "name": "values",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         }
       ],
-      "name": "LiteralBroad"
+      "name": "LiteralBroad",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -399,11 +567,19 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
@@ -411,10 +587,18 @@
           "isOptional": false,
           "literalName": "ExtendedStatus",
           "name": "status",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         }
       ],
-      "name": "LiteralExtended"
+      "name": "LiteralExtended",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -422,11 +606,19 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
@@ -434,6 +626,10 @@
           "isOptional": false,
           "literalName": "NumericOnly",
           "name": "rank",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         },
         {
@@ -441,10 +637,18 @@
           "isOptional": true,
           "literalName": "NumericOnly",
           "name": "optRank",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         }
       ],
-      "name": "LiteralNumeric"
+      "name": "LiteralNumeric",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -452,17 +656,29 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
@@ -470,6 +686,10 @@
           "isOptional": false,
           "name": "address",
           "objectName": "LiteralAddress",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         },
         {
@@ -477,10 +697,18 @@
           "isOptional": true,
           "name": "optAddress",
           "objectName": "LiteralAddress",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         }
       ],
-      "name": "LiteralWithObject"
+      "name": "LiteralWithObject",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -488,11 +716,19 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
@@ -500,6 +736,10 @@
           "isOptional": false,
           "literalName": "WithTuple",
           "name": "payload",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         },
         {
@@ -507,6 +747,10 @@
           "isOptional": true,
           "literalName": "WithTuple",
           "name": "optPayload",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         },
         {
@@ -515,10 +759,18 @@
           "isOptional": false,
           "literalName": "WithTuple",
           "name": "payloads",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         }
       ],
-      "name": "LiteralWithTuple"
+      "name": "LiteralWithTuple",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -526,11 +778,19 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
@@ -538,6 +798,10 @@
           "isOptional": false,
           "literalName": "WithObject",
           "name": "payload",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         },
         {
@@ -545,6 +809,10 @@
           "isOptional": true,
           "literalName": "WithObject",
           "name": "optPayload",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         },
         {
@@ -553,10 +821,18 @@
           "isOptional": false,
           "literalName": "WithObject",
           "name": "payloads",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         }
       ],
-      "name": "LiteralWithObjectVariant"
+      "name": "LiteralWithObjectVariant",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -564,11 +840,19 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
@@ -576,6 +860,10 @@
           "isOptional": false,
           "literalName": "WithBoth",
           "name": "data",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         },
         {
@@ -583,10 +871,18 @@
           "isOptional": true,
           "literalName": "WithBoth",
           "name": "optData",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         }
       ],
-      "name": "LiteralWithBoth"
+      "name": "LiteralWithBoth",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -594,11 +890,19 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
@@ -606,6 +910,10 @@
           "isOptional": false,
           "literalName": "WithObjectOpt",
           "name": "payload",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         },
         {
@@ -613,10 +921,18 @@
           "isOptional": true,
           "literalName": "WithObjectOpt",
           "name": "optPayload",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         }
       ],
-      "name": "LiteralWithObjectOpt"
+      "name": "LiteralWithObjectOpt",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -624,11 +940,19 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
@@ -636,6 +960,10 @@
           "isOptional": false,
           "literalName": "Ratio",
           "name": "ratio",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         },
         {
@@ -643,6 +971,10 @@
           "isOptional": false,
           "literalName": "FloatOrText",
           "name": "amount",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         },
         {
@@ -650,10 +982,18 @@
           "isOptional": false,
           "literalName": "DateOrFlag",
           "name": "moment",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         }
       ],
-      "name": "LiteralNumberKinds"
+      "name": "LiteralNumberKinds",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -661,11 +1001,19 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
@@ -673,10 +1021,18 @@
           "isOptional": false,
           "name": "tagged",
           "objectName": "LiteralTagged",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         }
       ],
-      "name": "LiteralObjectArray"
+      "name": "LiteralObjectArray",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ],
   "objects": [
@@ -686,6 +1042,10 @@
           "decorators": [],
           "isOptional": false,
           "name": "city",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
@@ -693,10 +1053,18 @@
           "isOptional": false,
           "literalName": "Status",
           "name": "status",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         }
       ],
-      "name": "LiteralAddress"
+      "name": "LiteralAddress",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "fields": [
@@ -704,16 +1072,28 @@
           "decorators": [],
           "isOptional": false,
           "name": "label",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "payload",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "int"
         }
       ],
-      "name": "LiteralPoint"
+      "name": "LiteralPoint",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "fields": [
@@ -721,27 +1101,47 @@
           "decorators": [],
           "isOptional": false,
           "name": "label",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "count",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "int"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "nullable"
             }
           ],
           "isNullable": true,
           "isOptional": true,
           "name": "tag",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         }
       ],
-      "name": "LiteralPointOpt"
+      "name": "LiteralPointOpt",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "fields": [
@@ -751,16 +1151,28 @@
           "isOptional": false,
           "literalName": "Status",
           "name": "states",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "label",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         }
       ],
-      "name": "LiteralTagged"
+      "name": "LiteralTagged",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ],
   "tuples": [
@@ -769,15 +1181,27 @@
         {
           "isOptional": false,
           "name": "x",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "float"
         },
         {
           "isOptional": false,
           "name": "y",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "float"
         }
       ],
-      "name": "LiteralCoord"
+      "name": "LiteralCoord",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ]
 }

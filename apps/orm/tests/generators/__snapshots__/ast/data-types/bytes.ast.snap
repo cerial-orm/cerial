@@ -6,40 +6,68 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "payload",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "bytes"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "metadata",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "bytes"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "nullable"
             }
           ],
           "isNullable": true,
           "isOptional": false,
           "name": "tag",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "bytes"
         },
         {
@@ -47,10 +75,18 @@
           "isArray": true,
           "isOptional": false,
           "name": "chunks",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "bytes"
         }
       ],
-      "name": "BytesBasic"
+      "name": "BytesBasic",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -58,17 +94,29 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
@@ -76,10 +124,18 @@
           "isOptional": false,
           "name": "details",
           "objectName": "BytesInfo",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         }
       ],
-      "name": "BytesWithObject"
+      "name": "BytesWithObject",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -87,28 +143,48 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "pair",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "tupleName": "BytesPair",
           "type": "tuple"
         }
       ],
-      "name": "BytesWithTuple"
+      "name": "BytesWithTuple",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ],
   "objects": [
@@ -118,16 +194,28 @@
           "decorators": [],
           "isOptional": false,
           "name": "body",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "bytes"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "extra",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "bytes"
         }
       ],
-      "name": "BytesInfo"
+      "name": "BytesInfo",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ],
   "tuples": [
@@ -135,20 +223,36 @@
       "elements": [
         {
           "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "bytes"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "nullable"
             }
           ],
           "isNullable": true,
           "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "bytes"
         }
       ],
-      "name": "BytesPair"
+      "name": "BytesPair",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ]
 }

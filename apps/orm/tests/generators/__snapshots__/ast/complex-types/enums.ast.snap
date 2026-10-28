@@ -2,6 +2,10 @@
   "enums": [
     {
       "name": "Role",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      },
       "values": [
         "ADMIN",
         "USER",
@@ -10,6 +14,10 @@
     },
     {
       "name": "Color",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      },
       "values": [
         "RED",
         "GREEN",
@@ -18,6 +26,10 @@
     },
     {
       "name": "Severity",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      },
       "values": [
         "LOW",
         "MEDIUM",
@@ -29,6 +41,10 @@
   "literals": [
     {
       "name": "RoleOrCustom",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      },
       "variants": [
         {
           "kind": "literalRef",
@@ -48,17 +64,29 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
@@ -66,6 +94,10 @@
           "isOptional": false,
           "literalName": "Role",
           "name": "role",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         },
         {
@@ -73,11 +105,19 @@
           "isOptional": true,
           "literalName": "Role",
           "name": "optRole",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "nullable"
             }
           ],
@@ -85,6 +125,10 @@
           "isOptional": true,
           "literalName": "Role",
           "name": "nullRole",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         },
         {
@@ -93,10 +137,18 @@
           "isOptional": false,
           "literalName": "Role",
           "name": "roles",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         }
       ],
-      "name": "EnumBasic"
+      "name": "EnumBasic",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -104,22 +156,38 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "label",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "default",
               "value": "ADMIN"
             }
@@ -127,11 +195,19 @@
           "isOptional": false,
           "literalName": "Role",
           "name": "role",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "default",
               "value": "LOW"
             }
@@ -139,10 +215,18 @@
           "isOptional": false,
           "literalName": "Severity",
           "name": "severity",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         }
       ],
-      "name": "EnumDefaults"
+      "name": "EnumDefaults",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -150,17 +234,29 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "title",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
@@ -168,6 +264,10 @@
           "isOptional": false,
           "literalName": "Role",
           "name": "role",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         },
         {
@@ -175,6 +275,10 @@
           "isOptional": false,
           "literalName": "Color",
           "name": "color",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         },
         {
@@ -182,10 +286,18 @@
           "isOptional": false,
           "literalName": "Severity",
           "name": "severity",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         }
       ],
-      "name": "EnumMultiple"
+      "name": "EnumMultiple",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -193,17 +305,29 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
@@ -211,6 +335,10 @@
           "isOptional": false,
           "name": "address",
           "objectName": "EnumAddress",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         },
         {
@@ -218,10 +346,18 @@
           "isOptional": true,
           "name": "optAddress",
           "objectName": "EnumAddress",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         }
       ],
-      "name": "EnumWithObject"
+      "name": "EnumWithObject",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -229,11 +365,19 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
@@ -241,10 +385,18 @@
           "isOptional": false,
           "literalName": "RoleOrCustom",
           "name": "visibility",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         }
       ],
-      "name": "EnumLiteralRef"
+      "name": "EnumLiteralRef",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -252,26 +404,46 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "unique"
             }
           ],
           "isOptional": false,
           "literalName": "Role",
           "name": "role",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         }
       ],
-      "name": "EnumUnique"
+      "name": "EnumUnique",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ],
   "objects": [
@@ -281,6 +453,10 @@
           "decorators": [],
           "isOptional": false,
           "name": "city",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
@@ -288,10 +464,18 @@
           "isOptional": false,
           "literalName": "Severity",
           "name": "severity",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         }
       ],
-      "name": "EnumAddress"
+      "name": "EnumAddress",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ]
 }

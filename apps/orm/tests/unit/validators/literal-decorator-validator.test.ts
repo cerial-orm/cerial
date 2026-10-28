@@ -8,9 +8,10 @@ import { describe, expect, test } from 'bun:test';
 import { validateLiteralDecorators } from '../../../src/cli/validators/schema-validator';
 import type { ASTDecorator, SchemaDecorator } from '../../../src/types';
 import { createAST, createField, createModel, createObject, range } from './helpers';
+import { createDslOrigin } from '../../../src/parser';
 
 function createDecorator(type: SchemaDecorator): ASTDecorator {
-  return { type, range };
+  return { type, range, origin: createDslOrigin(range) };
 }
 
 describe('Literal Decorator Validator', () => {
@@ -711,6 +712,7 @@ describe('Literal Decorator Validator', () => {
               literalName: 'Lit',
               decorators: [createDecorator('flexible')],
               range: customRange,
+              origin: createDslOrigin(customRange),
             }),
           ],
         }),

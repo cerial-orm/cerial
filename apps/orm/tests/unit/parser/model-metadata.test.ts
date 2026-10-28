@@ -19,6 +19,7 @@ import {
   modelToMetadata,
 } from '../../../src/parser/model-metadata';
 import type { ASTField, ASTModel, SchemaAST } from '../../../src/types';
+import { createDslOrigin } from '../../../src/parser';
 
 // Helper to create a minimal ASTField
 function createASTField(overrides: Partial<ASTField> = {}): ASTField {
@@ -29,6 +30,7 @@ function createASTField(overrides: Partial<ASTField> = {}): ASTField {
     isArray: false,
     decorators: [],
     range: { start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } },
+    origin: createDslOrigin({ start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } }),
     ...overrides,
   };
 }
@@ -39,6 +41,7 @@ function createASTModel(overrides: Partial<ASTModel> = {}): ASTModel {
     name: 'TestModel',
     fields: [],
     range: { start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } },
+    origin: createDslOrigin({ start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } }),
     ...overrides,
   };
 }
@@ -73,6 +76,7 @@ describe('fieldToMetadata', () => {
         {
           type: 'id',
           range: { start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } },
+          origin: createDslOrigin({ start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } }),
         },
       ],
     });
@@ -87,6 +91,7 @@ describe('fieldToMetadata', () => {
         {
           type: 'unique',
           range: { start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } },
+          origin: createDslOrigin({ start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } }),
         },
       ],
     });
@@ -101,6 +106,7 @@ describe('fieldToMetadata', () => {
         {
           type: 'now',
           range: { start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } },
+          origin: createDslOrigin({ start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } }),
         },
       ],
     });
@@ -116,6 +122,7 @@ describe('fieldToMetadata', () => {
           type: 'default',
           value: 'testValue',
           range: { start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } },
+          origin: createDslOrigin({ start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } }),
         },
       ],
     });
@@ -133,6 +140,7 @@ describe('fieldToMetadata', () => {
           type: 'model',
           value: 'User',
           range: { start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } },
+          origin: createDslOrigin({ start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } }),
         },
       ],
     });
@@ -153,11 +161,13 @@ describe('fieldToMetadata', () => {
           type: 'model',
           value: 'User',
           range: { start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } },
+          origin: createDslOrigin({ start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } }),
         },
         {
           type: 'field',
           value: 'userId',
           range: { start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } },
+          origin: createDslOrigin({ start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } }),
         },
       ],
     });
@@ -176,11 +186,13 @@ describe('fieldToMetadata', () => {
           type: 'model',
           value: 'User',
           range: { start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } },
+          origin: createDslOrigin({ start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } }),
         },
         {
           type: 'onDelete',
           value: 'Cascade',
           range: { start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } },
+          origin: createDslOrigin({ start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } }),
         },
       ],
     });
@@ -198,11 +210,13 @@ describe('fieldToMetadata', () => {
           type: 'model',
           value: 'User',
           range: { start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } },
+          origin: createDslOrigin({ start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } }),
         },
         {
           type: 'key',
           value: 'author',
           range: { start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } },
+          origin: createDslOrigin({ start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } }),
         },
       ],
     });
@@ -339,6 +353,10 @@ describe('field filters', () => {
           {
             type: 'unique',
             range: { start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } },
+            origin: createDslOrigin({
+              start: { line: 1, column: 1, offset: 0 },
+              end: { line: 1, column: 1, offset: 0 },
+            }),
           },
         ],
       }),
@@ -350,13 +368,24 @@ describe('field filters', () => {
           {
             type: 'createdAt',
             range: { start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } },
+            origin: createDslOrigin({
+              start: { line: 1, column: 1, offset: 0 },
+              end: { line: 1, column: 1, offset: 0 },
+            }),
           },
         ],
       }),
       createASTField({
         name: 'accessedAt',
         decorators: [
-          { type: 'now', range: { start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } } },
+          {
+            type: 'now',
+            range: { start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } },
+            origin: createDslOrigin({
+              start: { line: 1, column: 1, offset: 0 },
+              end: { line: 1, column: 1, offset: 0 },
+            }),
+          },
         ],
       }),
       createASTField({
@@ -366,6 +395,10 @@ describe('field filters', () => {
             type: 'default',
             value: true,
             range: { start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } },
+            origin: createDslOrigin({
+              start: { line: 1, column: 1, offset: 0 },
+              end: { line: 1, column: 1, offset: 0 },
+            }),
           },
         ],
       }),

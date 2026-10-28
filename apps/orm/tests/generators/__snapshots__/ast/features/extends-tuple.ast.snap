@@ -6,17 +6,29 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "pair",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "tupleName": "ExtBasePair",
           "type": "tuple"
         },
@@ -24,6 +36,10 @@
           "decorators": [],
           "isOptional": false,
           "name": "triple",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "tupleName": "ExtTriple",
           "type": "tuple"
         },
@@ -31,6 +47,10 @@
           "decorators": [],
           "isOptional": false,
           "name": "namedTriple",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "tupleName": "ExtNamedTriple",
           "type": "tuple"
         },
@@ -38,6 +58,10 @@
           "decorators": [],
           "isOptional": false,
           "name": "quad",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "tupleName": "ExtQuad",
           "type": "tuple"
         },
@@ -45,6 +69,10 @@
           "decorators": [],
           "isOptional": false,
           "name": "coordPair",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "tupleName": "ExtCoordPair",
           "type": "tuple"
         },
@@ -52,11 +80,19 @@
           "decorators": [],
           "isOptional": true,
           "name": "optionalTriple",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "tupleName": "ExtOptionalTriple",
           "type": "tuple"
         }
       ],
-      "name": "ExtTupleModel"
+      "name": "ExtTupleModel",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -64,17 +100,29 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "picked",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "tupleName": "ExtPickedName",
           "type": "tuple"
         },
@@ -82,11 +130,19 @@
           "decorators": [],
           "isOptional": false,
           "name": "omitted",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "tupleName": "ExtOmittedAge",
           "type": "tuple"
         }
       ],
-      "name": "ExtTupleByName"
+      "name": "ExtTupleByName",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ],
   "objects": [
@@ -96,16 +152,28 @@
           "decorators": [],
           "isOptional": false,
           "name": "x",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "float"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "y",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "float"
         }
       ],
-      "name": "ExtCoord"
+      "name": "ExtCoord",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ],
   "tuples": [
@@ -113,275 +181,507 @@
       "elements": [
         {
           "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "int"
         }
       ],
-      "name": "ExtBasePair"
+      "name": "ExtBasePair",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "elements": [
         {
           "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "int"
         },
         {
           "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "bool"
         }
       ],
-      "name": "ExtTriple"
+      "name": "ExtTriple",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "elements": [
         {
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "isOptional": false,
           "name": "age",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "int"
         }
       ],
-      "name": "ExtNamedPair"
+      "name": "ExtNamedPair",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "elements": [
         {
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "isOptional": false,
           "name": "age",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "int"
         },
         {
           "isOptional": false,
           "name": "active",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "bool"
         }
       ],
-      "name": "ExtNamedTriple"
+      "name": "ExtNamedTriple",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "elements": [
         {
           "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "int"
         }
       ],
-      "name": "ExtFirstTwo"
+      "name": "ExtFirstTwo",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "elements": [
         {
           "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         }
       ],
-      "name": "ExtWithoutSecond"
+      "name": "ExtWithoutSecond",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "elements": [
         {
           "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "float"
         }
       ],
-      "name": "ExtOverridePair"
+      "name": "ExtOverridePair",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "elements": [
         {
           "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "int"
         }
       ],
-      "name": "ExtPrivatePair"
+      "name": "ExtPrivatePair",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "elements": [
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "nullable"
             }
           ],
           "isNullable": true,
           "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "nullable"
             }
           ],
           "isNullable": true,
           "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "int"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "nullable"
             }
           ],
           "isNullable": true,
           "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "bool"
         }
       ],
-      "name": "ExtOptionalTriple"
+      "name": "ExtOptionalTriple",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "elements": [
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "nullable"
             }
           ],
           "isNullable": true,
           "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "nullable"
             }
           ],
           "isNullable": true,
           "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "int"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "nullable"
             }
           ],
           "isNullable": true,
           "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "bool"
         }
       ],
-      "name": "ExtNullableTriple"
+      "name": "ExtNullableTriple",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "elements": [
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "default",
               "value": "test"
             }
           ],
           "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "default",
               "value": 0
             }
           ],
           "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "int"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "default",
               "value": false
             }
           ],
           "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "bool"
         }
       ],
-      "name": "ExtDecoratedTriple"
+      "name": "ExtDecoratedTriple",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "elements": [
         {
           "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "int"
         },
         {
           "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "bool"
         },
         {
           "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "float"
         }
       ],
-      "name": "ExtQuad"
+      "name": "ExtQuad",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "elements": [
         {
           "isOptional": false,
           "objectName": "ExtCoord",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         },
         {
           "isOptional": false,
           "objectName": "ExtCoord",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         }
       ],
-      "name": "ExtCoordPair"
+      "name": "ExtCoordPair",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "elements": [
         {
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         }
       ],
-      "name": "ExtPickedName"
+      "name": "ExtPickedName",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "elements": [
         {
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         }
       ],
-      "name": "ExtOmittedAge"
+      "name": "ExtOmittedAge",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ]
 }

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'bun:test';
 import { convertField } from '../../../src/generators/metadata/field-converter';
 import { generateRegistryCode } from '../../../src/generators/metadata/registry-generator';
 import type { ASTField, ModelMetadata } from '../../../src/types';
+import { createDslOrigin } from '../../../src/parser';
 
 describe('Metadata recordIdTypes', () => {
   describe('convertField', () => {
@@ -12,6 +13,7 @@ describe('Metadata recordIdTypes', () => {
         isOptional: false,
         decorators: [],
         range: { start: { line: 1, column: 0, offset: 0 }, end: { line: 1, column: 10, offset: 10 } },
+        origin: createDslOrigin({ start: { line: 1, column: 0, offset: 0 }, end: { line: 1, column: 10, offset: 10 } }),
         recordIdTypes: ['int'],
       };
 
@@ -27,6 +29,7 @@ describe('Metadata recordIdTypes', () => {
         isOptional: false,
         decorators: [],
         range: { start: { line: 1, column: 0, offset: 0 }, end: { line: 1, column: 10, offset: 10 } },
+        origin: createDslOrigin({ start: { line: 1, column: 0, offset: 0 }, end: { line: 1, column: 10, offset: 10 } }),
         recordIdTypes: ['string', 'int'],
       };
 
@@ -42,6 +45,7 @@ describe('Metadata recordIdTypes', () => {
         isOptional: false,
         decorators: [],
         range: { start: { line: 1, column: 0, offset: 0 }, end: { line: 1, column: 10, offset: 10 } },
+        origin: createDslOrigin({ start: { line: 1, column: 0, offset: 0 }, end: { line: 1, column: 10, offset: 10 } }),
       };
 
       const metadata = convertField(astField);
@@ -56,6 +60,7 @@ describe('Metadata recordIdTypes', () => {
         isOptional: false,
         decorators: [],
         range: { start: { line: 1, column: 0, offset: 0 }, end: { line: 1, column: 10, offset: 10 } },
+        origin: createDslOrigin({ start: { line: 1, column: 0, offset: 0 }, end: { line: 1, column: 10, offset: 10 } }),
         recordIdTypes: [],
       };
 

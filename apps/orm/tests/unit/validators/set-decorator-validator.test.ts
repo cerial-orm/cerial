@@ -8,9 +8,10 @@ import { describe, expect, test } from 'bun:test';
 import { validateSetDecorator } from '../../../src/cli/validators/schema-validator';
 import type { ASTDecorator } from '../../../src/types';
 import { createAST, createField, createModel, createObject, distinctDecorator, range, sortDecorator } from './helpers';
+import { createDslOrigin } from '../../../src/parser';
 
 function setDecorator(): ASTDecorator {
-  return { type: 'set', range };
+  return { type: 'set', range, origin: createDslOrigin(range) };
 }
 
 describe('Set Decorator Validator', () => {
@@ -570,8 +571,9 @@ describe('Set Decorator Validator', () => {
               name: 'tags',
               type: 'string',
               isArray: false,
-              decorators: [{ type: 'set', range: customRange }],
+              decorators: [{ type: 'set', range: customRange, origin: createDslOrigin(customRange) }],
               range: customRange,
+              origin: createDslOrigin(customRange),
             }),
           ],
         }),
@@ -590,7 +592,11 @@ describe('Set Decorator Validator', () => {
               name: 'tags',
               type: 'string',
               isArray: true,
-              decorators: [{ type: 'default', range }, setDecorator(), { type: 'readonly', range }],
+              decorators: [
+                { type: 'default', range, origin: createDslOrigin(range) },
+                setDecorator(),
+                { type: 'readonly', range, origin: createDslOrigin(range) },
+              ],
             }),
           ],
         }),
@@ -608,7 +614,7 @@ describe('Set Decorator Validator', () => {
               name: 'prices',
               type: 'decimal',
               isArray: true,
-              decorators: [{ type: 'default', range }, setDecorator()],
+              decorators: [{ type: 'default', range, origin: createDslOrigin(range) }, setDecorator()],
             }),
           ],
         }),

@@ -6,40 +6,68 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "price",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "decimal"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "discount",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "decimal"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "nullable"
             }
           ],
           "isNullable": true,
           "isOptional": false,
           "name": "tax",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "decimal"
         },
         {
@@ -47,10 +75,18 @@
           "isArray": true,
           "isOptional": false,
           "name": "amounts",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "decimal"
         }
       ],
-      "name": "DecimalBasic"
+      "name": "DecimalBasic",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -58,43 +94,75 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "default",
               "value": 99.99
             }
           ],
           "isOptional": false,
           "name": "defaultPrice",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "decimal"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "defaultAlways",
               "value": 0
             }
           ],
           "isOptional": false,
           "name": "alwaysPrice",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "decimal"
         }
       ],
-      "name": "DecimalDecorated"
+      "name": "DecimalDecorated",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -102,17 +170,29 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
@@ -120,10 +200,18 @@
           "isOptional": false,
           "name": "pricing",
           "objectName": "DecimalInfo",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         }
       ],
-      "name": "DecimalWithObject"
+      "name": "DecimalWithObject",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -131,28 +219,48 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "pair",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "tupleName": "DecimalPair",
           "type": "tuple"
         }
       ],
-      "name": "DecimalWithTuple"
+      "name": "DecimalWithTuple",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ],
   "objects": [
@@ -162,16 +270,28 @@
           "decorators": [],
           "isOptional": false,
           "name": "amount",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "decimal"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "fee",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "decimal"
         }
       ],
-      "name": "DecimalInfo"
+      "name": "DecimalInfo",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ],
   "tuples": [
@@ -179,20 +299,36 @@
       "elements": [
         {
           "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "decimal"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "nullable"
             }
           ],
           "isNullable": true,
           "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "decimal"
         }
       ],
-      "name": "DecimalPair"
+      "name": "DecimalPair",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ]
 }

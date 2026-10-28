@@ -2,6 +2,10 @@
   "enums": [
     {
       "name": "ExtBaseRole",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      },
       "values": [
         "ADMIN",
         "USER",
@@ -10,6 +14,10 @@
     },
     {
       "name": "ExtExtendedRole",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      },
       "values": [
         "ADMIN",
         "USER",
@@ -20,6 +28,10 @@
     },
     {
       "name": "ExtCoreRole",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      },
       "values": [
         "ADMIN",
         "USER"
@@ -27,6 +39,10 @@
     },
     {
       "name": "ExtNonAdminRole",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      },
       "values": [
         "USER",
         "MODERATOR"
@@ -34,6 +50,10 @@
     },
     {
       "name": "ExtCustomRole",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      },
       "values": [
         "ADMIN",
         "USER",
@@ -43,6 +63,10 @@
     },
     {
       "name": "ExtBaseStatus",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      },
       "values": [
         "ACTIVE",
         "INACTIVE",
@@ -51,6 +75,10 @@
     },
     {
       "name": "ExtDetailedStatus",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      },
       "values": [
         "ACTIVE",
         "INACTIVE",
@@ -62,6 +90,10 @@
     },
     {
       "name": "ExtSimpleStatus",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      },
       "values": [
         "ACTIVE",
         "INACTIVE"
@@ -75,11 +107,19 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
@@ -87,6 +127,10 @@
           "isOptional": false,
           "literalName": "ExtExtendedRole",
           "name": "role",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         },
         {
@@ -94,6 +138,10 @@
           "isOptional": false,
           "literalName": "ExtDetailedStatus",
           "name": "status",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         },
         {
@@ -101,6 +149,10 @@
           "isOptional": true,
           "literalName": "ExtCoreRole",
           "name": "coreRole",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         },
         {
@@ -108,6 +160,10 @@
           "isOptional": true,
           "literalName": "ExtNonAdminRole",
           "name": "nonAdminRole",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         },
         {
@@ -116,6 +172,10 @@
           "isOptional": false,
           "literalName": "ExtExtendedRole",
           "name": "roles",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         },
         {
@@ -124,10 +184,18 @@
           "isOptional": false,
           "literalName": "ExtDetailedStatus",
           "name": "statuses",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         }
       ],
-      "name": "ExtEnumModel"
+      "name": "ExtEnumModel",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -135,17 +203,29 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
@@ -153,6 +233,10 @@
           "isOptional": false,
           "name": "details",
           "objectName": "ExtEnumInfo",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         },
         {
@@ -161,10 +245,18 @@
           "isOptional": false,
           "name": "detailsList",
           "objectName": "ExtEnumInfo",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         }
       ],
-      "name": "ExtEnumContainer"
+      "name": "ExtEnumContainer",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ],
   "objects": [
@@ -175,6 +267,10 @@
           "isOptional": false,
           "literalName": "ExtExtendedRole",
           "name": "role",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         },
         {
@@ -182,6 +278,10 @@
           "isOptional": false,
           "literalName": "ExtDetailedStatus",
           "name": "status",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         },
         {
@@ -189,10 +289,18 @@
           "isOptional": true,
           "literalName": "ExtCoreRole",
           "name": "backupRole",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         }
       ],
-      "name": "ExtEnumInfo"
+      "name": "ExtEnumInfo",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ]
 }

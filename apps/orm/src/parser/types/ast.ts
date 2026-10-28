@@ -14,6 +14,7 @@ import type {
   ASTTuple,
   ASTTupleElement,
   ExtendsFilter,
+  Origin,
   SchemaAST,
   SchemaDecorator,
   SchemaFieldType,
@@ -31,9 +32,20 @@ export function createRange(start: SourcePosition, end: SourcePosition): SourceR
   return { start, end };
 }
 
+/** Placeholder file name for a schema parsed without a path */
+export const UNKNOWN_FILE = '<input>';
+
+/** Range for a node whose position the parser does not record yet (tuple elements) */
+const NO_RANGE: SourceRange = createRange(createPosition(0, 0, 0), createPosition(0, 0, 0));
+
+/** Build the origin of a node parsed from `.cerial` text */
+export function createDslOrigin(range: SourceRange = NO_RANGE, file: string = UNKNOWN_FILE): Origin {
+  return { kind: 'dsl', file, range };
+}
+
 /** Create an AST decorator node */
 export function createDecorator(type: SchemaDecorator, range: SourceRange, value?: unknown): ASTDecorator {
-  return { type, value, range };
+  return { type, value, range, origin: createDslOrigin(range) };
 }
 
 /** Create an AST field node */
@@ -50,7 +62,7 @@ export function createField(
   recordIdTypes?: string[],
   isPrivate?: boolean,
 ): ASTField {
-  const field: ASTField = { name, type, isOptional, decorators, range };
+  const field: ASTField = { name, type, isOptional, decorators, range, origin: createDslOrigin(range) };
   if (decorators.some((d) => d.type === 'nullable')) field.isNullable = true;
   if (isArray) field.isArray = true;
   if (isPrivate) field.isPrivate = true;
@@ -69,7 +81,7 @@ export function createCompositeDirective(
   fields: string[],
   range: SourceRange,
 ): ASTCompositeDirective {
-  return { kind, name, fields, range };
+  return { kind, name, fields, range, origin: createDslOrigin(range) };
 }
 
 /** Create an AST model node */
@@ -82,7 +94,7 @@ export function createModel(
   extends_?: string,
   extendsFilter?: ExtendsFilter,
 ): ASTModel {
-  const model: ASTModel = { name, fields, directives, range };
+  const model: ASTModel = { name, fields, directives, range, origin: createDslOrigin(range) };
   if (abstract) model.abstract = true;
   if (extends_) model.extends = extends_;
   if (extendsFilter) model.extendsFilter = extendsFilter;
@@ -98,7 +110,7 @@ export function createObject(
   extends_?: string,
   extendsFilter?: ExtendsFilter,
 ): ASTObject {
-  const object: ASTObject = { name, fields, range };
+  const object: ASTObject = { name, fields, range, origin: createDslOrigin(range) };
   if (extends_) object.extends = extends_;
   if (extendsFilter) object.extendsFilter = extendsFilter;
 
@@ -173,7 +185,7 @@ export function createTupleElement(
   literalName?: string,
   isPrivate?: boolean,
 ): ASTTupleElement {
-  const element: ASTTupleElement = { type, isOptional };
+  const element: ASTTupleElement = { type, isOptional, origin: createDslOrigin() };
   if (name) element.name = name;
   if (objectName) element.objectName = objectName;
   if (tupleName) element.tupleName = tupleName;
@@ -195,7 +207,7 @@ export function createTuple(
   extends_?: string,
   extendsFilter?: ExtendsFilter,
 ): ASTTuple {
-  const tuple: ASTTuple = { name, elements, range };
+  const tuple: ASTTuple = { name, elements, range, origin: createDslOrigin(range) };
   if (extends_) tuple.extends = extends_;
   if (extendsFilter) tuple.extendsFilter = extendsFilter;
 
@@ -225,7 +237,7 @@ export function createLiteral(
   extends_?: string,
   extendsFilter?: ExtendsFilter,
 ): ASTLiteral {
-  const literal: ASTLiteral = { name, variants, range };
+  const literal: ASTLiteral = { name, variants, range, origin: createDslOrigin(range) };
   if (extends_) literal.extends = extends_;
   if (extendsFilter) literal.extendsFilter = extendsFilter;
 
@@ -255,7 +267,7 @@ export function createEnum(
   extends_?: string,
   extendsFilter?: ExtendsFilter,
 ): ASTEnum {
-  const enum_: ASTEnum = { name, values, range };
+  const enum_: ASTEnum = { name, values, range, origin: createDslOrigin(range) };
   if (extends_) enum_.extends = extends_;
   if (extendsFilter) enum_.extendsFilter = extendsFilter;
 

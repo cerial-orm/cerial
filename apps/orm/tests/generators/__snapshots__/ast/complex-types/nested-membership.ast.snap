@@ -2,6 +2,10 @@
   "enums": [
     {
       "name": "NmGrade",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      },
       "values": [
         "LOW",
         "MID",
@@ -12,6 +16,10 @@
   "literals": [
     {
       "name": "NmCode",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      },
       "variants": [
         {
           "kind": "string",
@@ -35,17 +43,29 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
@@ -53,6 +73,10 @@
           "isOptional": true,
           "name": "leaf",
           "objectName": "NmLeaf",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         },
         {
@@ -60,6 +84,10 @@
           "isOptional": true,
           "name": "mid",
           "objectName": "NmMid",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         },
         {
@@ -67,6 +95,10 @@
           "isOptional": true,
           "name": "top",
           "objectName": "NmTop",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         },
         {
@@ -75,6 +107,10 @@
           "isOptional": false,
           "name": "leaves",
           "objectName": "NmLeaf",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         },
         {
@@ -83,10 +119,18 @@
           "isOptional": false,
           "name": "tops",
           "objectName": "NmTop",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         }
       ],
-      "name": "NmObjectDoc"
+      "name": "NmObjectDoc",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -94,23 +138,39 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "withLeaf",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "tupleName": "NmWithLeaf",
           "type": "tuple"
         },
@@ -118,6 +178,10 @@
           "decorators": [],
           "isOptional": true,
           "name": "named",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "tupleName": "NmNamedLeaf",
           "type": "tuple"
         },
@@ -125,6 +189,10 @@
           "decorators": [],
           "isOptional": true,
           "name": "outer",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "tupleName": "NmOuter",
           "type": "tuple"
         },
@@ -133,6 +201,10 @@
           "isOptional": true,
           "name": "holds",
           "objectName": "NmHoldsTuple",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         },
         {
@@ -140,6 +212,10 @@
           "isOptional": true,
           "name": "deepHolds",
           "objectName": "NmHoldsHolder",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         },
         {
@@ -147,6 +223,10 @@
           "isArray": true,
           "isOptional": false,
           "name": "withLeaves",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "tupleName": "NmWithLeaf",
           "type": "tuple"
         },
@@ -155,11 +235,19 @@
           "isArray": true,
           "isOptional": false,
           "name": "nameds",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "tupleName": "NmNamedLeaf",
           "type": "tuple"
         }
       ],
-      "name": "NmTupleDoc"
+      "name": "NmTupleDoc",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ],
   "objects": [
@@ -170,6 +258,10 @@
           "isOptional": false,
           "literalName": "NmGrade",
           "name": "grade",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         },
         {
@@ -177,10 +269,18 @@
           "isOptional": true,
           "literalName": "NmCode",
           "name": "code",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "literal"
         }
       ],
-      "name": "NmLeaf"
+      "name": "NmLeaf",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "fields": [
@@ -188,6 +288,10 @@
           "decorators": [],
           "isOptional": false,
           "name": "label",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
@@ -195,10 +299,18 @@
           "isOptional": false,
           "name": "leaf",
           "objectName": "NmLeaf",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         }
       ],
-      "name": "NmMid"
+      "name": "NmMid",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "fields": [
@@ -206,6 +318,10 @@
           "decorators": [],
           "isOptional": false,
           "name": "title",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
@@ -213,10 +329,18 @@
           "isOptional": false,
           "name": "mid",
           "objectName": "NmMid",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         }
       ],
-      "name": "NmTop"
+      "name": "NmTop",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "fields": [
@@ -224,11 +348,19 @@
           "decorators": [],
           "isOptional": false,
           "name": "entry",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "tupleName": "NmWithLeaf",
           "type": "tuple"
         }
       ],
-      "name": "NmHoldsTuple"
+      "name": "NmHoldsTuple",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "fields": [
@@ -237,10 +369,18 @@
           "isOptional": false,
           "name": "holder",
           "objectName": "NmHoldsTuple",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         }
       ],
-      "name": "NmHoldsHolder"
+      "name": "NmHoldsHolder",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ],
   "tuples": [
@@ -249,45 +389,81 @@
         {
           "isOptional": false,
           "name": "label",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "isOptional": false,
           "objectName": "NmLeaf",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         }
       ],
-      "name": "NmWithLeaf"
+      "name": "NmWithLeaf",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "elements": [
         {
           "isOptional": false,
           "name": "tag",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "isOptional": false,
           "name": "leaf",
           "objectName": "NmLeaf",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         }
       ],
-      "name": "NmNamedLeaf"
+      "name": "NmNamedLeaf",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "elements": [
         {
           "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "tupleName": "NmWithLeaf",
           "type": "tuple"
         },
         {
           "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "int"
         }
       ],
-      "name": "NmOuter"
+      "name": "NmOuter",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ]
 }

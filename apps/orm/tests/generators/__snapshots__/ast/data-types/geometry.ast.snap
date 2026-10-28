@@ -6,91 +6,163 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "point"
             }
           ],
           "isOptional": false,
           "name": "location",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "geometry"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "polygon"
             }
           ],
           "isOptional": false,
           "name": "area",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "geometry"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "shape",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "geometry"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "line"
             }
           ],
           "isOptional": false,
           "name": "route",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "geometry"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "point"
             },
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "polygon"
             }
           ],
           "isOptional": false,
           "name": "multi",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "geometry"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "point"
             }
           ],
           "isOptional": true,
           "name": "optionalGeo",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "geometry"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "point"
             }
           ],
           "isArray": true,
           "isOptional": false,
           "name": "geoArray",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "geometry"
         }
       ],
-      "name": "GeometryBasic"
+      "name": "GeometryBasic",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -98,17 +170,29 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
@@ -116,10 +200,18 @@
           "isOptional": false,
           "name": "geo",
           "objectName": "GeoInfo",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         }
       ],
-      "name": "GeometryWithObject"
+      "name": "GeometryWithObject",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -127,28 +219,48 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "pair",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "tupleName": "GeoPair",
           "type": "tuple"
         }
       ],
-      "name": "GeometryWithTuple"
+      "name": "GeometryWithTuple",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -156,61 +268,109 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "multipoint"
             }
           ],
           "isOptional": false,
           "name": "points",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "geometry"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "multiline"
             }
           ],
           "isOptional": false,
           "name": "lines",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "geometry"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "multipolygon"
             }
           ],
           "isOptional": false,
           "name": "polygons",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "geometry"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "geoCollection"
             }
           ],
           "isOptional": false,
           "name": "collection",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "geometry"
         }
       ],
-      "name": "GeometryMulti"
+      "name": "GeometryMulti",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ],
   "objects": [
@@ -219,21 +379,37 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "point"
             }
           ],
           "isOptional": false,
           "name": "position",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "geometry"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "boundary",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "geometry"
         }
       ],
-      "name": "GeoInfo"
+      "name": "GeoInfo",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ],
   "tuples": [
@@ -241,20 +417,36 @@
       "elements": [
         {
           "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "geometry"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "nullable"
             }
           ],
           "isNullable": true,
           "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "geometry"
         }
       ],
-      "name": "GeoPair"
+      "name": "GeoPair",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ]
 }

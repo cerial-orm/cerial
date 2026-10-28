@@ -8,7 +8,11 @@
             "location.zip"
           ],
           "kind": "unique",
-          "name": "cityZip"
+          "name": "cityZip",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          }
         },
         {
           "fields": [
@@ -16,28 +20,48 @@
             "location.city"
           ],
           "kind": "unique",
-          "name": "nameCity"
+          "name": "nameCity",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          }
         }
       ],
       "fields": [
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "index"
             }
           ],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
@@ -45,16 +69,28 @@
           "isOptional": false,
           "name": "location",
           "objectName": "Location",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "capacity",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "int"
         }
       ],
-      "name": "Warehouse"
+      "name": "Warehouse",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [
@@ -64,7 +100,11 @@
             "dock.level"
           ],
           "kind": "index",
-          "name": "dockBayLevel"
+          "name": "dockBayLevel",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          }
         },
         {
           "fields": [
@@ -72,24 +112,40 @@
             "dock.bay"
           ],
           "kind": "index",
-          "name": "labelDockBay"
+          "name": "labelDockBay",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          }
         }
       ],
       "fields": [
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "label",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
@@ -97,10 +153,18 @@
           "isOptional": false,
           "name": "dock",
           "objectName": "Dock",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         }
       ],
-      "name": "Depot"
+      "name": "Depot",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ],
   "objects": [
@@ -110,22 +174,38 @@
           "decorators": [],
           "isOptional": false,
           "name": "city",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "zip",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "street",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         }
       ],
-      "name": "Location"
+      "name": "Location",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "fields": [
@@ -133,16 +213,28 @@
           "decorators": [],
           "isOptional": false,
           "name": "bay",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "level",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "int"
         }
       ],
-      "name": "Dock"
+      "name": "Dock",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ]
 }

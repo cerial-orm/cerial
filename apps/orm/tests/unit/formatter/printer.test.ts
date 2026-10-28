@@ -6,6 +6,7 @@ import { describe, expect, it } from 'bun:test';
 import { buildTypeWithModifiers, extractDecoratorText, formatDirective } from '../../../src/formatter/printer';
 import { parse } from '../../../src/parser/parser';
 import { formatModel, formatObject } from './helpers';
+import { createDslOrigin } from '../../../src/parser';
 
 describe('printModel', () => {
   describe('basic alignment', () => {
@@ -649,6 +650,7 @@ describe('formatDirective', () => {
       name: 'emailUnique',
       fields: ['email'],
       range: { start: { line: 1, column: 0, offset: 0 }, end: { line: 1, column: 0, offset: 0 } },
+      origin: createDslOrigin({ start: { line: 1, column: 0, offset: 0 }, end: { line: 1, column: 0, offset: 0 } }),
     });
     expect(result).toBe('@@unique(emailUnique, [email])');
   });
@@ -659,6 +661,7 @@ describe('formatDirective', () => {
       name: 'nameDate',
       fields: ['name', 'createdAt'],
       range: { start: { line: 1, column: 0, offset: 0 }, end: { line: 1, column: 0, offset: 0 } },
+      origin: createDslOrigin({ start: { line: 1, column: 0, offset: 0 }, end: { line: 1, column: 0, offset: 0 } }),
     });
     expect(result).toBe('@@index(nameDate, [name, createdAt])');
   });
@@ -669,6 +672,7 @@ describe('formatDirective', () => {
       name: 'cityZip',
       fields: ['location.city', 'location.zip'],
       range: { start: { line: 1, column: 0, offset: 0 }, end: { line: 1, column: 0, offset: 0 } },
+      origin: createDslOrigin({ start: { line: 1, column: 0, offset: 0 }, end: { line: 1, column: 0, offset: 0 } }),
     });
     expect(result).toBe('@@unique(cityZip, [location.city, location.zip])');
   });

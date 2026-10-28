@@ -8,6 +8,7 @@
 import { describe, expect, test } from 'bun:test';
 import { resolveInheritance } from '../../../src/resolver';
 import { ast, dec, element, omit, pick, R, tuple } from './helpers';
+import { createDslOrigin } from '../../../src/parser';
 
 describe('resolveInheritance - tuples', () => {
   test('should pass through tuples with no extends', () => {
@@ -274,7 +275,7 @@ describe('resolveInheritance - tuples', () => {
           element('int', { name: 'x', decorators: [dec('nullable')] }),
           element('float', {
             name: 'y',
-            decorators: [{ type: 'default' as any, value: 0, range: R }],
+            decorators: [{ type: 'default', value: 0, range: R, origin: createDslOrigin(R) }],
           }),
         ]),
         tuple('Child', [element('string')], { extends: 'Base' }),

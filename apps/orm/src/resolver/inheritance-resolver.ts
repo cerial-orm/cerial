@@ -141,6 +141,7 @@ function resolveModels(models: readonly ASTModel[]): ASTModel[] {
       name: model.name,
       fields: cleanFields,
       range: model.range,
+      origin: model.origin,
     };
 
     // Preserve directives (NOT inherited — keep child's own)
@@ -194,6 +195,7 @@ function resolveObjects(objects: readonly ASTObject[]): ASTObject[] {
       name: object.name,
       fields: cleanFields,
       range: object.range,
+      origin: object.origin,
     });
   }
 
@@ -267,6 +269,7 @@ function resolveTuples(tuples: readonly ASTTuple[]): ASTTuple[] {
       name: tuple.name,
       elements: cleanElements,
       range: tuple.range,
+      origin: tuple.origin,
     });
   }
 
@@ -318,6 +321,7 @@ function resolveEnums(enums: readonly ASTEnum[]): ASTEnum[] {
       name: enum_.name,
       values: mergedValues,
       range: enum_.range,
+      origin: enum_.origin,
     });
   }
 
@@ -370,6 +374,7 @@ function resolveLiterals(literals: readonly ASTLiteral[]): ASTLiteral[] {
       name: literal.name,
       variants: mergedVariants,
       range: literal.range,
+      origin: literal.origin,
     });
   }
 

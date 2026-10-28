@@ -7,6 +7,7 @@
 import { describe, expect, test } from 'bun:test';
 import { validateAbstractRules } from '../../../src/cli/validators/extends-validator';
 import { ast, field, model, obj, range } from './helpers';
+import { createDslOrigin } from '../../../src/parser';
 
 describe('validateAbstractRules', () => {
   test('should pass for abstract model', () => {
@@ -86,7 +87,7 @@ describe('validateAbstractRules', () => {
         model({
           name: 'AbsModel',
           abstract: true,
-          directives: [{ kind: 'index', name: 'idx_name', fields: ['name'], range }],
+          directives: [{ kind: 'index', name: 'idx_name', fields: ['name'], range, origin: createDslOrigin(range) }],
           fields: [field({ name: 'name' })],
         }),
       ],
@@ -102,7 +103,7 @@ describe('validateAbstractRules', () => {
         model({
           name: 'AbsModel',
           abstract: true,
-          directives: [{ kind: 'unique', name: 'unq_email', fields: ['email'], range }],
+          directives: [{ kind: 'unique', name: 'unq_email', fields: ['email'], range, origin: createDslOrigin(range) }],
           fields: [field({ name: 'email' })],
         }),
       ],
@@ -117,7 +118,7 @@ describe('validateAbstractRules', () => {
       models: [
         model({
           name: 'User',
-          directives: [{ kind: 'index', name: 'idx_name', fields: ['name'], range }],
+          directives: [{ kind: 'index', name: 'idx_name', fields: ['name'], range, origin: createDslOrigin(range) }],
           fields: [field({ name: 'name' })],
         }),
       ],
@@ -141,8 +142,8 @@ describe('validateAbstractRules', () => {
           name: 'AbsModel',
           abstract: true,
           directives: [
-            { kind: 'index', name: 'idx_x', fields: ['x'], range },
-            { kind: 'unique', name: 'unq_y', fields: ['y'], range },
+            { kind: 'index', name: 'idx_x', fields: ['x'], range, origin: createDslOrigin(range) },
+            { kind: 'unique', name: 'unq_y', fields: ['y'], range, origin: createDslOrigin(range) },
           ],
           fields: [field({ name: 'x' }), field({ name: 'y' })],
         }),
@@ -160,9 +161,9 @@ describe('validateAbstractRules', () => {
             name: 'AbsModel',
             abstract: true,
             directives: [
-              { kind: 'index', name: 'idx_a', fields: ['a'], range },
-              { kind: 'index', name: 'idx_b', fields: ['b'], range },
-              { kind: 'index', name: 'idx_c', fields: ['c'], range },
+              { kind: 'index', name: 'idx_a', fields: ['a'], range, origin: createDslOrigin(range) },
+              { kind: 'index', name: 'idx_b', fields: ['b'], range, origin: createDslOrigin(range) },
+              { kind: 'index', name: 'idx_c', fields: ['c'], range, origin: createDslOrigin(range) },
             ],
             fields: [field({ name: 'a' }), field({ name: 'b' }), field({ name: 'c' })],
           }),
@@ -181,7 +182,7 @@ describe('validateAbstractRules', () => {
             name: 'AbsChild',
             abstract: true,
             extends: 'Concrete',
-            directives: [{ kind: 'index', name: 'idx_name', fields: ['name'], range }],
+            directives: [{ kind: 'index', name: 'idx_name', fields: ['name'], range, origin: createDslOrigin(range) }],
             fields: [field({ name: 'name' })],
           }),
         ],
@@ -197,7 +198,9 @@ describe('validateAbstractRules', () => {
         models: [
           model({
             name: 'User',
-            directives: [{ kind: 'unique', name: 'unq_email', fields: ['email'], range }],
+            directives: [
+              { kind: 'unique', name: 'unq_email', fields: ['email'], range, origin: createDslOrigin(range) },
+            ],
             fields: [field({ name: 'email' })],
           }),
         ],

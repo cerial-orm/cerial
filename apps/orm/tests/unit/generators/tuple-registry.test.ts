@@ -25,13 +25,11 @@ import type {
   TupleRegistry,
 } from '../../../src/types';
 import { field } from './helpers';
+import { createDslOrigin } from '../../../src/parser';
 
 // Helper to create AST tuple element
 function astElem(overrides: Partial<ASTTupleElement> & { type: ASTTupleElement['type'] }): ASTTupleElement {
-  return {
-    isOptional: false,
-    ...overrides,
-  };
+  return { origin: createDslOrigin(), isOptional: false, ...overrides };
 }
 
 function astTuple(name: string, elements: ASTTupleElement[]): ASTTuple {
@@ -39,6 +37,7 @@ function astTuple(name: string, elements: ASTTupleElement[]): ASTTuple {
     name,
     elements,
     range: { start: { line: 1, column: 0, offset: 0 }, end: { line: 2, column: 0, offset: 0 } },
+    origin: createDslOrigin({ start: { line: 1, column: 0, offset: 0 }, end: { line: 2, column: 0, offset: 0 } }),
   };
 }
 

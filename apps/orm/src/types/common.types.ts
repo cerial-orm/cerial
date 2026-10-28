@@ -119,3 +119,9 @@ export interface SourceRange {
   start: SourcePosition;
   end: SourcePosition;
 }
+
+/**
+ * Where an AST node came from: a `.cerial` file range, or a named export of a TypeScript file.
+ * `file` is always a real path or the `<input>` placeholder, never empty.
+ */
+export type Origin = { kind: 'dsl'; file: string; range: SourceRange } | { kind: 'ts'; file: string; export: string };

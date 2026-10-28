@@ -6,40 +6,68 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "ttl",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "duration"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "expiry",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "duration"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "nullable"
             }
           ],
           "isNullable": true,
           "isOptional": false,
           "name": "cooldown",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "duration"
         },
         {
@@ -47,10 +75,18 @@
           "isArray": true,
           "isOptional": false,
           "name": "intervals",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "duration"
         }
       ],
-      "name": "DurationBasic"
+      "name": "DurationBasic",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -58,43 +94,75 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "default",
               "value": "1h"
             }
           ],
           "isOptional": false,
           "name": "defaultTtl",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "duration"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "defaultAlways",
               "value": "30m"
             }
           ],
           "isOptional": false,
           "name": "alwaysTtl",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "duration"
         }
       ],
-      "name": "DurationDecorated"
+      "name": "DurationDecorated",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -102,17 +170,29 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
@@ -120,10 +200,18 @@
           "isOptional": false,
           "name": "timing",
           "objectName": "DurationInfo",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "object"
         }
       ],
-      "name": "DurationWithObject"
+      "name": "DurationWithObject",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     },
     {
       "directives": [],
@@ -131,28 +219,48 @@
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "id"
             }
           ],
           "isOptional": false,
           "name": "id",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "record"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "name",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "string"
         },
         {
           "decorators": [],
           "isOptional": false,
           "name": "pair",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "tupleName": "DurationPair",
           "type": "tuple"
         }
       ],
-      "name": "DurationWithTuple"
+      "name": "DurationWithTuple",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ],
   "objects": [
@@ -162,16 +270,28 @@
           "decorators": [],
           "isOptional": false,
           "name": "expires",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "duration"
         },
         {
           "decorators": [],
           "isOptional": true,
           "name": "grace",
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "duration"
         }
       ],
-      "name": "DurationInfo"
+      "name": "DurationInfo",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ],
   "tuples": [
@@ -179,20 +299,36 @@
       "elements": [
         {
           "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "duration"
         },
         {
           "decorators": [
             {
+              "origin": {
+                "file": "<input>",
+                "kind": "dsl"
+              },
               "type": "nullable"
             }
           ],
           "isNullable": true,
           "isOptional": false,
+          "origin": {
+            "file": "<input>",
+            "kind": "dsl"
+          },
           "type": "duration"
         }
       ],
-      "name": "DurationPair"
+      "name": "DurationPair",
+      "origin": {
+        "file": "<input>",
+        "kind": "dsl"
+      }
     }
   ]
 }

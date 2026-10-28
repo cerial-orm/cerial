@@ -15,6 +15,7 @@ import {
 } from '../../../src/cli/validators/schema-validator';
 import type { ASTTuple, ASTTupleElement, SchemaAST } from '../../../src/types';
 import { createASTField, createASTModel } from './helpers';
+import { createDslOrigin } from '../../../src/parser';
 
 describe('Schema Validator', () => {
   describe('validateModelNames', () => {
@@ -157,6 +158,10 @@ describe('Schema Validator', () => {
                       start: { line: 1, column: 1, offset: 0 },
                       end: { line: 1, column: 1, offset: 0 },
                     },
+                    origin: createDslOrigin({
+                      start: { line: 1, column: 1, offset: 0 },
+                      end: { line: 1, column: 1, offset: 0 },
+                    }),
                   },
                 ],
               }),
@@ -193,6 +198,10 @@ describe('Schema Validator', () => {
                       start: { line: 1, column: 1, offset: 0 },
                       end: { line: 1, column: 1, offset: 0 },
                     },
+                    origin: createDslOrigin({
+                      start: { line: 1, column: 1, offset: 0 },
+                      end: { line: 1, column: 1, offset: 0 },
+                    }),
                   },
                 ],
               }),
@@ -228,6 +237,10 @@ describe('Schema Validator', () => {
                       start: { line: 1, column: 1, offset: 0 },
                       end: { line: 1, column: 1, offset: 0 },
                     },
+                    origin: createDslOrigin({
+                      start: { line: 1, column: 1, offset: 0 },
+                      end: { line: 1, column: 1, offset: 0 },
+                    }),
                   },
                   {
                     type: 'field',
@@ -236,6 +249,10 @@ describe('Schema Validator', () => {
                       start: { line: 1, column: 1, offset: 0 },
                       end: { line: 1, column: 1, offset: 0 },
                     },
+                    origin: createDslOrigin({
+                      start: { line: 1, column: 1, offset: 0 },
+                      end: { line: 1, column: 1, offset: 0 },
+                    }),
                   },
                 ],
               }),
@@ -266,7 +283,11 @@ describe('Schema Validator', () => {
           createASTModel({
             name: 'User',
             fields: [
-              createASTField({ name: 'id', type: 'record', decorators: [{ type: 'id', range: idRange }] }),
+              createASTField({
+                name: 'id',
+                type: 'record',
+                decorators: [{ type: 'id', range: idRange, origin: createDslOrigin(idRange) }],
+              }),
               createASTField({ name: 'name', type: 'string' }),
             ],
           }),
@@ -300,11 +321,17 @@ describe('Schema Validator', () => {
     const defaultRange = { start: { line: 1, column: 1, offset: 0 }, end: { line: 1, column: 1, offset: 0 } };
 
     function createTupleElement(overrides: Partial<ASTTupleElement> = {}): ASTTupleElement {
-      return { type: 'string', isOptional: false, ...overrides };
+      return { origin: createDslOrigin(), type: 'string', isOptional: false, ...overrides };
     }
 
     function createTuple(overrides: Partial<ASTTuple> = {}): ASTTuple {
-      return { name: 'TestTuple', elements: [], range: defaultRange, ...overrides };
+      return {
+        name: 'TestTuple',
+        elements: [],
+        range: defaultRange,
+        origin: createDslOrigin(defaultRange),
+        ...overrides,
+      };
     }
 
     test('passes when model has no optional objects', () => {
@@ -402,7 +429,9 @@ describe('Schema Validator', () => {
             elements: [
               createTupleElement({
                 type: 'string',
-                decorators: [{ type: 'default', value: 'hello', range: defaultRange }],
+                decorators: [
+                  { type: 'default', value: 'hello', range: defaultRange, origin: createDslOrigin(defaultRange) },
+                ],
               }),
               createTupleElement({ type: 'float', isOptional: true }),
             ],
@@ -438,7 +467,7 @@ describe('Schema Validator', () => {
             elements: [
               createTupleElement({
                 type: 'date',
-                decorators: [{ type: 'updatedAt', range: defaultRange }],
+                decorators: [{ type: 'updatedAt', range: defaultRange, origin: createDslOrigin(defaultRange) }],
               }),
               createTupleElement({ type: 'float', isOptional: true }),
             ],
@@ -472,7 +501,9 @@ describe('Schema Validator', () => {
             elements: [
               createTupleElement({
                 type: 'string',
-                decorators: [{ type: 'default', value: 'x', range: defaultRange }],
+                decorators: [
+                  { type: 'default', value: 'x', range: defaultRange, origin: createDslOrigin(defaultRange) },
+                ],
               }),
               createTupleElement({ type: 'float', isOptional: true }),
             ],
@@ -505,7 +536,9 @@ describe('Schema Validator', () => {
             elements: [
               createTupleElement({
                 type: 'string',
-                decorators: [{ type: 'default', value: 'x', range: defaultRange }],
+                decorators: [
+                  { type: 'default', value: 'x', range: defaultRange, origin: createDslOrigin(defaultRange) },
+                ],
               }),
               createTupleElement({ type: 'float', isOptional: true }),
             ],
@@ -540,7 +573,9 @@ describe('Schema Validator', () => {
             elements: [
               createTupleElement({
                 type: 'string',
-                decorators: [{ type: 'default', value: 'a', range: defaultRange }],
+                decorators: [
+                  { type: 'default', value: 'a', range: defaultRange, origin: createDslOrigin(defaultRange) },
+                ],
               }),
               createTupleElement({ type: 'int', isOptional: true }),
             ],
@@ -550,7 +585,7 @@ describe('Schema Validator', () => {
             elements: [
               createTupleElement({
                 type: 'date',
-                decorators: [{ type: 'createdAt', range: defaultRange }],
+                decorators: [{ type: 'createdAt', range: defaultRange, origin: createDslOrigin(defaultRange) }],
               }),
               createTupleElement({ type: 'float', isOptional: true }),
             ],
@@ -618,7 +653,7 @@ describe('validateModelIdField', () => {
             createASTField({
               name: 'id',
               type: 'record',
-              decorators: [{ type: 'id', range: defaultRange }],
+              decorators: [{ type: 'id', range: defaultRange, origin: createDslOrigin(defaultRange) }],
             }),
             createASTField({ name: 'name', type: 'string' }),
           ],
@@ -643,7 +678,7 @@ describe('validateModelIdField', () => {
             createASTField({
               name: 'id',
               type: 'record',
-              decorators: [{ type: 'id', range: defaultRange }],
+              decorators: [{ type: 'id', range: defaultRange, origin: createDslOrigin(defaultRange) }],
             }),
           ],
         }),
