@@ -4,6 +4,7 @@ import type { DecoratorEntry } from '../types';
 export const identityDecorators: readonly DecoratorEntry[] = [
   {
     name: '@id',
+    constructId: 'decorator.id',
     args: { kind: 'none' },
     targets: ['modelField'],
     excludes: ['@nullable', '@readonly'],
@@ -13,6 +14,7 @@ export const identityDecorators: readonly DecoratorEntry[] = [
   },
   {
     name: '@unique',
+    constructId: 'decorator.unique',
     args: { kind: 'none' },
     targets: ['modelField', 'objectField'],
     excludes: ['@index'],
@@ -22,6 +24,7 @@ export const identityDecorators: readonly DecoratorEntry[] = [
   },
   {
     name: '@index',
+    constructId: 'decorator.index',
     args: { kind: 'none' },
     targets: ['modelField', 'objectField'],
     excludes: ['@unique'],

@@ -9,6 +9,7 @@ import type { DecoratorEntry } from '../types';
 export const relationDecorators: readonly DecoratorEntry[] = [
   {
     name: '@field',
+    constructId: 'decorator.field',
     args: { kind: 'name' },
     targets: ['modelField'],
     excludes: [],
@@ -17,6 +18,7 @@ export const relationDecorators: readonly DecoratorEntry[] = [
   },
   {
     name: '@model',
+    constructId: 'decorator.model',
     args: { kind: 'name' },
     targets: ['modelField'],
     excludes: [],
@@ -25,6 +27,7 @@ export const relationDecorators: readonly DecoratorEntry[] = [
   },
   {
     name: '@onDelete',
+    constructId: 'decorator.onDelete',
     args: { kind: 'choice', choices: ['Cascade', 'SetNull', 'SetNone', 'Restrict', 'NoAction'], optional: false },
     targets: ['modelField'],
     excludes: [],
@@ -34,6 +37,7 @@ export const relationDecorators: readonly DecoratorEntry[] = [
   },
   {
     name: '@key',
+    constructId: 'decorator.key',
     args: { kind: 'name' },
     targets: ['modelField'],
     excludes: [],

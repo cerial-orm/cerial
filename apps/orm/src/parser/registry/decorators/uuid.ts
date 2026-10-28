@@ -6,6 +6,7 @@ const UUID_EXCLUDES = ['@default', '@defaultAlways', '@now', '@createdAt', '@upd
 export const uuidDecorators: readonly DecoratorEntry[] = [
   {
     name: '@uuid',
+    constructId: 'decorator.uuid',
     args: { kind: 'none' },
     targets: ['modelField', 'objectField'],
     excludes: ['@uuid4', '@uuid7', ...UUID_EXCLUDES],
@@ -14,6 +15,7 @@ export const uuidDecorators: readonly DecoratorEntry[] = [
   },
   {
     name: '@uuid4',
+    constructId: 'decorator.uuid4',
     args: { kind: 'none' },
     targets: ['modelField', 'objectField'],
     excludes: ['@uuid', '@uuid7', ...UUID_EXCLUDES],
@@ -22,6 +24,7 @@ export const uuidDecorators: readonly DecoratorEntry[] = [
   },
   {
     name: '@uuid7',
+    constructId: 'decorator.uuid7',
     args: { kind: 'none' },
     targets: ['modelField', 'objectField'],
     excludes: ['@uuid', '@uuid4', ...UUID_EXCLUDES],

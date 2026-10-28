@@ -4,6 +4,7 @@ import type { DecoratorEntry } from '../types';
 export const modifierDecorators: readonly DecoratorEntry[] = [
   {
     name: '@nullable',
+    constructId: 'decorator.nullable',
     args: { kind: 'none' },
     targets: ['modelField', 'objectField', 'tupleElement'],
     excludes: ['@id', '@now'],
@@ -13,6 +14,7 @@ export const modifierDecorators: readonly DecoratorEntry[] = [
   },
   {
     name: '@readonly',
+    constructId: 'decorator.readonly',
     args: { kind: 'none' },
     targets: ['modelField', 'objectField'],
     excludes: ['@id', '@now', '@defaultAlways'],
@@ -22,6 +24,7 @@ export const modifierDecorators: readonly DecoratorEntry[] = [
   },
   {
     name: '@flexible',
+    constructId: 'decorator.flexible',
     args: { kind: 'none' },
     targets: ['modelField', 'objectField'],
     excludes: [],

@@ -4,6 +4,7 @@ import type { DecoratorEntry } from '../types';
 export const arrayDecorators: readonly DecoratorEntry[] = [
   {
     name: '@distinct',
+    constructId: 'decorator.distinct',
     args: { kind: 'none' },
     targets: ['modelField', 'objectField'],
     excludes: ['@set'],
@@ -12,6 +13,7 @@ export const arrayDecorators: readonly DecoratorEntry[] = [
   },
   {
     name: '@set',
+    constructId: 'decorator.set',
     args: { kind: 'none' },
     targets: ['modelField', 'objectField'],
     excludes: ['@distinct', '@sort'],
@@ -20,6 +22,7 @@ export const arrayDecorators: readonly DecoratorEntry[] = [
   },
   {
     name: '@sort',
+    constructId: 'decorator.sort',
     args: { kind: 'choice', choices: ['asc', 'desc', 'true', 'false'], optional: true },
     targets: ['modelField', 'objectField'],
     excludes: ['@set'],

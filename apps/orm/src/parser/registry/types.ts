@@ -6,6 +6,7 @@
  * documentation all read these entries instead of keeping lists of their own.
  */
 
+import type { ConstructId } from '../../parity/parity-manifest';
 import type { ASTCompositeDirective, ASTDecorator, SchemaDecorator, SchemaFieldType, SourceRange } from '../../types';
 
 /**
@@ -48,6 +49,8 @@ export type DecoratorHandler = (token: string, range: SourceRange) => ASTDecorat
 export interface DecoratorEntry {
   /** The decorator as written in a schema, sigil included. */
   readonly name: DecoratorName;
+  /** The parity manifest entry for this decorator itself, not for one of its argument values. */
+  readonly constructId: ConstructId;
   readonly args: ArgumentShape;
   /** Where it is legal. Never empty. */
   readonly targets: readonly DecoratorTarget[];
@@ -63,6 +66,8 @@ export interface DecoratorEntry {
 export interface FieldTypeEntry {
   /** The type as written in a schema, such as `String` or `Record`. */
   readonly name: string;
+  /** The parity manifest entry for this type; a Record's arities and array form have entries of their own. */
+  readonly constructId: ConstructId;
   /** The type the parser records in the AST. */
   readonly fieldType: SchemaFieldType;
   /** The one line the editor shows on hover. */

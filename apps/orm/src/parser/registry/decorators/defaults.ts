@@ -4,6 +4,7 @@ import type { DecoratorEntry } from '../types';
 export const defaultDecorators: readonly DecoratorEntry[] = [
   {
     name: '@default',
+    constructId: 'decorator.default',
     args: { kind: 'literal', forms: ['boolean', 'null', 'int', 'float', 'string', 'raw'] },
     targets: ['modelField', 'objectField', 'tupleElement'],
     excludes: ['@now', '@createdAt', '@updatedAt', '@defaultAlways', '@uuid', '@uuid4', '@uuid7'],
@@ -12,6 +13,7 @@ export const defaultDecorators: readonly DecoratorEntry[] = [
   },
   {
     name: '@defaultAlways',
+    constructId: 'decorator.defaultAlways',
     args: { kind: 'literal', forms: ['boolean', 'null', 'int', 'float', 'string', 'raw'] },
     targets: ['modelField', 'objectField', 'tupleElement'],
     excludes: ['@now', '@createdAt', '@updatedAt', '@default', '@readonly', '@uuid', '@uuid4', '@uuid7'],

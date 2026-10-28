@@ -17,6 +17,7 @@ const parseDirective: DecoratorHandler = (token, range): ASTCompositeDirective =
 export const modelLevelDecorators: readonly DecoratorEntry[] = [
   {
     name: '@@index',
+    constructId: 'directive.index',
     args: { kind: 'nameAndFields' },
     targets: ['model'],
     excludes: [],
@@ -25,6 +26,7 @@ export const modelLevelDecorators: readonly DecoratorEntry[] = [
   },
   {
     name: '@@unique',
+    constructId: 'directive.unique',
     args: { kind: 'nameAndFields' },
     targets: ['model'],
     excludes: [],

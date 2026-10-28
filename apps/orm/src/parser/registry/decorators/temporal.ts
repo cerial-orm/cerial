@@ -4,6 +4,7 @@ import type { DecoratorEntry } from '../types';
 export const temporalDecorators: readonly DecoratorEntry[] = [
   {
     name: '@now',
+    constructId: 'decorator.now',
     args: { kind: 'none' },
     targets: ['modelField'],
     excludes: [
@@ -22,6 +23,7 @@ export const temporalDecorators: readonly DecoratorEntry[] = [
   },
   {
     name: '@createdAt',
+    constructId: 'decorator.createdAt',
     args: { kind: 'none' },
     targets: ['modelField', 'objectField', 'tupleElement'],
     excludes: ['@now', '@updatedAt', '@default', '@defaultAlways', '@uuid', '@uuid4', '@uuid7'],
@@ -30,6 +32,7 @@ export const temporalDecorators: readonly DecoratorEntry[] = [
   },
   {
     name: '@updatedAt',
+    constructId: 'decorator.updatedAt',
     args: { kind: 'none' },
     targets: ['modelField', 'objectField', 'tupleElement'],
     excludes: ['@now', '@createdAt', '@default', '@defaultAlways', '@uuid', '@uuid4', '@uuid7'],

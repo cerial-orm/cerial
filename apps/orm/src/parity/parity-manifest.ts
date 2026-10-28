@@ -46,7 +46,22 @@ export interface ConstructEntry {
   readonly title: string;
   /** Critic verdict finding that added this entry. */
   readonly critic?: number;
+  /**
+   * Set only on an entry in the decorator or field-type families that no registry entry can hold, with
+   * the reason. Every other entry in those families is claimed by exactly one registry entry
+   * (`constructId`). Read by the registry cross-check; see `REGISTRY_FAMILIES`.
+   */
+  readonly outOfReach?: string;
 }
+
+/** The families whose entries are either claimed by a registry entry or carry an `outOfReach` reason. */
+export const REGISTRY_FAMILIES = [
+  'scalar-type',
+  'record-id-type',
+  'complex-type',
+  'array-form',
+  'decorator',
+] as const satisfies readonly ConstructFamily[];
 
 const row = <const I extends string, const F extends ConstructFamily, const S extends ConstructScope>(
   id: I,
@@ -56,6 +71,10 @@ const row = <const I extends string, const F extends ConstructFamily, const S ex
   title: string,
   critic?: number,
 ) => ({ id, family, scope, items, title, ...(critic === undefined ? {} : { critic }) }) as const;
+
+/** Marks an entry no registry entry can hold; the reason is mandatory. */
+const outOfReach = <const E extends ReturnType<typeof row>, const R extends string>(entry: E, reason: R) =>
+  ({ ...entry, outOfReach: reason }) as const;
 
 export const PARITY_MANIFEST = [
   // Top-level declarations (1-7)
@@ -144,49 +163,145 @@ export const PARITY_MANIFEST = [
 
   // Record id types (35-38)
   row('recordid.untyped', 'record-id-type', 'corpus', [35], 'Record untyped'),
-  row('recordid.int', 'record-id-type', 'corpus', [36], 'Record(int)'),
-  row('recordid.number', 'record-id-type', 'corpus', [36], 'Record(number)'),
-  row('recordid.string', 'record-id-type', 'corpus', [36], 'Record(string)'),
-  row('recordid.uuid', 'record-id-type', 'corpus', [36], 'Record(uuid)'),
-  row('recordid.union', 'record-id-type', 'corpus', [37], 'Record(T, U) union id types'),
-  row('recordid.tuple', 'record-id-type', 'corpus', [38], 'Record(TupleName)'),
-  row('recordid.object', 'record-id-type', 'corpus', [38], 'Record(ObjectName)'),
-  row(
-    'recordid.invalid-primitive-rejected',
-    'record-id-type',
-    'frontend',
-    [],
-    'Record(float|bool|date|email|...) is rejected; only int, number, string and uuid are valid primitive ids',
+  outOfReach(
+    row('recordid.int', 'record-id-type', 'corpus', [36], 'Record(int)'),
+    'an arity of Record, held by the Record entry (recordid.untyped)',
+  ),
+  outOfReach(
+    row('recordid.number', 'record-id-type', 'corpus', [36], 'Record(number)'),
+    'an arity of Record, held by the Record entry (recordid.untyped)',
+  ),
+  outOfReach(
+    row('recordid.string', 'record-id-type', 'corpus', [36], 'Record(string)'),
+    'an arity of Record, held by the Record entry (recordid.untyped)',
+  ),
+  outOfReach(
+    row('recordid.uuid', 'record-id-type', 'corpus', [36], 'Record(uuid)'),
+    'an arity of Record, held by the Record entry (recordid.untyped)',
+  ),
+  outOfReach(
+    row('recordid.union', 'record-id-type', 'corpus', [37], 'Record(T, U) union id types'),
+    'an arity of Record, held by the Record entry (recordid.untyped)',
+  ),
+  outOfReach(
+    row('recordid.tuple', 'record-id-type', 'corpus', [38], 'Record(TupleName)'),
+    'an arity of Record, held by the Record entry (recordid.untyped)',
+  ),
+  outOfReach(
+    row('recordid.object', 'record-id-type', 'corpus', [38], 'Record(ObjectName)'),
+    'an arity of Record, held by the Record entry (recordid.untyped)',
+  ),
+  outOfReach(
+    row(
+      'recordid.invalid-primitive-rejected',
+      'record-id-type',
+      'frontend',
+      [],
+      'Record(float|bool|date|email|...) is rejected; only int, number, string and uuid are valid primitive ids',
+    ),
+    'a rejection rule, not a type',
   ),
 
   // Complex field types (39-45)
-  row('complex.record-array', 'complex-type', 'corpus', [39], 'Record[]'),
+  outOfReach(
+    row('complex.record-array', 'complex-type', 'corpus', [39], 'Record[]'),
+    'the array form of Record, matched by the Record entry (recordid.untyped)',
+  ),
   row('complex.relation', 'complex-type', 'corpus', [40], 'Relation'),
-  row('complex.relation-array', 'complex-type', 'corpus', [41], 'Relation[]'),
-  row('ref.object', 'complex-type', 'corpus', [42], 'object-typed field by reference'),
-  row('ref.tuple', 'complex-type', 'corpus', [43], 'tuple-typed field by reference'),
-  row('ref.literal', 'complex-type', 'corpus', [44], 'literal-typed field by reference'),
-  row('ref.enum', 'complex-type', 'corpus', [45], 'enum-typed field by reference, type literal plus literalName'),
+  outOfReach(
+    row('complex.relation-array', 'complex-type', 'corpus', [41], 'Relation[]'),
+    'the array form of Relation, matched by the Relation entry (complex.relation)',
+  ),
+  outOfReach(
+    row('ref.object', 'complex-type', 'corpus', [42], 'object-typed field by reference'),
+    'a user-declared name resolved from the schema after the registry, so no entry can name it',
+  ),
+  outOfReach(
+    row('ref.tuple', 'complex-type', 'corpus', [43], 'tuple-typed field by reference'),
+    'a user-declared name resolved from the schema after the registry, so no entry can name it',
+  ),
+  outOfReach(
+    row('ref.literal', 'complex-type', 'corpus', [44], 'literal-typed field by reference'),
+    'a user-declared name resolved from the schema after the registry, so no entry can name it',
+  ),
+  outOfReach(
+    row('ref.enum', 'complex-type', 'corpus', [45], 'enum-typed field by reference, type literal plus literalName'),
+    'a user-declared name resolved from the schema after the registry, so no entry can name it',
+  ),
 
   // Array form for every type above (46-47)
-  row('array.string', 'array-form', 'corpus', [46], 'String[]'),
-  row('array.email', 'array-form', 'corpus', [46], 'Email[]'),
-  row('array.int', 'array-form', 'corpus', [46], 'Int[]'),
-  row('array.float', 'array-form', 'corpus', [46], 'Float[]'),
-  row('array.number', 'array-form', 'corpus', [46], 'Number[]'),
-  row('array.bool', 'array-form', 'corpus', [46], 'Bool[]'),
-  row('array.date', 'array-form', 'corpus', [46], 'Date[]'),
-  row('array.uuid', 'array-form', 'corpus', [46], 'Uuid[]'),
-  row('array.duration', 'array-form', 'corpus', [46], 'Duration[]'),
-  row('array.decimal', 'array-form', 'corpus', [46], 'Decimal[]'),
-  row('array.bytes', 'array-form', 'corpus', [46], 'Bytes[]'),
-  row('array.geometry', 'array-form', 'corpus', [46], 'Geometry[]'),
-  row('array.any', 'array-form', 'corpus', [46], 'Any[]'),
-  row('array.object', 'array-form', 'corpus', [46], 'Object[]'),
-  row('array.tuple', 'array-form', 'corpus', [46], 'Tuple[]'),
-  row('array.literal', 'array-form', 'corpus', [46], 'Literal[]'),
-  row('array.enum', 'array-form', 'corpus', [46], 'Enum[]'),
-  row('array.optional-rejected', 'array-form', 'frontend', [47], 'Type[]? is not expressible and must be rejected'),
+  outOfReach(
+    row('array.string', 'array-form', 'corpus', [46], 'String[]'),
+    "an array form, matched by the base type's entry",
+  ),
+  outOfReach(
+    row('array.email', 'array-form', 'corpus', [46], 'Email[]'),
+    "an array form, matched by the base type's entry",
+  ),
+  outOfReach(
+    row('array.int', 'array-form', 'corpus', [46], 'Int[]'),
+    "an array form, matched by the base type's entry",
+  ),
+  outOfReach(
+    row('array.float', 'array-form', 'corpus', [46], 'Float[]'),
+    "an array form, matched by the base type's entry",
+  ),
+  outOfReach(
+    row('array.number', 'array-form', 'corpus', [46], 'Number[]'),
+    "an array form, matched by the base type's entry",
+  ),
+  outOfReach(
+    row('array.bool', 'array-form', 'corpus', [46], 'Bool[]'),
+    "an array form, matched by the base type's entry",
+  ),
+  outOfReach(
+    row('array.date', 'array-form', 'corpus', [46], 'Date[]'),
+    "an array form, matched by the base type's entry",
+  ),
+  outOfReach(
+    row('array.uuid', 'array-form', 'corpus', [46], 'Uuid[]'),
+    "an array form, matched by the base type's entry",
+  ),
+  outOfReach(
+    row('array.duration', 'array-form', 'corpus', [46], 'Duration[]'),
+    "an array form, matched by the base type's entry",
+  ),
+  outOfReach(
+    row('array.decimal', 'array-form', 'corpus', [46], 'Decimal[]'),
+    "an array form, matched by the base type's entry",
+  ),
+  outOfReach(
+    row('array.bytes', 'array-form', 'corpus', [46], 'Bytes[]'),
+    "an array form, matched by the base type's entry",
+  ),
+  outOfReach(
+    row('array.geometry', 'array-form', 'corpus', [46], 'Geometry[]'),
+    "an array form, matched by the base type's entry",
+  ),
+  outOfReach(
+    row('array.any', 'array-form', 'corpus', [46], 'Any[]'),
+    "an array form, matched by the base type's entry",
+  ),
+  outOfReach(
+    row('array.object', 'array-form', 'corpus', [46], 'Object[]'),
+    "an array form, matched by the base type's entry",
+  ),
+  outOfReach(
+    row('array.tuple', 'array-form', 'corpus', [46], 'Tuple[]'),
+    "an array form, matched by the base type's entry",
+  ),
+  outOfReach(
+    row('array.literal', 'array-form', 'corpus', [46], 'Literal[]'),
+    "an array form, matched by the base type's entry",
+  ),
+  outOfReach(
+    row('array.enum', 'array-form', 'corpus', [46], 'Enum[]'),
+    "an array form, matched by the base type's entry",
+  ),
+  outOfReach(
+    row('array.optional-rejected', 'array-form', 'frontend', [47], 'Type[]? is not expressible and must be rejected'),
+    'a rejection rule, not a type',
+  ),
 
   // Decorators (48-75)
   row('decorator.id', 'decorator', 'corpus', [48], '@id'),
@@ -200,15 +315,33 @@ export const PARITY_MANIFEST = [
   row('decorator.field', 'decorator', 'corpus', [56], '@field(recordFieldName)'),
   row('decorator.model', 'decorator', 'corpus', [57], '@model(ModelName)'),
   row('decorator.onDelete', 'decorator', 'corpus', [58], '@onDelete(action), any action'),
-  row('decorator.onDelete.Cascade', 'decorator', 'corpus', [58], '@onDelete(Cascade)'),
-  row('decorator.onDelete.SetNull', 'decorator', 'corpus', [58], '@onDelete(SetNull)'),
-  row('decorator.onDelete.SetNone', 'decorator', 'corpus', [58], '@onDelete(SetNone)'),
-  row('decorator.onDelete.Restrict', 'decorator', 'corpus', [58], '@onDelete(Restrict)'),
-  row('decorator.onDelete.NoAction', 'decorator', 'corpus', [58], '@onDelete(NoAction)'),
+  outOfReach(
+    row('decorator.onDelete.Cascade', 'decorator', 'corpus', [58], '@onDelete(Cascade)'),
+    'an argument value of @onDelete, held by decorator.onDelete',
+  ),
+  outOfReach(
+    row('decorator.onDelete.SetNull', 'decorator', 'corpus', [58], '@onDelete(SetNull)'),
+    'an argument value of @onDelete, held by decorator.onDelete',
+  ),
+  outOfReach(
+    row('decorator.onDelete.SetNone', 'decorator', 'corpus', [58], '@onDelete(SetNone)'),
+    'an argument value of @onDelete, held by decorator.onDelete',
+  ),
+  outOfReach(
+    row('decorator.onDelete.Restrict', 'decorator', 'corpus', [58], '@onDelete(Restrict)'),
+    'an argument value of @onDelete, held by decorator.onDelete',
+  ),
+  outOfReach(
+    row('decorator.onDelete.NoAction', 'decorator', 'corpus', [58], '@onDelete(NoAction)'),
+    'an argument value of @onDelete, held by decorator.onDelete',
+  ),
   row('decorator.key', 'decorator', 'corpus', [59], '@key(name)'),
   row('decorator.distinct', 'decorator', 'corpus', [60], '@distinct'),
   row('decorator.sort', 'decorator', 'corpus', [61], '@sort and @sort(true)'),
-  row('decorator.sort.false', 'decorator', 'corpus', [61], '@sort(false)'),
+  outOfReach(
+    row('decorator.sort.false', 'decorator', 'corpus', [61], '@sort(false)'),
+    'an argument form of @sort, held by decorator.sort',
+  ),
   row('decorator.set', 'decorator', 'corpus', [62], '@set'),
   row('decorator.flexible', 'decorator', 'corpus', [63], '@flexible'),
   row('decorator.readonly', 'decorator', 'corpus', [64], '@readonly'),
