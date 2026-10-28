@@ -142,7 +142,7 @@
     },
 
     "decorator_with_args": {
-      "begin": "(@)(id|unique|index|now|createdAt|updatedAt|default|defaultAlways|field|model|onDelete|key|distinct|sort|set|flexible|readonly|nullable|uuid|uuid4|uuid7|point|line|polygon|multipoint|multiline|multipolygon|geoCollection)(\\()",
+      "begin": "(?<![\\w@])(@)([A-Za-z_]\\w*)(\\()",
       "beginCaptures": {
         "1": { "name": "punctuation.definition.decorator.cerial" },
         "2": { "name": "entity.name.function.decorator.cerial" },
@@ -167,7 +167,7 @@
     },
 
     "decorator_simple": {
-      "match": "(@)(id|unique|index|now|createdAt|updatedAt|default|defaultAlways|field|model|onDelete|key|distinct|sort|set|flexible|readonly|nullable|uuid|uuid4|uuid7|point|line|polygon|multipoint|multiline|multipolygon|geoCollection)\\b",
+      "match": "(?<![\\w@])(@)([A-Za-z_]\\w*)\\b",
       "captures": {
         "1": { "name": "punctuation.definition.decorator.cerial" },
         "2": { "name": "entity.name.function.decorator.cerial" }
@@ -179,7 +179,7 @@
     },
 
     "composite_directives": {
-      "begin": "(@@)(unique|index)(\\()",
+      "begin": "(@@)([A-Za-z_]\\w*)(\\()",
       "beginCaptures": {
         "1": { "name": "punctuation.definition.decorator.cerial" },
         "2": { "name": "entity.name.function.directive.cerial" },
@@ -215,6 +215,14 @@
       ]
     },
 
+    "composite_directive_simple": {
+      "match": "(@@)([A-Za-z_]\\w*)\\b",
+      "captures": {
+        "1": { "name": "punctuation.definition.decorator.cerial" },
+        "2": { "name": "entity.name.function.directive.cerial" }
+      }
+    },
+
     "model_block": {
       "name": "meta.block.model.cerial",
       "begin": "^\\s*(?:(abstract)\\s+)?(model)\\s+([A-Za-z]\\w*)(?:\\s+(extends)\\s+([A-Za-z]\\w*)(?:\\s*(\\[)([^\\]]*)(\\]))?)?\\s*(\\{)",
@@ -242,6 +250,7 @@
       "patterns": [
         { "include": "#comments" },
         { "include": "#composite_directives" },
+        { "include": "#composite_directive_simple" },
         { "include": "#field_name" },
         { "include": "#record_parameterized" },
         { "include": "#built_in_types" },

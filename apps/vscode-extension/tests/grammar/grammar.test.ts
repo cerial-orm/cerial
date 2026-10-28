@@ -314,6 +314,26 @@ describe('Decorators', () => {
     });
   });
 
+  describe('Unlisted decorators (any @identifier)', () => {
+    it('@somethingNew → decorator scope', async () => {
+      const lines = await tokenizeFixtureLines('model T {\n  f String @somethingNew\n}');
+      assertScope(findToken(lines[1].tokens, 'somethingNew'), 'entity.name.function.decorator.cerial');
+      assertScope(findToken(lines[1].tokens, '@'), 'punctuation.definition.decorator.cerial');
+    });
+
+    it('@somethingNew(Cascade, 3) → decorator scope, arguments keep their scopes', async () => {
+      const lines = await tokenizeFixtureLines("model T {\n  f String @somethingNew(Cascade, 'x', 3)\n}");
+      assertScope(findToken(lines[1].tokens, 'somethingNew'), 'entity.name.function.decorator.cerial');
+      assertScope(findToken(lines[1].tokens, 'Cascade'), 'variable.parameter.cerial');
+      assertScope(findToken(lines[1].tokens, '3'), 'constant.numeric');
+    });
+
+    it('an @ inside a comment is not a decorator', async () => {
+      const lines = await tokenizeFixtureLines('model T {\n  f String // mail a@b.com @somethingNew\n}');
+      expect(tokensWithScope(lines[1].tokens, 'entity.name.function.decorator.cerial')).toHaveLength(0);
+    });
+  });
+
   describe('Decorator punctuation', () => {
     it('@ sign → punctuation.definition.decorator.cerial', async () => {
       const lines = await tokenizeFixtureLines('model T {\n  f String @unique\n}');
@@ -549,6 +569,20 @@ describe('!!private', () => {
 // ===========================================================================
 
 describe('Composite Directives', () => {
+  it('@@somethingNew(...) → directive scope, @@ is not read as @ + @somethingNew', async () => {
+    const lines = await tokenizeFixtureLines('model T {\n  f String\n  @@somethingNew(name, [f])\n}');
+    const toks = lines[2].tokens;
+    assertScope(findToken(toks, 'somethingNew'), 'entity.name.function.directive.cerial');
+    assertScope(findToken(toks, '@@'), 'punctuation.definition.decorator.cerial');
+    expect(tokensWithScope(toks, 'entity.name.function.decorator.cerial')).toHaveLength(0);
+    expect(tokensWithScope(toks, 'variable.other.field.cerial')).toHaveLength(1);
+  });
+
+  it('bare @@somethingNew → directive scope', async () => {
+    const lines = await tokenizeFixtureLines('model T {\n  f String\n  @@somethingNew\n}');
+    assertScope(findToken(lines[2].tokens, 'somethingNew'), 'entity.name.function.directive.cerial');
+  });
+
   it('@@unique — directive name → entity.name.function.directive.cerial', async () => {
     const lines = await tokenizeFixtureLines('model T {\n  f String\n  @@unique(emailSlug, [email, slug])\n}');
     const directiveLine = lines[2];
