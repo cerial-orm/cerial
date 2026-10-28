@@ -4,6 +4,7 @@
  * comment preservation, and canonical decorator ordering.
  */
 
+import { getDecoratorEntry } from '../parser/registry';
 import type { ASTCompositeDirective, ASTDecorator, ASTField, ASTModel, ASTObject, ExtendsFilter } from '../types';
 import type { AlignedField } from './aligner';
 import { alignFields } from './aligner';
@@ -52,41 +53,52 @@ export function buildTypeWithModifiers(field: ASTField): string {
   return typeName;
 }
 
-/**
- * Extract the original decorator text from the source line.
- * Falls back to AST reconstruction if source extraction fails.
- *
- * Uses regex on the source line (by line number) to preserve the user's
- * exact value syntax (quote style, number format, etc.).
- */
-export function extractDecoratorText(decorator: ASTDecorator, sourceLines: string[]): string {
-  const line = sourceLines[decorator.range.start.line - 1];
-  if (line) {
-    // Match the decorator by name with word boundary to avoid @uuid matching @uuid4
-    const regex = new RegExp(`@${decorator.type}\\b(?:\\([^)]*\\))?`);
-    const match = line.match(regex);
-    if (match) return match[0];
-  }
+/** A duration such as `1h30m`: the one string `@default` prints bare, because quoting it changes the migration. */
+const DURATION_PATTERN = /^(\d+(ns|us|µs|ms|[smhdwy]))+$/;
 
-  // Fallback: reconstruct from AST
-  return formatDecoratorFallback(decorator);
+/** A string that would parse back as a boolean, null or number if printed bare. */
+const AMBIGUOUS_BARE_PATTERN = /^(true|false|null|-?\d+(\.\d+)?)$/;
+
+/** Print a `@default` / `@defaultAlways` value in the canonical form: single quotes, bare numbers, booleans, null and durations. */
+function formatLiteral(value: unknown): string {
+  if (typeof value !== 'string') return String(value);
+  if (DURATION_PATTERN.test(value) && !AMBIGUOUS_BARE_PATTERN.test(value)) return value;
+
+  // An unterminated quote survives in the value (the parser strips only a matching pair), so it prints back as written
+  if (/^['"]/.test(value) && !(value.length > 1 && value.endsWith(value[0]!))) return value;
+
+  // The parser strips the outer quotes and never unescapes, so a value holding a single quote needs double quotes
+  return value.includes("'") ? `"${value}"` : `'${value}'`;
 }
 
-/** Reconstruct decorator text from AST (fallback when source extraction fails) */
-function formatDecoratorFallback(decorator: ASTDecorator): string {
-  if (decorator.value === undefined) return `@${decorator.type}`;
+/**
+ * Print a decorator from its AST node alone, driven by the registry entry's argument shape, so a new
+ * decorator needs no change here. The AST keeps the value, not its spelling, so the output is the
+ * canonical form: `@sort` stores a boolean and prints `asc` / `desc`, quotes are single, `1.0` prints `1`.
+ */
+export function formatDecorator(decorator: ASTDecorator): string {
+  const entry = getDecoratorEntry(`@${decorator.type}`);
+  if (!entry) throw new Error(`No registry entry for decorator '@${decorator.type}'`);
 
-  const value = decorator.value;
+  const { value } = decorator;
+  const { args } = entry;
+  switch (args.kind) {
+    case 'none':
+      return entry.name;
+    case 'choice': {
+      if (value === undefined) return entry.name;
+      // A boolean stands for the first two choices in order (`@sort`: true is asc, false is desc)
+      if (typeof value === 'boolean') return `${entry.name}(${args.choices[value ? 0 : 1]})`;
 
-  // String values in @default/@defaultAlways need quotes
-  if ((decorator.type === 'default' || decorator.type === 'defaultAlways') && typeof value === 'string') {
-    return `@${decorator.type}('${value}')`;
+      return `${entry.name}(${String(value)})`;
+    }
+    case 'name':
+      return `${entry.name}(${String(value)})`;
+    case 'literal':
+      return `${entry.name}(${value === undefined ? '' : formatLiteral(value)})`;
+    case 'nameAndFields':
+      throw new Error(`'${entry.name}' is a model directive; print it with formatDirective`);
   }
-
-  if (value === null) return `@${decorator.type}(null)`;
-  if (typeof value === 'string') return `@${decorator.type}(${value})`;
-
-  return `@${decorator.type}(${String(value)})`;
 }
 
 /** Format a composite directive from AST */
@@ -213,7 +225,7 @@ function printBlock(
     const field = fields[i]!;
     const typeStr = buildTypeWithModifiers(field);
     const sorted = sortDecorators(field.decorators);
-    const decoratorStr = sorted.map((d) => extractDecoratorText(d, sourceLines)).join(' ');
+    const decoratorStr = sorted.map(formatDecorator).join(' ');
 
     const blankLinesAfter = computeBlankLinesAfter(config.fieldGroupBlankLines, i, fields, sourceLines);
 

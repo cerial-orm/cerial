@@ -1,7 +1,7 @@
 /**
- * The formatter returns the author's spelling of a @sort argument. The printer reads decorator
- * text from the source line, so rewriting through the parsed value would turn asc into true.
- * Assertions are on the output text, never on the AST.
+ * The printer reads a decorator from its AST node alone. @sort stores a boolean, so the author's
+ * spelling (asc / true, desc / false, bare) is gone by then and the formatter prints the canonical
+ * words. Assertions are on the output text, never on the AST.
  */
 
 import { describe, expect, it } from 'bun:test';
@@ -16,6 +16,7 @@ const SOURCE = [
   'descWord String[] @sort(desc)',
   'descBool String[] @sort(false)',
   'bare String[] @sort',
+  'empty String[] @sort()',
   '}',
   '',
 ].join('\n');
@@ -41,34 +42,15 @@ describe('formatter @sort spelling', () => {
     expect(formatted).not.toBe(SOURCE);
   });
 
-  it('should keep @sort(asc) and not turn it into @sort(true)', () => {
-    const line = fieldLine(formatted, 'ascWord');
-    expect(line).toContain('@sort(asc)');
-    expect(line).not.toContain('@sort(true)');
-  });
-
-  it('should keep @sort(true) and not turn it into @sort(asc)', () => {
-    const line = fieldLine(formatted, 'ascBool');
-    expect(line).toContain('@sort(true)');
-    expect(line).not.toContain('@sort(asc)');
-  });
-
-  it('should keep @sort(desc) and not turn it into @sort(false)', () => {
-    const line = fieldLine(formatted, 'descWord');
-    expect(line).toContain('@sort(desc)');
-    expect(line).not.toContain('@sort(false)');
-  });
-
-  it('should keep @sort(false) and not turn it into @sort(desc)', () => {
-    const line = fieldLine(formatted, 'descBool');
-    expect(line).toContain('@sort(false)');
-    expect(line).not.toContain('@sort(desc)');
-  });
-
-  it('should keep a bare @sort bare', () => {
-    const line = fieldLine(formatted, 'bare');
-    expect(line).toMatch(/@sort$/);
-    expect(line).not.toContain('@sort(');
+  it.each([
+    ['ascWord', '@sort(asc)'],
+    ['ascBool', '@sort(asc)'],
+    ['bare', '@sort(asc)'],
+    ['empty', '@sort(asc)'],
+    ['descWord', '@sort(desc)'],
+    ['descBool', '@sort(desc)'],
+  ])('should print %s as %s', (field, expected) => {
+    expect(fieldLine(formatted, field).endsWith(expected)).toBe(true);
   });
 
   it('should produce byte-identical output on a second pass', () => {

@@ -106,10 +106,10 @@ describe('formatter malformed input: tolerated and repaired, no error', () => {
     );
   });
 
-  it('should rewrite @sort(asc with a missing paren to a bare @sort', () => {
+  it('should rewrite @sort(asc with a missing paren to @sort(asc)', () => {
     expectFormatted(
       lines(...MODEL, '  n String[] @sort(asc', '}'),
-      lines('model A {', '  id Record   @id', '  n  String[] @sort', '}'),
+      lines('model A {', '  id Record   @id', '  n  String[] @sort(asc)', '}'),
     );
   });
 

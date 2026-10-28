@@ -3,8 +3,9 @@
  */
 
 import { describe, expect, it } from 'bun:test';
-import { buildTypeWithModifiers, extractDecoratorText, formatDirective } from '../../../src/formatter/printer';
+import { buildTypeWithModifiers, formatDecorator, formatDirective } from '../../../src/formatter/printer';
 import { parse } from '../../../src/parser/parser';
+import type { ASTDecorator } from '../../../src/types';
 import { formatModel, formatObject } from './helpers';
 import { createDslOrigin } from '../../../src/parser';
 
@@ -478,10 +479,10 @@ describe('printModel', () => {
       expect(result).toContain("@default('admin')");
     });
 
-    it('should preserve @default with double-quoted string', () => {
+    it('should print @default with a double-quoted string in single quotes', () => {
       const src = 'model User {\n  role String @default("admin")\n}';
       const result = formatModel(src, { fieldGroupBlankLines: 'collapse' });
-      expect(result).toContain('@default("admin")');
+      expect(result).toContain("@default('admin')");
     });
 
     it('should preserve @default with number', () => {
@@ -559,7 +560,7 @@ describe('printObject', () => {
 
     const result = formatObject(src, { fieldGroupBlankLines: 'collapse' });
     expect(result).toContain('object Address {');
-    expect(result).toContain('@default("NYC")');
+    expect(result).toContain("@default('NYC')");
   });
 
   it('should preserve comments on object blocks', () => {
@@ -584,32 +585,21 @@ describe('printObject', () => {
   });
 });
 
-describe('extractDecoratorText', () => {
-  it('should extract simple decorator from source', () => {
-    const src = 'model User {\n  id Record @id\n}';
-    const { ast } = parse(src);
-    const decorator = ast.models[0]!.fields[0]!.decorators[0]!;
-    const sourceLines = src.split('\n');
+describe('formatDecorator', () => {
+  function decoratorOf(src: string): ASTDecorator {
+    return parse(src).ast.models[0]!.fields[0]!.decorators[0]!;
+  }
 
-    expect(extractDecoratorText(decorator, sourceLines)).toBe('@id');
+  it('should print a bare decorator', () => {
+    expect(formatDecorator(decoratorOf('model User {\n  id Record @id\n}'))).toBe('@id');
   });
 
-  it('should extract decorator with value from source', () => {
-    const src = "model User {\n  name String @default('test')\n}";
-    const { ast } = parse(src);
-    const decorator = ast.models[0]!.fields[0]!.decorators[0]!;
-    const sourceLines = src.split('\n');
-
-    expect(extractDecoratorText(decorator, sourceLines)).toBe("@default('test')");
+  it('should print a decorator with a value from the AST alone', () => {
+    expect(formatDecorator(decoratorOf("model User {\n  name String @default('test')\n}"))).toBe("@default('test')");
   });
 
   it('should not confuse @uuid with @uuid4', () => {
-    const src = 'model User {\n  token Uuid @uuid\n}';
-    const { ast } = parse(src);
-    const decorator = ast.models[0]!.fields[0]!.decorators[0]!;
-    const sourceLines = src.split('\n');
-
-    expect(extractDecoratorText(decorator, sourceLines)).toBe('@uuid');
+    expect(formatDecorator(decoratorOf('model User {\n  token Uuid @uuid\n}'))).toBe('@uuid');
   });
 });
 
