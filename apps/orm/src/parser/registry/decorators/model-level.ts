@@ -8,10 +8,10 @@ import type { DecoratorEntry, DecoratorHandler } from '../types';
  * The parser reports the thrown message as the line's error.
  */
 const parseDirective: DecoratorHandler = (token, range): ASTCompositeDirective => {
-  const { directive, error } = parseCompositeDirective(token, range.start.line);
-  if (!directive) throw new Error(error ?? `Invalid composite directive: ${token}`);
+  const result = parseCompositeDirective(token, range.start.line);
+  if ('error' in result) throw new Error(result.error);
 
-  return directive;
+  return result.directive;
 };
 
 export const modelLevelDecorators: readonly DecoratorEntry[] = [

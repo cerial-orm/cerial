@@ -206,12 +206,10 @@ export function formatCerialSource(source: string, options?: FormatOptions): For
     };
   }
 
-  // 2. Tokenize for comments, attach them to AST nodes and measure layout
   const tokens = tokenize(source);
   const comments = attachComments(tokens, ast);
   const layout = buildSourceLayout(tokens);
 
-  // 3. Print
   const formatted = printSchema(ast, { ...options, comments, layout });
 
   return { formatted, changed: formatted !== source };
@@ -231,7 +229,7 @@ export interface PrintSchemaOptions extends FormatOptions {
 /**
  * Print a whole schema AST as `.cerial` text, from the AST alone.
  *
- * Comments are not part of the AST (band decision D9). They are kept when the caller passes the
+ * Comments are not part of the AST, so they are kept when the caller passes the
  * attachments computed from source text (a `.cerial` input), and dropped for an AST with no source
  * (one built from TypeScript). Likewise only a `.cerial` input has a layout to honor; without one the
  * output is the canonical form. Pass the AST as parsed, before `resolveInheritance`, or `extends`
@@ -242,10 +240,8 @@ export function printSchema(ast: SchemaAST, options?: PrintSchemaOptions): strin
   const layout = options?.layout;
   const config = resolveConfig(options);
 
-  // 1. Collect all top-level blocks in source order
   const blocks = collectTopLevelBlocks(ast);
 
-  // 2. Print each block
   const printedBlocks = blocks.map((block) => {
     switch (block.kind) {
       case 'model':
@@ -261,7 +257,6 @@ export function printSchema(ast: SchemaAST, options?: PrintSchemaOptions): strin
     }
   });
 
-  // 3. Assemble output
   const outputParts: string[] = [];
 
   // Top-level comments (before first declaration)
@@ -274,7 +269,7 @@ export function printSchema(ast: SchemaAST, options?: PrintSchemaOptions): strin
   for (let i = 0; i < printedBlocks.length; i++) {
     const printed = printedBlocks[i]!;
 
-    if (i > 0 || outputParts.length > 0) {
+    if (i > 0 || outputParts.length) {
       const separator = computeBlockSeparator(config.blockSeparation, blocks, layout, i, outputParts.length > 0);
       outputParts.push(separator);
     }
@@ -320,13 +315,13 @@ function computeBlockSeparator(
 
   // Honor: the original blank lines, at least 1 and at most 2. A node without source lines
   // (no layout, or a `ts` origin) has none to honor, so it gets the 1 minimum
-  let blankCount = 0;
-  if (blockIdx === 0) {
-    // Top comments to the first block: every blank line before it, comments' own gaps included
-    blankCount = layout ? layout.blankLinesBetween(0, blocks[0]!.range.start.line) : 0;
-  } else {
-    blankCount = blankLinesBetweenNodes(layout, blocks[blockIdx - 1]!.node, blocks[blockIdx]!.node, 'end') ?? 0;
-  }
+  // Top comments to the first block: every blank line before it, comments' own gaps included
+  const blankCount =
+    blockIdx === 0
+      ? layout
+        ? layout.blankLinesBetween(0, blocks[0]!.range.start.line)
+        : 0
+      : (blankLinesBetweenNodes(layout, blocks[blockIdx - 1]!.node, blocks[blockIdx]!.node, 'end') ?? 0);
   const effective = Math.min(Math.max(blankCount, 1), 2);
 
   return '\n'.repeat(effective - 1);

@@ -14,14 +14,12 @@ import { createCompositeDirective, createPosition, createRange } from '../ast';
 export function parseCompositeDirective(
   line: string,
   lineNumber: number,
-): { directive: ASTCompositeDirective | null; error: string | null } {
+): { directive: ASTCompositeDirective } | { error: string } {
   const trimmed = removeComments(line).trim();
 
-  // Match: @@index(name, [field1, field2]) or @@unique(name, [field1, field2])
   const match = trimmed.match(/^@@(index|unique)\(\s*(\w+)\s*,\s*\[([^\]]+)\]\s*\)$/);
   if (!match) {
     return {
-      directive: null,
       error: `Invalid composite directive syntax: ${trimmed}. Expected @@index(name, [field1, field2, ...]) or @@unique(name, [field1, field2, ...])`,
     };
   }
@@ -30,17 +28,16 @@ export function parseCompositeDirective(
   const name = match[2]!;
   const fieldsStr = match[3]!;
 
-  // Parse field list (comma-separated, supports dot notation like address.city)
   const fields = fieldsStr
     .split(',')
     .map((f) => f.trim())
-    .filter((f) => f.length > 0);
+    .filter(Boolean);
 
   if (!fields.length) {
-    return { directive: null, error: `Composite directive @@${kind}("${name}") must specify at least one field` };
+    return { error: `Composite directive @@${kind}("${name}") must specify at least one field` };
   }
 
   const range = createRange(createPosition(lineNumber, 0, 0), createPosition(lineNumber, trimmed.length, 0));
 
-  return { directive: createCompositeDirective(kind, name, fields, range), error: null };
+  return { directive: createCompositeDirective(kind, name, fields, range) };
 }

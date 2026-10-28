@@ -84,7 +84,7 @@ describe('round trip over the schema corpus', () => {
       expect(printSchema(again)).toBe(printed);
     });
 
-    const hasComments = commentTexts(source).length > 0;
+    const hasComments = !!commentTexts(source).length;
     it.skipIf(!hasComments)('keeps every comment when given attachments, and stays stable', () => {
       const ast = parseWithCorpusNames(source);
       const options = { comments: attachComments(tokenize(source), ast), layout: buildSourceLayout(tokenize(source)) };

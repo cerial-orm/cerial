@@ -163,10 +163,6 @@ export const DECORATOR_DETAIL: Readonly<Record<string, DecoratorDetail>> = {
   },
 };
 
-// ---------------------------------------------------------------------------
-// Derived docs
-// ---------------------------------------------------------------------------
-
 /** The signature as written in a schema, derived from the argument shape. */
 function signatureOf(entry: DecoratorEntry): string {
   const { args, name } = entry;

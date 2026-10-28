@@ -1,6 +1,6 @@
 /**
  * printSchema: every top-level construct prints from the AST alone and re-parses to an equivalent AST.
- * Comments are kept only when the caller passes attachments computed from source text (band decision D9).
+ * Comments are kept only when the caller passes attachments computed from source text.
  */
 
 import { describe, expect, it } from 'bun:test';

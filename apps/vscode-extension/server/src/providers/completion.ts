@@ -1212,12 +1212,11 @@ export function getDecoratorCompletions(
       continue;
     }
 
-    const snippet = decoratorSnippet(entry);
     items.push({
       label: decoratorLabel(entry),
       kind: CompletionItemKind.Property,
       detail: entry.description,
-      insertText: snippet,
+      insertText: decoratorSnippet(entry),
       insertTextFormat: entry.args.kind === 'none' ? InsertTextFormat.PlainText : InsertTextFormat.Snippet,
     });
   }
