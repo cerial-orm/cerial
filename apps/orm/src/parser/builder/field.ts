@@ -52,6 +52,8 @@ export type FieldFactories = {
 interface FieldSpec {
   readonly type: SchemaFieldType;
   readonly recordIdTypes?: readonly RecordIdType[];
+  /** Set for a field typed by a literal or an enum, which the parser records the same way. */
+  readonly literalName?: Reference;
   readonly objectReference?: Reference;
   /** `Any` rejects `?` and `@nullable`. */
   readonly any: boolean;
@@ -119,10 +121,15 @@ export function fieldNode(builder: object, name: string): ASTField {
     state.isArray,
     spec.objectReference === undefined ? undefined : referenceName(spec.objectReference),
     undefined,
-    undefined,
+    spec.literalName === undefined ? undefined : referenceName(spec.literalName),
     recordIdTypes,
     state.isPrivate || undefined,
   );
+}
+
+/** A field typed by a literal or an enum; the reference may be a handle, a thunk or a bare name. */
+export function literalField(reference: Reference): FieldBuilder {
+  return start({ type: 'literal', literalName: reference, any: false }) as FieldBuilder;
 }
 
 const SPECIAL: readonly SchemaFieldType[] = ['record', 'relation'];
