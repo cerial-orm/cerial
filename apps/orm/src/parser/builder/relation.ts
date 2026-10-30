@@ -9,25 +9,62 @@ import { referenceName } from './handle';
 import type { Reference } from './handle';
 import type { BareName, BuilderNode, ChainEntry, MethodArgs, Remaining } from './types';
 
-/**
- * Entries a relation builder does not chain: `@field` is the `.field(name)` override, and `@onDelete` is
- * not available until the builder can derive the foreign key's nullability from it.
- */
+/** Entries a relation builder does not chain with the rest: `@field` is the `.field(name)` override. */
 type NotChained = { readonly name: '@field' | '@onDelete' };
 
+/** The chain method of `@onDelete`, read from the registry so its accepted values are not restated. */
+type OnDeleteEntry<E extends DecoratorEntry> = Extract<E, { readonly name: '@onDelete' }>;
+
 /**
- * A forward to-one relation under construction. Each call returns a new builder. The backing `Record`
- * is derived from the declaration, so the pair cannot disagree; the methods are the registry's chain
- * entries for a relation, and `.field(name)` names the foreign key when the default does not fit.
+ * Whether `.onDelete()` exists: the validator accepts `@onDelete` on a singular relation that is optional
+ * or nullable, and refuses a required one (it auto-cascades) and an array one.
  */
-export type RelationBuilder<E extends DecoratorEntry = RegisteredDecorator> = {
+type OnDeleteAllowed<O extends boolean, A extends boolean, N extends boolean> = A extends true
+  ? false
+  : O extends true
+    ? true
+    : N;
+
+/**
+ * A forward relation under construction. Each call returns a new builder. The backing `Record` is derived
+ * from the declaration, so the pair cannot disagree: `O`, `A` and `N` are optional, array and nullable.
+ * The methods are the registry's chain entries for a relation, and `.field(name)` names the foreign key
+ * when the default does not fit.
+ */
+export type RelationBuilder<
+  E extends DecoratorEntry = RegisteredDecorator,
+  O extends boolean = false,
+  A extends boolean = false,
+  N extends boolean = false,
+> = {
   readonly [X in ChainEntry<Exclude<E, NotChained>, 'modelField', 'relation'> as BareName<X['name']>]: (
     ...args: MethodArgs<X['args']>
-  ) => RelationBuilder<Remaining<E, X>>;
+  ) => RelationBuilder<Remaining<E, X>, O, A, X['name'] extends '@nullable' ? true : N>;
 } & {
+  /** `!!private`: hides the relation from the client's output types. */
+  private(): RelationBuilder<E, O, A, N>;
   /** `@field(name)`: the foreign key's name, instead of the relation's name plus `Id`. */
-  field(name: string): RelationBuilder<E>;
-};
+  field(name: string): RelationBuilder<E, O, A, N>;
+} & (A extends true
+    ? unknown
+    : O extends true
+      ? unknown
+      : {
+          /** `Relation[]`; the key becomes a `Record[]` named with an `Ids` suffix. The schema has no optional array relation. */
+          array(): RelationBuilder<E, O, true, N>;
+        }) &
+  (A extends true
+    ? unknown
+    : {
+        /** `Relation?`; the key becomes `Record?` too. */
+        optional(): RelationBuilder<E, true, A, N>;
+      }) &
+  (OnDeleteAllowed<O, A, N> extends true
+    ? {
+        /** `@onDelete(action)`: `SetNull` makes the key nullable and `SetNone` makes it optional. */
+        onDelete(...args: MethodArgs<OnDeleteEntry<E>['args']>): RelationBuilder<E, O, A, N>;
+      }
+    : unknown);
 
 interface ChainRuntime {
   decorators(): BuilderNode[];
@@ -37,14 +74,14 @@ interface ChainRuntime {
 interface RelationState {
   readonly target: Reference;
   readonly foreignKey: string | undefined;
+  readonly isOptional: boolean;
+  readonly isArray: boolean;
+  readonly isPrivate: boolean;
   readonly chain: ChainRuntime;
 }
 
 // Read only by `relationNodes`, so a builder carries nothing but its public methods.
 const STATES = new WeakMap<object, RelationState>();
-
-/** Chain methods that would emit a pair the parser could not, until the later work that derives them. */
-const UNSUPPORTED = ['array', 'optional', 'private', 'onDelete'] as const;
 
 function registered(name: DecoratorName): DecoratorEntry {
   const entry = DECORATOR_REGISTRY.get(name);
@@ -53,7 +90,7 @@ function registered(name: DecoratorName): DecoratorEntry {
   return entry;
 }
 
-function decoratorNode(name: DecoratorName, arg: string): ASTDecorator {
+function decoratorNode(name: DecoratorName, arg?: string): ASTDecorator {
   const entry = registered(name);
 
   return entry.parse(chainToken(entry, arg), BUILDER_RANGE) as ASTDecorator;
@@ -62,12 +99,10 @@ function decoratorNode(name: DecoratorName, arg: string): ASTDecorator {
 function builderOf(state: RelationState): object {
   const methods: Record<string, unknown> = {
     field: (name: string) => builderOf({ ...state, foreignKey: name }),
+    array: () => builderOf({ ...state, isArray: true }),
+    optional: () => builderOf({ ...state, isOptional: true }),
+    private: () => builderOf({ ...state, isPrivate: true }),
   };
-  for (const method of UNSUPPORTED) {
-    methods[method] = () => {
-      throw new Error(`.${method}() is not supported on f.relation() yet`);
-    };
-  }
   for (const entry of chainEntries('modelField', 'relation')) {
     const name = bareName(entry.name);
     if (name in methods) continue;
@@ -86,7 +121,14 @@ function builderOf(state: RelationState): object {
 export function relation(target: Reference): RelationBuilder {
   const chain = createChain('modelField', { kind: 'relation' }) as unknown as ChainRuntime;
 
-  return builderOf({ target, foreignKey: undefined, chain }) as RelationBuilder;
+  return builderOf({
+    target,
+    foreignKey: undefined,
+    isOptional: false,
+    isArray: false,
+    isPrivate: false,
+    chain,
+  }) as RelationBuilder;
 }
 
 /** Whether `builder` came from `f.relation`, which a model expands into two fields and an object refuses. */
@@ -94,23 +136,52 @@ export function isRelationBuilder(builder: object): boolean {
   return STATES.has(builder);
 }
 
+/** `tags` is keyed by `tagIds`, `following` by `followingIds`: one trailing `s` goes before the suffix. */
+function derivedKey(name: string, isArray: boolean): string {
+  if (!isArray) return `${name}Id`;
+
+  return `${name.endsWith('s') ? name.slice(0, -1) : name}Ids`;
+}
+
 /**
  * The two nodes a relation declares, foreign key first: the parser's corpus puts the key directly before
  * its relation in 60 of 64 hand-written forward relations. The foreign key carries no `Record(Type)`,
- * because its id type is inferred from the target model.
+ * because its id type is inferred from the target model. It follows the relation's optionality and array
+ * form, and `@onDelete` decides the rest: `SetNull` needs a nullable key and `SetNone` an optional one.
  */
 export function relationNodes(builder: object, name: string): [ASTField, ASTField] {
   const state = STATES.get(builder);
   if (!state) throw new Error(`Not a relation builder: ${String(builder)}`);
-  const foreignKey = state.foreignKey ?? `${name}Id`;
+  const foreignKey = state.foreignKey ?? derivedKey(name, state.isArray);
   const decorators = [
     decoratorNode('@field', foreignKey),
     decoratorNode('@model', referenceName(state.target)),
     ...state.chain.decorators().filter((node): node is ASTDecorator => 'type' in node),
   ];
+  const onDelete = decorators.find((d) => d.type === 'onDelete')?.value;
+  const keyDecorators = onDelete === 'SetNull' ? [decoratorNode('@nullable')] : [];
 
   return [
-    createField(foreignKey, 'record', false, [], BUILDER_RANGE),
-    createField(name, 'relation', false, decorators, BUILDER_RANGE),
+    createField(
+      foreignKey,
+      'record',
+      state.isOptional || onDelete === 'SetNone',
+      keyDecorators,
+      BUILDER_RANGE,
+      state.isArray,
+    ),
+    createField(
+      name,
+      'relation',
+      state.isOptional,
+      decorators,
+      BUILDER_RANGE,
+      state.isArray,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      state.isPrivate || undefined,
+    ),
   ];
 }

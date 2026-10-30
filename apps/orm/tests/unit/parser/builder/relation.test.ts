@@ -169,20 +169,10 @@ describe('what a relation refuses', () => {
     expect(objectNode(object('Address', { city: f.string() })).fields.map((x) => x.name)).toEqual(['city']);
   });
 
-  test.each(['array', 'optional', 'private', 'onDelete'] as const)('.%s() throws until it is supported', (method) => {
-    const rel = f.relation(() => Author) as unknown as Record<string, () => unknown>;
-
-    expect(() => rel[method]!()).toThrow(`.${method}() is not supported on f.relation() yet`);
-  });
-
-  test('the unsupported methods are absent from the type', () => {
+  test('a plain field has no .field(name), which belongs to relations', () => {
     const rel = f.relation(() => Author);
-    // @ts-expect-error array is not offered on a relation until its pair is derived
-    expect(rel.array).toBeDefined();
-    // @ts-expect-error optional is not offered on a relation until its pair is derived
-    expect(rel.optional).toBeDefined();
-    // @ts-expect-error onDelete is not offered on a relation until its key nullability is derived
-    expect(rel.onDelete).toBeDefined();
+
+    expect(rel).toHaveProperty('field');
     // @ts-expect-error a plain field has no .field(name), which belongs to relations
     expect(f.string().field).toBeUndefined();
   });
