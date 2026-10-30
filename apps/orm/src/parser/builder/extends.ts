@@ -1,5 +1,6 @@
 import type { ExtendsFilter } from '../../types';
 import type { Handle } from './handle';
+import { sharedWeakMap, sharedWeakSet } from './shared-state';
 
 /**
  * A declaration other declarations can extend. `Own` is the names the declaration itself declares, which
@@ -67,9 +68,9 @@ export interface ExtendsClause {
   readonly filter?: ExtendsFilter;
 }
 
-const PARENTS = new WeakSet<object>();
-const FILTERED = new WeakMap<object, ExtendsClause>();
-const CLAUSES = new WeakMap<object, ExtendsClause>();
+const PARENTS = sharedWeakSet('extends.parents');
+const FILTERED = sharedWeakMap<ExtendsClause>('extends.filtered');
+const CLAUSES = sharedWeakMap<ExtendsClause>('extends.clauses');
 
 /** A fresh handle for `name` with `pick` and `omit`, which are not enumerable so the handle holds only its name. */
 export function extendable<

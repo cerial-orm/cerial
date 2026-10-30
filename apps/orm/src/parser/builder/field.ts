@@ -9,6 +9,7 @@ import { relation, reverse } from './relation';
 import type { RelationBuilder, ReverseBuilder } from './relation';
 import type { PrivateMark, Reference } from './handle';
 import type { BareName, BuilderNode, ChainEntry, MethodArgs, Remaining } from './types';
+import { sharedWeakMap } from './shared-state';
 
 /** Type-only key: a field builder's `Record(...)` id type, present only after `.id()`. Never exists at runtime. */
 declare const ID_MARK: unique symbol;
@@ -130,7 +131,7 @@ interface ChainRuntime {
 }
 
 // Read only by `fieldNode`, so a builder carries nothing but its public methods.
-const STATES = new WeakMap<object, FieldState>();
+const STATES = sharedWeakMap<FieldState>('field.states');
 
 function builderOf(state: FieldState): object {
   const { spec } = state;

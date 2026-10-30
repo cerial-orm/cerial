@@ -6,6 +6,7 @@ import { extendable, extendsFields, extendsOf, recordExtends } from './extends';
 import type { Extendable, ExtendsFiltered, ExtendsTarget, VisibleOf } from './extends';
 import { referenceName } from './handle';
 import type { Handle, Reference } from './handle';
+import { sharedWeakMap } from './shared-state';
 
 /** The broad type names a literal variant may stand for, as the parser recognises them. */
 export type BroadTypeName = 'String' | 'Int' | 'Float' | 'Bool' | 'Date';
@@ -124,7 +125,7 @@ interface LiteralDefinition {
 }
 
 // Read only by `literalNode`, so a handle carries nothing but its name
-const DEFINITIONS = new WeakMap<object, LiteralDefinition>();
+const DEFINITIONS = sharedWeakMap<LiteralDefinition>('literal.definitions');
 
 /** Whether `handle` was declared by `literal()`. */
 export function isLiteralHandle(handle: object): boolean {

@@ -12,6 +12,7 @@ import type { ObjectFields } from './object';
 import { extendable, extendsFields, extendsOf, recordExtends } from './extends';
 import type { Extendable, ExtendsTarget, NoPrivateOverride } from './extends';
 import type { PrivateKeys } from './handle';
+import { sharedWeakMap } from './shared-state';
 
 /** The field builders of a model body, keyed by field name. */
 export type ModelFields = ObjectFields;
@@ -60,7 +61,7 @@ interface ModelDeclaration {
 }
 
 // Read only by `modelNode`; the parent is also reachable through `extendsOf`.
-const NODES = new WeakMap<object, ModelDeclaration>();
+const NODES = sharedWeakMap<ModelDeclaration>('model.nodes');
 
 /** Whether `handle` was declared by `model()`. */
 export function isModelHandle(handle: object): boolean {

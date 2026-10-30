@@ -4,6 +4,7 @@ import { BUILDER_RANGE } from './chain';
 import { extendable, extendsFields, extendsOf, recordExtends } from './extends';
 import type { Extendable, ExtendsTarget, VisibleOf } from './extends';
 import type { LiteralHandle } from './literal';
+import { sharedWeakMap } from './shared-state';
 
 const IDENTIFIER = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
 
@@ -13,7 +14,7 @@ interface EnumDefinition {
 }
 
 // Read only by `enumNode`, so a handle carries nothing but its name
-const DEFINITIONS = new WeakMap<object, EnumDefinition>();
+const DEFINITIONS = sharedWeakMap<EnumDefinition>('enum.definitions');
 
 /** Whether `handle` was declared by `enumeration()`. */
 export function isEnumHandle(handle: object): boolean {

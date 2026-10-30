@@ -9,6 +9,7 @@ import { REFUSED_ON_RELATION } from './exposure';
 import { referenceName } from './handle';
 import type { PrivateMark, Reference } from './handle';
 import type { BareName, BuilderNode, ChainEntry, MethodArgs, Remaining } from './types';
+import { sharedWeakMap } from './shared-state';
 
 /** Entries a relation builder does not chain with the rest: `@field` is the `.field(name)` binding, and the validators refuse some. */
 type NotChained = { readonly name: '@field' | '@onDelete' | (typeof REFUSED_ON_RELATION)[number] };
@@ -124,8 +125,8 @@ interface RelationState {
 }
 
 // Read only by `relationNodes`, so a builder carries nothing but its public methods.
-const STATES = new WeakMap<object, RelationState>();
-const REVERSE_STATES = new WeakMap<object, RelationState>();
+const STATES = sharedWeakMap<RelationState>('relation.states');
+const REVERSE_STATES = sharedWeakMap<RelationState>('relation.reverse-states');
 
 function registered(name: DecoratorName): DecoratorEntry {
   const entry = DECORATOR_REGISTRY.get(name);

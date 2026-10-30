@@ -6,6 +6,7 @@ import { extendable, extendsFields, extendsOf, recordExtends } from './extends';
 import type { Extendable, ExtendsTarget, NoPrivateOverride } from './extends';
 import type { PrivateKeys } from './handle';
 import { isRelationBuilder } from './relation';
+import { sharedWeakMap } from './shared-state';
 
 /** The field builders of an object body, keyed by field name. */
 export type ObjectFields = Readonly<Record<string, object>>;
@@ -16,7 +17,7 @@ export interface ObjectOptions<Parent extends string = string, Reserved extends 
 }
 
 // Read only by `objectNode`; the parent is also reachable through `extendsOf`.
-const NODES = new WeakMap<object, { readonly name: string; readonly fields: ObjectFields }>();
+const NODES = sharedWeakMap<{ readonly name: string; readonly fields: ObjectFields }>('object.nodes');
 
 /** Whether `handle` was declared by `object()`. */
 export function isObjectHandle(handle: object): boolean {

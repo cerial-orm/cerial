@@ -9,6 +9,7 @@ import type { PrivateKeys, PrivateMark, Reference } from './handle';
 import { extendable, extendsFields, extendsOf, recordExtends } from './extends';
 import type { Extendable, ExtendsTarget, NoPrivateOverride } from './extends';
 import type { BareName, BuilderNode, ChainEntry, MethodArgs, Remaining } from './types';
+import { sharedWeakMap } from './shared-state';
 
 declare const ELEMENT: unique symbol;
 
@@ -80,7 +81,7 @@ interface ChainRuntime {
 }
 
 // Read only by `tupleNode`, so a builder carries nothing but its public methods.
-const STATES = new WeakMap<object, ElementState>();
+const STATES = sharedWeakMap<ElementState>('tuple.states');
 
 function builderOf(state: ElementState): object {
   const { spec } = state;
@@ -141,7 +142,7 @@ export const e = Object.freeze({
 export type TupleElements = readonly Element[] | Readonly<Record<string, Element>>;
 
 // Read only by `tupleNode`, so a handle carries nothing but its name.
-const NODES = new WeakMap<object, { readonly name: string; readonly elements: TupleElements }>();
+const NODES = sharedWeakMap<{ readonly name: string; readonly elements: TupleElements }>('tuple.nodes');
 
 /** Whether `handle` was declared by `tuple()`. */
 export function isTupleHandle(handle: object): boolean {
