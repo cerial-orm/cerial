@@ -18,3 +18,5 @@ export { e, tuple, tupleNode } from './tuple';
 export { enumeration as enum, enumNode } from './enum';
 export type { BroadTypeName, LiteralHandle, SimpleLiteralReference, VariantSpec } from './literal';
 export { literal, literalNode, variant } from './literal';
+export type { ModelFields, ModelOptions } from './model';
+export { model, modelNode } from './model';
