@@ -22,11 +22,11 @@ const SIMPLE = [...FIELD_TYPE_REGISTRY.values()].filter((e) => e.fieldType !== '
 
 describe('field factories', () => {
   test('there is one factory per registry field type, and f.relation comes from the relation helper', () => {
-    const expected = [...SIMPLE.map((e) => e.fieldType), 'record', 'object', 'relation'].sort();
+    const expected = [...SIMPLE.map((e) => e.fieldType), 'record', 'object', 'relation', 'reverse'].sort();
 
     expect(Object.keys(f).sort()).toEqual(expected);
-    // 13 non-relation types besides Record, plus record, the object reference and the relation helper
-    expect(expected).toHaveLength(16);
+    // 13 non-relation types besides Record, plus record, the object reference and the two relation helpers
+    expect(expected).toHaveLength(17);
   });
 
   test.each(SIMPLE.map((e) => [e.name, e.fieldType] as const))(

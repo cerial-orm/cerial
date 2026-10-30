@@ -66,6 +66,37 @@ export type RelationBuilder<
       }
     : unknown);
 
+/**
+ * The reverse side of a relation under construction. It stores nothing, so it has no foreign key to name
+ * (`.field()`) and no deletion rule (`.onDelete()`), and `@nullable` is refused on any relation. What is
+ * left is `@key`, which pairs it with its forward side, plus the array, optional and private forms.
+ */
+export type ReverseBuilder<
+  E extends DecoratorEntry = RegisteredDecorator,
+  O extends boolean = false,
+  A extends boolean = false,
+> = {
+  readonly [X in ChainEntry<Extract<E, { readonly name: '@key' }>, 'modelField', 'relation'> as BareName<X['name']>]: (
+    ...args: MethodArgs<X['args']>
+  ) => ReverseBuilder<Remaining<E, X>, O, A>;
+} & {
+  /** `!!private`: hides the relation from the client's output types. */
+  private(): ReverseBuilder<E, O, A>;
+} & (A extends true
+    ? unknown
+    : O extends true
+      ? unknown
+      : {
+          /** `Relation[]`: every record that points back at this one. */
+          array(): ReverseBuilder<E, O, true>;
+        }) &
+  (A extends true
+    ? unknown
+    : {
+        /** `Relation?` */
+        optional(): ReverseBuilder<E, true, A>;
+      });
+
 interface ChainRuntime {
   decorators(): BuilderNode[];
   [method: string]: (...args: unknown[]) => unknown;
@@ -82,6 +113,7 @@ interface RelationState {
 
 // Read only by `relationNodes`, so a builder carries nothing but its public methods.
 const STATES = new WeakMap<object, RelationState>();
+const REVERSE_STATES = new WeakMap<object, RelationState>();
 
 function registered(name: DecoratorName): DecoratorEntry {
   const entry = DECORATOR_REGISTRY.get(name);
@@ -131,9 +163,39 @@ export function relation(target: Reference): RelationBuilder {
   }) as RelationBuilder;
 }
 
-/** Whether `builder` came from `f.relation`, which a model expands into two fields and an object refuses. */
+function reverseBuilderOf(state: RelationState): object {
+  const methods: Record<string, unknown> = {
+    array: () => reverseBuilderOf({ ...state, isArray: true }),
+    optional: () => reverseBuilderOf({ ...state, isOptional: true }),
+    private: () => reverseBuilderOf({ ...state, isPrivate: true }),
+    key: (name: string) => reverseBuilderOf({ ...state, chain: state.chain.key!(name) as ChainRuntime }),
+  };
+  const builder = Object.freeze(methods);
+  REVERSE_STATES.set(builder, state);
+
+  return builder;
+}
+
+/**
+ * The reverse side of a relation to `target`: no foreign key is derived, because the forward side owns
+ * it. `f.relation` is always the forward side.
+ */
+export function reverse(target: Reference): ReverseBuilder {
+  const chain = createChain('modelField', { kind: 'relation' }) as unknown as ChainRuntime;
+
+  return reverseBuilderOf({
+    target,
+    foreignKey: undefined,
+    isOptional: false,
+    isArray: false,
+    isPrivate: false,
+    chain,
+  }) as ReverseBuilder;
+}
+
+/** Whether `builder` came from `f.relation` or `f.reverse`, which a model expands and an object refuses. */
 export function isRelationBuilder(builder: object): boolean {
-  return STATES.has(builder);
+  return STATES.has(builder) || REVERSE_STATES.has(builder);
 }
 
 /** `tags` is keyed by `tagIds`, `following` by `followingIds`: one trailing `s` goes before the suffix. */
@@ -143,13 +205,36 @@ function derivedKey(name: string, isArray: boolean): string {
   return `${name.endsWith('s') ? name.slice(0, -1) : name}Ids`;
 }
 
+function reverseNode(state: RelationState, name: string): ASTField {
+  const decorators = [
+    decoratorNode('@model', referenceName(state.target)),
+    ...state.chain.decorators().filter((node): node is ASTDecorator => 'type' in node),
+  ];
+
+  return createField(
+    name,
+    'relation',
+    state.isOptional,
+    decorators,
+    BUILDER_RANGE,
+    state.isArray,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    state.isPrivate || undefined,
+  );
+}
+
 /**
- * The two nodes a relation declares, foreign key first: the parser's corpus puts the key directly before
+ * The two nodes a forward relation declares, foreign key first: the parser's corpus puts the key directly before
  * its relation in 60 of 64 hand-written forward relations. The foreign key carries no `Record(Type)`,
  * because its id type is inferred from the target model. It follows the relation's optionality and array
  * form, and `@onDelete` decides the rest: `SetNull` needs a nullable key and `SetNone` an optional one.
  */
-export function relationNodes(builder: object, name: string): [ASTField, ASTField] {
+export function relationNodes(builder: object, name: string): ASTField[] {
+  const reversed = REVERSE_STATES.get(builder);
+  if (reversed) return [reverseNode(reversed, name)];
   const state = STATES.get(builder);
   if (!state) throw new Error(`Not a relation builder: ${String(builder)}`);
   const foreignKey = state.foreignKey ?? derivedKey(name, state.isArray);

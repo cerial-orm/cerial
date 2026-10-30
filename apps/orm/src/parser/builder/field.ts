@@ -5,8 +5,8 @@ import type { DecoratorEntry, RegisteredDecorator } from '../registry';
 import { BUILDER_RANGE, createChain } from './chain';
 import { bareName, chainEntries } from './entries';
 import { referenceName } from './handle';
-import { relation } from './relation';
-import type { RelationBuilder } from './relation';
+import { relation, reverse } from './relation';
+import type { RelationBuilder, ReverseBuilder } from './relation';
 import type { Reference } from './handle';
 import type { BareName, BuilderNode, ChainEntry, MethodArgs, Remaining } from './types';
 
@@ -100,6 +100,8 @@ export type FieldFactories = {
   readonly object: (reference: Reference) => ObjectFieldBuilder;
   /** A forward to-one relation; its backing `Record` is derived. Models only. */
   readonly relation: (target: Reference) => RelationBuilder;
+  /** The reverse side of a relation: no foreign key, since the forward side owns it. Models only. */
+  readonly reverse: (target: Reference) => ReverseBuilder;
 };
 
 interface FieldSpec {
@@ -203,4 +205,5 @@ export const f = Object.freeze({
   record: (...idTypes: readonly RecordIdType[]) => start({ type: 'record', recordIdTypes: idTypes, any: false }),
   object: (reference: Reference) => start({ type: 'object', objectReference: reference, any: false }),
   relation,
+  reverse,
 }) as unknown as FieldFactories;
