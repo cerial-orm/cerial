@@ -13,7 +13,7 @@ const GEOMETRY_SUBTYPES = [
 ] as const;
 
 /** Narrower than `DecoratorEntry` so the builder's types still see seven zero-argument model and object field methods. */
-interface GeometryEntry extends DecoratorEntry {
+export interface GeometryEntry extends DecoratorEntry {
   readonly name: (typeof GEOMETRY_SUBTYPES)[number][0];
   readonly args: { readonly kind: 'none' };
   readonly targets: readonly ['modelField', 'objectField'];

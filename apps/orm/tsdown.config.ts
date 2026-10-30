@@ -5,6 +5,7 @@ export default defineConfig([
   {
     entry: [
       'src/index.ts',
+      'src/schema/index.ts',
       'src/parser/index.ts',
       'src/generators/index.ts',
       'src/query/index.ts',
