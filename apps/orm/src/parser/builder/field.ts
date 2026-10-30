@@ -8,32 +8,79 @@ import { referenceName } from './handle';
 import type { Reference } from './handle';
 import type { BareName, BuilderNode, ChainEntry, MethodArgs, Remaining } from './types';
 
+/** Type-only key: a field builder's `Record(...)` id type, present only after `.id()`. Never exists at runtime. */
+declare const ID_MARK: unique symbol;
+
 /**
  * A field under construction. Each call returns a new builder, so a partial chain can be reused, and the
- * methods are the registry's chain entries for a model field: nothing here names a decorator. `O` is false
- * for a type that cannot be optional.
+ * methods are the registry's chain entries for a model field: nothing here names a decorator but `@id`,
+ * which also marks the builder so `model()` can read the id type. `O` is false for a type that cannot be
+ * optional; `Id` is the TypeScript type of a `Record(...)` id and `Marked` is true once `.id()` ran.
  */
-export type FieldBuilder<E extends DecoratorEntry = RegisteredDecorator, O extends boolean = true> = {
+export type FieldBuilder<
+  E extends DecoratorEntry = RegisteredDecorator,
+  O extends boolean = true,
+  Id = never,
+  Marked extends boolean = false,
+> = {
   readonly [X in ChainEntry<E, 'modelField', 'plain'> as BareName<X['name']>]: (
     ...args: MethodArgs<X['args']>
-  ) => FieldBuilder<Remaining<E, X>, O>;
+  ) => FieldBuilder<Remaining<E, X>, O, Id, X['name'] extends '@id' ? true : Marked>;
 } & {
   /** `!!private`: hidden from the client's output types. */
-  private(): FieldBuilder<E, O>;
+  private(): FieldBuilder<E, O, Id, Marked>;
   /** `Type[]`. */
-  array(): FieldBuilder<E, O>;
+  array(): FieldBuilder<E, O, Id, Marked>;
+  readonly [ID_MARK]?: Marked extends true ? { readonly id: Id } : never;
 } & (O extends true
     ? {
         /** `Type?` */
-        optional(): FieldBuilder<E, O>;
+        optional(): FieldBuilder<E, O, Id, Marked>;
       }
     : unknown);
+
+/** The id type a model's `.id()` field declares, or `never` when no field is marked. */
+export type IdOf<Fields extends object> = [IdMarkOf<Fields[keyof Fields]>] extends [never]
+  ? never
+  : IdMarkOf<Fields[keyof Fields]> extends { readonly id: infer I }
+    ? I
+    : never;
+
+type IdMarkOf<B> = B extends { readonly [ID_MARK]?: infer M } ? NonNullable<M> : never;
 
 /** `Any` takes neither `?` nor `@nullable`: SurrealDB `TYPE any` already accepts NONE and null. */
 export type AnyFieldBuilder = FieldBuilder<Exclude<RegisteredDecorator, { readonly name: '@nullable' }>, false>;
 
-/** The primitive id types `Record(...)` takes; an object or tuple id goes through a reference. */
-export type RecordIdType = 'int' | 'number' | 'string' | 'uuid' | Reference;
+/** The primitive id types `Record(...)` takes. */
+export type PrimitiveIdType = 'int' | 'number' | 'string' | 'uuid';
+
+/** Primitive names the schema refuses as an id type; a bare string reaches `Reference`, so these are barred by name. */
+type RefusedIdType =
+  | 'float'
+  | 'bool'
+  | 'date'
+  | 'datetime'
+  | 'decimal'
+  | 'duration'
+  | 'literal'
+  | 'enum'
+  | 'relation'
+  | 'email'
+  | 'bytes'
+  | 'geometry'
+  | 'any';
+
+/** A primitive, or an object or tuple id named by handle, thunk or bare name. */
+export type RecordIdType = PrimitiveIdType | Reference;
+
+type ValidIdType<T> = T extends RefusedIdType ? never : T;
+
+type IdTypeValue<T> = T extends 'int' | 'number' ? number : T extends 'string' | 'uuid' ? string : unknown;
+
+/** The TypeScript type of a `Record(...)` id: `string` when plain, else the union of the listed types. */
+export type RecordIdValue<Ids extends readonly RecordIdType[]> = Ids extends readonly []
+  ? string
+  : IdTypeValue<Ids[number]>;
 
 /** An object-typed field takes `?` and `[]` but not `@nullable`: SurrealDB cannot define sub-fields on a nullable parent. */
 export type ObjectFieldBuilder = FieldBuilder<Exclude<RegisteredDecorator, { readonly name: '@nullable' }>>;
@@ -44,7 +91,9 @@ type SimpleFieldType = Exclude<SchemaFieldType, 'record' | 'relation' | 'object'
 export type FieldFactories = {
   readonly [T in SimpleFieldType]: () => T extends 'any' ? AnyFieldBuilder : FieldBuilder;
 } & {
-  readonly record: (...idTypes: RecordIdType[]) => FieldBuilder;
+  readonly record: <const Ids extends readonly RecordIdType[]>(
+    ...idTypes: Ids & { [K in keyof Ids]: ValidIdType<Ids[K]> }
+  ) => FieldBuilder<RegisteredDecorator, true, RecordIdValue<Ids>>;
   /** A field typed as an object definition, named by handle, thunk or bare name. */
   readonly object: (reference: Reference) => ObjectFieldBuilder;
 };
@@ -147,6 +196,6 @@ function simpleFactories(): Record<string, () => object> {
 /** The field factories. `f.relation` is not here: it belongs to the relation helper. */
 export const f = Object.freeze({
   ...simpleFactories(),
-  record: (...idTypes: RecordIdType[]) => start({ type: 'record', recordIdTypes: idTypes, any: false }),
+  record: (...idTypes: readonly RecordIdType[]) => start({ type: 'record', recordIdTypes: idTypes, any: false }),
   object: (reference: Reference) => start({ type: 'object', objectReference: reference, any: false }),
 }) as unknown as FieldFactories;

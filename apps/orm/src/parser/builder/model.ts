@@ -2,6 +2,7 @@ import type { ASTModel } from '../../types';
 import { createModel } from '../types/ast';
 import { BUILDER_RANGE } from './chain';
 import { fieldNode } from './field';
+import type { IdOf } from './field';
 import type { Handle } from './handle';
 import type { RegisteredDecorator } from '../registry';
 import { compositeDirectives } from './composite';
@@ -30,15 +31,15 @@ interface ModelDeclaration {
 const NODES = new WeakMap<object, ModelDeclaration>();
 
 /**
- * Declare a model. The handle's `Id` stays `never`: a field builder does not record its `Record(...)` id
- * type, so deriving it from the `id` field waits on the builder carrying that type.
+ * Declare a model. The handle's `Id` is the id type of the field marked `.id()`, whatever that field is
+ * called, and `never` when none is marked.
  */
 export function model<Name extends string, Fields extends ModelFields>(
   name: Name,
   fields: Fields,
   options: ModelOptions<keyof Fields & string> = {},
-): Handle<Name> {
-  const handle: Handle<Name> = Object.freeze({ name });
+): Handle<Name, IdOf<Fields>> {
+  const handle: Handle<Name, IdOf<Fields>> = Object.freeze({ name });
   NODES.set(handle, { name, fields, options });
 
   return handle;
