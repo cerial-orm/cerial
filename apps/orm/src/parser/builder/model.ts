@@ -62,6 +62,11 @@ interface ModelDeclaration {
 // Read only by `modelNode`; the parent is also reachable through `extendsOf`.
 const NODES = new WeakMap<object, ModelDeclaration>();
 
+/** Whether `handle` was declared by `model()`. */
+export function isModelHandle(handle: object): boolean {
+  return NODES.has(handle);
+}
+
 /**
  * Declare a model. The handle's `Id` is the id type of the field marked `.id()`, whatever that field is
  * called, and `never` when none is marked.

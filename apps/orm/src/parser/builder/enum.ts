@@ -15,6 +15,11 @@ interface EnumDefinition {
 // Read only by `enumNode`, so a handle carries nothing but its name
 const DEFINITIONS = new WeakMap<object, EnumDefinition>();
 
+/** Whether `handle` was declared by `enumeration()`. */
+export function isEnumHandle(handle: object): boolean {
+  return DEFINITIONS.has(handle);
+}
+
 /**
  * `enum Name { A, B }`. Values are strings only, so a number or boolean is a compile error: mixed types
  * mean `literal` instead. The handle is a simple literal handle, since an enum nests like a primitive-only

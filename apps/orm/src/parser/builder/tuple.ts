@@ -143,6 +143,11 @@ export type TupleElements = readonly Element[] | Readonly<Record<string, Element
 // Read only by `tupleNode`, so a handle carries nothing but its name.
 const NODES = new WeakMap<object, { readonly name: string; readonly elements: TupleElements }>();
 
+/** Whether `handle` was declared by `tuple()`. */
+export function isTupleHandle(handle: object): boolean {
+  return NODES.has(handle);
+}
+
 /** The second argument of `tuple()`: the parent to inherit from, as for a model. */
 export interface TupleOptions<Parent extends string = string, Reserved extends string = string> {
   readonly extends?: ExtendsTarget<Parent, Reserved>;

@@ -126,6 +126,11 @@ interface LiteralDefinition {
 // Read only by `literalNode`, so a handle carries nothing but its name
 const DEFINITIONS = new WeakMap<object, LiteralDefinition>();
 
+/** Whether `handle` was declared by `literal()`. */
+export function isLiteralHandle(handle: object): boolean {
+  return DEFINITIONS.has(handle);
+}
+
 /**
  * `literal Name { ... }`, or `literal Name extends Parent[...] { ... }` through `options.extends`. A pick or
  * omit list names variants by their identity: `"'low'"` for a string (quoted, as in the schema text),

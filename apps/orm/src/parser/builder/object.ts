@@ -18,6 +18,11 @@ export interface ObjectOptions<Parent extends string = string, Reserved extends 
 // Read only by `objectNode`; the parent is also reachable through `extendsOf`.
 const NODES = new WeakMap<object, { readonly name: string; readonly fields: ObjectFields }>();
 
+/** Whether `handle` was declared by `object()`. */
+export function isObjectHandle(handle: object): boolean {
+  return NODES.has(handle);
+}
+
 /**
  * Declare an object type. Whether a field is flexible is a call on that field, never a property of the
  * object, so one object can be flexible from one field and strict from another. A self-reference goes
