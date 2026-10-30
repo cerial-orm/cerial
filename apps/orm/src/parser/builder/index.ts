@@ -13,3 +13,5 @@ export type { AnyFieldBuilder, FieldBuilder, FieldFactories, RecordIdType } from
 export { f, fieldNode } from './field';
 export type { ObjectFields } from './object';
 export { object, objectNode } from './object';
+export type { Element, ElementBuilder, ElementFactories, TupleElements } from './tuple';
+export { e, tuple, tupleNode } from './tuple';
