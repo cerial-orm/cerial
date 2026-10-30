@@ -19,6 +19,8 @@ export type {
   RecordIdValue,
 } from './field';
 export { f, fieldNode, literalField } from './field';
+export type { RelationBuilder } from './relation';
+export { isRelationBuilder, relation, relationNodes } from './relation';
 export type { ObjectFields } from './object';
 export { object, objectNode } from './object';
 export type { Element, ElementBuilder, ElementFactories, TupleElements } from './tuple';

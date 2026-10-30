@@ -3,6 +3,7 @@ import { createObject } from '../types/ast';
 import { BUILDER_RANGE } from './chain';
 import { fieldNode } from './field';
 import type { Handle } from './handle';
+import { isRelationBuilder } from './relation';
 
 /** The field builders of an object body, keyed by field name. */
 export type ObjectFields = Readonly<Record<string, object>>;
@@ -26,7 +27,11 @@ export function object<Name extends string>(name: Name, fields: ObjectFields): H
 export function objectNode(handle: object): ASTObject {
   const declared = NODES.get(handle);
   if (!declared) throw new Error(`Not an object handle: ${String(handle)}`);
-  const fields = Object.entries(declared.fields).map(([key, builder]) => fieldNode(builder, key));
+  const fields = Object.entries(declared.fields).map(([key, builder]) => {
+    if (isRelationBuilder(builder)) throw new Error(`Object ${declared.name} cannot hold relation field ${key}`);
+
+    return fieldNode(builder, key);
+  });
 
   return createObject(declared.name, fields, BUILDER_RANGE);
 }

@@ -5,6 +5,8 @@ import type { DecoratorEntry, RegisteredDecorator } from '../registry';
 import { BUILDER_RANGE, createChain } from './chain';
 import { bareName, chainEntries } from './entries';
 import { referenceName } from './handle';
+import { relation } from './relation';
+import type { RelationBuilder } from './relation';
 import type { Reference } from './handle';
 import type { BareName, BuilderNode, ChainEntry, MethodArgs, Remaining } from './types';
 
@@ -96,6 +98,8 @@ export type FieldFactories = {
   ) => FieldBuilder<RegisteredDecorator, true, RecordIdValue<Ids>>;
   /** A field typed as an object definition, named by handle, thunk or bare name. */
   readonly object: (reference: Reference) => ObjectFieldBuilder;
+  /** A forward to-one relation; its backing `Record` is derived. Models only. */
+  readonly relation: (target: Reference) => RelationBuilder;
 };
 
 interface FieldSpec {
@@ -193,9 +197,10 @@ function simpleFactories(): Record<string, () => object> {
   return factories;
 }
 
-/** The field factories. `f.relation` is not here: it belongs to the relation helper. */
+/** The field factories. */
 export const f = Object.freeze({
   ...simpleFactories(),
   record: (...idTypes: readonly RecordIdType[]) => start({ type: 'record', recordIdTypes: idTypes, any: false }),
   object: (reference: Reference) => start({ type: 'object', objectReference: reference, any: false }),
+  relation,
 }) as unknown as FieldFactories;

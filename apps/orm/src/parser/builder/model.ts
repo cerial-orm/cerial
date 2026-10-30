@@ -4,6 +4,7 @@ import { BUILDER_RANGE } from './chain';
 import { fieldNode } from './field';
 import type { IdOf } from './field';
 import type { Handle } from './handle';
+import { isRelationBuilder, relationNodes } from './relation';
 import type { RegisteredDecorator } from '../registry';
 import { compositeDirectives } from './composite';
 import type { Options } from './types';
@@ -49,7 +50,14 @@ export function model<Name extends string, Fields extends ModelFields>(
 export function modelNode(handle: object): ASTModel {
   const declared = NODES.get(handle);
   if (!declared) throw new Error(`Not a model handle: ${String(handle)}`);
-  const fields = Object.entries(declared.fields).map(([key, builder]) => fieldNode(builder, key));
+  const fields = Object.entries(declared.fields).flatMap(([key, builder]) =>
+    isRelationBuilder(builder) ? relationNodes(builder, key) : [fieldNode(builder, key)],
+  );
+  const seen = new Set<string>();
+  for (const { name } of fields) {
+    if (seen.has(name)) throw new Error(`Model ${declared.name} declares field ${name} twice`);
+    seen.add(name);
+  }
   const { abstract, ...composite } = declared.options;
   const directives = compositeDirectives(composite);
 

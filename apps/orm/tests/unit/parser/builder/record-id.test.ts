@@ -156,7 +156,6 @@ model B {
 
     expect(errors).toHaveLength(0);
     expect(validateRecordIdTypes(ast).some((x) => x.message.includes('FK field "aId"'))).toBe(true);
-    expect('relation' in f).toBe(false);
     expect(fieldNode(f.record('int'), 'aId').decorators).toEqual([]);
   });
 

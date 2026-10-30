@@ -21,13 +21,12 @@ function expectSame(built: ASTField, line: string): void {
 const SIMPLE = [...FIELD_TYPE_REGISTRY.values()].filter((e) => e.fieldType !== 'record' && e.fieldType !== 'relation');
 
 describe('field factories', () => {
-  test('there is one factory per registry field type, and f.relation is not one of them', () => {
-    const expected = [...SIMPLE.map((e) => e.fieldType), 'record', 'object'].sort();
+  test('there is one factory per registry field type, and f.relation comes from the relation helper', () => {
+    const expected = [...SIMPLE.map((e) => e.fieldType), 'record', 'object', 'relation'].sort();
 
     expect(Object.keys(f).sort()).toEqual(expected);
-    // 13 non-relation types besides Record, plus record and the object reference
-    expect(expected).toHaveLength(15);
-    expect('relation' in f).toBe(false);
+    // 13 non-relation types besides Record, plus record, the object reference and the relation helper
+    expect(expected).toHaveLength(16);
   });
 
   test.each(SIMPLE.map((e) => [e.name, e.fieldType] as const))(
