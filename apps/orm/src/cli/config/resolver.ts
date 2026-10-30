@@ -4,6 +4,7 @@
 
 import { dirname, resolve } from 'node:path';
 import type { FormatConfig } from '../../formatter/types';
+import { isSchemaFile } from '../resolvers/schema-resolver';
 import { toClientClassName } from './name-utils';
 import type { CerialConfig, ResolvedSchemaEntry } from './types';
 
@@ -85,7 +86,7 @@ function toAbsolute(path: string, cwd: string): string {
 }
 
 function getDefaultOutput(schemaPath: string): string {
-  const dir = schemaPath.endsWith('.cerial') ? dirname(schemaPath) : schemaPath;
+  const dir = isSchemaFile(schemaPath) ? dirname(schemaPath) : schemaPath;
 
   return resolve(dir, 'client');
 }

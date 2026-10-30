@@ -247,6 +247,7 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
   try {
     const {
       schemaFiles,
+      typescriptFiles,
       parseErrors,
       combinedAST,
       extendsErrors,
@@ -258,7 +259,11 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
     });
 
     if (!schemaFiles.length) {
-      result.errors.push('No schema files found');
+      result.errors.push(
+        typescriptFiles.length
+          ? `Found ${typescriptFiles.length} TypeScript schema module(s), but generating from them is not supported yet`
+          : 'No schema files found',
+      );
 
       return result;
     }

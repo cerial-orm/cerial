@@ -8,6 +8,30 @@ import {
 } from '../../../src/cli/watcher';
 
 describe('watcher filter integration', () => {
+  describe('TypeScript schema modules', () => {
+    it('triggers regeneration for *.schema.ts', () => {
+      expect(shouldTriggerRegeneration('user.schema.ts')).toBe(true);
+      expect(shouldTriggerRegeneration('src/users/user.schema.ts')).toBe(true);
+    });
+
+    it('does not trigger for helpers, tests, declarations or handles', () => {
+      for (const name of ['helpers.ts', 'x.test.ts', 'x.schema.test.ts', 'x.schema.d.ts', 'cerial/handles.ts']) {
+        expect(shouldTriggerRegeneration(name)).toBe(false);
+      }
+    });
+
+    it('applies the filter to *.schema.ts', () => {
+      const filter: PathFilter = { shouldInclude: (p) => !p.startsWith('skip/') };
+
+      expect(shouldTriggerRegeneration('keep/user.schema.ts', filter)).toBe(true);
+      expect(shouldTriggerRegeneration('skip/user.schema.ts', filter)).toBe(false);
+    });
+
+    it('is not a .cerial file, so the format paths skip it', () => {
+      expect(isCerialFile('user.schema.ts')).toBe(false);
+    });
+  });
+
   describe('isCerialFile with .cerialignore', () => {
     it('should return false for .cerialignore', () => {
       expect(isCerialFile('.cerialignore')).toBe(false);

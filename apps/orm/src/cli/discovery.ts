@@ -15,7 +15,7 @@ import {
   validateCombinedEntries,
 } from './config';
 import type { PathFilter } from './filters';
-import { findSchemaRoots } from './resolvers';
+import { findSchemaRoots, isTypescriptSchemaFile } from './resolvers';
 import { logger } from './utils';
 
 export async function applyFolderOverridesAndDiscover(
@@ -69,7 +69,8 @@ export async function applyFolderOverridesAndDiscover(
   }
 
   // Discover convention markers
-  const schemaRoots = await findSchemaRoots(cwd, filter);
+  // A configured project never auto-adds a root from the TypeScript marker
+  const schemaRoots = (await findSchemaRoots(cwd, filter)).filter(({ marker }) => !isTypescriptSchemaFile(marker));
 
   // Filter out markers at/inside root paths (root config covers them)
   const discoveredMarkers = schemaRoots.filter(({ path: markerPath }) => {

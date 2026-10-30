@@ -9,9 +9,23 @@ import type { PathFilter } from '../filters/types';
 
 const DEFAULT_SEARCH_PATHS = ['schemas', 'schema'];
 
-const DEFAULT_PATTERNS = ['**/*.cerial'];
+const DEFAULT_PATTERNS = ['**/*.cerial', '**/*.schema.ts'];
 
-export const CONVENTION_MARKERS = ['schema.cerial', 'main.cerial', 'index.cerial'] as const;
+export const CONVENTION_MARKERS = ['schema.cerial', 'main.cerial', 'index.cerial', '*.schema.ts'] as const;
+
+/** A TypeScript schema module by name: `x.schema.ts`, never `x.schema.d.ts`, `x.test.ts` or `handles.ts` */
+export function isTypescriptSchemaFile(filename: string | null): boolean {
+  if (!filename) return false;
+
+  return filename.endsWith('.schema.ts');
+}
+
+/** A schema file of either kind: a `.cerial` file or a TypeScript schema module */
+export function isSchemaFile(filename: string | null): boolean {
+  if (!filename) return false;
+
+  return filename.endsWith('.cerial') || isTypescriptSchemaFile(filename);
+}
 
 export interface SchemaRoot {
   path: string;
@@ -44,7 +58,9 @@ export async function findSchemasInDir(dir: string, patterns: string[]): Promise
 
   for (const pattern of patterns) {
     try {
-      const matches = await fg(pattern, { cwd: dir, onlyFiles: true, dot: false });
+      // Dependencies ship `.schema.ts` files of their own; `.cerial` matching stays as it was
+      const ignore = pattern.endsWith('.ts') ? ['**/node_modules/**'] : [];
+      const matches = await fg(pattern, { cwd: dir, onlyFiles: true, dot: false, ignore });
       for (const file of matches) {
         files.push(resolve(dir, file));
       }
@@ -139,7 +155,7 @@ export async function resolveSinglePath(
   // Check if it's a file
   const exists = existsSync(fullPath);
 
-  if (exists && fullPath.endsWith('.cerial')) {
+  if (exists && isSchemaFile(fullPath)) {
     if (filter && !filter.shouldInclude(toFilterPath(fullPath, dirname(fullPath)))) return [];
 
     return [fullPath];
@@ -155,6 +171,8 @@ export async function findSchemaRoots(cwd: string = process.cwd(), filter?: Path
   const rootMap = new Map<string, SchemaRoot>();
 
   for (const marker of CONVENTION_MARKERS) {
+    if (marker === TS_MARKER) continue;
+
     try {
       const matches = await fg(`**/${marker}`, { cwd, dot: false });
       for (const match of matches) {
@@ -178,7 +196,42 @@ export async function findSchemaRoots(cwd: string = process.cwd(), filter?: Path
     }
   }
 
+  await addTypescriptRoots(rootMap, cwd, filter);
+
   return [...rootMap.values()];
+}
+
+const TS_MARKER = '*.schema.ts';
+
+/**
+ * A project of TypeScript schema modules alone: with any `.cerial` file present the `.cerial` rules decide,
+ * so an outside `*.schema.ts` never adds a root or turns a legacy layout into a multi-root one.
+ */
+async function addTypescriptRoots(rootMap: Map<string, SchemaRoot>, cwd: string, filter?: PathFilter): Promise<void> {
+  try {
+    const ignore = ['**/node_modules/**'];
+    const cerialFiles = await fg('**/*.cerial', { cwd, dot: false, ignore });
+    if (cerialFiles.length) return;
+
+    const matches = (await fg(`**/${TS_MARKER}`, { cwd, dot: false, ignore })).sort();
+    const dirs = new Map<string, string>();
+    for (const match of matches) {
+      const dir = dirname(resolve(cwd, match));
+      if (!dirs.has(dir)) dirs.set(dir, basename(match));
+    }
+
+    for (const [dir, marker] of dirs) {
+      // The parent's `**/` pattern already collects a nested directory
+      if ([...dirs.keys()].some((other) => other !== dir && dir.startsWith(`${other}/`))) continue;
+
+      const dirRelative = toFilterPath(dir, cwd);
+      if (filter && dirRelative && !filter.shouldInclude(`${dirRelative}/_`)) continue;
+
+      rootMap.set(dir, { path: dir, marker, files: await findSchemasInDir(dir, DEFAULT_PATTERNS) });
+    }
+  } catch {
+    // Directory might not exist
+  }
 }
 
 export async function discoverSchemas(cwd: string = process.cwd()): Promise<DiscoveredSchema[]> {

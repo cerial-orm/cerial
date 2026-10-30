@@ -10,6 +10,7 @@ import type { FormatConfig } from '../formatter/types';
 import type { PathFilter } from './filters/types';
 import { formatSingleFile } from './format';
 import { generateSingleSchema } from './generate';
+import { isSchemaFile } from './resolvers/schema-resolver';
 
 /** Base fields needed by any watcher target */
 export interface WatchTargetBase {
@@ -51,8 +52,8 @@ export function shouldTriggerRegeneration(filename: string | null, filter?: Path
   // .cerialignore changes always trigger (filter re-resolution needed)
   if (isCerialIgnoreFile(filename)) return true;
 
-  // Must be a .cerial file
-  if (!isCerialFile(filename)) return false;
+  // Must be a .cerial file or a TypeScript schema module
+  if (!isSchemaFile(filename)) return false;
 
   // If no filter, all .cerial files trigger
   if (!filter) return true;

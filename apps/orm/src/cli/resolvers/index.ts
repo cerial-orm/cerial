@@ -5,6 +5,8 @@ export {
   findFilteredSchemasInDir,
   findSchemaRoots,
   findSchemasInDir,
+  isSchemaFile,
+  isTypescriptSchemaFile,
   resolveSchemas,
   resolveSinglePath,
 } from './schema-resolver';

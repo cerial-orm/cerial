@@ -12,7 +12,7 @@ import type { PathFilter } from '../filters';
 import { logger } from '../utils';
 import type { SchemaValidationError } from '../validators';
 import { validateDuplicateNames, validateExtends } from '../validators';
-import { resolveSchemas, resolveSinglePath } from './schema-resolver';
+import { isTypescriptSchemaFile, resolveSchemas, resolveSinglePath } from './schema-resolver';
 
 export interface SchemaAstOptions {
   schemaPath?: string;
@@ -21,7 +21,10 @@ export interface SchemaAstOptions {
 }
 
 export interface SchemaAstResult {
+  /** `.cerial` files only; these are the ones read and parsed */
   schemaFiles: string[];
+  /** `*.schema.ts` modules found for the entry; never read, imported or parsed here */
+  typescriptFiles: string[];
   schemaContents: Array<{ path: string; content: string }>;
   /** `path:line: message` per parse error; when non-empty the AST fields below are empty */
   parseErrors: string[];
@@ -37,19 +40,28 @@ export interface SchemaAstResult {
 export async function buildResolvedSchemaAst(options: SchemaAstOptions): Promise<SchemaAstResult> {
   logger.progress('Finding schema files...');
 
-  const schemaFiles: string[] = options.schemaPath
+  const resolvedFiles: string[] = options.schemaPath
     ? await resolveSinglePath(options.schemaPath, process.cwd(), options.filter)
     : await resolveSchemas({ filter: options.filter });
+
+  const schemaFiles = resolvedFiles.filter((f) => !isTypescriptSchemaFile(f));
+  const typescriptFiles = resolvedFiles.filter(isTypescriptSchemaFile);
 
   const combinedAST: SchemaAST = { models: [], objects: [], tuples: [], literals: [], enums: [], source: '' };
   const result: SchemaAstResult = {
     schemaFiles,
+    typescriptFiles,
     schemaContents: [],
     parseErrors: [],
     combinedAST,
     extendsErrors: [],
     resolvedAST: null,
   };
+
+  if (typescriptFiles.length) {
+    logger.info(`Found ${typescriptFiles.length} TypeScript schema module(s)`);
+    if (options.verbose) typescriptFiles.forEach((f) => logger.debug(`  - ${f}`));
+  }
 
   if (!schemaFiles.length) return result;
 

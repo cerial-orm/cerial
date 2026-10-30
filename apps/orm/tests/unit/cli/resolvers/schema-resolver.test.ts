@@ -13,8 +13,8 @@ import {
 const FIXTURES = resolve(__dirname, '../../../fixtures/schema-discovery');
 
 describe('CONVENTION_MARKERS', () => {
-  it('should contain exactly three markers in priority order', () => {
-    expect(CONVENTION_MARKERS).toEqual(['schema.cerial', 'main.cerial', 'index.cerial']);
+  it('should contain exactly four markers in priority order', () => {
+    expect(CONVENTION_MARKERS).toEqual(['schema.cerial', 'main.cerial', 'index.cerial', '*.schema.ts']);
   });
 
   it('should be a readonly array', () => {
