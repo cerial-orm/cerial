@@ -6,7 +6,7 @@ import {
 } from '../../types/field-decorators';
 import type { DecoratorEntry } from '../types';
 
-export const relationDecorators: readonly DecoratorEntry[] = [
+export const relationDecorators = [
   {
     name: '@field',
     constructId: 'decorator.field',
@@ -44,4 +44,4 @@ export const relationDecorators: readonly DecoratorEntry[] = [
     description: 'Names a relation so the two sides match when several relations connect the same pair of models.',
     parse: parseKeyDecorator,
   },
-];
+] as const satisfies readonly DecoratorEntry[];

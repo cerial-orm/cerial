@@ -14,7 +14,7 @@ const parseDirective: DecoratorHandler = (token, range): ASTCompositeDirective =
   return result.directive;
 };
 
-export const modelLevelDecorators: readonly DecoratorEntry[] = [
+export const modelLevelDecorators = [
   {
     name: '@@index',
     constructId: 'directive.index',
@@ -33,4 +33,4 @@ export const modelLevelDecorators: readonly DecoratorEntry[] = [
     description: 'Creates a unique composite index over several fields: @@unique(name, [a, b.c]).',
     parse: parseDirective,
   },
-];
+] as const satisfies readonly DecoratorEntry[];

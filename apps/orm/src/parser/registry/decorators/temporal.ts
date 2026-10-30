@@ -1,7 +1,7 @@
 import { parseCreatedAtDecorator, parseNowDecorator, parseUpdatedAtDecorator } from '../../types/field-decorators';
 import type { DecoratorEntry } from '../types';
 
-export const temporalDecorators: readonly DecoratorEntry[] = [
+export const temporalDecorators = [
   {
     name: '@now',
     constructId: 'decorator.now',
@@ -39,4 +39,4 @@ export const temporalDecorators: readonly DecoratorEntry[] = [
     description: 'Sets the field to the current time on creation and on every update. Date fields only.',
     parse: (_token, range) => parseUpdatedAtDecorator(range),
   },
-];
+] as const satisfies readonly DecoratorEntry[];

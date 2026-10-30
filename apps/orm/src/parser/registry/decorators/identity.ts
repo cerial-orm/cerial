@@ -1,7 +1,7 @@
 import { parseIdDecorator, parseIndexDecorator, parseUniqueDecorator } from '../../types/field-decorators';
 import type { DecoratorEntry } from '../types';
 
-export const identityDecorators: readonly DecoratorEntry[] = [
+export const identityDecorators = [
   {
     name: '@id',
     constructId: 'decorator.id',
@@ -31,4 +31,4 @@ export const identityDecorators: readonly DecoratorEntry[] = [
     description: 'Creates a non-unique index on the field to speed up filtering and sorting.',
     parse: (_token, range) => parseIndexDecorator(range),
   },
-];
+] as const satisfies readonly DecoratorEntry[];

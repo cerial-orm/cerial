@@ -3,7 +3,7 @@ import type { DecoratorEntry } from '../types';
 
 const UUID_EXCLUDES = ['@default', '@defaultAlways', '@now', '@createdAt', '@updatedAt'] as const;
 
-export const uuidDecorators: readonly DecoratorEntry[] = [
+export const uuidDecorators = [
   {
     name: '@uuid',
     constructId: 'decorator.uuid',
@@ -31,4 +31,4 @@ export const uuidDecorators: readonly DecoratorEntry[] = [
     description: 'Generates a time-ordered (version 7) UUID for the field on create. Uuid fields only.',
     parse: parseUuid7Decorator,
   },
-];
+] as const satisfies readonly DecoratorEntry[];

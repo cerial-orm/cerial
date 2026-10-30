@@ -10,7 +10,7 @@ import { uuidDecorators } from './decorators/uuid';
 import type { DecoratorEntry, DecoratorName, DecoratorTarget } from './types';
 
 /** Every group of decorator entries, in a fixed order. Adding a decorator is one entry in one group. */
-const DECORATOR_GROUPS: readonly (readonly DecoratorEntry[])[] = [
+const DECORATOR_GROUPS = [
   identityDecorators,
   relationDecorators,
   temporalDecorators,
@@ -20,7 +20,10 @@ const DECORATOR_GROUPS: readonly (readonly DecoratorEntry[])[] = [
   modifierDecorators,
   geometryDecorators,
   modelLevelDecorators,
-];
+] as const satisfies readonly (readonly DecoratorEntry[])[];
+
+/** Every registered entry with its name, arguments and targets kept as literal types; the builder's types read this. */
+export type RegisteredDecorator = (typeof DECORATOR_GROUPS)[number][number];
 
 function buildRegistry(groups: readonly (readonly DecoratorEntry[])[]): ReadonlyMap<DecoratorName, DecoratorEntry> {
   const entries = new Map<DecoratorName, DecoratorEntry>();

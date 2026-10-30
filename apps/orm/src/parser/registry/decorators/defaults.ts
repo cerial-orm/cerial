@@ -1,7 +1,7 @@
 import { parseDefaultAlwaysDecorator, parseDefaultDecorator } from '../../types/field-decorators';
 import type { DecoratorEntry } from '../types';
 
-export const defaultDecorators: readonly DecoratorEntry[] = [
+export const defaultDecorators = [
   {
     name: '@default',
     constructId: 'decorator.default',
@@ -20,4 +20,4 @@ export const defaultDecorators: readonly DecoratorEntry[] = [
     description: 'Like @default, but resets the field to the value on every write when none is given.',
     parse: parseDefaultAlwaysDecorator,
   },
-];
+] as const satisfies readonly DecoratorEntry[];

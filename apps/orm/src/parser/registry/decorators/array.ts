@@ -1,7 +1,7 @@
 import { parseDistinctDecorator, parseSetDecorator, parseSortDecorator } from '../../types/field-decorators';
 import type { DecoratorEntry } from '../types';
 
-export const arrayDecorators: readonly DecoratorEntry[] = [
+export const arrayDecorators = [
   {
     name: '@distinct',
     constructId: 'decorator.distinct',
@@ -29,4 +29,4 @@ export const arrayDecorators: readonly DecoratorEntry[] = [
     description: 'Keeps an array field sorted: ascending by default, or @sort(desc) for descending. Array fields only.',
     parse: parseSortDecorator,
   },
-];
+] as const satisfies readonly DecoratorEntry[];

@@ -12,9 +12,16 @@ const GEOMETRY_SUBTYPES = [
   ['@geoCollection', 'decorator.geoCollection', 'collection'],
 ] as const;
 
+/** Narrower than `DecoratorEntry` so the builder's types still see seven zero-argument model and object field methods. */
+interface GeometryEntry extends DecoratorEntry {
+  readonly name: (typeof GEOMETRY_SUBTYPES)[number][0];
+  readonly args: { readonly kind: 'none' };
+  readonly targets: readonly ['modelField', 'objectField'];
+}
+
 // Several can sit on one field, which then accepts any of those subtypes, so none excludes another.
-export const geometryDecorators: readonly DecoratorEntry[] = GEOMETRY_SUBTYPES.map(
-  ([name, constructId, subtype]): DecoratorEntry => ({
+export const geometryDecorators: readonly GeometryEntry[] = GEOMETRY_SUBTYPES.map(
+  ([name, constructId, subtype]): GeometryEntry => ({
     name,
     constructId,
     args: { kind: 'none' },

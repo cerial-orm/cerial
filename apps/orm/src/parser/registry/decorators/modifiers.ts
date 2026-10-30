@@ -1,7 +1,7 @@
 import { parseFlexibleDecorator, parseNullableDecorator, parseReadonlyDecorator } from '../../types/field-decorators';
 import type { DecoratorEntry } from '../types';
 
-export const modifierDecorators: readonly DecoratorEntry[] = [
+export const modifierDecorators = [
   {
     name: '@nullable',
     constructId: 'decorator.nullable',
@@ -31,4 +31,4 @@ export const modifierDecorators: readonly DecoratorEntry[] = [
     description: 'Lets an object field store extra properties beyond its declared ones. Object-typed fields only.',
     parse: (_token, range) => parseFlexibleDecorator(range),
   },
-];
+] as const satisfies readonly DecoratorEntry[];
