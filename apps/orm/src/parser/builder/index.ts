@@ -36,3 +36,5 @@ export type { CompositeFieldPath } from './composite';
 export { compositeDirectives } from './composite';
 export type { ExportedDeclaration } from './materialise';
 export { materialise } from './materialise';
+export type { LoadOptions, ModuleImporter } from './load';
+export { importSchemaModule, loadDeclarations } from './load';
