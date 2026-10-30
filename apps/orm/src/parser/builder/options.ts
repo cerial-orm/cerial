@@ -30,7 +30,10 @@ export function buildOptions<T extends DecoratorTarget, E extends DecoratorEntry
       throw new Error(
         `'${key}' is not an options key on a ${target}; expected one of ${[...entries.keys()].join(', ')}`,
       );
-    if (value !== undefined) nodes.push(entry.parse(optionsToken(entry, value), config.range ?? BUILDER_RANGE));
+    if (value === undefined) continue;
+    // A directive kind may repeat, so a list builds one node per entry, in order.
+    for (const item of Array.isArray(value) ? value : [value])
+      nodes.push(entry.parse(optionsToken(entry, item), config.range ?? BUILDER_RANGE));
   }
 
   return nodes;

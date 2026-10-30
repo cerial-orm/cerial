@@ -1,6 +1,6 @@
 export type { BuilderKind } from './exposure';
 export { NO_PUBLIC_METHOD, RELATION_ONLY_METHOD } from './exposure';
-export type { BuilderNode, Chain, LiteralValue, MethodArgs, OptionValue, Options } from './types';
+export type { BuilderNode, Chain, LiteralValue, MethodArgs, NamedFields, OptionValue, Options } from './types';
 export { bucketOf } from './argument-source';
 export { bareName, chainEntries, optionEntries } from './entries';
 export type { ChainOptions } from './chain';
@@ -20,3 +20,5 @@ export type { BroadTypeName, LiteralHandle, SimpleLiteralReference, VariantSpec 
 export { literal, literalNode, variant } from './literal';
 export type { ModelFields, ModelOptions } from './model';
 export { model, modelNode } from './model';
+export type { CompositeFieldPath } from './composite';
+export { compositeDirectives } from './composite';

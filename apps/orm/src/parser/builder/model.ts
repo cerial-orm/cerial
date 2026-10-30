@@ -3,6 +3,8 @@ import { createModel } from '../types/ast';
 import { BUILDER_RANGE } from './chain';
 import { fieldNode } from './field';
 import type { Handle } from './handle';
+import type { RegisteredDecorator } from '../registry';
+import { compositeDirectives } from './composite';
 import type { Options } from './types';
 import type { ObjectFields } from './object';
 
@@ -11,9 +13,9 @@ export type ModelFields = ObjectFields;
 
 /**
  * The third argument of `model()`: `abstract`, plus the composite directive keys the registry declares
- * for a model. Those keys are accepted by type here and built where directives are applied.
+ * for a model. `Key` is the model's own field names, which the directives' field paths must start from.
  */
-export type ModelOptions = Options<'model'> & {
+export type ModelOptions<Key extends string = string> = Options<'model', RegisteredDecorator, Key> & {
   /** `abstract model`: consumed by inheritance resolution, never given a table. */
   readonly abstract?: boolean;
 };
@@ -31,7 +33,11 @@ const NODES = new WeakMap<object, ModelDeclaration>();
  * Declare a model. The handle's `Id` stays `never`: a field builder does not record its `Record(...)` id
  * type, so deriving it from the `id` field waits on the builder carrying that type.
  */
-export function model<Name extends string>(name: Name, fields: ModelFields, options: ModelOptions = {}): Handle<Name> {
+export function model<Name extends string, Fields extends ModelFields>(
+  name: Name,
+  fields: Fields,
+  options: ModelOptions<keyof Fields & string> = {},
+): Handle<Name> {
   const handle: Handle<Name> = Object.freeze({ name });
   NODES.set(handle, { name, fields, options });
 
@@ -43,9 +49,8 @@ export function modelNode(handle: object): ASTModel {
   const declared = NODES.get(handle);
   if (!declared) throw new Error(`Not a model handle: ${String(handle)}`);
   const fields = Object.entries(declared.fields).map(([key, builder]) => fieldNode(builder, key));
-  // Directives are built from `declared.options` once composite directives are applied; until then every
-  // model carries the parser's default of none.
-  const directives: ASTModel['directives'] = [];
+  const { abstract, ...composite } = declared.options;
+  const directives = compositeDirectives(composite);
 
-  return createModel(declared.name, fields, BUILDER_RANGE, directives, declared.options.abstract);
+  return createModel(declared.name, fields, BUILDER_RANGE, directives, abstract);
 }

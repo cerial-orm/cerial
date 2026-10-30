@@ -4,6 +4,7 @@
  */
 
 import type { ASTCompositeDirective, ASTDecorator } from '../../types';
+import type { CompositeFieldPath } from './composite';
 import type { ArgumentShape, DecoratorEntry, DecoratorTarget, LiteralForm, RegisteredDecorator } from '../registry';
 import type { BuilderKind, NO_PUBLIC_METHOD, RELATION_ONLY_METHOD } from './exposure';
 
@@ -44,9 +45,20 @@ export type MethodArgs<A extends ArgumentShape> = A extends { readonly kind: 'no
           ? [value: LiteralValue]
           : never;
 
-/** The value of an options key, by argument shape; `never` for a shape that chains. */
-export type OptionValue<A extends ArgumentShape> = A extends { readonly kind: 'nameAndFields' }
-  ? { readonly name: string; readonly fields: readonly string[] }
+/** One `name` plus field list; `Key` is the set of top-level keys a field path may start from. */
+export interface NamedFields<Key extends string = string> {
+  readonly name: string;
+  readonly fields: readonly CompositeFieldPath<Key>[];
+}
+
+/**
+ * The value of an options key, by argument shape; `never` for a shape that chains. A directive kind may
+ * repeat on a model, so the value is one entry or a list of them, in declaration order.
+ */
+export type OptionValue<A extends ArgumentShape, Key extends string = string> = A extends {
+  readonly kind: 'nameAndFields';
+}
+  ? NamedFields<Key> | readonly NamedFields<Key>[]
   : never;
 
 /** A decorator name without its sigil: the chain method name or the options key. */
@@ -110,6 +122,10 @@ export type Chain<
 };
 
 /** The options form for a `T` target: one optional key per multi-part registry entry. */
-export type Options<T extends DecoratorTarget, E extends DecoratorEntry = RegisteredDecorator> = {
-  readonly [X in OptionEntry<E, T> as BareName<X['name']>]?: OptionValue<X['args']>;
+export type Options<
+  T extends DecoratorTarget,
+  E extends DecoratorEntry = RegisteredDecorator,
+  Key extends string = string,
+> = {
+  readonly [X in OptionEntry<E, T> as BareName<X['name']>]?: OptionValue<X['args'], Key>;
 };
