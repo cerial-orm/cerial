@@ -39,7 +39,7 @@ describe('builder derivation from the registry', () => {
 
   test('calls are immutable: chaining returns a new chain and the base is unchanged', () => {
     const base = createChain('modelField').unique();
-    const extended = base.index();
+    const extended = base.readonly();
 
     expect(base.decorators()).toHaveLength(1);
     expect(extended.decorators()).toHaveLength(2);

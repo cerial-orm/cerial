@@ -17,6 +17,8 @@ interface GeometryEntry extends DecoratorEntry {
   readonly name: (typeof GEOMETRY_SUBTYPES)[number][0];
   readonly args: { readonly kind: 'none' };
   readonly targets: readonly ['modelField', 'objectField'];
+  /** Empty, so chaining one geometry decorator removes nothing from the builder. */
+  readonly excludes: readonly [];
 }
 
 // Several can sit on one field, which then accepts any of those subtypes, so none excludes another.

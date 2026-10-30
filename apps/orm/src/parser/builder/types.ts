@@ -83,15 +83,27 @@ export type OptionEntry<E extends DecoratorEntry, T extends DecoratorTarget> = E
   : never;
 
 /**
+ * The entries of `E` that survive chaining `X`: those `X` does not list in its `excludes`. An entry never
+ * excludes itself, so chaining the same method twice stays legal and is left to the runtime validators.
+ */
+export type Remaining<E extends DecoratorEntry, X extends DecoratorEntry> = E extends DecoratorEntry
+  ? [E['name']] extends [X['excludes'][number]]
+    ? never
+    : E
+  : never;
+
+/**
  * A decorator chain. `E` is the set of entries still available: each method returns a chain over the
- * same set today, and the exclusivity task narrows that set by the entry's `excludes`.
+ * entries its own `excludes` leave, so an excluded method is absent from the returned type.
  */
 export type Chain<
   T extends DecoratorTarget,
   K extends BuilderKind = 'plain',
   E extends DecoratorEntry = RegisteredDecorator,
 > = {
-  readonly [X in ChainEntry<E, T, K> as MethodName<X['name']>]: (...args: MethodArgs<X['args']>) => Chain<T, K, E>;
+  readonly [X in ChainEntry<E, T, K> as MethodName<X['name']>]: (
+    ...args: MethodArgs<X['args']>
+  ) => Chain<T, K, Remaining<E, X>>;
 } & {
   /** The decorator nodes chained so far, in call order. */
   decorators(): BuilderNode[];
