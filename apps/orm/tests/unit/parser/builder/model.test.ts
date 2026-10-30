@@ -96,8 +96,8 @@ describe('model builder', () => {
     expect(() => modelNode({ name: 'User' })).toThrow('Not a model handle');
   });
 
-  test('an unknown option key is a type error', () => {
-    // @ts-expect-error 'extends' is not an option of model()
-    model('M', {}, { extends: 'Base' });
+  test('a bare-string extends is a type error and refused at declaration', () => {
+    // @ts-expect-error 'extends' takes a handle, not a name
+    expect(() => model('M', {}, { extends: 'Base' })).toThrow("'extends' takes a model or object handle");
   });
 });

@@ -3,12 +3,13 @@ import { createModel } from '../types/ast';
 import { BUILDER_RANGE } from './chain';
 import { fieldNode } from './field';
 import type { IdOf } from './field';
-import type { Handle } from './handle';
 import { isRelationBuilder, relationNodes } from './relation';
 import type { RegisteredDecorator } from '../registry';
 import { compositeDirectives } from './composite';
 import type { Options } from './types';
 import type { ObjectFields } from './object';
+import { extendable, extendsFields, extendsOf, recordExtends } from './extends';
+import type { Extendable, ExtendsTarget } from './extends';
 
 /** The field builders of a model body, keyed by field name. */
 export type ModelFields = ObjectFields;
@@ -17,10 +18,33 @@ export type ModelFields = ObjectFields;
  * The third argument of `model()`: `abstract`, plus the composite directive keys the registry declares
  * for a model. `Key` is the model's own field names, which the directives' field paths must start from.
  */
-export type ModelOptions<Key extends string = string> = Options<'model', RegisteredDecorator, Key> & {
+export type ModelOptions<Key extends string = string, Parent extends string = string> = Options<
+  'model',
+  RegisteredDecorator,
+  Key
+> & {
   /** `abstract model`: consumed by inheritance resolution, never given a table. */
   readonly abstract?: boolean;
+  /** The parent to inherit from: its handle, or `Parent.pick(...)` and `Parent.omit(...)` of it. */
+  readonly extends?: ExtendsTarget<Parent>;
 };
+
+type StemOf<K extends string> = K extends `${infer S}s` ? S : K;
+
+/** The foreign key a forward relation derives: `authorId`, or `tagIds` for an array (no `optional` method left). */
+type DerivedKey<K extends string, B> = B extends { field(name: string): unknown }
+  ? B extends { optional(): unknown }
+    ? `${K}Id`
+    : `${StemOf<K>}Ids`
+  : never;
+
+/**
+ * The names a model declares, as its field list holds them: its own keys plus the key each forward
+ * relation derives. A key renamed with `.field()` is not tracked here.
+ */
+export type MembersOf<Fields extends object> = {
+  [K in keyof Fields & string]: K | DerivedKey<K, Fields[K]>;
+}[keyof Fields & string];
 
 interface ModelDeclaration {
   readonly name: string;
@@ -28,19 +52,20 @@ interface ModelDeclaration {
   readonly options: ModelOptions;
 }
 
-// Read only by `modelNode`, so a handle carries nothing but its name.
+// Read only by `modelNode`; the parent is also reachable through `extendsOf`.
 const NODES = new WeakMap<object, ModelDeclaration>();
 
 /**
  * Declare a model. The handle's `Id` is the id type of the field marked `.id()`, whatever that field is
  * called, and `never` when none is marked.
  */
-export function model<Name extends string, Fields extends ModelFields>(
+export function model<Name extends string, Fields extends ModelFields, Parent extends string = never>(
   name: Name,
   fields: Fields,
-  options: ModelOptions<keyof Fields & string> = {},
-): Handle<Name, IdOf<Fields>> {
-  const handle: Handle<Name, IdOf<Fields>> = Object.freeze({ name });
+  options: ModelOptions<MembersOf<Fields> | NoInfer<Parent>, Parent> = {},
+): Extendable<Name, IdOf<Fields>, MembersOf<Fields>, MembersOf<Fields> | Parent> {
+  const handle = extendable<Name, IdOf<Fields>, MembersOf<Fields>, MembersOf<Fields> | Parent>(name);
+  recordExtends(handle, options.extends);
   NODES.set(handle, { name, fields, options });
 
   return handle;
@@ -58,8 +83,10 @@ export function modelNode(handle: object): ASTModel {
     if (seen.has(name)) throw new Error(`Model ${declared.name} declares field ${name} twice`);
     seen.add(name);
   }
-  const { abstract, ...composite } = declared.options;
+  const { abstract, extends: _parent, ...composite } = declared.options;
   const directives = compositeDirectives(composite);
+  const clause = extendsOf(handle);
+  const [parentName, filter] = clause ? extendsFields(clause) : [];
 
-  return createModel(declared.name, fields, BUILDER_RANGE, directives, abstract);
+  return createModel(declared.name, fields, BUILDER_RANGE, directives, abstract, parentName, filter);
 }

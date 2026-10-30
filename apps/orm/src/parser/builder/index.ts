@@ -21,14 +21,16 @@ export type {
 export { f, fieldNode, literalField } from './field';
 export type { RelationBuilder, ReverseBuilder } from './relation';
 export { isRelationBuilder, relation, relationNodes, reverse } from './relation';
-export type { ObjectFields } from './object';
+export type { ObjectFields, ObjectOptions } from './object';
 export { object, objectNode } from './object';
 export type { Element, ElementBuilder, ElementFactories, TupleElements } from './tuple';
 export { e, tuple, tupleNode } from './tuple';
 export { enumeration as enum, enumNode } from './enum';
 export type { BroadTypeName, LiteralHandle, SimpleLiteralReference, VariantSpec } from './literal';
 export { literal, literalNode, variant } from './literal';
-export type { ModelFields, ModelOptions } from './model';
+export type { ModelFields, ModelOptions, MembersOf } from './model';
+export type { Extendable, ExtendsClause, ExtendsFiltered, ExtendsTarget } from './extends';
+export { extendsOf } from './extends';
 export { model, modelNode } from './model';
 export type { CompositeFieldPath } from './composite';
 export { compositeDirectives } from './composite';

@@ -167,6 +167,8 @@ model B {
   });
 });
 
+type IdTypeOf<H extends { readonly idType?: unknown }> = Exclude<H['idType'], undefined>;
+
 describe('the handle carries the id type', () => {
   const Pair = tuple('Pair', [e.int(), e.int()]);
 
@@ -176,37 +178,37 @@ describe('the handle carries the id type', () => {
     const Str = model('Str', { id: f.record('uuid').id() });
     const Union = model('Union', { id: f.record('string', 'int').id() });
 
-    expectType<Equal<typeof Plain, Handle<'Plain', string>>>();
-    expectType<Equal<typeof Single, Handle<'Single', number>>>();
-    expectType<Equal<typeof Str, Handle<'Str', string>>>();
-    expectType<Equal<typeof Union, Handle<'Union', string | number>>>();
+    expectType<Equal<IdTypeOf<typeof Plain>, string>>();
+    expectType<Equal<IdTypeOf<typeof Single>, number>>();
+    expectType<Equal<IdTypeOf<typeof Str>, string>>();
+    expectType<Equal<IdTypeOf<typeof Union>, string | number>>();
     expect(Union.name).toBe('Union');
   });
 
   test('the id field is found by .id(), not by its key', () => {
     const Keyed = model('Keyed', { key: f.record('int').id(), id: f.record('string') });
 
-    expectType<Equal<typeof Keyed, Handle<'Keyed', number>>>();
+    expectType<Equal<IdTypeOf<typeof Keyed>, number>>();
   });
 
   test('a tuple id is not narrowed to a primitive', () => {
     const ByPair = model('ByPair', { id: f.record(Pair).id() });
     const ByThunk = model('ByThunk', { id: f.record(() => Pair).id() });
 
-    expectType<Equal<typeof ByPair, Handle<'ByPair', unknown>>>();
-    expectType<Equal<typeof ByThunk, Handle<'ByThunk', unknown>>>();
+    expectType<Equal<IdTypeOf<typeof ByPair>, unknown>>();
+    expectType<Equal<IdTypeOf<typeof ByThunk>, unknown>>();
   });
 
   test('a model without .id() has no id type', () => {
     const NoId = model('NoId', { id: f.record('int') });
 
-    expectType<Equal<typeof NoId, Handle<'NoId', never>>>();
+    expectType<Equal<IdTypeOf<typeof NoId>, never>>();
   });
 
   test('the id type survives the chain after .id()', () => {
     const Chained = model('Chained', { id: f.record('int').id().private() });
 
-    expectType<Equal<typeof Chained, Handle<'Chained', number>>>();
+    expectType<Equal<IdTypeOf<typeof Chained>, number>>();
   });
 
   test('a wrong id type is not assignable', () => {

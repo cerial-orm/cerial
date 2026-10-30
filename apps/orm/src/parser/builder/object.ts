@@ -2,13 +2,19 @@ import type { ASTObject } from '../../types';
 import { createObject } from '../types/ast';
 import { BUILDER_RANGE } from './chain';
 import { fieldNode } from './field';
-import type { Handle } from './handle';
+import { extendable, extendsFields, extendsOf, recordExtends } from './extends';
+import type { Extendable, ExtendsTarget } from './extends';
 import { isRelationBuilder } from './relation';
 
 /** The field builders of an object body, keyed by field name. */
 export type ObjectFields = Readonly<Record<string, object>>;
 
-// Read only by `objectNode`, so a handle carries nothing but its name.
+/** The second argument of `object()`: the parent to inherit from, as for a model. */
+export interface ObjectOptions<Parent extends string = string> {
+  readonly extends?: ExtendsTarget<Parent>;
+}
+
+// Read only by `objectNode`; the parent is also reachable through `extendsOf`.
 const NODES = new WeakMap<object, { readonly name: string; readonly fields: ObjectFields }>();
 
 /**
@@ -16,8 +22,13 @@ const NODES = new WeakMap<object, { readonly name: string; readonly fields: Obje
  * object, so one object can be flexible from one field and strict from another. A self-reference goes
  * through `f.object(() => Self)` or a bare name, and whether it is legal is the schema validator's call.
  */
-export function object<Name extends string>(name: Name, fields: ObjectFields): Handle<Name> {
-  const handle: Handle<Name> = Object.freeze({ name });
+export function object<Name extends string, Fields extends ObjectFields, Parent extends string = never>(
+  name: Name,
+  fields: Fields,
+  options: ObjectOptions<Parent> = {},
+): Extendable<Name, never, keyof Fields & string, (keyof Fields & string) | Parent> {
+  const handle = extendable<Name, never, keyof Fields & string, (keyof Fields & string) | Parent>(name);
+  recordExtends(handle, options.extends);
   NODES.set(handle, { name, fields });
 
   return handle;
@@ -33,5 +44,8 @@ export function objectNode(handle: object): ASTObject {
     return fieldNode(builder, key);
   });
 
-  return createObject(declared.name, fields, BUILDER_RANGE);
+  const clause = extendsOf(handle);
+  const [parentName, filter] = clause ? extendsFields(clause) : [];
+
+  return createObject(declared.name, fields, BUILDER_RANGE, parentName, filter);
 }
