@@ -9,3 +9,5 @@ export type { BuildOptionsConfig } from './options';
 export { buildOptions } from './options';
 export type { Handle, Reference } from './handle';
 export { referenceName } from './handle';
+export type { AnyFieldBuilder, FieldBuilder, FieldFactories, RecordIdType } from './field';
+export { f, fieldNode } from './field';
