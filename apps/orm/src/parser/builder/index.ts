@@ -7,3 +7,5 @@ export type { ChainOptions } from './chain';
 export { BUILDER_RANGE, createChain } from './chain';
 export type { BuildOptionsConfig } from './options';
 export { buildOptions } from './options';
+export type { Handle, Reference } from './handle';
+export { referenceName } from './handle';
