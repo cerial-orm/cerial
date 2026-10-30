@@ -5,7 +5,9 @@ import type { DecoratorEntry, RegisteredDecorator } from '../registry';
 import { BUILDER_RANGE, createChain } from './chain';
 import { bareName, chainEntries } from './entries';
 import { referenceName } from './handle';
-import type { Handle, Reference } from './handle';
+import type { PrivateKeys, PrivateMark, Reference } from './handle';
+import { extendable, extendsFields, extendsOf, recordExtends } from './extends';
+import type { Extendable, ExtendsTarget, NoPrivateOverride } from './extends';
 import type { BareName, BuilderNode, ChainEntry, MethodArgs, Remaining } from './types';
 
 declare const ELEMENT: unique symbol;
@@ -20,14 +22,14 @@ export interface Element {
  * so `@uuid` and the other decorators a tuple element refuses are absent. There is no `optional()`: the
  * schema validator rejects `?` on every element, because SurrealDB returns null for an absent position.
  */
-export type ElementBuilder<E extends DecoratorEntry = RegisteredDecorator> = Element & {
+export type ElementBuilder<E extends DecoratorEntry = RegisteredDecorator, Hidden extends boolean = false> = Element & {
   readonly [X in ChainEntry<E, 'tupleElement', 'plain'> as BareName<X['name']>]: (
     ...args: MethodArgs<X['args']>
-  ) => ElementBuilder<Remaining<E, X>>;
+  ) => ElementBuilder<Remaining<E, X>, Hidden>;
 } & {
-  /** `!!private`: hidden from the client's output types. */
-  private(): ElementBuilder<E>;
-};
+  /** `!!private`: hidden from the client's output types, and a child cannot redeclare it. */
+  private(): ElementBuilder<E, true>;
+} & PrivateMark<Hidden>;
 
 type NullableEntry = Extract<RegisteredDecorator, { readonly name: '@nullable' }>;
 
@@ -141,9 +143,45 @@ export type TupleElements = readonly Element[] | Readonly<Record<string, Element
 // Read only by `tupleNode`, so a handle carries nothing but its name.
 const NODES = new WeakMap<object, { readonly name: string; readonly elements: TupleElements }>();
 
-/** Declare a tuple type. Element order is position, and a named element is also reachable by index. */
-export function tuple<Name extends string>(name: Name, elements: TupleElements): Handle<Name> {
-  const handle: Handle<Name> = Object.freeze({ name });
+/** The second argument of `tuple()`: the parent to inherit from, as for a model. */
+export interface TupleOptions<Parent extends string = string, Reserved extends string = string> {
+  readonly extends?: ExtendsTarget<Parent, Reserved>;
+}
+
+/** The element names a tuple body declares: none for a positional body. */
+type NamesOf<Elements extends TupleElements> = Elements extends readonly Element[] ? never : keyof Elements & string;
+
+/**
+ * Declare a tuple type. Element order is position, and a named element is also reachable by index, so a
+ * pick or omit list takes names and, for any parent, positions. A parent's private element is refused by
+ * name only; a positional one is left to the schema validator, as positions are not tracked in types.
+ */
+export function tuple<
+  Name extends string,
+  Elements extends TupleElements,
+  Parent extends string = never,
+  Reserved extends string = never,
+>(
+  name: Name,
+  elements: Elements & NoPrivateOverride<NoInfer<Elements>, Reserved>,
+  options: TupleOptions<Parent, Reserved> = {},
+): Extendable<
+  Name,
+  never,
+  NamesOf<Elements>,
+  NamesOf<Elements> | Parent,
+  PrivateKeys<Elements extends readonly Element[] ? object : Elements> | Reserved,
+  number
+> {
+  const handle = extendable<
+    Name,
+    never,
+    NamesOf<Elements>,
+    NamesOf<Elements> | Parent,
+    PrivateKeys<Elements extends readonly Element[] ? object : Elements> | Reserved,
+    number
+  >(name);
+  recordExtends(handle, options.extends);
   NODES.set(handle, { name, elements });
 
   return handle;
@@ -178,5 +216,8 @@ export function tupleNode(handle: object): ASTTuple {
     ? (elements as readonly Element[]).map((element) => elementNode(element, name))
     : Object.entries(elements).map(([key, element]) => elementNode(element as Element, name, key));
 
-  return createTuple(name, nodes, BUILDER_RANGE);
+  const clause = extendsOf(handle);
+  const [parentName, filter] = clause ? extendsFields(clause) : [];
+
+  return createTuple(name, nodes, BUILDER_RANGE, parentName, filter);
 }

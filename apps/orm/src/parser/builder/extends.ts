@@ -7,6 +7,7 @@ import type { Handle } from './handle';
  * a child can see once it extends this one: the own names plus whatever the declaration inherited.
  * `Reserved` is every `!!private` name the declaration or any ancestor holds, whether or not a filter
  * dropped it on the way: a child cannot redeclare one, though it may leave one out of a pick list.
+ * `Index` is `number` for a tuple, whose elements can also be listed by position, and `never` elsewhere.
  */
 export interface Extendable<
   Name extends string = string,
@@ -14,14 +15,17 @@ export interface Extendable<
   Own extends string = string,
   Visible extends string = Own,
   Reserved extends string = never,
+  Index extends number = never,
 > extends Handle<Name, Id, Own> {
   readonly visibleMembers?: Visible;
   readonly reservedMembers?: Reserved;
   /** `extends Name[a, b]`: only these of the parent's own fields. */
-  pick<Picked extends Own>(...fields: [Picked, ...Picked[]]): ExtendsFiltered<Name, Picked, Reserved>;
+  pick<Picked extends Own, At extends Index = never>(
+    ...fields: [Picked | At, ...(Picked | At)[]]
+  ): ExtendsFiltered<Name, Picked, Reserved>;
   /** `extends Name[!a, !b]`: every field of the parent but these. */
-  omit<Omitted extends Own>(
-    ...fields: [Omitted, ...Omitted[]]
+  omit<Omitted extends Own, At extends Index = never>(
+    ...fields: [Omitted | At, ...(Omitted | At)[]]
   ): ExtendsFiltered<Name, Exclude<Visible, Omitted>, Reserved>;
 }
 
@@ -43,7 +47,7 @@ export interface ExtendsFiltered<
 
 /** What an `extends` option takes: a parent, or a filtered view of one. */
 export type ExtendsTarget<Visible extends string = string, Reserved extends string = string> =
-  | Extendable<string, unknown, string, Visible, Reserved>
+  | Extendable<string, unknown, string, Visible, Reserved, number>
   | ExtendsFiltered<string, Visible, Reserved>;
 
 /**
@@ -74,22 +78,25 @@ export function extendable<
   Own extends string,
   Visible extends string,
   Reserved extends string,
->(name: Name): Extendable<Name, Id, Own, Visible, Reserved> {
+  Index extends number = never,
+>(name: Name): Extendable<Name, Id, Own, Visible, Reserved, Index> {
   const handle = { name };
-  const filtered = (mode: 'pick' | 'omit', fields: string[]): object => {
+  // A position is written as the decimal digits the parser stores for `[0, 1]`
+  const filtered = (mode: 'pick' | 'omit', list: (string | number)[]): object => {
+    const fields = list.map(String);
     const reference = Object.freeze({ name, mode, fields: Object.freeze([...fields]) });
     FILTERED.set(reference, { parent: handle, filter: { mode, fields: [...fields] } });
 
     return reference;
   };
   Object.defineProperties(handle, {
-    pick: { value: (...fields: string[]) => filtered('pick', fields) },
-    omit: { value: (...fields: string[]) => filtered('omit', fields) },
+    pick: { value: (...fields: (string | number)[]) => filtered('pick', fields) },
+    omit: { value: (...fields: (string | number)[]) => filtered('omit', fields) },
   });
   Object.freeze(handle);
   PARENTS.add(handle);
 
-  return handle as unknown as Extendable<Name, Id, Own, Visible, Reserved>;
+  return handle as unknown as Extendable<Name, Id, Own, Visible, Reserved, Index>;
 }
 
 /** Resolve an `extends` option to the clause it declares, refusing anything that is not a parent or a filtered parent. */
