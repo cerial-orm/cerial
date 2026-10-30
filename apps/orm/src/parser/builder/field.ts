@@ -7,7 +7,7 @@ import { bareName, chainEntries } from './entries';
 import { referenceName } from './handle';
 import { relation, reverse } from './relation';
 import type { RelationBuilder, ReverseBuilder } from './relation';
-import type { Reference } from './handle';
+import type { PrivateMark, Reference } from './handle';
 import type { BareName, BuilderNode, ChainEntry, MethodArgs, Remaining } from './types';
 
 /** Type-only key: a field builder's `Record(...)` id type, present only after `.id()`. Never exists at runtime. */
@@ -24,20 +24,22 @@ export type FieldBuilder<
   O extends boolean = true,
   Id = never,
   Marked extends boolean = false,
+  Hidden extends boolean = false,
 > = {
   readonly [X in ChainEntry<E, 'modelField', 'plain'> as BareName<X['name']>]: (
     ...args: MethodArgs<X['args']>
-  ) => FieldBuilder<Remaining<E, X>, O, Id, X['name'] extends '@id' ? true : Marked>;
+  ) => FieldBuilder<Remaining<E, X>, O, Id, X['name'] extends '@id' ? true : Marked, Hidden>;
 } & {
-  /** `!!private`: hidden from the client's output types. */
-  private(): FieldBuilder<E, O, Id, Marked>;
+  /** `!!private`: hidden from the client's output types, and a child cannot redeclare it. */
+  private(): FieldBuilder<E, O, Id, Marked, true>;
   /** `Type[]`. */
-  array(): FieldBuilder<E, O, Id, Marked>;
+  array(): FieldBuilder<E, O, Id, Marked, Hidden>;
   readonly [ID_MARK]?: Marked extends true ? { readonly id: Id } : never;
-} & (O extends true
+} & PrivateMark<Hidden> &
+  (O extends true
     ? {
         /** `Type?` */
-        optional(): FieldBuilder<E, O, Id, Marked>;
+        optional(): FieldBuilder<E, O, Id, Marked, Hidden>;
       }
     : unknown);
 

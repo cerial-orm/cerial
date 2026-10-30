@@ -9,6 +9,18 @@ export interface Handle<Name extends string = string, Id = never, Members extend
   readonly memberNames?: Members;
 }
 
+declare const PRIVATE_MARK: unique symbol;
+
+/** Type-only: a field builder's `!!private` state, so a child's field list can be checked against it. */
+export interface PrivateMark<Hidden extends boolean> {
+  readonly [PRIVATE_MARK]?: Hidden;
+}
+
+/** The keys of `Fields` whose builder was marked `.private()`. */
+export type PrivateKeys<Fields extends object> = {
+  [K in keyof Fields & string]: Fields[K] extends PrivateMark<infer H> ? ([H] extends [true] ? K : never) : never;
+}[keyof Fields & string];
+
 /** A reference in a field position: a handle by value, a thunk returning one, or a bare name */
 export type Reference<Name extends string = string> = Handle<Name, unknown> | (() => Handle<Name, unknown>) | Name;
 

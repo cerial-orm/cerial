@@ -6,7 +6,7 @@ import { chainToken } from './argument-source';
 import { BUILDER_RANGE, createChain } from './chain';
 import { bareName, chainEntries } from './entries';
 import { referenceName } from './handle';
-import type { Reference } from './handle';
+import type { PrivateMark, Reference } from './handle';
 import type { BareName, BuilderNode, ChainEntry, MethodArgs, Remaining } from './types';
 
 /** Entries a relation builder does not chain with the rest: `@field` is the `.field(name)` override. */
@@ -36,33 +36,35 @@ export type RelationBuilder<
   O extends boolean = false,
   A extends boolean = false,
   N extends boolean = false,
+  Hidden extends boolean = false,
 > = {
   readonly [X in ChainEntry<Exclude<E, NotChained>, 'modelField', 'relation'> as BareName<X['name']>]: (
     ...args: MethodArgs<X['args']>
-  ) => RelationBuilder<Remaining<E, X>, O, A, X['name'] extends '@nullable' ? true : N>;
+  ) => RelationBuilder<Remaining<E, X>, O, A, X['name'] extends '@nullable' ? true : N, Hidden>;
 } & {
   /** `!!private`: hides the relation from the client's output types. */
-  private(): RelationBuilder<E, O, A, N>;
+  private(): RelationBuilder<E, O, A, N, true>;
   /** `@field(name)`: the foreign key's name, instead of the relation's name plus `Id`. */
-  field(name: string): RelationBuilder<E, O, A, N>;
-} & (A extends true
+  field(name: string): RelationBuilder<E, O, A, N, Hidden>;
+} & PrivateMark<Hidden> &
+  (A extends true
     ? unknown
     : O extends true
       ? unknown
       : {
           /** `Relation[]`; the key becomes a `Record[]` named with an `Ids` suffix. The schema has no optional array relation. */
-          array(): RelationBuilder<E, O, true, N>;
+          array(): RelationBuilder<E, O, true, N, Hidden>;
         }) &
   (A extends true
     ? unknown
     : {
         /** `Relation?`; the key becomes `Record?` too. */
-        optional(): RelationBuilder<E, true, A, N>;
+        optional(): RelationBuilder<E, true, A, N, Hidden>;
       }) &
   (OnDeleteAllowed<O, A, N> extends true
     ? {
         /** `@onDelete(action)`: `SetNull` makes the key nullable and `SetNone` makes it optional. */
-        onDelete(...args: MethodArgs<OnDeleteEntry<E>['args']>): RelationBuilder<E, O, A, N>;
+        onDelete(...args: MethodArgs<OnDeleteEntry<E>['args']>): RelationBuilder<E, O, A, N, Hidden>;
       }
     : unknown);
 
@@ -75,26 +77,28 @@ export type ReverseBuilder<
   E extends DecoratorEntry = RegisteredDecorator,
   O extends boolean = false,
   A extends boolean = false,
+  Hidden extends boolean = false,
 > = {
   readonly [X in ChainEntry<Extract<E, { readonly name: '@key' }>, 'modelField', 'relation'> as BareName<X['name']>]: (
     ...args: MethodArgs<X['args']>
-  ) => ReverseBuilder<Remaining<E, X>, O, A>;
+  ) => ReverseBuilder<Remaining<E, X>, O, A, Hidden>;
 } & {
   /** `!!private`: hides the relation from the client's output types. */
-  private(): ReverseBuilder<E, O, A>;
-} & (A extends true
+  private(): ReverseBuilder<E, O, A, true>;
+} & PrivateMark<Hidden> &
+  (A extends true
     ? unknown
     : O extends true
       ? unknown
       : {
           /** `Relation[]`: every record that points back at this one. */
-          array(): ReverseBuilder<E, O, true>;
+          array(): ReverseBuilder<E, O, true, Hidden>;
         }) &
   (A extends true
     ? unknown
     : {
         /** `Relation?` */
-        optional(): ReverseBuilder<E, true, A>;
+        optional(): ReverseBuilder<E, true, A, Hidden>;
       });
 
 interface ChainRuntime {

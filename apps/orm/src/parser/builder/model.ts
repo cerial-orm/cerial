@@ -9,7 +9,8 @@ import { compositeDirectives } from './composite';
 import type { Options } from './types';
 import type { ObjectFields } from './object';
 import { extendable, extendsFields, extendsOf, recordExtends } from './extends';
-import type { Extendable, ExtendsTarget } from './extends';
+import type { Extendable, ExtendsTarget, NoPrivateOverride } from './extends';
+import type { PrivateKeys } from './handle';
 
 /** The field builders of a model body, keyed by field name. */
 export type ModelFields = ObjectFields;
@@ -18,15 +19,15 @@ export type ModelFields = ObjectFields;
  * The third argument of `model()`: `abstract`, plus the composite directive keys the registry declares
  * for a model. `Key` is the model's own field names, which the directives' field paths must start from.
  */
-export type ModelOptions<Key extends string = string, Parent extends string = string> = Options<
-  'model',
-  RegisteredDecorator,
-  Key
-> & {
+export type ModelOptions<
+  Key extends string = string,
+  Parent extends string = string,
+  Reserved extends string = string,
+> = Options<'model', RegisteredDecorator, Key> & {
   /** `abstract model`: consumed by inheritance resolution, never given a table. */
   readonly abstract?: boolean;
   /** The parent to inherit from: its handle, or `Parent.pick(...)` and `Parent.omit(...)` of it. */
-  readonly extends?: ExtendsTarget<Parent>;
+  readonly extends?: ExtendsTarget<Parent, Reserved>;
 };
 
 type StemOf<K extends string> = K extends `${infer S}s` ? S : K;
@@ -59,12 +60,23 @@ const NODES = new WeakMap<object, ModelDeclaration>();
  * Declare a model. The handle's `Id` is the id type of the field marked `.id()`, whatever that field is
  * called, and `never` when none is marked.
  */
-export function model<Name extends string, Fields extends ModelFields, Parent extends string = never>(
+export function model<
+  Name extends string,
+  Fields extends ModelFields,
+  Parent extends string = never,
+  Reserved extends string = never,
+>(
   name: Name,
-  fields: Fields,
-  options: ModelOptions<MembersOf<Fields> | NoInfer<Parent>, Parent> = {},
-): Extendable<Name, IdOf<Fields>, MembersOf<Fields>, MembersOf<Fields> | Parent> {
-  const handle = extendable<Name, IdOf<Fields>, MembersOf<Fields>, MembersOf<Fields> | Parent>(name);
+  fields: Fields & NoPrivateOverride<NoInfer<Fields>, Reserved>,
+  options: ModelOptions<MembersOf<Fields> | NoInfer<Parent>, Parent, Reserved> = {},
+): Extendable<Name, IdOf<Fields>, MembersOf<Fields>, MembersOf<Fields> | Parent, PrivateKeys<Fields> | Reserved> {
+  const handle = extendable<
+    Name,
+    IdOf<Fields>,
+    MembersOf<Fields>,
+    MembersOf<Fields> | Parent,
+    PrivateKeys<Fields> | Reserved
+  >(name);
   recordExtends(handle, options.extends);
   NODES.set(handle, { name, fields, options });
 

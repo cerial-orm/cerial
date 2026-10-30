@@ -3,15 +3,16 @@ import { createObject } from '../types/ast';
 import { BUILDER_RANGE } from './chain';
 import { fieldNode } from './field';
 import { extendable, extendsFields, extendsOf, recordExtends } from './extends';
-import type { Extendable, ExtendsTarget } from './extends';
+import type { Extendable, ExtendsTarget, NoPrivateOverride } from './extends';
+import type { PrivateKeys } from './handle';
 import { isRelationBuilder } from './relation';
 
 /** The field builders of an object body, keyed by field name. */
 export type ObjectFields = Readonly<Record<string, object>>;
 
 /** The second argument of `object()`: the parent to inherit from, as for a model. */
-export interface ObjectOptions<Parent extends string = string> {
-  readonly extends?: ExtendsTarget<Parent>;
+export interface ObjectOptions<Parent extends string = string, Reserved extends string = string> {
+  readonly extends?: ExtendsTarget<Parent, Reserved>;
 }
 
 // Read only by `objectNode`; the parent is also reachable through `extendsOf`.
@@ -22,12 +23,23 @@ const NODES = new WeakMap<object, { readonly name: string; readonly fields: Obje
  * object, so one object can be flexible from one field and strict from another. A self-reference goes
  * through `f.object(() => Self)` or a bare name, and whether it is legal is the schema validator's call.
  */
-export function object<Name extends string, Fields extends ObjectFields, Parent extends string = never>(
+export function object<
+  Name extends string,
+  Fields extends ObjectFields,
+  Parent extends string = never,
+  Reserved extends string = never,
+>(
   name: Name,
-  fields: Fields,
-  options: ObjectOptions<Parent> = {},
-): Extendable<Name, never, keyof Fields & string, (keyof Fields & string) | Parent> {
-  const handle = extendable<Name, never, keyof Fields & string, (keyof Fields & string) | Parent>(name);
+  fields: Fields & NoPrivateOverride<NoInfer<Fields>, Reserved>,
+  options: ObjectOptions<Parent, Reserved> = {},
+): Extendable<Name, never, keyof Fields & string, (keyof Fields & string) | Parent, PrivateKeys<Fields> | Reserved> {
+  const handle = extendable<
+    Name,
+    never,
+    keyof Fields & string,
+    (keyof Fields & string) | Parent,
+    PrivateKeys<Fields> | Reserved
+  >(name);
   recordExtends(handle, options.extends);
   NODES.set(handle, { name, fields });
 

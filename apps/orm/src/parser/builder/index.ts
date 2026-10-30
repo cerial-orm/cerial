@@ -7,7 +7,7 @@ export type { ChainOptions } from './chain';
 export { BUILDER_RANGE, createChain } from './chain';
 export type { BuildOptionsConfig } from './options';
 export { buildOptions } from './options';
-export type { Handle, Reference } from './handle';
+export type { Handle, PrivateKeys, Reference } from './handle';
 export { referenceName } from './handle';
 export type {
   AnyFieldBuilder,
@@ -29,7 +29,7 @@ export { enumeration as enum, enumNode } from './enum';
 export type { BroadTypeName, LiteralHandle, SimpleLiteralReference, VariantSpec } from './literal';
 export { literal, literalNode, variant } from './literal';
 export type { ModelFields, ModelOptions, MembersOf } from './model';
-export type { Extendable, ExtendsClause, ExtendsFiltered, ExtendsTarget } from './extends';
+export type { Extendable, ExtendsClause, ExtendsFiltered, ExtendsTarget, NoPrivateOverride } from './extends';
 export { extendsOf } from './extends';
 export { model, modelNode } from './model';
 export type { CompositeFieldPath } from './composite';
