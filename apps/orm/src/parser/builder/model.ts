@@ -3,7 +3,8 @@ import { createModel } from '../types/ast';
 import { BUILDER_RANGE } from './chain';
 import { fieldNode } from './field';
 import type { IdOf } from './field';
-import { isRelationBuilder, relationNodes } from './relation';
+import { foreignKeyOf, isRelationBuilder, relationNodes } from './relation';
+import type { NamedOf } from './relation';
 import type { RegisteredDecorator } from '../registry';
 import { compositeDirectives } from './composite';
 import type { Options } from './types';
@@ -32,16 +33,21 @@ export type ModelOptions<
 
 type StemOf<K extends string> = K extends `${infer S}s` ? S : K;
 
-/** The foreign key a forward relation derives: `authorId`, or `tagIds` for an array (no `optional` method left). */
+/**
+ * The foreign key a forward relation names: the one `.field()` gave, else the derived `authorId`, or
+ * `tagIds` for an array (no `optional` method left).
+ */
 type DerivedKey<K extends string, B> = B extends { field(name: string): unknown }
-  ? B extends { optional(): unknown }
-    ? `${K}Id`
-    : `${StemOf<K>}Ids`
+  ? [NamedOf<B>] extends [never]
+    ? B extends { optional(): unknown }
+      ? `${K}Id`
+      : `${StemOf<K>}Ids`
+    : NamedOf<B>
   : never;
 
 /**
  * The names a model declares, as its field list holds them: its own keys plus the key each forward
- * relation derives. A key renamed with `.field()` is not tracked here.
+ * relation names or derives.
  */
 export type MembersOf<Fields extends object> = {
   [K in keyof Fields & string]: K | DerivedKey<K, Fields[K]>;
@@ -83,12 +89,34 @@ export function model<
   return handle;
 }
 
+/** The names a model inherits through `extends`, with the child's pick or omit applied at each step. */
+function inheritedNames(handle: object, seen: ReadonlySet<object> = new Set()): Set<string> {
+  const clause = extendsOf(handle);
+  const parent = clause && NODES.get(clause.parent);
+  const names = new Set<string>();
+  if (!clause || !parent || seen.has(handle)) return names;
+  const visible = inheritedNames(clause.parent, new Set([...seen, handle]));
+  for (const [key, builder] of Object.entries(parent.fields)) {
+    visible.add(key);
+    const foreignKey = foreignKeyOf(builder, key);
+    if (foreignKey) visible.add(foreignKey);
+  }
+  const listed = new Set(clause.filter?.fields);
+  for (const name of visible) {
+    if (!clause.filter || (clause.filter.mode === 'pick') === listed.has(name)) names.add(name);
+  }
+
+  return names;
+}
+
 /** Materialise a model handle as the node the parser gives for the same declaration. */
 export function modelNode(handle: object): ASTModel {
   const declared = NODES.get(handle);
   if (!declared) throw new Error(`Not a model handle: ${String(handle)}`);
+  // A `.field(name)` binds only to a field written on the model or inherited through `extends`
+  const bindable = new Set([...Object.keys(declared.fields), ...inheritedNames(handle)]);
   const fields = Object.entries(declared.fields).flatMap(([key, builder]) =>
-    isRelationBuilder(builder) ? relationNodes(builder, key) : [fieldNode(builder, key)],
+    isRelationBuilder(builder) ? relationNodes(builder, key, bindable) : [fieldNode(builder, key)],
   );
   const seen = new Set<string>();
   for (const { name } of fields) {

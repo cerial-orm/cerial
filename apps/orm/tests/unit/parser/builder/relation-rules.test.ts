@@ -234,17 +234,12 @@ describe('.onDelete() derives the key', () => {
     );
   });
 
-  test('a nullable relation also offers it, as the validator accepts nullable', () => {
-    const rel = f
-      .relation(() => Target)
-      .nullable()
-      .onDelete('Cascade');
+  test('a nullable relation is not offered, as the validator refuses @nullable on a Relation', () => {
+    const rel = f.relation(() => Target) as unknown as Record<string, unknown>;
 
-    expect(modelNode(model('M', { a: rel })).fields[1]?.decorators.map((d) => d.type)).toContain('onDelete');
+    expect(rel.nullable).toBeUndefined();
   });
 
-  // Cascade, Restrict and NoAction twins write the key as `Record? @nullable`, which no chain call derives,
-  // so those are compared on the relation line only (see the each-table below).
   test('MemberSetNull matches its twin, key and relation', () => {
     const TeamSetNull = model('TeamSetNull', { id: f.record().id() });
     const built = model('MemberSetNull', {
@@ -303,34 +298,6 @@ describe('.onDelete() derives the key', () => {
       ]),
     );
   });
-
-  test.each([
-    ['Member', 'team', 'Team', 'Cascade'],
-    ['Employee', 'department', 'Department', 'Restrict'],
-    ['MemberNoAction', 'team', 'TeamNoAction', 'NoAction'],
-    ['OdParent', 'grandparent', 'OdGrandparent', 'Cascade'],
-    ['OdChild', 'parent', 'OdParent', 'Cascade'],
-  ] as const)(
-    '%s.%s matches the twin relation line and differs from its key only by @nullable',
-    (owner, name, target, action) => {
-      const Peer = model(target, { id: f.record().id() });
-      const built = modelNode(
-        model(owner, {
-          [name]: f
-            .relation(() => Peer)
-            .optional()
-            .onDelete(action),
-        }),
-      );
-      const parsed = parsedModel(onDeleteSource, owner);
-      const keyName = `${name}Id`;
-
-      expect(withoutPosition([fieldOf(built, name)])).toEqual(withoutPosition([fieldOf(parsed, name)]));
-      expect(fieldOf(parsed, keyName).isNullable).toBe(true);
-      expect(fieldOf(built, keyName).isNullable).toBeUndefined();
-      expect(fieldOf(built, keyName).isOptional).toBe(fieldOf(parsed, keyName).isOptional);
-    },
-  );
 });
 
 describe('the validators agree with what the builder emits', () => {

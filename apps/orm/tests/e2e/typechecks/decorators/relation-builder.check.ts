@@ -4,22 +4,43 @@
  * Verified with `tsc --noEmit`, NOT executed at runtime. Run: bun run typecheck
  *
  * A required relation auto-cascades and the schema refuses `@onDelete` on it, as on an array relation, so
- * the method is absent from those builders and present once the relation is optional or nullable.
+ * the method is absent from those builders and present once the relation is optional.
  */
 
 import type { RelationBuilder } from '../../../../src/parser/builder';
 
 declare const required: RelationBuilder;
 
-// Positive: optional or nullable, singular, in either chain order.
+// Positive: optional, singular, in either chain order.
 export const allowed = [
   required.optional().onDelete('SetNull'),
   required.optional().key('tree').onDelete('Cascade'),
   required.key('tree').optional().onDelete('SetNone'),
-  required.nullable().onDelete('Restrict'),
   required.optional().private().onDelete('NoAction'),
   required.optional().onDelete('Cascade').key('tree'),
 ];
+
+// Negative: a relation line cannot be nullable, so the method is gone and does not unlock @onDelete.
+// @ts-expect-error the validator refuses @nullable on a Relation
+required.nullable();
+// @ts-expect-error nor is a nullable relation a way to reach @onDelete
+required.optional().nullable();
+
+// Negative: the rest of the decorators the validators refuse on a relation line are gone too.
+// @ts-expect-error @set is for arrays of primitives, and a relation stores nothing
+required.set();
+// @ts-expect-error @flexible is for object-typed fields
+required.flexible();
+// @ts-expect-error @createdAt is for Date fields
+required.createdAt();
+// @ts-expect-error @now is for Date fields
+required.now();
+// @ts-expect-error @uuid is for Uuid fields
+required.uuid();
+
+// Positive: what the validators accept on a relation line stays reachable.
+required.unique();
+required.index();
 
 // Negative: absent from a required relation, and from anything chained from one without .optional().
 // @ts-expect-error a required relation auto-cascades, so @onDelete is not on its chain

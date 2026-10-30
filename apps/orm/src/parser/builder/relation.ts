@@ -5,66 +5,74 @@ import type { DecoratorEntry, DecoratorName, RegisteredDecorator } from '../regi
 import { chainToken } from './argument-source';
 import { BUILDER_RANGE, createChain } from './chain';
 import { bareName, chainEntries } from './entries';
+import { REFUSED_ON_RELATION } from './exposure';
 import { referenceName } from './handle';
 import type { PrivateMark, Reference } from './handle';
 import type { BareName, BuilderNode, ChainEntry, MethodArgs, Remaining } from './types';
 
-/** Entries a relation builder does not chain with the rest: `@field` is the `.field(name)` override. */
-type NotChained = { readonly name: '@field' | '@onDelete' };
+/** Entries a relation builder does not chain with the rest: `@field` is the `.field(name)` binding, and the validators refuse some. */
+type NotChained = { readonly name: '@field' | '@onDelete' | (typeof REFUSED_ON_RELATION)[number] };
+
+/** Type-only key: the name `.field(name)` gave, present on the builder's type and never at runtime. */
+declare const NAMED_KEY: unique symbol;
+
+/** Carries the foreign key's name chosen with `.field(name)`; `never` when the name is derived. */
+export type NamedMark<Named extends string> = { readonly [NAMED_KEY]?: readonly [Named] };
+
+/** The name a builder's type carries from `.field(name)`, or `never` when the foreign key is derived. */
+export type NamedOf<B> = B extends { readonly [NAMED_KEY]?: readonly [infer Named extends string] } ? Named : never;
 
 /** The chain method of `@onDelete`, read from the registry so its accepted values are not restated. */
 type OnDeleteEntry<E extends DecoratorEntry> = Extract<E, { readonly name: '@onDelete' }>;
 
 /**
  * Whether `.onDelete()` exists: the validator accepts `@onDelete` on a singular relation that is optional
- * or nullable, and refuses a required one (it auto-cascades) and an array one.
+ * (a relation line cannot be nullable), and refuses a required one (it auto-cascades) and an array one.
  */
-type OnDeleteAllowed<O extends boolean, A extends boolean, N extends boolean> = A extends true
-  ? false
-  : O extends true
-    ? true
-    : N;
+type OnDeleteAllowed<O extends boolean, A extends boolean> = A extends true ? false : O;
 
 /**
  * A forward relation under construction. Each call returns a new builder. The backing `Record` is derived
- * from the declaration, so the pair cannot disagree: `O`, `A` and `N` are optional, array and nullable.
- * The methods are the registry's chain entries for a relation, and `.field(name)` names the foreign key
- * when the default does not fit.
+ * from the declaration, so the pair cannot disagree: `O` and `A` are optional and array. The methods are
+ * the registry's chain entries for a relation the validators accept, and `.field(name)` names the foreign
+ * key: a field the model declares or inherits is bound to, any other name is the one derived. `Named` is
+ * that name, so it counts as a member of the model.
  */
 export type RelationBuilder<
   E extends DecoratorEntry = RegisteredDecorator,
   O extends boolean = false,
   A extends boolean = false,
-  N extends boolean = false,
+  Named extends string = never,
   Hidden extends boolean = false,
 > = {
   readonly [X in ChainEntry<Exclude<E, NotChained>, 'modelField', 'relation'> as BareName<X['name']>]: (
     ...args: MethodArgs<X['args']>
-  ) => RelationBuilder<Remaining<E, X>, O, A, X['name'] extends '@nullable' ? true : N, Hidden>;
+  ) => RelationBuilder<Remaining<E, X>, O, A, Named, Hidden>;
 } & {
   /** `!!private`: hides the relation from the client's output types. */
-  private(): RelationBuilder<E, O, A, N, true>;
-  /** `@field(name)`: the foreign key's name, instead of the relation's name plus `Id`. */
-  field(name: string): RelationBuilder<E, O, A, N, Hidden>;
-} & PrivateMark<Hidden> &
+  private(): RelationBuilder<E, O, A, Named, true>;
+  /** `@field(name)`: binds to the field `name` the model declares or inherits, else names the derived foreign key. */
+  field<const Key extends string>(name: Key): RelationBuilder<E, O, A, Key, Hidden>;
+} & NamedMark<Named> &
+  PrivateMark<Hidden> &
   (A extends true
     ? unknown
     : O extends true
       ? unknown
       : {
           /** `Relation[]`; the key becomes a `Record[]` named with an `Ids` suffix. The schema has no optional array relation. */
-          array(): RelationBuilder<E, O, true, N, Hidden>;
+          array(): RelationBuilder<E, O, true, Named, Hidden>;
         }) &
   (A extends true
     ? unknown
     : {
         /** `Relation?`; the key becomes `Record?` too. */
-        optional(): RelationBuilder<E, true, A, N, Hidden>;
+        optional(): RelationBuilder<E, true, A, Named, Hidden>;
       }) &
-  (OnDeleteAllowed<O, A, N> extends true
+  (OnDeleteAllowed<O, A> extends true
     ? {
         /** `@onDelete(action)`: `SetNull` makes the key nullable and `SetNone` makes it optional. */
-        onDelete(...args: MethodArgs<OnDeleteEntry<E>['args']>): RelationBuilder<E, O, A, N, Hidden>;
+        onDelete(...args: MethodArgs<OnDeleteEntry<E>['args']>): RelationBuilder<E, O, A, Named, Hidden>;
       }
     : unknown);
 
@@ -141,7 +149,7 @@ function builderOf(state: RelationState): object {
   };
   for (const entry of chainEntries('modelField', 'relation')) {
     const name = bareName(entry.name);
-    if (name in methods) continue;
+    if (name in methods || (REFUSED_ON_RELATION as readonly string[]).includes(entry.name)) continue;
     methods[name] = (...args: unknown[]) => builderOf({ ...state, chain: state.chain[name]!(...args) as ChainRuntime });
   }
   const builder = Object.freeze(methods);
@@ -230,13 +238,22 @@ function reverseNode(state: RelationState, name: string): ASTField {
   );
 }
 
+/** The foreign key a forward relation names or derives, or undefined for anything else. */
+export function foreignKeyOf(builder: object, name: string): string | undefined {
+  const state = STATES.get(builder);
+
+  return state && (state.foreignKey ?? derivedKey(name, state.isArray));
+}
+
 /**
- * The two nodes a forward relation declares, foreign key first: the parser's corpus puts the key directly before
- * its relation in 60 of 64 hand-written forward relations. The foreign key carries no `Record(Type)`,
+ * The nodes a forward relation declares. The foreign key comes first: the parser's corpus puts the key
+ * directly before its relation in 60 of 64 hand-written forward relations. It carries no `Record(Type)`,
  * because its id type is inferred from the target model. It follows the relation's optionality and array
  * form, and `@onDelete` decides the rest: `SetNull` needs a nullable key and `SetNone` an optional one.
+ * A relation whose `.field(name)` names one of `declared` is bound to that field instead, so only the
+ * relation is emitted and the field keeps the shape its own declaration gave it.
  */
-export function relationNodes(builder: object, name: string): ASTField[] {
+export function relationNodes(builder: object, name: string, declared: ReadonlySet<string> = new Set()): ASTField[] {
   const reversed = REVERSE_STATES.get(builder);
   if (reversed) return [reverseNode(reversed, name)];
   const state = STATES.get(builder);
@@ -247,6 +264,20 @@ export function relationNodes(builder: object, name: string): ASTField[] {
     decoratorNode('@model', referenceName(state.target)),
     ...state.chain.decorators().filter((node): node is ASTDecorator => 'type' in node),
   ];
+  const relationField = createField(
+    name,
+    'relation',
+    state.isOptional,
+    decorators,
+    BUILDER_RANGE,
+    state.isArray,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    state.isPrivate || undefined,
+  );
+  if (state.foreignKey !== undefined && declared.has(state.foreignKey)) return [relationField];
   const onDelete = decorators.find((d) => d.type === 'onDelete')?.value;
   const keyDecorators = onDelete === 'SetNull' ? [decoratorNode('@nullable')] : [];
 
@@ -259,18 +290,6 @@ export function relationNodes(builder: object, name: string): ASTField[] {
       BUILDER_RANGE,
       state.isArray,
     ),
-    createField(
-      name,
-      'relation',
-      state.isOptional,
-      decorators,
-      BUILDER_RANGE,
-      state.isArray,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      state.isPrivate || undefined,
-    ),
+    relationField,
   ];
 }
