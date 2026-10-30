@@ -1,0 +1,4 @@
+model Host {
+  id Record @id
+  name String
+}

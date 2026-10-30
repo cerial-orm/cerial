@@ -90,13 +90,14 @@ describe('TypeScript-only fixture project', () => {
     expect(schemas[0]!.files.map((f) => basename(f))).toEqual(['post.schema.ts', 'user.schema.ts']);
   });
 
-  it('buildResolvedSchemaAst carries the modules without reading or parsing them', async () => {
+  it('buildResolvedSchemaAst imports the modules and reports an entry that exports no declaration', async () => {
     const result = await buildResolvedSchemaAst({ schemaPath: FIXTURE });
 
     expect(result.schemaFiles).toEqual([]);
     expect(result.typescriptFiles.map((f) => basename(f))).toEqual(['post.schema.ts', 'user.schema.ts']);
     expect(result.schemaContents).toEqual([]);
-    expect(result.parseErrors).toEqual([]);
+    expect(result.parseErrors).toHaveLength(1);
+    expect(result.parseErrors[0]).toContain('none exports a model');
     expect(result.resolvedAST).toBeNull();
   });
 

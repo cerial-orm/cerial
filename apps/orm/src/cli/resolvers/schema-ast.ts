@@ -6,6 +6,7 @@ import {
   collectTupleNames,
   parse,
 } from '../../parser/parser';
+import { loadDeclarations, materialise } from '../../parser/builder';
 import { resolveInheritance } from '../../resolver';
 import type { SchemaAST } from '../../types';
 import type { PathFilter } from '../filters';
@@ -47,7 +48,7 @@ export async function buildResolvedSchemaAst(options: SchemaAstOptions): Promise
   const schemaFiles = resolvedFiles.filter((f) => !isTypescriptSchemaFile(f));
   const typescriptFiles = resolvedFiles.filter(isTypescriptSchemaFile);
 
-  const combinedAST: SchemaAST = { models: [], objects: [], tuples: [], literals: [], enums: [], source: '' };
+  let combinedAST: SchemaAST = { models: [], objects: [], tuples: [], literals: [], enums: [], source: '' };
   const result: SchemaAstResult = {
     schemaFiles,
     typescriptFiles,
@@ -63,7 +64,29 @@ export async function buildResolvedSchemaAst(options: SchemaAstOptions): Promise
     if (options.verbose) typescriptFiles.forEach((f) => logger.debug(`  - ${f}`));
   }
 
-  if (!schemaFiles.length) return result;
+  if (!schemaFiles.length) {
+    if (!typescriptFiles.length) return result;
+
+    // A TypeScript-only entry becomes the same AST the parser yields, so everything below runs unchanged
+    logger.progress('Loading TypeScript schema modules...');
+    combinedAST = materialise(await loadDeclarations(typescriptFiles));
+    result.combinedAST = combinedAST;
+
+    if (!hasDeclarations(combinedAST)) {
+      result.parseErrors.push(
+        `Found ${typescriptFiles.length} TypeScript schema module(s), but none exports a model, object, tuple, literal or enum declared with cerial/schema`,
+      );
+
+      return result;
+    }
+
+    return validateAndResolve(result, combinedAST);
+  }
+
+  if (typescriptFiles.length) {
+    // Merging the two forms is not done here, and a `user.schema.ts` beside `.cerial` files may not be a Cerial schema
+    logger.info('The entry also holds .cerial files, so its TypeScript schema modules are not imported');
+  }
 
   logger.info(`Found ${schemaFiles.length} schema file(s)`);
   if (options.verbose) {
@@ -114,6 +137,16 @@ export async function buildResolvedSchemaAst(options: SchemaAstOptions): Promise
 
   if (result.parseErrors.length) return result;
 
+  return validateAndResolve(result, combinedAST);
+}
+
+function hasDeclarations(ast: SchemaAST): boolean {
+  return Boolean(
+    ast.models.length || ast.objects.length || ast.tuples.length || ast.literals.length || ast.enums.length,
+  );
+}
+
+function validateAndResolve(result: SchemaAstResult, combinedAST: SchemaAST): SchemaAstResult {
   // Validate extends and name uniqueness on the RAW AST: resolution keys types by name, so a duplicate
   // declaration (including one in another file) would be silently dropped before any later check saw it
   result.extendsErrors = [...validateDuplicateNames(combinedAST), ...validateExtends(combinedAST)];
