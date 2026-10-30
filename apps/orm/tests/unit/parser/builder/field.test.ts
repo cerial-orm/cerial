@@ -4,6 +4,7 @@ import type { Handle } from '../../../../src/parser/builder';
 import { FIELD_TYPE_REGISTRY } from '../../../../src/parser/registry';
 import { parse } from '../../../../src/parser/parser';
 import type { ASTField } from '../../../../src/types';
+import { withoutPosition } from './helpers';
 
 /** The node `parse()` gives for one field line */
 function parsed(line: string): ASTField {
@@ -11,20 +12,6 @@ function parsed(line: string): ASTField {
   expect(errors).toHaveLength(0);
 
   return ast.models[0]!.fields[0]!;
-}
-
-/** Drop the keys that cannot match: `range` is a source position and `origin` names a file */
-function withoutPosition(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map(withoutPosition);
-  if (value && typeof value === 'object') {
-    return Object.fromEntries(
-      Object.entries(value)
-        .filter(([key]) => key !== 'range' && key !== 'origin')
-        .map(([key, child]) => [key, withoutPosition(child)]),
-    );
-  }
-
-  return value;
 }
 
 function expectSame(built: ASTField, line: string): void {
@@ -35,11 +22,11 @@ const SIMPLE = [...FIELD_TYPE_REGISTRY.values()].filter((e) => e.fieldType !== '
 
 describe('field factories', () => {
   test('there is one factory per registry field type, and f.relation is not one of them', () => {
-    const expected = [...SIMPLE.map((e) => e.fieldType), 'record'].sort();
+    const expected = [...SIMPLE.map((e) => e.fieldType), 'record', 'object'].sort();
 
     expect(Object.keys(f).sort()).toEqual(expected);
-    // 13 non-relation types besides Record, plus record
-    expect(expected).toHaveLength(14);
+    // 13 non-relation types besides Record, plus record and the object reference
+    expect(expected).toHaveLength(15);
     expect('relation' in f).toBe(false);
   });
 

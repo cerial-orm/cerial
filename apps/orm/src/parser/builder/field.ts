@@ -35,6 +35,9 @@ export type AnyFieldBuilder = FieldBuilder<Exclude<RegisteredDecorator, { readon
 /** The primitive id types `Record(...)` takes; an object or tuple id goes through a reference. */
 export type RecordIdType = 'int' | 'number' | 'string' | 'uuid' | Reference;
 
+/** An object-typed field takes `?` and `[]` but not `@nullable`: SurrealDB cannot define sub-fields on a nullable parent. */
+export type ObjectFieldBuilder = FieldBuilder<Exclude<RegisteredDecorator, { readonly name: '@nullable' }>>;
+
 type SimpleFieldType = Exclude<SchemaFieldType, 'record' | 'relation' | 'object' | 'tuple' | 'literal'>;
 
 /** One factory per built-in field type except `record` and `relation`, keyed by what the parser records. */
@@ -42,11 +45,14 @@ export type FieldFactories = {
   readonly [T in SimpleFieldType]: () => T extends 'any' ? AnyFieldBuilder : FieldBuilder;
 } & {
   readonly record: (...idTypes: RecordIdType[]) => FieldBuilder;
+  /** A field typed as an object definition, named by handle, thunk or bare name. */
+  readonly object: (reference: Reference) => ObjectFieldBuilder;
 };
 
 interface FieldSpec {
   readonly type: SchemaFieldType;
   readonly recordIdTypes?: readonly RecordIdType[];
+  readonly objectReference?: Reference;
   /** `Any` rejects `?` and `@nullable`. */
   readonly any: boolean;
 }
@@ -76,7 +82,7 @@ function builderOf(state: FieldState): object {
   if (!spec.any) methods.optional = () => builderOf({ ...state, isOptional: true });
   for (const entry of chainEntries('modelField')) {
     const name = bareName(entry.name);
-    if (spec.any && name === 'nullable') continue;
+    if ((spec.any || spec.objectReference !== undefined) && name === 'nullable') continue;
     methods[name] = (...args: unknown[]) => builderOf({ ...state, chain: state.chain[name]!(...args) as ChainRuntime });
   }
   const builder = Object.freeze(methods);
@@ -111,7 +117,7 @@ export function fieldNode(builder: object, name: string): ASTField {
     decorators,
     BUILDER_RANGE,
     state.isArray,
-    undefined,
+    spec.objectReference === undefined ? undefined : referenceName(spec.objectReference),
     undefined,
     undefined,
     recordIdTypes,
@@ -135,4 +141,5 @@ function simpleFactories(): Record<string, () => object> {
 export const f = Object.freeze({
   ...simpleFactories(),
   record: (...idTypes: RecordIdType[]) => start({ type: 'record', recordIdTypes: idTypes, any: false }),
+  object: (reference: Reference) => start({ type: 'object', objectReference: reference, any: false }),
 }) as unknown as FieldFactories;

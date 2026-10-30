@@ -11,3 +11,5 @@ export type { Handle, Reference } from './handle';
 export { referenceName } from './handle';
 export type { AnyFieldBuilder, FieldBuilder, FieldFactories, RecordIdType } from './field';
 export { f, fieldNode } from './field';
+export type { ObjectFields } from './object';
+export { object, objectNode } from './object';

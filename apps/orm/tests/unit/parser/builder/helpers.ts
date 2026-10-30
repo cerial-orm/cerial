@@ -27,3 +27,17 @@ export const SYNTHETIC_OPTIONS_ENTRY = {
   description: 'Test entry.',
   parse: (token, range) => createDecorator('unique', range, token),
 } as const satisfies DecoratorEntry;
+
+/** Drop the keys that cannot match: `range` is a source position and `origin` names a file */
+export function withoutPosition(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(withoutPosition);
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value)
+        .filter(([key]) => key !== 'range' && key !== 'origin')
+        .map(([key, child]) => [key, withoutPosition(child)]),
+    );
+  }
+
+  return value;
+}
