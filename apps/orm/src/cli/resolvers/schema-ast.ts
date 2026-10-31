@@ -17,10 +17,14 @@ import type { SchemaValidationError } from '../validators';
 import { validateDuplicateNames, validateExtends } from '../validators';
 import { isTypescriptSchemaFile, resolveSchemas, resolveSinglePath } from './schema-resolver';
 
+const HANDLES_MODULE = /(^|\/)cerial\/handles\.ts$/;
+
 export interface SchemaAstOptions {
   schemaPath?: string;
   /** Absolute path of a module exporting `defineSchema()`; with no `schemaPath`, nothing else is searched */
   entry?: string;
+  /** Absolute paths of the config's listed `files`; each is a schema source and the filter does not apply */
+  files?: readonly string[];
   filter?: PathFilter;
   verbose?: boolean;
 }
@@ -50,20 +54,42 @@ export async function buildResolvedSchemaAst(options: SchemaAstOptions): Promise
     throw new CerialGenerationError(`Schema entry ${entry} does not exist. Check 'entry' in the config.`);
   }
 
-  // An entry with no path owns the schema, so there is no root for convention to search
+  // The generated handles are output, never a schema module, so listing them contributes nothing
+  const listed = (options.files ?? []).filter((file) => !HANDLES_MODULE.test(file.replace(/\\/g, '/')));
+  for (const file of listed) {
+    if (!existsSync(file)) {
+      throw new CerialGenerationError(`Schema file ${file} does not exist. Check 'files' in the config.`);
+    }
+    if (!file.endsWith('.cerial') && !file.endsWith('.ts')) {
+      throw new CerialGenerationError(
+        `Schema file ${file} is neither a .cerial file nor a .ts module. Check 'files' in the config.`,
+      );
+    }
+  }
+
+  // An entry or a file list with no path owns the schema, so there is no root for convention to search
+  const explicit = !!entry || !!options.files?.length;
   const resolvedFiles: string[] = options.schemaPath
     ? await resolveSinglePath(options.schemaPath, process.cwd(), options.filter)
-    : entry
+    : explicit
       ? []
       : await resolveSchemas({ filter: options.filter });
 
-  const schemaFiles = resolvedFiles.filter((f) => !isTypescriptSchemaFile(f));
-  const typescriptFiles = resolvedFiles.filter(isTypescriptSchemaFile);
+  // Each source counts once however many modes found it
+  const schemaFiles = [
+    ...new Set([
+      ...resolvedFiles.filter((f) => !isTypescriptSchemaFile(f)),
+      ...listed.filter((f) => f.endsWith('.cerial')),
+    ]),
+  ];
+  const listedTypescript = listed.filter((f) => f.endsWith('.ts'));
+  const typescriptFiles = [...new Set([...resolvedFiles.filter(isTypescriptSchemaFile), ...listedTypescript])];
   if (entry && !typescriptFiles.includes(entry)) typescriptFiles.push(entry);
 
-  if (entry && schemaFiles.length) {
+  const explicitTypescript = [...(entry ? [entry] : []), ...listedTypescript];
+  if (explicitTypescript.length && schemaFiles.length) {
     throw new CerialGenerationError(
-      `Schema entry ${entry} is set, but ${options.schemaPath} also holds ${schemaFiles.length} .cerial file(s). Combining the two forms is not supported yet: remove 'entry' or the .cerial files.`,
+      `Schema module ${explicitTypescript[0]} is set in the config, but the schema also holds ${schemaFiles.length} .cerial file(s). Combining the two forms is not supported yet: use only .cerial files or only TypeScript modules.`,
     );
   }
 

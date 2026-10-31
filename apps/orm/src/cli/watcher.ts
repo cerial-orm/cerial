@@ -28,7 +28,9 @@ export interface WatchTarget extends WatchTargetBase {
   configPath?: string;
   /** The config entry's `defineSchema()` module; its imports are what generation registers, so they are watched */
   entry?: string;
-  /** The config gave no `path`, so `schemaPath` is the entry's folder and holds no schema files of its own */
+  /** The config's listed `files`, absolute */
+  files?: string[];
+  /** The config gave no `path`, so `schemaPath` is the folder of the entry and listed files and holds no schema files of its own */
   entryOnly?: boolean;
 }
 
@@ -219,9 +221,11 @@ export interface WatcherOptions {
 }
 
 /** True when the entry's TypeScript modules are what generation imports: some exist and no `.cerial` file does */
-export async function holdsTypescriptModules(target: WatchTargetBase & { entry?: string }): Promise<boolean> {
+export async function holdsTypescriptModules(
+  target: WatchTargetBase & { entry?: string; files?: string[] },
+): Promise<boolean> {
   // An entry module is TypeScript by definition, and what it imports need not be named `*.schema.ts`
-  if (target.entry) return true;
+  if (target.entry || target.files?.some((file) => file.endsWith('.ts'))) return true;
 
   try {
     const files = await resolveSinglePath(target.schemaPath, process.cwd(), target.filter);

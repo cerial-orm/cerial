@@ -23,10 +23,20 @@ interface SchemaEntryBase {
 
 /**
  * Per-schema configuration entry. `path` is a schema file or directory; `entry` is a TypeScript module
- * exporting a `defineSchema()` result, whose imports are registered whatever their names. One of the two is
- * required; with both, both contribute.
+ * exporting a `defineSchema()` result, whose imports are registered whatever their names; `files` lists schema
+ * files one by one. At least one of the three is required, and every one given contributes.
  */
-export type SchemaEntry = SchemaEntryBase & ({ path: string; entry?: string } | { path?: string; entry: string });
+export type SchemaEntry = SchemaEntryBase & {
+  path?: string;
+  entry?: string;
+  /**
+   * Literal file paths (not globs), relative to the config's directory: `.cerial` files or TypeScript modules,
+   * each a schema source on its own. A listed TypeScript module is imported whether or not it ends in
+   * `.schema.ts`, and is not walked for imports unless it exports a `defineSchema()` result. The `ignore`,
+   * `exclude` and `include` filters do not apply to listed files.
+   */
+  files?: string[];
+} & ({ path: string } | { entry: string } | { files: string[] });
 
 /**
  * Root Cerial configuration
@@ -78,13 +88,15 @@ export interface ResolvedSchemaEntry {
   /** Schema name (from map key or derived from path) */
   name: string;
   /**
-   * Absolute path to schema file or directory. For an entry with no `path` it is the entry module's
-   * directory: it scopes filters and the watcher, and no schema files are searched in it.
+   * Absolute path to schema file or directory. For an entry with no `path` it is the folder holding the entry
+   * module and the listed `files`: it scopes filters and the watcher, and no schema files are searched in it.
    */
   path: string;
   /** Absolute path to the entry module, when the config names one */
   entry?: string;
-  /** True when the config gave no `path`, so `entry` is the only source of declarations */
+  /** Absolute paths of the config's listed `files` */
+  files?: string[];
+  /** True when the config gave no `path`, so `entry` and `files` are the only sources of declarations */
   entryOnly?: boolean;
   /** Absolute output directory */
   output: string;

@@ -2,7 +2,7 @@
  * Config resolver - resolves config to absolute paths and computed values
  */
 
-import { dirname, resolve } from 'node:path';
+import { dirname, resolve, sep } from 'node:path';
 import type { FormatConfig } from '../../formatter/types';
 import { isSchemaFile } from '../resolvers/schema-resolver';
 import { toClientClassName } from './name-utils';
@@ -52,8 +52,11 @@ function resolveMultiSchema(config: CerialConfig, cwd: string): ResolvedSchemaEn
 
   return Object.entries(schemas).map(([name, entry]) => {
     const entryModule = entry.entry ? toAbsolute(entry.entry, cwd) : undefined;
-    // An entry-only schema has no root of its own; its scope is the folder its entry module lives in
-    const absolutePath = entry.path ? toAbsolute(entry.path, cwd) : dirname(entryModule!);
+    const files = entry.files?.length ? entry.files.map((file) => toAbsolute(file, cwd)) : undefined;
+    // A schema with no path has no root of its own; its scope is the folder its entry and listed files share
+    const absolutePath = entry.path
+      ? toAbsolute(entry.path, cwd)
+      : commonDirectory([...(entryModule ? [entryModule] : []), ...(files ?? [])]);
     const output = entry.output
       ? toAbsolute(entry.output, cwd)
       : rootOutput
@@ -70,7 +73,9 @@ function resolveMultiSchema(config: CerialConfig, cwd: string): ResolvedSchemaEn
     return {
       name,
       path: absolutePath,
-      ...(entryModule ? { entry: entryModule, entryOnly: !entry.path } : {}),
+      ...(entryModule ? { entry: entryModule } : {}),
+      ...(files ? { files } : {}),
+      ...(entryModule || files ? { entryOnly: !entry.path } : {}),
       output,
       clientClassName: toClientClassName(name),
       connection: entry.connection ?? config.connection,
@@ -86,6 +91,14 @@ function toAbsolute(path: string, cwd: string): string {
   }
 
   return resolve(cwd, path);
+}
+
+/** The deepest directory that holds every file */
+function commonDirectory(files: string[]): string {
+  const [first, ...rest] = files.map((file) => dirname(file).split(sep));
+  const shared = first!.findIndex((part, i) => !rest.every((parts) => parts[i] === part));
+
+  return first!.slice(0, shared === -1 ? undefined : shared).join(sep) || sep;
 }
 
 function getDefaultOutput(schemaPath: string): string {

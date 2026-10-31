@@ -66,6 +66,8 @@ export interface SingleSchemaOptions {
   schemaPath?: string;
   /** Absolute path of the config's entry module, a file exporting `defineSchema()`; alone, it is the whole schema */
   entry?: string;
+  /** Absolute paths of the config's listed `files` */
+  files?: string[];
   outputDir: string;
   logLevel?: LogOutputLevel;
   verbose?: boolean;
@@ -257,6 +259,7 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
     } = await buildResolvedSchemaAst({
       schemaPath: options.schemaPath,
       entry: options.entry,
+      files: options.files,
       filter: options.filter,
       verbose: options.verbose,
     });
@@ -479,9 +482,9 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
   }
 }
 
-/** Where a resolved entry's declarations come from: its path, its entry module, or both */
-function schemaSource(entry: ResolvedSchemaEntry): Pick<SingleSchemaOptions, 'schemaPath' | 'entry'> {
-  return { schemaPath: entry.entryOnly ? undefined : entry.path, entry: entry.entry };
+/** Where a resolved entry's declarations come from: its path, its entry module, its listed files, or any mix */
+function schemaSource(entry: ResolvedSchemaEntry): Pick<SingleSchemaOptions, 'schemaPath' | 'entry' | 'files'> {
+  return { schemaPath: entry.entryOnly ? undefined : entry.path, entry: entry.entry, files: entry.files };
 }
 
 /** Generate multiple schemas sequentially */
