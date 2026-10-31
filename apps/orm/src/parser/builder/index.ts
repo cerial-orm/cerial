@@ -36,7 +36,7 @@ export type { CompositeFieldPath } from './composite';
 export { compositeDirectives } from './composite';
 export type { ExportedDeclaration, KnownNames } from './materialise';
 export { materialise } from './materialise';
-export type { ImportReader, LoadOptions, ModuleImporter } from './load';
+export type { HandlesExports, ImportReader, LoadOptions, ModuleImporter } from './load';
 export {
   assertSupportedNode,
   importSchemaModule,

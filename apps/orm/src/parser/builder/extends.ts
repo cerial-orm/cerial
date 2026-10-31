@@ -90,11 +90,12 @@ export function extendable<
   Reserved extends string,
   Index extends number = never,
   Kind extends DslHandleKind = DslHandleKind,
->(name: Name): Extendable<Name, Id, Own, Visible, Reserved, Index, Kind> {
+>(name: Name, verify?: (fields: readonly string[]) => void): Extendable<Name, Id, Own, Visible, Reserved, Index, Kind> {
   const handle = { name };
   // A position is written as the decimal digits the parser stores for `[0, 1]`
   const filtered = (mode: 'pick' | 'omit', list: (string | number)[]): object => {
     const fields = list.map(String);
+    verify?.(fields);
     const reference = Object.freeze({ name, mode, fields: Object.freeze([...fields]) });
     FILTERED.set(reference, { parent: handle, filter: { mode, fields: [...fields] } });
 

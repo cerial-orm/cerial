@@ -87,10 +87,24 @@ export function dslHandleInfo(value: unknown): DslHandleInfo | undefined {
   return typeof value === 'object' && value !== null ? DSL_HANDLES.get(value) : undefined;
 }
 
+/** Refuses a pick or omit naming something the regenerated handle no longer lists, naming the name and the declaration. */
+function checkMembers(info: DslHandleInfo, fields: readonly string[]): void {
+  const absent = fields.filter((field) => {
+    if (info.members.includes(field)) return false;
+    // A tuple position is range-checked against the tuple's size by the extends validator
+    return !(info.size !== undefined && /^\d+$/.test(field));
+  });
+  if (!absent.length) return;
+
+  throw new CerialGenerationError(
+    `${info.kind} '${info.name}' has no member ${absent.map((field) => (field.startsWith("'") ? field : `'${field}'`)).join(', ')}: it was removed or renamed in the .cerial file, and cerial/handles.ts was regenerated without it. It now has: ${info.members.join(', ') || 'none'}. Update the pick or omit list.`,
+  );
+}
+
 function makeHandle(info: DslHandleInfo, memberKind: string): object {
   checkedIdentifier(info.kind, info.name);
   for (const member of info.members) checkedIdentifier(memberKind, member);
-  const created = extendable(info.name);
+  const created = extendable(info.name, (fields) => checkMembers(info, fields));
   DSL_HANDLES.set(created, { ...info, members: [...info.members] });
 
   return created;
@@ -159,8 +173,9 @@ export const handle = Object.freeze({
   ): ExtendableLiteral<Name, Simple, Variants[number], Variants[number]> => {
     // Identities are not identifiers (`'low'` carries quotes), so only the name is checked
     checkedIdentifier('literal', name);
-    const created = extendable(name);
-    DSL_HANDLES.set(created, { kind: 'literal', name, members: [...spec.variants] });
+    const info: DslHandleInfo = { kind: 'literal', name, members: [...spec.variants] };
+    const created = extendable(name, (fields) => checkMembers(info, fields));
+    DSL_HANDLES.set(created, info);
 
     return created as never;
   },

@@ -89,6 +89,11 @@ function variantIdentities(variants: readonly ASTLiteralVariant[]): string[] {
   return [...new Set(variants.map(getVariantIdentity))];
 }
 
+/** The names `emitHandles` exports for `ast`, which are the names a schema module may import from the handles. */
+export function handleExportNames(ast: SchemaAST): string[] {
+  return [...ast.models, ...ast.objects, ...ast.tuples, ...ast.enums, ...ast.literals].map((d) => d.name).sort();
+}
+
 /**
  * The text of `cerial/handles.ts` for a pass-1 AST: one `handle.*` export per declaration, carrying member
  * names, `!!private` names, tuple size, literal simplicity and the `Record(...)` id types of a model.

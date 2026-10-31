@@ -252,8 +252,9 @@ describe('a handle as an extends parent', () => {
 
     expect(literalNode(picked).extendsFilter).toEqual({ mode: 'pick', fields: ["'low'", '1'] });
     // @ts-expect-error -- "'high'" is not a variant of Level; the build refuses it as well
-    const unknown = literal('Bad', [], { extends: LevelHandle.pick("'high'") });
-    expect(() => literalNode(unknown)).toThrow(/Level has no variant 'high'/);
+    expect(() => literal('Bad', [], { extends: LevelHandle.pick("'high'") })).toThrow(
+      /literal 'Level' has no member 'high':/,
+    );
   });
 
   test('an enum extends a handle', () => {

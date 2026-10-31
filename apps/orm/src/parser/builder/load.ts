@@ -1,5 +1,6 @@
+import { realpathSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
-import { dirname } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { CerialGenerationError } from '../../errors';
 import { isSchemaRegistration, type SchemaRegistration } from './define-schema';
@@ -28,6 +29,17 @@ export interface LoadOptions {
    * but contributes nothing: its declarations are not harvested and the walk stops there.
    */
   readonly excludes?: (path: string) => boolean;
+  /**
+   * The generated handles module and the names it exports now. A module that imports a name it no longer
+   * exports is refused before it runs, naming the module, the name and what is available, because the
+   * runtime's own words for it differ between Bun and Node and never say a `.cerial` declaration went away.
+   */
+  readonly handles?: HandlesExports;
+}
+
+export interface HandlesExports {
+  readonly path: string;
+  readonly exports: readonly string[];
 }
 
 /** The oldest Node release the TypeScript loader supports: the first 22.x with unflagged `require(esm)`. */
@@ -162,6 +174,76 @@ function staticSpecifiers(ts: TypeScript, file: string, text: string): string[] 
   return specifiers;
 }
 
+interface NamedImport {
+  readonly specifier: string;
+  readonly names: readonly string[];
+}
+
+/** The names `text` imports or re-exports by name from each module it specifies, including type-only ones. */
+function namedImports(ts: TypeScript, file: string, text: string): NamedImport[] {
+  const source = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, false);
+  const found: NamedImport[] = [];
+
+  for (const statement of source.statements) {
+    if (ts.isImportDeclaration(statement) && ts.isStringLiteral(statement.moduleSpecifier)) {
+      const named = statement.importClause?.namedBindings;
+      if (!named || !ts.isNamedImports(named)) continue;
+      found.push({
+        specifier: statement.moduleSpecifier.text,
+        names: named.elements.map((element) => (element.propertyName ?? element.name).text),
+      });
+    } else if (
+      ts.isExportDeclaration(statement) &&
+      statement.moduleSpecifier &&
+      ts.isStringLiteral(statement.moduleSpecifier)
+    ) {
+      const clause = statement.exportClause;
+      if (!clause || !ts.isNamedExports(clause)) continue;
+      found.push({
+        specifier: statement.moduleSpecifier.text,
+        names: clause.elements.map((element) => (element.propertyName ?? element.name).text),
+      });
+    }
+  }
+
+  return found;
+}
+
+function samePath(a: string, b: string): boolean {
+  const real = (path: string): string => {
+    try {
+      return realpathSync(path);
+    } catch {
+      return resolve(path);
+    }
+  };
+
+  return real(a) === real(b);
+}
+
+/** Refuses a module that imports a name the regenerated handles no longer export. */
+async function assertHandleImportsExist(module: string, handles: HandlesExports): Promise<void> {
+  let text: string;
+  try {
+    text = await readFile(module, 'utf8');
+  } catch {
+    // The import that follows reports an unreadable module in its own words
+    return;
+  }
+  const ts = await loadTypescript();
+
+  for (const { specifier, names } of namedImports(ts, module, text)) {
+    const resolved = await resolveSpecifier(specifier, module);
+    if (!resolved || !samePath(resolved, handles.path)) continue;
+    const gone = names.filter((name) => !handles.exports.includes(name));
+    if (!gone.length) continue;
+
+    throw new CerialGenerationError(
+      `${module} imports ${gone.map((name) => `'${name}'`).join(', ')} from '${specifier}', but the regenerated ${handles.path} no longer exports ${gone.length > 1 ? 'them' : 'it'}: the declaration was renamed or removed in a .cerial file. Available: ${handles.exports.join(', ') || 'none'}. Update the import, or restore the declaration.`,
+    );
+  }
+}
+
 /**
  * The modules `file` statically imports or re-exports by value, resolved the way the running import
  * resolves them and limited to TypeScript sources outside `node_modules`. Read with the `typescript` peer.
@@ -227,12 +309,19 @@ export async function loadDeclarations(
   files: readonly string[],
   options: LoadOptions = {},
 ): Promise<ExportedDeclaration[]> {
-  const { importModule = importSchemaModule, readImports = readModuleImports, entries = [], excludes } = options;
+  const {
+    importModule = importSchemaModule,
+    readImports = readModuleImports,
+    entries = [],
+    excludes,
+    handles,
+  } = options;
   const excludedHandles = new Set<object>();
   const declarations: ExportedDeclaration[] = [];
   const registered: Array<{ entry: string; registration: SchemaRegistration }> = [];
 
   async function harvest(module: string): Promise<Record<string, unknown>> {
+    if (handles) await assertHandleImportsExist(module, handles);
     let namespace: Record<string, unknown>;
     try {
       namespace = await importModule(module);
