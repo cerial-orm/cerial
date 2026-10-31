@@ -128,6 +128,12 @@ export const formatCommand = defineCommand({
     }
 
     // Normal mode summary
+    if (!totalFormatted && !totalUnchanged && !totalErrors) {
+      console.log(`✓ No .cerial files found, nothing to format in ${elapsed}`);
+
+      return;
+    }
+
     const parts: string[] = [];
     if (totalFormatted > 0) parts.push(`formatted ${totalFormatted}`);
     if (totalUnchanged > 0) parts.push(`${totalUnchanged} unchanged`);
