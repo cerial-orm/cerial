@@ -17,7 +17,7 @@ If both exist, the TypeScript config takes priority.
 :::warning
 `cerial.config.ts` loads under **Bun** and under **Node.js 22.12 or newer**, where Cerial brings its own TypeScript loader. On an older Node, use `cerial.config.json` or upgrade.
 
-This note covers more than the config. Every way of finding a TypeScript schema (the `*.schema.ts` suffix, an [entry module](#entry-modules), listed [`files`](#listed-files)) imports and runs your code during generation, just as `cerial.config.ts` does. An entry module widens that, because every module it imports runs too. Generate only from schemas you trust. See [Finding Your Schemas](/schema/typescript/discovery).
+This note covers more than the config. Every way of finding a TypeScript schema (the `*.schema.ts` suffix, an [entry module](#entry-modules), listed [`files`](#listed-files)) imports and runs your code during generation, just as `cerial.config.ts` does. An entry module widens that, because every module it imports runs too. Generate only from schemas you trust. This holds in a project that mixes TypeScript modules with `.cerial` files too. See [Finding Your Schemas](/schema/typescript/discovery).
 :::
 
 ### TypeScript Config
@@ -137,7 +137,7 @@ With no config at all, a `cerial.schema.ts` at the project root is picked up as 
 - Every model in the list must be an exported binding of a module the entry imports (`export const User = model(...)`). A `model()` call written inline in the list is refused.
 - Only value imports and re-exports are followed. `import type`, `export type` and dynamic `import()` are not, and neither are files under `node_modules`.
 - The `typescript` package, already a peer dependency of Cerial, must be installed.
-- An entry cannot be combined with `.cerial` files in the same schema; Cerial refuses it and names the entry.
+- An entry can sit beside `.cerial` files in the same schema; Cerial generates one client from both. See [Mixing .cerial and TypeScript](/schema/typescript/mixed).
 - Only a module that exports a `defineSchema()` result is followed. A plain `*.schema.ts` file keeps its imports unregistered.
 - `cerial generate --watch` regenerates when the entry or any module it imports changes, wherever that module sits.
 

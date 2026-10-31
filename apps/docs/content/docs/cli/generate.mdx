@@ -80,7 +80,7 @@ Automatically regenerate the client whenever schema files change:
 bunx cerial generate --watch
 ```
 
-Watch mode monitors your schema files and triggers regeneration each time a `.cerial` file is created, modified, or deleted. Changes are debounced (300ms) to coalesce rapid edits into a single rebuild.
+Watch mode monitors your schema files and triggers regeneration each time a `.cerial` file or a TypeScript schema module is created, modified, or deleted. A TypeScript module is not formatted by `--format`, but a change to one still regenerates the client. Changes are debounced (300ms) to coalesce rapid edits into a single rebuild.
 
 With a multi-schema config, each schema is watched independently. A change to one schema only regenerates that schema's client.
 

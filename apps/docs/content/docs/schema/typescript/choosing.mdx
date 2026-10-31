@@ -28,7 +28,7 @@ In practice:
 
 - Choose `.cerial` for the stable core of a schema, the part you want tooling to understand and the team to read as plain text.
 - Choose TypeScript when the schema is generated, shared across packages, or derived from something else in your code, and you accept the tooling trade above.
-- A project uses one form per schema entry today. Both forms produce the same client.
+- A project may use either form alone, or both in one schema entry. TypeScript is not a stage on the way to `.cerial`, and `.cerial` is not being phased out. Both forms produce the same client. [Mixing .cerial and TypeScript](/schema/typescript/mixed) covers using both.
 
 ## Relations are declared inline
 

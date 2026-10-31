@@ -9,6 +9,8 @@ Cerial includes a built-in formatter for `.cerial` schema files. It enforces con
 bunx cerial format -s ./schemas
 ```
 
+`cerial format` only touches `.cerial` files. A [TypeScript schema](/schema/typescript) module in the same folder is skipped without an error, and stays as you wrote it. Format those with your usual TypeScript formatter.
+
 ## CLI Usage
 
 ```bash
