@@ -9,8 +9,9 @@ import { basename, dirname, isAbsolute, relative, resolve, sep } from 'node:path
 import { resolveConfig as resolveFormatConfig } from '../formatter/rules';
 import { type ImportReader, moduleGraph } from '../parser/builder/load';
 import type { FormatConfig } from '../formatter/types';
+import { isExcludedFile } from './filters/path-utils';
 import type { PathFilter } from './filters/types';
-import { formatSingleFile } from './format';
+import { formatSingleFile, listedCerialFiles } from './format';
 import { generateSingleSchema } from './generate';
 import { isSchemaFile, isTypescriptSchemaFile, resolveSinglePath } from './resolvers/schema-resolver';
 
@@ -38,6 +39,9 @@ export interface WatchTarget extends WatchTargetBase {
 /** Watch target for format mode */
 export interface FormatWatchTarget extends WatchTargetBase {
   formatConfig?: FormatConfig;
+  /** The config's listed `files`, absolute; with `entryOnly`, `schemaPath` holds no schema files of its own */
+  files?: string[];
+  entryOnly?: boolean;
 }
 
 export type WatchCallback<T extends WatchTargetBase = WatchTargetBase> = (target: T, filename: string) => Promise<void>;
@@ -173,15 +177,8 @@ export async function computeWatchSet(
   const listed = target.files ?? [];
   if (!target.entry && !listed.length) return undefined;
 
-  const { filter } = target;
   const bases = [resolve(target.schemaPath), process.cwd()];
-  const isExcluded = (file: string): boolean => {
-    if (!filter) return false;
-    // Patterns cannot escape their scope, so a file outside every base is kept
-    const base = bases.find((b) => isInside(b, file));
-
-    return !!base && !filter.shouldInclude(relative(base, file).replace(/\\/g, '/'));
-  };
+  const isExcluded = (file: string): boolean => isExcludedFile(file, target.filter, bases);
 
   const roots = [...(target.entry ? [target.entry] : []), ...listed].filter((file) => file.endsWith('.ts'));
   const graph = await moduleGraph(roots, { readImports, excludes: isExcluded });
@@ -427,6 +424,11 @@ export function createCoalescedRunner(run: () => Promise<void>): () => Promise<v
   };
 }
 
+/** An entry-only target formats only its listed files; its folder holds code, not schema files */
+function formatsFile(target: WatchTarget, filePath: string): boolean {
+  return !target.entryOnly || listedCerialFiles(target).includes(filePath);
+}
+
 /**
  * Start watching schema directories for .cerial file changes.
  * On change, regenerates only the affected schema.
@@ -482,8 +484,8 @@ export async function startWatcher(schemas: WatchTarget[], options?: WatcherOpti
       const schemaLabel = getSchemaLabel(target);
 
       // Format mode: format the changed file before generating
-      if (options?.format && isCerialFile(filename) && !target.entryOnly) {
-        const filePath = resolve(target.schemaPath, filename);
+      const filePath = resolve(target.schemaPath, filename);
+      if (options?.format && isCerialFile(filename) && formatsFile(target, filePath)) {
         const resolvedFormatConfig = resolveFormatConfig(options.formatConfig);
         const formatResult = await formatSingleFile(filePath, resolvedFormatConfig);
 
@@ -534,6 +536,7 @@ export async function startFormatterWatcher(
       if (!isCerialFile(filename)) return;
 
       const filePath = resolve(target.schemaPath, filename);
+      if (target.entryOnly && !listedCerialFiles(target).includes(filePath)) return;
       const result = await formatSingleFile(filePath, config);
 
       if (result.error) {
@@ -550,6 +553,10 @@ export async function startFormatterWatcher(
         console.log(`[format-watch] '${basename(filename)}' unchanged`);
       }
     },
-    { label: 'format-watch' },
+    {
+      label: 'format-watch',
+      // A listed file outside the folder is watched through its own directory
+      watchSet: async (target) => (target.files ? new Set(listedCerialFiles(target)) : undefined),
+    },
   );
 }

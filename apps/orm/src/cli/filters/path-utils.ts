@@ -1,4 +1,5 @@
-import { relative } from 'node:path';
+import { isAbsolute, relative, sep } from 'node:path';
+import type { PathFilter } from './types';
 
 /**
  * Normalize a path by converting backslashes to forward slashes
@@ -26,4 +27,20 @@ export function isSubPath(child: string, parent: string): boolean {
   const normalizedParent = normalizePath(parent);
 
   return normalizedChild === normalizedParent || normalizedChild.startsWith(`${normalizedParent}/`);
+}
+
+/**
+ * True when `filter` excludes the absolute `file`. The file is matched relative to the first of `bases` that
+ * contains it; patterns cannot escape their scope, so a file outside every base is kept.
+ */
+export function isExcludedFile(file: string, filter: PathFilter | undefined, bases: readonly string[]): boolean {
+  if (!filter) return false;
+  for (const base of bases) {
+    const path = relative(base, file);
+    if (path === '' || path === '..' || path.startsWith(`..${sep}`) || isAbsolute(path)) continue;
+
+    return !filter.shouldInclude(normalizePath(path));
+  }
+
+  return false;
 }

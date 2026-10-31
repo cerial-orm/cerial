@@ -3,10 +3,12 @@
  */
 
 import { readFile, writeFile } from 'node:fs/promises';
-import { relative } from 'node:path';
+import { relative, resolve } from 'node:path';
 import { formatCerialSource } from '../formatter/formatter';
 import { resolveConfig as resolveFormatConfig } from '../formatter/rules';
 import type { FormatConfig } from '../formatter/types';
+import { isExcludedFile } from './filters/path-utils';
+import type { PathFilter } from './filters/types';
 import { findSchemasInDir } from './resolvers/schema-resolver';
 
 /** Result from formatting a single file */
@@ -34,6 +36,25 @@ export interface FormatSchemaOptions {
   check?: boolean;
   /** Verbose output */
   verbose?: boolean;
+  /** Listed `.cerial` files to format as well, wherever they are; one in the directory counts once */
+  files?: readonly string[];
+  /** False for an entry-only schema: its folder holds code, so only `files` are formatted */
+  directory?: boolean;
+}
+
+/**
+ * The `.cerial` files a config lists for a schema, minus those the filter cascade excludes: exclusion stays
+ * the one mechanism, so a file kept out of generation is kept out of formatting. TypeScript modules are not
+ * formatted. Matched as the watch set matches them: relative to the schema path, else to the cwd.
+ */
+export function listedCerialFiles(target: {
+  schemaPath: string;
+  files?: readonly string[];
+  filter?: PathFilter;
+}): string[] {
+  const bases = [resolve(target.schemaPath), process.cwd()];
+
+  return (target.files ?? []).filter((file) => file.endsWith('.cerial') && !isExcludedFile(file, target.filter, bases));
 }
 
 /**
@@ -82,7 +103,8 @@ export async function formatSingleFile(
  */
 export async function formatSchema(options: FormatSchemaOptions): Promise<FormatSummary> {
   const config = resolveFormatConfig(options.formatConfig);
-  const files = await findSchemasInDir(options.schemaPath, ['**/*.cerial']);
+  const found = options.directory === false ? [] : await findSchemasInDir(options.schemaPath, ['**/*.cerial']);
+  const files = [...new Set([...found, ...(options.files ?? [])])];
 
   const summary: FormatSummary = {
     total: files.length,

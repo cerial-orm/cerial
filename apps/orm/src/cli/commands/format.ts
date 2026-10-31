@@ -4,11 +4,13 @@ import { resolveConfig as resolveFormatConfig } from '../../formatter/rules';
 import type { FormatConfig } from '../../formatter/types';
 import { findFolderConfigs, loadConfig, resolveConfig } from '../config';
 import { applyFolderOverridesAndDiscover } from '../discovery';
-import { formatSchema } from '../format';
+import type { PathFilter } from '../filters';
+import { formatSchema, listedCerialFiles } from '../format';
 import { findSchemaRoots, resolveSchemas } from '../resolvers';
 import { formatDuration } from '../utils';
 import type { FormatWatchTarget } from '../watcher';
 import { startFormatterWatcher } from '../watcher';
+import { buildWatchTargets } from './generate';
 
 export const formatCommand = defineCommand({
   meta: {
@@ -72,6 +74,9 @@ export const formatCommand = defineCommand({
       const watchTargets: FormatWatchTarget[] = targets.map((t) => ({
         schemaPath: t.path,
         formatConfig: t.formatConfig,
+        files: t.files,
+        entryOnly: t.entryOnly,
+        filter: t.filter,
       }));
       const config = resolveFormatConfig(targets[0]?.formatConfig);
       await startFormatterWatcher(watchTargets, config, { verbose: args.verbose });
@@ -88,6 +93,8 @@ export const formatCommand = defineCommand({
       const summary = await formatSchema({
         schemaPath: target.path,
         formatConfig: target.formatConfig,
+        files: listedCerialFiles({ schemaPath: target.path, files: target.files, filter: target.filter }),
+        directory: !target.entryOnly,
         check: args.check,
         verbose: args.verbose,
       });
@@ -152,6 +159,11 @@ export const formatCommand = defineCommand({
 interface FormatTarget {
   path: string;
   formatConfig?: FormatConfig;
+  /** Listed `.cerial` and `.ts` files, absolute; the filter cascade applies to each */
+  files?: string[];
+  filter?: PathFilter;
+  /** The schema has no `path`: its folder holds code, so only `files` are formatted */
+  entryOnly?: boolean;
 }
 
 interface ResolveOptions {
@@ -184,13 +196,23 @@ async function resolveFormatTargets(options: ResolveOptions): Promise<FormatTarg
     let entries = resolveConfig(config, cwd);
     entries = await applyFolderOverridesAndDiscover(entries, cwd);
 
-    // An entry-only schema is TypeScript code, so its folder holds nothing to format
-    let targets = entries
-      .filter((entry) => !entry.entryOnly)
-      .map((entry) => ({
-        path: entry.path,
-        formatConfig: entry.format,
-      }));
+    // The cascade that keeps a file out of generation keeps it out of formatting, so each listed file is
+    // matched against the filter generation builds for its schema
+    const filters = new Map<string, PathFilter | undefined>();
+    if (entries.some((entry) => entry.files)) {
+      for (const built of await buildWatchTargets({ config: configPath, name }))
+        filters.set(built.name ?? '', built.filter);
+    }
+    const toTarget = (entry: (typeof entries)[number]): FormatTarget => ({
+      path: entry.path,
+      formatConfig: entry.format,
+      files: entry.files,
+      entryOnly: entry.entryOnly,
+      filter: filters.get(entry.name),
+    });
+
+    // A schema with no `path` formats its listed files only; one with nothing listed has nothing to format
+    let targets = entries.filter((entry) => !entry.entryOnly || entry.files).map(toTarget);
 
     // Filter by name if -n flag
     if (name) {
@@ -200,7 +222,7 @@ async function resolveFormatTargets(options: ResolveOptions): Promise<FormatTarg
         console.error(`Schema '${name}' not found. Available schemas: ${available}`);
         process.exit(1);
       }
-      targets = entry.entryOnly ? [] : [{ path: entry.path, formatConfig: entry.format }];
+      targets = !entry.entryOnly || entry.files ? [toTarget(entry)] : [];
     }
 
     return targets;

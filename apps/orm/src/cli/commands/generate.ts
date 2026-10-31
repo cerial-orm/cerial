@@ -4,7 +4,7 @@ import { resolveConfig as resolveFormatConfig } from '../../formatter';
 import { detectNestedSchemaRoots, loadConfig, resolveConfig } from '../config';
 import type { FilterConfig } from '../filters';
 import { loadCerialIgnore, resolvePathFilter } from '../filters';
-import { formatSchema } from '../format';
+import { formatSchema, listedCerialFiles } from '../format';
 import { applyFolderOverridesAndDiscover, generate } from '../generate';
 import { findSchemaRoots } from '../resolvers';
 import { logger } from '../utils';
@@ -12,7 +12,7 @@ import type { CLIOptions, LogOutputLevel } from '../validators';
 import type { WatchTarget } from '../watcher';
 import { startWatcher } from '../watcher';
 
-async function buildWatchTargets(options: CLIOptions): Promise<WatchTarget[]> {
+export async function buildWatchTargets(options: CLIOptions): Promise<WatchTarget[]> {
   const cwd = process.cwd();
 
   // -s flag path: load root .cerialignore
@@ -219,12 +219,12 @@ export const generateCommand = defineCommand({
       const formatConfig = resolveFormatConfig();
 
       for (const target of targets) {
-        // An entry-only target's folder holds code, not schema files to format
-        if (target.entryOnly) continue;
-
+        // An entry-only target's folder holds code, so only its listed files are formatted
         const summary = await formatSchema({
           schemaPath: target.schemaPath,
           formatConfig,
+          files: listedCerialFiles(target),
+          directory: !target.entryOnly,
           verbose: options.verbose,
         });
 
