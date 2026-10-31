@@ -139,7 +139,7 @@ With no config at all, a `cerial.schema.ts` at the project root is picked up as 
 - The `typescript` package, already a peer dependency of Cerial, must be installed.
 - An entry cannot be combined with `.cerial` files in the same schema; Cerial refuses it and names the entry.
 - Only a module that exports a `defineSchema()` result is followed. A plain `*.schema.ts` file keeps its imports unregistered.
-- `cerial generate --watch` regenerates when any `.ts` file in the entry's folder changes.
+- `cerial generate --watch` regenerates when the entry or any module it imports changes, wherever that module sits.
 
 :::caution
 This feature is not yet available in the current release. It will ship in an upcoming version.
