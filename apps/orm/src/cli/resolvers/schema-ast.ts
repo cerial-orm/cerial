@@ -1,4 +1,6 @@
+import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
+import { CerialGenerationError } from '../../errors';
 import {
   collectEnumNames,
   collectLiteralNames,
@@ -17,6 +19,8 @@ import { isTypescriptSchemaFile, resolveSchemas, resolveSinglePath } from './sch
 
 export interface SchemaAstOptions {
   schemaPath?: string;
+  /** Absolute path of a module exporting `defineSchema()`; with no `schemaPath`, nothing else is searched */
+  entry?: string;
   filter?: PathFilter;
   verbose?: boolean;
 }
@@ -41,12 +45,27 @@ export interface SchemaAstResult {
 export async function buildResolvedSchemaAst(options: SchemaAstOptions): Promise<SchemaAstResult> {
   logger.progress('Finding schema files...');
 
+  const { entry } = options;
+  if (entry && !existsSync(entry)) {
+    throw new CerialGenerationError(`Schema entry ${entry} does not exist. Check 'entry' in the config.`);
+  }
+
+  // An entry with no path owns the schema, so there is no root for convention to search
   const resolvedFiles: string[] = options.schemaPath
     ? await resolveSinglePath(options.schemaPath, process.cwd(), options.filter)
-    : await resolveSchemas({ filter: options.filter });
+    : entry
+      ? []
+      : await resolveSchemas({ filter: options.filter });
 
   const schemaFiles = resolvedFiles.filter((f) => !isTypescriptSchemaFile(f));
   const typescriptFiles = resolvedFiles.filter(isTypescriptSchemaFile);
+  if (entry && !typescriptFiles.includes(entry)) typescriptFiles.push(entry);
+
+  if (entry && schemaFiles.length) {
+    throw new CerialGenerationError(
+      `Schema entry ${entry} is set, but ${options.schemaPath} also holds ${schemaFiles.length} .cerial file(s). Combining the two forms is not supported yet: remove 'entry' or the .cerial files.`,
+    );
+  }
 
   let combinedAST: SchemaAST = { models: [], objects: [], tuples: [], literals: [], enums: [], source: '' };
   const result: SchemaAstResult = {
@@ -69,7 +88,7 @@ export async function buildResolvedSchemaAst(options: SchemaAstOptions): Promise
 
     // A TypeScript-only entry becomes the same AST the parser yields, so everything below runs unchanged
     logger.progress('Loading TypeScript schema modules...');
-    combinedAST = materialise(await loadDeclarations(typescriptFiles));
+    combinedAST = materialise(await loadDeclarations(typescriptFiles, { entries: entry ? [entry] : [] }));
     result.combinedAST = combinedAST;
 
     if (!hasDeclarations(combinedAST)) {

@@ -57,7 +57,8 @@ const JsIdentifierSchema = v.pipe(
 );
 
 const SchemaEntrySchema = v.looseObject({
-  path: v.pipe(v.string('Schema path is required'), v.minLength(1, 'Schema path is required')),
+  path: v.optional(v.pipe(v.string("'path' must be a string"), v.minLength(1, "'path' must not be empty"))),
+  entry: v.optional(v.pipe(v.string("'entry' must be a string"), v.minLength(1, "'entry' must not be empty"))),
   output: v.optional(v.string()),
   connection: v.optional(v.looseObject({})),
   format: v.optional(_FormatConfigSchema),
@@ -277,6 +278,13 @@ export function validateConfig(config: CerialConfig): ConfigValidationResult {
       // Validate per-schema format config
       if (entry.format) {
         entry.format = _validateFormatConfig(entry.format, `schemas.${name}.format`, warnings);
+      }
+
+      if (!entry.path && !entry.entry) {
+        errors.push({
+          field: `schemas.${name}.path`,
+          message: `Schema "${name}" needs a 'path' (a schema file or directory), an 'entry' (a module exporting defineSchema()), or both`,
+        });
       }
 
       if (entry.path) {

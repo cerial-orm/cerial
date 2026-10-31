@@ -5,12 +5,8 @@
 import type { FormatConfig } from '../../formatter/types';
 import type { ConnectionConfig } from '../../types/metadata.types';
 
-/**
- * Per-schema configuration entry
- */
-export interface SchemaEntry {
-  /** Path to schema file or directory */
-  path: string;
+/** The fields every schema entry shares */
+interface SchemaEntryBase {
   /** Output directory for generated client (optional, uses root output if not specified) */
   output?: string;
   /** Connection config for this schema (optional, uses root connection if not specified) */
@@ -24,6 +20,13 @@ export interface SchemaEntry {
   /** Inclusion patterns — overrides 'exclude' and '.cerialignore' but NOT 'ignore'. Glob patterns relative to this config's scope. */
   include?: string[];
 }
+
+/**
+ * Per-schema configuration entry. `path` is a schema file or directory; `entry` is a TypeScript module
+ * exporting a `defineSchema()` result, whose imports are registered whatever their names. One of the two is
+ * required; with both, both contribute.
+ */
+export type SchemaEntry = SchemaEntryBase & ({ path: string; entry?: string } | { path?: string; entry: string });
 
 /**
  * Root Cerial configuration
@@ -74,8 +77,15 @@ export interface FolderConfig {
 export interface ResolvedSchemaEntry {
   /** Schema name (from map key or derived from path) */
   name: string;
-  /** Absolute path to schema file or directory */
+  /**
+   * Absolute path to schema file or directory. For an entry with no `path` it is the entry module's
+   * directory: it scopes filters and the watcher, and no schema files are searched in it.
+   */
   path: string;
+  /** Absolute path to the entry module, when the config names one */
+  entry?: string;
+  /** True when the config gave no `path`, so `entry` is the only source of declarations */
+  entryOnly?: boolean;
   /** Absolute output directory */
   output: string;
   /** Generated client class name */

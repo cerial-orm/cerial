@@ -76,6 +76,7 @@ async function buildWatchTargets(options: CLIOptions): Promise<WatchTarget[]> {
         outputDir: entry.output,
         clientClassName: entry.clientClassName,
         configPath: options.config,
+        ...(entry.entry ? { entry: entry.entry, entryOnly: entry.entryOnly } : {}),
         filter,
       });
     }
@@ -218,6 +219,9 @@ export const generateCommand = defineCommand({
       const formatConfig = resolveFormatConfig();
 
       for (const target of targets) {
+        // An entry-only target's folder holds code, not schema files to format
+        if (target.entryOnly) continue;
+
         const summary = await formatSchema({
           schemaPath: target.schemaPath,
           formatConfig,

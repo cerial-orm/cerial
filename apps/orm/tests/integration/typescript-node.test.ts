@@ -169,6 +169,85 @@ export const Post = model('Post', { id: f.record().id(), author: f.relation(() =
   }, 60_000);
 });
 
+/**
+ * A project whose `cerial` holds only the built output. The symlinked package carries this repo's own
+ * `.cerial` test fixtures, which convention discovery would find in a project with no config.
+ */
+async function slimProject(files: Record<string, string>): Promise<Project> {
+  const p = await project(files);
+  await rm(join(p.dir, 'node_modules/cerial'));
+  await mkdir(join(p.dir, 'node_modules/cerial'));
+  for (const name of ['dist', 'package.json'])
+    await symlink(join(PACKAGE, name), join(p.dir, 'node_modules/cerial', name));
+
+  return p;
+}
+
+describe.each(supported)('Node $version registration', ({ binary }) => {
+  const entry = `import { defineSchema } from 'cerial/schema';
+import { User } from './users/user';
+import { Post } from './posts/post';
+
+export default defineSchema({ models: [User, Post] });
+`;
+  const post = `import { f, model } from 'cerial/schema';
+import { User } from '../users/user';
+export const Post = model('Post', { id: f.record().id(), author: f.relation(() => User).optional() });
+`;
+
+  it('registers a plainly named module through schemas[].entry', async () => {
+    const p = await project({
+      'cerial.config.ts': "export default { schemas: { app: { entry: './src/schema.ts', output: './out' } } };\n",
+      'src/schema.ts': entry,
+      'src/users/user.ts': user,
+      'src/posts/post.ts': post,
+      'src/unregistered.ts': user.replace(/User/g, 'Ghost'),
+    });
+    const { code, output } = await generate(binary, p.dir);
+
+    expect(code, output).toBe(0);
+    const text = await generatedText(p.out);
+    expect(text).toContain('User');
+    expect(text).toContain('author');
+    expect(text).not.toContain('Ghost');
+  }, 60_000);
+
+  it('registers a plainly named module from cerial.schema.ts with no config', async () => {
+    const p = await slimProject({
+      'cerial.schema.ts': entry.replace(/'\.\//g, "'./src/"),
+      'src/users/user.ts': user,
+      'src/posts/post.ts': post,
+    });
+    const { code, output } = await generate(binary, p.dir);
+
+    expect(code, output).toBe(0);
+    expect(await generatedText(join(p.dir, 'client'))).toContain('Post');
+  }, 60_000);
+
+  it('does not register what a plain *.schema.ts imports', async () => {
+    const p = await slimProject({
+      'user.schema.ts': `${user}import './helper';\n`,
+      'helper.ts': user.replace(/User/g, 'Helper'),
+    });
+    const { code, output } = await generate(binary, p.dir);
+
+    expect(code, output).toBe(0);
+    expect(await generatedText(join(p.dir, 'client'))).not.toContain('Helper');
+  }, 60_000);
+
+  it('refuses a listed model that is not an exported binding, naming it', async () => {
+    const p = await project({
+      'cerial.config.ts': "export default { schemas: { app: { entry: './schema.ts', output: './out' } } };\n",
+      'schema.ts':
+        "import { defineSchema, f, model } from 'cerial/schema';\nexport default defineSchema({ models: [model('Inline', { id: f.record().id() })] });\n",
+    });
+    const { code, output } = await generate(binary, p.dir);
+
+    expect(code).not.toBe(0);
+    expect(output).toContain('Inline');
+  }, 60_000);
+});
+
 describe('below the supported Node range', () => {
   it('refuses with the release to upgrade to', () => {
     for (const version of ['20.19.0', '22.11.0', '18.0.0']) {

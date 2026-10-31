@@ -24,8 +24,9 @@ export async function applyFolderOverridesAndDiscover(
   filter?: PathFilter,
 ): Promise<ResolvedSchemaEntry[]> {
   const mergedEntries: ResolvedSchemaEntry[] = [];
+  // An entry-only schema has no root folder: its scope holds code, so no nested config or marker means anything there
   for (const entry of entries) {
-    const folderConfig = await loadFolderConfig(entry.path);
+    const folderConfig = entry.entryOnly ? null : await loadFolderConfig(entry.path);
     if (folderConfig) {
       mergedEntries.push({
         ...entry,
@@ -38,12 +39,12 @@ export async function applyFolderOverridesAndDiscover(
   }
 
   await detectConfigsInsideRootPaths(
-    mergedEntries.map((e) => e.path),
+    mergedEntries.filter((e) => !e.entryOnly).map((e) => e.path),
     cwd,
   );
 
   const allFolderConfigs = await findFolderConfigs(cwd, filter);
-  const rootPaths = mergedEntries.map((e) => resolve(e.path));
+  const rootPaths = mergedEntries.filter((e) => !e.entryOnly).map((e) => resolve(e.path));
   const discovered = allFolderConfigs.filter(({ dir }) => {
     const resolvedDir = resolve(dir);
 

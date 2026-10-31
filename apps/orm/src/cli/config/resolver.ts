@@ -51,7 +51,9 @@ function resolveMultiSchema(config: CerialConfig, cwd: string): ResolvedSchemaEn
   const rootOutput = config.output;
 
   return Object.entries(schemas).map(([name, entry]) => {
-    const absolutePath = toAbsolute(entry.path, cwd);
+    const entryModule = entry.entry ? toAbsolute(entry.entry, cwd) : undefined;
+    // An entry-only schema has no root of its own; its scope is the folder its entry module lives in
+    const absolutePath = entry.path ? toAbsolute(entry.path, cwd) : dirname(entryModule!);
     const output = entry.output
       ? toAbsolute(entry.output, cwd)
       : rootOutput
@@ -68,6 +70,7 @@ function resolveMultiSchema(config: CerialConfig, cwd: string): ResolvedSchemaEn
     return {
       name,
       path: absolutePath,
+      ...(entryModule ? { entry: entryModule, entryOnly: !entry.path } : {}),
       output,
       clientClassName: toClientClassName(name),
       connection: entry.connection ?? config.connection,

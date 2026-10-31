@@ -26,6 +26,10 @@ export interface WatchTarget extends WatchTargetBase {
   clientClassName?: string;
   /** The `--config` path the user passed; set only on targets built from a config entry */
   configPath?: string;
+  /** The config entry's `defineSchema()` module; its imports are what generation registers, so they are watched */
+  entry?: string;
+  /** The config gave no `path`, so `schemaPath` is the entry's folder and holds no schema files of its own */
+  entryOnly?: boolean;
 }
 
 /** Watch target for format mode */
@@ -60,7 +64,7 @@ function isTypescriptDependency(filename: string, scope: TypescriptEntryScope): 
   if (!filename.endsWith('.ts')) return false;
 
   const path = filename.replace(/\\/g, '/');
-  if (/(^|\/)cerial\/handles\.ts$/.test(path)) return false;
+  if (/(^|\/)cerial\/handles\.ts$/.test(path) || /(^|\/)node_modules\//.test(path)) return false;
 
   const outputRelative = relative(resolve(scope.schemaPath), resolve(scope.outputDir)).replace(/\\/g, '/');
   const outputInside = outputRelative !== '' && !outputRelative.startsWith('..') && !isAbsolute(outputRelative);
@@ -215,7 +219,10 @@ export interface WatcherOptions {
 }
 
 /** True when the entry's TypeScript modules are what generation imports: some exist and no `.cerial` file does */
-export async function holdsTypescriptModules(target: WatchTargetBase): Promise<boolean> {
+export async function holdsTypescriptModules(target: WatchTargetBase & { entry?: string }): Promise<boolean> {
+  // An entry module is TypeScript by definition, and what it imports need not be named `*.schema.ts`
+  if (target.entry) return true;
+
   try {
     const files = await resolveSinglePath(target.schemaPath, process.cwd(), target.filter);
 
@@ -343,7 +350,7 @@ export async function startWatcher(schemas: WatchTarget[], options?: WatcherOpti
       const schemaLabel = getSchemaLabel(target);
 
       // Format mode: format the changed file before generating
-      if (options?.format && isCerialFile(filename)) {
+      if (options?.format && isCerialFile(filename) && !target.entryOnly) {
         const filePath = resolve(target.schemaPath, filename);
         const resolvedFormatConfig = resolveFormatConfig(options.formatConfig);
         const formatResult = await formatSingleFile(filePath, resolvedFormatConfig);

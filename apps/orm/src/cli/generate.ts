@@ -64,6 +64,8 @@ export interface GenerateResult {
 /** Options for generating a single schema */
 export interface SingleSchemaOptions {
   schemaPath?: string;
+  /** Absolute path of the config's entry module, a file exporting `defineSchema()`; alone, it is the whole schema */
+  entry?: string;
   outputDir: string;
   logLevel?: LogOutputLevel;
   verbose?: boolean;
@@ -254,6 +256,7 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
       resolvedAST: resolved,
     } = await buildResolvedSchemaAst({
       schemaPath: options.schemaPath,
+      entry: options.entry,
       filter: options.filter,
       verbose: options.verbose,
     });
@@ -476,6 +479,11 @@ export async function generateSingleSchema(options: SingleSchemaOptions): Promis
   }
 }
 
+/** Where a resolved entry's declarations come from: its path, its entry module, or both */
+function schemaSource(entry: ResolvedSchemaEntry): Pick<SingleSchemaOptions, 'schemaPath' | 'entry'> {
+  return { schemaPath: entry.entryOnly ? undefined : entry.path, entry: entry.entry };
+}
+
 /** Generate multiple schemas sequentially */
 export async function generateMultiSchema(
   entries: ResolvedSchemaEntry[],
@@ -490,7 +498,10 @@ export async function generateMultiSchema(
   // resolve is skipped here and reports its own error from the generation loop.
   const entryModels: EntryModels[] = [];
   for (const entry of entries) {
-    const { resolvedAST } = await buildResolvedSchemaAst({ schemaPath: entry.path, filter: filters?.get(entry.name) });
+    const { resolvedAST } = await buildResolvedSchemaAst({
+      ...schemaSource(entry),
+      filter: filters?.get(entry.name),
+    });
     if (resolvedAST)
       entryModels.push({ name: entry.name, models: resolvedAST.models, database: entry.explicitDatabase });
   }
@@ -501,7 +512,7 @@ export async function generateMultiSchema(
     logger.progress(`Generating schema '${entry.name}' (${i + 1} of ${entries.length})...`);
 
     const singleResult = await generateSingleSchema({
-      schemaPath: entry.path,
+      ...schemaSource(entry),
       outputDir: entry.output,
       clientClassName: entry.clientClassName,
       logLevel: options.logLevel,

@@ -184,10 +184,13 @@ async function resolveFormatTargets(options: ResolveOptions): Promise<FormatTarg
     let entries = resolveConfig(config, cwd);
     entries = await applyFolderOverridesAndDiscover(entries, cwd);
 
-    let targets = entries.map((entry) => ({
-      path: entry.path,
-      formatConfig: entry.format,
-    }));
+    // An entry-only schema is TypeScript code, so its folder holds nothing to format
+    let targets = entries
+      .filter((entry) => !entry.entryOnly)
+      .map((entry) => ({
+        path: entry.path,
+        formatConfig: entry.format,
+      }));
 
     // Filter by name if -n flag
     if (name) {
@@ -197,7 +200,7 @@ async function resolveFormatTargets(options: ResolveOptions): Promise<FormatTarg
         console.error(`Schema '${name}' not found. Available schemas: ${available}`);
         process.exit(1);
       }
-      targets = [{ path: entry.path, formatConfig: entry.format }];
+      targets = entry.entryOnly ? [] : [{ path: entry.path, formatConfig: entry.format }];
     }
 
     return targets;
