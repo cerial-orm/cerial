@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { CerialValidationError } from '../../../../src/errors';
-import { isSqlFragment, sql } from '../../../../src/query';
+import { compileFragment, createCompileContext, isSqlFragment, sql } from '../../../../src/query';
 
 // Called as a plain function to model a caller that bypasses the tag syntax.
 const callSql = sql as unknown as (...args: unknown[]) => unknown;
@@ -90,15 +90,65 @@ describe('sql: calls and holes it refuses', () => {
     expect(() => sql`a = ${{ k: [{ j: sql`1` }] }}`).toThrow(CerialValidationError);
   });
 
-  test('a cyclic hole does not hang', () => {
+  test('a cyclic hole is refused, not left to overflow the stack later', () => {
     const loop: Record<string, unknown> = {};
     loop.self = loop;
+    const arr: unknown[] = [];
+    arr.push(arr);
 
-    expect(() => sql`a = ${loop}`).not.toThrow();
+    expect(() => sql`a = ${loop}`).toThrow(CerialValidationError);
+    expect(() => sql`a = ${arr}`).toThrow(CerialValidationError);
+  });
+
+  test('a value shared twice without a cycle is accepted', () => {
+    const shared = { k: 1 };
+
+    expect(() => sql`a = ${[shared, shared]}`).not.toThrow();
+  });
+
+  test('a deeply nested hole is refused with a validation error', () => {
+    let deep: unknown = 1;
+    for (let i = 0; i < 10000; i++) deep = { d: deep };
+
+    expect(() => sql`a = ${deep}`).toThrow(CerialValidationError);
   });
 
   test('sql on a parsed request body never yields a fragment from text', () => {
     expect(() => callSql(JSON.parse('["true"]'))).toThrow(CerialValidationError);
+  });
+});
+
+describe('sql: static text is kept as written', () => {
+  const text = (f: { strings: readonly string[] }) => f.strings.join('|');
+
+  test('a regex backslash survives', () => {
+    expect(text(sql`string::matches(name, /^\d+$/)`)).toBe('string::matches(name, /^\\d+$/)');
+    expect(text(sql`x ~ /\w+/`)).toBe('x ~ /\\w+/');
+  });
+
+  test('an escaped backtick and dollar come out bare', () => {
+    expect(text(sql`\`a\` \$5`)).toBe('`a` $5');
+  });
+
+  test('an escaped ${ stays literal text', () => {
+    const f = sql`price \${1}`;
+
+    expect(f.values).toHaveLength(0);
+    // oxlint-disable-next-line eslint/no-template-curly-in-string -- the literal dollar-brace text is what this asserts
+    expect(text(f)).toBe('price ${1}');
+  });
+
+  test('an escaped backslash before a dollar is not eaten', () => {
+    expect(text(sql`a\\$b`)).toBe('a\\\\$b');
+  });
+
+  test('a newline escape is passed on as backslash-n', () => {
+    expect(text(sql`'a\nb'`)).toBe("'a\\nb'");
+  });
+
+  test('an invalid escape no longer throws a bare TypeError', () => {
+    expect(() => sql`x ~ /\u/`).not.toThrow();
+    expect(text(sql`x ~ /\u/`)).toBe('x ~ /\\u/');
   });
 });
 
@@ -142,9 +192,16 @@ describe('sql.ident', () => {
 describe('sql.int', () => {
   test('renders a safe integer', () => {
     expect(sql.int(42).strings.join('')).toBe('42');
-    expect(sql.int(-7).strings.join('')).toBe('-7');
+    expect(sql.int(-7).strings.join('').trim()).toBe('-7');
     expect(sql.int(0).strings.join('')).toBe('0');
     expect(sql.int(Number.MAX_SAFE_INTEGER).strings.join('')).toBe(String(Number.MAX_SAFE_INTEGER));
+  });
+
+  test('a negative cannot fuse with a preceding minus into a comment', () => {
+    const out = compileFragment(sql`age -${sql.int(-1)} > 0`, createCompileContext());
+
+    expect(out.text).toBe('age - -1 > 0');
+    expect(out.text).not.toContain('--');
   });
 
   test('refuses anything else', () => {

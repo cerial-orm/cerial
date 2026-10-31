@@ -43,14 +43,17 @@ function makeFragment(strings: readonly string[], values: readonly unknown[]): S
   return Object.freeze(fragment);
 }
 
-function isPlainObject(value: object): boolean {
+export function isPlainObject(value: object): boolean {
   const proto = Object.getPrototypeOf(value);
 
   return proto === Object.prototype || proto === null;
 }
 
-/** Refuse `undefined` and a nested fragment anywhere inside an array or plain-object hole. */
-function checkHole(value: unknown, path: string, seen: Set<object>): void {
+// Deeper than any real payload; the recursive walks here would otherwise overflow the stack on a hostile one.
+const MAX_HOLE_DEPTH = 64;
+
+/** Refuse `undefined`, a nested fragment, a cycle and excessive depth anywhere inside an array or plain-object hole. */
+function checkHole(value: unknown, path: string, ancestors: Set<object>): void {
   if (value === undefined) {
     throw new CerialValidationError(`sql: ${path} is undefined; a value of undefined would silently match NONE`);
   }
@@ -62,13 +65,28 @@ function checkHole(value: unknown, path: string, seen: Set<object>): void {
   }
   const isArray = Array.isArray(value);
   if (!isArray && !isPlainObject(value)) return;
-  if (seen.has(value)) return;
-  seen.add(value);
+  if (ancestors.has(value)) {
+    throw new CerialValidationError(`sql: ${path} refers back to one of its parents; a cyclic value cannot be bound`);
+  }
+  if (ancestors.size >= MAX_HOLE_DEPTH) {
+    throw new CerialValidationError(`sql: ${path} is nested deeper than ${MAX_HOLE_DEPTH} levels`);
+  }
+  ancestors.add(value);
 
   const entries: Array<[string, unknown]> = isArray
     ? value.map((item, i): [string, unknown] => [`[${i}]`, item])
     : Object.keys(value).map((key): [string, unknown] => [`.${key}`, (value as Record<string, unknown>)[key]]);
-  for (const [suffix, item] of entries) checkHole(item, `${path}${suffix}`, seen);
+  for (const [suffix, item] of entries) checkHole(item, `${path}${suffix}`, ancestors);
+  ancestors.delete(value);
+}
+
+/**
+ * The template's raw text, so `\d` in a regex reaches the database as written. Only an escaped backtick or
+ * dollar is un-escaped, which is how a developer writes one inside a template. Pairs are consumed together so
+ * `\\` followed by `$` is not mistaken for an escaped dollar.
+ */
+function rawText(part: string): string {
+  return part.replace(/\\([\s\S])/g, (pair, next: string) => (next === '`' || next === '$' ? next : pair));
 }
 
 function sqlTag<T = unknown>(strings: TemplateStringsArray, ...values: unknown[]): SqlFragment<T> {
@@ -81,7 +99,9 @@ function sqlTag<T = unknown>(strings: TemplateStringsArray, ...values: unknown[]
   if (strings.length !== values.length + 1) {
     throw new CerialValidationError('sql: the template does not match its values');
   }
-  if (!values.length && strings.every((part) => !part.trim())) {
+  // Cooked strings turn `\d` into `d` and are undefined for an invalid escape such as `\u`.
+  const parts = (strings as unknown as { raw: readonly string[] }).raw.map(rawText);
+  if (!values.length && parts.every((part) => !part.trim())) {
     throw new CerialValidationError('sql: the fragment is empty');
   }
   values.forEach((value, i) => {
@@ -89,7 +109,7 @@ function sqlTag<T = unknown>(strings: TemplateStringsArray, ...values: unknown[]
     if (!isSqlFragment(value)) checkHole(value, `hole ${i}`, new Set());
   });
 
-  return makeFragment(strings, values) as SqlFragment<T>;
+  return makeFragment(parts, values) as SqlFragment<T>;
 }
 
 function ident(name: string): SqlFragment {
@@ -104,7 +124,8 @@ function int(value: number): SqlFragment {
     throw new CerialValidationError('sql.int: the value must be a safe integer');
   }
 
-  return makeFragment([String(value)], []);
+  // A leading space keeps a negative from fusing with a preceding `-` into a `--` comment.
+  return makeFragment([(value < 0 ? ' ' : '') + value], []);
 }
 
 export const sql: typeof sqlTag & { ident: typeof ident; int: typeof int } = Object.assign(sqlTag, { ident, int });

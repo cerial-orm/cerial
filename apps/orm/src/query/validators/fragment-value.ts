@@ -1,12 +1,6 @@
 import { CerialValidationError } from '../../errors';
 import type { CerialErrorOptions } from '../../errors';
-import { isSqlFragment } from '../compile/sql-fragment';
-
-function isPlainObject(value: object): boolean {
-  const proto = Object.getPrototypeOf(value);
-
-  return proto === Object.prototype || proto === null;
-}
+import { isPlainObject, isSqlFragment } from '../compile/sql-fragment';
 
 /**
  * Refuse a `sql` fragment anywhere inside a where value or a create or update body. A fragment is only
