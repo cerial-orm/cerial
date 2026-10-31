@@ -171,6 +171,7 @@ export {
   createCerialTransactionProxy,
   createClientLive,
   createClientRawStatement,
+  wrapDatabaseError,
   createConnectionManager,
   guardUnknownModels,
   Model,

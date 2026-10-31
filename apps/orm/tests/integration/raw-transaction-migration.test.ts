@@ -22,12 +22,12 @@ describe('array $transaction with only a client-level $raw item', () => {
     await admin.connect(`${URL}/rpc`);
     await admin.signin({ username: 'root', password: 'root' });
     await admin.use({ namespace: NAMESPACE });
-    await admin.query(`DEFINE DATABASE ${DATABASE};`);
+    await admin.query(`DEFINE DATABASE ${DATABASE}; DEFINE DATABASE ${DATABASE}_model;`);
   });
 
   afterAll(async () => {
     try {
-      await admin.query(`REMOVE DATABASE IF EXISTS ${DATABASE};`);
+      await admin.query(`REMOVE DATABASE IF EXISTS ${DATABASE}; REMOVE DATABASE IF EXISTS ${DATABASE}_model;`);
     } finally {
       await admin.close();
     }
@@ -51,6 +51,27 @@ describe('array $transaction with only a client-level $raw item', () => {
       expect(rows).toEqual([]);
       const [after] = await client.getSurreal()!.query<[{ tables: Record<string, string> }]>('INFO FOR DB;');
       expect(Object.keys(after!.tables)).toContain('user');
+    } finally {
+      await client.disconnect();
+    }
+  });
+
+  test('Model.$raw migrates every model, so a statement on another table finds it', async () => {
+    const client = new CerialClient();
+    await client.connect({
+      url: URL,
+      namespace: NAMESPACE,
+      database: `${DATABASE}_model`,
+      auth: { username: 'root', password: 'root' },
+    });
+
+    try {
+      const [before] = await client.getSurreal()!.query<[{ tables: Record<string, string> }]>('INFO FOR DB;');
+      expect(Object.keys(before!.tables)).toHaveLength(0);
+
+      const rows = await client.db.User.$raw<string>(sql`SELECT VALUE name FROM tag`);
+
+      expect(rows).toEqual([]);
     } finally {
       await client.disconnect();
     }

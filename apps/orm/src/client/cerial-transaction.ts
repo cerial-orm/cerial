@@ -106,7 +106,7 @@ export class CerialTransaction {
         try {
           return await executeRawStatement<T>(dbLike, compiled);
         } catch (error) {
-          throw wrapDatabaseError(error, undefined, '$raw');
+          throw wrapDatabaseError(error, undefined, '$raw', this._includeStatementInErrors ? compiled : undefined);
         }
       },
       compiled,

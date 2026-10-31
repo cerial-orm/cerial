@@ -145,12 +145,12 @@ describe('Model.$raw execution', () => {
     expect(rows[1]).toBe('x');
   });
 
-  test('runs the before-query hook with its own model', async () => {
+  test('runs the before-query hook with every model, since a statement can name any table', async () => {
     const seen: string[][] = [];
     const { db } = answering([[]]);
     await new Model(db, post, registry, { onBeforeQuery: async (names) => void seen.push(names) }).$raw(sql`SELECT 1`);
 
-    expect(seen).toEqual([[post.name]]);
+    expect(seen).toEqual([Object.keys(registry)]);
   });
 
   test('is a CerialQueryPromise of kind raw, with no database call until awaited', () => {

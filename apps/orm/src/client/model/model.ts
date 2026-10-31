@@ -141,7 +141,8 @@ export class Model<T extends Record<string, unknown> = Record<string, unknown>> 
    */
   $raw<R = unknown>(fragment: SqlFragment<R>, options: { txn?: CerialTransaction } = {}): CerialQueryPromise<R[]> {
     const compiled = compileRawStatement(fragment);
-    const modelNames = [this.metadata.name];
+    // A raw statement can name any table, so every model is migrated, as client.$raw does
+    const modelNames = this.registry ? Object.keys(this.registry) : [this.metadata.name];
 
     return new CerialQueryPromise<R[]>(
       async () => {

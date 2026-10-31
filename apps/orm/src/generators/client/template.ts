@@ -11,7 +11,7 @@ export function generateImports(models: ModelMetadata[]): string {
   const modelImports = models.map((m) => m.name).join(', ');
   const modelTypeImports = models.map((m) => `${m.name}Model`).join(', ');
 
-  return `import { CerialError, CerialMigrationError, CerialNotConnectedError, CerialTransactionError, CerialValidationError, ConnectionManager, CerialQueryPromise, createClientLive, createClientRawStatement, executeClientTransaction, createCerialTransactionProxy, guardUnknownModels, isTransactionConflict, type CerialLiveHandle, type CerialTransaction, type ClientLiveOptions, type DatabaseProxy, type ModelRegistry, type BeforeQueryCallback, type PerModelCallbacks, type TransactionItem, type TransactionExecutionItem, type TransactionItemResult, type TransactionOptions, type TransactionClient, type SqlFragment } from 'cerial';
+  return `import { CerialError, CerialMigrationError, CerialNotConnectedError, CerialTransactionError, CerialValidationError, ConnectionManager, CerialQueryPromise, createClientLive, createClientRawStatement, executeClientTransaction, createCerialTransactionProxy, guardUnknownModels, isTransactionConflict, wrapDatabaseError, type CerialLiveHandle, type CerialTransaction, type ClientLiveOptions, type DatabaseProxy, type ModelRegistry, type BeforeQueryCallback, type PerModelCallbacks, type TransactionItem, type TransactionExecutionItem, type TransactionItemResult, type TransactionOptions, type TransactionClient, type SqlFragment } from 'cerial';
 import type { ConnectionConfig } from 'cerial';
 import { modelRegistry } from './internal/model-registry';
 import { migrationsByModel, getModelMigrationQuery, getMigrationModelNames, type ModelName } from './internal/migrations';
@@ -412,13 +412,17 @@ ${generateResolveConnection(connectConfigName, databasePins)}
    * @param fragment - A fragment from the sql tag; a plain string is refused
    */
   $raw<T = unknown>(fragment: SqlFragment<T>): CerialQueryPromise<T[]> {
-    return createClientRawStatement<T>(fragment, async () => {
-      await this.ensureMigrated();
-      const surreal = this.connectionManager.getQuerySurreal();
-      if (!surreal) throw new CerialNotConnectedError('Not connected.', { operation: '$raw' });
+    return createClientRawStatement<T>(
+      fragment,
+      async () => {
+        await this.ensureMigrated();
+        const surreal = this.connectionManager.getQuerySurreal();
+        if (!surreal) throw new CerialNotConnectedError('Not connected.', { operation: '$raw' });
 
-      return surreal;
-    });
+        return surreal;
+      },
+      this._includeStatementInErrors,
+    );
   }
 
   /**
@@ -615,7 +619,10 @@ ${_generateTransactionOverloads()}
     });
 
     // Execute the transaction
-    const results = await executeClientTransaction(surreal, items, options);
+    // Wrapped here, after the retry loop, so conflict detection still sees the raw driver error
+    const results = await executeClientTransaction(surreal, items, options).catch((error: unknown) => {
+      throw wrapDatabaseError(error, undefined, '$transaction');
+    });
 
     return results as any;
   }

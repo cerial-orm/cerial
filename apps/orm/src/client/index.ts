@@ -16,5 +16,6 @@ export { clearModelCache, createModelProxy, createProxyHandler } from './proxy';
 export type { ClientLiveOptions, LiveNotification } from './live';
 export { CerialLiveHandle, createClientLive } from './live';
 export { createClientRawStatement } from './raw-statement';
+export { wrapDatabaseError } from './model/wrap-database-error';
 // Unknown-model guard
 export { guardUnknownModels } from './unknown-model-guard';

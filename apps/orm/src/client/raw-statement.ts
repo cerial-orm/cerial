@@ -11,6 +11,7 @@ import { wrapDatabaseError } from './model/wrap-database-error';
 export function createClientRawStatement<T = unknown>(
   fragment: SqlFragment<T>,
   getDb: () => Promise<Surreal>,
+  includeStatement = false,
 ): CerialQueryPromise<T[]> {
   const compiled = compileRawStatement(fragment);
 
@@ -20,7 +21,7 @@ export function createClientRawStatement<T = unknown>(
       try {
         return await executeRawStatement<T>(db, compiled);
       } catch (error) {
-        throw wrapDatabaseError(error, undefined, '$raw');
+        throw wrapDatabaseError(error, undefined, '$raw', includeStatement ? compiled : undefined);
       }
     },
     compiled,

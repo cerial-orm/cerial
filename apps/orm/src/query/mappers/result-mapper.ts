@@ -422,8 +422,16 @@ export function mapSingleResult<T>(result: unknown, model: ModelMetadata, select
  * (`SELECT VALUE name`, `RETURN 1`) passes through, where `mapResult` would drop it.
  */
 export function mapRawResult<T>(rows: unknown[], model: ModelMetadata): T[] {
-  return rows.map((row) =>
+  return rows.map((row) => {
     // Plain objects only: a RecordId, Date or Decimal from `SELECT VALUE` is a value, not a row
-    row && Object.getPrototypeOf(row) === Object.prototype ? mapRecord(row as Record<string, unknown>, model) : row,
-  ) as T[];
+    if (!row || Object.getPrototypeOf(row) !== Object.prototype) return row;
+
+    // Selecting the row's own keys keeps the mapper from adding fields the statement never returned
+    const record = row as Record<string, unknown>;
+    const keys = Object.keys(record);
+    if (!keys.length) return row;
+    const select: SelectClause = Object.fromEntries(keys.map((key) => [key, true]));
+
+    return mapRecord(record, model, select);
+  }) as T[];
 }

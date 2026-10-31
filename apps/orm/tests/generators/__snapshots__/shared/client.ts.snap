@@ -17,6 +17,7 @@ import {
   createCerialTransactionProxy,
   guardUnknownModels,
   isTransactionConflict,
+  wrapDatabaseError,
   type CerialLiveHandle,
   type CerialTransaction,
   type ClientLiveOptions,
@@ -1806,13 +1807,17 @@ export class CerialClient {
    * @param fragment - A fragment from the sql tag; a plain string is refused
    */
   $raw<T = unknown>(fragment: SqlFragment<T>): CerialQueryPromise<T[]> {
-    return createClientRawStatement<T>(fragment, async () => {
-      await this.ensureMigrated();
-      const surreal = this.connectionManager.getQuerySurreal();
-      if (!surreal) throw new CerialNotConnectedError('Not connected.', { operation: '$raw' });
+    return createClientRawStatement<T>(
+      fragment,
+      async () => {
+        await this.ensureMigrated();
+        const surreal = this.connectionManager.getQuerySurreal();
+        if (!surreal) throw new CerialNotConnectedError('Not connected.', { operation: '$raw' });
 
-      return surreal;
-    });
+        return surreal;
+      },
+      this._includeStatementInErrors,
+    );
   }
 
   /**
@@ -2120,7 +2125,10 @@ export class CerialClient {
     });
 
     // Execute the transaction
-    const results = await executeClientTransaction(surreal, items, options);
+    // Wrapped here, after the retry loop, so conflict detection still sees the raw driver error
+    const results = await executeClientTransaction(surreal, items, options).catch((error: unknown) => {
+      throw wrapDatabaseError(error, undefined, '$transaction');
+    });
 
     return results as any;
   }

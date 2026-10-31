@@ -7,7 +7,14 @@
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'bun:test';
-import { CerialDatabaseError, CerialId, CerialTransactionError, CerialValidationError, sql } from 'cerial';
+import {
+  CerialDatabaseError,
+  CerialId,
+  CerialTransactionError,
+  CerialUniqueConstraintError,
+  CerialValidationError,
+  sql,
+} from 'cerial';
 import { type CerialClient, cleanupTables, createTestClient, tables, testConfig, truncateTables } from '../test-helper';
 
 const TABLES = [...tables.core];
@@ -43,7 +50,6 @@ describe('E2E $raw in transactions', () => {
   const newUser = { email: 'n@x.test', name: 'New', isActive: true };
 
   describe('rollback', () => {
-    // Array mode surfaces the SDK error as it is, for every item type
     test('array mode: a failing raw statement undoes an earlier write and a raw write', async () => {
       await reject(
         () =>
@@ -52,7 +58,7 @@ describe('E2E $raw in transactions', () => {
             client.$raw(sql`CREATE tag SET name = 'raw', userIds = []`),
             client.$raw(sql`THROW 'no'`),
           ]),
-        Error,
+        CerialDatabaseError,
       );
       expect(await users()).toBe(1);
     });
@@ -64,7 +70,7 @@ describe('E2E $raw in transactions', () => {
             client.$raw(sql`CREATE tag SET name = 'raw', userIds = []`),
             client.db.User.create({ data: { email: 'a@x.test', name: 'Dup', isActive: true } }),
           ]),
-        Error,
+        CerialUniqueConstraintError,
       );
       expect(await users()).toBe(1);
     });
@@ -117,7 +123,67 @@ describe('E2E $raw in transactions', () => {
     });
   });
 
+  describe('array mode errors', () => {
+    const failing = [
+      ['a syntax error', sql`SELEC 1`],
+      ['a THROW', sql`THROW 'no'`],
+      ['a missing table', sql`SELECT * FROM table_that_does_not_exist`],
+    ] as const;
+
+    for (const [name, fragment] of failing) {
+      test(`${name} in a client.$raw item is a CerialDatabaseError with the driver error as cause`, async () => {
+        let error: unknown;
+        try {
+          await client.$transaction([client.$raw(fragment)]);
+        } catch (caught) {
+          error = caught;
+        }
+        expect(error).toBeInstanceOf(CerialDatabaseError);
+        expect((error as CerialDatabaseError).operation).toBe('$transaction');
+        expect((error as CerialDatabaseError).cause).toBeInstanceOf(Error);
+      });
+    }
+
+    test('a typed item that fails is a CerialDatabaseError and rolls back an earlier write', async () => {
+      await reject(
+        () => client.$transaction([client.db.User.create({ data: newUser }), client.db.User.$raw(sql`THROW 'typed'`)]),
+        CerialDatabaseError,
+      );
+      expect(await users()).toBe(1);
+    });
+
+    test('a function item that throws its own error keeps that error', async () => {
+      const own = new Error('mine');
+      let error: unknown;
+      try {
+        await client.$transaction([
+          () => {
+            throw own;
+          },
+        ]);
+      } catch (caught) {
+        error = caught;
+      }
+      expect(error).toBe(own);
+    });
+
+    test('positive: a succeeding array still resolves', async () => {
+      const [rows] = await client.$transaction([client.$raw<string>(sql`SELECT VALUE name FROM user`)]);
+      expect(rows).toEqual(['Ann']);
+    });
+  });
+
   describe('refusals', () => {
+    test('a BEGIN/COMMIT block inside tx.$raw is refused and writes nothing', async () => {
+      const tx = await client.$transaction();
+      await reject(
+        () => tx.$raw(sql`BEGIN TRANSACTION; CREATE tag SET name = 'x', userIds = []; COMMIT TRANSACTION;`),
+        CerialDatabaseError,
+      );
+      await tx.cancel();
+      expect(await users()).toBe(1);
+    });
+
     test('a raw statement after commit throws CerialTransactionError and writes nothing', async () => {
       const tx = await client.$transaction();
       await tx.commit();
