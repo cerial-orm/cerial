@@ -29,7 +29,7 @@ Test.check<MembersOfHandle<typeof Level>, "'low'" | '1' | 'Int', Test.Pass>();
 const Local = model('Local', { id: f.record('int').id() });
 Test.check<IdOfHandle<typeof Local>, IdOfHandle<typeof User>, Test.Pass>();
 
-// Positive: what the pick and omit forms consume. A handle is a parent for each kind, pick and omit are
+// Positive: a handle is a parent for each kind, pick and omit are
 // checked against the member names, a tuple also takes a position, and a private member stays omittable
 model('Child', { id: f.record('int').id() }, { extends: User });
 model('Picked', { extra: f.string() }, { extends: User.pick('name') });

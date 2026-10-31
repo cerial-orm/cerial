@@ -1,0 +1,31 @@
+abstract model Base {
+  id Record(int) @id
+  name String
+  email String
+  secret String !!private
+  home Address
+  spot Point
+}
+
+object Address {
+  street String
+  city String
+  zip String !!private
+}
+
+tuple Point {
+  x Float,
+  y Float,
+  Float
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+literal Level {
+  'low',
+  1,
+  Int
+}

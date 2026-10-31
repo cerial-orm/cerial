@@ -1,3 +1,7 @@
 {
-  "extends": "../../tsconfig.json"
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    // The package resolves itself to its built output, which lags the source the fixtures are checked against
+    "paths": { "cerial/schema": ["./src/schema/index.ts"] }
+  }
 }
