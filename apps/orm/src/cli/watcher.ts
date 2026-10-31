@@ -5,7 +5,8 @@
 
 import { spawn } from 'node:child_process';
 import { type FSWatcher, watch } from 'node:fs';
-import { basename, dirname, isAbsolute, relative, resolve, sep } from 'node:path';
+import { rm, writeFile } from 'node:fs/promises';
+import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { resolveConfig as resolveFormatConfig } from '../formatter/rules';
 import { type ImportReader, moduleGraph } from '../parser/builder/load';
 import type { FormatConfig } from '../formatter/types';
@@ -47,6 +48,10 @@ export interface FormatWatchTarget extends WatchTargetBase {
 export type WatchCallback<T extends WatchTargetBase = WatchTargetBase> = (target: T, filename: string) => Promise<void>;
 
 export const DEBOUNCE_MS = 300;
+
+const PROBE_FILE = `.cerial-watch-probe-${process.pid}`;
+const PROBE_INTERVAL_MS = 25;
+const PROBE_TIMEOUT_MS = 5_000;
 
 export function isCerialFile(filename: string | null): boolean {
   if (!filename) return false;
@@ -190,6 +195,26 @@ export async function computeWatchSet(
 }
 
 /**
+ * Waits until a watch of `directory` reports a real change. On macOS `watch()` returns before its FSEvents
+ * stream is live, and a change made in between is never delivered, so the sentinel is rewritten until
+ * `heard()` holds. A directory that cannot be written, or a watch that stays silent, ends the wait unproven.
+ */
+async function untilWatchHears(directory: string, heard: () => boolean, stopped: () => boolean): Promise<void> {
+  const probe = join(directory, PROBE_FILE);
+  const deadline = performance.now() + PROBE_TIMEOUT_MS;
+  try {
+    while (!heard() && !stopped() && performance.now() < deadline) {
+      await writeFile(probe, '');
+      await new Promise((done) => setTimeout(done, PROBE_INTERVAL_MS));
+    }
+  } catch {
+    return;
+  } finally {
+    await rm(probe, { force: true }).catch(() => {});
+  }
+}
+
+/**
  * Generic file watcher: watches schema directories and calls the provided callback on .cerial file changes.
  * Reuses debounce and filter logic. Returns a Promise that resolves when stopped via SIGINT.
  */
@@ -214,6 +239,8 @@ export async function startWatcherWithCallback<T extends WatchTargetBase>(
   // Per target index: the current file set and one non-recursive watcher per outside directory
   const sets = new Map<number, ReadonlySet<string>>();
   const extraWatchers = new Map<number, Map<string, FSWatcher>>();
+  // Which watches have reported their probe file, by target index and directory
+  const heard = new Set<string>();
   let stopped = false;
 
   function cleanup(): void {
@@ -280,6 +307,7 @@ export async function startWatcherWithCallback<T extends WatchTargetBase>(
           directory,
           watch(directory, (_event, filename) => {
             if (!filename) return;
+            if (filename.toString() === PROBE_FILE) return void heard.add(`${index}:${directory}`);
             const file = resolve(directory, filename.toString());
             if (!sets.get(index)?.has(file)) return;
 
@@ -293,10 +321,13 @@ export async function startWatcherWithCallback<T extends WatchTargetBase>(
     }
   }
 
+  const opened: Array<[number, string]> = [];
+
   // Targets can share a schemaPath, so the index is the only key unique to each target
   for (const [index, target] of targets.entries()) {
     try {
       const watcher = watch(target.schemaPath, { recursive: true }, (_event, filename) => {
+        if (filename === PROBE_FILE) return void heard.add(`${index}:${target.schemaPath}`);
         const triggers = options?.shouldTrigger ?? ((t, f) => shouldTriggerRegeneration(f, t.filter));
         if (!triggers(target, filename)) return;
 
@@ -304,6 +335,7 @@ export async function startWatcherWithCallback<T extends WatchTargetBase>(
       });
 
       watchers.push(watcher);
+      opened.push([index, target.schemaPath]);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       console.error(`[${label}] Failed to watch '${getSchemaLabel(target)}': ${message}`);
@@ -322,9 +354,24 @@ export async function startWatcherWithCallback<T extends WatchTargetBase>(
     resolveStopped = resolvePromise;
     process.once('SIGINT', onSigint);
 
-    if (!options?.watchSet) return announce();
-    // Announced once the first file sets are in place, so a change right after the message is not missed
-    void Promise.all(targets.map((target, index) => refreshWatchSet(index, target))).then(announce);
+    // Announced once the first file sets are in place and every watch is live, so a change right after the
+    // message is not missed
+    void (async () => {
+      await Promise.all(targets.map((target, index) => refreshWatchSet(index, target)));
+      for (const [index, group] of extraWatchers) {
+        for (const directory of group.keys()) opened.push([index, directory]);
+      }
+      await Promise.all(
+        opened.map(([index, directory]) =>
+          untilWatchHears(
+            directory,
+            () => heard.has(`${index}:${directory}`),
+            () => stopped,
+          ),
+        ),
+      );
+      if (!stopped) announce();
+    })();
   });
 }
 
