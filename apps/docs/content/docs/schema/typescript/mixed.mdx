@@ -1,0 +1,132 @@
+---
+title: Mixing .cerial and TypeScript
+description: Use .cerial files and TypeScript schema modules in one schema entry, how they reference each other, and what the generated cerial/handles.ts is for.
+---
+
+:::caution
+This feature is not yet available in the current release. It will ship in an upcoming version.
+:::
+
+One schema entry can hold `.cerial` files and TypeScript schema modules together. Cerial reads both, merges them into one schema and generates one client. Neither form is required: a project can also use either alone, and `.cerial` stays the [canonical form](/schema/typescript/choosing#what-canonical-means-for-your-project).
+
+## Discovery
+
+The `.cerial` files and the TypeScript modules are found independently. TypeScript modules come from any of the [three modes](/schema/typescript/discovery) (suffix, entry module, listed files). The same `ignore`, `exclude` and `include` fields and the same `.cerialignore` cascade apply to every file of either form. See [Path Filtering](/cli/filtering).
+
+## How the two forms refer to each other
+
+A declaration can use one from the other form. How depends on which side is doing the referencing.
+
+A `.cerial` file names a TypeScript declaration the way it names any other type, by name:
+
+```cerial
+model Account {
+  id Record(int) @id
+  name String
+  address Address
+  role Role
+}
+```
+
+`Address` and `Role` are declared in a TypeScript module. Nothing is imported. Cerial resolves the name when it merges the two halves.
+
+A TypeScript file cannot work that way. It refers to a declaration with a real import, so the compiler can follow it, and a `.cerial` declaration has no TypeScript export. Cerial therefore writes one: `cerial/handles.ts`, under the schema root, with a named export for each `.cerial` declaration. You import from it with a relative path:
+
+```typescript
+import { e, enum as enumeration, f, literal, model, object, tuple, variant } from 'cerial/schema';
+import { Account, Meta, Pair, Priority, Status } from './cerial/handles';
+
+export const Address = object('Address', { street: f.string(), city: f.string() });
+export const Role = enumeration('Role', ['ADMIN', 'USER']);
+
+export const Purchase = model('Purchase', {
+  id: f.record('int').id(),
+  account: f.relation(Account),
+  meta: f.object(Meta),
+  pair: f.tuple(Pair),
+  priority: f.literal(Priority),
+  status: f.enum(Status),
+});
+```
+
+The path is relative to the importing file. A module in a subfolder of the schema root imports `../cerial/handles`.
+
+That asymmetry is the whole reason the file exists. The `.cerial` side refers by name, so it needs nothing. The TypeScript side refers by import, and go-to-definition, rename and a compile error on a typo all depend on that import being real.
+
+### The generated file
+
+`cerial/handles.ts` is written by `cerial generate` whenever an entry holds both forms. Do not edit it: the next generate replaces it. Cerial refuses to overwrite a `cerial/handles.ts` it did not write, and tells you to move or delete yours. If the entry stops holding both forms, Cerial removes the file it wrote.
+
+It is never treated as a schema. Discovery skips it under every mode, and the watcher does not regenerate on it.
+
+Add it to `.gitignore` rather than committing it. Generation writes it before it loads any of your TypeScript, so `cerial generate` works on a fresh clone with the file missing. Your typechecker is another matter: until the first generate, `import ... from './cerial/handles'` fails with a missing module. Run `cerial generate` before `tsc` in CI and after cloning.
+
+## Which form for what
+
+Use the DSL for the stable core that tooling should understand. Use TypeScript for the parts that are generated, shared across packages, or derived from something else.
+
+The `.cerial` half keeps the formatter, diagnostics, hover and completion. The TypeScript half keeps the compiler and your editor's own tooling. See [Choosing a Schema Form](/schema/typescript/choosing) for the full trade.
+
+## Extending across the boundary
+
+`extends` works in both directions, with pick lists, omit lists, `abstract` parents and `!!private` fields. As in either form alone, the parent must be `abstract`.
+
+A TypeScript model extends a `.cerial` parent through its handle:
+
+```cerial
+abstract model Base {
+  id Record(int) @id
+  name String
+  email String
+  secret String !!private
+}
+```
+
+```typescript
+import { f, model } from 'cerial/schema';
+import * as h from './cerial/handles';
+
+export const Member = model('Member', { extra: f.string() }, { extends: h.Base });
+export const Contact = model('Contact', { extra: f.string() }, { extends: h.Base.pick('id', 'name', 'email') });
+export const Slim = model('Slim', { extra: f.string() }, { extends: h.Base.omit('email') });
+```
+
+A pick or omit list naming a field the parent does not have is a compile error.
+
+The other direction works identically. A `.cerial` model extends an abstract TypeScript parent by name, with the same pick and omit syntax:
+
+```cerial
+model Member extends Base {
+  extra String
+}
+
+model Contact extends Base[id, name, email] {
+  extra String
+}
+
+model Slim extends Base[!email] {
+  extra String
+}
+```
+
+A `!!private` field cannot be redeclared by a child in either form, and a pick list may leave it out. Abstract parents produce no table, type or client accessor, in either form. Extending a parent that is not abstract is refused, the same as within one form.
+
+## Name collisions
+
+All declarations share one namespace, whatever form declared them. Two declarations with the same name are refused, no client is written, and the error names both places, as `file:line` for `.cerial` and as the file and export name for TypeScript:
+
+```
+Duplicate model name: Dup (declared in /app/schema/dup.cerial:1 and in /app/schema/dup.schema.ts (export Dup))
+```
+
+When the two declarations are of different kinds, such as a model and an object, the message says so:
+
+```
+Duplicate name: Dup (declared as model in dup.cerial:1 and as object in dup.schema.ts (export Dup))
+```
+
+Every collision is listed, not just the first. Rename one declaration to fix it.
+
+## Generation runs your code
+
+Generating a mixed schema imports your TypeScript modules, as it does for a TypeScript-only one. See [Finding Your Schemas](/schema/typescript/discovery#generation-runs-your-code).
