@@ -141,3 +141,7 @@ Transactions require a WebSocket connection to SurrealDB. If you connect via HTT
 :::caution
 **`$transaction` is blocked on `tx`/`txn`.** You can't call `$transaction` on a transaction client. Attempting it throws an error.
 :::
+
+## Raw statements
+
+`$raw` runs inside a transaction. Call `tx.$raw` in callback and manual mode, or pass `client.$raw` as an item of an array. It is undone with the rest if anything fails or you cancel. `$live` is not available in a transaction. See [Raw Queries](/queries/raw-queries).

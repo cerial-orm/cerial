@@ -88,3 +88,15 @@ const users = await client.db.User.findMany({
 // Matches users who either have no bio field or have bio set to null
 // (only valid on fields with both ? and @nullable)
 ```
+
+## Raw filter
+
+When no operator expresses a condition, such as a graph traversal or a vector similarity threshold, put a `sql` fragment under the `$raw` key. It combines with typed keys and with `AND`, `OR` and `NOT`. See [Raw Queries](/queries/raw-queries), including what a fragment skips.
+
+```typescript
+import { sql } from 'cerial';
+
+const users = await client.db.User.findMany({
+  where: { isActive: true, $raw: sql`age > ${50}` },
+});
+```

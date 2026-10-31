@@ -137,6 +137,34 @@ development branch and is not available on npm.
 
 ### Added
 
+- A raw query hatch for SurrealQL the typed API has no position for: graph
+  edges, vector search, `GROUP BY`, table views and live queries. The `sql` tag
+  builds a fragment whose interpolated values are always bound, and it plugs
+  into four places: a `$raw` key in any `where`, a `compute` option on
+  `findOne`, `findMany` and `findUnique` (sortable through `orderBy`),
+  `$raw` for whole statements on the client, on a model and inside
+  transactions, and `$live` for managed live subscriptions on the client and on
+  a model. `sql.ident` quotes an identifier and `sql.int` renders a checked
+  integer, because neither can be bound. See [Raw Queries](/queries/raw-queries).
+
+  ```typescript
+  import { sql } from 'cerial';
+
+  const users = await client.db.User.findMany({
+    where: { isActive: true, $raw: sql`->follows->user CONTAINS ${bobId}` },
+    compute: { follows: sql<number>`count(->follows->user)` },
+    orderBy: { follows: 'desc' },
+  });
+  ```
+
+  A fragment skips membership, key-path, enum and data validation, and a
+  whole-statement write skips `@readonly`, cascades and N:N sync. The type
+  argument on `sql<T>`, `$raw<T>` and `$live<T>` is an unchecked claim. The
+  static text of a template must never be built from caller input;
+  `client.query()` remains the unchecked string path. `$live` resumes after a
+  transport reconnect, but a server restart ends the iterator with a
+  `CerialConnectionError`, so callers must catch it and resubscribe.
+
 - A schema can now be written as TypeScript. Declare models, objects, tuples, enums
   and literals with the factories exported from `cerial/schema`, and `cerial generate`
   produces the same client as it does for `.cerial` files. `.cerial` stays the

@@ -368,3 +368,7 @@ db-client/
 │   └── migrations.ts        # DEFINE TABLE / DEFINE FIELD statements
 └── index.ts                 # Re-exports all public types and client
 ```
+
+## Raw query types
+
+Every `{Model}Where` accepts a `$raw` key holding a fragment from the `sql` tag, and `findMany`, `findOne` and `findUnique` accept a `compute` option whose keys are added to the result type. The type argument of `sql<T>`, `$raw<T>` and `$live<T>` is your own unchecked claim. See [Raw Queries](/queries/raw-queries).

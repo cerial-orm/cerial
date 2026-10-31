@@ -1,0 +1,283 @@
+---
+title: Raw Queries
+description: The sql tag, $raw, compute and $live. Write SurrealQL where the typed API has no position for it, and what that skips.
+---
+
+:::caution
+This feature is not yet available in the current release. It will ship in an upcoming version.
+:::
+
+Some SurrealQL has no typed equivalent: graph traversal, vector search, `GROUP BY`, table views, live queries. The `sql` tag lets you write that SurrealQL and plug it into the typed API at four places. Every interpolated value is bound as a parameter, never spliced into the text.
+
+```typescript
+import { sql } from 'cerial';
+
+// 1. Filter: a $raw key in any where
+await client.db.User.findMany({
+  where: { isActive: true, $raw: sql`->follows->user CONTAINS ${targetId}` },
+});
+
+// 2. Projection and sort: compute
+await client.db.User.findMany({
+  compute: { score: sql<number>`vector::similarity::cosine(scores, ${query})` },
+  orderBy: { score: 'desc' },
+});
+
+// 3. Whole statement: $raw on the client, a model, or a transaction
+await client.$raw(sql`RELATE ${a}->follows->${b} SET since = ${year}`);
+
+// 4. Live subscription: $live on the client or a model
+const live = await client.db.User.$live({ where: { $raw: sql`age > ${50}` } });
+```
+
+## Read this first
+
+- **The static text of a template is code.** It is trusted the way `cerial.config.ts` is, and it must never be assembled from caller input. Only the interpolated values are data. Nothing inspects the text, and parentheses are not a defence: a fragment can contain `{ DELETE victim; true }` and it runs.
+- **A fragment skips Cerial's checks.** See [What a fragment skips](#what-a-fragment-skips).
+- **`T` is a claim, not a check.** See [Result types](#result-types).
+- **`client.query()` is still the unchecked string path.** It takes a plain string, binds nothing for you, and is unchanged. Never build its string from caller input. Prefer `sql`, which cannot be tricked into running a value as text.
+
+## The `sql` tag
+
+`sql` builds a fragment. Each `${value}` becomes a bound parameter.
+
+```typescript
+const fragment = sql`age > ${50} AND name = ${userInput}`;
+```
+
+A hostile `userInput` such as `x'; DELETE user; --` is a string to compare against, nothing more.
+
+Rules that throw a `CerialValidationError`:
+
+- A hole of `undefined` is refused, because it would silently filter on `NONE`. Resolve conditional values before the template.
+- An empty fragment is refused, so a filter cannot evaporate.
+- `sql` must be called as a tag, ``sql`...` ``, never as `sql('...')`.
+- A fragment inside an array or object hole is refused. Interpolate a fragment directly and it nests:
+
+```typescript
+const adult = sql`age >= ${18}`;
+const where = { $raw: sql`${adult} AND isActive = ${true}` };
+```
+
+Cerial wrappers (`CerialId`, `CerialUuid`, `CerialDecimal` and the others) are converted to driver values before binding, including inside arrays and plain objects. A bare id would otherwise match nothing.
+
+A hole inside a hand-written quote stays literal. In ``sql`name = 'abc${x}'` `` the text `$raw_param_0` is part of the string and `x` is never used. Keep holes outside quotes.
+
+### Identifiers and integers
+
+SurrealQL cannot bind an identifier, so a table name, edge name, index name or column in a hole is a value, not a name. Use the two helpers:
+
+```typescript
+sql`SELECT * FROM ${sql.ident('user')}`;                     // `user`
+sql`embedding <|${sql.int(k)},40|> ${query}`;                // k must be a safe integer
+```
+
+`sql.ident(name)` always wraps the name in backticks and escapes backslashes and backticks inside it, even for a plain word or a keyword, so a name is never read as syntax. `sql.int(n)` throws unless `n` is a safe integer.
+
+A hostile name through `sql.ident` stays one identifier. It does not run anything else. But it still names something: in a `RELATE` it creates an edge table of that name, and in `DEFINE TABLE` it defines one. **Validate caller-supplied identifiers against your own allowlist** before they reach `sql.ident`.
+
+```typescript
+const EDGES = new Set(['follows', 'blocks']);
+if (!EDGES.has(edge)) throw new Error('unknown edge');
+await client.$raw(sql`RELATE ${a}->${sql.ident(edge)}->${b}`);
+```
+
+A bound value where a name belongs is not an injection, but it does not work either: `RELATE ${a}->${edge}->${b}` is a parse error and writes nothing.
+
+## Filter: `$raw` in a where
+
+`$raw` is a key of every model's where. It is valid at the top level and inside `AND`, `OR` and `NOT`, and combines with typed keys.
+
+```typescript
+const followers = await client.db.User.findMany({
+  where: {
+    age: { gt: 30 },
+    $raw: sql`->follows->user CONTAINS ${bobId}`,
+  },
+});
+
+const everyoneElse = await client.db.User.findMany({
+  where: { NOT: { $raw: sql`->follows->user CONTAINS ${bobId}` } },
+});
+```
+
+The fragment is grouped in parentheses so its own `OR` does not leak into the rest of the filter.
+
+Refusals, all `CerialValidationError`:
+
+- A value that is not a fragment built by `sql`. A string, a spread copy, a JSON round trip or a `structuredClone` of a fragment loses its brand and is refused, so `where: req.body` cannot smuggle SurrealQL in.
+- A fragment anywhere except the `$raw` key, such as ``{ age: sql`1` }`` or inside a create or update body.
+- `$raw` in a relation filter. `{ author: { $raw: ... } }` and `{ posts: { some: { $raw: ... } } }` are refused. Put the fragment in the where of the model that owns the field.
+
+The same key works wherever a where does, such as `findMany`, `deleteMany` and `$live`.
+
+## Projection and sort: `compute`
+
+`compute` adds a computed value to each row of `findMany`, `findOne` and `findUnique`. The key becomes a field on the result, typed from the `sql<T>` you give it.
+
+```typescript
+const rows = await client.db.User.findMany({
+  compute: { follows: sql<number>`count(->follows->user)` },
+  orderBy: { follows: 'desc' },
+});
+rows[0].follows; // number
+```
+
+A raw expression cannot sit in `ORDER BY`, so a sort is a compute key named in `orderBy`. That is also how you sort by similarity:
+
+```typescript
+const nearest = await client.db.User.findMany({
+  compute: { sim: sql<number>`vector::similarity::cosine(scores, ${[1, 0, 0]})` },
+  orderBy: { sim: 'desc' },
+});
+```
+
+Compute keys must match `/^[A-Za-z_][A-Za-z0-9_]*$/`, must not name a field of the model (that would overwrite the stored value), and must not start with `__cerial_`. Each value must be a fragment. `GROUP BY` has no typed position and fails in a compute. Use a whole statement for it.
+
+## Whole statements: `$raw`
+
+`client.$raw` runs one or more statements and returns the last statement's result as an array.
+
+```typescript
+const [edge] = await client.$raw(sql`RELATE ${a}->follows->${b} SET since = ${2020}`);
+
+const buckets = await client.$raw<{ bucket: Date; total: number }>(
+  sql`SELECT time::floor(id[1], 1h) AS bucket, math::sum(value) AS total
+      FROM ${sql.ident('reading')} WHERE id[0] = ${'a'} GROUP BY bucket ORDER BY bucket`,
+);
+
+const ids = await client.$raw<string>(sql`SELECT VALUE name FROM user ORDER BY name`); // ['Ann', 'Bob']
+```
+
+`client.$raw` returns rows unmapped, so ids arrive as driver `RecordId` values. `client.db.User.$raw` runs the same statement and maps object rows through the model, so ids arrive as `CerialId`. A value that is not an object row, such as a number or string, passes through unchanged.
+
+`$raw` is also on `tx` in callback and manual mode, and a `$raw` call is accepted as an item of `$transaction([...])`. It joins the transaction: a later failure undoes it, and `cancel()` undoes it.
+
+```typescript
+await client.$transaction([
+  client.db.User.create({ data: newUser }),
+  client.$raw(sql`CREATE tag SET name = 'raw', userIds = []`),
+]);
+```
+
+A statement the database rejects, including a typo in your fragment, throws a `CerialDatabaseError`. There is no compile-time check of the text.
+
+### Graph edges, vectors and time series
+
+These are reachable through the four positions. The edge, index and view tables are not in your schema, so name them with `sql.ident`.
+
+```typescript
+// Edge table, created once
+await client.$raw(sql`DEFINE TABLE OVERWRITE ${sql.ident('follows')} TYPE RELATION SCHEMALESS`);
+await client.$raw(sql`RELATE ${ann.id}->${sql.ident('follows')}->${bob.id} SET since = ${2020}`);
+
+// HNSW index and a nearest-neighbour search with a dynamic k
+await client.$raw(
+  sql`DEFINE INDEX ${sql.ident('doc_embedding')} ON ${sql.ident('doc')} FIELDS embedding HNSW DIMENSION 3 DIST COSINE`,
+);
+const near = await client.$raw<{ label: string }>(
+  sql`SELECT label FROM ${sql.ident('doc')} WHERE embedding <|${sql.int(2)},40|> ${[1, 0.1, 0]}`,
+);
+
+// A bound record-id range on a time series
+const window = await client.$raw<{ value: number }>(
+  sql`SELECT * FROM reading:[${'a'}, ${new Date('2026-01-01T10:00:00Z')}]..[${'a'}, ${new Date('2026-01-01T11:10:00Z')}]`,
+);
+```
+
+A bound value cannot fill the `k` of `<|k,ef|>`; use `sql.int`.
+
+## Live queries: `$live`
+
+`$live` subscribes to changes of a table and delivers each one as it happens. It is built on the driver's managed subscription, which re-registers after a reconnect. Unmanaged `LIVE SELECT` is not offered: `client.query('LIVE SELECT ...')` returns only a query id and the notifications are not reachable.
+
+```typescript
+// On a model: a typed where, `$raw` allowed, rows mapped (ids are CerialId)
+const live = await client.db.User.$live({ where: { $raw: sql`age > ${50}` } });
+
+// On the client: any table, including one outside your schema
+const events = await client.$live<{ level: number; label: string }>('event', {
+  where: sql`level > ${5}`,
+});
+
+for await (const { action, value } of live) {
+  // action: 'CREATE' | 'UPDATE' | 'DELETE'. A DELETE carries the row it removed.
+  console.log(action, value.name);
+}
+```
+
+Each notification is `{ action, recordId, value }`. Only rows matching the where are delivered, and a write that does not match stays silent. A `break` out of `for await` kills the query. The handle also has `kill()`, `await using` support, and the getters `isAlive` and `isManaged`. It serves one consumer at a time.
+
+Limits:
+
+- `ORDER BY` is not valid in a live query, and there is no computed projection.
+- A where that resolves to nothing is refused rather than watching every row.
+- `$live` is not available inside a transaction. `tx.$live` throws a `CerialTransactionError`.
+- The `where` of `client.$live` must be a fragment built by `sql`.
+
+### What `$live` guarantees across a connection loss
+
+Measured against a real database, not assumed:
+
+| Event | Result |
+|---|---|
+| Transport drop and reconnect (network blip, proxy restart) | The subscription resumes and each write after it notifies once. A write made just after the reconnect, before the subscription is re-registered, may be missed. |
+| Server restart | The subscription does **not** resume. The iterator ends with a `CerialConnectionError` and `isAlive` is `false`. |
+| Reconnect attempts exhausted | The iterator ends with a `CerialConnectionError`. |
+| `kill()`, a server-side `KILL`, or a deliberate `disconnect()` | The iterator ends cleanly, with no error. |
+
+`$live` does not survive a server restart. A handle never goes silent: it either delivers or ends. So wrap a long-lived subscription, catch `CerialConnectionError`, and resubscribe. After a restart the old connection's session is gone, so resubscribe through a fresh connection, and treat anything written while you were not subscribed as missed. Read the current state again after resubscribing.
+
+```typescript
+import { CerialConnectionError } from 'cerial';
+
+async function watch(subscribe: () => Promise<AsyncIterable<{ action: string }>>): Promise<void> {
+  for (;;) {
+    try {
+      for await (const change of await subscribe()) handle(change);
+
+      return; // ended cleanly: killed or disconnected on purpose
+    } catch (error) {
+      if (!(error instanceof CerialConnectionError)) throw error;
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // back off, then resubscribe
+    }
+  }
+}
+```
+
+## What a fragment skips
+
+A fragment bypasses the checks Cerial runs on typed queries: membership, key-path, enum and data validation, and the type checks. A typo in a field name, a wrong enum value or a value of the wrong type reaches the database as written. Only the database still enforces `SCHEMAFULL` types, `ASSERT` and unique indexes.
+
+A whole-statement write (`$raw`) also skips what the typed builders do for you:
+
+- `@readonly` is not enforced.
+- Defaults the ORM fills in for tuple elements are not applied.
+- Delete cascades and restrict checks do not run.
+- N:N relations are not kept in sync on both sides.
+
+``$raw: sql`true` `` on `deleteMany` hits every row. The guard against an accidentally empty filter cannot see intent, and a fragment is never empty.
+
+```typescript
+// Deletes every user. Nothing stops it.
+await client.db.User.deleteMany({ where: { $raw: sql`true` } });
+```
+
+Use the typed API for writes whenever it can express them, and keep `$raw` for what it cannot.
+
+## Result types
+
+`$raw<T>`, `Model.$raw<T>`, `$live<T>` and `sql<T>` take a type argument that defaults to `unknown`. `T` is your unchecked claim about what comes back. A wrong `T` compiles. When the real shape disagrees, nothing throws: the row arrives as it is and fails where you use it. Cerial does not validate it, because the shapes these queries return are not described by your schema.
+
+```typescript
+// Compiles, and `n` is a string at runtime
+const rows = await client.$raw<{ n: number }>(sql`SELECT 'x' AS n`);
+```
+
+Keep the claim next to the query so a reader can check them together.
+
+## Related
+
+- [Special Operators](/filtering/special-operators) for typed range and combination filters
+- [Transactions overview](/transactions/overview) for `$raw` inside a transaction
+- [Generated Types](/types/generated-types) for the `$raw` key on `Where` and the `compute` option

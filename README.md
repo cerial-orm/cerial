@@ -44,6 +44,7 @@ A Prisma-like ORM for [SurrealDB](https://surrealdb.com/) with schema-driven cod
 - **Lazy execution** — Queries return a `CerialQueryPromise` thenable, executing only on `await`
 - **Hooks** — `onBeforeQuery` callback for query interception and logging
 - **Introspection** — `getMetadata()`, `getName()`, `getTableName()` on every model
+- **Raw hatch**: The `sql` tag with bound values for `$raw` filters, `compute` projections, whole statements and managed `$live` subscriptions; skips Cerial's validation, so see the docs for its limits. Arrives in 0.3.0
 
 ### Filtering
 
@@ -244,7 +245,6 @@ Planned features leveraging SurrealDB capabilities:
 - **Vector search** — Store and query vector embeddings for AI/ML similarity search
 - **Full-text search** — Search text fields with analyzers, tokenizers, and relevance scoring
 - **Geospatial queries** — Distance calculations, containment checks, and intersection operators on Geometry fields
-- **Live queries** — Real-time subscriptions that push record changes as they happen
 - **Field value expressions** — Reference a field's incoming value in schema-level create/update expressions
 - **Previous value access** — Access old field values during updates without a separate read query
 
