@@ -31,6 +31,25 @@ development branch and is not available on npm.
   user input into a flexible field, upgrade; until then allow-list the sub-keys
   you expect before they reach the call.
 
+- `escapeIdent` and `escapeIdPart`, which the package re-exported from the
+  `surrealdb` SDK, do not escape a backslash. A value that ends the quoted
+  identifier early therefore leaves the quotes and runs as part of the
+  statement. Run against a live database, a value passed through `escapeIdent`
+  and written into a column position ran an injected `DELETE` and emptied
+  another table, and a value passed through `escapeIdPart` into a record-id
+  position did the same. Cerial's own queries never called either function, so
+  only code that put their output into query text is affected. Present in 0.1.0
+  and 0.2.0, which both exported them.
+
+  Both are no longer exported. For an identifier use `sql.ident`, and bind
+  values as parameters. The same flaw is in the SDK's string form of `Table` and
+  `RecordId`: interpolating `String(new Table(name))` or
+  `String(new RecordId('user', id))` into query text ran an injected `DELETE`
+  in the same way. Those two classes are still exported, since they work as bound
+  values. Bind them and never interpolate their string form. If you build query
+  text from request input with the removed functions or those string forms,
+  upgrade and switch to parameters.
+
 - `orderBy`, `limit` and `offset` inside `include` were written into the query
   text without being checked, so a crafted value could run an extra `SELECT`
   and return rows from other tables under the included relation, including
@@ -815,6 +834,12 @@ development branch and is not available on npm.
   escaping work above would have had to be done twice to keep it. Use
   `generateMigrationQuery` from `cerial/generators`, which takes the same
   arguments and quotes what it emits.
+- **Breaking.** `escapeIdent` and `escapeIdPart` are no longer exported from the
+  package root. They were re-exports of SDK functions that do not escape a
+  backslash, so a value could end the quoted identifier early and inject a
+  statement (see Security). Use `sql.ident` for an identifier and bind values
+  as parameters. If you still need the SDK's own functions, import them from
+  `surrealdb` and do not pass them untrusted input.
 - `validateSchema` is no longer exported from the package root or from `cerial/parser`.
   That export was a second copy of the schema validator that returned `ParseError[]` and
   that nothing in `cerial generate` ever called, so roughly forty-five of its checks
