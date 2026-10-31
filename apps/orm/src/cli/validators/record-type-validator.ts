@@ -4,7 +4,7 @@
 
 import { hasDecorator } from '../../parser/types/ast';
 import type { SchemaAST } from '../../types';
-import { originLine } from './origin-location';
+import { located } from './origin-location';
 import type { SchemaValidationError } from './schema-validator';
 
 /** Valid primitive ID type parameters for Record(Type) */
@@ -59,7 +59,7 @@ export function validateRecordIdTypes(ast: SchemaAST): SchemaValidationError[] {
           message: `Record(Type) cannot be used on FK field "${field.name}" with Relation in model "${model.name}" — type is inferred from target model's @id. Remove the type parameter.`,
           model: model.name,
           field: field.name,
-          line: originLine(field.origin),
+          ...located(field.origin),
         });
         continue; // Skip further validation on this field
       }
@@ -76,7 +76,7 @@ export function validateRecordIdTypes(ast: SchemaAST): SchemaValidationError[] {
             message: `Cannot use '${typeName}' as record ID type on field "${field.name}" in model "${model.name}". Valid types: int, number, string, uuid, or a tuple/object name.`,
             model: model.name,
             field: field.name,
-            line: originLine(field.origin),
+            ...located(field.origin),
           });
           continue;
         }
@@ -92,14 +92,14 @@ export function validateRecordIdTypes(ast: SchemaAST): SchemaValidationError[] {
               message: `Type '${typeName}' in Record(${typeName}) on field "${field.name}" in model "${model.name}" is not a defined tuple or object. Did you mean to define a tuple or object named '${typeName}'?`,
               model: model.name,
               field: field.name,
-              line: originLine(field.origin),
+              ...located(field.origin),
             });
           } else {
             errors.push({
               message: `Cannot use '${typeName}' as record ID type on field "${field.name}" in model "${model.name}". Valid types: int, number, string, uuid, or a tuple/object name.`,
               model: model.name,
               field: field.name,
-              line: originLine(field.origin),
+              ...located(field.origin),
             });
           }
           continue;
@@ -118,7 +118,7 @@ export function validateRecordIdTypes(ast: SchemaAST): SchemaValidationError[] {
                   message: `Warning: Decorators on '${typeName}' elements are ignored when used as @id — SurrealDB doesn't support DEFAULT/sub-field constraints on id fields. Field "${field.name}" in model "${model.name}".`,
                   model: model.name,
                   field: field.name,
-                  line: originLine(field.origin),
+                  ...located(field.origin),
                 });
               }
             }
@@ -134,7 +134,7 @@ export function validateRecordIdTypes(ast: SchemaAST): SchemaValidationError[] {
                   message: `Warning: Decorators on '${typeName}' fields are ignored when used as @id — SurrealDB doesn't support DEFAULT/sub-field constraints on id fields. Field "${field.name}" in model "${model.name}".`,
                   model: model.name,
                   field: field.name,
-                  line: originLine(field.origin),
+                  ...located(field.origin),
                 });
               }
             }

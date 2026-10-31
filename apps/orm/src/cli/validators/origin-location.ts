@@ -12,6 +12,11 @@ export function originLine(origin: Origin): number {
   return origin.kind === 'dsl' ? origin.range.start.line : NO_LINE;
 }
 
+/** The `line` and `origin` of a validation error, both read from the node's origin */
+export function located(origin: Origin): { line: number; origin: Origin } {
+  return { line: originLine(origin), origin };
+}
+
 /** Human-readable location: `post.cerial:12` for `dsl`, `post.ts (export Post)` for `ts` */
 export function formatOrigin(origin: Origin): string {
   return origin.kind === 'dsl'

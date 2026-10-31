@@ -3,7 +3,7 @@
  */
 
 import type { ASTModel, SchemaAST } from '../../types';
-import { originLine } from './origin-location';
+import { located } from './origin-location';
 import type { SchemaValidationError } from './schema-validator';
 
 /**
@@ -83,9 +83,9 @@ export function validateCompositeDirectives(ast: SchemaAST): SchemaValidationErr
 
   for (const model of ast.models) {
     for (const directive of model.directives ?? []) {
-      const line = originLine(directive.origin);
+      const at = located(directive.origin);
       const label = `@@${directive.kind}("${directive.name}")`;
-      const push = (message: string) => errors.push({ message, model: model.name, line });
+      const push = (message: string) => errors.push({ message, model: model.name, ...at });
 
       const existingModel = globalNames.get(directive.name);
       if (existingModel) {

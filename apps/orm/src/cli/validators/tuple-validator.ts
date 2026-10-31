@@ -3,7 +3,7 @@
  */
 
 import type { SchemaAST } from '../../types';
-import { originLine } from './origin-location';
+import { located } from './origin-location';
 import type { SchemaValidationError } from './schema-validator';
 
 /** Validate tuple definitions */
@@ -14,8 +14,8 @@ export function validateTuples(ast: SchemaAST): SchemaValidationError[] {
   const literalOrEnumNames = new Set([...ast.literals.map((l) => l.name), ...ast.enums.map((e) => e.name)]);
 
   for (const tuple of ast.tuples) {
-    const line = originLine(tuple.origin);
-    const push = (message: string) => errors.push({ message, line });
+    const at = located(tuple.origin);
+    const push = (message: string) => errors.push({ message, ...at });
 
     const elementNames = new Set<string>();
     for (const element of tuple.elements) {

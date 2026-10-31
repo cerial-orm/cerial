@@ -14,7 +14,7 @@
  */
 
 import type { Origin, SchemaAST } from '../../types';
-import { originLine } from './origin-location';
+import { located } from './origin-location';
 import type { SchemaValidationError } from './schema-validator';
 
 /** Types that cannot be @nullable */
@@ -39,7 +39,7 @@ function validateNullableField(
   if (defaultDecorator && defaultDecorator.value === null && !hasNullable) {
     errors.push({
       message: `@default(null) requires @nullable on field '${field.name}' in ${parentName}. A field cannot default to null if it doesn't accept null values.`,
-      line: originLine(field.origin),
+      ...located(field.origin),
     });
   }
 
@@ -52,7 +52,7 @@ function validateNullableField(
         : `SurrealDB cannot define sub-field schemas on nullable ${field.type} parents.`;
     errors.push({
       message: `@nullable is not allowed on ${field.type} field '${field.name}' in ${parentName}. ${reason}`,
-      line: originLine(field.origin),
+      ...located(field.origin),
     });
   }
 
@@ -60,7 +60,7 @@ function validateNullableField(
   if (field.decorators.some((d) => d.type === 'id')) {
     errors.push({
       message: `@nullable is not allowed on @id field '${field.name}' in ${parentName}. Record IDs are always present and cannot be null.`,
-      line: originLine(field.origin),
+      ...located(field.origin),
     });
   }
 
@@ -68,7 +68,7 @@ function validateNullableField(
   if (field.decorators.some((d) => d.type === 'now')) {
     errors.push({
       message: `@nullable is not allowed on @now field '${field.name}' in ${parentName}. COMPUTED fields are output-only and cannot be null.`,
-      line: originLine(field.origin),
+      ...located(field.origin),
     });
   }
 
@@ -119,7 +119,7 @@ export function validateNullableOnTupleElements(ast: SchemaAST): SchemaValidatio
       if (element.type === 'object') {
         errors.push({
           message: `@nullable is not allowed on object tuple element '${elemName}' in tuple ${tuple.name}. SurrealDB cannot define sub-field schemas on nullable object parents.`,
-          line: originLine(tuple.origin),
+          ...located(tuple.origin),
         });
       }
     }
@@ -137,7 +137,7 @@ export function validateNoOptionalAnyFields(ast: SchemaAST): SchemaValidationErr
       if (field.type === 'any' && field.isOptional) {
         errors.push({
           message: `Optional (?) is not allowed on Any field '${field.name}' in model ${model.name}. TYPE any natively accepts NONE and CerialAny includes null.`,
-          line: originLine(field.origin),
+          ...located(field.origin),
         });
       }
     }
@@ -148,7 +148,7 @@ export function validateNoOptionalAnyFields(ast: SchemaAST): SchemaValidationErr
       if (field.type === 'any' && field.isOptional) {
         errors.push({
           message: `Optional (?) is not allowed on Any field '${field.name}' in object ${object.name}. TYPE any natively accepts NONE and CerialAny includes null.`,
-          line: originLine(field.origin),
+          ...located(field.origin),
         });
       }
     }
@@ -169,7 +169,7 @@ export function validateNoOptionalTupleElements(ast: SchemaAST): SchemaValidatio
       const elemName = element.name ?? `element[${i}]`;
       errors.push({
         message: `Optional elements (?) are not allowed in tuples. Use @nullable instead. SurrealDB returns null (not undefined) for absent tuple positions, making ? semantically incorrect. Element '${elemName}' in tuple ${tuple.name}.`,
-        line: originLine(tuple.origin),
+        ...located(tuple.origin),
       });
     }
   }
@@ -194,7 +194,7 @@ export function validateTupleElementDecorators(ast: SchemaAST): SchemaValidation
         if (!ALLOWED_TUPLE_ELEMENT_DECORATORS.has(dec.type)) {
           errors.push({
             message: `Decorator @${dec.type} is not allowed on tuple element '${elemName}' in tuple ${tuple.name}. Allowed: @nullable, @default, @defaultAlways, @createdAt, @updatedAt.`,
-            line: originLine(tuple.origin),
+            ...located(tuple.origin),
           });
         }
       }
@@ -205,7 +205,7 @@ export function validateTupleElementDecorators(ast: SchemaAST): SchemaValidation
       if ((hasCreatedAt || hasUpdatedAt) && element.type !== 'date') {
         errors.push({
           message: `Timestamp decorators (@createdAt, @updatedAt) can only be used on Date-type elements, but '${elemName}' in tuple ${tuple.name} is of type '${element.type}'.`,
-          line: originLine(tuple.origin),
+          ...located(tuple.origin),
         });
       }
 
@@ -213,7 +213,7 @@ export function validateTupleElementDecorators(ast: SchemaAST): SchemaValidation
       if (hasCreatedAt && hasUpdatedAt) {
         errors.push({
           message: `Element '${elemName}' in tuple ${tuple.name} cannot have both @createdAt and @updatedAt.`,
-          line: originLine(tuple.origin),
+          ...located(tuple.origin),
         });
       }
 
@@ -223,7 +223,7 @@ export function validateTupleElementDecorators(ast: SchemaAST): SchemaValidation
       if (hasDefault && (hasCreatedAt || hasUpdatedAt)) {
         errors.push({
           message: `@default and timestamp decorators cannot be used together on element '${elemName}' in tuple ${tuple.name}.`,
-          line: originLine(tuple.origin),
+          ...located(tuple.origin),
         });
       }
 
@@ -231,7 +231,7 @@ export function validateTupleElementDecorators(ast: SchemaAST): SchemaValidation
       if (hasDefault && hasDefaultAlways) {
         errors.push({
           message: `@default and @defaultAlways cannot be used together on element '${elemName}' in tuple ${tuple.name}.`,
-          line: originLine(tuple.origin),
+          ...located(tuple.origin),
         });
       }
 
@@ -241,7 +241,7 @@ export function validateTupleElementDecorators(ast: SchemaAST): SchemaValidation
         if (defaultDec?.value === null && !element.isNullable) {
           errors.push({
             message: `@default(null) requires @nullable on element '${elemName}' in tuple ${tuple.name}. An element cannot default to null if it doesn't accept null values.`,
-            line: originLine(tuple.origin),
+            ...located(tuple.origin),
           });
         }
       }

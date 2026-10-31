@@ -3,7 +3,7 @@
  */
 
 import type { Origin, SchemaAST } from '../../types';
-import { formatOrigin, originLine } from './origin-location';
+import { formatOrigin, located } from './origin-location';
 import type { SchemaValidationError } from './schema-validator';
 
 interface Named {
@@ -20,7 +20,7 @@ function findDuplicates(kind: string, items: Named[]): SchemaValidationError[] {
     if (first) {
       errors.push({
         message: `Duplicate ${kind} name: ${item.name} (declared in ${formatOrigin(first)} and in ${formatOrigin(item.origin)})`,
-        line: originLine(item.origin),
+        ...located(item.origin),
       });
     } else {
       seen.set(item.name, item.origin);
@@ -54,7 +54,7 @@ function findCrossKindCollisions(ast: SchemaAST): SchemaValidationError[] {
       } else if (taken.kind !== kind) {
         errors.push({
           message: `Duplicate name: ${item.name} (declared as ${taken.kind} in ${formatOrigin(taken.origin)} and as ${kind} in ${formatOrigin(item.origin)})`,
-          line: originLine(item.origin),
+          ...located(item.origin),
         });
       }
     }

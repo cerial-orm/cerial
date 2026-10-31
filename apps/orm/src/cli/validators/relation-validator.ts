@@ -16,7 +16,7 @@
 
 import { getDecorator, hasDecorator } from '../../parser/types/ast';
 import type { ASTField, ASTModel, SchemaAST, SchemaDecorator } from '../../types';
-import { originLine } from './origin-location';
+import { located } from './origin-location';
 import type { SchemaValidationError } from './schema-validator';
 
 /** Get relation info from a field */
@@ -114,7 +114,7 @@ export function validatePKStructure(ast: SchemaAST): SchemaValidationError[] {
           message: `Relation field "${field.name}" references non-existent Record field "${fieldRef}"`,
           model: model.name,
           field: field.name,
-          line: originLine(field.origin),
+          ...located(field.origin),
         });
       }
     }
@@ -173,7 +173,7 @@ export function validateNonPKSide(ast: SchemaAST): SchemaValidationError[] {
           message: `Reverse relation "${field.name}"${keyInfo} requires PK side (Record + Relation @field) in model "${targetModelName}"`,
           model: model.name,
           field: field.name,
-          line: originLine(field.origin),
+          ...located(field.origin),
         });
       }
     }
@@ -245,7 +245,7 @@ export function validateSingleSidedOptional(ast: SchemaAST): SchemaValidationErr
             message: `Single-sided relation "${field.name}" must be optional (Relation?) because no reverse is defined in "${targetModelName}"`,
             model: model.name,
             field: field.name,
-            line: originLine(field.origin),
+            ...located(field.origin),
           });
         }
 
@@ -257,7 +257,7 @@ export function validateSingleSidedOptional(ast: SchemaAST): SchemaValidationErr
             message: `Single-sided relation's Record field "${fieldRef}" must be optional (Record?) because no reverse is defined in "${targetModelName}"`,
             model: model.name,
             field: fieldRef,
-            line: originLine(recordField.origin),
+            ...located(recordField.origin),
           });
         }
       }
@@ -299,7 +299,7 @@ export function validateOnDeletePlacement(ast: SchemaAST): SchemaValidationError
           message: `@onDelete is only allowed on optional or nullable relations. "${field.name}" is required - required relations auto-cascade on delete`,
           model: model.name,
           field: field.name,
-          line: originLine(field.origin),
+          ...located(field.origin),
         });
       }
 
@@ -308,7 +308,7 @@ export function validateOnDeletePlacement(ast: SchemaAST): SchemaValidationError
           message: `@onDelete is not allowed on array relations. "${field.name}" is Relation[] - array relations auto-cleanup on delete`,
           model: model.name,
           field: field.name,
-          line: originLine(field.origin),
+          ...located(field.origin),
         });
       }
 
@@ -319,7 +319,7 @@ export function validateOnDeletePlacement(ast: SchemaAST): SchemaValidationError
           message: `@onDelete is only allowed on forward relations (with @field). "${field.name}" is a reverse relation`,
           model: model.name,
           field: field.name,
-          line: originLine(field.origin),
+          ...located(field.origin),
         });
       }
 
@@ -331,7 +331,7 @@ export function validateOnDeletePlacement(ast: SchemaAST): SchemaValidationError
             message: `@onDelete(SetNull) requires @nullable on the backing Record field "${fieldDecorator.value}" in model ${model.name}. Without @nullable, the field cannot hold null.`,
             model: model.name,
             field: field.name,
-            line: originLine(field.origin),
+            ...located(field.origin),
           });
         }
       }
@@ -344,7 +344,7 @@ export function validateOnDeletePlacement(ast: SchemaAST): SchemaValidationError
             message: `@onDelete(SetNone) requires optional (?) on the backing Record field "${fieldDecorator.value}" in model ${model.name}. Without ?, the field cannot be absent (NONE).`,
             model: model.name,
             field: field.name,
-            line: originLine(field.origin),
+            ...located(field.origin),
           });
         }
       }
@@ -381,14 +381,14 @@ export function validateCardinalityMatch(ast: SchemaAST): SchemaValidationError[
             message: `Cardinality mismatch: Relation[] "${field.name}" must pair with Record[] but "${fieldRef}" is Record`,
             model: model.name,
             field: field.name,
-            line: originLine(field.origin),
+            ...located(field.origin),
           });
         } else {
           errors.push({
             message: `Cardinality mismatch: Relation "${field.name}" must pair with Record but "${fieldRef}" is Record[]`,
             model: model.name,
             field: field.name,
-            line: originLine(field.origin),
+            ...located(field.origin),
           });
         }
       }
@@ -403,7 +403,7 @@ export function validateCardinalityMatch(ast: SchemaAST): SchemaValidationError[
             message: `Optionality mismatch: Relation${relationIsOptional ? '?' : ''} "${field.name}" must match Record${recordIsOptional ? '?' : ''} "${fieldRef}"`,
             model: model.name,
             field: field.name,
-            line: originLine(field.origin),
+            ...located(field.origin),
           });
         }
       }
@@ -456,7 +456,7 @@ export function validateKeyRequired(ast: SchemaAST): SchemaValidationError[] {
                 message: `Multiple forward relations to "${targetModel}" require @key for disambiguation. Add @key(name) to "${rel.field.name}"`,
                 model: model.name,
                 field: rel.field.name,
-                line: originLine(rel.field.origin),
+                ...located(rel.field.origin),
               });
             }
           }
@@ -470,7 +470,7 @@ export function validateKeyRequired(ast: SchemaAST): SchemaValidationError[] {
                 message: `Duplicate @key(${rel.key}) on forward relations to "${targetModel}"`,
                 model: model.name,
                 field: rel.field.name,
-                line: originLine(rel.field.origin),
+                ...located(rel.field.origin),
               });
             }
             seen.add(rel.key);
@@ -485,7 +485,7 @@ export function validateKeyRequired(ast: SchemaAST): SchemaValidationError[] {
                 message: `Multiple reverse relations to "${targetModel}" require @key for disambiguation. Add @key(name) to "${rel.field.name}"`,
                 model: model.name,
                 field: rel.field.name,
-                line: originLine(rel.field.origin),
+                ...located(rel.field.origin),
               });
             }
           }
@@ -499,7 +499,7 @@ export function validateKeyRequired(ast: SchemaAST): SchemaValidationError[] {
                 message: `Duplicate @key(${rel.key}) on reverse relations to "${targetModel}"`,
                 model: model.name,
                 field: rel.field.name,
-                line: originLine(rel.field.origin),
+                ...located(rel.field.origin),
               });
             }
             seen.add(rel.key);
@@ -513,7 +513,7 @@ export function validateKeyRequired(ast: SchemaAST): SchemaValidationError[] {
               message: `Multiple relations to "${targetModel}" require @key for disambiguation. Add @key(name) to "${rel.field.name}"`,
               model: model.name,
               field: rel.field.name,
-              line: originLine(rel.field.origin),
+              ...located(rel.field.origin),
             });
           }
         }
@@ -530,7 +530,7 @@ export function validateKeyRequired(ast: SchemaAST): SchemaValidationError[] {
                 message: `Duplicate @key(${rel.key}) for relations to "${targetModel}"`,
                 model: model.name,
                 field: rel.field.name,
-                line: originLine(rel.field.origin),
+                ...located(rel.field.origin),
               });
             }
             seen.add(rel.key);
@@ -593,7 +593,7 @@ export function validateKeyPairing(ast: SchemaAST): SchemaValidationError[] {
           message: `@key(${key}) on ${type} relation "${field.name}" requires matching ${expectedType} relation in "${targetModelName}"`,
           model: model.name,
           field: field.name,
-          line: originLine(field.origin),
+          ...located(field.origin),
         });
       }
     }
@@ -619,7 +619,7 @@ export function validateRecordDecorators(ast: SchemaAST): SchemaValidationError[
             message: `Record field "${field.name}" cannot have @${decoratorType} decorator. Only Relation fields can have relation decorators.`,
             model: model.name,
             field: field.name,
-            line: originLine(field.origin),
+            ...located(field.origin),
           });
         }
       }

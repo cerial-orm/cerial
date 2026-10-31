@@ -85,7 +85,8 @@ describe('TypeScript-only entry', () => {
     const { result } = await generateFrom('invalid');
     expect(result.success).toBe(false);
     const [error] = result.errors;
-    expect(error).toContain(join(FIXTURES, 'invalid', 'bad.schema.ts'));
+    expect(error).toStartWith(`${join(FIXTURES, 'invalid', 'bad.schema.ts')} (export Orphan): `);
+    expect(error).not.toContain(':0');
 
     const twin = await outputDir();
     await writeFile(
@@ -98,7 +99,8 @@ describe('TypeScript-only entry', () => {
       logLevel: 'minimal',
     });
     expect(expected.success).toBe(false);
-    const strip = (message: string | undefined): string => (message ?? '').replace(/^[^:]*\.(cerial|schema\.ts): /, '');
+    const strip = (message: string | undefined): string =>
+      (message ?? '').replace(/^[^:]*\.cerial:\d+: |^[^:]*\.schema\.ts \(export \w+\): /, '');
     expect(strip(error)).toBe(strip(expected.errors[0]));
   });
 

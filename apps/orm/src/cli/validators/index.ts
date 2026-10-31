@@ -52,4 +52,4 @@ export {
   validateUuidFields,
 } from './schema-validator';
 export { validateTuples } from './tuple-validator';
-export { formatOrigin, NO_LINE, originLine } from './origin-location';
+export { formatOrigin, located, NO_LINE, originLine } from './origin-location';

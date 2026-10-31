@@ -3,7 +3,7 @@
  */
 
 import type { ASTLiteral, ASTLiteralVariant, SchemaAST } from '../../types';
-import { originLine } from './origin-location';
+import { located } from './origin-location';
 import type { SchemaValidationError } from './schema-validator';
 
 function variantKey(variant: ASTLiteralVariant): string {
@@ -40,8 +40,8 @@ function hasCircularRef(ast: SchemaAST, name: string, visited: Set<string>): boo
 export function validateLiterals(ast: SchemaAST): SchemaValidationError[] {
   const errors: SchemaValidationError[] = [];
   for (const literal of ast.literals) {
-    const line = originLine(literal.origin);
-    const push = (message: string) => errors.push({ message, line });
+    const at = located(literal.origin);
+    const push = (message: string) => errors.push({ message, ...at });
 
     const seen = new Set<string>();
     for (const variant of literal.variants) {
@@ -128,7 +128,7 @@ export function validateLiteralFieldReferences(ast: SchemaAST): SchemaValidation
           message: `Field '${field.name}' in ${parent} references unknown literal '${field.literalName}'`,
           model: modelName,
           field: field.name,
-          line: originLine(field.origin),
+          ...located(field.origin),
         });
       }
     }

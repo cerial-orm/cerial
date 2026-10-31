@@ -4,7 +4,7 @@
 
 import { getDecorator, getTuple, hasDecorator } from '../../parser/types/ast';
 import type { ASTTuple, Origin, SchemaAST } from '../../types';
-import { originLine } from './origin-location';
+import { located } from './origin-location';
 import { isValidFieldName, isValidModelName, isValidObjectName } from '../../utils/validation-utils';
 import { validateCompositeDirectives } from './composite-directive-validator';
 import { validateEnums } from './enum-validator';
@@ -28,6 +28,8 @@ export interface SchemaValidationError {
   model?: string;
   field?: string;
   line?: number;
+  /** Where the offending declaration or field came from; absent only for errors with no single source */
+  origin?: Origin;
 }
 
 /** Validation result */
@@ -47,14 +49,14 @@ export function validateModelFieldIndexes(ast: SchemaAST): SchemaValidationError
         message: `Multiple @id decorators in model ${model.name}. Only one @id field is allowed per model.`,
         model: model.name,
         field: field.name,
-        line: originLine(field.origin),
+        ...located(field.origin),
       });
     }
 
     for (const field of model.fields) {
       const hasIndex = hasDecorator(field, 'index');
       const hasUnique = hasDecorator(field, 'unique');
-      const where = { model: model.name, field: field.name, line: originLine(field.origin) };
+      const where = { model: model.name, field: field.name, ...located(field.origin) };
 
       if (hasIndex && hasUnique) {
         errors.push({
@@ -87,7 +89,7 @@ export function validateModelNames(ast: SchemaAST): SchemaValidationError[] {
       errors.push({
         message: `Invalid model name: ${model.name}. Must be PascalCase.`,
         model: model.name,
-        line: originLine(model.origin),
+        ...located(model.origin),
       });
     }
 
@@ -96,7 +98,7 @@ export function validateModelNames(ast: SchemaAST): SchemaValidationError[] {
       errors.push({
         message: `Duplicate model name: ${model.name}`,
         model: model.name,
-        line: originLine(model.origin),
+        ...located(model.origin),
       });
     }
     names.add(model.name);
@@ -119,7 +121,7 @@ export function validateFieldNames(ast: SchemaAST): SchemaValidationError[] {
           message: `Invalid field name: ${field.name}. Must be camelCase or snake_case.`,
           model: model.name,
           field: field.name,
-          line: originLine(field.origin),
+          ...located(field.origin),
         });
       }
 
@@ -129,7 +131,7 @@ export function validateFieldNames(ast: SchemaAST): SchemaValidationError[] {
           message: `Duplicate field name: ${field.name}`,
           model: model.name,
           field: field.name,
-          line: originLine(field.origin),
+          ...located(field.origin),
         });
       }
       fieldNames.add(field.name);
@@ -158,7 +160,7 @@ export function validateRelations(ast: SchemaAST): SchemaValidationError[] {
           message: `Relation field "${field.name}" must have @model decorator`,
           model: model.name,
           field: field.name,
-          line: originLine(field.origin),
+          ...located(field.origin),
         });
         continue;
       }
@@ -169,7 +171,7 @@ export function validateRelations(ast: SchemaAST): SchemaValidationError[] {
           message: `Relation field "${field.name}" has @model decorator with missing value`,
           model: model.name,
           field: field.name,
-          line: originLine(field.origin),
+          ...located(field.origin),
         });
         continue;
       }
@@ -180,7 +182,7 @@ export function validateRelations(ast: SchemaAST): SchemaValidationError[] {
           message: `Relation field "${field.name}" references non-existent model "${targetModel}"`,
           model: model.name,
           field: field.name,
-          line: originLine(field.origin),
+          ...located(field.origin),
         });
       }
 
@@ -193,7 +195,7 @@ export function validateRelations(ast: SchemaAST): SchemaValidationError[] {
             message: `Relation field "${field.name}" has @field decorator with missing value`,
             model: model.name,
             field: field.name,
-            line: originLine(field.origin),
+            ...located(field.origin),
           });
           continue;
         }
@@ -205,7 +207,7 @@ export function validateRelations(ast: SchemaAST): SchemaValidationError[] {
             message: `Relation field "${field.name}" references non-existent field "${fieldRef}"`,
             model: model.name,
             field: field.name,
-            line: originLine(field.origin),
+            ...located(field.origin),
           });
           continue;
         }
@@ -216,7 +218,7 @@ export function validateRelations(ast: SchemaAST): SchemaValidationError[] {
             message: `Relation field "${field.name}" references field "${fieldRef}" which is not a Record type`,
             model: model.name,
             field: field.name,
-            line: originLine(field.origin),
+            ...located(field.origin),
           });
         }
       }
@@ -273,7 +275,7 @@ export function validateArrayDecorators(ast: SchemaAST): SchemaValidationError[]
             message: `@distinct can only be used on array fields`,
             model: model.name,
             field: field.name,
-            line: originLine(field.origin),
+            ...located(field.origin),
           });
         }
         if (hasSort) {
@@ -281,7 +283,7 @@ export function validateArrayDecorators(ast: SchemaAST): SchemaValidationError[]
             message: `@sort can only be used on array fields`,
             model: model.name,
             field: field.name,
-            line: originLine(field.origin),
+            ...located(field.origin),
           });
         }
         continue;
@@ -294,7 +296,7 @@ export function validateArrayDecorators(ast: SchemaAST): SchemaValidationError[]
             message: `@distinct cannot be used on Relation[] fields (virtual, not stored in database)`,
             model: model.name,
             field: field.name,
-            line: originLine(field.origin),
+            ...located(field.origin),
           });
         }
         if (hasSort) {
@@ -302,7 +304,7 @@ export function validateArrayDecorators(ast: SchemaAST): SchemaValidationError[]
             message: `@sort cannot be used on Relation[] fields (virtual, not stored in database)`,
             model: model.name,
             field: field.name,
-            line: originLine(field.origin),
+            ...located(field.origin),
           });
         }
         continue;
@@ -320,7 +322,7 @@ export function validateArrayDecorators(ast: SchemaAST): SchemaValidationError[]
               message: `@distinct cannot be used on Record[] fields paired with a Relation (already has implicit distinct)`,
               model: model.name,
               field: field.name,
-              line: originLine(field.origin),
+              ...located(field.origin),
             });
           }
           if (hasSort) {
@@ -328,7 +330,7 @@ export function validateArrayDecorators(ast: SchemaAST): SchemaValidationError[]
               message: `@sort cannot be used on Record[] fields paired with a Relation`,
               model: model.name,
               field: field.name,
-              line: originLine(field.origin),
+              ...located(field.origin),
             });
           }
         }
@@ -360,7 +362,7 @@ function validateTimestampDecorators(
     if (field.type !== 'date') {
       errors.push({
         message: `@${dec.type} can only be used on Date fields, but '${field.name}' in ${parentName} is of type '${field.type}'.`,
-        line: originLine(field.origin),
+        ...located(field.origin),
       });
     }
   }
@@ -370,7 +372,7 @@ function validateTimestampDecorators(
     const names = timestampDecs.map((d) => `@${d.type}`).join(', ');
     errors.push({
       message: `Field '${field.name}' in ${parentName} has multiple timestamp decorators (${names}). Only one of @now, @createdAt, @updatedAt is allowed per field.`,
-      line: originLine(field.origin),
+      ...located(field.origin),
     });
   }
 
@@ -380,7 +382,7 @@ function validateTimestampDecorators(
     for (const dec of timestampDecs) {
       errors.push({
         message: `@${dec.type} and @default cannot be used together on field '${field.name}' in ${parentName}.`,
-        line: originLine(field.origin),
+        ...located(field.origin),
       });
     }
   }
@@ -391,7 +393,7 @@ function validateTimestampDecorators(
     for (const dec of timestampDecs) {
       errors.push({
         message: `@${dec.type} and @defaultAlways cannot be used together on field '${field.name}' in ${parentName}.`,
-        line: originLine(field.origin),
+        ...located(field.origin),
       });
     }
   }
@@ -414,7 +416,7 @@ function validateDefaultAlwaysDecorator(
   if (hasDefault) {
     errors.push({
       message: `@defaultAlways and @default cannot be used together on field '${field.name}' in ${parentName}. Use one or the other.`,
-      line: originLine(field.origin),
+      ...located(field.origin),
     });
   }
 
@@ -445,7 +447,7 @@ export function validateObjectNames(ast: SchemaAST): SchemaValidationError[] {
     if (!isValidObjectName(object.name)) {
       errors.push({
         message: `Invalid object name: ${object.name}. Must be PascalCase.`,
-        line: originLine(object.origin),
+        ...located(object.origin),
       });
     }
 
@@ -453,7 +455,7 @@ export function validateObjectNames(ast: SchemaAST): SchemaValidationError[] {
     if (objectNames.has(object.name)) {
       errors.push({
         message: `Duplicate object name: ${object.name}`,
-        line: originLine(object.origin),
+        ...located(object.origin),
       });
     }
 
@@ -476,7 +478,7 @@ export function validateObjectFields(ast: SchemaAST): SchemaValidationError[] {
       if (!isValidFieldName(field.name)) {
         errors.push({
           message: `Invalid field name: ${field.name}. Must be camelCase or snake_case.`,
-          line: originLine(field.origin),
+          ...located(field.origin),
         });
       }
 
@@ -484,7 +486,7 @@ export function validateObjectFields(ast: SchemaAST): SchemaValidationError[] {
       if (fieldNames.has(field.name)) {
         errors.push({
           message: `Duplicate field name: ${field.name} in object ${object.name}`,
-          line: originLine(field.origin),
+          ...located(field.origin),
         });
       }
       fieldNames.add(field.name);
@@ -493,7 +495,7 @@ export function validateObjectFields(ast: SchemaAST): SchemaValidationError[] {
       if (field.name === 'id') {
         errors.push({
           message: `Objects cannot have an 'id' field`,
-          line: originLine(field.origin),
+          ...located(field.origin),
         });
       }
 
@@ -501,7 +503,7 @@ export function validateObjectFields(ast: SchemaAST): SchemaValidationError[] {
       if (field.type === 'relation') {
         errors.push({
           message: `Objects cannot have Relation fields`,
-          line: originLine(field.origin),
+          ...located(field.origin),
         });
       }
 
@@ -535,12 +537,12 @@ export function validateObjectFields(ast: SchemaAST): SchemaValidationError[] {
           if (dec.type === 'now') {
             errors.push({
               message: `@now is not allowed on object fields. SurrealDB requires COMPUTED fields to be top-level. Use @createdAt or @updatedAt instead.`,
-              line: originLine(field.origin),
+              ...located(field.origin),
             });
           } else {
             errors.push({
               message: `Decorator @${dec.type} is not allowed on object fields. Allowed: @default, @defaultAlways, @createdAt, @updatedAt, @index, @unique, @distinct, @sort, @set, @flexible, @readonly, @nullable, @uuid, @uuid4, @uuid7, @point, @line, @polygon, @multipoint, @multiline, @multipolygon, @geoCollection.`,
-              line: originLine(field.origin),
+              ...located(field.origin),
             });
           }
         }
@@ -550,7 +552,7 @@ export function validateObjectFields(ast: SchemaAST): SchemaValidationError[] {
       if (hasDecorator(field, 'flexible') && field.type !== 'object') {
         errors.push({
           message: `@flexible can only be used on fields with an object type, but '${field.name}' in object ${object.name} is of type '${field.type}'.`,
-          line: originLine(field.origin),
+          ...located(field.origin),
         });
       }
 
@@ -564,7 +566,7 @@ export function validateObjectFields(ast: SchemaAST): SchemaValidationError[] {
       if (hasDecorator(field, 'index') && hasDecorator(field, 'unique')) {
         errors.push({
           message: `Field '${field.name}' in object ${object.name} cannot have both @index and @unique. Use one or the other.`,
-          line: originLine(field.origin),
+          ...located(field.origin),
         });
       }
 
@@ -572,7 +574,7 @@ export function validateObjectFields(ast: SchemaAST): SchemaValidationError[] {
       if (hasDecorator(field, 'unique') && field.isArray) {
         errors.push({
           message: `Field '${field.name}' in object ${object.name} is an array field and cannot have @unique.`,
-          line: originLine(field.origin),
+          ...located(field.origin),
         });
       }
 
@@ -580,7 +582,7 @@ export function validateObjectFields(ast: SchemaAST): SchemaValidationError[] {
       if ((hasDecorator(field, 'distinct') || hasDecorator(field, 'sort')) && !field.isArray) {
         errors.push({
           message: `@distinct and @sort decorators on field '${field.name}' in object ${object.name} are only allowed on array fields.`,
-          line: originLine(field.origin),
+          ...located(field.origin),
         });
       }
 
@@ -589,7 +591,7 @@ export function validateObjectFields(ast: SchemaAST): SchemaValidationError[] {
         if (!field.isOptional && !field.isArray) {
           errors.push({
             message: `Self-referencing object fields must be optional or array`,
-            line: originLine(field.origin),
+            ...located(field.origin),
           });
         }
       }
@@ -599,7 +601,7 @@ export function validateObjectFields(ast: SchemaAST): SchemaValidationError[] {
         if (!objectNames.has(field.objectName)) {
           errors.push({
             message: `Field "${field.name}" references unknown object type "${field.objectName}"`,
-            line: originLine(field.origin),
+            ...located(field.origin),
           });
         }
       }
@@ -624,7 +626,7 @@ function validateReadonlyField(
   if (hasNow) {
     errors.push({
       message: `@readonly and @now cannot be used together on field '${field.name}' in ${parentName}. SurrealDB does not support READONLY on COMPUTED fields.`,
-      line: originLine(field.origin),
+      ...located(field.origin),
     });
   }
 
@@ -633,7 +635,7 @@ function validateReadonlyField(
   if (hasDefaultAlways) {
     errors.push({
       message: `@readonly and @defaultAlways cannot be used together on field '${field.name}' in ${parentName}. @defaultAlways resets the value on every write, which contradicts @readonly.`,
-      line: originLine(field.origin),
+      ...located(field.origin),
     });
   }
 
@@ -642,7 +644,7 @@ function validateReadonlyField(
   if (hasId) {
     errors.push({
       message: `@readonly is not allowed on @id field '${field.name}' in ${parentName}. The id field is already immutable in SurrealDB.`,
-      line: originLine(field.origin),
+      ...located(field.origin),
     });
   }
 
@@ -650,7 +652,7 @@ function validateReadonlyField(
   if (field.type === 'relation') {
     errors.push({
       message: `@readonly is not allowed on Relation field '${field.name}' in ${parentName}. Relation fields are virtual and not stored in the database.`,
-      line: originLine(field.origin),
+      ...located(field.origin),
     });
   }
 
@@ -684,7 +686,7 @@ export function validateFlexibleDecorator(ast: SchemaAST): SchemaValidationError
           message: `@flexible can only be used on fields with an object type, but '${field.name}' in model ${model.name} is of type '${field.type}'.`,
           model: model.name,
           field: field.name,
-          line: originLine(field.origin),
+          ...located(field.origin),
         });
       }
     }
@@ -706,7 +708,7 @@ export function validateObjectReferences(ast: SchemaAST): SchemaValidationError[
             message: `Field "${field.name}" in model "${model.name}" references unknown object type "${field.objectName}"`,
             model: model.name,
             field: field.name,
-            line: originLine(field.origin),
+            ...located(field.origin),
           });
         }
       }
@@ -780,7 +782,7 @@ export function validateTupleObjectCombination(ast: SchemaAST): SchemaValidation
           `(2) remove the decorator from the required tuple element, or (3) make the object field(s) required.`,
         model: model.name,
         field: field.name,
-        line: originLine(field.origin),
+        ...located(field.origin),
       });
     }
   }
@@ -827,7 +829,7 @@ export function validateLiteralDecorators(ast: SchemaAST): SchemaValidationError
             message: `${getLiteralDecoratorError(dec.type)}. Field '${field.name}' in model ${model.name} is a literal type.`,
             model: model.name,
             field: field.name,
-            line: originLine(field.origin),
+            ...located(field.origin),
           });
         }
       }
@@ -843,7 +845,7 @@ export function validateLiteralDecorators(ast: SchemaAST): SchemaValidationError
         if (DISALLOWED_LITERAL_DECORATORS.has(dec.type)) {
           errors.push({
             message: `${getLiteralDecoratorError(dec.type)}. Field '${field.name}' in object ${object.name} is a literal type.`,
-            line: originLine(field.origin),
+            ...located(field.origin),
           });
         }
       }
@@ -869,7 +871,7 @@ function validateUuidDecorators(
     if (field.type !== 'uuid') {
       errors.push({
         message: `@${dec.type} can only be used on Uuid fields, but '${field.name}' in ${parentName} is of type '${field.type}'.`,
-        line: originLine(field.origin),
+        ...located(field.origin),
       });
     }
   }
@@ -879,7 +881,7 @@ function validateUuidDecorators(
     const names = uuidDecs.map((d) => `@${d.type}`).join(', ');
     errors.push({
       message: `Field '${field.name}' in ${parentName} has multiple UUID decorators (${names}). Only one of @uuid, @uuid4, @uuid7 is allowed per field.`,
-      line: originLine(field.origin),
+      ...located(field.origin),
     });
   }
 
@@ -888,19 +890,19 @@ function validateUuidDecorators(
     if (field.decorators.some((d) => d.type === 'default')) {
       errors.push({
         message: `@${dec.type} and @default cannot be used together on field '${field.name}' in ${parentName}.`,
-        line: originLine(field.origin),
+        ...located(field.origin),
       });
     }
     if (field.decorators.some((d) => d.type === 'defaultAlways')) {
       errors.push({
         message: `@${dec.type} and @defaultAlways cannot be used together on field '${field.name}' in ${parentName}.`,
-        line: originLine(field.origin),
+        ...located(field.origin),
       });
     }
     if (field.decorators.some((d) => TIMESTAMP_DECORATORS.has(d.type))) {
       errors.push({
         message: `@${dec.type} cannot be combined with timestamp decorators on field '${field.name}' in ${parentName}.`,
-        line: originLine(field.origin),
+        ...located(field.origin),
       });
     }
   }
@@ -962,7 +964,7 @@ export function validateSetDecorator(ast: SchemaAST): SchemaValidationError[] {
     if (!field.isArray) {
       errors.push({
         message: `@set can only be used on array fields, but '${field.name}' in ${parentName} is not an array.`,
-        line: originLine(field.origin),
+        ...located(field.origin),
       });
 
       return;
@@ -971,28 +973,28 @@ export function validateSetDecorator(ast: SchemaAST): SchemaValidationError[] {
     if (field.type === 'decimal') {
       errors.push({
         message: `@set is not allowed on Decimal[] fields (SurrealDB set<decimal> has known issues). Field '${field.name}' in ${parentName}.`,
-        line: originLine(field.origin),
+        ...located(field.origin),
       });
     }
 
     if (!SET_ALLOWED_TYPES.has(field.type)) {
       errors.push({
         message: `@set is only allowed on primitive array fields. Field '${field.name}' in ${parentName} is of type '${field.type}[]'.`,
-        line: originLine(field.origin),
+        ...located(field.origin),
       });
     }
 
     if (field.decorators.some((d) => d.type === 'distinct')) {
       errors.push({
         message: `@set and @distinct cannot be used together on field '${field.name}' in ${parentName}. Sets are inherently distinct.`,
-        line: originLine(field.origin),
+        ...located(field.origin),
       });
     }
 
     if (field.decorators.some((d) => d.type === 'sort')) {
       errors.push({
         message: `@set and @sort cannot be used together on field '${field.name}' in ${parentName}. Sets are inherently sorted.`,
-        line: originLine(field.origin),
+        ...located(field.origin),
       });
     }
   };

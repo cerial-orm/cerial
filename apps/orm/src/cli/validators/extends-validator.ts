@@ -25,7 +25,7 @@ import {
 } from '../../parser/types/ast';
 import { getVariantIdentity } from '../../resolver';
 import type { ASTModel, ASTObject, ASTTuple, Origin, SchemaAST } from '../../types';
-import { originLine } from './origin-location';
+import { located } from './origin-location';
 import type { SchemaValidationError } from './schema-validator';
 
 // ── Type kind helpers ────────────────────────────────────────────────────
@@ -83,7 +83,7 @@ export function validateEmptyExtendsFilter(ast: SchemaAST): SchemaValidationErro
       if (!item.extendsFilter.fields.length) {
         errors.push({
           message: `${kind} "${item.name}" has empty extends filter brackets. Use "extends ${item.extends}" to inherit all, or specify fields to pick/omit inside the brackets.`,
-          line: originLine(item.origin),
+          ...located(item.origin),
         });
       }
     }
@@ -118,7 +118,7 @@ export function validateExtendsTargetExists(ast: SchemaAST): SchemaValidationErr
       if (!registry.has(target)) {
         errors.push({
           message: `${kind} "${item.name}" extends "${target}", but no ${kind} with that name exists.`,
-          line: originLine(item.origin),
+          ...located(item.origin),
         });
       }
     }
@@ -153,7 +153,7 @@ export function validateNoCrossKindExtends(ast: SchemaAST): SchemaValidationErro
       if (crossKind) {
         errors.push({
           message: `${kind} "${item.name}" extends "${target}", but "${target}" is a ${crossKind}, not a ${kind}. A ${kind} can only extend another ${kind}.`,
-          line: originLine(item.origin),
+          ...located(item.origin),
         });
       }
     }
@@ -180,11 +180,11 @@ export function validateNoCircularExtends(ast: SchemaAST): SchemaValidationError
   const detectCycles = (items: Array<{ name: string; extends?: string; origin: Origin }>, kind: TypeKind): void => {
     // Build adjacency map: name → extends target
     const extendsMap = new Map<string, string>();
-    const lineMap = new Map<string, number>();
+    const originMap = new Map<string, Origin>();
     for (const item of items) {
       if (item.extends) {
         extendsMap.set(item.name, item.extends);
-        lineMap.set(item.name, originLine(item.origin));
+        originMap.set(item.name, item.origin);
       }
     }
 
@@ -210,9 +210,10 @@ export function validateNoCircularExtends(ast: SchemaAST): SchemaValidationError
           const cycleKey = [...cycle].sort().join(',');
           if (!reported.has(cycleKey)) {
             reported.add(cycleKey);
+            const origin = originMap.get(current);
             errors.push({
               message: `Circular extends in ${kind}s: ${cycle.join(' → ')}`,
-              line: lineMap.get(current) ?? 1,
+              ...(origin ? located(origin) : {}),
             });
           }
           break;
@@ -260,13 +261,13 @@ export function validateAbstractRules(ast: SchemaAST): SchemaValidationError[] {
           errors.push({
             message: `Abstract model "${m.name}" cannot extend concrete model "${target}". An abstract model can only extend another abstract model.`,
             model: m.name,
-            line: originLine(m.origin),
+            ...located(m.origin),
           });
         } else {
           errors.push({
             message: `Model "${m.name}" extends concrete model "${target}". Models can only extend abstract models.`,
             model: m.name,
-            line: originLine(m.origin),
+            ...located(m.origin),
           });
         }
       }
@@ -278,7 +279,7 @@ export function validateAbstractRules(ast: SchemaAST): SchemaValidationError[] {
         errors.push({
           message: `Abstract model "${m.name}" cannot have @@${directive.kind} directive "${directive.name}". Composite directives are only allowed on concrete models.`,
           model: m.name,
-          line: originLine(directive.origin),
+          ...located(directive.origin),
         });
       }
     }
@@ -349,7 +350,7 @@ export function validatePrivateOverride(ast: SchemaAST): SchemaValidationError[]
           message: `Field "${childField.name}" in model "${m.name}" overrides a private field from parent "${owner}". Private fields cannot be overridden.`,
           model: m.name,
           field: childField.name,
-          line: originLine(childField.origin),
+          ...located(childField.origin),
         });
       }
     }
@@ -374,7 +375,7 @@ export function validatePrivateOverride(ast: SchemaAST): SchemaValidationError[]
         errors.push({
           message: `Field "${childField.name}" in object "${o.name}" overrides a private field from parent "${owner}". Private fields cannot be overridden.`,
           field: childField.name,
-          line: originLine(childField.origin),
+          ...located(childField.origin),
         });
       }
     }
@@ -401,7 +402,7 @@ export function validatePrivateOverride(ast: SchemaAST): SchemaValidationError[]
       if (owner) {
         errors.push({
           message: `Element "${key}" in tuple "${t.name}" overrides a private element from parent "${owner}". Private elements cannot be overridden.`,
-          line: originLine(t.origin),
+          ...located(t.origin),
         });
       }
     }
@@ -495,7 +496,7 @@ export function validatePickOmitFields(ast: SchemaAST): SchemaValidationError[] 
             if (idx < 0 || idx >= parentInfo.elementCount) {
               errors.push({
                 message: `${kind} "${item.name}" ${filter.mode} references index "${fieldRef}" which is out of bounds in parent "${target}" (${parentInfo.elementCount} elements).`,
-                line: originLine(item.origin),
+                ...located(item.origin),
               });
               continue;
             }
@@ -505,7 +506,7 @@ export function validatePickOmitFields(ast: SchemaAST): SchemaValidationError[] 
         if (!parentInfo.names.has(fieldRef)) {
           errors.push({
             message: `${kind} "${item.name}" ${filter.mode} references "${fieldRef}" which does not exist in parent "${target}".`,
-            line: originLine(item.origin),
+            ...located(item.origin),
           });
         }
       }
@@ -536,7 +537,7 @@ export function validateEmptyTypes(ast: SchemaAST): SchemaValidationError[] {
       errors.push({
         message: `Model "${m.name}" has no fields. A model must have at least one field, or extend a parent type.`,
         model: m.name,
-        line: originLine(m.origin),
+        ...located(m.origin),
       });
     }
   }
@@ -545,7 +546,7 @@ export function validateEmptyTypes(ast: SchemaAST): SchemaValidationError[] {
     if (!o.fields.length && !getExtendsTarget(o)) {
       errors.push({
         message: `Object "${o.name}" has no fields. An object must have at least one field, or extend a parent type.`,
-        line: originLine(o.origin),
+        ...located(o.origin),
       });
     }
   }
@@ -554,7 +555,7 @@ export function validateEmptyTypes(ast: SchemaAST): SchemaValidationError[] {
     if (!t.elements.length && !getExtendsTarget(t)) {
       errors.push({
         message: `Tuple "${t.name}" has no elements. A tuple must have at least one element, or extend a parent type.`,
-        line: originLine(t.origin),
+        ...located(t.origin),
       });
     }
   }
@@ -563,7 +564,7 @@ export function validateEmptyTypes(ast: SchemaAST): SchemaValidationError[] {
     if (!e.values.length && !getExtendsTarget(e)) {
       errors.push({
         message: `Enum "${e.name}" has no values. An enum must have at least one value, or extend a parent type.`,
-        line: originLine(e.origin),
+        ...located(e.origin),
       });
     }
   }
@@ -572,7 +573,7 @@ export function validateEmptyTypes(ast: SchemaAST): SchemaValidationError[] {
     if (!l.variants.length && !getExtendsTarget(l)) {
       errors.push({
         message: `Literal "${l.name}" has no variants. A literal must have at least one variant, or extend a parent type.`,
-        line: originLine(l.origin),
+        ...located(l.origin),
       });
     }
   }
@@ -599,7 +600,7 @@ export function validateResolvedTypes(ast: SchemaAST): SchemaValidationError[] {
       errors.push({
         message: `Model "${m.name}" has no fields after inheritance resolution. Check that the extends clause and pick/omit filters leave at least one field.`,
         model: m.name,
-        line: originLine(m.origin),
+        ...located(m.origin),
       });
     }
 
@@ -610,7 +611,7 @@ export function validateResolvedTypes(ast: SchemaAST): SchemaValidationError[] {
         errors.push({
           message: `Model "${m.name}" does not have an @id field after inheritance resolution. A concrete model must have an @id field, either defined directly or inherited from a parent.`,
           model: m.name,
-          line: originLine(m.origin),
+          ...located(m.origin),
         });
       }
     }
@@ -621,7 +622,7 @@ export function validateResolvedTypes(ast: SchemaAST): SchemaValidationError[] {
     if (!o.fields.length) {
       errors.push({
         message: `Object "${o.name}" has no fields after inheritance resolution. Check that the extends clause and pick/omit filters leave at least one field.`,
-        line: originLine(o.origin),
+        ...located(o.origin),
       });
     }
   }
@@ -631,7 +632,7 @@ export function validateResolvedTypes(ast: SchemaAST): SchemaValidationError[] {
     if (!t.elements.length) {
       errors.push({
         message: `Tuple "${t.name}" has no elements after inheritance resolution. Check that the extends clause and pick/omit filters leave at least one element.`,
-        line: originLine(t.origin),
+        ...located(t.origin),
       });
     }
   }
@@ -641,7 +642,7 @@ export function validateResolvedTypes(ast: SchemaAST): SchemaValidationError[] {
     if (!e.values.length) {
       errors.push({
         message: `Enum "${e.name}" has no values after inheritance resolution. Check that the extends clause and pick/omit filters leave at least one value.`,
-        line: originLine(e.origin),
+        ...located(e.origin),
       });
     }
   }
@@ -651,7 +652,7 @@ export function validateResolvedTypes(ast: SchemaAST): SchemaValidationError[] {
     if (!l.variants.length) {
       errors.push({
         message: `Literal "${l.name}" has no variants after inheritance resolution. Check that the extends clause and pick/omit filters leave at least one variant.`,
-        line: originLine(l.origin),
+        ...located(l.origin),
       });
     }
   }
@@ -684,7 +685,7 @@ export function validateModelIdField(ast: SchemaAST): SchemaValidationError[] {
       errors.push({
         message: `Model "${m.name}" does not have an @id field. Every concrete model must have exactly one field with @id.`,
         model: m.name,
-        line: originLine(m.origin),
+        ...located(m.origin),
       });
     }
   }
