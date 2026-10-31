@@ -253,7 +253,7 @@ export function getRecordIdFromWhere(
   where: WhereClause,
   model: ModelMetadata,
   methodName = 'deleteUnique',
-): { hasId: boolean; id?: string; idFieldName?: string; expandedWhere: WhereClause } {
+): { hasId: boolean; idAlone: boolean; id?: string; idFieldName?: string; expandedWhere: WhereClause } {
   // Validate unique field requirement
   validateUniqueField(where, model, methodName);
 
@@ -263,8 +263,13 @@ export function getRecordIdFromWhere(
 
   const idField = model.fields.find((f) => f.isId);
   if (idField && expandedWhere[idField.name] !== undefined && expandedWhere[idField.name] !== null) {
+    // The id shortcut deletes by record id and ignores every other key, so it is only safe when the id is
+    // the sole key: any other condition (a field, a $raw fragment) must still filter through the lookup path
+    const idAlone = Object.keys(expandedWhere).every((k) => k === idField.name || expandedWhere[k] === undefined);
+
     return {
       hasId: true,
+      idAlone,
       id: expandedWhere[idField.name] as string,
       idFieldName: idField.name,
       expandedWhere,
@@ -279,6 +284,7 @@ export function getRecordIdFromWhere(
 
   return {
     hasId: false,
+    idAlone: false,
     idFieldName: providedUniqueField?.name,
     expandedWhere,
   };
@@ -335,7 +341,7 @@ export function buildDeleteUniqueWithCascade(
   returnBefore: boolean,
   transactionMode?: boolean,
 ): CompiledQuery {
-  const { hasId, id, idFieldName: _idFieldName, expandedWhere } = getRecordIdFromWhere(where, model);
+  const { idAlone, id, expandedWhere } = getRecordIdFromWhere(where, model);
 
   // Find dependent relations
   const dependents = findDependentRelations(model.name, registry);
@@ -344,7 +350,7 @@ export function buildDeleteUniqueWithCascade(
 
   // Simple case: no cascade dependencies needed
   if (cascadeDeps.length === 0) {
-    if (hasId) return buildDeleteUniqueQuery(model, id!, returnBefore);
+    if (idAlone) return buildDeleteUniqueQuery(model, id!, returnBefore);
 
     // Non-ID lookup without cascade - use simple WHERE-based delete
     return returnBefore
@@ -357,7 +363,7 @@ export function buildDeleteUniqueWithCascade(
   const vars: Record<string, unknown> = {};
 
   // If ID is provided, use it directly; otherwise look up by unique field
-  if (hasId) {
+  if (idAlone) {
     const recordId = transformOrValidateRecordId(model.tableName, id!);
     vars.deleteId = recordId;
     statements.push('LET $deleteId = $deleteId');
@@ -372,7 +378,12 @@ export function buildDeleteUniqueWithCascade(
   }
 
   // Store ID for cascade operations
-  statements.push('LET $to_delete = [$deleteId]');
+  // A lookup that found nothing leaves $deleteId NONE. The early RETURN above does not stop a script run inside
+  // an SDK transaction, so the cascade and the final DELETE must also be harmless on NONE: an empty target
+  // matches no row, where `IN [NONE]` would match every row whose foreign key is unset
+  statements.push(
+    idAlone ? 'LET $to_delete = [$deleteId]' : 'LET $to_delete = IF $deleteId IS NONE { [] } ELSE { [$deleteId] }',
+  );
 
   // Handle Restrict checks
   for (const dep of restrictDeps) {
@@ -442,7 +453,11 @@ export function buildDeleteUniqueWithCascade(
 
   // Delete the record (using DELETE $recordId for variable reference)
   const returnClause = returnBefore ? 'RETURN BEFORE' : 'RETURN NONE';
-  statements.push(`DELETE $deleteId ${returnClause}`);
+  statements.push(
+    idAlone
+      ? `DELETE $deleteId ${returnClause}`
+      : `DELETE (IF $deleteId IS NONE { [] } ELSE { $deleteId }) ${returnClause}`,
+  );
 
   // Commit transaction
   if (!transactionMode) statements.push('COMMIT TRANSACTION');

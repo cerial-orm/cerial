@@ -471,7 +471,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
     if (!validation.valid) throw validationFailure('where clause', validation.errors, this.model, 'deleteUnique');
 
     // Get record ID info (also validates unique field requirement) and expand composite keys
-    const { hasId, id, expandedWhere } = getRecordIdFromWhere(where, this.model, 'deleteUnique');
+    const { idAlone, id, expandedWhere } = getRecordIdFromWhere(where, this.model, 'deleteUnique');
 
     // Determine if we need RETURN BEFORE (for 'true' and 'before' options)
     const needsReturnBefore = returnOption === true || returnOption === 'before';
@@ -484,7 +484,7 @@ export class QueryBuilder<T extends Record<string, unknown>> {
       // Pass original where — buildDeleteUniqueWithCascade does its own expansion internally
       const query = buildDeleteUniqueWithCascade(this.model, where, this.registry, needsReturnBefore);
       result = (await executeQuery(this.db, query)) as unknown[];
-    } else if (hasId) {
+    } else if (idAlone) {
       // Simple ID-based delete without cascade
       const query = buildDeleteUniqueQuery(this.model, id!, needsReturnBefore);
       result = (await executeQuery(this.db, query)) as unknown[];
@@ -1028,14 +1028,14 @@ export function compileDeleteUnique(
   const validation = validateWhere(where, model, registry);
   if (!validation.valid) throw validationFailure('where clause', validation.errors, model, 'deleteUnique');
 
-  const { hasId, id, expandedWhere } = getRecordIdFromWhere(where, model, 'deleteUnique');
+  const { hasId, idAlone, id, expandedWhere } = getRecordIdFromWhere(where, model, 'deleteUnique');
   const needsReturnBefore = returnOption === true || returnOption === 'before';
 
   let query: CompiledQuery;
   if (registry) {
     // Pass original where — buildDeleteUniqueWithCascade does its own expansion internally
     query = buildDeleteUniqueWithCascade(model, where, registry, needsReturnBefore);
-  } else if (hasId) {
+  } else if (idAlone) {
     query = buildDeleteUniqueQuery(model, id!, needsReturnBefore);
   } else {
     query = needsReturnBefore

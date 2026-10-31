@@ -82,8 +82,15 @@ describe('delete-unique-builder', () => {
       const result = getRecordIdFromWhere(where, userModel);
 
       expect(result.hasId).toBe(true);
+      expect(result.idAlone).toBe(true);
       expect(result.id).toBe('abc123');
       expect(result.idFieldName).toBe('id');
+    });
+
+    test('an id beside another key is not the id alone', () => {
+      expect(getRecordIdFromWhere({ id: 'abc123', name: 'x' }, userModel).idAlone).toBe(false);
+      expect(getRecordIdFromWhere({ id: 'abc123', email: 'x@y.z' }, userModel).idAlone).toBe(false);
+      expect(getRecordIdFromWhere({ id: 'abc123', name: undefined }, userModel).idAlone).toBe(true);
     });
 
     test('identifies non-ID unique field', () => {
@@ -185,6 +192,14 @@ describe('delete-unique-builder', () => {
         expect(query.text).toContain('DELETE $deleteId RETURN BEFORE');
       });
 
+      test('an id beside another key looks the row up with both, never deleting by id alone', () => {
+        const query = buildDeleteUniqueWithCascade(userModel, { id: 'abc123', email: 'x@y.z' }, registry, false);
+
+        expect(query.text).toContain('LET $record = (SELECT id FROM ONLY user WHERE');
+        expect(query.text).toContain('email =');
+        expect(query.text).not.toContain('DELETE $deleteId');
+      });
+
       test('generates transaction with email lookup', () => {
         const where = { email: 'test@example.com' };
         const query = buildDeleteUniqueWithCascade(userModel, where, registry, false);
@@ -194,7 +209,9 @@ describe('delete-unique-builder', () => {
         // Note: JS code pre-checks existence, so no IF check in query
         expect(query.text).toContain('LET $deleteId = $record.id');
         expect(query.text).toContain('DELETE FROM profile WHERE userId IN $to_delete');
-        expect(query.text).toContain('DELETE $deleteId');
+        // A lookup that found nothing must leave the cascade and the delete with an empty target
+        expect(query.text).toContain('LET $to_delete = IF $deleteId IS NONE { [] } ELSE { [$deleteId] }');
+        expect(query.text).toContain('DELETE (IF $deleteId IS NONE { [] } ELSE { $deleteId })');
         expect(query.text).toContain('COMMIT TRANSACTION');
       });
     });

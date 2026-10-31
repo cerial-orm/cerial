@@ -117,7 +117,7 @@
   "src/query/builders/delete-builder.ts::buildDeleteUniqueWithCascade::template::lookupQuery.text": 1,
   "src/query/builders/delete-builder.ts::buildDeleteUniqueWithCascade::template::model.name": 1,
   "src/query/builders/delete-builder.ts::buildDeleteUniqueWithCascade::template::recordFieldName": 12,
-  "src/query/builders/delete-builder.ts::buildDeleteUniqueWithCascade::template::returnClause": 1,
+  "src/query/builders/delete-builder.ts::buildDeleteUniqueWithCascade::template::returnClause": 2,
   "src/query/builders/delete-builder.ts::buildDeleteUniqueWithCascade::template::statements.join(';\\n')": 1,
   "src/query/builders/delete-builder.ts::buildDeleteWithCascade::template::checkVarName": 3,
   "src/query/builders/delete-builder.ts::buildDeleteWithCascade::template::dep.model.name": 1,
